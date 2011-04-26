@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: externalattrib.cc,v 1.8 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: externalattrib.cc,v 1.9 2011-04-26 13:25:48 cvsbert Exp $";
 
 #include "externalattrib.h"
 
@@ -20,47 +20,26 @@ static const char* rcsID = "$Id: externalattrib.cc,v 1.8 2009-07-22 16:01:30 cvs
 namespace Attrib
 {
 
-mImplFactory1Param(  ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mImplFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, DataPack::ID )
+DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, DataPack::ID,
+					  TaskRunner* )
 { return DataPack::cNoID(); }
 
 
-bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>& )
+bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>&, TaskRunner* )
 { return false; }
 
 
-bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf )
+bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
+				  TaskRunner* )
 { return false; }
 
 
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, const LineKey& )
+DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, const LineKey&,
+					  TaskRunner* )
 { return DataPack::cNoID(); }
-
-
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling& cs,
-	DataPack::ID dp, TaskRunner*	)
-{ return createAttrib( cs, dp ); }
-
-
-bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>& o,
-       TaskRunner*	)
-{ return createAttrib( o ); }
-
-
-bool ExtAttribCalc::createAttrib( const BinIDValueSet& bv, SeisTrcBuf& buf,
-       TaskRunner*	)
-{ return createAttrib( bv, buf ); }
-
-
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling& cs,
-	const LineKey& lk, TaskRunner* )
-{ return createAttrib( cs, lk ); }
-
-
-bool ExtAttribCalc::isIndexes() const
-{ return false; }
 
 
 } // namespace Attrib

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.17 2011-01-06 15:25:01 cvsbert Exp $
+ RCS:           $Id: positionattrib.h,v 1.18 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		operTypeStr(int);
     void			initSteering();
+    void			initSteering( const BinID& bid )
+				{ return Provider::initSteering(bid); }
 
     void			prepPriorToBoundsCalc();
     virtual bool		isSingleTrace() const

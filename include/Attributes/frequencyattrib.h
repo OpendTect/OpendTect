@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.18 2010-10-12 10:30:19 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.19 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,20 +123,23 @@ protected:
     mClass FreqFunc : public FloatMathFunction
     {
     public:
-				FreqFunc(const ValueSeries<float>& func, int sz)
-				    : func_( func )
-				    , sz_(sz)
-				    {}
+			FreqFunc(const ValueSeries<float>& func, int sz)
+			    : func_( func )
+			    , sz_(sz)			{}
 
-    float                   getValue( float x ) const
-			    {
+    virtual float	getValue( float x ) const
+			{
 				ValueSeriesInterpolator<float> interp(sz_);
 				return interp.value(func_,x);
-			    }
+			}
+    virtual float	getValue( const float* p ) const
+			{ return getValue(*p); }
 
     protected:
+
 	const ValueSeries<float>& func_;
 	int sz_;
+
     };
 };
 

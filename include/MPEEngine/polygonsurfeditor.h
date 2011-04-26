@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.6 2010-05-31 15:01:22 cvsjaap Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.7 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
 protected:
 
     bool			setPosition(const EM::PosID&,const Coord3&);
+    bool			setPosition( const Coord3& c )
+				{ return ObjectEditor::setPosition(c); }
     Geometry::ElementEditor* 	createEditor(const EM::SectionID&);
     float			getNearestPolygon(int& polygon,
 	    					  EM::SectionID& sid,

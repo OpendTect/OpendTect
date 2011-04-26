@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.108 2011-03-01 10:21:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.109 2011-04-26 13:25:48 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -67,6 +67,32 @@ Output::Output()
 Output::~Output()
 {
     delete seldata_;
+}
+
+
+bool Output::wantsOutput( const BinID& bid ) const
+{
+    return wantsOutput( SI().transform( bid ) );
+}
+
+
+bool Output::wantsOutput( const Coord& c ) const
+{
+    return wantsOutput( SI().transform( c ) );
+}
+
+
+TypeSet<Interval<int> > Output::getLocalZRanges( const BinID& bid, float f,
+						 TypeSet<float>& ts ) const
+{
+    return getLocalZRanges( SI().transform(bid), f, ts );
+}
+
+
+TypeSet<Interval<int> > Output::getLocalZRanges( const Coord& c, float f,
+						 TypeSet<float>& ts ) const
+{
+    return getLocalZRanges( SI().transform(c), f, ts );
 }
 
 

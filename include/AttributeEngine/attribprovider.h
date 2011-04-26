@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.86 2011-01-28 12:56:42 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.87 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,17 +189,8 @@ protected:
 				  prep* functions)*/
     virtual bool		computeData(const DataHolder& output,
 					    const BinID& relpos,
-					    int t0,int nrsamples) const
-				{ return false; }
-    				/*!<\note Same function as below, but lacks the
-				    threadidx variable. Implement the
-				    latter one for all new classes. This
-				    function may be removed in coming
-				    releases. */
-    virtual bool		computeData(const DataHolder& output,
-					    const BinID& relpos,
 					    int t0,int nrsamples,
-					    int threadidx) const;
+					    int threadidx) const	= 0;
     				/*!<The system will use the algorithm specified
 				in this function to compute the attribute's 
 				outputs. The results will be stored as 

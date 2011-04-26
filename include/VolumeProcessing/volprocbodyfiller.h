@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2007
- RCS:		$Id: volprocbodyfiller.h,v 1.4 2010-05-11 13:55:05 cvsyuancheng Exp $
+ RCS:		$Id: volprocbodyfiller.h,v 1.5 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,11 @@ public:
     bool			needsFullVolume() const		{ return false;}
 	
     void			setOutput(Attrib::DataCubes*);
+    void			setOutput( Attrib::DataCubes* ad,
+					    const StepInterval<int>&,
+					    const StepInterval<int>&,
+					    const StepInterval<int>& )
+				{ return setOutput(ad); }
 
     float			getInsideValue()  { return insideval_; }
     float			getOutsideValue() { return outsideval_; } 

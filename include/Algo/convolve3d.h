@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.12 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: convolve3d.h,v 1.13 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,8 @@ public:
     void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
     			//!<Default is false
 
-    inline bool		execute();
+    virtual bool	execute()	{ return execute( true ); }
+    virtual bool	execute(bool);
 
 protected:
     inline bool		shouldFFT() const;
@@ -230,12 +231,12 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 
 
 template <class T> inline
-bool Convolver3D<T>::execute()
+bool Convolver3D<T>::execute( bool yn )
 {
     if ( shouldFFT() )
 	return doFFT();
 
-    return ParallelTask::execute();
+    return ParallelTask::execute( yn );
 }
 
 

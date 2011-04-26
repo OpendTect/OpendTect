@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.10 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,14 +44,17 @@ public:
 
     enum FaultSeedConnectMode { DrawBetweenSeeds };
     static int		nrSeedConnectModes()	{ return 1; }
-    static int		defaultSeedConMode()	{ return DrawBetweenSeeds; }
+    virtual int		defaultSeedConMode(bool) const
+    						{ return DrawBetweenSeeds; }
     static const char*	seedConModeText(int mode,bool abbrev=false);
 
     void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
     bool		isSeedPickBlocked() const	{ return blockpicking_;}
 
    const char*		errMsg() const; 
+
 protected:
+
     bool		sectionIsEmpty() const;
     RowCol		getNewSeedRc(const Coord3&) const;
 

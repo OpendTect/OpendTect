@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.17 2011-01-06 15:25:01 cvsbert Exp $
+ RCS:           $Id: shiftattrib.h,v 1.18 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     static const char*		timeStr()	{ return "time"; }
     static const char*		steeringStr()	{ return "steering"; }
     void			initSteering();
+    void			initSteering( const BinID& bid )
+				{ return Provider::initSteering(bid); }
 
     void			prepPriorToBoundsCalc();
 

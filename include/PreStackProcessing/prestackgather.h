@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.21 2009-09-30 21:07:55 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.22 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,8 @@ public:
 					 BufferString* errmsg=0);
 
     const Coord&		getCoord() const	{ return coord_; }
+    virtual Coord3		getCoord(int,int) const
+    				{ return Coord3(coord_.x,coord_.y,0); }
 
     void                        detectOuterMutes(int* depths,
 						 int taperlen=0) const;

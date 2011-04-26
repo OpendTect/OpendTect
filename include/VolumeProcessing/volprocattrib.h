@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: volprocattrib.h,v 1.6 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: volprocattrib.h,v 1.7 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -60,24 +60,36 @@ protected:
 mClass ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {
 public:
-    static void			initClass();
-    				ExternalAttribCalculator();
-    				~ExternalAttribCalculator();
+    static void		initClass();
+    			ExternalAttribCalculator();
+    			~ExternalAttribCalculator();
 
-    static const char*		sAttribName()	{ return "Volume_Processing"; }
-    static const char*		sKeySetup()	{ return "volprocsetup"; }
+    static const char*	sAttribName()	{ return "Volume_Processing"; }
+    static const char*	sKeySetup()	{ return "volprocsetup"; }
 
-    static BufferString		createDefinition(const MultiID& setup);
+    static BufferString	createDefinition(const MultiID& setup);
 
-    bool			setTargetSelSpec(const Attrib::SelSpec&);
-    DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID,
-	    				     TaskRunner*);
+    bool		setTargetSelSpec(const Attrib::SelSpec&);
+
+    virtual DataPack::ID createAttrib(const CubeSampling&,DataPack::ID,
+	    			     TaskRunner*);
+    virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
+	    			      TaskRunner* tr )
+			{ return Attrib::ExtAttribCalc::createAttrib(o,tr); }
+    virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
+	    			      TaskRunner* tr )
+			{ return Attrib::ExtAttribCalc::createAttrib(b,tb,tr); }
+    virtual DataPack::ID createAttrib( const CubeSampling& cs, const LineKey& l,
+					TaskRunner* tr )
+			{ return Attrib::ExtAttribCalc::createAttrib(cs,l,tr); }
 
 protected:
+
     static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
 
     Chain*			chain_;
     MultiID			rendermid_;
+
 };
 
 }; //namespace

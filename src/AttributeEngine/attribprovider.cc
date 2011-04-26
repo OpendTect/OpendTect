@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.130 2011-02-07 09:04:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.131 2011-04-26 13:25:48 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1090,13 +1090,6 @@ void Provider::enableAllOutputs( bool yn )
 {
     for ( int idx=0; idx<nrOutputs(); idx++ )
 	enableOutput( idx, yn );
-}
-
-
-bool Provider::computeData( const DataHolder& output, const BinID& relpos,
-			    int t0,int nrsamples, int threadid ) const
-{
-    return computeData( output, relpos, t0, nrsamples );
 }
 
 

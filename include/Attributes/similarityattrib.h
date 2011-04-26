@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.30 2010-10-12 10:30:19 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.31 2011-04-26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ public:
     static const char*		ddipStr()	{ return "ddip"; }
     static const char*		extensionTypeStr(int);
     void			initSteering();
+    void			initSteering( const BinID& bid )
+				{ return Provider::initSteering(bid); }
 
     void			prepPriorToBoundsCalc();
 
@@ -131,7 +133,7 @@ protected:
 					, sz_(sz)
 					{}
 	
-	float           	getValue( float x ) const
+	virtual float          	getValue( float x ) const
 				{ 
 				    ValueSeriesInterpolator<float> interp(sz_);
     //We can afford using extrapolation with polyReg1DWithUdf because even if
@@ -142,6 +144,8 @@ protected:
 					interp.extrapol_ = true;
 				    return interp.value(func_,x);
 				}
+	virtual float          	getValue( const float* p ) const
+	    			{ return getValue(*p); }
 
     protected:
 	const ValueSeries<float>& func_;
