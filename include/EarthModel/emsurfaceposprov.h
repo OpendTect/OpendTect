@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.12 2010-11-09 20:45:11 cvskris Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.13 2011-04-26 10:18:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -135,6 +135,8 @@ public:
 
     virtual BinID	curBinID() const;
     virtual bool	includes(const BinID&,float) const;
+    virtual bool	includes( const Coord& c, float z ) const
+			{ return Provider3D::includes(c,z); }
     virtual void	getExtent(BinID&,BinID&) const;
     virtual Coord	curCoord() const { return Provider3D::curCoord(); }
 
@@ -198,6 +200,8 @@ public:
 
     virtual BinID       	curBinID() const;
     virtual bool		includes(const BinID&,float) const;
+    virtual bool		includes( const Coord& c, float z ) const
+				{ return Provider3D::includes(c,z); }
     virtual void		getExtent(BinID&,BinID&) const;
     virtual Coord		curCoord() const 
     				{ return Provider3D::curCoord(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.26 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.27 2011-04-26 10:18:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,9 +35,6 @@ namespace EM
 {
 class Surface;
 class SurfaceIODataSelection;
-
-/*!\brief 
-*/
 
 
 mClass SurfaceGeometry : public CallBacker
@@ -127,6 +124,8 @@ public:
 
 
     const Geometry::RowColSurface* sectionGeometry(const SectionID&) const;
+    Geometry::Element*		sectionGeometry( const SectionID& si )
+				{ return SurfaceGeometry::sectionGeometry(si); }
 
     StepInterval<int>		rowRange(const SectionID&) const;
     StepInterval<int>		rowRange() const;
@@ -136,8 +135,6 @@ public:
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
 	    				       const CubeSampling* =0) const;
-
-protected:
 
 };
 
