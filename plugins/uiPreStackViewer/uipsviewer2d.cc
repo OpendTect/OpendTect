@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.4 2011-02-10 06:29:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.5 2011-04-26 09:17:25 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -41,7 +41,6 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
     viewer_->appearance().ddpars_.vd_.show_ = true;
     viewer_->appearance().ddpars_.vd_.lininterp_ = true;
     viewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    setInitialSize( uiSize( 50, 150 ) );
 
     gatherpainter_ = new Viewer2DGatherPainter( *viewer_ );
 }
