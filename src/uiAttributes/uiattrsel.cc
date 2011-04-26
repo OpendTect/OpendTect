@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.72 2011-04-26 04:40:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.73 2011-04-26 10:51:31 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -78,7 +78,7 @@ bool uiAttrSelData::is2D() const
 }
 
 #define mImplInitVar \
-	: uiDialog(p,Setup("",0,atd.nlamodel_?"":"101.1.1")) \
+	: uiDialog(p,uiDialog::Setup("",0,atd.nlamodel_?"":"101.1.1")) \
 	, attrdata_(atd) \
 	, selgrp_(0) \
 	, storoutfld_(0) \
@@ -91,28 +91,25 @@ bool uiAttrSelData::is2D() const
     	, zdomainfld_(0) \
 	, zdomoutfld_(0) \
 	, in_action_(false) \
-	, usedasinput_( isinp4otherattrib )
+	, showsteerdata_(stp.showsteeringdata_) \
+	, usedasinput_(stp.isinp4otherattrib_)
 
-uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
-			    const uiAttrSelData& atd, 
-			    DescID ignoreid,
-       			    bool isinp4otherattrib )
+uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd, 
+			    const Setup& stp )
 mImplInitVar
 {
-    initAndBuild( seltxt, ignoreid, isinp4otherattrib );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 
-uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
-			    const uiAttrSelData& atd,
+uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const TypeSet<DataPack::FullID>& dpfids,
-			    DescID ignoreid,
-       			    bool isinp4otherattrib )
+			    const Setup& stp )
 mImplInitVar
 {
     dpfids_ = dpfids;
 
-    initAndBuild( seltxt, ignoreid, isinp4otherattrib );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 
@@ -192,10 +189,14 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     if ( attroutfld_ && attrcur != -1 )	attroutfld_->setCurrentItem( attrcur );
     if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
 
-    if ( seltyp == 0 )		storfld_->setChecked(true);
-    else if ( seltyp == 1 )	steerfld_->setChecked( true );
-    else if ( seltyp == 2 )	attrfld_->setChecked(true);
-    else if ( nlafld_ )		nlafld_->setChecked(true);
+    if ( seltyp == 0 )
+	storfld_->setChecked(true);
+    else if ( steerfld_ && seltyp == 1 )
+	steerfld_->setChecked( true );
+    else if ( seltyp == 2 )
+	attrfld_->setChecked(true);
+    else if ( nlafld_ )
+	nlafld_->setChecked(true);
 
     finaliseStart.notify( mCB( this,uiAttrSelDlg,doFinalise) );
 }
@@ -227,9 +228,12 @@ void uiAttrSelDlg::createSelectionButtons()
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );
 
-    steerfld_ = new uiRadioButton( selgrp_, "Steering" );
-    steerfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    steerfld_->setSensitive( havesteered );
+    if ( showsteerdata_ )
+    {
+	steerfld_ = new uiRadioButton( selgrp_, "Steering" );
+	steerfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+	steerfld_->setSensitive( havesteered );
+    }
 
     attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
     attrfld_->setSensitive( haveattribs );
@@ -270,7 +274,7 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
-    attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec() );
+    attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec());
     attr2dfld_->attach( alignedBelow, storoutfld_ );
 
     filtfld_ = new uiGenInput( this, "Filter", "*" );
@@ -309,7 +313,7 @@ void uiAttrSelDlg::createSelectionFields()
 
 int uiAttrSelDlg::selType() const
 {
-    if ( steerfld_->isChecked() )
+    if ( steerfld_ && steerfld_->isChecked() )
 	return 1;
     if ( attrfld_->isChecked() )
 	return 2;
@@ -728,9 +732,9 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 
 void uiAttrSel::doSel( CallBacker* )
 {
-    uiAttrSelDlg dlg( this, lbl_ ? lbl_->text() : cDefLabel,
-		      attrdata_, dpfids_, ignoreid_, usedasinput_ );
-
+    uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel );
+    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_);
+    uiAttrSelDlg dlg( this, attrdata_, dpfids_, setup );
     if ( dlg.go() )
     {
 	attrdata_.attribid_ = dlg.attribID();

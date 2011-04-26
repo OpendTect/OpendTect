@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.33 2011-04-26 04:40:44 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.34 2011-04-26 10:51:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,17 +71,27 @@ mClass uiAttrSelDlg : public uiDialog
 {
 public:
 
-			uiAttrSelDlg(uiParent*,const char* seltxt,
-				     const uiAttrSelData&,
-				     Attrib::DescID ignoreid=
-				     		Attrib::DescID(-1,true),
-				     bool isinp4otherattrib = true);
-			uiAttrSelDlg(uiParent*,const char* seltxt,
-				     const uiAttrSelData&,
+    mClass Setup
+    {
+    public:
+		Setup( const char* txt )
+		    : seltxt_(txt)
+		    , ignoreid_(Attrib::DescID::undef())
+		    , isinp4otherattrib_(false)
+		    , showsteeringdata_(false)
+		{}
+
+		mDefSetupMemb(BufferString,seltxt)
+		mDefSetupMemb(Attrib::DescID,ignoreid)
+		mDefSetupMemb(bool,isinp4otherattrib)
+		mDefSetupMemb(bool,showsteeringdata)
+    };
+
+			uiAttrSelDlg(uiParent*,const uiAttrSelData&,
+				     const Setup&);
+			uiAttrSelDlg(uiParent*,const uiAttrSelData&,
 				     const TypeSet<DataPack::FullID>&,
-				     Attrib::DescID ignoreid=
-				     		Attrib::DescID(-1,true),
-				     bool isinp4otherattrib = true);
+				     const Setup&);
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
@@ -101,6 +111,7 @@ protected:
     Attrib::SelInfo*	attrinf_;
     bool		usedasinput_;	//input for another attribute
     bool		in_action_;
+    bool		showsteerdata_;
     BufferString	zdomainkey_;
 
     TypeSet<DataPack::FullID> dpfids_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.174 2011-04-26 07:09:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.175 2011-04-26 10:51:31 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -319,7 +319,9 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     attrdata.outputnr_ = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel_ = getNLAModel(is2d);
     attrdata.zdomaininfo_ = zdominfo;
-    uiAttrSelDlg dlg( parent(), "View Data", attrdata, DescID::undef(), false );
+    uiAttrSelDlg::Setup setup( "View Data" );
+    setup.showsteeringdata(true);
+    uiAttrSelDlg dlg( parent(), attrdata, setup );
     if ( !dlg.go() )
 	return false;
 
