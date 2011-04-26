@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.18 2010-10-28 11:09:08 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.19 2011-04-26 14:18:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,10 +102,12 @@ public:
     virtual bool	getBoolValue() const
 			    { return Conv::to<bool>( getvalue_() ); }
 
-    virtual void	setValue( int i )
-			    { setvalue_( Conv::to<T>(i) ); }
     virtual void	setText( const char* s )
 			    { setvalue_( Conv::to<T>(s) ); }
+    virtual void	setValue( const char* s )
+			    { UserInputObj::setValue( s ); }
+    virtual void	setValue( int i )
+			    { setvalue_( Conv::to<T>(i) ); }
     virtual void	setValue( double d )
 			    { setvalue_( Conv::to<T>(d) ); }
     virtual void	setValue( float f )

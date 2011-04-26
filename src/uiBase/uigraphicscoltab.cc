@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.7 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.8 2011-04-26 14:18:29 cvsbert Exp $";
 
 
 #include "uigraphicscoltab.h"
@@ -155,9 +155,9 @@ void uiColTabItem::setupChanged()
 }
 
 
-void uiColTabItem::setPos( const uiPoint& pt )
+void uiColTabItem::stPos( int x, int y )
 {
-    setPixmapPos( pt );
+    setPixmapPos( uiPoint(x,y) );
     curpos_ += curpos_;
     curpos_ -= boundingRect().topLeft();
     setPixmapPos();

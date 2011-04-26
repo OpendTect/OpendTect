@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2009
- RCS:		$Id: uigraphicscoltab.h,v 1.4 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: uigraphicscoltab.h,v 1.5 2011-04-26 14:18:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,6 @@ public:
 
     uiPoint		getPixmapPos() const	{ return curpos_; }
     void		setPixmapPos(const uiPoint&);
-    void		setPos(const uiPoint&);
 
     void		setupChanged();
 
@@ -69,6 +68,7 @@ protected:
     uiTextItem*		minvalitm_;
     uiTextItem*		maxvalitm_;
 
+    virtual void	stPos(int,int);
     void		setPixmap();
     void		setPixmapPos();
 

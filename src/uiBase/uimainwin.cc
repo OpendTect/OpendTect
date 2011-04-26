@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.218 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.219 2011-04-26 14:18:29 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -119,7 +119,8 @@ public:
 
 protected:
 
-    virtual void	finalise( bool trigger_finalise_start_stop=true );
+    virtual void	finalise()	{ finalise(true); }
+    virtual void	finalise(bool trigger_finalise_start_stop);
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);  
 
@@ -1277,6 +1278,7 @@ protected:
 
     void		done_(int);
 
+    virtual void	finalise()	{ finalise(true); }
     virtual void	finalise(bool);
     void		closeEvent(QCloseEvent*);
 

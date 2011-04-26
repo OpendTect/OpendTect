@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.32 2011-02-10 10:15:32 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.33 2011-04-26 14:18:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,8 +114,8 @@ public:
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
-    void 		setPenStyle(const LineStyle&);
-    void		setPenColor(const Color&);
+    void 		setPenStyle(const LineStyle&,bool withalpha=false);
+    void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end,
 	    			bool abspos=true);
     void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
@@ -238,10 +238,6 @@ public:
 				   const Alignment& al=Alignment());
 			~uiTextItem();
 
-    virtual void	setPos(const uiPoint&);
-    virtual void	setPos(int x,int y);
-
-    QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
     void 		setFont(const uiFont&);
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
@@ -254,6 +250,8 @@ public:
     void		setBackgroundColor(const Color&);
     Color		getBackgroundColor() const;
 
+    QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
+
 protected:
 
     QGraphicsItem*	mkQtObj();
@@ -263,6 +261,7 @@ protected:
     uiPoint		pos_;
 
     void		updatePos();
+    virtual void	stPos(int,int);
 };
 
 
@@ -280,7 +279,7 @@ public:
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
-    void			setFillColor(const Color&);
+    void			setFillColor(const Color&,bool withalpha=false);
 
 protected:
 

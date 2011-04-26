@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.49 2011-02-10 10:30:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.50 2011-04-26 14:18:29 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -248,7 +248,7 @@ uiRect uiLineItem::lineRect() const
 }
 
 
-void uiLineItem::setPenColor( const Color& col )
+void uiLineItem::setPenColor( const Color& col, bool )
 {
     QPen qpen = qlineitem_->pen();
     qpen.setColor( QColor(col.rgb()) );
@@ -256,7 +256,7 @@ void uiLineItem::setPenColor( const Color& col )
 }
 
 
-void uiLineItem::setPenStyle( const LineStyle& ls )
+void uiLineItem::setPenStyle( const LineStyle& ls, bool )
 {
     QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
@@ -591,15 +591,9 @@ void uiTextItem::setAlignment( const Alignment& al )
 }
 
 
-void uiTextItem::setPos( const uiPoint& pos )
+void uiTextItem::stPos( int x, int y )
 {
-    pos_ = pos; updatePos();
-}
-
-
-void uiTextItem::setPos( int x, int y )
-{
-    setPos( uiPoint(x,y) );
+    pos_ = uiPoint(x,y); updatePos();
 }
 
 
@@ -706,7 +700,7 @@ void uiMarkerItem::setFill( bool fill )
 
 
 
-void uiMarkerItem::setFillColor( const Color& col )
+void uiMarkerItem::setFillColor( const Color& col, bool )
 {
     qmarkeritem_->setFill( true );
     qmarkeritem_->setFillColor( col );
