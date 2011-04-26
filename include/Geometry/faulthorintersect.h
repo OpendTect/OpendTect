@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          March 2010
-RCS:           $Id: faulthorintersect.h,v 1.5 2011-03-11 16:09:18 cvsyuancheng Exp $
+RCS:           $Id: faulthorintersect.h,v 1.6 2011-04-26 20:09:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,10 @@ public:
 					Coord3List&);
 				~FaultBinIDSurfaceIntersector()	{}
 
-    void			compute();		
+    void			compute();	
+				
+				//The shape is optional, if not set, we still
+				//compute intersections, stored in crdlist_    
     void			setShape(const IndexedShape&);
     const IndexedShape*		getShape(bool takeover=true);
 
