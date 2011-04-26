@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.173 2011-04-26 04:40:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.174 2011-04-26 07:09:03 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1185,12 +1185,20 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     bool isstored = false;
     LineKey idlkey;
 
-    if ( stored3dmnuitem_.findItem(mnuid) || steering3dmnuitem_.findItem(mnuid))
+    if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
-	if ( !item ) item = steering3dmnuitem_.findItem(mnuid);
 	const int idx = attrinf.ioobjnms_.indexOf(item->text);
 	const char* objidstr = attrinf.ioobjids_.get(idx);
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
+	idlkey = LineKey( objidstr );
+	isstored = true;
+    }
+    else if ( steering3dmnuitem_.findItem(mnuid) )
+    {
+	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
+	const int idx = attrinf.steernms_.indexOf( item->text );
+	const char* objidstr = attrinf.steerids_.get( idx );
 	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
 	idlkey = LineKey( objidstr );
 	isstored = true;
