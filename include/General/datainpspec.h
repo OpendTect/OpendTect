@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.77 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:           $Id: datainpspec.h,v 1.78 2011-04-26 11:56:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,6 +350,10 @@ public:
 			    if ( interval_ ) delete interval_;
 			    interval_ = intval.clone();
 			}
+    			mDefDISSetValBaseClassImpl(int)
+    			mDefDISSetValBaseClassImpl(bool)
+    			mDefDISSetValBaseClassImpl(float)
+    			mDefDISSetValBaseClassImpl(double)
 
     virtual void	setDefaultValue( const Interval<T>& defaultintval )
 			{
