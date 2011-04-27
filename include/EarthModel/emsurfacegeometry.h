@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.27 2011-04-26 10:18:12 cvsbert Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.28 2011-04-27 06:16:05 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -124,8 +124,7 @@ public:
 
 
     const Geometry::RowColSurface* sectionGeometry(const SectionID&) const;
-    Geometry::Element*		sectionGeometry( const SectionID& si )
-				{ return SurfaceGeometry::sectionGeometry(si); }
+    Geometry::RowColSurface*	sectionGeometry(const SectionID&);
 
     StepInterval<int>		rowRange(const SectionID&) const;
     StepInterval<int>		rowRange() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.52 2011-01-31 05:39:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.53 2011-04-27 06:15:20 cvsraman Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -1092,11 +1092,17 @@ RowColSurfaceGeometry::~RowColSurfaceGeometry()
 {}
 
 
+Geometry::RowColSurface*
+RowColSurfaceGeometry::sectionGeometry( const SectionID& sid )
+{
+    Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    return reinterpret_cast<Geometry::RowColSurface*>( res );
+}
+
 const Geometry::RowColSurface*
 RowColSurfaceGeometry::sectionGeometry( const SectionID& sid ) const
 {
-    const Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
-    return reinterpret_cast<const Geometry::RowColSurface*>( res );
+    return const_cast<RowColSurfaceGeometry*>(this)->sectionGeometry( sid );
 }
 
 
