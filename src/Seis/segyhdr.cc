@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.92 2011-03-08 13:55:17 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.93 2011-04-27 15:09:09 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -539,27 +539,22 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     // to support crap from SEG-Y vandals?
     HdrEntry he( *hdrDef()[EntryTrwf()] );
     static bool postscale_byte_established = false;
+    static int bnr = he.bytepos_;
+    static bool small = he.small_;
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
-	int bnr = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", he.bytepos_ );
+	bnr = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", he.bytepos_ );
 	if ( bnr > 0 && bnr < 255 )
-	{
-	    he.bytepos_ = (HdrEntry::BytePos)bnr;
-	    he.small_ = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
-	}
+	    small = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
     }
 
-    short trwf = (short)he.getValue( buf_, needswap_ );
+    he.bytepos_ = (HdrEntry::BytePos)bnr;
+    he.small_ = small;
+    const short trwf = (short)he.getValue( buf_, needswap_ );
     if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
 
-    // According to the standard, trwf cannot be negative, but hey, standards
-    // are for wimps, right?
-    const bool isneg = trwf < 0;
-    if ( isneg )
-	trwf = -trwf;
-    float ret = Math::IntPowerOf( ((float)2), trwf );
-    return isneg ? ret : 1. / ret;
+    return Math::IntPowerOf( ((float)2), trwf );
 }
 
 
