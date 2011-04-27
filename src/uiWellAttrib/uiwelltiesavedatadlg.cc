@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.16 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.17 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -116,7 +116,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     BufferString errmsg( "Can not write " ); 
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
-	const char* orgwvltnm = savewvltsfld_->name( wvltidces[idx] );
+	const char* orgwvltnm = savewvltsfld_->itemName( wvltidces[idx] );
 	const int wvltidx = savewvltsfld_->indexOf( orgwvltnm );
 	if ( wvltidx < 0 || !wvltctioset_[wvltidx]->ioobj ) 
 	{ 
@@ -138,7 +138,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     Well::LogSet logset; ;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const char* orglognm = savelogsfld_->name( logidces[idx] );
+	const char* orglognm = savelogsfld_->itemName( logidces[idx] );
 	const Well::Log* l = data_.logset_.getLog( orglognm );
 	if ( !l )
 	{ 
@@ -176,7 +176,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 
 uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
     : uiGroup( p, "Save objects")
-    , names_(s.itemnames_)
+    , itmnames_(s.itemnames_)
     , ctio_(s.ctio_)			  
     , saveasioobj_(s.saveasioobj_)		       
 {
@@ -190,13 +190,13 @@ uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
     checkallfld_ = new uiCheckBox( this, 0 );
     checkallfld_->activated.notify( mCB(this,uiSaveDataGroup,checkAll) );
 
-    for ( int idx=0; idx<names_.size(); idx++ )
+    for ( int idx=0; idx<itmnames_.size(); idx++ )
     {
 	objgrps_ += new uiGroup( this, "Object Group");
-	BufferString objnm(names_.get(idx)); 
+	BufferString objnm(itmnames_.get(idx)); 
 	
 	boxflds_ += new uiCheckBox( objgrps_[0], 0 );
-	lblflds_ += new uiLabel( objgrps_[1], names_.get(idx) );
+	lblflds_ += new uiLabel( objgrps_[1], itmnames_.get(idx) );
 	nameflds_ += new uiGenInput( objgrps_[2], "", StringInpSpec() );
 	nameflds_[idx]->setText( objnm );
 	ioobjselflds_ += new uiIOObjSel( objgrps_[2], *ctio_[idx], "" ); 
@@ -226,7 +226,7 @@ void uiSaveDataGroup::changeLogUIOutput( CallBacker* cb )
 
     saveasioobj_ = !cber->getBoolValue();
 
-    for ( int idx=0; idx<names_.size(); idx++ )
+    for ( int idx=0; idx<itmnames_.size(); idx++ )
     {
 	nameflds_[idx]->display( !saveasioobj_ );
 	ioobjselflds_[idx]->display( saveasioobj_ );
@@ -246,14 +246,14 @@ bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms,
 					 TypeSet<int>& nmidces )
 {
     deepErase( nms );
-    for ( int idx=0; idx<names_.size(); idx++ )
+    for ( int idx=0; idx<itmnames_.size(); idx++ )
     {
 	if ( !boxflds_[idx]->isChecked() )
 	    continue;
 	if ( saveasioobj_ && !ioobjselflds_[idx]->commitInput() )
 	{
 	    BufferString msg = "Please enter a name for the ";
-	    msg += names_.get(idx);
+	    msg += itmnames_.get(idx);
 	    mErrRet( msg );
 	}
 	nms.add( ioobjselflds_[idx]->getInput() );

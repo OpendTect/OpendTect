@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.18 2011-01-28 11:09:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.19 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -44,7 +44,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , dispEachChg(this)
     , levelChg(this)
 {
-    const CallBack redrawcb( mCB(this,uiStratLayerModelDisp,reDraw) );
+    const CallBack redrawcb( mCB(this,uiStratLayerModelDisp,reDrawCB) );
     gv_ = new uiGraphicsView( this, "LayerModel display" );
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
     gv_->reSize.notify( redrawcb );
@@ -126,7 +126,7 @@ void uiStratLayerModelDisp::eraseAll()
 void uiStratLayerModelDisp::dispEachChgd( CallBacker* cb )
 {
     dispeach_ = getEachDisp();
-    reDraw( cb );
+    reDrawCB( cb );
     dispEachChg.trigger();
     if ( zoomboxitm_ )
 	zoomboxitm_->setVisible( false );
@@ -135,7 +135,7 @@ void uiStratLayerModelDisp::dispEachChgd( CallBacker* cb )
 
 void uiStratLayerModelDisp::lvlChgd( CallBacker* cb )
 {
-    reDraw( cb );
+    reDrawCB( cb );
     levelChg.trigger();
 }
 
@@ -149,7 +149,7 @@ void uiStratLayerModelDisp::colsToggled( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
     uselithcols_ = tb->isOn();
-    reDraw( cb );
+    reDrawCB( cb );
 }
 
 
@@ -157,7 +157,7 @@ void uiStratLayerModelDisp::showZoomedToggled( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
     showunzoomed_ = tb->isOn();
-    reDraw( cb );
+    reDrawCB( cb );
 }
 
 
@@ -167,7 +167,7 @@ uiGraphicsScene& uiStratLayerModelDisp::scene()
 }
 
 
-void uiStratLayerModelDisp::reDraw( CallBacker* )
+void uiStratLayerModelDisp::reDrawCB( CallBacker* )
 {
     eraseAll(); lm_.prepareUse();
     if ( lm_.isEmpty() )
@@ -199,7 +199,7 @@ void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
     zoomwr_.setBottom( wr.top() );
     updZoomBox();
     if ( !showunzoomed_ )
-	reDraw( 0 );
+	reDrawCB( 0 );
 }
 
 
@@ -253,7 +253,7 @@ void uiStratLayerModelDisp::modelChanged()
     }
 
     zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
-    reDraw( 0 );
+    reDrawCB( 0 );
 }
 
 

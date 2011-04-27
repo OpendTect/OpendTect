@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.155 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.156 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -609,21 +609,44 @@ void uiIOObjSel::setForRead( bool yn )
 }
 
 
-bool uiIOObjSel::fillPar( IOPar& iopar, const char* ck ) const
+bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
-    iopar.set( IOPar::compKey(ck,"ID"),
-	       workctio_.ioobj ? workctio_.ioobj->key() : MultiID("") );
+    iopar.set( sKey::ID, workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
     return true;
 }
 
 
-void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
+bool uiIOObjSel::fillPar( IOPar& iopar, const char* bky ) const
 {
-    const char* res = iopar.find( IOPar::compKey(ck,"ID") );
+    IOPar iop; fillPar( iop );
+    iopar.mergeComp( iop, bky );
+    return true;
+}
+
+
+void uiIOObjSel::usePar( const IOPar& iopar )
+{
+    const char* res = iopar.find( sKey::ID );
     if ( res && *res )
     {
 	workctio_.setObj( MultiID(res) );
 	setInput( MultiID(res) );
+    }
+}
+
+
+void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
+{
+    if ( !bky || !*bky )
+	usePar( iopar );
+    else
+    {
+	IOPar* iop = iopar.subselect( bky );
+	if ( iop )
+	{
+	    usePar( *iop );
+	    delete iop;
+	}
     }
 }
 

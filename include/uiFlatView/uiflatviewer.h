@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.47 2010-08-16 11:52:05 cvsumesh Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.48 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,7 @@ protected:
     uiGraphicsItemSet*		adnameitemset_;
 
     void			onFinalise(CallBacker*);
-    void			reDraw(CallBacker*);
+    void			reDrawCB(CallBacker*);
     void			reSizeDraw(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.124 2011-03-24 04:40:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.125 2011-04-27 10:13:18 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 
@@ -79,7 +79,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     setStretch( 2, 2 ); canvas_.setStretch( 2, 2 );
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reSizeDraw) );
-    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
+    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDrawCB) );
     reportedchanges_ += All;
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -111,7 +111,7 @@ uiFlatViewer::~uiFlatViewer()
 }
 
 
-void uiFlatViewer::reDraw( CallBacker* )
+void uiFlatViewer::reDrawCB( CallBacker* )
 {
     drawBitMaps();
     drawAnnot();
@@ -320,7 +320,7 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     uiBorder actborder = enabhaddrag_ ? viewborder_ : uiBorder(0,0,0,0);
     actborder += annotborder_;
     canvas_.setBorder( actborder );
-    if ( dofill ) reDraw( 0 );
+    if ( dofill ) reDrawCB( 0 );
 }
 
 

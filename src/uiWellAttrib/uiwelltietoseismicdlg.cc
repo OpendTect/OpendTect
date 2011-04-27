@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.81 2011-03-04 14:13:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.82 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -89,7 +89,7 @@ uiTieWin::~uiTieWin()
 void uiTieWin::initAll()
 {
     drawFields();
-    addControl();
+    addControls();
     doWork( 0 );
     show();
     dispPropChg( 0 );
@@ -148,7 +148,7 @@ void uiTieWin::addToolBarTools()
 }    
 
 
-void uiTieWin::addControl()
+void uiTieWin::addControls()
 {
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.8 2010-09-09 17:04:19 cvskris Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.9 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"
@@ -155,7 +155,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 }
 
 
-void uiBaseMap::reDraw()
+void uiBaseMap::reDraw( bool )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
 	objects_[idx]->update();

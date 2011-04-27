@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.17 2010-09-27 04:58:18 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.18 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ public:
     NotifierAccess*		similartyChangeNotifier()
 				{ return &similartychanged_; }
 
+    virtual bool		commitToTracker() const
+				{ bool b; return commitToTracker(b); }
     bool			commitToTracker(bool& fieldchange) const;
 
 protected:

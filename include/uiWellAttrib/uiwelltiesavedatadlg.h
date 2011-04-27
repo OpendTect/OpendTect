@@ -65,8 +65,9 @@ public:
     bool 			getNamesToBeSaved(BufferStringSet&,
 	    					  TypeSet<int>&);
     const int			indexOf( const char* nm ) const
-				{ return names_.indexOf(nm); }
-    const char*			name(int idx) { return names_.get(idx); }
+				{ return itmnames_.indexOf(nm); }
+    const char*			itemName( int idx )
+    				{ return itmnames_.get(idx); }
     void 			changeLogUIOutput(CallBacker*);
 
 protected:
@@ -79,7 +80,7 @@ protected:
     ObjectSet<uiGenInput> 	nameflds_;
     ObjectSet<uiCheckBox> 	boxflds_;
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
-    const BufferStringSet	names_;
+    const BufferStringSet	itmnames_;
     bool 			saveasioobj_;
 
     void			checkAll(CallBacker*);

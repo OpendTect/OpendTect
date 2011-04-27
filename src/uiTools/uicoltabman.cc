@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.45 2011-04-08 12:36:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.46 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -98,7 +98,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
     ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
         	    mCB(this,uiColorTableMan,rightClick) );
-    ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDraw) );
+    ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDrawCB) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
 	         uiSize(mTransWidth,mTransWidth/10) );
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
@@ -504,7 +504,7 @@ void uiColorTableMan::markerChange( CallBacker* )
 }
 
 
-void uiColorTableMan::reDraw( CallBacker* )
+void uiColorTableMan::reDrawCB( CallBacker* )
 {
     ctabcanvas_->setRGB();
 }

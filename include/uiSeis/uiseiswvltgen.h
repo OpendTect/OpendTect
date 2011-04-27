@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.10 2009-11-09 06:35:34 cvsnageswara Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.11 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ public:
 	const float*    samples_;
 	float 		getValue(float) const;
 	float 		getIntValue(float) const;
+	virtual float 	getValue( const float* p ) const
+	    		{ return getValue(*p); }
     };
 
 			uiSeisWvltMerge(uiParent*,const char* curwvltnm=0);

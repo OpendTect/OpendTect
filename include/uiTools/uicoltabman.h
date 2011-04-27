@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.14 2009-11-03 03:48:08 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.15 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,13 +64,14 @@ protected:
     bool			enabletrans_;
 
     void			doFinalise(CallBacker*);
-    void			reDraw(CallBacker*);
+    void			reDrawCB(CallBacker*);
     void			markerChgd(CallBacker*);
     void			selChg(CallBacker*);
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
+    virtual void		reDraw( bool deep )	{ reDrawCB(0); }
 
 
     void			refreshColTabList(const char*);

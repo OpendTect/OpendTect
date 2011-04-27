@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.27 2011-03-10 12:35:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.28 2011-04-27 10:13:19 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -348,7 +348,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 }
 
 
-bool uiSEGYExamine::rejectOK()
+bool uiSEGYExamine::rejectOK(CallBacker*)
 {
     return true;
 }

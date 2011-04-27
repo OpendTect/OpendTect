@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.9 2010-12-23 16:44:58 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.10 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ protected:
     void		eraseAll();
     void		dispEachChgd(CallBacker*);
     void		lvlChgd(CallBacker*);
-    void		reDraw(CallBacker*);
+    void		reDrawCB(CallBacker*);
     void		usrClicked(CallBacker*);
     void		colsToggled(CallBacker*);
     void		showZoomedToggled(CallBacker*);

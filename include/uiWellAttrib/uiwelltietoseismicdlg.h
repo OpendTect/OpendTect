@@ -75,7 +75,7 @@ protected:
     uiInfoDlg* 			infodlg_; 
     uiTieView*			drawer_;
     
-    void			addControl();
+    void			addControls();
     void 			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);

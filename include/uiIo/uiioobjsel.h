@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.68 2010-06-18 14:47:06 cvsjaap Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.69 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,8 +185,10 @@ public:
     const IOObj*	ioobj(bool noerr=false) const;
     IOObj*		getIOObj(bool noerr=false); //!< My IOObj becomes yours
 
-    virtual bool	fillPar(IOPar&,const char* compky=0) const;
-    virtual void	usePar(const IOPar&,const char* compky=0);
+    virtual bool	fillPar(IOPar&) const;
+    bool		fillPar(IOPar&,const char* baseky) const;
+    virtual void	usePar(const IOPar&);
+    void		usePar(const IOPar&,const char* baseky);
 
     void		setForRead(bool);
     void		setConfirmOverwrite( bool yn )

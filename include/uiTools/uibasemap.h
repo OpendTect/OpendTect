@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.7 2010-08-27 03:11:56 cvsnanne Exp $
+ RCS:           $Id: uibasemap.h,v 1.8 2011-04-27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ protected:
     uiWorld2Ui&			w2ui_;
 
     void			reSizeCB(CallBacker*)		{ reDraw(); }
-    virtual void		reDraw();
+    virtual void		reDraw(bool deep=true);
 
 };
 
