@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.6 2011-04-27 08:58:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uisellinest.h"
 #include "uitaskrunner.h"
@@ -24,9 +25,11 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "fixedstring.h"
 #include "gmtpar.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "survinfo.h"
+
 
 int uiGMTFaultsGrp::factoryid_ = -1;
 
@@ -47,10 +50,10 @@ uiGMTOverlayGrp* uiGMTFaultsGrp::createInstance( uiParent* p )
 uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
-    faultfld_ = new uiIOObjSel( this, mIOObjContext(EMFault3D), "Fault" );
-    faultfld_->selectionDone.notify( mCB(this,uiGMTFaultsGrp,faultSel) );
+    faultfld_ = new uiIOObjSelGrp( this, *mMkCtxtIOObj(EMFault3D),
+	    			      "Faults", true, false );
 
-    namefld_ = new uiGenInput( this, "Name" );
+    namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
@@ -80,36 +83,39 @@ void uiGMTFaultsGrp::typeChgCB( CallBacker* )
 }
 
 
-void uiGMTFaultsGrp::faultSel( CallBacker* )
-{
-    if ( faultfld_->ioobj(true) )
-	namefld_->setText( faultfld_->ioobj()->name() );
-}
-
-
 bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 {
-    if ( !faultfld_->ioobj(true) )
+    if ( !faultfld_->nrSel() )
+    {
+	uiMSG().message( "Please select atleast one fault" );
 	return false;
+    }
 
-    iop.set( ODGMT::sKeyFaultID, faultfld_->key() );
+    for ( int idx=0; idx<faultfld_->nrSel(); idx++ )
+    {
+	iop.set( iop.compKey(ODGMT::sKeyFaultID, idx),
+		 faultfld_->selected(idx) );
+    }
+
     iop.set( sKey::Name, namefld_->text() );
     const bool onzslice = optionfld_->getBoolValue();
     iop.setYN( ODGMT::sKeyZIntersectionYN, onzslice );
     const float zvalue = zvaluefld_->getfValue()/SI().zFactor();
     StepInterval<float> zrg = SI().zRange( true );
-    const bool isbetween = zrg.start<=zvalue && zvalue<=zrg.stop;
-    if ( !isbetween )
-    {
-	BufferString msg( "Z value is out of survey range(" );
-	msg.add( mNINT(zrg.start*SI().zFactor()) ).add( " , " )
-	   .add( mNINT(zrg.stop*SI().zFactor()) ).add( ")" );
-	uiMSG().message( msg );
-	return false;
-    }
-
     if ( onzslice )
+    {
+	const bool isbetween = zrg.start<=zvalue && zvalue<=zrg.stop;
+	if ( !isbetween )
+	{
+	    BufferString msg( "Z value is out of survey range(" );
+	    msg.add( mNINT(zrg.start*SI().zFactor()) ).add( " , " )
+	       .add( mNINT(zrg.stop*SI().zFactor()) ).add( ")" );
+	    uiMSG().message( msg );
+	    return false;
+	}
+
 	iop.set( ODGMT::sKeyZVals, zvalue );
+    }
     else
     {
 	if ( !horfld_->ioobj() )
@@ -128,9 +134,24 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 
 bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 {
-    FixedString fault = iop.find( ODGMT::sKeyFaultID );
-    MultiID faultid( fault.str() );
-    faultfld_->setInput( faultid );
+    IOPar* fltpar = iop.subselect( ODGMT::sKeyFaultID );
+    if ( !fltpar )
+	return false;
+
+    faultfld_->getListField()->clearSelection();
+    for ( int idx=0; idx<fltpar->size(); idx++ )
+    {
+	MultiID mid;
+	if (!fltpar->get( toString(idx), mid ) )
+	    return false;
+
+	IOObj* obj = IOM().get( mid );
+	if ( !obj )
+	    return false;
+
+	const int selid = faultfld_->getListField()->indexOf( obj->name() );
+	faultfld_->getListField()->setSelected( selid, true );
+    }
 
     BufferString nm;
     iop.get( sKey::Name, nm );
@@ -139,7 +160,13 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     bool onzslice = false;
     iop.getYN( ODGMT::sKeyZIntersectionYN, onzslice );
     optionfld_->setValue( onzslice );
-    if ( !onzslice )
+    if ( onzslice )
+    {
+	float zvalue;
+	iop.get( ODGMT::sKeyZVals, zvalue );
+	zvaluefld_->setValue( zvalue*SI().zFactor() );
+    }
+    else
     {
 	MultiID horid;
 	iop.get( ODGMT::sKeyHorizonID, horid );
@@ -158,7 +185,6 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 
 void uiGMTFaultsGrp::reset()
 {
-    faultfld_->clear();
     namefld_->setText( "" );
     optionfld_->setValue( true, 0 );
     zvaluefld_->setValue( 0 );

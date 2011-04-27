@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.7 2011-04-25 17:48:42 cvsyuancheng Exp $
+RCS:		$Id: gmtfault.cc,v 1.8 2011-04-27 08:58:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "ptrman.h"
 #include "refcount.h"
+#include "string2.h"
 #include "strmdata.h"
 #include "survinfo.h"
 #include "typeset.h"
@@ -70,22 +71,6 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
 
 bool GMTFault::execute( std::ostream& strm, const char* fnm )
 {
-    bool onzslice = false;
-    getYN( ODGMT::sKeyZIntersectionYN, onzslice );
-
-    MultiID mid;
-    get( ODGMT::sKeyFaultID, mid );
-
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
-    if ( !emobj )
-	return false;
-
-    mDynamicCastGet(EM::Fault3D*,fault3d,emobj.ptr())
-    if ( !fault3d )
-	return false;
-
-    strm << "Creating Fault " << emobj->name() << " ... ";
-
     LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
     ls.fromString( lsstr );
@@ -96,84 +81,111 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
     comm += " -O -K -M -N";
     mGetLineStyleString( ls, lsstr );
     comm += " -W"; comm += lsstr;
-
     comm += " 1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed");
 
-    EM::SectionID fltsid = fault3d->sectionID( 0 );
-    PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
-	new Geometry::ExplFaultStickSurface(
-		fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
-    fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
-    if ( !fltsurf->update(true,0) )
+    bool onzslice = false;
+    getYN( ODGMT::sKeyZIntersectionYN, onzslice );
+
+    IOPar* fltpar = subselect( ODGMT::sKeyFaultID );
+    if ( !fltpar )
 	return false;
 
-    if( onzslice )
+    for ( int midx=0; midx<fltpar->size(); midx++ )
     {
-	float zval;
-	get( ODGMT::sKeyZVals, zval );
-	TypeSet<Coord3> corners = getCornersOfZSlice( zval );
-	Coord3 normal = ( corners[1] - corners[0] )
-	    		.cross( corners[3] - corners[0] ).normalize();
+	MultiID mid;
+	if ( !fltpar->get( toString(midx), mid ) )
+	    continue;
 
+	RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+	if ( !emobj )
+	    continue;
 
-	PtrMan<Geometry::ExplPlaneIntersection> insectn =
-					    new Geometry::ExplPlaneIntersection;
-	insectn->setShape( *fltsurf );
-	insectn->addPlane( normal, corners );
-	Geometry::IndexedShape* idxdshape = insectn;
-	idxdshape->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
-	if ( !idxdshape->update(true,0) )
-	    return false;
+	mDynamicCastGet(EM::Fault3D*,fault3d,emobj.ptr())
+	if ( !fault3d )
+	    continue;
 
-	RefMan<Coord3List> clist = idxdshape->coordList();
-	if ( !clist )
-	    return false;
+	strm << "Creating Fault " << emobj->name() << " ...\n";
 
-	const Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
-	if ( !idxgeom )
-	    return false;
+	EM::SectionID fltsid = fault3d->sectionID( 0 );
+	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
+	    new Geometry::ExplFaultStickSurface(
+		  fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
+	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
+	if ( !fltsurf->update(true,0) )
+	    continue;
 
-	const int sz = idxgeom->coordindices_.size();
-	if ( sz == 0 )
+	if( onzslice )
 	{
-	    strm << "Selected ZSlice and Fault are not intersected\n";
-	    return false;
-	}
+	    float zval;
+	    get( ODGMT::sKeyZVals, zval );
+	    TypeSet<Coord3> corners = getCornersOfZSlice( zval );
+	    Coord3 normal = ( corners[1] - corners[0] )
+			    .cross( corners[3] - corners[0] ).normalize();
 
-	*sd.ostrm << "> " << std::endl;
-	for ( int cidx=0; cidx<sz; cidx++ )
-	{
-	    if ( idxgeom->coordindices_[cidx] == -1 )
-		*sd.ostrm << "> " << std::endl;
-	    else	
+	    PtrMan<Geometry::ExplPlaneIntersection> insectn =
+					new Geometry::ExplPlaneIntersection;
+	    insectn->setShape( *fltsurf );
+	    insectn->addPlane( normal, corners );
+	    Geometry::IndexedShape* idxdshape = insectn;
+	    idxdshape->setCoordList(new Coord3ListImpl, new Coord3ListImpl, 0);
+	    if ( !idxdshape->update(true,0) )
+		continue;
+
+	    RefMan<Coord3List> clist = idxdshape->coordList();
+	    if ( !clist )
+		continue;
+
+	    const Geometry::IndexedGeometry* idxgeom =
+						idxdshape->getGeometry()[0];
+	    if ( !idxgeom )
+		continue;
+
+	    const int sz = idxgeom->coordindices_.size();
+	    if ( sz == 0 )
 	    {
-		double x = clist->get( idxgeom->coordindices_[cidx] ).x;
-		double y = clist->get( idxgeom->coordindices_[cidx] ).y;
+		strm << "Selected ZSlice and ";
+		strm << emobj->name() << " are not intersected\n";
+		continue;
+	    }
+
+	    *sd.ostrm << "> " << std::endl;
+	    for ( int cidx=0; cidx<sz; cidx++ )
+	    {
+		if ( idxgeom->coordindices_[cidx] == -1 )
+		    *sd.ostrm << "> " << std::endl;
+		else
+		{
+		    double x = clist->get( idxgeom->coordindices_[cidx] ).x;
+		    double y = clist->get( idxgeom->coordindices_[cidx] ).y;
+		    *sd.ostrm << x << " " << y << std::endl;
+		}
+	    }
+	}
+	else
+	{
+	    Coord3ListImpl clist;
+	    if ( !calcOnHorizon( *fltsurf, clist ) )
+		continue;
+
+	    if ( clist.getSize() == 0 )
+	    {
+		strm << "Selected Horizon and ";
+		strm << emobj->name() << " are not intersected\n";
+		continue;
+	    }
+
+	    *sd.ostrm << "> " << std::endl;
+	    for ( int idx=0; idx<clist.getSize(); idx++ )
+	    {
+		double x = clist.get( idx ).x;
+		double y = clist.get( idx ).y;
 		*sd.ostrm << x << " " << y << std::endl;
 	    }
 	}
-    }
-    else
-    {
-	Coord3ListImpl clist;
-	if ( !calcOnHorizon( *fltsurf, clist ) )
-	    return false;
-
-	if ( clist.getSize() == 0 )
-	{
-	    strm << "Selected Horizon and Fault are not intersected\n";
-	    return false;
-	}
 
 	*sd.ostrm << "> " << std::endl;
-	for ( int idx=0; idx<clist.getSize(); idx++ )
-	{
-	    double x = clist.get( idx ).x;
-	    double y = clist.get( idx ).y;
-	    *sd.ostrm << x << " " << y << std::endl;
-	}
     }
 
     sd.close();
@@ -219,10 +231,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 
     PtrMan<Geometry::FaultBinIDSurfaceIntersector> horfltinsec = 
 	    new Geometry::FaultBinIDSurfaceIntersector( (float)0, *bidsurface,
-		expfault, clist );
-    if ( !horfltinsec )
-	return false;
-
+							expfault, clist );
     horfltinsec->compute();
     return true;
 }

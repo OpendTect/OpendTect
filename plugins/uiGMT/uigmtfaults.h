@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.h,v 1.3 2010-04-13 08:31:11 cvsbert Exp $
+ RCS:           $Id: uigmtfaults.h,v 1.4 2011-04-27 08:58:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiIOObjSel;
+class uiIOObjSelGrp;
 class uiSelLineStyle;
 class IOPar;
 
@@ -34,14 +35,13 @@ protected:
     static int                  factoryid_;
 
     void			typeChgCB(CallBacker*);
-    void			faultSel(CallBacker*);
 
 
-    uiIOObjSel*			faultfld_;
     uiGenInput*			namefld_;
     uiGenInput*			optionfld_;
     uiGenInput*			zvaluefld_;
     uiIOObjSel*			horfld_;
+    uiIOObjSelGrp*		faultfld_;
     uiSelLineStyle*		linestfld_;
 };
 
