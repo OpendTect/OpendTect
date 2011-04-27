@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.219 2011-04-26 14:18:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.220 2011-04-27 07:39:07 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -871,7 +871,15 @@ void uiMainWin::setCornerPos( int x, int y )
 
 uiRect uiMainWin::geometry( bool frame ) const
 {
-    QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
+    // Workaround for Qt-bug: top left of area sometimes translates to origin!
+    QRect qarea = body_->geometry();
+    QRect qframe = body_->frameGeometry();
+    QPoint correction = body_->mapToGlobal(QPoint(0,0)) - qarea.topLeft();
+    qframe.translate( correction );
+    qarea.translate( correction ); 
+    QRect qrect = frame ? qframe : qarea;
+
+    //QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
     uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
     return rect;
 }
