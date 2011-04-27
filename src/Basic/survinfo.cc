@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.154 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.155 2011-04-27 07:47:08 cvsnanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -876,7 +876,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     msgfp.add( "od_DispMsg" ); \
     BufferString cmd = msgfp.fullPath(); \
     cmd += " --err "; \
-    cmd += " Could not writ to "; \
+    cmd += " Could not write to "; \
     cmd += s; \
     cmd += " Please check the file permission"; \
     ExecOSCmd( cmd.buf() ); } \
