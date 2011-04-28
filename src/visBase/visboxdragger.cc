@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visboxdragger.cc,v 1.19 2010-08-09 10:06:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: visboxdragger.cc,v 1.20 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -213,7 +213,7 @@ bool BoxDragger::isOn() const
 }
 
 
-SoNode* BoxDragger::getInventorNode()
+SoNode* BoxDragger::gtInvntrNode()
 { return onoff_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.16 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,6 @@ public:
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
-    SoNode*			getInventorNode();
     const SbImagei32*		getChannels() const;
     void			touchMappedData();
     
@@ -88,6 +87,8 @@ protected:
     MappedTextureDataSet*	tc_;
     SoSwitch*			onoff_;
     TextureChannel2RGBA*	tc2rgba_;
+
+    virtual SoNode*		gtInvntrNode();
 
 };
 

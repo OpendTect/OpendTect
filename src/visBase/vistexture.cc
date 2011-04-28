@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.45 2011-02-16 21:56:35 cvskris Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.46 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistexture.h"
 
@@ -229,7 +229,7 @@ bool Texture::usesTransperancy() const
 { return usetrans; }
 
 
-SoNode* Texture::getInventorNode()
+SoNode* Texture::gtInvntrNode()
 { return onoff; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.14 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visboxdragger.h,v 1.15 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,6 @@ public:
     Notifier<BoxDragger>	changed;
     Notifier<BoxDragger>	finished;
 
-    SoNode*			getInventorNode();
-
 protected:
 				~BoxDragger();
     void			setOwnShapeHints();
@@ -79,6 +77,9 @@ protected:
     Coord3			prevwidth_;
     Coord3			prevcenter_;
     bool			selectable_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 };

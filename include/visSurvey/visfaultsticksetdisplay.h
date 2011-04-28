@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.17 2011-03-03 11:54:32 cvsnanne Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.18 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
 
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
-    bool			canRemoveSelecion()		{ return true; }
+    bool			canRemoveSelecion() const	{ return true; }
 
     void			setDisplayOnlyAtSections(bool yn);
     bool			displayedOnlyAtSections() const;
@@ -86,6 +86,10 @@ public:
     bool			isInStickSelectMode() const;
 
     bool			allowsPicks() const		{ return true; }
+
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;

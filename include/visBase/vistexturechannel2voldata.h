@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.8 2010-09-15 06:37:10 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.9 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,6 @@ public:
 
 protected:
     			~TextureChannel2VolData();
-    SoNode*		getInventorNode();
 
     void		setChannels(TextureChannels*);
     void		notifyChannelChange();
@@ -61,9 +60,11 @@ protected:
     ColTab::Sequence	sequence_;
     bool		enabled_;
 
+    virtual SoNode*	gtInvntrNode();
+
 };
 
-}; //namespace
+} //namespace
 
 
 #endif

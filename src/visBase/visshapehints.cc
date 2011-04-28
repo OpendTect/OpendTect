@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: visshapehints.cc,v 1.2 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visshapehints.cc,v 1.3 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visshapehints.h"
 
@@ -65,7 +65,7 @@ bool ShapeHints::isSolidShape() const
 }
 
 
-SoNode* ShapeHints::getInventorNode()
+SoNode* ShapeHints::gtInvntrNode()
 { return shapehints_; }
 
 

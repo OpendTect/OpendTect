@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		May 2007
- RCS:		$Id: visshapehints.h,v 1.3 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visshapehints.h,v 1.4 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ namespace visBase
 mClass ShapeHints : public DataObject
 {
 public:
+
     static ShapeHints*		create() mCreateDataObj(ShapeHints);
 
     enum VertexOrder		{ Unknown, ClockWise, CounterClockWise };
@@ -34,14 +35,15 @@ public:
     void			setSolidShape(bool);
     bool			isSolidShape() const;
 
-    SoNode*			getInventorNode();
-
 protected:
     				~ShapeHints();
 
     SoShapeHints*		shapehints_;
-};
+
+    virtual SoNode*		gtInvntrNode();
 
 };
+
+}
 
 #endif

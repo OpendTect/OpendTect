@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.9 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.10 2011-04-28 07:00:11 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
 
     void		addSeed(int,int,int);
     bool		isAboveIsovalue() const { return aboveisovalue_; }
-    int			maxNrThreads() 	{ return compartments_.size(); }
+    int			maxNrThreads() const 	{ return compartments_.size(); }
     od_int64		nrIterations() const{return input_.info().getTotalSz();}
    
 

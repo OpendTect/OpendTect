@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.13 2010-11-12 21:29:55 cvskris Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.14 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,6 @@ public:
 					      const Interval<float>& z);
     Interval<float>		getVolumeSize(int dim) const;
 
-    SoNode*			getInventorNode();
-
     const char*			writeVolumeFile(std::ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
 
@@ -95,8 +93,11 @@ protected:
     TypeSet<float>		histogram_;
     Color			blendcolor_;
     bool			useshading_;
-};
+
+    virtual SoNode*		gtInvntrNode();
 
 };
+
+}
 
 #endif

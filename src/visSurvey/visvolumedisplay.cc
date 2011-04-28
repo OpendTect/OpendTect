@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.126 2011-03-31 10:56:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.127 2011-04-28 07:00:13 cvsbert Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -966,7 +966,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 }
 
 
-SoNode* VolumeDisplay::getInventorNode()
+SoNode* VolumeDisplay::gtInvntrNode()
 {
     if ( !isinited_ )
     {
@@ -992,7 +992,7 @@ SoNode* VolumeDisplay::getInventorNode()
 	}
     }
 
-    return VisualObjectImpl::getInventorNode();
+    return VisualObjectImpl::gtInvntrNode();
 }
 
 
@@ -1100,7 +1100,7 @@ void VolumeDisplay::setColTabMapperSetup( int attrib,
 }
 
 
-const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int ) const
+const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int, int ) const
 {
     return &scalarfield_->getColTabMapper().setup_;
 }

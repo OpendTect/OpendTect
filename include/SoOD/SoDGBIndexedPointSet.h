@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: SoDGBIndexedPointSet.h,v 1.2 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoDGBIndexedPointSet.h,v 1.3 2011-04-28 07:00:11 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,26 +30,27 @@ mClass SoDGBIndexedPointSet : public SoIndexedShape
     SO_NODE_HEADER(SoDGBIndexedPointSet);
 public:
 
-    static void			initClass();
-    				SoDGBIndexedPointSet();
+    static void		initClass();
+    			SoDGBIndexedPointSet();
 
 protected:
-    void			generatePrimitives(SoAction*);
-    SbBool			generateDefaultNormals(SoState* state,
-						       SoNormalCache* nc);
+
+    void		generatePrimitives(SoAction*);
+    SbBool		generateDefaultNormals(SoState*,SoNormalCache*);
     				/*! Does not work properly (TODO), use 
 				    own normals instead */
+    virtual SbBool	generateDefaultNormals( SoState* st, SoNormalBundle* b )
+			{ return SoVertexShape::generateDefaultNormals(st,b); }
 
-    void			GLRender(SoGLRenderAction*);
+    void		GLRender(SoGLRenderAction*);
 
 private:
-    enum			Binding { OVERALL = 0,
-					  PER_VERTEX,
-					  PER_VERTEX_INDEXED };
 
+    enum		Binding { OVERALL = 0, PER_VERTEX, PER_VERTEX_INDEXED };
 
-    Binding			findMaterialBinding(SoState*) const;
-    Binding			findNormalBinding(SoState*) const;
+    Binding		findMaterialBinding(SoState*) const;
+    Binding		findNormalBinding(SoState*) const;
+
 };
 
 #endif

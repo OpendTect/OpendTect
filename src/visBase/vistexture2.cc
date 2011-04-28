@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture2.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.43 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -342,7 +342,7 @@ int Texture2Set::activeTextureNr() const
 }
 
 
-SoNode* Texture2Set::getInventorNode()
+SoNode* Texture2Set::gtInvntrNode()
 {
     return textureswitch;
 }

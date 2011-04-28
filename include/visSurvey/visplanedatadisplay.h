@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.130 2011-02-10 22:32:19 cvsyuancheng Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.131 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -103,6 +103,11 @@ public:
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return MultiTextureSurveyObject
+				    		::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					Coord3&,
 	    					BufferString& val,

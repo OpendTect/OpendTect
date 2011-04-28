@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.147 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.148 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1140,7 +1140,8 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
 }
 
 
-const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch ) const
+const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
+								 int ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
        return 0;

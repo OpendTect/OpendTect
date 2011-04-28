@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.84 2010-11-30 12:22:11 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.85 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,10 @@ public:
     void			setDepthInterval(const Interval<float>&);
     const Interval<float>&	getDepthInterval() const;
 
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return MultiTextureSurveyObject
+				    		::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 				    Coord3&, BufferString&,
 				    BufferString&) const;

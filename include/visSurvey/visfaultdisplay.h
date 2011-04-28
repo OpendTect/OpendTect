@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.38 2011-03-03 11:54:32 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.39 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -99,7 +99,7 @@ public:
 
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
-    bool			canRemoveSelecion()		{ return true; }
+    bool			canRemoveSelecion() const	{ return true; }
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
@@ -121,6 +121,10 @@ public:
     void			setLineStyle(const LineStyle&);
     void			getLineWidthBounds(int& min,int& max);
 
+    virtual void		getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return MultiTextureSurveyObject
+				    	::getMousePosInfo(ei,iop); }
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;

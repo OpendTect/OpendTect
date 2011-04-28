@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.78 2011-03-31 10:56:13 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.79 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -131,11 +131,15 @@ public:
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 	                                { return DataPackMgr::CubeID(); }
+
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 	    			     		Coord3&,BufferString& val,
 	    					BufferString& info) const;
 
-    const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+    const ColTab::MapperSetup*	getColTabMapperSetup(int,int v=0) const;
     void			setColTabMapperSetup(int,
 					const ColTab::MapperSetup&,TaskRunner*);
     const ColTab::Sequence*	getColTabSequence(int) const;
@@ -150,8 +154,6 @@ public:
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 
     void			allowShading(bool yn ) { allowshading_ = yn; }
-
-    SoNode*			getInventorNode();
 
     Notifier<VolumeDisplay>	slicemoving;
 
@@ -246,6 +248,8 @@ protected:
     static const char*		sKeySurfMode();
     static const char*		sKeySeedsMid();
     static const char*		sKeySeedsAboveIsov();
+
+    virtual SoNode*		gtInvntrNode();
 
 };
 

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.129 2011-04-22 16:09:12 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.130 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -213,7 +213,7 @@ Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
 {}
 
 ~Seis2DArray() 					{ delete &info_; }
-bool isOK()					{ return true; }
+bool isOK() const				{ return true; }
 const Array2DInfo& info() const			{ return info_; }
 void set( int idx0, int idx1, float val ) 	{}
 
@@ -1245,7 +1245,7 @@ void Seis2DDisplay::setAnnotColor( Color col )
 }
 
 
-Color Seis2DDisplay::getAnnotColor()
+Color Seis2DDisplay::getAnnotColor() const
 {
     return linename_->getMaterial()->getColor();
 }

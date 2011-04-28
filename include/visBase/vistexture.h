@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.27 2011-02-14 22:32:04 cvskris Exp $
+ RCS:		$Id: vistexture.h,v 1.28 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -79,8 +79,6 @@ public:
     void		setColorPars(bool,bool,const Interval<float>&);
     const Interval<float>& getColorDataRange() const;
 
-    SoNode*		getInventorNode();
-
     virtual void        fillPar(IOPar&,TypeSet<int>&) const;
     virtual int         usePar(const IOPar&);
 
@@ -99,6 +97,8 @@ protected:
     SoComplexity*	quality;
 
     int			resolution;
+
+    virtual SoNode*	gtInvntrNode();
 
 protected:
     void		colorTabChCB(CallBacker*);

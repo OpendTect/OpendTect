@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		June 2006
- RCS:		$Id: vispolygonoffset.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vispolygonoffset.h,v 1.4 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -37,12 +37,13 @@ public:
     void			setUnits(float);
     float			getUnits() const;
 
-    SoNode*			getInventorNode();
-
 protected:
     				~PolygonOffset();
 
     SoPolygonOffset*		offset_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.10 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: visdatagroup.h,v 1.11 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,10 @@ class SoSeparator;
 namespace visBase
 {
 
-
 mClass DataObjectGroup : public DataObject
 {
 public:
+
     static DataObjectGroup*	create()
 				mCreateDataObj(DataObjectGroup);
 
@@ -58,8 +58,6 @@ public:
     virtual const DataObject*	getObject( int idx ) const
 				{return objects_.size()>idx ? objects_[idx] :0;}
 
-    virtual SoNode*		getInventorNode();
-
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
     				/*!\returns the trans of the first child
@@ -73,6 +71,7 @@ public:
     int				usePar(const IOPar&);
 
 protected:
+
     virtual			~DataObjectGroup();
 
     static const char*		nokidsstr();
@@ -83,12 +82,17 @@ protected:
 
     bool			righthandsystem_;
 
+    virtual SoNode*		gtInvntrNode();
+
 private:
+
     ObjectSet<DataObject>	objects_;
     ObjectSet<SoNode>		nodes_;
 
     bool			separate_;
+
 };
-}; //namespace
+
+} //namespace
 
 #endif

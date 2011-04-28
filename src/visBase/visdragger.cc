@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdragger.cc,v 1.19 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdragger.cc,v 1.20 2011-04-28 07:00:12 cvsbert Exp $";
 
 
 #include "visdragger.h"
@@ -213,7 +213,7 @@ void Dragger::setRotation( const Coord3& vec, float angle )
 }
 
 
-SoNode* Dragger::getInventorNode()
+SoNode* Dragger::gtInvntrNode()
 {
     return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_;
 }

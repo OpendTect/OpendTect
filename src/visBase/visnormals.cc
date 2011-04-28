@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visnormals.cc,v 1.18 2010-03-30 11:52:31 cvskris Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.19 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visnormals.h"
 
@@ -181,7 +181,7 @@ Coord3 Normals::getNormal( int idx ) const
 }
 
 
-SoNode* Normals::getInventorNode()
+SoNode* Normals::gtInvntrNode()
 { return normals_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispickstyle.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vispickstyle.h,v 1.4 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,6 @@ public:
     void		setStyle( Style );
     Style		getStyle() const;
 
-    SoNode*		getInventorNode();
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
@@ -46,6 +45,9 @@ protected:
     SoPickStyle*	pickstyle;
 
     static const char*	stylestr;
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 }; // Namespace

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.7 2010-09-15 06:35:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.8 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visrgbatexturechannel2rgba.h"
 
@@ -67,7 +67,7 @@ RGBATextureChannel2RGBA::~RGBATextureChannel2RGBA()
 { converter_->unref(); }
 
 
-SoNode* RGBATextureChannel2RGBA::getInventorNode()
+SoNode* RGBATextureChannel2RGBA::gtInvntrNode()
 { return converter_; }
 
 

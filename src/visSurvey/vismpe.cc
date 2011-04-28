@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.106 2010-07-01 08:15:32 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.107 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vismpe.h"
 
@@ -1771,7 +1771,7 @@ float MPEDisplay::getValue( const Coord3& pos_ ) const
 }
 
 
-SoNode* MPEDisplay::getInventorNode()
+SoNode* MPEDisplay::gtInvntrNode()
 {
 #ifndef USE_TEXTURE
     if ( !isinited_ )
@@ -1793,7 +1793,7 @@ SoNode* MPEDisplay::getInventorNode()
     }
 #endif
 
-    return VisualObjectImpl::getInventorNode();
+    return VisualObjectImpl::gtInvntrNode();
 }
 
 

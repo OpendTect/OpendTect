@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.25 2011-04-26 21:13:39 cvsyuancheng Exp $
+ RCS:		$Id: visshape.h,v 1.26 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,6 @@ public:
     int				usePar(const IOPar&);
     void			fillPar(IOPar&,TypeSet<int>&) const;
 
-    SoNode*			getInventorNode();
     void			insertNode( SoNode* );
 				    /*!< Inserts the node _before_ the shape */
     void			removeNode(SoNode*);
@@ -83,6 +82,7 @@ public:
     SoNode*			getShape() { return shape_; }
 
 protected:
+
 				Shape( SoNode* );
     virtual			~Shape();
 
@@ -93,7 +93,10 @@ protected:
     Texture3*			texture3_;
     Material*			material_;
 
+    virtual SoNode*		gtInvntrNode();
+
 private:
+
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
     static const char*		sKeyMaterial();
@@ -212,7 +215,6 @@ private:
     SoIndexedShape*	indexedshape_;
 };
 
-};
-
+}
 
 #endif

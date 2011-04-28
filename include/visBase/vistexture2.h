@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.14 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexture2.h,v 1.15 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ Used for creating a 2D texture
 mClass Texture2 : public Texture
 {
 public:
+
     static Texture2*	create()
 			mCreateDataObj( Texture2 );
 
@@ -104,8 +105,6 @@ public:
     bool		resolutionShared() const	{ return shareres; }
     bool		colorSequenceShared() const	{ return sharecolseq; }
 
-    SoNode*		getInventorNode();
-
 protected:
     			~Texture2Set();
 
@@ -116,9 +115,11 @@ protected:
     bool		sharecolseq;	//!< default is true;
 
     void		colTabChanged(CallBacker*);
-};
+
+    virtual SoNode*	gtInvntrNode();
 
 };
+
+}
 
 #endif
-

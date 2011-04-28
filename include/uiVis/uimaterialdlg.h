@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.13 2010-03-23 21:20:59 cvsyuancheng Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.14 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,12 +65,15 @@ public:
 					       visSurvey::SurveyObject*);
 
 protected:
+
+    virtual bool		rejectOK()	{ return rejectOK(0); }
     bool			rejectOK(CallBacker*);
     void			changedCB(CallBacker*);
 
     visSurvey::SurveyObject*	survobj_;
     LineStyle			backup_;
     uiSelLineStyle*		field_;
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.23 2010-03-25 15:31:43 cvsyuancheng Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.24 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -85,8 +85,8 @@ public:
     bool			setIndexData(int texture,int version,
 					     const Array2D<unsigned char>*);
 
-    SoNode*			getInventorNode();
     RowCol			getSize() const		{ return size_; }
+
 protected:
 
     			~MultiTexture2();
@@ -134,6 +134,9 @@ protected:
     TypeSet<float>		opacity_;
     SoComplexity*		shadingcomplexity_;
     static const char*		sVertexShaderProgram();
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 }; // Namespace

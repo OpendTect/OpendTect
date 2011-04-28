@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.65 2011-03-03 10:31:29 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.66 2011-04-28 07:00:12 cvsbert Exp $
 
 
 
@@ -84,7 +84,7 @@ public:
     void 			fillLogParams(visBase::Well::LogParams&,int);
 
     const LineStyle*		lineStyle() const;
-    void			setLineStyle(LineStyle);
+    void			setLineStyle(const LineStyle&);
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
     void 			setLogData(visBase::Well::LogParams&,bool);
@@ -114,6 +114,10 @@ public:
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(Coord3);
     				//only used for user-made wells
+
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					Coord3&,BufferString& val,
 						BufferString& info) const;

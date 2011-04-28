@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.11 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.12 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ public:
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
-    SoNode*		getInventorNode();
 private:
     virtual		~DrawStyle();
 
@@ -62,6 +61,9 @@ private:
     static const char*	linestylestr();
     static const char*	drawstylestr();
     static const char*	pointsizestr();
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 };

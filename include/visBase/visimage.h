@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visimage.h,v 1.5 2010-08-09 20:02:38 cvskris Exp $
+ RCS:		$Id: visimage.h,v 1.6 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -40,11 +40,13 @@ public:
     void		setData(const Array2D<Color>&,bool trans);
     void		setFileName(const char*);
     const char*		getFileName() const;
-    SoNode*		getInventorNode();
 
 protected:
     			~Image();
     SoTexture2*		texture_;
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 

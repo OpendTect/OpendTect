@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.19 2010-08-19 08:32:31 cvsranojay Exp $
+ RCS:		$Id: vistransform.h,v 1.20 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,14 +69,16 @@ public:
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
     
-    SoNode*		getInventorNode();
 private:
-    virtual		~Transformation();
 
+    virtual		~Transformation();
 
     SoMatrixTransform*	transform_;
 
     static const char*	matrixstr();
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 
@@ -97,13 +99,15 @@ public:
     Coord3		transform(const Coord3&) const;
     Coord3		transformBack(const Coord3&) const;
 
-    SoNode*		getInventorNode();
 private:
     virtual		~Rotation();
 
     SoRotation*		rotation_;
-};
+
+    virtual SoNode*	gtInvntrNode();
 
 };
+
+}
 
 #endif

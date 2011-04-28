@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.12 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.13 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -135,7 +135,8 @@ void PointSetDisplay::update()
 }
 
 
-void PointSetDisplay::removeSelection( const Selector<Coord3>& selector )
+void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
+       					TaskRunner* )
 {
     if ( !selector.isOK() )
 	return;

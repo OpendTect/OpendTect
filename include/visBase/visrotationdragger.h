@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2006
- RCS:		$Id: visrotationdragger.h,v 1.4 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visrotationdragger.h,v 1.5 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -57,9 +57,8 @@ public:
     Notifier<RotationDragger>	changed;
     Notifier<RotationDragger>	finished;
 
-    SoNode*			getInventorNode();
-
 protected:
+
 				~RotationDragger();
     SoDragger*			getDragger();
     void			setCallbacks( SoDragger* );
@@ -75,8 +74,11 @@ protected:
 
     DataObject*			feedback_;
     DataObject*			activefeedback_;
-};
+
+    virtual SoNode*		gtInvntrNode();
 
 };
+
+} // namespace
 	
 #endif

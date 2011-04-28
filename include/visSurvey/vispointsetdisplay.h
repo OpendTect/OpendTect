@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.12 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.13 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
     void			setPointSize(int);
     int				getPointSize() const;
 
+    virtual Color		getColor() const	{ return getColor(0); }
     Color			getColor(int) const;
     void			setColors(const TypeSet<Color>&);
     void			setNrPointSets(int);
@@ -51,9 +52,10 @@ public:
     const char*			errMsg() const { return errmsg_.str(); }
 
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    void			removeSelection(const Selector<Coord3>&);
-    bool			selectable()			{ return true; }
-    bool			canRemoveSelecion()		{ return true; }
+    void			removeSelection(const Selector<Coord3>&,
+	    					TaskRunner* tr=0);
+    bool			selectable() const		{ return true; }
+    bool			canRemoveSelecion() const	{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
 
     int				selPointSetIdx() const

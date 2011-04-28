@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.59 2011-03-18 11:52:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.60 2011-04-28 07:00:13 cvsbert Exp $";
 
 #include "vissurvobj.h"
 
@@ -44,13 +44,8 @@ bool SurveyObject::canHandleColTabSeqTrans(int) const
 { return true; }
 
 
-const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int ) const
+const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int, int ) const
 { return 0; }
-
-
-const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int attrib,
-							    int version ) const
-{ return getColTabMapperSetup( attrib ); }
 
 
 void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)

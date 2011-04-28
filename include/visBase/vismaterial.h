@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.16 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vismaterial.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,6 @@ public:
 			/*!< Should be between 0 and 1 */
     float		getTransparency() const;
 
-    SoNode*		getInventorNode();
     void		setDisplayTransformation(Transformation*) {}
     int			usePar(const IOPar&);
     void		fillPar(IOPar&,TypeSet<int>&) const;
@@ -90,6 +89,9 @@ protected:
     static const char*	sKeyEmmissiveIntensity();
     static const char*	sKeyShininess();
     static const char*	sKeyTransparency();
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 } // namespace visBase

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.22 2010-12-15 22:54:14 cvskris Exp $
+ RCS:		$Id: visscene.h,v 1.23 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,6 @@ public:
     bool		blockMouseSelection(bool yn);
     			/*!<\returns previous status. */
 
-    SoNode*		getInventorNode();
     EventCatcher&	eventCatcher();
 
     void		setName(const char*);
@@ -74,6 +73,8 @@ protected:
 
     void		fillOffsetPar( IOPar& ) const;
 
+    virtual SoNode*	gtInvntrNode();
+
 private:
     int			mousedownid_;
 
@@ -84,9 +85,9 @@ private:
     DirectionalLight*	directionallight_;
     SoGroup*		selroot_;
     bool		blockmousesel_;
-};
 
 };
 
+}
 
 #endif

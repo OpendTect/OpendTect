@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispickstyle.cc,v 1.5 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vispickstyle.cc,v 1.6 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vispickstyle.h"
 #include "iopar.h"
@@ -58,7 +58,7 @@ PickStyle::Style PickStyle::getStyle() const
 }
 
 
-SoNode* PickStyle::getInventorNode() { return pickstyle; }
+SoNode* PickStyle::gtInvntrNode() { return pickstyle; }
 
 
 int PickStyle::usePar( const IOPar& iopar )

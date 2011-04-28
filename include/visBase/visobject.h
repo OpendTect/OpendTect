@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.46 2009-11-30 22:47:43 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.47 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,6 @@ public:
     const Material*	getMaterial() const { return material_; }
     Material*		getMaterial() { return material_; }
 
-    SoNode*		getInventorNode();
-
     static const char*	sKeyMaterialID();
     static const char*	sKeyIsOn();
 
@@ -109,6 +107,7 @@ public:
     virtual void	fillPar(IOPar&,TypeSet<int>&) const;
 
 protected:
+
     void		addChild(SoNode*);
     void		insertChild(int pos,SoNode*);
     void		removeChild(SoNode*);
@@ -123,9 +122,11 @@ protected:
     Material*		material_;
     bool		righthandsystem_;
 
+    virtual SoNode*	gtInvntrNode();
+
 private:
-    SoSeparator*		root_;
-    SoLockableSeparator*	lockableroot_;
+    SoSeparator*	root_;
+    SoLockableSeparator* lockableroot_;
 
 };
 

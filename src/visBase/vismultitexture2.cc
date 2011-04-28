@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.69 2010-10-11 17:23:39 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.70 2011-04-28 07:00:12 cvsbert Exp $";
 
 
 #include "vismultitexture2.h"
@@ -92,7 +92,7 @@ int MultiTexture2::maxNrTextures() const
 }
 
 
-SoNode* MultiTexture2::getInventorNode()
+SoNode* MultiTexture2::gtInvntrNode()
 { return switch_; }
 
 

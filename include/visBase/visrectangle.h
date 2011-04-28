@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.36 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visrectangle.h,v 1.37 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -53,8 +53,6 @@ public:
     Notifier<RectangleDragger>	changed;
     Notifier<RectangleDragger>	finished;
 
-    SoNode*			getInventorNode();
-
 protected:
 				~RectangleDragger();
 
@@ -80,6 +78,9 @@ protected:
     static void			motionCB( void*, SoDragger* );
     static void			valueChangedCB(void*, SoDragger* );
     static void			finishCB( void*, SoDragger* );
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 /*!\brief

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislevelofdetail.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vislevelofdetail.h,v 1.7 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -29,19 +29,22 @@ one of the versions will be used.
 mClass LevelOfDetail : public DataObject
 {
 public:
+
     static LevelOfDetail*	create()
 				mCreateDataObj(LevelOfDetail);
 
     void			addChild( DataObject*, float maxscreensize );
     				//!< maxscreensize is in pixels. The versions
     				//!< are added with the full versions first.
-    SoNode*			getInventorNode();
 
 protected:
     				~LevelOfDetail();
 
     SoLevelOfDetail*		lod;
     ObjectSet<DataObject>	children;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 }; // Namespace

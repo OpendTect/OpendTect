@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visshapescale.cc,v 1.14 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.15 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -134,7 +134,7 @@ bool ShapeScale::restoresProportions() const
 }
 
 
-SoNode*  ShapeScale::getInventorNode() 
+SoNode* ShapeScale::gtInvntrNode() 
 {
     return root;
 }

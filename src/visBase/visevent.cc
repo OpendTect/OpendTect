@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.34 2010-12-09 16:25:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.35 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -255,7 +255,7 @@ void EventCatcher::reHandle( const EventInfo& eventinfo )
 }
 
 
-SoNode* EventCatcher::getInventorNode()
+SoNode* EventCatcher::gtInvntrNode()
 { return node_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.15 2010-03-30 11:55:21 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.16 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistexturecoords.h"
 
@@ -133,7 +133,7 @@ void TextureCoords::removeCoord(int idx)
 }
 
 
-SoNode* TextureCoords::getInventorNode()
+SoNode* TextureCoords::gtInvntrNode()
 { return coords_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.8 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.9 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -84,7 +84,7 @@ public:
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const 
     				{ return empolygonsurf_; }
-    bool			canRemoveSelecion()	{ return true; }
+    bool			canRemoveSelecion() const	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner*);
 

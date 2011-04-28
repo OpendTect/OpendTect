@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.17 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.18 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -83,7 +83,7 @@ void DrawStyle::setLineWidth( int width )
 }    
 
 
-SoNode* DrawStyle::getInventorNode()
+SoNode* DrawStyle::gtInvntrNode()
 {
     return drawstyle;
 }

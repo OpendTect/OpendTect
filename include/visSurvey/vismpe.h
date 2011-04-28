@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.66 2011-01-27 04:48:17 cvsnanne Exp $
+RCS:        $Id: vismpe.h,v 1.67 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -97,6 +97,9 @@ public:
     void            setColTabSequence(int,const ColTab::Sequence&,
 	                              TaskRunner*);
 
+    void	    getMousePosInfo( const visBase::EventInfo& ei,
+				     IOPar& iop ) const
+		    { return SurveyObject::getMousePosInfo(ei,iop);}
     void            getMousePosInfo(const visBase::EventInfo&, Coord3&, 
 	                          BufferString& val, BufferString& info) const;
     void	    getObjectInfo(BufferString&) const;
@@ -130,7 +133,6 @@ public:
     float		slicePosition(visBase::OrthogonalSlice*) const;
     float		getValue(const Coord3&) const;   
 	
-    SoNode*		getInventorNode();
     void		removeChild(int displayid);
     void		getChildren(TypeSet<int>&) const;
 	
@@ -311,6 +313,8 @@ protected:
 
     // new texture channel-related keys    
     static const char*		sKeyTC2VolData()	{ return "TC2VolData"; }
+
+    virtual SoNode*		gtInvntrNode();
 
 };
 

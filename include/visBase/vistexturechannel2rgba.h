@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.25 2010-09-15 06:37:10 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.26 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -139,7 +139,6 @@ protected:
     void			setChannels(TextureChannels*);
 
     					~ColTabTextureChannel2RGBA();
-    SoNode*				getInventorNode();
 
     void				update();
     void				getColors(int channel,
@@ -173,10 +172,11 @@ protected:
     SoGroup*				noneshadinggroup_;
     SoColTabTextureChannel2RGBA*	converter_;
     SoComplexity*			nonshadingcomplexity_;
+
+    virtual SoNode*			gtInvntrNode();
+
 };
 
-
-}; //namespace
-
+} //namespace
 
 #endif

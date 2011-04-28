@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.16 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: visdragger.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,6 @@ public:
     const TypeSet<int>*		rightClickedPath() const;
     const EventInfo*		rightClickedEventInfo() const;
 
-    SoNode*			getInventorNode();
-
 protected:
     				~Dragger();
     void			triggerRightClick(const EventInfo* eventinfo);
@@ -89,6 +87,9 @@ protected:
     Transformation*		positiontransform_;
     SoDragger*			dragger_;
     Transformation*		displaytrans_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 } // namespace visBase

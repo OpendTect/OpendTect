@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.10 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visshapescale.h,v 1.11 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ a constant size is given to the object via setShape.
 mClass ShapeScale : public DataObject
 {
 public:
+
     static ShapeScale*	create()
 			mCreateDataObj(ShapeScale);
 
@@ -48,19 +49,24 @@ public:
     void		restoreProportions(bool yn);
     bool		restoresProportions() const;
 
-    SoNode*		getInventorNode();
     int			usePar( const IOPar& iopar );
     void		fillPar( IOPar& iopar, TypeSet<int>& saveids ) const;
 	
 protected:
+
     static const char*	shapeidstr;
 
     SoSeparator*	root;
     SoNode*		node;
     DataObject*		shape;
     SoShapeScale*	shapescalekit;
+
+    virtual SoNode*	gtInvntrNode();
+
 private:
+
     virtual		~ShapeScale();
+
 };
 
 }; // Namespace

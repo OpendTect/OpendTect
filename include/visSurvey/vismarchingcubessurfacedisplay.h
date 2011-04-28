@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.25 2011-01-07 21:23:16 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.26 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,9 @@ protected:
     virtual int			usePar(const IOPar&);
     void			materialChangeCB(CallBacker*);
 
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 	     			    Coord3& xyzpos, BufferString& val,
 	     			    BufferString& info) const;

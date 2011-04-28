@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.40 2011-04-26 21:12:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.41 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "viscoord.h"
 
@@ -344,6 +344,9 @@ void Coordinates::update()
 }
 
 
+SoNode* Coordinates::gtInvntrNode() { return root_; }
+
+
 void Coordinates::setAllZ( const float* vals, int sz )
 {
     if ( sz != coords_->point.getNum() )
@@ -361,8 +364,6 @@ void Coordinates::setAllZ( const float* vals, int sz )
     coords_->point.finishEditing();
 }
 
-
-SoNode* Coordinates::getInventorNode() { return root_; }
 
 
 void Coordinates::getPositions(TypeSet<Coord3>& res) const

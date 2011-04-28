@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.14 2010-03-30 11:52:31 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.15 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
     Coord3		getNormal(int) const;
     void		addNormalValue(int,const Coord3&);
 
-    SoNode*		getInventorNode();
     void		setDisplayTransformation( Transformation* nt );
     Transformation*	getDisplayTransformation() { return transformation_; }
 
@@ -65,6 +64,8 @@ protected:
     mutable Threads::Mutex&	mutex_;
 
     Transformation*		transformation_;
+
+    virtual SoNode*		gtInvntrNode();
     			
 };
 

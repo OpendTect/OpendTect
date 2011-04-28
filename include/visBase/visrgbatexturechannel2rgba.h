@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.7 2010-09-15 06:37:10 cvskarthika Exp $
+ RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.8 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -44,11 +44,13 @@ public:
 protected:
 
     				~RGBATextureChannel2RGBA();
-    SoNode*			getInventorNode();
 
     static ArrPtrMan<ColTab::Sequence>	sequences_;
 
     SoRGBATextureChannel2RGBA*	converter_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 

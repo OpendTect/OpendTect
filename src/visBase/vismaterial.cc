@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismaterial.cc,v 1.18 2009-09-04 19:47:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.19 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vismaterial.h"
 #include "iopar.h"
@@ -155,7 +155,7 @@ void Material::setMinNrOfMaterials(int minnr)
 }
 
 
-SoNode* Material::getInventorNode() { return material_; }
+SoNode* Material::gtInvntrNode() { return material_; }
 
 
 int Material::usePar( const IOPar& iopar )

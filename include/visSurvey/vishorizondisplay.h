@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.64 2011-01-31 08:39:09 cvsnageswara Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.65 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,9 @@ public:
     				/*!< 0 is automatic */
 
     bool			allowsPicks() const		{ return true; }
+    void			getMousePosInfo(const visBase::EventInfo& e,
+	    					IOPar& i ) const
+				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					Coord3&,
 	    					BufferString& val,
@@ -135,7 +138,7 @@ public:
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int attr,
 				    const ColTab::Sequence&,TaskRunner*);
-    const ColTab::MapperSetup*	getColTabMapperSetup(int attr) const;
+    const ColTab::MapperSetup*	getColTabMapperSetup(int attr,int v=0) const;
     void			setColTabMapperSetup(int attr,
 				    const ColTab::MapperSetup&,TaskRunner*);
     const TypeSet<float>*	getHistogram(int) const;

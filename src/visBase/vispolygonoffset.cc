@@ -4,7 +4,7 @@
  * DATE     : June 2006
 -*/
 
-static const char* rcsID = "$Id: vispolygonoffset.cc,v 1.2 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolygonoffset.cc,v 1.3 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vispolygonoffset.h"
 
@@ -76,7 +76,7 @@ float PolygonOffset::getUnits() const
 }
 
 
-SoNode* PolygonOffset::getInventorNode()
+SoNode* PolygonOffset::gtInvntrNode()
 { return offset_; }
 
 

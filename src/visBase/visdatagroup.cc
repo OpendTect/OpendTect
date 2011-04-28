@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.14 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.15 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -161,7 +161,7 @@ void DataObjectGroup::removeAll()
 }
 
 
-SoNode*  DataObjectGroup::getInventorNode()
+SoNode*  DataObjectGroup::gtInvntrNode()
 {
     ensureGroup();
     return group_;

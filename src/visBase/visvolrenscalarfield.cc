@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.31 2011-03-17 14:42:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.32 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -222,7 +222,7 @@ Interval<float> VolumeRenderScalarField::getVolumeSize( int dim ) const
 }
 
 
-SoNode* VolumeRenderScalarField::getInventorNode()
+SoNode* VolumeRenderScalarField::gtInvntrNode()
 {
     if ( !voldata_ )
     {

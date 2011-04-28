@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visforegroundlifter.cc,v 1.3 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visforegroundlifter.cc,v 1.4 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visforegroundlifter.h"
 
@@ -37,7 +37,7 @@ float ForegroundLifter::getLift() const
 { return lifter_->lift.getValue(); }
 
 
-SoNode* ForegroundLifter::getInventorNode()
+SoNode* ForegroundLifter::gtInvntrNode()
 { return lifter_; }
 
 }; // namespace visBase

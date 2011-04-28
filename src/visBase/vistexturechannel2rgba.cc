@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.57 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.58 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -77,7 +77,7 @@ const SbImagei32* getChannelData() const
 { return tc_->channels.getValues( 0 ); }
 
 
-SoNode* getInventorNode()
+SoNode* gtInvntrNode()
 { return tc_; }
 
 
@@ -876,7 +876,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 }
 
 
-SoNode* ColTabTextureChannel2RGBA::getInventorNode()
+SoNode* ColTabTextureChannel2RGBA::gtInvntrNode()
 { return shaderswitch_; }
 
 

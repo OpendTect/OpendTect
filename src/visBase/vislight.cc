@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.12 2010-10-06 06:43:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.13 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -60,7 +60,7 @@ float Light::intensity() const
 { return light->intensity.getValue(); }
 
 
-SoNode* Light::getInventorNode()
+SoNode* Light::gtInvntrNode()
 { return light; }
 
 
@@ -311,7 +311,7 @@ LightModel::Type LightModel::getModel() const
 }
 
 
-SoNode* LightModel::getInventorNode()
+SoNode* LightModel::gtInvntrNode()
 {
     return lightmodel_;
 }

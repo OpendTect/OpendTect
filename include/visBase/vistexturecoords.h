@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.10 2010-03-30 11:59:09 cvskris Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.11 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,6 @@ public:
 
     int				nextID(int previd) const;
 
-    SoNode*			getInventorNode();
-
 protected:
     				~TextureCoords();
     int				getFreeIdx();
@@ -54,6 +52,9 @@ protected:
     SoTextureCoordinate3*	coords_;
     TypeSet<int>		unusedcoords_;
     Threads::Mutex&		mutex_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 

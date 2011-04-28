@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.137 2011-03-25 09:46:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.138 2011-04-28 07:00:13 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -55,7 +55,7 @@ public:
     const char*		getType() const;
     void		updateGeometry();
     int			nrShapes() const;
-    const char*		getShapeName(int);
+    const char*		getShapeName(int) const;
     void		getPoints(int,TypeSet<Coord>& res) const;
     char		connectPoints(int) const;
     const Color*	getColor(int) const;
@@ -83,7 +83,7 @@ int WellDisplayBaseMapObject::nrShapes() const
 { return 1; }
 
 
-const char* WellDisplayBaseMapObject::getShapeName(int)
+const char* WellDisplayBaseMapObject::getShapeName(int) const
 { return wd_->name(); }
 
 
@@ -412,7 +412,7 @@ const LineStyle* WellDisplay::lineStyle() const
 }
 
 
-void WellDisplay::setLineStyle( LineStyle lst )
+void WellDisplay::setLineStyle( const LineStyle& lst )
 {
     well_->setLineStyle( lst );
 }

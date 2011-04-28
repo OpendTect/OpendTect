@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: array2dfunc.h,v 1.2 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: array2dfunc.h,v 1.3 2011-04-28 07:00:11 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -31,6 +31,8 @@ public:
 			}
 
     inline RT		getValue(PT,PT) const;
+    inline RT		getValue( const PT* p ) const
+			{ return getValue(p[0],p[1]); }
 
 protected:
 

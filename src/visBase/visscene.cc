@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.43 2010-12-15 22:54:14 cvskris Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.44 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visscene.h"
 
@@ -71,7 +71,7 @@ Scene::Scene()
     selroot_->addChild( environment_ );
     events_.ref();
     selroot_->addChild( events_.getInventorNode() );
-    selroot_->addChild( DataObjectGroup::getInventorNode() );
+    selroot_->addChild( DataObjectGroup::gtInvntrNode() );
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
 }
 
@@ -161,7 +161,7 @@ bool Scene::blockMouseSelection( bool yn )
 }
 
 
-SoNode* Scene::getInventorNode()
+SoNode* Scene::gtInvntrNode()
 {
     return selroot_;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.57 2010-02-22 22:41:27 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.58 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,10 @@ public:
     const char*			name() const;
     virtual void		setName(const char*);
 
-    virtual SoNode*		getInventorNode()	{ return 0; }
-    virtual const SoNode*	getInventorNode() const;
+    inline SoNode*		getInventorNode()	{return gtInvntrNode();}
+    inline const SoNode*	getInventorNode() const
+				{ return const_cast<DataObject*>(this)->
+							gtInvntrNode(); }
 
     virtual bool		pickable() const 	{ return selectable(); }
     virtual bool		rightClickable() const 	{ return selectable(); }
@@ -134,6 +136,8 @@ protected:
     virtual bool		_init();
 
     bool			saveinsessions_;
+
+    virtual SoNode*		gtInvntrNode()		{ return 0; }
 
 private:
     int				id_;

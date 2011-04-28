@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.124 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.125 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -179,8 +179,7 @@ public:
     virtual void		setAttribTransparency(int,unsigned char) {}	
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-	    						     int version) const;
-    virtual const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+	    						   int version=0) const;
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
@@ -205,7 +204,7 @@ public:
 
     virtual void		removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*) {}
-    virtual bool		canRemoveSelecion()		{ return false;}
+    virtual bool		canRemoveSelecion() const	{ return false;}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }

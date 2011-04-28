@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.14 2010-09-16 04:00:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.15 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -164,7 +164,7 @@ const SbImagei32* getChannelData() const
 }
 
 
-SoNode* getInventorNode()
+SoNode* gtInvntrNode()
 {
     if ( !voldata_ )
     {
@@ -216,7 +216,7 @@ MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
 { return VolumeDataSetImpl::create(); }
 
 
-SoNode* TextureChannel2VolData::getInventorNode()
+SoNode* TextureChannel2VolData::gtInvntrNode()
 {
     enabled_ = true;
     transferfunc_ = new SoTransferFunction;

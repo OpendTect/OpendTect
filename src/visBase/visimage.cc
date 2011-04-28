@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visimage.cc,v 1.7 2010-08-09 20:02:38 cvskris Exp $";
+static const char* rcsID = "$Id: visimage.cc,v 1.8 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visimage.h"
 
@@ -91,7 +91,7 @@ const char* Image::getFileName() const
 }
 
 
-SoNode* Image::getInventorNode()
+SoNode* Image::gtInvntrNode()
 { return texture_; }
 
 

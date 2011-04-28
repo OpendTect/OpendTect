@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.33 2011-03-03 11:54:32 cvsnanne Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.34 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,9 @@ public:
     void                        showLine(bool);
     bool                        lineShown() const;
     virtual BufferString	getManipulationString() const;
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+	    					IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
 						BufferString&) const;
@@ -90,7 +93,7 @@ public:
 
     const SurveyObject*		getPickedSurveyObject() const;
 
-    bool			canRemoveSelecion()	{ return true; }
+    bool			canRemoveSelecion() const	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
 

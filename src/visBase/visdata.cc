@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.30 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.31 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visdata.h"
 
@@ -20,11 +20,6 @@ static const char* rcsID = "$Id: visdata.cc,v 1.30 2009-07-22 16:01:44 cvsbert E
 
 namespace visBase
 {
-
-
-const SoNode* DataObject::getInventorNode() const
-{ return const_cast<const SoNode*>(((DataObject*)this)->getInventorNode() ); }
-
 
 const char* DataObject::name() const
 {

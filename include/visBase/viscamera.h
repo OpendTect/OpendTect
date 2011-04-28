@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.19 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: viscamera.h,v 1.20 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ namespace visBase
 mClass Camera : public DataObject
 {
 public:
+
     static Camera*	create()
 			mCreateDataObj( Camera );
 
@@ -66,10 +67,10 @@ public:
 
     Coord3 		centerFrustrum();
 
-    SoNode*		getInventorNode();
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
     void		fillPar(IOPar&,const SoCamera*) const;
+
 protected:
 
     virtual		~Camera();
@@ -87,6 +88,9 @@ protected:
     static const char*	sKeyNearDistance();
     static const char*	sKeyFarDistance();
     static const char*	sKeyFocalDistance();
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 

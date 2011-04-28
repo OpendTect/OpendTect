@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrotationdragger.cc,v 1.5 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrotationdragger.cc,v 1.6 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visrotationdragger.h"
 
@@ -103,7 +103,7 @@ void RotationDragger::setCallbacks( SoDragger* dragger )
 
 
 
-SoNode* RotationDragger::getInventorNode()
+SoNode* RotationDragger::gtInvntrNode()
 {
     if ( !getDragger() )
     {

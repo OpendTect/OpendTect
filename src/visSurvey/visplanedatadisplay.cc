@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.254 2011-04-12 18:00:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.255 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -56,7 +56,7 @@ public:
     const char*	getType() const;
     void	updateGeometry();
     int		nrShapes() const;
-    const char*	getShapeName(int);
+    const char*	getShapeName(int) const;
     void	getPoints(int,TypeSet<Coord>& res) const;
     char	connectPoints(int) const;
 
@@ -86,7 +86,7 @@ int PlaneDataDisplayBaseMapObject::nrShapes() const
 { return 1; }
 
 
-const char* PlaneDataDisplayBaseMapObject::getShapeName(int)
+const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
 { return pdd_->name(); }
 
 

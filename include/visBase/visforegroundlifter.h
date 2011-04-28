@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visforegroundlifter.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visforegroundlifter.h,v 1.4 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -25,16 +25,19 @@ namespace visBase
 mClass ForegroundLifter : public DataObject
 {
 public:
+
     static ForegroundLifter*	create()
 				mCreateDataObj( ForegroundLifter );
 
     void			setLift(float);
     float			getLift() const;
-    SoNode*			getInventorNode();
 
 protected:
     				~ForegroundLifter();
     SoForegroundTranslation*	lifter_;
+
+    virtual SoNode*		gtInvntrNode();
+
 };
 
 };

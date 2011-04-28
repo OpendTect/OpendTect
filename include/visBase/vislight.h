@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.11 2010-10-06 06:43:11 cvsranojay Exp $
+ RCS:		$Id: vislight.h,v 1.12 2011-04-28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,8 +38,6 @@ public:
     			/*!< 0 = nada, 1 = full light */
     float		intensity() const;
 
-    SoNode*		getInventorNode();
-
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
 protected:
@@ -50,6 +48,9 @@ protected:
 
     static const char*	isonstr();
     static const char*	intensitystr();
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 /*!\brief
@@ -135,18 +136,21 @@ protected:
 mClass LightModel : public DataObject
 {
 public:
-    static LightModel*	    create() 
-			    mCreateDataObj(LightModel);
 
-    enum Type		    { BaseColor, Phong };
-    void		    setModel(Type);
-    Type		    getModel() const;
+    static LightModel*	create() 
+			mCreateDataObj(LightModel);
 
-    SoNode*		    getInventorNode();
+    enum Type		{ BaseColor, Phong };
+    void		setModel(Type);
+    Type		getModel() const;
 
 protected:
-			    ~LightModel();
-    SoLightModel*	    lightmodel_;
+
+			~LightModel();
+    SoLightModel*	lightmodel_;
+
+    virtual SoNode*	gtInvntrNode();
+
 };
 
 } //visBase

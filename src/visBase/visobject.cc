@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.46 2009-09-04 19:47:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.47 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visobject.h"
 
@@ -179,7 +179,7 @@ void VisualObjectImpl::removeSwitch()
 }
 
 
-SoNode* VisualObjectImpl::getInventorNode() 
+SoNode* VisualObjectImpl::gtInvntrNode() 
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 

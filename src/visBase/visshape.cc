@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.30 2011-04-26 21:13:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.31 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "visshape.h"
 
@@ -247,7 +247,7 @@ int Shape::usePar( const IOPar& par )
 }
 
 	
-SoNode* Shape::getInventorNode()
+SoNode* Shape::gtInvntrNode()
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 

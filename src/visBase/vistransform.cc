@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransform.cc,v 1.26 2010-08-19 08:32:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.27 2011-04-28 07:00:12 cvsbert Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -221,7 +221,7 @@ int Transformation::usePar( const IOPar& par )
 }
 
 		  
-SoNode* Transformation::getInventorNode()
+SoNode* Transformation::gtInvntrNode()
 {
     return transform_;
 }
@@ -278,7 +278,7 @@ Coord3 Rotation::transformBack( const Coord3& input ) const
 }
 
 
-SoNode* Rotation::getInventorNode() { return rotation_; }
+SoNode* Rotation::gtInvntrNode() { return rotation_; }
 
 
 
