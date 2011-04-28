@@ -5,10 +5,12 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.7 2011-04-28 16:54:57 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
+#include "fixedstring.h"
+#include "survinfo.h"
 #include "undefval.h"
 #include <stdio.h>
 
@@ -574,6 +576,55 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     if ( trimright )
 	strcat( ret,  dots );
     
+    return ret;
+}
+
+
+const char* getAreaString( float m2, bool parensonunit, char* str )
+{
+    BufferString val;
+
+    const float km2 = m2*1e-6;
+
+    FixedString unit;
+
+    if ( km2>0.01 )
+    {
+	if ( SI().xyInFeet() )
+	{
+	    val = km2*mToSqMileFactor;
+	    unit =  "sq mi";
+	}
+	else
+	{
+	    val = km2;
+	    unit = "sq km";
+	}
+    }
+    else
+    {
+	if ( SI().xyInFeet() )
+	{
+	    val = m2*mToFeetFactor*mToFeetFactor;
+	    unit =  "sq ft";
+	}
+	else
+	{
+	    val = m2;
+	    unit = "sq m";
+	}
+    }
+
+    val += " ";
+    if ( parensonunit )
+	val += "(";
+    val += unit;
+    if ( parensonunit )
+	val += ")";
+
+    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    strcpy( ret, val.buf() );
+
     return ret;
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.45 2011-02-04 18:59:34 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.46 2011-04-28 16:54:57 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -96,6 +96,10 @@ mGlobal const char* getLimitedDisplayString(const char*,int nrchars,
 mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
 				  int startnr=0,int nr_chars_to_match=0,
 				  int notfoundidx=-1);
+
+/*!>Returns a string with an area and its unit, depending on survey and
+    area size, unit is ft^2, m^2, km^2 or mile^2. */
+mGlobal const char* getAreaString( float m2, bool parensonunit, char* str=0 );
 
 // toString functions. 
 mGlobal const char* toString( od_int32 i );
