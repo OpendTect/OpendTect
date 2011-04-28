@@ -4,13 +4,14 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.72 2011-03-09 22:42:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.73 2011-04-28 14:43:22 cvskris Exp $";
 
 #include "pickset.h"
 
 #include "ioman.h"
 #include "iopar.h"
 #include "multiid.h"
+#include "polygon.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -446,6 +447,26 @@ Pick::Set& Pick::Set::operator=( const Set& s )
     copy( s ); setName( s.name() );
     disp_ = s.disp_; pars_ = s.pars_;
     return *this;
+}
+
+
+float Pick::Set::getXYArea() const
+{
+    if ( size()<3 || disp_.connect_!=Pick::Set::Disp::Close )
+	return mUdf(float);
+    
+    TypeSet<Geom::Point2D<float> > posxy;
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	const Coord localpos = (*this)[idx].pos;
+	posxy += Geom::Point2D<float>( localpos.x, localpos.y );
+    }
+
+    ODPolygon<float> polygon( posxy );
+    if ( polygon.isSelfIntersecting() )
+	return mUdf(float);
+
+    return polygon.area();
 }
 
 
