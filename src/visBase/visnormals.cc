@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visnormals.cc,v 1.19 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.20 2011-04-28 18:42:50 cvsyuancheng Exp $";
 
 #include "visnormals.h"
 
@@ -165,6 +165,26 @@ void Normals::removeNormal(int idx)
 		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
     }
 }
+
+
+void Normals::setAll( const float* vals, int coord3sz )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    if ( coord3sz!=normals_->vector.getNum() )
+	normals_->vector.setNum( coord3sz );
+
+    float* nms = (float*)normals_->vector.startEditing();
+    float* stopptr = nms + coord3sz * 3;
+    while ( nms<stopptr )
+    {
+ 	*nms = *vals;
+ 	nms++;
+ 	vals++;
+    } 
+    normals_->vector.finishEditing();
+}
+
 
 
 Coord3 Normals::getNormal( int idx ) const
