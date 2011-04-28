@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.33 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: velocitycalc.h,v 1.34 2011-04-28 12:37:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
 
     float		getDepth(int idx) const;
     float		getTime(int idx) const;
+    float		getLastTime() const;
+
     float		getDepth(float time) const;
     float		getTime(float depth) const;
     float	 	getVelocity(float depth) const;
