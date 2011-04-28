@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.121 2011-03-16 12:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.122 2011-04-28 14:49:37 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -160,7 +160,7 @@ void uiSeisFileMan::mkFileInfo()
 	    BufferString areaunit;
 	    if ( SI().xyInFeet() )
 	    {
-		area /= 2.590;
+		area *= mToSqMileFactor;
 		areaunit = "(sq mi): ";
 	    }
 	    else
