@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.44 2011-04-28 14:43:22 cvskris Exp $
+ RCS:		$Id: pickset.h,v 1.45 2011-04-28 16:42:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,8 +116,7 @@ public:
     IOPar&		pars_;
 
     float		getXYArea() const;
-    			/*!<Only for closed polygons. Returns in m^2 or ft^2
-			    depending on survey. */
+    			//!<Only for closed polygons. Returns in m^2.
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

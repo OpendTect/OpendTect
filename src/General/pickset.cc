@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.73 2011-04-28 14:43:22 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.74 2011-04-28 16:42:12 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -452,7 +452,7 @@ Pick::Set& Pick::Set::operator=( const Set& s )
 
 float Pick::Set::getXYArea() const
 {
-    if ( size()<3 || disp_.connect_!=Pick::Set::Disp::Close )
+    if ( size()<3 || disp_.connect_==Pick::Set::Disp::None )
 	return mUdf(float);
     
     TypeSet<Geom::Point2D<float> > posxy;
@@ -466,7 +466,11 @@ float Pick::Set::getXYArea() const
     if ( polygon.isSelfIntersecting() )
 	return mUdf(float);
 
-    return polygon.area();
+    float area = polygon.area();
+    if ( SI().xyInFeet() )
+	area *= (mFromFeetFactor*mFromFeetFactor);
+
+    return area;
 }
 
 
