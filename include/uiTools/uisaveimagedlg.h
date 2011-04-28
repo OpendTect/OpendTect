@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.5 2009-07-23 06:25:42 cvssatyaki Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.6 2011-04-28 10:32:36 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,13 @@ public:
 
 protected:
 
+    uiLabeledSpinBox*	pixheightfld_;
+    uiLabeledSpinBox*	pixwidthfld_;
     uiLabeledSpinBox*	heightfld_;
     uiLabeledSpinBox*	widthfld_;
+    uiLabeledSpinBox*	dpifld_;
     uiGenInput*		unitfld_;
     uiCheckBox*		lockfld_;
-    uiGenInput*		dpifld_;
     uiGenInput*		useparsfld_;
     uiFileInput*	fileinputfld_;
     
@@ -85,6 +87,7 @@ protected:
     static BufferString	dirname_;
 
     void		updateSizes();
+    void		setNotifiers(bool enable);
     virtual const char*	getExtension();
     virtual void	writeToSettings()		{}
 
