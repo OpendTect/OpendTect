@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.10 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.11 2011-04-28 17:06:36 cvskris Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -72,8 +72,27 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
 
+    uiGenInput* areafld = 0;
+    const Pick::Set* ps = getPickSet();
+    if ( ps )
+    {
+	const float area = ps->getXYArea();
+	if ( !mIsUdf(area) )
+	{
+	    areafld = new uiGenInput( grp, "==> Area" );
+	    areafld->attach( alignedBelow, calcbut );
+	    areafld->setReadOnly( true );
+
+	    areafld->setText( getAreaString( area, true, 0 ) );
+	}
+    }
+
     valfld_ = new uiGenInput( grp, "==> Volume" );
-    valfld_->attach( alignedBelow, calcbut );
+    if ( areafld )
+	valfld_->attach( alignedBelow, areafld );
+    else
+	valfld_->attach( alignedBelow, calcbut );
+
     valfld_->setReadOnly( true );
 
     grp->setHAlignObj( attobj );
