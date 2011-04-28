@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.7 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.8 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "uipsviewershapetab.h"
 
@@ -174,7 +174,7 @@ bool uiViewer3DShapeTab::acceptOK( )
 }
 
 
-bool uiViewer3DShapeTab::rejectOK( CallBacker* )
+bool uiViewer3DShapeTab::rejectOK()
 {
     viewer_.displaysOnPositiveSide( initialside_ );
     autowidthfld_->setValue( initialautowidth_ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.cc,v 1.1 2010-06-24 08:57:00 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dtreeitem.cc,v 1.2 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ uiODVw2DTreeTop::~uiODVw2DTreeTop()
 }
 
 
-bool uiODVw2DTreeTop::select( int selkey )
+bool uiODVw2DTreeTop::selectWithKey( int selkey )
 {
     //TODO send object manager signal about selection
     return true;

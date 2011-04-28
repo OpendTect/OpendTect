@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.1 2011-03-24 04:40:22 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.2 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
     if ( ps )
-	addChild( new uiODVw2DPickSetTreeItem(*ps), false, false );
+	addChld( new uiODVw2DPickSetTreeItem(*ps), false, false );
 }
 
 

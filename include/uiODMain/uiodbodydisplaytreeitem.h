@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.13 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.14 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
     			{ return new uiODBodyDisplayParentTreeItem; }
-    uiTreeItem*		create(int visid,uiTreeItem*) const;
+    virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const;
 };
 
 

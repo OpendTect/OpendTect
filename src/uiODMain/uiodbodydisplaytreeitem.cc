@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.29 2011-02-23 07:19:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.30 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -128,8 +128,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODBodyDisplayTreeItemFactory::create( int visid,
-						    uiTreeItem* ) const
+uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
+							  uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));

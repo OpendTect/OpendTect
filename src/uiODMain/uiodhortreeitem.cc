@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.69 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.70 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -98,7 +98,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    }
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mLoadCBIdx );
-	    addChild( itm, false, false );
+	    addChld( itm, false, false );
 	}
 
 	deepUnRef( objs );
@@ -188,10 +188,10 @@ void uiODHorizonParentTreeItem::sort()
 }
 
 
-bool uiODHorizonParentTreeItem::addChild( uiTreeItem* child, bool below,
+bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 					  bool downwards )
 {
-    bool res = uiTreeItem::addChild( child, below, downwards );
+    bool res = uiTreeItem::addChld( child, below, downwards );
     if ( res ) sort();
     return res;
 }
@@ -582,7 +582,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		MPE::engine().addTracker( objs[idx] );
 		applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
-	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
+	    addChld( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
 	}
 
 	deepUnRef( objs );
@@ -604,7 +604,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
 	if( dlg.go() && dlg.doDisplay() )
-	    addChild( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
+	    addChld( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
@@ -656,10 +656,10 @@ void uiODHorizon2DParentTreeItem::sort()
 }
 
 
-bool uiODHorizon2DParentTreeItem::addChild( uiTreeItem* child, bool below,
+bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 					    bool downwards )
 {
-    bool res = uiTreeItem::addChild( child, below, downwards );
+    bool res = uiTreeItem::addChld( child, below, downwards );
     if ( res ) sort();
     return res;
 }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.62 2011-04-25 03:50:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.63 2011-04-28 11:30:53 cvsbert Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -95,12 +95,12 @@ bool uiTreeItem::shouldSelect( int selid ) const
 { return selid!=-1 && selid==selectionKey(); }
 
 
-bool uiTreeItem::select(int selkey)
-{ return parent_ ? parent_->select(selkey) : false; }
+bool uiTreeItem::selectWithKey( int selkey )
+{ return parent_ ? parent_->selectWithKey(selkey) : false; }
 
 
 bool uiTreeItem::select()
-{ return select(selectionKey()); }
+{ return selectWithKey(selectionKey()); }
 
 bool uiTreeItem::isSelected() const
 { return uilistviewitem_ ? uilistviewitem_->isSelected() : false; }
@@ -373,22 +373,22 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    if ( children_[idx]->addChild(newitem,below,downwards) )
+	    if ( children_[idx]->addChld(newitem,below,downwards) )
 		return true;
 	}
     }
     else if ( parent_ )
-	return parent_->addChild( newitem, below, downwards );
+	return parent_->addChld( newitem, below, downwards );
  
     return false; 
 }
 
 
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
-{ return addChild( newitem, below, false ); }
+{ return addChld( newitem, below, false ); }
 
 
-bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
+bool uiTreeItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
 { return addChildImpl( uilistviewitem_, newitem, below, downwards ); }
 
 
@@ -442,11 +442,11 @@ uiTreeTopItem::~uiTreeTopItem()
 
 bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below )
 {
-    return addChild( newitem, below, true );
+    return addChld( newitem, below, true );
 }
 
 
-bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
+bool uiTreeTopItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
 {
     downwards = true;		//We are at the top, so we should go downwards
     return addChildImpl( listview_, newitem, below, downwards );

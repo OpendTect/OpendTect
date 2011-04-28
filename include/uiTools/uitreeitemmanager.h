@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.51 2011-04-25 03:50:48 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.52 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -136,12 +136,13 @@ public:
     virtual void		updateCheckStatus();
 
 protected:
+
     virtual int			uiListViewItemType() const;
     				/*!<\returns the uiListViewItem::Type that
 				    should be created */
     virtual uiParent*		getUiParent() const;
 
-    virtual bool		addChild(uiTreeItem*,bool below,bool downwards);
+    virtual bool		addChld(uiTreeItem*,bool below,bool downwards);
     				/*!< Adds a child to this item. If the child
 				    does not fit (i.e. its parentType() is not
 				    equal to this), the object tries to add
@@ -164,7 +165,7 @@ protected:
     const uiListViewItem*	getItem() const { return uilistviewitem_; }
 
     virtual bool		showSubMenu() { return true; }
-    virtual bool		select(int selkey);
+    virtual bool		selectWithKey(int selkey);
 
     virtual bool		isSelectable() const { return false; }
     virtual bool		isExpandable() const { return true; }
@@ -187,7 +188,9 @@ protected:
     friend			class uiODTreeTop;
 
 private:
+
     bool			addChildImpl(CallBacker*,uiTreeItem*,bool,bool);
+
 };
 
 mClass uiTreeItemRemover : public SequentialTask
@@ -217,7 +220,8 @@ public:
 
 			~uiTreeTopItem();
 protected:
-    virtual bool	addChild(uiTreeItem*,bool below,bool downwards);
+
+    virtual bool	addChld(uiTreeItem*,bool below,bool downwards);
 
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
@@ -231,6 +235,7 @@ protected:
     bool		disabrightclick_;
     bool		disabanyclick_;
     bool		disabselcngresp_;
+
 };
 
 

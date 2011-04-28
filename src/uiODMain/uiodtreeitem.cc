@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.214 2011-04-12 06:16:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.215 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -60,7 +60,7 @@ int uiODTreeTop::sceneID() const
 }
 
 
-bool uiODTreeTop::select(int selkey)
+bool uiODTreeTop::selectWithKey( int selkey )
 {
     applMgr()->visServer()->setSelObjectId(selkey);
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.87 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.88 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,8 +137,8 @@ public:
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
     const char*         	errMsg() const;
 
-    virtual void		initSteering()			{}
-    virtual void		initSteering(const BinID&)	{}
+    virtual void		initSteering()				{}
+    virtual void		prepSteeringForStepout(const BinID&)	{}
 
     virtual bool		prepPriorToOutputSetup();
     				/*!< returns whether the outputs plan acquired 
@@ -327,6 +327,7 @@ protected:
     float			maxSecureDip() const
 				{ return zIsTime() ? mMAXDIPSECURE
 						   : mMAXDIPSECUREDEPTH; }
+    void			stdPrepSteering(const BinID&);
 
     ObjectSet<Provider>		inputs_;
     ObjectSet<Provider>		parents_;

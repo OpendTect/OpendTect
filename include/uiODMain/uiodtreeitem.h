@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.35 2010-04-22 09:53:48 cvsranojay Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.36 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
     static const char*	scenestr();
 
     int			sceneID() const;
-    bool		select(int selkey);
+    bool		selectWithKey(int selkey);
     TypeSet<int>	getDisplayIds(int&, bool);
     void		loopOverChildrenIds( TypeSet<int>&, int&, bool, 
 	    				     const ObjectSet<uiTreeItem>& );
@@ -74,8 +74,8 @@ mClass uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
-    virtual uiTreeItem*	create(int visid,uiTreeItem*) const { return 0; }
-    virtual uiTreeItem*	create(const MultiID&,uiTreeItem*) const { return 0; }
+    virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const
+    				{ return 0; }
 
 };
 

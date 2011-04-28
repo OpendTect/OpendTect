@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.17 2011-02-24 15:05:21 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.18 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	const int trackid = mps->activeTrackerID();
 	uiODVw2DHor3DTreeItem* hortreeitem = 
 	    new uiODVw2DHor3DTreeItem( mps->getEMObjectID(trackid) );
-	addChild( hortreeitem,false, false );
+	addChld( hortreeitem,false, false );
     }
     else if ( mnuid == 1 )
     {
@@ -84,7 +84,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
 		MPE::engine().addTracker( objs[idx] );
-	    addChild( new uiODVw2DHor3DTreeItem(objs[idx]->id()), false, false);
+	    addChld( new uiODVw2DHor3DTreeItem(objs[idx]->id()), false, false);
 	}
 
 	deepUnRef( objs );
@@ -111,7 +111,7 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
-    addChild( new uiODVw2DHor3DTreeItem(emid), false, false);    
+    addChld( new uiODVw2DHor3DTreeItem(emid), false, false);    
 }
 
 

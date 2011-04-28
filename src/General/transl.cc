@@ -16,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.30 2010-12-02 08:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.31 2011-04-28 11:30:53 cvsbert Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
@@ -251,32 +251,42 @@ void TranslatorGroup::clearSelHist()
 }
 
 
-bool Translator::implExists( const IOObj* ioobj, int forread ) const
+bool Translator::implExists( const IOObj* ioobj, bool forread ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implExists( forread );
 }
+
+
 bool Translator::implReadOnly( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implReadOnly();
 }
+
+
 bool Translator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implRemove();
 }
+
+
 bool Translator::implShouldRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implShouldRemove();
 }
+
+
 bool Translator::implRename( const IOObj* ioobj, const char* newnm,
 			     const CallBack* cb ) const
 {
     if ( !ioobj ) return false;
     return const_cast<IOObj*>(ioobj)->implRename( newnm, cb );
 }
+
+
 bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     if ( !ioobj ) return false;

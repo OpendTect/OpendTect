@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.12 2011-03-09 07:28:37 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.13 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
-	addChild( new uiODVw2DFaultTreeItem(emo->id()), false, false );
+	addChld( new uiODVw2DFaultTreeItem(emo->id()), false, false );
     }
     else if ( mnuid == 1 )
     {
@@ -70,7 +70,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->EMServer()->selectFaults( objs, false );
 
 	for ( int idx=0; idx<objs.size(); idx++ )
-	    addChild( new uiODVw2DFaultTreeItem(objs[idx]->id()),false,false);
+	    addChld( new uiODVw2DFaultTreeItem(objs[idx]->id()),false,false);
 
 	deepUnRef( objs );
     }
@@ -96,7 +96,7 @@ void uiODVw2DFaultParentTreeItem::tempObjAddedCB( CallBacker* cb )
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
-    addChild( new uiODVw2DFaultTreeItem(emid), false, false );
+    addChld( new uiODVw2DFaultTreeItem(emid), false, false );
 }
 
 

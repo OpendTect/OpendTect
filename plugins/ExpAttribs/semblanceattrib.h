@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          07-01-2008
- RCS:           $Id: semblanceattrib.h,v 1.3 2010-08-11 10:01:48 cvshelene Exp $
+ RCS:           $Id: semblanceattrib.h,v 1.4 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		extensionStr()	{ return "extension"; }
     static const char*		extensionTypeStr(int);
-    void			initSteering();
+    virtual void		initSteering()	{ stdPrepSteering(stepout_); }
 
     void			prepPriorToBoundsCalc();
 

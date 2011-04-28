@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.49 2011-02-21 23:12:48 cvskris Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.50 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -42,7 +42,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 			tfs->getFactory(idx))
 	if ( !itmcreater ) continue;
 
-	uiTreeItem* res = itmcreater->create( displayid, treeitem );
+	uiTreeItem* res = itmcreater->createForVis( displayid, treeitem );
 	if ( res )
 	{
 	    treeitem->addChild( res, false );

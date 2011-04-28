@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.53 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.54 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "similarityattrib.h"
 
@@ -234,16 +234,6 @@ bool Similarity::getTrcPos()
     }
 
     return true;
-}
-
-
-void Similarity::initSteering()
-{
-    for( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
-	    inputs_[idx]->initSteering( stepout_ );
-    }
 }
 
 

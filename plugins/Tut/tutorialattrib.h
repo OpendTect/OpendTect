@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.5 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.6 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,10 @@ public:
     static const char*  horsmoothStr()          { return "smoothdir"; }
     static const char*  steeringStr()   	{ return "steering"; }
     static const char*  stepoutStr()      	{ return "stepout"; }
-    virtual void	initSteering();
-    virtual void	initSteering( const BinID& bid )
-			{ return Provider::initSteering(bid); }
+    void		initSteering()		{ stdPrepSteering(stepout_); }
 
 protected:
+
 			~Tutorial() {}
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);

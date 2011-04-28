@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.33 2010-08-25 14:19:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.34 2011-04-28 11:30:53 cvsbert Exp $";
 
 
 #include "positionattrib.h"
@@ -120,16 +120,6 @@ Position::Position( Desc& desc )
 Position::~Position()
 {
     delete outdata_;
-}
-
-
-void Position::initSteering()
-{
-    for( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
-	    inputs_[idx]->initSteering(stepout_);
-    }
 }
 
 

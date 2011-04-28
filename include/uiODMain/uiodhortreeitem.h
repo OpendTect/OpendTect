@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.16 2011-02-24 14:57:09 cvsbert Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.17 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-	     void sort(); bool addChild(uiTreeItem*,bool below,bool) );
+	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
 mClass uiODHorizonTreeItemFactory : public uiODTreeItemFactory
@@ -65,7 +65,7 @@ protected:
 
 
 mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-	     void sort(); bool addChild(uiTreeItem*,bool below,bool) );
+	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
 mClass uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory

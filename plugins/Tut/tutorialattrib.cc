@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tutorialattrib.cc,v 1.10 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.11 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -118,12 +118,6 @@ Tutorial::Tutorial( Desc& desc )
     }
 
     inpdata_.allowNull( true );
-}
-
-void Tutorial::initSteering()
-{
-    if ( inputs_[1] && inputs_[1]->getDesc().isSteering() )
-	inputs_[1]->initSteering( stepout_ );
 }
 
 

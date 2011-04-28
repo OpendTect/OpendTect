@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.31 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:           $Id: similarityattrib.h,v 1.32 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,7 @@ public:
     static const char*		maxdipStr()	{ return "maxdip"; }
     static const char*		ddipStr()	{ return "ddip"; }
     static const char*		extensionTypeStr(int);
-    void			initSteering();
-    void			initSteering( const BinID& bid )
-				{ return Provider::initSteering(bid); }
+    void			initSteering()	{ stdPrepSteering(stepout_); }
 
     void			prepPriorToBoundsCalc();
 

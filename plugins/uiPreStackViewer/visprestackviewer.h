@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.28 2010-07-20 14:41:07 cvskris Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.29 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     DataPack::ID		preProcess();
 
     bool			is3DSeis() const;
-    DataPack::ID		getDataPackID() const;
+    virtual DataPack::ID	getDataPackID(int i=0) const;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
@@ -79,7 +79,7 @@ public:
 	    					 int trcnr);
     void			setTraceNr(int trcnr);
     int				traceNr() const 	  { return trcnr_; }
-    const char*			lineName();
+    const char*			lineName() const;
 
     bool                        displayAutoWidth() const { return autowidth_; }
     void                        displaysAutoWidth(bool yn);
@@ -89,13 +89,16 @@ public:
     void			setFactor(float scale);
     float                       getWidth() { return width_; }
     void			setWidth(float width);
-    BinID			getBinID() { return bid_; }
-    MultiID			getMultiID() { return mid_; }
-    void			getMousePosInfo(const visBase::EventInfo&,
+    BinID			getBinID() const { return bid_; }
+    virtual MultiID		getMultiID() const { return mid_; }
+    virtual void		getMousePosInfo( const visBase::EventInfo& ei,
+	    					 IOPar& iop ) const
+				{ SurveyObject::getMousePosInfo(ei,iop); }
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
 	    					Coord3&,
 				  		BufferString& val,
 						BufferString& info) const;
-    void			 otherObjectsMoved( 
+    void			otherObjectsMoved( 
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: semblanceattrib.cc,v 1.6 2010-11-08 21:33:45 cvskris Exp $";
+static const char* rcsID = "$Id: semblanceattrib.cc,v 1.7 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "semblanceattrib.h"
 
@@ -173,16 +173,6 @@ bool Semblance::getTrcPos()
     }
 
     return true;
-}
-
-
-void Semblance::initSteering()
-{
-    for( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
-	    inputs_[idx]->initSteering( stepout_ );
-    }
 }
 
 

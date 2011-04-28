@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.65 2011-02-10 06:29:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.66 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 
@@ -663,7 +663,7 @@ const visSurvey::Seis2DDisplay* Viewer3D::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-DataPack::ID Viewer3D::getDataPackID() const
+DataPack::ID Viewer3D::getDataPackID(int) const
 {
     return flatviewer_->packID( false );
 }
@@ -789,7 +789,7 @@ const Coord Viewer3D::getBaseDirection() const
 { return basedirection_; }
 
 
-const char* Viewer3D::lineName()
+const char* Viewer3D::lineName() const
 {
     if ( !seis2d_ )
 	return 0;

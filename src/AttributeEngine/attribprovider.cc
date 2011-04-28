@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.131 2011-04-26 13:25:48 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.132 2011-04-28 11:30:53 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1623,6 +1623,16 @@ float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
 
     return ( intvidx>=0 && exactz_.size()>intvidx )
 		? getExtraZFromSampPos( exactz_[intvidx] ) : 0;
+}
+
+
+void Provider::stdPrepSteering( const BinID& so )
+{
+    for( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	    inputs_[idx]->prepSteeringForStepout( so );
+    }
 }
 
 

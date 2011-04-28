@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id: uipsviewershapetab.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:           $Id: uipsviewershapetab.h,v 1.5 2011-04-28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 					   uiViewer3DMgr&);
 			~uiViewer3DShapeTab();
     bool		acceptOK();
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK();
     
     void		applyToAll(bool yn)	{ applyall_ = yn; }
     bool		applyToAll()		{ return applyall_; }
