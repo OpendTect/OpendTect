@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.10 2009-09-16 06:42:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.11 2011-04-28 10:46:01 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -99,12 +99,12 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
     if ( !filenameOK() ) return false;
     BufferString ext( getExtension() );
     if ( ext == "pdf" ) 
-	scene_->saveAsPDF( fileinputfld_->fileName(), dpifld_->getIntValue() );
+	scene_->saveAsPDF(fileinputfld_->fileName(),dpifld_->box()->getValue());
     else if ( ext == "ps" || ext == "eps" )
-	scene_->saveAsPS( fileinputfld_->fileName(), dpifld_->getIntValue() );
+	scene_->saveAsPS( fileinputfld_->fileName(),dpifld_->box()->getValue());
     else
 	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-	       		     (int)sizepix_.height(), dpifld_->getIntValue() );
+	       		     (int)sizepix_.height(),dpifld_->box()->getValue());
 
     if ( saveButtonChecked() )
 	writeToSettings();
@@ -144,6 +144,6 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 	lockfld_->setSensitive( false );
 	aspectratio_ = (float) scene_->width() / scene_->height();
 	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
-	dpifld_->setValue( scene_->getDPI() );
+	dpifld_->box()->setValue( scene_->getDPI() );
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.50 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.51 2011-04-28 10:46:01 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -167,7 +167,7 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 	sceneSel( 0 );
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
-	dpifld_->setValue( screendpi_ );
+	dpifld_->box()->setValue( screendpi_ );
     }
 }
 
@@ -251,7 +251,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     SbViewportRegion viewport;
     viewport.setWindowSize( mNINT(sizepix_.width()), mNINT(sizepix_.height()) );
-    viewport.setPixelsPerInch( dpifld_->getfValue() );
+    viewport.setPixelsPerInch( dpifld_->box()->getValue() );
 
     prevsavestate = saveButtonChecked();
     if ( prevsavestate )
