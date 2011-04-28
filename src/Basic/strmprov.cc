@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.110 2011-04-20 06:24:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.111 2011-04-28 05:21:42 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -816,11 +816,11 @@ StreamData StreamProvider::makeOStream( bool binary ) const
     if ( !iscomm_ && hostname_.isEmpty() )
     {
 #ifdef __msvc__
-	sd.ostrm = new std::winofstream(
+	sd.ostrm = new std::winofstream
 #else
-	sd.ostrm = new std::ofstream(
+	sd.ostrm = new std::ofstream
 #endif
-	    sd.fileName(), binary ? std::ios_base::out | std::ios_base::binary
+	  ( sd.fileName(), binary ? std::ios_base::out | std::ios_base::binary
 				  : std::ios_base::out );
 	if ( !sd.ostrm->good() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
