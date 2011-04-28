@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.103 2011-04-28 14:50:03 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.104 2011-04-28 18:55:07 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -61,34 +61,7 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
     if ( hasarea )
     {
 	areastring = "Area=";
-	if ( SI().xyInFeet() )
-	{
-	    const float sqmiles = area/(mMileToFeetFactor*mMileToFeetFactor);
-	    if ( sqmiles>0.01 )
-	    {
-		areastring += sqmiles;
-		areastring += " sq mi";
-	    }
-	    else
-	    {
-		areastring += area;
-		areastring += " sq ft";
-	    }
-	}
-	else
-	{
-	    const float km2 = area*1e-6;
-	    if ( km2>0.01 )
-	    {
-		areastring += km2;
-		areastring += " sq km";
-	    }
-	    else
-	    {
-		areastring += area;
-		areastring += " sq m";
-	    }
-	}
+	areastring += getAreaString( area, false, 0 );
     }
 
     str = "Picking (Nr picks="; str += set_ ? set_->size() : 0;
