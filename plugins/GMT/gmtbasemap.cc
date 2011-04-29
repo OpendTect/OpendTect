@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.22 2011-04-29 06:07:37 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -51,8 +51,8 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyDrawGridLines, dogrid );
 
     BufferString comm = "psbasemap ";
-    BufferString str; mGetRangeProjString( str, "X" );
-    comm += str; comm += " -Ba";
+    BufferString rangestr; mGetRangeProjString( rangestr, "X" );
+    comm += rangestr; comm += " -Ba";
     comm += lblintv.start;
     if ( dogrid ) { comm += "g"; comm += lblintv.start; }
     comm += "/a"; comm += lblintv.stop;
@@ -75,7 +75,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     strm << "Done" << std::endl;
 
     strm << "Posting title box ...  ";
-    comm = "@pslegend -R -J -F -O -Dx";
+    comm = "@pslegend "; comm += rangestr; comm += " -F -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
     comm += 0; comm += "c/";
     comm += cTitleBoxWidth; comm += "c/";
@@ -122,10 +122,6 @@ GMTPar* GMTLegend::createInstance( const IOPar& iop )
 bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Posting legends ...  ";
-    Interval<float> mapdim;
-    get( ODGMT::sKeyMapDim, mapdim );
-    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
-    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
     bool hascolbar = false;
     ObjectSet<IOPar> parset;
     int parwithcolorbar = -1;
@@ -140,6 +136,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	parset += par;
     }
 
+    BufferString rangestr; mGetRangeProjString( rangestr, "X" );
     if ( parwithcolorbar >= 0 )
     {
 	hascolbar = true;
@@ -166,7 +163,8 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     }
 
     const int nritems = parset.size();
-    BufferString comm = "@pslegend -R -J -O -Dx";
+    BufferString comm = "@pslegend ";
+    comm += rangestr; comm += " -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
     comm += ymargin / 2 + cTitleBoxHeight + ( hascolbar ? 2 * ymargin : 0 );
     comm += "c/"; comm += 10; comm += "c/";
