@@ -212,6 +212,8 @@ public :
     HorizonMgr&			horizonMgr() 	{ return *hormgr_; }
     DispParams&			dispParams()	{ return data_.dispparams_; }
 
+    const char* 		errMSG() const	{ return errmsg_.buf(); }
+
     const Well::Data* 		wd() const	{ return data_.wd_; }
     const Data&			data() const 	{ return data_; }
 
@@ -231,8 +233,8 @@ public :
     void			replaceTime(const Array1DImpl<float>& tarr)
 				{ d2tmgr_->replaceTime( tarr ); }
 
-    void			computeAll();
-    void			computeSynthetics();
+    bool			computeAll();
+    bool			computeSynthetics();
 
     void			setEstimatedWvlt(float*,int);
     void			setInitWvltActive(bool yn)
@@ -246,6 +248,7 @@ protected :
     Data 			data_;
 
     bool			is2d_;
+    BufferString		errmsg_;
 
     void			wellDataDel( CallBacker* );
 };

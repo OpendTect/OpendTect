@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.20 2011-03-11 13:42:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.21 2011-04-29 14:12:54 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -228,9 +228,8 @@ void Strat::LayerSequence::getAIModel( AIModel& aimodel,
 
 	if ( !isvel ) vval = 1 / vval;
 	if ( !isden ) dval = dval / vval;
-	aimodel += AILayer( lay->zTop(), vval, dval );
+	aimodel += AILayer( lay->zBot() - lay->zTop(), vval, dval );
     }
-    aimodel += AILayer( lay->zBot(), lay->value(velidx), lay->value(denidx) );
 }
 
 

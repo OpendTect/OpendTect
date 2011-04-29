@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.48 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.49 2011-04-29 14:12:54 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -371,15 +371,19 @@ void Server::wellDataDel( CallBacker* )
 }
 
 
-void Server::computeAll()
+bool Server::computeAll()
 {
-    dataplayer_->computeAll();
+    if ( !dataplayer_->computeAll() )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+    return true;
 }
 
 
-void Server::computeSynthetics()
+bool Server::computeSynthetics()
 {
-    dataplayer_->generateSynthetics();
+    if ( !dataplayer_->generateSynthetics() )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+    return true;
 }
 
 
