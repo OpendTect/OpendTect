@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.56 2011-03-24 16:07:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.57 2011-04-29 14:14:19 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -39,7 +39,6 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     : data_(data)		    
     , seisid_(seisid)
     , linekey_(lk)
-    , raytracer_(new RayTracer1D(RayTracer1D::Setup()))
 {
     disprg_ = data_.timeintv_;
     dispsz_ = disprg_.nrSteps();
@@ -49,18 +48,11 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
 }
 
 
-DataPlayer::~DataPlayer()
-{
-    delete raytracer_; 
-}
-
-
 bool DataPlayer::computeAll()
 {
     mGetWD()
 
-    if ( !setAIModel() || !runRayTracer() 
-	    || !generateSynthetics() || !extractSeismics() )
+    if ( !setAIModel() || !generateSynthetics() || !extractSeismics() )
 	return false;
 
     copyDataToLogSet();
@@ -120,6 +112,7 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
+    /*
     for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float dah = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
@@ -127,41 +120,44 @@ bool DataPlayer::setAIModel()
 	const float den = pdlog.getValue( dah, true ); 
 	aimodel_ += AILayer( dah, vel, den );
     }
-    return true;
-}
-
-
-bool DataPlayer::runRayTracer()
-{
-    raytracer_->setModel( true, aimodel_ );
-    TaskRunner taskrunner;
-    if ( !taskrunner.execute( *raytracer_ ) )
-	mErrRet( raytracer_->errMsg() )
-
-    raytracer_->getReflectivity( 0, refmodel_ );
-    for ( int idx=0; idx<worksz_-1; idx++ )
-	refmodel_[idx].time_ = workrg_.atIndex(idx+1);
-
+    */
     return true;
 }
 
 
 bool DataPlayer::generateSynthetics()
 {
-    Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-					    : data_.estimatedwvlt_;
-    Seis::SynthGenerator gen;
-    gen.setModel( refmodel_ );
+
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+						  : data_.estimatedwvlt_;
+    Seis::ODRaySynthGenerator gen;
     gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.addModel( aimodel_ );
     gen.setOutSampling( disprg_ );
-    TaskRunner taskrunner;
-    if ( !gen.doWork() )
-	{ errmsg_ = gen.errMsg(); return false; }
 
-    const SeisTrc& res = gen.result(); 
-    data_.synthtrc_.copyDataFrom( res );
-    gen.getSampledReflectivities( reflvals_ );
+    TaskRunner tr;
+    if ( !gen.doRayTracing( tr ) )
+	mErrRet( gen.errMsg() )
 
+    //hack because we need to set our own times there 
+    const Seis::RaySynthGenerator::RayModel& rm = *gen.result( 0 );
+    ObjectSet<const ReflectivityModel> refms = rm.refmodels_;
+    for ( int idref=0; idref<refms.size(); idref++ )
+    {
+	ReflectivityModel& rfm = const_cast<ReflectivityModel&>(*refms[idref]);
+	for ( int idx=0; idx<rfm.size(); idx++ )
+	{
+	    rfm[idx].time_ = workrg_.atIndex(idx);
+	    rfm[idx].correctedtime_ = workrg_.atIndex(idx);
+	}
+    }
+    if ( !gen.doSynthetics( tr ) )
+	mErrRet( gen.errMsg() )
+
+    reflvals_.copy( rm.sampledrefs_ );
+    data_.synthtrc_ = *rm.stackedTrc();
+
+    delete &rm;
     return true;
 }
 
@@ -199,14 +195,12 @@ bool DataPlayer::copyDataToLogSet()
 	const float time = disprg_.atIndex(idx);
 	const int workidx = workrg_.getIndex( time );
 	const AILayer& layer = aimodel_[workidx];
-	dah += layer.depth_;
+	//dah += layer.depth_;
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.vel_*layer.den_;
-    }
-
-    for ( int idx=0; idx<dah.size()-1; idx++ )
 	refs += reflvals_[idx];
+    }
 
     createLog( data_.sonic(), dah, son ); 
     createLog( data_.density(), dah, den ); 

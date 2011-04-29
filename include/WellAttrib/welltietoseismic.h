@@ -35,24 +35,20 @@ mClass DataPlayer
 {
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
-			~DataPlayer();
 
     bool 		computeAll();
     bool		generateSynthetics();
 
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
+    const char*		errMSG() const		{ return errmsg_.buf(); } 
    
 protected:
 
     bool		extractSeismics();
     bool		setAIModel();
-    bool		setD2TModel();
-    bool		setRefModel();
-    bool		runRayTracer();
     bool		copyDataToLogSet();
-    bool		processLog(const Well::Log*,
-				    Well::Log&,const char*); 
-    void		createLog(const char*,const TypeSet<float>&,
+    bool		processLog(const Well::Log*,Well::Log&,const char*); 
+    void		createLog(const char*,
+				    const TypeSet<float>&,
 				    const TypeSet<float>&);
 
     TypeSet<AILayer> 	aimodel_;
@@ -61,7 +57,6 @@ protected:
 
     const MultiID&	seisid_;
     const LineKey*	linekey_;
-    RayTracer1D*	raytracer_;
     TypeSet<float>	reflvals_;
 
     StepInterval<float> disprg_;
