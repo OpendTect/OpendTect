@@ -193,7 +193,7 @@ float_complex ZoeppritzCoeff::getCoeff( bool downin, bool downout,
 
 
 
-float_complex getFastCoeff(float p, 
+float_complex getFastCoeff(float par, 
 			const AILayer& player1, const AILayer& player2, 
 			const AILayer& slayer1, const AILayer& slayer2 )
 {
@@ -207,31 +207,40 @@ float_complex getFastCoeff(float p,
     const float ds1 = slayer1.den_; 
     const float ds2 = slayer2.den_;
 
+    const float s1 = 0.5*( vp1*vp1 - 2*vs1*vs1 ) / ( vp1*vp1 - vs1*vs1 );
+    const float s2 = 0.5*( vp2*vp2 - 2*vs2*vs2 ) / ( vp2*vp2 - vs2*vs2 );
+
     const float AIp1 = vp1*dp1;
     const float AIp2 = vp2*dp2;
     const float AIs1 = vs1*ds1;
     const float AIs2 = vs2*ds2;
 
-    const float RAIp = ( AIp2 - AIp1 )/ ( AIp1 + AIp2 );
-    const float RAIs = ( AIs2 - AIs1 )/ ( AIs1 + AIs2 );
+    const float Rp = ( AIp2 - AIp1 )/ ( AIp1 + AIp2 );
+    const float Rs = ( AIs2 - AIs1 )/ ( AIs1 + AIs2 );
 
     const float Vp = ( vp2 + vp1 ) / 2;
     const float Vs = ( vs1 + vs2 ) / 2;
-    const float DVp = ( vp2 - vp1 );
-    const float DVs = ( vs2 - vs1 );
-
     const float P = ( dp1 + dp2 ) / 2;
-    const float Dp = ( dp1 - dp2 );
-    const float RD = Dp / (2*P);
+    const float S = ( s1 + s2 ) / 2;
 
-    const float sinangle = p * vp1;
+    const float DVp = vp2 - vp1;
+    const float DVs = vs2 - vs1;
+    const float Dp = dp2 - dp1;
+    const float Ds = s2 - s1;
+
+    if ( ( DVs == 0 &&  Dp == 0 )  || Vp == 0 || Vs == 0  || P == 0 )
+	return float_complex( 0, 0 );
+
+    const float sinangle = par * vp1;
     const float angle = asin( sinangle );
+    const float cos2i = cos( angle) * cos( angle );
     const float sin2i = sinangle * sinangle;
     const float tan2i = tan( angle )*tan( angle );
 
-    const float A = 0.5*( 1-4*( Vs*Vs/(Vp*Vp) )*sin2i )*Dp/P;
-    const float B = 0.5*(1+tan2i)*DVp/Vp;
-    const float C = 4*sin2i*Vs*Vs*DVs/( Vp*Vp*Vs );
+    const float PR = Ds / (1- S);
+    const float A = 0.5 * ( ( 1 - 4*Vs*Vs*par*par )*Dp/P );
+    const float B = 0.5 / cos2i*DVp/Vp;
+    const float C = -4*Vs*Vs*par*par*DVs/Vs;
 
-    return float_complex( A+B+C, 0 );
+    return float_complex( A + B + C , 0 );
 }
