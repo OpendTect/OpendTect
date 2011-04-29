@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.3 2011-03-11 13:42:09 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.4 2011-04-29 14:12:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,12 @@ ________________________________________________________________________
 mClass AILayer
 {
 public:
-		AILayer( float z, float vel, float den )
-		    : depth_(z), vel_(vel), den_(den)	{}
+		AILayer( float thkness, float vel, float den )
+		    : thickness_(thkness), vel_(vel), den_(den)	{}
     bool	operator ==( const AILayer& p ) const
-		{ return depth_ == p.depth_; }
+		{ return thickness_ == p.thickness_; }
 
-    float	depth_, vel_, den_;
+    float	thickness_, vel_, den_;
 };
 
 
