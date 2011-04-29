@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.82 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.83 2011-04-29 14:14:36 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -117,7 +117,8 @@ void uiTieWin::displayUserMsg( CallBacker* )
 void uiTieWin::doWork( CallBacker* cb )
 {
     drawer_->enableCtrlNotifiers( false );
-    server_.computeAll();
+    if ( !server_.computeAll() )
+	{ uiMSG().error( server_.errMSG() ); return; }
     getDispParams();
     drawData();
     drawer_->enableCtrlNotifiers( true );
@@ -625,31 +626,38 @@ void uiInfoDlg::propChanged( CallBacker* )
 #define mLag 0.4
 void uiInfoDlg::computeData()
 {
-    return;
     const Data& data = server_.data();
-    const int sz = data.seistrc_.size();
-    const int nrsamps = (int) ( mLag / data.timeintv_.step );
-    float* seisarr = new float( nrsamps );
-    float* syntharr = new float( nrsamps );
-    float* corrarr = new float( nrsamps );
-    float* wvltarr = new float( estwvltsz_ );
-    float* wvltshiftedarr = new float( estwvltsz_ );
+    const int trcsz = data.seistrc_.size();
+    int nrsamps = (int)zrg_.width();
+
+    if ( trcsz < estwvltsz_ )
+	{ uiMSG().error( "Seismic trace shorter than wavelet" ); return; }
+
+    while ( trcsz < nrsamps )
+	nrsamps /= 2;
+
+    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, corrarr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, wvltshiftedarr, float[estwvltsz_] );
+
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data.seistrc_.get( idx + ( sz-nrsamps )/2, 0 );
-	seisarr[idx] = data.synthtrc_.get( idx + ( sz-nrsamps )/2, 0 );
+	syntharr[idx] = data.seistrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
+	seisarr[idx] = data.synthtrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
     }
     GeoCalculator gc;
     double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
     const float normalfactor = coeff / corrarr[nrsamps/2];
     crosscorr_->set( corrarr, nrsamps, mLag, coeff );
 
-    gc.deconvolve( seisarr, syntharr, wvltarr, estwvltsz_ );
+    gc.deconvolve( seisarr, syntharr, wvltarr, nrsamps );
     for ( int idx=0; idx<estwvltsz_; idx++ )
-	wvltshiftedarr[idx] = wvltarr[nrsamps/2 + idx - estwvltsz_/2];
+	wvltshiftedarr[idx] = wvltarr[(nrsamps-estwvltsz_)/2 + idx];
     server_.setEstimatedWvlt( wvltshiftedarr, estwvltsz_ );
 
-    delete [] syntharr; delete [] corrarr; 
+    delete [] seisarr;  delete [] syntharr; 		delete [] corrarr; 
     delete [] wvltarr; 	delete [] wvltshiftedarr;
 }
 

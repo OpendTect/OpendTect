@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.80 2011-03-04 14:13:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.81 2011-04-29 14:14:36 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -452,7 +452,6 @@ void uiCrossCorrView::set( float* arr, int sz, float lag, float coeff )
 
 void uiCrossCorrView::draw()
 {
-    return;
     TypeSet<float> xvals;
     for ( int idx=0; idx<vals_.size(); idx++)
     {

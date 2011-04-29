@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.43 2011-04-29 14:14:36 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -202,7 +202,6 @@ void uiWavelet::setAsActive( bool isactive )
 
 void uiWavelet::drawWavelet()
 {
-    return;
     if ( !wvlt_ ) return;
 
     const int wvltsz = wvlt_->size();
