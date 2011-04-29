@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.15 2011-04-28 10:32:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.16 2011-04-29 06:45:12 cvsbruno Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -147,7 +147,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
     lockfld_->activated.notify( mCB(this,uiSaveImageDlg,lockChg) );
     lockfld_->attach( alignedBelow, unitfld_ );
 
-    dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", screendpi_ );
+    dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
     
@@ -220,7 +220,7 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
     {
 	sizepix_.setHeight( pixheightfld_->box()->getFValue() );
 	sizepix_.setWidth( pixwidthfld_->box()->getFValue() );
-	setSizeInPix( sizepix_.width(), sizepix_.height() );
+	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );
     }
     else
     {
@@ -470,7 +470,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     }
 
     if ( ispixel )
-	setSizeInPix( sizepix_.width(), sizepix_.height() );
+	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );
     else
 	updateSizes();
 
