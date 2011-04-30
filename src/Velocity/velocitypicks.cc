@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.20 2011-01-25 17:19:07 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.21 2011-04-30 17:36:34 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -678,7 +678,16 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
     for ( int idx=vels.size()-1; idx>=0; idx-- )
     {
 	const Pick& pick = picks_.getRef( picks[idx], 0 );
-	const float vel = pick.vel_;
+	float vel = mUdf(float);
+
+	if ( picktype_==RMO )
+	{
+	    if ( !mIsUdf( pick.offset_ ) )
+		vel = normalizeRMO( pick.depth_, pick.vel_, pick.offset_ );
+	}
+	else
+	    vel = pick.vel_;
+
 	if ( mIsUdf(vel) )
 	{
 	    vels.remove(idx);
@@ -688,8 +697,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	}
 
 	picks_.getPos( picks[idx], bids[idx] );
-	if ( !mIsUdf( pick.offset_ ) )
-	    vels[idx] = normalizeRMO( pick.depth_, vel, pick.offset_ );
+	vels[idx] = vel;
     }
 
     const bool usesearchradius = !mIsUdf(searchradius);
