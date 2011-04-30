@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.74 2011-04-28 16:42:12 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.75 2011-04-30 15:04:22 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -100,7 +100,10 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
     if ( *s == '"' )
     {
 	s++;
-	text = new BufferString( s );
+
+	if ( !text ) text = new BufferString( s );
+	else *text = s;
+
 	char* start = text->buf();
 	char* stop = strchr( start, '"' );
 	if ( !stop )
@@ -114,6 +117,11 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 	    s += stop - start + 1;
 	    replaceCharacter( text->buf(), newlinechar, pipechar );
 	}
+    }
+    else if ( text )
+    {
+	delete text;
+	text = 0;
     }
 
     BufferString bufstr( s );
