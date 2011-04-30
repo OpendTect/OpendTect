@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.18 2010-11-09 22:09:28 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.19 2011-04-30 17:32:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,9 @@ public:
     virtual bool	setPoints(const TypeSet<Coord>&);
     			/*<!Points are assumed to remain in mem through
 			    init(). Points should correspond to the
-			    values in setValues */
+			    values in setValues. Don't re-set it unless they
+			    have changes, as it may lead to substantial
+			    computations. */
     virtual bool	setGridPoint(const Coord&);
 			/*!This is where we want to compute a value */
     virtual bool	init()					= 0;
