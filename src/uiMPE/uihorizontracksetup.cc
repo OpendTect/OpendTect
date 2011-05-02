@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.39 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.40 2011-05-02 06:10:06 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.39 2010-12-29 15:49:
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
+#include "horizon2dtracker.h"
+#include "horizon3dtracker.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
 #include "separstr.h"
@@ -43,21 +45,31 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.39 2010-12-29 15:49:
 namespace MPE
 {
 
-void uiHorizonSetupGroup::initClass()
+void uiBaseHorizonSetupGroup::initClass()
 {
-    uiMPE().setupgrpfact.addFactory( uiHorizonSetupGroup::create );
+    uiMPE().setupgrpfact.addFactory( uiBaseHorizonSetupGroup::create,
+	   			     Horizon2DTracker::keyword() );
+    uiMPE().setupgrpfact.addFactory( uiBaseHorizonSetupGroup::create,
+	    			     Horizon3DTracker::keyword() );
 }
 
 
-uiSetupGroup* uiHorizonSetupGroup::create( uiParent* p, const char* typestr,
+uiSetupGroup* uiBaseHorizonSetupGroup::create( uiParent* p, const char* typestr,
 					   const Attrib::DescSet* ads )
 {
     if ( strcmp(typestr,EM::Horizon3D::typeStr()) && 
 	 strcmp(typestr,EM::Horizon2D::typeStr()) )
 	return 0;
 
-    return new uiHorizonSetupGroup( p, ads, typestr );
+    return new uiBaseHorizonSetupGroup( p, ads, typestr );
 }
+
+
+uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
+						  const Attrib::DescSet* ads,
+						  const char* typestr )
+    : uiHorizonSetupGroup( p, ads, typestr )
+{}
 
 
 const char** uiHorizonSetupGroup::sKeyEventNames()
@@ -444,13 +456,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 	horadj_->setAllowedVariances( allowedvars );
     }
 
-    initModeGroup();
-    initEventGroup();
-    selEventType(0);
-    selAmpThresholdType(0);
-    initSimiGroup();
-    selUseSimilarity(0);
-    initPropertyGroup();
+    initStuff();
 }
 
 
@@ -469,6 +475,17 @@ void uiHorizonSetupGroup::initModeGroup()
 	modeselgrp_->selectButton( mode_ );
 }
 
+
+void uiHorizonSetupGroup::initStuff()
+{
+    initModeGroup();
+    initEventGroup();
+    selEventType(0);
+    selAmpThresholdType(0);
+    initSimiGroup();
+    selUseSimilarity(0);
+    initPropertyGroup();
+}
 
 
 void uiHorizonSetupGroup::initEventGroup()

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.122 2011-02-24 15:05:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.123 2011-05-02 06:10:06 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -188,7 +188,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
-    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+    //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
     EM::EMObject* emobj = EM::EMM().createTempObject( trackertype );
     if ( !emobj )
@@ -364,7 +364,15 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     if ( trackercurrentobject_ == -1 ) return;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
-    if ( trackerid == -1 ) return;
+    if ( trackerid == -1 )
+    {
+	trackercurrentobject_ = -1;
+	initialundoid_ = mUdf(int);
+	seedhasbeenpicked_ = false;
+	setupbeingupdated_ = false;
+
+	return;
+    }
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( !tracker ) return;
@@ -1112,8 +1120,20 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return false;
 
+    uiDialog* setupdlg  = new uiDialog( parent(),
+	    			uiDialog::Setup("Tracking Setup",0,"108.0.1")
+				.modal(false) );
+    setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
+    setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
+	    					  setupdlg, emobj->getTypeStr(),
+						  0 );
+
+    if ( !setupgrp_ ) return false;
+
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
+
+    setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
 
     if ( freshdlg )
     {
@@ -1124,21 +1144,15 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     }
     else
     {
-	const bool setupavailable = sectracker && 
+	const bool setupavailable = sectracker &&
 	    			    sectracker->hasInitializedSetup();
 	if ( !setupavailable )
-	    seedpicker->setSeedConnectMode(
-		    seedpicker->defaultSeedConMode(false) );
+	    seedpicker->setSeedConnectMode( 
+		    			seedpicker->defaultSeedConMode(false) );
+	if ( setupavailable )
+	    setupgrp_->setAttribSelSpec( 
+		    		sectracker->adjuster()->getAttributeSel(0) );
     }
-
-    uiDialog* setupdlg  = new uiDialog( parent(),
-	    			uiDialog::Setup("Tracking Setup",0,"108.0.1")
-				.modal(false) );
-    setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
-    setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg,
-	    					  emobj->getTypeStr(), 0 );
-
-    if ( !setupgrp_ ) return false;
 
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 	    			seedpicker->getSeedConnectMode() );
@@ -1146,7 +1160,6 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
-    setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )

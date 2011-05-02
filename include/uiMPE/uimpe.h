@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.15 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uimpe.h,v 1.16 2011-05-02 06:10:01 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,13 +141,14 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
 mClass uiSetupGroupFactory
 {
 public:
-    void		addFactory(uiSetupGrpCreationFunc f);
-    uiSetupGroup*	create(uiParent*,const char* typestr,
+    void		addFactory(uiSetupGrpCreationFunc f, const char* name);
+    uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr,
 	    		       const Attrib::DescSet*);
 			/*!<Iterates through all added factory functions
 			    until one of the returns a non-zero pointer. */
 
 protected:
+    BufferStringSet			names_;
     TypeSet<uiSetupGrpCreationFunc>	funcs;
 
 };

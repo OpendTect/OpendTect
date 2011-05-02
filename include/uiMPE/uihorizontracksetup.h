@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.18 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.19 2011-05-02 06:10:01 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,14 @@ class SectionTracker;
 
 /*!\brief Horizon tracking setup dialog. */
 
-
 mClass uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
-    static void			initClass();
+    //static void			initClass();
 				/*!<Adds the class to the factory. */
-
+    				uiHorizonSetupGroup(uiParent*,
+						    const Attrib::DescSet*,
+						    const char*);
 				~uiHorizonSetupGroup();
 
     void			setSectionTracker(SectionTracker*);
@@ -74,11 +75,11 @@ public:
     bool			commitToTracker(bool& fieldchange) const;
 
 protected:
-				uiHorizonSetupGroup(uiParent*,
-						    const Attrib::DescSet*,
-						    const char*);
-    static uiSetupGroup*	create(uiParent*,const char* typestr,
-	    			       const Attrib::DescSet*);
+//				uiHorizonSetupGroup(uiParent*,
+//						    const Attrib::DescSet*,
+//						    const char*);
+    //static uiSetupGroup*	create(uiParent*,const char* typestr,
+//	    			       const Attrib::DescSet*);
 
     uiGroup*			createModeGroup();
     void			initModeGroup();
@@ -88,6 +89,8 @@ protected:
     void			initSimiGroup();
     uiGroup*			createPropertyGroup();
     void			initPropertyGroup();
+
+    virtual void		initStuff();
 
     void			selUseSimilarity(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
@@ -135,6 +138,20 @@ protected:
     
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();
+};
+
+
+mClass uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
+{
+public:
+    static void			initClass();
+    
+protected:
+    				uiBaseHorizonSetupGroup(uiParent*,
+							const Attrib::DescSet*,
+							const char*);
+    static uiSetupGroup*        create(uiParent*,const char* typestr,
+	    			       const Attrib::DescSet*);
 };
 
 

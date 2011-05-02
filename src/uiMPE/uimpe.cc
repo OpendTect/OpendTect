@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpe.cc,v 1.7 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpe.cc,v 1.8 2011-05-02 06:10:06 cvsumesh Exp $";
 
 #include "uimpe.h"
 
@@ -54,18 +54,23 @@ bool uiSetupGroup::commitToTracker() const
 }
 
 
-void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f )
-{ funcs += f; }
+void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f,
+       				      const char* name )
+{
+   names_.add( name );
+   funcs += f;
+}
 
 
-uiSetupGroup* uiSetupGroupFactory::create( uiParent* p, const char* typestr,
+uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
+					   const char* typestr,
 					   const Attrib::DescSet* ads )
 {
-    for ( int idx=0; idx<funcs.size(); idx++ )
-    {
-	uiSetupGroup* res = funcs[idx](p,typestr,ads);
-	if ( res ) return res;
-    }
+    int idx = names_.indexOf( name );
+    if ( idx == -1 ) return 0;
+	
+    uiSetupGroup* res = funcs[idx](p,typestr,ads);
+    if ( res ) return res;
 
     return 0;
 }
