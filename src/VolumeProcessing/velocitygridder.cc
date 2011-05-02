@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.17 2010-11-09 22:36:18 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.18 2011-05-02 17:47:48 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -80,8 +80,9 @@ public:
     bool			report1Done();
     				//!<Returns false if process should continue
     od_int64			nrDone() const;
+    od_int64			totalNr() const       { return totalnr_; }
 
-    VelGriddingStep&		getStep() { return step_; }
+    VelGriddingStep&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
@@ -100,6 +101,7 @@ protected:
     TypeSet<BinIDValueSet::Pos>	definedpos_;
 
     VelGriddingStep&		step_;
+    od_int64			totalnr_;
 };
 
 
@@ -116,6 +118,8 @@ VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
     BinID bid;
     while ( iterator.next( bid ) )
 	remainingbids_.add( bid );
+
+    totalnr_ = hrg.totalNr();
 }
 
 
