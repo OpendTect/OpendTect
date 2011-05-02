@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.46 2011-03-25 15:02:34 cvsbert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.47 2011-05-02 20:33:35 cvskris Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -44,7 +44,7 @@ public:
 
     virtual void	usePar(const IOPar&);
 
-    const CBVSReadMgr*	readMgr() const			{ return rdmgr; }
+    const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
     RCol2Coord		getTransform() const;
 
     virtual bool	implRemove(const IOObj*) const;
@@ -55,38 +55,38 @@ public:
     static const char*	sKeyDefExtension();
     static const char*	sKeyDataStorage();
 
-    bool		is2D() const			{ return is2d; }
+    bool		is2D() const			{ return is2d_; }
     void		set2D(bool yn=true);
-    bool		singleFile() const		{ return single_file; }
-    void		setSingleFile( bool yn=true )	{ single_file = yn; }
-    void		setForceUseCBVSInfo(bool yn) 	{ forceusecbvsinfo=yn; }
+    bool		singleFile() const		{ return single_file_; }
+    void		setSingleFile( bool yn=true )	{ single_file_ = yn; }
+    void		setForceUseCBVSInfo(bool yn) 	{ forceusecbvsinfo_=yn; }
 
     void		setCoordPol(bool dowrite,bool intrailer);
-    void		setPreselDataType( int dt )	{ preseldatatype = dt; }
+    void		setPreselDataType( int dt )	{ preseldatatype_ = dt; }
 
     bool		isReadDefault() const		{ return true; }
 
 protected:
 
-    bool		forread;
-    bool		headerdone;
-    bool		donext;
-    int			nrdone;
-    int			coordpol;
+    bool		forread_;
+    bool		headerdone_;
+    bool		donext_;
+    int			nrdone_;
+    int			coordpol_;
 
     // Following variables are inited by commitSelections_
-    bool*		compsel;
-    unsigned char**	blockbufs;
-    TraceDataInterpreter** storinterps;
-    int			preseldatatype;
-    VBrickSpec&		brickspec;
+    bool*		compsel_;
+    unsigned char**	blockbufs_;
+    TraceDataInterpreter** storinterps_;
+    int			preseldatatype_;
+    VBrickSpec&		brickspec_;
 
-    CBVSReadMgr*	rdmgr;
-    CBVSWriteMgr*	wrmgr;
-    PosAuxInfo		auxinf;
-    bool		is2d;
-    bool		single_file;
-    bool		forceusecbvsinfo;
+    CBVSReadMgr*	rdmgr_;
+    CBVSWriteMgr*	wrmgr_;
+    PosAuxInfo		auxinf_;
+    bool		is2d_;
+    bool		single_file_;
+    bool		forceusecbvsinfo_;
 
     virtual void	cleanUp();
     virtual bool	initRead_();

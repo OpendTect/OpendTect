@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.88 2011-03-25 15:02:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.89 2011-05-02 20:33:35 cvskris Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -25,20 +25,20 @@ const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, headerdone(false)
-	, donext(false)
-	, forread(true)
-	, storinterps(0)
-	, blockbufs(0)
-	, preseldatatype(0)
-	, rdmgr(0)
-	, wrmgr(0)
-	, nrdone(0)
-    	, brickspec(*new VBrickSpec)
-    	, single_file(false)
-    	, forceusecbvsinfo(false)
-    	, is2d(false)
-    	, coordpol((int)CBVSIO::NotStored)
+	, headerdone_(false)
+	, donext_(false)
+	, forread_(true)
+	, storinterps_(0)
+	, blockbufs_(0)
+	, preseldatatype_(0)
+	, rdmgr_(0)
+	, wrmgr_(0)
+	, nrdone_(0)
+    	, brickspec_(*new VBrickSpec)
+    	, single_file_(false)
+    	, forceusecbvsinfo_(false)
+    	, is2d_(false)
+    	, coordpol_((int)CBVSIO::NotStored)
 {
 }
 
@@ -46,7 +46,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 {
     cleanUp();
-    delete &brickspec;
+    delete &brickspec_;
 }
 
 
@@ -75,48 +75,48 @@ void CBVSSeisTrcTranslator::cleanUp()
 {
     const int nrcomps = nrSelComps();
     SeisTrcTranslator::cleanUp();
-    headerdone = donext =false;
-    nrdone = 0;
+    headerdone_ = donext_ =false;
+    nrdone_ = 0;
     destroyVars( nrcomps );
 }
 
 
 void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
 {
-    delete rdmgr; rdmgr = 0;
-    delete wrmgr; wrmgr = 0;
-    if ( !blockbufs ) return;
+    delete rdmgr_; rdmgr_ = 0;
+    delete wrmgr_; wrmgr_ = 0;
+    if ( !blockbufs_ ) return;
 
     for ( int idx=0; idx<nrcomps; idx++ )
     {
-	delete [] blockbufs[idx];
-	delete storinterps[idx];
+	delete [] blockbufs_[idx];
+	delete storinterps_[idx];
     }
 
-    delete [] blockbufs; blockbufs = 0;
-    delete [] storinterps; storinterps = 0;
-    delete [] compsel; compsel = 0;
+    delete [] blockbufs_; blockbufs_ = 0;
+    delete [] storinterps_; storinterps_ = 0;
+    delete [] compsel_; compsel_ = 0;
 }
 
 
 void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
 {
     if ( !dowrite )
-	coordpol = (int)CBVSIO::NotStored;
+	coordpol_ = (int)CBVSIO::NotStored;
     else if ( intrailer )
-	coordpol = (int)CBVSIO::InTrailer;
+	coordpol_ = (int)CBVSIO::InTrailer;
     else
-	coordpol = (int)CBVSIO::InAux;
+	coordpol_ = (int)CBVSIO::InAux;
 }
 
 
 void CBVSSeisTrcTranslator::set2D( bool yn )
 {
-    is2d = yn;
-    if ( is2d )
+    is2d_ = yn;
+    if ( is2d_ )
     {
-	single_file = true;
-	coordpol = (int)CBVSIO::InTrailer;
+	single_file_ = true;
+	coordpol_ = (int)CBVSIO::InTrailer;
     }
 }
 
@@ -152,16 +152,16 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 
 bool CBVSSeisTrcTranslator::initRead_()
 {
-    forread = true;
+    forread_ = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr = new CBVSReadMgr( fnm, 0, single_file, 
-	    		read_mode == Seis::PreScan, forceusecbvsinfo );
-    if ( rdmgr->failed() )
-	{ errmsg = rdmgr->errMsg(); return false; }
+    rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_, 
+	    		read_mode == Seis::PreScan, forceusecbvsinfo_ );
+    if ( rdmgr_->failed() )
+	{ errmsg = rdmgr_->errMsg(); return false; }
 
-    const int nrcomp = rdmgr->nrComponents();
-    const CBVSInfo& info = rdmgr->info();
+    const int nrcomp = rdmgr_->nrComponents();
+    const CBVSInfo& info = rdmgr_->info();
     insd = info.sd;
     innrsamples = info.nrsamples;
     for ( int idx=0; idx<nrcomp; idx++ )
@@ -184,7 +184,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( !pinfo.fullyrectandreg )
 	pinfo.cubedata = &info.geom.cubedata;
 
-    rdmgr->getIsRev( pinfo.inlrev, pinfo.crlrev );
+    rdmgr_->getIsRev( pinfo.inlrev, pinfo.crlrev );
     return true;
 }
 
@@ -192,15 +192,15 @@ bool CBVSSeisTrcTranslator::initRead_()
 bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
     if ( !trc.data().nrComponents() ) return false;
-    forread = false;
+    forread_ = false;
 
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
-	if ( preseldatatype )
+	if ( preseldatatype_ )
 	    tarcds[idx]->datachar = DataCharacteristics(
-			(DataCharacteristics::UserType)preseldatatype );
+			(DataCharacteristics::UserType)preseldatatype_ );
     }
 
     return true;
@@ -209,7 +209,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread && !is2d && seldata && !seldata->isAll() )
+    if ( forread_ && !is2d_ && seldata && !seldata->isAll() )
     {
 	CubeSampling cs;
 	Interval<int> inlrg = seldata->inlRange();
@@ -219,17 +219,17 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	cs.zrg.start = outsd.start; cs.zrg.step = outsd.step;
 	cs.zrg.stop = outsd.start + (outnrsamples-1) * outsd.step;
 
-	if ( !rdmgr->pruneReaders( cs ) )
+	if ( !rdmgr_->pruneReaders( cs ) )
 	    { errmsg = "Input contains no relevant data"; return false; }
     }
 
     const int nrcomps = nrSelComps();
-    storinterps = new TraceDataInterpreter* [nrcomps];
+    storinterps_ = new TraceDataInterpreter* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
-	storinterps[idx] = new TraceDataInterpreter(
-                  forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
+	storinterps_[idx] = new TraceDataInterpreter(
+                  forread_ ? inpcds[idx]->datachar : outcds[idx]->datachar );
 
-    blockbufs = new unsigned char* [nrcomps];
+    blockbufs_ = new unsigned char* [nrcomps];
     int bufsz = innrsamples + 1;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
     {
@@ -237,25 +237,25 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	if ( outcds[iselc]->datachar.nrBytes() > nbts )
 	    nbts = outcds[iselc]->datachar.nrBytes();
 
-	blockbufs[iselc] = new unsigned char [ nbts * bufsz ];
-	if ( !blockbufs[iselc] ) { errmsg = "Out of memory"; return false; }
+	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
+	if ( !blockbufs_[iselc] ) { errmsg = "Out of memory"; return false; }
     }
 
-    compsel = new bool [tarcds.size()];
+    compsel_ = new bool [tarcds.size()];
     for ( int idx=0; idx<tarcds.size(); idx++ )
-	compsel[idx] = tarcds[idx]->destidx >= 0;
+	compsel_[idx] = tarcds[idx]->destidx >= 0;
 
-    if ( !forread )
+    if ( !forread_ )
 	return startWrite();
 
-    if ( is2d && seldata && seldata->type() == Seis::Range )
+    if ( is2d_ && seldata && seldata->type() == Seis::Range )
     {
 	// For 2D, inline is just an index number
 	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata );
-	sd.setInlRange( Interval<int>(rdmgr->binID().inl,rdmgr->binID().inl) );
+	sd.setInlRange( Interval<int>(rdmgr_->binID().inl,rdmgr_->binID().inl) );
     }
 
-    if ( selRes(rdmgr->binID()) )
+    if ( selRes(rdmgr_->binID()) )
 	return toNext();
 
     return true;
@@ -274,7 +274,7 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d && seldata->type() == Seis::Table )
+    if ( is2d_ && seldata->type() == Seis::Table )
 	return 0;
 
     return seldata->selRes(bid);
@@ -284,23 +284,23 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 bool CBVSSeisTrcTranslator::toNext()
 {
     if ( inactiveSelData() )
-	return rdmgr->toNext();
+	return rdmgr_->toNext();
 
-    const CBVSInfo& info = rdmgr->info();
+    const CBVSInfo& info = rdmgr_->info();
     if ( info.nrtrcsperposn > 1 )
     {
-	if ( !rdmgr->toNext() )
+	if ( !rdmgr_->toNext() )
 	    return false;
-	else if ( !selRes(rdmgr->binID()) )
+	else if ( !selRes(rdmgr_->binID()) )
 	    return true;
     }
 
-    BinID nextbid = rdmgr->nextBinID();
+    BinID nextbid = rdmgr_->nextBinID();
     if ( nextbid == BinID(0,0) )
 	return false;
 
     if ( !selRes(nextbid) )
-	return rdmgr->toNext();
+	return rdmgr_->toNext();
 
     // find next requested BinID
     while ( true )
@@ -328,54 +328,54 @@ bool CBVSSeisTrcTranslator::toNext()
 
 bool CBVSSeisTrcTranslator::toStart()
 {
-    if ( rdmgr->toStart() )
-	{ headerdone = donext = false; return true; }
+    if ( rdmgr_->toStart() )
+	{ headerdone_ = donext_ = false; return true; }
     return false;
 }
 
 
 bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( rdmgr->goTo(bid) )
-	{ headerdone = donext = false; return true; }
+    if ( rdmgr_ && rdmgr_->goTo(bid) )
+	{ headerdone_ = donext_ = false; return true; }
     return false;
 }
 
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !storinterps && !commitSelections() ) return false;
-    if ( headerdone ) return true;
+    if ( !storinterps_ && !commitSelections() ) return false;
+    if ( headerdone_ ) return true;
 
-    donext = donext || selRes( rdmgr->binID() );
+    donext_ = donext_ || selRes( rdmgr_->binID() );
 
-    if ( donext && !toNext() ) return false;
-    donext = true;
+    if ( donext_ && !toNext() ) return false;
+    donext_ = true;
 
-    if ( !rdmgr->getAuxInfo(auxinf) )
+    if ( !rdmgr_->getAuxInfo(auxinf_) )
 	return false;
 
-    ti.getFrom( auxinf );
+    ti.getFrom( auxinf_ );
     ti.sampling.start = outsd.start;
     ti.sampling.step = outsd.step;
-    ti.nr = ++nrdone;
+    ti.nr = ++nrdone_;
 
     if ( ti.binid.inl == 0 && ti.binid.crl == 0 )
 	ti.binid = SI().transform( ti.coord );
 
-    return (headerdone = true);
+    return (headerdone_ = true);
 }
 
 
 bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !headerdone && !readInfo(trc.info()) )
+    if ( !headerdone_ && !readInfo(trc.info()) )
 	return false;
 
     prepareComponents( trc, outnrsamples );
-    if ( !rdmgr->fetch( (void**)blockbufs, compsel, &samps ) )
+    if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samps ) )
     {
-	errmsg = rdmgr->errMsg();
+	errmsg = rdmgr_->errMsg();
 	return false;
     }
 
@@ -383,11 +383,11 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     {
 	for ( int isamp=0; isamp<outnrsamples; isamp++ )
 	    trc.set( isamp,
-		     storinterps[iselc]->get( blockbufs[iselc], isamp ),
+		     storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
 		     iselc );
     }
 
-    headerdone = false;
+    headerdone_ = false;
     return true;
 }
 
@@ -395,17 +395,17 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 bool CBVSSeisTrcTranslator::skip( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
-	if ( !rdmgr->toNext() ) return false;
-    donext = headerdone = false;
+	if ( !rdmgr_->toNext() ) return false;
+    donext_ = headerdone_ = false;
     return true;
 }
 
 
 RCol2Coord CBVSSeisTrcTranslator::getTransform() const
 {
-    if ( !rdmgr || !rdmgr->nrReaders() )
+    if ( !rdmgr_ || !rdmgr_->nrReaders() )
 	return SI().binID2Coord();
-    return rdmgr->info().geom.b2c;
+    return rdmgr_->info().geom.b2c;
 }
 
 
@@ -424,10 +424,10 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.sd = insd;
     info.nrsamples = innrsamples;
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec, single_file,
-	    			(CBVSIO::CoordPol)coordpol );
-    if ( wrmgr->failed() )
-	{ errmsg = wrmgr->errMsg(); return false; }
+    wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
+	    			(CBVSIO::CoordPol)coordpol_ );
+    if ( wrmgr_->failed() )
+	{ errmsg = wrmgr_->errMsg(); return false; }
 
     return true;
 }
@@ -435,23 +435,23 @@ bool CBVSSeisTrcTranslator::startWrite()
 
 bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
-    if ( !wrmgr )
+    if ( !wrmgr_ )
 	{ pErrMsg("initWrite not done or failed"); return false; }
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	const unsigned char* trcdata
 	    		= trc.data().getComponent( selComp(iselc) )->data();
-	unsigned char* blockbuf = blockbufs[iselc];
+	unsigned char* blockbuf = blockbufs_[iselc];
 	int icomp = selComp(iselc);
 	for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
-	    storinterps[iselc]->put( blockbuf, isamp-samps.start,
+	    storinterps_[iselc]->put( blockbuf, isamp-samps.start,
 				     trc.get(isamp,icomp) );
     }
 
-    trc.info().putTo( auxinf );
-    if ( !wrmgr->put( (void**)blockbufs ) )
-	{ errmsg = wrmgr->errMsg(); return false; }
+    trc.info().putTo( auxinf_ );
+    if ( !wrmgr_->put( (void**)blockbufs_ ) )
+	{ errmsg = wrmgr_->errMsg(); return false; }
 
     return true;
 }
@@ -459,8 +459,8 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 void CBVSSeisTrcTranslator::blockDumped( int nrtrcs )
 {
-    if ( nrtrcs > 1 && wrmgr )
-	wrmgr->ensureConsistent();
+    if ( nrtrcs > 1 && wrmgr_ )
+	wrmgr_->ensureConsistent();
 }
 
 
@@ -470,24 +470,24 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 
     const char* res = iopar.find( sKeyDataStorage() );
     if ( res && *res )
-	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
+	preseldatatype_ = (DataCharacteristics::UserType)(*res-'0');
 
     res = iopar.find( "Optimized direction" );
     if ( res && *res )
     {
-	brickspec.setStd( *res == 'H' );
+	brickspec_.setStd( *res == 'H' );
 	if ( *res == 'H' && *res && *(res+1) == '`' )
 	{
 	    FileMultiString fms( res + 2 );
 	    const int sz = fms.size();
 	    int tmp = toInt( fms[0] );
 	    if ( tmp > 0 )
-		brickspec.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
+		brickspec_.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
 	    if ( sz > 1 )
 	    {
 		tmp = toInt( fms[1] );
 		if ( tmp > 0 )
-		    brickspec.maxnrslabs = tmp;
+		    brickspec_.maxnrslabs = tmp;
 	    }
 	}
     }
