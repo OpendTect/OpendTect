@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.77 2011-01-24 09:09:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.78 2011-05-02 09:13:43 cvsnageswara Exp $";
 
 #include "uiwellman.h"
 
@@ -206,7 +206,7 @@ void uiWellMan::edMarkers( CallBacker* )
 	wd = curwd_;
     }
 
-
+    wd->track().setName( curioobj_->name() );
     uiMarkerDlg dlg( this, wd->track() );
     dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() ) return;
