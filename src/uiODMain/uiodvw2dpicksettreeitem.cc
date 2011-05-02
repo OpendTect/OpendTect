@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.2 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.3 2011-05-02 09:21:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
+#include "uipickpropdlg.h"
 #include "uisetpickdirs.h"
 #include "visvw2ddataman.h"
 #include "visvw2dpickset.h"
@@ -66,8 +67,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
-    if ( ps )
-	addChld( new uiODVw2DPickSetTreeItem(*ps), false, false );
+    ps && addChld( new uiODVw2DPickSetTreeItem(*ps), false, false );
 }
 
 
@@ -77,10 +77,11 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( Pick::Set& ps )
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
     , setidx_(-1)
-    
 {
     picksetmgr_.setToBeRemoved.notify( 
 	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
+    picksetmgr_.setDispChanged.notify(
+	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
 }
 
 
@@ -90,6 +91,8 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
     delete vw2dpickset_;
     checkStatusChange()->remove( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
+    picksetmgr_.setDispChanged.remove(
+	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
 }
 
 
@@ -105,6 +108,13 @@ bool uiODVw2DPickSetTreeItem::init()
 
     vw2dpickset_->drawAll();
     return true;
+}
+
+
+void uiODVw2DPickSetTreeItem::displayChangedCB( CallBacker* )
+{
+    vw2dpickset_->drawAll();
+    displayMiniCtab();
 }
 
 
@@ -132,26 +142,34 @@ bool uiODVw2DPickSetTreeItem::select()
 bool uiODVw2DPickSetTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
-    mnu.insertItem( savemnu, 0 );
-    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Set direction ..."), 2 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+
+    mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
+    mnu.insertItem( new uiMenuItem("Set &direction ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Save ... "), 2 );
+    mnu.insertItem( new uiMenuItem("&Save As ..."), 3 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 4 );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 || mnuid == 1 )
+    switch ( mnuid )
     {
-	    //TODO Implement asap
-    }
-    else if ( mnuid == 2 )
-    {
-	applMgr()->setPickSetDirs( pickset_ );
-    }
-    else if ( mnuid == 3 )
-    {
-	setidx_ = picksetmgr_.indexOf( pickset_ );
-	if ( setidx_ >= 0 )
-	    picksetmgr_.set( picksetmgr_.id(setidx_), 0 );
+	case 0:{ 
+	    uiPickPropDlg dlg( getUiParent(), pickset_, NULL );
+	    dlg.go();
+	    }break;
+	case 1:
+	    applMgr()->setPickSetDirs( pickset_ );
+	    break;
+	case 2:
+	    applMgr()->storePickSet( pickset_ );
+	    break;
+	case 3:
+	    applMgr()->storePickSetAs( pickset_ );
+	    break;
+	case 4:
+	    setidx_ = picksetmgr_.indexOf( pickset_ );
+	    if ( setidx_ >= 0 )
+		picksetmgr_.set( picksetmgr_.id(setidx_), 0 );
+	    break;
     }
 
     return true;

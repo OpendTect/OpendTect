@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.1 2011-03-24 11:56:25 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.2 2011-05-02 09:21:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ protected:
 
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
+    void		displayChangedCB(CallBacker*);
     void		displayMiniCtab();
     void		removePickSetCB(CallBacker*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.41 2011-01-27 14:56:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.42 2011-05-02 09:21:25 cvsranojay Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -447,7 +447,9 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
 	if ( seldatasetidx_<doedit_.size() && doedit_[seldatasetidx_] )
 	{
-	    auxdata_[seldatasetidx_]->poly_.remove( selptidx_[0] );
+	    const int selidx = selptidx_[0];
+	    auxdata_[seldatasetidx_]->poly_.remove( selidx ); 
+	    auxdata_[seldatasetidx_]->markerstyles_.remove( selidx );
 	    viewer_.handleChange( Viewer::Annot );
 	}
 

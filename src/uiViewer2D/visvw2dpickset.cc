@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.4 2011-03-28 04:39:26 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.5 2011-05-02 09:21:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,8 @@ VW2DPickSet::~VW2DPickSet()
 
 void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 {
-    if ( !isselected_ || editor_->getSelPtIdx().size() )
+    if ( !isselected_ || editor_->getSelPtIdx().size() 
+	 || editor_->isSelActive() )
 	return;
 
     FlatView::Point newpt = editor_->getSelPtPos();
@@ -88,9 +89,9 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 
 void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 {
-    isownremove_ = true;
     const TypeSet<int>&	selpts = editor_->getSelPtIdx();
     const int selsize = selpts.size();
+    isownremove_ = selsize == 1;
     for ( int idx=0; idx<selsize; idx++ )
     {
 	const int locidx = selpts[idx];
@@ -103,13 +104,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 				 &pickset_, pickidx );
 	pickset_.remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
-	if ( selsize > 1 )
-	{
-	    picks_->poly_.remove( locidx );
-	    viewer_.handleChange( FlatView::Viewer::Annot );
-	}
     }
-
+    
     isownremove_ = false;
 }
 
