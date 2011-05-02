@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.42 2011-04-15 11:12:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.43 2011-05-02 10:02:05 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.42 2011-04-15 11:12:44 c
 
 #include "ctxtioobj.h"
 #include "file.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "stratlevel.h"
@@ -33,9 +35,10 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.42 2011-04-15 11:12:44 c
 #include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
+#include "wellman.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
-
+#include "welltransl.h"
 
 static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
 				 "[Color]", "Regional marker", 0 };
@@ -50,6 +53,7 @@ static const int cLevelCol = 3;
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", "107.1.1"))
     	, track_(t)
+        , oldmrkrs_(0)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				        .rowgrow(true) 
@@ -66,9 +70,13 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
     table_->setPrefWidth( 400 );
 
+    uiButton* updatebut = new uiPushButton( this, "&Update display",
+	    			mCB(this,uiMarkerDlg,updateDisplayCB), false );
+    updatebut->attach( leftAlignedBelow, table_ );
+
     uiButton* rfbut = new uiPushButton( this, "&Read new",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
-    rfbut->attach( leftAlignedBelow, table_ );
+    rfbut->attach( rightOf, updatebut );
 
     uiButton* expbut = new uiPushButton( this, "&Export",
 	    				mCB(this,uiMarkerDlg,exportCB), false );
@@ -77,7 +85,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     uiPushButton* setregmrkar =
 	new uiPushButton( this,	"Set as regional markers",
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
-    setregmrkar->attach( rightOf, expbut );
+    setregmrkar->attach( alignedBelow, updatebut );
     
     uiToolButton* stratbut = new uiToolButton( this, "man_strat.png",
 	    			"Edit Stratigraphy to define Levels",
@@ -86,10 +94,16 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 
     unitfld_ = new uiCheckBox( this, "Z in Feet" );
     unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
-    unitfld_->attach( rightOf, stratbut );
+    unitfld_->attach( rightAlignedBelow, table_ );
     unitfld_->setChecked( SI().depthsInFeetByDefault() );
 
     setPrefWidthInChar( 60 );
+}
+
+
+uiMarkerDlg::~uiMarkerDlg()
+{
+    if ( oldmrkrs_ ) delete oldmrkrs_;
 }
 
 
@@ -271,6 +285,12 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     }
 
     table_->resizeHeaderToContents( false );
+
+    if ( !oldmrkrs_ )
+    {
+	oldmrkrs_ = new Well::MarkerSet();
+	getMarkerSet( *oldmrkrs_ );
+    }
 }
 
 
@@ -550,4 +570,55 @@ void uiMarkerDlg::exportCB( CallBacker* )
     }
 
     sd.close();
+}
+
+
+bool uiMarkerDlg::getKey( MultiID& mid ) const
+{
+    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
+    IOObj* obj = IOM().getLocal( track_.name() );
+    if ( !obj )
+	return false;
+
+    mid = obj->key();
+    return true;
+}
+
+
+void uiMarkerDlg::updateDisplayCB( CallBacker* )
+{
+    MultiID mid;
+    if ( !getKey(mid) )
+	return;
+
+    Well::Data* wd =0;
+    if ( Well::MGR().isLoaded( mid ) )
+	wd = Well::MGR().get( mid );
+
+    if ( !wd )
+	return;
+
+    getMarkerSet( wd->markers() );
+    wd->markerschanged.trigger();
+}
+
+
+bool uiMarkerDlg::rejectOK( CallBacker* )
+{
+    MultiID mid;
+    if ( !getKey(mid) )
+	return true;
+
+    Well::Data* wd =0;
+    if ( Well::MGR().isLoaded( mid ) )
+    {
+	wd = Well::MGR().get( mid );
+	if ( oldmrkrs_ && wd )
+	{
+	    deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
+	    wd->markerschanged.trigger();
+	}
+    }
+
+    return true;
 }
