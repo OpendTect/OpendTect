@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dtracker.cc,v 1.7 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dtracker.cc,v 1.8 2011-05-02 06:14:52 cvsumesh Exp $";
 
 #include "horizon2dtracker.h"
 
@@ -28,10 +28,14 @@ static const char* rcsID = "$Id: horizon2dtracker.cc,v 1.7 2009-07-22 16:01:34 c
 namespace MPE
 {
 
+const char* Horizon2DTracker::keyword()			{ return "Horizon2D"; }
+
 Horizon2DTracker::Horizon2DTracker( EM::Horizon2D* hor )
     : EMTracker(hor)
     , seedpicker_( 0 )
-{}
+{
+    setTypeStr( Horizon2DTracker::keyword() );
+}
 
 
 Horizon2DTracker::~Horizon2DTracker()
@@ -61,7 +65,8 @@ SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
 
     return new SectionTracker( *emObject(), sid,
 	    new Horizon2DSelector(*getHorizon2D(),sid),
-	    new Horizon2DExtender(*getHorizon2D(),sid),
+//	    new Horizon2DExtender(*getHorizon2D(),sid),
+	    ExtenderFactory().create( getTypeStr(),getHorizon2D(),sid),
 	    new HorizonAdjuster(*getHorizon2D(),sid) );
 }
 

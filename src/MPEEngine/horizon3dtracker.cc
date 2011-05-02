@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon3dtracker.cc,v 1.10 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon3dtracker.cc,v 1.11 2011-05-02 06:14:52 cvsumesh Exp $";
 
 #include "horizon3dtracker.h"
 
@@ -28,10 +28,14 @@ static const char* rcsID = "$Id: horizon3dtracker.cc,v 1.10 2009-07-22 16:01:34 
 namespace MPE
 {
 
+const char* Horizon3DTracker::keyword()			{ return "Horizon3D"; }
+
 Horizon3DTracker::Horizon3DTracker( EM::Horizon3D* hor )
     : EMTracker(hor)
     , seedpicker( 0 )
-{}
+{
+    setTypeStr( Horizon3DTracker::keyword() );
+}
 
 
 Horizon3DTracker::~Horizon3DTracker()
@@ -59,7 +63,8 @@ SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
 
     return new SectionTracker( *emObject(), sid,
 	    new BinIDSurfaceSourceSelector(*getHorizon(),sid),
-	    new Horizon3DExtender(*getHorizon(),sid),
+	   // new Horizon3DExtender(*getHorizon(),sid),
+	    ExtenderFactory().create( getTypeStr(),getHorizon(),sid),
 	    new HorizonAdjuster(*getHorizon(),sid) );
 }
 

@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.17 2010-09-15 05:53:18 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.18 2011-05-02 06:14:52 cvsumesh Exp $";
 
 #include "horizon3dextender.h"
 
 #include "binidsurface.h"
 #include "emfault.h"
 #include "emhorizon3d.h"
+#include "horizon3dtracker.h"
 #include "survinfo.h"
 #include "trackplane.h"
 #include "mpeengine.h"
@@ -24,11 +25,46 @@ namespace MPE
 {
 
 
+void BaseHorizon3DExtender::initClass()
+{
+    ExtenderFactory().addCreator( create, Horizon3DTracker::keyword() );
+}
+
+
+SectionExtender* BaseHorizon3DExtender::create( EM::EMObject* emobj,
+						const EM::SectionID& sid )
+{
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    return emobj && !hor ? 0 : new BaseHorizon3DExtender( *hor, sid );
+}
+
+
+BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& surface_,
+					      const EM::SectionID& sectionid )
+   : Horizon3DExtender( surface_, sectionid )
+{
+}
+
+
 Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& surface_,
 				  const EM::SectionID& sectionid )
     : SectionExtender( sectionid )
     , surface( surface_ )
 {}
+
+
+/*SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj,
+					    const EM::SectionID& sid )
+{
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    return emobj && !hor ? 0 : new Horizon3DExtender( *hor, sid );
+}
+
+
+void Horizon3DExtender::initClass()
+{
+    ExtenderFactory().addCreator( create, Horizon3DTracker::keyword() );
+}*/
 
 
 void Horizon3DExtender::setDirection( const BinIDValue& bdval )
@@ -106,10 +142,12 @@ int Horizon3DExtender::nextStep()
 		if ( neighbor.sectionID()!=sid_ )
 		    continue;
 
-		BinID neighborbinid; 
-		neighborbinid.fromInt64( neighbor.subID() );
-		if ( !getExtBoundary().hrg.includes(neighborbinid) )
+		BinID neighbbid; 
+		neighbbid.fromInt64( neighbor.subID() );
+		if ( !getExtBoundary().hrg.includes(neighbbid) )
 		    continue;
+
+		const float testdepth = getDepth( srcbid, neighbbid );
 
 		//If this is a better route to a node that is already
 		//added, replace the route with this one
@@ -126,7 +164,10 @@ int Horizon3DExtender::nextStep()
 		    if ( cursrc.sqDistTo( dst )<olddist ) 
 		    {
 			addedpossrc_[previndex] = srcbid.toInt64();
-			surface.setPos( neighbor, Coord3(0,0,depth), setundo_ );
+		//surface.setPos( neighbor, Coord3(0,0,depth), setundo_ );
+			surface.setPos( neighbor,
+					Coord3(0,0,getDepth(srcbid,neighbbid)),
+					setundo_ );
 		    }
 		    continue;
 		}
@@ -138,7 +179,10 @@ int Horizon3DExtender::nextStep()
 
 
 		if ( !isExcludedPos(neighbor.subID()) &&
-		     surface.setPos(neighbor, Coord3(0,0,depth), setundo_) )
+		     //surface.setPos(neighbor, Coord3(0,0,depth), setundo_) )
+		     surface.setPos(neighbor,
+			     	    Coord3(0,0,getDepth(srcbid,neighbbid)),
+				    setundo_) )
 		{
 		    addTarget( neighbor.subID(), srcbid.toInt64() );
 		    change = true;
@@ -148,6 +192,13 @@ int Horizon3DExtender::nextStep()
     }
 
     return 0;
+}
+
+
+const float Horizon3DExtender::getDepth( const BinID& srcbid,
+					 const BinID& destbid )
+{
+    return surface.getPos( sid_, srcbid.toInt64() ).z;
 }
 
 

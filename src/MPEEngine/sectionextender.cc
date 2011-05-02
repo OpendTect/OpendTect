@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.15 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.16 2011-05-02 06:14:52 cvsumesh Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -16,6 +16,9 @@ static const char* rcsID = "$Id: sectionextender.cc,v 1.15 2010-07-14 16:54:13 c
 
 namespace MPE 
 {
+
+mImplFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
+		    ExtenderFactory );
 
 
 SectionExtender::SectionExtender( const EM::SectionID& si)
@@ -46,7 +49,10 @@ const BinIDValue* SectionExtender::getDirection() const { return 0; }
 
 
 void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
-{ startpos_ = ns; }
+{
+    startpos_ = ns;
+    prepareDataIfRequired();
+}
 
 
 void SectionExtender::excludePositions( const TypeSet<EM::SubID>* exclpos )
