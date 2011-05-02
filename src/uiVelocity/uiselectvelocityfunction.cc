@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.8 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.9 2011-05-02 18:45:36 cvskris Exp $";
 
 #include "uiselectvelocityfunction.h"
 
@@ -33,6 +33,7 @@ uiFunctionSel::uiFunctionSel( uiParent* p,
     : uiGroup( p, "Velocity Functions" )
     , velsources_( srcs )
     , colorfld_( 0 )
+    , listChange( this )
 {
     deepRef( velsources_ );
     list_ = new uiListBox( this );
@@ -127,6 +128,8 @@ void uiFunctionSel::addPushedCB(CallBacker*)
     src->ref();
     velsources_ += src;
     updateList();
+
+    listChange.trigger();
 }
 
 
@@ -140,6 +143,7 @@ void uiFunctionSel::removePushedCB(CallBacker*)
     velsources_.remove(sel)->unRef();
     if ( colorfld_ ) colors_.remove( sel );
     updateList();
+    listChange.trigger();
 }
 
 

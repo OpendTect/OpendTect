@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uiselectvelocityfunction.h,v 1.3 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiselectvelocityfunction.h,v 1.4 2011-05-02 18:45:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
 
     ObjectSet<FunctionSource>&	getVelSources();
     const TypeSet<Color>&	getColor() const { return colors_; }
+
+    Notifier<uiFunctionSel>	listChange;
 
 protected:
     void			updateList();
