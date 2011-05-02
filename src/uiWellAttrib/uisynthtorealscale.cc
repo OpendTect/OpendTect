@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.9 2011-03-31 09:43:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.10 2011-05-02 12:03:01 cvsranojay Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -179,8 +179,9 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
-    realstatsfld_->usrValChanged.notify( setsclcb );
+    statsgrp->attach( centeredBelow, gobut );
     statsgrp->attach( ensureBelow, sep );
+    realstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->setHAlignObj( realstatsfld_ );
 
     finalscalefld_ = new uiGenInput( this, "", FloatInpSpec() );
