@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.8 2010-11-06 16:21:05 cvsumesh Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.9 2011-05-02 06:14:48 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,8 @@ public:
     bool			trackIntersections(const TrackPlane&);
 
     EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);
+
+    static const char*		keyword();
 
 protected:
 

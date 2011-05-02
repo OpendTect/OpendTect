@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.30 2010-11-06 16:21:05 cvsumesh Exp $
+ RCS:           $Id: emtracker.h,v 1.31 2011-05-02 06:14:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,10 @@ public:
 
     virtual bool		is2D() const		{ return false; }
 
+    void			setTypeStr(const char* type)
+				{ type_ = type; }
+    const char*			getTypeStr() const	{ return type_; }
+
     virtual bool		isEnabled() const	{ return isenabled_; }
     virtual void		enable(bool yn)		{ isenabled_=yn; }
 
@@ -73,6 +77,7 @@ protected:
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;
     BufferString		errmsg_;
+    const char*			type_;
 
     EM::EMObject*		emObject()      { return emobject_; }
     void			setEMObject(EM::EMObject*);

@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.20 2009-09-01 22:06:02 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.21 2011-05-02 06:14:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "factory.h"
 #include "task.h"
 #include "emposid.h"
 #include "sets.h"
@@ -70,6 +71,8 @@ protected:
     void			addTarget(const EM::SubID& target,
 	    				  const EM::SubID& src );
 
+    virtual void		prepareDataIfRequired()	{ return; }
+
     SortedList<EM::SubID>	sortedaddedpos_;
     TypeSet<EM::SubID>		addedpos_;
     TypeSet<EM::SubID>		addedpossrc_;
@@ -84,6 +87,10 @@ protected:
     bool			setundo_;
 };
 
-};
+
+mDefineFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
+		      ExtenderFactory );
+
+}; //namespace MPE
 
 #endif
