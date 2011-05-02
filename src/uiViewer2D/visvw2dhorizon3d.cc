@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.cc,v 1.7 2010-12-16 04:32:29 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon3d.cc,v 1.8 2011-05-02 05:48:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,8 @@ void Vw2DHorizon3D::enablePainting( bool yn )
 	if ( horeds_[idx] )
 	{
 	    horeds_[idx]->enableLine( yn );
-	    horeds_[idx]->enableSeed( yn );
+	    horeds_[idx]->enableSeed( yn &&
+		    (MPE::engine().getTrackerByObject(emid_) != -1) );
 	}
     }
 }
