@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.81 2011-04-29 14:14:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.82 2011-05-02 14:25:45 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -78,10 +78,10 @@ void uiTieView::initWellControl()
 void uiTieView::fullRedraw()
 {
     setLogsParams();
-    drawLog( data_.currvellog(), 0, 0, data_.isSonic() );
-    drawLog( data_.density(), 1, 0, false );
-    drawLog( data_.ai(), 0, 1, false );
-    drawLog( data_.reflectivity(), 1, 1, true );
+    drawLog( data_.sonic(), true, 0, !data_.isSonic() );
+    drawLog( data_.density(), false, 0, false );
+    drawLog( data_.ai(), true, 1, false );
+    drawLog( data_.reflectivity(), false, 1, true );
     drawLogDispWellMarkers();
     drawCShot();
     
@@ -109,7 +109,6 @@ void uiTieView::initLogViewers()
     for ( int idx=0; idx<2; idx++ )
     {
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-	wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
 	logsdisp_ += new uiWellLogDisplay( parent_, wldsu );
 	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
 	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
@@ -161,16 +160,16 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    Interval<float> zrg( zrange_.start, zrange_.stop );
+    Interval<float> zrg( zrange_.start*1000, zrange_.stop*1000 );
     setLogsRanges( zrg );
 }
 
 
-void uiTieView::drawLog( const char* nm, int lognr, int dispnr, bool reversed )
+void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
-    uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( lognr );
+    uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
     wldld.wl_ = data_.logset_.getLog( nm );
-    wldld.disp_.color_ = Color::stdDrawColor( lognr );
+    wldld.disp_.color_ = Color::stdDrawColor( first ? 0 : 1 );
     wldld.disp_.isleftfill_ = wldld.disp_.isrightfill_ = false;
     wldld.xrev_ = reversed;
 }

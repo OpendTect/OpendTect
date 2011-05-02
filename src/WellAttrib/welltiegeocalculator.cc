@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.58 2011-03-04 14:16:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.59 2011-05-02 14:25:45 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -45,10 +45,15 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
     }
 
     Well::Log proclog = Well::Log( log );
+    if ( track )
+    {
+	proclog.insertAtDah( -track->value(0), 0 );
+    }
     removeSpikes( proclog.valArr(), proclog.size(), 10, 3 );
     velLogConv( proclog, issonic ? Son2TWT : Vel2TWT );
 
     TypeSet<float> dpt, vals;
+
     for ( int idx=0; idx<proclog.size(); idx++ )
     {
 	float dah = proclog.dah( idx );
@@ -121,7 +126,7 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 	}
 	else if ( conv == Vel2Son )
 	{
-	    newval = vals[idx]/velfac;
+	    newval = 1/vals[idx]*velfac;
 	}
 	log.addValue( dpts[idx], newval );
     }

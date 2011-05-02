@@ -78,7 +78,7 @@ protected:
     ObjectSet<uiTextItem> 	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
 
-    void        		drawLog(const char*,int,int,bool);
+    void        		drawLog(const char*,bool,int,bool);
     void        		drawTraces();
     void			drawUserPicks(const TypeSet<Marker>&,bool);
     void        		drawMarker(FlatView::Annotation::AuxData*,

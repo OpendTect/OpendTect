@@ -36,13 +36,19 @@ public:
 
     mClass Setup
     {
-	public :
+	public:
+			Setup(bool existing,bool sonic,const char* log)
+			    : useexisting_(existing) 
+			    , issonic_(sonic)
+			    , currvellog_(log)	       
+			{}
+
 	    mDefSetupMemb(bool,useexisting)
 	    mDefSetupMemb(bool,issonic)
 	    mDefSetupMemb(const char*,currvellog)
     };
 
-			D2TModelMgr(Well::Data&,const Setup&);
+			D2TModelMgr(Well::Data&,DataWriter&,const Setup&);
 			~D2TModelMgr();
 
     bool 		undo();
@@ -73,6 +79,7 @@ protected:
     Well::D2TModel* 	orgd2t_;
 
     GeoCalculator	calc_;
+    DataWriter&		datawriter_;
 
     void		ensureValid(Well::D2TModel&);
 };

@@ -79,7 +79,7 @@ mStruct PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
 mClass Data
 {
 public :
-    				Data(const Setup&);
+    				Data(const Setup&,Well::Data& wd);
     				~Data();
 
     Well::Data*			wd_;
@@ -95,7 +95,6 @@ public :
 
     const char*  		sonic() 	const;
     const char*  		corrsonic() 	const;
-    const char*  		currvellog() 	const;
     const char*  		checkshotlog() 	const;
     const char*  		density() 	const;
     const char*  		ai() 		const;
@@ -104,8 +103,8 @@ public :
     const char*  		seismic() 	const;
     bool			isSonic() 	const;
 
-    void			setVelLogName( bool iscs )
-				{ currvellog_ = iscs ? corrsonic() : sonic(); }
+    void			setIsCSCorr( bool iscs );
+
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
     DispParams			dispparams_;
@@ -113,7 +112,7 @@ public :
 protected:
 
     const Setup&		setup_;
-    const char* 		currvellog_;
+    bool			iscscorr_;
 };
 
 
@@ -139,7 +138,7 @@ protected:
 mClass DataWriter 
 {	
 public:    
-				DataWriter(Well::Data*,const MultiID&);
+				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
     mStruct LogData
@@ -161,6 +160,9 @@ public:
     bool 			writeD2TM() const;		
     bool                        writeLogs(const Well::LogSet&) const;
     bool                        writeLogs2Cube(LogData&) const;
+
+    void			setWD(Well::Data* wd)
+    				{ wd_ = wd; setWellWriter(); }
 
 protected:
 
@@ -208,20 +210,21 @@ public :
     				Server(const WellTie::Setup&);
     				~Server();
 
+    const Well::Data* 		wd() const	{ return data_->wd_; }
+
     PickSetMgr&			pickMgr() 	{ return *pickmgr_; }
     HorizonMgr&			horizonMgr() 	{ return *hormgr_; }
-    DispParams&			dispParams()	{ return data_.dispparams_; }
+    DispParams&			dispParams()	{ return data_->dispparams_; }
+    DataWriter&			dataWriter()	{ return *datawriter_; } 
+    const Data&			data() const 	{ return *data_; }
+
 
     const char* 		errMSG() const	{ return errmsg_.buf(); }
 
-    const Well::Data* 		wd() const	{ return data_.wd_; }
-    const Data&			data() const 	{ return data_; }
-
     bool			is2D() const	{ return is2d_; }
 
-    void			setVelLogName( bool iscs )
-				{ data_.setVelLogName( iscs ); }
-
+    void			setIsCSCorr( bool iscs)
+				{ data_->setIsCSCorr( iscs ); }
     void			resetD2TModel( Well::D2TModel* d2t )
 				{ d2tmgr_->setAsCurrent(d2t); }
     bool                	undoD2TModel()
@@ -232,20 +235,23 @@ public :
 				{ return d2tmgr_->commitToWD(); }
     void			replaceTime(const Array1DImpl<float>& tarr)
 				{ d2tmgr_->replaceTime( tarr ); }
+    void			computeD2TModel()
+    				{ d2tmgr_->setFromVelLog( data_->sonic() ); }
 
     bool			computeAll();
     bool			computeSynthetics();
 
     void			setEstimatedWvlt(float*,int);
     void			setInitWvltActive(bool yn)
-				{ data_.isinitwvltactive_ = yn; }
+				{ data_->isinitwvltactive_ = yn; }
 protected :
     PickSetMgr*			pickmgr_;
     WellDataMgr*		wdmgr_;
     DataPlayer*			dataplayer_;
     HorizonMgr*			hormgr_;
     D2TModelMgr*		d2tmgr_;
-    Data 			data_;
+    DataWriter*			datawriter_;
+    Data* 			data_;
 
     bool			is2d_;
     BufferString		errmsg_;

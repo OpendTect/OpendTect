@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.16 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.17 2011-05-02 14:25:45 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -19,15 +19,16 @@ static const char* rcsID = "$Id: welltiecshot.cc,v 1.16 2011-02-04 14:00:54 cvsb
 namespace WellTie
 {
 
-CheckShotCorr::CheckShotCorr( Well::Log& l, const Well::D2TModel& c, bool isvel)
+CheckShotCorr::CheckShotCorr( Well::Log& l, const Well::D2TModel& c, bool isson)
     : log_(l)
     , cslog_(*new Well::Log)
 {
     GeoCalculator geocalc;
     geocalc.d2TModel2Log( c, cslog_ );
     geocalc.velLogConv( cslog_, GeoCalculator::TWT2Vel );
-    if ( !isvel )
-	geocalc.velLogConv( log_, GeoCalculator::Son2Vel );
+    cslog_.setUnitMeasLabel( log_.unitMeasLabel() );
+    if ( isson )
+	geocalc.velLogConv( cslog_, GeoCalculator::Vel2Son );
     calibrateLog2CheckShot( cslog_ );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.57 2011-04-29 14:14:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.58 2011-05-02 14:25:45 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -112,15 +112,14 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
-    /*
-    for ( int idx=0; idx<worksz_; idx++ )
+    for ( int idx=0; idx<worksz_-1; idx++ )
     {
-	const float dah = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
-	const float vel = pslog.getValue( dah, true ); 
-	const float den = pdlog.getValue( dah, true ); 
-	aimodel_ += AILayer( dah, vel, den );
+	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
+	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
+	const float vel = pslog.getValue( dah1, true ); 
+	const float den = pdlog.getValue( dah1, true ); 
+	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
     }
-    */
     return true;
 }
 
@@ -195,19 +194,18 @@ bool DataPlayer::copyDataToLogSet()
 	const float time = disprg_.atIndex(idx);
 	const int workidx = workrg_.getIndex( time );
 	const AILayer& layer = aimodel_[workidx];
-	//dah += layer.depth_;
+	dah += getLayerDepth( aimodel_, workidx );
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.vel_*layer.den_;
 	refs += reflvals_[idx];
     }
 
-    createLog( data_.sonic(), dah, son ); 
-    createLog( data_.density(), dah, den ); 
-    createLog( data_.ai(), dah, ai );
-    createLog( data_.reflectivity(), dah, refs  );
+    createLog( data_.sonic(), dah.arr(), son.arr(), son.size() ); 
+    createLog( data_.density(), dah.arr(), den.arr(), den.size() ); 
+    createLog( data_.ai(), dah.arr(), ai.arr(), ai.size() );
+    createLog( data_.reflectivity(), dah.arr(), refs.arr(), refs.size()  );
 
-    /*
     if ( data_.isSonic() )
     {
 	GeoCalculator gc;
@@ -215,26 +213,26 @@ bool DataPlayer::copyDataToLogSet()
 	if ( vellog )
 	    gc.velLogConv( *vellog, GeoCalculator::Vel2Son );
     }
-    */
     return true;
 }
 
 
-void DataPlayer::createLog( const char* nm, const TypeSet<float>& dah, 
-				const TypeSet<float>& vals )
+void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 {
     Well::Log* log = 0;
     if ( data_.logset_.indexOf( nm ) < 0 ) 
     {
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
+	const Well::Log* wdlog = wd_->logs().getLog( nm );
+	if ( wdlog ) log->setUnitMeasLabel( wdlog->unitMeasLabel() );
     }
     else
 	log = data_.logset_.getLog( nm );
 
     log->erase();
 
-    for( int idx=0; idx<vals.size(); idx ++)\
+    for( int idx=0; idx<sz; idx ++)
 	log->addValue( dah[idx], vals[idx] );
 }
 

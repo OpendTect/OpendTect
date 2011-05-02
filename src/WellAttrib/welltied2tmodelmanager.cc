@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.29 2011-04-14 13:51:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.30 2011-05-02 14:25:45 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -25,11 +25,13 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.29 2011-04-14 13:
 namespace WellTie
 {
 
-D2TModelMgr::D2TModelMgr( Well::Data& wd, const Setup& su )
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& su )
 	: orgd2t_(0)					    
 	, prvd2t_(0)
 	, issonic_(su.issonic_)
-	, wd_(&wd)			 
+	, datawriter_(dwr)    
+	, wd_(&wd)
+	, emptyoninit_(false)		  
 {
     if ( mIsUnvalidD2TM( wd ) )
 	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
@@ -136,10 +138,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( !d2T() ) 
 	prvd2t_ =  new Well::D2TModel( *d2T() );
     if ( wd_ )
-    {
 	wd_->setD2TModel( d2t );
-	wd_->d2tchanged.trigger();
-    }
 }
 
 
@@ -175,11 +174,8 @@ bool D2TModelMgr::updateFromWD()
 
 bool D2TModelMgr::commitToWD()
 {
-    //TODO 
-    /*
     if ( !datawriter_.writeD2TM() ) 
 	return false;
-    */
 
     if ( wd_ ) wd_->d2tchanged.trigger();
     if ( orgd2t_ && !emptyoninit_ )

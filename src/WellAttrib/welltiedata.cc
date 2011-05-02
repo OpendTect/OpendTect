@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.49 2011-04-29 14:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.50 2011-05-02 14:25:45 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -41,16 +41,17 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.49 2011-04-29 14:12:54 cvsbr
 namespace WellTie
 {
 
-Data::Data( const Setup& wts )
+Data::Data( const Setup& wts, Well::Data& w)
     : logset_(*new Well::LogSet)  
+    , wd_(&w)  
     , setup_(wts)  
+    , iscscorr_(false)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
     , estimatedwvlt_(*new Wavelet(initwvlt_))
     , timeintv_(SI().zRange(true))
     , seistrc_(*new SeisTrc)  
     , synthtrc_(*new SeisTrc)  
 {
-    currvellog_ = sonic(); //TODO chge init this 
     estimatedwvlt_.setName( "Estimated wavelet" );
 }
 
@@ -64,15 +65,11 @@ Data::~Data()
     delete &synthtrc_;
 }
 
-
 const char* Data::sonic() const
-{ return setup_.vellognm_; }
+{ return iscscorr_ ? setup_.corrvellognm_ : setup_.vellognm_; }
 
 const char* Data::corrsonic() const
 { return setup_.corrvellognm_; }
-
-const char* Data::currvellog() const
-{ return currvellog_; }
 
 const char* Data::density() const
 { return setup_.denlognm_; }
@@ -94,6 +91,9 @@ const char* Data::checkshotlog() const
 
 bool Data::isSonic() const
 { return setup_.issonic_; }
+
+void Data::setIsCSCorr( bool iscs )
+{ iscscorr_ = iscs; }
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
@@ -217,9 +217,9 @@ Well::Data* WellDataMgr::wellData() const
 
 
 
-DataWriter::DataWriter( Well::Data* wd, const MultiID& wellid )
+DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
     : wtr_(0)
-    , wd_(wd)
+    , wd_(&wd)
     , wellid_(wellid)  
 {
     setWellWriter();
@@ -234,6 +234,7 @@ DataWriter::~DataWriter()
 
 void DataWriter::setWellWriter()
 {
+    delete wtr_; wtr_ = 0;
     IOObj* ioobj = IOM().get( wellid_ );
     if ( ioobj && wd_ )
     {
@@ -320,33 +321,37 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
 
 
 Server::Server( const WellTie::Setup& wts )
-    : data_(wts)
-    , is2d_(wts.is2d_)  
+    : is2d_(wts.is2d_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
+
     Well::Data* w = wdmgr_->wd();
-    data_.wd_ = w;
     if ( !w ) return; //close + errmsg
+
+    data_ = new Data( wts, *w );
+    datawriter_ = new DataWriter( *w, wts.wellid_ );
 
     if ( w->haveCheckShotModel() && !wts.useexistingd2tm_ )
     {
-	Well::Log* wl = w->logs().getLog( data_.sonic() );
+	Well::Log* wl = w->logs().getLog( data_->sonic() );
 	if ( !wl ) return;
 	Well::Log* corrlog = new Well::Log( *wl );
 	CheckShotCorr cscorr( *corrlog, *w->checkShotModel(), wts.issonic_ );
+	corrlog->setName( data_->corrsonic() );
 	w->logs().add( corrlog );
+	data_->setIsCSCorr( true );
+
 	Well::Log* cslog = new Well::Log( cscorr.csLog() );
-	cslog->setName( data_.checkshotlog() );
+	cslog->setName( data_->checkshotlog() );
 	w->logs().add( cslog );
     }
-    D2TModelMgr::Setup d2ts; 
-    d2ts.useexisting_ = wts.useexistingd2tm_; 
-    d2ts.currvellog_ = data_.currvellog();
-    d2tmgr_ = new D2TModelMgr( *w, d2ts );
-    dataplayer_ = new DataPlayer( data_, wts.seisid_, &wts.linekey_ );
-    pickmgr_ = new PickSetMgr( data_.pickdata_ );
-    hormgr_ = new HorizonMgr( data_.horizons_ );
+
+    D2TModelMgr::Setup s(wts.useexistingd2tm_,wts.issonic_,data_->sonic()); 
+    d2tmgr_ = new D2TModelMgr( *w, *datawriter_, s );
+    dataplayer_ = new DataPlayer( *data_, wts.seisid_, &wts.linekey_ );
+    pickmgr_ = new PickSetMgr( data_->pickdata_ );
+    hormgr_ = new HorizonMgr( data_->horizons_ );
 
     hormgr_->setWD( w );
     d2tmgr_->setWD( w );
@@ -355,9 +360,11 @@ Server::Server( const WellTie::Setup& wts )
 
 Server::~Server()
 {
+    delete datawriter_;
     delete d2tmgr_;
     delete dataplayer_;
     delete pickmgr_;
+    delete data_;
     wdmgr_->datadeleted_.remove( mCB(this,Server,wellDataDel) );
     delete wdmgr_;
 }
@@ -365,9 +372,10 @@ Server::~Server()
 
 void Server::wellDataDel( CallBacker* )
 {
-    data_.wd_ = wdmgr_->wd();
-    d2tmgr_->setWD( data_.wd_ );
-    hormgr_->setWD( data_.wd_ );
+    data_->wd_ = wdmgr_->wd();
+    d2tmgr_->setWD( data_->wd_ );
+    hormgr_->setWD( data_->wd_ );
+    datawriter_->setWD( data_->wd_ );
 }
 
 
@@ -389,7 +397,7 @@ bool Server::computeSynthetics()
 
 void Server::setEstimatedWvlt( float* vals, int sz )
 {
-    Wavelet& wvlt = data_.estimatedwvlt_;
+    Wavelet& wvlt = data_->estimatedwvlt_;
     sz += sz%2 ? 0 : 1;
     wvlt.reSize( sz );
     memcpy( wvlt.samples(), vals, sz*sizeof(float) );
