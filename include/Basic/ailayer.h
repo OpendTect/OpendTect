@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.4 2011-04-29 14:12:05 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.5 2011-05-02 14:25:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,15 @@ public:
 /*!\brief A table of elastic prop layers */
 
 typedef TypeSet<AILayer> AIModel;
+
+inline float getLayerDepth( const AIModel& mod, int layer ) 
+{
+    float depth = 0;
+    for ( int idx=0; idx<layer+1; idx++ )
+	depth += mod[idx].thickness_;
+
+    return depth;
+}
 
 
 #endif

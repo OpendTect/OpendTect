@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.20 2011-04-29 14:12:54 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.21 2011-05-02 14:25:14 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -81,7 +81,6 @@ protected:
 
     virtual bool	compute(int,int,float);
 
-    float		getLayerDepth(const AIModel&,int layer) const;
     int			findLayer(const AIModel& model,float targetdepth) const;
 
     			//Setup variables
