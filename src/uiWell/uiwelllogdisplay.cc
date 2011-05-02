@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc";
 
 #define mDefZPos(zpos) \
     if ( zdata_.zistime_ && zdata_.d2tm_ )\
-	zpos = zdata_.d2tm_->getTime( zpos )*1000;\
+	zpos = zdata_.d2tm_->getTime( zpos )*1000;
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
@@ -147,6 +147,9 @@ void uiWellLogDisplay::gatherInfo( bool first )
     }
     else
 	ld.valrg_ = ld.disp_.range_;
+
+    if ( !ld1_.wl_ && !ld2_.wl_ ) 
+	ld.valrg_ = ld.disp_.range_ = Interval<float>(0,0);
 
     float startpos = ld.zrg_.start = ld.wl_->dah( 0 );
     float stoppos = ld.zrg_.stop = ld.wl_->dah( sz-1 );
