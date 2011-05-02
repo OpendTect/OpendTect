@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.27 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.28 2011-05-02 11:58:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,12 @@ public:
     void			prepPriorToBoundsCalc();
     void			setRdmPaths( TypeSet<BinID>* truepos,
 	    				     TypeSet<BinID>* snappedpos )
-			        { linetruepos_ = new TypeSet<BinID>(*truepos);
-				  linepath_ = new TypeSet<BinID>(*snappedpos); }
+			        { linetruepos_ = truepos
+					    ? new TypeSet<BinID>(*truepos)
+					    : new TypeSet<BinID>();
+				  linepath_ = snappedpos
+					    ? new TypeSet<BinID>(*snappedpos)
+					    : new TypeSet<BinID>(); }
     virtual bool		isSingleTrace() const
 				{ return !stepout_.inl && !stepout_.crl; }
 
