@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.49 2011-03-08 17:45:32 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.50 2011-05-03 19:46:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -434,6 +434,10 @@ public:
     bool		intersectWith( const Plane3&, Line3& ) const;
     			/*!< Returns true if the planes intersects.
 			     If it returns true, the Line3 is set */
+    Coord3		getProjection(const Coord3& pos);
+    bool		onSameSide(const Coord3& p1,const Coord3& p2);
+    			/*!<Check p1, p2 are on the same side of the plane or 
+			    not, will return true if one is on the plane.*/
 
     double		A_;
     double		B_;

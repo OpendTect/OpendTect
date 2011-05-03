@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.56 2011-04-15 21:26:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.57 2011-05-03 19:46:30 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -679,6 +679,15 @@ bool Plane3::operator!=(const Plane3& b ) const
 }
 
 
+Coord3 Plane3::getProjection( const Coord3& pos )
+{
+    const double param = (A_*pos.x+B_*pos.y+C_*pos.z+D_)/(A_*A_+B_*B_+C_*C_);
+    return Coord3( pos.x-A_*param, pos.y-B_*param, pos.z-C_*param );
+}
+
+
+bool Plane3::onSameSide( const Coord3& p1, const Coord3& p2 )
+{ return (A_*p1.x+B_*p1.y+C_*p1.z+D_) * (A_*p2.x+B_*p2.y+C_*p2.z+D_) >= 0; }
 
 
 double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
