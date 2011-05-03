@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.42 2011-04-29 16:05:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.43 2011-05-03 19:55:51 cvsyuancheng Exp $";
 
 #include "viscoord.h"
 
@@ -352,15 +352,25 @@ void Coordinates::setAllZ( const float* vals, int sz, float zscale )
     if ( sz != coords_->point.getNum() )
 	coords_->point.setNum( sz );
 
-    const bool usescale = !mIsZero(zscale-1,1e-8);
-
-    float* zvals = ((float*) coords_->point.startEditing() ) +2;
+    float* zvals = ((float*) coords_->point.startEditing())+2;
     float* stopptr = zvals + sz*3;
-    while ( zvals<stopptr )
+    if ( !mIsZero(zscale-1,1e-8) )
     {
-	*zvals = usescale ? (*vals) * zscale : *vals;
-	zvals += 3;
-	vals++;
+	while ( zvals<stopptr )
+	{
+	    *zvals = *vals * zscale;
+	    zvals += 3;
+	    vals++;
+	}
+    }
+    else
+    {
+	while ( zvals<stopptr )
+	{
+	    *zvals = *vals;
+	    zvals += 3;
+	    vals++;
+	}
     }
 
     coords_->point.finishEditing();
