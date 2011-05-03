@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.104 2011-04-25 03:53:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.105 2011-05-03 15:19:58 cvsbruno Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.104 2011-04-25 03:53:
 #include "uiodapplmgr.h"
 #include "uiodeditattribcolordlg.h"
 #include "uiodscenemgr.h"
+#include "uiseis2dto3d.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uivispartserv.h"
@@ -61,6 +62,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
     mnu.insertItem( new uiMenuItem("&Create from 3D ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Generate 3D cube..."), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -77,6 +79,11 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	uiCreate2DGrid dlg( ODMainWin(), 0 );
+	dlg.go();
+    }
+    else if ( mnuid == 2 )
+    {
+	uiSeis2DTo3D dlg( ODMainWin() );
 	dlg.go();
     }
     else
