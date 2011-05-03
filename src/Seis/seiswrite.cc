@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.63 2011-04-22 11:19:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.64 2011-05-03 13:16:50 cvshelene Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -358,7 +358,7 @@ bool SeisSequentialWriter::finishWrite()
 
     Threads::WorkManager::twm().emptyQueue( queueid_, true );
 
-    return errmsg_.str();
+    return errmsg_.isEmpty();
 }
 
 
