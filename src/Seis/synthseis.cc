@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.22 2011-05-02 14:24:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.23 2011-05-03 09:08:34 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -328,8 +328,7 @@ mImplFactory( RaySynthGenerator, RaySynthGenerator::factory );
 RaySynthGenerator::RaySynthGenerator()
     : outputdataismine_(true) 
 {
-    outputsampling_.set(mUdf(float),mUdf(float),mUdf(float));
-    raysampling_.set(0,0,0);
+    clean();
 }
 
 
@@ -361,13 +360,28 @@ bool RaySynthGenerator::setRayParams( const TypeSet<float>& offs,
 }
 
 
-bool RaySynthGenerator::doWork( TaskRunner& tr )
+void RaySynthGenerator::clean()
 {
-    return doRayTracing( tr ) && doSynthetics( tr );
+    aimodels_.erase();
+    outputsampling_.set(mUdf(float),mUdf(float),mUdf(float));
+    raysampling_.set(0,0,0);
+
+    if ( outputdataismine_ )
+	deepErase( raymodels_ );
+    else
+	raymodels_.erase();
+
+    outputdataismine_ = true;
 }
 
 
-bool RaySynthGenerator::doRayTracing( TaskRunner& tr )
+bool RaySynthGenerator::doWork()
+{
+    return doRayTracing() && doSynthetics();
+}
+
+
+bool RaySynthGenerator::doRayTracing()
 {
     if ( aimodels_.isEmpty() ) 
 	mErrRet( "No AIModel set" );
@@ -397,7 +411,7 @@ bool RaySynthGenerator::doRayTracing( TaskRunner& tr )
 }
 
 
-bool RaySynthGenerator::doSynthetics( TaskRunner& tr )
+bool RaySynthGenerator::doSynthetics()
 {
     if ( !mIsUdf( outputsampling_.start ) )
 	raysampling_ = outputsampling_;

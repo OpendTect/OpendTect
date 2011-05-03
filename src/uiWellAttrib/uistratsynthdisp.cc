@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.35 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.36 2011-05-03 09:08:34 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -325,8 +325,7 @@ void uiStratSynthDisp::doModelChange()
 	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
 	synthgen.addModel( aimod );
     }
-    uiTaskRunner tr( this );
-    if ( !synthgen.doWork( tr ) )
+    if ( !synthgen.doWork() )
 	mErrRet( synthgen.errMsg() );
 
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );

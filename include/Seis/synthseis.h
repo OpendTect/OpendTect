@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.18 2011-04-14 13:49:22 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.19 2011-05-03 09:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,9 +139,10 @@ public:
     virtual bool		setRayParams(const TypeSet<float>& offs,
 					const RayTracer1D::Setup&,bool isnmo);
 
-    bool			doWork(TaskRunner& tr);
-    bool			doRayTracing(TaskRunner&);
-    bool			doSynthetics(TaskRunner&);
+    void			clean();
+    bool			doWork(); 
+    bool			doRayTracing();
+    bool			doSynthetics();
 
     mStruct RayModel
     {

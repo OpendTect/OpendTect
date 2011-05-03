@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.58 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.59 2011-05-03 09:08:34 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.58 2011-05-02 14:25:45 
 
 namespace WellTie
 {
-static const int cDefTimeResampFac = 2;
+static const int cDefTimeResampFac = 20;
 
 #define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
@@ -52,7 +52,8 @@ bool DataPlayer::computeAll()
 {
     mGetWD()
 
-    if ( !setAIModel() || !generateSynthetics() || !extractSeismics() )
+    if ( !setAIModel() || !prepareSynthetics() 
+	    || !generateSynthetics() || !extractSeismics() )
 	return false;
 
     copyDataToLogSet();
@@ -124,23 +125,17 @@ bool DataPlayer::setAIModel()
 }
 
 
-bool DataPlayer::generateSynthetics()
+bool DataPlayer::prepareSynthetics()
 {
-
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-    Seis::ODRaySynthGenerator gen;
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.addModel( aimodel_ );
-    gen.setOutSampling( disprg_ );
-
-    TaskRunner tr;
-    if ( !gen.doRayTracing( tr ) )
-	mErrRet( gen.errMsg() )
+    gen_.clean();
+    gen_.addModel( aimodel_ );
+    gen_.setOutSampling( disprg_ );
+    if ( !gen_.doRayTracing() )
+	mErrRet( gen_.errMsg() )
 
     //hack because we need to set our own times there 
-    const Seis::RaySynthGenerator::RayModel& rm = *gen.result( 0 );
-    ObjectSet<const ReflectivityModel> refms = rm.refmodels_;
+    const Seis::RaySynthGenerator::RayModel& rm = *gen_.result( 0 );
+    const ObjectSet<const ReflectivityModel>& refms = rm.refmodels_;
     for ( int idref=0; idref<refms.size(); idref++ )
     {
 	ReflectivityModel& rfm = const_cast<ReflectivityModel&>(*refms[idref]);
@@ -150,9 +145,20 @@ bool DataPlayer::generateSynthetics()
 	    rfm[idx].correctedtime_ = workrg_.atIndex(idx);
 	}
     }
-    if ( !gen.doSynthetics( tr ) )
-	mErrRet( gen.errMsg() )
+    return true;
+}
 
+
+bool DataPlayer::generateSynthetics()
+{
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+						  : data_.estimatedwvlt_;
+    gen_.setWavelet( &wvlt, OD::UsePtr );
+
+    if ( !gen_.doSynthetics() )
+	mErrRet( gen_.errMsg() )
+
+    const Seis::RaySynthGenerator::RayModel& rm = *gen_.result( 0 );
     reflvals_.copy( rm.sampledrefs_ );
     data_.synthtrc_ = *rm.stackedTrc();
 
