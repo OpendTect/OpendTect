@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.11 2011-04-20 15:07:45 cvshelene Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.12 2011-05-03 13:17:04 cvshelene Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -216,7 +216,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	    if ( velinpdesc_.type_ == VelocityDesc::Avg ) 
 	    {
 		 if ( !computeVint( inputptr, timesamps[0], timesamps.arr(),
-			trc.size(), interptr ? interptr : outptr ) );
+			trc.size(), interptr ? interptr : outptr ) )
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
