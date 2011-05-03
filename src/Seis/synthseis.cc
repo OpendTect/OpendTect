@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.23 2011-05-03 09:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.24 2011-05-03 15:12:39 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -391,8 +391,12 @@ bool RaySynthGenerator::doRayTracing()
 
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
+	const AIModel& aim = aimodels_[idx];
+	if ( aim.isEmpty() )
+	    continue;
+
 	RayTracer1D* rt1d = new RayTracer1D( raysetup_ );
-	rt1d->setModel( true, aimodels_[idx] );
+	rt1d->setModel( true, aim );
 	rt1d->setOffsets( offsets_ );
 	if ( !rt1d->execute() )
 	    mErrRet( rt1d->errMsg() )
