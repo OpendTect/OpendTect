@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.97 2011-04-20 09:53:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.98 2011-05-03 08:18:45 cvsnageswara Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -302,8 +302,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 {
     if ( !track_.size() )
     {
-	uiMSG().message( "No data available to import" );
-	false;
+	uiMSG().message( "No data available to export" );
+	return;
     }
 
     uiFileDialog fdlg( this, false, 0, 0, "File name for export" );
@@ -323,8 +323,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     for ( int idx=0; idx<track_.size(); idx++ )
     {
 	const Coord3 coord( track_.pos(idx) );
-	sprintf( buf, "%16.4lf%16.4lf%10.3lf%10.3f\n", coord.x, coord.y, coord.z,
-		 track_.dah( idx ) );
+	sprintf( buf, "%16.4lf%16.4lf%10.3lf%10.3f\n", coord.x, coord.y,
+		 coord.z, track_.dah( idx ) );
 	*sd.ostrm << buf;
     }
 
