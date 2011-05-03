@@ -81,6 +81,42 @@ int RayTracer1D::findLayer( const AIModel& model, float targetdepth ) const
 
 bool RayTracer1D::doPrepare( int nrthreads )
 {
+    if ( !init() )
+	return false;
+
+    const int layersize = nrIterations();
+    const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
+    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
+
+    velmax_ += 0;
+    for ( int idx=firstlayer_; idx<layersize; idx++ )
+    {
+	float nmotime = 0;
+	float vrms = 0;
+	for ( int idy=sourcelayer_; idy<idx+1; idy ++ )
+	{
+	    float dz = dlayers[idy].thickness_;
+	    float vel = dlayers[idy].vel_;
+	    nmotime += dz / vel;
+	    vrms += dz * vel;
+	}
+
+	for ( int idy=receiverlayer_; idy<idx+1; idy++ )
+	{
+	    float dz = ulayers[idy].thickness_;
+	    float vel = ulayers[idy].vel_;
+	    nmotime += dz / vel;
+	    vrms += dz * vel;
+	}
+	velmax_ += sqrt(vrms/nmotime);
+	twt_->set( idx, 0, nmotime );
+    }
+    return true;
+}
+
+
+bool RayTracer1D::init()
+{
     //See if we can find zero-offset
     bool found = false;
     for ( int idx=0; idx<offsets_.size(); idx++ )
@@ -171,6 +207,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 }
 
 
+
 bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
@@ -203,16 +240,6 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 #define mRetFalseIfZero(vel) \
     if ( mIsZero(vel,mDefEps) ) return false;
 
-#define mAddInterTime(mod) \
-{ \
-    vel = mod[lidx].vel_; \
-    mRetFalseIfZero(vel) ; \
-    depth = getLayerDepth( mod, lidx ) + setup_.sourcedepth_; \
-    angle = depth ? atan( offsets_[offsetidx] / depth ) : 0; \
-    dist = mod[lidx].thickness_ / cos( angle ); \
-    twt += dist / vel; \
-}
-
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
@@ -220,40 +247,45 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     const float sini = dlayers[layer-1].vel_ * rayparam;
     sini_->set( layer-1, offsetidx, sini );
-    mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
 
-    for ( int idx=firstlayer_; idx<layer; idx++ )
-	coefs[idx].setInterface( rayparam, pmodel_[idx], pmodel_[idx+1],
-				smodel_[idx], smodel_[idx+1] );
-    int lidx = sourcelayer_;
-    float_complex reflectivity = coefs[lidx].getCoeff( true, 
-			    lidx!=layer-1, setup_.pdown_,
-			    lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
+    float_complex reflectivity = 0;
+    const float off = offsets_[offsetidx];
 
-    float vel, dist, twt, angle, depth; twt = 0;
-    mAddInterTime( dlayers );
-
-    lidx++;
-
-    while ( lidx < layer )
+    if ( off )
     {
-	reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
-		setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
-	mAddInterTime( dlayers );
+	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
+	for ( int idx=firstlayer_; idx<layer; idx++ )
+	    coefs[idx].setInterface( rayparam, pmodel_[idx], pmodel_[idx+1],
+				    smodel_[idx], smodel_[idx+1] );
+	int lidx = sourcelayer_;
+	coefs[lidx].getCoeff( true, 
+				lidx!=layer-1, setup_.pdown_,
+				lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
+
 	lidx++;
-    }
 
-    for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
-    {
-	if ( lidx>receiverlayer_  )
-	    reflectivity *=
-		coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
-	mAddInterTime( ulayers );
-    }
+	while ( lidx < layer )
+	{
+	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
+		    setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
+	    lidx++;
+	}
 
-    reflectivity = getFastCoeff( rayparam, 
+	for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
+	{
+	    if ( lidx>receiverlayer_  )
+		reflectivity *=
+		    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
+	}
+    }
+    else
+	reflectivity = getFastCoeff( rayparam, 
 				    pmodel_[layer-1], pmodel_[layer], 
 				    smodel_[layer-1], smodel_[layer] );
+
+    const float tnmo = twt_->get( layer-1, 0 );
+    const float vrms = velmax_[layer];
+    const float twt = sqrt( off*off/( vrms*vrms ) + tnmo*tnmo );
 
     twt_->set( layer-1, offsetidx, twt );
     reflectivity_->set( layer-1, offsetidx, reflectivity );
