@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.59 2011-05-03 09:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.60 2011-05-03 15:12:58 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -197,10 +197,9 @@ bool DataPlayer::copyDataToLogSet()
     const int worksz = workintv.nrSteps();
     for ( int idx=0; idx<dispsz_; idx++ )
     {
-	const float time = disprg_.atIndex(idx);
-	const int workidx = workrg_.getIndex( time );
+	const int workidx = idx*cDefTimeResampFac;
 	const AILayer& layer = aimodel_[workidx];
-	dah += getLayerDepth( aimodel_, workidx );
+	dah += wd_->d2TModel()->getDah( workrg_.atIndex(workidx) );
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.vel_*layer.den_;

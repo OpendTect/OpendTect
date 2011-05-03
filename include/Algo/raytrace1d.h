@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.22 2011-05-03 09:08:23 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.23 2011-05-03 15:12:58 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -97,6 +97,7 @@ protected:
     TypeSet<int>	offsetpermutation_;
     FixedString		errmsg_;
     TypeSet<float>	velmax_;
+    TypeSet<float>	depths_;
 
 			//Results
     Array2DImpl<float>*	sini_;
