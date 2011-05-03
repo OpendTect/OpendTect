@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.49 2011-04-30 04:21:57 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.50 2011-05-03 13:15:19 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: velocitycalc.cc,v 1.49 2011-04-30 04:21:57 cvsk
 #include "idxable.h"
 #include "interpol1d.h"
 #include "math2.h"
+#include "survinfo.h"
 #include "valseries.h"
 #include "varlenarray.h"
 #include "veldesc.h"
@@ -883,12 +884,12 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 }
 
 
-bool computeVavg( const float* Vint, float t0, const float* t, int nrvels,
+bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 		  float* Vavg )
 {
-    double t_above = t0;
+    double z_above = z0;
     int idx_prev = -1;
-    double v2t_prev = 0;
+    double v2z_prev = 0;
 
     for ( int idx=0; idx<nrvels; idx++ )
     {
@@ -896,20 +897,31 @@ bool computeVavg( const float* Vint, float t0, const float* t, int nrvels,
 	if ( mIsUdf(V_interval) )
 	    continue;
 
-	double t_below = t[idx];
+	double z_below = z[idx];
+	float res = 0;
+	double dz = z_below - z_above;
 
-	double dt = t_below - t_above;
-	double numerator = v2t_prev+V_interval*dt;
-	float res = numerator/t_below;
+	if ( SI().zIsTime() )
+	{
+	    double numerator = v2z_prev+V_interval*dz;
+	    res = numerator/z_below;
 
-	if ( !Math::IsNormalNumber(res) ) //looks for division by zero above
-	    continue;
+	    if ( !Math::IsNormalNumber(res) ) //looks for division by zero above
+		continue;
+
+	    v2z_prev = numerator;
+	}
+	else
+	{
+	    double denominator = v2z_prev + dz/V_interval;
+	    res = z_below / denominator;
+	    v2z_prev = denominator;
+	}
 
 	for ( int idy=idx_prev+1; idy<=idx; idy++ )
 	    Vavg[idy] = res;
 
-	v2t_prev = numerator;
-	t_above = t_below;
+	z_above = z_below;
 	idx_prev = idx;
     }
 
@@ -917,12 +929,12 @@ bool computeVavg( const float* Vint, float t0, const float* t, int nrvels,
 }
 
 
-bool computeVint( const float* Vavg, float t0, const float* t, int nrvels,
+bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
 		 float* Vint )
 {
     int idx_prev = -1; 
-    double t_above = t0; 
-    double v2t_prev = 0;
+    double z_above = z0; 
+    double v2z_prev = 0;
     bool hasvals = false; 
  
     for ( int idx=0; idx<nrvels; idx++ ) 
@@ -933,23 +945,26 @@ bool computeVint( const float* Vavg, float t0, const float* t, int nrvels,
 
 	hasvals = true;
  
-	double t_below = t[idx]; 
+	double z_below = z[idx];
+	const bool istime = SI().zIsTime();
 
-	const double v2t = t_below*v; 
-	const double numerator = v2t-v2t_prev; 
+	const double v2z = istime ? z_below*v : z_below/v; 
+	const double numerator = v2z-v2z_prev; 
 	if ( numerator<0 ) 
 	    continue; 
  
-	if ( t_below<t_above || mIsEqual(t_below,t_above,1e-5) ) 
+	if ( ( istime && (z_below<z_above || mIsEqual(z_below,z_above,1e-5)) )
+	   || ( !istime && mIsZero(numerator,1e-3) ) ) 
 	    continue; 
  
-	const double vlayer = numerator/(t_below-t_above); 
+	const double vlayer = istime ? numerator/(z_below-z_above)
+	    			     : (z_below-z_above)/numerator; 
  
 	for ( int idy=idx_prev+1; idy<=idx; idy++ ) 
 	    Vint[idy] = vlayer; 
  
-	v2t_prev = v2t; 
-	t_above = t_below; 
+	v2z_prev = v2z; 
+	z_above = z_below; 
 	idx_prev = idx; 
     } 
  
