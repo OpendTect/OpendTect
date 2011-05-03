@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.17 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.18 2011-05-03 06:59:12 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -34,10 +34,11 @@ static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.17 2011-04-27 10:13
 namespace WellTie
 {
 
-uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& data )
+uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     : uiDialog( p, uiDialog::Setup("Save current data",
 		"Check the items to be saved","107.4.3") )
-    , data_(data)							  
+    , data_(d)
+    , datawriter_(wdr)
 {
     setCtrlStyle( DoAndStay );
     BufferStringSet lognms; 	BufferStringSet wvltnms;
@@ -82,7 +83,6 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& data )
 
 uiSaveDataDlg::~uiSaveDataDlg()
 {
-    delete datawriter_;
     for ( int idx=0; idx<wvltctioset_.size(); idx++ )
 	delete wvltctioset_[idx]->ioobj;
     for ( int idx=0; idx<seisctioset_.size(); idx++ )
@@ -154,7 +154,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 
     if ( saveasfld_->getBoolValue() )
     {
-	if ( !datawriter_->writeLogs( logset ) )
+	if ( !datawriter_.writeLogs( logset ) )
 	    mCanNotWriteLogs();
     }
     else 
@@ -163,7 +163,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	lds.seisctioset_ = seisctioset_;
 	lds.nrtraces_ = repeatfld_->box()->getValue(); 
 	lds.ctioidxset_ = logidces; 
-	if ( !datawriter_->writeLogs2Cube( lds ) )
+	if ( !datawriter_.writeLogs2Cube( lds ) )
 	    mCanNotWriteLogs();
     }
     if ( success )

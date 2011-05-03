@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.84 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.85 2011-05-03 06:59:12 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -352,7 +352,7 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 
 bool uiTieWin::saveDataPushed( CallBacker* cb )
 {
-    uiSaveDataDlg dlg( this, server_.data() );
+    uiSaveDataDlg dlg( this, server_.data(), server_.dataWriter() );
     return dlg.go();
 }
 

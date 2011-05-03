@@ -90,7 +90,8 @@ protected:
 mClass uiSaveDataDlg : public uiDialog
 {
 public: 
-				uiSaveDataDlg(uiParent*,const Data&);
+				uiSaveDataDlg(uiParent*,const Data&,
+							const DataWriter&);
 				~uiSaveDataDlg();
 
 protected :
@@ -103,7 +104,7 @@ protected :
     uiGenInput* 		saveasfld_;
     uiLabeledSpinBox*		repeatfld_;
     const Data& 		data_;
-    DataWriter*			datawriter_;
+    const DataWriter&		datawriter_;
 
     bool 			acceptOK(CallBacker*);
     void 			changeLogUIOutput(CallBacker*);
