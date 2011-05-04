@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2011
-RCS:           $Id: uiseis2dto3d.h,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $
+RCS:           $Id: uiseis2dto3d.h,v 1.3 2011-05-04 22:12:38 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiGenInput;
 class CtxtIOObj;
 class Seis2DTo3D;
 
-class uiSeis2DTo3D : public uiDialog
+mClass uiSeis2DTo3D : public uiDialog
 {
 public:
 
