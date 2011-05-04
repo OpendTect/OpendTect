@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.20 2011-02-02 09:54:23 cvsbruno Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.21 2011-05-04 15:20:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ namespace PreStackView
 {
 
 class Viewer3D;
+class uiViewer2DMainWin;
 class uiViewer3DPositionDlg;
 
 /*!Manages pre-stack data displays in 2D (panel) and 3D (visualization). The 
@@ -55,7 +56,7 @@ public:
 
 protected:
     
-    uiFlatViewMainWin*	createMultiGather2DViewer(const Viewer3D&);
+    uiViewer2DMainWin*	createMultiGather2DViewer(const Viewer3D&);
     uiFlatViewMainWin*	create2DViewer(const BufferString&,int dpid);
 
     int			getSceneID(int mnid);
@@ -72,6 +73,7 @@ protected:
     void		surveyToBeChangedCB(CallBacker*);
     void		sessionRestoreCB(CallBacker*);
     void		sessionSaveCB(CallBacker*);
+    void		viewer2DSelDataCB(CallBacker*);
     void		viewer2DClosedCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 
@@ -89,6 +91,7 @@ protected:
     ObjectSet<PreStackView::Viewer3D>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;
+    ObjectSet<uiViewer2DMainWin>	multiviewers2d_;
 };
 
 }; //namespace

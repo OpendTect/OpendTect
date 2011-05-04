@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.13 2011-01-31 13:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.14 2011-05-04 15:20:02 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -27,6 +27,14 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
     getMouseEventHandler().buttonReleased.notify(
 	                mCB(this,uiObjectItemView,rubberBandCB) );
 } 
+
+
+void uiObjectItemView::enableScrollBars( bool yn )
+{
+    ScrollBarPolicy pol = yn ? ScrollBarAsNeeded : ScrollBarAlwaysOff;
+    setScrollBarPolicy( true, pol );
+    setScrollBarPolicy( false, pol );
+}
 
 
 #define mGetScene(act)\
@@ -75,6 +83,13 @@ void uiObjectItemView::removeItem( uiObjectItem* itm )
 }
 
 
+void uiObjectItemView::removeAllItems()
+{
+    for ( int idx=nrItems()-1; idx>=0; idx-- )
+	removeItem( objectitems_[idx] );
+}
+
+
 uiObjectItem* uiObjectItemView::getItem( int idx ) 
 {
     return ( idx>=0 && nrItems()>idx ) ? objectitems_[idx] : 0; 
@@ -84,7 +99,6 @@ uiObjectItem* uiObjectItemView::getItem( int idx )
 uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos ) 
 {
     mGetScene(return 0)
-    //TODO in the y direction
     Interval<int> borders(0,sc->layoutPos().x); 
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {

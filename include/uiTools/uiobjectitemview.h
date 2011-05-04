@@ -13,8 +13,10 @@ ________________________________________________________________________
 
 -*/
 
-/*brief embeds some uiObjects in a graphicsview following a horrizontal layout
- !\only works with QT 4.5 or higher*/
+
+/*! brief embeds some uiObjects in a graphicsview following a horizontal layout.
+    Objects can be dynamically removed and added from the graphicsview !*/
+
 #include "uigraphicsview.h"
 
 class uiParent;
@@ -26,16 +28,16 @@ public:
 			    	uiObjectItemView(uiParent*);
 				~uiObjectItemView(){};
 
-    void 			addItem(uiObjectItem*,int stretch=1);
-    void 			insertItem(uiObjectItem*,int pos,int stretch=1);
-    void 			removeItem(uiObjectItem*);
+    virtual void 		addItem(uiObjectItem*,int stretch=1);
+    virtual void		insertItem(uiObjectItem*,int pos,int stretch=1);
+
+    virtual void 		removeItem(uiObjectItem*);
+    virtual void		removeAllItems();
 
     int				nrItems() const { return objectitems_.size(); }
     
     uiObjectItem*		getItem(int idx);
-    uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
-    void			getItemsFromRect(const uiRect&,
-					       ObjectSet<uiObjectItem>&);
+
     void			reSizeItem(int idx,const uiSize&);
 
     int 			stretchFactor(uiObjectItem*);
@@ -43,6 +45,12 @@ public:
     
     void			resetViewArea(CallBacker*);
     void			setSceneLayoutPos(float,float);
+
+    void			enableScrollBars(bool yn);
+
+    uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
+    void			getItemsFromRect(const uiRect&,
+					       ObjectSet<uiObjectItem>&);
     
 protected:
 

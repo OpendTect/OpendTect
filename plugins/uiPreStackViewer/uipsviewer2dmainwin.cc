@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -17,12 +17,15 @@ static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.3 2011-02-07 16:57:2
 #include "uiflatviewslicepos.h"
 #include "uipsviewer2dposdlg.h"
 #include "uipsviewer2d.h"
+#include "uipsviewer2dinfo.h"
 #include "uirgbarraycanvas.h"
 #include "uislider.h"
 #include "uiprogressbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "ioman.h"
+#include "ioobj.h"
 #include "prestackgather.h"
 #include "seisioobjinfo.h"
 
@@ -31,32 +34,27 @@ namespace PreStackView
 {
     
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p )
-    : uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("PreStack Gather view",true)
-					     .nrviewers(0).deleteonclose(true))
+    : uiObjectItemViewWin(p,"PreStack Gather view")
     , posdlg_(0)
-    , control_(0)
-    , slicepos_(0)		 
-    , startwidth_(80)
-    , startheight_(100) 
-{
-    viewer2d_ = new uiViewer2D( this );
-    viewer2d_->setPrefWidth( 5*startwidth_+10 );
-    viewer2d_->setPrefHeight( 5*startheight_+10 );
-    viewer2d_->enableScrollBars( true );
-
-    makeSliders();
-}
+    , seldatacalled_(this)
+    , isinl_(false)
+{}
 
 
 void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 {
-    mid_ = mid;
+    mids_ += mid;
     isinl_ = isinl;
     SeisIOObjInfo info( mid );
     info.getRanges( cs_ );
     is2d_ = info.is2D();
 
-    vwrs_ += viewer2d_->addGatherDisplay( gatherid )->getUiFlatViewer();
+    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
+    gd->setGather( gatherid );
+    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0);
+    addGroup( gd, gdi );
+    vwrs_ += gd->getUiFlatViewer();
+
     if ( !is2d_ )
     {
 	DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
@@ -68,13 +66,20 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.crl ) );
 	    else
 		cs_.hrg.setCrlRange( Interval<int>( bid.inl, bid.crl ) );
+
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    BufferString nm = ioobj ? ioobj->name() : "";
+	    gdi->setData( bid, isinl, nm ); 
+	    gdi->setOffsetRange( gd->getOffsetRange() );
 	}
 	DPM(DataPackMgr::FlatID()).release( gatherid );
     }
 
-    control_ = new uiViewer2DControl( this, *vwrs_[0] );
-    addControl( control_ );
-    control_->posdlgcalled_.notify(mCB(this,uiViewer2DMainWin,posDlgPushed));
+    uiViewer2DControl* ctrl = new uiViewer2DControl( this, *vwrs_[0] );
+    ctrl->posdlgcalled_.notify(mCB(this,uiViewer2DMainWin,posDlgPushed));
+    ctrl->datadlgcalled_.notify(mCB(this,uiViewer2DMainWin,dataDlgPushed));
+    control_ = ctrl;
+    control_->addViewer( *gd->getUiFlatViewer() );
 
     slicepos_ = new uiSlicePos2DView( this );
     slicepos_->setCubeSampling( cs_ );
@@ -85,70 +90,16 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 }
 
 
-#define mSldNrUnits 50
-
-void uiViewer2DMainWin::makeSliders()
+void uiViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 {
-    uiLabel* dummylbl = new uiLabel( this, "" );
-    dummylbl->attach( rightOf, viewer2d_ );
-    dummylbl->setStretch( 0, 2 );
-
-    uiSliderExtra::Setup su;
-    su.sldrsize_ = 150;
-    su.withedit_ = false;
-    StepInterval<float> sintv( 1, mSldNrUnits, 1 );
-    su.isvertical_ = true;
-    versliderfld_ = new uiSliderExtra( this, su, "Vertical Scale" );
-    versliderfld_->sldr()->setInterval( sintv );
-    versliderfld_->sldr()->setValue( 5 );
-    versliderfld_->sldr()->setInverted( true );
-    versliderfld_->sldr()->sliderReleased.notify(
-	    			mCB(this,uiViewer2DMainWin,reSizeSld) );
-    versliderfld_->attach( centeredBelow, dummylbl );
-    versliderfld_->setStretch( 0, 0 );
-
-    su.isvertical_ = false;
-    horsliderfld_ = new uiSliderExtra( this, su, "Horizontal Scale" );
-    horsliderfld_->sldr()->setInterval( sintv );
-    horsliderfld_->sldr()->sliderReleased.notify(
-				    mCB(this,uiViewer2DMainWin,reSizeSld));
-    horsliderfld_->setStretch( 0, 0 );
-    horsliderfld_->sldr()->setValue( 5 );
-    horsliderfld_->attach( rightBorder, 20 );
-    horsliderfld_->attach( ensureLeftOf, versliderfld_ );
-    horsliderfld_->attach( ensureBelow, versliderfld_ );
-    horsliderfld_->attach( ensureBelow, viewer2d_ );
-
-    zoomratiofld_ = new uiCheckBox( this, "Keep zoom ratio" );
-    zoomratiofld_->attach( leftOf, horsliderfld_ );
-    zoomratiofld_->setChecked( true );
+    mids_.copy( mids );
+    setUpView();
 }
 
 
-void uiViewer2DMainWin::reSizeSld( CallBacker* cb )
+void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 {
-    uiSlider* hsldr = horsliderfld_->sldr();
-    uiSlider* vsldr = versliderfld_->sldr();
-    float hslval = hsldr->getValue();
-    float vslval = vsldr->getValue();
-
-    mDynamicCastGet(uiSlider*,sld,cb)
-    if ( sld && zoomratiofld_->isChecked() ) 
-    {
-	bool ishor = sld == hsldr;
-	uiSlider* revsld = ishor ? vsldr : hsldr;
-	if ( ishor )
-	    vslval = hslval;
-	else
-	    hslval = vslval;
-
-	NotifyStopper ns( revsld->sliderReleased );
-	revsld->setValue( hslval );
-    }
-
-    const int width = (int)( hslval*startwidth_ );
-    const int height = (int)( vslval*startheight_ );
-    viewer2d_->doReSize( uiSize( width, height ) );
+    seldatacalled_.trigger();
 }
 
 
@@ -193,7 +144,7 @@ void uiViewer2DMainWin::setUpView()
 {
     HorSamplingIterator hsit( cs_.hrg );
     const int nrvwrs = cs_.hrg.totalNr();
-    const int curnrvwrs = viewer2d_->nrItems();
+    const int curnrvwrs = mainviewer_->nrItems();
 
     uiMainWin win( this );
     uiProgressBar pb( &win );
@@ -202,15 +153,12 @@ void uiViewer2DMainWin::setUpView()
     pb.setTotalSteps( nrvwrs );
     win.show();
 
-    viewer2d_->removeAllGatherDisplays();
-    vwrs_.erase(); 
-    if ( control_ )
-	control_->removeAllGathers();
+    removeAllGathers();
 
     BinID bid; int nrvwr = 0;
     while ( hsit.next( bid ) )
     {
-	setGather( nrvwr, bid );
+	setGathers( bid );
 	pb.setProgress( nrvwr );
 	nrvwr++;
     }
@@ -218,24 +166,43 @@ void uiViewer2DMainWin::setUpView()
 }
 
 
-void uiViewer2DMainWin::setGather( int idx, const BinID& bid )
-{    
+void uiViewer2DMainWin::removeAllGathers()
+{
+    removeAllItems();
+    control_->removeAllViewers();
+    vwrs_.erase();
+}
+
+
+void uiViewer2DMainWin::setGathers( const BinID& bid )
+{
     PreStack::Gather* gather = new PreStack::Gather;
-    uiGatherDisplay* gatherdisp;
-    if ( gather->readFrom( mid_, bid ) )
+    uiGatherDisplay* gd;
+    for ( int idx=0; idx<mids_.size(); idx++ )
     {
-	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	gatherdisp = viewer2d_->addGatherDisplay( gather->id() );
-	DPM(DataPackMgr::FlatID()).release( gather );
+	const MultiID& mid = mids_[idx];
+	gd = new uiGatherDisplay( 0 );
+	if ( gather->readFrom( mid, bid ) )
+	{
+	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+	    gd->setGather( gather->id() );
+	    DPM(DataPackMgr::FlatID()).release( gather );
+	}
+	else
+	{
+	    gd->setGather( -1 );
+	}
+
+	gd->setPosition( bid );
+	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	BufferString nm = ioobj ? ioobj->name() : "";
+	gdi->setData( bid, cs_.defaultDir()==CubeSampling::Inl, nm );
+	gdi->setOffsetRange( gd->getOffsetRange() );
+	addGroup( gd, gdi );
+	vwrs_ += gd->getUiFlatViewer();
+	control_->addViewer( *gd->getUiFlatViewer() );
     }
-    else
-    {
-	gatherdisp = viewer2d_->addGatherDisplay( -1 );
-	gatherdisp->setPosition( bid );
-	delete gather;
-    }
-    control_->addGather( *gatherdisp->getUiFlatViewer() );
-    vwrs_ += gatherdisp->getUiFlatViewer();
 }
 
 
@@ -249,15 +216,23 @@ uiViewer2DControl::uiViewer2DControl( uiParent* p , uiFlatViewer& vwr )
 			    .withcoltabed(false)
 			    .withedit(true))
     , posdlgcalled_(this)
+    , datadlgcalled_(this)
 {
     vwr.rgbCanvas().disableScrollZoom();
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
 	tb_->clear();
 
-    mDefBut(posbut_,"gatherdisplaysettings64.png",gatherPosCB,
-	                		"Gather display positions");
+    mDefBut(posbut_,"",gatherPosCB,"Gather display positions");
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set seismic display properties");
+    mDefBut(databut_,"gatherdisplaysettings64.png",gatherDataCB,"Set gather data");
+}
+
+
+void uiViewer2DControl::removeAllViewers()
+{
+    for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
+	removeViewer( *vwrs_[idx] );
 }
 
 
@@ -267,22 +242,10 @@ void uiViewer2DControl::gatherPosCB( CallBacker* )
 }
 
 
-void uiViewer2DControl::addGather( uiFlatViewer& gv )
+void uiViewer2DControl::gatherDataCB( CallBacker* )
 {
-    gv.rgbCanvas().disableScrollZoom();
-    addViewer( gv );
+    datadlgcalled_.trigger();
 }
 
-
-void uiViewer2DControl::removeGather( uiFlatViewer& gv )
-{
-    vwrs_ -= &gv;
-}
-
-
-void uiViewer2DControl::removeAllGathers()
-{
-    vwrs_.erase();
-}
 
 }; //namepsace

@@ -7,21 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dposdlg.cc,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dposdlg.cc,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uiseissubsel.h"
 #include "uislicesel.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uitoolbutton.h"
 
 #include "seisioobjinfo.h"
 #include "zdomain.h"
 
 
-#define cStartNrVwrs 16
+#define cStartNrVwrs 8
 
 namespace PreStackView
 {
@@ -173,6 +178,82 @@ void uiGatherPosSliceSel::nrViewersChged( CallBacker* cb )
 
 bool uiGatherPosSliceSel::isDynamicRange() const
 { return dynamicrgbox_->isChecked(); }
+
+
+uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p, 
+					    const BufferStringSet& gnms, 
+						  BufferStringSet& selgnms )
+    : uiDialog(p,uiDialog::Setup("Select gather data",
+				"Add PS Gather",mTODOHelpID))
+    , selgathers_(selgnms)
+{
+    allgatherfld_ = new uiListBox( this, "Available gathers", true );
+    selgatherfld_ = new uiListBox( this, "Selected gathers", true );
+
+    allgatherfld_->addItems( gnms );
+    selgatherfld_->addItems( selgnms );
+
+    uiLabel* sellbl = new uiLabel( this, "Select" );
+    CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
+    toselect_ = new uiToolButton( this, "rightarrow.png", "Move right", cb );
+    toselect_->attach( centeredBelow, sellbl );
+    toselect_->attach( centeredRightOf, allgatherfld_ );
+    toselect_->setHSzPol( uiObject::Undef );
+    fromselect_ = new uiToolButton( this, "leftarrow.png", "Move left", cb );
+    fromselect_->attach( alignedBelow, toselect_ );
+    fromselect_->setHSzPol( uiObject::Undef );
+    selgatherfld_->attach( centeredRightOf, toselect_ );
+}
+
+
+void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,but,cb)
+    if ( but == toselect_ )
+    {
+	int lastusedidx = 0;
+	for ( int idx=allgatherfld_->size()-1; idx>=0; idx-- )
+	{
+	    if ( !allgatherfld_->isSelected(idx) ) continue;
+	    const char* txt = allgatherfld_->textOfItem(idx);
+	    if ( selgatherfld_->isPresent( txt ) ) continue;
+	    selgatherfld_->addItem( allgatherfld_->textOfItem(idx));
+	    allgatherfld_->removeItem(idx);
+	}
+    }
+    else if ( but == fromselect_ )
+    {
+	for ( int idx=selgatherfld_->size()-1; idx>=0; idx-- )
+	{
+	    if ( !selgatherfld_->isSelected(idx) ) continue;
+	    const char* txt = selgatherfld_->textOfItem(idx);
+	    if ( allgatherfld_->isPresent( txt ) ) continue;
+
+	    allgatherfld_->addItem( txt );
+	    selgatherfld_->removeItem(idx);
+	    allgatherfld_->setSelected( allgatherfld_->size()-1 );
+	}
+    }
+    allgatherfld_->sortItems();
+    selgatherfld_->sortItems();
+}
+
+
+bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
+{
+    if ( selgatherfld_->isEmpty() )
+    {
+	uiMSG().error( "Please select at least one dataset" );
+	return false;
+    }
+    selgathers_.erase();
+    for ( int idx=0; idx<selgatherfld_->size(); idx++ )
+    {
+	const char* txt = selgatherfld_->textOfItem( idx );
+	selgathers_.addIfNew( txt );
+    }
+    return true;
+}
 
 } //namespace
 

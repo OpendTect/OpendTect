@@ -6,22 +6,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2dmainwin.h,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dmainwin.h,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmainwin.h"
+#include "uiobjectitemviewwin.h"
+#include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
 
 #include "multiid.h"
 #include "cubesampling.h"
 
 
-class uiCheckBox;
-class uiToolButton;
 class uiSlicePos2DView;
-class uiSliderExtra;
 
 namespace PreStackView
 {
@@ -29,39 +27,44 @@ namespace PreStackView
     class uiViewer2DControl;
     class uiViewer2DPosDlg;
 
-mClass uiViewer2DMainWin : public uiFlatViewMainWin
+mClass uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
 public:    
 			uiViewer2DMainWin(uiParent*);
 
-    uiViewer2D*		viewer2D() 	{ return viewer2d_; }
     void 		init(const MultiID&,int gatherid,bool isinl);
+    virtual void 	start()		{ show(); }
+    virtual void        setWinTitle( const char* t )    { setCaption(t); }
+
+    void 		setIDs(const TypeSet<MultiID>&);
+    void 		getIDs(TypeSet<MultiID>& mids) const 
+			{ mids.copy( mids_ ); }
+
+    bool		is2D() const 		{ return is2d_; }
+
+    virtual uiMainWin*  dockParent()    { return this; }
+    virtual uiParent*   viewerParent()  { return this; }
+
+    Notifier<uiViewer2DMainWin> seldatacalled_;
 
 protected:
 
     bool		isinl_;
     bool		is2d_;
-    MultiID 		mid_;
-    uiViewer2DPosDlg* 	posdlg_;
-    uiViewer2D*		viewer2d_;
-    uiViewer2DControl*	control_;
+    TypeSet<MultiID> 	mids_;
     CubeSampling 	cs_;
     uiSlicePos2DView*	slicepos_;
+    uiViewer2DPosDlg* 	posdlg_;
+    uiViewer2DControl*	control_;
 
-    uiSliderExtra*	versliderfld_;
-    uiSliderExtra*	horsliderfld_;
-    uiCheckBox*		zoomratiofld_;
-    int			startwidth_;
-    int			startheight_;
-
-    void		setGather(int idx,const BinID&); 
-    void		makeSliders();
+    void		removeAllGathers();
+    void		setGathers(const BinID& pos); 
     void 		setUpView();
 
-    void		reSizeSld(CallBacker*);
     void		posSlcChgCB(CallBacker*);
     void		posDlgChgCB(CallBacker*);
     void 		posDlgPushed(CallBacker*);
+    void 		dataDlgPushed(CallBacker*);
 };
 
 
@@ -70,18 +73,18 @@ mClass uiViewer2DControl : public uiFlatViewStdControl
 public:
 			uiViewer2DControl(uiParent*,uiFlatViewer&);
 
-    void 		addGather(uiFlatViewer&);
-    void 		removeGather(uiFlatViewer&);
-    void 		removeAllGathers();
-
     Notifier<uiViewer2DControl> posdlgcalled_;
+    Notifier<uiViewer2DControl> datadlgcalled_;
+
+    void 		removeAllViewers();
 
 protected:
 
-    ObjectSet<uiFlatViewer> gathervwrs_;
     uiToolButton*    	posbut_;
+    uiToolButton*    	databut_;
 
     void		gatherPosCB(CallBacker*);
+    void		gatherDataCB(CallBacker*);
 };
 
 

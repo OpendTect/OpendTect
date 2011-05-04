@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.62 2011-04-07 15:15:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.63 2011-05-04 15:20:02 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.62 2011-04-07 15:15:39
 #include "uiodscenemgr.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerposdlg.h"
+#include "uipsviewer2dposdlg.h"
 #include "uipsviewersettingdlg.h"
 #include "uipsviewer2dmainwin.h"
 #include "uiseispartserv.h"
@@ -243,7 +244,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( viewermenuitem_.itemIndex(mnuid)==1 )
     {
 	menu->setIsHandled( true );
-	viewers2d_ += createMultiGather2DViewer( *psv );
+	multiviewers2d_ += createMultiGather2DViewer( *psv );
     }
     else if ( viewermenuitem_.itemIndex(mnuid)==0 )
     {
@@ -478,7 +479,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
 }
 
 
-uiFlatViewMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
+uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
 						const Viewer3D& psv )
 {
     const MultiID mid = const_cast<Viewer3D&>(psv).getMultiID();
@@ -487,12 +488,56 @@ uiFlatViewMainWin* uiViewer3DMgr::createMultiGather2DViewer(
        return 0;
 
     uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin() ); 
-    viewwin->start();
+    viewwin->show();
     viewwin->init( mid, psv.getDataPackID(), psv.isOrientationInline() );
     viewwin->setDarkBG( false );
-    
+    viewwin->seldatacalled_.notify( mCB(this,uiViewer3DMgr,viewer2DSelDataCB) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
     return viewwin;
+}
+
+
+void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
+{
+    mDynamicCastGet( uiViewer2DMainWin*, win, cb )
+    if ( !win )
+	{ pErrMsg( "Can not find viewer" ); return; }
+
+    uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
+    BufferStringSet gnms; seisserv->getStoredGathersList(!win->is2D(),gnms);
+    if ( gnms.isEmpty() )
+	return;
+
+    BufferStringSet selgnms; TypeSet<MultiID> selids;	
+    win->getIDs( selids );
+
+    for( int idx=0; idx<selids.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
+	if ( ioobj )
+	selgnms.addIfNew( ioobj->name() );
+    }
+    selids.erase(); 
+    uiViewer2DSelDataDlg dlg( win, gnms, selgnms );
+    if ( dlg.go() )
+    {
+	for( int idx=0; idx<selgnms.size(); idx++ )
+	{
+	    IOObj* ioobj = IOM().getLocal( selgnms[idx]->buf() );
+	    if ( ioobj )
+	    selids += ioobj->key();
+	    else
+	    { 
+		BufferString msg( "Can not find" );
+		msg += selgnms[idx]->buf();
+		uiMSG().error( msg ); 
+	    }
+	}
+    }
+    if ( selids.isEmpty() )
+	{ uiMSG().error("No data found"); return; }
+
+    win->setIDs( selids );
 }
 
 

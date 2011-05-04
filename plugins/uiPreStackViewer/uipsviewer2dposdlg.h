@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2011
- RCS:           $Id: uipsviewer2dposdlg.h,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dposdlg.h,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uislicesel.h"
 
 class uiCheckBox;
+class uiListBox;
+class uiToolButton;
 
 namespace PreStackView
 {
@@ -72,6 +74,24 @@ protected:
     bool			acceptOK(CallBacker*);
 };
 
+
+mClass uiViewer2DSelDataDlg : public uiDialog
+{
+public: 	
+			    uiViewer2DSelDataDlg(uiParent*,
+				    const BufferStringSet&,BufferStringSet&);
+protected:
+
+    uiListBox*			allgatherfld_;
+    uiListBox*			selgatherfld_;
+    uiToolButton*		toselect_;	
+    uiToolButton*		fromselect_;
+
+    BufferStringSet&		selgathers_;	
+
+    void 			selButPush(CallBacker*);
+    bool 			acceptOK(CallBacker*);
+};
 
 }; //namespace
 

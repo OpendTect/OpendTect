@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.34 2010-12-21 13:16:17 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.35 2011-05-04 15:20:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
 
     void		addViewer(uiFlatViewer&);
     			//!< No attaching done. Viewer may be in other window.
+    void		removeViewer(uiFlatViewer&);
 
     virtual uiWorldRect	getBoundingBox() const;
     virtual void	setNewView(Geom::Point2D<double>& centre,

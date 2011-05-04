@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.52 2010-12-21 13:16:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.53 2011-05-04 15:20:02 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -64,6 +64,21 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 
     viewerAdded.trigger();
 }
+
+
+void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
+{
+    vwrs_ -= &vwr;
+    vwr.dataChanged.remove( mCB(this,uiFlatViewControl,dataChangeCB) );
+
+    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
+    if ( haverubber_ )
+	cnvs.rubberBandUsed.remove( mCB(this,uiFlatViewControl,rubBandCB));
+
+    MouseEventHandler& mevh = cnvs.scene().getMouseEventHandler();
+    mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
+}
+
 
 
 uiWorldRect uiFlatViewControl::getBoundingBox() const
