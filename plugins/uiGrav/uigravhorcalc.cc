@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.5 2010-05-31 14:52:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.6 2011-05-04 14:39:15 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -63,8 +63,8 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 
     if ( SI().zIsTime() )
     {
-	uiT2DConvSel::Setup su( topfld_, false );
-	t2dfld_ = new uiT2DConvSel( inpgrp, su );
+	uiT2DConvSel::Setup convsu( topfld_, false );
+	t2dfld_ = new uiT2DConvSel( inpgrp, convsu );
 	t2dfld_->attach( alignedBelow, botfld_ );
     }
 

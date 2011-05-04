@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: gravhorcalc.cc,v 1.4 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gravhorcalc.cc,v 1.5 2011-05-04 14:39:15 cvsbert Exp $";
 
 #include "gravhorcalc.h"
 #include "timedepthconv.h"
@@ -49,11 +49,11 @@ int Grav::HorCalc::doLoadStep()
 {
     nrdone_++;
     if ( nrdone_ == 1 )
-	// load top
+	; // load top
     else if ( nrdone_ == 2 )
-	// load bottom
+	; // load bottom
     else if ( nrdone_ == 3 )
-	// load density
+	; // load density
     else if ( nrdone_ == 4 )
     {
 	// ztransf_ = ZATF().create( xxx );
