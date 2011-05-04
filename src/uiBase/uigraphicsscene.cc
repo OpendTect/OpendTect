@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.55 2011-05-04 08:03:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.56 2011-05-04 09:58:40 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -359,7 +359,8 @@ void uiGraphicsScene::CtrlCPressedCB( CallBacker* )
 void uiGraphicsScene::copyToClipBoard()
 {
     QPainter* imagepainter = new QPainter();
-    QImage* image = new QImage( QSize(width(),height()),QImage::Format_ARGB32 );
+    QImage* image = new QImage( QSize((int)width(), (int)height()),
+	    			QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
     image->setDotsPerMeterX( (int)(getDPI()/0.0254) );
