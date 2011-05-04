@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.82 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.83 2011-05-04 14:17:16 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -101,6 +101,7 @@ void uiTieView::redrawViewerAnnots()
     drawUserPicks();
     drawViewerWellMarkers();
     drawHorizons();
+    vwr_->handleChange( FlatView::Viewer::Annot );
 }
 
 
@@ -308,7 +309,7 @@ void uiTieView::drawViewerWellMarkers()
 	wellmarkerauxdatas_ += auxdata;
 	app.annot_.auxdata_ +=  auxdata;
 	zpos *= 1000;	
-	drawMarker(auxdata, true, zpos, col, false, params_.disphorfullnames_);
+	drawMarker(auxdata, true, zpos, col, false, params_.dispmrkfullnames_);
     }
 }	
 
