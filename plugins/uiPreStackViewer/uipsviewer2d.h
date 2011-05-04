@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.5 2011-05-04 16:15:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,32 @@ protected:
 
     void                        updateViewRange(const uiWorldRect&);
 };
+
+
+
+mClass uiViewer2D : public uiObjectItemView
+{
+public: 
+				uiViewer2D(uiParent*);
+				~uiViewer2D();
+
+    uiGatherDisplay*		addGatherDisplay(int gatherid);
+    void			addGatherDisplay(uiGatherDisplay*);
+    void 			removeGatherDisplay(const uiGatherDisplay*);
+    uiGatherDisplay& 		getGatherDisplay(int idx);
+    uiGatherDisplay* 		getGatherDisplay(const BinID&);
+    void			removeAllGatherDisplays();
+    void			enableScrollBars(bool);
+    void			enableReSizeDraw(bool);
+    void			doReSize(const uiSize&);
+    void			doReSize()			{ reSized(0); }
+
+    protected:
+
+    bool			resizedraw_;
+    void			reSized(CallBacker*);
+};
+
 
 }; //namespace
 

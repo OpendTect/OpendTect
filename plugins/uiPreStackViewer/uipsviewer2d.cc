@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.6 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.7 2011-05-04 16:15:35 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -157,5 +157,115 @@ void uiGatherDisplay::updateViewRange( const uiWorldRect& cur )
     }
     viewer_->setView( view );
 }
+
+
+
+
+uiViewer2D::uiViewer2D( uiParent* p )
+    : uiObjectItemView(p)
+    , resizedraw_(false)
+{
+    disableScrollZoom();
+}
+
+
+uiViewer2D::~uiViewer2D()
+{
+    enableReSizeDraw( false );
+}
+
+
+void uiViewer2D::enableReSizeDraw( bool yn )
+{
+    if ( yn && !resizedraw_ )
+	reSize.notify( mCB(this,uiViewer2D,reSized) );
+    else if ( !yn && resizedraw_ )
+	reSize.remove(  mCB(this,uiViewer2D,reSized) );
+
+    resizedraw_ = yn;
+}
+
+
+void uiViewer2D::enableScrollBars( bool yn )
+{
+    ScrollBarPolicy pol = yn ? ScrollBarAsNeeded : ScrollBarAlwaysOff;
+    setScrollBarPolicy( true, pol );
+    setScrollBarPolicy( false, pol );
+}
+
+
+uiGatherDisplay* uiViewer2D::addGatherDisplay( int id  )
+{
+    uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
+    gatherdisp->setGather( id );
+    addGatherDisplay( gatherdisp );
+
+    return gatherdisp;
+}
+
+
+void uiViewer2D::addGatherDisplay( uiGatherDisplay* gatherview )
+{
+    addItem( new uiObjectItem( gatherview ) );
+}
+
+
+void uiViewer2D::removeGatherDisplay( const uiGatherDisplay* disp )
+{
+    for ( int idx=objectitems_.size()-1; idx>=0; idx-- )
+    {
+	uiObjectItem* objitm = objectitems_[idx];
+	if ( objitm->getGroup() == disp )
+	{
+	    removeItem( objitm );
+	    delete objitm; 
+	}
+    }
+}
+
+
+void uiViewer2D::removeAllGatherDisplays()
+{
+    for ( int idx=objectitems_.size()-1; idx>=0; idx-- )
+    {
+	removeItem( objectitems_[idx] );
+    }
+}
+
+
+uiGatherDisplay* uiViewer2D::getGatherDisplay( const BinID& bid )
+{
+    for ( int idx=0; idx<objectitems_.size(); idx++ )
+    {
+	uiGatherDisplay& gdisp = getGatherDisplay( idx );
+	if ( gdisp.getBinID() == bid )
+	    return &gdisp;
+    }
+    return 0;
+}
+
+
+uiGatherDisplay& uiViewer2D::getGatherDisplay( int idx )
+{ return (uiGatherDisplay&)(*getItem( idx )->getGroup()); }
+
+
+void uiViewer2D::reSized( CallBacker* )
+{
+    doReSize( uiSize( width(), height() ) );
+}
+
+
+void uiViewer2D::doReSize( const uiSize& sz )
+{
+    if ( !objectitems_.size() ) return;
+    uiSize objsz = uiSize( sz.width() / objectitems_.size() , sz.height() );
+    for ( int idx=0; idx<objectitems_.size() ; idx++ )
+    {
+	reSizeItem( idx, objsz ); 
+	getGatherDisplay( idx ).setWidth( objsz.width() );
+    }
+    resetViewArea(0);
+}
+
 
 }; //namepsace
