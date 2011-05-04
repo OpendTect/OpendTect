@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2011
-RCS:           $Id: uiseis2dto3d.h,v 1.1 2011-02-21 14:18:30 cvsbruno Exp $
+RCS:           $Id: uiseis2dto3d.h,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,9 +38,9 @@ protected:
     uiSeisSubSel*	outsubselfld_;
     uiSeisSel*		outfld_;
     uiGenInput*		iterfld_;
+    uiGenInput*		winfld_;
 
     bool		acceptOK(CallBacker*);
-    void		inpSel(CallBacker*);
 };
 
 

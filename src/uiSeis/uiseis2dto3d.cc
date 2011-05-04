@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.1 2011-02-21 14:18:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -33,17 +33,18 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
 	, seis2dto3d_(*new Seis2DTo3D)	 
 {
-    const CallBack inpcb( mCB(this,uiSeis2DTo3D,inpSel) );
-
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
-    inpfld_->selectionDone.notify( inpcb );
     
     iterfld_ = new uiGenInput( this, "Iteration number" );
     iterfld_->attach( alignedBelow, inpfld_ );
 
+    winfld_ = new uiGenInput( this,"Window (Inl / Crl" );
+    winfld_->attach( alignedBelow, iterfld_ );
+    winfld_->setValue( 50 );
+
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, iterfld_ );
+    outfld_->attach( alignedBelow, winfld_ );
    
     outsubselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
     outsubselfld_->attachObj()->attach( alignedBelow, outfld_ );
@@ -69,24 +70,22 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
-    if ( seis2dto3d_.errMsg() )
-	mErrRet( seis2dto3d_.errMsg() );
+    seis2dto3d_.setInput( *inctio_.ioobj, "Seis" );
 
-    CubeSampling cs(false); outsubselfld_->getSampling( cs );
-    seis2dto3d_.setOutput( *outctio_.ioobj, &cs );
+    CubeSampling cs(false); 
+    outsubselfld_->getSampling( cs.hrg );
+    outsubselfld_->getZRange( cs.zrg );
+    seis2dto3d_.setWin( winfld_->getIntValue() );
+    seis2dto3d_.setOutput( *outctio_.ioobj, cs );
     seis2dto3d_.setNrIter( iterfld_->getIntValue() );
 
+    if ( seis2dto3d_.errMsg() )
+	uiMSG().error( seis2dto3d_.errMsg() );
+
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( seis2dto3d_ );
+    if ( !taskrunner.execute( seis2dto3d_ ) )
+	return seis2dto3d_.errMsg();
+
+    return true;
 }
 
-
-void uiSeis2DTo3D::inpSel( CallBacker* )
-{
-    if ( inpfld_->commitInput() )
-    {
-	//TODO
-	CubeSampling cs = seis2dto3d_.setInput( *inctio_.ioobj, "Seis" ); 
-	outsubselfld_->setInput( cs );
-    }
-}
