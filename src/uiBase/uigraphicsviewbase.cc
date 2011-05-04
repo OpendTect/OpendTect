@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.29 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.30 2011-05-04 15:45:02 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -71,6 +71,7 @@ protected:
     void			mousePressEvent(QMouseEvent*);
     void			mouseDoubleClickEvent(QMouseEvent*);
     void			keyPressEvent(QKeyEvent*);
+    void			scrollContentsBy (int,int);
 };
 
 
@@ -249,12 +250,21 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 }
 
 
+void uiGraphicsViewBody::scrollContentsBy( int dx, int dy )
+{
+    QGraphicsView::scrollContentsBy(dx,dy);
+    handle_.scrollBarUsed.trigger();
+}
+
+
+
 uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
     , reDrawNeeded(this)
     , reSize(this)
     , reDrawn(this)
     , rubberBandUsed(this)
+    , scrollBarUsed(this) 
     , scene_(0)
     , selectedarea_(0)
     , enabscrollzoom_(true)
