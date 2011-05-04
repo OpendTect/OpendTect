@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.84 2010-09-24 12:09:01 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.85 2011-05-04 08:03:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ public:
 
     void		activateInGUIThread(const CallBack&,bool busywait=true);
     Notifier<uiMainWin> activatedone;
+    Notifier<uiMainWin> ctrlCPressed;
 
 protected:
 
@@ -182,6 +183,8 @@ protected:
 
     void		saveSettings();
     void		readSettings();
+
+    void		copyToClipBoard(CallBacker*);
 
     uiMainWinBody*	body_;
     uiParent*		parent_;

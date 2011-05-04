@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.16 2011-04-29 06:45:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.17 2011-05-04 08:03:42 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -51,7 +51,7 @@ static StepInterval<float> maximum_pixel_size_range(1,99999,1);
 static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 
-uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
+uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.9")
 	    	 .savebutton(true).savetext("Save settings on OK"))
@@ -60,10 +60,38 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
     , screendpi_(0)
     , settings_( Settings::fetch(sKeySnapshot) )
 {
-    uiParent* fldabove = 0;
+    if ( withclipbrd )
+    {
+	cliboardselfld_ = new uiCheckBox( this, "Copy to Clipboard (Ctrl-C)" );
+	cliboardselfld_->setChecked( false );
+	cliboardselfld_->activated.notify(
+		mCB(this,uiSaveImageDlg,copyToClipBoardClicked) );
+    }
 
     setSaveButtonChecked( true );
+    
+    uiParent* fldabove = 0;
+
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
+}
+
+
+void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
+{
+    if ( !cliboardselfld_ ) return;
+
+    const bool disp = !cliboardselfld_->isChecked();
+
+    pixheightfld_->display( disp );
+    pixwidthfld_->display( disp );
+    heightfld_->display( disp );
+    widthfld_->display( disp );
+    dpifld_->display( disp );
+    unitfld_->display( disp );
+    lockfld_->display( disp );
+    useparsfld_->display( disp );
+    fileinputfld_->display( disp );
+    pixlable_->display( disp );
 }
 
 
@@ -108,11 +136,12 @@ void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 }
 
 
-void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
+void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 {
     useparsfld_ = new uiGenInput( this, "Get size from",
 				  BoolInpSpec(true,"Settings","Screen") );
     useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
+    if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
  
     pixwidthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
     pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
@@ -125,8 +154,8 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
     pixheightfld_->box()->setNrDecimals( 0 );
     pixheightfld_->attach( rightTo, pixwidthfld_ );
 
-    uiLabel* pixlable = new uiLabel( this, "pixels" );
-    pixlable->attach( rightTo, pixheightfld_ );
+    pixlable_ = new uiLabel( this, "pixels" );
+    pixlable_->attach( rightTo, pixheightfld_ );
 
     widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );

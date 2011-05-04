@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.33 2010-04-01 09:15:33 cvsbruno Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.34 2011-05-04 08:03:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
     				{ return mousehandler_; }
 
     Notifier<uiGraphicsScene>	ctrlPPressed;
+    Notifier<uiGraphicsScene>	ctrlCPressed;
     double			width() const;
     double			height() const;
 
@@ -87,12 +88,14 @@ public:
     				{ ismouseeventactive_ = yn; }
     QGraphicsScene*		qGraphicsScene()
     				{ return (QGraphicsScene*)odgraphicsscene_; }
+    void			copyToClipBoard();
 
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;
     ODGraphicsScene*		odgraphicsscene_;
 
+    void			CtrlCPressedCB(CallBacker*);
     MouseEventHandler		mousehandler_;
     bool			ismouseeventactive_;
     friend class		uiGraphicsItem;

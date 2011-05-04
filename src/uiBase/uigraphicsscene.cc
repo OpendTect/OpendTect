@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.54 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.55 2011-05-04 08:03:42 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.54 2011-04-21 13:09:13 c
 #include "draw.h"
 #include "uigraphicsitemimpl.h"
 
+#include <QApplication>
 #include <QByteArray>
+#include <QClipboard>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsItemGroup>
 #include <QGraphicsProxyWidget>
@@ -80,6 +82,8 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
     OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
     if ( key == OD::P && modifier == OD::ControlButton )
 	uiscene_.ctrlPPressed.trigger();
+    else if ( key == OD::C && modifier == OD::ControlButton )
+	uiscene_.ctrlCPressed.trigger();
 }
 
 
@@ -140,9 +144,11 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))
     , ctrlPPressed(this)
+    , ctrlCPressed(this)
 {
     odgraphicsscene_->setObjectName( nm );
     odgraphicsscene_->setBackgroundBrush( Qt::white );
+    ctrlCPressed.notify( mCB(this,uiGraphicsScene,CtrlCPressedCB) );
 }
 
 
@@ -341,6 +347,36 @@ uiRect uiGraphicsScene::sceneRect()
     QRectF qrect = odgraphicsscene_->sceneRect();
     return uiRect( (int)qrect.x(), (int)qrect.y(),
 		   (int)qrect.width(), (int)qrect.height() );
+}
+
+
+void uiGraphicsScene::CtrlCPressedCB( CallBacker* )
+{
+    copyToClipBoard();
+}
+
+
+void uiGraphicsScene::copyToClipBoard()
+{
+    QPainter* imagepainter = new QPainter();
+    QImage* image = new QImage( QSize(width(),height()),QImage::Format_ARGB32 );
+    QColor qcol( 255, 255, 255 );
+    image->fill( qcol.rgb() );
+    image->setDotsPerMeterX( (int)(getDPI()/0.0254) );
+    image->setDotsPerMeterY( (int)(getDPI()/0.0254) );
+    imagepainter->begin( image );
+
+    QGraphicsView* view = qGraphicsScene()->views()[0];
+    QRectF sourcerect( view->mapToScene(0,0),
+	    	       view->mapToScene(view->width(),view->height()) );
+    qGraphicsScene()->render( imagepainter, QRectF(0,0,width(),height()),
+	    		      sourcerect );
+    imagepainter->end();
+    
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setImage( *image );
+    delete imagepainter;
+    delete image;
 }
 
 

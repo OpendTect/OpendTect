@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.220 2011-04-27 07:39:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.221 2011-05-04 08:03:42 cvssatyaki Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.220 2011-04-27 07:39:07 cvsjaa
 #include "filepath.h"
 #include "helpview.h"
 #include "msgh.h"
+#include "keyboardevent.h"
 #include "oddirs.h"
 #include "odver.h"
 #include "pixmap.h"
@@ -46,6 +47,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.220 2011-04-27 07:39:07 cvsjaa
 
 #include <QAbstractButton>
 #include <QApplication>
+#include <QClipboard>
 #include <QCloseEvent>
 #include <QColorDialog>
 #include <QDesktopWidget>
@@ -589,8 +591,14 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 
 void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 {
+    OD::KeyboardKey key = OD::KeyboardKey( ev->key() );
+    OD::ButtonState modifier = OD::ButtonState( (int)ev->modifiers() );
+
     if ( ev && ev->key() == Qt::Key_F12 )
 	handle_.translate();
+
+    if ( key == OD::C && modifier == OD::ControlButton )
+	handle_.ctrlCPressed.trigger();
 
     return QMainWindow::keyPressEvent( ev );
 }
@@ -647,6 +655,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , ctrlCPressed(this)
     , caption_(setup.caption_)
 { 
     body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ ); 
@@ -655,6 +664,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->setWindowIconText(
 	    setup.caption_.isEmpty() ? "OpendTect" : setup.caption_.buf() );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
 }
 
 
@@ -666,12 +676,14 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , ctrlCPressed(this)
     , caption_(nm)
 { 
     body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
 }
 
 
@@ -682,8 +694,11 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , ctrlCPressed(this)
     , caption_(nm)
-{}
+{
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
+}
 
 
 static Threads::Mutex		winlistmutex_;
@@ -1187,6 +1202,25 @@ void uiMainWin::translate()
 
     if ( menuBar() )
 	menuBar()->translate();
+}
+
+
+void uiMainWin::copyToClipBoard( CallBacker* )
+{
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+
+    QWidget* qwin = qApp->activeModalWidget();
+    if ( !qwin )
+	qwin = body_;
+
+    const int width = qwin->frameGeometry().width();
+    const int height = qwin->frameGeometry().height();
+    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
+    QImage image = snapshot.toImage();
+
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->setImage( image );
 }
 
 

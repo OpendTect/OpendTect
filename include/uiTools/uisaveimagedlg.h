@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.6 2011-04-28 10:32:36 cvssatyaki Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.7 2011-05-04 08:03:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,13 +21,14 @@ class Settings;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
 mClass uiSaveImageDlg : public uiDialog
 {
 public:
-			uiSaveImageDlg(uiParent*);
+			uiSaveImageDlg(uiParent*,bool withclipbrd = true);
 
     Notifier<uiSaveImageDlg>	sizesChanged;
 
@@ -39,7 +40,7 @@ public:
 	    			     Geom::Size2D<float>&);
     void		sInch2Cm(const Geom::Size2D<float>&,
 	    			     Geom::Size2D<float>&);
-    void		createGeomInpFlds(uiParent*);
+    void		createGeomInpFlds(uiObject*);
     void                fillPar(IOPar&,bool is2d);
     bool                usePar(const IOPar&);
 
@@ -50,10 +51,12 @@ protected:
     uiLabeledSpinBox*	heightfld_;
     uiLabeledSpinBox*	widthfld_;
     uiLabeledSpinBox*	dpifld_;
+    uiLabel*		pixlable_;
     uiGenInput*		unitfld_;
     uiCheckBox*		lockfld_;
     uiGenInput*		useparsfld_;
     uiFileInput*	fileinputfld_;
+    uiCheckBox*		cliboardselfld_;
     
     BufferString	filters_;
     BufferString	selfilter_;
@@ -76,6 +79,7 @@ protected:
     void		dpiChg(CallBacker*);
     void		surveyChanged(CallBacker*);
     virtual void	setFldVals(CallBacker*)			{}
+    void		copyToClipBoardClicked(CallBacker*);
 
 
     Geom::Size2D<float> sizepix_;

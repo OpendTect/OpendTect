@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.51 2011-04-28 10:46:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.52 2011-05-04 08:03:42 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -43,10 +43,11 @@ static StepInterval<float> pixelsize_range(1,9999,1);
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<uiSoViewer>& vwrs )
-    : uiSaveImageDlg(p)
+    : uiSaveImageDlg(p,false)
     , viewers_(vwrs)
     , scenefld_(0)
     , dovrmlfld_(0)
+    , selfld_(0)
 {
     screendpi_ = SoOffscreenRenderer::getScreenPixelsPerInch();
     SbViewportRegion vp;
@@ -67,7 +68,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
     pixelsize_range.stop = mMIN(maxres[0],maxres[1]);
 
-    uiParent* fldabove = 0;
+    uiObject* fldabove = 0;
     if ( viewers_.size() > 1 )
     {
 	BufferStringSet scenenms;
@@ -77,7 +78,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	scenefld_ = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
 	scenefld_->box()->selectionChanged.notify( 
 					mCB(this,uiPrintSceneDlg,sceneSel) );
-	mAttachToAbove( scenefld_ );
+	mAttachToAbove( scenefld_->attachObj() );
     }
 
     if ( showvrml && nrfiletypes )
@@ -86,17 +87,17 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				     BoolInpSpec(true,"Scene","Image") );
 	dovrmlfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,typeSel) );
 	dovrmlfld_->setValue( false );
-	mAttachToAbove( dovrmlfld_ );
+	mAttachToAbove( dovrmlfld_->attachObj() );
     }
 
     if ( nrfiletypes>0 )
     {
 	if ( showvrml )
-	    createGeomInpFlds( dovrmlfld_ );
+	    createGeomInpFlds( dovrmlfld_->attachObj() );
 	else if ( scenefld_ )
-	    createGeomInpFlds( scenefld_ );
+	    createGeomInpFlds( scenefld_->attachObj() );
 	else
-	    createGeomInpFlds( 0 );
+	    createGeomInpFlds( fldabove );
     }
     fileinputfld_->attach( alignedBelow, dpifld_ );
 

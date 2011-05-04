@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.11 2011-04-28 10:46:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.12 2011-05-04 08:03:42 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -30,7 +30,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     , scene_(scene)
 {
     screendpi_ = scene->getDPI();
-    createGeomInpFlds( 0 );
+    createGeomInpFlds( cliboardselfld_ );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     PtrMan<IOPar> ctiopar;
@@ -96,6 +96,12 @@ void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 {
+    if ( cliboardselfld_->isChecked() )
+    {
+	scene_->copyToClipBoard();
+	return true;
+    }
+
     if ( !filenameOK() ) return false;
     BufferString ext( getExtension() );
     if ( ext == "pdf" ) 
