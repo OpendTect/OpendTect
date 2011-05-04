@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.22 2011-04-29 06:07:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.23 2011-05-04 05:56:01 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -183,11 +183,12 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 
 	float sz = 1;
 	BufferString symbstr, penstr;
-	const char* shapestr = par->find( ODGMT::sKeyShape );
+	bool usewellsymbol = false;
+	par->getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbol );
+	FixedString shapestr = par->find( ODGMT::sKeyShape );
+	if ( !usewellsymbol && !shapestr ) continue;
 	ODGMT::Shape shape;
-        if ( !ODGMT::parseEnumShape( par->find( ODGMT::sKeyShape ), shape ) )
-	    continue;
-
+        ODGMT::parseEnumShape( shapestr.str() );
 	symbstr = ODGMT::sShapeKeys[(int)shape];
 	par->get( sKey::Size, sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
@@ -217,8 +218,6 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	par->getYN( ODGMT::sKeyFill, dofill );
 	BufferString legendstring = "S 0.6c ";
 
-	bool usewellsymbol = false;
-	par->getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbol );
 	if ( !usewellsymbol )
 	    legendstring += symbstr;
 	else

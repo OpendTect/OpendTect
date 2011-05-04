@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.15 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.16 2011-05-04 05:56:01 cvsraman Exp $";
 
 #include "gmtlocations.h"
 
@@ -355,28 +355,23 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name, find(sKey::Name) );
 
+    FixedString str = find( sKey::Color );
+    par.set( sKey::Color, str );
+    str = find( sKey::Size );
+    par.set( sKey::Size, str );
+
     bool usewellsymbols = false;
     getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols );
     par.setYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols );
     if ( usewellsymbols )
     {
-	BufferString wellsymbolnm;
-	get( ODGMT::sKeyWellSymbolName, wellsymbolnm );
-	par.set( ODGMT::sKeyWellSymbolName, wellsymbolnm );
-	BufferString color;
-	get( sKey::Color, color );
-	par.set( sKey::Color, color );
-	float sz; get( sKey::Size, sz );
-	par.set( sKey::Size, sz );
+	str = find( ODGMT::sKeyWellSymbolName );
+	par.set( ODGMT::sKeyWellSymbolName, str );
     }
     else
     {
-	FixedString str = find( ODGMT::sKeyShape );
+	str = find( ODGMT::sKeyShape );
 	par.set( ODGMT::sKeyShape , str );
-	str = find( sKey::Size );
-	par.set( sKey::Size, str );
-	str = find( sKey::Color );
-	par.set( sKey::Color, Color::DgbColor() );
 	str = find( ODGMT::sKeyFill );
 	par.set( ODGMT::sKeyFill, str );
 	str = find( ODGMT::sKeyFillColor );
@@ -452,7 +447,6 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << sz << std::endl;
     }
 
-    strm << comm << std::endl;
     sd.close();
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );
