@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.463 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.464 2011-05-05 08:53:38 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -1664,10 +1664,11 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
 
     const Attrib::SelSpec* as = so->getSelSpec( attrib );
     if ( !as ) return false;
-    if ( as->id()==Attrib::SelSpec::cNoAttrib() )
+    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return true;
 
-    if ( newselect || ( as->id()==Attrib::SelSpec::cAttribNotSel() ) )
+    if ( newselect ||
+	 (as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()) )
     {
 	if ( !selectAttrib( id, attrib ) )
 	    return false;

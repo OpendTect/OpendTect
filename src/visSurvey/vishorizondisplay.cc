@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.149 2011-05-05 03:16:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.150 2011-05-05 08:53:38 cvssatyaki Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -407,7 +407,7 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
     {
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    if ( as_[idx]->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+	    if ( as_[idx]->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt())
 	    {
 		usestexture_ = yn;
 		setDepthAsAttrib(idx);

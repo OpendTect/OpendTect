@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.44 2010-12-06 11:12:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.45 2011-05-05 08:53:38 cvssatyaki Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -282,7 +282,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		newas.setUserRef( LineKey(lsnm,as->userRef()) );
 	    }
 	    info().setObjDataSelSpec(
-		   newas.id()==Attrib::SelSpec::cAttribNotSel() ? *as : newas );
+		   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
+		   	? *as : newas );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setObjLineName( seis2ddisp->name() );
 	    click.trigger();
@@ -387,7 +388,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    newas.setUserRef( LineKey(lsnm,as->userRef()) );
 	}
 	info().setObjDataSelSpec(
-		newas.id()==Attrib::SelSpec::cAttribNotSel() ? *as : newas );
+		newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
+				? *as : newas );
 	info().setObjLineSet( seis2dclosest->lineSetID() );
 	info().setObjLineName( seis2dclosest->name() );
 	click.trigger();
@@ -569,7 +571,7 @@ const Attrib::DataCubes* MPEClickInfo::getObjData() const
 
 const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
 {
-   if ( attrsel_.id() == Attrib::SelSpec::cAttribNotSel() )
+   if ( attrsel_.id().asInt() == Attrib::SelSpec::cAttribNotSel().asInt() )
        return 0;
 
    return &attrsel_;

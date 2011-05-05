@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.175 2011-04-26 10:51:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.176 2011-05-05 08:53:38 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -325,7 +325,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     if ( !dlg.go() )
 	return false;
 
-    attrdata.attribid_ = dlg.attribID();
+    attrdata.attribid_.asInt() = dlg.attribID().asInt();
     attrdata.outputnr_ = dlg.outputNr();
     attrdata.setAttrSet( &dlg.getAttrSet() );
     const bool isnla = !attrdata.attribid_.isValid() && attrdata.outputnr_ >= 0;
@@ -385,7 +385,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
     {
 	if ( is2d ) return;
 	bool isstored = ss.isStored();
-	const bool isother = ss.id() == SelSpec::cOtherAttrib();
+	const bool isother = ss.id().asInt() == SelSpec::cOtherAttrib().asInt();
 	const DescSet* ads = DSHolder().getDescSet( false, isstored );
 	ss.setIDFromRef( *ads );
 
@@ -511,7 +511,8 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs, 
 					     const char* linekey )
 {
-    if ( targetspecs_.isEmpty() || targetspecs_[0].id() == SelSpec::cNoAttrib())
+    if ( targetspecs_.isEmpty() ||
+	 targetspecs_[0].id().asInt() == SelSpec::cNoAttrib().asInt())
 	{ pErrMsg("Nothing to do"); return false; }
     
     const bool istargetstored = targetspecs_[0].isStored();
@@ -1292,7 +1293,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     as.set( 0, did, isnla, objref );
 
     BufferString bfs;
-    if ( attribid != SelSpec::cAttribNotSel() )
+    if ( attribid.asInt() != SelSpec::cAttribNotSel().asInt() )
     {
 	DSHolder().getDescSet(is2d,isstored)->getDesc(attribid)->getDefStr(bfs);
 	as.setDefString(bfs.buf());

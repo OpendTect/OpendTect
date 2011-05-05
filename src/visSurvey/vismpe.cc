@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.107 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.108 2011-05-05 08:53:38 cvssatyaki Exp $";
 
 #include "vismpe.h"
 
@@ -452,9 +452,9 @@ const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
 
 const char* MPEDisplay::getSelSpecUserRef() const
 {
-    if ( as_.id()==Attrib::SelSpec::cNoAttrib() )
+    if ( as_.id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return sKey::None;
-    else if ( as_.id()==Attrib::SelSpec::cAttribNotSel() )
+    else if ( as_.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	return 0;
 
     return as_.userRef();
@@ -2108,7 +2108,7 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 
 int MPEDisplay::nrAttribs() const
 {
-    return ( as_.id() == Attrib::SelSpec::cNoAttrib() ) ? 0 : 1;
+    return ( as_.id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ) ? 0 : 1;
 }
 
 
