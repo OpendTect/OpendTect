@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.26 2011-03-04 03:46:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.27 2011-05-05 15:38:30 cvsbruno Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -48,42 +48,9 @@ void uiFlatViewWin::setDarkBG( bool yn )
     viewerParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
 }
 
-uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
-				      const uiFlatViewMainWin::Setup& setup )
-    : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
+
+void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 {
-    createViewers( setup.nrviewers_, setup.withhanddrag_ );
-    setDeleteOnClose( setup.deleteonclose_ );
-}
-
-
-void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
-{
-    if ( !fvc ) return;
-
-    fvc->infoChanged.notify(mCB(this,uiFlatViewMainWin,displayInfo) );
-}
-
-
-void uiFlatViewWin::setInitialSize( int w, int h )
-{
-    int vwrw = w / vwrs_.size(); int vwrh = h / vwrs_.size();
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setInitialSize( uiSize(vwrw,vwrh) );
-}
-
-
-void uiFlatViewMainWin::setInitialSize( int w, int h )
-{
-    uiFlatViewWin::setInitialSize( w, h );
-    setPrefWidth( w ); setPrefHeight( h );
-}
-
-
-void uiFlatViewMainWin::displayInfo( CallBacker* cb )
-{
-    mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg;
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += "; ";
 
@@ -157,7 +124,47 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 		{ mAddSep(); mesg += "Crossline="; mesg += valstr; }
 	}
     }
+}
 
+
+
+uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
+				      const uiFlatViewMainWin::Setup& setup )
+    : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
+{
+    createViewers( setup.nrviewers_, setup.withhanddrag_ );
+    setDeleteOnClose( setup.deleteonclose_ );
+}
+
+
+void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
+{
+    if ( !fvc ) return;
+
+    fvc->infoChanged.notify(mCB(this,uiFlatViewMainWin,displayInfo) );
+}
+
+
+void uiFlatViewWin::setInitialSize( int w, int h )
+{
+    int vwrw = w / vwrs_.size(); int vwrh = h / vwrs_.size();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setInitialSize( uiSize(vwrw,vwrh) );
+}
+
+
+void uiFlatViewMainWin::setInitialSize( int w, int h )
+{
+    uiFlatViewWin::setInitialSize( w, h );
+    setPrefWidth( w ); setPrefHeight( h );
+}
+
+
+void uiFlatViewMainWin::displayInfo( CallBacker* cb )
+{
+    mCBCapsuleUnpack(IOPar,pars,cb);
+    BufferString mesg; 
+    makeInfoMsg( mesg, pars );
     statusBar()->message( mesg.buf() );
 }
 

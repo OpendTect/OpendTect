@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.12 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.13 2011-05-05 15:38:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class uiParent;
 class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
+class IOPar;
 
 
 /*!\brief Base class for windows containing one or more uiFlatViewer(s).
@@ -49,6 +50,7 @@ protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
 
+    void			makeInfoMsg(BufferString&,IOPar&) const;
     void			createViewers(int,bool withhanddrag = false);
     void			cleanUp();
 
