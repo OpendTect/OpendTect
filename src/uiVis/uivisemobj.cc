@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.92 2011-02-24 15:08:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.93 2011-05-05 03:16:56 cvssatyaki Exp $";
 
 #include "uivisemobj.h"
 
@@ -136,7 +136,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     {
 	for ( int idx=0; idx<emod->nrAttribs(); idx++ )
 	{
-	    if ( hordisp->getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
+	    if ( hordisp->getSelSpec(idx)->id().asInt()
+		 ==Attrib::SelSpec::cNoAttrib().asInt() )
 		setDepthAsAttrib( idx );
 	}
     }
