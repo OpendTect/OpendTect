@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.29 2011-05-05 13:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.30 2011-05-05 13:06:51 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -304,6 +304,7 @@ void uiSEGYExamine::updateInp()
 	trc.info().nr = nrdone;
 	tbuf_.add( new SeisTrc(trc) );
     }
+    tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );
 
     if ( stoppedatend || nrdone < 1 )
     {
