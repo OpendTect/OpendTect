@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.45 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.46 2011-05-05 07:26:12 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -374,7 +374,8 @@ void uiODPlaneDataTreeItem::movePlane( bool forward )
 }
 
 
-uiTreeItem* uiODInlineTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODInlineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -413,7 +414,8 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
 {}
 
 
-uiTreeItem* uiODCrosslineTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -451,7 +453,8 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
 {}
 
 
-uiTreeItem* uiODZsliceTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
