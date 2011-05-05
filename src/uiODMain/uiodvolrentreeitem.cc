@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.57 2011-03-31 11:09:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.58 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -88,7 +88,8 @@ const char* uiODVolrenParentTreeItem::parentType() const
 
 
 
-uiTreeItem* uiODVolrenTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODVolrenTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid) );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.59 2011-02-23 07:19:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.60 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -205,7 +205,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
-uiTreeItem* uiODWellTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODWellTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));

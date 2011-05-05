@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.13 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.14 2011-05-05 08:53:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ mClass uiODWellTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
-    uiTreeItem*		create(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
 

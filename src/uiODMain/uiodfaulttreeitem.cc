@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.50 2011-02-23 07:19:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.51 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -146,7 +146,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 {
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -456,8 +456,8 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultStickSetTreeItemFactory::create( int visid,
-						      uiTreeItem* ) const
+uiTreeItem*
+uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));

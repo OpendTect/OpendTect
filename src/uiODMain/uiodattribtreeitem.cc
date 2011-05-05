@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.41 2010-12-14 11:12:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.42 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -226,11 +226,11 @@ BufferString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 
-    if ( as && as->id()==Attrib::SelSpec::cAttribNotSel() )
+    if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	dispname = "<right-click>";
     else if ( !as )
 	dispname = visserv->getObjectName( visid );
-    else if ( as->id() == Attrib::SelSpec::cNoAttrib() )
+    else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
 	dispname="";
 
     return dispname;

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.69 2011-02-23 07:19:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.70 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -211,7 +211,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODPickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));

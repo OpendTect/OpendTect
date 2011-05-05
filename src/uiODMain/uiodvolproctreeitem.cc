@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.3 2011-02-23 06:25:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.4 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -62,7 +62,7 @@ bool uiDataTreeItem::anyButtonClick( uiListViewItem* item )
 uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 					  const char* parenttype )
 {
-    if ( as.id()!=Attrib::SelSpec::cOtherAttrib() ||
+    if ( as.id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() ||
 	 strcmp( as.defString(), sKeyVolumeProcessing() ) )
 	return 0;
 

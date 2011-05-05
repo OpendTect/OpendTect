@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.43 2010-09-06 05:08:23 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.44 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -93,7 +93,8 @@ protected:
 
 
 // Tree Items
-uiTreeItem* uiODRandomLineTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODRandomLineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd, 
 		    ODMainWin()->applMgr().visServer()->getObject(visid));

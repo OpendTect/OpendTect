@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.70 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.71 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -197,7 +197,8 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 }
 
 
-uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODHorizonTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     const FixedString objtype = uiVisEMObject::getObjectType(visid);
     if ( !objtype ) return 0;
@@ -665,7 +666,8 @@ bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 }
 
 
-uiTreeItem* uiODHorizon2DTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem*
+    uiODHorizon2DTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
     FixedString objtype = uiVisEMObject::getObjectType(visid);
     return objtype==EM::Horizon2D::typeStr()

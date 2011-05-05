@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.81 2011-02-24 14:57:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.82 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -223,7 +223,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
     if ( uivisemobj_ )
     {
 	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		  as->id()==Attrib::SelSpec::cNoAttrib() );
+		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
     }
     else
     {
@@ -316,7 +316,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 
-	if ( !as || as->id()!=Attrib::SelSpec::cOtherAttrib() )
+	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
 	    uiMSG().error( "This algorithm can only be applied on Surface data."
 		    	   "\nPlease save attribute first" );
@@ -364,7 +364,7 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
-    if ( as->id()==Attrib::SelSpec::cNoAttrib() )
+    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return BufferString("Z values");
 
     return uiODAttribTreeItem::createDisplayName();

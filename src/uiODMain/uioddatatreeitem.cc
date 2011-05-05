@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.58 2010-11-22 05:56:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.59 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -198,7 +198,8 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
-	const bool hasattrib = as && as->id()!=Attrib::SelSpec::cAttribNotSel();
+	const bool hasattrib =
+	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 
 	mAddMenuItem( tb, &view2dvditem_, hasattrib, false )
 	mAddMenuItem( tb, &view2dwvaitem_, hasattrib, false )
@@ -293,7 +294,8 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
-	const bool hasattrib = as && as->id()!=Attrib::SelSpec::cAttribNotSel();
+	const bool hasattrib =
+	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 	if ( isvert )
 	    mAddMenuItem(&addto2dvieweritem_, &view2dwvaitem_, hasattrib, false)
 	else

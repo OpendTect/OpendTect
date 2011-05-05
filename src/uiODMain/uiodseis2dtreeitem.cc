@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.105 2011-05-03 15:19:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.106 2011-05-05 08:53:01 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -93,8 +93,8 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* Seis2DTreeItemFactory::create( int visid,
-					   uiTreeItem* treeitem ) const
+uiTreeItem*
+    Seis2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
@@ -820,7 +820,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     uiTaskRunner uitr( ODMainWin() );
     DataPack::ID dpid = -1;
     LineKey lk( s2d->name() );
-    if ( as.id() == Attrib::SelSpec::cOtherAttrib() )
+    if ( as.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
 	    Attrib::ExtAttrFact().create( 0, as, false );
