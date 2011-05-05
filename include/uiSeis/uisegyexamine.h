@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.13 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.14 2011-05-05 13:01:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ protected:
     BufferString	txtinfo_;
     BufferString	fname_;
     SeisTrcBuf&		tbuf_;
-    Timer&		timer_;
+    Timer*		timer_;
 
     uiTextEdit*		txtfld_;
     uiTable*		tbl_;

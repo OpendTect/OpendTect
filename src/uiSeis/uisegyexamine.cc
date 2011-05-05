@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.28 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.29 2011-05-05 13:01:29 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -58,7 +58,7 @@ void uiSEGYExamine::Setup::usePar( const IOPar& iop )
 uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	: uiDialog(p,su)
 	, setup_(su)
-	, timer_(*new Timer("Startup timer"))
+	, timer_(new Timer("Startup timer"))
 	, tbuf_(*new SeisTrcBuf(true))
 	, rdr_(0)
 {
@@ -125,15 +125,15 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 uiSEGYExamine::~uiSEGYExamine()
 {
     delete rdr_;
-    delete &timer_;
+    delete timer_;
     delete &tbuf_;
 }
 
 
 void uiSEGYExamine::onStartUp( CallBacker* )
 {
-    timer_.tick.notify( mCB(this,uiSEGYExamine,updateInput) );
-    timer_.start( 100, true );
+    timer_->tick.notify( mCB(this,uiSEGYExamine,updateInput) );
+    timer_->start( 100, true );
 }
 
 
@@ -182,6 +182,7 @@ void uiSEGYExamine::updateInput( CallBacker* )
     display( true );
     updateInp();
     setName( setup_.fs_.fname_ );
+    delete timer_; timer_ = 0;
 }
 
 
@@ -192,7 +193,12 @@ void uiSEGYExamine::setRow( int irow )
     const int nrcols = tbl_->nrCols();
     TypeSet<float> data;
     for ( int icol=0; icol<nrcols; icol++ )
-	data += tbl_->getfValue( RowCol(irow,icol) );
+    {
+	const char* txt = tbl_->text( RowCol(irow,icol) );
+	if ( !txt || !*txt )
+	    break;
+	data += Conv::to<float>( txt );
+    }
 
     hvaldisp_->setData( *SEGY::TrcHeader::hdrDef()[irow],
 	    		data.arr(), data.size() );
@@ -269,7 +275,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 
 void uiSEGYExamine::updateInp()
 {
-    if ( !rdr_ ) return;
+    if ( !rdr_ || !tbuf_.isEmpty() ) return;
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
@@ -281,10 +287,11 @@ void uiSEGYExamine::updateInp()
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
 	if ( !rdr_->get(trc) )
-	    { stoppedatend = true; break; }
-
+	    stoppedatend = true;
 	if ( nrdone == 0 )
 	    handleFirstTrace( trc, *tr );
+	if ( stoppedatend )
+	    break;
 
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
@@ -300,7 +307,7 @@ void uiSEGYExamine::updateInp()
 
     if ( stoppedatend || nrdone < 1 )
     {
-	BufferString str( "\n\n" );
+	BufferString str( "\n\n---- " );
 	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
 	    str += "No traces found";
@@ -310,6 +317,7 @@ void uiSEGYExamine::updateInp()
 	    if ( ismulti ) str += "s";
 	    str += ":"; str += nrdone;
 	}
+	str += " ----";
 	txtinfo_ += str;
     }
     outInfo( "" );
