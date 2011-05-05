@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2dmainwin.h,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dmainwin.h,v 1.5 2011-05-05 15:39:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
     void		setGathers(const BinID& pos); 
     void 		setUpView();
 
+    void		displayInfo(CallBacker*);
     void		posSlcChgCB(CallBacker*);
     void		posDlgChgCB(CallBacker*);
     void 		posDlgPushed(CallBacker*);
@@ -71,7 +72,7 @@ protected:
 mClass uiViewer2DControl : public uiFlatViewStdControl
 {
 public:
-			uiViewer2DControl(uiParent*,uiFlatViewer&);
+			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);
 
     Notifier<uiViewer2DControl> posdlgcalled_;
     Notifier<uiViewer2DControl> datadlgcalled_;
@@ -82,6 +83,7 @@ protected:
 
     uiToolButton*    	posbut_;
     uiToolButton*    	databut_;
+    uiObjectItemViewControl* objectitemctrl_;
 
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);

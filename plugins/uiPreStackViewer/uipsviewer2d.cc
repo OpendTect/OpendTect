@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.7 2011-05-04 16:15:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.8 2011-05-05 15:39:17 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -34,7 +34,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
     viewer_->appearance().setGeoDefaults( true );
     viewer_->appearance().setDarkBG( false );
     viewer_->appearance().annot_.color_ = Color::Black();
-    viewer_->appearance().annot_.x1_.showannot_ = false;
+    viewer_->appearance().annot_.x1_.showannot_ = true;
     viewer_->appearance().annot_.x1_.name_ = "Offset";
     viewer_->appearance().annot_.x2_.showannot_ = false;
     viewer_->appearance().annot_.x2_.name_ = "Depth";
@@ -51,7 +51,6 @@ void uiGatherDisplay::setInitialSize( const uiSize& sz )
 {
     setPrefWidth( sz.width() ); setPrefHeight( sz.height() );
     viewer_->setInitialSize( sz );
-    setWidth( sz.width() );
 }
 
 

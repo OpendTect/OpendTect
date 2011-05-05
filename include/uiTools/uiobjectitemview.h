@@ -55,6 +55,8 @@ public:
 protected:
 
     ObjectSet<uiObjectItem>	objectitems_;
+
+    void			reSizeChildrenWidth(const uiObject*,int);
 };
 
 #endif

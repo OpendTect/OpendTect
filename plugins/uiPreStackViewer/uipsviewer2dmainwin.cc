@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.5 2011-05-05 15:39:17 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.4 2011-05-04 15:20:0
 #include "uirgbarraycanvas.h"
 #include "uislider.h"
 #include "uiprogressbar.h"
+#include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -36,6 +37,7 @@ namespace PreStackView
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p )
     : uiObjectItemViewWin(p,"PreStack Gather view")
     , posdlg_(0)
+    , control_(0)		
     , seldatacalled_(this)
     , isinl_(false)
 {}
@@ -49,12 +51,6 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
     info.getRanges( cs_ );
     is2d_ = info.is2D();
 
-    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    gd->setGather( gatherid );
-    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0);
-    addGroup( gd, gdi );
-    vwrs_ += gd->getUiFlatViewer();
-
     if ( !is2d_ )
     {
 	DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
@@ -67,19 +63,10 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 	    else
 		cs_.hrg.setCrlRange( Interval<int>( bid.inl, bid.crl ) );
 
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
-	    BufferString nm = ioobj ? ioobj->name() : "";
-	    gdi->setData( bid, isinl, nm ); 
-	    gdi->setOffsetRange( gd->getOffsetRange() );
+	    setGathers( bid ); 
 	}
 	DPM(DataPackMgr::FlatID()).release( gatherid );
     }
-
-    uiViewer2DControl* ctrl = new uiViewer2DControl( this, *vwrs_[0] );
-    ctrl->posdlgcalled_.notify(mCB(this,uiViewer2DMainWin,posDlgPushed));
-    ctrl->datadlgcalled_.notify(mCB(this,uiViewer2DMainWin,dataDlgPushed));
-    control_ = ctrl;
-    control_->addViewer( *gd->getUiFlatViewer() );
 
     slicepos_ = new uiSlicePos2DView( this );
     slicepos_->setCubeSampling( cs_ );
@@ -194,36 +181,60 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	}
 
 	gd->setPosition( bid );
+	gd->getUiFlatViewer()->appearance().annot_.x1_.showannot_ = false;
+	vwrs_ += gd->getUiFlatViewer();
 	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	BufferString nm = ioobj ? ioobj->name() : "";
 	gdi->setData( bid, cs_.defaultDir()==CubeSampling::Inl, nm );
 	gdi->setOffsetRange( gd->getOffsetRange() );
 	addGroup( gd, gdi );
-	vwrs_ += gd->getUiFlatViewer();
+
+	if ( !control_ )
+	{
+	    uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_, 
+		    						*vwrs_[0] );
+	    ctrl->posdlgcalled_.notify(
+		    		mCB(this,uiViewer2DMainWin,posDlgPushed));
+	    ctrl->datadlgcalled_.notify(
+		    		mCB(this,uiViewer2DMainWin,dataDlgPushed));
+	    ctrl->infoChanged.notify( mCB(this,uiViewer2DMainWin,displayInfo) );
+	    control_ = ctrl;
+	}
 	control_->addViewer( *gd->getUiFlatViewer() );
     }
 }
+
+
+void uiViewer2DMainWin::displayInfo( CallBacker* cb )
+{
+    mCBCapsuleUnpack(IOPar,pars,cb);
+    BufferString mesg;
+    makeInfoMsg( mesg, pars );
+    statusBar()->message( mesg.buf() );
+}
+
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
     tb_->addButton( but );
 
-uiViewer2DControl::uiViewer2DControl( uiParent* p , uiFlatViewer& vwr )
-    : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(p)
+uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
+    : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
 			    .withthumbnail(false)
 			    .withcoltabed(false)
-			    .withedit(true))
+			    .withedit(false))
     , posdlgcalled_(this)
     , datadlgcalled_(this)
 {
     vwr.rgbCanvas().disableScrollZoom();
-    mDynamicCastGet(uiMainWin*,mw,p)
-    if ( mw )
-	tb_->clear();
+    tb_->clear(); delete tb_;
 
-    mDefBut(posbut_,"",gatherPosCB,"Gather display positions");
+    objectitemctrl_ = new uiObjectItemViewControl( mw );
+    tb_ = objectitemctrl_->toolBar();
+
+    mDefBut(posbut_,"orientation64.png",gatherPosCB,"Set positions");
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set seismic display properties");
     mDefBut(databut_,"gatherdisplaysettings64.png",gatherDataCB,"Set gather data");
 }

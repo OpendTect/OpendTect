@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.1 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.2 2011-05-05 15:39:17 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
 #include "uigraphicsitemimpl.h"
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 #include "uislider.h"
 #include "uiprogressbar.h"
@@ -23,8 +24,8 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.1 2011-05-04 15:20:0
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p,const char* title)
     : uiMainWin(p,title)
-    , startwidth_(80)
-    , startheight_(100) 
+    , startwidth_(400)
+    , startheight_(600) 
 {
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ );
@@ -34,13 +35,16 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p,const char* title)
     mainviewer_ = new uiObjectItemView( this );
     mainviewer_->setPrefWidth( startwidth_ );
     mainviewer_->setPrefHeight( startheight_ );
-    mainviewer_->enableScrollBars( false );
-    mainviewer_->attach( alignedBelow, infobar_, 0 );
-
-    setPrefWidth( startwidth_ );
-    setPrefHeight( startheight_ + 20 );
+    mainviewer_->enableScrollBars( true );
+    mainviewer_->attach( ensureBelow, infobar_, 0 );
+    mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
+    mainviewer_->disableScrollZoom();
+    infobar_->disableScrollZoom();
 
     makeSliders();
+
+    setPrefWidth( startwidth_ + 50 );
+    setPrefHeight( startheight_+ 50 );
 }
 
 
@@ -67,29 +71,31 @@ void uiObjectItemViewWin::addItem( uiObjectItem* itm, uiObjectItem* infoitm )
 }
 
 
-#define mSldNrUnits 50
+#define mSldNrUnits 30
 
 void uiObjectItemViewWin::makeSliders()
 {
     uiLabel* dummylbl = new uiLabel( this, "" );
     dummylbl->attach( rightOf, mainviewer_ );
     dummylbl->setStretch( 0, 2 );
-    if ( infobar_ )
-	infobar_->attach( ensureLeftOf, dummylbl );
+    dummylbl->attach( ensureRightOf, infobar_ );
 
     uiSliderExtra::Setup su;
-    su.sldrsize_ = 150;
+    su.sldrsize_ = 200;
     su.withedit_ = false;
     StepInterval<float> sintv( 1, mSldNrUnits, 1 );
     su.isvertical_ = true;
     versliderfld_ = new uiSliderExtra( this, su, "Vertical Scale" );
     versliderfld_->sldr()->setInterval( sintv );
-    versliderfld_->sldr()->setValue( 5 );
     versliderfld_->sldr()->setInverted( true );
     versliderfld_->sldr()->sliderReleased.notify(
 	    			mCB(this,uiObjectItemViewWin,reSizeSld) );
     versliderfld_->attach( centeredBelow, dummylbl );
     versliderfld_->setStretch( 0, 0 );
+
+    fittoscreenbut_ = new uiToolButton( this, "exttofullsurv.png",
+		    "Fit to screen", mCB(this,uiObjectItemViewWin,fitToScreen));
+    fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
     su.isvertical_ = false;
     horsliderfld_ = new uiSliderExtra( this, su, "Horizontal Scale" );
@@ -97,10 +103,7 @@ void uiObjectItemViewWin::makeSliders()
     horsliderfld_->sldr()->sliderReleased.notify(
 				    mCB(this,uiObjectItemViewWin,reSizeSld));
     horsliderfld_->setStretch( 0, 0 );
-    horsliderfld_->sldr()->setValue( 5 );
-    horsliderfld_->attach( rightBorder, 20 );
-    horsliderfld_->attach( ensureLeftOf, versliderfld_ );
-    horsliderfld_->attach( ensureBelow, versliderfld_ );
+    horsliderfld_->attach( leftOf, fittoscreenbut_ );
     horsliderfld_->attach( ensureBelow, mainviewer_ );
 
     zoomratiofld_ = new uiCheckBox( this, "Keep zoom ratio" );
@@ -130,8 +133,8 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	revsld->setValue( hslval );
     }
 
-    const int width = (int)( hslval*startwidth_ );
-    const int height = (int)( vslval*startheight_ );
+    const int width = (int)(( hslval*startwidth_ )+1);
+    const int height = (int)(( vslval*startheight_ )+1);
     reSizeItems( uiSize( width, height ) );
 }
 
@@ -145,6 +148,7 @@ void uiObjectItemViewWin::reSizeItems( const uiSize& sz )
     for ( int idx=0; idx<nritems; idx++ )
 	mainviewer_->reSizeItem( idx, objsz );
 
+    mainviewer_->resetViewArea(0);
     infobar_->reSizeItems(); 
 }
 
@@ -155,6 +159,36 @@ void uiObjectItemViewWin::removeAllItems()
     infobar_->removeAllItems();
 }
 
+
+void uiObjectItemViewWin::scrollBarCB( CallBacker* )
+{
+    const uiRect& mainrect = mainviewer_->getViewArea();
+    const uiRect& inforect = infobar_->getViewArea();
+    infobar_->setViewArea( mainrect.left(), inforect.top(),  
+			   mainrect.right(), inforect.bottom());
+    infobar_->updateItemsPos();
+}
+
+
+void uiObjectItemViewWin::fitToScreen( CallBacker* )
+{
+    mDynamicCastGet(uiGraphicsObjectScene*,sc,&mainviewer_->scene())
+    const uiSize screensz( mainviewer_->parent()->mainObject()->width(),
+    mainviewer_->parent()->mainObject()->height() );
+    if ( screensz.width()<=0 || screensz.height()<=0 ) return;
+    const uiSize layoutsz( sc->layoutSize().width() + (int)sc->layoutPos().x,
+			   sc->layoutSize().height() + (int)sc->layoutPos().y );
+    float xratio = ( screensz.width()/(float)layoutsz.width() );
+    float yratio = ( screensz.height()/(float)layoutsz.height() );
+    uiSlider* hsldr = horsliderfld_->sldr();
+    uiSlider* vsldr = versliderfld_->sldr();
+    float hslval = hsldr->getValue();
+    float vslval = vsldr->getValue();
+    int hscaledfac = (int)(hslval*xratio);
+    int vscaledfac = (int)(vslval*yratio);
+    hsldr->setValue( hscaledfac );
+    vsldr->setValue( vscaledfac );
+}
 
 
 
@@ -206,4 +240,48 @@ void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
     if ( idx >= 0 ) coupleditems_.remove( idx );
     uiObjectItemView::removeItem( itm );
 }
+
+
+
+#define mDefBut(but,fnm,cbnm,tt) \
+    but = new uiToolButton(toolbar_,fnm,tt,mCB(this,uiObjectItemViewControl,cbnm) ); \
+    toolbar_->addButton( but );
+
+uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
+    : uiGroup(mw.parent(),"ObjectItemView control")
+    , mainviewer_(mw)
+    , manip_(false)		     
+    , toolbar_(0)
+{
+    uiToolBar::ToolBarArea tba( uiToolBar::Top );
+    toolbar_ = new uiToolBar( mw.parent(), "ObjectItemView tools", tba );
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+
+    mainviewer_.disableScrollZoom();
+    mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
+    mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
+    mainviewer_.scene().setMouseEventActive( true );
+} 
+
+
+void uiObjectItemViewControl::stateCB( CallBacker* )
+{
+    if ( !manipdrawbut_ ) return;
+    manip_ = !manip_;
+
+    uiGraphicsViewBase::ODDragMode mode = !manip_ ? 
+	uiGraphicsViewBase::NoDrag : uiGraphicsViewBase::ScrollHandDrag;
+
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    mainviewer_.setDragMode( mode );
+    mainviewer_.scene().setMouseEventActive( true );
+    if ( mode == uiGraphicsViewBase::ScrollHandDrag )
+	cursor_.shape_ = MouseCursor::OpenHand;
+    else
+	cursor_.shape_ = MouseCursor::Arrow;
+
+    mainviewer_.setCursor( cursor_ );
+}
+
+
 

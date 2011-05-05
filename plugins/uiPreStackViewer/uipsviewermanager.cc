@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.63 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.64 2011-05-05 15:39:17 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -504,28 +504,34 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 	{ pErrMsg( "Can not find viewer" ); return; }
 
     uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
-    BufferStringSet gnms; seisserv->getStoredGathersList(!win->is2D(),gnms);
-    if ( gnms.isEmpty() )
-	return;
-
-    BufferStringSet selgnms; TypeSet<MultiID> selids;	
+    BufferStringSet selgnms, allgnms; TypeSet<MultiID> selids;	
     win->getIDs( selids );
-
     for( int idx=0; idx<selids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
 	if ( ioobj )
-	selgnms.addIfNew( ioobj->name() );
+	    selgnms.addIfNew( ioobj->name() );
     }
+
+    seisserv->getStoredGathersList(!win->is2D(),allgnms);
+    if ( allgnms.isEmpty() )
+	return;
+
+    for ( int idx=0; idx<selgnms.size(); idx++ )
+    {
+	if ( allgnms.isPresent( selgnms.get( idx ).buf() ) ) 
+	    allgnms.remove( allgnms.indexOf( selgnms.get( idx ).buf() ) );
+    }
+
     selids.erase(); 
-    uiViewer2DSelDataDlg dlg( win, gnms, selgnms );
+    uiViewer2DSelDataDlg dlg( win, allgnms, selgnms );
     if ( dlg.go() )
     {
 	for( int idx=0; idx<selgnms.size(); idx++ )
 	{
 	    IOObj* ioobj = IOM().getLocal( selgnms[idx]->buf() );
 	    if ( ioobj )
-	    selids += ioobj->key();
+		selids += ioobj->key();
 	    else
 	    { 
 		BufferString msg( "Can not find" );
@@ -533,11 +539,11 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 		uiMSG().error( msg ); 
 	    }
 	}
-    }
-    if ( selids.isEmpty() )
-	{ uiMSG().error("No data found"); return; }
+	if ( selids.isEmpty() )
+	    { uiMSG().error("No data found"); return; }
 
-    win->setIDs( selids );
+	win->setIDs( selids );
+    }
 }
 
 

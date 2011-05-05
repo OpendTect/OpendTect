@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.14 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.15 2011-05-05 15:39:17 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uiparent.h"
+#include "uigroup.h"
 
 #include "geometry.h"
 
@@ -59,20 +60,20 @@ void uiObjectItemView::setSceneLayoutPos( float x, float y )
 }
 
 
-void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
+void uiObjectItemView::addItem( uiObjectItem* itm, int str )
 {
     objectitems_ += itm;
     mGetScene(return) sc->addObjectItem(itm);
-    sc->setItemStretch( itm, stretch );
+    sc->setItemStretch( itm, str );
 }
 
 
-void uiObjectItemView::insertItem( uiObjectItem* itm, int stretch, int posidx)
+void uiObjectItemView::insertItem( uiObjectItem* itm, int str, int posidx)
 {
     objectitems_.insertAt( itm, posidx );
     mGetScene(return) 
     sc->insertObjectItem( posidx, itm );
-    sc->setItemStretch( itm, stretch );
+    sc->setItemStretch( itm, str );
 }
 
 
@@ -142,6 +143,31 @@ void uiObjectItemView::setStretchFactor(uiObjectItem* itm,int stretchfactor )
 
 void uiObjectItemView::reSizeItem( int idx, const uiSize& sz )
 {
+    if ( sz.width() <= 0 || sz.height() <= 0 ) 
+	return;
     getItem( idx )->setObjectSize( sz.width(), sz.height() );
+    reSizeChildrenWidth( getItem( idx )->getObject(), sz.width() );
+}
+
+
+void uiObjectItemView::reSizeChildrenWidth( const uiObject* obj, int wdth )
+{
+    if ( !obj || !obj->childList() || wdth <= 0 )
+	return;
+
+    const int nrchildren = obj->childList()->size(); 
+    if ( !nrchildren ) return;
+    const int newwdth = (int)(wdth / (float)(nrchildren) );
+    for ( int idchild=0; idchild<nrchildren; idchild++ )
+    {
+	const uiBaseObject* child = (*obj->childList())[idchild];
+	mDynamicCastGet(const uiObject*,objchild,child)
+	if ( objchild )
+	{
+	    (const_cast<uiObject*>(objchild))->setMinimumWidth( newwdth );
+	    (const_cast<uiObject*>(objchild))->setMaximumWidth( newwdth );
+	}
+	reSizeChildrenWidth( objchild, newwdth );
+    }
 }
 

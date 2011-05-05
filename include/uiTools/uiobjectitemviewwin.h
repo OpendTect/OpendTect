@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.1 2011-05-04 15:20:01 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.2 2011-05-05 15:39:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 /*! brief A uiFMainWin that holds embedded uiObjects and controls !*/
 
 #include "uimainwin.h"
+#include "uigroup.h"
 #include "uiobjectitemview.h"
 
 class uiCheckBox;
@@ -23,6 +24,8 @@ class uiObjectItemView;
 class uiObjectItemViewInfoBar;
 class uiObjectItemViewControl;
 class uiSliderExtra;
+class uiToolBar;
+class uiToolButton;
 
 mClass uiObjectItemViewWin : public uiMainWin
 {
@@ -45,6 +48,7 @@ protected:
 
     uiSliderExtra*	versliderfld_;
     uiSliderExtra*	horsliderfld_;
+    uiToolButton*	fittoscreenbut_;
     uiCheckBox*		zoomratiofld_;
 
     int			startwidth_;
@@ -55,7 +59,9 @@ protected:
     void 		setUpView();
     void		reSizeItems(const uiSize&);
 
+    void		fitToScreen(CallBacker*);
     void		reSizeSld(CallBacker*);
+    void		scrollBarCB(CallBacker*);
 };
 
 
@@ -71,6 +77,26 @@ public:
 
 protected:
     ObjectSet<uiObjectItem> coupleditems_; 
+};
+
+
+
+mClass uiObjectItemViewControl : public uiGroup
+{
+public :
+			uiObjectItemViewControl(uiObjectItemView&);
+
+    virtual uiToolBar* 	toolBar() { return toolbar_;}
+
+protected:
+
+    uiObjectItemView&	mainviewer_;
+    uiToolBar*          toolbar_;
+    uiToolButton*	manipdrawbut_;
+    MouseCursor 	cursor_;
+    bool		manip_;
+
+    void 		stateCB(CallBacker*);
 };
 
 
