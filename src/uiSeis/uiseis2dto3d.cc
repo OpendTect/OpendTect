@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -40,7 +40,7 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 
     winfld_ = new uiGenInput( this,"Window (Inl / Crl" );
     winfld_->attach( alignedBelow, iterfld_ );
-    winfld_->setValue( 50 );
+    winfld_->setValue( 150 );
 
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );

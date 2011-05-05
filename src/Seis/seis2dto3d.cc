@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: seis2dto3d.cc,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: seis2dto3d.cc,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -107,12 +107,16 @@ bool Seis2DTo3D::read()
 	mErrRet("No trace could be read")
 
     CubeSampling linecs( false );
+    Interval<float> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
+    Interval<float> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
     for ( int idx=0; idx<seisbuf_.size(); idx++ )
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
-	linecs.hrg.include( trc.info().binid );
-	if ( !cs_.hrg.includes( trc.info().binid ) )
-	    seisbuf_.remove( idx );
+	const BinID& bid = trc.info().binid; 
+	if ( !inlrg.includes( bid.inl ) || !crlrg.includes( bid.crl ) )
+	    { seisbuf_.remove( idx ); continue; }
+
+	linecs.hrg.include( bid );
     }
     cs_.hrg.limitTo( linecs.hrg );
 
@@ -171,12 +175,9 @@ int Seis2DTo3D::nextStep()
 	if ( idtrc >= 0 )
 	    trcs += seisbuf_.get( idtrc ); 
     }
-    if ( trcs.isEmpty() )
-	{ errmsg_ = "no trace found on position"; return ErrorOccurred(); }
-
     interpol_.setInput( trcs, hrg );
     interpol_.setNrIter( nriter_ );
-    if ( !interpol_.execute() )
+    if ( !trcs.isEmpty() && !interpol_.execute() )
 	{ errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
 
     Interval<int> wininlrg( inl-winsz_, inl+winsz_);
@@ -187,8 +188,18 @@ int Seis2DTo3D::nextStep()
     winhrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
+
     if ( outtrcs.isEmpty() )
-	{ errmsg_ = "No trace interpolated"; return MoreToDo(); }
+    {
+	BinID bid;
+	HorSamplingIterator hsit( winhrg );
+	while ( hsit.next( bid ) )
+	{
+	    SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
+	    trc->info().sampling = seisbuf_.get( 0 )->info().sampling;
+	    trc->info().binid = bid; 
+	}
+    }
 
     for ( int idx=0; idx<outtrcs.size(); idx ++ )
 	tmpseisbuf_.add( outtrcs[idx] );
@@ -403,6 +414,9 @@ int SeisInterpol::getTrcInSet( const BinID& bin ) const
 void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs, 
 				const HorSampling& hs) const
 {
+    if ( inptrcs_->isEmpty() )
+	return;
+
     HorSamplingIterator hsit( hs );
     BinID bid;
     while ( hsit.next( bid ) )

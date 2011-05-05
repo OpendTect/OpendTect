@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: seis2dto3d.h,v 1.2 2011-05-04 13:16:21 cvsbruno Exp $
+ RCS:           $Id: seis2dto3d.h,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
 					const HorSampling&) const;
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
-    const char*		message() const		{ return "interpolating"; }
     od_int64           	nrDone() const 		{ return nrdone_; }
     const char*        	nrDoneText() const 	{return "Number of iterations";}
     od_int64		totalNr() const 	{ return nriter_; };
