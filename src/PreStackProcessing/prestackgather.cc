@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.28 2010-06-03 02:34:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.29 2011-05-05 13:35:14 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -170,7 +170,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	nrsamples++;
 
     const Array2DInfoImpl newinfo( tbuf->size(), nrsamples );
-    if ( !arr2d_->setInfo( newinfo ) )
+    if ( arr2d_ && !arr2d_->setInfo( newinfo ) )
     {
 	delete arr2d_;
 	arr2d_ = new Array2DImpl<float>( newinfo );
@@ -189,7 +189,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
 	    const float val = trc->getValue( zrg.atIndex( idx ), comp );
-	    arr2d_->set( trcidx, idx, val );
+	    if ( arr2d_ ) arr2d_->set( trcidx, idx, val );
 	}
 
 	azimuths_[trcidx] = trc->info().azimuth;
