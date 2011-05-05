@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.7 2011-04-13 10:31:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.8 2011-05-05 15:38:49 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -108,25 +108,6 @@ void uiWellDisplay::setInitialSize()
     setPrefHeight( initheight );
 
     size_ = uiSize( newwidth, initheight ); 
-}
-
-
-void uiWellDisplay::setNewWidth( int width )
-{
-    int nrelems  = logdisps_.size();
-    if ( stratdisp_ && !setup_.isstratbelow_ ) nrelems += 1;
-    if ( !nrelems ) return;
-    const int singlewidth = (int)(width/(float)nrelems );
-    for ( int idx=0; idx<logdisps_.size(); idx++ )
-    {
-	logdisps_[idx]->setMinimumWidth( singlewidth );
-	logdisps_[idx]->setStretch( 2, 2 );
-    }
-    if ( stratdisp_ )
-    {
-	stratdisp_->setMinimumWidth( singlewidth );
-	stratdisp_->setStretch( 2, 2 );
-    }
 }
 
 

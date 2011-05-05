@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.6 2010-11-10 14:38:30 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.7 2011-05-05 15:38:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,11 +119,6 @@ protected:
     void			setInitialSize();
     void			resetDahData();
     void			resetWDDisplayProperties();
-
-public :
-
-    void                        setNewWidth(int); //do not use, 
-						  //only for dynamic redraw
 };
 
 
