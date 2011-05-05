@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.98 2011-05-03 08:18:45 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.99 2011-05-05 09:11:40 cvsnageswara Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -351,6 +351,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 				.rowgrow(true).defrowlbl(""), "Table" );
     tbl_->setColumnLabels( t2dcollbls );
     tbl_->setNrRows( nremptyrows );
+    tbl_->setPrefWidth( 500 );
 
     uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons", false );
     if ( !cksh_ )
@@ -363,10 +364,10 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 		      false );
     actbutgrp->attach( leftAlignedBelow, tbl_ );
 
-    unitfld_ = new uiCheckBox( this, " Display Z in feet" );
+    unitfld_ = new uiCheckBox( this, " Z in feet" );
     unitfld_->setChecked( SI().depthsInFeetByDefault() );
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
-    unitfld_->attach( rightTo, actbutgrp );
+    unitfld_->attach( rightAlignedBelow, tbl_ );
 
     fillTable(0);
 }
