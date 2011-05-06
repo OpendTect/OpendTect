@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.29 2011-05-05 13:35:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.30 2011-05-06 15:17:21 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -322,3 +322,11 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
 	res[offset] = muteend + taperlen;
     }
 }
+
+
+
+GatherSetDataPack::GatherSetDataPack( const char* categry )
+    : DataPack( categry )
+{}
+
+
