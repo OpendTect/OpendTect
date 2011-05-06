@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.4 2011-05-06 13:44:45 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -38,7 +38,7 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     iterfld_ = new uiGenInput( this, "Iteration number" );
     iterfld_->attach( alignedBelow, inpfld_ );
 
-    winfld_ = new uiGenInput( this,"Window (Inl / Crl" );
+    winfld_ = new uiGenInput( this,"Window (Inl/Crl)" );
     winfld_->attach( alignedBelow, iterfld_ );
     winfld_->setValue( 150 );
 
@@ -70,7 +70,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
-    seis2dto3d_.setInput( *inctio_.ioobj, "Seis" );
+    seis2dto3d_.setInput( *inctio_.ioobj, inpfld_->attrNm() );
 
     CubeSampling cs(false); 
     outsubselfld_->getSampling( cs.hrg );
