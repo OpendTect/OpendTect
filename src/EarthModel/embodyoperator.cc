@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.14 2009-11-27 03:01:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.15 2011-05-06 17:49:16 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
+#include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "delaunay3d.h"
 #include "embody.h"
@@ -169,7 +170,6 @@ float getVal( bool incube0, bool incube1, char p0, char p1, float v0,
 };
 
 
-
 Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 	const StepInterval<int>& inlrg,	const StepInterval<int>& crlrg,
 	const StepInterval<float>& zrg,	Array3D<float>& arr )
@@ -189,8 +189,9 @@ bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
     tree_.getSurfaceTriangles( tri_ );
     for ( int idx=0; idx<tri_.size()/3; idx++ )
     {
-	planes_ += Plane3( crds[tri_[3*idx]], crds[tri_[3*idx+1]], 
-			   crds[tri_[3*idx+2]] );
+	const int startid = 3 * idx;
+	planes_ += Plane3( crds[tri_[startid]], crds[tri_[startid+1]], 
+			   crds[tri_[startid+2]] );
     }
 
     return planes_.size();
@@ -198,59 +199,165 @@ bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 
 
 od_int64 Expl2ImplBodyExtracter::nrIterations() const
-{ return arr_.info().getTotalSz(); }
+{ return arr_.info().getSize(0)*arr_.info().getSize(1); }
+
+
+#define mSetSegment() \
+if ( !found ) \
+{ \
+    segment.start = segment.stop = pos.z; \
+    found = true; \
+} \
+else \
+    segment.include( pos.z )
 
 
 bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 {
+    const TypeSet<Coord3>& crds = tree_.coordList();
+    const int crlsz = arr_.info().getSize(1);
+    const int zsz = arr_.info().getSize(2);
+    const int planesize = planes_.size();
+
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    {
+	const int inlidx = idx / crlsz;
+	const int crlidx = idx % crlsz;
+	const BinID bid( inlrg_.atIndex(inlidx), crlrg_.atIndex(crlidx) );
+	Coord3 pos( SI().transform(bid), 0 );
+	Line3 vtln( pos, Coord3(0,0,1) );
+
+	Interval<float> segment;
+	bool found = false;
+	for ( int pl=0; pl<planesize; pl++ )
+	{
+	    Coord3 v[3];
+	    for ( int pidx=0; pidx<3; pidx++ )
+		v[pidx] = crds[tri_[3*pl+pidx]];
+
+	    const float fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
+		planes_[pl].D_;
+	    if ( mIsZero(planes_[pl].C_,1e-8) ) 
+	    {
+		if ( mIsZero(fv,1e-8) )
+		{ 
+		    for ( int pidx=0; pidx<3; pidx++ )
+		    {
+			Line3 edge( v[pidx], v[(pidx+1)%3]-v[pidx] );
+			double te, tv;
+			vtln.closestPoint(edge,tv,te);
+			if ( te<=1 && te>=0 )
+			{
+			    pos.z = v[pidx].z+te*(v[(pidx+1)%3].z-v[pidx].z);
+			    mSetSegment();
+			}
+		    }
+		}
+
+		continue;
+	    }
+	    else
+		pos.z = -fv/planes_[pl].C_;
+	
+	    if ( !pointInTriangle3D(pos,v[0],v[1],v[2],0) )
+	    {
+		if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
+		     pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
+		     pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
+		{
+		    mSetSegment();
+		}
+	    }
+	    else
+	    {
+		mSetSegment();
+	    }
+	}
+	
+	if ( found )
+	{
+    	    for ( int zidx=0; zidx<zsz; zidx++ )
+    	    {
+    		const float curz = zrg_.atIndex( zidx );
+		const float val = curz<segment.start ? curz-segment.start :
+		    ( curz>segment.stop ? segment.stop-curz : 
+		      mMIN(curz-segment.start, segment.stop-curz) );		
+		arr_.set( inlidx, crlidx, zidx, val );
+	    }
+	}
+	else 
+	{
+    	    for ( int zidx=0; zidx<zsz; zidx++ )
+		arr_.set( inlidx, crlidx, zidx, -1 );
+	}
+    }
+
+    return true;
+}
+
+
+
+/*//Go by each point: too slow
+ * bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
+{
     int p[3]; BinID bid; Coord3 pos;
     const TypeSet<Coord3>& crds = tree_.coordList();
+    const int planesize = planes_.size();
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	arr_.info().getArrayPos( idx, p );
 	bid = BinID( inlrg_.atIndex(p[0]), crlrg_.atIndex(p[1]) );
 	pos = Coord3( SI().transform(bid), zrg_.atIndex(p[2]) );
 
-	char firstsign = 0; 
-	bool isinside = true;
-	float dist, mindist;
-	for ( int pl=0; pl<planes_.size(); pl++ )
+	bool isinside = planes_[0].onSameSide( pos, bodycenter_);;
+	float mindist = -1;
+	for ( int pl=0; pl<planesize; pl++ )
 	{
-	    dist = planes_[pl].distanceToPoint( pos, true );
-	    if ( mIsZero(dist,1e-5) )
+	    const Coord3 proj = planes_[pl].getProjection( pos );
+	    const float dist = (proj-pos).abs();
+
+	    if ( dist<1e-4 )
 	    {
-		if ( pointInTriangle3D( pos, crds[tri_[3*pl]],
-			    crds[tri_[3*pl+1]],	crds[tri_[3*pl+2]], 1e-5 ) )
-		{
-		    mindist = dist;
-		    isinside = false;
-		    break;
-		}
-		else
+		if ( !pointInTriangle3D( proj, crds[tri_[3*pl]],
+			    crds[tri_[3*pl+1]],	crds[tri_[3*pl+2]], 1e-8) )
 		    continue;
-	    }
-	
-	    if ( isinside )
-	    {
-		if ( firstsign==0 ) 
+
+		if ( isinside )
 		{
-		    firstsign = dist>0 ? 1 : -1;
-		    mindist = fabs(dist);
+		    for ( int pidx=pl+1; pidx<planesize; pidx++ )
+		    {
+			if ( !isinside )
+			    break;
+			isinside = planes_[pidx].onSameSide(pos,bodycenter_);
+		    } 
 		}
-		else if ( (firstsign==1 && dist<0) || (firstsign==-1 && dist>0))
-		    isinside = false;
+
+		mindist = dist;
+		break;
 	    }
 
-	    if ( dist<0 ) dist = -dist;
+	    if ( mindist<0 ) 
+	    {
+		if ( isinside )
+    		    isinside = planes_[pl].onSameSide(pos,bodycenter_); 
+		mindist = dist;
+	    }
+	    else
+	    {
+		if ( isinside )
+    		    isinside = planes_[pl].onSameSide(pos,bodycenter_); 
 
-	    if ( mindist>dist ) mindist = dist;
+		if ( mindist>dist )
+		    mindist = dist;
+	    }
 	}
 
 	arr_.set( p[0], p[1], p[2], isinside ? mindist : -mindist );
     }
 
     return true;
-}
+} */
 
 
 BodyOperator::BodyOperator()
@@ -625,9 +732,6 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( (tr && !tr->execute( triangulator )) || !triangulator.execute(true) )
 	return 0;
    
-    TypeSet<int> triangles;
-    dagtree.getSurfaceTriangles(triangles);
-
     PtrMan<Expl2ImplBodyExtracter> extract = new
 	Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, zrg, *arr );
     if ( (tr && !tr->execute( *extract )) || !extract->execute() )
