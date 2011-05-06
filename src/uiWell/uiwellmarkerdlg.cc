@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.43 2011-05-02 10:02:05 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.44 2011-05-06 09:54:35 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -71,7 +71,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setPrefWidth( 400 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",
-	    			mCB(this,uiMarkerDlg,updateDisplayCB), false );
+	    			mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
     uiButton* rfbut = new uiPushButton( this, "&Read new",
