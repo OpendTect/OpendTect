@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.8 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.9 2011-05-06 13:43:52 cvsbruno Exp $";
 
 #include "uiflatviewslicepos.h"
 
@@ -72,7 +72,8 @@ void uiSlicePos2DView::setStepBoxValue()
 
 void uiSlicePos2DView::slicePosChg( CallBacker* )
 {
-    slicePosChanged( curorientation_, curcs_ );
+    CubeSampling oldcs = curcs_;
+    slicePosChanged( curorientation_, oldcs );
 }
 
 
