@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.15 2011-05-06 17:49:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.16 2011-05-06 21:01:29 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -243,34 +243,49 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		{ 
 		    for ( int pidx=0; pidx<3; pidx++ )
 		    {
-			Line3 edge( v[pidx], v[(pidx+1)%3]-v[pidx] );
-			double te, tv;
-			vtln.closestPoint(edge,tv,te);
-			if ( te<=1 && te>=0 )
+			const Coord3 dir = v[(pidx+1)%3]-v[pidx];
+			if ( mIsZero(dir.x,1e-8) && mIsZero(dir.y,1e-8) )
 			{
-			    pos.z = v[pidx].z+te*(v[(pidx+1)%3].z-v[pidx].z);
-			    mSetSegment();
+			    Coord diff = pos - v[pidx];
+			    if ( mIsZero(diff.x,1e-8) && mIsZero(diff.y,1e-8) )
+			    {
+				pos.z = v[pidx].z;
+				mSetSegment();
+				pos.z = v[(pidx+1)%3].z;
+				mSetSegment();
+				break;
+			    }
+			}
+			else
+			{
+			    Line3 edge( v[pidx], dir );
+    			    double te, tv;
+    			    vtln.closestPoint(edge,tv,te);
+    			    if ( te<=1 && te>=0 )
+    			    {
+    				pos.z = v[pidx].z+te*dir.z;
+    				mSetSegment();
+    			    }
 			}
 		    }
 		}
-
-		continue;
 	    }
 	    else
-		pos.z = -fv/planes_[pl].C_;
-	
-	    if ( !pointInTriangle3D(pos,v[0],v[1],v[2],0) )
 	    {
-		if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
-		     pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
-		     pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
+		pos.z = -fv/planes_[pl].C_;
+		if ( !pointInTriangle3D(pos,v[0],v[1],v[2],0) )
+		{
+		    if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
+			 pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
+			 pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
+		    {
+			mSetSegment();
+		    }
+		}
+		else
 		{
 		    mSetSegment();
 		}
-	    }
-	    else
-	    {
-		mSetSegment();
 	    }
 	}
 	
