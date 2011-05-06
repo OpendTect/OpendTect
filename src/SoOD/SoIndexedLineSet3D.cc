@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.22 2011-04-14 16:11:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.23 2011-05-06 15:01:28 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -442,7 +442,7 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
     int nrjoints = 0;
     int index1 = cindices>=stopptr ? -1 : *cindices++;
-    while ( index1>=0 && index1>=nrcoords )
+    while ( index1>=0 && index1<nrcoords )
     {
 	int index2 = cindices>=stopptr ? -1 : *cindices++;
 	if ( index2<0 || index2>=nrcoords )
