@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.2 2011-05-05 15:39:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.3 2011-05-06 13:45:45 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -116,8 +116,8 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 {
     uiSlider* hsldr = horsliderfld_->sldr();
     uiSlider* vsldr = versliderfld_->sldr();
-    float hslval = hsldr->getValue();
-    float vslval = vsldr->getValue();
+    hslval_ = hsldr->getValue();
+    vslval_ = vsldr->getValue();
 
     mDynamicCastGet(uiSlider*,sld,cb)
     if ( sld && zoomratiofld_->isChecked() ) 
@@ -125,24 +125,25 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	bool ishor = sld == hsldr;
 	uiSlider* revsld = ishor ? vsldr : hsldr;
 	if ( ishor )
-	    vslval = hslval;
+	    vslval_ = hslval_;
 	else
-	    hslval = vslval;
+	    hslval_ = vslval_;
 
 	NotifyStopper ns( revsld->sliderReleased );
-	revsld->setValue( hslval );
+	revsld->setValue( hslval_ );
     }
-
-    const int width = (int)(( hslval*startwidth_ )+1);
-    const int height = (int)(( vslval*startheight_ )+1);
-    reSizeItems( uiSize( width, height ) );
+    reSizeItems();
 }
 
 
-void uiObjectItemViewWin::reSizeItems( const uiSize& sz )
+void uiObjectItemViewWin::reSizeItems()
 {
     const int nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
+
+    const int width = (int)(( hslval_*startwidth_ )+1);
+    const int height = (int)(( vslval_*startheight_ )+1);
+    const uiSize sz( width, height );
 
     const uiSize objsz = uiSize( sz.width() / nritems , sz.height() );
     for ( int idx=0; idx<nritems; idx++ )

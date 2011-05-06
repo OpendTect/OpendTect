@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.2 2011-05-05 15:39:17 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.3 2011-05-06 13:45:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,10 +54,13 @@ protected:
     int			startwidth_;
     int			startheight_;
 
+    float		hslval_;
+    float		vslval_;
+
     void		init();
     void		makeSliders();
     void 		setUpView();
-    void		reSizeItems(const uiSize&);
+    void		reSizeItems();
 
     void		fitToScreen(CallBacker*);
     void		reSizeSld(CallBacker*);
