@@ -7,25 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.209 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.210 2011-05-09 23:30:40 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
-#include "attribsel.h"
 #include "attribstorprovider.h"
+#include "coltabsequence.h"
 #include "emobject.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfacetr.h"
-#include "emtracker.h"
 #include "executor.h"
-#include "faultseedpicker.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
-#include "ioman.h"
 #include "pixmap.h"
-#include "keystrs.h"
-#include "mousecursor.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
@@ -33,10 +27,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.209 2011-04-21 13:09:14 cvsbert
 #include "survinfo.h"
 #include "undo.h"
 
-#include "uicombobox.h"
-#include "uitoolbutton.h"
 #include "uicolortable.h"
-#include "uigroup.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uislider.h"
@@ -45,22 +36,13 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.209 2011-04-21 13:09:14 cvsbert
 #include "uitoolbar.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "viscolortab.h"
-#include "visdataman.h"
 #include "visemobjdisplay.h"
-#include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visselman.h"
-#include "vissurvscene.h"
-#include "vistexture3.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
-
-// This must be defined to use a texture to display the tracking plane.
-// In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
 
 using namespace MPE;
 
@@ -601,9 +583,8 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     visserv->addObject( mpedisplay, scene->id(), false ); // false or true?
     mpedisplay->setDraggerTransparency( 0 ); // to do: check 0
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
-#ifndef USE_TEXTURE
-	mpedisplay->addAttrib();
-#endif
+    mpedisplay->setColTabSequence( 0, ColTab::Sequence( 
+			    ColTab::defSeqName() ), 0 );
 
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
@@ -1415,12 +1396,7 @@ void uiMPEMan::attribSel( CallBacker* )
 	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
 	    displays[idy]->setSelSpec( 0, spec );
 	    if ( trackerisshown )
-#ifdef USE_TEXTURE
-		displays[idy]->updateTexture();
-#else
-		displays[idy]->updateSlice();
-		visserv->calculateAttrib( displays[idy]->id(), 0, false );
-#endif
+		displays[idy]->updateSlice();	
 	}
     }
     else
@@ -1437,12 +1413,7 @@ void uiMPEMan::attribSel( CallBacker* )
 	    {
 		displays[idy]->setSelSpec( 0, *spec );
 		if ( trackerisshown )
-#ifdef USE_TEXTURE
-		    displays[idy]->updateTexture();
-#else
 		    displays[idy]->updateSlice();
-		visserv->calculateAttrib( displays[idy]->id(), 0, false );
-#endif
 	    }
 	    break;
 	}	

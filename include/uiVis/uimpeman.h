@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.62 2011-02-24 15:09:22 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.63 2011-05-09 23:30:40 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-#include "cubesampling.h"
 #include "trackplane.h"
 
 namespace EM { class EMObject; };
@@ -23,7 +22,6 @@ namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
 class uiPropertiesDialog;
 class uiComboBox;
 class uiSpinBox;
-class uiSlider;
 class uiToolBar;
 class uiVisPartServer;
 
