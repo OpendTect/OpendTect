@@ -7,30 +7,22 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.68 2011-05-09 08:48:09 cvsbert Exp $
+RCS:        $Id: vismpe.h,v 1.69 2011-05-09 23:34:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vissurvobj.h"
-#include "mousecursor.h"
 #include "visobject.h"
-#include "cubesampling.h"
-#include "attribdatapack.h"
 
 namespace Attrib { class SelSpec; class CubeDataPack; }
-template <class T> class Array3D;
 template <class T> class Selector;
 class ZAxisTransform;
 
 namespace visBase
 {
     class BoxDragger;
-    class DataObjectGroup;
-    class DepthTabPlaneDragger;
-    class FaceSet;
-    class Texture3;
     class TextureChannels;
     class TextureChannel2VolData;
     class OrthogonalSlice;
@@ -54,7 +46,7 @@ mClass MPEDisplay : public visBase::VisualObjectImpl,
 {
 public:
 
-    // common methods (to both texture-based and volume-based display)
+	// general methods
     static MPEDisplay*        create()
 	    	    mCreateDataObj(MPEDisplay);
   
@@ -120,12 +112,6 @@ public:
     Notifier<MPEDisplay>	boxDraggerStatusChange;
     Notifier<MPEDisplay>	planeOrientationChange;
 	
-
-    // methods for texture-based display
-    visBase::Texture3*	getTexture() { return texture_; }
-    void		updateTexture();
-    
-
     // methods for volume-based display
     int			addSlice(int dim, bool show);
     visBase::OrthogonalSlice*	getSlice(int index);
@@ -166,10 +152,7 @@ public:
     static int		cCrossLine()	{ return 1; }
     static int		cTimeSlice()	{ return 0; }
    
-
-    // new methods for texture channel-based display
-    void		clearTextures();
-    
+    // texture channel-related methods
     void		setChannels2VolData(visBase::TextureChannel2VolData*);
     visBase::TextureChannel2VolData*	getChannels2VolData();
 
@@ -183,49 +166,26 @@ public:
     void		enableAttrib(int attrib,bool yn);
     bool		isAttribEnabled(int attrib) const;
 
-/*    void                setAttribTransparency(int,unsigned char);
-    unsigned char       getAttribTransparency(int) const;*/
-
     const char*		errMsg() const { return errmsg_.str(); }
     
 protected:
     
-    // common methods (to both texture-based and volume-based display)
     			~MPEDisplay();
     CubeSampling	getBoxPosition() const;
     void		setPlanePosition(const CubeSampling&);
 	
     void		setSceneEventCatcher(visBase::EventCatcher*);
 	
-			//Callback from boxdragger
+    // callback from boxdragger
     void		boxDraggerFinishCB(CallBacker*);
 
-			//Callbacks from MPE
-    void		updateDraggerPosition(CallBacker*);
+    // callbacks from MPE
     void		updateBoxPosition(CallBacker*);
-
-
-    // methods for texture-based display
-    void		setTexture(visBase::Texture3*);
-    void		updateTextureCoords();
-    
-    void		setDraggerCenter(bool alldims);
-    void		setDragger(visBase::DepthTabPlaneDragger*);
-
-			//Callbacks from rectangle
-    void		rectangleMovedCB(CallBacker*);
-    void		rectangleStartCB(CallBacker*);
-    void		rectangleStopCB(CallBacker*);
-
 
     // methods for volume-based display
     CubeSampling	getCubeSampling(bool manippos,bool display,
 	    		    		int attrib) const;
-    void		updateFromData(const Array3D<float>* arr,
-	    			       bool arrayismine,TaskRunner*);
-
-    const MouseCursor*	getMouseCursor() const	{ return &mousecursor_; }
-
+    
     void		triggerSel();
     void		triggerDeSel();
 
@@ -237,23 +197,17 @@ protected:
     void		turnOnSlice(bool);
     void		updateRanges(bool updateic,bool updatez);
    
-			// Callbacks from user
+    // callback from user
     void		mouseClickCB(CallBacker*);
-    void		updateMouseCursorCB(CallBacker*);
-
-    			// Other callbacks
+    
+    // other callbacks
     void		dataTransformCB(CallBacker*);
     void		sliceMoving(CallBacker*);
     
-
-    // new methods for texture channel-based display
-    void		updateFromDataPackID(int attrib, const DataPack::ID 
-	    				     newdpid, TaskRunner* tr);
-    void		updateFromCacheID(int attrib, TaskRunner* tr);
+    // texture channel-related methods
+    bool		updateFromCacheID(int attrib, TaskRunner* tr);
 
 
-    // --------------
-    // common data    
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;
     visBase::EventCatcher*	sceneeventcatcher_;    
@@ -262,37 +216,27 @@ protected:
     bool			manipulated_;
     int				lasteventnr_;
 
-    
-    // data for texture-based display
-    visBase::DataObjectGroup*	draggerrect_;
-    visBase::FaceSet*		rectangle_;
-    visBase::DepthTabPlaneDragger*	dragger_;    
-    visBase::Texture3*		texture_;
     Attrib::SelSpec&		curtextureas_;
     CubeSampling		curtexturecs_;
-    
-    
+
     // data for volume-based display
     visBase::Transformation*	voltrans_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
-    MouseCursor			mousecursor_;
-//    Notifier<MPEDisplay>	slicemoving;
     DataPack::ID		cacheid_;
     const Attrib::CubeDataPack* volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
     bool			isinited_;
+    bool			issliceshown_;
     bool			allowshading_;
     int				dim_;
     ZAxisTransform*		datatransform_;
    
-
-    // data for new texture channel-based display
+    // texture channel-related data
     visBase::TextureChannels*	channels_;
     
 
-    // --------------
     // common keys
     static const char*		sKeyTransparency() { return "Transparency"; }
     static const char*		sKeyBoxShown()     { return "Box Shown"; }
@@ -301,11 +245,6 @@ protected:
     static const Color		movingColor;
     static const Color		extendColor;
 
-
-    // texture-related keys
-    static const char*		sKeyTexture()      { return "Texture"; }
-	
-
     // volume-related keys
     static const char*		sKeyNrSlices()	{ return "Nr of slices"; }
     static const char*		sKeySlice()	{ return "SliceID"; }
@@ -313,8 +252,7 @@ protected:
     static const char*		sKeyCrossLine()	{ return "Crossline"; }
     static const char*		sKeyTime()	{ return "Time"; }
 
-
-    // new texture channel-related keys    
+    // texture channel-related keys
     static const char*		sKeyTC2VolData()	{ return "TC2VolData"; }
 
     virtual SoNode*		gtInvntrNode();
