@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.105 2011-02-24 14:57:09 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.106 2011-05-09 05:42:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
 class uiImportHorizon;
+class uiImportFault3D;
+class uiExportHorizon;
 class uiPopupMenu;
 
 namespace Pick { class Set; }
@@ -65,7 +67,7 @@ public:
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
 
-    void		displayHorizon(const MultiID&);
+    void		displayEMObject(const MultiID&);
     bool		fillHoles(const EM::ObjectID&,bool);
     			/*!<return bool is overwrite old horizon or not. */
     bool		filterSurface(const EM::ObjectID&);
@@ -163,6 +165,9 @@ protected:
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
     uiImportHorizon*	imphordlg_;
+    uiImportFault3D*	impfltdlg_;
+    uiExportHorizon*	exphordlg_;
+    uiExportFault*	expfltdlg_;
 
     HorSampling		selectedrg_;    
     bool		disponcreation_;

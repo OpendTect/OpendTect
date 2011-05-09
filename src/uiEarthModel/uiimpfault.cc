@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.42 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.43 2011-05-09 05:42:38 cvssatyaki Exp $";
 
 #include "uiimpfault.h"
 
@@ -58,8 +58,13 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     , stickselfld_(0)
     , thresholdfld_(0)
     , is2d_(is2d)
+    , importReady(this)
 {
+    enableSaveButton( "Display on import" );
+    setModal( false );
+
     setCtrlStyle( DoAndStay );
+    setDeleteOnClose( true );
 }
 
 
@@ -198,7 +203,14 @@ bool uiImportFault::handleLMKAscii()
     if ( !taskrunner.execute(*exec) )
 	mErrRet( taskrunner.lastMsg() );
 
-    fault->unRef();
+    if ( saveButtonChecked() )
+    {
+	importReady.trigger();
+	fault->unRefNoDelete();
+    }
+    else
+	fault->unRef();
+
     return true;
 }
 
@@ -226,7 +238,14 @@ bool uiImportFault::handleAscii()
     bool isexec = exec->execute();
     if ( !isexec )
 	mErrRet( BufferString("Cannot save ",tp) );
-    fault->unRef();
+    if ( saveButtonChecked() )
+    {
+	importReady.trigger();
+	fault->unRefNoDelete();
+    }
+    else
+	fault->unRef();
+
     uiMSG().message( "Import successful" );
     return false;
 }
@@ -291,6 +310,13 @@ bool uiImportFault::checkInpFlds()
 	return false;
 
     return true;
+}
+
+
+MultiID uiImportFault::getSelID() const
+{
+    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
+    return mid;
 }
 
 

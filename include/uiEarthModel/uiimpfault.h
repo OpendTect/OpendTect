@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.14 2010-07-19 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiimpfault.h,v 1.15 2011-05-09 05:42:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ mClass uiImportFault : public uiDialog
 {
 public:
 			~uiImportFault();
+    MultiID		getSelID() const;
+
+    Notifier<uiImportFault> importReady;
 
 protected:
 			uiImportFault(uiParent*,const char*,bool is2d=false);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.137 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.138 2011-05-09 05:42:38 cvssatyaki Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -68,6 +68,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , importReady(this)
 {
     setCtrlStyle( DoAndStay );
+    setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );

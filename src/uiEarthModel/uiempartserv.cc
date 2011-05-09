@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.215 2011-02-24 14:57:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.216 2011-05-09 05:42:38 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -101,6 +101,9 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , disponcreation_(false)
     , selectedrg_(false)
     , imphordlg_(0)
+    , impfltdlg_(0)
+    , exphordlg_(0)
+    , expfltdlg_(0)
 {
 }
 
@@ -132,9 +135,11 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 
 bool uiEMPartServer::import3DHorizon( bool isgeom )
 {
-    if ( imphordlg_ ) imphordlg_->close();
-    delete imphordlg_;
-    imphordlg_ = new uiImportHorizon( parent(), isgeom );
+    if ( imphordlg_ )
+	imphordlg_->raise();
+    else
+	imphordlg_ = new uiImportHorizon( parent(), isgeom );
+
     imphordlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
     imphordlg_->go();
     return true;
@@ -144,9 +149,12 @@ bool uiEMPartServer::import3DHorizon( bool isgeom )
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
-    if ( !dlg || !dlg->doDisplay() ) return;
+    mDynamicCastGet(uiImportFault3D*,fltdlg,cb)
+    if ( (!dlg || !dlg->doDisplay()) &&
+	 (!fltdlg || !fltdlg->saveButtonChecked()) )
+	return;
 
-    selemid_ = em_.getObjectID( dlg->getSelID() );
+    selemid_ = em_.getObjectID( dlg ? dlg->getSelID() : fltdlg->getSelID() );
     sendEvent( evDisplayHorizon() );
 }
 
@@ -162,23 +170,33 @@ bool uiEMPartServer::export2DHorizon()
 
 bool uiEMPartServer::export3DHorizon()
 {
-    uiExportHorizon dlg( parent() );
-    return dlg.go();
+    if ( exphordlg_ )
+	exphordlg_->raise();
+    else
+	exphordlg_ = new uiExportHorizon( parent() );
+
+    return exphordlg_->go();
 }
 
 
 bool uiEMPartServer::importFault( const char* type )
 {
-    uiImportFault3D dlg( parent(), type );
-    return dlg.go();
+    if ( impfltdlg_ ) impfltdlg_->raise();
+    
+    impfltdlg_ = new uiImportFault3D( parent(), type );
+    impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
+    return impfltdlg_->go();
 }
 
 
 bool uiEMPartServer::exportFault( const char* type )
 {
-    uiExportFault dlg( parent(), type );
-    return dlg.go();
-}
+    if ( expfltdlg_ )
+	expfltdlg_->raise();
+    else
+	expfltdlg_ = new uiExportFault( parent(), type );
+    return expfltdlg_->go();
+} 
 
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
@@ -244,7 +262,7 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 }
 
 
-void uiEMPartServer::displayHorizon( const MultiID& mid )
+void uiEMPartServer::displayEMObject( const MultiID& mid )
 {
     selemid_ = em_.getObjectID(mid);
     if ( selemid_<0 )
@@ -266,7 +284,7 @@ bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 
     if ( dlg.saveFldGrp()->displayNewHorizon() && 
 	 dlg.saveFldGrp()->getNewHorizon( ) ) 
-	displayHorizon( dlg.saveFldGrp()->getNewHorizon()->multiID() ); 
+	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() ); 
 
     return dlg.saveFldGrp()->overwriteHorizon();
 }
@@ -280,7 +298,7 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 
     if ( dlg.saveFldGrp()->displayNewHorizon() &&  
    	 dlg.saveFldGrp()->getNewHorizon( ) )
-	displayHorizon( dlg.saveFldGrp()->getNewHorizon()->multiID() );
+	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() );
 
     return dlg.saveFldGrp()->overwriteHorizon();
 }
