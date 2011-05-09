@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.130 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.131 2011-05-09 08:48:09 cvsbert Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -219,7 +219,7 @@ void set( int idx0, int idx1, float val ) 	{}
 
 // Fills ptr with values from array. ptr is assumed to be allocated with
 // info().getTotalSz() number of values.
-void getAll(float* ptr) const
+void getAll( float* ptr ) const
 {
     MemSetter<float> memsetter;
     memsetter.setSize( info().getSize(0) * info().getSize(1) );
@@ -230,6 +230,11 @@ void getAll(float* ptr) const
     Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
 	    ptr, info().getSize(0), info().getSize(1), outputzstep_, attrib_ );
     arrayfiller.execute();
+}
+
+virtual void getAll( ValueSeries<float>& ptr ) const
+{
+    return ArrayND<float>::getAll( ptr );
 }
 
 

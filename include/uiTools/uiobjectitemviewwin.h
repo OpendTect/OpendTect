@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.3 2011-05-06 13:45:45 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.4 2011-05-09 08:48:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,15 @@ protected:
 mClass uiObjectItemViewInfoBar : public uiObjectItemView
 {
 public:    
-		    	uiObjectItemViewInfoBar(uiParent*);
 
-    void                addItem(uiObjectItem* itm,uiObjectItem* coupleditm);
-    void                removeItem(uiObjectItem* itm);
-    void                updateItemsPos();
-    void                reSizeItems();
+			uiObjectItemViewInfoBar(uiParent*);
+
+    void		addItem(uiObjectItem*,uiObjectItem* coupleditm);
+    virtual void	addItem( uiObjectItem* itm, int stretch=1 )
+			{ return uiObjectItemView::addItem(itm,stretch); }
+    void		removeItem(uiObjectItem* itm);
+    void		updateItemsPos();
+    void		reSizeItems();
 
 protected:
     ObjectSet<uiObjectItem> coupleditems_; 

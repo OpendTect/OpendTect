@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.52 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.53 2011-05-09 08:48:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,9 @@ public:
     void			setTraceData(int attrib,
 	    				     const Attrib::Data2DHolder&,
 					     TaskRunner*);
+    virtual void		setTraceData( int attrib, SeisTrcBuf& tb,
+					     TaskRunner* tr )
+				{ SurveyObject::setTraceData(attrib,tb,tr); }
     const Attrib::Data2DHolder*	getCache(int attrib) const;
     void			updateDataFromCache(TaskRunner*);
 
@@ -110,6 +113,8 @@ public:
 					    int& trcnr2nd,float& frac ) const;
 
     Coord			getCoord(int trcnr) const;
+    virtual Coord3		getNormal( const Coord3& c ) const
+				{ return SurveyObject::getNormal( c ); }
     Coord			getNormal(int trcnr) const;
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);

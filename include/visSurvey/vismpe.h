@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.67 2011-04-28 07:00:12 cvsbert Exp $
+RCS:        $Id: vismpe.h,v 1.68 2011-05-09 08:48:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -139,8 +139,11 @@ public:
     bool		setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
    
-    bool		setDataVolume(int attrib, const Attrib::CubeDataPack* 
-				      cdp, TaskRunner*);
+    bool		setDataVolume(int attrib,const Attrib::CubeDataPack*,
+	    				TaskRunner*);
+    virtual bool	setDataVolume( int attr, const Attrib::DataCubes* dc,
+				      TaskRunner* tr )
+			{ return SurveyObject::setDataVolume(attr,dc,tr); }
     void		setCubeSampling(const CubeSampling&);
     
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
