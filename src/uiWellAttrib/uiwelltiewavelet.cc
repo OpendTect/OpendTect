@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.43 2011-04-29 14:14:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.44 2011-05-09 10:03:42 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -51,9 +51,6 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 
 uiWaveletView::~uiWaveletView()
 {
-    for ( int idx=0; idx<uiwvlts_.size(); idx++ )
-	uiwvlts_[idx]->wvltChged.remove( 
-				mCB(this,uiWaveletView,activeWvltChanged) );
     deepErase( uiwvlts_ );
 }
 
@@ -127,7 +124,6 @@ uiWavelet::~uiWavelet()
     const TypeSet<DataPack::ID> ids = viewer_->availablePacks();
     for ( int idx=ids.size()-1; idx>=0; idx-- )
 	DPM( DataPackMgr::FlatID() ).release( ids[idx] );
-    delete wvltpropdlg_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.83 2011-05-04 14:17:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.84 2011-05-09 10:03:42 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -452,15 +452,20 @@ void uiCrossCorrView::set( float* arr, int sz, float lag, float coeff )
 
 void uiCrossCorrView::draw()
 {
-    TypeSet<float> xvals;
-    for ( int idx=0; idx<vals_.size(); idx++)
+    const int halfsz = vals_.size()/2;
+    const float normalfactor = coeff_ / vals_[halfsz];
+    TypeSet<float> xvals, yvals;
+    for ( int idx=-halfsz; idx<halfsz; idx++)
     {
-	float xaxistime = idx*data_.timeintv_.step;
+	float xaxistime = idx*data_.timeintv_.step*1000;
 	if ( fabs( xaxistime ) > lag_ )
 	    continue;
 	xvals += xaxistime;
+	float val = vals_[idx+halfsz];
+	val *= normalfactor;
+	yvals += fabs(val)>1 ? 0 : val;
     }
-    disp_->setVals( xvals.arr(), vals_.arr(), xvals.size() );
+    disp_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
     BufferString corrbuf = "Cross-Correlation Coefficient: ";
     corrbuf += coeff_;
     lbl_->setPrefWidthInChar(50);

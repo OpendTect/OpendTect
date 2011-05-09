@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.85 2011-05-03 06:59:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.86 2011-05-09 10:03:42 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -29,10 +29,14 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.85 2011-05-03 06:5
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
@@ -78,8 +82,8 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 
 uiTieWin::~uiTieWin()
 {
-    stretcher_.timeChanged.remove(mCB(this,uiTieWin,timeChanged));
     delete &stretcher_;
+    delete infodlg_;
     delete &setup_;
     delete drawer_;
     delete &server_;
@@ -560,8 +564,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
 uiInfoDlg::~uiInfoDlg()
 {
-    delete wvltdraw_;
     delete crosscorr_;
+    delete wvltdraw_;
 }
 
 
@@ -620,15 +624,15 @@ void uiInfoDlg::propChanged( CallBacker* )
 }
 
 
-#define mLag 0.4
+#define mLag 200
 void uiInfoDlg::computeData()
 {
     const Data& data = server_.data();
     const int trcsz = data.seistrc_.size();
-    int nrsamps = (int)zrg_.width();
-
-    if ( trcsz < estwvltsz_ )
-	{ uiMSG().error( "Seismic trace shorter than wavelet" ); return; }
+    const Wavelet& wvlt = data.isinitwvltactive_ ? data.initwvlt_
+						 : data.estimatedwvlt_;
+    if ( !wvlt.sampleRate() ) return;
+    int nrsamps = (int)(zrg_.width()/wvlt.sampleRate());
 
     while ( trcsz < nrsamps )
 	nrsamps /= 2;
@@ -636,8 +640,6 @@ void uiInfoDlg::computeData()
     mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
     mDeclareAndTryAlloc( float*, corrarr, float[nrsamps] );
     mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, wvltshiftedarr, float[estwvltsz_] );
 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
@@ -648,14 +650,42 @@ void uiInfoDlg::computeData()
     double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
     const float normalfactor = coeff / corrarr[nrsamps/2];
     crosscorr_->set( corrarr, nrsamps, mLag, coeff );
+    delete [] corrarr; 
 
-    gc.deconvolve( seisarr, syntharr, wvltarr, nrsamps );
-    for ( int idx=0; idx<estwvltsz_; idx++ )
-	wvltshiftedarr[idx] = wvltarr[(nrsamps-estwvltsz_)/2 + idx];
-    server_.setEstimatedWvlt( wvltshiftedarr, estwvltsz_ );
+    if ( !data.isinitwvltactive_ )
+    {
+	int wvltsz = estwvltsz_;
+	wvltsz += wvltsz%2 ? 0 : 1;
+	data.estimatedwvlt_.reSize( wvltsz );
+	if ( trcsz < wvltsz )
+	    { uiMSG().error( "Seismic trace shorter than wavelet" ); return; }
 
-    delete [] seisarr;  delete [] syntharr; 		delete [] corrarr; 
-    delete [] wvltarr; 	delete [] wvltshiftedarr;
+	const Well::Log* log = data.logset_.getLog( data.reflectivity() );
+	if ( !log )
+	    { uiMSG().error( "No reflectivity to estimate wavelet" ); return; }
+
+	mDeclareAndTryAlloc( float*, refarr, float[nrsamps] );
+	mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
+	mDeclareAndTryAlloc( float*, wvltshiftedarr, float[wvltsz] );
+
+	for ( int idx=0; idx<nrsamps; idx++ )
+	    refarr[idx] = log->valArr()[idx+(log->size()-nrsamps)/2];
+
+	gc.deconvolve( seisarr, refarr, wvltarr, wvltsz );
+	for ( int idx=0; idx<wvltsz; idx++ )
+	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
+
+	Array1DImpl<float> wvltvals( wvltsz );
+	memcpy( wvltvals.getData(), wvltarr, wvltsz*sizeof(float) );
+	ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
+	window.apply( &wvltvals );
+	memcpy( wvltarr, wvltvals.getData(), wvltsz*sizeof(float) );
+
+	server_.setEstimatedWvlt( wvltshiftedarr, wvltsz );
+
+	delete [] wvltarr; 	delete [] wvltshiftedarr;
+    }
+    delete [] seisarr;  delete [] syntharr; 
 }
 
 
