@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.36 2011-05-03 09:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.37 2011-05-09 09:49:41 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -333,17 +333,20 @@ void uiStratSynthDisp::doModelChange()
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 	    	      SI().crlRange(false).stop + crlstep );
 
+    ObjectSet<const SeisTrc> trcs; 
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
-	Seis::RaySynthGenerator::RayModel& rm = *synthgen.result( imdl ); 
-	ObjectSet<const SeisTrc>& trcs = rm.outtrcs_;
+	Seis::RaySynthGenerator::RayModel& rm = 
+	    const_cast<Seis::RaySynthGenerator::RayModel&>( 
+						    synthgen.result( imdl ) );
+	trcs.erase(); trcs.append( rm.outtrcs_ );
 
 	if ( trcs.isEmpty() )
 	    continue;
 
 	if ( raypars_.dostack_ )
 	{
-	    const SeisTrc* stktrc = rm.stackedTrc();
+	    const SeisTrc* stktrc = new SeisTrc( *rm.stackedTrc() );
 	    deepErase( trcs ); trcs += stktrc;
 	}
 
@@ -356,11 +359,11 @@ void uiStratSynthDisp::doModelChange()
 				    + (int)(idx*offsets[idx]) );
 	    trc->info().coord = SI().transform( trc->info().binid );
 	    tbuf->add( trc );
-	    d2tmodels_ += rm.t2dmodels_[idx];
+
+	    d2tmodels_ += rm.t2dmodels_[idx]; 
 	}
 	rm.outtrcs_.erase();
 	rm.t2dmodels_.erase();
-	delete &rm;
     }
     if ( tbuf->isEmpty() )
 	mErrRet("No seismic traces genereated ")

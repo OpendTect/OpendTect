@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.24 2011-05-03 15:12:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.25 2011-05-09 09:49:41 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -316,7 +316,8 @@ void MultiTraceSynthGenerator::result( ObjectSet<const SeisTrc>& trcs ) const
 void MultiTraceSynthGenerator::getSampledReflectivities( 
 						TypeSet<float>& rfs) const
 {
-    synthgens_[0]->getSampledReflectivities( rfs );
+    if ( !synthgens_.isEmpty() )
+	synthgens_[0]->getSampledReflectivities( rfs );
 }
 
 
@@ -326,7 +327,6 @@ mImplFactory( RaySynthGenerator, RaySynthGenerator::factory );
 
 
 RaySynthGenerator::RaySynthGenerator()
-    : outputdataismine_(true) 
 {
     clean();
 }
@@ -335,10 +335,7 @@ RaySynthGenerator::RaySynthGenerator()
 
 RaySynthGenerator::~RaySynthGenerator()
 {
-    if ( outputdataismine_ )
-	deepErase( raymodels_ );
-    else
-	raymodels_.erase();
+    deepErase( raymodels_ );
 }
 
 
@@ -366,12 +363,7 @@ void RaySynthGenerator::clean()
     outputsampling_.set(mUdf(float),mUdf(float),mUdf(float));
     raysampling_.set(0,0,0);
 
-    if ( outputdataismine_ )
-	deepErase( raymodels_ );
-    else
-	raymodels_.erase();
-
-    outputdataismine_ = true;
+    deepErase( raymodels_ );
 }
 
 
@@ -389,6 +381,7 @@ bool RaySynthGenerator::doRayTracing()
     if ( offsets_.isEmpty() ) 
 	offsets_ += 0;
 
+    deepErase( raymodels_ );
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
 	const AIModel& aim = aimodels_[idx];
@@ -427,7 +420,9 @@ bool RaySynthGenerator::doSynthetics()
     IOPar par; fillPar( par );
     for ( int idx=0; idx<raymodels_.size(); idx++ )
     {
-	const RayModel& rm = *raymodels_[idx];
+	RayModel& rm = *raymodels_[idx];
+	deepErase( rm.outtrcs_ );
+	rm.sampledrefs_.erase();
 	MultiTraceSynthGenerator* mtsg = new MultiTraceSynthGenerator();
 	mtsg->setModels( rm.refmodels_ );
 	mtsg->setOutSampling( raysampling_ );
@@ -448,10 +443,9 @@ bool RaySynthGenerator::doSynthetics()
 }
 
 
-RaySynthGenerator::RayModel* RaySynthGenerator::result( int imdl ) 
+const RaySynthGenerator::RayModel& RaySynthGenerator::result( int imdl ) const
 {
-    outputdataismine_ = false;
-    return raymodels_[imdl];
+    return *raymodels_[imdl];
 }
 
 

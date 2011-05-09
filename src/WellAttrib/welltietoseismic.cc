@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.60 2011-05-03 15:12:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.61 2011-05-09 09:49:41 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -134,7 +134,7 @@ bool DataPlayer::prepareSynthetics()
 	mErrRet( gen_.errMsg() )
 
     //hack because we need to set our own times there 
-    const Seis::RaySynthGenerator::RayModel& rm = *gen_.result( 0 );
+    const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
     const ObjectSet<const ReflectivityModel>& refms = rm.refmodels_;
     for ( int idref=0; idref<refms.size(); idref++ )
     {
@@ -158,11 +158,10 @@ bool DataPlayer::generateSynthetics()
     if ( !gen_.doSynthetics() )
 	mErrRet( gen_.errMsg() )
 
-    const Seis::RaySynthGenerator::RayModel& rm = *gen_.result( 0 );
-    reflvals_.copy( rm.sampledrefs_ );
+    const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
+    reflvals_.erase(); reflvals_.copy( rm.sampledrefs_ );
     data_.synthtrc_ = *rm.stackedTrc();
 
-    delete &rm;
     return true;
 }
 
