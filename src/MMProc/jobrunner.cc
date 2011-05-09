@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.47 2011-05-06 11:34:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.48 2011-05-09 06:01:17 cvsraman Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -44,13 +44,13 @@ static const char* rcsID = "$Id: jobrunner.cc,v 1.47 2011-05-06 11:34:25 cvsnann
 
 static BufferString tmpfnm_base;
 
-const BufferString& getTempBaseNm()
+static const BufferString& getTempBaseNm()
 {
     return tmpfnm_base;
 }
 
 
-int mkTmpFileNr()
+static int mkTmpFileNr()
 {
     tmpfnm_base = HostData::localHostName();
     tmpfnm_base += "_";
