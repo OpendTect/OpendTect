@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.71 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.72 2011-05-09 05:57:39 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -445,7 +445,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    mUpdateTexture();
 	}
 	else if ( createnew )
-	    emserv->displayHorizon( newmid );
+	    emserv->displayEMObject( newmid );
     }
     else if ( mnuid==geom2attrmnuitem_.id )
     {
@@ -771,7 +771,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 	    mUpdateTexture();
 	}
 	else if ( createnew )
-	    applMgr()->EMServer()->displayHorizon( newmid );
+	    applMgr()->EMServer()->displayEMObject( newmid );
     }
     else
 	handled = false;
