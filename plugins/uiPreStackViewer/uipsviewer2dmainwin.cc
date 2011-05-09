@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.5 2011-05-05 15:39:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.6 2011-05-09 11:24:10 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -163,13 +163,13 @@ void uiViewer2DMainWin::removeAllGathers()
 
 void uiViewer2DMainWin::setGathers( const BinID& bid )
 {
-    PreStack::Gather* gather = new PreStack::Gather;
     uiGatherDisplay* gd;
+    PreStack::Gather* gather; 
     for ( int idx=0; idx<mids_.size(); idx++ )
     {
-	const MultiID& mid = mids_[idx];
 	gd = new uiGatherDisplay( 0 );
-	if ( gather->readFrom( mid, bid ) )
+	gather = new PreStack::Gather;
+	if ( gather->readFrom( mids_[idx], bid ) )
 	{
 	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	    gd->setGather( gather->id() );
@@ -178,13 +178,14 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	else
 	{
 	    gd->setGather( -1 );
+	    delete gather;
 	}
 
 	gd->setPosition( bid );
 	gd->getUiFlatViewer()->appearance().annot_.x1_.showannot_ = false;
 	vwrs_ += gd->getUiFlatViewer();
 	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = IOM().get( mids_[idx] );
 	BufferString nm = ioobj ? ioobj->name() : "";
 	gdi->setData( bid, cs_.defaultDir()==CubeSampling::Inl, nm );
 	gdi->setOffsetRange( gd->getOffsetRange() );
