@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.4 2011-04-26 20:08:52 cvsyuancheng Exp $
+RCS:           $Id: arraytesselator.h,v 1.5 2011-05-10 03:21:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
 protected:
 
     bool			doWork(od_int64 start,od_int64 stop,int);
+
+    int				maxNrThreads() const	{ return 1; }
 
     const float*		data_;
     int				datarowsize_;
