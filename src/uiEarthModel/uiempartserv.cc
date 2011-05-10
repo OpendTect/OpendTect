@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.216 2011-05-09 05:42:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.217 2011-05-10 09:46:11 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -105,12 +105,22 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , exphordlg_(0)
     , expfltdlg_(0)
 {
+    IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
     em_.empty();
+}
+
+
+void uiEMPartServer::survChangedCB( CallBacker* )
+{
+    delete imphordlg_; imphordlg_ = 0;
+    delete impfltdlg_; impfltdlg_ = 0;
+    delete exphordlg_; exphordlg_ = 0;
+    delete expfltdlg_; expfltdlg_ = 0;
 }
 
 
@@ -138,11 +148,12 @@ bool uiEMPartServer::import3DHorizon( bool isgeom )
     if ( imphordlg_ )
 	imphordlg_->raise();
     else
+    {
 	imphordlg_ = new uiImportHorizon( parent(), isgeom );
+	imphordlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
+    }
 
-    imphordlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
-    imphordlg_->go();
-    return true;
+    return imphordlg_->go();
 }
 
 
@@ -181,10 +192,14 @@ bool uiEMPartServer::export3DHorizon()
 
 bool uiEMPartServer::importFault( const char* type )
 {
-    if ( impfltdlg_ ) impfltdlg_->raise();
-    
-    impfltdlg_ = new uiImportFault3D( parent(), type );
-    impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
+    if ( impfltdlg_ )
+	impfltdlg_->raise();
+    else
+    {
+	impfltdlg_ = new uiImportFault3D( parent(), type );
+	impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
+    }
+
     return impfltdlg_->go();
 }
 

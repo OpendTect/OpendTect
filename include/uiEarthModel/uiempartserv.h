@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.107 2011-05-09 05:49:32 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.108 2011-05-10 09:46:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,7 @@ protected:
     bool		changeAuxData(const EM::ObjectID&,const char* nm,
 	    			      bool interp,DataPointSet& res);
     void		importReadyCB(CallBacker*);
+    void		survChangedCB(CallBacker*);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
