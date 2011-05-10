@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.8 2010-02-09 06:30:37 cvsraman Exp $
+ RCS:		$Id: gmtpar.h,v 1.9 2011-05-10 03:51:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,12 @@ mGlobal GMTParFactory& GMTPF();
 #define mErrStrmRet(s) { strm << s << std::endl; return false; }
 
 #define mGetRangeProjString( str, projkey ) \
+    mGetRangeString( str ) \
+    BufferString projstr; \
+    mGetProjString( projstr, projkey ) \
+    str += " "; str += projstr;
+
+#define mGetRangeString( str ) \
     Interval<float> xrg, yrg, mapdim; \
     get( ODGMT::sKeyXRange, xrg ); \
     get( ODGMT::sKeyYRange, yrg ); \
@@ -81,9 +87,13 @@ mGlobal GMTParFactory& GMTPF();
     const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3; \
     str = "-R"; str += xrg.start; str += "/"; \
     str += xrg.stop; str += "/"; \
-    str += yrg.start; str += "/"; str += yrg.stop; str += " -J"; \
-    str += projkey; str += mapdim.start; str += "c/"; \
-    str += mapdim.stop; str += "c";
+    str += yrg.start; str += "/"; str += yrg.stop;
+
+#define mGetProjString( str, projkey ) \
+    Interval<float> dim; \
+    get( ODGMT::sKeyMapDim, dim ); \
+    str += "-J"; str += projkey; str += dim.start; str += "c/"; \
+    str += dim.stop; str += "c";
 
 #define mGetColorString( col, str ) \
     str = (int) col.r(); \
