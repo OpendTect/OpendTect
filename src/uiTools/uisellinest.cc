@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.38 2011-04-08 13:44:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.39 2011-05-10 10:14:54 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -50,6 +50,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     else if ( lbltxt == "-" )
 	lbltxt.setEmpty();
 
+    uiObject* alobj = 0;
+
     if ( su.drawstyle_ )
     {
 	BufferStringSet itms( LineStyle::TypeNames() );
@@ -57,20 +59,22 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	stylesel_->setPrefWidthInChar( 16 );
 	stylesel_->setCurrentItem( (int)linestyle_.type_ );
 	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	if ( !su.color_ && !lbltxt.isEmpty() )
+	if ( !lbltxt.isEmpty() )
 	    new uiLabel( this, lbltxt, stylesel_ );
+	alobj = stylesel_;
     }
 
     if ( su.color_ )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( su.drawstyle_ ? "Color" : "Line color" )
-	    .withdesc( !su.width_ );
+	csu.lbltxt( stylesel_ ? "Color" : "Line color" ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel_ )
 	    colinp_->attach( rightTo, stylesel_ );
+	else
+	    alobj = colinp_->attachObj();
     }
 
     if ( su.width_ )
@@ -85,18 +89,16 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	else if ( stylesel_ )
 	    widthbox_->attach( rightTo, stylesel_ );
 	else if ( !lbltxt.isEmpty() )
+	{
 	    new uiLabel( this, lbltxt, widthbox_ );
+	    alobj = widthbox_->attachObj();
+	}
 
 	widthbox_->box()->valueChanging.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
     }
 
-    setHAlignObj( stylesel_ ? (uiObject*)stylesel_ 
-	    		   : ( colinp_ ? (uiObject*)colinp_->attachObj() 
-			       	      : (uiObject*)widthbox_->attachObj() ) );
-    setHCentreObj( stylesel_ ? (uiObject*)stylesel_
-	    		    : ( colinp_ ? (uiObject*)colinp_->attachObj()
-				       : (uiObject*)widthbox_->attachObj() ) );
+    setHAlignObj( alobj ); setHCentreObj( alobj );
 }
 
 
