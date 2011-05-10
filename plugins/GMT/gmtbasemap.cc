@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.23 2011-05-04 05:56:01 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.24 2011-05-10 03:51:54 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -187,8 +187,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	par->getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbol );
 	FixedString shapestr = par->find( ODGMT::sKeyShape );
 	if ( !usewellsymbol && !shapestr ) continue;
-	ODGMT::Shape shape;
-        ODGMT::parseEnumShape( shapestr.str() );
+	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
 	symbstr = ODGMT::sShapeKeys[(int)shape];
 	par->get( sKey::Size, sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
@@ -297,14 +296,47 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
     strm << res << std::endl;
     BufferString comm = res;
     char* commptr = comm.buf();
-    if ( strstr(commptr,".ps") )
+    char* ptr = strstr( commptr, " -R" );
+    if ( ptr )
     {
-	char* ptr = strstr( commptr, ">>" );
+	BufferString oldstr( ptr );
+	ptr = oldstr.buf();
+	ptr++;
+	while ( ptr && *ptr != ' ' )
+	    ptr++;
+
+	*ptr = '\0';
+	BufferString newstr;
+	mGetRangeString( newstr )
+	newstr.insertAt( 0, " " );
+	replaceString( commptr, oldstr.buf(), newstr.buf() );
+    }
+
+    ptr = strstr( commptr, " -J" );
+    if ( ptr )
+    {
+	BufferString oldstr( ptr );
+	ptr = oldstr.buf();
+	ptr++;
+	while ( ptr && *ptr != ' ' )
+	    ptr++;
+
+	*ptr = '\0';
+	BufferString newstr;
+	mGetProjString( newstr, "X" )
+	newstr.insertAt( 0, " " );
+	replaceString( commptr, oldstr.buf(), newstr.buf() );
+    }
+
+    ptr = strstr( commptr, ".ps" );
+    if ( ptr )
+    {
+	ptr = strstr( commptr, ">>" );
 	if ( ptr )
 	{
 	    BufferString temp = ptr;
 	    *ptr = '\0';
-	    comm += "-O -K ";
+	    comm += " -O -K ";
 	    comm += temp;
 	}
     }
