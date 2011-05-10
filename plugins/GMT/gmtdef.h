@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.15 2010-04-23 11:33:30 cvsnageswara Exp $
+ RCS:		$Id: gmtdef.h,v 1.16 2011-05-10 03:49:24 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ namespace ODGMT
     static const char*	sResolKeys[] = { "f", "h", "i", "l", "c" };
 
     static const char*	sKeyAttribName = "Attribute name";
+    static const char*	sKeyClipOutside = "Clip outside";
     static const char*	sKeyClosePS = "Close PostScript";
     static const char*	sKeyColSeq = "Color sequence";
     static const char*	sKeyCustomComm = "Custom command";
@@ -64,6 +65,7 @@ namespace ODGMT
     static const char*	sKeyResolution = "Resolution";
     static const char*	sKeyShape = "Shape";
     static const char*	sKeySkipWarning = "Skip Warning";
+    static const char*	sKeyStartClipping = "Start Clipping";
     static const char*	sKeyUTMZone = "UTM zone";
     static const char*	sKeyWetFill = "Fill Wet";
     static const char*	sKeyWetFillColor = "Fill Color Wet";
