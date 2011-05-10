@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.9 2011-03-03 10:05:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.10 2011-05-10 11:38:56 cvsranojay Exp $";
 
 #include "remcommhandler.h"
 
@@ -55,7 +55,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     bool res = mkCommand( par, tmpcmd );
     BufferString cmd( "@", tmpcmd );
     StreamProvider sp( cmd );
-    if ( !sp.executeCommand() )
+    if ( !sp.executeCommand( true ) )
 	mErrRet( "Command Execution failed" );
 }
 
