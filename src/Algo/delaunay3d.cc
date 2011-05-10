@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.22 2009-09-03 21:38:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.23 2011-05-10 16:40:40 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: delaunay3d.cc,v 1.22 2009-09-03 21:38:34 cvsyua
 
 ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
     : tree_( dagt )
-    , israndom_( true )
+    , israndom_( false )
 {}
 
 
@@ -1420,9 +1420,10 @@ void DAGTetrahedraTree::addTriangle( int v0, int v1, int v2,
 {
     for ( int t=0; t<res.size()/3; t++ )
     {
-	if ( (res[3*t]==v0 || res[3*t+1]==v0 || res[3*t+2]==v0) &&
-	     (res[3*t]==v1 || res[3*t+1]==v1 || res[3*t+2]==v1) &&
-	     (res[3*t]==v2 || res[3*t+1]==v2 || res[3*t+2]==v2) )
+	const int tidx = 3 * t;
+	if ( (res[tidx]==v0 || res[tidx+1]==v0 || res[tidx+2]==v0) &&
+	     (res[tidx]==v1 || res[tidx+1]==v1 || res[tidx+2]==v1) &&
+	     (res[tidx]==v2 || res[tidx+1]==v2 || res[tidx+2]==v2) )
 	    return;
     }
     
@@ -1459,20 +1460,20 @@ bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result ) const
 
 bool DAGTetrahedraTree::getSurfaceTriangles( TypeSet<int>& result) const
 {
-    int v0, v1, v2;
-    bool found;
     for ( int idx=0; idx<tetrahedras_.size(); idx++ )
     {
 	mValidTetrahedra()
 	if ( (c[0]<0) + (c[1]<0) + (c[2]<0) + (c[3]<0)!=1 )
 	    continue;
-    
-	if ( c[0]<0 )	   { v0 = c[1]; v1 = c[3]; v2 = c[2]; }
-	else if ( c[1]<0 ) { v0 = c[0]; v1 = c[2]; v2 = c[3]; }
-	else if ( c[2]<0 ) { v0 = c[0]; v1 = c[3]; v2 = c[1]; }
-	else if ( c[3]<0 ) { v0 = c[0]; v1 = c[1]; v2 = c[2]; }
-	
-	addTriangle( v0, v1, v2, result );
+   
+	if ( c[0]<0 )
+	    addTriangle( c[1], c[3], c[2], result );
+	else if ( c[1]<0 )
+	    addTriangle( c[0], c[2], c[3], result );
+	else if ( c[2]<0 )
+	    addTriangle( c[0], c[3], c[1], result );
+	else
+	    addTriangle( c[0], c[1], c[2], result );
     }
 
     return result.size();

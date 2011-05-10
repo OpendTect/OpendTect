@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.15 2011-02-14 22:23:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.16 2011-05-10 16:40:40 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -148,7 +148,6 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	return false;
 
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    triangulator.dataIsRandom( false );
     if ( !triangulator.execute(true) )
 	return false;
 
@@ -216,7 +215,6 @@ bool ExplPolygonSurface::prepareBodyDAGTree()
 	return false;
     
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    triangulator.dataIsRandom( false );
     return triangulator.execute(true);
 }
 
