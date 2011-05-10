@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.26 2011-04-01 09:44:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.27 2011-05-10 03:56:26 cvsraman Exp $";
 
 #include "uigmtmainwin.h"
 
 #include "file.h"
 #include "filepath.h"
+#include "gmtclip.h"
 #include "gmtpar.h"
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.26 2011-04-01 09:44:21 cvsb
 #include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uigmtbasemap.h"
+#include "uigmtclip.h"
 #include "uigmtoverlay.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -457,6 +459,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     basemappar.get( ODGMT::sKeyYRange, yrg );
     BufferString numkey( "", idx++ );
     par.mergeComp( basemappar, numkey );
+    bool isclippingon = false;
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;
@@ -464,10 +467,29 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 	pars_[ldx]->set( ODGMT::sKeyXRange, xrg );
 	pars_[ldx]->set( ODGMT::sKeyYRange, yrg );
 	par.mergeComp( *pars_[ldx], numkey );
+	mDynamicCastGet(const GMTClip*,gmtclip,pars_[ldx])
+	if ( gmtclip )
+	{
+	    const bool isstart = gmtclip->isStart();
+	    if ( isclippingon && isstart )
+		mErrRet("Start of clipping without terminating the previous \
+			 clipping" );
+
+	    if ( !isclippingon && !isstart )
+		mErrRet("Termination of clipping without a start" );
+
+	    isclippingon = isstart;
+	}
     }
 
-    if ( !pars_.size() )
-	return true;
+    if ( isclippingon )
+    {
+	IOPar termclippingpar;
+	termclippingpar.set( ODGMT::sKeyGroupName, "Clipping" );
+	uiGMTClipGrp::getTerminatingPars( termclippingpar );
+	numkey = idx;
+	par.mergeComp( termclippingpar, numkey );
+    }
 
     return true;
 }
