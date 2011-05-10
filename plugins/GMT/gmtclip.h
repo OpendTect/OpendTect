@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2011
- RCS:           $Id: gmtclip.h,v 1.1 2011-05-10 03:51:28 cvsraman Exp $
+ RCS:           $Id: gmtclip.h,v 1.2 2011-05-10 07:15:48 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-class GMTClip : public GMTPar
+mClass GMTClip : public GMTPar
 {
 public:
 
