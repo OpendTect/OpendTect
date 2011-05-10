@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.10 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: jobiomgr.h,v 1.11 2011-05-10 06:21:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,5 +93,8 @@ protected:
 				   const char* rshcomm );
 };
 
+
+mGlobal const BufferString& getTempBaseNm();
+mGlobal int mkTmpFileNr();
 
 #endif
