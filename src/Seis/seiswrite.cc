@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.64 2011-05-03 13:16:50 cvshelene Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.65 2011-05-10 10:01:53 cvssatyaki Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -123,6 +123,11 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     {
 	if ( !next2DLine() )
 	    return false;
+
+	SamplingData<float> sd = trc.info().sampling;
+	StepInterval<float> zrg( sd.start, 0, sd.step );
+	zrg.stop = sd.start + sd.step * (trc.size()-1);
+	geom_.setZRange( zrg );
     }
     else if ( psioprov )
     {

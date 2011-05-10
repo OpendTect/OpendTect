@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.11 2011-04-20 07:02:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.12 2011-05-10 10:01:53 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.11 2011-04-20 07:02:48 cvssa
 
 #include "uitoolbutton.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -131,10 +132,15 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
     table_->setColumnLabels( collbls );
 
+    FloatInpIntervalSpec spec( true );
+    rgfld_ = new uiGenInput( this, "Z-Range", spec );
+    rgfld_->attach( leftAlignedBelow, table_ );
+    rgfld_->setValue( geom.zRange() );
+
     readnewbut_ =
 	new uiPushButton( this, "Read New Geometry ...", 
 		      	  mCB(this,uiManageLineGeomDlg,impLineGeom), true );
-    readnewbut_->attach( centeredBelow, table_ );
+    readnewbut_->attach( centeredBelow, rgfld_ );
     
     fillTable( geom );
 }
@@ -224,12 +230,14 @@ bool acceptOK( CallBacker* )
 	geom.add( l2d );
     }
 
+    geom.setZRange( rgfld_->getFStepInterval() );
     PosInfo::POS2DAdmin().setGeometry( geom );
     return true;
 }
 
     const char*		linenm_;
     uiTable*		table_;
+    uiGenInput*		rgfld_;
     uiPushButton*	readnewbut_;
 };
 
