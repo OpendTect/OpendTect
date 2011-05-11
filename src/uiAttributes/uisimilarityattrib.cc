@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.33 2011-03-15 16:13:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.34 2011-05-11 02:44:27 cvsnanne Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -331,7 +331,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 
     listspec->addString("Browse dip");
 //    typfld_->newSpec(listspec,0);
-
+    setHAlignObj( typfld_ );
 }
 
 
