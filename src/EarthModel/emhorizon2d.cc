@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.45 2010-12-09 13:25:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.46 2011-05-11 02:56:47 cvsnanne Exp $";
 
 #include "emhorizon2d.h"
 
@@ -92,11 +92,11 @@ PosInfo::GeomID Horizon2DGeometry::lineGeomID( int idx ) const
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
-{ return addLine( geomid, StepInterval<int>(0,0,step) ); }
+{ return addLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step)  ); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
-				const StepInterval<int>& trcrg )
+				 const StepInterval<int>& trg )
 {
     if ( !geomid.isOK() || geomids_.isPresent(geomid) ) return false;
 
@@ -106,11 +106,12 @@ bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
     if ( !S2DPOS().getGeometry(linegeom) )
 	return false;
 
+    StepInterval<int> trcrg = trg.isUdf() ? linegeom.trcNrRange() : trg;
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
 		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
-	section->addUdfRow( geomid, trcrg.start, trcrg.stop,trcrg.step);
+	section->addUdfRow( geomid, trcrg.start, trcrg.stop, trcrg.step);
 	section->syncRow( geomid, linegeom );
     }
 
