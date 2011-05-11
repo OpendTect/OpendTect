@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.8 2011-05-02 06:14:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.9 2011-05-11 07:17:26 cvsumesh Exp $";
 
 #include "horizon2dextender.h"
 
@@ -20,28 +20,28 @@ static const char* rcsID = "$Id: horizon2dextender.cc,v 1.8 2011-05-02 06:14:52 
 namespace MPE 
 {
 
-BaseHorizon2DExtender::BaseHorizon2DExtender( EM::Horizon2D& hor,
+Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
 					      const EM::SectionID& sid )
-    : Horizon2DExtender( hor, sid )
+    : BaseHorizon2DExtender( hor, sid )
 {
 }
 
 
-SectionExtender* BaseHorizon2DExtender::create( EM::EMObject* emobj,
+SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj,
 						const EM::SectionID& sid )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)
-    return emobj && !hor ? 0 : new BaseHorizon2DExtender( *hor, sid );
+    return emobj && !hor ? 0 : new Horizon2DExtender( *hor, sid );
 }
 
 
-void BaseHorizon2DExtender::initClass()
+void Horizon2DExtender::initClass()
 {
     ExtenderFactory().addCreator( create, Horizon2DTracker::keyword() );
 }
 
 
-Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
+BaseHorizon2DExtender::BaseHorizon2DExtender( EM::Horizon2D& hor,
 				      const EM::SectionID& sid )
     : SectionExtender( sid )
     , surface_( hor )
@@ -63,15 +63,15 @@ void Horizon2DExtender::initClass()
 }*/
 
 
-void Horizon2DExtender::setAngleThreshold( float rad )
+void BaseHorizon2DExtender::setAngleThreshold( float rad )
 { anglethreshold_ = cos( rad ); }
 
 
-float Horizon2DExtender::getAngleThreshold() const
+float BaseHorizon2DExtender::getAngleThreshold() const
 { return Math::ACos(anglethreshold_); }
 
 
-void Horizon2DExtender::setDirection( const BinIDValue& dir )
+void BaseHorizon2DExtender::setDirection( const BinIDValue& dir )
 {
     direction_ = dir;
     xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir.binid );
@@ -82,7 +82,7 @@ void Horizon2DExtender::setDirection( const BinIDValue& dir )
 }
 
 
-int Horizon2DExtender::nextStep()
+int BaseHorizon2DExtender::nextStep()
 {
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
@@ -94,7 +94,7 @@ int Horizon2DExtender::nextStep()
 }
 
 
-void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
+void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
 {
     const StepInterval<int> colrange =
 			    surface_.geometry().colRange( sid_, sourcerc.row );
@@ -142,8 +142,8 @@ void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
 }
 
 
-const float Horizon2DExtender::getDepth( const RowCol& srcrc,
-					 const RowCol& destrc )
+float BaseHorizon2DExtender::getDepth( const RowCol& srcrc,
+					 const RowCol& destrc ) const
 {
     return surface_.getPos( sid_, srcrc.toInt64() ).z;
 }

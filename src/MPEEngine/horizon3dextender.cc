@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.18 2011-05-02 06:14:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.19 2011-05-11 07:17:26 cvsumesh Exp $";
 
 #include "horizon3dextender.h"
 
@@ -25,28 +25,28 @@ namespace MPE
 {
 
 
-void BaseHorizon3DExtender::initClass()
+void Horizon3DExtender::initClass()
 {
     ExtenderFactory().addCreator( create, Horizon3DTracker::keyword() );
 }
 
 
-SectionExtender* BaseHorizon3DExtender::create( EM::EMObject* emobj,
+SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj,
 						const EM::SectionID& sid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    return emobj && !hor ? 0 : new BaseHorizon3DExtender( *hor, sid );
-}
-
-
-BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& surface_,
-					      const EM::SectionID& sectionid )
-   : Horizon3DExtender( surface_, sectionid )
-{
+    return emobj && !hor ? 0 : new Horizon3DExtender( *hor, sid );
 }
 
 
 Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& surface_,
+					      const EM::SectionID& sectionid )
+   : BaseHorizon3DExtender( surface_, sectionid )
+{
+}
+
+
+BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& surface_,
 				  const EM::SectionID& sectionid )
     : SectionExtender( sectionid )
     , surface( surface_ )
@@ -67,22 +67,22 @@ void Horizon3DExtender::initClass()
 }*/
 
 
-void Horizon3DExtender::setDirection( const BinIDValue& bdval )
+void BaseHorizon3DExtender::setDirection( const BinIDValue& bdval )
 { direction =  bdval; }
 
 
-int Horizon3DExtender::maxNrPosInExtArea() const
+int BaseHorizon3DExtender::maxNrPosInExtArea() const
 { return getExtBoundary().hrg.totalNr(); }
 
 
-void Horizon3DExtender::preallocExtArea()
+void BaseHorizon3DExtender::preallocExtArea()
 {
     const HorSampling hrg = getExtBoundary().hrg;
     surface.geometry().sectionGeometry(sid_)->expandWithUdf(hrg.start,hrg.stop);
 }
 
 
-int Horizon3DExtender::nextStep()
+int BaseHorizon3DExtender::nextStep()
 {
     const bool alldirs = direction.binid.inl==0 && direction.binid.crl==0;
     
@@ -195,14 +195,14 @@ int Horizon3DExtender::nextStep()
 }
 
 
-const float Horizon3DExtender::getDepth( const BinID& srcbid,
-					 const BinID& destbid )
+float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
+					 const BinID& destbid ) const
 {
     return surface.getPos( sid_, srcbid.toInt64() ).z;
 }
 
 
-const CubeSampling& Horizon3DExtender::getExtBoundary() const
+const CubeSampling& BaseHorizon3DExtender::getExtBoundary() const
 { return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initmpeengine.cc,v 1.10 2011-05-02 06:14:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: initmpeengine.cc,v 1.11 2011-05-11 07:17:26 cvsumesh Exp $";
 
 #include "initmpeengine.h"
 #include "faulteditor.h"
@@ -29,7 +29,7 @@ void MPEEngine::initStdClasses()
     MPE::Horizon2DEditor::initClass();
     MPE::Horizon2DTracker::initClass();
     MPE::Horizon3DTracker::initClass();
-    MPE::BaseHorizon2DExtender::initClass();
-    MPE::BaseHorizon3DExtender::initClass();
+    MPE::Horizon2DExtender::initClass();
+    MPE::Horizon3DExtender::initClass();
     MPE::PolygonBodyEditor::initClass();
 }

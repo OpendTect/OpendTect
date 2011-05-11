@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.6 2011-05-02 06:14:48 cvsumesh Exp $
+ RCS:           $Id: horizon2dextender.h,v 1.7 2011-05-11 07:17:04 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,9 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
-mClass Horizon2DExtender : public SectionExtender
+mClass BaseHorizon2DExtender : public SectionExtender
 {
 public:
-    				Horizon2DExtender(EM::Horizon2D&,
-						  const EM::SectionID&);
-
     //static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
     //static void         	initClass();
 
@@ -38,9 +35,12 @@ public:
     int				nextStep();
 
 protected:
+
+    			BaseHorizon2DExtender(EM::Horizon2D&,
+					  const EM::SectionID&);
     void		addNeighbor(bool upwards, const RowCol& sourcerc );
-    virtual const float	getDepth(const RowCol& src,const RowCol& dest);
-    virtual void	prepareDataIfRequired() { return; }
+    virtual float	getDepth(const RowCol& src,const RowCol& dest) const;
+    //virtual void	prepareDataIfRequired() { return; }
 
     float		anglethreshold_;
     bool		alldirs_;
@@ -50,12 +50,12 @@ protected:
 };
 
 
-mClass BaseHorizon2DExtender : public Horizon2DExtender
+mClass Horizon2DExtender : public BaseHorizon2DExtender
 {
 public:
     static void			initClass();
     static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
-    				BaseHorizon2DExtender(EM::Horizon2D&,
+    				Horizon2DExtender(EM::Horizon2D&,
 						      const EM::SectionID&);
 };
 
