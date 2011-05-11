@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.221 2011-05-04 08:03:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.222 2011-05-11 03:13:15 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -121,7 +121,6 @@ public:
 
 protected:
 
-    virtual void	finalise()	{ finalise(true); }
     virtual void	finalise(bool trigger_finalise_start_stop);
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);  
@@ -347,7 +346,7 @@ void uiMainWinBody::reDraw( bool deep )
 
 void uiMainWinBody::go( bool showminimized )
 {
-    finalise();
+    finalise( true );
     doShow( showminimized );
     move( handle_.popuparea_ );
 }
@@ -1320,7 +1319,6 @@ protected:
 
     void		done_(int);
 
-    virtual void	finalise()	{ finalise(true); }
     virtual void	finalise(bool);
     void		closeEvent(QCloseEvent*);
 
