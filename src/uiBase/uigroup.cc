@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.70 2011-05-11 03:13:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.71 2011-05-11 04:05:40 cvsnanne Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -140,6 +140,7 @@ protected:
     uiObject*		hcentreobj;
     uiObject*		halignobj;
 
+    virtual void	finalise()		{ finalise( true ); }
     virtual void	finalise(bool trigger_finalise_start_stop);
 
     virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
@@ -337,7 +338,7 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
     return loitm ;
 }
 
-void uiGroupObjBody::finalise_()	{ prntbody_->finalise(true); }
+void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
 
 // ----- i_uiGroupLayoutItem -----

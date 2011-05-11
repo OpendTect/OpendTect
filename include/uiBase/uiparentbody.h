@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.18 2011-05-11 03:13:15 cvsnanne Exp $
+ RCS:           $Id: uiparentbody.h,v 1.19 2011-05-11 04:05:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
     bool		finalised() const	{ return finalised_; }
-    virtual void 	finaliseParent()	{ finaliseChildren(); }
+    virtual void 	finalise()		{ finaliseChildren(); }
     void      		finaliseChildren();	// body: uiobj.cc
     void      		clearChildren();	// body: uiobj.cc
 
