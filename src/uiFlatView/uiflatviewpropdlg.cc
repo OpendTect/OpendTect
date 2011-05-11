@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.55 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.56 2011-05-11 11:47:57 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -224,6 +224,11 @@ void uiFlatViewDataDispPropTab::setDataNames()
 		dispfld_->setCurrentItem( dispfld_->size() - 1 );
 	}
     }
+    mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
+    const bool wva = wvatab ? true : false;
+    if ( wva && !vwr_.appearance().ddpars_.wva_.show_ || 
+	    !wva && !vwr_.appearance().ddpars_.vd_.show_ )
+	dispfld_->setCurrentItem( 0 );
 }
 
 
