@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.6 2011-05-09 11:24:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.7 2011-05-11 15:23:34 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -59,9 +59,9 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 	{
 	    const BinID& bid = gather->getBinID();
 	    if ( isinl_ )
-		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.crl ) );
+		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
 	    else
-		cs_.hrg.setCrlRange( Interval<int>( bid.inl, bid.crl ) );
+		cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
 
 	    setGathers( bid ); 
 	}
