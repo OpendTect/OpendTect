@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.65 2011-05-10 10:01:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.66 2011-05-11 14:17:35 cvshelene Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -497,7 +497,7 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* inptrc, bool waitforbuffer )
 	}
     }
 
-    return errmsg_.str();
+    return errmsg_.isEmpty();
 }
 
 
