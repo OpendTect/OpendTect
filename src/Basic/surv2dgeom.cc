@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.21 2011-04-20 07:02:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.22 2011-05-11 05:36:23 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 
@@ -128,7 +128,7 @@ void PosInfo::Survey2D::readIdxFiles()
 	FilePath fp( basefp_ );
 	fp.add( sIdxFilename );
 	readIdxFile( fp.fullPath(), lsindex_ );
-	if ( lsindex_.isEmpty() )
+	if ( lsindex_.size() <= 1 )
 	    return;
 	lsnm_ = lsindex_.getKey(0);
     }
@@ -449,7 +449,7 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
-    if ( !lsnm )
+    if ( !lsnm || !*lsnm )
     {
 	lineindex_.setEmpty();
 	return;
@@ -670,6 +670,9 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
 	const bool iscurls = linesetnm == curlinesetnm;
     FileMultiString fms( lsindex_.getValue(lsidx) );
     FilePath fp( basefp_ ); fp.add( fms[0] );
+    if ( basefp_ == fp )
+	return ErrMsg( "Cannot delete 2DGeom folder" );
+
     const BufferString dirnm( fp.fullPath() );
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
@@ -693,6 +696,8 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     FileMultiString fms( lsindex_.getValue(lsidx) );
     FilePath fp( basefp_ ); fp.add( fms[0] );
     const BufferString dirnm( fp.fullPath() );
+    if ( basefp_ == fp )
+	return ErrMsg( "Cannot delete 2DGeom folder" );
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.217 2011-05-10 09:46:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.218 2011-05-11 05:36:23 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -481,6 +481,24 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
+    if ( !hor3d )
+    {
+	BufferString msg( "Geometry not found for " );
+	bool geomabsent = false;
+	for ( int lsidx=0; lsidx<surfaceids.size(); lsidx++ )
+	{
+	    PtrMan<IOObj> lsobj = IOM().get( surfaceids[lsidx] );
+	    if ( !lsobj || !S2DPOS().hasLineSet(lsobj->name()) )
+	    {
+		msg += lsobj->name();
+		geomabsent = true;
+	    }
+	}
+
+	if ( geomabsent )
+	    uiMSG().error( msg );
+    }
+
     if ( hor3d )
       	selectedrg_ = sel.rg; 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.130 2011-03-21 16:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.131 2011-05-11 05:36:23 cvssatyaki Exp $";
 
 #include "uiseispartserv.h"
 
@@ -153,6 +153,13 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 
     mid = dlg.ioObj()->key();
+    PtrMan<IOObj> lsobj = IOM().get( mid );
+    if ( !lsobj || !S2DPOS().hasLineSet(lsobj->name()) )
+    {
+	uiMSG().error( "Lineset has no or corrupted geometry file" );
+	return false;
+    }
+
     return true;
 }
 

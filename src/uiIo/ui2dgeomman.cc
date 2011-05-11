@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.12 2011-05-10 10:01:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.13 2011-05-11 05:36:23 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -84,7 +84,10 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
 {
     if ( linesetfld_->isEmpty() )
+    {
+	linenamefld_->setEmpty();
 	return;
+    }
 
     BufferStringSet linenames;
     S2DPOS().setCurLineSet( linesetfld_->getText() );
@@ -96,11 +99,14 @@ void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
 
 void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
 {
-    if ( !uiMSG().askGoOn(remmsg) )
-	return;
+    if ( linesetfld_->isEmpty() || !linesetfld_->nrSelected() ||
+	 linesetfld_->currentItem() < 0 || !uiMSG().askGoOn(remmsg) )
+	    return;
+
     PosInfo::POS2DAdmin().removeLineSet( linesetfld_->getText() );
     linesetfld_->removeItem( linesetfld_->currentItem() );
-    linesetfld_->setCurrentItem( 0 );
+    if ( !linesetfld_->isEmpty() )
+	linesetfld_->setCurrentItem( 0 );
     lineSetSelCB( 0 );
 }
 
@@ -245,7 +251,8 @@ bool acceptOK( CallBacker* )
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() )
+    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() ||
+	 linenamefld_->currentItem() < 0 )
 	return;
 
     uiManageLineGeomDlg dlg( this, linenamefld_->getText() );
@@ -255,10 +262,8 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 
 void ui2DGeomManageDlg::removeLineGeom( CallBacker* )
 {
-    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() )
-	return;
-
-    if ( !uiMSG().askGoOn(remmsg) )
+    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() ||
+	 linenamefld_->currentItem() < 0 || !uiMSG().askGoOn(remmsg) )
 	    return;
 
     PosInfo::POS2DAdmin().removeLine( linenamefld_->getText() );
