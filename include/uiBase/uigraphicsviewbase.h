@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.16 2011-05-04 15:45:02 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.17 2011-05-12 10:03:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 
+class Alignment;
 class Color;
 class uiGraphicsItem;
 class uiGraphicsScene;
@@ -52,6 +53,7 @@ public:
     void			centreOn(uiPoint);
     uiRect			getSceneRect() const;
     void			setSceneRect(const uiRect&);
+    void			setSceneAlignment(const Alignment&);
 
     uiPoint			getCursorPos() const; 
     uiPoint			getScenePos(float,float) const; 

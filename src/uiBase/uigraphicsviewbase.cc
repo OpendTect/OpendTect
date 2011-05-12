@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.30 2011-05-04 15:45:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.31 2011-05-12 10:03:46 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
 
+#include "draw.h"
 #include "mouseevent.h"
 #include "uigraphicsscene.h"
 #include "uiobjbody.h"
@@ -472,3 +473,23 @@ void uiGraphicsViewBase::setNoBackGround()
     scene_->setBackGroundColor( Color( 255, 255, 255, 255 )  );
 }
 
+
+void uiGraphicsViewBase::setSceneAlignment( const Alignment& al )
+{
+    Qt::Alignment qal; 
+    if ( al.vPos() == Alignment::Top ) 
+	qal = Qt::AlignTop;
+    else if ( al.vPos() == Alignment::Bottom )
+	qal = Qt::AlignBottom;
+    else
+	qal = Qt::AlignVCenter;
+
+    if ( al.hPos() == Alignment::Left )
+	qal = qal | Qt::AlignLeft;
+    else if ( al.hPos() == Alignment::Right )
+	qal = qal | Qt::AlignRight;
+    else
+	qal = qal | Qt::AlignHCenter;
+
+    body_->setAlignment( qal ); 
+}
