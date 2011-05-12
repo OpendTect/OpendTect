@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.41 2011-03-03 15:52:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.42 2011-05-12 08:58:37 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -157,14 +157,8 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
     delete wd_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
-    delWins();
-    if ( extractwvltdlg_ )
-    {
-	extractwvltdlg_->close();
-	extractwvltdlg_->extractionDone.remove(
-				mCB(this,uiTieWinMGRDlg,extractWvltDone ) );
-    }
     delete extractwvltdlg_;
+    delWins();
 
 }
 

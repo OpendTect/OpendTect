@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.32 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.33 2011-05-12 08:58:37 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -101,8 +101,8 @@ bool uiControlView::handleUserClick()
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
 	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
-	const SeisTrc& trc = synth ? server_.data().seistrc_ 
-	    			   : server_.data().synthtrc_;
+	const SeisTrc& trc = synth ? server_.data().synthtrc_ 
+				   : server_.data().seistrc_; 
 	server_.pickMgr().addPick( wp.y, synth, &trc );
 	redrawNeeded.trigger();
 	return true;

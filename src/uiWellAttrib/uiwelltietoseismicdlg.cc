@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.86 2011-05-09 10:03:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.87 2011-05-12 08:58:37 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -59,7 +59,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 			    .withhanddrag(true)
 			    .deleteonclose(false))
-    	, setup_(wts)
+    	, setup_(*new WellTie::Setup(wts))
 	, server_(*new Server(setup_))
 	, stretcher_(*new EventStretch(server_.pickMgr())) 
     	, controlview_(0)
@@ -375,7 +375,8 @@ void uiTieWin::applyPushed( CallBacker* cb )
     stretcher_.doWork( cb );
     doWork( cb );
     clearPicks( cb );
-    infodlg_->propChanged(0);
+    if ( infodlg_ )
+	infodlg_->propChanged(0);
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
 }
@@ -415,7 +416,9 @@ bool uiTieWin::undoPushed( CallBacker* cb )
     	mErrRet( "Cannot go back to previous model" );
     clearPicks( cb );
     doWork( cb );
-    infodlg_->propChanged(0);
+
+    if ( infodlg_ )
+	infodlg_->propChanged(0);
     
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
