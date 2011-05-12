@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.32 2011-04-06 05:49:35 cvsraman Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.33 2011-05-12 12:26:57 cvsjaap Exp $";
 
 #include "drawaxis2d.h"
 
@@ -161,6 +161,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     {
 	xaxlineitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( xaxlineitmgrp_ );
+	xaxlineitmgrp_->setZValue( zValue_ );
     }
     else
 	xaxlineitmgrp_->removeAll( true );
@@ -169,6 +170,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     {
 	xaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( xaxtxtitmgrp_ );
+	xaxtxtitmgrp_->setZValue( zValue_ );
     }
     else
 	xaxtxtitmgrp_->removeAll( true );
@@ -180,7 +182,6 @@ void DrawAxis2D::drawXAxis( bool topside )
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( wx, drawarea.top(), wx, drawarea.top()+bias );
 	lineitem->setPenStyle( xls_ );
-	lineitem->setZValue( zValue_ );
 	xaxlineitmgrp_->add( lineitem );
 
 	mDeclAlignment( al, HCenter, Top );
@@ -188,7 +189,6 @@ void DrawAxis2D::drawXAxis( bool topside )
 	uiTextItem* textitem = new uiTextItem( text, al );
 	textitem->setTextColor( xls_.color_ );
 	textitem->setPos( uiPoint(wx,drawarea.top()+bias) );
-	textitem->setZValue( zValue_ );
 	xaxtxtitmgrp_->add( textitem );
     mLoopEnd
 }
@@ -239,6 +239,7 @@ void DrawAxis2D::drawYAxis( bool leftside )
     {
 	yaxlineitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( yaxlineitmgrp_ );
+	yaxlineitmgrp_->setZValue( zValue_ );
     }
     else
 	yaxlineitmgrp_->removeAll( true );
@@ -246,6 +247,7 @@ void DrawAxis2D::drawYAxis( bool leftside )
     {
 	yaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( yaxtxtitmgrp_ );
+	yaxtxtitmgrp_->setZValue( zValue_ );
     }
     else
 	yaxtxtitmgrp_->removeAll( true );
@@ -257,7 +259,6 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( drawarea.left(), wy, drawarea.left() + bias, wy );
 	lineitem->setPenStyle( yls_ );
-	lineitem->setZValue( zValue_ );
 	yaxlineitmgrp_->add( lineitem ); 
 
 	Alignment al( leftside ? Alignment::Right : Alignment::Left,
@@ -266,7 +267,6 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	uiTextItem* txtitem =
 	    new uiTextItem( uiPoint(drawarea.left()+bias,wy), text, al );
 	txtitem->setTextColor( yls_.color_ );
-	txtitem->setZValue( zValue_ );
 	yaxtxtitmgrp_->add( txtitem );
     mLoopEnd
 }
@@ -297,6 +297,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	{
 	    xaxgriditmgrp_ = new uiGraphicsItemGroup( true );
 	    drawscene_.addItemGrp( xaxgriditmgrp_ );
+	    xaxgriditmgrp_->setZValue( zvalforgridlines );
 	}
 	else
 	    xaxgriditmgrp_->removeAll( true );
@@ -306,7 +307,6 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* xgridline = new uiLineItem();
 	    xgridline->setLine( wx, top, wx, bot );
 	    xgridline->setPenStyle( gridls_ );
-	    xgridline->setZValue( zvalforgridlines );
 	    xaxgriditmgrp_->add( xgridline );
 	mLoopEnd
     }
@@ -321,6 +321,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	{
 	    yaxgriditmgrp_ = new uiGraphicsItemGroup( true );
 	    drawscene_.addItemGrp( yaxgriditmgrp_ );
+	    yaxgriditmgrp_->setZValue( zvalforgridlines );
 	}
 	else
 	    yaxgriditmgrp_->removeAll( true );
@@ -330,7 +331,6 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* ygridline = new uiLineItem();
 	    ygridline->setLine( left, wy, right, wy );
 	    ygridline->setPenStyle( gridls_ );
-	    ygridline->setZValue( zvalforgridlines );
 	    yaxgriditmgrp_->add( ygridline );
 	mLoopEnd
     }

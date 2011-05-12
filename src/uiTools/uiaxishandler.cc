@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.53 2011-03-01 14:00:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.54 2011-05-12 12:26:57 cvsjaap Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -247,6 +247,7 @@ void uiAxisHandler::createAnnotItems()
     {
 	annottxtitmgrp_ = new uiGraphicsItemGroup();
 	scene_->addItemGrp( annottxtitmgrp_ );
+	annottxtitmgrp_->setZValue( setup_.zval_ );
     }
     else if ( annottxtitmgrp_ )
 	annottxtitmgrp_->removeAll( true );
@@ -254,6 +255,7 @@ void uiAxisHandler::createAnnotItems()
     {
 	annotlineitmgrp_ = new uiGraphicsItemGroup();
 	scene_->addItemGrp( annotlineitmgrp_ );
+	annotlineitmgrp_->setZValue( setup_.zval_ );
     }
     else if ( annotlineitmgrp_ )
 	annotlineitmgrp_->removeAll( true );
@@ -491,14 +493,12 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
-	annotposlineitm->setZValue( setup_.zval_ );
 	annotposlineitm->setPenColor( ls.color_ );
 	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( Alignment::HCenter,
 		      istop ? Alignment::Bottom : Alignment::Top );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(pix,y1), txt, al );
-	annotpostxtitem->setZValue( setup_.zval_ );
 	annotpostxtitem->setTextColor( ls.color_ );
 	annottxtitmgrp_->add( annotpostxtitem );
     }
@@ -510,14 +510,12 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 			      : ( inside ? x0-ticSz()-calcwdth_ : x0+ticSz() );
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
-	annotposlineitm->setZValue( setup_.zval_ );
 	annotposlineitm->setPenColor( ls.color_ );
 	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( isleft ? Alignment::Right : Alignment::Left,
 		      Alignment::VCenter );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(x1,pix), txt, al );
-	annotpostxtitem->setZValue( setup_.zval_ );
 	annotpostxtitem->setTextColor( ls.color_ );
 	annottxtitmgrp_->add( annotpostxtitem );
     }
