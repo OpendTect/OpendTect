@@ -1,6 +1,8 @@
 #!/bin/csh
 
-if ( $HDIR == "lux" ) then
+if ( $HOST == "dgb28" ) then
+    gcc od_glxinfo.c -o $WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR/od_glxinfo -lGLU -lGL
+else if ( $HDIR == "lux" ) then
     gcc od_glxinfo.c -o $WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR/od_glxinfo -lGLU -lGL -lX11
     exit 0
 else if ( $HDIR == "win"  ) then
