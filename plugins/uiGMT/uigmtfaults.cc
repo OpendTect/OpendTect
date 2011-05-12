@@ -4,13 +4,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.6 2011-04-27 08:58:46 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.7 2011-05-12 06:40:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigmtfaults.h"
 
+#include "uibutton.h"
+#include "uicolor.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -51,7 +53,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSelGrp( this, *mMkCtxtIOObj(EMFault3D),
-	    			      "Faults", true, false );
+	    			   "Faults", true, false );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
@@ -68,9 +70,18 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), "Horizon" );
     horfld_->attach( alignedBelow, optionfld_ );
 
-    linestfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    linestfld_ = new uiSelLineStyle( this, LineStyle(),
+	    			     uiSelLineStyle::Setup("Line Style" )
+				     		     .color(false) );
     linestfld_->attach( alignedBelow, horfld_ );
 
+    colorfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
+						      .lbltxt("Color") );
+    colorfld_->attach( alignedBelow, linestfld_ );
+
+    usecolorbut_ = new uiCheckBox( this, "Use fault color",
+	    			   mCB(this,uiGMTFaultsGrp,useColorCB) );
+    usecolorbut_->attach( rightOf, colorfld_ );
     finaliseDone.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
 }
 
@@ -80,6 +91,12 @@ void uiGMTFaultsGrp::typeChgCB( CallBacker* )
     const bool onzslice = optionfld_->getBoolValue();
     zvaluefld_->display( onzslice );
     horfld_->display( !onzslice );
+}
+
+
+void uiGMTFaultsGrp::useColorCB( CallBacker* )
+{
+    colorfld_->setSensitive( !usecolorbut_->isChecked() );
 }
 
 
@@ -127,6 +144,9 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     BufferString lskey;
     linestfld_->getStyle().toString( lskey );
     iop.set( ODGMT::sKeyLineStyle, lskey );
+    iop.setYN( ODGMT::sKeyUseFaultColorYN, usecolorbut_->isChecked() );
+    if ( !usecolorbut_->isChecked() )
+	iop.set( ODGMT::sKeyFaultColor, colorfld_->color() );
 
     return true;
 }
@@ -177,6 +197,17 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     LineStyle ls;
     ls.fromString( lskey.str() );
     linestfld_->setStyle( ls );
+
+    bool usecoloryn = false;
+    iop.getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
+    usecolorbut_->setChecked( usecoloryn );
+
+    if ( !usecoloryn )
+    {
+	Color clr;
+	iop.get( ODGMT::sKeyFaultColor, clr );
+	colorfld_->setColor( clr );
+    }
 
     typeChgCB( 0 );
     return true;

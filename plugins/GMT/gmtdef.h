@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.16 2011-05-10 03:49:24 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.17 2011-05-12 06:40:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ namespace ODGMT
     static const char*  sKeyFaultID = "FaultID";
     static const char*  sKeyHorizonID = "HorizonID";
     static const char*  sKeyZIntersectionYN = "ZIntersection";
+    static const char*  sKeyUseFaultColorYN = "Use Fault Color";
+    static const char*  sKeyFaultColor = "Fault Color";
     static const char*  sKeyUseWellSymbolsYN = "Use Well Symbols";
     static const char*  sKeyWellSymbolName = "Symbol Name";
 };

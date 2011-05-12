@@ -7,16 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: gmtfault.h,v 1.4 2011-03-15 17:15:12 cvsyuancheng Exp $
+ RCS:           $Id: gmtfault.h,v 1.5 2011-05-12 06:40:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gmtpar.h"
 
+class BufferStringSet;
 class Coord3;
 class Coord3ListImpl;
 namespace Geometry { class ExplFaultStickSurface; }
+namespace EM { class Fault3D; }
 
 mClass GMTFault : public GMTPar
 {
@@ -39,6 +41,9 @@ protected:
 	    			      Coord3ListImpl&) const;
 
     static int		factoryid_;
+    void		getLinesStyle(BufferStringSet&);
+    void		loadFaults();
+    ObjectSet<EM::Fault3D>	flts_;
 };
 
 #endif

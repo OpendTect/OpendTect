@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.8 2011-04-27 08:58:46 cvsnageswara Exp $
+RCS:		$Id: gmtfault.cc,v 1.9 2011-05-12 06:40:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,50 +71,52 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
 
 bool GMTFault::execute( std::ostream& strm, const char* fnm )
 {
-    LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
-    ls.fromString( lsstr );
-    
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm += rgstr;
-    comm += " -O -K -M -N";
-    mGetLineStyleString( ls, lsstr );
-    comm += " -W"; comm += lsstr;
-    comm += " 1>> "; comm += fileName( fnm );
+    comm.add( rgstr ).add( " -O -K -M -N" );
+    comm.add( " 1>> " ).add( fileName( fnm ) );
+
+    loadFaults();
+    if ( !flts_.size() )
+	return false;
+
+    BufferStringSet styles;
+    getLinesStyle( styles );
+    if ( !styles.size() ) 
+    {
+	deepUnRef( flts_ );
+	return false;
+    }
+
+    bool usecoloryn = false;
+    getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
+
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed");
 
     bool onzslice = false;
     getYN( ODGMT::sKeyZIntersectionYN, onzslice );
 
-    IOPar* fltpar = subselect( ODGMT::sKeyFaultID );
-    if ( !fltpar )
-	return false;
-
-    for ( int midx=0; midx<fltpar->size(); midx++ )
+    for ( int midx=0; midx<flts_.size(); midx++ )
     {
-	MultiID mid;
-	if ( !fltpar->get( toString(midx), mid ) )
-	    continue;
-
-	RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
-	if ( !emobj )
-	    continue;
-
-	mDynamicCastGet(EM::Fault3D*,fault3d,emobj.ptr())
+        const EM::Fault3D* fault3d = flts_[midx];
 	if ( !fault3d )
 	    continue;
 
-	strm << "Creating Fault " << emobj->name() << " ...\n";
-
 	EM::SectionID fltsid = fault3d->sectionID( 0 );
+	Geometry::FaultStickSurface* fsssurf =
+	    const_cast<Geometry::FaultStickSurface*>(
+		    		fault3d->geometry().sectionGeometry(fltsid) );
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
-	    new Geometry::ExplFaultStickSurface(
-		  fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
+	    new Geometry::ExplFaultStickSurface( fsssurf, SI().zFactor() );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
 	if ( !fltsurf->update(true,0) )
 	    continue;
+
+	strm << "Creating Fault --> " << fault3d->name() << " ...\n";
+	BufferString clr( " -W" );
+	usecoloryn ? clr.add( styles.get(midx) ) : clr.add( styles.get(0) );
+	*sd.ostrm << "> " << clr.buf() << std::endl;
 
 	if( onzslice )
 	{
@@ -122,7 +124,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	    get( ODGMT::sKeyZVals, zval );
 	    TypeSet<Coord3> corners = getCornersOfZSlice( zval );
 	    Coord3 normal = ( corners[1] - corners[0] )
-			    .cross( corners[3] - corners[0] ).normalize();
+			     .cross( corners[3] - corners[0] ).normalize();
 
 	    PtrMan<Geometry::ExplPlaneIntersection> insectn =
 					new Geometry::ExplPlaneIntersection;
@@ -145,12 +147,12 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	    const int sz = idxgeom->coordindices_.size();
 	    if ( sz == 0 )
 	    {
-		strm << "Selected ZSlice and ";
-		strm << emobj->name() << " are not intersected\n";
+		BufferString msg( "Selected ZSlice and ", fault3d->name() );
+		msg.add( " are not intersected" );
+		strm << '\t' << msg.buf() << '\n';
 		continue;
 	    }
 
-	    *sd.ostrm << "> " << std::endl;
 	    for ( int cidx=0; cidx<sz; cidx++ )
 	    {
 		if ( idxgeom->coordindices_[cidx] == -1 )
@@ -171,12 +173,12 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 
 	    if ( clist.getSize() == 0 )
 	    {
-		strm << "Selected Horizon and ";
-		strm << emobj->name() << " are not intersected\n";
+		BufferString msg( "Selected Horizon and ", fault3d->name() );
+		msg.add( " are not intersected" );
+		strm << '\t' << msg.buf() << '\n';
 		continue;
 	    }
 
-	    *sd.ostrm << "> " << std::endl;
 	    for ( int idx=0; idx<clist.getSize(); idx++ )
 	    {
 		double x = clist.get( idx ).x;
@@ -184,13 +186,11 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 		*sd.ostrm << x << " " << y << std::endl;
 	    }
 	}
-
-	*sd.ostrm << "> " << std::endl;
     }
 
     sd.close();
     strm << "Done" << std::endl;
-
+    deepUnRef( flts_ );
     return true;
 }
 
@@ -234,4 +234,68 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 							expfault, clist );
     horfltinsec->compute();
     return true;
+}
+
+
+void GMTFault::getLinesStyle( BufferStringSet& styles )
+{
+    bool usecoloryn = false;
+    getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
+    LineStyle ls;
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
+    ls.fromString( lsstr );
+    if ( !usecoloryn )
+    {
+	Color clr;
+	get( ODGMT::sKeyFaultColor, clr );
+	ls.color_ = clr;
+	BufferString clrstr;
+	mGetLineStyleString( ls, clrstr );
+	styles.add( clrstr );
+	return;
+    }
+    else
+    {
+	for ( int idx=0; idx<flts_.size(); idx++ )
+	{
+	    const EM::Fault3D* fault3d = flts_[idx];
+	    if ( !fault3d )
+		continue;
+
+	    if ( usecoloryn )
+	    {
+		BufferString str;
+		const Color& fltclr = fault3d->preferredColor();
+		ls.color_ = fltclr;
+		mGetLineStyleString( ls, str );
+		styles.add( str );
+	    }
+	}
+    }
+}
+
+
+void GMTFault::loadFaults()
+{
+    IOPar* fltpar = subselect( ODGMT::sKeyFaultID );
+    if ( !fltpar )
+	return;
+
+    for ( int idx=0; idx<fltpar->size(); idx++ )
+    {
+	MultiID mid;
+	if ( !fltpar->get( toString(idx), mid ) )
+	    continue;
+
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+	if ( !emobj )
+	    continue;
+
+	mDynamicCastGet(EM::Fault3D*,fault3d,emobj)
+	if ( !fault3d )
+	    continue;
+
+	fault3d->ref();
+	flts_ += fault3d;
+    }
 }
