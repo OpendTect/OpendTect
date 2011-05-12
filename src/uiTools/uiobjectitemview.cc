@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.15 2011-05-05 15:39:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.16 2011-05-12 12:39:38 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.15 2011-05-05 15:39:17 
 #include "uiparent.h"
 #include "uigroup.h"
 
+#include "draw.h"
 #include "geometry.h"
 
 
@@ -24,6 +25,8 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
 {
     uiGraphicsObjectScene* newscene = new uiGraphicsObjectScene("Object Scene");
     setScene( *newscene );
+    setSceneAlignment( Alignment::HCenter );
+
     reSize.notify( mCB(this,uiObjectItemView,resetViewArea) );
     getMouseEventHandler().buttonReleased.notify(
 	                mCB(this,uiObjectItemView,rubberBandCB) );
