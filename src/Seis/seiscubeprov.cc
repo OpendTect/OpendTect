@@ -4,11 +4,13 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.22 2011-03-18 16:05:52 cvshelene Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.23 2011-05-13 09:14:56 cvsraman Exp $";
 
-#include "seismscprov.h"
+#include "seiscubeprov.h"
+
+#include "arrayndimpl.h"
 #include "seistrc.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "seisread.h"
 #include "seisbuf.h"
 #include "seisbounds.h"
@@ -450,3 +452,140 @@ bool SeisMSCProvider::doAdvance()
 	    return true;
     }
 }
+
+
+
+class TrcDataLoader : public Executor
+{
+public:
+TrcDataLoader( SeisTrcReader* rdr, Array2D<SeisTrc*>& arr,
+		const HorSampling& hs, bool is2d )
+    : Executor("Data Loader")
+    , rdr_(rdr),arr_(arr),hs_(hs)
+    , nrdone_(0)
+    , is2d_(is2d)
+{
+}
+
+od_int64 totalNr() const
+{ return hs_.totalNr(); }
+
+od_int64 nrDone() const
+{ return nrdone_; }
+
+const char* message() const
+{ return "Reading Steering traces"; }
+
+int nextStep()
+{
+    if ( !rdr_ )
+	return ErrorOccurred();
+
+    SeisTrc* trc = new SeisTrc;
+
+    const int res = rdr_->get( trc->info() );
+    if ( res == -1 ) { delete trc; return ErrorOccurred(); }
+    if ( res == 0 ) { delete trc; return Finished(); }
+    if ( res == 2 ) { delete trc; return MoreToDo(); }
+    else if ( rdr_->get(*trc) )
+    {
+	const BinID bid = trc->info().binid;
+	const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl );
+	const int crlidx = hs_.crlIdx( is2d_ ? trc->info().nr : bid.crl );
+	arr_.set( inlidx, crlidx, trc );
+    }
+    else
+	delete trc;
+
+    nrdone_++;
+    return MoreToDo();
+}
+
+    SeisTrcReader*		rdr_;
+    Array2D<SeisTrc*>&		arr_;
+    const HorSampling&		hs_;
+    od_int64			nrdone_;
+    bool			is2d_;
+
+};
+
+
+SeisFixedCubeProvider::SeisFixedCubeProvider( const MultiID& key )
+    : cs_(false)
+    , data_(0)
+    , ioobj_(IOM().get(key))
+{
+}
+
+
+SeisFixedCubeProvider::~SeisFixedCubeProvider()
+{
+    clear();
+    delete ioobj_;
+}
+
+const char* SeisFixedCubeProvider::errMsg() const
+{ return errmsg_.buf(); }
+
+void SeisFixedCubeProvider::clear()
+{
+    if ( !data_ )
+	return;
+
+    for ( int idx=0; idx<data_->info().getSize(0); idx++ )
+	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
+	    delete data_->get( idx, idy );
+
+    delete data_;
+    data_ = 0;
+}
+
+bool SeisFixedCubeProvider::isEmpty() const
+{ return !data_; }
+
+bool SeisFixedCubeProvider::readData( const CubeSampling& cs, TaskRunner* tr )
+{ return readData( cs, 0, tr ); }
+
+#define mErrRet(s) { errmsg_ = s; return false; }
+
+bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
+				    const LineKey* lk, TaskRunner* tr )
+{
+    if ( !ioobj_ )
+	mErrRet( "Failed to find the input dataset" )
+
+    PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( ioobj_ );
+    seisrdr->prepareWork();
+
+    cs_ = cs;
+    Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
+    if ( lk )
+	sd->lineKey() = *lk;
+
+    seisrdr->setSelData( sd );
+
+    clear();
+    data_ = new Array2DImpl<SeisTrc*>( cs_.hrg.nrInl(), cs_.hrg.nrCrl() );
+    for ( int idx=0; idx<data_->info().getSize(0); idx++ )
+	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
+	    data_->set( idx, idy, 0 );
+
+    PtrMan<TrcDataLoader> loader = new TrcDataLoader( seisrdr, *data_, cs_.hrg,
+	    					      lk );
+    const bool res = tr ? tr->execute(*loader) : loader->execute();
+    if ( !res )
+	mErrRet( "Failed to read input dataset" )
+
+    return true;
+}
+
+
+const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
+{
+    if ( !data_ || !cs_.hrg.includes(bid) )
+	return 0;
+
+    return data_->get( cs_.inlIdx(bid.inl), cs_.crlIdx(bid.crl) );
+}
+
+
