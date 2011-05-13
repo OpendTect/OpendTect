@@ -7,22 +7,27 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.15 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.16 2011-05-13 09:07:22 cvsraman Exp $
 ________________________________________________________________________
 
 */
 
 
 #include "arraynd.h"
+#include "cubesampling.h"
 #include "rowcol.h"
 #include "objectset.h"
-class IOObj;
+
+template <class T> class Array2D;
 class BinID;
+class IOObj;
 class MultiID;
+class LineKey;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;
 namespace Seis		{ class SelData; }
+class TaskRunner;
 
 
 /*!\brief Reads seismic data into buffers providing a Moving Virtual Subcube
@@ -130,5 +135,30 @@ protected:
     bool 		doAdvance();
 };
 
+
+mClass SeisFixedCubeProvider
+{
+public:
+    			SeisFixedCubeProvider(const MultiID&);
+			~SeisFixedCubeProvider();
+
+    void		clear();
+    bool		isEmpty() const;
+    bool		readData(const CubeSampling&,TaskRunner* tr=0);
+    bool		readData(const CubeSampling&,const LineKey* lk,
+	    			 TaskRunner* tr=0);
+
+    const SeisTrc*	getTrace(const BinID&) const;
+    const char*		errMsg() const;
+
+protected:
+
+    Array2D<SeisTrc*>*	data_;
+
+    CubeSampling	cs_;
+    IOObj*		ioobj_;
+    BufferString	errmsg_;
+
+};
 
 #endif
