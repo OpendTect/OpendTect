@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.16 2011-05-12 12:39:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.17 2011-05-13 10:13:58 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -174,3 +174,12 @@ void uiObjectItemView::reSizeChildrenWidth( const uiObject* obj, int wdth )
     }
 }
 
+
+void uiObjectItemView::setCursor( const MouseCursor& mc )
+{
+    uiObject::setCursor( mc );
+    for ( int idx=0; idx<objectitems_.size(); idx++ )
+    {
+	objectitems_[idx]->getObject()->setCursor( mc );
+    }
+}

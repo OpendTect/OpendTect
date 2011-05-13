@@ -51,6 +51,8 @@ public:
     uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
     void			getItemsFromRect(const uiRect&,
 					       ObjectSet<uiObjectItem>&);
+
+    void			setCursor(const MouseCursor&);
     
 protected:
 
