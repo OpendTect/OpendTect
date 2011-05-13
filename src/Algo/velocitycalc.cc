@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.50 2011-05-03 13:15:19 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.51 2011-05-13 09:58:06 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -87,7 +87,9 @@ float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 	idx1 = sz - 1;
 
     int idx0 = idx1 - 1;
-    return (dpths[idx1] - dpths[idx0]) / (times[idx1] - times[idx0]);
+    const float ddt = times[idx1] - times[idx0];
+    const float ddh = dpths[idx1] - dpths[idx0];
+    return ddt ? ddh / ddt : mUdf(float);
 }
 
 
@@ -104,18 +106,21 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz,
     else if ( idx1 < 0 || idx1 == sz-1 )
     {
 	int idx0 = idx1 < 0 ? 1 : idx1;
-	const float v = (dpths[idx0] - dpths[idx0-1]) 
-		      / (times[idx0] - times[idx0-1]);
+	const float ddh = dpths[idx0] - dpths[idx0-1];
+	const float ddt = times[idx0] - times[idx0-1];
+	const float v = ddt ? ddh / ddt : mUdf(float); 
 	idx0 = idx1 < 0 ? 0 : idx1;
 	const float zshift = z - zinvals[idx0];
 	const float zout = zoutvals[idx0]; 
-	return targetistime ? zout + zshift / v : zout + zshift * v;
+	return targetistime ? ( v ? zout + zshift / v : mUdf(float) )
+			    : zout + zshift * v;
     }
 
     const int idx2 = idx1 + 1;
     const float z1 = z - zinvals[idx1];
     const float z2 = zinvals[idx2] - z;
-    return (z1 * zoutvals[idx2] + z2 * zoutvals[idx1]) / (z1 + z2);
+    return z1+z2 ? (z1 * zoutvals[idx2] + z2 * zoutvals[idx1]) / (z1 + z2) 
+		 : mUdf(float);
 }
 
 
