@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.138 2011-04-28 07:00:13 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.139 2011-05-13 12:56:20 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -428,7 +428,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     const int logsz = wl.size();
 
     const Well::Track& track = wd->track();
-    const Interval<float> range = lp.range_;
+    const Interval<float>& range = isfilled ? lp.fillrange_ : lp.range_;
 
     float minval, maxval; minval = maxval =  mUdf( float );
     TypeSet<Coord3Value> crdvals;
