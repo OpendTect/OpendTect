@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.107 2011-03-01 10:21:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.108 2011-05-13 09:29:10 cvsraman Exp $";
 
 #include "attribstorprovider.h"
 
@@ -28,9 +28,9 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.107 2011-03-01 10:21:
 #include "seis2dline.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
+#include "seiscubeprov.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
-#include "seismscprov.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "seistrctr.h"

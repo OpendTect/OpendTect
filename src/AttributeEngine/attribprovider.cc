@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.132 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.133 2011-05-13 09:29:10 cvsraman Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.132 2011-04-28 11:30:53 c
 #include "task.h"
 #include "cubesampling.h"
 #include "errh.h"
-#include "seismscprov.h"
+#include "seiscubeprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"

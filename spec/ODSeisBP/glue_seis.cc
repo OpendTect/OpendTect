@@ -4,12 +4,12 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.10 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.11 2011-05-13 09:29:58 cvsraman Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "seismscprov.h"
+#include "seiscubeprov.h"
 #include "seisbuf.h"
 #include "seiswrite.h"
 #include "seisread.h"
