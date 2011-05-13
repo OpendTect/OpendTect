@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.10 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.11 2011-05-13 09:16:56 cvsraman Exp $";
 
 #include "seiseventsnapper.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
-#include "seismscprov.h"
+#include "seiscubeprov.h"
 #include "seisselectionimpl.h"
 #include "ioobj.h"
 #include "cubesampling.h"
