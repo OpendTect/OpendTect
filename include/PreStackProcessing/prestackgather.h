@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.23 2011-05-06 15:17:21 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.24 2011-05-16 16:10:54 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -120,18 +120,22 @@ protected:
 
 
 
-/*! brief a datapack containing an objectset of garhers !*/
+/*! brief a datapack containing an objectset of gathers !*/
 
 mClass GatherSetDataPack : public DataPack
 {
 public:
-    				GatherSetDataPack(const char* ctgery); 
+    				GatherSetDataPack(const char* ctgery,
+						  const ObjectSet<Gather>&); 
 
     virtual float 		nrKBytes() const 	{ return 0; }
 
+    const Gather*		getGather(const BinID&) const;
+    const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
+
 protected:
 
-    ObjectSet<Gather>		gathers_;
+    const ObjectSet<Gather>&	gathers_;
 };
 
 
