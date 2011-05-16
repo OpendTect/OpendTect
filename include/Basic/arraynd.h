@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.43 2010-10-07 13:12:23 cvskarthika Exp $
+ RCS:		$Id: arraynd.h,v 1.44 2011-05-16 09:23:01 cvsbert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -111,6 +111,9 @@ public:
     void			setValue(od_int64 i,T t){ set(i,t); }
 
     virtual const Array1DInfo&	info() const = 0;
+
+    inline T			operator []( int idx ) const
+				{ return get( idx ); }
 
 };
 
