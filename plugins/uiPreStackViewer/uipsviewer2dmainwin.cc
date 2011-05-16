@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.8 2011-05-16 09:27:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.9 2011-05-16 13:43:59 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -135,9 +135,8 @@ void uiViewer2DMainWin::setUpView()
     const int nrvwrs = cs_.hrg.totalNr();
     const int curnrvwrs = mainviewer_->nrItems();
 
-    uiMainWin win( this );
+    uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
-    pb.setCaption( "Creating gather displays ... " );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
     pb.setTotalSteps( nrvwrs );
