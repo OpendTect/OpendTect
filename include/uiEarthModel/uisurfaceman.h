@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.27 2010-11-09 04:41:37 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.28 2011-05-16 12:05:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ protected:
 
     uiToolButton*	man2dbut_;
     void		copyCB(CallBacker*);
-    void		man2d(CallBacker*);
+    void		man2dCB(CallBacker*);
+    void		merge3dCB(CallBacker*);
     void		setRelations(CallBacker*);
     void		stratSel(CallBacker*);
 

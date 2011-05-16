@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.85 2011-02-23 06:28:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.86 2011-05-16 12:05:28 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.85 2011-02-23 06:28:49 cvsn
 
 #include "uitoolbutton.h"
 #include "uigeninputdlg.h"
+#include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
@@ -86,6 +87,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
     , attribfld_(0)
+    , man2dbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -93,9 +95,16 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
 	    		 mCB(this,uiSurfaceMan,copyCB) );
 
-    man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
-				    mCB(this,uiSurfaceMan,man2d) );
-    man2dbut_->setSensitive( false );
+    if ( mGet(typ,true,false,true,false,false) )
+    {
+	man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
+					 mCB(this,uiSurfaceMan,man2dCB) );
+	man2dbut_->setSensitive( false );
+    }
+
+    if ( mGet(typ,false,true,false,false,false) )
+	manipgrp->addButton( "mergehorizons.png", "Merge 3D Horizons",
+			     mCB(this,uiSurfaceMan,merge3dCB) );
 
     if ( mGet(typ,false,true,true,false,false) )
     {
@@ -179,10 +188,17 @@ void uiSurfaceMan::copyCB( CallBacker* )
 }
 
 
-void uiSurfaceMan::man2d( CallBacker* )
+void uiSurfaceMan::man2dCB( CallBacker* )
 {
     EM::IOObjInfo eminfo( curioobj_->key() );
     uiSurface2DMan dlg( this, eminfo );
+    dlg.go();
+}
+
+
+void uiSurfaceMan::merge3dCB( CallBacker* )
+{
+    uiHorizonMergeDlg dlg( this, false );
     dlg.go();
 }
 
@@ -321,11 +337,11 @@ void uiSurfaceMan::mkFileInfo()
     if ( eminfo.getAttribNames(attrnms) )
 	fillAttribList( attrnms );
 
+    if ( man2dbut_ )
+	man2dbut_->setSensitive( isCur2D() );
+
     if ( isCur2D() || isCurFault() )
     {
-	if ( isCur2D() )
-	    man2dbut_->setSensitive( true );
-
 	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
 	if ( isCurFault() )
 	    txt += eminfo.nrSticks();
@@ -342,7 +358,6 @@ void uiSurfaceMan::mkFileInfo()
     }
     else
     {
-	man2dbut_->setSensitive( false );
 	StepInterval<int> range;
 	txt = "Inline range: "; mAddRangeTxt(true)
 	txt += "Crossline range: "; mAddRangeTxt(false)
