@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.21 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.22 2011-05-16 16:12:19 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -122,9 +122,10 @@ PSAttrib::PSAttrib( Desc& ds )
 PSAttrib::~PSAttrib()
 {
     delete propcalc_;
-    delete psrdr_;
-    delete psioobj_;
     delete preprocessor_;
+
+    if ( psrdr_ ) delete psrdr_;
+    if ( psioobj_ ) delete psioobj_;
 }
 
 
@@ -140,7 +141,7 @@ bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 {
-    if ( !psrdr_ )
+    if ( !psrdr_ && gatherset_.isEmpty() )
 	return false;
 
     if ( preprocessor_ && preprocessor_->nrProcessors() )
@@ -148,30 +149,44 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
 	    return false;
 
-	const BinID stepout = preprocessor_->getInputStepout();
-	const BinID stepoutstep( SI().inlRange(true).step,
-				 SI().crlRange(true).step );
-	::PreStack::Gather* gather = 0;
-	for ( int inlidx=-stepout.inl; inlidx<=stepout.inl; inlidx++ )
+	if ( gatherset_.size() )
 	{
-	    for ( int crlidx=-stepout.crl; crlidx<=stepout.crl; crlidx++ )
+	    for ( int idx=0; idx<gatherset_.size(); idx++ )
 	    {
-		const BinID relbid( inlidx, crlidx );
-		if ( !preprocessor_->wantsInput(relbid) )
+		const BinID relbid = gatherset_[idx]->getBinID();
+		if ( !preprocessor_->wantsInput(relbid) )                       
 		    continue;
 
-		const BinID bid = currentbid_+relpos+relbid*stepoutstep;
+		preprocessor_->setInput( relbid, gatherset_[idx]->id() );
+	    }
+	}
+	else
+	{
+	    const BinID stepout = preprocessor_->getInputStepout();
+	    const BinID stepoutstep( SI().inlRange(true).step,
+				     SI().crlRange(true).step );
+	    ::PreStack::Gather* gather = 0;
+	    for ( int inlidx=-stepout.inl; inlidx<=stepout.inl; inlidx++ )
+	    {
+		for ( int crlidx=-stepout.crl; crlidx<=stepout.crl; crlidx++ )
+		{
+		    const BinID relbid( inlidx, crlidx );
+		    if ( !preprocessor_->wantsInput(relbid) )
+			continue;
 
-		mTryAlloc( gather, ::PreStack::Gather );
-		if ( !gather )
-		    return false;
+		    const BinID bid = currentbid_+relpos+relbid*stepoutstep;
 
-		if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
-		    continue;
+		    mTryAlloc( gather, ::PreStack::Gather );
+		    if ( !gather )
+			return false;
 
-		DPM(DataPackMgr::FlatID()).add( gather );
-		preprocessor_->setInput( relbid, gather->id() );
-		gather = 0;
+		    if ( !gather->readFrom(*psioobj_, *psrdr_, bid, component_))
+			continue;
+
+		    DPM(DataPackMgr::FlatID()).add( gather );
+		    preprocessor_->setInput( relbid, gather->id() );
+		    gather = 0;
+		}
 	    }
 	}
 
@@ -184,15 +199,33 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 
     const BinID bid = currentbid_+relpos;
 
-    mDeclareAndTryAlloc( ::PreStack::Gather*, gather, ::PreStack::Gather );
-    if ( !gather )
-	return false;
+    DataPack::ID curgatherid = -1;
+    if ( gatherset_.size() )
+    {
+	PreStack::Gather* curgather = 0;
+	for ( int idx=0; idx<gatherset_.size(); idx++ )  
+	{                                       
+           if ( gatherset_[idx]->getBinID() == bid )
+	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
+	}
+	if (!curgather ) return false;
 
-    if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
-	return false;
+	curgatherid = curgather->id();
+    }
+    else
+    {
+	mDeclareAndTryAlloc( ::PreStack::Gather*, gather, ::PreStack::Gather );
+	if ( !gather )
+	    return false;
 
-    DPM(DataPackMgr::FlatID()).add( gather );
-    propcalc_->setGather( gather->id() );
+	if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
+	    return false;
+
+	DPM(DataPackMgr::FlatID()).add( gather );
+	curgatherid = gather->id();
+    }
+
+    propcalc_->setGather( curgatherid );
     return true;
 }
 
@@ -202,19 +235,39 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 void PSAttrib::prepPriorToBoundsCalc()
 {
     delete psioobj_;
-    psioobj_ = IOM().get( psid_ );
-    if ( !psioobj_ )
-	mErrRet("Cannot find pre-stack data store ",psid_," in object manager")
 
-    if ( desc_.is2D() )
-	psrdr_ = SPSIOPF().get2DReader(*psioobj_,curlinekey_.lineName().buf());
+    bool isondisc = true;
+    const char* fullidstr = psid_.buf();
+    if ( fullidstr && *fullidstr == '#' )
+    {
+	DataPack::FullID fid( fullidstr+1 );
+	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
+	mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
+	isondisc =  !psgdtp;
+	if ( isondisc )
+	    mErrRet("Cannot obtain gathers kept in memory","" , "")
+
+	gatherset_ = psgdtp->getGathers();
+    }
     else
-	psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
+    {
+	psioobj_ = IOM().get( psid_ );
+	if ( !psioobj_ && isondisc )
+	    mErrRet("Cannot find pre-stack data store ",psid_,
+		    " in object manager")
 
-    if ( !psrdr_ )
-	mErrRet("Cannot create reader for ",psid_," pre-stack data store")
-    const char* emsg = psrdr_->errMsg();
-    if ( emsg ) mErrRet("PS Reader: ",emsg,"");
+	if ( desc_.is2D() )
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
+		    			    curlinekey_.lineName().buf() );
+	else
+	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
+
+	if ( !psrdr_ )
+	    mErrRet("Cannot create reader for ",psid_," pre-stack data store")
+	
+	const char* emsg = psrdr_->errMsg();
+	if ( emsg ) mErrRet("PS Reader: ",emsg,"");
+    }
 
     mTryAlloc( propcalc_, ::PreStack::PropCalc( setup_ ) );
 }

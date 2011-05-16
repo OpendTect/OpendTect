@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.12 2009-09-17 17:23:07 cvskris Exp $
+ RCS:           $Id: prestackattrib.h,v 1.13 2011-05-16 16:12:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; }
+namespace PreStack { class ProcessManager; class Gather; }
 
 
 namespace Attrib
@@ -89,6 +89,8 @@ protected:
     MultiID			preprocid_;
     int				dataidx_;
     const DataHolder*		inputdata_;
+
+    ObjectSet<PreStack::Gather>    gatherset_; 
 };
 
 }; // namespace Attrib
