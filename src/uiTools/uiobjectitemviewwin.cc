@@ -7,17 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.4 2011-05-09 11:33:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.5 2011-05-16 09:27:44 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
-#include "uigraphicsitemimpl.h"
-#include "uilabel.h"
-#include "uibutton.h"
+#include "uiaxishandler.h"
 #include "uigraphicsscene.h"
+#include "uibutton.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
+#include "uilabel.h"
 #include "uirgbarraycanvas.h"
-#include "uislider.h"
 #include "uiprogressbar.h"
+#include "uislider.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -26,6 +28,8 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p,const char* title)
     : uiMainWin(p,title)
     , startwidth_(400)
     , startheight_(600) 
+    , hslval_(1)
+    , vslval_(1)
 {
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ );
@@ -66,9 +70,18 @@ void uiObjectItemViewWin::addGroup( uiGroup* obj, uiGroup* infoobj )
 
 void uiObjectItemViewWin::addItem( uiObjectItem* itm, uiObjectItem* infoitm )
 {
-    mainviewer_->addItem( itm, 1 );
+    mainviewer_->addItem( itm );
     infobar_->addItem( infoitm, itm );
 }
+
+
+void uiObjectItemViewWin::insertItem( int idx, 
+				uiObjectItem* itm, uiObjectItem* infoitm )
+{
+    mainviewer_->insertItem( itm, idx );
+    infobar_->insertItem( infoitm, itm, idx );
+}
+
 
 
 #define mSldNrUnits 30
@@ -208,8 +221,26 @@ uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
 void uiObjectItemViewInfoBar::addItem( uiObjectItem* infoitm,
 					uiObjectItem* cpleditm )
 {
-    uiObjectItemView::addItem( infoitm );
+    addItem( infoitm );
     coupleditems_ += cpleditm;
+    updateItemsPos();
+}
+
+
+void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
+{
+    const int idx = objectitems_.indexOf( itm );
+    if ( idx >= 0 ) coupleditems_.remove( idx );
+    uiObjectItemView::removeItem( itm );
+    updateItemsPos();
+}
+
+
+void uiObjectItemViewInfoBar::insertItem( uiObjectItem* itm, 
+					uiObjectItem* cpleditm, int pos )
+{
+    insertItem( itm, pos );
+    coupleditems_.insertAt( cpleditm, pos );
     updateItemsPos();
 }
 
@@ -240,13 +271,6 @@ void uiObjectItemViewInfoBar::updateItemsPos()
 }
 
 
-void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
-{
-    const int idx = objectitems_.indexOf( itm );
-    if ( idx >= 0 ) coupleditems_.remove( idx );
-    uiObjectItemView::removeItem( itm );
-}
-
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
@@ -256,29 +280,42 @@ void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
 uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     : uiGroup(mw.parent(),"ObjectItemView control")
     , mainviewer_(mw)
+    , manipdrawbut_(0)		     
     , manip_(false)		     
     , toolbar_(0)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
     toolbar_ = new uiToolBar( mw.parent(), "ObjectItemView tools", tba );
-    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+    setToolButtons();
 
     mainviewer_.disableScrollZoom();
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.scene().setMouseEventActive( true );
-} 
+}
+
+
+void uiObjectItemViewControl::setToolButtons()
+{
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+}
 
 
 void uiObjectItemViewControl::stateCB( CallBacker* )
 {
-    if ( !manipdrawbut_ ) return;
+    changeStatus();
+}
+
+void uiObjectItemViewControl::changeStatus() 
+{
     manip_ = !manip_;
 
     uiGraphicsViewBase::ODDragMode mode = !manip_ ? 
 	uiGraphicsViewBase::NoDrag : uiGraphicsViewBase::ScrollHandDrag;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    if ( manipdrawbut_ ) 
+	manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+
     mainviewer_.setDragMode( mode );
     mainviewer_.scene().setMouseEventActive( true );
     if ( mode == uiGraphicsViewBase::ScrollHandDrag )
@@ -287,6 +324,53 @@ void uiObjectItemViewControl::stateCB( CallBacker* )
 	cursor_.shape_ = MouseCursor::Arrow;
 
     mainviewer_.setCursor( cursor_ );
+}
+
+
+
+uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )
+    : zax_(0)
+    , scene_(0)
+{
+    mDynamicCastGet(uiGraphicsObjectScene*,sc,&vw.scene())
+    if ( !sc ) return;
+
+    scene_ = sc;
+
+    uiAxisHandler::Setup asu( uiRect::Bottom );
+    asu.side( uiRect::Left );
+    zax_ = new uiAxisHandler( scene_, asu );
+}
+
+
+void uiObjectItemViewAxisPainter::setZRange( Interval<float> zrg )
+{
+    if ( zax_ && zax_->range() != zrg )
+    {
+	zrg.sort( false );
+	zax_->setBounds( zrg );
+    }
+    plotAxis();
+}
+
+
+void uiObjectItemViewAxisPainter::setAxisRelations()
+{
+    if ( !zax_ || !scene_ ) return;
+    const int widthshift = scene_->layoutPos().x -zax_->pixToEdge(false);
+    const int heightshift = scene_->layoutPos().y;
+    uiBorder b( widthshift, heightshift, widthshift, heightshift );
+    b += border_;
+    zax_->setBorder( b );
+    zax_->updateDevSize();
+}
+
+
+void uiObjectItemViewAxisPainter::plotAxis()
+{
+    setAxisRelations();
+    if ( zax_ )
+	zax_->plotAxis();
 }
 
 

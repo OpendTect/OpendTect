@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.4 2011-05-09 08:48:09 cvsbert Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.5 2011-05-16 09:27:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,9 @@ class uiObjectItemViewControl;
 class uiSliderExtra;
 class uiToolBar;
 class uiToolButton;
+class uiGraphicsObjectScene;
+class uiAxisHandler;
+class uiBorder;
 
 mClass uiObjectItemViewWin : public uiMainWin
 {
@@ -37,6 +40,7 @@ public:
     void 		addObject(uiObject* grp,uiObject* infogrp=0);
     void 		addGroup(uiGroup* grp,uiGroup* infogrp=0);
     void 		addItem(uiObjectItem* itm,uiObjectItem* infoitm=0);
+    void		insertItem(int idx,uiObjectItem*,uiObjectItem* info=0);
 
     void		removeAllItems();
 
@@ -60,7 +64,7 @@ protected:
     void		init();
     void		makeSliders();
     void 		setUpView();
-    void		reSizeItems();
+    virtual void	reSizeItems();
 
     void		fitToScreen(CallBacker*);
     void		reSizeSld(CallBacker*);
@@ -77,6 +81,10 @@ public:
     void		addItem(uiObjectItem*,uiObjectItem* coupleditm);
     virtual void	addItem( uiObjectItem* itm, int stretch=1 )
 			{ return uiObjectItemView::addItem(itm,stretch); }
+    void   		insertItem(uiObjectItem*,uiObjectItem* cplitm,int idx);
+    virtual void	insertItem(uiObjectItem* itm,int pos,int st=1)
+			{ return uiObjectItemView::insertItem(itm,pos,st); }
+
     void		removeItem(uiObjectItem* itm);
     void		updateItemsPos();
     void		reSizeItems();
@@ -94,6 +102,8 @@ public :
 
     virtual uiToolBar* 	toolBar() { return toolbar_;}
 
+    void  	        changeStatus();
+
 protected:
 
     uiObjectItemView&	mainviewer_;
@@ -102,9 +112,27 @@ protected:
     MouseCursor 	cursor_;
     bool		manip_;
 
+    void        	setToolButtons();
     void 		stateCB(CallBacker*);
 };
 
+
+mClass uiObjectItemViewAxisPainter
+{
+public:
+			uiObjectItemViewAxisPainter(uiObjectItemView&);
+
+    void 		setZRange(Interval<float>);
+    void 		plotAxis();
+
+protected:	
+
+    uiGraphicsObjectScene* scene_;
+    uiAxisHandler* 	zax_;
+    uiBorder 		border_;
+
+    void 		setAxisRelations();
+};
 
 
 #endif

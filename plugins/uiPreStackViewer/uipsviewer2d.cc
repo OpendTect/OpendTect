@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.8 2011-05-05 15:39:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.9 2011-05-16 09:27:44 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -76,6 +76,7 @@ void uiGatherDisplay::setGather( int id )
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( pd.range(true).start, pd.range(false).stop );
+    zdatarange_.set( pd.range(false).start, pd.range(false).stop );
 }
 
 

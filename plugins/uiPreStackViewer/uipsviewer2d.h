@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.5 2011-05-04 16:15:35 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.6 2011-05-16 09:27:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     bool                        getFixedOffsetRange() const;
     const Interval<float>&      getOffsetRange() const;
     const Interval<double>*     getZRange() const	{ return zrg_; }
+    const Interval<float>&      getZDataRange() const	{ return zdatarange_; }
 
     uiFlatViewer*               getUiFlatViewer() 	{ return viewer_; }
     BinID			getBinID() const;
@@ -57,6 +58,7 @@ protected:
 
     bool                        fixedoffset_;
     Interval<float>             offsetrange_;
+    Interval<float>           	zdatarange_;
     Interval<double>*           zrg_;
     BinID			bid_;
     bool                        displayannotation_;

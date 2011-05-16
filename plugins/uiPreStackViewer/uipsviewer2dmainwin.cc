@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.7 2011-05-11 15:23:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.8 2011-05-16 09:27:44 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -40,7 +40,9 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p )
     , control_(0)		
     , seldatacalled_(this)
     , isinl_(false)
-{}
+    , axispainter_(0)
+{
+}
 
 
 void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
@@ -135,6 +137,7 @@ void uiViewer2DMainWin::setUpView()
 
     uiMainWin win( this );
     uiProgressBar pb( &win );
+    pb.setCaption( "Creating gather displays ... " );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
     pb.setTotalSteps( nrvwrs );
@@ -161,10 +164,17 @@ void uiViewer2DMainWin::removeAllGathers()
 }
 
 
+void uiViewer2DMainWin::reSizeItems()
+{
+     uiObjectItemViewWin::reSizeItems();
+}
+
+
 void uiViewer2DMainWin::setGathers( const BinID& bid )
 {
     uiGatherDisplay* gd;
     PreStack::Gather* gather; 
+    Interval<float> zrg( mUdf(float), 0 );
     for ( int idx=0; idx<mids_.size(); idx++ )
     {
 	gd = new uiGatherDisplay( 0 );
@@ -174,16 +184,19 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	    gd->setGather( gather->id() );
 	    DPM(DataPackMgr::FlatID()).release( gather );
+	    if ( mIsUdf( zrg.start ) )
+	       zrg = gd->getZDataRange();
+	    zrg.include( gd->getZDataRange() );
 	}
 	else
 	{
 	    gd->setGather( -1 );
 	    delete gather;
 	}
-
 	gd->setPosition( bid );
-	gd->getUiFlatViewer()->appearance().annot_.x1_.showannot_ = false;
-	vwrs_ += gd->getUiFlatViewer();
+	uiFlatViewer* fv = gd->getUiFlatViewer();
+	fv->appearance().annot_.x1_.showannot_ = false;
+	vwrs_ += fv;
 	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
 	PtrMan<IOObj> ioobj = IOM().get( mids_[idx] );
 	BufferString nm = ioobj ? ioobj->name() : "";
@@ -202,7 +215,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	    ctrl->infoChanged.notify( mCB(this,uiViewer2DMainWin,displayInfo) );
 	    control_ = ctrl;
 	}
-	control_->addViewer( *gd->getUiFlatViewer() );
+	control_->addViewer( *fv );
     }
 }
 
