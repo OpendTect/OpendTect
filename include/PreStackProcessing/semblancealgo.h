@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Nov 2010
- RCS:		$Id: semblancealgo.h,v 1.3 2010-11-10 19:17:42 cvskris Exp $
+ RCS:		$Id: semblancealgo.h,v 1.4 2011-05-16 12:03:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ public:
 					     order as the gather. If provided,
 					     only traces with 'true' will be
 					     included in computation. */
+
+    virtual void	reInit()		{}
     virtual void	fillPar(IOPar&) const 	{}
     virtual bool	usePar(const IOPar&) 	{ return true; }
 };
