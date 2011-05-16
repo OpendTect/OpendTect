@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.87 2011-05-12 08:58:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.88 2011-05-16 09:28:05 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -655,7 +655,7 @@ void uiInfoDlg::computeData()
     crosscorr_->set( corrarr, nrsamps, mLag, coeff );
     delete [] corrarr; 
 
-    if ( !data.isinitwvltactive_ )
+    if ( data.isinitwvltactive_ )
     {
 	int wvltsz = estwvltsz_;
 	wvltsz += wvltsz%2 ? 0 : 1;
