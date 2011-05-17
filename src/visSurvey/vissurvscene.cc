@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.146 2011-04-11 05:34:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.147 2011-05-17 12:00:22 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -118,7 +118,7 @@ void Scene::init()
     setZStretch( zsc );
 
     setCubeSampling( cs );
-    addInlCrlTObject( annot_ );
+    addInlCrlZObject( annot_ );
     updateAnnotationText();
 
     polyselector_ = visBase::PolygonSelection::create();
@@ -277,7 +277,7 @@ void Scene::addUTMObject( visBase::VisualObject* obj )
 }
 
 
-void Scene::addInlCrlTObject( visBase::DataObject* obj )
+void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
     visBase::Scene::addObject( obj );
 }
@@ -299,7 +299,7 @@ void Scene::addObject( visBase::DataObject* obj )
     }
 
     if ( so && so->isInlCrl() )
-	addInlCrlTObject( obj );
+	addInlCrlZObject( obj );
     else if ( vo )
 	addUTMObject( vo );
 

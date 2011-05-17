@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.73 2011-02-23 06:24:02 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.74 2011-05-17 12:00:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,7 @@ public:
 				     displaydomain
 				*/
     void			addUTMObject(visBase::VisualObject*);
-    void			addInlCrlTObject(visBase::DataObject*);
+    void			addInlCrlZObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
 
     const CubeSampling&		getCubeSampling() const		{ return cs_; }
