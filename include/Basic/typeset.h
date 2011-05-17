@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.11 2011-05-17 08:07:38 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.12 2011-05-17 08:13:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,7 +208,7 @@ template <class T> inline
 void TypeSet<T>::setAll( T val )
 {
     const int sz = size();
-    const T* v = arr();
+    T* v = arr();
     for ( int idx=0; idx<sz; idx++ )
 	v[idx] = val;
 }
