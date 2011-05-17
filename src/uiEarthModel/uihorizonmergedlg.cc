@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.1 2011-05-16 12:04:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.2 2011-05-17 11:58:43 cvsnanne Exp $";
 
 
 #include "uihorizonmergedlg.h"
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.1 2011-05-16 12:04:15 
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "executor.h"
+#include "horizonmerger.h"
 #include "ioobj.h"
 #include "ptrman.h"
 
@@ -68,11 +70,30 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     outfld_->processInput();
     PtrMan<IOObj> ioobj = outfld_->selIOObj();
     if ( !ioobj )
+	return false;
+
+    PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
+    if ( !loader || !uitr.execute(*loader) )
     {
-	uiMSG().error( "Please select output horizon" );
+	uiMSG().error( "Cannot load selected input horizons" );
 	return false;
     }
 
-    uiMSG().error( "Not implemented yet" );
+    TypeSet<EM::ObjectID> objids;
+    for ( int idx=0; idx<mids.size(); idx++ )
+    {
+	EM::ObjectID objid = EM::EMM().getObjectID( mids[idx] );
+	if ( EM::EMM().getObject(objid) )
+	    objids += objid;
+    }
+
+    EM::Horizon3DMerger merger( objids );
+    if ( !uitr.execute(merger) )
+    {
+	uiMSG().error( "Cannot merge horizons" );
+	return false;
+    }
+
+    uiMSG().error( "Save not implemented yet" );
     return false;
 }
