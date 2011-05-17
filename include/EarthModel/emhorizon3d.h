@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.70 2010-09-23 04:46:25 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.71 2011-05-17 11:58:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,11 @@ the knots.
 mClass Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
+
+    bool			setZ(const BinID&,float z,bool addtohist);
+				//!< Writes to the first section
+    float			getZ(const BinID&) const;
+				//!< Reads from the first section
 
     void			removeAll();
     Horizon3DGeometry&		geometry();

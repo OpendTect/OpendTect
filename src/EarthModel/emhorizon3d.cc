@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.131 2010-09-27 06:25:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.132 2011-05-17 11:58:11 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -89,9 +89,13 @@ int nextStep()
 	if ( sectionidx_ >= horizon_.geometry().nrSections() )
 	    return Finished();
 
-	SectionID sectionid = horizon_.geometry().sectionID(sectionidx_);
-	inlrg_ = horizon_.geometry().rowRange(sectionid);
-	crlrg_ = horizon_.geometry().colRange(sectionid);
+	const SectionID sectionid = horizon_.geometry().sectionID(sectionidx_);
+	const Geometry::BinIDSurface* rcgeom =
+	    horizon_.geometry().sectionGeometry( sectionid );
+	if ( !rcgeom ) return ErrorOccurred();
+
+	inlrg_ = rcgeom->rowRange();
+	crlrg_ = rcgeom->colRange();
 	inl_ = inlrg_.start;
     }
 
@@ -304,7 +308,14 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
+// Horizon3D
 mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() );
+
+bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
+{ return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
+
+float Horizon3D::getZ( const BinID& bid ) const
+{ return getPos( sectionID(0), bid.toInt64() ).z; }
 
 
 Array2D<float>* Horizon3D::createArray2D( 
@@ -351,11 +362,12 @@ Array2D<float>* Horizon3D::createArray2D(
 bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid, 
 			    bool onlyfillundefs, const char* undodesc )
 {
-    if ( geometry().sectionGeometry( sid )->isEmpty() )
+    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() )
 	return 0;
 
-    const StepInterval<int> rowrg = geometry_.rowRange( sid );
-    const StepInterval<int> colrg = geometry_.colRange( sid );
+    const StepInterval<int> rowrg = geom->rowRange();
+    const StepInterval<int> colrg = geom->colRange();
 
     const RowCol startrc( rowrg.start, colrg.start );
     const RowCol stoprc( rowrg.stop, colrg.stop );
