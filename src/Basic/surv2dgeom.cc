@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.22 2011-05-11 05:36:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.23 2011-05-17 11:30:09 cvsraman Exp $";
 
 #include "surv2dgeom.h"
 
@@ -218,7 +218,7 @@ void PosInfo::Survey2D::getIDs( const IOPar& iop, TypeSet<int>& ids ) const
 
 int PosInfo::Survey2D::curLineSetID() const
 {
-    return lsindex_.indexOf( lsnm_.buf() );
+    return getLineSetID( lsnm_.buf() );
 }
 
 
