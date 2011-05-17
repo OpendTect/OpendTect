@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.10 2010-05-27 16:32:10 cvskris Exp $
+ RCS:		$Id: typeset.h,v 1.11 2011-05-17 08:07:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
 				/*!<\param val value assigned to new items */
     inline virtual bool		setCapacity( int sz );
 				/*!<Allocates mem only, no size() change */
+    inline void			setAll(T);
 
     inline T&			operator[](int);
     inline const T&		operator[](int) const;
@@ -202,6 +203,15 @@ bool TypeSet<T>::setSize( int sz, T val )
 template <class T> inline
 bool TypeSet<T>::setCapacity( int sz )
 { return vec_.setCapacity( sz ); }
+
+template <class T> inline
+void TypeSet<T>::setAll( T val )
+{
+    const int sz = size();
+    const T* v = arr();
+    for ( int idx=0; idx<sz; idx++ )
+	v[idx] = val;
+}
 
 
 template <class T> inline
