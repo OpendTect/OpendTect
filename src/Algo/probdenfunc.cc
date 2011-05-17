@@ -4,28 +4,56 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.22 2010-04-23 08:36:08 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.23 2011-05-17 08:52:12 cvsbert Exp $";
 
 
 #include "sampledprobdenfunc.h"
+#include "sampledprobdenfunc.h"
+#include "probdenfuncdraw.h"
 #include "interpol1d.h"
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "math2.h"
 #include "interpolnd.h"
+#include "idxable.h"
+#include "statrand.h"
 #include <math.h>
 #include <iostream>
 
 static const float snappos = 1e-5;
-
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
+
+
+void ProbDenFuncDraw::reset()
+{
+    pdf_.prepareRandDrawing();
+    usecount_.setSize( pdf_.nrDims(), 0 );
+    reDraw();
+}
+
+
+void ProbDenFuncDraw::reDraw()
+{
+    pdf_.drawRandomPos( vals_ );
+    usecount_.setAll( 0 );
+}
+
+
+float ProbDenFuncDraw::value( int ival, bool redrw ) const
+{
+    if ( redrw && usecount_[ival] )
+	const_cast<ProbDenFuncDraw*>(this)->reDraw();
+    usecount_[ival]++;
+    return vals_[ival];
+}
 
 
 ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
     : NamedObject(pdf.name())
 {
 }
+
 
 void ProbDenFunc::fillPar( IOPar& par ) const
 {
@@ -184,6 +212,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(a1d)
+    , cumbins_(0)
 {
 }
 
@@ -192,6 +221,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const TypeSet<float>& vals )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(vals.size())
+    , cumbins_(0)
 {
     for ( int idx=0; idx<vals.size(); idx++ )
 	bins_.set( idx, vals[idx] );
@@ -202,6 +232,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const float* vals, int sz )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(sz)
+    , cumbins_(0)
 {
     for ( int idx=0; idx<sz; idx++ )
 	bins_.set( idx, vals[idx] );
@@ -212,7 +243,10 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Sampled1DProbDenFunc& spdf )
     : ProbDenFunc1D(spdf)
     , sd_(spdf.sd_)
     , bins_(spdf.bins_)
+    , cumbins_(0)
 {
+    if ( spdf.cumbins_ )
+	fillCumBins();
 }
 
 
@@ -224,6 +258,8 @@ Sampled1DProbDenFunc& Sampled1DProbDenFunc::operator =(
 	ProbDenFunc1D::operator =( spdf );
 	sd_ = spdf.sd_;
 	bins_ = spdf.bins_;
+	if ( spdf.cumbins_ )
+	    fillCumBins();
     }
     return *this;
 }
@@ -239,7 +275,7 @@ void Sampled1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-float Sampled1DProbDenFunc::value( float pos ) const
+float Sampled1DProbDenFunc::gtVal( float pos ) const
 {
     const int sz = size( 0 );
     if ( sz < 1 ) return 0;
@@ -264,6 +300,46 @@ float Sampled1DProbDenFunc::value( float pos ) const
 
     const float val = Interpolate::PolyReg1D<float>(v).apply( fidx - idx );
     return val < 0 ? 0 : val;
+}
+
+
+void Sampled1DProbDenFunc::prepareRandDrawing() const
+{
+    fillCumBins();
+    Stats::RandGen::init();
+}
+
+
+void Sampled1DProbDenFunc::fillCumBins() const
+{
+    const int sz = size( 0 );
+    float*& cbs = const_cast<float*&>( cumbins_ );
+    delete [] cbs; cbs = 0;
+    if ( sz < 1 ) return;
+
+    cbs = new float [ sz ];
+    cbs[0] = bins_[0];
+    for ( int idx=1; idx<sz; idx++ )
+	cbs[idx] = cbs[idx-1] + bins_[idx];
+}
+
+
+void Sampled1DProbDenFunc::drwRandPos( float& pos ) const
+{
+    const int sz = size( 0 );
+    if ( sz < 2 )
+	{ pos = 0; return; }
+    const float cumpos = Stats::RandGen::get() * cumbins_[sz-1];
+    int ibin;
+    if ( IdxAble::findFPPos(cumbins_,sz,cumpos,-1,ibin) )
+	{ pos = ibin<sz-1 ? ibin+1 : sz-1; return; }
+
+    ibin++;
+    const float cum0 = ibin < 1 ? 0 : cumbins_[ibin-1];
+    const float cum1 = cumbins_[ibin];
+    const float relpos = ibin - 0.5 + (cumpos - cum0) / (cum1 - cum0);
+
+    pos = sd_.start + relpos * sd_.step;
 }
 
 
@@ -337,7 +413,7 @@ void Sampled2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-float Sampled2DProbDenFunc::value( float px, float py ) const
+float Sampled2DProbDenFunc::gtVal( float px, float py ) const
 {
     const int szx = size( 0 ); const int szy = size( 1 );
     if ( szx < 1 || szy < 1 ) return 0;
@@ -365,6 +441,13 @@ float Sampled2DProbDenFunc::value( float px, float py ) const
     const float xpos = fidxx - idxx; const float ypos = fidxy - idxy;
     const float val = Interpolate::LinearReg2D<float>(v).apply( xpos, ypos );
     return val < 0 ? 0 : val;
+}
+
+
+void Sampled2DProbDenFunc::drwRandPos( float& p1, float& p2 ) const
+{
+    //TODO
+    p1 = p2 = 0;
 }
 
 
@@ -525,6 +608,13 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
     const float res = Interpolate::linearRegND( nrdims, hcvals, relpos.arr() );
     delete [] hcvals;
     return res;
+}
+
+
+void SampledNDProbDenFunc::drawRandomPos( TypeSet<float>& vals ) const
+{
+    //TODO
+    vals.erase(); vals.setSize( nrDims(), 0 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.14 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.15 2011-05-17 08:51:59 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,8 +30,12 @@ mClass ArrayNDProbDenFunc
 {
 public:
 
+    virtual				~ArrayNDProbDenFunc()	{}
+
     int					size( int dim ) const
 		{ return getArrND().info().getSize(dim); }
+    od_uint64				totalSize() const
+		{ return getArrND().info().getTotalSz(); }
 
     virtual const ArrayND<float>&	getData() const
 		{ return getArrND(); }
@@ -84,10 +88,6 @@ public:
     virtual void	copyFrom(const ProbDenFunc&);
     			mDefArrayNDProbDenFuncFns(Sampled1D)
 
-    virtual float	value(float) const;
-    virtual float	value( const TypeSet<float>& ts ) const
-			{ return value( ts[0] ); }
-
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
     virtual void	dump(std::ostream&,bool binary) const;
@@ -98,10 +98,18 @@ public:
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
 
+    virtual void	prepareRandDrawing() const;
+
 protected:
 
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
     virtual const SamplingData<float>&	getSampling(int) const	{ return sd_; }
+
+    virtual float	gtVal(float) const;
+    virtual void	drwRandPos(float&) const;
+
+    float*		cumbins_;
+    void		fillCumBins() const;
 
 };
 
@@ -116,10 +124,6 @@ public:
     Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
     			mDefArrayNDProbDenFuncFns(Sampled2D)
-
-    virtual float	value(float,float) const;
-    virtual float	value( const TypeSet<float>& ts ) const
-			{ return value( ts[0], ts[1] ); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -137,6 +141,9 @@ protected:
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
     virtual const SamplingData<float>&	getSampling( int d ) const
 					{ return d ? sd1_ : sd0_; }
+
+    virtual float	gtVal(float,float) const;
+    virtual void	drwRandPos(float&,float&) const;
 
 };
 
@@ -164,6 +171,7 @@ public:
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
     virtual float	value(const TypeSet<float>&) const;
+    virtual void	drawRandomPos(TypeSet<float>&) const;
     virtual ArrayND<float>* getArrClone() const	
     			{ return new ArrayNDImpl<float>(bins_); }
 

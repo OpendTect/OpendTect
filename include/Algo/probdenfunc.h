@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.11 2010-03-17 12:20:52 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.12 2011-05-17 08:51:58 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class IOPar;
 
 /* Probability Density Function
 
-   The values may not ne normalized; if you need them to be: multiply with
+   The values may not be normalized; if you need them to be: multiply with
    'normFac()'. What you are getting can for example be the values from a
    histogram. All we require is that the value() implementation always returns
    positive values.
@@ -57,6 +57,8 @@ public:
 	    				 TypeSet<int>& tbl) const;
     			//!< tbl[0] tells what my index is for pdf's index '0'
     
+    virtual void	prepareRandDrawing() const		{}
+    virtual void	drawRandomPos(TypeSet<float>&) const	= 0;
     static const char*	sKeyNrDim();
 
 protected:
@@ -79,11 +81,16 @@ public:
     virtual void	setDimName( int dim, const char* nm )
 						{ if ( !dim ) varnm_ = nm; }
 
-    virtual float	value(float) const	= 0;
     virtual const char*	varName() const		{ return varnm_; }
 
+    inline float	value( float v ) const	{ return gtVal( v ); }
     virtual float	value( const TypeSet<float>& v ) const
-						{ return value(v[0]); }
+						{ return gtVal( v[0] ); }
+
+    inline void		drawRandomPos( float& v ) const
+			{ drwRandPos( v ); }
+    virtual void	drawRandomPos( TypeSet<float>& v ) const
+			{ v.setSize(1); drwRandPos( v[0] ); }
 
     BufferString	varnm_;
 
@@ -95,6 +102,9 @@ protected:
 			    : ProbDenFunc(pdf)
 			    , varnm_(pdf.varnm_)		{}
     ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
+
+    virtual float	gtVal(float) const	= 0;
+    virtual void	drwRandPos(float&) const = 0;
 
 };
 
@@ -112,9 +122,15 @@ public:
     virtual void	setDimName( int dim, const char* nm )
 			{ if ( dim < 2 ) (dim ? dim1nm_ : dim0nm_) = nm; }
 
-    virtual float	value(float,float) const	= 0;
+    float		value( float x1, float x2 ) const
+			{ return gtVal( x1, x2 ); }
     virtual float	value( const TypeSet<float>& v ) const
-			{ return value(v[0],v[1]); }
+			{ return gtVal( v[0], v[1] ); }
+
+    inline void		drawRandomPos( float& x1, float& x2 ) const
+			{ drwRandPos( x1, x2 ); }
+    virtual void	drawRandomPos( TypeSet<float>& v ) const
+			{ v.setSize(2); drwRandPos( v[0], v[1] ); }
 
     BufferString	dim0nm_;
     BufferString	dim1nm_;
@@ -128,6 +144,9 @@ protected:
 			    , dim0nm_(pdf.dim0nm_)
 			    , dim1nm_(pdf.dim1nm_)		{}
     ProbDenFunc2D&	operator =(const ProbDenFunc2D&);
+
+    virtual float	gtVal(float,float) const	= 0;
+    virtual void	drwRandPos(float&,float&) const = 0;
 
 };
 
