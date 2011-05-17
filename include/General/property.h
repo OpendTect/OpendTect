@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.23 2010-11-09 20:37:19 cvskris Exp $
+ RCS:		$Id: property.h,v 1.24 2011-05-17 08:51:38 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,7 @@ public:
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
 
+    virtual void	reset()				{}
     virtual bool	init(const PropertySet&) const	{ return true; }
 			    //!< clears 'memory' and makes property usable
     virtual const char*	errMsg() const			{ return 0; }
