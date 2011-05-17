@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.15 2011-05-17 08:51:59 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.16 2011-05-17 12:22:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,35 +30,46 @@ mClass ArrayNDProbDenFunc
 {
 public:
 
-    virtual				~ArrayNDProbDenFunc()	{}
+				ArrayNDProbDenFunc()
+				: cumbins_(0)		{}
+				ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
+				: cumbins_(0)		{ *this = oth; }
+    virtual			~ArrayNDProbDenFunc()	{}
+    ArrayNDProbDenFunc& operator =(const ArrayNDProbDenFunc&);
 
-    int					size( int dim ) const
+    int				size( int dim ) const
 		{ return getArrND().info().getSize(dim); }
-    od_uint64				totalSize() const
+    od_uint64			totalSize() const
 		{ return getArrND().info().getTotalSz(); }
 
-    virtual const ArrayND<float>&	getData() const
+    virtual const ArrayND<float>& getData() const
 		{ return getArrND(); }
-    virtual ArrayND<float>&		getData()
+    virtual ArrayND<float>&	getData()
     		{ return const_cast<ArrayND<float>&>(getArrND()); }
-    virtual ArrayND<float>*		getArrClone() const	= 0;
+    virtual ArrayND<float>*	getArrClone() const	= 0;
 
-    virtual SamplingData<float>		sampling( int dim ) const
+    virtual SamplingData<float>	sampling( int dim ) const
 		{ return getSampling(dim); }
-    virtual SamplingData<float>&	sampling( int dim )
+    virtual SamplingData<float>& sampling( int dim )
     		{ return const_cast<SamplingData<float>&>(getSampling(dim)); }
 
-    void				fillPar(IOPar&) const;
-    bool				usePar(const IOPar&);
-    void				dump(std::ostream&,bool binary) const;
-    bool				obtain(std::istream&,bool binary);
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+    void			dump(std::ostream&,bool binary) const;
+    bool			obtain(std::istream&,bool binary);
 
 protected:
 
-    virtual const ArrayND<float>&	getArrND() const	= 0;
-    virtual const SamplingData<float>&	getSampling(int) const	= 0;
-    virtual float			getNormFac() const;
-    virtual void			doScale(float);
+    virtual const ArrayND<float>& getArrND() const	= 0;
+    virtual const SamplingData<float>& getSampling(int) const	= 0;
+    virtual float		getNormFac() const;
+    virtual void		doScale(float);
+
+    mutable float*		cumbins_;
+
+    void			prepRndDrw() const;
+    void			fillCumBins() const;
+    od_uint64			getRandBin() const;
 
 };
 
@@ -67,12 +78,14 @@ protected:
     clss* clone() const	{ return new clss(*this); }
 
 #define mDefArrayNDProbDenFuncFns(nm) \
-    nm##ProbDenFunc*	clone() const	{ return new nm##ProbDenFunc(*this); } \
-    static const char*	typeStr()	{ return #nm; } \
-    virtual const char*	getTypeStr() const	{ return typeStr(); } \
-    float		normFac() const		{ return getNormFac(); } \
-    bool		canScale() const	{ return true; } \
-    void		scale( float f )	{ doScale(f); }
+    virtual nm##ProbDenFunc*	clone() const \
+				{ return new nm##ProbDenFunc(*this); } \
+    static const char*		typeStr()		{ return #nm; } \
+    virtual const char*		getTypeStr() const	{ return typeStr(); } \
+    virtual float		normFac() const		{ return getNormFac(); } \
+    virtual bool		canScale() const	{ return true; } \
+    virtual void		scale( float f )	{ doScale(f); } \
+    virtual void		prepareRandDrawing() const { prepRndDrw(); }
 
 
 mClass Sampled1DProbDenFunc : public ProbDenFunc1D
@@ -98,8 +111,6 @@ public:
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
 
-    virtual void	prepareRandDrawing() const;
-
 protected:
 
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
@@ -107,9 +118,6 @@ protected:
 
     virtual float	gtVal(float) const;
     virtual void	drwRandPos(float&) const;
-
-    float*		cumbins_;
-    void		fillCumBins() const;
 
 };
 
