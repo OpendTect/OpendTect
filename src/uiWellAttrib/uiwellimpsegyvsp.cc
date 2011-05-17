@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.16 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.17 2011-05-17 11:06:02 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -74,6 +74,7 @@ void selPush( CallBacker* )
     uiSEGYDefDlg::Setup su; su.defgeom_ = Seis::Line;
     su.geoms_ += su.defgeom_;
     uiSEGYDefDlg* defdlg = new uiSEGYDefDlg( &imp_, su, imp_.sgypars_ );
+    defdlg->setModal( true );
     defdlg->readParsReq.notify( mCB(this,uiSEGYVSPBasicPars,readParsReq) );
     const bool dlgok = defdlg->go();
     const int nrexam = dlgok ? defdlg->nrTrcExamine() : 0;
