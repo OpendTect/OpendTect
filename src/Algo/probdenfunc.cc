@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.24 2011-05-17 12:22:31 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.25 2011-05-17 14:18:06 cvsbert Exp $";
 
 
 #include "sampledprobdenfunc.h"
@@ -23,6 +23,9 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.24 2011-05-17 12:22:31 cvsbe
 
 static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
+
+#define mRandSDPos(sd,indx) \
+    (sd).atIndex( (float)(indx) + Stats::RandGen::get() - 0.5 );
 
 
 void ProbDenFuncDraw::reset()
@@ -349,7 +352,7 @@ float Sampled1DProbDenFunc::gtVal( float pos ) const
 void Sampled1DProbDenFunc::drwRandPos( float& pos ) const
 {
     const od_uint64 ibin = getRandBin();
-    pos = sd_.atIndex( (float)ibin + Stats::RandGen::get() - 0.5 );
+    pos = mRandSDPos( sd_, ibin );
 }
 
 
@@ -460,8 +463,8 @@ void Sampled2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
     const od_uint64 dimsz1 = (od_uint64)size( 1 );
     const od_uint64 i0 = ibin / dimsz1;
     const od_uint64 i1 = ibin - i0 * dimsz1;
-    p0 = sd0_.atIndex( (float)i0 + Stats::RandGen::get() - 0.5 );
-    p1 = sd1_.atIndex( (float)i1 + Stats::RandGen::get() - 0.5 );
+    p0 = mRandSDPos( sd0_, i0 );
+    p1 = mRandSDPos( sd1_, i1 );
 }
 
 
@@ -625,10 +628,20 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 }
 
 
-void SampledNDProbDenFunc::drawRandomPos( TypeSet<float>& vals ) const
+void SampledNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 {
-    //TODO
-    vals.erase(); vals.setSize( nrDims(), 0 );
+    const int nrdims = nrDims();
+    poss.setSize( nrdims, 0 );
+
+    od_uint64 ibin = getRandBin();
+    od_uint64 dimsz = totalSize();
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	dimsz /= size( idim );
+	const od_uint64 indx = ibin / dimsz;
+	poss[idim] = mRandSDPos( sds_[idim], indx );
+	ibin -= indx * dimsz;
+    }
 }
 
 
