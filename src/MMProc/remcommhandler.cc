@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.10 2011-05-10 11:38:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.11 2011-05-18 11:34:47 cvsnanne Exp $";
 
 #include "remcommhandler.h"
 
@@ -17,10 +17,12 @@ static const char* rcsID = "$Id: remcommhandler.cc,v 1.10 2011-05-10 11:38:56 cv
 #include "strmprov.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
+#include "timefun.h"
 #include <fstream>
 
 
-#define mErrRet( s ) { uiErrorMsg( s ); writeLog( s ); return; }
+#define mErrRet( s ) \
+{ BufferString msg(Time::getDateTimeString(),": ",s); writeLog( msg ); return; }
 
 RemCommHandler::RemCommHandler( int port )
     : port_(port)
@@ -34,6 +36,7 @@ RemCommHandler::RemCommHandler( int port )
 RemCommHandler::~RemCommHandler()
 {
     delete &server_;
+    delete &logstrm_;
 }
 
 
