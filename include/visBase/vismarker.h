@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.22 2011-02-22 08:18:22 cvsranojay Exp $
+ RCS:		$Id: vismarker.h,v 1.23 2011-05-18 06:59:31 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ public:
     void		setDisplayTransformation( Transformation* );
     Transformation*	getDisplayTransformation();
     
-    void		setDip(const char* diptext);
+    void		setDip(float inldip, float crldip);
     void		setZStretch(float);
 
     int			usePar(const IOPar&);
@@ -99,7 +99,8 @@ protected:
     SoNode*		shape;
     SoRotation*		rotation;
     float		zstretch_;
-    BufferString	dipvaluetext_;
+    float		inldip_;
+    float		crldip_;
     MarkerStyle3D	markerstyle;
     ::Sphere		direction;
     void		setArrowDir(const ::Sphere&);

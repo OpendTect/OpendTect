@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.82 2011-03-24 04:40:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.83 2011-05-18 06:59:31 cvsranojay Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -108,12 +108,18 @@ MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
 {}
 
 
-bool MarkerStyle2D::operator==(const MarkerStyle2D& b) const
-{ return type_==b.type_ && size_==b.size_ && color_==b.color_; }
+bool MarkerStyle2D::operator==( const MarkerStyle2D& b ) const
+{
+    return type_==b.type_ && size_==b.size_ && color_==b.color_ &&
+	mIsEqual(rotation_,b.rotation_,mDefEps);
+}
 
 
-const MarkerStyle2D& MarkerStyle2D::operator=(const MarkerStyle2D& a)
-{ type_ = a.type_ ; size_ = a.size_; color_ = a.color_; return *this; }
+const MarkerStyle2D& MarkerStyle2D::operator=( const MarkerStyle2D& a )
+{
+    type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
+    rotation_ = a.rotation_; return *this;
+}
 
 
 bool MarkerStyle2D::isVisible() const

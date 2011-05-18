@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.5 2011-05-02 09:21:25 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.6 2011-05-18 06:59:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,15 +215,15 @@ void VW2DPickSet::drawAll()
 	picks_->poly_ += point;
 
 	BufferString dipval;
-	pickset_[idx].getText( "Dip" , dipval );
+	pickset_[pickidx].getText( "Dip" , dipval );
 	SeparString dipstr( dipval );
 	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
 	const float depth = (dip/1000000) * zfac;
 	markerstyle.rotation_ =
-	    mIsUdf(dip) ? 0 : ( atan2(depth,xfac) * (180/M_PI) );
+	    mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) );
 	picks_->markerstyles_ += markerstyle;
     }
-
+    
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
 

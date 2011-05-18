@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.104 2011-04-28 18:55:07 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.105 2011-05-18 06:59:31 cvsranojay Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -163,7 +163,10 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
     marker->setDirection( loc.dir );
     BufferString dipvaluetext;
     loc.getText( "Dip", dipvaluetext );
-    marker->setDip( dipvaluetext.buf() );
+    SeparString dipstr( dipvaluetext );
+    const float inldip = dipstr.getFValue( 0 );
+    const float crldip = dipstr.getFValue( 1 );
+    marker->setDip( inldip, crldip );
 }
 
 
