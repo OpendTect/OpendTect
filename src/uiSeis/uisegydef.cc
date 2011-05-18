@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.41 2011-04-15 12:02:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.42 2011-05-18 13:21:31 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.41 2011-04-15 12:02:58 cvsbert
 #include "settings.h"
 #include "file.h"
 #include "filepath.h"
+#include "strmoper.h"
+#include "strmprov.h"
 #include "seisioobjinfo.h"
 
 #include "uifileinput.h"
@@ -51,6 +53,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , is2d_(!su.canbe3d_)
     , manipbut_(0)
     , needmulti_(su.forread_ && su.needmultifile_)
+    , swpd_(false)
+    , fileSelected(this)
 {
     SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
 
@@ -69,7 +73,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 	manipbut_ = new uiPushButton( this, "&Manipulate",
 			  mCB(this,uiSEGYFileSpec,manipFile), false );
 	manipbut_->attach( rightOf, fnmfld_ );
-	manipbut_->setSensitive( true );
+	manipbut_->setSensitive( false );
     }
 
     if ( needmulti_ )
@@ -180,6 +184,7 @@ void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 {
     setFileName( spec.fname_ );
     setMultiInput( spec.nrs_, spec.zeropad_ );
+    fileSel( 0 );
 }
 
 
@@ -229,17 +234,32 @@ void uiSEGYFileSpec::setInp2D( bool yn )
 
 void uiSEGYFileSpec::fileSel( CallBacker* )
 {
-    if ( manipbut_ )
-    {
-	const char* fnm = fnmfld_->fileName();
-	manipbut_->setSensitive( *fnm && File::isFile(fnm) );
-    }
+    if ( !forread_ ) return;
+
+    const SEGY::FileSpec spec( getSpec() );
+    const char* fnm = spec.getFileName();
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    const bool doesexist = sd.usable();
+    manipbut_->setSensitive( doesexist );
+    if ( !doesexist )
+	return;
+
+    StrmOper::seek( *sd.istrm, 3200, std::ios::beg );
+    unsigned char buf[400];
+    StrmOper::readBlock( *sd.istrm, buf, 400 );
+    sd.close();
+    SEGY::BinHeader bh; bh.setInput( buf );
+    bh.guessIsSwapped();
+    swpd_ = bh.isSwapped();
+
+    fileSelected.trigger();
 }
 
 
 void uiSEGYFileSpec::manipFile( CallBacker* )
 {
-    uiSEGYFileManip dlg( this, fnmfld_->fileName() );
+    const SEGY::FileSpec spec( getSpec() );
+    uiSEGYFileManip dlg( this, spec.getFileName() );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );
 }
@@ -381,6 +401,13 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 	fp.usePar( ioobj->pars() );
 
     setPars( fp );
+}
+
+
+void uiSEGYFilePars::setBytesSwapped( bool yn )
+{
+    if ( !byteswapfld_ ) return;
+    byteswapfld_->setValue( yn ? 2 : 0 );
 }
 
 

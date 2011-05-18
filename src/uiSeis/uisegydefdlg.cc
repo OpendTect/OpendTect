@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.19 2011-04-15 12:02:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.20 2011-05-18 13:21:31 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -53,6 +53,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     sgyfssu.forread(true).pars(&iop);
     sgyfssu.canbe3d( havevol || havevolps );
     filespecfld_ = new uiSEGYFileSpec( this, sgyfssu );
+    filespecfld_->fileSelected.notify( mCB(this,uiSEGYDefDlg,fileSel) );
 
     uiGroup* lastgrp = filespecfld_;
     if ( su.geoms_.size() == 1 )
@@ -164,6 +165,12 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
 	geomfld_->setCurrentItem( res );
 	geomChg( 0 );
     }
+}
+
+
+void uiSEGYDefDlg::fileSel( CallBacker* )
+{
+    fileparsfld_->setBytesSwapped( filespecfld_->isProbablySwapped() );
 }
 
 

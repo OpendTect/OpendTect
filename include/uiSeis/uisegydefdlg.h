@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.13 2010-02-18 12:10:15 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.14 2011-05-18 13:21:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
 
     void		initFlds(CallBacker*);
     void		readParsCB(CallBacker*);
+    void		fileSel(CallBacker*);
     void		geomChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 

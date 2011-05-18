@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.19 2011-04-15 12:02:58 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.20 2011-05-18 13:21:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,11 +78,13 @@ public:
     void		setSpec(const SEGY::FileSpec&);
 
     void		setInp2D(bool);
+    bool		isProbablySwapped() const	{ return swpd_; }
 
     static const char*	sKeyLineNmToken()	{ return "#L"; }
     static const char*	fileFilter()
     			{ return  "SEG-Y files (*.sgy *.SGY *.segy)"; }
 
+    Notifier<uiSEGYFileSpec>	fileSelected;
 
 protected:
 
@@ -91,6 +93,7 @@ protected:
     uiButton*		manipbut_;
     bool		is2d_;
     bool		needmulti_;
+    bool		swpd_;
 
     void		setMultiInput(const StepInterval<int>&,int);
 
@@ -113,6 +116,8 @@ public:
 
     SEGY::FilePars	getPars() const;
     void		setPars(const SEGY::FilePars&);
+
+    void		setBytesSwapped(bool);
 
     Notifier<uiSEGYFilePars> readParsReq;
 
