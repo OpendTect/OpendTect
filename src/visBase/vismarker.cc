@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarker.cc,v 1.32 2011-05-18 06:59:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: vismarker.cc,v 1.33 2011-05-18 11:37:07 cvsnanne Exp $";
 
 #include "vismarker.h"
 
@@ -129,7 +129,7 @@ MarkerStyle3D::Type Marker::getType() const
 }
 
 
-float getSurveyRotation()
+static float getSurveyRotation()
 {
     const RCol2Coord& b2c = SI().binID2Coord();
     const float xcrd = b2c.getTransform(true).c;
