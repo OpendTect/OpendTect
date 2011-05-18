@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonmerger.cc,v 1.1 2011-05-17 11:57:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonmerger.cc,v 1.2 2011-05-18 12:01:41 cvsnanne Exp $";
 
 #include "horizonmerger.h"
 
@@ -39,6 +39,12 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     deepRef( inputhors_ );
     depths_ = new Array2DImpl<float>( hs_.nrInl(), hs_.nrCrl() );
     depths_->setAll( mUdf(float) );
+
+    EMObject* emobj = EMM().createTempObject( Horizon3D::typeStr() );
+    if ( emobj ) emobj->ref();
+    mDynamicCast(Horizon3D*,outputhor_,emobj)
+    if ( emobj && !outputhor_ )
+	emobj->unRef();
 }
 
 
@@ -47,6 +53,9 @@ Horizon3DMerger::~Horizon3DMerger()
     deepUnRef( inputhors_ );
     if ( ownsarray_ )
 	delete depths_;
+
+    if ( outputhor_ )
+	outputhor_->unRef();
 }
 
 

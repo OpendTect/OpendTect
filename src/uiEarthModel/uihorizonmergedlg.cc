@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.2 2011-05-17 11:58:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.3 2011-05-18 12:01:41 cvsnanne Exp $";
 
 
 #include "uihorizonmergedlg.h"
@@ -68,12 +68,12 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     }
 
     outfld_->processInput();
-    PtrMan<IOObj> ioobj = outfld_->selIOObj();
+    IOObj* ioobj = outfld_->selIOObj();
     if ( !ioobj )
 	return false;
 
     PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
-    if ( !loader || !uitr.execute(*loader) )
+    if ( loader && !uitr.execute(*loader) )
     {
 	uiMSG().error( "Cannot load selected input horizons" );
 	return false;
@@ -94,6 +94,20 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiMSG().error( "Save not implemented yet" );
+    EM::Horizon3D* hor3d = merger.getOutputHorizon();
+    if ( !hor3d )
+    {
+	uiMSG().error( "No output horizon generated" );
+	return false;
+    }
+
+    hor3d->setMultiID( ioobj->key() );
+    PtrMan<Executor> saver = hor3d->saver();
+    if ( !saver || !uitr.execute(*saver) )
+    {
+	uiMSG().error( "Cannot save output horizon" );
+	return false;
+    }
+
     return false;
 }
