@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.17 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.18 2011-05-18 09:26:46 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -68,7 +68,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
 	const SEGY::HdrEntry& he = *def_[irow];
 	tbl_->setRowLabel( irow, he.name() );
 	tbl_->setRowToolTip( irow, he.description() );
-	tbl_->setValue( RowCol(irow,0), he.bytepos_ );
+	tbl_->setValue( RowCol(irow,0), he.bytepos_+1 );
 	tbl_->setValue( RowCol(irow,1),
 			he.getValue(hdr_.buf(),hdr_.isSwapped()) );
     }
