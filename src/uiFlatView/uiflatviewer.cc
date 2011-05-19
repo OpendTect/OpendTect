@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.125 2011-04-27 10:13:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.126 2011-05-19 09:55:54 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 
@@ -239,45 +239,55 @@ uiWorldRect uiFlatViewer::boundingBox() const
 }
 
 
+uiBorder uiFlatViewer::getActBorder( const uiWorldRect& wr )
+{
+    uiWorldRect br = boundingBox();
+    if ( (br.top()>br.bottom() && wr.top()<wr.bottom()) ||
+	 (br.top()<br.bottom() && wr.top()>wr.bottom()) )
+	br.swapVer();
+    if ( (br.left()>br.right() && wr.left()<wr.right()) ||
+	 (br.left()<br.right() && wr.left()>wr.right()) )
+	br.swapHor();
+    
+    uiWorldRect prevwr = curView();
+    const float widthfac = (float)prevwr.width() / (float)wr.width();
+    const float heightfac = (float)prevwr.height() / (float)wr.height();
+    uiRect scenerect;
+    if ( !mIsEqual(widthfac,1,mDefEps) || !mIsEqual(heightfac,1,mDefEps) )
+    {
+	uiRect prevscrect = canvas_.getSceneRect();
+	scenerect = uiRect( uiPoint(0,0),
+	uiSize(mNINT(prevscrect.width()*widthfac),
+	mNINT(prevscrect.height()*heightfac)) );
+	canvas_.setSceneRect( scenerect );
+    }
+    else
+	scenerect = canvas_.getSceneRect();
+
+    const uiWorld2Ui w2u( scenerect.size(), br );
+    uiPoint lefttop = w2u.transform( wr.topLeft() );
+    uiPoint rightbottom = w2u.transform( wr.bottomRight() );
+    uiPoint brdrlefttop = lefttop - scenerect.topLeft();
+    uiPoint brdrrightbottom = scenerect.bottomRight() - rightbottom;
+    uiBorder actborder( brdrlefttop.x,brdrlefttop.y,
+    brdrrightbottom.x, brdrrightbottom.y);
+    viewborder_ = actborder;
+    actborder += annotborder_;
+    return actborder;
+}
+
+
 void uiFlatViewer::setView( const uiWorldRect& wr )
 {
     uiRect viewarea;
     uiWorldRect br = boundingBox();
     if ( enabhaddrag_ && anysetviewdone_ )
     {
-	if ( (br.top()>br.bottom() && wr.top()<wr.bottom()) ||
-	     (br.top()<br.bottom() && wr.top()>wr.bottom()) )
-	    br.swapVer();
-	if ( (br.left()>br.right() && wr.left()<wr.right()) ||
-	     (br.left()<br.right() && wr.left()>wr.right()) )
-	    br.swapHor();
-	uiWorldRect prevwr = curView();
-	const float widthfac = (float)prevwr.width() / (float)wr.width();
-	const float heightfac = (float)prevwr.height() / (float)wr.height();
-	uiRect scenerect;
-	if ( !mIsEqual(widthfac,1,mDefEps) || !mIsEqual(heightfac,1,mDefEps) )
-	{
-	    uiRect prevscrect = canvas_.getSceneRect();
-	    scenerect = uiRect( uiPoint(0,0),
-	    uiSize(mNINT(prevscrect.width()*widthfac),
-	    mNINT(prevscrect.height()*heightfac)) );
-	    canvas_.setSceneRect( scenerect );
-	}
-	else
-	    scenerect = canvas_.getSceneRect();
-
-	const uiWorld2Ui w2u( scenerect.size(), br );
-	uiPoint lefttop = w2u.transform( wr.topLeft() );
-	uiPoint rightbottom = w2u.transform( wr.bottomRight() );
-	uiPoint brdrlefttop = lefttop - scenerect.topLeft();
-	uiPoint brdrrightbottom = scenerect.bottomRight() - rightbottom;
-	uiBorder actborder( brdrlefttop.x,brdrlefttop.y,
-	brdrrightbottom.x, brdrrightbottom.y);
-	viewarea = actborder.getRect( canvas_.getSceneRect().size() );
-	viewborder_ = actborder;
-	actborder += annotborder_;
+	uiBorder actborder = getActBorder( wr );
+	viewarea = viewborder_.getRect( canvas_.getSceneRect().size() );
 	canvas_.setBorder( actborder );
     }
+
     if ( wr.topLeft() == wr.bottomRight() )
 	return;
     wr_ = wr;

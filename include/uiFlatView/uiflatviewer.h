@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.48 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.49 2011-05-19 09:55:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
     			{ viewborder_ = border; }
     uiBorder		annotBorder() const		{ return annotborder_; }
     uiBorder		viewBorder() const		{ return viewborder_; }
+    uiBorder		getActBorder(const uiWorldRect&);
     static float	bufextendratio_;
     			//!< Must be > 0. default 0.4
     			//!< Controls how much extra bitmap is generated
