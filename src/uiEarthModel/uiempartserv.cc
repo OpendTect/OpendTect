@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.218 2011-05-11 05:36:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.219 2011-05-19 09:56:23 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -481,7 +481,8 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
-    if ( !hor3d )
+    const bool hor2d = typ==EMHorizon2DTranslatorGroup::keyword();
+    if ( hor2d )
     {
 	BufferString msg( "Geometry not found for " );
 	bool geomabsent = false;
