@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.7 2011-05-05 15:38:49 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.8 2011-05-19 15:02:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,13 +73,15 @@ public:
 							const Setup& su );
 				~uiWellDisplay();
 
+    void			applyWDChanges();
+
     Interval<float>		zRange() const	{ return zrg_; }
     void 			setZRange(Interval<float> zrg)
-				{ zrg_ = zrg; resetDahData(); }
+				{ zrg_ = zrg; setDahData(); }
     void 			setZIsTime( bool yn )
-				{ zistime_ = yn; resetDahData(); }
+				{ zistime_ = yn; setDahData(); }
     void 			setZInFeet( bool yn )
-				{ dispzinft_ = yn; resetDahData(); }
+				{ dispzinft_ = yn; setDahData(); }
 
     void			setControl(uiWellDisplayControl&);
     uiWellDisplayControl*	control() 	{ return control_; }
@@ -88,19 +90,9 @@ public:
     const Setup&		setup() const	{ return setup_; }
     const uiSize&		size()		{ return size_; }
 
-    void			applyWDChanged();
 
     uiWellStratDisplay*		stratDisplay() 	{ return stratdisp_; }
-    const uiWellStratDisplay*	stratDisplay() const 
-						{ return stratdisp_; }
-
-    void			setDragMode(uiGraphicsViewBase::ODDragMode&);
-
-    //Only if more than 1 logdisplay, this should take place in wd ( TODO ) 
-    void			setDisplayProperties(int,
-	    				const Well::DisplayProperties&);
-    void			getDisplayProperties(
-				    ObjectSet<Well::DisplayProperties>&) const;
+    const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
 
 protected:
 
@@ -117,8 +109,8 @@ protected:
     uiWellDisplayControl*	control_;
 
     void			setInitialSize();
-    void			resetDahData();
-    void			resetWDDisplayProperties();
+    void			setDahData();
+    void			setDisplayProperties();
 };
 
 
@@ -131,9 +123,7 @@ protected:
 
     Well::Data& 		wd_;
     uiWellDisplay* 		welldisp_;
-    uiWellDispInfoPanel*	wellinfo_;
 
-    void 			mkInfoPanel(CallBacker*);
     void			dispInfoMsg(CallBacker*);
     void			updateProperties(CallBacker*);
     void 			closeWin(CallBacker*);

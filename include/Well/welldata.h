@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.22 2010-10-07 15:37:55 cvsbruno Exp $
+ RCS:		$Id: welldata.h,v 1.23 2011-05-19 15:02:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,8 +90,10 @@ public:
     D2TModel*			checkShotModel()	{ return csmodel_; }
     void			setD2TModel(D2TModel*);	//!< becomes mine
     void			setCheckShotModel(D2TModel*); //!< mine, too
-    DisplayProperties&		displayProperties()	{ return disp_; }
-    const DisplayProperties&	displayProperties() const { return disp_; }
+    DisplayProperties&		displayProperties( bool for2d=false ) 
+				    { return for2d ? disp2d_ : disp3d_; }
+    const DisplayProperties&	displayProperties( bool for2d=false ) const
+				    { return for2d ? disp2d_ : disp3d_; }
 
     void			empty(); //!< removes everything
 
@@ -106,7 +108,8 @@ public:
     Notifier<Well::Data>	csmdlchanged;
     Notifier<Well::Data>	markerschanged;
     Notifier<Well::Data>	trackchanged;
-    Notifier<Well::Data>	dispparschanged;
+    Notifier<Well::Data>	disp3dparschanged;
+    Notifier<Well::Data>	disp2dparschanged;
     Notifier<Well::Data>	tobedeleted;
 
 protected:
@@ -117,8 +120,8 @@ protected:
     D2TModel*		d2tmodel_;
     D2TModel*		csmodel_;
     MarkerSet&		markers_;
-    DisplayProperties&	disp_;
-
+    DisplayProperties&	disp2d_;
+    DisplayProperties&	disp3d_;
 };
 
 }; // namespace Well

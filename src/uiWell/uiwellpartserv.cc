@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.57 2010-11-22 05:41:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.58 2011-05-19 15:02:05 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -180,7 +180,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 	if ( &wd != edwd )
 	{
 	    wd.displayProperties() = edprops;
-	    wd.dispparschanged.trigger();
+	    wd.disp3dparschanged.trigger();
 	}
     }
     allapplied_ = true;

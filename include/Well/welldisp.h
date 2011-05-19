@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.32 2011-04-13 07:08:09 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.33 2011-05-19 15:02:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ mClass DisplayProperties
 public:
 
 			DisplayProperties();
+			~DisplayProperties();
 
     mStruct BasicProps
     {
@@ -130,28 +131,27 @@ public:
 			    , iscoltabflipped_(false)			 
 			    {}		 
 
-	virtual const char* subjectName() const	{ return "Log"; }
+	virtual const char* subjectName() const 	{ return "Log"; }
 
-	BufferString	    name_;
-	BufferString	    fillname_;
-	bool		    iswelllog_;
-	float               cliprate_;      
-	Interval<float>     range_;        
-	Interval<float>     fillrange_;       
-	bool 		    isleftfill_;				 
-	bool 		    isrightfill_;				 
-	bool                logarithmic_;
-	bool                islogarithmic_;
-	bool 		    islogreverted_; 
-	bool                issinglecol_;
-	bool                isdatarange_;
-	bool 		    iscoltabflipped_;
-	int                 repeat_;
-	float               repeatovlap_;
-	Color               linecolor_;
-	Color               seiscolor_;
-	BufferString        seqname_;
-	int 		    logwidth_;
+	BufferString	name_;
+	BufferString	fillname_;
+	bool		iswelllog_;
+	float           cliprate_;      
+	Interval<float> range_;        
+	Interval<float> fillrange_;       
+	bool 		isleftfill_;				 
+	bool 		isrightfill_;				 
+	bool            islogarithmic_;
+	bool 		islogreverted_; 
+	bool            issinglecol_;
+	bool            isdatarange_;
+	bool 		iscoltabflipped_;
+	int             repeat_;
+	float           repeatovlap_;
+	Color           linecolor_;
+	Color 		seiscolor_;
+	BufferString    seqname_;
+	int 		logwidth_;
 
     protected:
 
@@ -161,27 +161,18 @@ public:
 	virtual void	doFillLeftPar(IOPar&) const;
     };
 
-    void copyFrom( const DisplayProperties& d)
-    {
-	track_ = d.track_;
-	markers_ = d.markers_;
-	left_ = d.left_;
-	right_ = d.right_;
-    }
-
     Track		track_;
     Markers		markers_;
-    Log			left_;
-    Log			right_;
-    void		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
-    static DisplayProperties&	defaults();
-    static void			commitDefaults();
+    static DisplayProperties&	defaults(const char* fnm=0);
+    static void		commitDefaults(const char* fnm=0);
 
+    mStruct LogCouple 	{ Log left_, right_; };
+    ObjectSet<LogCouple> logs_;
 };
 
-
-}; // namespace
+} // namespace
 
 #endif

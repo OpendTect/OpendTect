@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.18 2011-02-08 10:42:35 cvskris Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.19 2011-05-19 15:02:05 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -65,11 +65,19 @@ static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 
 Well::DisplayProperties::DisplayProperties()
 {
-    left_.isrightfill_ = true;
-    right_.isleftfill_ = true;
+    logs_ += new LogCouple();
+
+    logs_[0]->left_.isrightfill_ = true;
+    logs_[0]->right_.isleftfill_ = true;
 
     Settings& setts = Settings::fetch( "welldisp" );
     usePar( setts );
+}
+
+
+Well::DisplayProperties::~DisplayProperties()
+{
+    deepErase( logs_ );
 }
 
 
@@ -283,8 +291,17 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
 {
     track_.usePar( iop );
     markers_.usePar( iop );
-    right_.useRightPar( iop );
-    left_.useLeftPar( iop );
+    IOPar* tmpiop = 0;
+    for ( int idx=0; idx<logs_.size(); idx++ )
+    {
+	tmpiop = idx ? iop.subselect( toString(idx) ) : new IOPar(iop);
+	if ( tmpiop )
+	{
+	    logs_[idx]->left_.useLeftPar( *tmpiop );
+	    logs_[idx]->right_.useRightPar( *tmpiop );
+	}
+    }
+    delete tmpiop;
 }
 
 
@@ -292,18 +309,23 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 {
     track_.fillPar( iop );
     markers_.fillPar( iop );
-    right_.fillRightPar( iop );
-    left_.fillLeftPar( iop );
+    for ( int idx=0; idx<logs_.size(); idx++ )
+    {
+	IOPar tmpiop;
+	logs_[idx]->left_.fillLeftPar( tmpiop );
+	logs_[idx]->right_.fillRightPar( tmpiop );
+	iop.mergeComp( tmpiop, idx ? toString( idx ) : "" );
+    }
 }
 
 
-Well::DisplayProperties& Well::DisplayProperties::defaults()
+Well::DisplayProperties& Well::DisplayProperties::defaults( const char* fnm )
 {
     static Well::DisplayProperties* ret = 0;
 
     if ( !ret )
     {
-	Settings& setts = Settings::fetch( "welldisp" );
+	Settings& setts = Settings::fetch( fnm ? fnm : "welldisp" );
 	ret = new DisplayProperties;
 	ret->usePar( setts );
     }
@@ -312,9 +334,10 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 }
 
 
-void Well::DisplayProperties::commitDefaults()
+void Well::DisplayProperties::commitDefaults( const char* fnm )
 {
-    Settings& setts = Settings::fetch( "welldisp" );
+    Settings& setts = Settings::fetch( fnm ? fnm : "welldisp" );
     defaults().fillPar( setts );
     setts.write();
 }
+

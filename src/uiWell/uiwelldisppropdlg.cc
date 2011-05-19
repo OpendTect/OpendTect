@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.29 2010-10-04 17:13:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.30 2011-05-19 15:02:05 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.29 2010-10-04 17:13:55
 
 #include "keystrs.h"
 
-
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
+#define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "","107.2.0").savetext("Save as default").savebutton(true)
 					.savechecked(false)
@@ -31,11 +31,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 	, wd_(d)
 	, applyAllReq(this)
 	, savedefault_(false)
+	, is2ddisplay_(is2ddisp)		     
 {
     setCtrlStyle( LeaveOnly );
 
-    Well::DisplayProperties& props = d->displayProperties();
-    wd_->dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
+    Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
+    mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -45,9 +46,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
 
     propflds_ += new uiWellLogDispProperties( tgs[0],
-		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.left_, &(wd_->logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->left_, &(wd_->logs()) );
     propflds_ += new uiWellLogDispProperties( tgs[1],
-		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.right_, &(wd_->logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->right_, &(wd_->logs()) );
     bool foundlog = false;
     propflds_ += new uiWellTrackDispProperties( tgs[2],
 		    uiWellDispProperties::Setup(), props.track_ );
@@ -72,11 +73,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 }
 
 
-uiWellDispPropDlg::~uiWellDispPropDlg()
-{
-}
-
-
 void uiWellDispPropDlg::getFromScreen()
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
@@ -93,7 +89,7 @@ void uiWellDispPropDlg::putToScreen()
 
 void uiWellDispPropDlg::wdChg( CallBacker* )
 {
-    NotifyStopper ns( wd_->dispparschanged );
+    NotifyStopper ns( mDispNot );
     putToScreen();
 }
 
@@ -101,7 +97,7 @@ void uiWellDispPropDlg::wdChg( CallBacker* )
 void uiWellDispPropDlg::propChg( CallBacker* )
 {
     getFromScreen();
-    wd_->dispparschanged.trigger();
+    mDispNot.trigger();
 }
 
 
@@ -132,8 +128,9 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 
 
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p, 
-					        ObjectSet<Well::Data>& wds )
-	: uiWellDispPropDlg(p,wds[0])
+					        ObjectSet<Well::Data>& wds,
+       						bool is2ddisplay )
+	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
 	, wds_(wds)
 	, wdChged(this)	 
 	, wellselfld_(0)	 
@@ -156,7 +153,7 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 
 uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
 {
-    wd_->dispparschanged.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
     wd_->tobedeleted.remove(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
 }
 
@@ -173,7 +170,8 @@ void uiMultiWellDispPropDlg::resetProps( Well::DisplayProperties& prop,
 	if ( logfld )
 	{
 	    logfld->setLogSet( wls );
-	    logfld->resetProps( foundleftlog? prop.right_: prop.left_);
+	    logfld->resetProps( 
+		    foundleftlog? prop.logs_[0]->right_: prop.logs_[0]->left_);
 	    foundleftlog = true;
 	}
 	else if ( trckfld )
@@ -189,7 +187,7 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
     const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
     wd_ = wds_[selidx];
     if ( !wd_ ) return;
-    wd_->dispparschanged.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
     wd_->tobedeleted.notify(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
     resetProps( wd_->displayProperties(), &wd_->logs() );
 }

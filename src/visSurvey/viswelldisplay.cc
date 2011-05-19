@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.139 2011-05-13 12:56:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.140 2011-05-19 15:02:05 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -169,7 +169,7 @@ Well::Data* WellDisplay::getWD() const
 		    mCB(self,WellDisplay,welldataDelNotify) );
 	    wd->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	    wd->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
-	    wd->dispparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    wd->disp3dparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	    if ( zistime_ )
 		wd->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	}
@@ -232,7 +232,8 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 }
 
 
-#define dppl(lognr,par) lognr==1? dpp(left_.par) : dpp(right_.par)
+#define dppl(lognr,par) lognr==1? dpp(logs_[0]->left_.par)\
+    				: dpp(logs_[0]->right_.par)
 void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 {
     mGetWD(return);
@@ -258,9 +259,9 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 }
 
 
-#define mDispLog( side, Side )\
+#define mDispLog( lognr, Side )\
 { \
-    BufferString& logname = dpp( side.name_ );\
+    BufferString& logname = dppl( lognr, name_ );\
     if ( wd->logs().indexOf( logname ) >= 0 )\
 	display##Side##Log();\
 }
@@ -277,7 +278,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
     tp.name_ = wd->name();
-    logsnumber_ = mMAX( dpp( right_.repeat_ ), dpp( left_.repeat_ ) );
+    logsnumber_ = mMAX( dppl( 0, repeat_ ), dppl( 1, repeat_ ) );
     updateMarkers(0);
 
     well_->setTrack( trackpos );
@@ -287,8 +288,8 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setRepeat( logsnumber_ );
     well_->setLogConstantSize( waslogconstsize );
 
-    mDispLog( left_, Left );
-    mDispLog( right_, Right );
+    mDispLog( 1, Left );
+    mDispLog( 2, Right );
 }
 
 
@@ -474,7 +475,7 @@ void WellDisplay::setLogDisplay( int lognr )
 {
     mGetWD(return);
 
-    BufferString& logname = lognr == 1 ? dpp(left_.name_) : dpp(right_.name_);
+    BufferString& logname = dppl( lognr, name_);
     if ( wd->logs().isEmpty() ) return;
     const int logidx = wd->logs().indexOf( logname );
     if( logidx<0 )
@@ -640,7 +641,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 {
     mGetWD(return);
     const Well::DisplayProperties& disp = wd->displayProperties();
-    const char* lognm = isleft ? disp.left_.name_ : disp.right_.name_;
+    const char* lognm = dppl( isleft ? 0 : 1 , name_ );
     if ( lognm && strcmp(lognm,"None") && strcmp(lognm,"none") )
     {
 	info += isleft ? ", Left: " : ", Right: ";
