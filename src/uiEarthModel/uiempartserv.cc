@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.219 2011-05-19 09:56:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.220 2011-05-19 11:45:40 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -492,6 +492,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 	    if ( !lsobj || !S2DPOS().hasLineSet(lsobj->name()) )
 	    {
 		msg += lsobj->name();
+		msg += lsidx < surfaceids.size()-1 ? ", " : ".";
 		geomabsent = true;
 	    }
 	}
