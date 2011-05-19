@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: gmtfault.h,v 1.5 2011-05-12 06:40:39 cvsnageswara Exp $
+ RCS:           $Id: gmtfault.h,v 1.6 2011-05-19 09:52:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,8 @@ protected:
 	    			      Coord3ListImpl&) const;
 
     static int		factoryid_;
-    void		getLinesStyle(BufferStringSet&);
-    void		loadFaults();
+    void		getLineStyles(BufferStringSet&);
+    bool		loadFaults(BufferString&);
     ObjectSet<EM::Fault3D>	flts_;
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.9 2011-05-12 06:40:39 cvsnageswara Exp $
+RCS:		$Id: gmtfault.cc,v 1.10 2011-05-19 09:52:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
     return true;
 }
 
-
+#define mErrRet(s) { deepUnRef( flts_ ); strm << s << std::endl; return false; }
 bool GMTFault::execute( std::ostream& strm, const char* fnm )
 {
     BufferString comm = "@psxy ";
@@ -76,37 +76,33 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
     comm.add( rgstr ).add( " -O -K -M -N" );
     comm.add( " 1>> " ).add( fileName( fnm ) );
 
-    loadFaults();
-    if ( !flts_.size() )
-	return false;
+    BufferString errmsg;
+    if ( !loadFaults(errmsg) )
+	mErrRet( errmsg.buf() )
 
     BufferStringSet styles;
-    getLinesStyle( styles );
-    if ( !styles.size() ) 
-    {
-	deepUnRef( flts_ );
-	return false;
-    }
+    getLineStyles( styles );
+    if ( styles.size() != flts_.size() ) 
+	mErrRet("Failed to fetch LineStyles")
 
     bool usecoloryn = false;
     getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
 
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed");
+    if ( !sd.usable() ) mErrRet("Failed to execute GMT command");
 
     bool onzslice = false;
     getYN( ODGMT::sKeyZIntersectionYN, onzslice );
 
     for ( int midx=0; midx<flts_.size(); midx++ )
     {
-        const EM::Fault3D* fault3d = flts_[midx];
+        EM::Fault3D* fault3d = flts_[midx];
 	if ( !fault3d )
 	    continue;
 
 	EM::SectionID fltsid = fault3d->sectionID( 0 );
 	Geometry::FaultStickSurface* fsssurf =
-	    const_cast<Geometry::FaultStickSurface*>(
-		    		fault3d->geometry().sectionGeometry(fltsid) );
+	    			fault3d->geometry().sectionGeometry(fltsid);
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
 	    new Geometry::ExplFaultStickSurface( fsssurf, SI().zFactor() );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
@@ -237,7 +233,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 }
 
 
-void GMTFault::getLinesStyle( BufferStringSet& styles )
+void GMTFault::getLineStyles( BufferStringSet& styles )
 {
     bool usecoloryn = false;
     getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
@@ -254,48 +250,51 @@ void GMTFault::getLinesStyle( BufferStringSet& styles )
 	styles.add( clrstr );
 	return;
     }
-    else
-    {
-	for ( int idx=0; idx<flts_.size(); idx++ )
-	{
-	    const EM::Fault3D* fault3d = flts_[idx];
-	    if ( !fault3d )
-		continue;
 
-	    if ( usecoloryn )
-	    {
-		BufferString str;
-		const Color& fltclr = fault3d->preferredColor();
-		ls.color_ = fltclr;
-		mGetLineStyleString( ls, str );
-		styles.add( str );
-	    }
+    for ( int idx=0; idx<flts_.size(); idx++ )
+    {
+	const EM::Fault3D* fault3d = flts_[idx];
+	if ( !fault3d )
+	    continue;
+
+	if ( usecoloryn )
+	{
+	    BufferString str;
+	    const Color& fltclr = fault3d->preferredColor();
+	    ls.color_ = fltclr;
+	    mGetLineStyleString( ls, str );
+	    styles.add( str );
 	}
     }
 }
 
 
-void GMTFault::loadFaults()
+bool GMTFault::loadFaults( BufferString& errmsg )
 {
     IOPar* fltpar = subselect( ODGMT::sKeyFaultID );
     if ( !fltpar )
-	return;
+    {
+	errmsg = "No faults selected";
+	return false;
+    }
 
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
 	MultiID mid;
 	if ( !fltpar->get( toString(idx), mid ) )
-	    continue;
+	    break;
 
 	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid );
-	if ( !emobj )
-	    continue;
-
 	mDynamicCastGet(EM::Fault3D*,fault3d,emobj)
 	if ( !fault3d )
-	    continue;
+	{
+	    errmsg = "Failed to load faults";
+	    return false;
+	}
 
 	fault3d->ref();
 	flts_ += fault3d;
     }
+
+    return true;
 }
