@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.29 2011-04-22 09:32:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.30 2011-05-19 14:17:25 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -250,7 +250,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     if ( !outissidom )
     {
 	tmpioobj = inioobj.clone();
-	ZDomain::Def::get(inioobj.pars()).set( tmpioobj->pars() );
+	ZDomain::Def::get(outioobj.pars()).set( tmpioobj->pars() );
 	useinioobj = tmpioobj;
     }
 
