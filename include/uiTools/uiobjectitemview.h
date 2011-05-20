@@ -37,8 +37,8 @@ public:
     int				nrItems() const { return objectitems_.size(); }
     
     uiObjectItem*		getItem(int idx);
-
     void			reSizeItem(int idx,const uiSize&);
+    void			reSizeItem(uiObjectItem*,const uiSize&);
 
     int 			stretchFactor(uiObjectItem*);
     void 			setStretchFactor(uiObjectItem*,int sf);

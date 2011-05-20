@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.17 2011-05-13 10:13:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.18 2011-05-20 08:06:58 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -137,19 +137,24 @@ int uiObjectItemView::stretchFactor( uiObjectItem* itm )
 }
 
 
-void uiObjectItemView::setStretchFactor(uiObjectItem* itm,int stretchfactor )
+void uiObjectItemView::setStretchFactor( uiObjectItem* itm, int stretchfactor )
 {
     mGetScene(return) sc->setItemStretch( itm, stretchfactor );
 }
 
 
-
 void uiObjectItemView::reSizeItem( int idx, const uiSize& sz )
+{
+    reSizeItem( getItem( idx ), sz );
+}
+
+
+void uiObjectItemView::reSizeItem( uiObjectItem* itm, const uiSize& sz )
 {
     if ( sz.width() <= 0 || sz.height() <= 0 ) 
 	return;
-    getItem( idx )->setObjectSize( sz.width(), sz.height() );
-    reSizeChildrenWidth( getItem( idx )->getObject(), sz.width() );
+    itm->setObjectSize( sz.width(), sz.height() );
+    reSizeChildrenWidth( itm->getObject(), sz.width() );
 }
 
 
@@ -179,7 +184,5 @@ void uiObjectItemView::setCursor( const MouseCursor& mc )
 {
     uiObject::setCursor( mc );
     for ( int idx=0; idx<objectitems_.size(); idx++ )
-    {
 	objectitems_[idx]->getObject()->setCursor( mc );
-    }
 }
