@@ -6,13 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.5 2011-05-16 09:27:43 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.6 2011-05-20 08:06:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-/*! brief A uiFMainWin that holds embedded uiObjects and controls !*/
+/*! brief A uiMainWin that holds embedded uiObjects and controls !*/
 
 #include "uimainwin.h"
 #include "uigroup.h"
@@ -33,7 +33,26 @@ class uiBorder;
 mClass uiObjectItemViewWin : public uiMainWin
 {
 public:    
-			uiObjectItemViewWin(uiParent*,const char* title);
+
+    mClass Setup
+    {
+    public:
+
+			Setup(const char* title)
+			    : wintitle_(title)
+			    , startwidth_(400)
+			    , startheight_(600)
+			    , infoheight_(50)
+			    {} 
+
+	 mDefSetupMemb(BufferString,wintitle)
+	 mDefSetupMemb(int,startwidth)
+	 mDefSetupMemb(int,startheight)
+	 mDefSetupMemb(int,infoheight)
+    };
+
+			uiObjectItemViewWin(uiParent*,const Setup&);
+
 
     uiObjectItemView*	mainViewer() 	{ return mainviewer_; }
 

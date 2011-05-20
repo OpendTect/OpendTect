@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.5 2011-05-16 09:27:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.6 2011-05-20 08:06:47 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -24,16 +24,16 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.5 2011-05-16 09:27:4
 #include "uitoolbutton.h"
 
 
-uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p,const char* title)
-    : uiMainWin(p,title)
-    , startwidth_(400)
-    , startheight_(600) 
+uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
+    : uiMainWin(p,su.wintitle_)
+    , startwidth_(su.startwidth_)
+    , startheight_(su.startheight_) 
     , hslval_(1)
     , vslval_(1)
 {
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ );
-    infobar_->setPrefHeight( 50 );
+    infobar_->setPrefHeight( su.infoheight_ );
     infobar_->setStretch( 2, 0 );
 
     mainviewer_ = new uiObjectItemView( this );
@@ -47,8 +47,8 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p,const char* title)
 
     makeSliders();
 
-    setPrefWidth( startwidth_ + 50 );
-    setPrefHeight( startheight_+ 50 );
+    setPrefWidth( startwidth_ + su.infoheight_ );
+    setPrefHeight( startheight_+ su.infoheight_ );
 }
 
 
