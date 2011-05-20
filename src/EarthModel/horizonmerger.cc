@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonmerger.cc,v 1.2 2011-05-18 12:01:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonmerger.cc,v 1.3 2011-05-20 11:47:24 cvsnanne Exp $";
 
 #include "horizonmerger.h"
 
@@ -21,6 +21,9 @@ static const char* rcsID = "$Id: horizonmerger.cc,v 1.2 2011-05-18 12:01:41 cvsn
 
 namespace EM
 {
+
+DefineEnumNames(HorizonMerger,Mode,1,"Merge mode")
+{ "Take average", "Use top", "Use base", 0 };
 
 Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     : outputhor_(0)

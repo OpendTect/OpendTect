@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.3 2011-05-18 12:01:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.4 2011-05-20 11:47:24 cvsnanne Exp $";
 
 
 #include "uihorizonmergedlg.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.3 2011-05-18 12:01:41 
 #include "uisurfacesel.h"
 #include "uitaskrunner.h"
 
-#include "bufstringset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -32,20 +31,16 @@ static const char* rcsID = "$Id: uihorizonmergedlg.cc,v 1.3 2011-05-18 12:01:41 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Merge 3D Horizons","",mTODOHelpID))
 {
-    setCtrlStyle( DoAndStay );
-
     horselfld_ = new uiHorizon3DSel( this );
 
-    BufferStringSet options;
-    options.add( "Take average" ).add( "Use top" ).add( "Use base" );
     duplicatefld_ = new uiGenInput( this, "Duplicate positions",
-	    StringListInpSpec(options) );
+	    StringListInpSpec(EM::HorizonMerger::ModeNames()) );
     duplicatefld_->attach( alignedBelow, horselfld_ );
 
     const char* typestr = is2d ? EM::Horizon2D::typeStr()
 			       : EM::Horizon3D::typeStr();
     uiSurfaceWrite::Setup ssu( typestr );
-    ssu.withcolorfld(true).withstratfld(true).withdisplayfld(true);
+    ssu.withcolorfld(true).withstratfld(true);
     outfld_ = new uiSurfaceWrite( this, ssu );
     outfld_->attach( alignedBelow, duplicatefld_ );
 }
@@ -88,6 +83,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     }
 
     EM::Horizon3DMerger merger( objids );
+    merger.setMode( (EM::HorizonMerger::Mode)duplicatefld_->getIntValue() );
     if ( !uitr.execute(merger) )
     {
 	uiMSG().error( "Cannot merge horizons" );
@@ -101,6 +97,8 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    hor3d->setPreferredColor( outfld_->getColor() );
+    hor3d->setStratLevelID( outfld_->getStratLevelID() );
     hor3d->setMultiID( ioobj->key() );
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
@@ -109,5 +107,5 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    return false;
+    return true;
 }
