@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.32 2011-01-03 14:42:51 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.33 2011-05-20 11:16:59 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: bufstring.cc,v 1.32 2011-01-03 14:42:51 cvsbert
 #include "iopar.h"
 #include "general.h"
 #include "globexpr.h"
+#include "arrayndimpl.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -356,19 +357,45 @@ int BufferStringSet::indexOf( const GlobExpr& ge ) const
 }
 
 
-// TODO this is crap, find a good algo
-static int getMatchDist( const BufferString& bs, const char* s )
+// Levenshtein distance
+static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 {
-    const char* ptr1 = bs.buf();
-    const char* ptr2 = s;
+    const char* s1 = bs.buf();
+    const char* s2 = s;
+    const int len1 = strlen( s1 );
+    const int len2 = strlen( s2 );
+    if ( len1 == 0 ) return len2;
+    if ( len2 == 0 ) return len1;
     int ret = 0;
-    while ( *ptr1 && *ptr2 )
+
+    Array2DImpl<int> d( len1+1, len2+1 );
+
+    for ( int idx1=0; idx1<=len1; idx1++ )
+	d.set( idx1, 0, idx1 );
+    for ( int idx2=0; idx2<=len2; idx2++ )
+	d.set( 0, idx2, idx2 );
+
+    for ( int idx2=1; idx2<=len2; idx2++ )
     {
-	if ( toupper(*ptr1) != toupper(*ptr2) )
-	    ret += 1;
-	ptr1++; ptr2++;
+	for ( int idx1=1; idx1<=len1; idx1++ )
+	{
+	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
+			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
+	    if ( iseq )
+		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
+	    else
+	    {
+		const int delval = d.get( idx1-1, idx2 );
+		const int insval = d.get( idx1, idx2-1 );
+		const int substval = d.get( idx1-1, idx2-1 );
+		d.set( idx1, idx2, 1 + (delval < insval
+			? (delval<substval ? delval : substval)
+		        : (insval<substval ? insval : substval)) );
+	    }
+	}
     }
-    return ret;
+
+    return d.get( len1, len2 );
 }
 
 
@@ -377,36 +404,36 @@ int BufferStringSet::nearestMatch( const char* s ) const
     if ( isEmpty() ) return -1;
     const int sz = size();
     if ( sz < 2 ) return 0;
+    if ( !s ) s = "";
 
-    if ( !s || !*s )
+    // Find the nearest, case insensitive
+    TypeSet<int> dists; int mindist;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	int minsz = get(0).size(); int midx = 0;
-	for ( int idx=1; idx<sz; idx++ )
-	{
-	    const int cursz = get(midx).size();
-	    if ( cursz < minsz )
-		{ minsz = cursz; midx = idx; }
-	}
-	return midx;
+	const int curdist = getMatchDist( get(idx), s, false );
+	dists += curdist;
+	if ( idx == 0 || curdist < mindist  )
+	    mindist = curdist;
     }
-
-    int midx = ::indexOf( *this, s );
-    if ( midx >= 0 ) return midx;
-
-    for ( midx=0; midx<sz; midx++ )
-	{ if ( get(midx).isEqual(s,true) ) return midx; }
-    for ( midx=0; midx<sz; midx++ )
-	{ if ( get(midx).isStartOf(s,true) ) return midx; }
-
-    int mindist = getMatchDist( get(0), s ); midx = 0;
-    for ( int idx=1; idx<sz; idx++ )
+    TypeSet<int> candidates;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	const int curdist = getMatchDist( get(idx), s );
-	if ( curdist < mindist )
+	if ( dists[idx] == mindist )
+	    candidates += idx;
+    }
+    if ( candidates.size() == 1 )
+	return candidates[0];
+
+    // Solve the tie by looking at the best performer, case-sensitive
+    int midx;
+    for ( int idx=0; idx<candidates.size(); idx++ )
+    {
+	const int curdist = getMatchDist( get(candidates[idx]), s, true );
+	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; midx = idx; }
     }
 
-    return midx;
+    return candidates[midx];
 }
 
 
