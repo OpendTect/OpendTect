@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.9 2011-05-16 13:43:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.10 2011-05-23 10:20:06 cvsnanne Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -158,7 +158,8 @@ void uiViewer2DMainWin::setUpView()
 void uiViewer2DMainWin::removeAllGathers()
 {
     removeAllItems();
-    control_->removeAllViewers();
+    if ( control_ )
+	control_->removeAllViewers();
     vwrs_.erase();
 }
 
