@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.24 2011-05-16 16:10:54 cvshelene Exp $
+ RCS:		$Id: prestackgather.h,v 1.25 2011-05-24 08:12:40 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,9 @@ public:
     const BinID&		getBinID() const 	{ return binid_; }
 
 				//for 2D only.
+    bool			readFrom(const MultiID&, const int tracenr, 
+	    				 const char* linename,int comp,
+    					 BufferString* errmsg=0);
     bool			readFrom(const IOObj&, const int tracenr, 
 	    				 const char* linename,int comp,
     					 BufferString* errmsg=0);

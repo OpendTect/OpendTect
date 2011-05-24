@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.31 2011-05-16 16:10:54 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.32 2011-05-24 08:12:40 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -101,6 +101,21 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 
     linename_.setEmpty();
     return readFrom( ioobj, *rdr, bid, comp, errmsg );
+}
+
+
+bool Gather::readFrom( const MultiID& mid, const int trcnr, 
+		       const char* linename, int comp, BufferString* errmsg )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+    {
+	if ( errmsg ) (*errmsg) = "No valid gather selected.";
+	delete arr2d_; arr2d_ = 0;
+	return false;
+    }
+
+    return readFrom( *ioobj, trcnr, linename, comp, errmsg );
 }
 
 
