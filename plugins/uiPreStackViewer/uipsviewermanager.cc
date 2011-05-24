@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.65 2011-05-24 08:11:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.66 2011-05-24 08:24:18 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -492,7 +492,7 @@ uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
     if ( is2d )
 	title += psv.lineName();
     else 
-	ioobj->name();
+	title += ioobj->name();
     title += "]";
 
     uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin(), title ); 
