@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.11 2011-05-24 08:11:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.12 2011-05-24 09:03:31 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -213,6 +213,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	}
 	gd->setPosition( bid );
 	uiFlatViewer* fv = gd->getUiFlatViewer();
+	gd->displayAnnotation( false );
 	fv->appearance().annot_.x1_.showannot_ = false;
 	vwrs_ += fv;
 	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
@@ -312,8 +313,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
 void uiViewer2DControl::removeAllViewers()
 {
-for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
-removeViewer( *vwrs_[idx] );
+    for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
+	removeViewer( *vwrs_[idx] );
 }
 
 
