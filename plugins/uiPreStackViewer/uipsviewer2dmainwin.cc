@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.12 2011-05-24 09:03:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.13 2011-05-24 09:23:31 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -225,8 +225,10 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 
 	if ( !control_ )
 	{
-	    uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_, 
-		    						*vwrs_[0] );
+	    uiFlatViewer* dummyfv = new uiFlatViewer(0);
+	    uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_,
+		   						*dummyfv ); 
+	    delete dummyfv;
 	    ctrl->posdlgcalled_.notify(
 		    		mCB(this,uiViewer2DMainWin,posDlgPushed));
 	    ctrl->datadlgcalled_.notify(
@@ -261,7 +263,8 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     , posdlgcalled_(this)
     , datadlgcalled_(this)
 {
-    vwr.rgbCanvas().disableScrollZoom();
+    removeViewer( vwr );
+
     tb_->clear(); delete tb_;
 
     objectitemctrl_ = new uiObjectItemViewControl( mw );
