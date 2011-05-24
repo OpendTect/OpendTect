@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2011
- RCS:           $Id: uipsviewer2dposdlg.h,v 1.4 2011-05-04 15:20:02 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dposdlg.h,v 1.5 2011-05-24 08:11:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ protected:
 mClass uiViewer2DPosDlg : public uiDialog
 {
 public:
-				uiViewer2DPosDlg(uiParent*,const CubeSampling&);
+				uiViewer2DPosDlg(uiParent*,bool is2d,
+						const CubeSampling&);
 
     void 			setCubeSampling(const CubeSampling&);
     void 			getCubeSampling(CubeSampling&);
@@ -71,6 +72,7 @@ public:
 protected:
 
     uiGatherPosSliceSel*	sliceselfld_;
+    bool			is2d_;
     bool			acceptOK(CallBacker*);
 };
 

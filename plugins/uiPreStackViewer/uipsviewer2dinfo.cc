@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dinfo.cc,v 1.1 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dinfo.cc,v 1.2 2011-05-24 08:11:49 cvsbruno Exp $";
 
 #include "uilabel.h"
 #include "uipsviewer2dinfo.h"
@@ -40,10 +40,10 @@ void uiGatherDisplayInfoHeader::setOffsetRange( const Interval<float>& offs )
 
 
 void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl, 
-					const char* datanm )
+					bool  is2d, const char* datanm )
 {
     datalbl_->setText( datanm ); 
-    BufferString posstr( isinl ? "Crl " : "Inl " ); 
+    BufferString posstr( is2d ? "Trace " : isinl ? "Crl " : "Inl " ); 
     posstr += isinl ? toString( pos.crl ) : toString( pos.inl );
     poslbl_->setText( posstr.buf() );
 }

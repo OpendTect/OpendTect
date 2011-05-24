@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uipsviewer2dinfo.h,v 1.1 2011-05-04 15:20:02 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dinfo.h,v 1.2 2011-05-24 08:11:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,8 @@ public:
     				uiGatherDisplayInfoHeader(uiParent*);
     				~uiGatherDisplayInfoHeader() {}
 
-    void			setData(const BinID&,bool inl,const char* data);
+    void			setData(const BinID&,bool inl,bool is2d,
+	    				const char* data);
     void			setOffsetRange(const Interval<float>&);
 
 protected:

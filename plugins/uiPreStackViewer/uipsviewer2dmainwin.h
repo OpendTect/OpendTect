@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2dmainwin.h,v 1.6 2011-05-16 09:27:44 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dmainwin.h,v 1.7 2011-05-24 08:11:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,10 @@ namespace PreStackView
 mClass uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
 public:    
-			uiViewer2DMainWin(uiParent*);
+			uiViewer2DMainWin(uiParent*,const char* title);
 
-    void 		init(const MultiID&,int gatherid,bool isinl);
+    void 		init(const MultiID&,int gatherid,bool isinl,
+			    const StepInterval<int>&,const char* linename=0);
     virtual void 	start()		{ show(); }
     virtual void        setWinTitle( const char* t )    { setCaption(t); }
 
@@ -50,7 +51,6 @@ public:
 protected:
 
     bool		isinl_;
-    bool		is2d_;
     TypeSet<MultiID> 	mids_;
     CubeSampling 	cs_;
     uiSlicePos2DView*	slicepos_;
@@ -58,6 +58,9 @@ protected:
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;
     Interval<float>	zrg_;
+
+    bool		is2d_;
+    BufferString	linename_;
 
     void		removeAllGathers();
     void		reSizeItems();
@@ -89,6 +92,7 @@ protected:
     uiToolButton*    	databut_;
     uiObjectItemViewControl* objectitemctrl_;
 
+    void		applyProperties(CallBacker*);
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);
 };

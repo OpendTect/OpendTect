@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.10 2011-05-23 10:20:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.11 2011-05-24 08:11:49 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uiflatviewer.h"
+#include "uiflatviewpropdlg.h"
 #include "uiflatviewslicepos.h"
 #include "uipsviewer2dposdlg.h"
 #include "uipsviewer2d.h"
@@ -25,6 +26,7 @@ static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.10 2011-05-23 10:20:
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "prestackgather.h"
@@ -34,45 +36,60 @@ static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.10 2011-05-23 10:20:
 namespace PreStackView 
 {
     
-uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p )
-    : uiObjectItemViewWin(p,"PreStack Gather view")
+uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
+    : uiObjectItemViewWin(p,title)
     , posdlg_(0)
-    , control_(0)		
+    , control_(0)
+    , slicepos_(0)	 
     , seldatacalled_(this)
     , isinl_(false)
     , axispainter_(0)
+    , linename_(0)
+    , cs_(false)	  
 {
 }
 
 
-void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
+void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl, 
+	const StepInterval<int>& trcrg, const char* linename )
 {
     mids_ += mid;
     isinl_ = isinl;
     SeisIOObjInfo info( mid );
-    info.getRanges( cs_ );
     is2d_ = info.is2D();
+    linename_ = linename;
 
-    if ( !is2d_ )
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
+    mDynamicCastGet(PreStack::Gather*,gather,dp)
+    if ( gather )
     {
-	DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
-	mDynamicCastGet(PreStack::Gather*,gather,dp)
-	if ( gather )
+	const BinID& bid = gather->getBinID();
+	if ( is2d_ )
 	{
-	    const BinID& bid = gather->getBinID();
-	    if ( isinl_ )
-		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
-	    else
-		cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
-
-	    setGathers( bid ); 
+	    cs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	    cs_.hrg.setCrlRange( trcrg );
 	}
-	DPM(DataPackMgr::FlatID()).release( gatherid );
+	else
+	{
+	    if ( isinl_ )
+	    {
+		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
+		cs_.hrg.setCrlRange( trcrg );
+	    }
+	    else
+	    {
+		cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
+		cs_.hrg.setInlRange( trcrg );
+	    }
+	    slicepos_ = new uiSlicePos2DView( this );
+	    slicepos_->setCubeSampling( cs_ );
+	    slicepos_->positionChg.notify(
+		    		mCB(this,uiViewer2DMainWin,posSlcChgCB));
+	}
+	cs_.zrg.setFrom( gather->posData().range( false ) );
+	setGathers( bid );
     }
-
-    slicepos_ = new uiSlicePos2DView( this );
-    slicepos_->setCubeSampling( cs_ );
-    slicepos_->positionChg.notify( mCB(this,uiViewer2DMainWin,posSlcChgCB) );
+    DPM(DataPackMgr::FlatID()).release( gatherid );
 
     reSizeSld(0);
     posDlgPushed(0);
@@ -96,7 +113,7 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
 {
     if ( !posdlg_ )
     {
-	posdlg_ = new uiViewer2DPosDlg( this, cs_ );
+	posdlg_ = new uiViewer2DPosDlg( this, is2d_, cs_ );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
     }
     else
@@ -179,7 +196,8 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
     {
 	gd = new uiGatherDisplay( 0 );
 	gather = new PreStack::Gather;
-	if ( gather->readFrom( mids_[idx], bid ) )
+	if ( is2d_ &&  gather->readFrom( mids_[idx], bid.crl, linename_, 0 ) 
+		|| !is2d_ && gather->readFrom( mids_[idx], bid ) )
 	{
 	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	    gd->setGather( gather->id() );
@@ -200,7 +218,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
 	PtrMan<IOObj> ioobj = IOM().get( mids_[idx] );
 	BufferString nm = ioobj ? ioobj->name() : "";
-	gdi->setData( bid, cs_.defaultDir()==CubeSampling::Inl, nm );
+	gdi->setData( bid, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm );
 	gdi->setOffsetRange( gd->getOffsetRange() );
 	addGroup( gd, gdi );
 
@@ -254,10 +272,48 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
 }
 
 
+void uiViewer2DControl::applyProperties( CallBacker* )
+{
+    if ( !propdlg_ ) return;
+
+    if ( vwrs_.size() <= 0 ) return;
+    FlatView::Appearance& app0 = vwrs_[0]->appearance();
+    const int selannot = propdlg_->selectedAnnot();
+
+    for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
+    {
+	if ( !vwrs_[ivwr] ) continue;
+	uiFlatViewer& vwr = *vwrs_[ivwr];
+	vwr.appearance() = app0;
+
+	const uiWorldRect cv( vwr.curView() );
+	FlatView::Annotation& annot = vwr.appearance().annot_;
+	if ( (cv.right() > cv.left()) == annot.x1_.reversed_ )
+	    { annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
+	if ( (cv.top() > cv.bottom()) == annot.x2_.reversed_ )
+	    { annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
+
+	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
+	{
+	    const DataPack::ID& id = vwr.availablePacks()[idx];
+	    if ( app0.ddpars_.wva_.show_ )
+		vwr.usePack( true, id, false );
+	    if ( app0.ddpars_.vd_.show_ )
+		vwr.usePack( false, id, false );
+	}
+
+	vwr.setAnnotChoice( selannot );
+	vwr.handleChange( FlatView::Viewer::VDPars );
+	vwr.handleChange( FlatView::Viewer::WVAPars );
+	vwr.handleChange( FlatView::Viewer::Annot, false );
+    }
+}
+
+
 void uiViewer2DControl::removeAllViewers()
 {
-    for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
-	removeViewer( *vwrs_[idx] );
+for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
+removeViewer( *vwrs_[idx] );
 }
 
 
