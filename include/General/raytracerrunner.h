@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: raytracerrunner.h,v 1.1 2011-05-25 15:44:43 cvsbruno Exp $
+ RCS:           $Id: raytracerrunner.h,v 1.2 2011-05-25 15:49:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,7 @@ public:
     const char*                 message() const { return "Running Ray tracers";}
 
     //available after excution
-    RayTracer1D*		rayTracer(int idx);
-    StepInterval<float>		getTotalRaySampling(bool usenmo);
-
+    const RayTracer1D*		rayTracer(int idx) const; 
     const char*			errMsg() const 	{ return errmsg_.buf(); }
 
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.1 2011-05-25 15:44:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.2 2011-05-25 15:49:02 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
@@ -52,3 +52,5 @@ int RayTracerRunner::nextStep()
 }
 
 
+const RayTracer1D* RayTracerRunner::rayTracer( int idx ) const
+{ return raytracers_.validIdx(idx) ? raytracers_[idx] : 0; }
