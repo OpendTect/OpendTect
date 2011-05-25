@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.33 2011-05-19 15:02:05 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.34 2011-05-25 12:37:44 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,10 @@ ________________________________________________________________________
 #include "color.h"
 #include "ranges.h"
 
+#include "bufstringset.h"
+
 class IOPar;
+class BufferStringSet;
 
 namespace Well
 {
@@ -163,6 +166,7 @@ public:
 
     Track		track_;
     Markers		markers_;
+    BufferStringSet	selmarkernms_;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 

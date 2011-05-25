@@ -4,11 +4,12 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.19 2011-05-19 15:02:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.20 2011-05-25 12:37:44 cvsnageswara Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
 #include "keystrs.h"
+
 
 static const char* sKeyTrackNmIsAbove = "Track Name Above";
 static const char* sKeyTrackNmIsBelow = "Track Name Below";
@@ -62,6 +63,7 @@ static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 
+static const char* sKeySelMarkers = "Display markers";
 
 Well::DisplayProperties::DisplayProperties()
 {
@@ -71,6 +73,7 @@ Well::DisplayProperties::DisplayProperties()
     logs_[0]->right_.isleftfill_ = true;
 
     Settings& setts = Settings::fetch( "welldisp" );
+    selmarkernms_.erase();
     usePar( setts );
 }
 
@@ -184,6 +187,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmFont), fontdata );
     par.setYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
+
 }
 
 
@@ -301,6 +305,7 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
 	    logs_[idx]->right_.useRightPar( *tmpiop );
 	}
     }
+
     delete tmpiop;
 }
 
