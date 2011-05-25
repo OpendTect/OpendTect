@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.13 2011-05-24 09:23:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.14 2011-05-25 07:27:52 cvsnanne Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -196,8 +196,8 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
     {
 	gd = new uiGatherDisplay( 0 );
 	gather = new PreStack::Gather;
-	if ( is2d_ &&  gather->readFrom( mids_[idx], bid.crl, linename_, 0 ) 
-		|| !is2d_ && gather->readFrom( mids_[idx], bid ) )
+	if ( (is2d_ && gather->readFrom(mids_[idx],bid.crl,linename_,0)) 
+		|| (!is2d_ && gather->readFrom(mids_[idx],bid)) )
 	{
 	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	    gd->setGather( gather->id() );
@@ -211,6 +211,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	    gd->setGather( -1 );
 	    delete gather;
 	}
+
 	gd->setPosition( bid );
 	uiFlatViewer* fv = gd->getUiFlatViewer();
 	gd->displayAnnotation( false );
