@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackexpevent.h,v 1.4 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: uiprestackexpevent.h,v 1.5 2011-05-25 04:52:43 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class CtxtIOObj;
 class uiIOObjSel;
 class uiSeisSubSel;
 class uiFileInput;
@@ -29,12 +28,10 @@ mClass uiEventExport : public uiDialog
 {
 public:
     			uiEventExport(uiParent*, const MultiID*);
-    			~uiEventExport();
 
 protected:
     bool		acceptOK(CallBacker*);
 
-    CtxtIOObj*		ctxt_;
     uiIOObjSel*		eventsel_;
     uiSeisSubSel*	subsel_;
     uiFileInput*	outputfile_;
