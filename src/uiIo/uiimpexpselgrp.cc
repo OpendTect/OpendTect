@@ -33,6 +33,7 @@ static const char* rcsID = "";
 #include "separstr.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include "survinfo.h"
 #include "timefun.h"
 
 static const char* filefilter = "Text (*.txt *.dat)";
@@ -42,27 +43,212 @@ static const char* sKeySelGrp()		{ return "SelectionGrps"; }
 static const char* sKeyIdxFileName() 	{ return "index.txt"; }
 
 
+mClass SGSelGrpManager
+{
+
+public:
+
+SGSelGrpManager()
+{ createBaseDir(); }
+
+
+~SGSelGrpManager()
+{ delete &basefp_; }
+
+
+bool renameSelGrpSet( const char* oldnm, const char* newnm )
+{
+    BufferStringSet nms;
+    getSelGrpSetNames( nms );
+    const int sgidx = nms.indexOf( oldnm );
+    if ( mIsUdf(sgidx) || sgidx<0 )
+	return false;
+
+    BufferString oldclnnm( oldnm );
+    cleanupString( oldclnnm.buf(), false, false, false );
+    BufferString newclnnm( oldnm );
+    cleanupString( newclnnm.buf(), false, false, false );
+
+    FilePath newfp( basefp_.fullPath() );
+    newfp.add( newclnnm );
+    FilePath oldfp( basefp_.fullPath() );
+    oldfp.add( oldclnnm );
+
+    nms.get( sgidx ) = newnm;
+    setSelGrpSetNames( nms );
+    File::rename( oldfp.fullPath(), newfp.fullPath() );
+    return true;
+}
+
+
+bool addSelGrpSet( const char* nm )
+{
+    if ( !nm || !*nm )
+	return false;
+
+    BufferStringSet nms;
+    if ( !getSelGrpSetNames(nms) || nms.isPresent(nm) )
+	return false;
+    nms.add( nm );
+    if ( !setSelGrpSetNames(nms) )
+	return false;
+    return true;
+}
+
+
+bool deleteSelGrpSet( const char* nm )
+{
+    BufferStringSet nms;
+    getSelGrpSetNames( nms );
+    const int sgidx = nms.indexOf( nm );
+    if ( sgidx<0 || mIsUdf(sgidx) )
+	return false;
+
+    nms.remove( sgidx );
+    setSelGrpSetNames( nms );
+    FilePath sgfp( basefp_ );
+    sgfp.add( nm );
+    return File::remove( sgfp.fullPath() );
+    return true;
+}
+
+
+BufferString basePath() const
+{ return basefp_.fullPath(); }
+
+
+bool hasIdxFile()
+{
+    FilePath fp( basefp_ );
+    fp.add( sKeyIdxFileName() );
+
+    return File::exists( fp.fullPath() );
+}
+
+
+bool createBaseDir()
+{
+    basefp_ = IOObjContext::getDataDirName( IOObjContext::Feat );
+    basefp_.add( sKeySelGrp() );
+
+    if ( !File::exists(basefp_.fullPath()) )
+    {
+	if  ( !File::createDir(basefp_.fullPath()) )
+	{
+	    BufferString msg( "Cannot create " );
+	    msg += sKeySelGrp();
+	    msg += "for crossplot selctions. Check write permissions";
+	    uiMSG().error( msg );
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+
+bool setSelGrpSetNames( const BufferStringSet& nms )
+{
+    BufferString fnm;
+    FilePath fp( basefp_ );
+    fp.add( sKeyIdxFileName() );
+    SafeFileIO sfio( fp.fullPath(), true );
+    if ( !sfio.open(false) )
+    {
+	uiMSG().error("Cannot open Crossplot Selection index.txt "
+		      "file for write");
+	return false;
+    }
+
+    ascostream astrm( sfio.ostrm() );
+    astrm.putHeader( "Selection Group Set Names" );
+    for ( int idx=0; idx<nms.size(); idx++ )
+	astrm.put( nms.get(idx).buf() );
+    astrm.newParagraph();
+
+    if ( sfio.ostrm().good() )
+	sfio.closeSuccess();
+    else
+    {
+	sfio.closeFail();
+	uiMSG().error( "Error during write to Crossplot Selection index file ."
+		       "Check disk space." );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool getSelGrpSetNames( BufferStringSet& nms )
+{
+    FilePath fp( basefp_ );
+    fp.add( sKeyIdxFileName() );
+    SafeFileIO sfio( fp.fullPath(), true );
+    if ( !sfio.open(true) )
+    {
+	uiMSG().error( "Index file for Crossplot Selection group not present" );
+	return false;
+    }
+
+    ascistream astrm( sfio.istrm() );
+    if ( atEndOfSection(astrm) )
+	astrm.next();
+
+    while ( !atEndOfSection(astrm) )
+    {
+	nms.add( astrm.keyWord() );
+	astrm.next();
+    }
+
+    sfio.closeSuccess();
+    return true;
+}
+
+   FilePath		basefp_;
+};
+
+
+static SGSelGrpManager* sgm = 0;
+
+
+struct SGSelGrpManDeleter : public NamedObject
+{ void doDel( CallBacker* ) { delete sgm; sgm = 0; } };
+
+static SGSelGrpManager& SGM()
+{
+    if ( !sgm )
+    {
+	sgm = new SGSelGrpManager();
+	static SGSelGrpManDeleter sgsmd;
+	const_cast<SurveyInfo&>(SI()).deleteNotify(
+		mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
+    }
+
+    return *sgm;
+}
+
+
 uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
     : uiGroup(p)
     , forread_(forread)
+    , selectionDone(this)
 {
-    uiLabeledListBox* llb =
-	new uiLabeledListBox( this, "Select Crossplot Selection Groups", false,
-			      uiLabeledListBox::AboveMid );
-    listfld_ = llb->box();
+    listfld_ = new uiListBox( this );
     listfld_->selectionChanged.notify( mCB(this,uiSGSelGrp,selChangedCB) );
+    listfld_->doubleClicked.notify( mCB(this,uiSGSelGrp,selDoneCB) );
 
     if ( !forread )
     {
 	nmfld_ = new uiGenInput( this, "Name" );
-	nmfld_->attach( alignedBelow, llb );
+	nmfld_->attach( alignedBelow, listfld_ );
 	nmfld_->setElemSzPol( uiObject::SmallMax );
 	nmfld_->setStretch( 2, 0 );
     }
 
     infobut_ = new uiToolButton( this, "info.png", "Info",
-	    			mCB(this,uiSGSelGrp,showInfo) );
-    infobut_->attach( rightTo, llb );
+	    			 mCB(this,uiSGSelGrp,showInfo) );
+    infobut_->attach( rightTo, listfld_ );
 
     delbut_ = new uiToolButton( this, "trashcan.png", "Delete Selection-Groups",
 	    		        mCB(this,uiSGSelGrp,delSelGrps) );
@@ -74,6 +260,12 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
     renamebut_->attach( alignedBelow, delbut_ );
 
     fillListBox();
+}
+
+
+void uiSGSelGrp::selDoneCB( CallBacker* )
+{
+    selectionDone.trigger();
 }
 
 
@@ -101,62 +293,15 @@ void uiSGSelGrp::showInfo( CallBacker* )
 void uiSGSelGrp::delSelGrps( CallBacker* )
 {
     BufferStringSet nms;
-    getSelGrpSetNames( nms );
+    SGM().getSelGrpSetNames( nms );
     const int idx = nms.indexOf( listfld_->getText() );
     if ( mIsUdf(idx) || idx < 0 )
 	return;
 
-    nms.remove( idx );
-    setSelGrpSetNames( nms );
-    File::remove( getCurFileNm() );
+    SGM().deleteSelGrpSet( listfld_->getText() );
     fillListBox();
 }
 
-
-mClass uiImpSG : public uiDialog
-{
-public:
-
-uiImpSG( uiParent* p, ObjectSet<SelectionGrp>& selgrpset )
-    : uiDialog(p,uiDialog::Setup("Import Selection Groups","",""))
-    , selgrpset_(selgrpset)
-{
-    inpfld_ = new uiFileInput( this, "Select Selection Group Ascii" );
-}
-
-bool acceptOK( CallBacker* )
-{
-    if ( !inpfld_->fileName() )
-    {
-	uiMSG().error( "Select a valid file" );
-	return false;
-    }
-
-    ObjectSet<SelectionGrp> selgrpset;
-    SelGrpImporter imp( inpfld_->fileName() );
-    selgrpset = imp.getSelections();
-    if ( !imp.errMsg().isEmpty() )
-    {
-	uiMSG().error( imp.errMsg() );
-	return false;
-    }
-
-    xname_ = imp.xName();
-    yname_ = imp.yName();
-    y2name_ = imp.y2Name();
-
-    deepErase( selgrpset_ );
-    selgrpset_ = selgrpset;
-    return true;
-}
-
-    BufferString			xname_;
-    BufferString			yname_;
-    BufferString			y2name_;
-
-    ObjectSet<SelectionGrp>&		selgrpset_;
-    uiFileInput*			inpfld_;
-};
 
 
 mClass uiRenameDlg : public uiDialog
@@ -181,44 +326,23 @@ const char* getName()
 void uiSGSelGrp::renameSelGrps( CallBacker* )
 {
     BufferStringSet nms;
-    getSelGrpSetNames( nms );
+    SGM().getSelGrpSetNames( nms );
     uiRenameDlg dlg( this, listfld_->getText() );
     if ( dlg.go() )
     {
 	const int idx = nms.indexOf( listfld_->getText() );
 	if ( mIsUdf(idx) || idx < 0 || !dlg.getName() )
 	    return;
-	nms.get( idx ) = dlg.getName();
-	BufferString newfp( basefp_.fullPath() );
-	newfp += "/";
-	newfp += dlg.getName();
-	setSelGrpSetNames( nms );
-	File::rename( getCurFileNm(), newfp.buf() );
+	SGM().renameSelGrpSet( listfld_->getText(), dlg.getName() ); 
 	fillListBox();
     }
-}
-
-
-bool uiSGSelGrp::addSelGrpSet()
-{
-    if ( forread_ )
-	return false;
-
-    BufferStringSet nms;
-    if ( !getSelGrpSetNames(nms) || nms.isPresent(nmfld_->text()) )
-	return false;
-    nms.add( nmfld_->text() );
-    if ( !setSelGrpSetNames(nms) )
-	return false;
-    return true;
 }
 
 
 bool uiSGSelGrp::fillListBox()
 {
     BufferStringSet selgrpsetnms;
-    if ( !createBaseDir() || (!hasIdxFile() && !setSelGrpSetNames(selgrpsetnms))
-	 || !getSelGrpSetNames(selgrpsetnms) )
+    if ( !SGM().getSelGrpSetNames(selgrpsetnms) )
 	return false;
 
     listfld_->setEmpty();
@@ -255,100 +379,12 @@ const char* uiSGSelGrp::selGrpSetNm() const
 
 BufferString uiSGSelGrp::getCurFileNm() const
 {
-    BufferString ret( basefp_.fullPath() );
-    ret.add( "/" );
-    ret.add( forread_ ? listfld_->getText() : nmfld_->text() );
+    FilePath fp( SGM().basePath() );
+    BufferString cleannm( forread_ ? listfld_->getText() : nmfld_->text() );
+    cleanupString( cleannm.buf(), false, false, false ); 
+    fp.add( cleannm );
 
-    return ret;
-}
-
-
-bool uiSGSelGrp::hasIdxFile()
-{
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-
-    return File::exists( fp.fullPath() );
-}
-
-
-bool uiSGSelGrp::createBaseDir()
-{
-    basefp_ = IOObjContext::getDataDirName( IOObjContext::Feat );
-    basefp_.add( sKeySelGrp() );
-
-    if ( !File::exists(basefp_.fullPath()) )
-    {
-	if  ( !File::createDir(basefp_.fullPath()) )
-	{
-	    BufferString msg( "Cannot create " );
-	    msg += sKeySelGrp();
-	    msg += "for crossplot selctions. Check write permissions";
-	    uiMSG().error( msg );
-	    return false;
-	}
-    }
-
-    return true;
-}
-
-
-bool uiSGSelGrp::setSelGrpSetNames( const BufferStringSet& nms ) const
-{
-    BufferString fnm;
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-    SafeFileIO sfio( fp.fullPath(), true );
-    if ( !sfio.open(false) )
-    {
-	uiMSG().error("Cannot open Crossplot Selection index.txt "
-		      "file for write");
-	return false;
-    }
-
-    ascostream astrm( sfio.ostrm() );
-    astrm.putHeader( "Selection Group Set Names" );
-    for ( int idx=0; idx<nms.size(); idx++ )
-	astrm.put( nms.get(idx).buf() );
-    astrm.newParagraph();
-
-    if ( sfio.ostrm().good() )
-	sfio.closeSuccess();
-    else
-    {
-	sfio.closeFail();
-	uiMSG().error( "Error during write to Crossplot Selection index file ."
-		       "Check disk space." );
-	return false;
-    }
-
-    return true;
-}
-
-
-bool uiSGSelGrp::getSelGrpSetNames( BufferStringSet& nms ) const
-{
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-    SafeFileIO sfio( fp.fullPath(), true );
-    if ( !sfio.open(true) )
-    {
-	uiMSG().error( "Index file for Crossplot Selection group not present" );
-	return false;
-    }
-
-    ascistream astrm( sfio.istrm() );
-    if ( atEndOfSection(astrm) )
-	astrm.next();
-
-    while ( !atEndOfSection(astrm) )
-    {
-	nms.add( astrm.keyWord() );
-	astrm.next();
-    }
-
-    sfio.closeSuccess();
-    return true;
+    return fp.fullPath();
 }
 
 
@@ -356,7 +392,7 @@ SelGrpImporter::SelGrpImporter( const char* fnm )
 {
     sd_ = StreamProvider( fnm ).makeIStream();
     if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open input file"; return; }
+	{ errmsg_ = "Cannot open specified file"; return; }
 }
 
 
@@ -370,10 +406,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 {
     ObjectSet<SelectionGrp> selgrpset;
     if ( !sd_.usable() )
-    {
-	errmsg_ = "Stream not usable";
 	return selgrpset;
-    }
 
     ascistream astrm( *sd_.istrm, true );
 
@@ -415,7 +448,7 @@ SelGrpExporter::SelGrpExporter( const char* fnm )
 {
     sd_ = StreamProvider( fnm ).makeOStream();
     if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open output file"; return; }
+	{ errmsg_ = "Cannot open specified file to write"; return; }
 }
 
 SelGrpExporter::~SelGrpExporter()
@@ -463,6 +496,8 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
     sd_.close();
     return ret;
 }
+
+
 mClass uiSGSelDlg : public uiDialog
 {
 public:
@@ -472,6 +507,7 @@ uiSGSelDlg( uiParent* p, bool forread )
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
+    selgrp_->selectionDone.notify( mCB(this,uiSGSelDlg,accept) );
 }
 
 
@@ -481,7 +517,7 @@ bool acceptOK( CallBacker* )
     if ( forread_ )
 	ret = selgrp_->getCurSelGrpSet( selgrpset_ );
     else
-	selgrp_->addSelGrpSet();
+	SGM().addSelGrpSet( selgrp_->selGrpSetNm() );
     
     selgrpsetnm_ = selgrp_->selGrpSetNm();
     filenm_ =  selgrp_->getCurFileNm();
@@ -522,7 +558,7 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
     , forread_(forread)
     , selGrpSelected(this)
 {
-    inpfld_ = new uiGenInput( this, "Select Crossplot Selection Group" );
+    inpfld_ = new uiGenInput( this, "Crossplot Selections" );
     selbut_ = new uiPushButton( this, "Select ..", mCB(this,uiSGSel,selectSGCB),
 	    			false );
     selbut_->attach( rightTo, inpfld_ );
@@ -547,7 +583,7 @@ void uiSGSel::selectSGCB( CallBacker* )
 
 bool uiSGSel::isOK() const
 {
-    return inpfld_->text() || !selgrpset_.isEmpty();
+    return inpfld_->text() || !selgrpfilenm_.isEmpty();
 }
 
 
@@ -557,19 +593,31 @@ const char* uiSGSel::selGrpSetNm() const
 }
 
 
-const char* uiSGSel::selGrpFileNm() const
+const char* uiSGSel::selGrpFileNm() 
 {
+    if ( !isOK() )
+	return 0;
+
+
+    if ( selgrpfilenm_.isEmpty() )
+    {
+	FilePath fp( SGM().basePath() );
+	BufferString cleannm( inpfld_->text() );
+	cleanupString( cleannm.buf(), false, false, false );
+	fp.add( cleannm );
+	selgrpfilenm_ = fp.fullPath();
+    }
+
     return selgrpfilenm_.buf();
 }
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup("Import Crossplot Selection", "","112.0.0"))
+    : uiDialog(p,uiDialog::Setup("Open Crossplot Selection", "","112.0.0"))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
     , y2selfld_(0)
 {
-    setCtrlStyle( DoAndStay );
     bool hasy2 = plotter.axisHandler(2);
     BufferStringSet nms;
     nms.add( plotter.axisHandler(0)->name() );
@@ -583,7 +631,7 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     uiLabeledComboBox* xselfld =
 	new uiLabeledComboBox( this, plotter.axisHandler(0)->name() );
     xselfld_ = xselfld->box();
-    xselfld->attach( alignedBelow, inpfld_ );
+    xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
    
     uiLabeledComboBox* yselfld =
@@ -622,6 +670,11 @@ void uiReadSelGrp::fldCheckedCB( CallBacker* cb )
 }
 
 
+#define mSetMatchingItem( selfld, idx ) \
+    matchidx = nms.nearestMatch( axisnms[idx]->buf() ); \
+    if ( matchidx >= 0 ) \
+	selfld->setCurrentItem( matchidx ); \
+
 void uiReadSelGrp::selectedCB( CallBacker* )
 {
     if ( !inpfld_->isOK() )
@@ -632,10 +685,17 @@ void uiReadSelGrp::selectedCB( CallBacker* )
 
     selgrpset_ = inpfld_->selGrpSet();
 
+    BufferStringSet axisnms;
+    axisnms.add( plotter_.axisHandler(0)->name() );
+    axisnms.add( plotter_.axisHandler(1)->name() );
+    if ( plotter_.axisHandler(2) )
+	axisnms.add( plotter_.axisHandler(2)->name() );
+
     xname_ = inpfld_->xName();
     yname_ = inpfld_->yName();
     y2name_ = inpfld_->y2Name();
 
+    int matchidx = 0;
     BufferStringSet nms;
     nms.add( xname_ );
     nms.add( yname_ );
@@ -643,18 +703,23 @@ void uiReadSelGrp::selectedCB( CallBacker* )
 	nms.add( y2name_ );
     xselfld_->setEmpty();
     xselfld_->addItems( nms );
+    mSetMatchingItem( xselfld_, 0 );
     xselfld_->display( true );
+
     yselfld_->setEmpty();
     yselfld_->addItems( nms );
+    mSetMatchingItem( yselfld_, 1 );
     yselfld_->display( true );
+    ychkfld_->display( false );
+    ychkfld_->setChecked( true );
     yselfld_->setSensitive( true );
     
     if ( y2selfld_ )
     {
 	ychkfld_->display( true );
-	yselfld_->setSensitive( false );
 	y2selfld_->setEmpty();
 	y2selfld_->addItems( nms );
+	mSetMatchingItem( y2selfld_, 2 );
 	y2selfld_->display( true );
 	y2selfld_->setSensitive( false );
 	y2chkfld_->display( true );
@@ -688,26 +753,26 @@ BufferStringSet uiReadSelGrp::getAvailableAxisNames() const
 
 
 bool uiReadSelGrp::checkSelectionArea( SelectionArea& actselarea,
-				       const BufferStringSet& selaxisnm,
-				       const BufferStringSet& axisnms,
+				       const BufferStringSet& impaxisnm,
+				       const BufferStringSet& xpaxisnms,
 				       bool hasalt )
 {
     mGetAxisVals;
 
-    if ( !selaxisnm.isPresent(axisnms.get(0)) )
+    if ( !impaxisnm.isPresent(xpaxisnms.get(0)) )
 	return false;
 
     if ( yaxis<0 && y2axis>=0 )
     {
-	if ( (axisnms.validIdx(2) && !selaxisnm.isPresent(axisnms.get(2))) ||
-   	     !selaxisnm.isPresent(axisnms.get(1))  )
+	if ( (xpaxisnms.validIdx(2) && !impaxisnm.isPresent(xpaxisnms.get(2)))
+	     || !impaxisnm.isPresent(xpaxisnms.get(1))  )
 	    return false;
 
 	actselarea.axistype_ = SelectionArea::Y2;
     }
     else if ( yaxis>=0 && y2axis<0 )
     {
-	if ( !selaxisnm.isPresent(axisnms.get(1)) )
+	if ( !impaxisnm.isPresent(xpaxisnms.get(1)) )
 	    return false;
 
 	actselarea.axistype_ = SelectionArea::Y1;
@@ -717,9 +782,9 @@ bool uiReadSelGrp::checkSelectionArea( SelectionArea& actselarea,
 	actselarea.axistype_ = SelectionArea::Both;
 	if ( !hasalt )
 	{
-	    if ( !selaxisnm.isPresent(axisnms.get(1)) )
+	    if ( !impaxisnm.isPresent(xpaxisnms.get(1)) )
 		actselarea.axistype_ = SelectionArea::Y2;
-	    else if ( !selaxisnm.isPresent(axisnms.get(2)) )
+	    else if ( !impaxisnm.isPresent(xpaxisnms.get(2)) )
 		actselarea.axistype_ = SelectionArea::Y1;
 	}
     }
@@ -737,10 +802,10 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
     {
 	actselarea.worldrect_ =
 	    ((yaxis == 2) && hasalt) ? selarea.altworldrect_
-			 : selarea.worldrect_;
+			 	     : selarea.worldrect_;
 	actselarea.altworldrect_ =
 	    ((yaxis == 2) && hasalt) ? selarea.worldrect_
-			 : selarea.altworldrect_;
+			 	     : selarea.altworldrect_;
     }
     else 
     {
@@ -831,11 +896,17 @@ bool uiReadSelGrp::adjustSelectionGrps()
 
     if ( xaxis==yaxis || yaxis==y2axis || y2axis==xaxis )
     {
-	uiMSG().error( "Choose separate axis for different Axis" );
+	uiMSG().error( "Same parameter chosen for different axis" );
 	return false;
     }
 
-    BufferStringSet axisnms = getAvailableAxisNames();
+    if ( yaxis < 0 && !plotter_.axisHandler(2) )
+    {
+	uiMSG().error( "Choose axis properly" );
+	return false;
+    }
+
+    BufferStringSet xpaxisnms = getAvailableAxisNames();
 
     int selareaid = 0;
     bool selimportfailed = false;
@@ -852,7 +923,7 @@ bool uiReadSelGrp::adjustSelectionGrps()
 	    bool hasalt = !selarea.altyaxisnm_.isEmpty();
 
 	    if ( !checkSelectionArea(actselarea,selarea.getAxisNames(),
-				     axisnms,hasalt) )
+				     xpaxisnms,hasalt) )
 	    {
 		selimportfailed = true;
 		continue;
@@ -866,6 +937,11 @@ bool uiReadSelGrp::adjustSelectionGrps()
 	    if ( plotter_.checkSelArea(actselarea) )
 	    {
 		actselarea.id_ = selareaid;
+		actselarea.xaxisnm_ = plotter_.axisHandler(0)->name();
+		actselarea.yaxisnm_ =
+		    plotter_.axisHandler( yaxis < 0 ? 2 : 1 )->name();
+		if ( hasalt && y2axis >=0 )
+		    actselarea.altyaxisnm_ = plotter_.axisHandler(2)->name();
 		newselgrp->addSelection( actselarea );
 		selareaid++;
 	    }
@@ -907,13 +983,11 @@ bool uiReadSelGrp::acceptOK( CallBacker* )
 uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
-    : uiDialog(p,uiDialog::Setup("Export Selection Area",
+    : uiDialog(p,uiDialog::Setup("Save Selection Area",
 				 "Specify parameters",mTODOHelpID))
     , selgrps_(selgrps)
     , setup_(su)
 {
-    setCtrlStyle( DoAndStay );
-
     outfld_ = new uiSGSel( this, false );
 }
 
@@ -922,16 +996,23 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
 {
     if ( !outfld_->isOK() )
     {
-	uiMSG().error( "Ouput not selected" );
+	uiMSG().error( "Please select an ouput name" );
 	return false;
     }
 
+    if ( File::exists(outfld_->selGrpFileNm()) )
+    {
+	if ( !uiMSG().askOverwrite("Selected selections already present, "
+			      	   "Do you want to overwrite?") )
+	    return false;
+    }
+
+    SGM().addSelGrpSet( outfld_->selGrpSetNm() );
     SelGrpExporter exp( outfld_->selGrpFileNm() );
     BufferString yaxisnm;
     if ( !exp.putSelections(selgrps_,setup_.xname_,
 			    setup_.yname_,setup_.y2name_) )
 	{ uiMSG().error(exp.errMsg()); return false; }
 
-    uiMSG().message( "Output file created" );
-    return false;
+    return true;
 }

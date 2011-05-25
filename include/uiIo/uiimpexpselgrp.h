@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Dec 2010
- RCS:           $Id: uiimpexpselgrp.h,v 1.2 2011-01-18 10:16:04 cvssatyaki Exp $
+ RCS:           $Id: uiimpexpselgrp.h,v 1.3 2011-05-25 09:49:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
     					uiSGSel(uiParent*,bool forread);
 
     bool				isOK() const;
-    const char*				selGrpFileNm() const;
+    const char*				selGrpFileNm();
     const char*				selGrpSetNm() const;
     const ObjectSet<SelectionGrp>&	selGrpSet() const
     					{ return selgrpset_; }
@@ -69,7 +69,6 @@ mClass uiSGSelGrp : public uiGroup
 public:
     				uiSGSelGrp(uiParent*,bool forread);
 
-    bool			addSelGrpSet();
     BufferString		getCurFileNm() const;
     const char*			selGrpSetNm() const;
     bool			getCurSelGrpSet(ObjectSet<SelectionGrp>&);
@@ -77,6 +76,9 @@ public:
     const BufferString&		xName()			{ return xname_; }
     const BufferString&		yName()			{ return yname_; }
     const BufferString&		y2Name()		{ return y2name_; }
+
+    Notifier<uiSGSelGrp>	selectionDone;
+
 protected:
 
     uiListBox*			listfld_;
@@ -102,6 +104,7 @@ protected:
     void			delSelGrps(CallBacker*);
     void			renameSelGrps(CallBacker*);
     void			selChangedCB(CallBacker*);
+    void			selDoneCB(CallBacker*);
 };
 
 

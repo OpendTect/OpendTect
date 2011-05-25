@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.7 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.8 2011-05-25 09:49:22 cvssatyaki Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -110,15 +110,15 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
-	plotter_.setShowY3( true );
 	plotter_.updateOverlayMapper( true );
 	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+	plotter_.setShowY3( true );
     }
     else
     {
 	plotter_.setOverlayY1Cols( mUdf(int) );
-	plotter_.setShowY3( false );
 	y3coltabfld_->setInterval( Interval<float>(0,1) );
+	plotter_.setShowY3( false );
     }
     
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
@@ -126,17 +126,17 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
-	plotter_.setShowY4( true );
 	plotter_.updateOverlayMapper( false );
 	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+	plotter_.setShowY4( true );
     }
     else
     {
 	plotter_.setOverlayY2Cols( mUdf(int) );
 	if ( plotter_.isY2Shown() && y4propselfld_ )
 	{
-	    plotter_.setShowY4( false );
 	    y4coltabfld_->setInterval( Interval<float>(0,1) );
+	    plotter_.setShowY4( false );
 	}
     }
 
@@ -163,8 +163,8 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
     else
     {
 	plotter_.setOverlayY1Cols( mUdf(int) );
-	plotter_.setShowY3( false );
 	y3coltabfld_->setInterval( Interval<float>(0,1) );
+	plotter_.setShowY3( false );
     }
    
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
@@ -184,8 +184,8 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 	plotter_.setOverlayY2Cols( mUdf(int) );
 	if ( plotter_.isY2Shown() && y4propselfld_ )
 	{
-	    plotter_.setShowY4( false );
 	    y4coltabfld_->setInterval( Interval<float>(0,1) );
+	    plotter_.setShowY4( false );
 	}
     }
 }

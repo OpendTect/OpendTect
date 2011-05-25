@@ -4,17 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.78 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.79 2011-05-25 09:49:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.78 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.79 2011-05-25 09:49:22 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
+#include "uicolortable.h"
 #include "uidatapointset.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uigraphicscoltab.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uirgbarray.h"
@@ -94,6 +96,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , sely2items_(0)
     , selrectitems_(0)
     , selpolyitems_(0)
+    , y1overlayctitem_(0)
+    , y2overlayctitem_(0)
     , eachcount_(0)
     , yrowidxs_(0)
     , y2rowidxs_(0)
@@ -428,6 +432,13 @@ void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
     isy2selectable_ = y2;
 }
 
+# define mSetSelAreaAxisType( selarea ) \
+    if ( isy1selectable_ && isy2selectable_ && isY2Shown() ) \
+	selarea.axistype_ = SelectionArea::Both; \
+    else if ( !isy2selectable_ ) \
+	selarea.axistype_ = SelectionArea::Y1; \
+    else \
+	selarea.axistype_ = SelectionArea::Y2;
 
 void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 {
@@ -455,6 +466,7 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
     {
 	SelectionArea selarea( uiRect(getCursorPos(),uiSize(0,0)) );
 	selarea.id_ = newselareaid;
+	mSetSelAreaAxisType( selarea )
 	selgrp->addSelection( selarea );
 	if ( !selectionrectitem_ )
 	    selectionrectitem_ = new uiRectItem( 0, 0, 1, 1 );
@@ -469,6 +481,8 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 	SelectionArea selarea( poly );
 	selarea.id_ = newselareaid;
 	poly.add( getCursorPos() );
+	
+	mSetSelAreaAxisType( selarea )
 	selgrp->addSelection( selarea );
 
 	if ( !selectionpolygonitem_ )
@@ -490,15 +504,6 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
     SelectionArea& selarea = getCurSelArea();
     selarea.xaxisnm_ = axisHandler(0)->name();
     selarea.yaxisnm_ = axisHandler( isy1selectable_ ? 1 : 2 )->name();
-    if ( isy1selectable_ && isy2selectable_ )
-    {
-	selarea.altyaxisnm_ = axisHandler(2)->name();
-	selarea.axistype_ = SelectionArea::Both;
-    }
-    else if ( isy2selectable_ )
-	selarea.axistype_ = SelectionArea::Y2;
-    else if ( isy1selectable_ )
-	selarea.axistype_ = SelectionArea::Y1;
 }
 
 
@@ -554,6 +559,60 @@ float uiDataPointSetCrossPlotter::getVal( int colid, int rid ) const
 
 void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& su )
 { ctmapper_.setup_ = su; }
+
+
+void uiDataPointSetCrossPlotter::setShowY3( bool yn )
+{
+    showy3_ = yn;
+    if ( y1overlayctitem_ ) y1overlayctitem_->setVisible( yn );
+    if ( !yn )
+	drawContent();
+}
+
+
+void uiDataPointSetCrossPlotter::setShowY4( bool yn )
+{
+    showy4_ = yn;
+    if ( y2overlayctitem_ ) y2overlayctitem_->setVisible( yn );
+    if ( !yn )
+	drawContent();
+}
+
+
+void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
+{
+    if ( (isy1 && !showy3_) || (!isy1 && !showy4_) )
+	return;
+
+    uiColTabItem* coltabitem = isy1 ? y1overlayctitem_ : y2overlayctitem_;
+    uiColTabItem::Setup ctsu( true );
+    
+    if ( !coltabitem )
+    {
+	ctsu.startalong_ = true;
+	ctsu.stopalong_ = true;
+	coltabitem = new uiColTabItem( ctsu );
+	if ( isy1 )
+	    y1overlayctitem_ = coltabitem;
+	else
+	    y2overlayctitem_ = coltabitem;
+	scene().addItem( coltabitem );
+    }
+
+    uiBorder extraborder = setup_.minborder_;
+    extraborder.setBottom( extraborder.bottom() + ctsu.sz_.height() );
+    x_.axis_->setup().border_ = extraborder;
+
+    const int xpos = isy1 ? x_.axis_->pixBefore()
+			  : width() - x_.axis_->pixAfter() - ctsu.sz_.width();
+    const int ypos = height() - y_.axis_->pixBefore();
+    coltabitem->setPos( xpos, ypos );
+    ColTab::Sequence ctab = isy1 ? y3ctab_ : y4ctab_;
+    coltabitem->setColTabSequence( ctab );
+    const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
+						  : y4mapper_.setup_;
+    coltabitem->setColTabMapperSetup( mappersetup );
+}
 
 
 void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
@@ -779,6 +838,9 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	    }
 	}
     }
+
+    selectionrectitem_ = 0;
+    selectionpolygonitem_ = 0;
 }
 
 
@@ -849,7 +911,10 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
 	
 
     if ( curselarea.id_ == 0 )
+    {
+	mSetSelAreaAxisType( curselarea )
 	selgrpset_[curselgrp_]->addSelection( curselarea );
+    }
     else
 	selgrpset_[curselgrp_]->setSelectionArea( curselarea );
 
@@ -1069,6 +1134,9 @@ void uiDataPointSetCrossPlotter::setDraw()
 
 void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 {
+    drawColTabItem( true );
+    drawColTabItem( false );
+    
     if ( withaxis )
     {
 	if ( x_.axis_ )
@@ -1291,7 +1359,8 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 
 	    const bool itmselected = selarea.isInside( pt );
 	    
-	    if ( isy1selectable_ && !isy2 )
+	    if ( (selarea.axistype_ ==SelectionArea::Y1 ||
+		  selarea.axistype_ ==SelectionArea::Both) && !isy2 )
 	    {
 		if ( itmselected )
 		{
@@ -1316,7 +1385,9 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    ptselected = true;
 		}
 	    }
-	    if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
+	    if ( (selarea.axistype_ ==SelectionArea::Y2 ||
+		  selarea.axistype_ ==SelectionArea::Both)
+		  && y2ptitems_ && isY2Shown() && isy2 )
 	    {
 		if ( itmselected )
 		{

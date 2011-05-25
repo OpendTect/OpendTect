@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.35 2011-03-10 06:12:15 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.36 2011-05-25 09:49:22 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.35 2011-03-10 06:12:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.36 2011-05-25 09:49:22 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -398,7 +398,8 @@ uiSetSelGrpTab( uiTabStackDlg* p, uiDataPointSetCrossPlotter& plotter )
     uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
     tbl_ = new uiTable( this, su, "Selection Groups" );
-    tbl_->leftClicked.notify( mCB(this,uiSetSelGrpTab,changeColCB) );
+    tbl_->setColumnReadOnly( 1, true );
+    tbl_->doubleClicked.notify( mCB(this,uiSetSelGrpTab,changeColCB) );
     tbl_->rowInserted.notify( mCB(this,uiSetSelGrpTab,addSelGrp) );
     tbl_->valueChanged.notify( mCB(this,uiSetSelGrpTab,changeSelGrbNm) );
     tbl_->selectionChanged.notify( mCB(this,uiSetSelGrpTab,setCurSelGrp) );
@@ -457,10 +458,13 @@ void changeSelGrbNm( CallBacker* )
 void addSelGrp( CallBacker* cb )
 {
     tbl_->insertRows( tbl_->nrRows(), 1 );
+    tbl_->setColumnReadOnly( 1, true );
     RowCol newcell = RowCol( tbl_->nrRows()-1, 1 );
     tbl_->setColor( RowCol(newcell.row,1), getRandomColor() );
     BufferString selgrpnm( "No " );
-    selgrpnm += tbl_->nrRows();
+    static int selgrpnr = 2;
+    selgrpnm += selgrpnr;
+    selgrpnr++;
     tbl_->setText( RowCol(newcell.row,0), selgrpnm );
     selgrps_ +=
 	new SelectionGrp( selgrpnm, tbl_->getColor(RowCol(newcell.row,1)) );
@@ -525,6 +529,8 @@ void changeColCB( CallBacker* )
 	selgrps_[rc.row]->col_ = newcol;
 	tbl_->setColor( rc, newcol );
     }
+
+    plotter_.reDrawSelections();
 }
 
     int							curselgrp_;

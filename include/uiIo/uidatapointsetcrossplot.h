@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.37 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.38 2011-05-25 09:49:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class uiLineItem;
 class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
+class uiColTabItem;
 class uiRect;
 template <class T> class Array1D;
 
@@ -250,6 +251,7 @@ public:
     void			setCTMapper(const ColTab::MapperSetup&);
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
+    void 			drawColTabItem(bool isy1);
     bool			isY2Shown() const;
     bool                        isY1Selectable() const
     				{ return isy1selectable_; }
@@ -257,8 +259,8 @@ public:
     				{ return isy2selectable_; }
     bool			showY3() const		{ return showy3_; }
     bool			showY4() const		{ return showy4_; }
-    void			setShowY3( bool yn ) 	{ showy3_ = yn ; }
-    void			setShowY4( bool yn ) 	{ showy4_ = yn ; }
+    void			setShowY3(bool);
+    void			setShowY4(bool);
     bool			isADensityPlot() const { return isdensityplot_;}
     void			setDensityPlot(bool yn,bool showy2);
     bool			isRectSelection() const	
@@ -324,6 +326,7 @@ protected:
     MathExpression*		mathobj_;
     BufferString		mathobjstr_;
     BufferString		trmsg_;
+    
     uiPolygonItem*		selectionpolygonitem_;
     uiRectItem*			selectionrectitem_;
     uiGraphicsItemGroup*	yptitems_;
@@ -333,6 +336,9 @@ protected:
     uiLineItem*			regrlineitm_;
     uiLineItem*			y1userdeflineitm_;
     uiLineItem*			y2userdeflineitm_;
+    uiColTabItem*		y1overlayctitem_;
+    uiColTabItem*		y2overlayctitem_;
+
     ColTab::Sequence		ctab_;
     ColTab::Mapper		ctmapper_;
     ColTab::Sequence		y3ctab_;
