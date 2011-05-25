@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.55 2011-04-13 07:08:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.56 2011-05-25 12:51:24 cvsnageswara Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.55 2011-04-13 07:08:09 cv
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uispinbox.h"
 #include "uiseparator.h"
 
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.55 2011-04-13 07:08:09 cv
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
+
 
 static int deflogwidth = 30;
 
@@ -152,8 +154,11 @@ void uiWellTrackDispProperties::doGetFromScreen()
 static const char* shapes[] = { "Cylinder", "Square", "Sphere", 0 };
 uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
-				Well::DisplayProperties::Markers& mp )
+				Well::DisplayProperties::Markers& mp,
+				const BufferStringSet& allmarkernms,
+				BufferStringSet& selmarkernms )
     : uiWellDispProperties(p,su,mp)
+    , selmarkernms_(selmarkernms)
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
     shapefld_->attach( alignedBelow, colfld_ );
@@ -184,6 +189,14 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
     samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
     
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Display markers" );
+    displaymarkersfld_ = llb->box();
+    displaymarkersfld_->addItems( allmarkernms );
+    displaymarkersfld_->setItemsCheckable( true );
+    displaymarkersfld_->itemChecked.notify(
+	    		mCB(this,uiWellMarkersDispProperties,propChg) );
+    llb->attach( alignedBelow, nmcolfld_ );
+
     doPutToScreen();
     markerFldsChged(0);
 
@@ -210,7 +223,30 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 }
 
 
-void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::Markers& pp )
+void uiWellMarkersDispProperties::getSelNames()
+{
+    selmarkernms_.erase();
+    for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
+    {
+	if ( displaymarkersfld_->isItemChecked( idx ) )
+	    selmarkernms_.add( displaymarkersfld_->textOfItem( idx ) );
+    }
+}
+
+
+void uiWellMarkersDispProperties::setSelNames()
+{
+    NotifyStopper ns( displaymarkersfld_->itemChecked );
+    for ( int idx=0; idx<selmarkernms_.size(); idx++ )
+    {
+	const int selidx = displaymarkersfld_->indexOf( selmarkernms_.get(idx));
+	displaymarkersfld_->setItemChecked( selidx, true );
+    }
+}
+
+
+void uiWellMarkersDispProperties::resetProps(
+				Well::DisplayProperties::Markers& pp )
 {
     props_ = &pp;
 }
@@ -241,6 +277,7 @@ void uiWellMarkersDispProperties::doPutToScreen()
 
     samecolasmarkerfld_->setChecked( mrkprops().samenmcol_ );
     nmcolfld_->setColor( mrkprops().nmcol_ );
+    setSelNames();
 }
 
 
@@ -255,7 +292,8 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
     mrkprops().font_.setItalic( fontstyle==2 || fontstyle==3 );
     mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();
-    mrkprops().nmcol_ =  nmcolfld_->color();
+    mrkprops().nmcol_ = nmcolfld_->color();
+    getSelNames();
 }
 
 

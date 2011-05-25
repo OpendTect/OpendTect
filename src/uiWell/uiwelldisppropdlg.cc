@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.30 2011-05-19 15:02:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.31 2011-05-25 12:51:24 cvsnageswara Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -17,10 +17,11 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.30 2011-05-19 15:02:05
 #include "uitabstack.h"
 #include "uiseparator.h"
 
+#include "keystrs.h"
 #include "welldata.h"
 #include "welldisp.h"
+#include "wellmarker.h"
 
-#include "keystrs.h"
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
@@ -51,9 +52,15 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->right_, &(wd_->logs()) );
     bool foundlog = false;
     propflds_ += new uiWellTrackDispProperties( tgs[2],
-		    uiWellDispProperties::Setup(), props.track_ );
+		     uiWellDispProperties::Setup(), props.track_ );
+
+    BufferStringSet allmarkernms;
+    for ( int idx=0; idx<wd_->markers().size(); idx++ )
+	allmarkernms.add( wd_->markers()[idx]->name() );
+
     propflds_ += new uiWellMarkersDispProperties( tgs[3],
-		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props.markers_ );
+		    uiWellDispProperties::Setup( "Marker size", "Marker color" )
+		    , props.markers_, allmarkernms, props.selmarkernms_ );
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	propflds_[idx]->propChanged.notify(
@@ -66,6 +73,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 	else
 	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
     }
+
     uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
@@ -125,8 +133,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 }
 
 
-
-
+//uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p, 
 					        ObjectSet<Well::Data>& wds,
        						bool is2ddisplay )
@@ -191,5 +198,3 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
     wd_->tobedeleted.notify(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
     resetProps( wd_->displayProperties(), &wd_->logs() );
 }
-
-

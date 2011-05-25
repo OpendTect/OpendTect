@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.27 2011-02-08 10:42:35 cvskris Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.28 2011-05-25 12:51:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "bufstringset.h"
+#include "multiid.h"
 #include "ranges.h"
+#include "sets.h"
 #include "uigroup.h"
 #include "welldisp.h"
-#include "multiid.h"
-#include "sets.h"
 
 class MultiID;
 class uiCheckBox;
@@ -27,6 +28,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 class uiSpinBox;
+class uiListBox;
 
 namespace Well
 {
@@ -57,6 +59,7 @@ public:
 
     void		putToScreen();
     void		getFromScreen();
+
 
     Notifier<uiWellDispProperties>	propChanged;
 
@@ -101,7 +104,9 @@ mClass uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::Markers&);
+					Well::DisplayProperties::Markers&,
+					const BufferStringSet& allmarkernms,
+					BufferStringSet& selmarkernms);
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
@@ -112,8 +117,10 @@ protected:
 
     virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
-    void                markerFldsChged(CallBacker*);
-    void                setMarkerNmColSel(CallBacker*);
+    void		markerFldsChged(CallBacker*);
+    void		setMarkerNmColSel(CallBacker*);
+    void		getSelNames();
+    void		setSelNames();
     uiLabeledComboBox*	shapefld_;
     uiCheckBox*		singlecolfld_;
     uiLabeledSpinBox*	nmsizefld_;
@@ -121,6 +128,8 @@ protected:
     uiCheckBox*		samecolasmarkerfld_;
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
+    uiListBox*		displaymarkersfld_;
+    BufferStringSet&	selmarkernms_;
 };
 
 
