@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.5 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackeventascio.h,v 1.6 2011-05-25 04:49:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,10 @@ ________________________________________________________________________
 #include "task.h"
 #include "horsampling.h"
 #include "prestackevents.h"
+#include "tableascio.h"
+
+class StreamData;
+namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
@@ -63,6 +67,61 @@ protected:
     int				nrdone_;
     int				fileidx_;
     const char*			message_;
+};
+
+
+mClass EventAscIO : public Table::AscIO
+{
+public:
+    				EventAscIO( const Table::FormatDesc& fd,
+						std::istream& strm )
+				    : Table::AscIO(fd)
+				    , udfval_(mUdf(float))
+				    , finishedreadingheader_(false)
+				    , strm_(strm)      		    {}
+
+    static Table::FormatDesc*   getDesc();
+    static void			updateDesc(Table::FormatDesc&);
+    static void                 createDescBody(Table::FormatDesc*);
+
+    bool			isXY() const;
+    int				getNextLine(BinID& bid,int& horid,
+	    				    float& off,float& val);
+
+protected:
+
+    std::istream&		strm_;
+    float			udfval_;
+    bool			isxy_;
+    bool			finishedreadingheader_;
+};
+
+
+mClass EventImporter : public SequentialTask
+{
+public:
+    			EventImporter(const char*,const Table::FormatDesc&,
+				      EventManager&);
+    			~EventImporter();
+
+    od_int64		nrDone() const;
+    od_int64		totalNr() const		{ return totalnr_; }
+
+    const char*		message() const	{ return message_; }
+    int			nextStep();
+    const char*		nrDoneText() const;
+
+protected:
+
+    StreamData&			sd_;
+    EventAscIO*			ascio_;
+    Event*			event_;
+    EventManager&		evmgr_;
+
+    const char*			message_;
+    od_int64			totalnr_;
+    BinID			lastbid_;
+    int				lasthorid_;
 };
 
 
