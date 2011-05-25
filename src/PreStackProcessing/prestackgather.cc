@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.32 2011-05-24 08:12:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.33 2011-05-25 14:31:44 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -147,17 +147,44 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
+    if ( !readFrom( *tbuf, comp ) )
+       return false;	
 
-    tbuf->sort( true, SeisTrcInfo::Offset );
+    ioobj.pars().getYN(sKeyZisTime(),zit_);
+
+    velocitymid_.setEmpty();
+    ioobj.pars().get( sKeyVelocityCubeID(), velocitymid_ );
+    staticsmid_.setEmpty();
+    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
+
+    offsetisangle_ = false;
+    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
+
+    iscorr_ = false;
+    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
+	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
+
+    binid_ = bid;
+    setName( ioobj.name() );
+
+    storagemid_ = ioobj.key();
+
+    return true;
+}
+
+
+bool Gather::readFrom( SeisTrcBuf& tbuf, int comp )
+{ 
+    tbuf.sort( true, SeisTrcInfo::Offset );
 
     bool isset = false;
     StepInterval<double> zrg;
     Coord crd( coord_ );
-    for ( int idx=tbuf->size()-1; idx>-1; idx-- )
+    for ( int idx=tbuf.size()-1; idx>-1; idx-- )
     {
-	const SeisTrc* trc = tbuf->get( idx );
+	const SeisTrc* trc = tbuf.get( idx );
 	if ( mIsUdf( trc->info().offset ) )
-	    delete tbuf->remove( idx );
+	    delete tbuf.remove( idx );
 
 	const int trcsz = trc->size();
 	if ( !isset )
@@ -184,7 +211,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     if ( zrg.atIndex(nrsamples-1)<zrg.stop )
 	nrsamples++;
 
-    const Array2DInfoImpl newinfo( tbuf->size(), nrsamples );
+    const Array2DInfoImpl newinfo( tbuf.size(), nrsamples );
     if ( arr2d_ && !arr2d_->setInfo( newinfo ) )
     {
 	delete arr2d_;
@@ -196,11 +223,11 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	}
     }
 
-    azimuths_.setSize( tbuf->size(), mUdf(float) );
+    azimuths_.setSize( tbuf.size(), mUdf(float) );
 
-    for ( int trcidx=tbuf->size()-1; trcidx>=0; trcidx-- )
+    for ( int trcidx=tbuf.size()-1; trcidx>=0; trcidx-- )
     {
-	const SeisTrc* trc = tbuf->get( trcidx );
+	const SeisTrc* trc = tbuf.get( trcidx );
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
 	    const float val = trc->getValue( zrg.atIndex( idx ), comp );
@@ -211,32 +238,14 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     }
 
     double offset;
-    float* offsets = tbuf->getHdrVals(SeisTrcInfo::Offset, offset);
+    float* offsets = tbuf.getHdrVals(SeisTrcInfo::Offset, offset);
     if ( !offsets )
 	return false;
-    posData().setX1Pos( offsets, tbuf->size(), offset );
+    posData().setX1Pos( offsets, tbuf.size(), offset );
     posData().setRange( false, zrg );
 
-    offsetisangle_ = false;
-    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
-
-    iscorr_ = false;
-    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
-	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
-
     zit_ = SI().zIsTime();
-    ioobj.pars().getYN(sKeyZisTime(),zit_);
-
-    velocitymid_.setEmpty();
-    ioobj.pars().get( sKeyVelocityCubeID(), velocitymid_ );
-    staticsmid_.setEmpty();
-    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
-    
-    binid_ = bid;
     coord_ = crd;
-    setName( ioobj.name() );
-
-    storagemid_ = ioobj.key();
 
     return true;
 }

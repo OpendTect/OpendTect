@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.25 2011-05-24 08:12:40 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.26 2011-05-25 14:31:44 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 class IOObj;
 class SeisPSReader;
-class SeisTrcBufDataPack;
+class SeisTrcBuf;
 
 namespace PreStack
 {
@@ -119,6 +119,9 @@ protected:
     TypeSet<float>		azimuths_;
 
     BufferString		linename_;
+
+public:
+    bool			readFrom(SeisTrcBuf&,int comp);
 };
 
 
