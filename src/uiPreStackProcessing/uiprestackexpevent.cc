@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackexpevent.cc,v 1.2 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackexpevent.cc,v 1.3 2011-05-25 04:55:25 cvsraman Exp $";
 
 #include "uiprestackexpevent.h"
 
@@ -27,25 +27,19 @@ namespace PreStack
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     : uiDialog( p, uiDialog::Setup("Prestack event export",0,"dgb:104.0.2") )
-    , ctxt_( new CtxtIOObj( PSEventTranslatorGroup::ioContext() ) )
 {
-    ctxt_->ctxt.forread = true;
+    IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
+    ctxt.forread = true;
+    eventsel_ = new uiIOObjSel( this, ctxt, "Prestack Events" );
     if ( mid )
-	ctxt_->setObj( IOM().get( *mid ) );
-    eventsel_ = new uiIOObjSel( this, *ctxt_, "Prestack Events" );
+	eventsel_->setInput( *mid );
 
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outputfile_ = new uiFileInput( this, 0, uiFileInput::Setup(0).forread(false) );
+    outputfile_ = new uiFileInput( this, "Output file",
+	    			   uiFileInput::Setup(0).forread(false) );
     outputfile_->attach( alignedBelow, subsel_ );
-}
-
-
-uiEventExport::~uiEventExport()
-{
-    delete ctxt_->ioobj;
-    delete ctxt_;
 }
 
 
@@ -57,15 +51,12 @@ bool uiEventExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( !eventsel_->ctxtIOObj().ioobj )
-    {
-	uiMSG().error( "No prestack events selected" );
+    if ( !eventsel_->ioobj() )
 	return false;
-    }
 
     RefMan<EventManager> events = new EventManager;
     PtrMan<Executor> loader =
-	events->setStorageID( eventsel_->ctxtIOObj().ioobj->key(), false );
+	events->setStorageID( eventsel_->key(), false );
     
     if ( loader && !loader->execute() )
     {
@@ -98,7 +89,5 @@ bool uiEventExport::acceptOK( CallBacker* )
 
     return true;
 }
-
-
 
 }; //namespace
