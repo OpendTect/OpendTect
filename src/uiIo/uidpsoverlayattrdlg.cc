@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.8 2011-05-25 09:49:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.9 2011-05-26 07:45:24 cvssatyaki Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -134,10 +134,9 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
     {
 	plotter_.setOverlayY2Cols( mUdf(int) );
 	if ( plotter_.isY2Shown() && y4propselfld_ )
-	{
 	    y4coltabfld_->setInterval( Interval<float>(0,1) );
-	    plotter_.setShowY4( false );
-	}
+	
+	plotter_.setShowY4( false );
     }
 
     plotter_.dataChanged();

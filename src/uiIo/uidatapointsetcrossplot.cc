@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.79 2011-05-25 09:49:22 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.80 2011-05-26 07:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.79 2011-05-25 09:49:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.80 2011-05-26 07:45:24 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -199,6 +199,13 @@ void uiDataPointSetCrossPlotter::showY2( bool yn )
 {
     if ( y2ptitems_ )
 	y2ptitems_->setVisible( yn );
+
+    if ( !yn )
+    {
+	setOverlayY2Cols( mUdf(int) );
+	setShowY4( false );
+    }
+
     drawContent();
 }
 
@@ -562,27 +569,24 @@ void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& su )
 
 
 void uiDataPointSetCrossPlotter::setShowY3( bool yn )
-{
-    showy3_ = yn;
-    if ( y1overlayctitem_ ) y1overlayctitem_->setVisible( yn );
-    if ( !yn )
-	drawContent();
-}
+{ showy3_ = yn; }
 
 
 void uiDataPointSetCrossPlotter::setShowY4( bool yn )
-{
-    showy4_ = yn;
-    if ( y2overlayctitem_ ) y2overlayctitem_->setVisible( yn );
-    if ( !yn )
-	drawContent();
-}
+{ showy4_ = yn; }
 
 
 void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 {
     if ( (isy1 && !showy3_) || (!isy1 && !showy4_) )
+    {
+	if ( y1overlayctitem_ ) y1overlayctitem_->setVisible( showy3_ );
+	if ( y2overlayctitem_ )
+	    y2overlayctitem_->setVisible( showy4_ && isY2Shown() );
+	if ( x_.axis_ && !showy3_ )
+	    x_.axis_->setup().border_ = setup_.minborder_;
 	return;
+    }
 
     uiColTabItem* coltabitem = isy1 ? y1overlayctitem_ : y2overlayctitem_;
     uiColTabItem::Setup ctsu( true );
@@ -602,6 +606,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     uiBorder extraborder = setup_.minborder_;
     extraborder.setBottom( extraborder.bottom() + ctsu.sz_.height() );
     x_.axis_->setup().border_ = extraborder;
+    setDraw();
 
     const int xpos = isy1 ? x_.axis_->pixBefore()
 			  : width() - x_.axis_->pixAfter() - ctsu.sz_.width();
@@ -612,6 +617,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
 						  : y4mapper_.setup_;
     coltabitem->setColTabMapperSetup( mappersetup );
+    coltabitem->setVisible( showy4_ && isY2Shown() );
 }
 
 
@@ -1323,7 +1329,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	mDynamicCastGet(uiMarkerItem*,markeritem,item)
 	if ( markeritem ) markeritem->setFillColor( getOverlayColor(rid,true) );
     }
-    else if ( item && isy2 && showy4_ )
+    else if ( item && isy2 && showy4_ && isY2Shown() )
     {
 	mDynamicCastGet(uiMarkerItem*,markeritem,item)
 	if ( markeritem ) markeritem->setFillColor( getOverlayColor(rid,false));
@@ -1343,7 +1349,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	Color overlaycol = yad.axis_->setup().style_.color_;
 	if ( showy3_ && !isy2 )
 	    overlaycol = getOverlayColor(rid,true);
-	else if ( showy4_ && isy2 )
+	else if ( showy4_ && isy2 && isY2Shown() )
 	    overlaycol = getOverlayColor(rid,false);
 
 	item->setPenColor(!multclron_ ? overlaycol : multicol );
