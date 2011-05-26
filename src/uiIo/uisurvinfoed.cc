@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.129 2011-03-21 11:07:25 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.130 2011-05-26 05:34:48 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -619,7 +619,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	  && File::exists(newdir) )
 	{
 	    uiMSG().error( "The new target directory exists.\n"
-		    	   "Please enter another directory name or location." );
+		    	   "Please enter another survey name or location." );
 	    return false;
 	}
 
