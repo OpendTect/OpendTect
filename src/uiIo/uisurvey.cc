@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.129 2010-12-06 21:46:11 cvskris Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.130 2011-05-26 07:07:21 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -229,6 +229,7 @@ uiSurvey::uiSurvey( uiParent* p )
     arealbl_ = new uiLabel( infoleft, "" );
     zlbl_ = new uiLabel( inforight, "" ); 
     binlbl_ = new uiLabel( inforight, "" );
+    typelbl_ = new uiLabel( inforight, "" );
 #if 0
     inllbl_->setHSzPol( uiObject::widevar );
     crllbl_->setHSzPol( uiObject::widevar );
@@ -241,12 +242,14 @@ uiSurvey::uiSurvey( uiParent* p )
     zlbl_->setPrefWidthInChar( 40 );
     binlbl_->setPrefWidthInChar( 40 );
     arealbl_->setPrefWidthInChar( 40 );
+    typelbl_->setPrefWidthInChar( 40 );
 #endif
 
     crllbl_->attach( alignedBelow, inllbl_ );
-    binlbl_->attach( alignedBelow, zlbl_ );
     arealbl_->attach( alignedBelow, crllbl_ );
-   
+    binlbl_->attach( alignedBelow, zlbl_ );
+    typelbl_->attach( alignedBelow, binlbl_ );
+
     uiSeparator* horsep2 = new uiSeparator( this );
     horsep2->attach( stretchedBelow, infoleft, -2 );
     horsep2->setPrefWidth( totwdth );
@@ -257,7 +260,7 @@ uiSurvey::uiSurvey( uiParent* p )
     notes_->attach( alignedBelow, notelbl);
     notes_->setPrefHeightInChar( noteshght );
     notes_->setPrefWidth( totwdth );
-   
+
     getSurvInfo(); 
     mkInfo();
     setOkText( "&Ok (Select)" );
@@ -575,6 +578,8 @@ void uiSurvey::mkInfo()
     binlbl_->setText( bininfo );
     arealbl_->setText( areainfo );
     zlbl_->setText( zinfo );
+    typelbl_->setText( BufferString("Survey type: ",
+			SurveyInfo::toString(si.survDataType())) );
     notes_->setText( si.comment() );
 
     bool anysvy = dirlist_.size();

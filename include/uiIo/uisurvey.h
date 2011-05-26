@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.36 2010-08-11 19:38:32 cvskris Exp $
+ RCS:           $Id: uisurvey.h,v 1.37 2011-05-26 07:07:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ protected:
     uiLabel*		zlbl_;
     uiLabel*		binlbl_;
     uiLabel*		arealbl_;
+    uiLabel*		typelbl_;
     uiTextEdit*		notes_;
     bool		initialsurveyparchanged_;
 
