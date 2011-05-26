@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.47 2010-07-28 08:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.48 2011-05-26 05:32:08 cvsnanne Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -70,7 +70,7 @@ class BatchProgInfo
 public:
 
 				BatchProgInfo( const char* nm )
-				: name(nm), issys(false) {}
+				: name(nm), issys(false), inxterm(true) {}
 				~BatchProgInfo()	 { deepErase(args); }
 
     BufferString		name;
@@ -78,6 +78,7 @@ public:
     BufferString		comments;
     BufferString		exampleinput;
     bool			issys;
+    bool			inxterm;
 
 };
 
@@ -148,6 +149,8 @@ void BatchProgInfoList::getEntries( const char* fnm )
 		    bpi->comments += "\n";
 		bpi->comments += astrm.value();
 	    }
+	    else if ( astrm.hasKeyword("Xterm") )
+		bpi->inxterm = astrm.getYN();
 	}
 
 	if ( bpi ) *this += bpi;
@@ -307,8 +310,10 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     BufferString comm( "@" );
     comm += mGetExecScript();
 
-    comm += " --inxterm+askclose ";
-    if ( bpi.issys ) comm += "--sys ";
+    if ( bpi.inxterm )
+	comm += " --inxterm+askclose ";
+    if ( bpi.issys )
+	comm += "--sys ";
 
     const char* progtxt = progfld->box()->text();
     if ( progtxt && *progtxt && *progtxt != '[' )
