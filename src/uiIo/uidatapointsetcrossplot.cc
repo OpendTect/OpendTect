@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.80 2011-05-26 07:45:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.81 2011-05-26 09:41:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.80 2011-05-26 07:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.81 2011-05-26 09:41:46 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -160,7 +160,7 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 }
 
 #define mHandleAxisAutoScale(axis) \
-    axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) ); \
+    axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) ); 
 
 void uiDataPointSetCrossPlotter::setMathObj( MathExpression* mathobj )
 {
@@ -1105,6 +1105,10 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     }
     else if ( x_.axis_ )
 	x_.axis_->setEnd( 0 );
+
+    x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
+    y_.needautoscale_ = y_.autoscalepars_.doautoscale_ = true;
+    y2_.needautoscale_ = y2_.autoscalepars_.doautoscale_ = true;
 
     mHandleAxisAutoScale(x_);
     mHandleAxisAutoScale(y_);
