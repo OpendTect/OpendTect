@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.34 2011-04-28 12:37:09 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.35 2011-05-26 14:18:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
     virtual bool	isOK() const;
     const char*		errMsg() const;
+    const int 		size() 	{ return sz_; }
 
     bool		setModel(const float* dpths,const float* times,int sz);
 
