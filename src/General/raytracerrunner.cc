@@ -7,19 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.2 2011-05-25 15:49:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.3 2011-05-26 15:42:47 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
 
-RayTracerRunner::RayTracerRunner( const ObjectSet<AIModel>& aims, 
+RayTracerRunner::RayTracerRunner( const TypeSet<AIModel>& aims, 
 				    const TypeSet<float>& offs, 
 				    const RayTracer1D::Setup& su )
     : Executor("Ray tracer runner") 
     , aimodels_(aims)
     , raysetup_(su)
     , offsets_(offs)
+    , nrdone_(0)
 {}
+
+
+RayTracerRunner::~RayTracerRunner() 
+{
+    deepErase( raytracers_ );
+}
 
 
 #define mErrRet(msg) { errmsg_ = msg; return ErrorOccurred(); }
@@ -36,7 +43,10 @@ int RayTracerRunner::nextStep()
 
 	deepErase( raytracers_ );
     }
-    const AIModel& aim = *aimodels_[nrdone_];
+    if ( nrdone_ == totalNr() )
+	return Finished();
+
+    const AIModel& aim = aimodels_[nrdone_];
     if ( aim.isEmpty() )
 	{ nrdone_ ++; return Executor::MoreToDo(); }
 
@@ -48,9 +58,7 @@ int RayTracerRunner::nextStep()
 
     raytracers_ += rt1d;
 
+    nrdone_ ++;
     return MoreToDo();
 }
 
-
-const RayTracer1D* RayTracerRunner::rayTracer( int idx ) const
-{ return raytracers_.validIdx(idx) ? raytracers_[idx] : 0; }
