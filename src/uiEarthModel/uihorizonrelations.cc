@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.21 2011-01-21 06:33:18 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.22 2011-05-26 07:06:17 cvsnanne Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -61,6 +61,7 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     waterbut_->activated.notify(
 			mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
     waterbut_->attach( alignedBelow, crossbut_ );
+    waterbut_->display( false );
 
     fillRelationField( hornames_ );
     setCtrlStyle( LeaveOnly );
