@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.22 2011-04-07 10:43:53 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.23 2011-05-26 15:44:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,19 +44,13 @@ public:
     			uiOffsetSlicePos(uiParent*);
 
     uiGroup*		attachGrp() 	{ return attachgrp_; }
-
-
 protected:
     uiGroup*		attachgrp_;
 };
 
 
-
-mClass uiRayTrcParamsDlg : public uiDialog
-{
-public:
-    mStruct RayParams
-    {				RayParams()
+mStruct RayParams
+{				RayParams()
 				    : usenmotimes_(true)
 				    , dostack_(false)
 				{
@@ -65,23 +59,27 @@ public:
 				    cs_.hrg.step = BinID( 1, 100 );
 				    cs_.zrg.set( 0, 0, 0  );
 				}
-	CubeSampling 		cs_; //inl are models, crl are offsets
-	bool			usenmotimes_;
-	bool			dostack_;
-	RayTracer1D::Setup	setup_;
-    };
+    CubeSampling 		cs_; //inl are models, crl are offsets
+    bool			usenmotimes_;
+    bool			dostack_;
+    RayTracer1D::Setup		setup_;
+};
 
-				uiRayTrcParamsDlg(uiParent*,RayParams&);
 
-    void			setLimitSampling(const CubeSampling& cs);
-    Notifier<uiRayTrcParamsDlg> parChged;
 
+mClass uiRayTrcParamsGrp : public uiGroup
+{
+public:
+				uiRayTrcParamsGrp(uiParent*,RayParams&);
+
+    void			setOffSetDirection(bool yn) 
+    				{ isoffsetdir_=yn; updateCB(0); }
+
+    void			doUpdate() 	{ updateCB(0); }
+    
 protected:
 
     RayParams& 			raypars_;
-
-    uiComboBox*			directionfld_;
-    CubeSampling		limitcs_;
 
     uiGenInput*			offsetfld_;
     uiGenInput*			offsetstepfld_;
@@ -90,7 +88,25 @@ protected:
     uiCheckBox*			nmobox_;
     uiCheckBox*			stackbox_;
 
-    void 			getPars();
+    bool			isoffsetdir_;
+
+    void 			updateCB(CallBacker*);
+};
+
+
+mClass uiRayTrcParamsDlg : public uiDialog
+{
+public:
+				uiRayTrcParamsDlg(uiParent*,RayParams&);
+
+    void			setLimitSampling(const CubeSampling& cs);
+    uiRayTrcParamsGrp*		parsGrp() 	{ return raytrcpargrp_; }
+
+protected:
+
+    CubeSampling		limitcs_;
+    uiComboBox*			directionfld_;
+    uiRayTrcParamsGrp*		raytrcpargrp_;
 
     void 			dirChg(CallBacker*);
     bool			acceptOK(CallBacker*);
@@ -121,12 +137,17 @@ public:
     static Notifier<uiStratSynthDisp>&	fieldsCreated();
     void		addTool(const uiToolButtonSetup&);
 
+    DataPack*		genNewDataPack(const RayParams&,
+	    			ObjectSet<const TimeDepthModel>&,
+				bool isgather) const;
+
 protected:
 
     const Strat::LayerModel& lm_;
     Wavelet*		wvlt_;
     BufferString	levelname_;
     int			longestaimdl_;
+
     ObjectSet<const TimeDepthModel> d2tmodels_;
 
     uiGroup*		topgrp_;
@@ -136,7 +157,7 @@ protected:
     uiToolButton*	lasttool_;
 
     uiRayTrcParamsDlg*	raytrcpardlg_;
-    uiRayTrcParamsDlg::RayParams raypars_;
+    RayParams 		raypars_;
     uiOffsetSlicePos*	posfld_;
 
     void		doModelChange();
