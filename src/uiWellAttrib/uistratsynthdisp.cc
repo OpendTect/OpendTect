@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.38 2011-05-26 15:44:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.39 2011-05-26 15:50:22 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -385,7 +385,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	}
 	rm.getD2T( d2ts, true );
     }
-    if ( isgather && gathers.isEmpty() || !isgather && tbuf->isEmpty() )
+    if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty() ) )
 	mErrRet("No seismic traces genereated ", return 0)
 
     DataPack* dp = isgather ? 
