@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.61 2011-05-09 09:49:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.62 2011-05-26 15:44:26 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -127,15 +127,20 @@ bool DataPlayer::setAIModel()
 
 bool DataPlayer::prepareSynthetics()
 {
-    gen_.clean();
+    gen_.reSet( true );
     gen_.addModel( aimodel_ );
     gen_.setOutSampling( disprg_ );
-    if ( !gen_.doRayTracing() )
+    const Wavelet& wvlt = data_.initwvlt_;
+    gen_.setWavelet( &wvlt, OD::UsePtr );
+
+    TaskRunner tr;
+    if ( !tr.execute( gen_ ) )
 	mErrRet( gen_.errMsg() )
 
     //hack because we need to set our own times there 
-    const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
-    const ObjectSet<const ReflectivityModel>& refms = rm.refmodels_;
+    Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
+    ObjectSet<const ReflectivityModel> refms; 
+    rm.getRefs( refms, false );
     for ( int idref=0; idref<refms.size(); idref++ )
     {
 	ReflectivityModel& rfm = const_cast<ReflectivityModel&>(*refms[idref]);
@@ -153,13 +158,15 @@ bool DataPlayer::generateSynthetics()
 {
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
+    gen_.reSet( false );
     gen_.setWavelet( &wvlt, OD::UsePtr );
 
-    if ( !gen_.doSynthetics() )
+    TaskRunner tr;
+    if ( !tr.execute( gen_ ) )
 	mErrRet( gen_.errMsg() )
 
     const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
-    reflvals_.erase(); reflvals_.copy( rm.sampledrefs_ );
+    rm.getSampledRefs( reflvals_ );
     data_.synthtrc_ = *rm.stackedTrc();
 
     return true;
