@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonmerger.cc,v 1.3 2011-05-20 11:47:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonmerger.cc,v 1.4 2011-05-26 07:19:00 cvsnanne Exp $";
 
 #include "horizonmerger.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: horizonmerger.cc,v 1.3 2011-05-20 11:47:24 cvsn
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
+#include "statruncalc.h"
 
 
 namespace EM
@@ -74,10 +75,11 @@ od_int64 Horizon3DMerger::nrIterations() const
 
 bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 {
+    Stats::RunCalcSetup rcs; rcs.require( Stats::Extreme );
+    Stats::RunCalc<float> rc( rcs );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	float sum = 0;
-	int count = 0;
+	rc.clear();
 	const BinID bid = hs_.atIndex( idx );
 	for ( int hidx=0; hidx<inputhors_.size(); hidx++ )
 	{
@@ -85,12 +87,15 @@ bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( mIsUdf(zval) )
 		continue;
 
-	    sum += zval;
-	    count++;
+	    rc += zval;
 	}
 
-	if ( count > 0 )
-	    depths_->getData()[idx] = sum / count; 
+	if ( mode_ == Average )
+	    depths_->getData()[idx] = rc.average();
+	else if ( mode_ == Top )
+	    depths_->getData()[idx] = rc.min();
+	else if ( mode_ == Base )
+	    depths_->getData()[idx] = rc.max();
 
 	addToNrDone( 1 );
     }
