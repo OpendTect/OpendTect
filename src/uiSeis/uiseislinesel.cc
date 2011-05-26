@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.42 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.43 2011-05-26 10:27:47 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -220,8 +220,8 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", true );
     lnmsfld_ = llb->box();
-    lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DMultiLineSelDlg,
-					   lineSel) );
+    lnmsfld_->selectionChanged.notify(
+		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
 
     if ( setup_.withlinesetsel_ )
     {
@@ -231,15 +231,15 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 	    sssu.selattr( true ).wantSteering(setup_.steering_);
 
 	linesetfld_ = new uiSeisSel( this, ctio_, sssu );
-	linesetfld_->selectionDone.notify( mCB(this,uiSeis2DMultiLineSelDlg,
-					   lineSetSel));
+	linesetfld_->selectionDone.notify(
+		mCB(this,uiSeis2DMultiLineSelDlg,lineSetSel) );
 	llb->attach( alignedBelow, linesetfld_ );
     }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
 	   			  setup_.withstep_, "Trace" );
-    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DMultiLineSelDlg,
-					trcRgChanged) );
+    trcrgfld_->rangeChanged.notify(
+		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );
 
     if ( setup_.withz_ )
@@ -257,9 +257,12 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 {
     if ( !linesetfld_ ) return;
+
     const IOObj* lsetobj = linesetfld_->ioobj( true );
     if ( !lsetobj )
 	linesetfld_->doSel( 0 );
+    else
+	lineSetSel( 0 );
 }
 
 
