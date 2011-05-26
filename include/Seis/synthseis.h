@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.20 2011-05-09 09:49:41 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.21 2011-05-26 15:43:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "raytrace1d.h"
 #include "samplingdata.h"
 #include "task.h"
+#include "executor.h"
 
 #include "complex"
 
@@ -29,6 +30,7 @@ class Wavelet;
 
 typedef std::complex<float> float_complex;
 namespace Fourier { class CC; };
+namespace PreStack { class Gather; }
 
 namespace Seis
 {
@@ -129,7 +131,7 @@ protected:
 
 
 
-mClass RaySynthGenerator : public SynthGenBase 
+mClass RaySynthGenerator : public SynthGenBase, public Executor 
 {
 public:
     mDefineFactoryInClass( RaySynthGenerator, factory );
@@ -139,36 +141,57 @@ public:
     virtual bool		setRayParams(const TypeSet<float>& offs,
 					const RayTracer1D::Setup&,bool isnmo);
 
-    void			clean();
-    bool			doWork(); 
-    bool			doRayTracing();
-    bool			doSynthetics();
+    int				nextStep();
+    od_int64            	totalNr() const { return raymodels_.size(); }
+    od_int64            	nrDone() const 	{ return nrdone_; }
+    const char*         	message() const;
 
     mStruct RayModel
     {
-				RayModel(const RayTracer1D& rt1d,int nroffsets);
-				~RayModel();	
+			RayModel(const RayTracer1D& rt1d,int nroffsets);
+			~RayModel();	
 
+	void 		getTraces(ObjectSet<const SeisTrc>&,bool steal);
+	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal);
+	void		getD2T(ObjectSet<const TimeDepthModel>&,bool steal);
+
+	const SeisTrc*	stackedTrc() const;
+
+    protected:
 	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
-
 	ObjectSet<const TimeDepthModel> 	t2dmodels_;
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	TypeSet<float>  			sampledrefs_;
 
-	const SeisTrc*				stackedTrc() const;
+    public:
+	void		getSampledRefs(TypeSet<float>&) const;
+
+	friend class 				RaySynthGenerator;
     };
-    const RayModel&		result(int imdl) const;
+
+    //available after execution
+    RayModel&			result(int id) { return *raymodels_[id]; }
+    const RayModel&		result(int id) const { return *raymodels_[id]; }
 
 protected:
     				RaySynthGenerator();
     virtual 			~RaySynthGenerator();
 
-    StepInterval<float>		raysampling_;
+    void			clean();
+    int				nrdone_;
+    bool			israytracing_;
 
-    RayTracer1D::Setup  	raysetup_;
+    bool			doRayTracing();
+    int				doSynthetics();
+
+    StepInterval<float>		raysampling_;
     TypeSet<float>		offsets_;
     TypeSet<AIModel>		aimodels_;
     ObjectSet<RayModel>		raymodels_;
+    RayTracer1D::Setup 		raysetup_;
+
+public:
+    void			reSet( bool all ); 
 };
 
 

@@ -5,12 +5,13 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.25 2011-05-09 09:49:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.26 2011-05-26 15:43:09 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
 #include "genericnumer.h"
 #include "raytrace1d.h"
+#include "raytracerrunner.h"
 #include "reflectivitymodel.h"
 #include "reflectivitysampler.h"
 #include "seistrc.h"
@@ -327,15 +328,21 @@ mImplFactory( RaySynthGenerator, RaySynthGenerator::factory );
 
 
 RaySynthGenerator::RaySynthGenerator()
+    : Executor("Generate synthetics")
 {
     clean();
 }
 
 
-
 RaySynthGenerator::~RaySynthGenerator()
 {
     deepErase( raymodels_ );
+}
+
+
+const char* RaySynthGenerator::message() const
+{
+    return israytracing_ ? "Running Ray tracers" : "Generating Gathers";
 }
 
 
@@ -360,92 +367,94 @@ bool RaySynthGenerator::setRayParams( const TypeSet<float>& offs,
 void RaySynthGenerator::clean()
 {
     aimodels_.erase();
+    nrdone_ = 0;
     outputsampling_.set(mUdf(float),mUdf(float),mUdf(float));
     raysampling_.set(0,0,0);
+    israytracing_ = true;
 
     deepErase( raymodels_ );
 }
 
 
-bool RaySynthGenerator::doWork()
+int RaySynthGenerator::nextStep()
 {
-    return doRayTracing() && doSynthetics();
+    if ( nrdone_ == 0 && israytracing_ ) 
+	doRayTracing();
+
+    return doSynthetics();
+}
+
+
+void RaySynthGenerator::reSet( bool all )
+{
+    if ( all ) 
+	clean();
+    else
+	nrdone_ = 0;
 }
 
 
 bool RaySynthGenerator::doRayTracing()
 {
-    if ( aimodels_.isEmpty() ) 
-	mErrRet( "No AIModel set" );
-
-    if ( offsets_.isEmpty() ) 
+    if ( offsets_.isEmpty() )
 	offsets_ += 0;
 
+    RayTracerRunner rtr( aimodels_, offsets_, raysetup_ );
+    if ( !rtr.execute() )
+    	mErrRet( rtr.errMsg(); )
+
+    ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
     deepErase( raymodels_ );
-    for ( int idx=0; idx<aimodels_.size(); idx++ )
+    for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
-	const AIModel& aim = aimodels_[idx];
-	if ( aim.isEmpty() )
-	    continue;
-
-	RayTracer1D* rt1d = new RayTracer1D( raysetup_ );
-	rt1d->setModel( true, aim );
-	rt1d->setOffsets( offsets_ );
-	if ( !rt1d->execute() )
-	    mErrRet( rt1d->errMsg() )
-
+	const RayTracer1D* rt1d = rt1ds.remove(idx);
 	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
+	delete rt1d;
+
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
 	{
 	    const TimeDepthModel& d2t = usenmotimes_ ? *rm->t2dmodels_[0]
 						     : *rm->t2dmodels_[idoff];
 	    raysampling_.include( d2t.getLastTime() );
 	}
-	delete rt1d;
-	raymodels_ += rm;
+
+	raymodels_.insertAt( rm, 0 );
     }
+    israytracing_ = false;
+
     return true;
 }
 
 
-bool RaySynthGenerator::doSynthetics()
+int RaySynthGenerator::doSynthetics()
 {
-    if ( !mIsUdf( outputsampling_.start ) )
-	raysampling_ = outputsampling_;
-    raysampling_.step = wavelet_ ? wavelet_->sampleRate() : 0;
-    if ( raysampling_.nrSteps() < 1 )
-	mErrRet( "no valid times generated" )
+    if ( nrdone_ == 0 )
+    {
+	if ( !mIsUdf( outputsampling_.start ) )
+	    raysampling_ = outputsampling_;
+	raysampling_.step = wavelet_ ? wavelet_->sampleRate() : 0;
+	if ( raysampling_.nrSteps() < 1 )
+	    mErrRet( "no valid times generated" )
+    }
 
-    ObjectSet<MultiTraceSynthGenerator> mtsgs;
+    MultiTraceSynthGenerator mtsg;
     IOPar par; fillPar( par );
-    for ( int idx=0; idx<raymodels_.size(); idx++ )
-    {
-	RayModel& rm = *raymodels_[idx];
-	deepErase( rm.outtrcs_ );
-	rm.sampledrefs_.erase();
-	MultiTraceSynthGenerator* mtsg = new MultiTraceSynthGenerator();
-	mtsg->setModels( rm.refmodels_ );
-	mtsg->setOutSampling( raysampling_ );
-	mtsg->usePar( par );
-	mtsg->setWavelet( wavelet_, OD::UsePtr );
-	mtsgs += mtsg;
-	if ( !mtsg->execute() )
-	    { errmsg_ = mtsg->errMsg(); }
-    }
-    for ( int idx=0; idx<raymodels_.size(); idx++ )
-    {
-	mtsgs[idx]->result( raymodels_[idx]->outtrcs_ );
-	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
-	    mtsgs[idx]->getSampledReflectivities(raymodels_[idx]->sampledrefs_);
-	delete mtsgs[idx];
-    }
-    return true;
-}
+    RayModel& rm = *raymodels_[nrdone_];
+    deepErase( rm.outtrcs_ );
+    rm.sampledrefs_.erase();
+    mtsg.setModels( rm.refmodels_ );
+    mtsg.setOutSampling( raysampling_ );
+    mtsg.usePar( par );
+    mtsg.setWavelet( wavelet_, OD::UsePtr );
+    if ( !mtsg.execute() )
+	{ errmsg_ = mtsg.errMsg(); return ErrorOccurred(); }
 
+    mtsg.result( rm.outtrcs_ );
+    for ( int idoff=0; idoff<offsets_.size(); idoff++ )
+	mtsg.getSampledReflectivities( rm.sampledrefs_ );
 
-const RaySynthGenerator::RayModel& RaySynthGenerator::result( int imdl ) const
-{
-    return *raymodels_[imdl];
+    nrdone_ ++;
+    return nrdone_ == totalNr() ? Finished() : MoreToDo();
 }
 
 
@@ -483,6 +492,40 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
     return trc;
 }
 
+
+#define mGet( inpset, outpset, steal )\
+{\
+    if ( steal )\
+	{ outpset.append( inpset ); inpset.erase(); }\
+    else\
+	{ deepCopy( outpset, inpset ); }\
+}
+
+void RaySynthGenerator::RayModel::getTraces( 
+			ObjectSet<const SeisTrc>& trcs, bool steal )
+{
+    mGet( outtrcs_, trcs, steal );
+}
+
+
+void RaySynthGenerator::RayModel::getRefs( 
+			ObjectSet<const ReflectivityModel>& trcs, bool steal )
+{
+    mGet( refmodels_, trcs, steal );
+}
+
+
+void RaySynthGenerator::RayModel::getD2T( 
+			ObjectSet<const TimeDepthModel>& trcs, bool steal )
+{
+    mGet( t2dmodels_, trcs, steal );
+}
+
+
+void RaySynthGenerator::RayModel::getSampledRefs( TypeSet<float>& refs ) const
+{
+    refs.erase(); refs.append( sampledrefs_ );
+}
 
 }// namespace
 
