@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.34 2011-05-25 12:37:44 cvsnageswara Exp $
+ RCS:		$Id: welldisp.h,v 1.35 2011-05-27 07:33:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,14 @@ namespace Well
 
 /*!\brief Display properties of a well */
 
+static const char* sKey2DDispProp = "2D Display";
+static const char* sKey3DDispProp = "3D Display";
+
 mClass DisplayProperties
 {
 public:
 
-			DisplayProperties();
+			DisplayProperties( const char* subj = sKey3DDispProp );
 			~DisplayProperties();
 
     mStruct BasicProps
@@ -71,7 +74,6 @@ public:
 			    , dispbelow_(true)	
 			    , font_(10)
 		       	    {}
-
 
 	virtual const char* subjectName() const		{ return "Track"; }
 
@@ -167,14 +169,20 @@ public:
     Track		track_;
     Markers		markers_;
     BufferStringSet	selmarkernms_;
+    bool		displaystrat_; //2d only
+
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
-    static DisplayProperties&	defaults(const char* fnm=0);
-    static void		commitDefaults(const char* fnm=0);
+    static DisplayProperties&	defaults();
+    static void		commitDefaults();
 
     mStruct LogCouple 	{ Log left_, right_; };
     ObjectSet<LogCouple> logs_;
+
+    virtual const char* subjectName() const 	{ return subjectname_.buf(); }
+protected:
+    BufferString 	subjectname_;
 };
 
 } // namespace

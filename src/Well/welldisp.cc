@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.20 2011-05-25 12:37:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.21 2011-05-27 07:33:21 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -62,10 +62,13 @@ static const char* sKeyRightSeqname = "Right Sequence name";
 static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
-
+static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 static const char* sKeySelMarkers = "Display markers";
 
-Well::DisplayProperties::DisplayProperties()
+
+Well::DisplayProperties::DisplayProperties( const char* subjname )
+    : subjectname_(subjname)
+    , displaystrat_(false)  
 {
     logs_ += new LogCouple();
 
@@ -293,44 +296,50 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
 
 void Well::DisplayProperties::usePar( const IOPar& iop )
 {
-    track_.usePar( iop );
-    markers_.usePar( iop );
+    IOPar* par = iop.subselect( subjectName() );
+    if ( !par ) par = new IOPar( iop );
+    track_.usePar( *par );
+    markers_.usePar( *par );
     IOPar* tmpiop = 0;
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	tmpiop = idx ? iop.subselect( toString(idx) ) : new IOPar(iop);
+	tmpiop = idx ? iop.subselect( toString(idx) ) : new IOPar(*par);
 	if ( tmpiop )
 	{
 	    logs_[idx]->left_.useLeftPar( *tmpiop );
 	    logs_[idx]->right_.useRightPar( *tmpiop );
 	}
     }
-
+    par->getYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
     delete tmpiop;
+    delete par;
 }
 
 
 void Well::DisplayProperties::fillPar( IOPar& iop ) const
 {
-    track_.fillPar( iop );
-    markers_.fillPar( iop );
+    IOPar par;
+    track_.fillPar( par );
+    markers_.fillPar( par );
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
 	IOPar tmpiop;
 	logs_[idx]->left_.fillLeftPar( tmpiop );
 	logs_[idx]->right_.fillRightPar( tmpiop );
-	iop.mergeComp( tmpiop, idx ? toString( idx ) : "" );
+	par.mergeComp( tmpiop, idx ? toString( idx ) : "" );
     }
+    par.setYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
+    iop.mergeComp( par, subjectName() );
 }
 
 
-Well::DisplayProperties& Well::DisplayProperties::defaults( const char* fnm )
+Well::DisplayProperties& Well::DisplayProperties::defaults()
 {
     static Well::DisplayProperties* ret = 0;
 
     if ( !ret )
     {
-	Settings& setts = Settings::fetch( fnm ? fnm : "welldisp" );
+	Settings& setts = Settings::fetch( "welldisp" );
 	ret = new DisplayProperties;
 	ret->usePar( setts );
     }
@@ -339,9 +348,9 @@ Well::DisplayProperties& Well::DisplayProperties::defaults( const char* fnm )
 }
 
 
-void Well::DisplayProperties::commitDefaults( const char* fnm )
+void Well::DisplayProperties::commitDefaults()
 {
-    Settings& setts = Settings::fetch( fnm ? fnm : "welldisp" );
+    Settings& setts = Settings::fetch( "welldisp" );
     defaults().fillPar( setts );
     setts.write();
 }

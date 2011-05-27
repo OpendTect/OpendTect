@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.23 2009-09-17 11:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.24 2011-05-27 07:33:21 cvsbruno Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -275,7 +275,9 @@ bool Well::Writer::putDispProps( std::ostream& strm ) const
     if ( !wrHdr(strm,sKeyDispProps()) ) return false;
 
     ascostream astrm( strm );
-    IOPar iop; wd.displayProperties().fillPar( iop );
+    IOPar iop; 
+    wd.displayProperties(true).fillPar( iop );
+    wd.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
     return strm.good();
 }
