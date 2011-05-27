@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.6 2011-03-11 11:22:27 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.7 2011-05-27 06:52:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	bool steering = false;
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 	if ( attrbnm.isEmpty() )
-	    attrbnm = "Seis";
+	    attrbnm = LineKey::sKeyDefAttrib();
 
 	BufferString ln;
 	dp2ddh->getLineName( ln );

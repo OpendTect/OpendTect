@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.106 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.107 2011-05-27 06:52:46 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -834,7 +834,8 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     }
     else
     {
-	if ( !strcmp( lk.attrName(), "Seis" ) && strcmp( as.userRef(), "" ) )
+	if ( !strcmp(lk.attrName(),LineKey::sKeyDefAttrib()) &&
+	     strcmp(as.userRef(),"") )
 	    lk.setAttrName( as.userRef() );
 
 	applMgr()->attrServer()->setTargetSelSpec( as );

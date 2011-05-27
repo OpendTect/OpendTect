@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.80 2011-01-28 12:54:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.81 2011-05-27 06:52:46 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -690,7 +690,8 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	    return false;
 
 	const bool is2ddefstr = 
-	    parstr == lk.lineName() && !strcmp(lk.attrName().buf(),"Seis");
+	    parstr == lk.lineName() &&
+	    	      !strcmp(lk.attrName().buf(),LineKey::sKeyDefAttrib());
 	if ( parstr == str || is2ddefstr )
 	    return true;
     }
