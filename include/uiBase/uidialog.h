@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.55 2011-03-28 07:55:34 cvsnanne Exp $
+ RCS:           $Id: uidialog.h,v 1.56 2011-05-27 12:04:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,8 @@ public:
     void		setHelpID(const char*);
     virtual const char*	helpID() const;
     bool		haveCredits() const;
+
+    void		showMinMaxButtons();
 
 protected:
 

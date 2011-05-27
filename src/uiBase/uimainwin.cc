@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.223 2011-05-11 04:05:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.224 2011-05-27 12:04:10 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -780,7 +780,6 @@ bool uiMainWin::isMaximized() const		{ return body_->isMaximized(); }
 bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
-
 
 void uiMainWin::setCaption( const char* txt )
 {
@@ -1755,6 +1754,14 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     }
 
     ctrlstyle_ = cs;
+}
+
+
+void uiDialog::showMinMaxButtons()
+{
+    Qt::WindowFlags flags = body_->windowFlags();
+    flags |= Qt::WindowMinMaxButtonsHint;
+    body_->setWindowFlags( flags );
 }
 
 
