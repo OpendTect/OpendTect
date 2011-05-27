@@ -7,23 +7,22 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.30 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.31 2011-05-27 11:53:50 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
 #include "arrayndimpl.h"
-#include "marchingcubes.h"
-#include "vismarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
-
 #include "ioman.h"
 #include "ioobj.h"
+#include "marchingcubes.h"
 #include "mousecursor.h"
 #include "randcolor.h"
 #include "selector.h"
+
 #include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
@@ -31,11 +30,12 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.30 2011-04-28 11
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uivispartserv.h"
-#include "vismarchingcubessurfacedisplay.h"
-#include "visrandomposbodydisplay.h"
-#include "vispolygonbodydisplay.h"
 #include "uitaskrunner.h"
+#include "uivispartserv.h"
+#include "vismarchingcubessurface.h"
+#include "vismarchingcubessurfacedisplay.h"
+#include "vispolygonbodydisplay.h"
+#include "visrandomposbodydisplay.h"
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
@@ -45,6 +45,14 @@ uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
 
 bool uiODBodyDisplayParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getZAxisTransform() )
+    {
+	uiMSG().message( "Cannot add Bodies to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("&New polygon body..."), 1 );
@@ -346,7 +354,6 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
     }
 
     rpb_ = 0;
-
     uiODDisplayTreeItem::prepareForShutdown();
 }
 

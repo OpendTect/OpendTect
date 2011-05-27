@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.51 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.52 2011-05-27 11:53:50 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -58,6 +58,14 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 
 bool uiODFaultParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getZAxisTransform() )
+    {
+	uiMSG().message( "Cannot add Faults to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
@@ -399,6 +407,14 @@ uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
 
 bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getZAxisTransform() )
+    {
+	uiMSG().message( "Cannot add FaultStickSets to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
