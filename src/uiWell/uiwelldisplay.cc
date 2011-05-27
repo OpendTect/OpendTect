@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.9 2011-05-19 15:02:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.10 2011-05-27 07:51:05 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -21,25 +21,22 @@ static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.9 2011-05-19 15:02:05 cvsb
 
 #include  "uimainwin.h"
 
-uiWellDisplay::uiWellDisplay( uiParent* p, const Well::Data& w, const Setup& s )
+uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     : uiGroup(p,w.name())
     , wd_(w)
     , setup_(s)	    
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
     , zistime_(w.haveD2TModel()) 	       
-    , control_(0)		    
+    , control_(0)
+    , stratdisp_(0) 
 {
-    stratdisp_ = new uiWellStratDisplay( this );
+    wd_.d2tchanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
 
-    if ( s.nobackground_ )
-    {
-	setNoBackGround();
-	if ( stratdisp_ )
-	    stratdisp_->setNoBackGround();
-    }
+    const Well::DisplayProperties& disp = wd_.displayProperties(true);
 
-    for ( int idx=0; idx<s.nrlogdisplay_; idx++ )
+    for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
 	uiWellLogDisplay::Setup wlsu; 
 	wlsu.noyannot_ = s.noyannot_;
@@ -64,11 +61,17 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Well::Data& w, const Setup& s )
 		control_->addLogDisplay( *wld );
 	}
     }
-    if ( stratdisp_ )
-	stratdisp_->display( s.displaystrat_ );
-
-    if ( s.displaystrat_ && !s.isstratbelow_ )
+    if ( disp.displaystrat_ )
+    {
+	stratdisp_ = new uiWellStratDisplay( this );
 	stratdisp_->attach( rightOf, logdisps_[logdisps_.size()-1] );
+    }
+    if ( s.nobackground_ )
+    {
+	setNoBackGround();
+	if ( stratdisp_ )
+	    stratdisp_->setNoBackGround();
+    }
 
     setHSpacing( 0 );
     setStretch( 2, 2 );
@@ -81,6 +84,8 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Well::Data& w, const Setup& s )
 
 uiWellDisplay::~uiWellDisplay()
 {
+    wd_.d2tchanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+    wd_.disp2dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
     if ( control_ )
 	{ delete control_; control_ = 0; }
 }
@@ -92,7 +97,7 @@ void uiWellDisplay::setInitialSize()
     int initheight = setup_.preflogsz_.height();
 
     int newwidth = logdisps_.size()*initwidth;
-    if ( stratdisp_ && setup_.displaystrat_ && !setup_.isstratbelow_ )
+    if ( stratdisp_ && stratdisp_ )
     {
 	stratdisp_->setPrefWidth( initwidth );
 	stratdisp_->setPrefHeight( initheight );
@@ -142,7 +147,7 @@ void uiWellDisplay::setDisplayProperties()
 {
     const Well::DisplayProperties& dpp = wd_.displayProperties( true );
 
-    for ( int idx=0; idx<dpp.logs_.size(); idx ++ )
+    for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
 	uiWellLogDisplay::LogData& ld1 = logdisps_[idx]->logData(true);
 	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
@@ -162,7 +167,7 @@ void uiWellDisplay::setDisplayProperties()
 }
 
 
-void uiWellDisplay::applyWDChanges()
+void uiWellDisplay::applyWDChanges( CallBacker* )
 {
     setDahData();
     setDisplayProperties();
@@ -186,8 +191,6 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     welldisp_->control()->posChanged.notify(
 				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
     wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
-    wd_.disp2dparschanged.notify( mCB(this,uiWellDisplayWin,updateProperties) );
-    wd_.disp3dparschanged.notify( mCB(this,uiWellDisplayWin,updateProperties) );
 }
 
 
@@ -199,11 +202,5 @@ void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
     statusBar()->message( mesg.buf() );
-}
-
-
-void uiWellDisplayWin::updateProperties( CallBacker* )
-{
-    welldisp_->applyWDChanges();
 }
 

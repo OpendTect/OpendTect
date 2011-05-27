@@ -286,8 +286,8 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
     const bool fullpanelfill = ld.disp_.isleftfill_ && ld.disp_.isrightfill_;
     const bool isfillrev = !fullpanelfill &&  
-		 ( ( first && ld.disp_.isleftfill_ && isrev )
-		|| ( first && ld.disp_.isrightfill_ && !isrev )
+		 ( ( first && ld.disp_.isleftfill_ && !isrev )
+		|| ( first && ld.disp_.isrightfill_ && isrev )
 		|| ( !first && ld.disp_.isrightfill_ && !isrev )
 		|| ( !first && ld.disp_.isleftfill_ && isrev ) );
 
@@ -321,7 +321,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	float valdiff = iscoltabrev ? rgstop-val : val-rgstart;
 	int colindex = (int)( valdiff/colstep );
 	if ( fullpanelfill ) 
-	    val = ld.xrev_ ? rgstart : rgstop;
+	    val = first ? rgstart : rgstop;
 
 	if ( mIsUdf(val) )
 	{

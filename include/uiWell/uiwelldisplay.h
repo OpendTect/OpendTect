@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.8 2011-05-19 15:02:05 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.9 2011-05-27 07:51:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,7 @@ public:
     mStruct Setup
     {
 				Setup()
-				    : nrlogdisplay_(1)
-				    , nobackground_(false)  
-				    , displaystrat_(false)
-				    , isstratbelow_(false)
+				    : nobackground_(false)  
 				    , nologborder_(false)
 				    , noxannot_(false)
 				    , noyannot_(false)
@@ -51,16 +48,12 @@ public:
 	mDefSetupMemb(int,nrlogdisplay)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
-	mDefSetupMemb(bool,displaystrat) //will make strat display visible
-	mDefSetupMemb(bool,isstratbelow) //in case transparent backgrnd
 	mDefSetupMemb(uiSize,preflogsz) //the actual uiSize will be computed on it 
 
 	void copyFrom(const Setup& su)
 	{
 	    nrlogdisplay_ = su.nrlogdisplay_;
 	    nobackground_ = su.nobackground_;
-	    displaystrat_ = su.displaystrat_;
-	    isstratbelow_ = su.isstratbelow_;
 	    nologborder_  = su.nologborder_;
 	    withcontrol_  = su.withcontrol_;
 	    preflogsz_ 	  = su.preflogsz_;
@@ -69,11 +62,9 @@ public:
 	}
     };
 
-				uiWellDisplay(uiParent*,const Well::Data& wd,
+				uiWellDisplay(uiParent*,Well::Data& wd,
 							const Setup& su );
 				~uiWellDisplay();
-
-    void			applyWDChanges();
 
     Interval<float>		zRange() const	{ return zrg_; }
     void 			setZRange(Interval<float> zrg)
@@ -86,17 +77,14 @@ public:
     void			setControl(uiWellDisplayControl&);
     uiWellDisplayControl*	control() 	{ return control_; }
     const uiWellDisplayControl*	control() const	{ return control_; }
-
     const Setup&		setup() const	{ return setup_; }
-    const uiSize&		size()		{ return size_; }
-
-
-    uiWellStratDisplay*		stratDisplay() 	{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
+
+    const uiSize&		size() const 	{ return size_; }
 
 protected:
 
-    const Well::Data& 		wd_;
+    Well::Data& 		wd_;
 
     Interval<float>		zrg_;
     bool			dispzinft_;
@@ -105,12 +93,14 @@ protected:
     const Setup 		setup_;
 
     ObjectSet<uiWellLogDisplay> logdisps_;
-    uiWellStratDisplay*		stratdisp_;
     uiWellDisplayControl*	control_;
+    uiWellStratDisplay*		stratdisp_; 
 
     void			setInitialSize();
     void			setDahData();
     void			setDisplayProperties();
+
+    void			applyWDChanges(CallBacker*);
 };
 
 
@@ -125,7 +115,6 @@ protected:
     uiWellDisplay* 		welldisp_;
 
     void			dispInfoMsg(CallBacker*);
-    void			updateProperties(CallBacker*);
     void 			closeWin(CallBacker*);
 };
 

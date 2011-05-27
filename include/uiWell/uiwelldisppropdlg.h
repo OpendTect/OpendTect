@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.16 2011-05-19 15:02:05 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.17 2011-05-27 07:51:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ mClass uiWellDispPropDlg : public uiDialog
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						    bool is2ddisplay=false);
+				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
@@ -61,17 +62,12 @@ public:
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
 				~uiMultiWellDispPropDlg();
-
-
-    Notifier<uiMultiWellDispPropDlg>	wdChged;
-
 protected:
 
     ObjectSet<Well::Data> 	wds_;
     uiLabeledComboBox*		wellselfld_;
 
-    void			resetProps(Well::DisplayProperties&,
-					    const Well::LogSet*);
+    void			resetProps(int logidx);
     virtual void 		wellSelChg(CallBacker*);
 };
 

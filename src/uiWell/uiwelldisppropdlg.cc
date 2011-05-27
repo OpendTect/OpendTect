@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.31 2011-05-25 12:51:24 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.32 2011-05-27 07:51:05 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.31 2011-05-25 12:51:24
 
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "","107.2.0").savetext("Save as default").savebutton(true)
 					.savechecked(false)
@@ -32,7 +32,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 	, wd_(d)
 	, applyAllReq(this)
 	, savedefault_(false)
-	, is2ddisplay_(is2ddisp)		     
+	, is2ddisplay_(is2d)		     
 {
     setCtrlStyle( LeaveOnly );
 
@@ -41,26 +41,29 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(), "Left log properties" );
-    tgs += new uiGroup( ts_->tabGroup(), "Right Log properties" );
-    tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
+    tgs += new uiGroup( ts_->tabGroup(),is2d ? "Log1" : "Left log properties");
+    tgs += new uiGroup( ts_->tabGroup(),is2d ? "Log2" : "Right log properties");
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
+    if ( !is2d )
+	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
     propflds_ += new uiWellLogDispProperties( tgs[0],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->left_, &(wd_->logs()) );
     propflds_ += new uiWellLogDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->right_, &(wd_->logs()) );
-    bool foundlog = false;
-    propflds_ += new uiWellTrackDispProperties( tgs[2],
-		     uiWellDispProperties::Setup(), props.track_ );
 
     BufferStringSet allmarkernms;
     for ( int idx=0; idx<wd_->markers().size(); idx++ )
 	allmarkernms.add( wd_->markers()[idx]->name() );
 
-    propflds_ += new uiWellMarkersDispProperties( tgs[3],
+    propflds_ += new uiWellMarkersDispProperties( tgs[2],
 		    uiWellDispProperties::Setup( "Marker size", "Marker color" )
 		    , props.markers_, allmarkernms, props.selmarkernms_ );
+    if ( !is2d )
+	propflds_ += new uiWellTrackDispProperties( tgs[3],
+		    uiWellDispProperties::Setup(), props.track_ );
+
+    bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	propflds_[idx]->propChanged.notify(
@@ -78,6 +81,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2ddisp)
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
     wd_->tobedeleted.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+}
+
+
+uiWellDispPropDlg::~uiWellDispPropDlg()
+{
+    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
 }
 
 
@@ -139,9 +148,15 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
        						bool is2ddisplay )
 	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
 	, wds_(wds)
-	, wdChged(this)	 
 	, wellselfld_(0)	 
 {
+    for ( int idx=1; idx<wds_.size(); idx++ )
+    {
+	wd_ = wds_[idx];
+	wd_->tobedeleted.notify(
+			mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    }
     if ( wds_.size()>1 )
     {
 	BufferStringSet wellnames;
@@ -154,21 +169,27 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 		    mCB(this,uiMultiWellDispPropDlg,wellSelChg) );
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
+	wd_ = wds_[0];
     }
 }
 
 
 uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
 {
-    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-    wd_->tobedeleted.remove(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+    for ( int idx=1; idx<wds_.size(); idx++ )
+    {
+	wd_ = wds_[idx];
+	mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+	wd_->tobedeleted.remove( 
+		mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+    }
 }
 
 
-void uiMultiWellDispPropDlg::resetProps( Well::DisplayProperties& prop,
-       					 const Well::LogSet* wls )
+void uiMultiWellDispPropDlg::resetProps( int logidx )
 {
-    bool foundleftlog = false;
+    bool first = true;
+    Well::DisplayProperties& prop = wd_->displayProperties( is2ddisplay_ );
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	mDynamicCastGet( uiWellTrackDispProperties*,trckfld,propflds_[idx] );
@@ -176,10 +197,10 @@ void uiMultiWellDispPropDlg::resetProps( Well::DisplayProperties& prop,
 	mDynamicCastGet( uiWellLogDispProperties*,logfld,propflds_[idx] );
 	if ( logfld )
 	{
-	    logfld->setLogSet( wls );
-	    logfld->resetProps( 
-		    foundleftlog? prop.logs_[0]->right_: prop.logs_[0]->left_);
-	    foundleftlog = true;
+	    logfld->setLogSet( &wd_->logs() );
+	    logfld->resetProps( first ? prop.logs_[logidx]->left_
+				      :	prop.logs_[logidx]->right_ );
+	    first = false;
 	}
 	else if ( trckfld )
 	    trckfld->resetProps( prop.track_ );
@@ -193,8 +214,5 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 {
     const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
     wd_ = wds_[selidx];
-    if ( !wd_ ) return;
-    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-    wd_->tobedeleted.notify(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
-    resetProps( wd_->displayProperties(), &wd_->logs() );
+    resetProps( 0 );
 }
