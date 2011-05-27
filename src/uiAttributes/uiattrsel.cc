@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.73 2011-04-26 10:51:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.74 2011-05-27 11:52:33 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -674,8 +674,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     const DescSet& descset = attrid.isStored() ?
 	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
     const Desc* ad = descset.getDesc( attrid );
-    LineKey lk;
-    lk.setLineName( ad ? ad->userRef() : "" );
+    LineKey lk( ad ? ad->userRef() : "" );
     if ( is2D() && ad && ad->isStored() )
     {
 	const Attrib::ValParam* param = ad

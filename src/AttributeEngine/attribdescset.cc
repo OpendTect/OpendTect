@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.109 2011-02-23 15:53:56 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.110 2011-05-27 11:52:33 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -888,7 +888,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef(); 	// "Missing component name"
 
-    BufferString userref = LineKey( objnm, newlk.attrName() );
+    BufferString userref = LineKey( objnm, is2d_ ? newlk.attrName() : "" );
     if ( !compnm.isEmpty() )
     {
 	if ( is2d_ ) userref = newlk.attrName();
