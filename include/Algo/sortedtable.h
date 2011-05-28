@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.7 2010-06-30 14:00:52 cvskris Exp $
+ RCS:		$Id: sortedtable.h,v 1.8 2011-05-28 04:44:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
 			     and true is returned.
 			*/
 
-    const IDT&		id(int pos) const { return ids_[pos]; }
+    const IDT&		id(int idx) const { return ids_[idx]; }
+    const T&		val(int idx) const { return vals_[idx]; }
 
     bool		remove(IDT id);
     void		erase()  { vals_.erase(); ids_.erase(); }
