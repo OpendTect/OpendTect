@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.5 2011-01-27 13:21:05 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.6 2011-05-30 06:36:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ public:
     inline virtual void		copy(const ObjectSet<T>&);
     inline virtual void		append(const ObjectSet<T>&);
     inline virtual void		swap(int,int);
+    inline virtual void		reverse(); 
 
     inline virtual ObjectSet<T>& operator +=(T*);
     inline virtual ObjectSet<T>& operator -=(T*);
@@ -267,6 +268,16 @@ void ObjectSet<T>::swap( int idx0, int idx1 )
     void* tmp = vec_[idx0];
     vec_[idx0] = vec_[idx1];
     vec_[idx1] = tmp;
+}
+
+
+template <class T> inline
+void ObjectSet<T>::reverse()
+{
+    const int sz = size();
+    const int hsz = sz/2;
+    for ( int idx=0; idx<hsz; idx++ )
+	swap( idx, sz-1-idx );
 }
 
 
