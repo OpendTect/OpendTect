@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.23 2011-05-30 04:22:48 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.24 2011-05-30 04:28:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "bufstring.h"
 #include "datapackbase.h"
-#include "statruncalc.h"
-
 #include "datapointset.h"
+#include "statruncalc.h"
 
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p, 
 					uiHistogramDisplay::Setup& su,
@@ -79,8 +78,8 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
-	mDynamicCastGet(const FlatDataPack*,fdp,datapack);
-	mDynamicCastGet(const MapDataPack*,mdp,datapack);
+	mDynamicCastGet(const FlatDataPack*,fdp,datapack)
+	mDynamicCastGet(const MapDataPack*,mdp,datapack)
 	if ( mdp )
 	    setData( &mdp->rawData() );
 	else if( fdp )
