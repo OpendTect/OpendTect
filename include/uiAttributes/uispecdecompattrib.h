@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.10 2010-08-26 08:24:58 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.11 2011-05-30 10:39:50 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiLabeledSpinBox;
 class uiPushButton;
 class uiSpecDecompPanel;
 class uiTrcPositionDlg;
+class BinID;
 
 /*! \brief Spectral Decomposition Attribute description editor */
 
@@ -70,6 +71,7 @@ protected:
     bool		passStdCheck(const Attrib::Desc*,const char*,
 	    			     int seloutidx,int inpidx,
 				     Attrib::DescID inpid) const;
+    void		viewPanalCB(CallBacker*);
 
     float		nyqfreq_;
     int			nrsamples_; //!< Nr of samples in selected data
@@ -78,6 +80,7 @@ protected:
     uiPushButton*	tfpanelbut_;
     uiSpecDecompPanel*	panelview_;	//!< Time Frequency panel
     uiTrcPositionDlg*	positiondlg_;
+    BinID		prevsel_;
 
     			mDeclReqAttribUIFns
 };
@@ -90,7 +93,6 @@ public:
 				    : uiAttribPanel( p )		{};
 
 protected:
-
     virtual const char*         getProcName();
     virtual const char*         getPackName();
     virtual const char*         getPanelName();
