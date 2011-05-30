@@ -7,19 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.5 2011-04-08 12:45:40 cvshelene Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.6 2011-05-30 09:25:36 cvsnageswara Exp $";
 
 #include "uitrcpositiondlg.h"
 
 #include "bufstringset.h"
+#include "pickretriever.h"
+#include "position.h"
 #include "seistrctr.h"
+#include "survinfo.h"
+
 #include "uicombobox.h"
 #include "uiseisioobjinfo.h"
 #include "uispinbox.h"
+#include "uitoolbutton.h"
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7") )
+    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7")
+	   		     .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
     , inlfld_( 0 )
@@ -35,6 +41,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	linesfld_ = new uiLabeledComboBox( this, str );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
+
 	linesfld_->box()->selectionChanged.notify(
 					mCB(this,uiTrcPositionDlg,lineSel) );
 	trcnrfld_ = new uiLabeledSpinBox( this, "at trace nr:" );
@@ -48,10 +55,49 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	crlfld_ = new uiSpinBox( this );
 	crlfld_->attach( rightTo, inlfld_ );
 	inlfld_->box()->setInterval( cs.hrg.inlRange() );
+	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
 	crlfld_->setInterval( cs.hrg.crlRange() );
+	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
+
+	getposbut_ = new uiToolButton( this, "pick.png", "Point in 3D scene",
+	    			   	mCB(this,uiTrcPositionDlg,getPosCB) );
+	getposbut_->attach( rightOf, crlfld_ );
     }
 
+    pickretriever_ = PickRetriever::getInstance();
+    pickretriever_->finished()->notify(
+	    			mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
     zrg_.setFrom( cs.zrg );
+}
+
+
+uiTrcPositionDlg::~uiTrcPositionDlg()
+{
+    pickretriever_->finished()->remove(
+	    			mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
+}
+
+
+void uiTrcPositionDlg::getPosCB( CallBacker* )
+{
+    if ( trcnrfld_ )
+	return;
+
+    pickretriever_->enable( 0 );
+    getposbut_->setSensitive( false );
+}
+
+
+void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
+{
+    if ( trcnrfld_ )
+	return;
+
+    Coord3 crd = pickretriever_->getPos();
+    const BinID bid = SI().transform( crd );
+    inlfld_->box()->setValue( bid.inl );
+    crlfld_->setValue( bid.crl );
+    getposbut_->setSensitive( true );
 }
 
 

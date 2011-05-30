@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2010
- RCS:           $Id: uitrcpositiondlg.h,v 1.3 2011-04-08 12:45:40 cvshelene Exp $
+ RCS:           $Id: uitrcpositiondlg.h,v 1.4 2011-05-30 09:25:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,22 +19,32 @@ ________________________________________________________________________
 class uiLabeledSpinBox;
 class uiSpinBox;
 class uiLabeledComboBox;
+class uiToolButton;
+class PickRetriever;
 
 mClass uiTrcPositionDlg: public uiDialog
 {                                                                               
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,const CubeSampling&,
-			      			 bool,const MultiID&);                   
-    CubeSampling		getCubeSampling() const;
-    LineKey			getLineKey() const;                        
-    uiLabeledSpinBox*		trcnrfld_;                                 
-    uiLabeledSpinBox*		inlfld_;                                  
-    uiSpinBox*			crlfld_;    
-    uiLabeledComboBox*		linesfld_;                                          MultiID			mid_;                                   
+			      			 bool,const MultiID&);
+				~uiTrcPositionDlg();
 
-protected:                                                                      
+    CubeSampling		getCubeSampling() const;
+    LineKey			getLineKey() const;
+    uiLabeledSpinBox*		trcnrfld_;
+    uiLabeledSpinBox*		inlfld_;
+    uiSpinBox*			crlfld_;
+    uiLabeledComboBox*		linesfld_;
+    MultiID			mid_;
+
+protected:
     void			lineSel(CallBacker*);
+    void			getPosCB(CallBacker*);
+    void			pickRetrievedCB(CallBacker*);
+
     StepInterval<float>		zrg_;
+    uiToolButton*		getposbut_;
+    PickRetriever*		pickretriever_;
 };
 
 #endif
