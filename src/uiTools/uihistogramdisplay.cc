@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.22 2011-02-28 10:16:26 cvsnageswara Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.23 2011-05-30 04:22:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,9 +189,13 @@ void uiHistogramDisplay::updateHistogram()
     nrclasses_ = getNrIntervals( nrpts );
     TypeSet<float> histdata( nrclasses_, 0 );
     const float min = rc_.min(); const float max = rc_.max();
-    float step = (max - min) / nrclasses_;
+    const float step = (max - min) / nrclasses_;
     if ( mIsZero(step,1e-6) )
-	step = 1;
+    {
+	histdata[nrclasses_/2] = nrpts;
+	setHistogram( histdata, Interval<float>(min-1,max+1), nrpts );
+	return;
+    }
 
     nrinpvals_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
