@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.9 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: linekey.h,v 1.10 2011-05-30 03:21:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ public:
 
 			LineKey( const char* lk=0 )
 				: BufferString(lk)	{}
-			LineKey(const char*,const char* attrnm,bool showseis=0);
+			LineKey(const char*,const char* attrnm);
 			LineKey( const IOPar& iop, bool liin )
 				{ usePar(iop,liin); }
     bool		operator ==(const LineKey&) const;
