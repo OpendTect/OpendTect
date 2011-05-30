@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.8 2011-05-28 04:44:27 cvskris Exp $
+ RCS:		$Id: sortedtable.h,v 1.9 2011-05-30 03:53:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ SortedTable<IDT,T>::SortedTable()
 
 
 template <class IDT, class T> inline
-void SortedTable<IDT,T>::set( IDT theid, T val )
+void SortedTable<IDT,T>::set( IDT theid, T theval )
 {
     int newpos = ids_.indexOf( theid );
 
@@ -67,10 +67,10 @@ void SortedTable<IDT,T>::set( IDT theid, T val )
 	ids_ += theid;
 
 	newpos = ids_.indexOf( theid );
-	vals_.insert( newpos, val );
+	vals_.insert( newpos, theval );
     }
 
-    vals_[newpos] = val;
+    vals_[newpos] = theval;
 }
 
 
