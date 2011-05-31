@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.103 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.104 2011-05-31 08:55:15 cvssatyaki Exp $";
 
 #include "uiseissel.h"
 
@@ -258,6 +258,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
+    updateInput();
 }
 
 
@@ -271,6 +272,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
+    updateInput();
 }
 
 
@@ -417,7 +419,32 @@ void uiSeisSel::updateInput()
     BufferString ioobjkey;
     if ( workctio_.ioobj )
 	ioobjkey = workctio_.ioobj->key();
+
+    if ( workctio_.ctxt.forread )
+	updateAttrNm();
     uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
+}
+
+
+void uiSeisSel::updateAttrNm()
+{
+    if ( is2D() && workctio_.ioobj )
+    {
+	SeisIOObjInfo seisinfo( workctio_.ioobj  );
+	SeisIOObjInfo::Opts2D opt2d;
+	opt2d.steerpol_ = seissetup_.steerpol_;
+	opt2d.zdomky_ = seissetup_.zdomkey_;
+	BufferStringSet attrnms;
+	seisinfo.getAttribNames( attrnms, opt2d );
+	if ( attrnm_.isEmpty() || !attrnms.isPresent(attrnm_) )
+	{
+	    const int attridx = attrnms.nearestMatch( "Seis" );
+	    if ( attridx >=0 && !mIsUdf(attridx) )
+		attrnm_ = attrnms.get( attridx );
+	    if ( attrnm_.isEmpty() )
+		attrnm_ = opt2d.steerpol_ == 1 ? sKey::Steering : "Seis";
+	}
+    }
 }
 
 
@@ -439,7 +466,7 @@ void uiSeisSel::commitSucceeded()
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    attrnm_ = LineKey( getInput() ).attrName();
+    attrnm_ = workctio_.ioobj ? LineKey( getInput() ).attrName() : "";
     if ( workctio_.ioobj || workctio_.ctxt.forread )
 	updateInput();
 }

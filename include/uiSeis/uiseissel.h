@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.51 2011-04-18 15:00:20 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.52 2011-05-31 08:55:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ public:
     inline bool		isPS() const	{ return Seis::isPS(seissetup_.geom_); }
 
     void		setAttrNm(const char*);
+    void		updateAttrNm();
     const char*		attrNm() const	{ return attrnm_.buf(); }
     virtual void	processInput();
     virtual bool	existingTyped() const;
