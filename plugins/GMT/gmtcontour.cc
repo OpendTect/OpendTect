@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.17 2011-04-25 10:35:59 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.18 2011-05-31 10:30:38 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
@@ -283,8 +283,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const Color bgcol = seq.color( 0 );
-    const Color fgcol = seq.color( 1 );
+    const Color bgcol = seq.color( doflip ? 1 : 0 );
+    const Color fgcol = seq.color( doflip ? 0 : 1 );
     *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, std::endl );
     *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, std::endl );
     sd.close();
