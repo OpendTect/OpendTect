@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.22 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.23 2011-06-01 13:07:40 cvsbert Exp $";
 
-#include "uistratsinglayseqgendesc.h"
+#include "uistratbasiclayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uidialog.h"
@@ -133,7 +133,7 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
 }
 
 
-uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
+uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 				    const Strat::LayerGenerator& lg )
     : nm_(0)
     , scene_(scn)
@@ -166,7 +166,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 }
 
 
-uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
+uiBasicLayerSequenceGenDesc::DispUnit::~DispUnit()
 {
     if ( genmine_ )
 	delete const_cast<Strat::SingleLayerGenerator*>(gen_);
@@ -174,7 +174,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
 }
 
 
-uiSingleLayerSequenceGenDesc::uiSingleLayerSequenceGenDesc( uiParent* p,
+uiBasicLayerSequenceGenDesc::uiBasicLayerSequenceGenDesc( uiParent* p,
 	Strat::LayerSequenceGenDesc& d )
     : uiLayerSequenceGenDesc(p,d)
 {
@@ -190,7 +190,7 @@ uiSingleLayerSequenceGenDesc::uiSingleLayerSequenceGenDesc( uiParent* p,
 }
 
 
-void uiSingleLayerSequenceGenDesc::rebuildDispUnits()
+void uiBasicLayerSequenceGenDesc::rebuildDispUnits()
 {
     deepErase( disps_ );
     for ( int idx=0; idx<desc_.size(); idx++ )
@@ -198,7 +198,7 @@ void uiSingleLayerSequenceGenDesc::rebuildDispUnits()
 }
 
 
-void uiSingleLayerSequenceGenDesc::insertDispUnit(
+void uiBasicLayerSequenceGenDesc::insertDispUnit(
 			    const Strat::LayerGenerator& lgen, int newidx )
 {
     DispUnit* newdisp = new DispUnit( scene(), lgen );
@@ -209,7 +209,7 @@ void uiSingleLayerSequenceGenDesc::insertDispUnit(
 }
 
 
-void uiSingleLayerSequenceGenDesc::doDraw()
+void uiBasicLayerSequenceGenDesc::doDraw()
 {
     if ( disps_.isEmpty() ) return;
     float totth = 0;
@@ -223,7 +223,7 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 }
 
 
-void uiSingleLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
+void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 						 float& curz )
 {
     const float pixperm = workrect_.height() / totth;
@@ -303,21 +303,21 @@ void uiSingleLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 }
 
 
-void uiSingleLayerSequenceGenDesc::descHasChanged()
+void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
     rebuildDispUnits();
     reDraw(0);
 }
 
 
-uiSingleLayerSequenceGenDesc::DispUnit* uiSingleLayerSequenceGenDesc::curUnit()
+uiBasicLayerSequenceGenDesc::DispUnit* uiBasicLayerSequenceGenDesc::curUnit()
 {
     const int idx = curUnitIdx();
     return idx < 0 ? 0 : disps_[idx];
 }
 
 
-int uiSingleLayerSequenceGenDesc::curUnitIdx()
+int uiBasicLayerSequenceGenDesc::curUnitIdx()
 {
     if ( disps_.isEmpty() )
 	return -1;
@@ -563,7 +563,7 @@ bool acceptOK( CallBacker* )
 };
 
 
-bool uiSingleLayerSequenceGenDesc::newDescReq( bool above )
+bool uiBasicLayerSequenceGenDesc::newDescReq( bool above )
 {
     const int curunidx = curUnitIdx();
     uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(), props_,
@@ -583,7 +583,7 @@ bool uiSingleLayerSequenceGenDesc::newDescReq( bool above )
 }
 
 
-bool uiSingleLayerSequenceGenDesc::descEditReq()
+bool uiBasicLayerSequenceGenDesc::descEditReq()
 {
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
@@ -597,7 +597,7 @@ bool uiSingleLayerSequenceGenDesc::descEditReq()
 }
 
 
-bool uiSingleLayerSequenceGenDesc::descRemoveReq()
+bool uiBasicLayerSequenceGenDesc::descRemoveReq()
 {
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
