@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.9 2011-05-11 07:17:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.10 2011-06-02 10:32:05 cvsumesh Exp $";
 
 #include "horizon2dextender.h"
 
@@ -134,8 +134,7 @@ void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     }
 
     Coord3 refpos = surface_.getPos( sid_, neighborsubid );
-    refpos.z = sourcepos.z;
-    const float testz = getDepth( sourcerc, neighborrc );
+    refpos.z = getDepth( sourcerc, neighborrc );
     surface_.setPos( sid_, neighborsubid, refpos, true );
 
     addTarget( neighborsubid, sourcerc.toInt64() );

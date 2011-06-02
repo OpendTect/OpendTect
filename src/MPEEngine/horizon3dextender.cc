@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.19 2011-05-11 07:17:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.20 2011-06-02 10:32:05 cvsumesh Exp $";
 
 #include "horizon3dextender.h"
 
@@ -147,8 +147,6 @@ int BaseHorizon3DExtender::nextStep()
 		if ( !getExtBoundary().hrg.includes(neighbbid) )
 		    continue;
 
-		const float testdepth = getDepth( srcbid, neighbbid );
-
 		//If this is a better route to a node that is already
 		//added, replace the route with this one
 
@@ -156,7 +154,7 @@ int BaseHorizon3DExtender::nextStep()
 		if ( previndex!=-1 )
 		{
 		    const RowCol step( surface.geometry().step() );
-		    const RowCol oldsrc( (RowCol(addedpossrc_[previndex]))/step);
+		    const RowCol oldsrc((RowCol(addedpossrc_[previndex]))/step);
 		    const RowCol dst( (RowCol(addedpos_[previndex]))/step );
 		    const RowCol cursrc( srcbid/step );
 
