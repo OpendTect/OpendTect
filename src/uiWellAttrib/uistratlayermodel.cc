@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.20 2011-05-26 15:44:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.21 2011-06-02 05:14:03 cvsraman Exp $";
 
 #include "uistratlayermodel.h"
-#include "uistratsinglayseqgendesc.h"
+#include "uistratbasiclayseqgendesc.h"
 #include "uistratlaymoddisp.h"
 #include "uistratsynthdisp.h"
 #include "uistratsynthcrossplot.h"
@@ -94,10 +94,10 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
 
     if ( !edtyp || !*edtyp )
-	edtyp = uiSingleLayerSequenceGenDesc::typeStr();
+	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
     if ( !seqdisp_ )
-	seqdisp_ = new uiSingleLayerSequenceGenDesc( gengrp, desc_ );
+	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
     uiGroup* leftgengrp = new uiGroup( gengrp, "Left buttons" );
     uiToolButton* opentb = new uiToolButton( leftgengrp, "open.png",
