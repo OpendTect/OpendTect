@@ -6,10 +6,16 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.11 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: faultstickset.h,v 1.12 2011-06-02 06:55:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+
+/*
+Info:
+	sticknr: row nr corresponding to rowrange, can be negative
+	stickidx: row index, starting from 0
+*/
 
 #include "refcount.h"
 #include "rowcolsurface.h"
@@ -28,13 +34,13 @@ public:
     virtual bool	insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int stick=0,
 				    int firstcol=0);
-    bool		removeStick(int stick);
+    bool		removeStick(int sticknr);
 
     bool		insertKnot(const RowCol&,const Coord3&);
     bool		removeKnot(const RowCol&);
 
     int			nrSticks() const;
-    int			nrKnots(int stick) const;
+    int			nrKnots(int sticknr) const;
     const TypeSet<Coord3>* getStick(int stickidx) const;
 
     StepInterval<int>	rowRange() const;
@@ -46,7 +52,7 @@ public:
     Coord3		getKnot(const RowCol&) const;
     bool		isKnotDefined(const RowCol&) const;
 
-    const Coord3&	getEditPlaneNormal(int stick) const;				
+    const Coord3&	getEditPlaneNormal(int sticknr) const;
     enum ChangeTag	{ StickChange=__mUndefIntVal+1, StickInsert,
 			  StickRemove, StickHide };
     
