@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.6 2011-05-18 06:59:31 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.7 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,10 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "flatposdata.h"
 #include "indexinfo.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "uiflatviewwin.h"
@@ -27,16 +30,21 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 
 
-VW2DPickSet::VW2DPickSet( Pick::Set& ps,
+mCreateVw2DFactoryEntry( VW2DPickSet );
+
+VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
-    , pickset_(ps)
+    , pickset_(0) 					  
     , picks_(new FlatView::Annotation::AuxData( "Picks" ))
     , editor_(const_cast<uiFlatViewAuxDataEditor*>(editors[0]))
     , viewer_(editor_->getFlatViewer())
     , deselected_(this)
     , isownremove_(false)
 {
+    if ( picksetidx > 0 && Pick::Mgr().size() < picksetidx )
+	pickset_ = &Pick::Mgr().get( picksetidx );
+
     viewer_.appearance().annot_.auxdata_ += picks_;
     viewer_.appearance().annot_.editable_ = false; 
     viewer_.dataChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
@@ -79,16 +87,19 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( !crd.isDefined() ) 
 	return;
     // Add
-    pickset_ += Pick::Location( crd );
-    const int locidx = pickset_.size()-1;
+    if ( !pickset_ ) 
+	return;
+    (*pickset_) += Pick::Location( crd );
+    const int locidx = pickset_->size()-1;
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
-				 &pickset_, locidx );
+				 pickset_, locidx );
     Pick::Mgr().reportChange( 0, cd );
 }
 
 
 void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 {
+    if ( !pickset_ ) return;
     const TypeSet<int>&	selpts = editor_->getSelPtIdx();
     const int selsize = selpts.size();
     isownremove_ = selsize == 1;
@@ -101,8 +112,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	const int pickidx = picksetidxs_[locidx];
 	picksetidxs_.remove( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				 &pickset_, pickidx );
-	pickset_.remove( pickidx );
+				 pickset_, pickidx );
+	pickset_->remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
     
@@ -169,10 +180,11 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 
 void VW2DPickSet::updateSetIdx( const CubeSampling& cs )
 {
+    if ( !pickset_ ) return;
     picksetidxs_.erase();
-    for ( int idx=0; idx<pickset_.size(); idx++ )
+    for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Coord3& pos = pickset_[idx].pos;
+	const Coord3& pos = (*pickset_)[idx].pos;
 	const BinID bid = SI().transform(pos);
 	if ( cs.hrg.includes(bid) )
 	    picksetidxs_ += idx;
@@ -204,18 +216,19 @@ void VW2DPickSet::drawAll()
 
     picks_->poly_.erase();
     picks_->markerstyles_.erase();
-    MarkerStyle2D markerstyle = get2DMarkers( pickset_ );
+    if ( !pickset_ ) return;
+    MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
     const int nrpicks = picksetidxs_.size();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	const int pickidx = picksetidxs_[idx];
-	const Coord3& pos = pickset_[pickidx].pos;
+	const Coord3& pos = (*pickset_)[pickidx].pos;
 	const BinID bid = SI().transform(pos);
 	FlatView::Point point( oninl ? bid.crl : bid.inl, pos.z );
 	picks_->poly_ += point;
 
 	BufferString dipval;
-	pickset_[pickidx].getText( "Dip" , dipval );
+	(*pickset_)[pickidx].getText( "Dip" , dipval );
 	SeparString dipstr( dipval );
 	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
 	const float depth = (dip/1000000) * zfac;
@@ -230,7 +243,8 @@ void VW2DPickSet::drawAll()
 
 void VW2DPickSet::clearPicks()
 {
-    pickset_.erase();
+    if ( !pickset_ ) return;
+    pickset_->erase();
     drawAll();
 }
 
@@ -258,4 +272,35 @@ void VW2DPickSet::triggerDeSel()
 {
     isselected_ = false;
     deselected_.trigger();
+}
+
+
+void VW2DPickSet::fillPar( IOPar& iop ) const
+{
+    Vw2DDataObject::fillPar( iop );
+    iop.set( sKeyMID(), pickSetID() ); 
+}
+
+
+void VW2DPickSet::usePar( const IOPar& iop )
+{
+    Vw2DDataObject::usePar( iop );
+    MultiID mid;
+    iop.get( sKeyMID(), mid );
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
+	return;
+    Pick::Set* newps = new Pick::Set; BufferString bs;
+    if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
+    {
+	Pick::Mgr().set( ioobj->key(), newps );
+	pickset_ = newps;
+    }
+}
+
+
+const MultiID VW2DPickSet::pickSetID() const
+{
+    return pickset_ ? Pick::Mgr().get( *pickset_ ) : -1;
 }

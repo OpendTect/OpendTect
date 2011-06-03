@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.10 2011-05-27 06:52:46 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.11 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,3 +366,11 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 
     return true;
 }
+
+
+uiTreeItem* 
+    uiODVW2DVariableDensityTreeItemFactory::createForVis(int vwridx,int id)const
+{
+    return 0;
+}
+

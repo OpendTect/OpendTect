@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.cc,v 1.6 2011-03-09 07:28:37 cvsranojay Exp $
+ RCS:		$Id: visvw2dfaultss2d.cc,v 1.7 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,13 +24,11 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+mCreateVw2DFactoryEntry( VW2DFaultSS2D );
 
-VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
+VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DDataObject()
-    , emid_(oid)
-    , viewerwin_(mainwin)
-    , auxdataeditors_(auxdataeds)
+    : Vw2DEMDataObject(oid,win,auxdataeds)
     , deselted_( this )
     , fsseditor_(0)
 {

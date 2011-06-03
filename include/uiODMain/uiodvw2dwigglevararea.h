@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.h,v 1.3 2010-09-27 09:26:30 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.h,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,12 +53,13 @@ protected:
 };
 
 
-mClass uiODVW2DWiggleVarAreaTreeItemFactory : public uiTreeItemFactory
+mClass uiODVW2DWiggleVarAreaTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVW2DWiggleVarAreaTreeItem(); }
+    uiTreeItem*         createForVis(int vwridx,int visid) const;
 };
 
 

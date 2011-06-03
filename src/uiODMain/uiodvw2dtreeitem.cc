@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.cc,v 1.2 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dtreeitem.cc,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodvw2dtreeitem.h"
+#include "uiodviewer2dmgr.h"
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
@@ -123,6 +124,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 
 uiODVw2DTreeItem::uiODVw2DTreeItem( const char* name__ )
     : uiTreeItem( name__ )
+    , displayid_(-1)  
 {}
 
 
@@ -164,3 +166,30 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
     getPropertyPtr( uiODVw2DTreeTop::viewer2dptr(), res );
     return reinterpret_cast<uiODViewer2D*>( res );
 }
+
+
+bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int vwridx, int displayid )
+{
+    uiODViewer2DMgr& vwr2dmgr = ODMainWin()->viewer2DMgr();
+    uiTreeFactorySet* tfs2d = vwr2dmgr.treeItemFactorySet2D();
+    uiTreeFactorySet* tfs3d = vwr2dmgr.treeItemFactorySet3D();
+    uiTreeFactorySet* tfs = tfs3d ? tfs3d : tfs2d ? tfs2d : 0;
+    if ( !tfs )
+	return false;
+
+    for ( int idx=0; idx<tfs->nrFactories(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DTreeItemFactory*,itmcreater,
+			tfs->getFactory(idx))
+	if ( !itmcreater ) continue;
+
+	uiTreeItem* res = itmcreater->createForVis( vwridx, displayid );
+	if ( res )
+	{
+	    if ( treeitem->addChild( res, false ) )
+		return true;
+	}
+    }
+    return false;
+}
+

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.18 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.19 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,9 +131,20 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
 }
 
 
+uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
+    : uiODVw2DTreeItem(0)
+    , emid_(-1)
+    , horview_(0)
+    , oldactivevolupdated_(false)
+    , trackerefed_(false)
+{
+    displayid_ = id;
+}
+
+
 uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 {
-    NotifierAccess* deselnotify = horview_->deSelection();
+    NotifierAccess* deselnotify = horview_ ? horview_->deSelection() : 0;
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
 
@@ -173,9 +184,28 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 
 bool uiODVw2DHor3DTreeItem::init()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return false;
+    EM::EMObject* emobj = 0;
+    if ( displayid_ < 0 )
+    {
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
 
+	horview_ = Vw2DHorizon3D::create( emid_, viewer2D()->viewwin(),
+				      viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( horview_ );
+    }
+    else
+    {
+	mDynamicCastGet(Vw2DHorizon3D*,hd,
+		viewer2D()->dataMgr()->getObject(displayid_))
+	if ( !hd )
+	    return false;
+	emid_ = hd->emID();
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+
+	horview_ = hd;
+    }
     emobj->change.notify( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
@@ -188,21 +218,17 @@ bool uiODVw2DHor3DTreeItem::init()
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonPressed.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
     }
 
-    horview_ = new Vw2DHorizon3D( emid_, viewer2D()->viewwin(),
-	    			  viewer2D()->dataEditor() );
+
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
     horview_->draw();
-
-    viewer2D()->dataMgr()->addObject( horview_ );
-
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
@@ -211,7 +237,7 @@ bool uiODVw2DHor3DTreeItem::init()
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+		    &vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonReleased.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
     }
@@ -456,3 +482,13 @@ void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 
     oldactivevolupdated_ = false;
 }
+
+
+uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis(int vwridx,int id) const
+{
+    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return 0;
+    mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d->dataMgr()->getObject(id));
+    return obj ? new uiODVw2DHor3DTreeItem(id,true) : 0;
+}
+

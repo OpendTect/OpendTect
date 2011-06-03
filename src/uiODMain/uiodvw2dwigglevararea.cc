@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.7 2011-05-27 06:52:46 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.8 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
+#include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
 
 #include "attribdatacubes.h"
@@ -302,3 +303,11 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 
     return false;
 }
+
+
+uiTreeItem* 
+    uiODVW2DWiggleVarAreaTreeItemFactory::createForVis(int vwridx, int id) const
+{
+    return 0;
+}
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: visvw2dfault.h,v 1.3 2011-03-09 07:28:37 cvsranojay Exp $
+ RCS:		$Id: visvw2dfault.h,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,12 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 
 
-mClass VW2DFault : public Vw2DDataObject
+mClass VW2DFault : public Vw2DEMDataObject
 {
 public:
-    			VW2DFault(const EM::ObjectID&,uiFlatViewWin*,
-				 const ObjectSet<uiFlatViewAuxDataEditor>&);
+    static VW2DFault* 	create(const EM::ObjectID& id,uiFlatViewWin* win,
+				 const ObjectSet<uiFlatViewAuxDataEditor>& ed)
+			     mCreateVw2DDataObj(VW2DFault,id,win,ed);
 			~VW2DFault();
 
     void		setCubeSampling(const CubeSampling&, bool upd=false );
@@ -42,13 +43,9 @@ protected:
 
     void		triggerDeSel();
 
-    uiFlatViewWin*		viewerwin_;
-    EM::ObjectID		emid_;
-
     MPE::FaultEditor*	f3deditor_;
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
     Notifier<VW2DFault>		deselted_;
-    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeditors_;
 };
 
 #endif

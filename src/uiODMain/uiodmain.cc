@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.143 2011-02-17 17:41:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.144 2011-06-03 14:10:26 cvsbruno Exp $";
 
 #include "uiodmain.h"
 
@@ -71,6 +71,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.143 2011-02-17 17:41:14 cvskris
 #include "inituiio.h"
 #include "inituiseis.h"
 #include "inituistrat.h"
+#include "inituiviewer2d.h"
 #include "inituiwell.h"
 #include "inituiearthmodel.h"
 #include "inituiattributes.h"
@@ -136,6 +137,7 @@ static void initUiStdClasses()
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
     uiVelocity::initStdClasses();
+    uiViewer2D::initStdClasses();
 
     SoOD::initStdClasses();
     visBase::initStdClasses();
@@ -556,6 +558,7 @@ bool uiODMain::updateSession()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) ) 
 	return false;
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
+    viewer2DMgr().fillPar( cursession_->vwr2dpars() );
 
     sessionSave.trigger();
     return true;
@@ -599,6 +602,8 @@ void uiODMain::doRestoreSession()
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
+    if ( visok )
+	viewer2DMgr().usePar( cursession_->vwr2dpars() );
 
     restoringsess_ = false;
     MouseCursorManager::restoreOverride();

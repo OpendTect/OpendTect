@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.27 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.28 2011-06-03 14:10:26 cvsbruno Exp $";
 
 #include "odsession.h"
 #include "ascstream.h"
@@ -27,6 +27,7 @@ const char* ODSession::attr3dstoredprefix()  { return "3D.Stored.Attribs"; }
 const char* ODSession::nlaprefix()	{ return "NLA"; }
 const char* ODSession::trackprefix()	{ return "Tracking"; }
 const char* ODSession::pluginprefix()	{ return "Plugins"; }
+const char* ODSession::vwr2dprefix()	{ return "2D.Viewer"; }
 const char* ODSession::sKeyUseStartup() { return "dTect.Use startup session"; }
 const char* ODSession::sKeyStartupID()  { return "Session.Auto ID"; }
 
@@ -50,6 +51,7 @@ void ODSession::clear()
     nlapars_.setEmpty();
     mpepars_.setEmpty();
     pluginpars_.setEmpty();
+    vwr2dpars_.setEmpty();
 }
 
 
@@ -68,6 +70,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	mpepars_ = sess.mpepars_;
 	pluginpars_ = sess.pluginpars_;
 	versionnr_ = sess.versionnr_;
+	vwr2dpars_ = sess.vwr2dpars_;
     }
     return *this;
 }
@@ -84,7 +87,8 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
 	&& pluginpars_ == sess.pluginpars_
-	&& versionnr_ == sess.versionnr_;
+	&& versionnr_ == sess.versionnr_
+	&& vwr2dpars_ == sess.vwr2dpars_;
 }
    
 #define mAddVersionNr(iopar) \
@@ -132,6 +136,10 @@ bool ODSession::usePar( const IOPar& par )
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
 
+    PtrMan<IOPar> vwr2dsubpars = par.subselect(vwr2dprefix());
+    if ( vwr2dsubpars )
+        vwr2dpars_ = *vwr2dsubpars;
+
     mAddVersionNr(vispars_);
     mAddVersionNr(scenepars_);
     mAddVersionNr(attrpars_);
@@ -142,6 +150,7 @@ bool ODSession::usePar( const IOPar& par )
     mAddVersionNr(nlapars_);
     mAddVersionNr(mpepars_);
     mAddVersionNr(pluginpars_);
+    mAddVersionNr(vwr2dpars_);
     return true;
 }
 
@@ -158,6 +167,7 @@ void ODSession::fillPar( IOPar& par ) const
     par.mergeComp( nlapars_, nlaprefix() );
     par.mergeComp( mpepars_, trackprefix() );
     par.mergeComp( pluginpars_, pluginprefix() );
+    par.mergeComp( vwr2dpars_, vwr2dprefix() );
 }
 
 

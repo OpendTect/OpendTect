@@ -4,15 +4,22 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.cc,v 1.4 2011-04-06 05:51:31 cvsraman Exp $
+ RCS:		$Id: visvw2ddataman.cc,v 1.5 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visvw2ddataman.h"
 
+#include "iopar.h"
+#include "keystrs.h"
 #include "visvw2ddata.h"
 
+#include "uiflatviewwin.h"
+#include "emposid.h"
+
+
+mImplFactory3Param(Vw2DDataObject,const EM::ObjectID&,uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
 
 Vw2DDataManager::Vw2DDataManager()
     : selectedid_( -1 )
@@ -125,3 +132,44 @@ void Vw2DDataManager::getObjects( ObjectSet<Vw2DDataObject>& objs ) const
 
 const Vw2DDataObject* Vw2DDataManager::getObject( int id ) const
 { return const_cast<Vw2DDataManager*>(this)->getObject(id); }
+
+
+void Vw2DDataManager::fillPar( IOPar& par ) const
+{
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	IOPar dataobjpar;
+	const Vw2DDataObject& dataobj = *objects_[idx];
+	dataobj.fillPar( dataobjpar );
+	par.mergeComp( dataobjpar, toString( dataobj.id() ) );
+    }
+    par.set( sKeyNrObjects(), objects_.size() );
+}
+
+
+void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win, 
+			    const ObjectSet<uiFlatViewAuxDataEditor>& eds )
+{
+    int curnrobects = objects_.size();
+    int nrobjects;
+    if ( !iop.get( sKeyNrObjects(), nrobjects ))
+	return;
+
+    for ( int idx=curnrobects; idx<nrobjects; idx++ )
+    {
+	PtrMan<IOPar> objpar = iop.subselect( toString(idx) );
+	if ( !objpar || !objpar->size() )
+	{
+	    if ( !idx ) continue;
+	    break;
+	}
+	const char* type = objpar->find( sKey::Type );
+	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
+	if ( obj )
+	{
+	    obj->usePar( *objpar );
+	    addObject( obj );
+	}
+    }
+}
+

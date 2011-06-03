@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.12 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.13 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,14 @@ uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const EM::ObjectID& emid )
 {}
 
 
+uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
+    : uiODVw2DTreeItem(0)
+    , fssview_(0)
+{
+    displayid_ = id;
+}
+
+
 uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
 {
     NotifierAccess* deselnotify = fssview_->deSelection();
@@ -123,8 +131,27 @@ uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
 
 bool uiODVw2DFaultSSTreeItem::init()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return false;
+    EM::EMObject* emobj = 0;
+    if ( displayid_ < 0 )
+    {
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+	fssview_ = VW2DFaultSS3D::create( emid_, viewer2D()->viewwin(),
+				     viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( fssview_ );
+    }
+    else
+    {
+	mDynamicCastGet(VW2DFaultSS3D*,hd,
+				viewer2D()->dataMgr()->getObject(displayid_))
+	if ( !hd )
+	    return false;
+	emid_ = hd->emID();
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+
+	fssview_ = hd;
+    }
 
     emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
     displayMiniCtab();
@@ -133,10 +160,7 @@ bool uiODVw2DFaultSSTreeItem::init()
     uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
 
-    fssview_ = new VW2DFaultSS3D( emid_, viewer2D()->viewwin(),
-	    			 viewer2D()->dataEditor() );
     fssview_->draw();
-    viewer2D()->dataMgr()->addObject( fssview_ );
 
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )
@@ -254,4 +278,14 @@ void uiODVw2DFaultSSTreeItem::emobjAbtToDelCB( CallBacker* cb )
     if ( !fss ) return;
 
     parent_->removeChild( this );
+}
+
+
+uiTreeItem* 
+	uiODVw2DFaultSSTreeItemFactory::createForVis(int vwridx,int id) const
+{
+    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return 0;
+    mDynamicCastGet(const VW2DFaultSS3D*,obj,vwr2d->dataMgr()->getObject(id));
+    return obj ? new uiODVw2DFaultSSTreeItem(id,true) : 0;
 }

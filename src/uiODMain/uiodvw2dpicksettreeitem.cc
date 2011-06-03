@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.3 2011-05-02 09:21:25 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,13 +67,17 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
-    ps && addChld( new uiODVw2DPickSetTreeItem(*ps), false, false );
+    if ( ps ) 
+    {
+	const int picksetidx = picksetmgr_.indexOf(*ps);
+	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
+    }
 }
 
 
-uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( Pick::Set& ps )
+uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     : uiODVw2DTreeItem(0)
-    , pickset_(ps)
+    , pickset_(Pick::Mgr().get(picksetid))
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
     , setidx_(-1)
@@ -104,7 +108,8 @@ bool uiODVw2DPickSetTreeItem::init()
     displayMiniCtab();
     checkStatusChange()->notify( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
     if ( !vw2dpickset_ )
-	vw2dpickset_ = new VW2DPickSet( pickset_, viewer2D()->dataEditor() );
+	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_), 
+			    viewer2D()->viewwin(),viewer2D()->dataEditor() );
 
     vw2dpickset_->drawAll();
     return true;
@@ -196,5 +201,15 @@ void uiODVw2DPickSetTreeItem::deSelCB( CallBacker* )
 void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 {
     vw2dpickset_->enablePainting( isChecked() );
+}
+
+
+uiTreeItem* 
+	uiODVw2DPickSetTreeItemFactory::createForVis( int vwridx, int id ) const
+{
+    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return 0;
+    mDynamicCastGet(const VW2DPickSet*,obj,vwr2d->dataMgr()->getObject(id));
+    return obj ? new uiODVw2DPickSetTreeItem(id) : 0;
 }
 

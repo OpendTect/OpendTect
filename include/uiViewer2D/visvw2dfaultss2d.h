@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.h,v 1.4 2011-03-09 07:28:37 cvsranojay Exp $
+ RCS:		$Id: visvw2dfaultss2d.h,v 1.5 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,12 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
 
-mClass VW2DFaultSS2D : public Vw2DDataObject
+mClass VW2DFaultSS2D : public Vw2DEMDataObject
 {
 public:
-    			VW2DFaultSS2D(const EM::ObjectID&,uiFlatViewWin*,
-				     const ObjectSet<uiFlatViewAuxDataEditor>&);
+    static VW2DFaultSS2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
+			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
+    				mCreateVw2DDataObj(VW2DFaultSS2D,id,win,ed);
 			~VW2DFaultSS2D();
 
     void		setLineName(const char*);
@@ -43,16 +44,12 @@ protected:
 
     void		triggerDeSel();
 
-    uiFlatViewWin*		viewerwin_;
-
-    EM::ObjectID		emid_;
     const char*			linenm_;
     MultiID			lsetid_;
 
     MPE::FaultStickSetEditor*	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
     Notifier<VW2DFaultSS2D>	deselted_;
-    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeditors_;
 };
 
 #endif

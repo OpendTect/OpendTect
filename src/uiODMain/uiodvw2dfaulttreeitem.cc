@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.13 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.14 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,9 +107,18 @@ uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const EM::ObjectID& emid )
 {}
 
 
+uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
+    : uiODVw2DTreeItem(0)
+    , emid_(-1)
+    , faultview_(0)
+{
+    displayid_ = id;
+}
+
+
 uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 {
-    NotifierAccess* deselnotify = faultview_->deSelection();
+    NotifierAccess* deselnotify = faultview_ ? faultview_->deSelection() : 0;
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DFaultTreeItem,deSelCB) );
 
@@ -123,8 +132,28 @@ uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 
 bool uiODVw2DFaultTreeItem::init()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return false;
+    EM::EMObject* emobj = 0;
+    if ( displayid_ < 0 ) 
+    {
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+
+	faultview_ = VW2DFault::create( emid_, viewer2D()->viewwin(),
+				   viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( faultview_ );
+    }
+    else
+    {
+	mDynamicCastGet(VW2DFault*,hd,
+			viewer2D()->dataMgr()->getObject(displayid_))
+	if ( !hd )
+	    return false;
+	emid_ = hd->emID();
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+
+	faultview_ = hd;
+    }
 
     emobj->change.notify( mCB(this,uiODVw2DFaultTreeItem,emobjChangeCB) );
     displayMiniCtab();
@@ -134,10 +163,7 @@ bool uiODVw2DFaultTreeItem::init()
     uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
 
-    faultview_ = new VW2DFault( emid_, viewer2D()->viewwin(),
-	    		       viewer2D()->dataEditor() );
     faultview_->draw();
-    viewer2D()->dataMgr()->addObject( faultview_ );
 
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
@@ -254,3 +280,13 @@ void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 
     parent_->removeChild( this );
 }
+
+
+uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis(int vwridx, int id) const
+{
+    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return 0;
+    mDynamicCastGet(const VW2DFault*,obj,vwr2d->dataMgr()->getObject(id));
+    return obj ? new uiODVw2DFaultTreeItem(id,true) : 0;
+}
+

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.9 2011-05-02 05:48:48 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.10 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,12 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+mCreateVw2DFactoryEntry( Vw2DHorizon2D );
 
-Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
+Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
-    : Vw2DDataObject()
-    , emid_(oid)
-    , viewerwin_( mainwin )
+    : Vw2DEMDataObject(oid,win,auxdataedtors)
     , linenm_(0)
-    , auxdataeditors_( auxdataedtors )
     , deselted_( this )
     , vdselspec_( 0 )
     , wvaselspec_( 0 )

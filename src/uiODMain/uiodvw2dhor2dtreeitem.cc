@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.20 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.21 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,17 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
 }
 
 
+uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
+    : uiODVw2DTreeItem(0)
+    , horview_(0)
+    , emid_( -1 )
+    , trackerefed_(false)
+{
+    displayid_ = dispid;
+}
+
+
+
 uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 {
     NotifierAccess* deselnotify = horview_->deSelection();
@@ -171,8 +182,29 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 
 bool uiODVw2DHor2DTreeItem::init()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return false;
+    EM::EMObject* emobj = 0;
+    if ( displayid_ < 0 )
+    {
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) return false;
+
+	horview_ = Vw2DHorizon2D::create( emid_, viewer2D()->viewwin(),
+				      viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( horview_ );
+    }
+    else
+    {
+	mDynamicCastGet(Vw2DHorizon2D*,hd,
+			    viewer2D()->dataMgr()->getObject(displayid_))
+	if ( !hd )
+	    return false;
+	emid_ = hd->emID();
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj ) 
+	    return false;
+
+	horview_ = hd;
+    }
 
     emobj->change.notify( mCB(this,uiODVw2DHor2DTreeItem,emobjChangeCB) );
     displayMiniCtab();
@@ -193,8 +225,6 @@ bool uiODVw2DHor2DTreeItem::init()
 		mCB(this,uiODVw2DHor2DTreeItem,mouseReleaseInVwrCB) );
     }
 
-    horview_ = new Vw2DHorizon2D( emid_, viewer2D()->viewwin(),
-	    			  viewer2D()->dataEditor() );
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
     
@@ -202,7 +232,6 @@ bool uiODVw2DHor2DTreeItem::init()
 	horview_->setLineSetID( viewer2D()->lineSetID() );
 
     horview_->draw();
-    viewer2D()->dataMgr()->addObject( horview_ );
 
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
@@ -383,3 +412,13 @@ void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
 }
+
+
+uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(int vwridx, int id) const
+{
+    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return 0;
+    mDynamicCastGet(const Vw2DHorizon2D*,obj,vwr2d->dataMgr()->getObject(id));
+    return obj ? new uiODVw2DHor2DTreeItem(id,true) : 0;
+}
+

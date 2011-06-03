@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.7 2011-03-30 08:47:29 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.8 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
+#include "visvw2ddata.h"
+#include "visvw2ddataman.h"
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
@@ -70,8 +72,9 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setSelSpec( as, dowva );
 
     int dtpackid = visServ().getDataPackID(visid,attribid);
+    if ( dtpackid < 0 ) return;
     FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
-    if ( dpname != as->userRef() )
+    if ( as && dpname != as->userRef() )
     {
 	for ( int idx=0; idx<DPM(DataPackMgr::FlatID()).packs().size(); idx++ )
 	{
@@ -137,3 +140,75 @@ void uiODViewer2DMgr::remove2DViewer( int visid )
 	return;
     }
 }
+
+
+uiODViewer2D* uiODViewer2DMgr::getViewer2D( int idx ) 
+{
+    return viewers2d_.validIdx( idx ) ? viewers2d_[idx] : 0;
+}
+
+
+const uiODViewer2D* uiODViewer2DMgr::getViewer2D( int idx ) const
+{
+    return viewers2d_.validIdx( idx ) ? viewers2d_[idx] : 0;
+}
+
+
+void uiODViewer2DMgr::fillPar( IOPar& iop ) const
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	IOPar vwrpar;
+	const uiODViewer2D& vwr2d = *viewers2d_[idx];
+	vwrpar.set( sKeyVisID(), viewers2d_[idx]->visid_ );
+	bool wva = vwr2d.viewwin()->viewer().appearance().ddpars_.wva_.show_;
+	vwrpar.setYN( sKeyWVA(), wva );
+	vwrpar.set( sKeyAttrID(), vwr2d.selSpec(wva).id().asInt() ); 
+	vwr2d.fillPar( vwrpar );
+
+	iop.mergeComp( vwrpar, toString( idx ) );
+    }
+}
+
+
+void uiODViewer2DMgr::usePar( const IOPar& iop ) 
+{
+    deepErase( viewers2d_ );
+
+    for ( int idx=0; ; idx++ )
+    {
+	PtrMan<IOPar> vwrpar = iop.subselect( toString(idx) );
+	if ( !vwrpar || !vwrpar->size() )
+	{
+	    if ( !idx ) continue;
+	    break;
+	}
+	int visid; bool wva; int attrid; 
+	if ( vwrpar->get( sKeyVisID(), visid ) &&
+		vwrpar->get( sKeyAttrID(), attrid ) &&
+		    vwrpar->getYN( sKeyWVA(), wva ) )
+	{
+	    displayIn2DViewer( visid, attrid, wva );
+	    uiODViewer2D* curvwr = find2DViewer( visid );
+	    if ( curvwr ) curvwr->usePar( *vwrpar );
+	}
+    }
+    rebuildTrees();
+}
+
+
+void uiODViewer2DMgr::rebuildTrees()
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	uiODViewer2D& vwr2d = *viewers2d_[idx];
+	const Vw2DDataManager& datamgr = *vwr2d.dataMgr();
+	ObjectSet<Vw2DDataObject> objs;
+	datamgr.getObjects( objs );
+	for ( int iobj=0; iobj<objs.size(); iobj++ )
+	{
+	    uiODVw2DTreeItem::create(vwr2d.treeTop(), idx, objs[iobj]->id());
+	}
+    }
+}
+

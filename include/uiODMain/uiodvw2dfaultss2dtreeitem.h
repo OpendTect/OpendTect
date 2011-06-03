@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.h,v 1.3 2011-03-09 07:28:37 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.h,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,13 @@ protected:
 };
 
 
-mClass uiODVw2DFaultSS2DTreeItemFactory : public uiTreeItemFactory
+mClass uiODVw2DFaultSS2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVw2DFaultSS2DParentTreeItem(); }
+    uiTreeItem*         createForVis(int vwridx,int visid) const;
 };
 
 
@@ -50,6 +51,7 @@ mClass uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);
+			uiODVw2DFaultSS2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DFaultSS2DTreeItem();
 
     bool		showSubMenu();

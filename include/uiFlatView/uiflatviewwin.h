@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.13 2011-05-05 15:38:30 cvsbruno Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.14 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     virtual		~uiFlatViewWin()	{}
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
+    const uiFlatViewer&	viewer( int idx=0 ) const { return *vwrs_[idx]; }
     int			nrViewers() const	{ return vwrs_.size(); }
 
     void		setDarkBG(bool);

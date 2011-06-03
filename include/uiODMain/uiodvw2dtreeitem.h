@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.h,v 1.2 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodvw2dtreeitem.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,14 @@ public:
     void		updCubeSamling(const CubeSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
+    static bool		create(uiTreeItem*,int vwridx,int displayid);
+
 protected:
+
+    int				displayid_;
 
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
@@ -39,6 +46,15 @@ protected:
     virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
 				{}
 };
+
+
+mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
+{
+    public:
+	virtual uiTreeItem* createForVis(int vwridx,int visid) const
+		                                { return 0; }
+};
+
 
 
 mClass uiODVw2DTreeTop : public uiTreeTopItem
@@ -65,7 +81,6 @@ protected:
 
     uiTreeFactorySet*   	tfs_;
     bool			selectWithKey(int);
-
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.2 2011-05-02 09:21:25 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,19 +41,20 @@ protected:
 };
 
 
-mClass uiODVw2DPickSetTreeItemFactory : public uiTreeItemFactory
+mClass uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
     uiTreeItem*         create() const
     			{ return new uiODVw2DPickSetParentTreeItem(); }
+    uiTreeItem*         createForVis(int vwridx,int visid) const;
 };
 
 
 mClass uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 {
 public:
-			uiODVw2DPickSetTreeItem(Pick::Set&);
+			uiODVw2DPickSetTreeItem(int picksetid);
 			~uiODVw2DPickSetTreeItem();
 
     bool		showSubMenu();

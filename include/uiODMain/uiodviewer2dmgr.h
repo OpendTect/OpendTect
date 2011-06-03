@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
+ RCS:		$Id: uiodviewer2dmgr.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,13 @@ public:
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
 
+    uiODViewer2D*		getViewer2D(int idx);
+    const uiODViewer2D*		getViewer2D(int idx) const;
+
+    static const char*		sKeyVisID()		{ return "VisID"; }
+    static const char*		sKeyAttrID()		{ return "Attrib ID"; }
+    static const char*		sKeyWVA()		{ return "WVA"; }
+
 protected:
 
     				uiODViewer2DMgr(uiODMain*);
@@ -51,6 +58,10 @@ protected:
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
+    void			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
+
+    void			rebuildTrees();
 
     friend class                uiODMain;
 };
