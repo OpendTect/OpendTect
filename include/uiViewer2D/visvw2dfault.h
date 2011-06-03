@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: visvw2dfault.h,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dfault.h,v 1.5 2011-06-03 15:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 protected:
 
     void		triggerDeSel();
+    void		setEditors();
 
     MPE::FaultEditor*	f3deditor_;
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;

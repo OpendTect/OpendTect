@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddata.h,v 1.2 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2ddata.h,v 1.3 2011-06-03 15:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ protected:
 
     uiFlatViewWin*	viewerwin_;
     EM::ObjectID 	emid_;
+    virtual void	setEditors()	= 0;
+
     const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeditors_;
 };
 

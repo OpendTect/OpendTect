@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.h,v 1.5 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon3d.h,v 1.6 2011-06-03 15:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 protected:
 
     void				triggerDeSel();
+    void				setEditors();
 
     void				checkCB(CallBacker*);
     void				deSelCB(CallBacker*);
