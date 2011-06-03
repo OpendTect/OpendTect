@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.13 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.14 2011-06-03 15:11:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
 
 uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
 {
-    NotifierAccess* deselnotify = fssview_->deSelection();
+    NotifierAccess* deselnotify = fssview_ ? fssview_->deSelection() : 0;
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DFaultSSTreeItem,deSelCB) );
 
