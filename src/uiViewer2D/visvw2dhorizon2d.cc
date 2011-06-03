@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.10 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.11 2011-06-03 14:40:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,14 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , wvaselspec_( 0 )
 {
     horeds_.allowNull();
+    if ( oid >= 0 )
+	setEditors();
+}
 
+
+void Vw2DHorizon2D::setEditors()
+{
+    deepErase( horeds_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const FlatDataPack* fdp = viewerwin_->viewer( ivwr ).pack( true );
@@ -56,7 +63,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 
 	MPE::HorizonFlatViewEditor2D* hored = 
 	    new MPE::HorizonFlatViewEditor2D( 
-	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]), oid );
+	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	horeds_ += hored;
     }	
 }

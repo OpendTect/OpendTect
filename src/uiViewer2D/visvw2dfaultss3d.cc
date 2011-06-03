@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss3d.cc,v 1.6 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dfaultss3d.cc,v 1.7 2011-06-03 14:40:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,14 @@ VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , fsseditor_(0)
 {
     fsseds_.allowNull();
+    if ( oid >= 0)
+	setEditors();
+}
 
+
+void VW2DFaultSS3D::setEditors() 
+{
+    deepErase( fsseds_ ); 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     fsseditor_ = fsseditor;
@@ -61,7 +68,7 @@ VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
 
 	MPE::FaultStickSetFlatViewEditor* fssed = 
 	    new MPE::FaultStickSetFlatViewEditor(
-	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]), oid );
+	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	fsseds_ += fssed;
     }
 }

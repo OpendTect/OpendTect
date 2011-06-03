@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddata.cc,v 1.2 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2ddata.cc,v 1.3 2011-06-03 14:40:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,5 +90,6 @@ void Vw2DEMDataObject::usePar( const IOPar& par )
 	    return;
 	emid_ = EM::EMM().getObjectID( mid );
     }
+    setEditors();
 }
 
