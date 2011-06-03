@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddata.cc,v 1.3 2011-06-03 14:40:12 cvsbruno Exp $
+ RCS:		$Id: visvw2ddata.cc,v 1.4 2011-06-03 15:29:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,21 +41,23 @@ void Vw2DDataObject::setName( const char* nm )
 }
 
 
-void Vw2DDataObject::fillPar( IOPar& par ) const
+bool Vw2DDataObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type, getClassName() );
     const char* nm = name();
     if ( nm )
 	par.set( sKey::Name, nm );
     par.set( sKeyMID(), toString(-1) );
+    return true;
 }
 
 
-void Vw2DDataObject::usePar( const IOPar& par ) 
+bool Vw2DDataObject::usePar( const IOPar& par ) 
 {
     const char* nm = par.find( sKey::Name );
     if ( nm )
 	setName( nm );
+    return true;
 }
 
 
@@ -68,28 +70,30 @@ Vw2DEMDataObject::Vw2DEMDataObject( const EM::ObjectID& oid,uiFlatViewWin* win,
 {}   
 
 
-void Vw2DEMDataObject::fillPar( IOPar& par ) const
+bool Vw2DEMDataObject::fillPar( IOPar& par ) const
 {
     Vw2DDataObject::fillPar( par );
     par.set( sKeyMID(), EM::EMM().getMultiID( emid_ ) );
+    return true;
 }
 
 
-void Vw2DEMDataObject::usePar( const IOPar& par ) 
+bool Vw2DEMDataObject::usePar( const IOPar& par ) 
 {
-    Vw2DDataObject::usePar( par );
+    if ( !Vw2DDataObject::usePar( par ) )
+	return false;
     MultiID mid;
     par.get( sKeyMID(), mid );
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
     Executor* exec = EM::EMM().objectLoader( mid, &sel);
-    if ( exec )
+    TaskRunner exectr;
+    if ( exec && exectr.execute(*exec) )
     {
-	TaskRunner exectr;
-	if ( !exectr.execute(*exec) )
-	    return;
 	emid_ = EM::EMM().getObjectID( mid );
+	setEditors();
+	return true;
     }
-    setEditors();
+    return false;
 }
 

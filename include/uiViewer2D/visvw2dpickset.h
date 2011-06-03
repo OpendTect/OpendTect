@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dpickset.h,v 1.4 2011-06-03 15:29:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
     void		selected();
     const MultiID	pickSetID() const;
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 

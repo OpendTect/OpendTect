@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddata.h,v 1.3 2011-06-03 15:08:41 cvsbruno Exp $
+ RCS:		$Id: visvw2ddata.h,v 1.4 2011-06-03 15:29:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,8 @@ public:
 
     virtual NotifierAccess*	deSelection()		{ return 0; }
 
-    virtual void		fillPar(IOPar&) const;
-    virtual void		usePar(const IOPar&);
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
     static const char*		sKeyMID()  		{ return "ID"; }
 
@@ -57,8 +57,8 @@ mClass Vw2DEMDataObject : public Vw2DDataObject
 { 
 public:
 
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual bool	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
     const EM::ObjectID& emID() const                    { return emid_; }
 

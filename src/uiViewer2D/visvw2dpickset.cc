@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.7 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.8 2011-06-03 15:29:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,14 +275,15 @@ void VW2DPickSet::triggerDeSel()
 }
 
 
-void VW2DPickSet::fillPar( IOPar& iop ) const
+bool VW2DPickSet::fillPar( IOPar& iop ) const
 {
     Vw2DDataObject::fillPar( iop );
     iop.set( sKeyMID(), pickSetID() ); 
+    return true;
 }
 
 
-void VW2DPickSet::usePar( const IOPar& iop )
+bool VW2DPickSet::usePar( const IOPar& iop )
 {
     Vw2DDataObject::usePar( iop );
     MultiID mid;
@@ -290,13 +291,16 @@ void VW2DPickSet::usePar( const IOPar& iop )
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
-	return;
+	return false;
     Pick::Set* newps = new Pick::Set; BufferString bs;
     if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
     {
 	Pick::Mgr().set( ioobj->key(), newps );
 	pickset_ = newps;
+	return true;
     }
+    delete newps;
+    return false;
 }
 
 
