@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: emioobjinfo.cc,v 1.6 2011-02-23 06:28:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: emioobjinfo.cc,v 1.7 2011-06-03 11:35:08 cvsnanne Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -20,7 +20,8 @@ static const char* rcsID = "$Id: emioobjinfo.cc,v 1.6 2011-02-23 06:28:12 cvsnan
 #define mGoToEMDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) )
 
-using namespace EM;
+namespace EM
+{
 
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
     : ioobj_(ioobj ? ioobj->clone() : 0)
@@ -223,3 +224,5 @@ bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 	trcranges.add( reader_->lineTrcRanges(idx) );
     return true;
 }
+
+} // namespace EM
