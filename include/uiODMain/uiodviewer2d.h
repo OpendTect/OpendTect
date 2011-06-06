@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.26 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.27 2011-06-06 07:51:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     const Vw2DDataManager*	dataMgr() const		{ return datamgr_; }
 
     uiODVw2DTreeTop*		treeTop() 		{ return treetp_; }
+
+    const uiTreeFactorySet*	uiTreeItemFactorySet() const { return tifs_; }
     
     const ObjectSet<uiFlatViewAuxDataEditor>&	dataEditor()	
     				{ return auxdataeditors_; }
