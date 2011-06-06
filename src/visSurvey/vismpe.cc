@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.109 2011-05-09 23:34:55 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.110 2011-06-06 08:31:41 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -123,7 +123,6 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 {
     if ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->setSequence( attrib, seq );
-    channels_->touchMappedData();
 }
 
 
@@ -191,18 +190,8 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 
     Coord3 center = drg->center();
     Coord3 size = drg->size();
-/*
-    if ( voltrans_ )
-    {
-	// to do: seems to work even without this... check if required
-	center = voltrans_->transform( center );
-	Coord3 scale = voltrans_->getScale();
-	size[0] *= scale[0];
-	size[1] *= scale[1];
-	size[2] *= scale[2];
-    }
-*/
-    if ( !dim )
+
+	if ( !dim )
     {
 	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x);
 	planebox.hrg.stop.inl = planebox.hrg.start.inl;
@@ -263,7 +252,6 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->setEnabled( attrib, false );
-    // check if last argument should be false or true
 }
 
 
@@ -1208,12 +1196,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	// nothing to do if dragger is in sync with engine
 	if ( planebox==engine_.trackPlane().boundingBox() )
 	    return;
-
-	// to do: check
-	// bring slice to the position specified by dragger
-	// will be done automatically by the callback on dragger of slice?
-	updateSlice();
-
+	
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
 	// note: can use dim_ instead of dim below
 	const int dim = slice->getDragger()->getDim();
