@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.8 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.9 2011-06-06 07:53:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,7 +188,9 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 		vwrpar->get( sKeyAttrID(), attrid ) &&
 		    vwrpar->getYN( sKeyWVA(), wva ) )
 	{
-	    displayIn2DViewer( visid, attrid, wva );
+	    const int nrattribs = visServ().getNrAttribs( visid );
+	    const int attrnr = nrattribs-1;
+	    displayIn2DViewer( visid, attrnr, wva );
 	    uiODViewer2D* curvwr = find2DViewer( visid );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
 	}
