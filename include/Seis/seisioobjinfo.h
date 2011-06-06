@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.20 2010-08-12 14:57:35 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.21 2011-06-06 10:24:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
     			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
     static BufferString	defKey2DispName(const char* defkey,
 	    				const char* ioobjnm=0);
+    static BufferString	def3DDispName(const char* defkey,
+	    			      const char* ioobjnm=0);
 
     int			nrComponents(LineKey lk=LineKey()) const;
     void		getComponentNames(BufferStringSet&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.52 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.53 2011-06-06 10:24:54 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -107,10 +107,12 @@ void uiAttribCrossPlot::adsChg()
 	{
 	    const char* defkey = bss.get(inm).buf();
 	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    attrsfld_->addItem(
-		    SeisIOObjInfo::defKey2DispName(defkey,ioobjnm) );
+	    attrsfld_->addItem( attrinf.is2D(defkey)
+		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
 	}
     }
+
     if ( !attrsfld_->isEmpty() )
 	attrsfld_->setCurrentItem( int(0) );
 

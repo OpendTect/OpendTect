@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.40 2011-02-03 07:49:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.41 2011-06-06 10:24:54 cvssatyaki Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -120,8 +120,9 @@ void uiWellAttribCrossPlot::adsChg()
 	{
 	    const char* defkey = bss.get(inm).buf();
 	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    attrsfld_->addItem(
-		    SeisIOObjInfo::defKey2DispName(defkey,ioobjnm) );
+	    attrsfld_->addItem( attrinf.is2D(defkey)
+		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
 	}
     }
 }

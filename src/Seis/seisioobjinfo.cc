@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.41 2011-05-27 11:52:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.42 2011-06-06 10:24:54 cvssatyaki Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -371,6 +371,16 @@ BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
     return LineKey::defKey2DispName( defkey, ioobjnm );
 }
 
+
+BufferString SeisIOObjInfo::def3DDispName( const char* defkey,
+					   const char* ioobjnm )
+{
+    if ( !IOObj::isKey(defkey) )
+	return BufferString( defkey );
+
+    BufferString attrnm( "[", ioobjnm, "]" );
+    return attrnm;
+}
 
 static BufferStringSet& getTypes()
 {

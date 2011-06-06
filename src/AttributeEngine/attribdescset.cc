@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.110 2011-05-27 11:52:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.111 2011-06-06 10:24:54 cvssatyaki Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -1067,7 +1067,9 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	{
 	    const char* defkey = bss.get(inm).buf();
 	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    FileMultiString fms(SeisIOObjInfo::defKey2DispName(defkey,ioobjnm));
+	    FileMultiString fms(is2D()
+		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
 	    fms += defkey;
 	    attrdefs.add( fms );
 	}
