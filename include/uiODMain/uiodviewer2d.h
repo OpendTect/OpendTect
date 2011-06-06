@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.27 2011-06-06 07:51:04 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.28 2011-06-06 15:06:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ public:
     int				visid_;
     BufferString		basetxt_;
 
-    void			usePar(const IOPar&);
-    void			fillPar(IOPar&) const;
+    virtual void		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
 
 protected:
 
