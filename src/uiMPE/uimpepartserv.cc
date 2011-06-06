@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.123 2011-05-02 06:10:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.124 2011-06-06 08:41:25 cvskarthika Exp $";
 
 #include "uimpepartserv.h"
 
@@ -691,6 +691,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( setupgrp_ ) setupgrp_->commitToTracker();
 
     tracker->applySetupAsDefault( sid );
+    loadAttribData();
 
     return true;
 }
