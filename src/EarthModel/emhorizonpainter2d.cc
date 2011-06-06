@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.6 2011-06-03 14:00:21 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.7 2011-06-06 07:44:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,7 +332,7 @@ void HorizonPainter2D::enableSeed( bool yn )
     if ( seedenabled_ == yn )
 	return;
 
-    if ( markerseeds_ ) return;
+    if ( !markerseeds_ ) return;
     markerseeds_->marker_->enabled_ = yn;
     seedenabled_ = yn;
     viewer_.handleChange( FlatView::Viewer::Annot );
