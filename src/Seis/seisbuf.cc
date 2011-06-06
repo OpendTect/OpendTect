@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.50 2010-12-07 19:50:39 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.51 2011-06-06 13:58:09 cvshelene Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -452,7 +452,6 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
     pd.setX1Pos( hdrvals, tbufsz, ofv );
     SeisPacketInfo pinf; tbuf->fill( pinf );
     StepInterval<double> zrg; assign( zrg, pinf.zrg );
-    zrg.scale( SI().zFactor() );
     pd.setRange( false, zrg );
 }
 
