@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.cc,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dtreeitem.cc,v 1.4 2011-06-06 07:51:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodvw2dtreeitem.h"
+#include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
@@ -170,10 +171,9 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
 
 bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int vwridx, int displayid )
 {
-    uiODViewer2DMgr& vwr2dmgr = ODMainWin()->viewer2DMgr();
-    uiTreeFactorySet* tfs2d = vwr2dmgr.treeItemFactorySet2D();
-    uiTreeFactorySet* tfs3d = vwr2dmgr.treeItemFactorySet3D();
-    uiTreeFactorySet* tfs = tfs3d ? tfs3d : tfs2d ? tfs2d : 0;
+    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    if ( !vwr2d ) return false;
+    const uiTreeFactorySet* tfs = vwr2d->uiTreeItemFactorySet();
     if ( !tfs )
 	return false;
 
