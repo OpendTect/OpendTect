@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.104 2011-05-31 08:55:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.105 2011-06-07 09:33:20 cvssatyaki Exp $";
 
 #include "uiseissel.h"
 
@@ -387,7 +387,8 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
 
     LineKey lk( txt );
     curusrnm_ = uiIOObjSel::userNameFromKey( lk.lineName() );
-    curusrnm_ = LineKey( curusrnm_, lk.attrName() );
+    if ( is2D() )
+	curusrnm_ = LineKey( curusrnm_, lk.attrName() );
     return curusrnm_.buf();
 }
 
