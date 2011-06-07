@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.99 2011-05-05 09:11:40 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.100 2011-06-07 09:30:24 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -104,6 +104,19 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
     if ( !sz ) return false;
 
     const bool zinft = zinftfld_->isChecked();
+
+    float fac = 1;
+    if ( SI().zIsTime() )
+	fac = zinft ? mToFeetFactor : 1;
+    else 
+    {
+	fac = ((SI().zInFeet() && zinft) || 
+		(SI().zInMeter() && !zinft)) ? 1
+					     : ( SI().zInFeet() && !zinft )
+						? mFromFeetFactor
+						: mToFeetFactor;
+    }
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const Coord3& c( track_.pos(idx) );
@@ -111,13 +124,8 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 	tbl_->setValue( RowCol(idx,1), c.y );
 	if ( !zinft )
 	{
-	    tbl_->setValue( RowCol(idx,2), c.z );
-	    tbl_->setValue( RowCol(idx,3), track_.dah(idx) );
-	}
-	else
-	{
-	    tbl_->setValue( RowCol(idx,2), c.z*mToFeetFactor );
-	    tbl_->setValue( RowCol(idx,3), track_.dah(idx)*mToFeetFactor );
+	    tbl_->setValue( RowCol(idx,2), c.z*fac );
+	    tbl_->setValue( RowCol(idx,3), track_.dah(idx)*fac );
 	}
     }
 
