@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.40 2010-04-15 15:38:15 cvsjaap Exp $
+ RCS:           $Id: uigroup.h,v 1.41 2011-06-08 14:58:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,11 @@ protected:
     void		uiobjDel( CallBacker* );
 
     void		setFrameStyle(int);
+
+    void		reSizeChildren(const uiObject*,float,float);
+
+public:
+    virtual void	setSize(const uiSize&);
 
 };
 

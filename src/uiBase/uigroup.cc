@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.71 2011-05-11 04:05:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.72 2011-06-08 14:58:23 cvsbruno Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -555,6 +555,50 @@ void uiGroup::setChildrenSensitive( bool yn )
 {
     for ( int idx=0; idx<grpobj_->childList()->size(); idx++ )
 	((uiObject*) (*grpobj_->childList())[idx])->setSensitive( yn );
+}
+
+
+void uiGroup::setSize( const uiSize& sz )
+{
+    if ( sz.width() <= 0 || sz.height() <= 0 )
+	return;
+    const int oldwidth = mainObject()->width();
+    const int oldheight = mainObject()->height();
+    if ( !oldwidth || !oldheight ) 
+	return;
+
+    const float wfac = sz.width()/(float)oldwidth;
+    const float hfac = sz.height()/(float)oldheight;
+
+    reSizeChildren( mainObject(), wfac, hfac );
+    const int newwdth = mNINT(oldwidth*wfac);
+    const int newhght = mNINT(oldheight*hfac);
+    mainObject()->setMinimumWidth( newwdth );
+    mainObject()->setMinimumHeight( newhght );
+    mainObject()->setMaximumWidth( newwdth );
+    mainObject()->setMaximumHeight( newhght );
+}
+
+
+void uiGroup::reSizeChildren( const uiObject* obj, float wfac, float hfac )
+{
+    if ( wfac <= 0 || hfac <= 0 || !obj->childList() )
+	return;
+
+    for ( int idchild=0; idchild<obj->childList()->size(); idchild++ )
+    {
+	const uiBaseObject* child = (*obj->childList())[idchild];
+	mDynamicCastGet(const uiObject*,objchild,child)
+	if ( objchild ) 
+	    reSizeChildren( objchild, wfac, hfac );
+
+	const int newwdth = mNINT(objchild->width()*wfac);
+	const int newhght = mNINT(objchild->height()*hfac);
+	((uiObject*)(objchild))->setMinimumWidth( newwdth );
+	((uiObject*)(objchild))->setMaximumWidth( newwdth );
+	((uiObject*)(objchild))->setMinimumHeight( newhght );
+	((uiObject*)(objchild))->setMaximumHeight( newhght );
+    }
 }
 
 
