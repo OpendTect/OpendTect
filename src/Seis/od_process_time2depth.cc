@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.8 2010-11-01 17:32:34 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.9 2011-06-08 11:57:39 cvshelene Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -76,35 +76,45 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }
     
-    RefMan<VelocityStretcher> ztransform = istime2depth
-	? (VelocityStretcher*) new Time2DepthStretcher
-	: (VelocityStretcher*) new Depth2TimeStretcher;
-
-    if ( !ztransform->setVelData( velmid ) || !ztransform->isOK() )
-    {
-	strm << "Velocity model is not usable";
-	return false;
-    }
-
     VelocityDesc veldesc;
     const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
 			veldesc.isVelocity();
 
+    PtrMan<SeisZAxisStretcher> exec = 0;
     if ( isvel )
+    {
 	strm << "\nDetected that the stretching will be done on velocities.\n"
-	        "Will stretch in slowness-domain.\n";
+	        "Will stretch in z-domain and convert back to velocities.\n";
+	exec = new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
+				       velmid, istime2depth, isvel );
+	//would we convert Thomsen? nothing prepared for this now
+	exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
+    }
+    else
+    {
+	RefMan<VelocityStretcher> ztransform = istime2depth
+	    ? (VelocityStretcher*) new Time2DepthStretcher
+	    : (VelocityStretcher*) new Depth2TimeStretcher;
 
-    SeisZAxisStretcher exec( *inputioobj, *outputioobj, outputcs, *ztransform,
-	   		     true, isvel );
-    exec.setName( "Time to depth conversion");
-    if ( !exec.isOK() )
+	if ( !ztransform->setVelData( velmid ) || !ztransform->isOK() )
+	{
+	    strm << "Velocity model is not usable";
+	    return false;
+	}
+
+	exec = new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
+				       *ztransform, true, isvel );
+    }
+
+    exec->setName( "Time to depth conversion");
+    if ( !exec->isOK() )
     {
 	strm << "Cannot initialize readers/writers";
 	return false;
     }
 
     TextStreamProgressMeter progressmeter( strm );
-    exec.setProgressMeter( &progressmeter );
+    exec->setProgressMeter( &progressmeter );
 
-    return exec.execute( &strm );
+    return exec->execute( &strm );
 }

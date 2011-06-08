@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.9 2011-03-21 01:22:06 cvskris Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.10 2011-06-08 11:57:39 cvshelene Exp $
 ________________________________________________________________________
 
 */
@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "task.h"
 
 class IOObj;
-class ZAxisTransform;
+class MultiID;
+class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSequentialWriter;
 class ZAxisTransform;
-class SeisTrc;
 
 
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
@@ -37,7 +37,13 @@ public:
 					     const CubeSampling& outcs,
 					     ZAxisTransform&,
 					     bool forward,
-					     bool stretchinverse);
+					     bool stretchz);
+    			SeisZAxisStretcher( const IOObj& in,
+					     const IOObj& out,
+					     const CubeSampling& outcs,
+					     const MultiID& tdmodelmid,
+					     bool forward,
+					     bool stretchz );
 			~SeisZAxisStretcher();
 
     bool		isOK() const;
@@ -45,18 +51,25 @@ public:
     void		setLineKey(const char*);
     const char*		message() const { return "Stretching data"; }
 
+    void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
+
 protected:
 
+    void		init(const IOObj& in,const IOObj& out,const IOObj*);
     bool		doPrepare(int);
     bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const		{ return totalnr_; }
 
-    bool				getTrace(SeisTrc&,BinID&);
+    bool				getInputTrace(SeisTrc&,BinID&);
+    bool				getModelTrace(SeisTrc&,BinID&);
     bool				loadTransformChunk(int firstinl);
 
     SeisTrcReader*			seisreader_;
     Threads::ConditionVar		readerlock_;
+    Threads::ConditionVar		readerlockmodel_;
+
+    SeisTrcReader*			seisreadertdmodel_;
 
     SeisTrcWriter*			seiswriter_;
     SeisSequentialWriter*		sequentialwriter_;
@@ -66,13 +79,14 @@ protected:
 
     CubeSampling			outcs_;
     HorSampling				curhrg_;
-    ZAxisTransform&			ztransform_;
+    ZAxisTransform*			ztransform_;
     int 				voiid_;
     bool				forward_;
     bool				is2d_;
-    bool				stretchinverse_;
+    bool				stretchz_;
 
     int					totalnr_;
+    bool				isvint_;
 
 };
 
