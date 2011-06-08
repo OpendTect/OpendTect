@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.26 2011-04-14 13:50:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.27 2011-06-08 14:19:09 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.26 2011-04-14 13:5
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
+#include "prestackgather.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
@@ -43,10 +44,12 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.26 2011-04-14 13:5
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 				    const DataPack::FullID& dpid,
 				    const Strat::LayerModel& lm,
-				    const ObjectSet<const TimeDepthModel>& d2t )
+				    const ObjectSet<const TimeDepthModel>& d2t,
+				    const DataPack::FullID& psdpid )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , packmgrid_(DataPackMgr::getID(dpid))
+    , pspackmgrid_(DataPackMgr::getID(psdpid))
     , lm_(lm)
     , d2tmodels_(d2t)
     , emptylbl_(0)
@@ -60,10 +63,13 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	{ emptylbl_ = new uiLabel(this,"Missing or invalid datapack"); return; }
     tbpack_ = tbdp;
 
+    DataPack* psdp = DPM(pspackmgrid_).obtain( DataPack::getID(psdpid) );
+    mDynamicCastGet(PreStack::GatherSetDataPack*,psdp_,psdp)
+
     uiAttribDescSetBuild::Setup bsu( !SI().has3D() );
-    bsu.showdepthonlyattrs(false).showusingtrcpos(false).showps(false);
+    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps(psdp_);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
-    TypeSet<DataPack::FullID> fids; fids += dpid;
+    TypeSet<DataPack::FullID> fids; fids += dpid; if ( psdp ) fids += psdpid;
     seisattrfld_->setDataPackInp( fids );
 
     uiSeparator* sep = new uiSeparator( this, "sep1", true );

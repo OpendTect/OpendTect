@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.21 2011-06-02 05:14:03 cvsraman Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.22 2011-06-08 14:19:09 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -175,8 +175,9 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 			uiStratSynthDisp2Crossplot( this, *synthdisp_ );
     if ( prexplotdlg.go() )
     {
-	uiStratSynthCrossplot dlg( this, prexplotdlg.packID(),
-				modl_, prexplotdlg.d2TModels() );
+	uiStratSynthCrossplot dlg( this, prexplotdlg.packID( true ), 
+		    		modl_, prexplotdlg.d2TModels(), 
+				prexplotdlg.packID(false) );
 	const char* lvlnm = moddisp_->selectedLevel();
 	if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
 	dlg.go();

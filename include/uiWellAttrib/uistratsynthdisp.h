@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.24 2011-06-08 07:22:25 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.25 2011-06-08 14:19:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,22 @@ mStruct RayParams
 mClass uiRayTrcParamsGrp : public uiGroup
 {
 public:
-				uiRayTrcParamsGrp(uiParent*,RayParams&);
+
+    mClass Setup
+    {
+	public:
+				Setup(RayParams& rpars)
+				    : raypars_(rpars) 
+				    , offsetdir_(false)
+				    , withraysettings_(true)
+				    {}
+
+	mDefSetupMemb(RayParams&,raypars)
+	mDefSetupMemb(bool,offsetdir)
+	mDefSetupMemb(bool,withraysettings)
+    };
+
+				uiRayTrcParamsGrp(uiParent*,const Setup&);
 
     void			setLimitSampling(const CubeSampling&);
     void			setOffSetDirection(bool yn) 
@@ -87,7 +102,7 @@ protected:
     uiGenInput*			sourcerecfld_;
     uiGenInput*			vp2vsfld_;
     uiCheckBox*			nmobox_;
-    uiCheckBox*			stackbox_;
+    uiGenInput*			stackfld_;
     CubeSampling		limitcs_;
 
     bool			isoffsetdir_;
@@ -138,6 +153,8 @@ public:
 
     static Notifier<uiStratSynthDisp>&	fieldsCreated();
     void		addTool(const uiToolButtonSetup&);
+
+    const CubeSampling& getLimitSampling() const;
 
     DataPack*		genNewDataPack(const RayParams&,
 	    			ObjectSet<const TimeDepthModel>&,
