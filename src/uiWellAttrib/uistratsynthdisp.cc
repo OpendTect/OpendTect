@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.39 2011-05-26 15:50:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.40 2011-06-08 07:22:25 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -349,8 +349,8 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
     const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-	    	      SI().crlRange(false).stop + crlstep );
+    const BinID bid0( SI().inlRange(false).start + SI().inlStep(),
+	    	      SI().crlRange(false).start + crlstep );
 
     ObjectSet<PreStack::Gather> gathers;
     ObjectSet<const SeisTrc> trcs;
@@ -364,6 +364,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	    trcs += rm.stackedTrc();
 	else
 	    rm.getTraces( trcs, true );
+
 	if ( trcs.isEmpty() )
 	    continue;
 
@@ -372,7 +373,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	    SeisTrc* trc = const_cast<SeisTrc*>( trcs[idx] );
 	    const int trcnr = imdl + 1;
 	    trc->info().nr = trcnr;
-	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep ); 
+	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
 	    trc->info().coord = SI().transform( trc->info().binid );
 	    tbuf->add( trc );
 	}
@@ -388,11 +389,28 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
     if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty() ) )
 	mErrRet("No seismic traces genereated ", return 0)
 
-    DataPack* dp = isgather ? 
-	dynamic_cast<DataPack*>( new PreStack::GatherSetDataPack( 
-		    "GatherSet", gathers ) ) : 
-	dynamic_cast<DataPack*>( new SeisTrcBufDataPack( 
-		    tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) );
+    DataPack* dp =0;
+   
+    if ( isgather ) 
+    {
+	delete tbuf;
+	PreStack::GatherSetDataPack* pdp = new PreStack::GatherSetDataPack(
+							"GatherSet", gathers );
+	dp = dynamic_cast<DataPack*>(pdp);
+    }
+    else
+    {
+	SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
+			    tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
+	const SeisTrc& trc0 = *tbuf->get(0);
+	StepInterval<double> zrg(  trc0.info().sampling.start,
+				   trc0.info().sampling.atIndex(trc0.size()-1),
+				   trc0.info().sampling.step );
+	tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
+	tdp->posData().setRange( false, zrg );
+
+	dp = dynamic_cast<DataPack*>(tdp);
+    }
     dp->setName( "Synthetics" );
     return dp;
 }
@@ -445,14 +463,13 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp )
 
 void uiRayTrcParamsDlg::setLimitSampling( const CubeSampling& cs )
 {
-    limitcs_ = cs;
+    raytrcpargrp_->setLimitSampling( cs );
     dirChg(0);
 }
 
 
 void uiRayTrcParamsDlg::dirChg( CallBacker* )
 {
-    CubeSampling cs = limitcs_;
     const int idx = directionfld_->currentItem();
     raytrcpargrp_->setOffSetDirection( idx > 0 );
 }
@@ -508,6 +525,7 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, RayParams& rp )
     : uiGroup(p,"Ray paramrs group" )
     , raypars_(rp)
     , isoffsetdir_(true)		  
+    , previsoffsetdir_(true)		  
 {
     offsetfld_ = new uiGenInput( this, "Offset range(m) (start/stop)",
 	    				IntInpIntervalSpec() );
@@ -546,8 +564,21 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, RayParams& rp )
 }
 
 
+void uiRayTrcParamsGrp::setLimitSampling( const CubeSampling& cs )
+{
+    limitcs_ = cs;
+}
+
+
 void uiRayTrcParamsGrp::updateCB( CallBacker* )
 {
+    if ( isoffsetdir_ != previsoffsetdir_ )
+    {	
+	NotifyStopper( stackbox_->activated );
+	stackbox_->setChecked( false );
+    }
+
+    raypars_.cs_ = limitcs_;
     nmobox_->display( isoffsetdir_ );
     stackbox_->display( !isoffsetdir_ );
     offsetfld_->display( isoffsetdir_ || stackbox_->isChecked() );
@@ -557,7 +588,8 @@ void uiRayTrcParamsGrp::updateCB( CallBacker* )
     {
 	raypars_.cs_.hrg.setCrlRange( offsetfld_->getIInterval() );
 	raypars_.cs_.hrg.step.crl = (int)offsetstepfld_->getfValue();
-	raypars_.cs_.hrg.setInlRange( Interval<int>( 1, 1 ) ); //model idx to 1
+	if ( !stackbox_->isChecked() )
+	    raypars_.cs_.hrg.setInlRange( Interval<int>(1,1) ); //model idx to 1
     }
     if ( !isoffsetdir_ )
     {
@@ -571,4 +603,6 @@ void uiRayTrcParamsGrp::updateCB( CallBacker* )
     raypars_.setup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
     raypars_.usenmotimes_ = !isoffsetdir_ ? true : nmobox_->isChecked();
     raypars_.dostack_ = stackbox_->isChecked();
+
+    previsoffsetdir_ = isoffsetdir_;
 }

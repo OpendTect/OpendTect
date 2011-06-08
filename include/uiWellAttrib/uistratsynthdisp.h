@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.23 2011-05-26 15:44:53 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.24 2011-06-08 07:22:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ mClass uiRayTrcParamsGrp : public uiGroup
 public:
 				uiRayTrcParamsGrp(uiParent*,RayParams&);
 
+    void			setLimitSampling(const CubeSampling&);
     void			setOffSetDirection(bool yn) 
     				{ isoffsetdir_=yn; updateCB(0); }
 
@@ -87,8 +88,10 @@ protected:
     uiGenInput*			vp2vsfld_;
     uiCheckBox*			nmobox_;
     uiCheckBox*			stackbox_;
+    CubeSampling		limitcs_;
 
     bool			isoffsetdir_;
+    bool			previsoffsetdir_;
 
     void 			updateCB(CallBacker*);
 };
@@ -104,7 +107,6 @@ public:
 
 protected:
 
-    CubeSampling		limitcs_;
     uiComboBox*			directionfld_;
     uiRayTrcParamsGrp*		raytrcpargrp_;
 
