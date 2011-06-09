@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.416 2011-04-18 10:58:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.417 2011-06-09 10:54:59 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1723,6 +1723,8 @@ void uiODApplMgr::batchProgs()
 { dispatcher_.batchProgs(); }
 void uiODApplMgr::pluginMan()
 { dispatcher_.pluginMan(); }
+void uiODApplMgr::updateSoftware()
+{ dispatcher_.updateSoftware(); }
 void uiODApplMgr::posConversion()
 { dispatcher_.posConversion(); }
 void uiODApplMgr::manageShortcuts()

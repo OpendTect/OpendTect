@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.227 2011-04-14 12:14:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.228 2011-06-09 10:54:59 cvsumesh Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -627,6 +627,7 @@ void uiODMenuMgr::fillUtilMenu()
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
 	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
+    mInsertItem( utilmnu_, "&Update ...", mUpdateMnuItem );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -996,6 +997,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mZScaleMnuItm: 	applMgr().setZStretch(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
+    case mUpdateMnuItem:	applMgr().updateSoftware(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;	
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm: 	showLogFile(); break;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.28 2011-03-21 16:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.29 2011-06-09 10:54:59 cvsumesh Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -19,9 +19,12 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.28 2011-03-21 16:16:04 cv
 #include "datapointset.h"
 #include "datapackbase.h"
 #include "emsurfacetr.h"
+#include "filepath.h"
 #include "ioobj.h"
+#include "oddirs.h"
 #include "posvecdataset.h"
 #include "separstr.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "veldesc.h"
@@ -391,6 +394,41 @@ void uiODApplMgrDispatcher::batchProgs()
 { uiBatchProgLaunch dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::pluginMan()
 { uiPluginMan dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::updateSoftware()
+{
+    FilePath fp( GetSoftwareDir(0) );
+
+    BufferString pathonly = fp.pathOnly();
+    BufferString reltypestr;
+
+    fp.add( "relinfo" );
+    fp.add( "readme.txt" );
+
+    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+    if ( !sd.usable() )
+    { sd.close(); return; }
+
+    while ( !sd.istrm->eof() )
+    {
+	char buf[1024];
+	sd.istrm->getline( buf, 1024 );
+
+	reltypestr = buf;
+	break;
+    }
+
+    sd.close();
+
+    SeparString ss( reltypestr, '-' );
+
+    if ( ss.size() != 2 )
+	return;
+
+    const char* reltype = ss[1];
+
+    //TODO now we know reltype and installation base directory
+    //TODO call installer and pass these things as parameter...
+}
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::setFonts()
