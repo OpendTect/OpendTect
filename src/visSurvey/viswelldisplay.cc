@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.143 2011-06-07 09:23:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.144 2011-06-09 13:03:32 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -627,7 +627,8 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 			       : wd->track().getDahForTVD( mousez );
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() ? mToFeetFactor : 1;
+    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
+							mToFeetFactor : 1;
     info += toString( mNINT(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
