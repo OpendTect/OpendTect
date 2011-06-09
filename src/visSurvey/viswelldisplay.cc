@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.144 2011-06-09 13:03:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.145 2011-06-09 14:01:29 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -39,7 +39,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.144 2011-06-09 13:03:32 c
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
 #define mMeter2Feet(val) val *= mToFeetFactor;
 #define mFeet2Meter(val) val *= mFromFeetFactor;
-#define dpp(param) wd->displayProperties().param
+#define mGetDispPar(param) wd->displayProperties().param
 
 
 mCreateFactoryEntry( visSurvey::WellDisplay );
@@ -210,58 +210,58 @@ void WellDisplay::setWell( visBase::Well* well )
 void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 {
     mGetWD(return);
-    tp.col_ 		= dpp( track_.color_ );
-    tp.isdispabove_ 	= dpp( track_.dispabove_ );
-    tp.isdispbelow_ 	= dpp( track_.dispbelow_ );
-    tp.font_ 		= dpp( track_.font_ );
-    tp.size_ 		= dpp( track_.size_ );
+    tp.col_ 		= mGetDispPar( track_.color_ );
+    tp.isdispabove_ 	= mGetDispPar( track_.dispabove_ );
+    tp.isdispbelow_ 	= mGetDispPar( track_.dispbelow_ );
+    tp.font_ 		= mGetDispPar( track_.font_ );
+    tp.size_ 		= mGetDispPar( track_.size_ );
 }
 
 
 void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 {
     mGetWD(return);
-    mp.col_ 		= dpp( markers_.color_  );
-    mp.shapeint_ 	= dpp( markers_.shapeint_ );
-    mp.cylinderheight_ 	= dpp( markers_.cylinderheight_ );
-    mp.issinglecol_ 	= dpp( markers_.issinglecol_ );
-    mp.issamenmcol_ 	= dpp( markers_.samenmcol_ );
-    mp.font_ 		= dpp( markers_.font_ );
-    mp.namecol_ 	= dpp( markers_.nmcol_ );
-    mp.size_ 		= dpp( markers_.size_ );
+    mp.col_ 		= mGetDispPar( markers_.color_  );
+    mp.shapeint_ 	= mGetDispPar( markers_.shapeint_ );
+    mp.cylinderheight_ 	= mGetDispPar( markers_.cylinderheight_ );
+    mp.issinglecol_ 	= mGetDispPar( markers_.issinglecol_ );
+    mp.issamenmcol_ 	= mGetDispPar( markers_.samenmcol_ );
+    mp.font_ 		= mGetDispPar( markers_.font_ );
+    mp.namecol_ 	= mGetDispPar( markers_.nmcol_ );
+    mp.size_ 		= mGetDispPar( markers_.size_ );
 }
 
 
-#define dppl(lognr,par) lognr==1? dpp(logs_[0]->left_.par)\
-    				: dpp(logs_[0]->right_.par)
+#define mGetLogPar(lognr,par) lognr==1 ? mGetDispPar(logs_[0]->left_.par)\
+				       : mGetDispPar(logs_[0]->right_.par)
 void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 {
     mGetWD(return);
-    lp.cliprate_ 	= dppl( lognr, cliprate_ );
-    lp.col_ 	 	= dppl( lognr, color_);
-    lp.fillname_ 	= dppl( lognr, fillname_ );
-    lp.fillrange_ 	= dppl( lognr, fillrange_ );
-    lp.isdatarange_ 	= dppl( lognr, isdatarange_ );
-    lp.isleftfilled_ 	= dppl( lognr, isleftfill_ );
-    lp.isrightfilled_ 	= dppl( lognr, isrightfill_ );
-    lp.issinglcol_	= dppl( lognr, issinglecol_);
-    lp.iswelllog_	= dppl( lognr, iswelllog_ );
-    lp.islogarithmic_ 	= dppl( lognr, islogarithmic_ );
-    lp.logwidth_ 	= dppl( lognr, logwidth_ );
-    lp.name_	 	= dppl( lognr, name_ );
-    lp.ovlap_ 	 	= dppl( lognr, repeatovlap_ );
-    lp.range_ 		= dppl( lognr, range_ );
-    lp.repeat_ 	 	= dppl( lognr, repeat_);
-    lp.seqname_	 	= dppl( lognr, seqname_ );
-    lp.size_	 	= dppl( lognr, size_ );
-    lp.seiscolor_	= dppl( lognr, seiscolor_ );
-    lp.iscoltabflipped_	= dppl( lognr, iscoltabflipped_ );
+    lp.cliprate_ 	= mGetLogPar( lognr, cliprate_ );
+    lp.col_ 	 	= mGetLogPar( lognr, color_);
+    lp.fillname_ 	= mGetLogPar( lognr, fillname_ );
+    lp.fillrange_ 	= mGetLogPar( lognr, fillrange_ );
+    lp.isdatarange_ 	= mGetLogPar( lognr, isdatarange_ );
+    lp.isleftfilled_ 	= mGetLogPar( lognr, isleftfill_ );
+    lp.isrightfilled_ 	= mGetLogPar( lognr, isrightfill_ );
+    lp.issinglcol_	= mGetLogPar( lognr, issinglecol_);
+    lp.iswelllog_	= mGetLogPar( lognr, iswelllog_ );
+    lp.islogarithmic_ 	= mGetLogPar( lognr, islogarithmic_ );
+    lp.logwidth_ 	= mGetLogPar( lognr, logwidth_ );
+    lp.name_	 	= mGetLogPar( lognr, name_ );
+    lp.ovlap_ 	 	= mGetLogPar( lognr, repeatovlap_ );
+    lp.range_ 		= mGetLogPar( lognr, range_ );
+    lp.repeat_ 	 	= mGetLogPar( lognr, repeat_);
+    lp.seqname_	 	= mGetLogPar( lognr, seqname_ );
+    lp.size_	 	= mGetLogPar( lognr, size_ );
+    lp.seiscolor_	= mGetLogPar( lognr, seiscolor_ );
+    lp.iscoltabflipped_	= mGetLogPar( lognr, iscoltabflipped_ );
 }
 
 
 #define mDispLog( lognr, Side )\
 { \
-    BufferString& logname = dppl( lognr, name_ );\
+    BufferString& logname = mGetLogPar( lognr, name_ );\
     if ( wd->logs().indexOf( logname ) >= 0 )\
 	display##Side##Log();\
 }
@@ -278,7 +278,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
     tp.name_ = wd->name();
-    logsnumber_ = mMAX( dppl( 0, repeat_ ), dppl( 1, repeat_ ) );
+    logsnumber_ = mMAX( mGetLogPar( 0, repeat_ ), mGetLogPar( 1, repeat_ ) );
     updateMarkers(0);
 
     well_->setTrack( trackpos );
@@ -487,7 +487,7 @@ void WellDisplay::setLogDisplay( int lognr )
 {
     mGetWD(return);
 
-    BufferString& logname = dppl( lognr, name_);
+    BufferString& logname = mGetLogPar( lognr, name_);
     if ( wd->logs().isEmpty() ) return;
     const int logidx = wd->logs().indexOf( logname );
     if( logidx<0 )
@@ -654,8 +654,9 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 {
     mGetWD(return);
     const Well::DisplayProperties& disp = wd->displayProperties();
-    const char* lognm = dppl( isleft ? 0 : 1 , name_ );
-    if ( lognm && strcmp(lognm,"None") && strcmp(lognm,"none") )
+    const int lognr = isleft ? 1 : 2;
+    BufferString lognm( mGetLogPar( lognr , name_ ) );
+    if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
     {
 	info += isleft ? ", Left: " : ", Right: ";
 	info += lognm;
