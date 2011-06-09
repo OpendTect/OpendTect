@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.10 2011-04-14 14:57:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.11 2011-06-09 13:07:13 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -276,16 +276,17 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 		sincInterpol( trcsset_ );
 	}
 	float mindist = mUdf( float );
+	int outtrcidx = 0;
 	for ( int idx=0; idx<trcsset_.size(); idx++ )
 	{
 	    const Coord trccoord = trcsset_[idx]->info().coord;
 	    float dist = trccoord.sqDistTo( curcoord );
 	    if ( dist < mindist || mIsUdf( mindist ) )
 	    {
-		mindist = dist;
-		outtrc = new SeisTrc( *trcsset_[idx] );
+		mindist = dist; outtrcidx = idx;
 	    }
 	}
+	outtrc = new SeisTrc( *trcsset_[outtrcidx] );
     }
     outtrc->info().binid = data_.curbid_; 
 
