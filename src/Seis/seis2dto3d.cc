@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: seis2dto3d.cc,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: seis2dto3d.cc,v 1.4 2011-06-10 13:35:50 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -78,7 +78,6 @@ void Seis2DTo3D::setOutput( IOObj& obj, const CubeSampling& outcs )
     outioobj_ = &obj;
     cs_ = outcs;
     cs_.hrg.step = BinID( winsz_, winsz_ );
-    hsit_.setSampling( cs_.hrg );
 }
 
 
@@ -119,6 +118,7 @@ bool Seis2DTo3D::read()
 	linecs.hrg.include( bid );
     }
     cs_.hrg.limitTo( linecs.hrg );
+    hsit_.setSampling( cs_.hrg );
 
     StepInterval<float> si;
     const SeisTrc& trc = *seisbuf_.get( 0 );
@@ -137,7 +137,7 @@ bool Seis2DTo3D::read()
 }
 
 
-#define mInterpWinsz (int)(1.5*winsz_)
+#define mInterpWinsz (int)(2*winsz_)
 int Seis2DTo3D::nextStep()
 {
     if ( !read_ && !read() )
@@ -160,8 +160,8 @@ int Seis2DTo3D::nextStep()
     }
 
     const int inl = curbid_.inl; const int crl = curbid_.crl;
-    Interval<int> inlrg( inl-mInterpWinsz, inl+mInterpWinsz );
-    Interval<int> crlrg( crl-mInterpWinsz, crl+mInterpWinsz );
+    Interval<int> inlrg( inl-mInterpWinsz/2, inl+mInterpWinsz/2 );
+    Interval<int> crlrg( crl-mInterpWinsz/2, crl+mInterpWinsz/2 );
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
     HorSampling hrg; hrg.set( inlrg, crlrg );
@@ -180,8 +180,8 @@ int Seis2DTo3D::nextStep()
     if ( !trcs.isEmpty() && !interpol_.execute() )
 	{ errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
 
-    Interval<int> wininlrg( inl-winsz_, inl+winsz_);
-    Interval<int> wincrlrg( crl-winsz_, crl+winsz_);
+    Interval<int> wininlrg( inl-winsz_/2, inl+winsz_/2);
+    Interval<int> wincrlrg( crl-winsz_/2, crl+winsz_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
     HorSampling winhrg; winhrg.set( wininlrg, wincrlrg );
@@ -258,6 +258,7 @@ od_int64 Seis2DTo3D::totalNr() const
 SeisInterpol::SeisInterpol()
     : Executor("Interpolating")
     , hs_(false)
+    , fft_(0)		
     , nriter_(100)
     , sc_(0)
     , nrdone_(0)
@@ -278,7 +279,11 @@ void SeisInterpol::clear()
 {
     errmsg_.setEmpty();
     nriter_ = 1;
-    totnr_ = -1; nrdone_ = 0;
+    totnr_ = -1; 
+    nrdone_ = 0;
+    szx_ = szy_ = szz_ = 0;
+    max_ = 0;
+    posidxs_.erase();
 }
 
 
@@ -300,10 +305,24 @@ void SeisInterpol::setNrIter( int nriter )
 
 void SeisInterpol::doPrepare()
 {
+    delete fft_;
     fft_ = Fourier::CC::createDefault();
-    szx_ = fft_->getFastSize( hs_.inlRange().nrSteps() ); 
-    szy_ = fft_->getFastSize( hs_.crlRange().nrSteps() );
+
+    const StepInterval<int>& inlrg = hs_.inlRange();
+    const StepInterval<int>& crlrg = hs_.crlRange();
+   
+    const int hsszx = inlrg.nrSteps();
+    const int hsszy = crlrg.nrSteps();
+
+    szx_ = fft_->getFastSize( inlrg.nrSteps() ); 
+    szy_ = fft_->getFastSize( crlrg.nrSteps() );
     szz_ = fft_->getFastSize( (*inptrcs_)[0]->size() );
+
+    const int diffszx = szx_ - hsszx; 
+    const int diffszy = szy_ - hsszy;
+
+    hs_.setInlRange(Interval<int>(inlrg.start-diffszx/2,inlrg.stop+diffszx/2));
+    hs_.setCrlRange(Interval<int>(crlrg.start-diffszy/2,crlrg.stop+diffszy/2));
 
     setUpData();
 }
@@ -322,9 +341,6 @@ void SeisInterpol::doPrepare()
 
 int SeisInterpol::nextStep()
 {
-    if ( nrdone_ == nriter_ ) 
-	{ return Executor::Finished(); }
-
     if ( nrdone_ == 0 )
 	doPrepare();
     for ( int idtrc=0; idtrc<posidxs_.size(); idtrc++ )
@@ -341,6 +357,8 @@ int SeisInterpol::nextStep()
 	    trcarr_->set( trpos.idx_, trpos.idy_, idz, val ); 
 	}
     }
+    if ( nrdone_ == nriter_ ) 
+	{ return Executor::Finished(); }
 
     mDoTransform( fft_, true, trcarr_ );
 
@@ -351,8 +369,8 @@ int SeisInterpol::nextStep()
 	{\
 	    for ( int idz=0; idz<szz_; idz++ )\
 	    {\
-		const float real = trcarr_->get(idx,idy,idz).real();\
-		const float imag = trcarr_->get(idx,idy,idz).imag();\
+		float real = trcarr_->get(idx,idy,idz).real();\
+		float imag = trcarr_->get(idx,idy,idz).imag();\
 		const float mod = real*real + imag*imag;\
 		if ( docomputemax )\
 		{\
@@ -362,7 +380,13 @@ int SeisInterpol::nextStep()
 		else\
 		{\
 		    if ( mod < max_*mDefThreshold )\
-			trcarr_->set(idx,idy,idz,0);\
+			{ real = imag = 0; }\
+		    const float ax = 2/(float)szx_;\
+		    const float ay = 2/(float)szx_;\
+		    const float xfac = idx<szx_/2 ? -idx*ax+ 1 : idx*ax -1;\
+		    const float yfac = idy<szy_/2 ? -idy*ay+ 1 : idy*ay -1;\
+		    real *= xfac*yfac; imag *= xfac*yfac;\
+		    trcarr_->set(idx,idy,idz,float_complex(real,imag));\
 		}\
 	    }\
 	}\
@@ -373,17 +397,10 @@ int SeisInterpol::nextStep()
 
     mDoLoopWork( false )
     mDoTransform( fft_, false, trcarr_ );
-
-
+    
     nrdone_++;
     return Executor::MoreToDo();
 }
-
-/*
-		    if ( ( idx>(int)(szx_/(float)20) && idx<=szx_-(int)(szx_/(float)100) ) || ( idy>(int)(szy_/(float)100) && idy<=szy_-(int)(szy_/(float)100) ) )\
-			trcarr_->set(idx,idy,idz,0);\
-		}\
-*/
 
 
 const BinID SeisInterpol::convertToBID( int idx, int idy ) const
@@ -417,10 +434,13 @@ void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
     if ( inptrcs_->isEmpty() )
 	return;
 
-    HorSamplingIterator hsit( hs );
+    HorSamplingIterator hsit( hs_ );
     BinID bid;
     while ( hsit.next( bid ) )
     {
+	if ( !hs.includes( bid ) ) 
+	    continue;
+
 	int idx = -1; int idy = -1;
 	convertToPos( bid, idx, idy );
 	if ( idx < 0 || idy < 0 || szx_ <= idx || szy_ <= idy) continue;
@@ -454,7 +474,6 @@ void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
 
 void SeisInterpol::setUpData()
 {
-    int trcpos = -1;
     if ( !trcarr_)
 	trcarr_ = new Array3DImpl<float_complex>( szx_, szy_, szz_ );
     else 
@@ -471,6 +490,7 @@ void SeisInterpol::setUpData()
 		posidxs_ += TrcPosTrl( idx, idy, trcidx );
 	}
     }
+    delete sc_;
     sc_ = new SeisScaler( *inptrcs_ );
 }
 
