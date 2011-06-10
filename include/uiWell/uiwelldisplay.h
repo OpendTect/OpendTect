@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.9 2011-05-27 07:51:05 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.10 2011-06-10 12:33:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,14 +45,12 @@ public:
 	mDefSetupMemb(bool,nobackground)
 	mDefSetupMemb(bool,noxannot)
 	mDefSetupMemb(bool,noyannot)
-	mDefSetupMemb(int,nrlogdisplay)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
 	mDefSetupMemb(uiSize,preflogsz) //the actual uiSize will be computed on it 
 
 	void copyFrom(const Setup& su)
 	{
-	    nrlogdisplay_ = su.nrlogdisplay_;
 	    nobackground_ = su.nobackground_;
 	    nologborder_  = su.nologborder_;
 	    withcontrol_  = su.withcontrol_;
@@ -81,6 +79,7 @@ public:
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
 
     const uiSize&		size() const 	{ return size_; }
+    int				nrLogDisplays() const;
 
 protected:
 
