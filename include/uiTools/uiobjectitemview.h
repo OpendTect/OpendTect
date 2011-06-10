@@ -38,13 +38,14 @@ public:
     
     uiObjectItem*		getItem(int idx);
     void			reSizeItem(int idx,const uiSize&);
-    void			reSizeItem(uiObjectItem*,const uiSize&);
+    static void			reSizeItem(uiObjectItem*,const uiSize&);
 
     int 			stretchFactor(uiObjectItem*);
     void 			setStretchFactor(uiObjectItem*,int sf);
     
     void			resetViewArea(CallBacker*);
-    void			setSceneLayoutPos(float,float);
+    virtual void		setSceneLayoutPos(uiPoint);
+    virtual uiPoint		sceneLayoutPos() const;
 
     void			enableScrollBars(bool yn);
 
@@ -53,12 +54,12 @@ public:
 					       ObjectSet<uiObjectItem>&);
 
     void			setCursor(const MouseCursor&);
-    
+
+    Notifier<uiObjectItemView> 	viewareareset;
+
 protected:
 
     ObjectSet<uiObjectItem>	objectitems_;
-
-    void			reSizeChildrenWidth(const uiObject*,int);
 };
 
 #endif

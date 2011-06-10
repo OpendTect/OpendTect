@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.6 2011-05-20 08:06:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.7 2011-06-10 12:32:55 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -31,24 +31,26 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     , hslval_(1)
     , vslval_(1)
 {
-    infobar_ = new uiObjectItemViewInfoBar( this );
-    infobar_->setPrefWidth( startwidth_ );
-    infobar_->setPrefHeight( su.infoheight_ );
-    infobar_->setStretch( 2, 0 );
+    setPrefWidth( startwidth_ + su.infoheight_ );
+    setPrefHeight( startheight_+ su.infoheight_ );
 
     mainviewer_ = new uiObjectItemView( this );
+    mainviewer_->setSceneLayoutPos( su.layoutpos_ );
     mainviewer_->setPrefWidth( startwidth_ );
     mainviewer_->setPrefHeight( startheight_ );
     mainviewer_->enableScrollBars( true );
-    mainviewer_->attach( ensureBelow, infobar_, 0 );
-    mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     mainviewer_->disableScrollZoom();
+    mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
+    infobar_ = new uiObjectItemViewInfoBar( this );
+    infobar_->setPrefWidth( startwidth_ );
+    infobar_->setPrefHeight( su.infoheight_ );
+    infobar_->setSceneLayoutPos( su.layoutpos_ );
+    infobar_->setStretch( 2, 2 );
     infobar_->disableScrollZoom();
 
-    makeSliders();
+    mainviewer_->attach( ensureBelow, infobar_, 0 );
 
-    setPrefWidth( startwidth_ + su.infoheight_ );
-    setPrefHeight( startheight_+ su.infoheight_ );
+    makeSliders();
 }
 
 
@@ -154,11 +156,11 @@ void uiObjectItemViewWin::reSizeItems()
     const int nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
-    const int width = (int)(( hslval_*startwidth_ )+1);
-    const int height = (int)(( vslval_*startheight_ )+1);
+    const int width =  mNINT( hslval_*startwidth_ );
+    const int height =  mNINT( vslval_*startheight_ );
     const uiSize sz( width, height );
 
-    const uiSize objsz = uiSize( sz.width() / nritems , sz.height() );
+    const uiSize objsz = uiSize( mNINT(sz.width()/(float)nritems), sz.height());
     for ( int idx=0; idx<nritems; idx++ )
 	mainviewer_->reSizeItem( idx, objsz );
 
@@ -186,6 +188,7 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
     const int h = abs( y - x ); 
     infobar_->setViewArea( x, y, w, h );
     infobar_->updateItemsPos();
+    mainviewer_->resetViewArea(0);
 }
 
 
@@ -208,7 +211,6 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     hsldr->setValue( hscaledfac );
     vsldr->setValue( vscaledfac );
 }
-
 
 
 uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
@@ -330,6 +332,7 @@ void uiObjectItemViewControl::changeStatus()
 
 uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )
     : zax_(0)
+    , viewer_(vw)  
     , scene_(0)
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&vw.scene())
@@ -340,17 +343,19 @@ uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )
     uiAxisHandler::Setup asu( uiRect::Bottom );
     asu.side( uiRect::Left );
     zax_ = new uiAxisHandler( scene_, asu );
+
+    vw.viewareareset.notify( mCB(this,uiObjectItemViewAxisPainter,plotAxis) );
 }
 
 
 void uiObjectItemViewAxisPainter::setZRange( Interval<float> zrg )
 {
-    if ( zax_ && zax_->range() != zrg )
+    if ( zax_  )
     {
 	zrg.sort( false );
 	zax_->setBounds( zrg );
     }
-    plotAxis();
+    plotAxis(0);
 }
 
 
@@ -362,16 +367,14 @@ void uiObjectItemViewAxisPainter::setAxisRelations()
     uiBorder b( widthshift, heightshift, widthshift, heightshift );
     b += border_;
     zax_->setBorder( b );
-    zax_->updateDevSize();
+    const uiRect& scenerect = viewer_.getSceneRect();
+    zax_->setNewDevSize( scenerect.height(), scenerect.width() );
 }
 
 
-void uiObjectItemViewAxisPainter::plotAxis()
+void uiObjectItemViewAxisPainter::plotAxis( CallBacker* )
 {
     setAxisRelations();
     if ( zax_ )
 	zax_->plotAxis();
 }
-
-
-

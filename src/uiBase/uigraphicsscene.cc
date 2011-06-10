@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.56 2011-05-04 09:58:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.57 2011-06-10 12:32:55 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -467,20 +467,19 @@ uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     qGraphicsScene()->addItem( layoutitem_ );
     layout_->setSpacing( 0 );
     layout_->setContentsMargins( 0, 0, 0, 0 );
-    setLayoutPos( 0, 0 );
+    setLayoutPos( uiPoint(0, 0) );
 }
 
 
-void uiGraphicsObjectScene::setLayoutPos( float x, float y )
+void uiGraphicsObjectScene::setLayoutPos( const uiPoint& pt )
 {
-    layoutitem_->setPos( x, y );
+    layoutitem_->setPos( pt.x, pt.y );
 }
 
 
-uiPoint uiGraphicsObjectScene::layoutPos() const
+const uiPoint uiGraphicsObjectScene::layoutPos() const
 {
-    return uiPoint( mNINT(layoutitem_->pos().x()),
-		    mNINT(layoutitem_->pos().y()) );
+    return uiPoint(mNINT(layoutitem_->pos().x()),mNINT(layoutitem_->pos().y()));
 }
 
 
