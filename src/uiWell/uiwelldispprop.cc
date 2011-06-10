@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.56 2011-05-25 12:51:24 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.57 2011-06-10 12:34:22 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -441,7 +441,6 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
 {
     props_ = &pp;
-    recoverProp();
 }
 
 
