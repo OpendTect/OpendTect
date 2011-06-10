@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.7 2011-06-10 12:32:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.8 2011-06-10 13:31:05 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -45,7 +45,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     infobar_->setPrefWidth( startwidth_ );
     infobar_->setPrefHeight( su.infoheight_ );
     infobar_->setSceneLayoutPos( su.layoutpos_ );
-    infobar_->setStretch( 2, 2 );
+    infobar_->setStretch( 2, 0 );
     infobar_->disableScrollZoom();
 
     mainviewer_->attach( ensureBelow, infobar_, 0 );
