@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.51 2011-05-13 09:58:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.52 2011-06-10 08:35:09 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -920,6 +920,9 @@ bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 	{
 	    double denominator = v2z_prev + dz/V_interval;
 	    res = z_below / denominator;
+	    if ( !Math::IsNormalNumber(res) ) //looks for division by zero above
+		continue;
+
 	    v2z_prev = denominator;
 	}
 
