@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dinfo.cc,v 1.2 2011-05-24 08:11:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dinfo.cc,v 1.3 2011-06-10 12:35:40 cvsbruno Exp $";
 
 #include "uilabel.h"
 #include "uipsviewer2dinfo.h"
@@ -20,14 +20,16 @@ uiGatherDisplayInfoHeader::uiGatherDisplayInfoHeader( uiParent* p )
 {
     setStretch( 2, 2 );
     datalbl_ = new uiLabel(this,"");
+    datalbl_->setVSzPol( uiObject::Small );
     poslbl_ = new uiLabel(this,"");
+    poslbl_->setVSzPol( uiObject::Small );
 
-    poslbl_->setPrefWidthInChar( 10 );
+    poslbl_->setPrefWidthInChar( 30 );
     datalbl_->setPrefWidthInChar( 30 );
+    poslbl_->setStretch(2,2);
+    datalbl_->setStretch(2,2);
 
     datalbl_->attach( ensureBelow, poslbl_ );
-    datalbl_->setPrefHeight( 20 );
-    poslbl_->setPrefHeight( 20 );
 
     setVSpacing( 0 );
 }

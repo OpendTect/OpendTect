@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.14 2011-05-25 07:27:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.15 2011-06-10 12:35:40 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -212,6 +212,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	    delete gather;
 	}
 
+	gd->setInitialSize( uiSize( 400, 600 ) );
 	gd->setPosition( bid );
 	uiFlatViewer* fv = gd->getUiFlatViewer();
 	gd->displayAnnotation( false );
