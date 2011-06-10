@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.32 2011-05-27 07:51:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.33 2011-06-10 12:34:39 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.32 2011-05-27 07:51:05
 
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
+#define mDelNot wd_->tobedeleted
+
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "","107.2.0").savetext("Save as default").savebutton(true)
@@ -37,7 +39,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     setCtrlStyle( LeaveOnly );
 
     Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
-    mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -80,13 +81,29 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
-    wd_->tobedeleted.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+
+    setWDNotifiers( true );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
-    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    setWDNotifiers( false );
+}
+
+
+void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
+{
+    if ( yn )
+    {
+	mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
+	mDelNot.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+    }
+    else
+    {
+	mDispNot.remove( mCB(this,uiWellDispPropDlg,wdChg) );
+	mDelNot.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+    }
 }
 
 
@@ -150,13 +167,6 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	, wds_(wds)
 	, wellselfld_(0)	 
 {
-    for ( int idx=1; idx<wds_.size(); idx++ )
-    {
-	wd_ = wds_[idx];
-	wd_->tobedeleted.notify(
-			mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
-	mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-    }
     if ( wds_.size()>1 )
     {
 	BufferStringSet wellnames;
@@ -169,19 +179,6 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 		    mCB(this,uiMultiWellDispPropDlg,wellSelChg) );
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
-	wd_ = wds_[0];
-    }
-}
-
-
-uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
-{
-    for ( int idx=1; idx<wds_.size(); idx++ )
-    {
-	wd_ = wds_[idx];
-	mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-	wd_->tobedeleted.remove( 
-		mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
     }
 }
 
@@ -207,6 +204,7 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	else if ( mrkfld )
 	    mrkfld->resetProps( prop.markers_ );
     }
+    putToScreen();
 }
 
 
@@ -215,4 +213,24 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
     const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
     wd_ = wds_[selidx];
     resetProps( 0 );
+}
+
+
+void uiMultiWellDispPropDlg::setWDNotifiers( bool yn ) 
+{
+    for ( int idx=0; idx<wds_.size(); idx++ ) 
+    {
+	wd_ = wds_[idx];
+	if ( yn )
+	{
+	    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+	    mDelNot.notify( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	}
+	else
+	{
+	    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+	    mDelNot.remove( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	}
+    }
+    wd_ = wds_[0];
 }

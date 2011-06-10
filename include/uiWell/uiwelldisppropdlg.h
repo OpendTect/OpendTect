@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.17 2011-05-27 07:51:05 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.18 2011-06-10 12:34:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ protected:
     virtual void		getFromScreen();
     virtual void		putToScreen();
 
+    virtual void		setWDNotifiers(bool yn);
+
     virtual void		applyAllPush(CallBacker*);
     virtual void		propChg(CallBacker*);
     bool			rejectOK(CallBacker*);
@@ -61,7 +63,6 @@ public:
 				uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
-				~uiMultiWellDispPropDlg();
 protected:
 
     ObjectSet<Well::Data> 	wds_;
@@ -69,6 +70,7 @@ protected:
 
     void			resetProps(int logidx);
     virtual void 		wellSelChg(CallBacker*);
+    virtual void		setWDNotifiers(bool yn);
 };
 
 
