@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.11 2011-05-30 10:39:50 cvsnageswara Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.12 2011-06-13 06:10:07 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uiattrdesced.h"
 #include "uiattribpanel.h"
+#include "iopar.h"
 
 namespace Attrib { class Desc; };
 
@@ -72,6 +73,11 @@ protected:
 	    			     int seloutidx,int inpidx,
 				     Attrib::DescID inpid) const;
     void		viewPanalCB(CallBacker*);
+    void		setPrevSel();
+    void		getPrevSel();
+    static const char* sKeyBinID();
+    static const char* sKeyLineName();
+    static const char* sKeyTrcNr();
 
     float		nyqfreq_;
     int			nrsamples_; //!< Nr of samples in selected data
@@ -80,7 +86,7 @@ protected:
     uiPushButton*	tfpanelbut_;
     uiSpecDecompPanel*	panelview_;	//!< Time Frequency panel
     uiTrcPositionDlg*	positiondlg_;
-    BinID		prevsel_;
+    IOPar		prevpar_;
 
     			mDeclReqAttribUIFns
 };

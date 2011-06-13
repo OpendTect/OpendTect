@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.33 2011-05-30 10:39:50 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.34 2011-06-13 06:10:07 cvsnageswara Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.33 2011-05-30 10:39:5
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -33,8 +34,13 @@ static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.33 2011-05-30 10:39:5
 
 using namespace Attrib;
 
+
 mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp())
 
+
+const char* uiSpecDecompAttrib::sKeyBinID() { return "BinID"; }
+const char* uiSpecDecompAttrib::sKeyLineName() { return "Line Name"; }
+const char* uiSpecDecompAttrib::sKeyTrcNr() { return "Trace Number"; }
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.15")
@@ -43,8 +49,6 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     , ds_(0)
     , panelview_( new uiSpecDecompPanel(p) )
     , positiondlg_( 0 )
-    , prevsel_(mUdf(int),mUdf(int))
-    
 {
     inpfld_ = createImagInpFld( is2d );
     inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
@@ -81,6 +85,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     stepChg(0);
     typeSel(0);
+    prevpar_.setEmpty();
     setHAlignObj( inpfld_ );
 }
 
@@ -250,17 +255,13 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 
     MultiID mid;
     getInputMID( mid );
+
     CubeSampling cs;
     inpfld_->getRanges( cs );
     if ( positiondlg_ ) delete positiondlg_;
 
     positiondlg_ = new uiTrcPositionDlg( this, cs, ads_->is2D(), mid );
-    if ( !mIsUdf(prevsel_.inl) && !mIsUdf(prevsel_.crl) )
-    {
-	positiondlg_->inlfld_->box()->setValue( prevsel_.inl );
-	positiondlg_->crlfld_->setValue( prevsel_.crl );
-    }
-
+    setPrevSel();
     positiondlg_->show();
     positiondlg_->windowClosed.notify(
 	    			mCB(this,uiSpecDecompAttrib,viewPanalCB) );
@@ -273,12 +274,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     if ( !res )
 	return;
 
-    if ( !positiondlg_->trcnrfld_ )
-    {
-	prevsel_.inl = positiondlg_->inlfld_->box()->getValue();
-	prevsel_.crl = positiondlg_->crlfld_->getValue();
-    }
-
+    getPrevSel();
     DescSet* dset = new DescSet( *ads_ ); 
     DescID inpid = inpfld_->attribID();
     DescID specdecompid = createSpecDecompDesc( dset ); 
@@ -292,12 +288,64 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 }
 
 
+void uiSpecDecompAttrib::getPrevSel()
+{
+    prevpar_.setEmpty();
+    if ( !positiondlg_ )
+	return;
+
+    if ( ads_->is2D() )
+    {
+	const char* sellnm = positiondlg_->linesfld_->box()->text();
+	prevpar_.set( sKeyLineName(), sellnm );
+	prevpar_.set( sKeyTrcNr(), positiondlg_->trcnrfld_->box()->getValue() );
+	return;
+    }
+
+    BinID bid;
+    bid.inl = positiondlg_->inlfld_->box()->getValue();
+    bid.crl = positiondlg_->crlfld_->getValue();
+    prevpar_.set( sKeyBinID(), bid );
+}
+
+
+void uiSpecDecompAttrib::setPrevSel()
+{
+    if ( !positiondlg_ )
+    {
+	prevpar_.setEmpty();
+	return;
+    }
+
+    if ( prevpar_.isEmpty() )
+	return;
+
+    if ( ads_->is2D() )
+    {
+	BufferString lnm;
+	prevpar_.get( sKeyLineName(), lnm );
+	positiondlg_->linesfld_->box()->setText( lnm );
+	positiondlg_->linesfld_->box()->selectionChanged.trigger();
+	int trcnr;
+	prevpar_.get( sKeyTrcNr(), trcnr );
+	positiondlg_->trcnrfld_->box()->setValue( trcnr );
+	return;
+    }
+
+    BinID bid;
+    prevpar_.get( sKeyBinID(), bid );
+    positiondlg_->inlfld_->box()->setValue( bid.inl );
+    positiondlg_->crlfld_->setValue( bid.crl );
+}
+
+
 void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
 {                                                                               
     if ( !ads_->is2D() ) return;
 
-    Desc* tmpdesc = ads_->getFirstStored( false );
+    Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc ) return;
+
     mid = MultiID( tmpdesc->getStoredID().buf() );
 }
 
