@@ -7,20 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.6 2011-05-30 09:25:36 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.7 2011-06-13 06:05:55 cvsnageswara Exp $";
 
 #include "uitrcpositiondlg.h"
 
 #include "bufstringset.h"
+#include "ioobj.h"
 #include "pickretriever.h"
+#include "posinfo2d.h"
 #include "position.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 
 #include "uicombobox.h"
+#include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uispinbox.h"
 #include "uitoolbutton.h"
+
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
@@ -58,11 +63,14 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
 	crlfld_->setInterval( cs.hrg.crlRange() );
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
-
-	getposbut_ = new uiToolButton( this, "pick.png", "Point in 3D scene",
-	    			   	mCB(this,uiTrcPositionDlg,getPosCB) );
-	getposbut_->attach( rightOf, crlfld_ );
     }
+
+    getposbut_ = new uiToolButton( this, "pick.png", "Point in 3D scene",
+				   mCB(this,uiTrcPositionDlg,getPosCB) );
+    if ( trcnrfld_ )
+	getposbut_->attach( rightOf, trcnrfld_ );
+    else
+	getposbut_->attach( rightOf, crlfld_ );
 
     pickretriever_ = PickRetriever::getInstance();
     pickretriever_->finished()->notify(
@@ -80,24 +88,55 @@ uiTrcPositionDlg::~uiTrcPositionDlg()
 
 void uiTrcPositionDlg::getPosCB( CallBacker* )
 {
-    if ( trcnrfld_ )
-	return;
-
     pickretriever_->enable( 0 );
     getposbut_->setSensitive( false );
 }
 
 
+bool uiTrcPositionDlg::getSelLineGeom( PosInfo::Line2DData& l2ddata )
+{
+    uiSeisIOObjInfo objinfo( mid_ );
+    const IOObj* obj = objinfo.ioObj();
+    if ( !obj ) return false;
+
+    S2DPOS().setCurLineSet( obj->name() );
+    const char* sellnm = linesfld_->box()->text();
+    l2ddata.setLineName( sellnm );
+    return S2DPOS().getGeometry( l2ddata ) ? true : false;
+}
+
+
 void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 {
-    if ( trcnrfld_ )
+    getposbut_->setSensitive( true );
+    const Coord3 crd = pickretriever_->getPos();
+    if ( !pickretriever_->success() )
 	return;
 
-    Coord3 crd = pickretriever_->getPos();
-    const BinID bid = SI().transform( crd );
-    inlfld_->box()->setValue( bid.inl );
-    crlfld_->setValue( bid.crl );
-    getposbut_->setSensitive( true );
+    if ( trcnrfld_ )
+    {
+	PosInfo::Line2DData line2d;
+	if ( !getSelLineGeom( line2d ) )
+	    return;
+
+	PosInfo::Line2DPos l2dpos;
+	const int dist = SI().crlDistance();
+	if ( !line2d.getPos( crd,  l2dpos, dist*dist ) )
+	{
+	    BufferString msg( "Please pick trace on line:",
+		    	      linesfld_->box()->text() );
+	    uiMSG().message( msg );
+	    return;
+	}
+
+	trcnrfld_->box()->setValue( l2dpos.nr_ );
+    }
+    else
+    {
+	const BinID bid = SI().transform( crd );
+	inlfld_->box()->setValue( bid.inl );
+	crlfld_->setValue( bid.crl );
+    }
 }
 
 
@@ -134,7 +173,10 @@ CubeSampling uiTrcPositionDlg::getCubeSampling() const
 
 void uiTrcPositionDlg::lineSel( CallBacker* cb )
 {
-    CubeSampling cs;
-    SeisTrcTranslator::getRanges( mid_, cs, getLineKey() );
-    trcnrfld_->box()->setInterval( cs.hrg.crlRange() );
+    PosInfo::Line2DData line2d;
+    if ( !getSelLineGeom( line2d ) )
+	return;
+
+    trcnrfld_->box()->setInterval( line2d.trcNrRange() );
+    trcnrfld_->box()->setValue( line2d.trcNrRange().snappedCenter() );
 }

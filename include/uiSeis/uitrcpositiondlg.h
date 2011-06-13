@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2010
- RCS:           $Id: uitrcpositiondlg.h,v 1.4 2011-05-30 09:25:36 cvsnageswara Exp $
+ RCS:           $Id: uitrcpositiondlg.h,v 1.5 2011-06-13 06:05:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiSpinBox;
 class uiLabeledComboBox;
 class uiToolButton;
 class PickRetriever;
+namespace PosInfo { class Line2DData; }
 
 mClass uiTrcPositionDlg: public uiDialog
 {                                                                               
@@ -41,6 +42,7 @@ protected:
     void			lineSel(CallBacker*);
     void			getPosCB(CallBacker*);
     void			pickRetrievedCB(CallBacker*);
+    bool			getSelLineGeom(PosInfo::Line2DData&);
 
     StepInterval<float>		zrg_;
     uiToolButton*		getposbut_;
