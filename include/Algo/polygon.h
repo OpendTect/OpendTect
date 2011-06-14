@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.25 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:		$Id: polygon.h,v 1.26 2011-06-14 13:44:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,8 @@ public:
 
     double	distTo(const Geom::Point2D<T>& refpt,int* segmentidxptr=0,
 		       double* fractionptr=0) const;
+
+    double	maxDistToBorderEstimate(double maxrelerr=0.001) const;
 
     bool	operator==(const ODPolygon<T>&) const;
 
@@ -675,5 +677,80 @@ double ODPolygon<T>::distTo( const Geom::Point2D<T>& refpt,
 
     return mindist;
 }
+
+
+template <class T> inline
+double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
+{
+    if ( maxrelerr <= 0.0 )
+	return mUdf(double);
+
+    if ( size() < 3 )
+	return isEmpty() ? mUdf(double) : 0.0;
+
+    const double upperbound = mMIN( 0.5 * getRange(true).width(),
+				    0.5 * getRange(false).width() );
+    if ( !upperbound )
+	return 0.0;
+
+    ODPolygon<double> poly;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Geom::Point2D<T>& pt = getVertex(idx);
+	poly.add( Geom::Point2D<double>(pt.x, pt.y) );
+    }
+	
+    double maxdist = 0.0;
+    for ( int idx=0; idx<poly.size(); idx++ )
+    {
+	Geom::Point2D<double> curpt = 
+	    (poly.prevVertex(idx)+poly.getVertex(idx)+poly.nextVertex(idx)) / 3;
+
+	if ( !poly.isInside(curpt, false, mDefEps) )
+	    continue;
+
+	double curdist = poly.distTo( curpt );
+	double gamma = 0.1 * upperbound;
+
+	for ( int step=0; step<100; step++ ) 
+	{
+	    if ( curdist > maxdist )
+		maxdist = curdist;
+
+	    // Gradient ascent
+	    Geom::Point2D<double> pt1 = curpt;
+	    Geom::Point2D<double> pt2 = curpt;
+	    const double delta = 0.0001 * upperbound;
+	    pt1.x += delta;
+	    pt2.y += delta;
+	    const double dist1 = poly.distTo( pt1 );
+	    const double dist2 = poly.distTo( pt2 );
+	    Geom::Point2D<double> nextpt( dist1-curdist, dist2-curdist );
+	    nextpt *= gamma/delta;
+	    nextpt += curpt;
+
+	    if ( !poly.isInside(nextpt, false, mDefEps) )
+	    {
+		gamma *= 0.5;
+		continue;
+	    }
+
+	    double nextdist = poly.distTo( nextpt );
+
+	    if ( nextdist <= curdist )
+	    {
+		gamma *= 0.5;
+
+		if ( curpt.distTo(nextpt) <= 2*maxrelerr*curdist )
+		    break;
+	    }
+
+	    curpt = nextpt;
+	    curdist = nextdist;
+	}
+    }	
+    return maxdist;
+}
+
 
 #endif
