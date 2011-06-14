@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.55 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.56 2011-06-14 09:14:32 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -329,6 +329,13 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	dir = currentdir_.isEmpty() ? GetPersonalDir() : currentdir_.buf();
     if ( !filters )
 	filters = filter_.buf();
+
+    const char* allfiles = "All files (*)";
+#ifdef __win__
+	allfiles = "All files (*.*)";
+#endif
+    if ( !*filters )
+	filters = allfiles;
 
     BufferStringSet filterset;
     const SeparString fltsep( filters, uiFileDialog::filesep_[0] );
