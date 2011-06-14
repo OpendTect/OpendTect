@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.7 2011-04-28 16:54:57 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.8 2011-06-14 14:03:27 cvsbert Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -351,7 +351,6 @@ bool isNumberString( const char* str, bool int_only )
 
 void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 {
-
     if ( !str )
 	return;
 
@@ -365,6 +364,7 @@ void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 	    case ' ': case '\n' : case '\t':
 		    	if ( spaceallow )	dorepl = false;	break;
 	    case '.':	if ( dotallow )		dorepl = false;	break;
+	    case '+':	case '-':		dorepl = false;	break;
 	    default:						break;
 	    }
 	    if ( slashallow )
