@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.16 2011-06-15 10:12:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.17 2011-06-15 13:00:20 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -112,13 +112,10 @@ void uiAttribDescSetBuild::fillAvailable()
 	if ( !attrsetup_.showsteering_ && desc->isSteering() )
 	    continue;
 
-	availattrnms_.add( attrnm );
 	dispnms.add( uiAF().getDisplayName(idx) );
     }
 
-    int* idxs = dispnms.getSortIndexes();
-    dispnms.useIndexes( idxs );
-    availattrnms_.useIndexes( idxs );
+    dispnms.sort();
     setAvailable( dispnms );
 }
 
@@ -145,19 +142,11 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     Attrib::Desc& desc = *descset_.getDesc( did );
     uiSingleAttribEd dlg( this, desc, isadd );
     dlg.setDataPackSelection( dpfids_ );
-    if ( !dlg.go() )
-    {
-	if ( isadd )
-	    descset_.removeDesc( did );
-    }
-    else
-    {
-	const char* descnm = desc.userRef();
-	if ( isadd )
-	    addItem( descnm );
-	else
-	    setItemName( descnm );
-    }
+    if ( dlg.go() )
+	handleSuccessfullEdit( isadd, desc.userRef() );
+    else if ( isadd )
+	descset_.removeDesc( did );
+
 }
 
 

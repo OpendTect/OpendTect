@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.10 2011-06-15 10:12:46 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.11 2011-06-15 13:00:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ public:
 protected:
 
     Attrib::DescSet&	descset_;
-    BufferStringSet	availattrnms_;
     const Setup		attrsetup_;
     CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
