@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.15 2011-06-15 09:04:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.16 2011-06-15 10:12:46 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -45,24 +45,15 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
 
 uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
-    : uiBuildListFromList(p,uiBuildListFromList::Setup(false,"attribute",false),
-	    		  "DescSet build group")
+    : uiBuildListFromList(p,
+	    uiBuildListFromList::Setup(false,"attribute",true,false),
+	    "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))
 {
-    fillAvailable();
-
-    uiToolButton* openbut = new uiToolButton( this, "openset.png",
-		    "Open stored attribute set",
-		    mCB(this,uiAttribDescSetBuild,openReq) );
-    openbut->attach( alignedBelow, lowestStdBut() );
-    savebut_ = new uiToolButton( this, "save.png",
-		    "Save attribute set",
-		    mCB(this,uiAttribDescSetBuild,saveReq) );
-    savebut_->attach( alignedBelow, openbut );
-
     descset_.setCouldBeUsedInAnyDimension( true );
+    fillAvailable();
 }
 
 
@@ -74,13 +65,12 @@ uiAttribDescSetBuild::~uiAttribDescSetBuild()
 }
 
 
-void uiAttribDescSetBuild::defSelChg( CallBacker* cb )
+void uiAttribDescSetBuild::defSelChg()
 {
-    uiBuildListFromList::defSelChg( cb );
+    uiBuildListFromList::defSelChg();
 
     const char* attrnm = curDefSel();
     const bool havesel = attrnm && *attrnm;
-    savebut_->setSensitive( havesel );
     if ( !havesel ) return;
 
     const Attrib::DescID descid = descset_.getID( attrnm, true );
@@ -191,12 +181,19 @@ const char* uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 }
 
 
-void uiAttribDescSetBuild::openReq( CallBacker* )
+void uiAttribDescSetBuild::setDataPackInp( const TypeSet<DataPack::FullID>& ids)
 {
-    if ( usrchg_ && !uiMSG().askGoOn("Current work not saved. Continue?") )
-	return;
+    dpfids_ = ids;
+}
 
-    if ( doAttrSetIO(true) )
+
+bool uiAttribDescSetBuild::ioReq( bool forsave )
+{
+    bool res = doAttrSetIO( !forsave );
+    if ( !res )
+	return false;
+
+    if ( !forsave )
     {
 	const BufferString prevsel( curDefSel() );
 	removeAll();
@@ -212,18 +209,8 @@ void uiAttribDescSetBuild::openReq( CallBacker* )
 
 	setCurDefSel( prevsel.isEmpty() ? 0 : prevsel.buf() );
     }
-}
 
-
-void uiAttribDescSetBuild::saveReq( CallBacker* )
-{
-    doAttrSetIO( false );
-}
-
-
-void uiAttribDescSetBuild::setDataPackInp( const TypeSet<DataPack::FullID>& ids)
-{
-    dpfids_ = ids;
+    return true;
 }
 
 

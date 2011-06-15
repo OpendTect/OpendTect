@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.9 2011-06-15 09:04:16 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.10 2011-06-15 10:12:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,13 +57,11 @@ protected:
     void		fillAvailable();
     bool		doAttrSetIO(bool);
 
-    virtual void	defSelChg(CallBacker* cb=0);
+    virtual void	defSelChg();
     virtual void	editReq(bool);
     virtual void	removeReq();
+    virtual bool	ioReq(bool);
     virtual const char*	avFromDef(const char*) const;
-
-    void		openReq(CallBacker*);
-    void		saveReq(CallBacker*);
 
 };
 
