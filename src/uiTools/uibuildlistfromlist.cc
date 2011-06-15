@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.3 2011-06-15 10:12:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.4 2011-06-15 10:26:23 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
@@ -73,7 +73,12 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 
     if ( setup_.movable_ )
     {
-	//TODO implement move buttons and handling
+	moveupbut_ = new uiToolButton( this, uiToolButton::UpArrow,
+			"Move up", mCB(this,uiBuildListFromList,moveCB) );
+	moveupbut_->attach( alignedBelow, savebut_ ? savebut_ : rmbut_ );
+	movedownbut_ = new uiToolButton( this, uiToolButton::DownArrow,
+			"Move down", mCB(this,uiBuildListFromList,moveCB) );
+	movedownbut_->attach( alignedBelow, moveupbut_ );
     }
 
     setHAlignObj( deffld_ );
@@ -187,6 +192,24 @@ void uiBuildListFromList::saveCB( CallBacker* )
 {
     if ( ioReq(true) )
 	usrchg_ = false;
+}
+
+
+void uiBuildListFromList::moveCB( CallBacker* cb )
+{
+    const int sz = deffld_->size();
+    if ( sz < 2 ) return;
+
+    const int fromidx = deffld_->currentItem();
+    const int toidx = cb == movedownbut_ ? fromidx + 1 : fromidx - 1;
+    if ( toidx < 0 || toidx >= sz ) return;
+
+    const BufferString fromtxt( deffld_->textOfItem(fromidx) );
+    const BufferString totxt( deffld_->textOfItem(toidx) );
+    deffld_->setItemText( fromidx, totxt );
+    deffld_->setItemText( toidx, fromtxt );
+
+    itemSwitch( fromtxt, totxt );
 }
 
 

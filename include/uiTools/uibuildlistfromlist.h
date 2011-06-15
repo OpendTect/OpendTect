@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.3 2011-06-15 10:12:53 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.4 2011-06-15 10:26:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ protected:
     void		rmCB( CallBacker* )		{ removeReq(); }
     void		openCB(CallBacker*);
     void		saveCB(CallBacker*);
+    void		moveCB(CallBacker*);
 
     void		rmItm(int,bool);
 
