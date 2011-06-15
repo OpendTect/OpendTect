@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.23 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.24 2011-06-15 07:18:37 cvssatyaki Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.23 2011-04-21 13:09:13 cvs
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
 #include "uicalcpoly2horvol.h"
+#include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -28,7 +29,10 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.23 2011-04-21 13:09:13 cvs
 #include "uipickpartserv.h"
 #include "attribsel.h"
 #include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emhorizon3d.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "odplugin.h"
 
 
@@ -81,7 +85,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
     	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
     	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
-	, contourmnuitemhndlr_(mMkPars("Add &Contour Display",doContours),995)
+	, contourmnuitemhndlr_(mMkPars("Add &Contour Display..",doContours),995)
     	, horvolmnuitemhndlr_(mMkPars("Calculate &Volume ...",calcHorVol))
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
@@ -170,9 +174,47 @@ void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
 }
 
 
+mClass uiSelContourAttribDlg : public uiDialog
+{
+public:
+
+uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
+    : uiDialog(p,uiDialog::Setup("Select Attribute to contour","",""))
+{
+    const MultiID mid = EM::EMM().getMultiID( id );
+    PtrMan<IOObj> emioobj = IOM().get( mid );
+    EM::IOObjInfo eminfo( mid );
+    BufferStringSet attrnms;
+    attrnms.add( "ZValue" );
+    eminfo.getAttribNames( attrnms );
+    uiLabeledListBox* llb =
+	new uiLabeledListBox( this, attrnms, emioobj->name(), 
+			      false, uiLabeledListBox::AboveMid );
+    attrlb_ = llb->box();
+}
+
+const char* getAttribName() const
+{ return attrlb_->getText(); }
+
+uiListBox*	attrlb_;
+};
+
+
 void uiHorAttribPIMgr::doContours( CallBacker* cb )
 {
     const int displayid = contourmnuitemhndlr_.getDisplayID();
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
+    if ( !hd ) return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( !hor ) { uiMSG().error("Internal: cannot find horizon"); return; }
+
+    uiSelContourAttribDlg dlg( appl_, emobj->id() );
+    if ( !dlg.go() )
+	return;
+
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
     if ( !parent )
 	return;
@@ -185,7 +227,6 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 	    return;
     }
 
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
     {
 	uiMSG().error( "Cannot add extra attribute layers" );
@@ -198,7 +239,8 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
     visserv->setSelSpec( displayid, attrib, spec );
 
-    uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name());
+    uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name() );
+    newitem->setAttribName( dlg.getAttribName() );
     parent->addChild( newitem, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 }

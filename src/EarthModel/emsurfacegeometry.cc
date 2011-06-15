@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.53 2011-04-27 06:15:20 cvsraman Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.54 2011-06-15 07:18:37 cvssatyaki Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -1137,7 +1137,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
        						   int row ) const
 {
     const Geometry::RowColSurface* elem = sectionGeometry( sid );
-    return elem->colRange( row );
+    return row<0 ? elem->colRange() : elem->colRange( row );
 }
 
 

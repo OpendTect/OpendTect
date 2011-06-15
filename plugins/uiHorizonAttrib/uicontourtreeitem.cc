@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.17 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.18 2011-06-15 07:18:37 cvssatyaki Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.17 2011-04-08 12:37:10
 #include "attribsel.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
 #include "axislayout.h"
 #include "mousecursor.h"
@@ -23,14 +24,17 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.17 2011-04-08 12:37:10
 #include "survinfo.h"
 
 #include "uidialog.h"
+#include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistview.h"
 #include "uimsg.h"
+#include "uiprogressbar.h"
 #include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uisellinest.h"
+#include "uistatusbar.h"
 #include "uivispartserv.h"
 
 #include "viscoord.h"
@@ -47,7 +51,7 @@ static const int cMinNrNodesForLbl = 25;
 class uiContourParsDlg : public uiDialog
 {
 public:
-uiContourParsDlg( uiParent* p, const Interval<float>& rg,
+uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
        		  const StepInterval<float>& intv, const LineStyle& ls )
     : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,"104.3.2")
 		 .nrstatusflds(1))
@@ -55,12 +59,20 @@ uiContourParsDlg( uiParent* p, const Interval<float>& rg,
     , contourintv_(intv)
     , propertyChanged(this)
 {
-    BufferString lbltxt = "Total Z Range "; lbltxt += SI().getZUnitString();
+    BufferString zvalstr( "ZValue" );
+    BufferString lbltxt = "Total ";
+    lbltxt += attrnm;
+    lbltxt += " Range ";
+    if ( zvalstr == attrnm )
+	lbltxt += SI().getZUnitString();
     lbltxt += ": "; lbltxt += rg.start;
     lbltxt += " - "; lbltxt += rg.stop;
     uiLabel* lbl = new uiLabel( this, lbltxt.buf() );
 
-    lbltxt = "Contour range "; lbltxt += SI().getZUnitString();
+    lbltxt = "Contour range ";
+    if ( zvalstr == attrnm )
+	lbltxt += SI().getZUnitString();
+
     intvfld_ = new uiGenInput( this, lbltxt, FloatInpIntervalSpec(intv) );
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
@@ -165,10 +177,10 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , drawstyle_( 0 )
     , material_(0)
     , labelgrp_(0)
-    , linewidth_( 1 )
-    , arr_( 0 )
+    , linewidth_(1)
+    , arr_(0)
     , rg_(mUdf(float),-mUdf(float))
-    , zshift_( mUdf(float) )
+    , zshift_(mUdf(float))
 {
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
@@ -215,7 +227,7 @@ bool uiContourTreeItem::init()
 
 
 uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
-					       const char* parenttype )
+					     const char* parenttype )
 {
     BufferString defstr = as.defString();
     return defstr == sKeyContourDefString() ? new uiContourTreeItem(parenttype)
@@ -308,14 +320,12 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     menu->setIsHandled( true );
-    const float fac = SI().zFactor();
+    const float zfac = SI().zFactor();
     Interval<float> range( rg_.start, rg_.stop );
     range += Interval<float>( zshift_, zshift_ );
-    range.scale( fac );
     StepInterval<float> oldintv( contourintv_ );
     oldintv += Interval<float>( zshift_, zshift_ );
-    oldintv.scale( fac );
-    uiContourParsDlg dlg( ODMainWin(), range, oldintv,
+    uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
 	    		  LineStyle(LineStyle::Solid,linewidth_,color_) );
     dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
     const bool res = dlg.go();
@@ -325,10 +335,10 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
     StepInterval<float> newintv = dlg.getContourInterval();
     if ( newintv != oldintv )
     {
-	newintv.scale( 1/fac );
+	//newintv.scale( 1/fac );
 	newintv += Interval<float>( -zshift_, -zshift_ );
 	contourintv_ = newintv;
-	computeContours();
+	createContours();
     }
 }
 
@@ -346,7 +356,99 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
 }
 
 
-void uiContourTreeItem::computeContours()
+bool uiContourTreeItem::computeContours( const Array2D<float>& field,
+				       const StepInterval<int>& rowrg,
+				       const StepInterval<int>& colrg )
+{
+    if ( mIsUdf(rg_.start) )
+    {
+	for ( int idx=0; idx<field.info().getSize(0); idx++ )
+	{
+	    for ( int idy=0; idy<field.info().getSize(1); idy++ )
+	    {
+		const float val = field.get( idx, idy );
+		if ( !mIsUdf(val) ) rg_.include( val, false );
+	    }
+	}
+	
+	if ( mIsUdf(rg_.start) )
+	    return false;
+
+	AxisLayout al( rg_ );
+	SamplingData<float> sd = al.sd;
+	sd.step /= 5;
+	const float offset = ( sd.start - rg_.start ) / sd.step;
+	if ( offset < 0 || offset > 1 )
+	{
+	    const int nrsteps = mNINT( floor(offset) );
+	    sd.start -= nrsteps * sd.step;
+	}
+
+	contourintv_.start = sd.start;
+	contourintv_.stop = rg_.stop;
+	contourintv_.step = sd.step;
+	const int nrsteps = contourintv_.nrSteps();
+	contourintv_.stop = sd.start + nrsteps*sd.step;
+    }
+
+    if ( contourintv_.step <= 0 )
+	return false;
+
+    return true;
+}
+
+
+Array2D<float>* uiContourTreeItem::getDataSet( visSurvey::HorizonDisplay* hd )
+{
+    EM::ObjectID emid = hd->getObjectID();
+    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
+    if ( !hor ) return 0;
+
+    EM::SectionID sid = hor->sectionID( 0 );
+    
+    if ( attrnm_ == "ZValue" )
+    {
+	Array2D<float>* arr = hor->geometry().sectionGeometry(sid)->getArray();
+	if ( hd->getZAxisTransform() )
+	    arr = hor->createArray2D( sid, hd->getZAxisTransform() );
+	return arr;
+    }
+
+    const int dataid = applMgr()->EMServer()->loadAuxData( hor->id(), attrnm_ );
+    Array2D<float>* arr = hor->auxdata.createArray2D( dataid, sid );
+    return arr;
+}
+
+
+mClass uiContourProgressWin : public uiMainWin
+{
+public:
+
+uiContourProgressWin( uiParent* p, const int totalnr )
+    : uiMainWin(p,uiMainWin::Setup("Creating contours"))
+{
+    setPrefWidth( 100 );
+    setPrefHeight( 10 );
+    progbar_ = new uiProgressBar( this, "Contours", totalnr );
+    progbar_->attach( topBorder, 10 );
+    progbar_->setHSzPol( uiObject::WideMax );
+}
+
+void setProgress( int prog )
+{ progbar_->setProgress( prog ); }
+
+int progress() const
+{ return progbar_->progress(); }
+
+void setText( const char* txt )
+{ statusBar()->setLabelTxt( 0, txt ); } 
+
+uiProgressBar*		progbar_;
+
+};
+
+
+void uiContourTreeItem::createContours()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
@@ -369,51 +471,15 @@ void uiContourTreeItem::computeContours()
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
     if ( !hor ) return;
 
-    EM::SectionID sid = hor->sectionID( 0 );
-    Array2D<float>* field = hor->geometry().sectionGeometry(sid)->getArray();
-    if ( hd->getZAxisTransform() )
-	field = hor->createArray2D( sid, hd->getZAxisTransform() );
 
-    if ( !field )
+    Array2D<float>* field = getDataSet( hd );
+    
+    IsoContourTracer ictracer( *field );
+    ictracer.setSampling( rowrg, colrg );
+    if ( !computeContours(*field,rowrg,colrg) )
 	return;
 
     const float fac = SI().zFactor();
-    IsoContourTracer ictracer( *field );
-    ictracer.setSampling( hor->geometry().rowRange(sid),
-	    		  hor->geometry().colRange(sid) );
-    if ( mIsUdf(rg_.start) )
-    {
-	for ( int idx=0; idx<field->info().getSize(0); idx++ )
-	{
-	    for ( int idy=0; idy<field->info().getSize(1); idy++ )
-	    {
-		const float val = field->get( idx, idy );
-		if ( !mIsUdf(val) ) rg_.include( val, false );
-	    }
-	}
-	
-	if ( mIsUdf(rg_.start) )
-	    return;
-
-	AxisLayout al( rg_ );
-	SamplingData<float> sd = al.sd;
-	sd.step /= 5;
-	const float offset = ( sd.start - rg_.start ) / sd.step;
-	if ( offset < 0 || offset > 1 )
-	{
-	    const int nrsteps = mNINT( floor(offset) );
-	    sd.start -= nrsteps * sd.step;
-	}
-
-	contourintv_.start = sd.start;
-	contourintv_.stop = rg_.stop;
-	contourintv_.step = sd.step;
-	const int nrsteps = contourintv_.nrSteps();
-	contourintv_.stop = sd.start + nrsteps*sd.step;
-    }
-
-    if ( contourintv_.step <= 0 )
-	return;
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
     zshift_ = trans.z;
@@ -425,6 +491,10 @@ void uiContourTreeItem::computeContours()
     lines_->removeCoordIndexAfter( -1 );
     removeLabels();
     const float maxcontourval = mMIN(contourintv_.stop,rg_.stop);
+   
+    uiContourProgressWin progwin( ODMainWin(), contourintv_.nrSteps() );
+    progwin.show();
+
     while ( contourval < maxcontourval+mDefEps )
     {
 	ObjectSet<ODPolygon<float> > isocontours;
@@ -437,11 +507,14 @@ void uiContourTreeItem::computeContours()
 	    {
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		Coord vrtxcoord( vertex.x, vertex.y );
+		BinID vrtxbid( vertex.x, vertex.y );
+		const float zval = hor->getZ( vrtxbid );
 		vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-		const Coord3 pos( vrtxcoord, contourval+zshift_ );
+		const Coord3 pos( vrtxcoord, zval+zshift_ );
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
-		const float labelval = (contourval+zshift_) * fac;
+		const float labelval =
+		    attrnm_=="ZValue" ? (zval+zshift_) * fac : contourval;
 		if ( ic.size() > cMinNrNodesForLbl && vidx == ic.size()/2 )
 		    addText( pos, getStringFromFloat(fmt, labelval, buf) );
 	    }
@@ -456,9 +529,11 @@ void uiContourTreeItem::computeContours()
 	}
 
 	deepErase( isocontours );
+	progwin.setProgress( progwin.progress() + 1 );
 	contourval += contourintv_.step;
     }
 
+    progwin.close();
     lines_->getCoordinates()->removeAfter( cii-1 );
     lines_->removeCoordIndexAfter( cii-1 );
     if ( hd->getZAxisTransform() )
@@ -514,7 +589,7 @@ void uiContourTreeItem::updateColumnText( int col )
 {
     uiODDataTreeItem::updateColumnText( col );
     if ( !col && !lines_ )
-	computeContours();
+	createContours();
 
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hd,
@@ -531,7 +606,9 @@ void uiContourTreeItem::updateColumnText( int col )
 
 BufferString uiContourTreeItem::createDisplayName() const
 {
-    return BufferString( "Contours" );
+    BufferString nm( "Contours (" );
+    nm += attrnm_; nm += ")";
+    return nm;
 }
 
 

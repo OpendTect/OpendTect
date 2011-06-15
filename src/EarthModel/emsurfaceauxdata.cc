@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.30 2011-05-11 04:07:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.31 2011-06-15 07:18:37 cvssatyaki Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -331,7 +331,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 	return 0;
 
     const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
-    const StepInterval<int> colrg = horizon_.geometry().colRange( sid );
+    const StepInterval<int> colrg = horizon_.geometry().colRange( sid, -1 );
 
     PosID posid( horizon_.id(), sid );
     Array2DImpl<float>* arr =

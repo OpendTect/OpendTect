@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.7 2011-02-21 15:51:44 cvsjaap Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.8 2011-06-15 07:18:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,10 @@ class BinID;
 class visContourLabels;
 
 template <class T> class Array2DImpl;
+template <class T> class Array2D;
 
 namespace Attrib { class SelSpec; }
-namespace visSurvey { class SurveyObject; }
+namespace visSurvey { class SurveyObject; class HorizonDisplay; }
 namespace visBase
 {
     class DrawStyle;
@@ -44,6 +45,8 @@ public:
 
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			setupChangeCB(CallBacker*);
+    void			setAttribName( const char* attrnm )
+				{ attrnm_ = attrnm; }
 
     static const char*		sKeyContourDefString();
 
@@ -61,7 +64,11 @@ protected:
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 
-    void			computeContours();
+    void			createContours();
+    bool			computeContours(const Array2D<float>&,
+	    					const StepInterval<int>&,
+						const StepInterval<int>&);
+    Array2D<float>*		getDataSet(visSurvey::HorizonDisplay*);
     void			updateColumnText(int);
     void			createLines();
     void			addText(const Coord3&,const char*);
@@ -82,6 +89,7 @@ protected:
     int				linewidth_;
     MenuItem			optionsmenuitem_;
     float			zshift_;
+    BufferString		attrnm_;
 
     BufferString		createDisplayName() const;
 };
