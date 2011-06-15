@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.7 2011-06-13 06:05:55 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.8 2011-06-15 04:28:21 cvsumesh Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -120,7 +120,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	    return;
 
 	PosInfo::Line2DPos l2dpos;
-	const int dist = SI().crlDistance();
+	const float dist = SI().crlDistance();
 	if ( !line2d.getPos( crd,  l2dpos, dist*dist ) )
 	{
 	    BufferString msg( "Please pick trace on line:",
