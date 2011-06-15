@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.29 2011-06-09 10:54:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.30 2011-06-15 04:42:34 cvsumesh Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.29 2011-06-09 10:54:59 cv
 #include "filepath.h"
 #include "ioobj.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "posvecdataset.h"
 #include "separstr.h"
 #include "strmprov.h"
@@ -426,8 +427,18 @@ void uiODApplMgrDispatcher::updateSoftware()
 
     const char* reltype = ss[1];
 
-    //TODO now we know reltype and installation base directory
-    //TODO call installer and pass these things as parameter...
+    FilePath instfp( GetSoftwareDir(0) );
+    instfp.add( "bin" );
+    instfp.add( OD::Platform::local().shortName() ).add( "od_installer" );
+
+    BufferString cmd("@");
+    cmd.add( instfp.fullPath() );
+    cmd.add(" --instdir ").add("\"").add( pathonly ).add("\"");
+    cmd.add( " --reltype ").add( "\"").add( reltype ).add("\"");
+
+    StreamProvider strmprovinst( cmd );
+    if ( !strmprovinst.executeCommand(false) )
+	return;
 }
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
