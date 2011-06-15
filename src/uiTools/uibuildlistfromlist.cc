@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.1 2011-06-14 11:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.2 2011-06-15 09:03:52 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
@@ -90,9 +90,8 @@ void uiBuildListFromList::defSelChg( CallBacker* )
 }
 
 
-void uiBuildListFromList::removeItem()
+void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
 {
-    int itmidx = deffld_->currentItem();
     if ( itmidx < 0 ) return;
     if ( setup_.singleuse_ )
 	avfld_->insertItem( avFromDef(deffld_->textOfItem(itmidx)), 0 );
@@ -100,9 +99,30 @@ void uiBuildListFromList::removeItem()
     deffld_->removeItem( itmidx );
     usrchg_ = true;
 
+    if ( !dosignals )
+	return;
+
     itmidx--; if ( itmidx < 0 ) itmidx = 0;
     deffld_->setCurrentItem( itmidx );
     defSelChg( 0 ); // explicit because the UI selection hasn't changed
+}
+
+
+void uiBuildListFromList::removeItem()
+{
+    rmItm( deffld_->currentItem(), true );
+}
+
+void uiBuildListFromList::removeAll()
+{
+    while ( true )
+    {
+	const int sz = deffld_->size();
+	const bool islast = sz == 1;
+	rmItm( 0, islast );
+	if ( islast )
+	    break;
+    }
 }
 
 
@@ -139,6 +159,13 @@ uiToolButton* uiBuildListFromList::lowestStdBut()
 }
 
 
+const char* uiBuildListFromList::curAvSel() const
+{
+    const int itmidx = avfld_->currentItem();
+    return itmidx < 0 ? 0 : avfld_->textOfItem(itmidx);
+}
+
+
 const char* uiBuildListFromList::curDefSel() const
 {
     const int itmidx = deffld_->currentItem();
@@ -146,8 +173,7 @@ const char* uiBuildListFromList::curDefSel() const
 }
 
 
-const char* uiBuildListFromList::curAvSel() const
+void uiBuildListFromList::setCurDefSel( const char* nm )
 {
-    const int itmidx = avfld_->currentItem();
-    return itmidx < 0 ? 0 : avfld_->textOfItem(itmidx);
+    deffld_->setCurrentItem( nm );
 }
