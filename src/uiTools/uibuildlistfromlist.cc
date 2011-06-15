@@ -7,15 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.2 2011-06-15 09:03:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.3 2011-06-15 10:12:53 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
 #include "uitoolbutton.h"
+#include "uimsg.h"
 
 
-uiBuildListFromList::Setup::Setup( bool sing, const char* itmtp, bool mv )
+uiBuildListFromList::Setup::Setup( bool sing, const char* itmtp,
+				   bool wio, bool mv )
     : singleuse_(sing)
+    , withio_(wio)
     , movable_(mv)
     , itemtype_(itmtp)
 {
@@ -32,6 +35,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     : uiGroup(p,nm?nm:"List-from-list build group")
     , setup_(su)
     , usrchg_(false)
+    , savebut_(0)
     , movedownbut_(0)
 {
     BufferString curtxt( "Available " ); curtxt.add(setup_.itemtype_).add("s");
@@ -46,8 +50,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     deffld_ = new uiListBox( this, curtxt );
     deffld_->attach( rightTo, avfld_ );
     deffld_->attach( ensureRightOf, addbut );
-    deffld_->selectionChanged.notify(
-	    		mCB(this,uiBuildListFromList,defSelChg) );
+    deffld_->selectionChanged.notify( mCB(this,uiBuildListFromList,defSelCB) );
     deffld_->doubleClicked.notify( mCB(this,uiBuildListFromList,edCB) );
 
     edbut_ = new uiToolButton( this, "edit.png",
@@ -57,10 +60,24 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 		    setup_.rmtt_, mCB(this,uiBuildListFromList,rmCB) );
     rmbut_->attach( alignedBelow, edbut_ );
 
-    //TODO implement move buttons and handling
+    if ( setup_.withio_ )
+    {
+	uiToolButton* openbut = new uiToolButton( this, "openset.png",
+				"Open stored set",
+				mCB(this,uiBuildListFromList,openCB) );
+	openbut->attach( alignedBelow, rmbut_ );
+	savebut_ = new uiToolButton( this, "save.png", "Save set",
+		mCB(this,uiBuildListFromList,saveCB) );
+	savebut_->attach( alignedBelow, openbut );
+    }
+
+    if ( setup_.movable_ )
+    {
+	//TODO implement move buttons and handling
+    }
 
     setHAlignObj( deffld_ );
-    defSelChg(0);
+    defSelChg();
 }
 
 
@@ -71,7 +88,7 @@ void uiBuildListFromList::setAvailable( const BufferStringSet& avnms )
 }
 
 
-void uiBuildListFromList::defSelChg( CallBacker* )
+void uiBuildListFromList::defSelChg()
 {
     const int selidx = deffld_->currentItem();
     if ( !setup_.singleuse_ && selidx >= 0 )
@@ -80,6 +97,8 @@ void uiBuildListFromList::defSelChg( CallBacker* )
     const bool havesel = selidx >= 0;
     edbut_->setSensitive( havesel );
     rmbut_->setSensitive( havesel );
+    if ( savebut_ )
+	savebut_->setSensitive( havesel );
     if ( movedownbut_ )
     {
 	const int sz = deffld_->size();
@@ -92,7 +111,8 @@ void uiBuildListFromList::defSelChg( CallBacker* )
 
 void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
 {
-    if ( itmidx < 0 ) return;
+    if ( itmidx < 0 || itmidx >= deffld_->size() )
+	return;
     if ( setup_.singleuse_ )
 	avfld_->insertItem( avFromDef(deffld_->textOfItem(itmidx)), 0 );
 
@@ -104,7 +124,7 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
 
     itmidx--; if ( itmidx < 0 ) itmidx = 0;
     deffld_->setCurrentItem( itmidx );
-    defSelChg( 0 ); // explicit because the UI selection hasn't changed
+    defSelChg(); // explicit because the UI selection hasn't changed
 }
 
 
@@ -118,7 +138,7 @@ void uiBuildListFromList::removeAll()
     while ( true )
     {
 	const int sz = deffld_->size();
-	const bool islast = sz == 1;
+	const bool islast = sz < 2;
 	rmItm( 0, islast );
 	if ( islast )
 	    break;
@@ -153,9 +173,27 @@ void uiBuildListFromList::addItem( const char* itmnm )
 }
 
 
+void uiBuildListFromList::openCB( CallBacker* )
+{
+    if ( usrchg_ && !uiMSG().askGoOn("Current work not saved. Continue?") )
+	return;
+
+    if ( ioReq(false) )
+	usrchg_ = false;
+}
+
+
+void uiBuildListFromList::saveCB( CallBacker* )
+{
+    if ( ioReq(true) )
+	usrchg_ = false;
+}
+
+
+
 uiToolButton* uiBuildListFromList::lowestStdBut()
 {
-    return movedownbut_ ? movedownbut_ : rmbut_;
+    return movedownbut_ ? movedownbut_ : (savebut_ ? savebut_ : rmbut_);
 }
 
 

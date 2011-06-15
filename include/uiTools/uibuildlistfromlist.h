@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.2 2011-06-15 09:03:52 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.3 2011-06-15 10:12:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,11 @@ public:
     {
     public:
 			Setup(bool singleuseitems,const char* itemtypename,
-			      bool itemsmovable=false);
+			      bool with_io,bool itemsmovable);
 
 	mDefSetupMemb(bool,singleuse);
 	mDefSetupMemb(bool,movable);
+	mDefSetupMemb(bool,withio);
 	mDefSetupMemb(BufferString,itemtype);
 	mDefSetupMemb(BufferString,addtt);
 	mDefSetupMemb(BufferString,edtt);
@@ -72,6 +73,7 @@ protected:
     uiListBox*		deffld_;
     uiToolButton*	edbut_;
     uiToolButton*	rmbut_;
+    uiToolButton*	savebut_;
     uiToolButton*	moveupbut_;
     uiToolButton*	movedownbut_;
 
@@ -80,10 +82,12 @@ protected:
     const char*		curDefSel() const;		//!< null = no selection
     void		setCurDefSel(const char*);	//!< null = first
 
-    virtual void	editReq(bool isadd)				= 0;
-    virtual void	removeReq()					= 0;
-    virtual const char*	avFromDef(const char*) const			= 0;
+    virtual void	editReq(bool isadd)		= 0;
+    virtual void	removeReq()			= 0;
+    virtual const char*	avFromDef(const char*) const	= 0;
+    virtual bool	ioReq( bool forsave )		{ return false; }
     virtual void	itemSwitch(const char*,const char*) const	{}
+    virtual void	defSelChg();
 
     void		setAvailable(const BufferStringSet&); //!< at start
     void		removeItem(); 
@@ -93,10 +97,12 @@ protected:
 
     bool		isadd_;
 
-    virtual void	defSelChg(CallBacker*);
+    void		defSelCB( CallBacker* )		{ defSelChg(); }
     void		addCB( CallBacker* )		{ editReq( true ); }
     void		edCB( CallBacker* )		{ editReq( false ); }
     void		rmCB( CallBacker* )		{ removeReq(); }
+    void		openCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     void		rmItm(int,bool);
 
