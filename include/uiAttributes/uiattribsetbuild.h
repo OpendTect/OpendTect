@@ -7,23 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.8 2011-01-27 15:55:35 cvshelene Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.9 2011-06-15 09:04:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uigroup.h"
+#include "uibuildlistfromlist.h"
 #include "datapack.h"
-#include "bufstringset.h"
 
 class CtxtIOObj;
-class uiListBox;
-class uiToolButton;
-namespace Attrib { class Desc; class DescID; class DescSet; class EngineMan; }
+namespace Attrib { class DescSet; }
 
 
-mClass uiAttribDescSetBuild : public uiGroup
+mClass uiAttribDescSetBuild : public uiBuildListFromList
 {
 public:
 
@@ -44,7 +41,6 @@ public:
 			~uiAttribDescSetBuild();
 
     const Attrib::DescSet& descSet() const	{ return descset_; }
-    bool		haveUserChange() const	{ return usrchg_; }
 
     void		setDataPackInp(const TypeSet<DataPack::FullID>&);
 
@@ -52,26 +48,20 @@ protected:
 
     Attrib::DescSet&	descset_;
     BufferStringSet	availattrnms_;
-    const Setup		setup_;
-    bool		usrchg_;
+    const Setup		attrsetup_;
     CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
 
-    uiListBox*		availattrfld_;
-    uiListBox*		defattrfld_;
-    uiToolButton*	edbut_;
-    uiToolButton*	rmbut_;
     uiToolButton*	savebut_;
 
-    void		fillAvailAttrFld();
-    void		fillDefAttribFld();
-    bool		doAttrEd(Attrib::Desc& desc,bool);
+    void		fillAvailable();
     bool		doAttrSetIO(bool);
 
-    void		defSelChg(CallBacker* cb=0);
-    void		addReq(CallBacker*);
-    void		edReq(CallBacker*);
-    void		rmReq(CallBacker*);
+    virtual void	defSelChg(CallBacker* cb=0);
+    virtual void	editReq(bool);
+    virtual void	removeReq();
+    virtual const char*	avFromDef(const char*) const;
+
     void		openReq(CallBacker*);
     void		saveReq(CallBacker*);
 

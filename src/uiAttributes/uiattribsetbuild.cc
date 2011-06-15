@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.14 2011-02-16 08:40:11 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.15 2011-06-15 09:04:16 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
 #include "uiattribsingleedit.h"
 #include "uiioobjsel.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
@@ -46,45 +45,24 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
 
 uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
-    : uiGroup(p,"DescSet build group")
+    : uiBuildListFromList(p,uiBuildListFromList::Setup(false,"attribute",false),
+	    		  "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
-    , setup_(su)
-    , usrchg_(false)
+    , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))
 {
-    availattrfld_ = new uiListBox( this, "Available attributes" );
-    fillAvailAttrFld();
+    fillAvailable();
 
-    uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
-		    "Add attribute", mCB(this,uiAttribDescSetBuild,addReq) );
-    addbut->attach( centeredRightOf, availattrfld_ );
-
-    defattrfld_ = new uiListBox( this, "Defined attributes" );
-    defattrfld_->attach( rightTo, availattrfld_ );
-    defattrfld_->attach( ensureRightOf, addbut );
-    defattrfld_->selectionChanged.notify(
-	    		mCB(this,uiAttribDescSetBuild,defSelChg) );
-    defattrfld_->doubleClicked.notify( mCB(this,uiAttribDescSetBuild,edReq) );
-
-    edbut_ = new uiToolButton( this, "edit.png",
-		    "Edit attribute", mCB(this,uiAttribDescSetBuild,edReq) );
-    edbut_->attach( rightOf, defattrfld_ );
-    rmbut_ = new uiToolButton( this, "trashcan.png",
-		    "Remove attribute", mCB(this,uiAttribDescSetBuild,rmReq) );
-    rmbut_->attach( alignedBelow, edbut_ );
     uiToolButton* openbut = new uiToolButton( this, "openset.png",
 		    "Open stored attribute set",
 		    mCB(this,uiAttribDescSetBuild,openReq) );
-    openbut->attach( alignedBelow, rmbut_ );
+    openbut->attach( alignedBelow, lowestStdBut() );
     savebut_ = new uiToolButton( this, "save.png",
 		    "Save attribute set",
 		    mCB(this,uiAttribDescSetBuild,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
-    setHAlignObj( defattrfld_ );
-
     descset_.setCouldBeUsedInAnyDimension( true );
-    defSelChg();
 }
 
 
@@ -96,58 +74,52 @@ uiAttribDescSetBuild::~uiAttribDescSetBuild()
 }
 
 
-void uiAttribDescSetBuild::defSelChg( CallBacker* )
+void uiAttribDescSetBuild::defSelChg( CallBacker* cb )
 {
-    const int selidx = defattrfld_->currentItem();
-    const bool havesel = selidx >= 0;
-    const char* attrnm = havesel ? defattrfld_->textOfItem(selidx) : "";
-    const Attrib::DescID descid = descset_.getID( attrnm, true );
+    uiBuildListFromList::defSelChg( cb );
 
-    edbut_->setSensitive( havesel );
+    const char* attrnm = curDefSel();
+    const bool havesel = attrnm && *attrnm;
     savebut_->setSensitive( havesel );
-    rmbut_->setSensitive( havesel && !descset_.isAttribUsed(descid) );
+    if ( !havesel ) return;
 
-    if ( havesel )
-    {
-	const Attrib::Desc& desc = *descset_.getDesc( descid );
-	const int fldidx = availattrnms_.indexOf( desc.attribName() );
-	availattrfld_->setCurrentItem( fldidx );
-    }
+    const Attrib::DescID descid = descset_.getID( attrnm, true );
+    rmbut_->setSensitive( descid.isValid() && !descset_.isAttribUsed(descid) );
 }
 
 
-void uiAttribDescSetBuild::fillAvailAttrFld()
+void uiAttribDescSetBuild::fillAvailable()
 {
     BufferStringSet dispnms;
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	const uiAttrDescEd::DomainType domtyp
 	    	= (uiAttrDescEd::DomainType)uiAF().domainType(idx);
-	if ( !setup_.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
+	if ( !attrsetup_.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
 	    continue;
-	if ( !setup_.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
+	if ( !attrsetup_.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
 	    continue;
 	const uiAttrDescEd::DimensionType dimtyp
 	    	= (uiAttrDescEd::DimensionType)uiAF().dimensionType(idx);
-	if ( setup_.is2d_ && dimtyp == uiAttrDescEd::Only3D )
+	if ( attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only3D )
 	    continue;
-	if ( !setup_.is2d_ && dimtyp == uiAttrDescEd::Only2D )
+	if ( !attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only2D )
 	    continue;
 
 	const char* attrnm = uiAF().getAttribName( idx );
 	const Attrib::Desc* desc = Attrib::PF().getDesc( attrnm );
 	if ( !desc )
 	    { pErrMsg("attrib in uiAF() but not in PF()"); continue; }
-	if ( setup_.singletraceonly_
+	if ( attrsetup_.singletraceonly_
 			&& desc->locality()==Attrib::Desc::MultiTrace )
 	    continue;
-	if ( !setup_.showps_ && desc->isPS() )
+	if ( !attrsetup_.showps_ && desc->isPS() )
 	    continue;
-	if ( !setup_.showusingtrcpos_ && desc->usesTracePosition() )
+	if ( !attrsetup_.showusingtrcpos_ && desc->usesTracePosition() )
 	    continue;
-	if ( !setup_.showhidden_ && desc->isHidden() )
+	if ( !attrsetup_.showhidden_ && desc->isHidden() )
 	    continue;
-	if ( !setup_.showsteering_ && desc->isSteering() )
+	if ( !attrsetup_.showsteering_ && desc->isSteering() )
 	    continue;
 
 	availattrnms_.add( attrnm );
@@ -157,91 +129,65 @@ void uiAttribDescSetBuild::fillAvailAttrFld()
     int* idxs = dispnms.getSortIndexes();
     dispnms.useIndexes( idxs );
     availattrnms_.useIndexes( idxs );
-    availattrfld_->addItems( dispnms );
-    availattrfld_->doubleClicked.notify( mCB(this,uiAttribDescSetBuild,addReq));
+    setAvailable( dispnms );
 }
 
 
-void uiAttribDescSetBuild::fillDefAttribFld()
+void uiAttribDescSetBuild::editReq( bool isadd )
 {
-    const BufferString prevsel( defattrfld_->getText() );
-    defattrfld_->setEmpty();
+    const char* attrnm = isadd ? curAvSel() : curDefSel();
+    if ( !attrnm || !*attrnm ) return;
 
-    const int sz = descset_.size();
-    for ( int idx=0; idx<sz; idx++ )
+    Attrib::DescID did;
+    if ( !isadd )
+	did = descset_.getID( attrnm, true );
+    else
     {
-	const Attrib::Desc& desc = *descset_.desc( idx );
-	if ( !desc.isStored() && (!desc.isHidden() || setup_.showhidden_) )
-	    defattrfld_->addItem( desc.userRef() );
+	attrnm = uiAF().attrNameOf( attrnm );
+	Attrib::Desc* desc = PF().createDescCopy( attrnm );
+	if ( !desc ) { pErrMsg("Huh"); return; }
+	desc->setUserRef( "" );
+	desc->setDescSet( &descset_ );
+	descset_.addDesc( desc );
+	did = desc->id();
     }
 
-    if ( defattrfld_->isPresent(prevsel) )
-	defattrfld_->setCurrentItem( prevsel );
-    else if ( !defattrfld_->isEmpty() )
-	defattrfld_->setCurrentItem( 0 );
-}
-
-
-bool uiAttribDescSetBuild::doAttrEd( Attrib::Desc& desc, bool isnew )
-{
-    uiSingleAttribEd dlg( this, desc, isnew );
+    Attrib::Desc& desc = *descset_.getDesc( did );
+    uiSingleAttribEd dlg( this, desc, isadd );
     dlg.setDataPackSelection( dpfids_ );
     if ( !dlg.go() )
-	return false;
-
-    if ( dlg.anyChange() )
     {
-	fillDefAttribFld();
-	usrchg_ = true;
-	return true;
+	if ( isadd )
+	    descset_.removeDesc( did );
     }
-    return false;
+    else
+    {
+	const char* descnm = desc.userRef();
+	if ( isadd )
+	    addItem( descnm );
+	else
+	    setItemName( descnm );
+    }
 }
 
 
-void uiAttribDescSetBuild::addReq( CallBacker* )
+void uiAttribDescSetBuild::removeReq()
 {
-    const int selidx = availattrfld_->currentItem();
-    if ( selidx < 0 ) return;
-
-    const char* attrnm = availattrnms_.get( selidx );
-    Attrib::Desc* desc = PF().createDescCopy( attrnm );
-    desc->setUserRef( "" );
-    desc->setDescSet( &descset_ );
-    descset_.addDesc( desc );
-    const Attrib::DescID did = desc->id();
-
-    if ( !doAttrEd(*desc,true) )
-	descset_.removeDesc( did );
+    const char* attrnm = curDefSel();
+    if ( attrnm && *attrnm )
+    {
+	descset_.removeDesc( descset_.getID(attrnm,true) );
+	removeItem();
+    }
 }
 
 
-void uiAttribDescSetBuild::edReq( CallBacker* )
+const char* uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 {
-    const int selidx = defattrfld_->currentItem();
-    if ( selidx < 0 ) return;
-
-    const char* attrnm = defattrfld_->textOfItem( selidx );
-    const Attrib::DescID id = descset_.getID( attrnm, true );
-    doAttrEd( *descset_.getDesc(id), false );
-}
-
-
-void uiAttribDescSetBuild::rmReq( CallBacker* )
-{
-    const int selidx = defattrfld_->currentItem();
-    if ( selidx < 0 ) return;
-
-    const char* attrnm = defattrfld_->textOfItem( selidx );
-    descset_.removeDesc( descset_.getID(attrnm,true) );
-    usrchg_ = true;
-
-    int newselidx = selidx;
-    if ( newselidx >= defattrfld_->size()-1 )
-	newselidx--;
-    if ( newselidx >= 0 )
-	defattrfld_->setCurrentItem( newselidx );
-    fillDefAttribFld();
+    Attrib::DescID did( descset_.getID(attrnm,true) );
+    if ( !did.isValid() ) return 0;
+    const char* clssnm = descset_.getDesc(did)->attribName();
+    return uiAF().dispNameOf( clssnm );
 }
 
 
@@ -251,7 +197,21 @@ void uiAttribDescSetBuild::openReq( CallBacker* )
 	return;
 
     if ( doAttrSetIO(true) )
-	fillDefAttribFld();
+    {
+	const BufferString prevsel( curDefSel() );
+	removeAll();
+
+	const int sz = descset_.size();
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const Attrib::Desc& desc = *descset_.desc( idx );
+	    if (  !desc.isStored()
+	      && (!desc.isHidden() || attrsetup_.showhidden_) )
+		addItem( desc.userRef() );
+	}
+
+	setCurDefSel( prevsel.isEmpty() ? 0 : prevsel.buf() );
+    }
 }
 
 
