@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.4 2011-06-15 10:26:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.5 2011-06-15 13:00:43 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
@@ -127,8 +127,11 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
     if ( !dosignals )
 	return;
 
-    itmidx--; if ( itmidx < 0 ) itmidx = 0;
-    deffld_->setCurrentItem( itmidx );
+    if ( itmidx >= deffld_->size() )
+	itmidx = deffld_->size() - 1;
+    if ( itmidx >= 0 )
+	deffld_->setCurrentItem( itmidx );
+
     defSelChg(); // explicit because the UI selection hasn't changed
 }
 

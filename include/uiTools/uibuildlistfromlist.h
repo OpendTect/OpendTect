@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.4 2011-06-15 10:26:23 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.5 2011-06-15 13:00:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,11 +91,11 @@ protected:
 
     void		setAvailable(const BufferStringSet&); //!< at start
     void		removeItem(); 
+    void		removeAll(); 
     void		setItemName(const char*); 
     void		addItem(const char*); 
-    void		removeAll(); 
-
-    bool		isadd_;
+    void		handleSuccessfullEdit( bool isadd, const char* itmnm )
+			{ isadd ? addItem( itmnm ) : setItemName( itmnm ); }
 
     void		defSelCB( CallBacker* )		{ defSelChg(); }
     void		addCB( CallBacker* )		{ editReq( true ); }
