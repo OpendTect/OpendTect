@@ -7,29 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.2 2011-01-17 15:59:55 cvsbert Exp $
+ RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.3 2011-06-15 13:01:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
-#include "objectset.h"
-class PropertyRef;
-class uiListBox;
-class uiToolButton;
+#include "uibuildlistfromlist.h"
+#include "propertyref.h"
 class CtxtIOObj;
-namespace Strat
-{
-    class RefTree;
-    class LayerModel;
-    class LaySeqAttrib;
-    class LaySeqAttribSet;
-}
+namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
 
 /*!\brief allows user to define (or read) a set of layer sequence attributes */
 
-mClass uiStratLaySeqAttribSetBuild : public uiGroup
+mClass uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
     			uiStratLaySeqAttribSetBuild(uiParent*,
@@ -37,34 +28,19 @@ public:
     			~uiStratLaySeqAttribSetBuild();
 
     const Strat::LaySeqAttribSet& attribSet() const	{ return attrset_; }
-    bool		haveUserChange()		{ return usrchg_; }
+    const PropertyRefSelection&	  propertyRefs() const	{ return props_; }
 
 protected:
 
     Strat::LaySeqAttribSet&	attrset_;
     const Strat::RefTree&	reftree_;
-    bool			usrchg_;
-    ObjectSet<const PropertyRef> props_;
+    PropertyRefSelection	props_;
     CtxtIOObj&			ctio_;
 
-    uiListBox*		propfld_;
-    uiListBox*		attrfld_;
-    uiToolButton*	edbut_;
-    uiToolButton*	rmbut_;
-    uiToolButton*	savebut_;
-
-    void		fillPropFld(const Strat::LayerModel&);
-    void		fillAttrFld();
-    bool		doAttrEd(Strat::LaySeqAttrib&,bool);
-    bool		doSetIO(bool);
-    void		updButStates();
-
-    void		attrSelChg(CallBacker*);
-    void		addReq(CallBacker*);
-    void		edReq(CallBacker*);
-    void		rmReq(CallBacker*);
-    void		openReq(CallBacker*);
-    void		saveReq(CallBacker*);
+    virtual void	editReq(bool);
+    virtual void	removeReq();
+    virtual bool	ioReq(bool);
+    virtual const char*	avFromDef(const char*) const;
 
 };
 
