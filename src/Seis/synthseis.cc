@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.26 2011-05-26 15:43:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.27 2011-06-16 09:34:38 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -495,10 +495,9 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
 
 #define mGet( inpset, outpset, steal )\
 {\
+    outpset.copy( inpset );\
     if ( steal )\
-	{ outpset.append( inpset ); inpset.erase(); }\
-    else\
-	{ deepCopy( outpset, inpset ); }\
+	inpset.erase();\
 }
 
 void RaySynthGenerator::RayModel::getTraces( 
