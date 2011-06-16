@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.39 2011-06-16 09:25:35 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.40 2011-06-16 15:07:13 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -79,6 +79,19 @@ const PropertyRef& PropertyRef::undef()
 }
 
 
+PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
+{
+    NamedObject::operator =( pr );
+    if ( this != &pr )
+    {
+	stdtype_ = pr.stdtype_;
+	aliases_ = pr.aliases_;
+	disp_ = pr.disp_;
+    }
+    return *this;
+}
+
+
 PropertyRef::StdType PropertyRef::surveyZType()
 {
     return SI().zIsTime() ? Time : Dist;
@@ -131,7 +144,6 @@ void PropertyRef::usePar( const IOPar& iop )
     }
 
     iop.get( sKey::Color, disp_.color_ );
-    iop.getYN( sKeyIsLog, disp_.logarithmic_ );
 }
 
 
@@ -154,10 +166,6 @@ void PropertyRef::fillPar( IOPar& iop ) const
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
     iop.set( sKey::Range, fms );
-    if ( disp_.logarithmic_ )
-	iop.setYN( sKeyIsLog, true );
-    else
-	iop.removeWithKey( sKeyIsLog );
 }
 
 
@@ -216,6 +224,17 @@ const PropertyRefSet& PROPS()
     return *rsm.prs_;
 }
 
+
+
+PropertyRefSet& PropertyRefSet::operator =( const PropertyRefSet& prs )
+{
+    if ( this != &prs )
+    {
+	for ( int idx=0; idx<prs.size(); idx++ )
+	    *this += new PropertyRef( *prs[idx] );
+    }
+    return *this;
+}
 
 int PropertyRefSet::indexOf( const char* nm ) const
 {

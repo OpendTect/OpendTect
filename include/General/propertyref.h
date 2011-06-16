@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.8 2011-06-16 09:25:35 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.9 2011-06-16 15:07:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,9 @@ public:
 			PropertyRef( const char* nm, StdType t=Other )
 			: NamedObject(nm)
 			, stdtype_(t)			{}
+			PropertyRef( const PropertyRef& pr )
+			{ *this = pr; }
+    PropertyRef&	operator =(const PropertyRef&);
     inline bool		operator ==( const PropertyRef& pr ) const
 			{ return name() == pr.name(); }
     inline bool		operator !=( const PropertyRef& pr ) const
@@ -73,13 +76,11 @@ public:
     {
 			DispDefs()
 			: color_(Color::Black())
-			, range_(mUdf(float),mUdf(float))
-			, logarithmic_(false)		{}
+			, range_(mUdf(float),mUdf(float))	{}
 
 	Color		color_;
 	Interval<float>	range_;		//!< Internal units
 	BufferString	unit_;
-	bool		logarithmic_;
 
 	float		possibleValue() const;
     };
@@ -100,8 +101,12 @@ protected:
 mClass PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
+
     			PropertyRefSet()		{}
+    			PropertyRefSet( const PropertyRefSet& prs )
+							{ *this = prs; }
 			~PropertyRefSet()		{ deepErase(*this); }
+    PropertyRefSet&	operator =(const PropertyRefSet&);
 
     inline bool		isPresent( const char* nm ) const
      			{ return indexOf(nm) >= 0; }
