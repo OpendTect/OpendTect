@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.6 2011-06-16 06:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.7 2011-06-16 09:27:00 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -72,12 +72,7 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 	attr = attrset_.attr( nm );
     else
     {
-	const PropertyRef* prop = 0;
-	for ( int idx=0; idx<props_.size(); idx++ )
-	{
-	    if ( props_[idx]->isKnownAs( nm ) )
-		{ prop = props_[idx]; break; }
-	}
+	const PropertyRef* prop = props_.get( nm );
 	if ( !prop ) return;
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
 	attrset_ += attr;
