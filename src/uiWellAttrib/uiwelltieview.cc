@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.85 2011-06-06 13:58:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.86 2011-06-16 15:13:10 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -216,8 +216,6 @@ void uiTieView::setDataPack()
 	dp->trcBufArr2D().setBufMine( false );
 	StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
 	dp->posData().setRange( true, xrange );
-	StepInterval<double> zrg(zrange_.start,zrange_.stop,zrange_.step);
-	dp->posData().setRange( false, zrg );
 	dp->setName( data_.seismic() );
 	DPM(DataPackMgr::FlatID()).add( dp );
 	vwr_->setPack( true, dp->id(), false, false );
