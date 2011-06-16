@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.21 2009-11-13 03:33:27 cvsnanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.22 2011-06-16 12:27:57 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ public:
     void			setMaxCubeSampling(const CubeSampling&);
     void			enableApplyButton(bool);
     void			enableScrollButton(bool);
+    void			fillPar(IOPar&);
+    void			usePar(const IOPar&);
 
     bool			acceptOK();
 

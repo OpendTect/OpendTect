@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.58 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.59 2011-06-16 12:27:58 cvsnageswara Exp $";
 
 #include "uislicesel.h"
 
@@ -505,7 +505,81 @@ void uiSliceSel::enableScrollButton( bool yn )
 }
 
 
+void uiSliceSel::fillPar( IOPar& iop )
+{
+    CubeSampling cs;
+    if ( isinl_ || is2d_ )
+    {
+	Interval<int> inlrg;
+	if ( !is2d_ )
+	{
+	    inlrg.start = inl0fld_->box()->getValue();
+	    inlrg.stop = inl0fld_->box()->getValue();
+	}
 
+	cs.hrg.setInlRange( inlrg );
+	Interval<int> crlrg( crl0fld_->box()->getValue(),
+			     crl1fld_->getValue() );
+	cs.hrg.setCrlRange( crlrg );
+    }
+
+    if ( iscrl_ )
+    {
+	Interval<int> crlrg( crl0fld_->box()->getValue(),
+			     crl0fld_->box()->getValue() );
+	cs.hrg.setCrlRange( crlrg );
+	Interval<int> inlrg( inl0fld_->box()->getValue(),
+			     inl1fld_->getValue() );
+	cs.hrg.setInlRange( inlrg );
+    }
+
+    if ( !istsl_ )
+    {
+	cs.zrg.start = z0fld_->box()->getValue();
+	cs.zrg.stop = z1fld_->getValue();
+    }
+
+    cs.fillPar( iop );
+}
+
+
+void uiSliceSel::usePar( const IOPar& par )
+{
+    if ( isinl_ || is2d_ )
+    {
+	if ( !is2d_ )
+	{
+	    int inlnr; par.get( sKey::FirstInl, inlnr );
+	    inl0fld_->box()->setValue( inlnr );
+	}
+
+	int crl0; par.get( sKey::FirstCrl, crl0 );
+	crl0fld_->box()->setValue( crl0 );
+	int crl1; par.get( sKey::LastCrl, crl1 );
+	crl1fld_->setValue( crl1 );
+    }
+
+    if ( iscrl_ )
+    {
+	int crlnr; par.get( sKey::FirstCrl, crlnr );
+	crl0fld_->box()->setValue( crlnr );
+	int inl0; par.get( sKey::FirstInl, inl0 );
+	inl0fld_->box()->setValue( inl0 );
+	int inl1; par.get( sKey::LastInl, inl1 );
+	inl1fld_->setValue( inl1 );
+    }
+
+    if ( !istsl_ )
+    {
+	StepInterval<float> zrg;
+	par.get( sKey::ZRange, zrg ); 
+	z0fld_->box()->setValue( zrg.start );
+	z1fld_->setValue( zrg.stop );
+    }
+}
+
+
+//uiSliceSelDlg
 uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 			const CubeSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
