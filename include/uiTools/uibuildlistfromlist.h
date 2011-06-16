@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.5 2011-06-15 13:00:43 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.6 2011-06-16 06:42:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,23 +20,29 @@ class uiListBox;
 class uiToolButton;
 
 /*!\brief Base class for element allowing the building of lists of items
-          from available items.
+          from available 'ingredients'.
 
  Let's say you want to make a list of persons. These can be male or female, and
  dep on the gender you want to be able to define different properties.
 
- uiBuildListFromList::Setup su( false, "person", true );
+ uiBuildListFromList::Setup( true, "person" )
+ 	.withtitles(true).avtitle("gender");
 
+ The list of 'available' items is simply "male" and "female".
  Once you create e.g. a female, the option 'female' itself should stay in the
- 'available' list. So, singleuseitems is false. Here, the order of the defined
- items is important so we set 'itemsmovable' to true. The constructor will now
- set default tooltips for add, edit and remove button like "Add person".
+ available list. Thus singleuse must remain false. The order of the defined
+ items is not important so we choose 'movable' = true.
+ The constructor will now generate default tooltips and titles,
+ like "Add person".
 
  Required:
  * Both sets of names cannot have double entries.
- * You only get requests for add, edit and remove. You have to manage
-   underlying objects yourself. Moreover, you have to use 'removeItem' and
-   'addItem' to keep the display in sync.
+ * You only get requests for edit and remove. You have to manage
+   underlying objects yourself. Moreover, you have to use functions like
+   'removeItem' and 'handleSuccessfullEdit' to keep the display in sync with
+   the actual set that is being built.
+ * You must define the avFromDef() function. It should return the 'available'
+   item that belongs to a 'defined' item name.
 
   */
 
@@ -47,14 +53,18 @@ public:
     mClass Setup
     {
     public:
-			Setup(bool singleuseitems,const char* itemtypename,
-			      bool with_io,bool itemsmovable);
+			Setup(bool itemsmovable,const char* avitmtyp,
+				const char* defitmtyp);
 
-	mDefSetupMemb(bool,singleuse);
 	mDefSetupMemb(bool,movable);
-	mDefSetupMemb(bool,withio);
-	mDefSetupMemb(BufferString,itemtype);
-	mDefSetupMemb(BufferString,addtt);
+	mDefSetupMemb(bool,withio);		// default: true
+	mDefSetupMemb(bool,withtitles);		// default: false
+	mDefSetupMemb(bool,singleuse);		// default: false
+	mDefSetupMemb(BufferString,avitemtype);
+	mDefSetupMemb(BufferString,defitemtype);
+	mDefSetupMemb(BufferString,avtitle);	// titles
+	mDefSetupMemb(BufferString,deftitle);
+	mDefSetupMemb(BufferString,addtt);	// tooltips
 	mDefSetupMemb(BufferString,edtt);
 	mDefSetupMemb(BufferString,rmtt);
 

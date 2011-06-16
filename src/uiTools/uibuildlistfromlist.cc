@@ -7,26 +7,47 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.5 2011-06-15 13:00:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuildlistfromlist.cc,v 1.6 2011-06-16 06:42:58 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
 #include "uitoolbutton.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
 
-uiBuildListFromList::Setup::Setup( bool sing, const char* itmtp,
-				   bool wio, bool mv )
-    : singleuse_(sing)
-    , withio_(wio)
-    , movable_(mv)
-    , itemtype_(itmtp)
+static void chckYPlural( BufferString& str )
 {
-    if ( itemtype_.isEmpty() )
-	itemtype_ = "item";
-    addtt_.add( "Add " ).add( itemtype_ );
-    edtt_.add( "Edit " ).add( itemtype_ );
-    rmtt_.add( "Remove " ).add( itemtype_ );
+    const int len = str.size();
+    if ( len < 3 ) return;
+    char* ptr = str.buf() + len - 2;
+    if ( *ptr == 'y' )
+    {
+	*ptr = '\0';
+	str += "ies";
+    }
+}
+
+
+uiBuildListFromList::Setup::Setup( bool mv, const char* avitmtp,
+				   const char* defitmtp )
+    : movable_(mv)
+    , avitemtype_(avitmtp)
+    , defitemtype_(defitmtp)
+    , withio_(true)
+    , singleuse_(false)
+    , withtitles_(false)
+{
+    if ( avitemtype_.isEmpty() )
+	avitemtype_ = "ingredient";
+    if ( defitemtype_.isEmpty() )
+	defitemtype_ = "definition";
+    addtt_.add( "Add " ).add( defitemtype_ );
+    edtt_.add( "Edit " ).add( defitemtype_ );
+    rmtt_.add( "Remove " ).add( defitemtype_ );
+    avtitle_.add( "Available " ).add( avitemtype_ ).add( "s" );
+    deftitle_.add( "Defined " ).add( defitemtype_ ).add( "s" );
+    chckYPlural( avtitle_ ); chckYPlural( deftitle_ );
 }
 
 
@@ -38,20 +59,28 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     , savebut_(0)
     , movedownbut_(0)
 {
-    BufferString curtxt( "Available " ); curtxt.add(setup_.itemtype_).add("s");
-    avfld_ = new uiListBox( this, curtxt );
+    avfld_ = new uiListBox( this, setup_.avtitle_ );
     avfld_->doubleClicked.notify( mCB(this,uiBuildListFromList,addCB) );
+    if ( setup_.withtitles_ && !setup_.avtitle_.isEmpty() )
+    {
+	uiLabel* lbl = new uiLabel( this, setup_.avtitle_ );
+	lbl->attach( centeredAbove, avfld_ );
+    }
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
 		    setup_.addtt_, mCB(this,uiBuildListFromList,addCB) );
     addbut->attach( centeredRightOf, avfld_ );
 
-    curtxt = "Defined "; curtxt.add(setup_.itemtype_).add("s");
-    deffld_ = new uiListBox( this, curtxt );
+    deffld_ = new uiListBox( this, setup_.deftitle_ );
     deffld_->attach( rightTo, avfld_ );
     deffld_->attach( ensureRightOf, addbut );
     deffld_->selectionChanged.notify( mCB(this,uiBuildListFromList,defSelCB) );
     deffld_->doubleClicked.notify( mCB(this,uiBuildListFromList,edCB) );
+    if ( setup_.withtitles_ && !setup_.deftitle_.isEmpty() )
+    {
+	uiLabel* lbl = new uiLabel( this, setup_.deftitle_ );
+	lbl->attach( centeredAbove, deffld_ );
+    }
 
     edbut_ = new uiToolButton( this, "edit.png",
 		    setup_.edtt_, mCB(this,uiBuildListFromList,edCB) );
