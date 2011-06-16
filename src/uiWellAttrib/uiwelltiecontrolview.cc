@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.33 2011-05-12 08:58:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.34 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -30,6 +30,8 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.33 2011-05-12 08:58
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
 
+
+static const char* sKeyZoom = "Viewer Zoom";
 
 namespace WellTie
 {
@@ -284,5 +286,25 @@ void uiControlView::loadHorizons( CallBacker* )
     redrawNeeded.trigger();
 }
 
+
+void uiControlView::fillPar( IOPar& iop ) const
+{
+    iop.set( sKeyZoom, Interval<double>( curview_.top(), curview_.bottom() ) );
+}
+
+
+void uiControlView::usePar( const IOPar& iop ) 
+{
+    Interval<double> zrg; 
+    iop.get( sKeyZoom, zrg );
+    curview_.setTopBottom( zrg );
+    setSelView( false, false );
+}
+
+void uiControlView::applyProperties(CallBacker*)
+{
+    uiFlatViewControl::applyProperties(0);
+    setSelView( true, true );
+}
 
 }; //namespace 

@@ -30,6 +30,7 @@ namespace Well	 { class Data; }
 
 namespace WellTie
 {
+    class Data;
     class DispParams;
     class Setup;
     class Server;
@@ -48,6 +49,9 @@ public:
 				~uiTieWin();
 
     const WellTie::Setup&	Setup()		{ return setup_; }
+
+    void			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
 	
 protected:
 
@@ -131,6 +135,9 @@ public:
     bool 			getMarkerDepths(Interval<float>& zrg );
     void 			propChanged(CallBacker*);
 
+    void			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
+
 protected:
    
     BufferStringSet             markernames_;
@@ -145,8 +152,13 @@ protected:
 
     Interval<float>		zrg_;
     int				estwvltsz_;
+    int				selidx_;
 
+    const Data& 		data_;
+
+    void			putToScreen();
     void    			computeData();
+
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);
 };

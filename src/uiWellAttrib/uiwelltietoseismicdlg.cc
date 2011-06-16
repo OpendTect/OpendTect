@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.88 2011-05-16 09:28:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.89 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.88 2011-05-16 09:2
 #include "uiseparator.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
+#include "uitaskrunner.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
@@ -70,6 +71,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
+    server_.setTaskRunner( new uiTaskRunner( p ) );
     
     mGetWD(return) 
     BufferString title( "Tie ");
@@ -98,6 +100,19 @@ void uiTieWin::initAll()
     show();
     dispPropChg( 0 );
 }
+
+
+void uiTieWin::fillPar( IOPar& par ) const
+{
+    controlview_->fillPar( par );
+}
+
+
+void uiTieWin::usePar( const IOPar& par )
+{
+    controlview_->usePar( par );
+}
+
 
 void uiTieWin::displayUserMsg( CallBacker* )
 {
@@ -488,15 +503,19 @@ void uiTieWin::dispInfoMsg( CallBacker* cb )
 }
 
 
-
+static const char* sKeyInfoIsInitWvltActive = "Is init wavelet active";
+static const char* sKeyInfoSelBoxIndex = "Selected index";
+static const char* sKeyInfoSelZrange = "Selected Z Range";
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     "107.4.2").modal(false))
 	, server_(server)
+	, selidx_(0)			 
       	, crosscorr_(0)	       
 	, wvltdraw_(0)
 	, redrawNeeded(this)
+	, data_(server_.data())
 {
     setCtrlStyle( LeaveOnly );
     
@@ -504,22 +523,20 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
 
-    const Data& data = server_.data();
     ObjectSet<Wavelet> wvlts; 
-    wvlts += &data.initwvlt_; 
-    wvlts += &data.estimatedwvlt_;
+    wvlts += &data_.initwvlt_; 
+    wvlts += &data_.estimatedwvlt_;
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
     estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
-    estwvltlengthfld_->setValue( wvlts[0]->samplePositions().width()*1000 );
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp,"Verical", false );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );
-    crosscorr_ = new uiCrossCorrView( corrgrp, server.data() );
+    crosscorr_ = new uiCrossCorrView( corrgrp, data_ );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );
@@ -561,6 +578,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	zlabelflds_ += new uiLabel( markergrp, units[idx] );
 	zlabelflds_[idx]->attach( rightOf, zrangeflds_[idx] );
     }
+    putToScreen();
     finaliseDone.notify( mCB(this,uiInfoDlg,propChanged) );
 }
 
@@ -569,6 +587,15 @@ uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
     delete wvltdraw_;
+}
+
+
+void uiInfoDlg::putToScreen()
+{
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
+						 : data_.estimatedwvlt_;
+    estwvltlengthfld_->setValue( wvlt.samplePositions().width()*1000 );
+    zrangeflds_[selidx_]->setValue( zrg_ );
 }
 
 
@@ -593,27 +620,49 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     return true;
 }
 
+
+void uiInfoDlg::fillPar( IOPar& par ) const
+{
+    par.setYN( sKeyInfoIsInitWvltActive, data_.isinitwvltactive_ );
+    par.set( sKeyInfoSelBoxIndex, selidx_ );
+    par.set( sKeyInfoSelZrange, zrg_ );
+}
+
+
+void uiInfoDlg::usePar( const IOPar& par ) 
+{
+    bool isinitwvltactive;
+    par.getYN( sKeyInfoIsInitWvltActive, isinitwvltactive );
+    par.get( sKeyInfoSelBoxIndex, selidx_ );
+    par.get( sKeyInfoSelZrange, zrg_ );
+
+    server_.setInitWvltActive( isinitwvltactive );
+    putToScreen();
+    propChanged(0);
+}
+
+
 #define d2T( zval, time ) time ? d2t->getTime( zval ) : d2t->getDah( zval ); 
 #define d2TI( zrg, time )\
     { zrg.start = d2T( zrg.start, time ); zrg.stop = d2T( zrg.stop, time ) }
 void uiInfoDlg::propChanged( CallBacker* )
 {
     mGetWD(return)
-    const int selidx = choicefld_->getIntValue();
-    zrg_ = zrangeflds_[selidx]->getFInterval();
-    if ( !selidx ) getMarkerDepths( zrg_ );
+    selidx_ = choicefld_->getIntValue();
+    zrg_ = zrangeflds_[selidx_]->getFInterval();
+    if ( !selidx_ ) getMarkerDepths( zrg_ );
 
     for ( int idx=0; idx<zrangeflds_.size(); idx++ )
     {
-	zrangeflds_[idx]->display( idx == selidx );
-	zlabelflds_[idx]->display( idx == selidx );
+	zrangeflds_[idx]->display( idx == selidx_ );
+	zlabelflds_[idx]->display( idx == selidx_ );
     }
     const Well::D2TModel* d2t = wd->d2TModel();
-    if ( !selidx )
+    if ( !selidx_ )
 	zrangeflds_[2]->setValue( zrg_ );
-    else if ( selidx == 1 )
+    else if ( selidx_ == 1 )
     	{ d2TI( zrg_, false ); zrangeflds_[2]->setValue( zrg_ ); }
-    if ( !selidx || selidx == 2 )
+    if ( !selidx_ || selidx_ == 2 )
     	{ d2TI( zrg_, true ); zrangeflds_[1]->setValue( zrg_ );  }
 
     const double wvltlgth = (double)estwvltlengthfld_->getIntValue()/1000;
@@ -630,10 +679,9 @@ void uiInfoDlg::propChanged( CallBacker* )
 #define mLag 200
 void uiInfoDlg::computeData()
 {
-    const Data& data = server_.data();
-    const int trcsz = data.seistrc_.size();
-    const Wavelet& wvlt = data.isinitwvltactive_ ? data.initwvlt_
-						 : data.estimatedwvlt_;
+    const int trcsz = data_.seistrc_.size();
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
+						 : data_.estimatedwvlt_;
     if ( !wvlt.sampleRate() ) return;
     int nrsamps = (int)(zrg_.width()/wvlt.sampleRate());
 
@@ -646,8 +694,8 @@ void uiInfoDlg::computeData()
 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data.seistrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
-	seisarr[idx] = data.synthtrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
+	syntharr[idx] = data_.seistrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
+	seisarr[idx] = data_.synthtrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
     }
     GeoCalculator gc;
     double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
@@ -655,15 +703,15 @@ void uiInfoDlg::computeData()
     crosscorr_->set( corrarr, nrsamps, mLag, coeff );
     delete [] corrarr; 
 
-    if ( data.isinitwvltactive_ )
+    if ( data_.isinitwvltactive_ )
     {
 	int wvltsz = estwvltsz_;
 	wvltsz += wvltsz%2 ? 0 : 1;
-	data.estimatedwvlt_.reSize( wvltsz );
+	data_.estimatedwvlt_.reSize( wvltsz );
 	if ( trcsz < wvltsz )
 	    { uiMSG().error( "Seismic trace shorter than wavelet" ); return; }
 
-	const Well::Log* log = data.logset_.getLog( data.reflectivity() );
+	const Well::Log* log = data_.logset_.getLog( data_.reflectivity() );
 	if ( !log )
 	    { uiMSG().error( "No reflectivity to estimate wavelet" ); return; }
 
@@ -679,10 +727,10 @@ void uiInfoDlg::computeData()
 	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
 
 	Array1DImpl<float> wvltvals( wvltsz );
-	memcpy( wvltvals.getData(), wvltarr, wvltsz*sizeof(float) );
+	memcpy( wvltvals.getData(), wvltshiftedarr, wvltsz*sizeof(float) );
 	ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
 	window.apply( &wvltvals );
-	memcpy( wvltarr, wvltvals.getData(), wvltsz*sizeof(float) );
+	memcpy( wvltshiftedarr, wvltvals.getData(), wvltsz*sizeof(float) );
 
 	server_.setEstimatedWvlt( wvltshiftedarr, wvltsz );
 

@@ -36,6 +36,9 @@ public:
     void 		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 
+    void		usePar(const IOPar& iop);
+    void		fillPar(IOPar& iop) const; 
+
     Notifier<uiControlView> redrawNeeded;
     
 protected:
@@ -56,6 +59,7 @@ protected:
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
+    void                applyProperties(CallBacker*);
     void 		keyPressCB(CallBacker*);
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);

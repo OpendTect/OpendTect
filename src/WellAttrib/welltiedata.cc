@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.50 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.51 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -38,8 +38,46 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.50 2011-05-02 14:25:45 cvsbr
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
+static const char* sKeyIsCheckShotDisp = "Display Check-Shot";
+static const char* sKeyIsMarkerDisp = "Display Markers on Well Display";
+static const char* sKeyVwrMarkerDisp = "Display Markers on 2D Viewer";
+static const char* sKeyVwrHorizonDisp = "Display Horizon on 2D Viewer";
+static const char* sKeyZInFeet	= "Z in Feet";
+static const char* sKeyZInTime	= "Z in Time";
+static const char* sKeyMarkerFullName	= "Dilplay markers full name";
+static const char* sKeyHorizonFullName	= "Dilplay horizon full name";
+
+
 namespace WellTie
 {
+
+
+void DispParams::fillPar( IOPar& iop ) const 
+{
+    iop.setYN( sKeyIsCheckShotDisp, iscsdisp_ );
+    iop.setYN( sKeyIsMarkerDisp, ismarkerdisp_ );
+    iop.setYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
+    iop.setYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
+    iop.setYN( sKeyZInFeet, iszinft_ );
+    iop.setYN( sKeyZInTime, iszintime_ );	
+    iop.setYN( sKeyMarkerFullName, dispmrkfullnames_ );
+    iop.setYN( sKeyHorizonFullName, disphorfullnames_ );
+}
+
+
+void DispParams::usePar( const IOPar& iop ) 
+{
+    iop.getYN( sKeyIsCheckShotDisp, iscsdisp_ );
+    iop.getYN( sKeyIsMarkerDisp, ismarkerdisp_ );
+    iop.getYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
+    iop.getYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
+    iop.getYN( sKeyZInFeet, iszinft_ );
+    iop.getYN( sKeyZInTime, iszintime_ );	
+    iop.getYN( sKeyMarkerFullName, dispmrkfullnames_ );
+    iop.getYN( sKeyHorizonFullName, disphorfullnames_ );
+}    
+
+
 
 Data::Data( const Setup& wts, Well::Data& w)
     : logset_(*new Well::LogSet)  
@@ -51,6 +89,7 @@ Data::Data( const Setup& wts, Well::Data& w)
     , timeintv_(SI().zRange(true))
     , seistrc_(*new SeisTrc)  
     , synthtrc_(*new SeisTrc)  
+    , trunner_(0)
 {
     estimatedwvlt_.setName( "Estimated wavelet" );
 }
@@ -58,6 +97,7 @@ Data::Data( const Setup& wts, Well::Data& w)
 
 Data::~Data()
 {
+    delete trunner_;
     delete &logset_;
     delete &initwvlt_;
     delete &estimatedwvlt_;
@@ -327,7 +367,7 @@ Server::Server( const WellTie::Setup& wts )
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
 
     Well::Data* w = wdmgr_->wd();
-    if ( !w ) return; //close + errmsg
+    if ( !w ) return; //TODO close + errmsg
 
     data_ = new Data( wts, *w );
     datawriter_ = new DataWriter( *w, wts.wellid_ );
@@ -398,8 +438,6 @@ bool Server::computeSynthetics()
 void Server::setEstimatedWvlt( float* vals, int sz )
 {
     Wavelet& wvlt = data_->estimatedwvlt_;
-    sz += sz%2 ? 0 : 1;
-    wvlt.reSize( sz );
     memcpy( wvlt.samples(), vals, sz*sizeof(float) );
 }
 

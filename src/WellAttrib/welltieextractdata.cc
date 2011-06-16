@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.33 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.34 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -136,9 +136,10 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
     bidset_.erase();
     for ( int idx=0; idx<bids.size(); idx++ )
     {	
-	if ( idx && ( !bids[idx].crl || !bids[idx].inl ) )
-	     bidset_ += bids[idx-1];
-	bidset_ += bids[idx];
+	if ( SI().isInside( bids[idx], true ) )
+	    bidset_ += bids[idx];
+	else if ( idx )
+	    bidset_ += bids[idx-1];
     }
     collectTracesAroundPath();
 }

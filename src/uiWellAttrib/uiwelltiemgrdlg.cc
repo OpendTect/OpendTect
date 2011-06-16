@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.42 2011-05-12 08:58:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.43 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -248,8 +248,8 @@ bool uiTieWinMGRDlg::getDefaults()
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
     if ( !ioobj ) return false;
     const BufferString fname( ioobj->fullUserExpr(true) );
-    WellTie::Reader wtr( fname, wtsetup_ );
-    wtr.getWellTieSetup();
+    WellTie::Reader wtr( fname );
+    wtr.getWellTieSetup( wtsetup_ );
 
     const bool was2d = wtsetup_.is2d_;
     if ( typefld_ ) typefld_->setValue( !was2d );
@@ -275,10 +275,12 @@ bool uiTieWinMGRDlg::getDefaults()
 void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 				      const WellTie::Setup& wts )
 {
-    WellTie::Writer wtr( Well::IO::getMainFileName(key), wts );
-    if ( !wtr.putWellTieSetup() )
+    WellTie::Writer wtr( Well::IO::getMainFileName(key) );
+    if ( !wtr.putWellTieSetup( wts ) )
 	uiMSG().error( "Could not write parameters" );
 }
+
+
 
 
 #undef mErrRet
@@ -351,19 +353,33 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     welltiedlgsetcpy_ += wtdlg;
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
-    
+
+    PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
+    if ( !ioobj ) return false;
+    const BufferString fname( ioobj->fullUserExpr(true) );
+    WellTie::Reader wtr( fname );
+    IOPar par;
+    wtr.getWellTieWin( par );
+    wtdlg->usePar( par );
+
     return false;
 }
 
 
 void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
-    mDynamicCastGet(WellTie::uiTieWin*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
+    mDynamicCastGet(WellTie::uiTieWin*,win,cb)
+    if ( !win ) { pErrMsg("Huh"); return; }
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
-	if ( welltiedlgset_[idx] == dlg )
-	     welltiedlgset_.remove(idx); 
+	if ( welltiedlgset_[idx] == win )
+	{
+	    welltiedlgset_.remove(idx);
+	    WellTie::Writer wtr( 
+		    	Well::IO::getMainFileName( win->Setup().wellid_) );
+	    IOPar par; win->fillPar( par );
+	    wtr.putWellTieWin( par ); 
+	}
     }
 }
 

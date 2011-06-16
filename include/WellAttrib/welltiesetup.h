@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.17 2011-01-20 10:21:38 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.18 2011-06-16 15:14:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,35 +92,36 @@ public:
 mClass Writer : public IO
 {
 public:
-				Writer(const char* f,const WellTie::Setup& s)
+				Writer(const char* f)
 				    : IO(f,false)
-				    , wts_(s)
 				    {}
 
-    bool          	        putWellTieSetup() const;  
-    bool 			putWellTieSetup(std::ostream&) const;
+    bool          	        putWellTieSetup(const WellTie::Setup& s) const; 
+    bool			putWellTieWin(const IOPar&) const;
 
 protected:
    
-    const WellTie::Setup& 	wts_;
     bool                	wrHdr(std::ostream&,const char*) const;
+    bool 			ptWellTieSetup(const WellTie::Setup&,
+	    						std::ostream&) const;
+    bool 			ptWellTieWin(const IOPar&,std::ostream&) const;
 };
 
 
 mClass Reader : public IO
 {
 public:
-				Reader(const char* f,WellTie::Setup& s)
+				Reader(const char* f)
 				    : IO(f,true)
-				    , wts_(s)
 				    {}
   
-    bool               		getWellTieSetup() const;	
-    bool                	getWellTieSetup(std::istream&) const;
+    bool               		getWellTieSetup(WellTie::Setup& s) const;	
+    bool			getWellTieWin(IOPar&) const;
 
 protected:
-   
-    WellTie::Setup& 	wts_;
+    bool                	gtWellTieSetup(WellTie::Setup&,
+	    					std::istream&) const;
+    bool			gtWellTieWin(IOPar&,std::istream&) const;
 };
 
 }; //namespace WellTie

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.62 2011-05-26 15:44:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.63 2011-06-16 15:14:34 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -52,8 +52,10 @@ bool DataPlayer::computeAll()
 {
     mGetWD()
 
-    if ( !setAIModel() || !prepareSynthetics() 
-	    || !generateSynthetics() || !extractSeismics() )
+    if 	(  !setAIModel() 
+	|| !prepareSynthetics() 
+	|| !generateSynthetics() 
+	|| !extractSeismics() )
 	return false;
 
     copyDataToLogSet();
@@ -113,7 +115,7 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
-    for ( int idx=0; idx<worksz_-1; idx++ )
+    for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
 	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
@@ -133,8 +135,7 @@ bool DataPlayer::prepareSynthetics()
     const Wavelet& wvlt = data_.initwvlt_;
     gen_.setWavelet( &wvlt, OD::UsePtr );
 
-    TaskRunner tr;
-    if ( !tr.execute( gen_ ) )
+    if ( !data_.trunner_->execute( gen_ ) )
 	mErrRet( gen_.errMsg() )
 
     //hack because we need to set our own times there 
@@ -161,8 +162,7 @@ bool DataPlayer::generateSynthetics()
     gen_.reSet( false );
     gen_.setWavelet( &wvlt, OD::UsePtr );
 
-    TaskRunner tr;
-    if ( !tr.execute( gen_ ) )
+    if ( !data_.trunner_->execute( gen_ ) )
 	mErrRet( gen_.errMsg() )
 
     const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
@@ -175,9 +175,8 @@ bool DataPlayer::generateSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    TaskRunner taskrunner;
     TrackExtractor wtextr( wd_->track(), wd_->d2TModel() );
-    taskrunner.execute( wtextr ); 
+    data_.trunner_->execute( wtextr ); 
 
     const IOObj& ioobj = *IOM().get( seisid_ );
     IOObj* seisobj = ioobj.clone();
@@ -187,7 +186,7 @@ bool DataPlayer::extractSeismics()
 	seisextr.setLineKey( linekey_ );
     seisextr.setBIDValues( wtextr.getBIDs() );
     seisextr.setInterval( disprg_ );
-    taskrunner.execute( seisextr );
+    data_.trunner_->execute( seisextr );
     data_.seistrc_ = seisextr.result(); 
     return true;
 }
@@ -200,7 +199,6 @@ bool DataPlayer::copyDataToLogSet()
 
     TypeSet<float> dah, son, den, ai, synth, refs;
     StepInterval<float> workintv = data_.timeintv_; 
-    const int worksz = workintv.nrSteps();
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
@@ -209,9 +207,8 @@ bool DataPlayer::copyDataToLogSet()
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.vel_*layer.den_;
-	refs += reflvals_[idx];
+	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
     }
-
     createLog( data_.sonic(), dah.arr(), son.arr(), son.size() ); 
     createLog( data_.density(), dah.arr(), den.arr(), den.size() ); 
     createLog( data_.ai(), dah.arr(), ai.arr(), ai.size() );

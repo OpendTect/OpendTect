@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "color.h"
+#include "iopar.h"
 #include "multiid.h"
 #include "welltied2tmodelmanager.h"
 
@@ -56,6 +57,9 @@ mStruct DispParams
     bool                    disphorfullnames_;
     bool                    iszinft_;
     bool                    iszintime_;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&); 
 };
 
 
@@ -108,6 +112,7 @@ public :
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
     DispParams			dispparams_;
+    TaskRunner*			trunner_;
 
 protected:
 
@@ -218,7 +223,6 @@ public :
     DataWriter&			dataWriter()	{ return *datawriter_; } 
     const Data&			data() const 	{ return *data_; }
 
-
     const char* 		errMSG() const	{ return errmsg_.buf(); }
 
     bool			is2D() const	{ return is2d_; }
@@ -244,6 +248,8 @@ public :
     void			setEstimatedWvlt(float*,int);
     void			setInitWvltActive(bool yn)
 				{ data_->isinitwvltactive_ = yn; }
+    void			setTaskRunner( TaskRunner* tr )
+				{ data_->trunner_ = tr; }
 protected :
     PickSetMgr*			pickmgr_;
     WellDataMgr*		wdmgr_;
