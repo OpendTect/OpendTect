@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.53 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.54 2011-06-16 10:30:10 cvsumesh Exp $";
 
 
 #include "uisteeringsel.h"
@@ -394,4 +394,5 @@ void uiSteerCubeSel::fillSelSpec( SelSpec& as, bool inldip )
 {
     as.set( 0, inldip ? inlDipID() : crlDipID(), false, "" );
     as.setRefFromID( attrdata_.attrSet() );
+    as.set2DFlag( is2D() );
 }
