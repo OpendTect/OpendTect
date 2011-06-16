@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.57 2011-06-10 12:34:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.58 2011-06-16 14:05:52 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -71,6 +71,8 @@ void uiWellDispProperties::propChg( CallBacker* )
 
 void uiWellDispProperties::putToScreen()
 {
+    NotifyStopper ns1( szfld_->valueChanging );
+    NotifyStopper ns2( colfld_->colorChanged );
     szfld_->setValue( props().size_ );
     colfld_->setColor( props().color_ );
     doPutToScreen();
