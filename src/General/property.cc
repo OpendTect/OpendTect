@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.38 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.39 2011-06-16 09:25:35 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -710,4 +710,33 @@ bool PropertySet::prepareUsage() const
 	    { errmsg_ = props_[idx]->errMsg(); return false; }
     }
     return true;
+}
+
+
+int PropertyRefSelection::indexOf( const char* nm ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PropertyRef& pr = *((*this)[idx]);
+	if ( pr.name() == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+int PropertyRefSelection::find( const char* nm ) const
+{
+    const int idxof = indexOf( nm );
+    if ( idxof >= 0 )
+	return idxof;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PropertyRef& pr = *((*this)[idx]);
+	if ( pr.isKnownAs( nm ) )
+	    return idx;
+    }
+
+    return -1;
 }

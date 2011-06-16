@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.7 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.8 2011-06-16 09:25:35 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -140,7 +140,25 @@ mGlobal const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
 
 
-typedef ObjectSet<const PropertyRef> PropertyRefSelection;
+mClass PropertyRefSelection : public ObjectSet<const PropertyRef>
+{
+public:
+
+    int			indexOf(const char*) const;
+    int			find(const char*) const; // also uses 'isKnownAs'
+
+    inline bool		isPresent( const char* prnm ) const
+			{ return indexOf( prnm ) >= 0; }
+    inline int		indexOf( const PropertyRef* pr ) const
+			{ return ObjectSet<const PropertyRef>::indexOf(pr); }
+    inline bool		isPresent( const PropertyRef* pr ) const
+			{ return ObjectSet<const PropertyRef>::isPresent(pr); }
+
+    inline const PropertyRef* get( const char* nm ) const
+			{ const int idx = indexOf(nm);
+			  return idx < 0 ? 0 : (*this)[idx]; }
+
+};
 
 
 #endif
