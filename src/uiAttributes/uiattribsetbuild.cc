@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.17 2011-06-15 13:00:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.18 2011-06-16 06:44:32 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -46,8 +46,8 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
 uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"attribute",true,false),
-	    "DescSet build group")
+	    uiBuildListFromList::Setup(false,"type","attribute")
+	    .withtitles(true), "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))

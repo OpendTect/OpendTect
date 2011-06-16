@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.5 2011-06-15 13:01:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.6 2011-06-16 06:44:32 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -27,8 +27,8 @@ static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.5 2011-06-15 1
 uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 					    const Strat::LayerModel& lm )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"attribute",true,false),
-		"LaySeq attrib set build group")
+		  uiBuildListFromList::Setup(false,"property","attribute"),
+		  "Layer Sequence Attrib Set build group")
     , attrset_(*new Strat::LaySeqAttribSet)
     , reftree_(lm.refTree())
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
