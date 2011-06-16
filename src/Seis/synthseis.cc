@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.27 2011-06-16 09:34:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.28 2011-06-16 15:12:14 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -432,7 +432,8 @@ int RaySynthGenerator::doSynthetics()
     {
 	if ( !mIsUdf( outputsampling_.start ) )
 	    raysampling_ = outputsampling_;
-	raysampling_.step = wavelet_ ? wavelet_->sampleRate() : 0;
+	if ( mIsUdf( outputsampling_.step ) )
+	    raysampling_.step = wavelet_ ? wavelet_->sampleRate() : 0;
 	if ( raysampling_.nrSteps() < 1 )
 	    mErrRet( "no valid times generated" )
     }
