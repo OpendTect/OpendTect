@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.7 2011-06-16 09:27:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.8 2011-06-16 15:07:43 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -33,7 +33,7 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     , reftree_(lm.refTree())
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
 {
-    BufferStringSet dispnms; ObjectSet<const PropertyRef> prs;
+    BufferStringSet dispnms;
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
 	const PropertyRef* pr = lm.propertyRefs()[idx];
