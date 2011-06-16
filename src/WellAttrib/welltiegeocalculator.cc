@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.59 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.60 2011-06-16 08:49:27 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -88,7 +88,9 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
     {
 	int idx0 = zidxs[idx-1]; 
 	int idx1 = zidxs[idx];
-	if ( dahs[idx1] >= dahs[idx0] && dahs[idx1] > dahs[0] && times[idx1]>0 )
+	if ( dahs[idx1] >= dahs[idx0] && dahs[idx1] > dahs[0] 
+		&& times[idx1] > times[idx0] && times[idx1] > times[0]
+		&& times[idx1]>0 )
 	    d2t.add( dahs[idx1], times[idx1] );
     }
 }
