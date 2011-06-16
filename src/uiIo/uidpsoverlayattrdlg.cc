@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.9 2011-05-26 07:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.10 2011-06-16 10:25:25 cvssatyaki Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -80,7 +80,6 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
-    attribChanged(0);
     uiPushButton* applybut = new uiPushButton( this, "&Apply",
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
     applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
@@ -107,27 +106,26 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 {
     if ( y3propselfld_->currentItem() )
     {
+	y3coltabfld_->commitInput(); 
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( true );
-	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
 	plotter_.setShowY3( true );
     }
     else
     {
 	plotter_.setOverlayY1Cols( mUdf(int) );
-	y3coltabfld_->setInterval( Interval<float>(0,1) );
 	plotter_.setShowY3( false );
     }
     
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
+	y4coltabfld_->commitInput(); 
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( false );
-	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
 	plotter_.setShowY4( true );
     }
     else
@@ -139,7 +137,8 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 	plotter_.setShowY4( false );
     }
 
-    plotter_.dataChanged();
+    plotter_.drawContent();
+    plotter_.reDrawSelections();
     return true;
 }
 

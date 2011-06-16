@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.38 2011-05-25 09:49:22 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.39 2011-06-16 10:25:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uiaxisdata.h"
 #include "rowcol.h"
 #include "linear.h"
-#include "polygon.h"
+#include "uidpscrossplottools.h"
 
 class Coord;
 class RowCol;
@@ -41,69 +41,6 @@ class uiRect;
 template <class T> class Array1D;
 
 /*!\brief Data Point Set Cross Plotter */
-
-
-mStruct SelectionArea
-{
-    enum SelAxisType	{ Y1, Y2, Both };
-
-			    SelectionArea(const uiRect&);
-			    SelectionArea(const ODPolygon<int>&);
-			    SelectionArea(bool isrect);
-			    SelectionArea() : axistype_(SelectionArea::Y1) {}
-			    ~SelectionArea();
-
-    bool			isrectangle_;
-    bool			isInside(const uiPoint&) const;
-    bool			isValid() const;
-    Interval<double>		getValueRange(bool forx,bool alt=false) const;
-    BufferStringSet		getAxisNames() const;
-
-
-    BufferString		xaxisnm_;
-    BufferString		yaxisnm_;
-    BufferString		altyaxisnm_;
-    int 			id_;
-    uiRect			rect_;
-    ODPolygon<int>		poly_;
-    SelAxisType		axistype_;
-    uiWorldRect		worldrect_;
-    ODPolygon<double>	worldpoly_;
-    uiWorldRect		altworldrect_;
-    ODPolygon<double>	altworldpoly_;
-    bool			operator==(const SelectionArea&) const;
-};
-
-
-mClass SelectionGrp : public NamedObject
-{
-public:
-				SelectionGrp(const char* nm, const Color& col)
-				    : NamedObject(nm), col_(col)	{}
-				SelectionGrp()
-				    : NamedObject()			{}
-				~SelectionGrp()				{}
-
-	Color			col_;
-	int			size() const;
-	bool			hasAltAxis() const;
-	bool			isValidIdx(int idx) const;
-	int			validIdx(int selareaid) const;
-	void			addSelection(const SelectionArea&);
-	void			removeSelection(int);
-	void			removeAll();
-
-	void			setSelectionArea(const SelectionArea&);
-	bool			getSelectionArea(SelectionArea&,int id) const;
-	SelectionArea&		getSelectionArea(int idx);
-	const SelectionArea&	getSelectionArea(int idx) const;
-	SelectionArea::SelAxisType getSelectionAxis(int selareaid) const;
-	void			usePar(const IOPar&);
-	void			fillPar(IOPar&) const;
-	void			getInfo(BufferString&) const;
-protected:
-	TypeSet<SelectionArea> selareas_;
-};
 
 
 mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
@@ -204,6 +141,8 @@ public:
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections(bool relfrmselgrp = true);
     void			deleteSelections();
+    float			getSelLikekiness(uiDataPointSet::DRowID,
+	    					 bool fory2);
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&,
 				   bool rempt = false);
@@ -314,6 +253,7 @@ public:
 
     float			getVal(int colid,int rid) const;
     const uiDataPointSet&	uiPointSet() const	{ return uidps_; }
+    uiDataPointSet&		uiPointSet()		{ return uidps_; }
 
 protected:
 

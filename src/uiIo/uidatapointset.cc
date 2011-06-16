@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.70 2011-02-18 14:03:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.71 2011-06-16 10:25:25 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -30,9 +30,11 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.70 2011-02-18 14:03:01 cv
 #include "oddirs.h"
 #include "unitofmeasure.h"
 #include "mousecursor.h"
+#include "mathexpression.h"
 #include "settings.h"
 #include "timer.h"
 
+#include "uibutton.h"
 #include "uitable.h"
 #include "uilabel.h"
 #include "uicombobox.h"
@@ -199,6 +201,7 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "axis-prev.png", colStepL, "Set Y one column left" );
     mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
     mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
+    mAddButton( "plus.png", addColumn, "Add column.." );
 #undef mAddButton
 
     disptb_ = new uiToolBar( this, "Display Tool bar" );
@@ -1391,4 +1394,234 @@ bool uiDataPointSet::isSelectionValid( DRowID rid ) const
 int uiDataPointSet::getSelectionGroupIdx( int selareaid ) const
 {
     return xplotwin_ ? xplotwin_->plotter().getSelGrpIdx(selareaid) : -1;
+}
+
+class uiDPSAddColumnDlg : public uiDialog
+{
+public:
+
+uiDPSAddColumnDlg( uiParent* p, bool onlynm, bool hasy2 )
+    : uiDialog(p,uiDialog::Setup("Add Column","",""))
+    , mathobj_(0)
+    , needonlynm_(onlynm)
+    , inpfld_(0)
+    , setbut_(0)
+    , vartable_(0)
+    , sclaxtypfld_(0)
+{
+    nmfld_ = new uiGenInput( this, "Property Name" );
+    if ( onlynm && hasy2 )
+    {
+	sclaxtypfld_ = new uiGenInput( this, "Scaling selection for ",
+				       BoolInpSpec(false,"Y1 Axis","Y2 Axis") );
+	sclaxtypfld_->attach( alignedBelow, nmfld_ ); 
+    }
+
+    if ( !onlynm )
+    {
+	uiLabel* label = new uiLabel( this, "Define Mathematical Operation" );
+	label->attach( alignedBelow, nmfld_ ); 
+	
+	inpfld_ = new uiGenInput( this, "Define Math Operation" );
+	inpfld_->setElemSzPol( uiObject::WideMax );
+	inpfld_->updateRequested.notify(
+		mCB(this,uiDPSAddColumnDlg,parsePush) );
+	inpfld_->valuechanging.notify(
+		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
+	inpfld_->attach( alignedBelow, label ); 
+
+	setbut_ = new uiPushButton( this, "Set", true );
+	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
+	setbut_->attach( rightTo, inpfld_ );
+
+	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
+					.minrowhgt(1.5) .maxrowhgt(2)
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
+					.defrowlbl("") .fillcol(true)
+					.fillrow(true) .defrowstartidx(0),
+					"Variable X attribute table" );
+	const char* xcollbls[] = { "Select input for", 0 };
+	vartable_->setColumnLabels( xcollbls );
+	vartable_->setNrRows( 2 );
+	vartable_->setStretch( 2, 0 );
+	vartable_->setRowResizeMode( uiTable::Fixed );
+	vartable_->setColumnResizeMode( uiTable::Fixed );
+	vartable_->attach( alignedBelow, inpfld_ );
+	vartable_->display( false );
+    }
+}
+
+
+void setColInfos( const BufferStringSet& colnames, const TypeSet<int>& colids )
+{
+    colnames_ = colnames;
+    colids_ = colids;
+    updateDisplay();
+}
+
+
+void checkMathExpr( CallBacker* )
+{
+    if ( needonlynm_ ) return;
+
+    if ( mathexprstring_ != inpfld_->text() )
+	setbut_->setSensitive( true );
+    else
+	setbut_->setSensitive( false );
+}
+
+
+void parsePush( CallBacker* )
+{
+    if ( needonlynm_ ) return;
+
+    mathexprstring_ = inpfld_->text();
+    MathExpressionParser mep( mathexprstring_ );
+    mathobj_ = mep.parse();
+    if ( !mathobj_ )
+    {
+	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
+	vartable_->display( false );
+	return;
+    }
+
+    setbut_->setSensitive( false );
+}
+
+
+void updateDisplay()
+{
+    if ( needonlynm_ ) return;
+
+    const int nrvars = mathobj_->nrVariables();
+    vartable_->setNrRows( nrvars );
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	uiComboBox* varsel = new uiComboBox( 0, colnames_, "Variable");
+	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
+	vartable_->setCellObject( RowCol(idx,0), varsel );
+    }
+
+    vartable_->display( true );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( !mathobj_ )
+	return true;
+
+    usedcolids_.erase();
+
+    int nrvars = mathobj_->nrVariables();
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
+	mDynamicCastGet( uiComboBox*, box, obj );
+	if ( !box )
+	    continue;
+
+	usedcolids_ += colids_[box->currentItem()];
+    }
+
+    return true;
+}
+    
+bool scaleType() const
+{
+    if ( sclaxtypfld_ )
+	return sclaxtypfld_->getBoolValue();
+    return true;
+}
+
+    MathExpression*	mathObject()		{ return mathobj_; }
+    const char*		newAttribName() const	{ return nmfld_->text(); }
+    const TypeSet<int>&	usedColIDs() const	{ return usedcolids_; }
+ 
+protected:
+    BufferStringSet	colnames_;
+    TypeSet<int>	colids_;
+    TypeSet<int>	usedcolids_;
+
+    BufferString	mathexprstring_;
+    MathExpression*	mathobj_;
+    uiGenInput*		nmfld_;
+    uiGenInput*		inpfld_;
+    uiGenInput*		sclaxtypfld_;
+    uiPushButton*	setbut_;
+    uiTable*		vartable_;
+    bool		needonlynm_;
+};
+
+
+void uiDataPointSet::addScaledSelColumn()
+{
+    uiDPSAddColumnDlg coladddlg( this, true, xplotwin_->plotter().isY2Shown() );
+    if ( !coladddlg.go() )
+	return;
+
+    dps_.dataSet().add( new DataColDef(coladddlg.newAttribName()) );
+    for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
+    {
+	const float val =
+	    xplotwin_->plotter().getSelLikekiness( rid, !coladddlg.scaleType());
+	BinIDValueSet& bvs = dps_.bivSet();
+	BinIDValueSet::Pos pos = dps_.bvsPos( rid );
+	BinID curbid;
+	TypeSet<float> vals;
+	bvs.get( pos, curbid, vals );
+	vals[ vals.size()-1 ] = mIsUdf(val) ? mUdf(float) : val;
+	bvs.set( pos, vals ); 
+    }
+
+    dps_.dataChanged();
+    tbl_->insertColumns( tbl_->nrCols()-1, 1 );
+    tbl_->setColumnLabel( tbl_->nrCols()-1, "Likeliness" );
+    reDoTable();
+}
+
+
+void uiDataPointSet::addColumn( CallBacker* )
+{
+    uiDataPointSet::DColID dcid=-dps_.nrFixedCols()+1;
+    BufferStringSet colnames;
+    TypeSet<int> dcids;
+    for ( ; dcid<dps_.nrCols(); dcid++ )
+    {
+	colnames.add( userName(dcid) );
+	dcids += dcid;
+    }
+
+    uiDPSAddColumnDlg dlg( this, false, false );
+    dlg.setColInfos( colnames, dcids );
+    if ( dlg.go() )
+    {
+	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
+	BinIDValueSet& bvs = dps_.bivSet();
+	BinIDValueSet::Pos pos;
+	while ( bvs.next(pos,true) )
+	{
+	    TypeSet<int> colids = dlg.usedColIDs();
+	    MathExpression* mathobj = dlg.mathObject();
+	    BinID curbid;
+	    TypeSet<float> vals;
+	    bvs.get( pos, curbid, vals );
+	    DataPointSet::RowID rid = dps_.findFirst( curbid );
+	    
+	    for ( int idx=0; idx<colids.size(); idx++ )
+	    {
+		const float yval = dps_.value( colids[idx], rid );
+		mathobj->setVariableValue( idx, yval );
+	    }
+
+	    vals[ vals.size()-1 ] = mathobj->getValue();
+	    bvs.set( pos, vals ); 
+	}
+
+	dps_.dataChanged();
+	tbl_->insertColumns( tbl_->nrCols()-1, 1 );
+	tbl_->setColumnLabel( tbl_->nrCols()-1, dlg.newAttribName() );
+	reDoTable();
+    }
 }
