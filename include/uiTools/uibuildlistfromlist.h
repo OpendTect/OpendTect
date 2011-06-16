@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.6 2011-06-16 06:42:58 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.7 2011-06-16 15:08:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ protected:
     virtual void	removeReq()			= 0;
     virtual const char*	avFromDef(const char*) const	= 0;
     virtual bool	ioReq( bool forsave )		{ return false; }
-    virtual void	itemSwitch(const char*,const char*) const	{}
+    virtual void	itemSwitch(const char*,const char*)	{}
     virtual void	defSelChg();
 
     void		setAvailable(const BufferStringSet&); //!< at start
