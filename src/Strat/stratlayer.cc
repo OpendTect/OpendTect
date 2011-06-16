@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.21 2011-04-29 14:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.22 2011-06-16 15:09:15 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -343,8 +343,6 @@ bool Strat::LayerModel::write( std::ostream& strm, const IOPar& pars ) const
 	FileMultiString fms( pref.name() );
 	fms += pref.disp_.color_.getStdStr();
 	fms += pref.disp_.unit_;
-	if ( pref.disp_.logarithmic_ )
-	    fms += "L";
 	iop.set( ky, fms );
     }
     iop.putTo( astrm );
