@@ -222,7 +222,8 @@ bool RayTracer1D::init()
     reflectivity_->setAll( mUdf( float_complex ) );
 
     for ( int idx=0; idx<layersize+1; idx++ )
-	depths_ += getLayerDepth( depthmodel, idx ) + setup_.sourcedepth_;
+	depths_ += idx ? depths_[idx-1] + depthmodel[idx].thickness_ 
+	               : setup_.sourcedepth_ + depthmodel[idx].thickness_;
 
     return true;
 }
