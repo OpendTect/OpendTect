@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.71 2011-06-16 10:25:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.72 2011-06-17 05:15:38 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1487,12 +1487,13 @@ void parsePush( CallBacker* )
     }
 
     setbut_->setSensitive( false );
+    updateDisplay();
 }
 
 
 void updateDisplay()
 {
-    if ( needonlynm_ ) return;
+    if ( needonlynm_ || !mathobj_ ) return;
 
     const int nrvars = mathobj_->nrVariables();
     vartable_->setNrRows( nrvars );
