@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.70 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.71 2011-06-17 05:23:36 cvsranojay Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -159,7 +159,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     else if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
     {
 	display_on_add = true;
-	bool res = applMgr()->pickServer()->loadSets(mnuid==mLoadPolyIdx);
+	TypeSet<MultiID> mids;
+	bool res = applMgr()->pickServer()->loadSets(mids,mnuid==mLoadPolyIdx);
 	display_on_add = false;
 	if ( !res )
 	    return -1;

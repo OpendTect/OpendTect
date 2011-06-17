@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.45 2010-10-13 09:54:58 cvshelene Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.46 2011-06-17 05:23:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
     Pick::Set*			pickSet()		{ return ps_; }
     void			impexpSet(bool import);
     void			fetchHors(bool);
-    bool			loadSets(bool ispolygon);
+    bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
     				//!< Load set(s) by user sel
     bool			createEmptySet(bool aspolygon);
     bool			create3DGenSet();

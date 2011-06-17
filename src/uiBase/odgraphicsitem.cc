@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.22 2011-06-17 05:23:36 cvsranojay Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -161,6 +161,17 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 
 	case MarkerStyle2D::Plane:
 	    painter.drawRect( QRectF(-3*sz, -sz/2, 6*sz, sz) );
+	break;
+
+	case MarkerStyle2D::Triangle: {
+	    QPolygon triangle;
+	    triangle.putPoints( 0, 3, -sz, 0, 0, -2*sz, +sz, 0 );
+	    painter.drawPolygon( triangle );
+	    } break;
+
+	case MarkerStyle2D::Arrow:
+	    drawMarker( painter, MarkerStyle2D::VLine, 2*sz );
+	    drawMarker( painter, MarkerStyle2D::Triangle, -sz );
 	break;
     }
 }

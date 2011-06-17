@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.68 2011-03-24 04:40:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.69 2011-06-17 05:23:36 cvsranojay Exp $";
 
 #include "uipickpartserv.h"
 
@@ -76,7 +76,8 @@ void uiPickPartServer::fetchHors( bool is2d )
     sendEvent( is2d ? evGetHorInfo2D() : evGetHorInfo3D() );
 }
 
-bool uiPickPartServer::loadSets( bool poly )
+
+bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
@@ -91,6 +92,7 @@ bool uiPickPartServer::loadSets( bool poly )
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID id = dlg.selected(idx);
+	psids += id;
 	PtrMan<IOObj> ioobj = IOM().get( id );
 	if ( setmgr_.indexOf(ioobj->key()) >= 0 )
 	    continue;
@@ -100,6 +102,7 @@ bool uiPickPartServer::loadSets( bool poly )
 	if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
 	{
 	    setmgr_.set( ioobj->key(), newps );
+	    psids.addIfNew( ioobj->key() );
 	    retval = true;
 	}
 	else
