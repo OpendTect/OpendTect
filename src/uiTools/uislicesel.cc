@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.59 2011-06-16 12:27:58 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.60 2011-06-17 07:11:50 cvsnageswara Exp $";
 
 #include "uislicesel.h"
 
@@ -508,74 +508,45 @@ void uiSliceSel::enableScrollButton( bool yn )
 void uiSliceSel::fillPar( IOPar& iop )
 {
     CubeSampling cs;
-    if ( isinl_ || is2d_ )
-    {
-	Interval<int> inlrg;
-	if ( !is2d_ )
-	{
-	    inlrg.start = inl0fld_->box()->getValue();
-	    inlrg.stop = inl0fld_->box()->getValue();
-	}
+    cs.hrg.start.inl = is2d_ ? 0 : inl0fld_->box()->getValue();
 
-	cs.hrg.setInlRange( inlrg );
-	Interval<int> crlrg( crl0fld_->box()->getValue(),
-			     crl1fld_->getValue() );
-	cs.hrg.setCrlRange( crlrg );
-    }
+    if ( isinl_ )
+	cs.hrg.stop.inl =  is2d_ ? 0 : inl0fld_->box()->getValue();
+    else
+	cs.hrg.stop.inl = is2d_ ? 0 : inl1fld_->getValue();
 
-    if ( iscrl_ )
-    {
-	Interval<int> crlrg( crl0fld_->box()->getValue(),
-			     crl0fld_->box()->getValue() );
-	cs.hrg.setCrlRange( crlrg );
-	Interval<int> inlrg( inl0fld_->box()->getValue(),
-			     inl1fld_->getValue() );
-	cs.hrg.setInlRange( inlrg );
-    }
-
-    if ( !istsl_ )
-    {
-	cs.zrg.start = z0fld_->box()->getValue();
-	cs.zrg.stop = z1fld_->getValue();
-    }
-
+    cs.hrg.start.crl = crl0fld_->box()->getValue();
+    cs.hrg.stop.crl = iscrl_ ? crl0fld_->box()->getValue()
+			     : crl1fld_->getValue();
+    
+    cs.zrg.start = z0fld_->box()->getValue();
+    cs.zrg.stop = istsl_ ? z0fld_->box()->getValue()
+			 : z1fld_->getValue();
+    
     cs.fillPar( iop );
 }
 
 
 void uiSliceSel::usePar( const IOPar& par )
 {
-    if ( isinl_ || is2d_ )
+    if ( !is2d_ )
     {
-	if ( !is2d_ )
-	{
-	    int inlnr; par.get( sKey::FirstInl, inlnr );
-	    inl0fld_->box()->setValue( inlnr );
-	}
+	int inlnr; par.get( sKey::FirstInl, inlnr );
+	inl0fld_->box()->setValue( inlnr );
 
-	int crl0; par.get( sKey::FirstCrl, crl0 );
-	crl0fld_->box()->setValue( crl0 );
-	int crl1; par.get( sKey::LastCrl, crl1 );
-	crl1fld_->setValue( crl1 );
-    }
-
-    if ( iscrl_ )
-    {
-	int crlnr; par.get( sKey::FirstCrl, crlnr );
-	crl0fld_->box()->setValue( crlnr );
-	int inl0; par.get( sKey::FirstInl, inl0 );
-	inl0fld_->box()->setValue( inl0 );
 	int inl1; par.get( sKey::LastInl, inl1 );
-	inl1fld_->setValue( inl1 );
+	if ( inl1fld_->isDisplayed() ) inl1fld_->setValue( inl1 );
     }
 
-    if ( !istsl_ )
-    {
-	StepInterval<float> zrg;
-	par.get( sKey::ZRange, zrg ); 
-	z0fld_->box()->setValue( zrg.start );
-	z1fld_->setValue( zrg.stop );
-    }
+    int crl0; par.get( sKey::FirstCrl, crl0 );
+    crl0fld_->box()->setValue( crl0 );
+    int crl1; par.get( sKey::LastCrl, crl1 );
+    if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
+
+    StepInterval<float> zrg;
+    par.get( sKey::ZRange, zrg ); 
+    z0fld_->box()->setValue( zrg.start );
+    if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
 }
 
 
