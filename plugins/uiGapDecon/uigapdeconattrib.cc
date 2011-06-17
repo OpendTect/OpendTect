@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.48 2011-02-11 08:55:57 cvshelene Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.49 2011-06-17 07:17:33 cvsnageswara Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -34,6 +34,9 @@ static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.48 2011-02-11 08:55:57 
 
 using namespace Attrib;
 
+const char* uiGapDeconAttrib::sKeyOnInlineYN()	{ return "OnInlineYN"; }
+const char* uiGapDeconAttrib::sKeyLineName()	{ return "Line Name"; }
+
 mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp())
 
 
@@ -56,6 +59,7 @@ class uiGDPositionDlg: public uiDialog
     uiSliceSelDlg*	posdlg_;
     bool 		is2d_; 
     MultiID 		mid_; 
+    IOPar		prevpar_;
 };
 
 
@@ -64,6 +68,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     	, acorrview_ ( new GapDeconACorrView(p) )
     	, positiondlg_(0)
 {
+    par_.setEmpty();
     inpfld_ = createInpFld( is2d );
 
     BufferString gatestr = "Correlation window ";
@@ -257,9 +262,57 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     getInputMID( mid );
     if ( positiondlg_ ) delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
+    if ( par_.size() )
+    {
+	if ( ads_->is2D() )
+	{
+	    BufferString lnm;
+	    if ( par_.get( sKeyLineName(), lnm ) )
+		positiondlg_->linesfld_->box()->setText( lnm );
+	}
+	else
+	{
+	    bool oninlineyn = false;
+	    par_.getYN( sKeyOnInlineYN(), oninlineyn );
+	    positiondlg_->inlcrlfld_->setValue( oninlineyn );
+	}
+
+	if ( par_.size() > 1 )
+	    positiondlg_->prevpar_ = par_;
+    }
+
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
+    {
+	if ( !ads_->is2D() )
+	{
+	    const bool isoninline = positiondlg_->inlcrlfld_->getBoolValue();
+	    bool prevsel = false;
+	    par_.getYN( sKeyOnInlineYN(), prevsel );
+	    if ( isoninline != prevsel )
+	    {
+		par_.setEmpty();
+		positiondlg_->prevpar_.setEmpty();
+	    }
+
+	    par_.setYN( sKeyOnInlineYN(), isoninline );
+	}
+	else
+	{
+	    const char* lnm = positiondlg_->linesfld_->box()->text();
+	    BufferString prevlnm;
+	    par_.get( sKeyLineName(), prevlnm );
+	    if ( !prevlnm.isEqual( lnm ) )
+	    {
+		par_.setEmpty();
+		positiondlg_->prevpar_.setEmpty();
+	    }
+
+	    par_.set( sKeyLineName(), lnm );
+	}
+
 	positiondlg_->popUpPosDlg();
+    }
 
     if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
@@ -270,9 +323,13 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	if ( dset->is2D() )
 	    acorrview_->setLineKey( positiondlg_->getLineKey() );
+
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr(false) )
 	    acorrview_->createAndDisplay2DViewer(false);
+
+	positiondlg_->posdlg_->grp()->fillPar( positiondlg_->prevpar_ );
+	par_.merge( positiondlg_->prevpar_ );
     }
 }
 
@@ -556,7 +613,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 {
     if ( !ads_->is2D() ) return;
     
-    Desc* tmpdesc = ads_->getFirstStored( false );
+    Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc ) return;
     mid = MultiID( tmpdesc->getStoredID().buf() );
 }
@@ -618,12 +675,14 @@ void uiGDPositionDlg::popUpPosDlg()
 	if ( !is2d )
 	{
 	    if ( isinl )
-		inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
+		inputcs.hrg.stop.inl = inputcs.hrg.start.inl
+		    		     = inputcs.hrg.inlRange().snappedCenter();
 	    else
-		inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
+		inputcs.hrg.stop.crl = inputcs.hrg.start.crl
+		    		     = inputcs.hrg.crlRange().snappedCenter();
 	}
+
 	float zstop = 500/SI().zFactor();
-	inputcs.zrg.stop = cs_.zrg.width()<zstop ? cs_.zrg.width() : zstop;
 	inputcs.zrg.start = 0;
     }
 
@@ -634,6 +693,9 @@ void uiGDPositionDlg::popUpPosDlg()
     posdlg_->grp()->enableApplyButton( false );
     posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
+    if ( !prevpar_.isEmpty() )
+	posdlg_->grp()->usePar( prevpar_ );
+
     posdlg_->go();
 }
 

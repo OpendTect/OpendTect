@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.15 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.16 2011-06-17 07:17:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
 			~uiGapDeconAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
+    static const char*	sKeyOnInlineYN();
+    static const char*	sKeyLineName();
 
 protected:
 
@@ -51,6 +53,7 @@ protected:
     uiPushButton*	exambut_;
     uiPushButton*	qcbut_;
 
+    IOPar		par_;
     uiGDPositionDlg*	positiondlg_;
     GapDeconACorrView*	acorrview_;
     bool		setParameters(const Attrib::Desc&);
