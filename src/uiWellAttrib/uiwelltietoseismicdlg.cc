@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.89 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.90 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -62,12 +62,11 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 			    .deleteonclose(false))
     	, setup_(*new WellTie::Setup(wts))
 	, server_(*new Server(setup_))
-	, stretcher_(*new EventStretch(server_.pickMgr())) 
-    	, controlview_(0)
+	, stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
+	, controlview_(0)
 	, infodlg_(0)
 	, params_(server_.dispParams())
 {
-    stretcher_.timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
@@ -104,13 +103,20 @@ void uiTieWin::initAll()
 
 void uiTieWin::fillPar( IOPar& par ) const
 {
+    server_.dispParams().fillPar( par );
     controlview_->fillPar( par );
+    if ( infodlg_ )
+	infodlg_->fillPar( par );
 }
 
 
 void uiTieWin::usePar( const IOPar& par )
 {
+    server_.dispParams().usePar( par );
     controlview_->usePar( par );
+    if ( infodlg_ )
+	infodlg_->usePar( par );
+    par_ = par;
 }
 
 
@@ -323,17 +329,6 @@ void uiTieWin::dispPropChg( CallBacker* )
 }
 
 
-void uiTieWin::timeChanged( CallBacker* )
-{
-    const Array1DImpl<float>* timearr = stretcher_.timeArr();
-    if ( timearr )
-    {
-	server_.replaceTime( *timearr );
-	applybut_->setSensitive( true );
-    }
-}
-
-
 void uiTieWin::csCorrChanged( CallBacker* cb )
 {
     getDispParams();
@@ -351,6 +346,7 @@ void uiTieWin::infoPushed( CallBacker* )
     {
 	infodlg_ = new uiInfoDlg( this, server_ );
 	infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
+	infodlg_->usePar( par_ );
     }
     infodlg_->show();
 }

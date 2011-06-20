@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.43 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.44 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -273,7 +273,7 @@ bool uiTieWinMGRDlg::getDefaults()
 
 
 void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
-				      const WellTie::Setup& wts )
+				      const WellTie::Setup& wts ) const
 {
     WellTie::Writer wtr( Well::IO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
@@ -340,11 +340,10 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     wtsetup_.wvltid_ = wvltfld_->getID();
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
 
+    saveWellTieSetup( wtsetup_.wellid_, wtsetup_ );
+
     if ( saveButtonChecked() )
-    {
-	saveWellTieSetup( wtsetup_.wellid_, wtsetup_ );
 	wtsetup_.commitDefaults();
-    }
 
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );
     welltiedlgset_ += wtdlg;
@@ -358,9 +357,9 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !ioobj ) return false;
     const BufferString fname( ioobj->fullUserExpr(true) );
     WellTie::Reader wtr( fname );
-    IOPar par;
-    wtr.getWellTieWin( par );
-    wtdlg->usePar( par );
+    IOPar* par= wtr.getIOPar( uiTieWin::sKeyWinPar() );
+    if ( par ) wtdlg->usePar( *par );
+    delete par;
 
     return false;
 }
@@ -378,7 +377,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 	    WellTie::Writer wtr( 
 		    	Well::IO::getMainFileName( win->Setup().wellid_) );
 	    IOPar par; win->fillPar( par );
-	    wtr.putWellTieWin( par ); 
+	    wtr.putIOPar( par, uiTieWin::sKeyWinPar() ); 
 	}
     }
 }

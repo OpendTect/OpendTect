@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.86 2011-06-16 15:13:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.87 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -241,24 +241,11 @@ void uiTieView::zoomChg( CallBacker* )
 
 
 void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-		    bool left, float zpos, Color col, bool ispick, bool fullnm )
+				bool left, float zpos )
 {
-    auxdata->linestyle_.color_ = col;
-    auxdata->linestyle_.width_ = ispick ? 2 : 1;
-    auxdata->linestyle_.type_  = ispick ? LineStyle::Solid : LineStyle::Dot;
     Interval<float> xrg(vwr_->boundingBox().left(),vwr_->boundingBox().right());
     auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
     auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
-
-    if ( !ispick  )
-    {
-	BufferString mtxt( auxdata->name_ );
-	if ( !fullnm && mtxt.size() > 3 )
-	    mtxt[3] = '\0';
-	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
-	auxdata->namepos_ = 1;
-    }
 }	
 
 
@@ -267,7 +254,10 @@ void uiTieView::drawLogDispWellMarkers()
     mGetWD(return)
     const bool ismarkerdisp = params_.ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
+    {
+	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_; 
 	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd->markers() : 0 );
+    }
 }
 
 
@@ -288,25 +278,50 @@ void uiTieView::drawViewerWellMarkers()
     mRemoveSet( wellmarkerauxdatas_ );
     bool ismarkerdisp = params_.isvwrmarkerdisp_;
     if ( !ismarkerdisp ) return;
+
     const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return; 
     for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd->markers()[midx];
 	if ( !marker  ) continue;
+
+	const Well::DisplayProperties::Markers& mrkdisp 
+	    					= data_.dispparams_.mrkdisp_;
+	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
+	    continue;
 	
 	float zpos = d2tm->getTime( marker->dah() );
-	const Color& col = marker->color();
 	
 	if ( !zrange_.includes( zpos ) )
 	    continue;
 	
 	FlatView::Annotation::AuxData* auxdata = 0;
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
+	if ( !auxdata )
+	    continue;
+
+	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_ 
+	    					: marker->color();
 	wellmarkerauxdatas_ += auxdata;
 	app.annot_.auxdata_ +=  auxdata;
 	zpos *= 1000;	
-	drawMarker(auxdata, true, zpos, col, false, params_.dispmrkfullnames_);
+	const int shapeint = mrkdisp.shapeint_;
+	LineStyle ls = LineStyle( LineStyle::Dot, mrkdisp.size_, col );
+	if ( shapeint == 1 )
+	    ls.type_ =  LineStyle::Solid;
+	if ( shapeint == 2 )
+	    ls.type_ = LineStyle::Dash;
+	auxdata->linestyle_ = ls;
+
+	BufferString mtxt( marker->name() );
+	if ( !params_.dispmrkfullnames_ && mtxt.size() > 3 )
+	    mtxt[3] = '\0';
+	auxdata->name_ = mtxt;
+	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
+	auxdata->namepos_ = 1;
+    
+	drawMarker( auxdata, true, zpos );
     }
 }	
 
@@ -335,7 +350,9 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     {
 	const Marker& pick = pickset[idx];
 	float zpos = pick.zpos_*1000; 
-	drawMarker(userpickauxdatas_[idx],issynth,zpos,pick.color_,true,false);
+	LineStyle ls = LineStyle( LineStyle::Solid, pick.size_, pick.color_ );
+	userpickauxdatas_[idx]->linestyle_ = ls;
+	drawMarker(userpickauxdatas_[idx], issynth, zpos );
     }
 }
 
@@ -356,9 +373,17 @@ void uiTieView::drawHorizons()
 	app.annot_.auxdata_ += auxdata;
 	const Marker& hor = horizons[idx];
 	float zval = hor.zpos_;
-	auxdata->name_ = hor.name_;
-	drawMarker( auxdata, false, zval, hor.color_, false, 
-			params_.dispmrkfullnames_ );
+
+	BufferString mtxt( hor.name_ );
+	if ( !params_.dispmrkfullnames_ && mtxt.size() > 3 )
+	    mtxt[3] = '\0';
+	auxdata->name_ = mtxt;
+	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
+	auxdata->namepos_ = 1;
+	LineStyle ls = LineStyle( LineStyle::Solid, 1, hor.color_ );
+	auxdata->linestyle_ = ls;
+    
+	drawMarker( auxdata, false, zval );
     }
 }
 

@@ -52,6 +52,8 @@ public:
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
+
+    static const char*		sKeyWinPar() 	{ return "Well Tie Window"; }
 	
 protected:
 
@@ -78,6 +80,7 @@ protected:
     uiControlView* 		controlview_;
     uiInfoDlg* 			infodlg_; 
     uiTieView*			drawer_;
+    IOPar			par_;
     
     void			addControls();
     void 			addToolBarTools();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.58 2011-06-16 14:05:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.59 2011-06-20 11:55:52 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -153,23 +153,25 @@ void uiWellTrackDispProperties::doGetFromScreen()
 }
 
 
-static const char* shapes[] = { "Cylinder", "Square", "Sphere", 0 };
+static const char* shapes3d[] = { "Cylinder", "Square", "Sphere", 0 };
+static const char* shapes2d[] = { "Dot", "Solid", "Dash", 0 };
 uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Markers& mp,
-				const BufferStringSet& allmarkernms,
-				BufferStringSet& selmarkernms )
+				const BufferStringSet& allmarkernms, bool is2d )
     : uiWellDispProperties(p,su,mp)
-    , selmarkernms_(selmarkernms)
+    , selmarkernms_(mp.selmarkernms_)
+    , is2d_(is2d)				     
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
     shapefld_->attach( alignedBelow, colfld_ );
-    for ( int idx=0; shapes[idx]; idx++)
-	shapefld_->box()->addItem( shapes[idx] );
+    for ( int idx=0; shapes3d[idx]; idx++)
+	shapefld_->box()->addItem( is2d ? shapes2d[idx] : shapes3d[idx] );
     
     cylinderheightfld_ = new uiLabeledSpinBox( this, "Height" );
     cylinderheightfld_->box()->setInterval( 0, 10, 1 );
     cylinderheightfld_->attach( rightOf, shapefld_ );
+    cylinderheightfld_->display( !is2d );
    
     singlecolfld_ = new uiCheckBox( this, "use single color");
     singlecolfld_->attach( rightOf, colfld_); 
@@ -258,7 +260,7 @@ void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
-    cylinderheightfld_->display( !shapefld_->box()->currentItem() );
+    cylinderheightfld_->display( !shapefld_->box()->currentItem() && !is2d_ );
 }
 
 

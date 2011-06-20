@@ -82,7 +82,7 @@ protected:
     void        		drawTraces();
     void			drawUserPicks(const TypeSet<Marker>&,bool);
     void        		drawMarker(FlatView::Annotation::AuxData*,
-					    bool,float,Color,bool,bool);
+					    bool,float);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();
     void        		drawCShot();

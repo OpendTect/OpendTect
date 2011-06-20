@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.145 2011-06-09 14:01:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.146 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -308,7 +308,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 	if ( !wd->markers()[idx] ) continue;
 
 	const char* mrkrnm = wd->markers()[idx]->name();
-	wd->displayProperties().selmarkernms_.add( mrkrnm );
+	wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
     }
 
     const Well::D2TModel* d2t = wd->d2TModel();
@@ -364,7 +364,8 @@ void WellDisplay::updateMarkers( CallBacker* )
     visBase::Well::MarkerParams mp;
     fillMarkerParams( mp );
 
-    const BufferStringSet selnms( wd->displayProperties(false).selmarkernms_ );
+    const BufferStringSet selnms( 
+	    	wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];

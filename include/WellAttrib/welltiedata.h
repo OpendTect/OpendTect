@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "iopar.h"
 #include "multiid.h"
+#include "welldisp.h"
 #include "welltied2tmodelmanager.h"
 
 class BinID;
@@ -57,6 +58,8 @@ mStruct DispParams
     bool                    disphorfullnames_;
     bool                    iszinft_;
     bool                    iszintime_;
+    Well::DisplayProperties::Markers mrkdisp_;
+    BufferStringSet	    allmarkernms_;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&); 
@@ -67,12 +70,14 @@ mStruct Marker
 {
 			    Marker(float z)
 				: zpos_(z)
+				, size_(2)  
 				{}
 
     Color			color_;
     float			zpos_;
     const char*			name_;
     int 			id_;
+    int				size_;
 
     bool			operator == ( const Marker& m ) const
 					{ return m.zpos_ == zpos_; }
@@ -218,6 +223,7 @@ public :
     const Well::Data* 		wd() const	{ return data_->wd_; }
 
     PickSetMgr&			pickMgr() 	{ return *pickmgr_; }
+    D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
     HorizonMgr&			horizonMgr() 	{ return *hormgr_; }
     DispParams&			dispParams()	{ return data_->dispparams_; }
     DataWriter&			dataWriter()	{ return *datawriter_; } 
@@ -237,8 +243,6 @@ public :
     				{ return d2tmgr_->cancel(); }
     bool                	commitD2TModel()
 				{ return d2tmgr_->commitToWD(); }
-    void			replaceTime(const Array1DImpl<float>& tarr)
-				{ d2tmgr_->replaceTime( tarr ); }
     void			computeD2TModel()
     				{ d2tmgr_->setFromVelLog( data_->sonic() ); }
 

@@ -199,12 +199,29 @@ void uiWellLogDisplay::draw()
     drawCurve( true );
     drawCurve( false );
 
-    drawFilledCurve( true );
-    drawFilledCurve( false );
+    if ( ld1_.disp_.iswelllog_ )
+	drawFilledCurve( true );
+    else
+	drawSeismicCurve( true );
+
+    if ( ld2_.disp_.iswelllog_ )
+	drawFilledCurve( false );
+    else
+	drawSeismicCurve( false );
 
     drawZPicks();
 }
 
+
+static const int cMaxNrLogSamples = 2000;
+#define mGetLoopSize(nrsamp,step)\
+    {\
+	if ( nrsamp > cMaxNrLogSamples )\
+	{\
+	    step = (float)nrsamp/cMaxNrLogSamples;\
+	    nrsamp = cMaxNrLogSamples;\
+	}\
+    }
 
 void uiWellLogDisplay::drawCurve( bool first )
 {
@@ -253,15 +270,83 @@ void uiWellLogDisplay::drawCurve( bool first )
 }
 
 
-static const int cMaxNrLogSamples = 2000;
-#define mGetLoopSize(nrsamp,step)\
-    {\
-	if ( nrsamp > cMaxNrLogSamples )\
-	{\
-	    step = (float)nrsamp/cMaxNrLogSamples;\
-	    nrsamp = cMaxNrLogSamples;\
-	}\
+void uiWellLogDisplay::drawSeismicCurve( bool first )
+{
+    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    deepErase( ld.curvepolyitms_ );
+
+    if ( ld.disp_.iswelllog_ ) return;
+
+    const float rgstop = ld.xax_.range().stop; 
+    const float rgstart = ld.xax_.range().start;
+    const bool isrev = rgstop < rgstart;
+
+    int sz = ld.wl_ ? ld.wl_->size() : 0;
+    if ( sz < 2 ) return;
+    float step = 1;
+    mGetLoopSize( sz, step );
+
+    ObjectSet< TypeSet<uiPoint> > pts;
+    uiPoint closept;
+
+    float zfirst = ld.wl_->dah(0);
+    mDefZPos( zfirst )
+    const int pixstart = ld.xax_.getPix( rgstart );
+    const int pixstop = ld.xax_.getPix( rgstop );
+    const int midpt = (int)( (pixstop-pixstart)/2 );
+    closept = uiPoint( midpt, ld.yax_.getPix( zfirst ) );
+
+    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+    *curpts += closept;
+    uiPoint pt;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int index = mNINT(idx*step);
+	float dah = ld.wl_->dah( index );
+	if ( index && index < sz-1 )
+	{
+	    if ( dah >= ld.wl_->dah(index+1) || dah <= ld.wl_->dah(index-1) )
+		continue;
+	}
+	mDefZPosInLoop( dah )
+
+	float val = ld.wl_->value( index );
+
+	pt.x = ld.xax_.getPix(val);
+	pt.y = closept.y = ld.yax_.getPix(zpos);
+
+	if ( mIsUdf(val) || pt.x < closept.x )
+	{
+	    if ( !curpts->isEmpty() )
+	    {
+		pts += curpts;
+		curpts = new TypeSet<uiPoint>;
+		*curpts += closept;
+	    }
+	    continue;
+	}
+	*curpts += closept;
+	*curpts += pt;
+	*curpts += closept;
     }
+    if ( pts.isEmpty() ) return;
+    *pts[pts.size()-1] += uiPoint( closept.x, pt.y );
+
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
+	ld.curvepolyitms_ += pli;
+	Color color = ld.disp_.seiscolor_;
+	pli->setFillColor( color );
+	LineStyle ls;
+	ls.width_ = 1;
+	ls.color_ = color;
+	pli->setPenStyle( ls );
+	pli->setZValue( 1 );
+    }
+    deepErase( pts );
+}
+
 
 void uiWellLogDisplay::drawFilledCurve( bool first )
 {
@@ -385,8 +470,14 @@ void uiWellLogDisplay::drawMarkers()
     for ( int idx=0; idx<zdata_.markers_->size(); idx++ )
     {
 	const Well::Marker& mrkr = *((*zdata_.markers_)[idx]);
-	const Color& col = mrkr.color();
-	if ( col == Color::NoColor() || col == Color::White() ) continue;
+	if ( !mrkdisp_.selmarkernms_.isPresent( mrkr.name() ) )
+	    continue;
+
+	const Color& col= mrkdisp_.issinglecol_? mrkdisp_.color_ : mrkr.color();
+	const Color& nmcol = mrkdisp_.samenmcol_ ? col :  mrkdisp_.nmcol_;
+
+	if ( col == Color::NoColor() || col == Color::White() )
+	    continue;
 
 	mDefZPosInLoop( mrkr.dah() );
 	mDefHorLineX1X2Y();
@@ -395,11 +486,17 @@ void uiWellLogDisplay::drawMarkers()
 	markerdraws_ += mrkdraw;
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
-	LineStyle ls = LineStyle(setup_.markerls_.type_,
-	setup_.markerls_.width_,col);
+	const int shapeint = mrkdisp_.shapeint_;
+	LineStyle ls = LineStyle( LineStyle::Dot, mrkdisp_.size_, col );
+	if ( shapeint == 1 )
+	    ls.type_ =  LineStyle::Solid;
+	if ( shapeint == 2 )
+	    ls.type_ = LineStyle::Dash;
+
 	li->setPenStyle( ls );
 	li->setZValue( 2 );
 	mrkdraw->lineitm_ = li;
+	mrkdraw->ls_ = ls;
 
 	BufferString mtxt( mrkr.name() );
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
@@ -407,7 +504,7 @@ void uiWellLogDisplay::drawMarkers()
 	uiTextItem* ti = scene().addItem(
 	new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
 	ti->setPos( uiPoint(x1-1,y) );
-	ti->setTextColor( col );
+	ti->setTextColor( nmcol );
 	mrkdraw->txtitm_ = ti;
     }
 }

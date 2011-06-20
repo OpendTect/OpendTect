@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.28 2011-05-25 12:51:24 cvsnageswara Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.29 2011-06-20 11:55:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Markers&,
 					const BufferStringSet& allmarkernms,
-					BufferStringSet& selmarkernms);
+					bool is2d);
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
@@ -130,6 +130,7 @@ protected:
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
     BufferStringSet&	selmarkernms_;
+    bool		is2d_;
 };
 
 

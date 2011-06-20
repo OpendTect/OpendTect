@@ -57,15 +57,12 @@ public:
     bool      		updateFromWD();
     bool      		commitToWD();
 
-    void		setWD( Well::Data* wd )
-			{ wd_ = wd; }
+    void		setWD( Well::Data* wd ) 	{ wd_ = wd; }
     void 		applyCheckShotShiftToModel();
-    void 		replaceTime(const Array1DImpl<float>&);
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
     void		setFromVelLog(const char*);
-    void		setFromData(const Array1DImpl<float>&,
-				    const Array1DImpl<float>&);
+    void		setFromData(float* dah,float* time,int sz);
 
 protected:
 

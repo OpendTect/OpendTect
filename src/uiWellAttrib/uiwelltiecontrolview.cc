@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.34 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.35 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -25,9 +25,11 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.34 2011-06-16 15:14
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
+#include "uiseparator.h"
 #include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
+#include "uiwelldispprop.h"
 #include "uiworld2ui.h"
 
 
@@ -214,24 +216,35 @@ public :
 	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
 	, pms_(pms) 
     {
-	dispmrkfld_ = new uiCheckBox( this, "display markers");
+	uiGroup* topgrp = new uiGroup( this, "top group" );
+	dispmrkfld_ = new uiCheckBox( topgrp, "display markers");
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
 	dispmrkfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
-	disphorfld_ = new uiCheckBox( this, "display horizons");
+	disphorfld_ = new uiCheckBox( topgrp, "display horizons");
 	disphorfld_->setChecked( pms_.isvwrhordisp_ );
 	disphorfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
 	disphorfld_->attach( alignedBelow, dispmrkfld_ );
 
-	dispmrkfullnamefld_ = new uiCheckBox( this, "display full name" );
+	dispmrkfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
 	dispmrkfullnamefld_->setChecked(
 	pms_.isvwrmarkerdisp_ && pms_.dispmrkfullnames_ );
 	dispmrkfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
 	dispmrkfullnamefld_->attach( rightOf, dispmrkfld_ );
-	disphorfullnamefld_ = new uiCheckBox( this, "display full name" );
+	disphorfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
 	disphorfullnamefld_->attach( rightOf, disphorfld_ );
 	disphorfullnamefld_->setChecked(
 	pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
 	disphorfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
+
+	uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
+	sep->attach( stretchedBelow, topgrp );
+
+	mrkdispfld_ = new uiWellMarkersDispProperties( this, 
+		uiWellDispProperties::Setup( "Marker size", "Marker color" ), 
+		pms_.mrkdisp_, pms_.allmarkernms_, true );	
+	mrkdispfld_->attach( ensureBelow, sep );
+	mrkdispfld_->attach( alignedBelow, topgrp );
+
 	dispChged(0);
     }
 
@@ -243,6 +256,7 @@ public :
 	pms_.disphorfullnames_ = disphorfullnamefld_->isChecked();
 	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
 	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
+	mrkdispfld_->putToScreen();
     }
 
 protected:
@@ -252,6 +266,7 @@ protected:
     uiCheckBox* 	disphorfld_;
     uiCheckBox*         dispmrkfullnamefld_;
     uiCheckBox*         disphorfullnamefld_;
+    uiWellMarkersDispProperties* mrkdispfld_;
 };
 
 
@@ -299,6 +314,7 @@ void uiControlView::usePar( const IOPar& iop )
     iop.get( sKeyZoom, zrg );
     curview_.setTopBottom( zrg );
     setSelView( false, false );
+    redrawNeeded.trigger();
 }
 
 void uiControlView::applyProperties(CallBacker*)

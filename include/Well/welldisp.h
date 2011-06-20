@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.36 2011-06-10 07:34:31 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.37 2011-06-20 11:55:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,9 +38,10 @@ public:
 			DisplayProperties(const Well::DisplayProperties& dp)
 			    : track_(dp.track_)
 			    , markers_(dp.markers_)
-			    , selmarkernms_(dp.selmarkernms_)
 			    , displaystrat_(dp.displaystrat_)
 			    {
+				deepCopy( markers_.selmarkernms_, 
+				       dp.markers_.selmarkernms_);
 				deepCopy( logs_, dp.logs_ );
 			    }			    
 			~DisplayProperties();
@@ -114,6 +115,7 @@ public:
 	FontData 	font_;
 	Color		nmcol_;
 	bool		samenmcol_;
+	BufferStringSet	selmarkernms_;
 
     protected:
 
@@ -176,7 +178,6 @@ public:
 
     Track		track_;
     Markers		markers_;
-    BufferStringSet	selmarkernms_;
     bool		displaystrat_; //2d only
 
     virtual void	usePar(const IOPar&);

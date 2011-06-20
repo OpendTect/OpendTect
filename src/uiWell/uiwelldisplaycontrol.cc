@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.19 2010-12-07 12:50:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.20 2011-06-20 11:55:52 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -257,9 +257,9 @@ void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
     for ( int iddisp=0; iddisp<logdisps_.size(); iddisp++ )
     {
 	uiWellLogDisplay& ld = *logdisps_[iddisp];
-	const LineStyle& ls = ld.setup_.markerls_;
 	uiWellLogDisplay::MarkerDraw* mrkdraw = ld.getMarkerDraw( mrk );
 	if ( !mrkdraw ) continue;
+	const LineStyle& ls = mrkdraw->ls_;
 	uiLineItem& li = *mrkdraw->lineitm_;
 	int width = yn ? ls.width_+2 : ls.width_;
 	li.setPenStyle( LineStyle( ls.type_, width, mrk.color() ) ); 

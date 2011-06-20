@@ -7,107 +7,97 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.21 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.22 2011-06-20 11:55:53 cvsbruno Exp $";
 
 #include "uiwelltieeventstretch.h"
 
 #include "arrayndimpl.h"
+#include "interpol1d.h"
+#include "idxable.h"
+#include "survinfo.h"
 #include "welld2tmodel.h"
 #include "welltiedata.h"
-#include "welltiegeocalculator.h"
+#include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
 namespace WellTie
 {
 
-EventStretch::EventStretch( PickSetMgr& pmgr ) 
-	: timeChanged(this)
-  	, pmgr_(pmgr) 
+EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr ) 
+  	: pmgr_(pmgr) 
 	, synthpickset_(pmgr_.synthPickSet())
 	, seispickset_(pmgr_.seisPickSet())
+	, d2tmgr_(d2tmgr)					   
 	, d2t_(0)
-	, timearr_(0)		 
 {} 
-
-
-EventStretch::~EventStretch()
-{ delete timearr_; }
 
 
 void EventStretch::doWork( CallBacker* )
 {
     pmgr_.sortByPos(); 	
     doStretchWork();	
-    timeChanged.trigger();
 }
 
 
 void EventStretch::doStretchWork()
 {
-    if ( !d2t_ ) return;
-    const int d2tsz = d2t_->size();
-    delete timearr_;
-    timearr_ = new Array1DImpl<float>( d2tsz );
-    Array1DImpl<float> prvtimearr( d2tsz );
-
-    float timeshift = seispickset_.last().zpos_ - synthpickset_.last().zpos_;
-
-    for ( int idx=0; idx<d2tsz; idx++ )
-    {
-	prvtimearr.set( idx, d2t_->value(idx) );
-	timearr_->set( idx, d2t_->value(idx) + timeshift );
-    }
-
-    updatePicksPos( *timearr_, prvtimearr, true, 0 );
-    infborderpos_ = 0;
-    supborderpos_ = seispickset_.last().zpos_;
-    const int seisz = seispickset_.size();
-
-    for ( int idx=0; idx<seisz-1; idx++ )
-    {
-	if ( idx )
-	    infborderpos_ = seispickset_[idx-1].zpos_;
-
-	startpos_ = synthpickset_[idx].zpos_;
-	stoppos_  = seispickset_[idx].zpos_;
-
-	prvtimearr = Array1DImpl<float>( *timearr_ );
-	doStretchData( prvtimearr, *timearr_ );
-	//position of the following picks needs update if one of the pick moved
-	updatePicksPos( *timearr_, prvtimearr, true, idx );
-    }
-}
-
-
-void EventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
-				    const Array1DImpl<float>& prevtime,
-				    bool issynth, int startidx )
-{
-    const TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
-    for ( int pickidx=startidx; pickidx<pickset.size(); pickidx++ )
-    {
-	float curpos = pickset[pickidx].zpos_;
-	const int newidx = geocalc_.getIdx( prevtime, curpos );
-	curpos = curtime.get( newidx );
-	pmgr_.setPickSetPos( issynth, pickidx, curpos );
-    }
-}
-
-
-void EventStretch::doStretchData( const Array1DImpl<float>& prvt,
-	                                Array1DImpl<float>& t )
-{
-    WellTie::GeoCalculator::StretchData sd;
-    sd.start_ = geocalc_.getIdx( prvt, infborderpos_ );
-    sd.pick1_ = geocalc_.getIdx( prvt, startpos_ );
-    sd.pick2_ = geocalc_.getIdx( prvt, stoppos_ );
-    sd.stop_  = geocalc_.getIdx( prvt, supborderpos_ );
-
-    if ( sd.pick1_ < sd.start_ || sd.pick2_ > sd.stop_ )
+    if ( !d2t_ && d2t_->size() < 2 ) 
 	return;
 
-    sd.inp_ = &prvt;    sd.outp_ = &t;
-    geocalc_.stretch( sd );
+    if ( synthpickset_.size() == 1 && seispickset_.size() == 1 )
+	doStaticShift();
+    else
+	doStretchSqueeze();
+}
+
+
+void EventStretch::doStaticShift()
+{
+    const float shift = seispickset_.last().zpos_ - synthpickset_.last().zpos_;
+    d2tmgr_.shiftModel( shift );
+}
+
+
+#define mGapSize SI().zStep()*2 
+void EventStretch::doStretchSqueeze()
+{
+    int d2tsz = d2t_->size();
+    //we need to interpolate the model for efficient stretch/squeeze
+    TypeSet<float> d2tarr, daharr;
+    for ( int idx=0; idx<d2tsz-1; idx++ )
+    {
+	const float timeval1 = d2t_->value(idx);
+	const float timeval2 = d2t_->value(idx+1);
+	d2tarr += timeval1;
+	daharr += d2t_->dah( idx );
+	if ( fabs( timeval2 - timeval1 ) > mGapSize )
+	{
+	    float time = timeval1;
+	    while ( time < timeval2 )
+	    {
+		time += mGapSize;
+		d2tarr += time;
+		daharr += d2t_->getDah( time );
+	    }
+	}
+    }
+    d2tsz = d2tarr.size();
+
+    Array1DImpl<float> calibratedarr( d2tsz );
+    TypeSet<int> ctrlidxs; TypeSet<float> ctrlvals;
+    for ( int idx=0; idx<seispickset_.size(); idx++ )
+    {
+	const float pos = synthpickset_[idx].zpos_;
+	int idx1 = -1;
+	IdxAble::findFPPos( d2tarr.arr(), d2tsz, pos, -1, idx1 );
+	ctrlidxs += idx1;
+	ctrlvals += seispickset_[idx].zpos_;
+    }
+    IdxAble::callibrateArray( d2tarr.arr(), d2tsz,
+				ctrlvals.arr(), ctrlidxs.arr(),
+				ctrlvals.size(), false, calibratedarr.arr() );
+
+    d2tmgr_.setFromData( daharr.arr(), calibratedarr.arr(), d2tsz );
 }
 
 }; //namespace WellTie

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.51 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.52 2011-06-20 11:55:52 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -62,6 +62,7 @@ void DispParams::fillPar( IOPar& iop ) const
     iop.setYN( sKeyZInTime, iszintime_ );	
     iop.setYN( sKeyMarkerFullName, dispmrkfullnames_ );
     iop.setYN( sKeyHorizonFullName, disphorfullnames_ );
+    mrkdisp_.fillPar( iop );
 }
 
 
@@ -75,6 +76,7 @@ void DispParams::usePar( const IOPar& iop )
     iop.getYN( sKeyZInTime, iszintime_ );	
     iop.getYN( sKeyMarkerFullName, dispmrkfullnames_ );
     iop.getYN( sKeyHorizonFullName, disphorfullnames_ );
+    mrkdisp_.usePar( iop );
 }    
 
 
@@ -86,12 +88,18 @@ Data::Data( const Setup& wts, Well::Data& w)
     , iscscorr_(false)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
     , estimatedwvlt_(*new Wavelet(initwvlt_))
+    , isinitwvltactive_(true)					     
     , timeintv_(SI().zRange(true))
     , seistrc_(*new SeisTrc)  
     , synthtrc_(*new SeisTrc)  
     , trunner_(0)
 {
     estimatedwvlt_.setName( "Estimated wavelet" );
+    for ( int idx=0; idx<w.markers().size(); idx++ )
+    {
+	dispparams_.allmarkernms_.add( w.markers()[idx]->name() );
+	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
+    }
 }
 
 

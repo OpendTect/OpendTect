@@ -36,7 +36,6 @@ public:
     {
 			    Setup()
 			    : nrmarkerchars_(2)
-			    , markerls_(LineStyle::Dot,1)
 			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
 			    , border_(5)
 			    , noxannot_(false)
@@ -47,7 +46,6 @@ public:
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
-	mDefSetupMemb(LineStyle,markerls) //!< will not use color
 	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
 	mDefSetupMemb(int,axisticsz)
 	mDefSetupMemb(bool,noxannot)
@@ -109,6 +107,8 @@ public:
     };
     TypeSet<PickData>&          zPicks()        { return zpicks_; }
 
+    Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
+
 protected:
 
     LogData                     ld1_;
@@ -126,11 +126,13 @@ protected:
 			        ~MarkerDraw();
 
 	const Well::Marker& 	mrk_;
+	LineStyle		ls_;
 	uiTextItem*     	txtitm_;
 	uiLineItem*     	lineitm_;
     };
     ObjectSet<MarkerDraw>       markerdraws_;
     MarkerDraw*                 getMarkerDraw(const Well::Marker&);
+    Well::DisplayProperties::Markers mrkdisp_;
 
     void                        gatherInfo();
     void                        draw();
@@ -139,6 +141,7 @@ protected:
     void                        gatherInfo(bool);
     void                        setAxisRanges(bool);
     void                        drawCurve(bool);
+    void                        drawSeismicCurve(bool);
     void                        drawFilledCurve(bool);
     void                        drawMarkers();
     void                        drawZPicks();

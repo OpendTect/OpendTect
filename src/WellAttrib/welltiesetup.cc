@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiesetup.cc,v 1.7 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiesetup.cc,v 1.8 2011-06-20 11:55:52 cvsbruno Exp $";
 
 
 #include "welltiesetup.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: welltiesetup.cc,v 1.7 2011-06-16 15:14:34 cvsbr
 namespace WellTie
 {
 
+const char* IO::sKeyWellTieSetup()   	{ return "Well Tie Setup"; }
+
 static const char* sKeySeisID = "ID of selected seismic";
 static const char* sKeySeisLine = "ID of selected Line";
 static const char* sKeyVelLogName = "Velocity log name";
@@ -27,26 +29,28 @@ static const char* sKeyDensLogName = "Density log name";
 static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
 
+static const char* sKeySetupPar = "Well Tie Setup";
+
 
 void Setup::usePar( const IOPar& iop )
 {
-    iop.get( IOPar::compKey("",sKeySeisID), seisid_ );
-    iop.get( IOPar::compKey("",sKeySeisLine), linekey_ );
-    iop.get( IOPar::compKey("",sKeyVelLogName), denlognm_ );
-    iop.get( IOPar::compKey("",sKeyDensLogName), vellognm_ );
-    iop.get( IOPar::compKey("",sKeyWavltID), wvltid_ );
-    iop.getYN( IOPar::compKey("",sKeyIsSonic), issonic_ );
+    iop.get( sKeySeisID, seisid_ );
+    iop.get( sKeySeisLine,linekey_ );
+    iop.get( sKeyVelLogName, denlognm_ );
+    iop.get( sKeyDensLogName, vellognm_ );
+    iop.get( sKeyWavltID, wvltid_ );
+    iop.getYN( sKeyIsSonic, issonic_ );
 }
 
 
 void Setup::fillPar( IOPar& iop ) const
 {
-    iop.set( IOPar::compKey("",sKeySeisID), seisid_ );
-    iop.set( IOPar::compKey("",sKeySeisLine), linekey_ );
-    iop.set( IOPar::compKey("",sKeyVelLogName), denlognm_ );
-    iop.set( IOPar::compKey("",sKeyDensLogName), vellognm_ );
-    iop.set( IOPar::compKey("",sKeyWavltID), wvltid_ );
-    iop.setYN( IOPar::compKey("",sKeyIsSonic), issonic_ );
+    iop.set( sKeySeisID, seisid_ );
+    iop.set( sKeySeisLine, linekey_ );
+    iop.set( sKeyVelLogName, denlognm_ );
+    iop.set( sKeyDensLogName, vellognm_ );
+    iop.set( sKeyWavltID, wvltid_ );
+    iop.setYN( sKeyIsSonic, issonic_ );
 }
 
 
@@ -88,23 +92,36 @@ bool Writer::wrHdr( std::ostream& strm, const char* fileky ) const
 }
 
 
-bool Writer::putWellTieSetup( const WellTie::Setup& wsd ) const
+bool Writer::putWellTieSetup( const WellTie::Setup& wst ) const
 {
+    IOPar par; wst.fillPar( par );
+    return putIOPar( par, sKeySetupPar );
+}
+
+
+bool Writer::putIOPar( const IOPar& iop, const char* subsel ) const
+{
+    BufferString fnm( getFileName(sExtWellTieSetup()) );
+    Reader wtr( fnm );
+    IOPar* filepar = wtr.getIOPar( 0 );
+    if ( !filepar ) filepar = new IOPar();
+    filepar->mergeComp( iop, subsel );
+
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = ptWellTieSetup( wsd, *sd.ostrm );
+    const bool isok = ptIOPar( *filepar, subsel, *sd.ostrm );
     sd.close();
+    delete filepar;
     return isok;
 }
 
 
-bool Writer::ptWellTieSetup(const WellTie::Setup& wsd,std::ostream& strm) const
+bool Writer::ptIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
 {
     if ( !wrHdr(strm,sKeyWellTieSetup()) ) return false;
 
     ascostream astrm( strm );
-    IOPar iop; wsd.fillPar( iop );
     iop.putTo( astrm );
     return strm.good();
 }
@@ -127,77 +144,37 @@ static const char* rdHdr( std::istream& strm, const char* fileky )
 }
 
 
-const char* IO::sKeyWellTieSetup()   	{ return "Well Tie Setup"; }
+void Reader::getWellTieSetup( WellTie::Setup& wst ) const
+{
+    IOPar* iop = getIOPar( sKeySetupPar );
+    if ( !iop ) iop = getIOPar( "" );
+    if ( iop )
+	wst.usePar( *iop );
+
+    delete iop;
+}
 
 
-bool Reader::getWellTieSetup( WellTie::Setup& wsd ) const
+IOPar* Reader::getIOPar( const char* subsel ) const
 {
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = gtWellTieSetup( wsd, *sd.istrm );
+    IOPar* iop = gtIOPar( subsel, *sd.istrm );
     sd.close();
-    return isok;
+    return iop;
 }
 
 
-bool Reader::gtWellTieSetup( WellTie::Setup& wsd, std::istream& strm ) const
+IOPar* Reader::gtIOPar( const char* subsel, std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return false;
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
-    wsd.usePar( iop );
-    return true;
+    return subsel ? iop.subselect( subsel ) : new IOPar(iop);
 }
 
-
-bool Writer::putWellTieWin( const IOPar& winpar ) const
-{
-    StreamData sd = mkSD( sExtWellTieSetup() );
-    if ( !sd.usable() ) return false;
-
-    IOPar par; par.mergeComp( winpar, "" );
-    BufferString fnm( getFileName(sExtWellTieSetup()) );
-    Reader wtr( fnm );
-    WellTie::Setup wts; wtr.getWellTieSetup( wts );
-    IOPar setpar; wts.fillPar( setpar );
-    par.mergeComp( setpar, "" );
-
-    const bool isok = ptWellTieWin( par, *sd.ostrm );
-    sd.close();
-    return isok;
-}
-
-
-bool Writer::ptWellTieWin( const IOPar& iop, std::ostream& strm) const
-{
-    ascostream astrm( strm );
-    iop.putTo( astrm );
-    return strm.good();
-}
-
-
-bool Reader::getWellTieWin( IOPar& winpar ) const
-{
-    StreamData sd = mkSD( sExtWellTieSetup() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = gtWellTieWin( winpar, *sd.istrm );
-    sd.close();
-    return isok;
-}
-
-
-bool Reader::gtWellTieWin( IOPar& iop, std::istream& strm ) const
-{
-    if ( !rdHdr(strm,sKeyWellTieSetup()) )
-	return false;
-
-    ascistream astrm( strm, false );
-    iop.getFrom( astrm );
-    return true;
-}
 
 }; // namespace WellTie

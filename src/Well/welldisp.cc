@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.21 2011-05-27 07:33:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.22 2011-06-20 11:55:52 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -76,7 +76,7 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
     logs_[0]->right_.isleftfill_ = true;
 
     Settings& setts = Settings::fetch( "welldisp" );
-    selmarkernms_.erase();
+    markers_.selmarkernms_.erase();
     usePar( setts );
 }
 

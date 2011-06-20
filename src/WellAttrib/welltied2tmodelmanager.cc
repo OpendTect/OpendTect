@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.30 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.31 2011-06-20 11:55:52 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -115,18 +115,6 @@ void D2TModelMgr::shiftModel( float shift)
 }
 
 
-void D2TModelMgr::replaceTime( const Array1DImpl<float>& timevals )
-{
-    if ( !d2T() ) return;
-    Well::D2TModel* d2t = new Well::D2TModel( *d2T() );
-    for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
-	d2t->valArr()[dahidx] = timevals[dahidx];
-
-    mRemoveSameTimeValues(d2t);
-    setAsCurrent( d2t );
-}
-
-
 void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 {
     ensureValid( *d2t );
@@ -135,7 +123,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 
     if ( prvd2t_ )
 	delete prvd2t_; 
-    if ( !d2T() ) 
+    if ( d2T() ) 
 	prvd2t_ =  new Well::D2TModel( *d2T() );
     if ( wd_ )
 	wd_->setD2TModel( d2t );
@@ -190,5 +178,17 @@ void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
     calc_.ensureValidD2TModel( d2t );
 }
 
+
+void D2TModelMgr::setFromData( float* dahs, float* times, int sz )
+{
+    if ( !d2T() ) return;
+    Well::D2TModel* d2t = new Well::D2TModel();
+    d2t->add( d2T()->dah(0), d2T()->value(0) );
+    for ( int dahidx=1; dahidx<sz; dahidx++ )
+	d2t->add( dahs[dahidx], times[dahidx] );
+
+    mRemoveSameTimeValues(d2t);
+    setAsCurrent( d2t );
+}
 
 }; //namespace WellTie

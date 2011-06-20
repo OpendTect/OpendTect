@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.60 2011-06-16 08:49:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.61 2011-06-20 11:55:52 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -20,10 +20,7 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.60 2011-06-16 08:49
 #include "linear.h"
 #include "genericnumer.h"
 #include "spectrogram.h"
-#include "survinfo.h"
-#include "wavelet.h"
 #include "welllog.h"
-#include "welllogset.h"
 #include "welltrack.h"
 #include "welltieunitfactors.h"
 #include "welld2tmodel.h"
@@ -135,40 +132,6 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 }
 
 
-void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
-{
-    sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
-    sd.isstretch_ = true;
-    stretch( sd, sd.stretchfac_ ); 
-
-    sd.isstretch_ = false;
-    sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
-    stretch( sd, sd.squeezefac_ );
-}
-
-
-void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd, 
-			    float factor ) const
-{
-    int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
-    int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
-    const int datasz = sd.inp_->info().getSize(0);
-    for ( int idx=start; idx<stop; idx++ )
-    {
-	float v = sd.isstretch_ ? sd.start_ : sd.stop_;
-	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
-	const int curidx = (int) curval;
-	if ( curidx >= datasz-1 || curidx < 0 ) continue;
-	const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
-	sd.inp_->get(curidx+1),
-	curval-curidx);
-	sd.outp_->setValue( idx , newval );
-    }
-}
-
-
-
-
 void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 {
     if ( sz< 2 || sz < 2*gate ) return;
@@ -189,13 +152,21 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 
 
 
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{\
+    tf.setInputInfo(Array1DInfoImpl(sz));\
+    tf.setDir(isstraight);\
+    tf.init();\
+    tf.transform(inp,outp);\
+}
+
 #define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
 {   \
     tf->setInputInfo(Array1DInfoImpl(sz));\
     tf->setDir(isstraight);\
     tf->setNormalization(!isstraight); \
-    tf->setInput(inp->getData());\
-    tf->setOutput(outp->getData());\
+    tf->setInput(inp.getData());\
+    tf->setOutput(outp.getData());\
     tf->run(true); \
 }
 
@@ -204,54 +175,40 @@ void GeoCalculator::deconvolve( const float* inp, const float* filter,
 			        float* deconvals, int inpsz ) const
 {
     ArrayNDWindow window( Array1DInfoImpl(inpsz), false, "CosTaper", 0.1 );
-    Array1DImpl<float>* inputvals = new Array1DImpl<float>( inpsz );
-    Array1DImpl<float>* filtervals = new Array1DImpl<float>( inpsz );
-    memcpy(inputvals->getData(),inp,inpsz*sizeof(float));
-    memcpy(filtervals->getData(),filter,inpsz*sizeof(float));
-    window.apply( inputvals );		removeBias( inputvals );
-    window.apply( filtervals );		removeBias( filtervals );
+    Array1DImpl<float> inputvals( inpsz );
+    Array1DImpl<float> filtervals( inpsz );
+    memcpy(inputvals.getData(),inp,inpsz*sizeof(float));
+    memcpy(filtervals.getData(),filter,inpsz*sizeof(float));
+    window.apply( &inputvals );		removeBias( &inputvals );
+    window.apply( &filtervals );	removeBias( &filtervals );
 
-    HilbertTransform hil;
-    hil.setCalcRange(0, inpsz, 0);
-    Array1DImpl<float_complex>* cinputvals = 
-				new Array1DImpl<float_complex>( inpsz );
+    Array1DImpl<float_complex> cinputvals( inpsz );
+    Array1DImpl<float_complex> cfiltervals( inpsz );
     for ( int idx=0; idx<inpsz; idx++ )
-	cinputvals->set( idx, inputvals->get( idx ) );
-    delete inputvals;
-    Array1DImpl<float_complex>* cfiltervals = 
-				new Array1DImpl<float_complex>( inpsz );
-    for ( int idx=0; idx<inpsz; idx++ )
-	cfiltervals->set( idx, filtervals->get( idx ) );
-    delete filtervals;
+    {
+	cinputvals.set( idx, inputvals.get( idx ) );
+	cfiltervals.set( idx, filtervals.get( idx ) );
+    }
    
-    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
-    Array1DImpl<float_complex>* cfreqinputvals = 
-				new Array1DImpl<float_complex>( inpsz );
-    mDoFourierTransform( fft, true, cinputvals, cfreqinputvals, inpsz );
-    delete cinputvals;
-    Array1DImpl<float_complex>* cfreqfiltervals = 
-				new Array1DImpl<float_complex>( inpsz );
-    mDoFourierTransform( fft, true, cfiltervals, cfreqfiltervals, inpsz );
-
     Spectrogram spec;
-    Array1DImpl<float_complex>* cspecfiltervals = 
-				new Array1DImpl<float_complex>( inpsz );
-    for ( int idx=0; idx<inpsz; idx++ )
-	cspecfiltervals->set( idx, cfiltervals->get( idx ) );
-    delete cfiltervals;
+    Array1DImpl<float_complex> cspecfiltervals( inpsz );
+    mDoTransform( spec, true, cfiltervals, cspecfiltervals, inpsz );
 
     float_complex wholespec = 0;
     float_complex noise = mNoise/inpsz;
     for ( int idx=0; idx<inpsz; idx++ )
-	wholespec += cspecfiltervals->get( idx );  
+	wholespec += cspecfiltervals.get( idx );  
     float_complex cnoiseshift = noise*wholespec;
-   
-    Array1DImpl<float_complex>* cdeconvvals = 
-				new  Array1DImpl<float_complex>( inpsz ); 
+
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+    mDoFourierTransform( fft, true, cinputvals, cinputvals, inpsz );
+    mDoFourierTransform( fft, true, cfiltervals, cfiltervals, inpsz );
+
+    Array1DImpl<float_complex> cdeconvvals( inpsz ); 
     for ( int idx=0; idx<inpsz; idx++ )
     {
-	float_complex inputval = cfreqinputvals->get(idx);
-	float_complex filterval = cfreqfiltervals->get(idx);
+	float_complex inputval = cinputvals.get(idx);
+	float_complex filterval = cfiltervals.get(idx);
 
 	double rfilterval = filterval.real();
 	double ifilterval = filterval.imag();
@@ -261,30 +218,25 @@ void GeoCalculator::deconvolve( const float* inp, const float* filter,
 	float_complex denom = filterval * conjfilterval + cnoiseshift;
 	float_complex res = num / denom;
 
-	cdeconvvals->setValue( idx, res );
+	cdeconvvals.setValue( idx, res );
     }
-    delete cfreqinputvals; delete  cfreqfiltervals;
 
     float avg = 0;
     for ( int idx=0; idx<inpsz; idx++ )
-	avg += abs( cdeconvvals->get( idx ) )/inpsz;
+	avg += abs( cdeconvvals.get( idx ) )/inpsz;
     for ( int idx=0; idx<inpsz; idx++ )
     {
-	if ( abs( cdeconvvals->get( idx ) ) < avg/4 )
-	    cdeconvvals->set( idx, 0 );
+	if ( abs( cdeconvvals.get( idx ) ) < avg/4 )
+	    cdeconvvals.set( idx, 0 );
     }
 
-    Array1DImpl<float_complex>* ctimedeconvvals = 
-				new Array1DImpl<float_complex>( inpsz );
-    mDoFourierTransform( fft, false, cdeconvvals, ctimedeconvvals, inpsz );
-    delete cdeconvvals;
+    mDoFourierTransform( fft, false, cdeconvvals, cdeconvvals, inpsz );
 
     int mid = (int)(inpsz)/2;
     for ( int idx=0; idx<=mid; idx++ )
-	deconvals[idx] = ctimedeconvvals->get( mid-idx ).real();;
+	deconvals[idx] = cdeconvvals.get( mid-idx ).real();;
     for ( int idx=mid+1; idx<inpsz; idx++ )
-	deconvals[idx] = ctimedeconvvals->get( inpsz-idx+mid ).real();
-    delete ctimedeconvvals;
+	deconvals[idx] = cdeconvvals.get( inpsz-idx+mid ).real();
 }
 
 

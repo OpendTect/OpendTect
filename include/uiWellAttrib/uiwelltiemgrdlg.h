@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.14 2011-01-20 10:21:38 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.15 2011-06-20 11:55:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,8 @@ protected:
     uiWaveletExtraction* extractwvltdlg_;
 
     bool		getDefaults();
-    void		saveWellTieSetup(const MultiID&,const WellTie::Setup&);
+    void		saveWellTieSetup(const MultiID&,
+	    				const WellTie::Setup&) const;
     
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
