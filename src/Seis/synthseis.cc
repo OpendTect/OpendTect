@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.28 2011-06-16 15:12:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.29 2011-06-20 11:53:37 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -220,10 +220,12 @@ bool SynthGenerator::doFFTConvolve( float* res )
 
     mDoFFT( cres, false, fftsz_ )
 
-    for ( int idx=0; idx<wvltsz/2; idx++ )
+    const int midwvltsz = wvltsz%2 == 0 ? wvltsz/2+1 : wvltsz/2;
+
+    for ( int idx=0; idx<midwvltsz; idx++ )
 	res[nrsamp-idx-1] = cres[idx].real();
-    for ( int idx=0; idx<nrsamp-wvltsz/2; idx++ )
-	res[idx] = cres[idx+wvltsz/2].real();
+    for ( int idx=0; idx<nrsamp-midwvltsz; idx++ )
+	res[idx] = cres[idx+midwvltsz].real();
 
     delete [] cres;
     
@@ -235,9 +237,10 @@ bool SynthGenerator::doTimeConvolve( float* res )
 {
     const int ns = outtrc_.size();
     TypeSet<float> refs; getSampledReflectivities( refs );
-    const int wvltcs = wavelet_->centerSample();
     const int wvltsz = wavelet_->size();
-    GenericConvolve( wvltsz, -wvltcs-1, wavelet_->samples(),
+    const int wvltcs = wvltsz%2 == 0 ? wavelet_->centerSample() 
+				     : wavelet_->centerSample()-1;
+    GenericConvolve( wvltsz, -wvltcs, wavelet_->samples(),
 		     refs.size(), 0, refs.arr(),
 		     ns, 0, res );
     return true;
