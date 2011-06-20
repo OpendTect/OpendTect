@@ -7,16 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.12 2011-06-20 12:21:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.13 2011-06-20 14:53:59 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
 #include "welldata.h"
+#include "welllogset.h"
+#include "wellmarker.h"
 #include "uistatusbar.h"
 #include "uiwelldisplaycontrol.h"
 #include "uiwellinfopanels.h"
 #include "uiwelllogdisplay.h"
-#include "welllogset.h"
 #include "uiwellstratdisplay.h"
 
 #include  "uimainwin.h"
@@ -38,7 +39,13 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     else
 	wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
 
-    const Well::DisplayProperties& disp = wd_.displayProperties( !is3ddisp_ );
+    Well::DisplayProperties& disp = wd_.displayProperties( !is3ddisp_ );
+    for ( int idx=0; idx<wd_.markers().size(); idx++ )
+    {
+	if ( !wd_.markers()[idx] ) continue;
+	const char* mrkrnm = wd_.markers()[idx]->name();
+	disp.markers_.selmarkernms_.addIfNew( mrkrnm );
+    }
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
@@ -169,6 +176,7 @@ void uiWellDisplay::setDisplayProperties()
 	ld1.xrev_ = false;			ld2.xrev_ = false;
 	ld1.disp_ = lp1;			ld2.disp_ = lp2;
 
+	logdisps_[idx]->markerDisp() = dpp.markers_;
 	logdisps_[idx]->dataChanged();
     }
 }
