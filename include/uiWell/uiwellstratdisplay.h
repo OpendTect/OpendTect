@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.16 2010-10-05 15:17:52 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.17 2011-06-20 11:54:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,20 +16,17 @@ ________________________________________________________________________
 #include "uiwelldahdisplay.h"
 
 /*!\brief creates a display of stratigraphy IF levels are linked to markers.*/
-mClass uiWellStratDisplay : public uiWellDahDisplay
+
+mClass WellStratUnitGen : public CallBacker
 {
 public:
+				WellStratUnitGen(StratDispData&,
+						const ObjectSet<Well::Marker>&,
+						const Well::D2TModel*);
+				~WellStratUnitGen();
 
-				uiWellStratDisplay(uiParent*);
-				~uiWellStratDisplay();
-
-    const StratDispData&	stratData() const 
-    					{ return data_; }
-
-    int				transparency() const  
-    					{ return transparency_; }
-    void			setTransparency(int t) 
-    					{ transparency_ = t; dataChanged(); }
+    const StratDispData&	stratData() const { return data_; }
+    void			gatherInfo();
 
 protected:
 
@@ -42,11 +39,9 @@ protected:
     ObjectSet<StratDispData::Unit> dispunits_;
     ObjectSet<const Strat::NodeOnlyUnitRef> units_;
 
-    StratDispData		data_;
-    uiStratDrawer               drawer_;
-  
-    int				transparency_;
-
+    StratDispData&		data_;
+    const ObjectSet<Well::Marker>& markers_;
+    const Well::D2TModel*	d2tmodel_;
 
     void 			assignTimesToLeavedUnits();
     void 			assignTimesToAllUnits();
@@ -55,14 +50,38 @@ protected:
     bool			areLeavedTied(const Strat::LeavedUnitRef&,
 					    const Strat::LeavedUnitRef&) const;
 
+    void			dataChangedCB(CallBacker*) { gatherInfo(); };
+};
+
+
+mClass uiWellStratDisplay : public uiWellDahDisplay
+{
+public:
+
+				uiWellStratDisplay(uiParent*);
+				~uiWellStratDisplay();
+
+    int				transparency() const  
+    					{ return transparency_; }
+    void			setTransparency(int t) 
+    					{ transparency_ = t; dataChanged(); }
+
+    const StratDispData& 	stratData() const { return data_; }
+protected:
+
+    WellStratUnitGen*		stratgen_;
+
+    StratDispData		data_;
+    uiStratDrawer               drawer_;
+  
+    int				transparency_;
+
     void			dataChangedCB(CallBacker*)
 				{ dataChanged(); }
     void			gatherInfo();
     void			draw();
-
-
 };
 
-#endif
 
+#endif
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.31 2011-04-07 11:41:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.32 2011-06-20 11:54:22 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -20,7 +20,8 @@ static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.31 2011-04-07 11:41:1
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,"Well Strat Display")
     , data_(StratDispData())  
-    , drawer_(uiStratDrawer(scene(),data_))  
+    , drawer_(uiStratDrawer(scene(),data_))
+    , stratgen_(0)  
     , transparency_(0)		
 {
     drawer_.setNewAxis( new uiAxisHandler(scene_,
@@ -34,29 +35,37 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
 				.annotinside(true)
 				.border(uiBorder(0))), true );
     drawer_.xAxis()->setBounds( StepInterval<float>( 0, 100, 10 ) );
-
-    uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
-    uidatagather_->newtreeRead.notify(
-	    			mCB(this,uiWellStratDisplay,dataChangedCB));
 }
 
 
 uiWellStratDisplay::~uiWellStratDisplay()
 {
-    delete uidatagather_;
+    delete stratgen_;
 }
 
 
 void uiWellStratDisplay::gatherInfo()
 {
-    gatherLeavedUnits();
-    assignTimesToLeavedUnits();
-    assignTimesToAllUnits();
+    if ( zdata_.markers_ )
+    {
+	delete stratgen_;
+	stratgen_ = new WellStratUnitGen(data_,*zdata_.markers_,zdata_.d2tm_);
+    }
 }
 
 
 void uiWellStratDisplay::draw()
 {
+    for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
+    {
+	data_.getCol( idcol )->isdisplayed_ = false;
+	for ( int idun=0; idun<data_.nrUnits( idcol ); idun++ )
+	{
+	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
+	    unit.color_.setTransparency( transparency_ );
+	}
+    }
+    
     drawer_.xAxis()->setNewDevSize( width(), height() );
     drawer_.yAxis()->setNewDevSize( height(), width() );
     drawer_.yAxis()->plotAxis();
@@ -66,9 +75,38 @@ void uiWellStratDisplay::draw()
 }
 
 
-void uiWellStratDisplay::gatherLeavedUnits()
+
+
+WellStratUnitGen::WellStratUnitGen( StratDispData& data, 
+				    const ObjectSet<Well::Marker>& mrs, 
+				    const Well::D2TModel* d2t )
+    : data_(data)
+    , markers_(mrs)
+    , d2tmodel_(d2t)
 {
-    if ( !zdata_.markers_ ) return;
+    uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
+    uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
+    gatherInfo();
+}
+
+
+WellStratUnitGen::~WellStratUnitGen()
+{
+    delete uidatagather_;
+}
+
+
+void WellStratUnitGen::gatherInfo()
+{
+    gatherLeavedUnits();
+    assignTimesToLeavedUnits();
+    assignTimesToAllUnits();
+}
+
+
+void WellStratUnitGen::gatherLeavedUnits()
+{
+    if ( markers_.isEmpty() ) return;
     posset_.erase(); leaveddispunits_.erase(); leavedunits_.erase();
     units_.erase(); dispunits_.erase();
     for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
@@ -78,7 +116,6 @@ void uiWellStratDisplay::gatherLeavedUnits()
 	{
 	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
 	    unit.isdisplayed_ = false;
-	    unit.color_.setTransparency( transparency_ );
 	    const Strat::UnitRef* ur = Strat::RT().find( unit.fullCode() );
 	    mDynamicCastGet( const Strat::NodeOnlyUnitRef*, nur,ur );
 	    if ( nur )
@@ -96,8 +133,8 @@ void uiWellStratDisplay::gatherLeavedUnits()
 		leavedunits_ += lur; 
 		leaveddispunits_ += &unit;
 		float pos = mrk->dah();
-		if ( zdata_.zistime_ && zdata_.d2tm_ ) 
-		    pos = zdata_.d2tm_->getTime( pos )*1000; 
+		if ( SI().zIsTime() && d2tmodel_ ) 
+		    pos = d2tmodel_->getTime( pos )*1000; 
 		posset_ += pos;
 	    }
 	}
@@ -105,11 +142,11 @@ void uiWellStratDisplay::gatherLeavedUnits()
 }
 
 
-const Well::Marker* uiWellStratDisplay::getMarkerFromLvlID( int lvlid ) const
+const Well::Marker* WellStratUnitGen::getMarkerFromLvlID( int lvlid ) const
 {
-    for ( int idx=0; idx<zdata_.markers_->size(); idx++ )
+    for ( int idx=0; idx<markers_.size(); idx++ )
     {
-	const Well::Marker* curmrk = (*zdata_.markers_)[idx];
+	const Well::Marker* curmrk = markers_[idx];
 	if ( curmrk && curmrk->levelID() >=0 )
 	{
 	    if ( lvlid == curmrk->levelID() )
@@ -122,7 +159,7 @@ const Well::Marker* uiWellStratDisplay::getMarkerFromLvlID( int lvlid ) const
 }
 
 
-void uiWellStratDisplay::assignTimesToLeavedUnits()
+void WellStratUnitGen::assignTimesToLeavedUnits()
 {
     for ( int idx=0; idx<leavedunits_.size()-1; idx++ )
     {
@@ -137,9 +174,7 @@ void uiWellStratDisplay::assignTimesToLeavedUnits()
 }
 
 
-
-
-void uiWellStratDisplay::assignTimesToAllUnits()
+void WellStratUnitGen::assignTimesToAllUnits()
 {
     for ( int idx=0; idx<leaveddispunits_.size(); idx++ )
     {
@@ -167,4 +202,3 @@ void uiWellStratDisplay::assignTimesToAllUnits()
 	}
     }
 }
-
