@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.90 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.91 2011-06-20 13:18:31 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -145,7 +145,7 @@ void uiTieWin::doWork( CallBacker* cb )
     if ( !server_.computeAll() )
 	{ uiMSG().error( server_.errMSG() ); return; }
     getDispParams();
-    drawData();
+    reDrawAll(0);
     drawer_->enableCtrlNotifiers( true );
 }
 
@@ -156,7 +156,7 @@ void uiTieWin::reDrawSeisViewer( CallBacker* )
 }
 
 
-void uiTieWin::drawData()
+void uiTieWin::reDrawAll( CallBacker* )
 {
     drawer_->fullRedraw();
     if ( infodlg_ )
@@ -178,7 +178,7 @@ void uiTieWin::addControls()
 {
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
-    controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
+    controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
 }
 
 
@@ -325,7 +325,7 @@ void uiTieWin::dispPropChg( CallBacker* )
 {
     getDispParams();
     zinftfld_->display( !params_.iszintime_ );
-    drawData();
+    reDrawAll(0);
 }
 
 

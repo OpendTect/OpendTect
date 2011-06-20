@@ -86,7 +86,6 @@ protected:
     void 			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
-    void 			drawData();
     void 			drawFields();
     void 			getDispParams();
     void 			initAll();
@@ -115,6 +114,7 @@ protected:
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
+    void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
     bool 			saveDataPushed(CallBacker*);
