@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.11 2011-06-10 12:33:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.12 2011-06-20 12:21:38 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -27,14 +27,18 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , setup_(s)	    
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
-    , zistime_(w.haveD2TModel()) 	       
+    , zistime_(w.haveD2TModel())
+    , is3ddisp_(s.takedisplayfrom3d_)				
     , control_(0)
     , stratdisp_(0) 
 {
     wd_.d2tchanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
-    wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    if ( is3ddisp_ )
+	wd_.disp3dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    else
+	wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
 
-    const Well::DisplayProperties& disp = wd_.displayProperties(true);
+    const Well::DisplayProperties& disp = wd_.displayProperties( !is3ddisp_ );
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
@@ -85,7 +89,10 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 uiWellDisplay::~uiWellDisplay()
 {
     wd_.d2tchanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
-    wd_.disp2dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+    if ( is3ddisp_ )
+	wd_.disp3dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+    else
+	wd_.disp2dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
     if ( control_ )
 	{ delete control_; control_ = 0; }
 }
@@ -145,7 +152,7 @@ void uiWellDisplay::setDahData()
 
 void uiWellDisplay::setDisplayProperties() 
 {
-    const Well::DisplayProperties& dpp = wd_.displayProperties( true );
+    const Well::DisplayProperties& dpp = wd_.displayProperties( !is3ddisp_ );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
@@ -175,10 +182,7 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 
 
 int uiWellDisplay::nrLogDisplays() const
-{
-    const Well::DisplayProperties& disp = wd_.displayProperties(true);
-    return disp.logs_.size();
-}
+{ return wd_.displayProperties( !is3ddisp_ ).logs_.size(); }
 
 
 
@@ -187,7 +191,7 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     , wd_(wd)  
 {
     setStretch( 2, 2 );
-    uiWellDisplay::Setup su;
+    uiWellDisplay::Setup su; su.takedisplayfrom3d_ = true;
 
     setPrefWidth( 60 );
     setPrefHeight( 600 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.10 2011-06-10 12:33:33 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.11 2011-06-20 12:21:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 				    , noyannot_(false)
 				    , withcontrol_(true)
 				    , preflogsz_(uiSize(150,600))
+				    , takedisplayfrom3d_(false)
 				    {}
 
 	mDefSetupMemb(bool,nobackground)
@@ -47,16 +48,18 @@ public:
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
-	mDefSetupMemb(uiSize,preflogsz) //the actual uiSize will be computed on it 
+	mDefSetupMemb(uiSize,preflogsz) //base log size  
+	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
 
 	void copyFrom(const Setup& su)
 	{
-	    nobackground_ = su.nobackground_;
-	    nologborder_  = su.nologborder_;
-	    withcontrol_  = su.withcontrol_;
-	    preflogsz_ 	  = su.preflogsz_;
-	    noxannot_	  = su.noxannot_;
-	    noyannot_	  = su.noyannot_;
+	    nobackground_ 	= su.nobackground_;
+	    nologborder_  	= su.nologborder_;
+	    withcontrol_  	= su.withcontrol_;
+	    preflogsz_ 	  	= su.preflogsz_;
+	    noxannot_	  	= su.noxannot_;
+	    noyannot_	  	= su.noyannot_;
+	    takedisplayfrom3d_ 	= su.takedisplayfrom3d_;
 	}
     };
 
@@ -88,6 +91,7 @@ protected:
     Interval<float>		zrg_;
     bool			dispzinft_;
     bool			zistime_;
+    bool			is3ddisp_;
     uiSize			size_;
     const Setup 		setup_;
 
