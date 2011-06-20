@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.87 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.88 2011-06-20 13:23:35 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -93,6 +93,7 @@ void uiTieView::redrawViewer()
 {
     drawTraces();
     redrawViewerAnnots();
+    zoomChg(0);
 }
 
 
