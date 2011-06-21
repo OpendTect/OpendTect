@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.1 2011-06-16 15:10:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.2 2011-06-21 12:08:50 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -37,12 +37,20 @@ public:
 
 uiBuildPROPS::uiBuildPROPS( uiParent* p, const PropertyRefSet& prs )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(true,"property type","property")
+	    uiBuildListFromList::Setup(false,"property type","property")
 	    .withio(false).withtitles(true), "PropertyRef selection group")
     , props_(prs)
 {
     const BufferStringSet dispnms( PropertyRef::StdTypeNames() );
+
     setAvailable( dispnms );
+
+    BufferStringSet pnms;
+    for ( int idx=0; idx<props_.size(); idx++ )
+	pnms.add( props_[idx]->name() );
+    pnms.sort();
+    for ( int idx=0; idx<pnms.size(); idx++ )
+	addItem( pnms.get(idx) );
 }
 
 
@@ -87,9 +95,8 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 	   			StringInpSpec(ss.buf()) );
     aliasfld_->attach( alignedBelow, namefld_ );
 
-    colfld_ = new uiColorInput( this,
-	    			uiColorInput::Setup(pr_.disp_.color_),
-				"Default display color" );
+    colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
+	    				.lbltxt("Default display color") );
     colfld_->attach( alignedBelow, aliasfld_ );
     rgfld_ = new uiGenInput( this, "Typical value range",
 			     FloatInpIntervalSpec() );
@@ -103,9 +110,9 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     if ( un )
     {
 	if ( !mIsUdf(vintv.start) )
-	    vintv.start = un->userValue( vintv.start );
+	    vintv.start = un->getUserValueFromSI( vintv.start );
 	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = un->userValue( vintv.stop );
+	    vintv.stop = un->getUserValueFromSI( vintv.stop );
     }
     rgfld_->setValue( vintv );
 }
@@ -133,10 +140,11 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     {
 	pr_.disp_.unit_ = un->name();
 	if ( !mIsUdf(vintv.start) )
-	    vintv.start = un->internalValue( vintv.start );
+	    vintv.start = un->getSIValue( vintv.start );
 	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = un->internalValue( vintv.stop );
+	    vintv.stop = un->getSIValue( vintv.stop );
     }
+    pr_.disp_.range_ = vintv;
 
     return true;
 }
@@ -192,7 +200,7 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties",
-				"Select layer properties to model",mTODOHelpID))
+				"Define possible layer properties",mTODOHelpID))
 {
     buildfld_ = new uiBuildPROPS( this, PROPS() );
     static const char* strs[] = { "For this survey only",
@@ -200,7 +208,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
 				  "As default for my user ID only",
 				  "No (just use now)", 0 };
     srcfld_ = new uiGenInput( this, "Store", StringListInpSpec(strs) );
-    srcfld_->attach( alignedBelow, buildfld_ );
+    srcfld_->attach( centeredBelow, buildfld_ );
 }
 
 
