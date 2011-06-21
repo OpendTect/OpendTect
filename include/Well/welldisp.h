@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.37 2011-06-20 11:55:52 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.38 2011-06-21 12:28:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,15 +36,20 @@ public:
 
 			DisplayProperties(const char* subj = sKey3DDispProp);
 			DisplayProperties(const Well::DisplayProperties& dp)
-			    : track_(dp.track_)
-			    , markers_(dp.markers_)
-			    , displaystrat_(dp.displaystrat_)
-			    {
-				deepCopy( markers_.selmarkernms_, 
-				       dp.markers_.selmarkernms_);
-				deepCopy( logs_, dp.logs_ );
-			    }			    
+			{ *this = dp;}			   
+
 			~DisplayProperties();
+
+    DisplayProperties& 	operator = (const DisplayProperties& dp)
+			{
+			    track_ = dp.track_;
+			    markers_ = dp.markers_;
+			    displaystrat_ = dp.displaystrat_;
+			    deepCopy( logs_, dp.logs_ );
+			    deepCopy( markers_.selmarkernms_,
+				    dp.markers_.selmarkernms_ );
+			    return *this;
+			}
 
     mStruct BasicProps
     {
