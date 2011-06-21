@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.132 2010-11-06 16:21:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.133 2011-06-21 05:32:49 cvsumesh Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -220,8 +220,8 @@ void EMObjectDisplay::removeEMStuff()
 	const int trackeridx = MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
 	{
-	    MPE::engine().removeEditor(emobject_->id());
 	    MPE::engine().removeTracker( trackeridx );
+	    MPE::engine().removeEditor(emobject_->id());
 	}
 
 	emobject_->unRef();
