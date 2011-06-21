@@ -456,6 +456,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 }
 
 
+#define mMrkrScale2DFac 1/(float)5
 #define mDefHorLineX1X2Y() \
 const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
 const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
@@ -487,7 +488,8 @@ void uiWellLogDisplay::drawMarkers()
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	const int shapeint = mrkdisp_.shapeint_;
-	LineStyle ls = LineStyle( LineStyle::Dot, mrkdisp_.size_, col );
+	const int drawsize = (int)(mrkdisp_.size_*mMrkrScale2DFac);
+	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =  LineStyle::Solid;
 	if ( shapeint == 2 )

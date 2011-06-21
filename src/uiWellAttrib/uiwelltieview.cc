@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.88 2011-06-20 13:23:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.89 2011-06-21 12:31:18 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -261,7 +261,7 @@ void uiTieView::drawLogDispWellMarkers()
     }
 }
 
-
+#define mMrkrScale2DFac 1/(float)5
 #define mRemoveItms( itms ) \
     for ( int idx=0; idx<itms.size(); idx++ ) \
 	vwr_->rgbCanvas().scene().removeItem( itms[idx] ); \
@@ -296,19 +296,24 @@ void uiTieView::drawViewerWellMarkers()
 	
 	if ( !zrange_.includes( zpos ) )
 	    continue;
-	
+
+	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_ 
+	    					: marker->color();
+
+	if ( col == Color::NoColor() || col == Color::White() )
+	    continue;
+
 	FlatView::Annotation::AuxData* auxdata = 0;
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
 	if ( !auxdata )
 	    continue;
 
-	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_ 
-	    					: marker->color();
 	wellmarkerauxdatas_ += auxdata;
 	app.annot_.auxdata_ +=  auxdata;
 	zpos *= 1000;	
 	const int shapeint = mrkdisp.shapeint_;
-	LineStyle ls = LineStyle( LineStyle::Dot, mrkdisp.size_, col );
+	const int drawsize = (int)(mrkdisp.size_*mMrkrScale2DFac);
+	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =  LineStyle::Solid;
 	if ( shapeint == 2 )
@@ -376,12 +381,12 @@ void uiTieView::drawHorizons()
 	float zval = hor.zpos_;
 
 	BufferString mtxt( hor.name_ );
-	if ( !params_.dispmrkfullnames_ && mtxt.size() > 3 )
+	if ( !params_.disphorfullnames_ && mtxt.size() > 3 )
 	    mtxt[3] = '\0';
 	auxdata->name_ = mtxt;
 	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
 	auxdata->namepos_ = 1;
-	LineStyle ls = LineStyle( LineStyle::Solid, 1, hor.color_ );
+	LineStyle ls = LineStyle( LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;
     
 	drawMarker( auxdata, false, zval );
