@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.210 2011-05-09 23:30:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.211 2011-06-21 10:10:52 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -223,6 +223,7 @@ void uiMPEMan::deleteVisObjects()
 	clickcatcher->setEditor( 0 );
 	clickcatcher->unRef();
 	clickcatcher = 0;
+	clickablesceneid = -1;
     }
 }
 
