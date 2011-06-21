@@ -75,7 +75,7 @@ mStruct Marker
 
     Color			color_;
     float			zpos_;
-    const char*			name_;
+    BufferString		name_;
     int 			id_;
     int				size_;
 

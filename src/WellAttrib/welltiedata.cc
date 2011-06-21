@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.52 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.53 2011-06-21 10:48:05 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -188,11 +188,9 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !hor ) continue;
 	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
-	TypeSet<WellHorIntersectFinder::ZPoint> zpts;
-	whfinder.findIntersection( zpts );
-	if ( !zpts.isEmpty() )
+	const float zval = whfinder.findZIntersection()*1000;
+	if ( !mIsUdf( zval ) )
 	{
-	    const float zval = zpts[0].zval_*= 1000;
 	    Marker hd( zval );
 	    hd.name_ = hor->name();
 	    hd.color_ = hor->preferredColor();

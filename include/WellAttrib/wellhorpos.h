@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.6 2011-01-11 10:47:33 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.7 2011-06-21 10:48:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "position.h"
 
-/*!brief used to give well info at horizon intersection. !*/
+/*!brief used to give well / horizon intersection. In theory more than one intersection is possible (in case of faults or deviated tracks along the horizon ) but only one pos will be returned!*/
 
 namespace Well { class Track; class D2TModel; }
-class BinIDValueSet;
-class MultiID;
+namespace EM { class Horizon2D; class Horizon3D; }
 
 mClass WellHorIntersectFinder
 {
@@ -28,36 +27,21 @@ public:
     				WellHorIntersectFinder(const Well::Track&,
 						const Well::D2TModel* d2t=0);
 				//! a d2t model is needed if z is time 
-				//and the track is not 
 
-    void			setHorizon(const EM::ObjectID& emid)
-				{ horid_ = emid; }
+    void			setHorizon(const EM::ObjectID& emid);
 
-    mStruct ZPoint
-    {
-				ZPoint( BinID b, float z )
-				    : bid_(b), zval_(z) {}
+    float			findZIntersection() const;
+   				//return undef if not found else z pos (in s)
+    				//of the intersect.
 
-	 bool            	operator ==( const ZPoint& pt ) const
-					     { return bid_ == pt.bid_; }
-
-	BinID			bid_;
-	float			zval_;
-    };
-    void			findIntersection(TypeSet<ZPoint>&) const;
-    				//get pos at Well track/Horizon intersection. 
-    				//In principle, only one position per well but 
-    				//the horizon can intersect the track more 
-    				//than once ( faults, deviated track )
 protected:
 
-    TypeSet<ZPoint>		wellpts_;
-    EM::ObjectID 	 	horid_;
+    const Well::Track&		track_;
+    const Well::D2TModel*	d2t_;
+    const EM::Horizon2D*	hor2d_;
+    const EM::Horizon3D*	hor3d_;
 
-    void			intersectBinIDHor(const BinID&,float&) const;
-    void			findIntersect(const TypeSet<ZPoint>&,
-						     TypeSet<ZPoint>&) const;
-    void 			transformWellCoordsToBinIDs(const Well::Track&);
+    float			intersectPosHor(const Coord3&) const;
 };
 
 #endif
