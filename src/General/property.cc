@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.41 2011-06-21 11:48:42 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.42 2011-06-21 12:08:26 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -81,9 +81,9 @@ const PropertyRef& PropertyRef::undef()
 
 PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
 {
-    NamedObject::operator =( pr );
     if ( this != &pr )
     {
+	setName( pr.name() );
 	stdtype_ = pr.stdtype_;
 	aliases_ = pr.aliases_;
 	disp_ = pr.disp_;
