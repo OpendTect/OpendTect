@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.40 2011-06-16 15:07:13 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.41 2011-06-21 11:48:42 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -160,9 +160,19 @@ void PropertyRef::fillPar( IOPar& iop ) const
     }
 
     iop.set( sKey::Color, disp_.color_ );
+
+    Interval<float> vintv( disp_.range_ );
+    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
+    if ( uom )
+    {
+	if ( !mIsUdf(vintv.start) )
+	    vintv.start = uom->getUserValueFromSI(vintv.start);
+	if ( !mIsUdf(vintv.stop) )
+	    vintv.stop = uom->getUserValueFromSI(vintv.stop);
+    }
     FileMultiString fms;
-    fms += ::toString( disp_.range_.start );
-    fms += ::toString( disp_.range_.stop );
+    fms += ::toString( vintv.start );
+    fms += ::toString( vintv.stop );
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
     iop.set( sKey::Range, fms );
@@ -230,6 +240,7 @@ PropertyRefSet& PropertyRefSet::operator =( const PropertyRefSet& prs )
 {
     if ( this != &prs )
     {
+	deepErase( *this );
 	for ( int idx=0; idx<prs.size(); idx++ )
 	    *this += new PropertyRef( *prs[idx] );
     }
