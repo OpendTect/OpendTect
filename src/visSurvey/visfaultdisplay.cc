@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.78 2011-03-03 22:03:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.79 2011-06-22 08:31:19 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1432,7 +1432,7 @@ bool FaultDisplay::isInStickSelectMode() const
 
 void FaultDisplay::updateEditorMarkers()
 {
-    if ( !emfault_ || !viseditor_ || !viseditor_->isOn() )
+    if ( !emfault_ || !viseditor_ )
 	return;
     
     PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);    while ( true )
