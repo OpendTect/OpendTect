@@ -2,21 +2,6 @@ dTect V4.2
 Properties
 Tue 05 Oct 2010, 12:28:38
 !
-Time: Time
-Aliases: TWT`T
-Color: 0`0`0
-Range: 0`5`s
-!
-Depth: Distance/Depth
-Aliases: Depth`Dpt`Z
-Color: 0`0`0
-Range: 0`5000`m
-!
-Distance: Distance/Depth
-Aliases: Dist
-Color: 0`0`0
-Range: 0`10000`m
-!
 Porosity: Porosity
 Aliases: Phi`Por
 Color: 200`200`0
