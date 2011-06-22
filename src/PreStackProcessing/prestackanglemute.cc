@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.9 2011-02-07 17:19:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.10 2011-06-22 14:30:21 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -192,8 +192,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	rtracers_[thread]->setOffsets( offsets );
 	
 	TypeSet<AILayer> layers;
-	for ( int il=0; il<nrlayers; il++ )
-	    layers += AILayer(  depths[il], vels[il], mUdf(float) );
+	for ( int il=1; il<nrlayers; il++ )
+	    layers += AILayer( depths[il]-depths[il-1], vels[il], mUdf(float) );
 
 	rtracers_[thread]->setModel( true, layers );
 	if ( !rtracers_[thread]->execute(raytraceparallel_) )
