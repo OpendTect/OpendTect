@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.2 2011-06-21 12:08:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.3 2011-06-22 11:12:56 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uiunitsel.h"
 #include "uicolor.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "propertyref.h"
 #include "separstr.h"
@@ -223,5 +225,103 @@ bool uiManPROPS::acceptOK( CallBacker* )
     if ( isrc != 3 &&!PROPS().save(repsrc) )
 	uiMSG().warning( "Could not store the definitions to file."
 			 "\nPlease check file/directory permissions." );
+    return true;
+}
+
+
+
+uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
+			      const char* lbl )
+    : uiDialog(p,uiDialog::Setup("Layer Properties",
+				"Select layer properties to use",mTODOHelpID))
+    , props_(PROPS())
+    , prsel_(prs)
+    , thref_(&PropertyRef::thickness())
+    , refsremoved_(false)
+{
+    uiLabeledListBox* llb = 0;
+    if ( !lbl || !*lbl )
+	propfld_ = new uiListBox( this, "Available properties", true );
+    else
+    {
+	llb = new uiLabeledListBox( this, lbl, true,
+				    uiLabeledListBox::AboveMid );
+	propfld_ = llb->box();
+    }
+    fillList();
+
+    uiToolButton* manpropsbut = new uiToolButton( this, "man_props.png",
+	    				"Manage available properties",
+					mCB(this,uiSelectPropRefs,manPROPS) );
+    if ( llb )
+	manpropsbut->attach( centeredRightOf, llb );
+    else
+	manpropsbut->attach( centeredRightOf, propfld_ );
+}
+
+
+void uiSelectPropRefs::fillList()
+{
+    BufferStringSet dispnms;
+    for ( int idx=0; idx<props_.size(); idx++ )
+    {
+	const PropertyRef* ref = props_[idx];
+	if ( ref != thref_ )
+	    dispnms.add( ref->name() );
+    }
+    if ( dispnms.isEmpty() )
+	return;
+
+    dispnms.sort();
+    propfld_->addItems( dispnms );
+
+    int nrsel = 0;
+    for ( int idx=0; idx<dispnms.size(); idx++ )
+    {
+	const char* nm = dispnms.get( idx ).buf();
+	if ( prsel_.isPresent( nm ) )
+	{
+	    propfld_->setSelected( idx );
+	    nrsel++;
+	}
+    }
+    if ( nrsel == 0 )
+	propfld_->setSelected( 0 );
+}
+
+
+void uiSelectPropRefs::manPROPS( CallBacker* )
+{
+    if ( !uiManPROPS(this).go() )
+	return;
+
+    // Even if user will cancel we cannot leave removed PROP's in the set
+    for ( int idx=0; idx<prsel_.size(); idx++ )
+    {
+	if ( !props_.isPresent(prsel_[idx]) )
+	    { refsremoved_ = true; prsel_.remove( idx ); idx--; }
+    }
+
+    propfld_->setEmpty();
+    fillList();
+}
+
+
+bool uiSelectPropRefs::acceptOK( CallBacker* )
+{
+    prsel_.erase();
+    prsel_.insertAt( &PropertyRef::thickness(), 0 );
+
+    for ( int idx=0; idx<propfld_->size(); idx++ )
+    {
+	if ( !propfld_->isSelected(idx) )
+	    continue;
+
+	const char* pnm = propfld_->textOfItem( idx );
+	const PropertyRef* pr = props_.find( pnm );
+	if ( !pr ) { pErrMsg("Huh"); continue; }
+	prsel_ += pr;
+    }
+
     return true;
 }
