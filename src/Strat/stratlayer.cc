@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.22 2011-06-16 15:09:15 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.23 2011-06-22 11:13:35 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -21,19 +21,7 @@ static const char* sKeyLayModFileType = "Layer Model";
 
 const PropertyRef& Strat::Layer::thicknessRef()
 {
-    static PropertyRef* ref = 0;
-    if ( !ref )
-    {
-	ref = new PropertyRef( "Thickness", PropertyRef::Dist );
-	ref->aliases().add( "thick" );
-	const PropertyRef* thref = PROPS().find( "thickness" );
-	if ( thref )
-	    ref->disp_ = thref->disp_;
-	else
-	    ref->disp_.range_ = Interval<float>( 0, 100 );
-    }
-
-    return *ref;
+    return PropertyRef::thickness();
 }
 
 
