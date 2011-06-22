@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.9 2011-06-16 11:15:11 cvsbruno Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.10 2011-06-22 09:04:35 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	const int pickidx = picksetidxs_[locidx];
 	picksetidxs_.remove( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				 pickset_, pickidx );
+				     pickset_, pickidx );
 	pickset_->remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
@@ -134,6 +134,18 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 	    style.type_ = MarkerStyle2D::Circle;
 	    break;
 	case MarkerStyle3D::Cube:
+	    style.type_ = MarkerStyle2D::Square;
+	    break;
+	case MarkerStyle3D::Cone:
+	    style.type_ = MarkerStyle2D::Triangle;
+	    break;
+	case MarkerStyle3D::Cross:
+	    style.type_ = MarkerStyle2D::Plus;
+	    break;
+	case MarkerStyle3D::Arrow:
+	    style.type_ = MarkerStyle2D::Arrow;
+	    break;
+	case MarkerStyle3D::Cylinder:
 	    style.type_ = MarkerStyle2D::Square;
 	    break;
 	default:
