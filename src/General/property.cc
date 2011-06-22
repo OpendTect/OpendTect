@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.42 2011-06-21 12:08:26 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.43 2011-06-22 11:12:15 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: property.cc,v 1.42 2011-06-21 12:08:26 cvsbert 
 #include "globexpr.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "ioman.h"
 #include "errh.h"
 
 static const char* filenamebase = "Properties";
@@ -47,6 +48,45 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	"Compressibility",
 	0
 };
+
+struct PropRef_ThickRef_Man : public CallBacker
+{
+
+PropRef_ThickRef_Man()
+{
+    ref_ = new PropertyRef( "Thickness", PropertyRef::Dist );
+    ref_->aliases().add( "thick" );
+    const PropertyRef* thref = PROPS().find( "thickness" );
+    if ( thref )
+	ref_->disp_ = thref->disp_;
+    else
+    {
+	ref_->disp_.color_ = Color::Black();
+	ref_->disp_.range_ = Interval<float>( 0, 100 );
+    }
+    setZUnit();
+    IOM().afterSurveyChange.notify( mCB(this,PropRef_ThickRef_Man,setZUnit) );
+}
+
+void setZUnit( CallBacker* cb=0 )
+{
+    ref_->disp_.unit_ = SI().depthsInFeetByDefault() ? "ft" : "m";
+}
+
+    PropertyRef*	ref_;
+
+};
+
+
+const PropertyRef& PropertyRef::thickness()
+{
+    static PropRef_ThickRef_Man* ptm = 0;
+    if ( !ptm )
+	ptm = new PropRef_ThickRef_Man;
+
+    return *ptm->ref_;
+}
+
 
 
 float PropertyRef::DispDefs::possibleValue() const

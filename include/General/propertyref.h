@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.9 2011-06-16 15:07:13 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.10 2011-06-22 11:12:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,9 @@ public:
     };
 
     DispDefs		disp_;
+
+    static const PropertyRef& thickness();
+    		//!< use this always. It has automatic defaults from SI()
 
 protected:
 
