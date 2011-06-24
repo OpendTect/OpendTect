@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.26 2011-06-14 13:44:19 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.27 2011-06-24 06:33:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -642,7 +642,7 @@ double ODPolygon<T>::distToSegment( const Geom::Point2D<T>& p1,
     if ( fractionptr )
 	*fractionptr = frac;
 
-    return refpt.distTo( p1*(1-frac) + p2*frac );
+    return refpt.distTo( p1*(T)(1-frac) + p2*(T)frac );
 }
 
 
