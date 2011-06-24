@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.18 2010-10-28 15:11:56 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.19 2011-06-24 13:37:39 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -24,10 +24,12 @@ mClass ValueProperty : public Property
 {
 public:
 
-    			ValueProperty( const PropertyRef& pr,
-				       float v=mUdf(float) )
+    			ValueProperty( const PropertyRef& pr )
 			: Property(pr)
-			, val_(v)			{}
+			, val_(pr.disp_.range_.center())	{}
+    			ValueProperty( const PropertyRef& pr, float v )
+			: Property(pr)
+			, val_(v)				{}
 
     float		val_;
 
@@ -43,11 +45,11 @@ public:
 
     			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
-			, rg_(mUdf(float),0)	{}
+			, rg_(pr.disp_.range_)		{}
     			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
 			: Property(pr)
-			, rg_(rg)		{}
+			, rg_(rg)			{}
 
     Interval<float>	rg_;
 
@@ -69,6 +71,7 @@ mClass MathProperty : public Property
 {
 public:
     			MathProperty(const PropertyRef&,const char* def=0);
+    			MathProperty(const MathProperty&);
 			~MathProperty();
 
     int			nrInputs() const;
