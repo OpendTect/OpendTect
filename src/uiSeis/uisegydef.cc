@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.42 2011-05-18 13:21:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.43 2011-06-24 13:34:49 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -418,7 +418,7 @@ class uiSEGYFOByteSpec : public uiGroup
 public:
 
 uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
-		  bool isopt, const char* ky )
+		  bool isopt, const char* ky, bool wfr )
     : uiGroup(p,he.name())
     , he_(he)
     , isselbox_(0)
@@ -427,6 +427,7 @@ uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
     , checked(this)
 {
     he_.usePar( iop, ky );
+    if ( wfr ) setFrame( wfr );
 
     const BufferString fldnm( he.name(), " byte" );
     bytefld_ = new uiSpinBox( this, 0, BufferString(fldnm," value") );
@@ -677,8 +678,6 @@ void uiSEGYFileOpts::crdChk( CallBacker* )
     coordsfnmfld_->display( !ischckd && isfile );
     coordsstartfld_->display( !ischckd && !isfile );
     coordsstepfld_->display( !ischckd && !isfile );
-    if ( refnrdeffld_ )
-	refnrdeffld_->display( ischckd );
 }
 
 
@@ -732,12 +731,12 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 
 void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 {
-#define mMkDefFld(p,fldnm,kystr,wsz,opt) \
+#define mMkDefFld(p,fldnm,kystr,wsz,opt,wfr) \
     fldnm##deffld_ = new uiSEGYFOByteSpec( p, thdef_.fldnm##_, wsz, iop, opt, \
-	   		 SEGY::TrcHeaderDef::s##kystr##Byte() )
+	   		 SEGY::TrcHeaderDef::s##kystr##Byte(), wfr )
 
-    mMkDefFld( grp, inl, Inl, true, false );
-    mMkDefFld( grp, crl, Crl, true, false );
+    mMkDefFld( grp, inl, Inl, true, false, true );
+    mMkDefFld( grp, crl, Crl, true, false, true );
     crldeffld_->attach( alignedBelow, inldeffld_ );
 
     if ( !forScan() )
@@ -754,8 +753,8 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 {
     const bool isreadpost2d = forread_ && !isps_ && is2d_;
-    mMkDefFld( grp, xcoord, XCoord, false, isreadpost2d );
-    mMkDefFld( grp, ycoord, YCoord, false, false );
+    mMkDefFld( grp, xcoord, XCoord, false, isreadpost2d, true );
+    mMkDefFld( grp, ycoord, YCoord, false, false, true );
     ycoorddeffld_->attach( alignedBelow, xcoorddeffld_ );
     if ( is2d_ )
     {
@@ -803,12 +802,12 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar& iop )
     }
     else
     {
-	mMkDefFld( grp, trnr, TrNr, true, false );
+	mMkDefFld( grp, trnr, TrNr, true, false, true );
 	if ( setup_.revtype_ == uiSEGYRead::Rev0 )
 	{
 	    mkCoordFlds( grp, iop );
-	    mMkDefFld( grp, refnr, RefNr, true, true );
-	    refnrdeffld_->attach( alignedBelow, ycoorddeffld_ );
+	    mMkDefFld( grp, refnr, RefNr, true, true, false );
+	    refnrdeffld_->attach( rightOf, xcoorddeffld_ );
 	}
 	grp->setHAlignObj( trnrdeffld_ );
     }
@@ -868,9 +867,9 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
     }
 
-    mMkDefFld( grp, offs, Offs, true, true );
+    mMkDefFld( grp, offs, Offs, true, true, true );
     if ( psposfld_ ) offsdeffld_->attach( alignedBelow, psposfld_ );
-    mMkDefFld( grp, azim, Azim, true, true );
+    mMkDefFld( grp, azim, Azim, true, true, false );
     azimdeffld_->attach( alignedBelow, offsdeffld_ );
 
     if ( forread_ )
