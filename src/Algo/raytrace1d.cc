@@ -152,6 +152,13 @@ bool RayTracer1D::init()
 	errmsg_ = "Model is empty, please specify a valid model";
 	return false;
     }
+    if ( !ssz && psz == 1 || ssz == 1 && !psz )
+    {
+	errmsg_ = "Model is only one layer, please specify a valid model";
+	return false;
+    }
+
+
 
     if ( !ssz )
     {
@@ -319,6 +326,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
 float RayTracer1D::getSinAngle( int layer, int offset ) const
 {
+    if ( !offsetpermutation_.validIdx( offset ) )
+	return false;
+
     const int offsetidx = offsetpermutation_[offset];
 
     if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) || 
@@ -332,7 +342,11 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 
 bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 {
+    if ( !offsetpermutation_.validIdx( offset ) )
+	return false;
+
     const int offsetidx = offsetpermutation_[offset];
+
     if ( offsetidx<0 || offsetidx>=reflectivity_->info().getSize(1) )
 	return false;
 
@@ -357,6 +371,9 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 
 bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
 {
+    if ( !offsetpermutation_.validIdx( offset ) )
+	return false;
+
     const int offsetidx = offsetpermutation_[offset];
 
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
