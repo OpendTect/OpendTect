@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.3 2011-06-22 11:12:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.4 2011-06-24 13:35:34 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -25,9 +25,9 @@ static const char* rcsID = "$Id: uimanprops.cc,v 1.3 2011-06-22 11:12:56 cvsbert
 class uiBuildPROPS : public uiBuildListFromList
 {
 public:
-			uiBuildPROPS(uiParent*,const PropertyRefSet&);
+			uiBuildPROPS(uiParent*,PropertyRefSet&);
 
-    PropertyRefSet 	props_; // must be a copy
+    PropertyRefSet& 	props_;
 
     virtual const char*	avFromDef(const char*) const;
     virtual void	editReq(bool);
@@ -37,7 +37,7 @@ public:
 };
 
 
-uiBuildPROPS::uiBuildPROPS( uiParent* p, const PropertyRefSet& prs )
+uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     : uiBuildListFromList(p,
 	    uiBuildListFromList::Setup(false,"property type","property")
 	    .withio(false).withtitles(true), "PropertyRef selection group")
@@ -204,28 +204,39 @@ uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties",
 				"Define possible layer properties",mTODOHelpID))
 {
-    buildfld_ = new uiBuildPROPS( this, PROPS() );
+    setCtrlStyle( LeaveOnly );
+    buildfld_ = new uiBuildPROPS( this, ePROPS() );
     static const char* strs[] = { "For this survey only",
 				  "As default for all surveys",
-				  "As default for my user ID only",
-				  "No (just use now)", 0 };
+				  "As default for my user ID only", 0 };
     srcfld_ = new uiGenInput( this, "Store", StringListInpSpec(strs) );
     srcfld_->attach( centeredBelow, buildfld_ );
 }
 
 
-bool uiManPROPS::acceptOK( CallBacker* )
+bool uiManPROPS::rejectOK( CallBacker* )
 {
+    if ( !haveUserChange() )
+	return true;
+
     ePROPS() = buildfld_->props_;
     const int isrc = srcfld_->getIntValue();
     const Repos::Source repsrc =   isrc == 0	? Repos::Survey
 				: (isrc == 1	? Repos::Data
-				: (isrc == 2	? Repos::User
-				    		: Repos::Temp));
-    if ( isrc != 3 &&!PROPS().save(repsrc) )
+						: Repos::User);
+
+    if ( !PROPS().save(repsrc) )
 	uiMSG().warning( "Could not store the definitions to file."
 			 "\nPlease check file/directory permissions." );
+    else if ( repsrc != Repos::Survey )
+       	PROPS().save(Repos::Survey);
+
     return true;
+}
+
+bool uiManPROPS::haveUserChange() const
+{
+    return buildfld_->haveUserChange();
 }
 
 
@@ -237,7 +248,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
     , props_(PROPS())
     , prsel_(prs)
     , thref_(&PropertyRef::thickness())
-    , refsremoved_(false)
+    , structchg_(false)
 {
     uiLabeledListBox* llb = 0;
     if ( !lbl || !*lbl )
@@ -279,12 +290,11 @@ void uiSelectPropRefs::fillList()
     for ( int idx=0; idx<dispnms.size(); idx++ )
     {
 	const char* nm = dispnms.get( idx ).buf();
-	if ( prsel_.isPresent( nm ) )
-	{
-	    propfld_->setSelected( idx );
-	    nrsel++;
-	}
+	const bool issel = prsel_.isPresent( nm );
+	propfld_->setSelected( idx, issel );
+	if ( issel ) nrsel++;
     }
+
     if ( nrsel == 0 )
 	propfld_->setSelected( 0 );
 }
@@ -292,14 +302,21 @@ void uiSelectPropRefs::fillList()
 
 void uiSelectPropRefs::manPROPS( CallBacker* )
 {
-    if ( !uiManPROPS(this).go() )
+    BufferStringSet orgnms;
+    for ( int idx=0; idx<prsel_.size(); idx++ )
+	orgnms.add( prsel_[idx]->name() );
+
+    uiManPROPS dlg( this );
+    if ( !dlg.go() )
 	return;
 
+    structchg_ = structchg_ || dlg.haveUserChange();
+
     // Even if user will cancel we cannot leave removed PROP's in the set
-    for ( int idx=0; idx<prsel_.size(); idx++ )
+    for ( int idx=0; idx<orgnms.size(); idx++ )
     {
 	if ( !props_.isPresent(prsel_[idx]) )
-	    { refsremoved_ = true; prsel_.remove( idx ); idx--; }
+	    { structchg_ = true; prsel_.remove( idx ); idx--; }
     }
 
     propfld_->setEmpty();
@@ -319,7 +336,7 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 
 	const char* pnm = propfld_->textOfItem( idx );
 	const PropertyRef* pr = props_.find( pnm );
-	if ( !pr ) { pErrMsg("Huh"); continue; }
+	if ( !pr ) { pErrMsg("Huh"); structchg_ = true; continue; }
 	prsel_ += pr;
     }
 

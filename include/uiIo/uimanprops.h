@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2011
- RCS:           $Id: uimanprops.h,v 1.2 2011-06-22 11:12:56 cvsbert Exp $
+ RCS:           $Id: uimanprops.h,v 1.3 2011-06-24 13:35:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,14 @@ public:
 
     			uiManPROPS(uiParent*);
 
+    bool		haveUserChange() const;
+
 protected:
 
     uiBuildPROPS*	buildfld_;
     uiGenInput*		srcfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*);
 
 };
 
@@ -47,7 +49,7 @@ protected:
   should look something like:
 
   uiSelectPropRefs dlg( this, prs );
-  if ( dlg.go() || dlg.refsRemoved() )
+  if ( dlg.go() || dlg.structureChanged() )
       handleRefChanges();
  
  */
@@ -59,13 +61,13 @@ public:
     			uiSelectPropRefs(uiParent*,PropertyRefSelection&,
 					 const char* lbltxt=0);
 
-    bool		refsRemoved() const	{ return refsremoved_; }
+    bool		structureChanged() const	{ return structchg_; }
 
 protected:
 
     uiListBox*		propfld_;
     PropertyRefSelection& prsel_;
-    bool		refsremoved_;
+    bool		structchg_;
 
     void		fillList();
     void		manPROPS(CallBacker*);
