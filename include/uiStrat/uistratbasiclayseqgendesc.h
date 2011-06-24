@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratbasiclayseqgendesc.h,v 1.1 2011-06-01 13:07:40 cvsbert Exp $
+ RCS:           $Id: uistratbasiclayseqgendesc.h,v 1.2 2011-06-24 13:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,6 @@ public:
 
     mDefuiLayerSequenceGenDescFns(uiBasicLayerSequenceGenDesc,"Basic");
 
-    virtual void	getPropertyRefs( PropertyRefSelection& prs ) const
-			{ prs = props_; }
-
 protected:
 
     struct DispUnit
@@ -52,7 +49,6 @@ protected:
     };
 
     ObjectSet<DispUnit>	disps_;
-    PropertyRefSelection props_;
 
     void		rebuildDispUnits();
     void		fillDispUnit(int,float,float&);

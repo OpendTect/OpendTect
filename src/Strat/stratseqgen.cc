@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.17 2011-01-14 14:44:09 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.18 2011-06-24 13:39:33 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -108,11 +108,19 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     if ( !astrm.isOfFileType(sKeyFileType) )
 	{ errmsg_ = "Bad header found"; return false; }
 
+    deepErase( *this );
     while ( !atEndOfSection(astrm.next()) )
     {
 	IOPar iop; iop.getFrom(astrm);
 	if ( iop.isEmpty() ) continue;
 	*this += LayerGenerator::get( iop, rt_ );
+    }
+
+    propsel_.erase();
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const LayerGenerator& lgen = *(*this)[idx];
+	lgen.updateUsedProps( propsel_ );
     }
 
     return true;
@@ -132,6 +140,15 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
     }
 
     return true;
+}
+
+
+void Strat::LayerSequenceGenDesc::setPropSelection(
+		const PropertyRefSelection& prsel )
+{
+    propsel_ = prsel;
+    for ( int idx=0; idx<size(); idx++ )
+	(*this)[idx]->syncProps( propsel_ );
 }
 
 
@@ -234,7 +251,7 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
 {
-    props_.add( new ValueProperty(Layer::thicknessRef()) );
+    props_.add( new ValueProperty(PropertyRef::thickness()) );
 }
 
 
@@ -262,11 +279,34 @@ const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 }
 
 
-void Strat::SingleLayerGenerator::getPropertySelection(
-				PropertyRefSelection& pr ) const
+void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
+{
+    // remove old
+    for ( int idx=0; idx<props_.size(); idx++ )
+    {
+	const PropertyRef* pr = &props_.get(idx).ref();
+	if ( !prsel.isPresent(pr) )
+	    { props_.remove(idx); idx--; }
+    }
+    // add new
+    for ( int idx=0; idx<prsel.size(); idx++ )
+    {
+	const PropertyRef& pr = *prsel[idx];
+	if ( props_.indexOf(pr) < 0 )
+	    props_.add( new ValueProperty(pr) );
+    }
+}
+
+
+void Strat::SingleLayerGenerator::updateUsedProps(
+					PropertyRefSelection& prsel ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
-	pr += &props_.get( idx ).ref();
+    {
+	const PropertyRef* pr = &props_.get(idx).ref();
+	if ( !prsel.isPresent(pr) )
+	    prsel += pr;
+    }
 }
 
 

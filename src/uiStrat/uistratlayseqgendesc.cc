@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.23 2011-06-01 13:07:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.24 2011-06-24 13:39:33 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
+#include "uimanprops.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uidialog.h"
@@ -18,11 +19,13 @@ static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.23 2011-06-01 13:07
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiunitsel.h"
 #include "stratlayermodel.h"
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "propertyimpl.h"
 #include "keyenum.h"
 
@@ -49,53 +52,16 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
 	    			mCB(this,uiLayerSequenceGenDesc,singClckCB) );
     getMouseEventHandler().doubleClick.notify(
 	    			mCB(this,uiLayerSequenceGenDesc,dblClckCB) );
-}
 
-
-void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
-{
-    MouseEventHandler& mevh = getMouseEventHandler();
-    if ( !mevh.hasEvent() || mevh.isHandled() )
-	return;
-
-    const MouseEvent& mev = mevh.event();
-    const bool isright = OD::rightMouseButton( mev.buttonState() );
-    const bool isempty = desc_.isEmpty();
-    const bool needhandle = isempty || (dbl && !isright) || (!dbl && isright);
-    if ( !needhandle )
-	return;
-
-    clickpos_ = mev.pos();
-    if ( workrect_.isOutside(clickpos_) )
-	return;
-
-    int mnuid = dbl ? 0 : (isempty ? 1 : -1);
-    if ( !isempty && !dbl )
+    if ( desc_.propSelection().size() < 2 )
     {
-	uiPopupMenu mnu( parent(), "Action" );
-	mnu.insertItem( new uiMenuItem("&Edit ..."), 0 );
-	mnu.insertItem( new uiMenuItem("Add &Above ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Add &Below ..."), 2 );
-	if ( desc_.size() > 1 )
-	{
-	    mnu.insertSeparator();
-	    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
-	}
-	mnuid = mnu.exec();
+	PropertyRefSelection prs( desc_.propSelection() );
+	int pidx = PROPS().indexOf( PropertyRef::Den );
+	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	pidx = PROPS().indexOf( PropertyRef::Vel );
+	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	desc_.setPropSelection( prs );
     }
-
-    bool ischgd = false;
-    if ( mnuid == 0 )
-	ischgd = descEditReq();
-    else if ( mnuid == 1 || mnuid == 2 )
-	ischgd = newDescReq( mnuid == 1 );
-    else if ( mnuid == 3 )
-	ischgd = descRemoveReq();
-
-    if ( ischgd )
-	{ needsave_ = true; reDraw(0); }
-
-    mevh.setHandled( true );
 }
 
 
@@ -130,6 +96,65 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
 	delete emptyitm_; emptyitm_ = 0;
 	doDraw();
     }
+}
+
+
+void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
+{
+    MouseEventHandler& mevh = getMouseEventHandler();
+    if ( !mevh.hasEvent() || mevh.isHandled() )
+	return;
+
+    const MouseEvent& mev = mevh.event();
+    const bool isright = OD::rightMouseButton( mev.buttonState() );
+    const bool isempty = desc_.isEmpty();
+    const bool needhandle = isempty || (dbl && !isright) || (!dbl && isright);
+    if ( !needhandle )
+	return;
+
+    clickpos_ = mev.pos();
+    if ( workrect_.isOutside(clickpos_) )
+	return;
+
+    if ( isempty || desc_.propSelection().size() < 2 )
+	selProps();
+
+    int mnuid = dbl ? 0 : (isempty ? 1 : -1);
+    if ( !isempty && !dbl )
+    {
+	uiPopupMenu mnu( parent(), "Action" );
+	mnu.insertItem( new uiMenuItem("&Edit ..."), 0 );
+	mnu.insertItem( new uiMenuItem("Add &Above ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Add &Below ..."), 2 );
+	if ( desc_.size() > 1 )
+	{
+	    mnu.insertSeparator();
+	    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+	}
+	mnuid = mnu.exec();
+    }
+
+    bool ischgd = false;
+    if ( mnuid == 0 )
+	ischgd = descEditReq();
+    else if ( mnuid == 1 || mnuid == 2 )
+	ischgd = newDescReq( mnuid == 1 );
+    else if ( mnuid == 3 )
+	ischgd = descRemoveReq();
+
+    if ( ischgd )
+	{ needsave_ = true; reDraw(0); }
+
+    mevh.setHandled( true );
+}
+
+
+void uiLayerSequenceGenDesc::selProps()
+{
+    PropertyRefSelection prs( desc_.propSelection() );
+    uiSelectPropRefs dlg( parent(), prs );
+    if ( dlg.go() || dlg.structureChanged() )
+	desc_.setPropSelection( prs );
 }
 
 
@@ -175,17 +200,9 @@ uiBasicLayerSequenceGenDesc::DispUnit::~DispUnit()
 
 
 uiBasicLayerSequenceGenDesc::uiBasicLayerSequenceGenDesc( uiParent* p,
-	Strat::LayerSequenceGenDesc& d )
+				Strat::LayerSequenceGenDesc& d )
     : uiLayerSequenceGenDesc(p,d)
 {
-    props_ += &Strat::Layer::thicknessRef();
-    int idx = ePROPS().ensurePresent( PropertyRef::Vel, "Velocity", "vel" );
-    props_ += PROPS()[idx];
-    idx = ePROPS().ensurePresent( PropertyRef::Den, "Density", "den", "RohB" );
-    props_ += PROPS()[idx];
-    idx = ePROPS().ensurePresent( PropertyRef::AI, "Acoustic Impedance", "AI" );
-    props_ += PROPS()[idx];
-
     rebuildDispUnits();
 }
 
@@ -319,9 +336,6 @@ uiBasicLayerSequenceGenDesc::DispUnit* uiBasicLayerSequenceGenDesc::curUnit()
 
 int uiBasicLayerSequenceGenDesc::curUnitIdx()
 {
-    if ( disps_.isEmpty() )
-	return -1;
-
     for ( int idx=0; idx<disps_.size(); idx++ )
     {
 	DispUnit* disp = disps_[idx];
@@ -336,28 +350,25 @@ class uiSimpPropertyEd : public uiGroup
 {
 public:
 
-uiSimpPropertyEd( uiParent* p, const PropertyRef& pr )
-    : uiGroup(p,pr.name())
+uiSimpPropertyEd( uiParent* p, const Property& prop )
+    : uiGroup(p,prop.ref().name())
 {
-    const bool zinft = SI().depthsInFeetByDefault();
-    fac_ = pr.hasType( PropertyRef::Den ) ? 1000 : (zinft?mFromFeetFactor:1);
-    static const char* opts[] = { "Constant", "Range", 0 };
-    const char* unnm = pr.hasType( PropertyRef::Den ) ? "g/cm3"
-	: (zinft ? ( pr.hasType( PropertyRef::Vel ) ? "ft/s" : "ft")
-		 : ( pr.hasType( PropertyRef::Vel ) ? "m/s" : "m"));
+    const PropertyRef& pr = prop.ref();
 
+    static const char* opts[] = { "Constant", "Range", 0 };
     typfld_ = new uiComboBox( this, opts, BufferString(pr.name()," type") );
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setPrefWidthInChar( 14 );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
-    postlbl_ = new uiLabel( this, BufferString("(",unnm,")") );
+    unfld_ = new uiUnitSel( this, pr.stdType() );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );
-    postlbl_->attach( rightOf, rgfld_ );
+    unfld_->attach( rightOf, rgfld_ );
 
+    setFrom( prop );
     finaliseDone.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     setHAlignObj( valfld_ );
 }
@@ -375,50 +386,60 @@ void updDisp( CallBacker* )
 }
 
 
-void setFrom( const Property& prop, bool alwaysconst )
+void setFldVal( uiGenInput* inp, float val, const UnitOfMeasure* un, int fldnr )
 {
+    const bool isudf = mIsUdf(val);
+    if ( un && !isudf )
+	val = un->getUserValueFromSI( val );
+    inp->setValue( val, fldnr );
+}
+
+
+void setFrom( const Property& prop )
+{
+    const UnitOfMeasure* un = unfld_->getUnit();
     mDynamicCastGet(const RangeProperty*,rgprop,&prop)
-    if ( rgprop && !alwaysconst )
+    if ( rgprop )
     {
 	typfld_->setCurrentItem( 1 );
-	Interval<float> rg( rgprop->rg_ );
-	const bool startudf = mIsUdf(rg.start);
-	const bool stopudf = mIsUdf(rg.stop);
-	if ( !startudf ) rg.start /= fac_;
-	if ( !stopudf ) rg.stop /= fac_;
-	rgfld_->setValue( rg );
-	if ( startudf || stopudf )
-	valfld_->setValue( startudf || stopudf ? mUdf(float) : rg.center() );
+	setFldVal( rgfld_, rgprop->rg_.start, un, 0 );
+	setFldVal( rgfld_, rgprop->rg_.stop, un, 1 );
+	const float val =  mIsUdf(rgprop->rg_.start)	? rgprop->rg_.stop
+		      : (mIsUdf(rgprop->rg_.stop)	? rgprop->rg_.start
+							: rgprop->rg_.center());
+	setFldVal( valfld_, val, un, 0 );
     }
     else
     {
 	typfld_->setCurrentItem( 0 );
 	float val = prop.value(Property::EvalOpts(true));
-	const bool isudf = mIsUdf(val);
-	if ( !mIsUdf(val) ) val /= fac_;
-	valfld_->setValue( val );
-	rgfld_->setValue( Interval<float>(val,val) );
+	setFldVal( rgfld_, val, un, 0 );
+	setFldVal( rgfld_, val, un, 1 );
+	setFldVal( valfld_, val, un, 0 );
     }
 }
 
 bool getRange()
 {
+    const UnitOfMeasure* un = unfld_->getUnit();
     if ( !isRg() )
     {
 	const float val = valfld_->getfValue();
-	if ( mIsUdf(val) || val <= 0 ) return false;
-	rg_.start = val * fac_;
-	if ( rg_.start <= 0 )
+	if ( mIsUdf(val) )
 	    return false;
+	rg_.start = !un ? val : un->getSIValue( val );
     }
     else
     {
-	Interval<float> rg( rgfld_->getfValue(0), rgfld_->getfValue(1) );
+	Interval<float> rg = rgfld_->getFInterval();
 	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 	    return false;
-	rg_.start = rg.start * fac_; rg_.stop = rg.stop * fac_;
-	if ( rg_.start <= 0 && rg_.stop <= 0 )
-	    return false;
+	rg_ = rg;
+	if ( un )
+	{
+	    rg_.start = un->getSIValue( rg_.start );
+	    rg_.stop = un->getSIValue( rg_.stop );
+	}
     }
     return true;
 }
@@ -432,16 +453,17 @@ bool setProp( PropertySet& props, int idx )
 		? (Property*)new RangeProperty( oldprop.ref(), rg_ )
 		: (Property*)new ValueProperty( oldprop.ref(), rg_.start );
     props.replace( idx, newprop );
+
     return true;
 }
 
-    uiLabel*	prelbl_;
-    uiLabel*	postlbl_;
-    uiComboBox*	typfld_;
-    uiGenInput*	valfld_;
-    uiGenInput*	rgfld_;
+    uiLabel*		prelbl_;
+    uiLabel*		postlbl_;
+    uiComboBox*		typfld_;
+    uiGenInput*		valfld_;
+    uiGenInput*		rgfld_;
+    uiUnitSel*		unfld_;
 
-    float		fac_;
     Interval<float>	rg_;
 
 };
@@ -458,10 +480,6 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
 				"Define layer generation",mTODOHelpID))
     , inpun_(inpun)
-    , thref_(proprefs[0])
-    , velref_(proprefs[1])
-    , denref_(proprefs[2])
-    , airef_(proprefs[3])
     , rt_(rt)
     , anychg_(true) //TODO really keep track of changes
 {
@@ -471,53 +489,40 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     else
 	edun_ = new Strat::SingleLayerGenerator;
 
-    PropertySet& props = edun_->properties();
-    int velidx = props.indexOf( *velref_ );
-    if ( velidx < 0 )
-    {
-	velidx = props.size();
-	props.add( new ValueProperty(*velref_,velref_->disp_.possibleValue()) );
-    }
-    int denidx = props.indexOf( *denref_ );
-    if ( denidx < 0 )
-    {
-	denidx = props.size();
-	props.add( new ValueProperty(*denref_,denref_->disp_.possibleValue()) );
-    }
-    int aiidx = props.indexOf( *airef_ );
-    if ( aiidx < 0 )
-    {
-	aiidx = props.size();
-	BufferString velvarnm( velref_->name() );
-	BufferString denvarnm( denref_->name() );
-	MathProperty::ensureGoodVariableName( velvarnm.buf() );
-	MathProperty::ensureGoodVariableName( denvarnm.buf() );
-	const BufferString exprstr( velvarnm, " * ", denvarnm );
-	MathProperty* mp = new MathProperty( *airef_, exprstr );
-	props.add( mp );
-    }
-
     BufferStringSet unnms;
     Strat::UnitRefIter it( rt_, Strat::UnitRefIter::Leaves );
     while ( it.next() )
 	unnms.add( it.unit()->fullCode() );
-
     unfld_ = new uiGenInput( this, "Layer", StringListInpSpec(unnms) );
-    thfld_ = new uiSimpPropertyEd( this, *thref_ );
-    velfld_ = new uiSimpPropertyEd( this, *velref_ );
-    denfld_ = new uiSimpPropertyEd( this, *denref_ );
+    unfld_->setText( edun_->unit().fullCode() );
 
-    thfld_->attach( alignedBelow, unfld_ );
-    velfld_->attach( alignedBelow, thfld_ );
-    denfld_->attach( alignedBelow, velfld_ );
+    const PropertySet& props = edun_->properties();
+    for ( int idx=0; idx<proprefs.size(); idx++ )
+    {
+	const PropertyRef& pr = *proprefs[idx];
+	const int idxof = props.indexOf( pr );
+	if ( idxof >= 0 )
+	    workprops_.add( props.get(idxof).clone() );
+	else
+	{
+	    float defval = pr.disp_.range_.center();
+	    if ( nearun )
+	    {
+		const int nidxof = nearun->properties().indexOf( pr );
+		if ( nidxof >= 0 )
+		    defval = nearun->properties().get(nidxof).value(
+			    	Property::EvalOpts(true) );
+	    }
+	    workprops_.add( new ValueProperty(pr,defval) );
+	}
 
-    const Strat::SingleLayerGenerator* useun
-				= inpun_ || !nearun ? edun_ : nearun;
-    unfld_->setText( useun->unit().fullCode() );
-    const PropertySet& useprops = useun->properties();
-    thfld_->setFrom( useprops.get( 0 ), useun != edun_ );
-    velfld_->setFrom( useprops.get( props.indexOf(*velref_) ), useun != edun_ );
-    denfld_->setFrom( useprops.get( props.indexOf(*denref_) ), useun != edun_ );
+	uiSimpPropertyEd* fld = new uiSimpPropertyEd(this,workprops_.get(idx));
+	if ( idx == 0 )
+	    fld->attach( alignedBelow, unfld_ );
+	else
+	    fld->attach( alignedBelow, propflds_[idx-1] );
+	propflds_ += fld;
+    }
 }
 
 bool rejectOK( CallBacker* )
@@ -530,34 +535,30 @@ bool rejectOK( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    PropertySet& props = edun_->properties();
-    if ( !thfld_->setProp(edun_->properties(),0)
-      || !velfld_->setProp(edun_->properties(),
-	  			edun_->properties().indexOf(*velref_))
-      || !denfld_->setProp(edun_->properties(),
-	  			edun_->properties().indexOf(*denref_)) )
+    for ( int idx=0; idx<workprops_.size(); idx++ )
     {
-	uiMSG().error( "Please fill all values" );
-	return false;
+	if ( !propflds_[idx]->setProp(workprops_,idx) )
+	{
+	    const Property& prop = workprops_.get(idx);
+	    uiMSG().error( "Please fill the values for '", prop.name(), "'" );
+	    return false;
+	}
     }
+
     const Strat::UnitRef* ur = rt_.find( unfld_->text() );
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
+    edun_->properties() = workprops_;
     return true;
 }
 
     uiGenInput*		unfld_;
-    uiSimpPropertyEd*	thfld_;
-    uiSimpPropertyEd*	velfld_;
-    uiSimpPropertyEd*	denfld_;
+    ObjectSet<uiSimpPropertyEd>	propflds_;
 
     const Strat::LayerGenerator* inpun_;
     Strat::SingleLayerGenerator* edun_;
-    const PropertyRef*		thref_;
-    const PropertyRef*		velref_;
-    const PropertyRef*		denref_;
-    const PropertyRef*		airef_;
     const Strat::RefTree&	rt_;
 
+    PropertySet			workprops_;
     bool			anychg_;
 
 };
@@ -566,8 +567,9 @@ bool acceptOK( CallBacker* )
 bool uiBasicLayerSequenceGenDesc::newDescReq( bool above )
 {
     const int curunidx = curUnitIdx();
-    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(), props_,
-	    		curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
+    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
+	    			  desc_.propSelection(),
+				  curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
     if ( !dlg.go() )
 	return false;
 
@@ -589,7 +591,7 @@ bool uiBasicLayerSequenceGenDesc::descEditReq()
     if ( curidx < 0 ) return false;
 
     uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree(),
-				  props_ );
+				  desc_.propSelection() );
     const bool chgd = dlg.go() ? dlg.anychg_ : false;
     if ( chgd )
 	rebuildDispUnits();

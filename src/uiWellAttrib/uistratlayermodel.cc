@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.22 2011-06-08 14:19:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.23 2011-06-24 13:39:33 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -108,6 +108,10 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 	    			"Save generation description",
 				mCB(this,uiStratLayerModel,saveGenDescCB) );
     stb->attach( rightOf, opentb );
+    uiToolButton* proptb = new uiToolButton( leftgengrp, "defprops.png",
+	    			"Manage layer properties",
+				mCB(this,uiStratLayerModel,manPropsCB) );
+    proptb->attach( rightOf, stb );
 
     uiGroup* rightgengrp = new uiGroup( gengrp, "Right buttons" );
     const CallBack gocb( mCB(this,uiStratLayerModel,genModels) );
@@ -191,6 +195,12 @@ void uiStratLayerModel::wvltChg( CallBacker* cb )
 }
 
 
+void uiStratLayerModel::manPropsCB( CallBacker* )
+{
+    seqdisp_->selProps();
+}
+
+
 bool uiStratLayerModel::saveGenDescIfNecessary() const
 {
     if ( !seqdisp_->needSave() )
@@ -269,7 +279,7 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
     modl_.setEmpty();
-    seqdisp_->getPropertyRefs( modl_.propertyRefs() );
+    modl_.propertyRefs() = seqdisp_->desc().propSelection();
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );

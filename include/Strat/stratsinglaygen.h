@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.3 2010-10-28 15:11:56 cvsbert Exp $
+ RCS:		$Id: stratsinglaygen.h,v 1.4 2011-06-24 13:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ public:
     bool		isEmpty() const		{ return props_.isEmpty(); }
     PropertySet&	properties()		{ return props_; }
     const PropertySet&	properties() const	{ return props_; }
-    void		getPropertySelection(PropertyRefSelection&) const;
 
     virtual bool	reset() const;
     virtual const char*	errMsg() const		{ return errmsg_.buf(); }
