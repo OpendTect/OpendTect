@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.43 2011-06-22 11:12:15 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.44 2011-06-24 13:36:53 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -512,6 +512,16 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
 }
 
 
+MathProperty::MathProperty( const MathProperty& mp )
+    : Property(mp.ref())
+    , expr_(0)
+{
+    inps_.allowNull( true );
+    if ( !mp.def_.isEmpty() )
+	setDef( mp.def_ );
+}
+
+
 MathProperty::~MathProperty()
 {
     delete expr_;
@@ -605,6 +615,12 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 
 bool MathProperty::init( const PropertySet& ps ) const
 {
+    if ( !expr_ )
+    {
+	errmsg_ = "No valid definition for "; errmsg_.add(name());
+	return false;
+    }
+
     const int nrinps = expr_->nrVariables();
     inps_.erase();
     while ( nrinps > inps_.size() )
@@ -683,6 +699,18 @@ PropertySet::PropertySet( const PropertyRefSelection& prs )
 {
     for ( int idx=0; idx<prs.size(); idx++ )
 	props_ += new ValueProperty( *prs[idx] );
+}
+
+
+PropertySet& PropertySet::operator =( const PropertySet& ps )
+{
+    if ( this != &ps )
+    {
+	erase();
+	for ( int idx=0; idx<ps.size(); idx++ )
+	    props_ += ps.get(idx).clone();
+    }
+    return *this;
 }
 
 
@@ -780,6 +808,12 @@ bool PropertySet::prepareUsage() const
 	    { errmsg_ = props_[idx]->errMsg(); return false; }
     }
     return true;
+}
+
+
+PropertyRefSelection::PropertyRefSelection()
+{
+    *this += &PropertyRef::thickness();
 }
 
 

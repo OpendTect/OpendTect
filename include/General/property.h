@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.24 2011-05-17 08:51:38 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.25 2011-06-24 13:36:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
 
     			Property( const PropertyRef& pr )
 			: ref_(pr)			{}
+    virtual Property*	clone() const			= 0;
     virtual		~Property()			{}
 
     inline const PropertyRef& ref() const		{ return ref_; }
@@ -75,6 +76,7 @@ protected:
     virtual const char* factoryKeyword() const	{ return type(); } \
     static Property*	create( const PropertyRef& r ) { return new clss(r); } \
     static void		initClass() { factory().addCreator(create,typeStr());} \
+    virtual Property*	clone() const		{ return new clss( *this ); }\
     virtual const char*	def() const; \
     virtual void	setDef(const char*); \
     virtual bool	isUdf() const; \
@@ -88,7 +90,10 @@ public:
     			PropertySet()		{}
 			PropertySet(const PropertyRefSelection&);
 						//!< Creates ValueProperty's
+			PropertySet( const PropertySet& ps )
+						{ *this = ps; }
     virtual		~PropertySet()		{ erase(); }
+    PropertySet&	operator =(const PropertySet&);
 
     inline int		size() const		{ return props_.size(); }
     inline bool		isEmpty() const		{ return props_.isEmpty(); }
