@@ -152,7 +152,7 @@ bool RayTracer1D::init()
 	errmsg_ = "Model is empty, please specify a valid model";
 	return false;
     }
-    if ( !ssz && psz == 1 || ssz == 1 && !psz )
+    if ( (!ssz && psz == 1) || (ssz == 1 && !psz) )
     {
 	errmsg_ = "Model is only one layer, please specify a valid model";
 	return false;
