@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.34 2011-01-13 08:15:08 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.35 2011-06-27 08:33:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
 
     bool		is2D() const			{ return is2d_; }
 
-    void		setDataPackInp(const TypeSet<DataPack::FullID>&);
+    virtual void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
