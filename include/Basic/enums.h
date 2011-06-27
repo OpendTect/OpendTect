@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.28 2011-02-02 02:08:12 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.29 2011-06-27 15:22:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,6 @@ Normally, you'll have a class with an enum member. In that case, you'll want to
 use the EnumDef classes. These are normally almost hidden by a few
 simple macros:
 * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
-* DeclareEnumUtilsWithVar(enm,varnm) will also create an instance variable with
-  accessors.
 * DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
 * For namespaces, you can use DeclareNameSpaceEnumUtils only
 
@@ -46,7 +44,7 @@ public:
     enum State  { Good, Bad, Ugly };
 		DeclareEnumUtils(State)
     enum Type   { Yes, No, Maybe };
-		DeclareEnumUtilsWithVar(Type,type)
+		DeclareEnumUtils(Type)
 
     // rest of class
 
@@ -89,24 +87,7 @@ protected:
     static const char*		StateNames_[];
     static const EnumDef	StateDefinition_;
 
-public:
-
-    enum			Type { Yes, No, Maybe };
-    Type			type() const { return type_; }
-    void			setType(Type _e_) { type_ = _e_; }
-    static const EnumDef&	TypeDef();
-    static const char**		TypeNames();
-    static bool 		parseEnum(const char*, Type& );
-    static bool 		parseEnum(const IOPar&, const char* key,Type& );
-    static int 			parseEnumType(const char*);
-    static const char* 		toString(Type);
-
-protected:
-
-    static const char*		TypeNames_[];
-    static const EnumDef	TypeDefinition_;
-
-    Type			type_;
+// similar for Type
 
 };
 
@@ -217,16 +198,6 @@ public:
     mExtern enm parseEnum##enm(const char*); \
     mExtern const char* toString(enm); \
     mExtern const char* get##enm##String(enm); /*legacy */ 
-
-#define DeclareEnumUtilsWithVar(enm,varnm) \
-public: \
-    enm varnm() const { return varnm##_; } \
-    void set##enm(enm _e_) { varnm##_ = _e_; } \
-    DeclareEnumUtils(enm) \
-protected: \
-    enm varnm##_; \
-public:
-
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 const EnumDef clss::enm##Definition_ \
