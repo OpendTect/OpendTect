@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.5 2011-02-01 20:55:46 cvsyuancheng Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.6 2011-06-27 09:56:40 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ public:
     float		taperLength() const		{ return taperlen_; }
     float		muteCutoff() const		{ return mutecutoff_; }
     void		setMuteCutoff(float co)		{ mutecutoff_ = co; }
+    void		setVelBlock(bool yn)		{ dovelblock_ = yn; }
+    bool		isVelBlock() const		{ return dovelblock_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -54,6 +56,7 @@ public:
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
+    static const char*  sKeyVelBlock()		{ return "Block velocities"; }
 
 protected:
 
@@ -64,6 +67,7 @@ protected:
     MultiID			velvolmid_;   
     Muter*			muter_; 
     bool			tail_;
+    bool			dovelblock_;
     float			taperlen_;
     float			mutecutoff_;
     RayTracer1D::Setup		setup_;

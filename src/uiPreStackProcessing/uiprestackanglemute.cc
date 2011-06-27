@@ -4,16 +4,17 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.7 2011-02-03 21:49:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.8 2011-06-27 09:56:40 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
-#include "uiprestackprocessor.h"
 #include "prestackanglemute.h"
 #include "raytrace1d.h"
 #include "survinfo.h"
+#include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uiprestackprocessor.h"
 #include "uiraytrace1d.h"
 #include "uiveldesc.h"
 
@@ -56,9 +57,14 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 	    FloatInpSpec(false) );
     cutofffld_->attach( alignedBelow, topfld_ );
     cutofffld_->setValue( rt->muteCutoff() );
+
+    blockfld_ = new uiCheckBox( this, "Block (bend points)" );
+    blockfld_->attach( alignedBelow, cutofffld_ );
+    blockfld_->setChecked( processor_->isVelBlock() );
+
     taperlenfld_ = new uiGenInput( this, "Taper length (samples)",
 	    FloatInpSpec(processor_->taperLength()) );
-    taperlenfld_->attach( alignedBelow, cutofffld_ );
+    taperlenfld_->attach( alignedBelow, blockfld_ );
     
 }
 
@@ -75,6 +81,7 @@ bool uiAngleMute::acceptOK(CallBacker*)
     processor_->setTailMute( !topfld_->getBoolValue() );
     processor_->setMuteCutoff( cutofffld_->getfValue() );
     processor_->setVelocityMid( velfuncsel_->key(true) );
+    processor_->setVelBlock( blockfld_->isChecked() );
     return true;
 }
 

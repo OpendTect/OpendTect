@@ -4,12 +4,13 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.10 2011-06-22 14:30:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.11 2011-06-27 09:56:40 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
 #include "ailayer.h"
 #include "arrayndslice.h"
+#include "bendpointfinder.h"
 #include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -30,6 +31,7 @@ AngleMute::AngleMute()
     , velvolmid_( 0 )
     , muter_( 0 )
     , tail_( false )
+    , dovelblock_(false)		    
     , taperlen_( 10 )
     , mutecutoff_( 0 )		   
     , setup_( RayTracer1D::Setup() )				   
@@ -106,6 +108,7 @@ void AngleMute::fillPar( IOPar& par ) const
     par.set( Mute::sTaperLength(), taperlen_ );
     par.setYN( Mute::sTailMute(), tail_ );
     par.set( sKeyMuteCutoff(), mutecutoff_ );
+    par.setYN( sKeyVelBlock(), dovelblock_ );
 }
 
 
@@ -125,6 +128,7 @@ bool AngleMute::usePar( const IOPar& par )
     par.get( sKeyMuteCutoff(), mutecutoff_ );
     par.get( Mute::sTaperLength(), taperlen_ );
     par.getYN( Mute::sTailMute(), tail_ );
+    par.getYN( sKeyVelBlock(), dovelblock_ );
 
     return true;
 }
@@ -185,15 +189,45 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		depths[il] = zrg.atIndex( il );
 	}
 
+	if ( dovelblock_ )
+	{
+	    TypeSet<Coord> velsc;
+	    velsc.setCapacity( nrlayers );
+	    for ( int idvel=0; idvel<velsc.size(); idvel++ )
+		velsc += Coord( depths[idvel], vels[idvel] );
+
+	    BendPointFinder2D finder( velsc, 1e-5 );
+	    if ( finder.execute() && finder.bendPoints().size()>0 )
+	    {
+		const TypeSet<int>& bpidvels = finder.bendPoints();
+
+		int bpidvel = 0; TypeSet<int> torem;
+		for ( int idvel=0; idvel<velsc.size(); idvel++ )
+		{
+		    if ( idvel !=  bpidvels[bpidvel] )
+			torem += idvel;
+		    else
+			bpidvel ++;
+		}
+
+		for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
+		{
+		    vels.remove( torem[idvel] );
+		    depths.remove( torem[idvel] );
+		}
+		nrlayers = vels.size();
+	    }
+	}
+
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
-    	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
-    	    offsets += input->getOffset( ioffset );
+	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
+	    offsets += input->getOffset( ioffset );
 	rtracers_[thread]->setOffsets( offsets );
 	
 	TypeSet<AILayer> layers;
 	for ( int il=1; il<nrlayers; il++ )
-	    layers += AILayer( depths[il]-depths[il-1], vels[il], mUdf(float) );
+	    layers += AILayer(depths[il]-depths[il-1], vels[il-1], mUdf(float));
 
 	rtracers_[thread]->setModel( true, layers );
 	if ( !rtracers_[thread]->execute(raytraceparallel_) )
