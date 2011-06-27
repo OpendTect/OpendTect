@@ -7,19 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.21 2009-09-08 12:04:36 cvshelene Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.22 2011-06-27 08:41:16 cvsbruno Exp $";
 
 
 #include "uiprestackattrib.h"
 #include "prestackattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
 #include "multiid.h"
 #include "prestackprop.h"
 #include "seispsioprov.h"
+#include "uiattrsel.h"
 #include "uiattribfactory.h"
 #include "uiseissel.h"
 #include "uiprestackprocessorsel.h"
@@ -34,10 +36,13 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.17")
 	, ctio_(*uiSeisSel::mkCtxtIOObj(is2d?Seis::LinePS:Seis::VolPS,true))
 {
-    inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
-    dopreprocessfld_ = new uiGenInput( this, "Preprocess",
-	    BoolInpSpec(false) );
-    dopreprocessfld_->attach( alignedBelow, inpfld_ );
+    seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
+    datapackinpfld_ = createInpFld(is2d);
+    datapackinpfld_->display( false );
+
+    dopreprocessfld_ = new uiGenInput( this, "Preprocess", BoolInpSpec(false) );
+    dopreprocessfld_->attach( alignedBelow, seisinpfld_ );
+    dopreprocessfld_->attach( alignedBelow, datapackinpfld_ );
     dopreprocessfld_->valuechanged.notify(
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
     preprocsel_ = new PreStack::uiProcSel( this, "Preprocessing setup", 0 );
@@ -73,7 +78,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     useazimfld_->attach( alignedBelow, valaxtypefld_ );
 
     calcTypSel(0);
-    setHAlignObj( inpfld_ );
+    setHAlignObj( seisinpfld_ );
 }
 
 
@@ -88,7 +93,9 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     RefMan<Attrib::Desc> tmpdesc = new Attrib::Desc( desc );
     RefMan<Attrib::PSAttrib> aps = new Attrib::PSAttrib( *tmpdesc );
 
-    inpfld_->setInput( aps->psID() );
+    if ( dpfids_.isEmpty() )
+	seisinpfld_->setInput( aps->psID() );
+
     const MultiID ppid = aps->preProcID();
     dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
     preprocsel_->setSel( ppid );
@@ -108,11 +115,25 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 
 bool uiPreStackAttrib::getParameters( Desc& desc )
 {
-    inpfld_->commitInput();
-    if ( !ctio_.ioobj )
-	{ errmsg_ = "Please select the input data store"; return false; }
+    if ( dpfids_.isEmpty() )
+    {
+	seisinpfld_->commitInput();
+	if ( !ctio_.ioobj )
+	    { errmsg_ = "Please select the input data store"; return false; }
 
-    mSetString("id",ctio_.ioobj->key())
+	mSetString(Attrib::StorageProvider::keyStr(),ctio_.ioobj->key())
+    }
+    else
+    {
+	const Attrib::DescSet& attrset = datapackinpfld_->getAttrSet();
+	const Attrib::Desc* dsc = attrset.getDesc(datapackinpfld_->attribID());
+	if ( dsc )
+	{
+	    const ValParam& par = *dsc->getValParam(StorageProvider::keyStr());
+	    mSetString( Attrib::StorageProvider::keyStr(), par.getStringValue())
+	}
+    }
+
 
     if ( dopreprocessfld_->getBoolValue() )
     {
@@ -169,4 +190,19 @@ void uiPreStackAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( "Offset start", PSAttrib::offStartStr() );
     params += EvalParam( "Offset stop", PSAttrib::offStopStr() );
+}
+
+
+void uiPreStackAttrib::setDataPackInp( const TypeSet<DataPack::FullID>& ids ) 
+{
+    uiAttrDescEd::setDataPackInp( ids );
+    datapackinpfld_->display( true );
+    seisinpfld_->display( false );
+}
+
+
+bool uiPreStackAttrib::setInput( const Desc& desc )
+{
+    putInp( datapackinpfld_, desc, 0 );
+    return true;
 }

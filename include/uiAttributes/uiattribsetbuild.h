@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.11 2011-06-15 13:00:19 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.12 2011-06-27 08:41:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 namespace Attrib { class DescSet; }
+class uiPreStackAttrib;
 
 
 mClass uiAttribDescSetBuild : public uiBuildListFromList
@@ -42,7 +43,8 @@ public:
 
     const Attrib::DescSet& descSet() const	{ return descset_; }
 
-    void		setDataPackInp(const TypeSet<DataPack::FullID>&);
+    void		setDataPackInp(const TypeSet<DataPack::FullID>&,
+	    				bool isprestack=false);
 
 protected:
 
@@ -50,8 +52,10 @@ protected:
     const Setup		attrsetup_;
     CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
+    TypeSet<DataPack::FullID> psdpfids_;
 
     uiToolButton*	savebut_;
+    uiPreStackAttrib*	uipsattrdesced_;
 
     void		fillAvailable();
     bool		doAttrSetIO(bool);

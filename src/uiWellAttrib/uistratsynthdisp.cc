@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.41 2011-06-08 14:19:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.42 2011-06-27 08:41:16 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -341,7 +341,12 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
 	const Strat::LayerSequence& seq = lm_.sequence( seqidx );
 	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
-	synthgen.addModel( aimod );
+	if ( aimod.isEmpty() )
+	    mErrRet( "Layer model is empty", return 0;) 
+	else if ( aimod.size() == 1  )
+	    mErrRet( "Please add at least one layer to the model", return 0;) 
+	else
+	    synthgen.addModel( aimod );
     }
     TaskRunner tr;
     if ( !tr.execute( synthgen ) )
@@ -354,6 +359,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 
     ObjectSet<PreStack::Gather> gathers;
     ObjectSet<const SeisTrc> trcs;
+    ObjectSet<const TimeDepthModel> tmpd2ts;
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
 	Seis::RaySynthGenerator::RayModel& rm = 
@@ -380,20 +386,19 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	if ( isgather )
 	{
 	    PreStack::Gather* gather = new PreStack::Gather();
-	    if ( !gather->readFrom( *tbuf, 0 ) )
-		continue;
+	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+		{ delete gather; continue; }
 	    gathers += gather;
 	}
-	rm.getD2T( d2ts, true );
+	rm.getD2T( tmpd2ts, true );
+	d2ts.append( tmpd2ts );
     }
-    if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty() ) )
+    if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty()) )
 	mErrRet("No seismic traces genereated ", return 0)
 
     DataPack* dp =0;
-   
     if ( isgather ) 
     {
-	delete tbuf;
 	PreStack::GatherSetDataPack* pdp = new PreStack::GatherSetDataPack(
 							"GatherSet", gathers );
 	dp = dynamic_cast<DataPack*>(pdp);
@@ -403,9 +408,9 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
 			    tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
 	const SeisTrc& trc0 = *tbuf->get(0);
-	StepInterval<double> zrg(  trc0.info().sampling.start,
-				   trc0.info().sampling.atIndex(trc0.size()-1),
-				   trc0.info().sampling.step );
+	StepInterval<double> zrg( trc0.info().sampling.start,
+				  trc0.info().sampling.atIndex(trc0.size()-1),
+				  trc0.info().sampling.step );
 	tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
 	tdp->posData().setRange( false, zrg );
 

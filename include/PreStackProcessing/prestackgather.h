@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.26 2011-05-25 14:31:44 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.27 2011-06-27 08:41:16 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -121,7 +121,7 @@ protected:
     BufferString		linename_;
 
 public:
-    bool			readFrom(SeisTrcBuf&,int comp);
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp);
 };
 
 
@@ -133,6 +133,7 @@ mClass GatherSetDataPack : public DataPack
 public:
     				GatherSetDataPack(const char* ctgery,
 						  const ObjectSet<Gather>&); 
+				~GatherSetDataPack();
 
     virtual float 		nrKBytes() const 	{ return 0; }
 
@@ -141,7 +142,7 @@ public:
 
 protected:
 
-    const ObjectSet<Gather>&	gathers_;
+    ObjectSet<Gather>		gathers_;
 };
 
 

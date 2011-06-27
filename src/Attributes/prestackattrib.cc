@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.22 2011-05-16 16:12:19 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.23 2011-06-27 08:41:16 cvsbruno Exp $";
 
 #include "prestackattrib.h"
 
@@ -210,7 +210,12 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	}
 	if (!curgather ) return false;
 
-	curgatherid = curgather->id();
+	mDeclareAndTryAlloc( ::PreStack::Gather*, gather, 
+				::PreStack::Gather(*curgather ) );
+	if ( !gather )
+	    return false;
+	DPM(DataPackMgr::FlatID()).add( gather );
+	curgatherid = gather->id();
     }
     else
     {

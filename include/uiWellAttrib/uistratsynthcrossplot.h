@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.16 2011-06-08 14:19:09 cvsbruno Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.17 2011-06-27 08:41:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ protected:
 
     const Strat::LayerModel&	lm_;
     SeisTrcBufDataPack*		tbpack_;
-    PreStack::GatherSetDataPack* pspack_;
+    const PreStack::GatherSetDataPack* pspack_;
     const DataPackMgr::ID	packmgrid_;
     const DataPackMgr::ID	pspackmgrid_;
     const ObjectSet<const TimeDepthModel>& d2tmodels_;

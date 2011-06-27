@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.18 2011-06-16 06:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.19 2011-06-27 08:41:16 cvsbruno Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.18 2011-06-16 06:44:32 
 #include "uiattribsingleedit.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiprestackattrib.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 
@@ -51,6 +52,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))
+    , uipsattrdesced_(0)			  
 {
     descset_.setCouldBeUsedInAnyDimension( true );
     fillAvailable();
@@ -141,8 +143,37 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 
     Attrib::Desc& desc = *descset_.getDesc( did );
     uiSingleAttribEd dlg( this, desc, isadd );
-    dlg.setDataPackSelection( dpfids_ );
-    if ( dlg.go() )
+    bool success = false;
+    if ( desc.isPS() )
+    {
+	dlg.setDataPackSelection( psdpfids_ );
+	success = dlg.go();
+	if ( success )
+	{
+	    for ( int idx=descset_.size()-1; idx>=0; idx-- )
+	    {
+		Desc* tmpdesc = descset_.desc(idx);
+		if ( tmpdesc->isStoredInMem() )
+		{
+		    const char* idval;
+		    mGetStringFromDesc( (*tmpdesc), idval,
+			    		Attrib::StorageProvider::keyStr() )
+		    const LineKey lk( idval );
+		    BufferString bstring = lk.lineName();
+		    const char* linenm = bstring.buf();
+		    const MultiID mid( linenm+1 );
+		    if ( psdpfids_.indexOf( mid ) >=0 )
+			descset_.removeDesc( tmpdesc->id() );
+		}
+	    }
+	}
+    }
+    else
+    {
+	dlg.setDataPackSelection( dpfids_ );
+	success = dlg.go();
+    }
+    if ( success )
 	handleSuccessfullEdit( isadd, desc.userRef() );
     else if ( isadd )
 	descset_.removeDesc( did );
@@ -170,9 +201,10 @@ const char* uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 }
 
 
-void uiAttribDescSetBuild::setDataPackInp( const TypeSet<DataPack::FullID>& ids)
+void uiAttribDescSetBuild::setDataPackInp( const TypeSet<DataPack::FullID>& ids,
+						bool isprestack )
 {
-    dpfids_ = ids;
+    ( isprestack ? psdpfids_ : dpfids_ ) = ids;
 }
 
 
@@ -219,20 +251,22 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
     else
 	uiMSG().error( emsg );
 
-    if ( forread && !dpfids_.isEmpty() )
+    if ( forread && ( !dpfids_.isEmpty() || !psdpfids_.isEmpty() ) )
     {
 	for ( int iattr=0; iattr<descset_.size(); iattr++ )
 	{
 	    Attrib::Desc& desc = *descset_.desc( iattr );
+		
 	    if ( !desc.isStoredInMem() ) continue;
 
 	    Attrib::ValParam* vp = desc.getValParam(
 		    		Attrib::StorageProvider::keyStr() );
 	    const MultiID descid( vp->getStringValue(0) + 1 );
-	    if ( dpfids_.indexOf(descid) < 0 )
+	    if ( ( !desc.isPS() && dpfids_.indexOf(descid) < 0 )
+		    || ( desc.isPS() && psdpfids_.indexOf( descid ) < 0 ) )
 	    {
 		BufferString fidstr = "#";
-		fidstr += dpfids_[0];
+		fidstr += desc.isPS() ? psdpfids_[0] : dpfids_[0];
 		vp->setValue( fidstr.buf() );
 	    }
 	}

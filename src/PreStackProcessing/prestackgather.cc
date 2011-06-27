@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.33 2011-05-25 14:31:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.34 2011-06-27 08:41:16 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -147,7 +147,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
-    if ( !readFrom( *tbuf, comp ) )
+    if ( !setFromTrcBuf( *tbuf, comp ) )
        return false;	
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
@@ -173,7 +173,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 }
 
 
-bool Gather::readFrom( SeisTrcBuf& tbuf, int comp )
+bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
 { 
     tbuf.sort( true, SeisTrcInfo::Offset );
 
@@ -246,6 +246,7 @@ bool Gather::readFrom( SeisTrcBuf& tbuf, int comp )
 
     zit_ = SI().zIsTime();
     coord_ = crd;
+    binid_ = SI().transform( coord_ ); 
 
     return true;
 }
@@ -356,6 +357,12 @@ GatherSetDataPack::GatherSetDataPack( const char* categry,
 {}
 
 
+GatherSetDataPack::~GatherSetDataPack()
+{
+    deepErase( gathers_ );
+}
+
+
 const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 {
     for ( int idx=0; idx<gathers_.size(); idx++ )
@@ -366,3 +373,4 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 
     return 0;
 }
+

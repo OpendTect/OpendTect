@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.27 2011-06-08 14:19:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.28 2011-06-27 08:41:16 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -42,10 +42,10 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.27 2011-06-08 14:1
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
-				    const DataPack::FullID& dpid,
-				    const Strat::LayerModel& lm,
-				    const ObjectSet<const TimeDepthModel>& d2t,
-				    const DataPack::FullID& psdpid )
+				const DataPack::FullID& dpid,
+				const Strat::LayerModel& lm,
+				const ObjectSet<const TimeDepthModel>& d2t,
+				const DataPack::FullID& psdpid )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , packmgrid_(DataPackMgr::getID(dpid))
@@ -54,6 +54,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     , d2tmodels_(d2t)
     , emptylbl_(0)
     , tbpack_(0)
+    , pspack_(0)	
 {
     if ( lm.isEmpty() )
 	{ emptylbl_ = new uiLabel(this,"No input data"); return; }
@@ -63,14 +64,20 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	{ emptylbl_ = new uiLabel(this,"Missing or invalid datapack"); return; }
     tbpack_ = tbdp;
 
-    DataPack* psdp = DPM(pspackmgrid_).obtain( DataPack::getID(psdpid) );
-    mDynamicCastGet(PreStack::GatherSetDataPack*,psdp_,psdp)
+    DataPack* pdp = DPM(pspackmgrid_).obtain( DataPack::getID(psdpid) );
+    mDynamicCastGet(PreStack::GatherSetDataPack*,psdp,pdp)
 
     uiAttribDescSetBuild::Setup bsu( !SI().has3D() );
-    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps(psdp_);
+    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps(psdp);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
-    TypeSet<DataPack::FullID> fids; fids += dpid; if ( psdp ) fids += psdpid;
-    seisattrfld_->setDataPackInp( fids );
+    TypeSet<DataPack::FullID> fids; fids += dpid; 
+    seisattrfld_->setDataPackInp( fids, false );
+    if ( psdp ) 
+    {
+	fids.erase(); fids += psdpid;
+	seisattrfld_->setDataPackInp( fids, true );
+	pspack_ = psdp;
+    }
 
     uiSeparator* sep = new uiSeparator( this, "sep1", true );
     sep->attach( stretchedBelow, seisattrfld_ );
@@ -108,38 +115,69 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
-
     const int nrmdls = d2tmodels_.size();
-    SeisTrcBuf& tbuf = tbpack_->trcBuf();
-    if ( tbuf.size() != nrmdls )
-	{ pErrMsg("DataPack nr of traces != nr of d2t models"); return 0; }
 
-    TypeSet<float> lvltms;
-    const Strat::SeisEvent& ssev = evfld_->event();
-    for ( int imod=0; imod<nrmdls; imod++ )
-    {
-	SeisTrc& trc = *tbuf.get( imod );
-	const float dpth = lm_.sequence(imod).depthOf( lvl );
-	trc.info().pick = d2tmodels_[imod]->getTime( dpth );
-	lvltms += ssev.snappedTime( trc );
-    }
+    if ( tbpack_ )
+    {	
+	SeisTrcBuf& tbuf = tbpack_->trcBuf();
+	if ( tbuf.size() != nrmdls )
+	    { pErrMsg("DataPack nr of traces != nr of d2t models"); return 0; }
 
-    const int nrextr = extrwin.nrSteps() + 1;
-    for ( int iextr=0; iextr<nrextr; iextr++ )
-    {
-	const float relz = extrwin.atIndex( iextr );
-	for ( int itrc=0; itrc<nrmdls; itrc++ )
+	TypeSet<float> lvltms;
+	const Strat::SeisEvent& ssev = evfld_->event();
+	for ( int imod=0; imod<nrmdls; imod++ )
 	{
-	    const SeisTrc& trc = *tbuf.get( itrc );
-	    DataPointSet::DataRow dr;
-	    dr.pos_.nr_ = trc.info().nr;
-	    dr.pos_.set( trc.info().coord );
-	    dr.pos_.z_ = lvltms[itrc] + relz;
-	    dr.data_.setSize( dps->nrCols(), mUdf(float) );
-	    dr.data_[depthcol] = d2tmodels_[itrc]->getDepth( dr.pos_.z_ );
-	    dps->addRow( dr );
+	    SeisTrc& trc = *tbuf.get( imod );
+	    const float dpth = lm_.sequence(imod).depthOf( lvl );
+	    trc.info().pick = d2tmodels_[imod]->getTime( dpth );
+	    lvltms += ssev.snappedTime( trc );
+	}
+
+	const int nrextr = extrwin.nrSteps() + 1;
+	for ( int iextr=0; iextr<nrextr; iextr++ )
+	{
+	    const float relz = extrwin.atIndex( iextr );
+	    for ( int itrc=0; itrc<nrmdls; itrc++ )
+	    {
+		const SeisTrc& trc = *tbuf.get( itrc );
+		DataPointSet::DataRow dr;
+		dr.pos_.nr_ = trc.info().nr;
+		dr.pos_.set( trc.info().coord );
+		dr.pos_.z_ = lvltms[itrc] + relz;
+		dr.data_.setSize( dps->nrCols(), mUdf(float) );
+		dr.data_[depthcol] = d2tmodels_[itrc]->getDepth( dr.pos_.z_ );
+		dps->addRow( dr );
+	    }
 	}
     }
+
+    if ( pspack_ )
+    {
+	TypeSet<float> lvltms;
+	for ( int imod=0; imod<nrmdls; imod++ )
+	{
+	    const float dpth = lm_.sequence(imod).depthOf( lvl );
+	    lvltms += d2tmodels_[imod]->getTime( dpth );
+	}
+
+	const int nrextr = extrwin.nrSteps() + 1;
+	for ( int iextr=0; iextr<nrextr; iextr++ )
+	{
+	    const float relz = extrwin.atIndex( iextr );
+	    for ( int itrc=0; itrc<pspack_->getGathers().size(); itrc++ )
+	    {
+		const PreStack::Gather& gather = *pspack_->getGathers()[itrc];
+		DataPointSet::DataRow dr;
+		dr.pos_.nr_ = itrc+1;
+		dr.pos_.set( gather.getCoord() );
+		dr.pos_.z_ = lvltms[itrc] + relz;
+		dr.data_.setSize( dps->nrCols(), mUdf(float) );
+		dr.data_[depthcol] = d2tmodels_[itrc]->getDepth( dr.pos_.z_ );
+		dps->addRow( dr );
+	    }
+	}
+    }
+
     dps->dataChanged();
 
     if ( dps->isEmpty() )
@@ -207,7 +245,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 
     //If default Desc(s) present remove it
     int idx = -1;
-    while( true )
+    while( true && idx < attrs.size()-1 )
     {
 	idx++;
 	const Attrib::Desc* tmpdesc = attrs.desc(idx);
