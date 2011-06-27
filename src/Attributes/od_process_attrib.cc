@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.38 2011-03-02 10:14:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.39 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -30,15 +30,8 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.38 2011-03-02 10:14:57
 #include "seisjobexecprov.h"
 #include "seis2dline.h"
 #include "separstr.h"
-#include "socket.h"
 #include "thread.h"
-
-#ifndef _USENEWSOCKETS_
-#define  JobCommunic MMSockCommunic
-#include "mmsockcommunic.h"
-#else
 #include "jobcommunic.h"
-#endif
 
 
 #define mDestroyWorkers \

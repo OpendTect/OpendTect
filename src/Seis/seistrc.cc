@@ -5,11 +5,10 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.50 2010-11-12 11:35:36 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.51 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
-#include "socket.h"
 #include "iopar.h"
 #include "errh.h"
 #include "valseriesinterpol.h"
@@ -269,119 +268,6 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 		sz * (int)dc.nrBytes() );
     }
 }
-
-
-#define mErrRet(msg) \
-    { \
-	if ( errbuf )	{ *errbuf=msg; } \
-	else		{ sock.writeErrorMsg(msg); } \
-	return false; \
-    } 
-
-#define mSockErrRet( msg ) \
-    { \
-	if ( errbuf ) \
-	{ \
-	    sock.fetchMsg(*errbuf); \
-	    if ( errbuf->isEmpty() ) \
-	    { \
-		*errbuf = msg; \
-		pErrMsg("Warning: error msg empty; fallback to default msg.");\
-	    } \
-	} \
-	return false; \
-    } 
-
-bool SeisTrc::putTo(Socket& sock, bool withinfo, BufferString* errbuf) const
-{
-    if ( !sock.write( withinfo ) ) mSockErrRet( "Could not write to socket." );
-
-    if ( withinfo )
-    {
-	IOPar infpar;
-	info().fillPar(infpar);
-	if ( !sock.write( infpar ) )
-	    { mSockErrRet( "Could not write to socket." ); }
-    }
-
-    int nrcomps = nrComponents();
-    if ( !sock.write( nrcomps ) )
-	    { mSockErrRet( "Could not write to socket." ); }
-
-    for( int idx=0; idx< nrComponents(); idx++ )
-    {
-	DataCharacteristics dc = data_.getInterpreter(idx)->dataChar();
-
-	BufferString dcrep;
-	dc.toString( dcrep.buf() );
-
-	if ( !sock.write(dcrep) )
-	    { mSockErrRet( "Could not write to socket." ); }
-
-	const DataBuffer* buf = data_.getComponent( idx );
-	int nrbytes = buf->size() * buf->bytesPerSample();
-	if ( !sock.write( nrbytes ) )
-	    { mSockErrRet( "Could not write to socket." ); }
-
-	const unsigned char* rawdata = buf->data();
-
-	if ( !sock.writedata( rawdata, nrbytes ) )
-	    { mSockErrRet( "Could not write data to socket." ); }
-    }
-
-    return true;
-}
-
-
-bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
-{
-    int totalcmps = nrComponents();
-    for ( int idx=0; idx < totalcmps; idx++ )
-	data().delComponent(0);
-
-    if ( nrComponents() )
-	{ mErrRet( "Could not clear trace buffers" ); }
-
-    bool withinfo;
-    if ( !sock.read( withinfo ) )
-	    { mSockErrRet( "Could not read from socket." ); }
-    if ( withinfo )
-    {
-	IOPar infpar;
-	if ( !sock.read( infpar ) )
-	    { mSockErrRet( "Could not read from socket." ); }
-	info().usePar(infpar);
-    }
-
-    int nrcomps;
-    if ( !sock.read( nrcomps ) )
-	{ mSockErrRet( "Could not read from socket." ); }
-
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	BufferString dcrep;
-	if ( !sock.read(dcrep) )
-	    { mSockErrRet( "Could not read from socket." ); }
-
-	DataCharacteristics dc( dcrep );
-
-	int nrbytes;
-	if ( !sock.read( nrbytes ) )
-	    { mSockErrRet( "Could not read from socket." ); }
-
-	int nrsamples = nrbytes / (int)dc.nrBytes();
-	data().addComponent(nrsamples,dc);
-
-	unsigned char* dest = data().getComponent(idx)->data();
-	if ( !dest ) { mErrRet("Could not create buffer for trace data."); }
-
-	int bytesread = sock.readdata( (void*)dest, nrbytes );
-	if ( bytesread != nrbytes )
-	    { mSockErrRet( "Could not read data from socket." ); }
-    }
-
-    return true;
-} 
 
 
 float* SeisTrcValueSeries::arr()

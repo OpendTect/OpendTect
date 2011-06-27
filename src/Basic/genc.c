@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.115 2011-04-22 08:17:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.116 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -41,12 +41,23 @@ const char* GetLocalIP()
     strcpy( ret, inet_ntoa(addr) );
     return ret;
 }
+
+
+int initWinSock()
+{
+    WSADATA wsaData;
+    WORD wVersion = MAKEWORD( 2, 0 ) ;
+    return !WSAStartup( wVersion, &wsaData );
+}
 #endif
 
 
 const char* GetLocalHostName()
-{
+{ 
     static char ret[256];
+#ifdef __win__
+    initWinSock();
+#endif
     gethostname( ret, 256 );
     return ret;
 }

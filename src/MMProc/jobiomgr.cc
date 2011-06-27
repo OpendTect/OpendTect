@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.40 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.41 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
@@ -26,9 +26,10 @@ static const char* rcsID = "$Id: jobiomgr.cc,v 1.40 2011-04-21 13:09:13 cvsbert 
 #include "oddirs.h"
 #include "queue.h"
 #include "separstr.h"
-#include "socket.h"
 #include "string2.h"
 #include "strmprov.h"
+#include "systeminfo.h"
+#include "tcpserver.h"
 #include "thread.h"
 #include "timefun.h"
 
@@ -120,52 +121,39 @@ class JobIOHandler : public CallBacker
 {
 public:
     			JobIOHandler( int firstport )
-			    : sockprov_( 0 )
-			    , thread( 0 )
-			    , exitreq_( 0 ) 
+			    : exitreq_( 0 ) 
 			    , firstport_( firstport )
 			    {
-				threadmutex.lock();
-
-				thread = new Threads::Thread(
-					mCB(this,JobIOHandler,doDispatch) );
-
-				threadmutex.unLock();
+				serversocket_.readyRead.notify(
+				    mCB(this,JobIOHandler,socketCB) );
+				if ( !serversocket_.isListening() )
+				    serversocket_.listen( System::localAddress(),
+						      firstport_ );
 			    }
 
     virtual		~JobIOHandler()
 			    {
-				threadmutex.lock();
-				if( exitreq_ ) *exitreq_ = true;
-				threadmutex.unLock();
-				thread->stop();
-				delete thread;
+				serversocket_.close();
+				serversocket_.readyRead.remove(
+				    mCB(this,JobIOHandler,socketCB) );
 			    }
 
     bool		ready()	{ return port() > 0; }
-    int			port()	{ return sockprov_ ? sockprov_->port() : -1; }
+    int			port()	{ return firstport_; }
 
     void		addJobDesc( const HostData& hd, int descnr )
 			    {
-				jhrespmutex_.lock();
-
 				jobhostresps_ +=
 				    new JobHostRespInfo( hd, descnr );
-
-				jhrespmutex_.unLock();
 			    }
 
     void		removeJobDesc( const char* hostnm, int descnr )
 			    {
-				jhrespmutex_.lock();
-
 				JobHostRespInfo* jhri =
 						getJHRFor( descnr, hostnm );
 
 				if ( jhri )
 				    { jobhostresps_ -= jhri; delete jhri; }
-				    
-				jhrespmutex_.unLock();
 			    }
 
     void		reqModeForJob( const JobInfo&, JobIOMgr::Mode );
@@ -174,29 +162,23 @@ public:
 
 protected:
 
+    JobHostRespInfo*		getJHRFor( int desc, const char* hostnm );
+    bool			readTag(char& tag,SeparString& sepstr,
+					const BufferString& data);
+    void			socketCB(CallBacker*);
+    char			getRespFor(int,const char* hostnm);
+
     bool*			exitreq_;
-    SocketProvider* 		sockprov_;
+    TcpServer			serversocket_;
     int				firstport_;
     ObjQueue<StatusInfo>	statusqueue_;
-
-    Threads::Mutex		jhrespmutex_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
-    
-    char			getRespFor( int desc, const char* hostnm );
-    JobHostRespInfo*		getJHRFor( int desc, const char* hostnm );
-
-    void 			doDispatch( CallBacker* ); //!< work thread
-    void 			alarmHndl( CallBacker* ); //!< watch-dog
-
-    mThreadDeclareMutexedVar(Threads::Thread*,thread);
 };
 
 
 JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 {
     JobHostRespInfo* jhri = 0;
-
-    bool unlock = jhrespmutex_.tryLock();
 
     int sz = jobhostresps_.size();
     for ( int idx=0; idx < sz; idx++ )
@@ -218,8 +200,6 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 	}
     }
 
-    if ( unlock ) jhrespmutex_.unLock();
-
     return jhri;
 }
 
@@ -227,13 +207,8 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 char JobIOHandler::getRespFor( int descnr , const char* hostnm )
 {
     char resp = mRSP_STOP;
-    jhrespmutex_.lock();
-
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) resp = jhri->response_;
-
-    jhrespmutex_.unLock();
-
     return resp;
 }
 
@@ -253,105 +228,83 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
     BufferString hostnm;
     if ( ji.hostdata_ ) hostnm = ji.hostdata_->name();
 
-    jhrespmutex_.lock();
-
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) jhri->response_ = resp;
-
-    jhrespmutex_.unLock();
 }
 
 
-void JobIOHandler::doDispatch( CallBacker* )
+void JobIOHandler::socketCB( CallBacker* cb )
 {
-    static int timeout = GetEnvVarIVal( "DTECT_MM_MSTR_TO", 30 );
-    
-    SocketProvider& sockprov = *new SocketProvider( firstport_ );
-    sockprov_ = &sockprov;
+    mCBCapsuleUnpack(int,socketid,cb);
+    BufferString data;
+    serversocket_.read( socketid, data );
+    char tag=mCTRL_STATUS;
+    int jobid=-1;
+    int status=mSTAT_UNDEF;
+    BufferString hostnm;
+    BufferString errmsg;
+    int procid=-1;
 
-    bool exitreq = false; exitreq_ = &exitreq;
-    AlarmTimer watchdog( mCB( this, JobIOHandler, alarmHndl ) );
-
-    while( 1 ) 
+    if ( !data.isEmpty() )
     {
-	watchdog.start( 3 * timeout );
+	SeparString statstr;
+	bool ok = readTag( tag, statstr, data );
 
-	Socket* sock_ = sockprov.makeConnection( timeout ); 
-	if ( sock_ ) sock_->setTimeOut( timeout );
-
-	if ( exitreq )
+	if ( ok )
 	{
-	    watchdog.stop();
-	    delete &sockprov;
-	    return;
+	    getFromString( jobid, statstr[0] );
+	    getFromString(status, statstr[1] );
+	    hostnm = statstr[2];
+	    getFromString( procid, statstr[3] );
+	    errmsg = statstr[4];
+
+	    char response = getRespFor( jobid, hostnm );
+	    if ( response != mRSP_STOP )
+	    {
+		statusqueue_.add( new StatusInfo( tag, jobid, status,
+			procid, errmsg, hostnm, Time::getMilliSeconds()) );
+	    }
+
+	    // hardly ever needed and quite noisy.
+	    static bool debug_resp = GetEnvVarYN("DTECT_MM_DEBUG_RESP");
+	    if ( debug_resp && mDebugOn )
+	    {
+		BufferString msg("JobIOMgr::JobIOMgr: Response to host ");
+		msg += hostnm; msg += ", job: "; msg += jobid;
+		msg += ": ";	    
+		if ( response == mRSP_STOP )
+		    msg +=  "STOP";
+		else if ( response == mRSP_WORK )
+		    msg +=  "WORK";
+		else if ( response == mRSP_PAUSE )
+		    msg +=  "PAUSE";
+		else
+		    msg += &response;
+		DBG::message(msg);
+	    }
+	    char resp[2];
+	    resp[0] = response;
+	    resp[1] = '\0';
+	    serversocket_.write( socketid, resp );
 	}
-
-	char tag=mCTRL_STATUS;
-	int jobid=-1;
-	int status=mSTAT_UNDEF;
-	BufferString hostnm;
-	BufferString errmsg;
-	int procid=-1;
-
-	if ( sock_ && sock_->ok() )
+	else
 	{
-	    SeparString statstr;
-	    bool ok = sock_->readtag( tag, statstr );
-
-	    if ( ok )
-	    {
-		getFromString( jobid, statstr[0] );
-		getFromString(status, statstr[1] );
-		hostnm = statstr[2];
-		getFromString( procid, statstr[3] );
-		errmsg = statstr[4];
-
-		char response = getRespFor( jobid, hostnm );
-		if ( response != mRSP_STOP )
-		{
-		    statusqueue_.add( new StatusInfo( tag, jobid, status,
-			    procid, errmsg, hostnm, Time::getMilliSeconds()) );
-		}
-
-	        // hardly ever needed and quite noisy.
-		static bool debug_resp = GetEnvVarYN("DTECT_MM_DEBUG_RESP");
-		if ( debug_resp && mDebugOn )
-		{
-		    BufferString msg("JobIOMgr::JobIOMgr: Response to host ");
-		    msg += hostnm; msg += ", job: "; msg += jobid;
-		    msg += ": ";	    
-		    if ( response == mRSP_STOP )
-			msg +=  "STOP";
-		    else if ( response == mRSP_WORK )
-			msg +=  "WORK";
-		    else if ( response == mRSP_PAUSE )
-			msg +=  "PAUSE";
-		    else
-			msg += &response;
-		    DBG::message(msg);
-		}
-
-		sock_->writetag( response );
-	    }
-	    else
-	    {
-		sock_->fetchMsg( errmsg );
-		ErrMsg( errmsg );
-	    }
+	    errmsg = serversocket_.errorMsg();
+	    ErrMsg( errmsg );
 	}
-	watchdog.stop();
-
-	delete sock_; sock_ =0;
     }
+    
+
 }
 
-void JobIOHandler::alarmHndl(CallBacker*)
-{  
-    // no need to do anything. The alarm signal should unblock
-    // all blocking socket calls. 
-    // See http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/
-    
-    UsrMsg( "Job handler: Socket communication time-out." );
+
+bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
+			    const BufferString& data )
+{
+    tag = data[0];
+    sepstr.setSepChar( data[1] );
+    sepstr = data.buf() + 2;
+    return true;
 }
 
 

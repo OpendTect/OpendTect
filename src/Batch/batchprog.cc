@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.114 2010-11-18 11:07:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.115 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "envvars.h"
@@ -21,12 +21,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.114 2010-11-18 11:07:05 cvsnan
 #include "plugins.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
-#ifndef _USENEWSOCKETS_
-#include "mmsockcommunic.h"
-#define JobCommunic MMSockCommunic
-#else
 #include "jobcommunic.h"
-#endif
 #include "keystrs.h"
 #include "ascstream.h"
 #include "debugmasks.h"
@@ -120,14 +115,8 @@ void BatchProgram::init( int* pac, char** av )
     }
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
-    {
-#ifndef _USENEWSOCKETS_
-	comm = new MMSockCommunic( masterhost, masterport, jobid, sdout );
-#else
 	comm = new JobCommunic( masterhost, masterport, jobid, sdout );
-#endif
-    }
-     
+   
     if ( !fn || !*fn )
     {
 	BufferString msg( progName() );
@@ -220,11 +209,8 @@ BatchProgram::~BatchProgram()
 
     if ( comm )
     {
-#ifndef _USENEWSOCKETS_
-	MMSockCommunic::State s = comm->state();
-#else
+
 	JobCommunic::State s = comm->state();
-#endif
 
 	bool isSet =  s == JobCommunic::AllDone 
 	           || s == JobCommunic::JobError
@@ -239,9 +225,7 @@ BatchProgram::~BatchProgram()
 	if ( ok )	infoMsg( "Successfully wrote final status" );
 	else		infoMsg( "Could not write final status" );
 
-#ifdef _NEWSOCKETS_
 	comm->disConnect();
-#endif
     }
 
     killNotify( false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.96 2011-03-03 10:05:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.97 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.96 2011-03-03 10:05:34 cvs
 #include "hostdata.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "jobdescprov.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"

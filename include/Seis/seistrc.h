@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.40 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.41 2011-06-27 06:16:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "valseries.h"
 #include "mathfunc.h"
 
-class Socket;
+class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
 
 /*!\brief Seismic traces
@@ -66,11 +66,6 @@ public:
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 	    			     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
-
-    //! If !err, errors are handled trough the socket. withinfo : send info too.
-    bool		putTo(Socket&,bool withinfo, BufferString* err=0) const;
-    //! If !err, errors are handled trough the socket.
-    bool		getFrom(Socket&, BufferString* err=0);
 
     static const float	snapdist; //!< Default 1e-4
     			//!< relative distance from a sample below which no

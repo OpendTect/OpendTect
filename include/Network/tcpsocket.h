@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.9 2011-02-15 03:59:22 cvsnanne Exp $
+ RCS:           $Id: tcpsocket.h,v 1.10 2011-06-27 06:16:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,15 @@ public:
     void			abort();
     int				write(const char*);  
     int				write(const IOPar&);
+    int				write(const int&);
+    int				write(bool);
+    int				writedata(const char*, int nr);  
 
     void			read(BufferString&) const;
     void			read(IOPar&) const;
+    void			read(int&) const;
+    void			read(bool&) const;
+    void			readdata(char*& data, int sz) const;
     const int			getID() const { return id_; }
 
     const char*			errorMsg() const;
@@ -60,6 +66,7 @@ protected:
     QTcpSocketComm*		comm_;
     mutable BufferString	errmsg_;
     const int			id_;
+    bool			isownsocket_;
 };
 
 #endif

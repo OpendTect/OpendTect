@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.9 2011-02-15 03:59:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.10 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: tcpsocket.cc,v 1.9 2011-02-15 03:59:22 cvsnanne
 TcpSocket::TcpSocket()
     : qtcpsocket_(new QTcpSocket)
     , id_(0)
+    , isownsocket_(true)
     mInit
 {}
 
@@ -32,13 +33,15 @@ TcpSocket::TcpSocket()
 TcpSocket::TcpSocket( QTcpSocket* qsocket, int id )
     : qtcpsocket_(qsocket)
     , id_(id)
+    , isownsocket_(false)
     mInit
 {}
 
 
 TcpSocket::~TcpSocket()
 {
-    delete qtcpsocket_;
+    if ( isownsocket_ )
+	delete qtcpsocket_;
     delete comm_;
 }
 
@@ -65,12 +68,39 @@ bool TcpSocket::waitForConnected( int msec )
 bool TcpSocket::waitForReadyRead( int msec )
 { return qtcpsocket_->waitForReadyRead( msec ); }
 
+void TcpSocket::readdata( char*& data, int len ) const
+{ qtcpsocket_->read( data, len ); }
 
 
 void TcpSocket::read( BufferString& str ) const
 {
     QByteArray ba = qtcpsocket_->readAll();
     str = ba.data();
+    ba.size();
+}
+
+
+void TcpSocket::read( IOPar& par ) const
+{
+    BufferString buf;
+    read( buf );
+    par.getFrom( buf );
+}
+
+
+void TcpSocket::read( int& val ) const
+{
+    BufferString buf;
+    read( buf );
+    getFromString( val, buf.buf() );
+}
+
+
+void TcpSocket::read( bool& yn ) const
+{
+    BufferString buf;
+    read( buf );
+    getFromString( yn, buf.buf() );
 }
 
 
@@ -82,7 +112,6 @@ int TcpSocket::write( const char* str )
 }
 
 
-
 int TcpSocket::write( const IOPar& par ) 
 {
     BufferString buf;
@@ -91,10 +120,27 @@ int TcpSocket::write( const IOPar& par )
 }
 
 
-void TcpSocket::read( IOPar& par ) const
+int TcpSocket::write( const int& val ) 
 {
     BufferString buf;
-    read( buf );
-    par.getFrom( buf );
+    buf = val;
+    return write( buf.buf() ); 
 }
+
+
+int TcpSocket::write( bool yn ) 
+{
+    BufferString buf;
+    buf = toString(yn);
+    return write( buf.buf() ); 
+}
+
+
+int TcpSocket::writedata( const char* data, int nr ) 
+{
+    int ret = qtcpsocket_->write( data, nr );
+    qtcpsocket_->flush();
+    return ret;
+}
+
 

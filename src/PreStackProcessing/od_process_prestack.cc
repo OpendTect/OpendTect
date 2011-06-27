@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.10 2011-06-27 06:16:52 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.9 2010-10-14 09:58:0
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "mmsockcommunic.h"
+#include "jobcommunic.h"
 #include "progressmeter.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -54,13 +54,13 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.9 2010-10-14 09:58:0
 
 #define mRetHostErr(s) \
 	{  \
-	    if ( comm ) comm->setState( MMSockCommunic::HostError ); \
+	    if ( comm ) comm->setState( JobCommunic::HostError ); \
 	    mRetError(s) \
 	}
 
 #define mRetJobErr(s) \
 	{  \
-	    if ( comm ) comm->setState( MMSockCommunic::JobError ); \
+	    if ( comm ) comm->setState( JobCommunic::JobError ); \
 	    mRetError(s) \
 	}
 
@@ -77,7 +77,7 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.9 2010-10-14 09:58:0
 #define mSetCommState(State) \
 	if ( comm ) \
 	{ \
-	    comm->setState( MMSockCommunic::State ); \
+	    comm->setState( JobCommunic::State ); \
 	    if ( !comm->updateState() ) \
 		mRetHostErr( comm->errMsg() ) \
 	}
@@ -427,7 +427,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return true;
     }
 
-    comm->setState( MMSockCommunic::Finished );
+    comm->setState( JobCommunic::Finished );
     bool ret = comm->sendState();
 
     if ( ret )
