@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.16 2011-06-03 15:11:12 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.17 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,11 +287,9 @@ void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-uiTreeItem* 
-    uiODVw2DFaultSS2DTreeItemFactory::createForVis( int vwridx, int id ) const 
+uiTreeItem* uiODVw2DFaultSS2DTreeItemFactory::createForVis( 
+				const uiODViewer2D& vwr2d, int id ) const 
 {
-    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
-    if ( !vwr2d ) return 0;
-    mDynamicCastGet(const VW2DFaultSS2D*,obj,vwr2d->dataMgr()->getObject(id));
+    mDynamicCastGet(const VW2DFaultSS2D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultSS2DTreeItem(id,true) : 0;
 }

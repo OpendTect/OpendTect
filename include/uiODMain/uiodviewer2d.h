@@ -6,15 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.28 2011-06-06 15:06:07 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.29 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "cubesampling.h"
 #include "datapack.h"
 #include "emposid.h"
 
-class CubeSampling;
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
 class uiFlatViewWin;
@@ -37,7 +37,7 @@ public:
 				uiODViewer2D(uiODMain&,int visid);
 				~uiODViewer2D();
 
-    void			setUpView(DataPack::ID,bool wva);
+    virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
 
     uiFlatViewWin* 		viewwin() 		{ return  viewwin_; }
@@ -73,6 +73,10 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
+    static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
+    static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
+    static const char*		sKeyPos() 	 { return "Position"; }
+
 protected:
 
     uiSlicePos2DView*				slicepos_;
@@ -88,6 +92,7 @@ protected:
     uiFlatViewWin*		viewwin_;
 
     MultiID			linesetid_;
+    CubeSampling		cs_;
 
     int				polyseltbid_;
     bool			isPolySelect_;
@@ -96,7 +101,10 @@ protected:
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
+    virtual void		setPos(const CubeSampling&);
     void			adjustOthrDisp(bool wva,const CubeSampling&);
+
+    void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);

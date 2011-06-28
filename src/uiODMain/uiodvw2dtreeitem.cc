@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.cc,v 1.4 2011-06-06 07:51:32 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dtreeitem.cc,v 1.5 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,11 +169,19 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
 }
 
 
-bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int vwridx, int displayid )
+bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int visid, int displayid )
 {
-    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
+    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer( visid );
     if ( !vwr2d ) return false;
-    const uiTreeFactorySet* tfs = vwr2d->uiTreeItemFactorySet();
+
+    return create( treeitem, *vwr2d, displayid );
+}
+
+
+bool uiODVw2DTreeItem::create( 
+		uiTreeItem* treeitem, const uiODViewer2D& vwr2d, int displayid )
+{
+    const uiTreeFactorySet* tfs = vwr2d.uiTreeItemFactorySet();
     if ( !tfs )
 	return false;
 
@@ -183,7 +191,7 @@ bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int vwridx, int displayid )
 			tfs->getFactory(idx))
 	if ( !itmcreater ) continue;
 
-	uiTreeItem* res = itmcreater->createForVis( vwridx, displayid );
+	uiTreeItem* res = itmcreater->createForVis( vwr2d, displayid );
 	if ( res )
 	{
 	    if ( treeitem->addChild( res, false ) )
@@ -192,4 +200,5 @@ bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int vwridx, int displayid )
     }
     return false;
 }
+
 

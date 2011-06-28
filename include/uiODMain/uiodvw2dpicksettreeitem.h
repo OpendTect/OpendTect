@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
     const char*         name() const		{ return typeid(*this).name(); }
     uiTreeItem*         create() const
     			{ return new uiODVw2DPickSetParentTreeItem(); }
-    uiTreeItem*         createForVis(int vwridx,int visid) const;
+    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
 };
 
 

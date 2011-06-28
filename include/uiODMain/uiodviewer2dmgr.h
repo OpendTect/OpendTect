@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ class uiTreeFactorySet;
 mClass uiODViewer2DMgr : public CallBacker
 {
 public:
+    uiODViewer2D*		find2DViewer(int visid);
+
     void			displayIn2DViewer(int visid,int attribid,
 	    					  bool wva);
     void			remove2DViewer(int visid);
@@ -32,9 +34,6 @@ public:
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
-
-    uiODViewer2D*		getViewer2D(int idx);
-    const uiODViewer2D*		getViewer2D(int idx) const;
 
     static const char*		sKeyVisID()		{ return "VisID"; }
     static const char*		sKeyAttrID()		{ return "Attrib ID"; }
@@ -46,7 +45,6 @@ protected:
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(int visid);
-    uiODViewer2D*		find2DViewer(int visid);
 
     ObjectSet<uiODViewer2D>     viewers2d_;
 
@@ -60,8 +58,6 @@ protected:
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
-
-    void			rebuildTrees();
 
     friend class                uiODMain;
 };

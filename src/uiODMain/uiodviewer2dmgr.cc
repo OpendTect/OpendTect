@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.9 2011-06-06 07:53:12 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.10 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,18 +142,6 @@ void uiODViewer2DMgr::remove2DViewer( int visid )
 }
 
 
-uiODViewer2D* uiODViewer2DMgr::getViewer2D( int idx ) 
-{
-    return viewers2d_.validIdx( idx ) ? viewers2d_[idx] : 0;
-}
-
-
-const uiODViewer2D* uiODViewer2DMgr::getViewer2D( int idx ) const
-{
-    return viewers2d_.validIdx( idx ) ? viewers2d_[idx] : 0;
-}
-
-
 void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
@@ -193,23 +181,6 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    displayIn2DViewer( visid, attrnr, wva );
 	    uiODViewer2D* curvwr = find2DViewer( visid );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
-	}
-    }
-    rebuildTrees();
-}
-
-
-void uiODViewer2DMgr::rebuildTrees()
-{
-    for ( int idx=0; idx<viewers2d_.size(); idx++ )
-    {
-	uiODViewer2D& vwr2d = *viewers2d_[idx];
-	const Vw2DDataManager& datamgr = *vwr2d.dataMgr();
-	ObjectSet<Vw2DDataObject> objs;
-	datamgr.getObjects( objs );
-	for ( int iobj=0; iobj<objs.size(); iobj++ )
-	{
-	    uiODVw2DTreeItem::create(vwr2d.treeTop(), idx, objs[iobj]->id());
 	}
     }
 }

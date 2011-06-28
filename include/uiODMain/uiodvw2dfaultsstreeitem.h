@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.4 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.5 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class VW2DFaultSS3D;
+class uiODViewer2D;
 
 
 mClass uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
@@ -43,7 +44,7 @@ public:
     const char*         name() const            { return typeid(*this).name(); }
     uiTreeItem*         create() const
 			{ return new uiODVw2DFaultSSParentTreeItem(); }
-    uiTreeItem*         createForVis(int vwridx,int visid) const;
+    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
 };
 
 

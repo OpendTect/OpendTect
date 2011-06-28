@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.19 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.20 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -484,11 +484,10 @@ void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis(int vwridx,int id) const
+uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis( 
+				    const uiODViewer2D& vwr2d, int id ) const
 {
-    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
-    if ( !vwr2d ) return 0;
-    mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d->dataMgr()->getObject(id));
+    mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DHor3DTreeItem(id,true) : 0;
 }
 

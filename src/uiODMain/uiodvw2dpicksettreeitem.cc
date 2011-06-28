@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.5 2011-06-17 05:23:36 cvsranojay Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.cc,v 1.6 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,12 +223,10 @@ void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 }
 
 
-uiTreeItem* 
-	uiODVw2DPickSetTreeItemFactory::createForVis( int vwridx, int id ) const
+uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis( 
+				    const uiODViewer2D& vwr2d, int id ) const
 {
-    const uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().getViewer2D(vwridx);
-    if ( !vwr2d ) return 0;
-    mDynamicCastGet(const VW2DPickSet*,obj,vwr2d->dataMgr()->getObject(id));
+    mDynamicCastGet(const VW2DPickSet*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DPickSetTreeItem(id) : 0;
 }
 

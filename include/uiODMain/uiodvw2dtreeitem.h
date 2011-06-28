@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.h,v 1.3 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dtreeitem.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static bool		create(uiTreeItem*,int vwridx,int displayid);
+    static bool		create(uiTreeItem*,int vwrvisid,int displayid);
+    static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
 
 protected:
 
@@ -51,7 +52,7 @@ protected:
 mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
-	virtual uiTreeItem* createForVis(int vwridx,int visid) const
+	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
 		                                { return 0; }
 };
 

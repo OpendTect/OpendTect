@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.48 2011-06-03 14:10:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.49 2011-06-28 13:35:43 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.48 2011-06-03 14:10:26 cvsb
 #include "survinfo.h"
 
 #include "visvw2ddataman.h"
+#include "visvw2ddata.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
@@ -122,9 +123,9 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     if( dp3d )
     {
-	const CubeSampling& cs = dp3d->cube().cubeSampling();
-	if ( slicepos_ ) slicepos_->setCubeSampling( cs );
-	adjustOthrDisp( wva, cs );
+	cs_ = dp3d->cube().cubeSampling();
+	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
+	adjustOthrDisp( wva, cs_ );
     }
     
     //updating stuff
@@ -339,9 +340,14 @@ void uiODViewer2D::posChg( CallBacker* )
 {
     if ( !slicepos_ ) return;
 
-    CubeSampling cs = slicepos_->getCubeSampling();
-    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    cs_ = slicepos_->getCubeSampling();
+    setPos( cs_ );
+}
 
+
+void uiODViewer2D::setPos( const CubeSampling& cs )
+{
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     if ( vdselspec_.id().asInt() > -1 )
     {
 	attrserv->setTargetSelSpec( vdselspec_ );
@@ -406,12 +412,38 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 
 void uiODViewer2D::usePar( const IOPar& iop )
 {
+    IOPar* vdselspecpar = iop.subselect( sKeyVDSelSpec() );
+    if ( vdselspecpar ) vdselspec_.usePar( *vdselspecpar );
+    IOPar* wvaselspecpar = iop.subselect( sKeyVDSelSpec() );
+    if ( vdselspecpar ) vdselspec_.usePar( *wvaselspecpar );
+    delete vdselspecpar; delete wvaselspecpar;
+    IOPar* cspar = iop.subselect( sKeyPos() );
+    if ( cspar ) cs_.usePar( *cspar );
+    setPos( cs_ );
+
     datamgr_->usePar( iop, viewwin(), dataEditor() );
+    rebuildTree();
 }
 
 
 void uiODViewer2D::fillPar( IOPar& iop ) const
 {
+    IOPar vdselspecpar, wvaselspecpar;
+    vdselspec_.fillPar( vdselspecpar );
+    wvaselspec_.fillPar( wvaselspecpar );
+    iop.mergeComp( vdselspecpar, sKeyVDSelSpec() );
+    iop.mergeComp( wvaselspecpar, sKeyWVASelSpec() );
+    IOPar pospar; cs_.fillPar( pospar );
+    iop.mergeComp( pospar, sKeyPos() );
+
     datamgr_->fillPar( iop );
 }
 
+
+void uiODViewer2D::rebuildTree()
+{
+    ObjectSet<Vw2DDataObject> objs;
+    dataMgr()->getObjects( objs );
+    for ( int iobj=0; iobj<objs.size(); iobj++ )
+	uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
+}
