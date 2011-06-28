@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.8 2011-06-10 13:31:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.9 2011-06-28 15:03:16 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
+#include "scaler.h"
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uibutton.h"
@@ -23,6 +24,8 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.8 2011-06-10 13:31:0
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+
+#define mSldUnits 250
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
@@ -85,9 +88,6 @@ void uiObjectItemViewWin::insertItem( int idx,
 }
 
 
-
-#define mSldNrUnits 30
-
 void uiObjectItemViewWin::makeSliders()
 {
     uiLabel* dummylbl = new uiLabel( this, "" );
@@ -96,9 +96,9 @@ void uiObjectItemViewWin::makeSliders()
     dummylbl->attach( ensureRightOf, infobar_ );
 
     uiSliderExtra::Setup su;
-    su.sldrsize_ = 200;
+    su.sldrsize_ = 250;
     su.withedit_ = false;
-    StepInterval<float> sintv( 1, mSldNrUnits, 1 );
+    StepInterval<float> sintv( 1, mSldUnits, 1 );
     su.isvertical_ = true;
     versliderfld_ = new uiSliderExtra( this, su, "Vertical Scale" );
     versliderfld_->sldr()->setInterval( sintv );
@@ -147,6 +147,9 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	NotifyStopper ns( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
+    LinScaler scaler(1,1,mSldUnits,2*mainviewer_->nrItems());
+    hslval_ = scaler.scale( hslval_ );
+    vslval_ = scaler.scale( vslval_ );
     reSizeItems();
 }
 
@@ -156,11 +159,10 @@ void uiObjectItemViewWin::reSizeItems()
     const int nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
-    const int width =  mNINT( hslval_*startwidth_ );
-    const int height =  mNINT( vslval_*startheight_ );
-    const uiSize sz( width, height );
+    const int width = mNINT( hslval_*startwidth_/(float)nritems );
+    const int height = mNINT(vslval_*startheight_ );
 
-    const uiSize objsz = uiSize( mNINT(sz.width()/(float)nritems), sz.height());
+    const uiSize objsz = uiSize( width, height );
     for ( int idx=0; idx<nritems; idx++ )
 	mainviewer_->reSizeItem( idx, objsz );
 
