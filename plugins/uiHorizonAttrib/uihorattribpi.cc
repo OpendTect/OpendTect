@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.24 2011-06-15 07:18:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.25 2011-06-28 11:18:56 cvsnageswara Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.24 2011-06-15 07:18:37 cvs
 #include "ioman.h"
 #include "ioobj.h"
 #include "odplugin.h"
-
+#include "survinfo.h"
 
 static const char* sKeyContours = "Contours";
 
@@ -107,11 +107,12 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
     mDynamicCastGet(uiPopupItem*,gridpocitm,itm)
     if ( !gridpocitm ) return;
 
-    gridpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
-	       			  mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
+    if ( SI().has3D() )
+	gridpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
+				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    gridpocitm->menu().insertItem( new uiMenuItem("&Isopach ...", mCB(this,
-		    			 uiHorAttribPIMgr,doIsopachThruMenu)) );
+    gridpocitm->menu().insertItem( new uiMenuItem("&Isopach ...",
+			    mCB(this,uiHorAttribPIMgr,doIsopachThruMenu)) );
 }
 
 
