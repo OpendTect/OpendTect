@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.211 2011-06-21 10:10:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.212 2011-06-29 10:30:35 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -301,7 +301,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( !trackedatsel->is2D() ||
 		 matchString( Attrib::StorageProvider::attribName(),
 		     	      trackedatsel->defString()) )
-		chanceoferror = *trackedatsel != *clickedas;
+		chanceoferror = !engine.isSelSpecSame(*trackedatsel,*clickedas);
 	    else
 		chanceoferror = !matchString( trackedatsel->defString(),
 					      clickedas->defString() );
@@ -325,7 +325,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( !trackedatsel->is2D() ||
 		 matchString( Attrib::StorageProvider::attribName(),
 		     	      trackedatsel->defString()) )
-		chanceoferror = *trackedatsel != *clickedas;
+		chanceoferror = !engine.isSelSpecSame(*trackedatsel,*clickedas);
 	    else
 		chanceoferror = !matchString( trackedatsel->defString(),
 					      clickedas->defString() );

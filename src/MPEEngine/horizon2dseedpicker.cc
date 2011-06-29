@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.25 2011-05-02 06:14:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.26 2011-06-29 10:29:45 cvsumesh Exp $";
 
 #include "horizon2dseedpicker.h"
 
 #include "attribdataholder.h"
+#include "attribstorprovider.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ioman.h"
@@ -79,7 +80,10 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
     {
-	if ( neededattribs[idx]->id() == as.id() )
+	bool isstored = matchString( Attrib::StorageProvider::attribName(),
+				     neededattribs[idx]->defString() );
+	if ( neededattribs[idx]->id().asInt()==as.id().asInt() &&
+	     isstored==as.id().isStored() )
 	    return true;
     }
     return false;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.103 2010-12-14 11:11:01 cvsbert Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.104 2011-06-29 10:29:45 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.103 2010-12-14 11:11:01 cvsber
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribdataholder.h"
+#include "attribstorprovider.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "emeditor.h"
@@ -432,13 +433,32 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 }
 
 
+bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
+			    const Attrib::SelSpec& clickedss ) const
+{
+    bool setupssisstoed = matchString( Attrib::StorageProvider::attribName(),
+	    			       setupss.defString() );
+    return setupss.id().asInt()==clickedss.id().asInt() &&
+	setupssisstoed==clickedss.id().isStored() &&
+	setupss.isNLA()==clickedss.isNLA() &&
+	BufferString(setupss.objectRef())==BufferString(clickedss.objectRef())
+	&& BufferString(setupss.defString())==
+	   BufferString(clickedss.defString()) &&
+	setupss.is2D()==clickedss.is2D();
+}
+
+
 int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 {
     for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	if ( attribcachespecs_[idx]->attrsel_.is2D()  != as.is2D()  ||
-	     attribcachespecs_[idx]->attrsel_.isNLA() != as.isNLA() ||
-	     attribcachespecs_[idx]->attrsel_.id()    != as.id()     )
+	bool asisstored = matchString( Attrib::StorageProvider::attribName(),
+				       as.defString() );
+
+	if ( attribcachespecs_[idx]->attrsel_.is2D()	   != as.is2D()  ||
+	     attribcachespecs_[idx]->attrsel_.isNLA()	   != as.isNLA() ||
+	     attribcachespecs_[idx]->attrsel_.id().asInt() != as.id().asInt() ||
+      	     attribcachespecs_[idx]->attrsel_.id().isStored() != asisstored )
 	    continue;
 
 	if ( !as.is2D() )
