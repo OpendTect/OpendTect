@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.52 2010-04-12 11:20:29 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.53 2011-06-29 10:29:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,6 +188,9 @@ public:
     bool		cacheIncludes(const Attrib::SelSpec&,
 				      const CubeSampling&);
     void		swapCacheAndItsBackup();
+
+    bool		isSelSpecSame(const Attrib::SelSpec& setupss,
+	    			      const Attrib::SelSpec& clickedss) const;
 
     void		updateFlatCubesContainer(const CubeSampling& cs,
 	    					 const int idx,bool);
