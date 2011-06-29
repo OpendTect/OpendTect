@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.7 2011-06-10 12:32:55 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.8 2011-06-29 11:16:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,12 @@ public:
     void 		addGroup(uiGroup* grp,uiGroup* infogrp=0);
 
     void		removeAllItems();
+
+    virtual void 	fillPar(IOPar&) const;
+    virtual void 	usePar(const IOPar&); 
+
+    static const char*  sKeyHZoomVal() 	{ return "Horizontal Zoom Value"; }
+    static const char*  sKeyVZoomVal() 	{ return "Vertical Zoom Value"; }
 
 protected:
 

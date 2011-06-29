@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.9 2011-06-28 15:03:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.10 2011-06-29 11:16:11 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -213,6 +213,27 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     hsldr->setValue( hscaledfac );
     vsldr->setValue( vscaledfac );
 }
+
+
+void uiObjectItemViewWin::fillPar( IOPar& iop ) const
+{
+    if ( !versliderfld_ || !horsliderfld_ ) return;
+    iop.set( sKeyVZoomVal(), versliderfld_->sldr()->getValue() );
+    iop.set( sKeyHZoomVal(), horsliderfld_->sldr()->getValue() );
+}
+
+
+void uiObjectItemViewWin::usePar( const IOPar& iop )
+{
+    if ( !versliderfld_ || !horsliderfld_ ) return;
+    float hval, vval;
+    iop.get( sKeyHZoomVal(), hval );
+    iop.get( sKeyVZoomVal(), vval );
+    horsliderfld_->sldr()->setValue( hval );
+    versliderfld_->sldr()->setValue( vval );
+}
+
+
 
 
 uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
