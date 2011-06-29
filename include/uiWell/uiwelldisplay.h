@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.11 2011-06-20 12:21:38 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.12 2011-06-29 13:58:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,6 @@ public:
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
 
     const uiSize&		size() const 	{ return size_; }
-    int				nrLogDisplays() const;
 
 protected:
 

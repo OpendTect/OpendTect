@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.13 2011-06-20 14:53:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.14 2011-06-29 13:58:26 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -187,11 +187,6 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
     setDahData();
     setDisplayProperties();
 }
-
-
-int uiWellDisplay::nrLogDisplays() const
-{ return wd_.displayProperties( !is3ddisp_ ).logs_.size(); }
-
 
 
 uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
