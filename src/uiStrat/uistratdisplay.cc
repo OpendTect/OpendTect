@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.36 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.37 2011-06-29 11:15:49 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -40,11 +40,11 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     , maxrg_(Interval<float>(0,2e3))
 {
     uidatagather_ = new uiStratTreeToDispTransl( data_ );
-    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
+    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
 					mCB(this,uiStratDisplay,usrClickCB) );
-    reSize.notify( mCB(this,uiStratDisplay,reSized) );
+    reSize.notify( mCB(this,uiStratDisplay,reDraw) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
@@ -52,19 +52,13 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     disableScrollZoom();
     scene().setMouseEventActive( true );
     createDispParamGrp();
-    dataChanged( 0 );
+    reDraw( 0 );
 }
 
 
 uiStratDisplay::~uiStratDisplay()
 {
     delete uidatagather_;
-}
-
-
-void uiStratDisplay::reSized( CallBacker* )
-{
-    drawer_.draw();
 }
 
 
@@ -184,7 +178,7 @@ void uiStratDisplay::selCols( CallBacker* cb )
 }
 
 
-void uiStratDisplay::dataChanged( CallBacker* cb )
+void uiStratDisplay::reDraw( CallBacker* cb )
 {
     drawer_.draw();
 }

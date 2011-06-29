@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.27 2010-11-18 15:43:36 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.28 2011-06-29 11:15:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,11 +129,6 @@ protected :
     void			createDispParamGrp();
 
     bool			handleUserClick(const MouseEvent&);
-    void			controlRange(CallBacker*);
-    void			dataChanged(CallBacker*);
-    void			dispParamChgd(CallBacker*);
-    void			selCols(CallBacker*);
-
 
     int				getColIdxFromPos() const; 
     StratDispData::Column*	getColFromPos() const; 
@@ -143,7 +138,10 @@ protected :
     const StratDispData::Level* getLevelFromPos() const;
     Geom::Point2D<float> 	getPos() const;
 
-    void			reSized(CallBacker*);
+    void			controlRange(CallBacker*);
+    void			dispParamChgd(CallBacker*);
+    void			reDraw(CallBacker*);
+    void			selCols(CallBacker*);
     void			usrClickCB(CallBacker*);
 };
 
