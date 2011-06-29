@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.32 2011-06-20 11:54:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.33 2011-06-29 11:16:18 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -58,7 +58,6 @@ void uiWellStratDisplay::draw()
 {
     for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
     {
-	data_.getCol( idcol )->isdisplayed_ = false;
 	for ( int idun=0; idun<data_.nrUnits( idcol ); idun++ )
 	{
 	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
