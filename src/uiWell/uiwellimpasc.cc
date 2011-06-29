@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.67 2010-12-14 03:57:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.68 2011-06-29 10:29:17 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -60,6 +60,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.2" );
     dataselfld_->attach( alignedBelow, trckinpfld_ );
+    dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
     coordfld_ = new uiGenInput( this, "Coordinate",
 	    			PositionInpSpec(PositionInpSpec::Setup(true)) );
@@ -116,6 +117,27 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
     coordfld_->display( !havetrck );
     kbelevfld_->display( !havetrck );
     tdfld_->display( !havetrck );
+}
+
+
+void uiWellImportAsc::trckFmtChg( CallBacker* )
+{
+    const Table::FormatDesc& fd = dataselfld_->desc();
+    if ( fd.isGood() )
+    {
+	for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
+	{
+	    const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
+	    if ( ti.name() == "Z" || ti.name() == "MD" )
+	    {
+		if ( ti.selection_.isInFile(0) )
+		    return;
+	    }
+	}
+	uiMSG().error( "The format you defined has neither Z nor MD."
+			"\nYou should define at least one."
+			"\nAs it is now, the track will not load." );
+    }
 }
 
 
