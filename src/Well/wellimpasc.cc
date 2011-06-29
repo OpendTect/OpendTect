@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.79 2011-06-22 12:01:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.80 2011-06-29 10:28:26 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.79 2011-06-22 12:01:17 cvsbru
 #include "unitofmeasure.h"
 #include "tabledef.h"
 #include <iostream>
+#include <math.h>
 
 
 static bool convToDah( const Well::Track& trck, float& val,
@@ -379,7 +380,7 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( false );
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
 	   					   Table::Optional );
     ti->setPropertyType( PropertyRef::Dist );
@@ -394,7 +395,8 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
     if ( !getHdrVals(strm_) )
 	return false;
 
-    Coord3 c, c0, prevc;
+    static const Coord3 c000( 0, 0, 0 );
+    Coord3 c, prevc;
     Coord3 surfcoord;
     float dah = 0;
     
@@ -413,11 +415,15 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	    Coord wc( SI().transform( BinID( mNINT(c.x), mNINT(c.y) ) ) );
 	    c.x = wc.x; c.y = wc.y;
 	}
-	c.z = getfValue(2);
-	if ( !c.isDefined() )
+	if ( mIsUdf(c.x) || mIsUdf(c.y) )
 	    continue;
 
-	if ( c.distTo(c0) < 1 ) break;
+	c.z = getfValue(2);
+	const float newdah = getfValue( 3 );
+	const bool havez = !mIsUdf(c.z);
+	const bool havedah = !mIsUdf(newdah);
+	if ( !havez && !havedah )
+	    continue;
 
 	if ( wd.track().size() == 0 )
 	{
@@ -433,17 +439,29 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	    prevc = tosurf && c.z >=0 ? surfcoord : c;
 	}
 
-	float newdah = getfValue( 3 );
 	if ( mIsUdf(newdah) )
 	    dah += c.distTo( prevc );
 	else
+	{
+	    if ( mIsUdf(c.z) )
+	    {
+		float d = newdah - dah;
+		const float hdist = (float)Coord(c).distTo( Coord(prevc) );
+		c.z = prevc.z;
+		if ( d > hdist )
+		    c.z += sqrt( d*d - hdist*hdist );
+	    }
 	    dah = newdah;
+	}
+
+	if ( c.distTo(c000) < 1 )
+	    break;
 
 	wd.track().addPoint( c, c.z, dah );
 	prevc = c;
     }
 
-    return wd.track().size();
+    return !wd.track().isEmpty();
 }
 
 
