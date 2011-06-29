@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.14 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.15 2011-06-29 11:15:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     virtual uiParent*	viewerParent()			= 0;
 
     virtual void	setInitialSize(int w,int h);
+    virtual void	fillPar(IOPar&) const		{}
+    virtual void	usePar(const IOPar&) 		{}
 
 protected:
 
