@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.18 2011-06-24 13:39:33 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.19 2011-06-29 11:10:08 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -269,7 +269,9 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 
     const float th0 = props_.get(0).value( Property::EvalOpts(false,0) );
     const float th1 = props_.get(0).value( Property::EvalOpts(false,1) );
-    return th0 < th1 ? (max ? th1 : th0) : (max ? th0 : th1);
+    if ( mIsUdf(th0) ) return th1; if ( mIsUdf(th1) ) return th0;
+
+    return max ? (th0 < th1 ? th1 : th0) : (th0 < th1 ? th0 : th1);
 }
 
 
