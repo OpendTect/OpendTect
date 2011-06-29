@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.39 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.40 2011-06-29 14:39:31 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -205,6 +205,8 @@ bool BatchProgram::go( std::ostream& strm )
     pars().get( "Startup delay time", startup_wait );
     Threads::sleep( startup_wait );
 
+    const char* attrtypstr = pars().find( "Attributes.Type" );
+    const bool is2d = attrtypstr && *attrtypstr == '2';
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
     bool cont = true; bool loading = true;
@@ -230,7 +232,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	    const int res = proc->nextStep();
 
-	    if ( nriter == 0 )
+	    if ( nriter == 0 && !is2d )
 	    {
 		strm << "\nEstimated number of positions to be processed"
 		     <<"(assuming regular input): "<< proc->totalNr()
