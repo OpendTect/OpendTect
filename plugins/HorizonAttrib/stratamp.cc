@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.11 2011-03-03 13:32:12 cvshelene Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.12 2011-06-29 03:41:20 cvsnageswara Exp $";
 
 #include "stratamp.h"
 
@@ -22,9 +22,6 @@ static const char* rcsID = "$Id: stratamp.cc,v 1.11 2011-03-03 13:32:12 cvshelen
 #include "cubesampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "initalgo.h"
-#include "initattributes.h"
-#include "initprestackprocessing.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "odver.h"
@@ -33,6 +30,17 @@ static const char* rcsID = "$Id: stratamp.cc,v 1.11 2011-03-03 13:32:12 cvshelen
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 
+
+const char* StratAmpCalc::sKeySingleHorizonYN()	{ return "Is single horizon"; }
+const char* StratAmpCalc::sKeyTopHorizonID()	{ return "Top horizon"; }
+const char* StratAmpCalc::sKeyBottomHorizonID()	{ return "Bottom horizon"; }
+const char* StratAmpCalc::sKeyAddToTopYN()	{ return "Add to top horizon"; }
+const char* StratAmpCalc::sKeyAmplitudeOption()	{ return "Amplitude option"; }
+const char* StratAmpCalc::sKeyOutputFoldYN()	{ return "Output fold"; }
+const char* StratAmpCalc::sKeyTopShift()	{ return "Top shift"; }
+const char* StratAmpCalc::sKeyBottomShift()	{ return "Bottom shift"; }
+const char* StratAmpCalc::sKeyAttribName()	{ return "Attribute name"; }
+const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
@@ -49,6 +57,8 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     , proc_(0)
     , hs_(hs)
     , outfold_(outputfold)
+    , tophorshift_(mUdf(float))
+    , bothorshift_(mUdf(float))
 {
     CubeSampling cs;
     cs.hrg = hs;
@@ -65,17 +75,23 @@ StratAmpCalc::~StratAmpCalc()
 {
     if ( tophorizon_ ) tophorizon_->unRef();
     if ( bothorizon_ ) bothorizon_->unRef();
-    if ( descset_ ) delete descset_;
+    delete descset_;
     if ( proc_ ) delete proc_;
     if ( rdr_ ) delete rdr_;
 }
 
 
-int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
+int StratAmpCalc::init( const IOPar& pars )
 {
-    addtotop_ = addtotop;
-    const EM::Horizon3D* addtohor_ = addtotop ? tophorizon_ : bothorizon_;
-    if ( !addtohor_ ) return -1;
+    pars.get( sKeyTopShift(), tophorshift_ );
+    pars.get( sKeyBottomShift(), bothorshift_ );
+    if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
+	return -1;
+
+    addtotop_ = false;
+    pars.getYN( sKeyAddToTopYN(), addtotop_ );
+    const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
+    if ( !addtohor ) return -1;
 
     //determine whether stored data is used
     PtrMan<IOPar> attribs = pars.subselect("Attributes");
@@ -98,7 +114,6 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
     targetdesc->getDefStr( defstring );
     BufferString storstr = Attrib::StorageProvider::attribName();
     usesstored_ = storstr.isStartOf( defstring );
-
     if ( usesstored_)
     {
 	const LineKey lk( targetdesc->getValParam(
@@ -114,11 +129,6 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
     }
     else
     {
-	Attributes::initStdClasses();
-	Algo::initStdClasses();
-	PreStackProcessing::initStdClasses();
-	Attrib::StorageProvider::initClass();
-
 	BufferString errmsg;
 	BufferString linename; //TODO: function used in 2d?
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
@@ -126,20 +136,25 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
 	if ( !proc_ ) return -1;
     }
 
-    dataidx_ = addtohor_->auxdata.auxDataIndex( attribnm );
-    if ( dataidx_ < 0 ) dataidx_ = addtohor_->auxdata.addAuxData( attribnm );
-    posid_.setObjectID( addtohor_->id() );
-    posid_.setSectionID( addtohor_->sectionID(0) );
+    BufferString attribnm;
+    pars.get( sKeyAttribName(), attribnm );
+    if ( attribnm.isEmpty() ) return -1;
 
+    dataidx_ = addtohor->auxdata.auxDataIndex( attribnm );
+    if ( dataidx_ < 0 ) dataidx_ = addtohor->auxdata.addAuxData( attribnm );
+
+    posid_.setObjectID( addtohor->id() );
+    posid_.setSectionID( addtohor->sectionID(0) );
     if ( outfold_ )
     {
 	BufferString foldnm = attribnm;
-	foldnm += "_fold";
-	dataidxfold_ = addtohor_->auxdata.auxDataIndex( foldnm );
+	foldnm.add( "_fold" );
+	dataidxfold_ = addtohor->auxdata.auxDataIndex( foldnm );
 	if ( dataidxfold_ < 0 )
-	    dataidxfold_ = addtohor_->auxdata.addAuxData( foldnm );
-	posidfold_.setObjectID( addtohor_->id() );
-	posidfold_.setSectionID( addtohor_->sectionID(0) );
+	    dataidxfold_ = addtohor->auxdata.addAuxData( foldnm );
+
+	posidfold_.setObjectID( addtohor->id() );
+	posidfold_.setSectionID( addtohor->sectionID(0) );
     }
 
     return dataidx_;
@@ -211,14 +226,13 @@ int StratAmpCalc::nextStep()
 	default: break;
     }
 
-    const EM::Horizon3D* addtohor_ = addtotop_ ? tophorizon_ : bothorizon_;
+    const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
-    addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
-
+    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, outval );
     if ( outfold_ )
     {
 	posidfold_.setSubID( subid );
-	addtohor_->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
+	addtohor->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
 					  runcalc.count() );
     }
 
@@ -230,4 +244,24 @@ int StratAmpCalc::nextStep()
 	proc_->outputs_[0]->deleteTrc();
 
     return res || rdr_ ? Executor::MoreToDo() : Executor::Finished();
+}
+
+
+bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
+				  bool overwrite )
+{
+    PtrMan<Executor> datasaver =
+			hor->auxdata.auxDataSaver( attribidx, overwrite );
+    if ( !(datasaver && datasaver->execute()) )
+	return false;
+
+    if ( outfold_ )
+    {
+	datasaver = 0;
+	datasaver = hor->auxdata.auxDataSaver( dataidxfold_, overwrite );
+	if ( !(datasaver && datasaver->execute()) )
+	    return false;
+    }
+
+    return true;
 }

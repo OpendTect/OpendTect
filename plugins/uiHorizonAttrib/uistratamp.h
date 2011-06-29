@@ -5,14 +5,13 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.6 2011-03-03 13:32:12 cvshelene Exp $
+ * ID       : $Id: uistratamp.h,v 1.7 2011-06-29 03:41:20 cvsnageswara Exp $
 -*/
 
-#include "uidialog.h"
+#include "uibatchlaunch.h"
 
 class CtxtIOObj;
 class HorSampling;
-class IOObj;
 class IOPar;
 class uiAttrSel;
 class uiGenInput;
@@ -20,15 +19,24 @@ class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPosSubSel;
 
-namespace EM { class Horizon3D; }
 
-class uiStratAmpCalc : public uiDialog
+class uiStratAmpCalc : public uiFullBatchDialog
 {
 public:
 			uiStratAmpCalc(uiParent*);
 			~uiStratAmpCalc();
 		      
 protected:
+    void		inpSel(CallBacker*);
+    void		horSel(CallBacker*);
+    void		choiceSel(CallBacker*);
+    void		setParFileNameCB(CallBacker*);
+    void		getAvailableRange(HorSampling&);
+    bool		prepareProcessing();
+    bool		checkInpFlds();
+    bool		fillPar(IOPar& iop);
+    void		setParFileName();
+    bool		isOverwrite() const;
 
     CtxtIOObj&		horctio1_;
     CtxtIOObj&		horctio2_;
@@ -40,26 +48,13 @@ protected:
     uiGenInput*		selfld_;
     uiGenInput*		foldfld_;
     uiGenInput*		attribnamefld_;
-
     uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld1_;
     uiIOObjSel*		horfld2_;
     uiPosSubSel*	rangefld_;
     uiLabeledComboBox*	ampoptionfld_;
-
     bool		usesingle_;
-
-    bool		checkInpFlds();
-    void		getAvailableRange(HorSampling&);
-    bool		saveData(const EM::Horizon3D*,int,bool);
-    EM::Horizon3D*	loadHor(const IOObj*,const HorSampling&);
-    void		fillInEngineIOPar(IOPar&,const HorSampling&) const;
-
-    void		inpSel(CallBacker*);
-    void		horSel(CallBacker*);
-    void		choiceSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
+    bool		isoverwrite_;
 };
 
 
