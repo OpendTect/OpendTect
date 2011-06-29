@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.10 2011-06-24 13:39:33 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.11 2011-06-29 11:42:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -42,18 +42,28 @@ public:
     static LayerGenerator* get(const IOPar&,const RefTree&);
     mDefineFactoryInClass(LayerGenerator,factory);
 
-    virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo
-				=Property::EvalOpts()) const		= 0;
+    bool		generateMaterial(LayerSequence&,
+			    Property::EvalOpts eo=Property::EvalOpts()) const;
+
     virtual bool	reset()	const				{ return true; }
     virtual const char*	errMsg() const				{ return 0; }
     virtual const char*	warnMsg() const				{ return 0; }
     virtual void	syncProps(const PropertyRefSelection&)		= 0;
     virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
 
+protected:
+
+    virtual bool	genMaterial(LayerSequence&,
+	    			    Property::EvalOpts) const	= 0;
+
 };
 
 
 #define mDefLayerGeneratorFns(clss,typstr) \
+protected: \
+    virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo \
+						=Property::EvalOpts()) const; \
+public: \
     static const char*	typeStr()		{ return typstr; } \
     virtual const char* factoryKeyword() const	{ return typeStr(); } \
     static LayerGenerator* create()		{ return new clss; } \
@@ -63,9 +73,7 @@ public:
     virtual void	usePar(const IOPar&,const RefTree&); \
     virtual void	fillPar(IOPar&) const; \
     virtual void	syncProps(const PropertyRefSelection&); \
-    virtual void	updateUsedProps(PropertyRefSelection&) const; \
-    virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo \
-				=Property::EvalOpts()) const
+    virtual void	updateUsedProps(PropertyRefSelection&) const
 
 
 /*!\brief Collection of LayerGenerator's that can form a full LayerSequence.  */

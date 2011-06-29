@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.19 2011-06-29 11:10:08 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.20 2011-06-29 11:42:52 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -87,6 +87,19 @@ void Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
 void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, factoryKeyword() );
+}
+
+
+bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
+       					      Property::EvalOpts eo ) const
+{
+    if ( seq.propertyRefs().isEmpty() )
+    {
+	PropertyRefSelection newprs;
+	updateUsedProps( newprs );
+	seq.setPropertyRefs( newprs );
+    }
+    return genMaterial( seq, eo );
 }
 
 
@@ -173,7 +186,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
-	if ( !lgen.genMaterial(ls,eo) )
+	if ( !lgen.generateMaterial(ls,eo) )
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
@@ -382,13 +395,6 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 						Property::EvalOpts eo ) const
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
-    if ( prs.isEmpty() ) 
-    {
-	PropertyRefSelection newprs;
-	for ( int idx=0; idx<props_.size(); idx++ )
-	    newprs += &props_.get(idx).ref();
-	seq.setPropertyRefs( newprs );
-    }
 
     Layer* newlay = new Layer( unit() );
     for ( int ipr=0; ipr<prs.size(); ipr++ )
