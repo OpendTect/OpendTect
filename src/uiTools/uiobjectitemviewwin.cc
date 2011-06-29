@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.10 2011-06-29 11:16:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.11 2011-06-29 13:58:42 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -231,6 +231,7 @@ void uiObjectItemViewWin::usePar( const IOPar& iop )
     iop.get( sKeyVZoomVal(), vval );
     horsliderfld_->sldr()->setValue( hval );
     versliderfld_->sldr()->setValue( vval );
+    reSizeSld(0);
 }
 
 

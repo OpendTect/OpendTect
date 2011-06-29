@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.22 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.23 2011-06-29 13:58:36 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -300,18 +300,19 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
     if ( !par ) par = new IOPar( iop );
     track_.usePar( *par );
     markers_.usePar( *par );
-    IOPar* tmpiop = 0;
-    for ( int idx=0; idx<logs_.size(); idx++ )
+    logs_[0]->left_.useLeftPar( *par );
+    logs_[0]->right_.useLeftPar( *par );
+    int widx=1; IOPar* welliop = par->subselect( toString(widx) );
+    while ( welliop )
     {
-	tmpiop = idx ? iop.subselect( toString(idx) ) : new IOPar(*par);
-	if ( tmpiop )
-	{
-	    logs_[idx]->left_.useLeftPar( *tmpiop );
-	    logs_[idx]->right_.useRightPar( *tmpiop );
-	}
+	logs_ += new LogCouple();
+	logs_[widx]->left_.useLeftPar( *welliop );
+	logs_[widx]->right_.useRightPar( *welliop );
+	widx ++;
+	delete welliop;
+	welliop = par->subselect( toString(widx) );
     }
     par->getYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
-    delete tmpiop;
     delete par;
 }
 
@@ -327,6 +328,7 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 	logs_[idx]->left_.fillLeftPar( tmpiop );
 	logs_[idx]->right_.fillRightPar( tmpiop );
 	par.mergeComp( tmpiop, idx ? toString( idx ) : "" );
+	//keeps compatibility with former versions 
     }
     par.setYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
     iop.mergeComp( par, subjectName() );
