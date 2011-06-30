@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.14 2011-06-29 13:58:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.15 2011-06-30 07:58:13 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -33,12 +33,6 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , control_(0)
     , stratdisp_(0) 
 {
-    wd_.d2tchanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
-    if ( is3ddisp_ )
-	wd_.disp3dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
-    else
-	wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
-
     Well::DisplayProperties& disp = wd_.displayProperties( !is3ddisp_ );
     for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
@@ -90,6 +84,13 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 
     setDahData();
     setDisplayProperties();
+
+    wd_.d2tchanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    wd_.markerschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    if ( is3ddisp_ )
+	wd_.disp3dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    else
+	wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
 }
 
 
