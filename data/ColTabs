@@ -73,8 +73,8 @@ Standard color tables
 6.Name       :	Extremes
 6.Value-Color.1: 0`255`255`0
 6.Value-Color.2: 0.05`255`0`0
-6.Value-Color.3: 0.4`255`255`0
-6.Value-Color.4: 0.6`255`255`0
+6.Value-Color.3: 0.4`255`255`255
+6.Value-Color.4: 0.6`255`255`255
 6.Value-Color.5: 0.95`0`0`255
 6.Value-Color.6: 1`0`255`0
 6.Transparency.0: 0`0
