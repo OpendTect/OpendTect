@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.25 2011-06-08 14:19:09 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.26 2011-07-01 12:12:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
+class uiLabeledComboBox;
 class uiOffsetSlicePos;
 class uiPushButton;
 class uiRayTrcParamsDlg;
@@ -130,6 +131,22 @@ protected:
 };
 
 
+mClass SyntheticData 
+{
+public:
+				SyntheticData(const char* name)
+				    : packid_(DataPack::cNoID())
+				    {}
+
+    DataPack::FullID 		packid_;
+    bool			isps_;
+    ObjectSet<const TimeDepthModel> d2tmodels_;
+    const Wavelet*		wvlt_;
+};
+
+
+
+
 mClass uiStratSynthDisp : public uiGroup
 {
 public:
@@ -139,14 +156,10 @@ public:
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
-    void		modelChanged();
-
     const uiWorldRect&	curView(bool indepth) const;
     const SeisTrcBuf&	curTrcBuf() const;
-    const FlatDataPack*	dataPack() const;		//!< may return null
-    DataPack::FullID	packID() const;
-    const ObjectSet<const TimeDepthModel>& d2TModels() const 
-    			{ return d2tmodels_; }
+    const FlatDataPack* dataPack() const;
+    DataPack::FullID 	packID() const;
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
@@ -154,11 +167,10 @@ public:
     static Notifier<uiStratSynthDisp>&	fieldsCreated();
     void		addTool(const uiToolButtonSetup&);
 
-    const CubeSampling& getLimitSampling() const;
+    void		modelChanged();
 
-    DataPack*		genNewDataPack(const RayParams&,
-	    			ObjectSet<const TimeDepthModel>&,
-				bool isgather) const;
+    const ObjectSet<const SyntheticData>& getSynthetics() const 
+    					{ return synthetics_;}
 
 protected:
 
@@ -168,26 +180,38 @@ protected:
     int			longestaimdl_;
 
     ObjectSet<const TimeDepthModel> d2tmodels_;
+    RayParams 		raypars_;
+
+    ObjectSet<const SyntheticData> synthetics_;
 
     uiGroup*		topgrp_;
+    uiGroup*		modelgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
-
+    uiLabeledComboBox*	modellist_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
-    RayParams 		raypars_;
     uiOffsetSlicePos*	posfld_;
 
     void		doModelChange();
+    const CubeSampling& getLimitSampling() const;
+
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
     void		rayTrcPosChged(CallBacker*);
     void		wvltChg(CallBacker*);
-    void		scalePush(CallBacker*);
-    void		zoomChg(CallBacker*);
+
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;
+
+    DataPack*		genNewDataPack(const RayParams& raypars,
+				    ObjectSet<const TimeDepthModel>& d2ts,
+				    bool isps) const;
+
+    void		addSynth2List(CallBacker*);
+    void		scalePush(CallBacker*);
+    void		zoomChg(CallBacker*);
 };
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.17 2011-06-27 08:41:16 cvsbruno Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.18 2011-07-01 12:12:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class TimeDepthModel;
 class uiGenInput;
 class uiComboBox;
 class DataPointSet;
+class SyntheticData;
 class uiStratSeisEvent;
 class SeisTrcBufDataPack;
 class uiAttribDescSetBuild;
@@ -36,27 +37,38 @@ mClass uiStratSynthCrossplot : public uiDialog
 {
 public:
 				uiStratSynthCrossplot(uiParent*,
-					const DataPack::FullID& poststack,
-					const Strat::LayerModel&,
-					const ObjectSet<const TimeDepthModel>&,
-					const DataPack::FullID& prestackid=-1);
+				    const Strat::LayerModel&,
+				    const ObjectSet<const SyntheticData>&);
 				~uiStratSynthCrossplot();
 
     void			setRefLevel(const char*);
+    const char*			errMsg() const 
+    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
 protected:
 
     const Strat::LayerModel&	lm_;
-    SeisTrcBufDataPack*		tbpack_;
-    const PreStack::GatherSetDataPack* pspack_;
-    const DataPackMgr::ID	packmgrid_;
-    const DataPackMgr::ID	pspackmgrid_;
-    const ObjectSet<const TimeDepthModel>& d2tmodels_;
+
+    mStruct PackSynthData
+    {
+				PackSynthData(DataPack& dp,
+						const SyntheticData& sd)
+				    : sd_(sd)
+				    , pack_(dp)  
+				    {}
+				~PackSynthData();
+
+	const SyntheticData& 	sd_;
+	DataPack& 		pack_;
+    };
+    ObjectSet<PackSynthData>	synthdatas_;
+    ObjectSet<PackSynthData>	pssynthdatas_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;
     uiStratSeisEvent*		evfld_;
-    uiLabel*			emptylbl_;
+
+    BufferString		errmsg_;
 
     DataPointSet*		getData(const Attrib::DescSet&,
 	    				const Strat::LaySeqAttribSet&,

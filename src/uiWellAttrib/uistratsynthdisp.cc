@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.42 2011-06-27 08:41:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.43 2011-07-01 12:12:52 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
+#include "uistratsynthdisp2crossplot.h"
 #include "uiseiswvltsel.h"
 #include "uisynthtorealscale.h"
 #include "uicombobox.h"
@@ -63,6 +64,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
+
+    uiGroup* paramgrp = new uiGroup( topgrp_, "Param group" );
+
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
@@ -71,17 +75,37 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
+    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace.png", 
+				    "Specify ray tracer parameters", 
+				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
+    rttb->attach( rightOf, scalebut_ );
+
     posfld_ = new uiOffsetSlicePos( topgrp_ );
     posfld_->setLabels( "Model", "Offset", "Z" );
-    posfld_->attachGrp()->attach( rightOf, scalebut_ );
+    posfld_->attachGrp()->attach( rightOf, rttb );
     posfld_->attachGrp()->setSensitive( false );
     posfld_->setCubeSampling( raypars_.cs_ );
     posfld_->positionChg.notify( mCB(this,uiStratSynthDisp,rayTrcPosChged) );
 
+    modelgrp_ = new uiGroup( this, "Model group" );
+    modelgrp_->attach( ensureBelow, topgrp_ );
+    modelgrp_->setFrame( true );
+    modelgrp_->setStretch( 2, 0 );
+
+    modellist_ = new uiLabeledComboBox( modelgrp_, "View ", "" );
+    modellist_->attach( hCentered );
+    modellist_->box()->addItem( "None" );
+    modellist_->setSensitive( false );
+
+    uiPushButton* createssynthbut 
+		= new uiPushButton( modelgrp_, "Create synthetics", false );
+    createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
+    createssynthbut->attach( leftBorder );
+
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
-    vwr_->attach( ensureBelow, topgrp_ );
+    vwr_->attach( ensureBelow, modelgrp_ );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -95,34 +119,31 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )
-	.tba( (int)uiToolBar::Right );
+	    .tba( (int)uiToolBar::Right );
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
-
-    uiToolBar* tb = ctrl->toolBar();
-    CallBack cb( mCB(this,uiStratSynthDisp,rayTrcParPush) );
-    tb->addButton( new uiToolButton( tb,"raytrace.png", 
-				"Specify ray tracer parameters", cb ) );
 }
 
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
-    delete wvlt_;
+    delete wvlt_; wvlt_ = 0;
+    deepErase( synthetics_ );
     deepErase( d2tmodels_ );
 }
 
 
 void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 {
-    uiToolButton* tb = new uiToolButton( topgrp_, bsu );
+    uiToolButton* tb = new uiToolButton( modelgrp_, bsu );
     if ( lasttool_ )
 	tb->attach( leftOf, lasttool_ );
     else
 	tb->attach( rightBorder );
 
-    tb->attach( ensureRightOf, posfld_->attachGrp() );
+    modellist_->attach( ensureLeftOf, tb );
     lasttool_ = tb;
+    tb->setSensitive( false );
 }
 
 
@@ -421,6 +442,32 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 }
 
 
+void uiStratSynthDisp::addSynth2List( CallBacker* )
+{
+    uiStratSynthDisp2Crossplot dlg( this, getLimitSampling() ); 
+    if ( dlg.go() )
+    {
+	const bool isps = dlg.isPS();
+	const RayParams& raypar = dlg.rayParam(); 
+	SyntheticData* sd = new SyntheticData( dlg.packName() );
+	sd->wvlt_ = wvlt_;
+	sd->isps_ = isps;
+	DataPack* dp = genNewDataPack( raypar, sd->d2tmodels_, isps );
+	if ( !dp ) { delete sd; return; }
+	dp->setName( dlg.packName() );
+
+	DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() 
+				    : DataPackMgr::FlatID();
+	DPM( pmid ).add( dp );
+	sd->packid_ = DataPack::FullID( pmid, dp->id());
+	synthetics_ += sd;
+	modellist_->box()->addItem( dlg.packName() );
+    }
+    modellist_->setSensitive( !synthetics_.isEmpty() );
+    lasttool_->setSensitive( !synthetics_.isEmpty() );
+}
+
+
 void uiStratSynthDisp::rayTrcParPush( CallBacker* )
 {
     if ( !raytrcpardlg_ )
@@ -545,7 +592,7 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     nmobox_->attach( hCentered );
 
     stackfld_ = new uiGenInput( this, "",
-		    BoolInpSpec(true, "Stack", "Zero Offset" ) );
+			    BoolInpSpec(true, "Stack", "Zero Offset" ) );
     stackfld_->setValue( raypars_.dostack_ );
     stackfld_->valuechanged.notify( mCB(this,uiRayTrcParamsGrp,updateCB) );
     stackfld_->attach( hCentered );

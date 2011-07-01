@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.23 2011-06-24 13:39:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.24 2011-07-01 12:12:52 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratlaymoddisp.h"
 #include "uistratsynthdisp.h"
 #include "uistratsynthcrossplot.h"
-#include "uistratsynthdisp2crossplot.h"
 #include "uistrattreewin.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
@@ -22,6 +21,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.23 2011-06-24 13:39:33
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
 #include "executor.h"
+#include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
@@ -175,17 +175,12 @@ void uiStratLayerModel::zoomChg( CallBacker* )
 
 void uiStratLayerModel::xPlotReq( CallBacker* )
 {
-    uiStratSynthDisp2Crossplot prexplotdlg = 
-			uiStratSynthDisp2Crossplot( this, *synthdisp_ );
-    if ( prexplotdlg.go() )
-    {
-	uiStratSynthCrossplot dlg( this, prexplotdlg.packID( true ), 
-		    		modl_, prexplotdlg.d2TModels(), 
-				prexplotdlg.packID(false) );
-	const char* lvlnm = moddisp_->selectedLevel();
-	if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
-	dlg.go();
-    }
+    uiStratSynthCrossplot dlg( this, modl_, synthdisp_->getSynthetics() );
+    if ( dlg.errMsg() )
+	{ uiMSG().error( dlg.errMsg() ); return; } 
+    const char* lvlnm = moddisp_->selectedLevel();
+    if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
+    dlg.go();
 }
 
 
