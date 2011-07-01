@@ -24,39 +24,8 @@ class SeisTrcReader;
 class SeisTrcBuf;
 class SeisTrc;
 
-namespace Well  { class Track; class D2TModel; }
-
 namespace WellTie
 {
-
-mClass TrackExtractor : public Executor
-{
-public:
-			TrackExtractor(const Well::Track&,
-					const Well::D2TModel*);
-
-    void		setInterval( const StepInterval<float>& intv )
-			{ extrintv_ = intv; }
-
-    int                 nextStep();
-    od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
-    od_int64            nrDone() const          { return nrdone_; }
-    const char*         message() const         { return "Computing..."; }
-    const char*         nrDoneText() const      { return "Points done"; }
-    const TypeSet<BinID>& getBIDs() const	{ return bidset_; }
-
-protected:
-
-    StepInterval<float> extrintv_;
-
-    TypeSet<BinID>	bidset_;
-    Interval<float> 	tracklimits_;
-    const Well::Track& 	track_;
-    const Well::D2TModel* d2t_;
-    int                 nrdone_;
-};
-
-
 
 mClass SeismicExtractor : public Executor
 {

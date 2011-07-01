@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.34 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.35 2011-07-01 13:47:55 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -24,53 +24,9 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.34 2011-06-16 15:14:3
 #include "seisselectionimpl.h"
 #include "survinfo.h"
 
-#include "welldata.h"
-#include "welltiedata.h"
-#include "welllog.h"
-#include "welld2tmodel.h"
-#include "wellextractdata.h"
-#include "welltrack.h"
-
-
 namespace WellTie
 {
 
-TrackExtractor::TrackExtractor( const Well::Track& t, const Well::D2TModel* d2t)
-    : Executor("Extracting Well track positions")
-    , track_(t)
-    , extrintv_(SI().zRange(false))	       
-    , d2t_(d2t)		
-    , nrdone_(0)
-{
-    if ( !track_.isEmpty() ) return;  
-    tracklimits_.stop = track_.dah( track_.size()-1 );
-    tracklimits_.start = track_.dah( 0 );
-    if ( d2t_ )
-    {
-	tracklimits_.start = d2t_->getTime( tracklimits_.start );
-	tracklimits_.stop = d2t_->getTime( tracklimits_.stop );
-    }
-}
-
-int TrackExtractor::nextStep()
-{
-    float zval = extrintv_.atIndex( nrdone_ );
-    float dah = d2t_ ? d2t_->getDah(zval) : zval; 
-    if ( zval > extrintv_.stop )
-	return Executor::Finished();
-
-    Coord3 pos = track_.getPos( dah );
-    pos.z = zval;
-    BinID bid = SI().transform( pos );
-    if ( tracklimits_.includes(zval) || SI().isInside( bid, true ) )
-	bidset_ += bid;
-
-    nrdone_ ++;
-    return Executor::MoreToDo();
-}
-
-
-						 
 SeismicExtractor::SeismicExtractor( const IOObj& ioobj ) 
 	: Executor("Extracting Seismic positions")
 	, rdr_(new SeisTrcReader( &ioobj ))
@@ -80,8 +36,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, extrintv_(SI().zRange(false))
 	, linekey_(0)		  
 	, radius_(1)		  
-{
-}
+{}
 
 
 SeismicExtractor::~SeismicExtractor() 

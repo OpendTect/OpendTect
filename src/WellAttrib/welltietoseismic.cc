@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.63 2011-06-16 15:14:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.64 2011-07-01 13:47:55 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.63 2011-06-16 15:14:34 
 #include "wavelet.h"
 
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
@@ -175,7 +176,7 @@ bool DataPlayer::generateSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    TrackExtractor wtextr( wd_->track(), wd_->d2TModel() );
+    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel() );
     data_.trunner_->execute( wtextr ); 
 
     const IOObj& ioobj = *IOM().get( seisid_ );
@@ -184,7 +185,8 @@ bool DataPlayer::extractSeismics()
     SeismicExtractor seisextr( *seisobj );
     if ( linekey_ )
 	seisextr.setLineKey( linekey_ );
-    seisextr.setBIDValues( wtextr.getBIDs() );
+    TypeSet<BinID> bids;  wtextr.getBIDs( bids );
+    seisextr.setBIDValues( bids );
     seisextr.setInterval( disprg_ );
     data_.trunner_->execute( seisextr );
     data_.seistrc_ = seisextr.result(); 

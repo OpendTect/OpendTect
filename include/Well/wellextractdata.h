@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.25 2011-01-25 09:41:12 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.26 2011-07-01 13:47:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ namespace Well
 {
 class Log;
 class Info;
+class D2TModel;
 class Data;
 class Track;
 class Marker;
@@ -177,6 +178,40 @@ protected:
 	    			    float,float,float) const;
 };
 
+
+
+mClass SimpleTrackSampler : public Executor
+{
+public:
+			SimpleTrackSampler(const Well::Track&,
+					  const Well::D2TModel*,
+					  bool stayinsidesurvey=false);
+
+    void                setSampling(const StepInterval<float>& intv)
+			{ extrintv_ = intv; } //In time if d2TModel is provided
+
+    int                 nextStep();
+    od_int64            totalNr() const         { return extrintv_.nrSteps(); }
+    od_int64            nrDone() const          { return nrdone_; }
+    const char*         message() const         { return "Computing..."; }
+    const char*         nrDoneText() const      { return "Points done"; }
+
+    void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
+    void		getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
+
+protected:
+    StepInterval<float> extrintv_;
+
+    TypeSet<BinID>      bidset_;
+    TypeSet<Coord>      coords_;
+
+    bool		isinsidesurvey_;
+
+    Interval<float>     tracklimits_;
+    const Well::Track&  track_;
+    const Well::D2TModel* d2t_;
+    int                 nrdone_;
+};
 
 }; // namespace Well
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.53 2011-06-21 10:48:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.54 2011-07-01 13:47:55 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.53 2011-06-21 10:48:05 cvsbr
 
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "wellextractdata.h"
 #include "wellhorpos.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -312,14 +313,14 @@ bool DataWriter::writeLogs2Cube( LogData& ld ) const
     bool allsucceeded = true; 
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	WellTie::TrackExtractor wtextr( wd_->track(), wd_->d2TModel() );
+	Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true );
 	if ( !wtextr.execute() )
 	    pErrMsg( "unable to extract position" );
 
 	ld.curlog_ = &ld.logset_.getLog( idx );
 	ld.curidx_ = idx;
 	const int datasz = ld.curlog_->size();
-	ld.bids_ = wtextr.getBIDs();
+	ld.bids_.erase(); wtextr.getBIDs( ld.bids_ );
 
 	if ( !writeLog2Cube( ld ) )
 	    allsucceeded = false;

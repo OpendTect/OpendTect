@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.58 2011-01-25 09:41:12 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.59 2011-07-01 13:47:55 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -597,4 +597,55 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 
     pErrMsg( "UpscaleType not supported" );
     return vals[0];
+}
+
+
+
+
+
+Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t, 
+					    const Well::D2TModel* d2t,
+					    bool stayinsidesurvey )
+    : Executor("Extracting Well track positions")
+    , track_(t)
+    , d2t_(d2t)
+    , isinsidesurvey_(stayinsidesurvey) 
+    , extrintv_(track_.dahRange())
+    , nrdone_(0)
+{
+    if ( track_.isEmpty() ) 
+	return;
+
+    extrintv_.step = SI().zStep();
+
+    float zstop = track_.dah( track_.size()-1 );
+    float zstart = track_.dah( 0 );
+    if ( d2t_ )
+    {
+	zstart = d2t_->getTime( zstart );
+	zstop = d2t_->getTime( zstop );
+    }
+    tracklimits_.start = zstart;
+    tracklimits_.stop = zstop; 
+}
+
+
+int Well::SimpleTrackSampler::nextStep()
+{
+    float zval = extrintv_.atIndex( nrdone_ );
+    float dah = d2t_ ? d2t_->getDah(zval) : zval;
+
+    if ( zval > extrintv_.stop )
+	return Executor::Finished();
+
+    Coord3 pos = track_.getPos( dah );
+    pos.z = zval;
+
+    const BinID& bid = SI().transform( pos );
+    if ( tracklimits_.includes(zval) 
+	    && ( isinsidesurvey_ && SI().includes( bid, zval, true ) ) )
+	{ bidset_ += bid; coords_ += pos; }
+
+    nrdone_ ++;
+    return Executor::MoreToDo();
 }
