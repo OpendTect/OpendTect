@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.4 2011-06-24 13:39:33 cvsbert Exp $
+ RCS:		$Id: stratsinglaygen.h,v 1.5 2011-07-04 09:55:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "stratlayseqgendesc.h"
-#include "property.h"
+#include "stratlaygen.h"
 
 
 namespace Strat

@@ -4,8 +4,9 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.20 2011-06-29 11:42:52 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.21 2011-07-04 09:55:06 cvsbert Exp $";
 
+#include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
 #include "stratlaymodgen.h"
