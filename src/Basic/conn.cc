@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.38 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.39 2011-07-04 04:47:08 cvsranojay Exp $";
 
 #include "streamconn.h"
 #include "strmprov.h"
@@ -40,13 +40,18 @@ mBasicGlobal const char* logMsgFileName()
 mBasicGlobal int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
 
-#define mErrRet(s) \
-    { \
-	strm = &std::cerr; \
-	*strm << "Cannot open file for log messages:\n\t" << s << std::endl; \
-	return *strm; \
-    }
 
+#ifndef __win__
+	#define mErrRet(s){ strm = &std::cerr;  \
+	*strm << "Cannot open file for log messages:\n\t" << s << std::endl; \
+	return *strm; } 
+#else 
+	#define mErrRet(s){ strm = new std::ofstream( "nul" ); \
+	*strm << "Cannot open file for log messages:\n\t" << s << std::endl; \
+	return *strm; }
+#endif
+	
+  
 mBasicGlobal std::ostream& logMsgStrm()
 {
     if ( gLogFilesRedirectCode < 1 )
