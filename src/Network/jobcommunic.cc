@@ -5,7 +5,7 @@
  * FUNCTION : Multi-machine batch communicator.
 -*/
  
-static const char* rcsID = "$Id: jobcommunic.cc,v 1.4 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobcommunic.cc,v 1.5 2011-07-04 04:37:27 cvsranojay Exp $";
 
 #include "jobcommunic.h"
 
@@ -134,16 +134,13 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     buf += statstr;
     socket_->write( buf );
 
-    bool ret = true;
-
     char masterinfo;
     BufferString errbuf;
     BufferString inp;
     socket_->waitForReadyRead( 2000 );
-    socket_->read( inp );
-    ret = !inp.isEmpty();
+    socket_->read( inp ); 
     masterinfo = inp[0];
-
+    bool ret = !inp.isEmpty();
     if ( !ret )
     {
 	BufferString emsg( "Error writing status to Master: " );
