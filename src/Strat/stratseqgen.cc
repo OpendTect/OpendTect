@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.21 2011-07-04 09:55:06 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.22 2011-07-04 09:58:01 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -63,8 +63,6 @@ int Strat::LayerModelGenerator::nextStep()
 	return ErrorOccurred();
     }
 
-    for ( int idx=0; idx<desc_.warnMsgs().size(); idx++ )
-	ErrMsg( desc_.warnMsgs().get(idx) );
     seqnr_++;
     return seqnr_ >= nrseqs_ ? Finished() : MoreToDo();
 }
@@ -181,7 +179,7 @@ bool Strat::LayerSequenceGenDesc::prepareGenerate() const
 bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 					    float modpos ) const
 {
-    errmsg_.setEmpty(); warnmsgs_.erase();
+    errmsg_.setEmpty();
 
     const Property::EvalOpts eo( false, modpos );
     for ( int idx=0; idx<size(); idx++ )
@@ -195,8 +193,6 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 		       .add( lgen.name() );
 	    return false;
 	}
-	else if ( lgen.warnMsg() )
-	    warnmsgs_.addIfNew( lgen.warnMsg() );
     }
 
     return true;

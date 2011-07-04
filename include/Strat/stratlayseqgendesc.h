@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.12 2011-07-04 09:55:06 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.13 2011-07-04 09:58:01 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,6 @@ public:
     bool		generate(LayerSequence&,float modpos) const;
 
     const char*		errMsg() const			{ return errmsg_; }
-    const BufferStringSet& warnMsgs() const		{ return warnmsgs_; }
 
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
@@ -61,7 +60,6 @@ protected:
     PropertyRefSelection	propsel_;
 
     mutable BufferString	errmsg_;
-    mutable BufferStringSet	warnmsgs_;
 
 };
 
