@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.30 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: executor.h,v 1.31 2011-07-04 04:44:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "task.h"
 #include "namedobj.h"
+#include "progressmeter.h"
+
 #include <iosfwd>
 
 template <class T> class ObjectSet;
@@ -113,8 +115,15 @@ public:
     bool		execute( Task& t )
 			{
 			    mDynamicCastGet(Executor*,exec,&t)
-			    execres_ = exec ? exec->execute( &strm_ )
-					    : t.execute();
+			    if ( exec )
+				execres_ = exec->execute( &strm_ );
+			    else
+			    {
+				TextStreamProgressMeter progressmeter(strm_);
+				t.setProgressMeter( &progressmeter );
+				execres_ = t.execute();
+			    }
+			    
 			    return execres_;
 			}
 
