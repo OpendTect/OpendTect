@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.59 2011-07-01 13:47:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.60 2011-07-04 11:04:36 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -610,7 +610,7 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     , track_(t)
     , d2t_(d2t)
     , isinsidesurvey_(stayinsidesurvey) 
-    , extrintv_(track_.dahRange())
+    , extrintv_(t.dahRange())
     , nrdone_(0)
 {
     if ( track_.isEmpty() ) 
@@ -620,10 +620,12 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
 
     float zstop = track_.dah( track_.size()-1 );
     float zstart = track_.dah( 0 );
-    if ( d2t_ )
+    if ( d2t )
     {
-	zstart = d2t_->getTime( zstart );
-	zstop = d2t_->getTime( zstop );
+	zstart = d2t->getTime( zstart );
+	zstop = d2t->getTime( zstop );
+	extrintv_.start = d2t->getTime( extrintv_.start );
+	extrintv_.stop = d2t->getTime( extrintv_.stop );
     }
     tracklimits_.start = zstart;
     tracklimits_.stop = zstop; 
@@ -642,9 +644,12 @@ int Well::SimpleTrackSampler::nextStep()
     pos.z = zval;
 
     const BinID& bid = SI().transform( pos );
-    if ( tracklimits_.includes(zval) 
-	    && ( isinsidesurvey_ && SI().includes( bid, zval, true ) ) )
-	{ bidset_ += bid; coords_ += pos; }
+    if ( tracklimits_.includes(zval) ) 
+    {
+	if ( isinsidesurvey_ && !SI().includes( bid, zval, true ) ) 
+	    return Executor::MoreToDo();
+	bidset_ += bid; coords_ += pos;
+    }
 
     nrdone_ ++;
     return Executor::MoreToDo();

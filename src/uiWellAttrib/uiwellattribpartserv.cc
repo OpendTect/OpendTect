@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.28 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.29 2011-07-04 11:04:36 cvsbruno Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.28 2010-12-16 13:04
 #include "nlamodel.h"
 #include "attribdescset.h"
 #include "uicreateattriblogdlg.h"
+#include "uicreatelogcubedlg.h"
 #include "uiwellattribxplot.h"
 #include "uiwellimpsegyvsp.h"
 #include "uiwelltiemgrdlg.h"
@@ -132,6 +133,18 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
     sdo.close();
 
     return true;
+}
+
+
+bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
+{
+    Well::Data* wd = Well::MGR().get( wellid );
+    if ( !wd ) 
+	mErrRet("Cannot read well data");
+
+    uiCreateLogCubeDlg dlg( parent(), *wd );
+
+    return dlg.go();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.18 2010-04-27 08:21:09 cvsbruno Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.19 2011-07-04 11:04:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 
     				// Services
     bool			createAttribLog(const MultiID&,int);
+    bool			createLogCube(const MultiID&);
     void			doXPlot();
 
     void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )

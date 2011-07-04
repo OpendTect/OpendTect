@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.60 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.61 2011-07-04 11:04:36 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -244,6 +244,7 @@ void uiODWellTreeItem::initMenuItems()
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = "&Logs" ;
     attrmnuitem_.text = "&Create attribute log...";
+    logcubemnuitem_.text = "&Create log cube...";
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
@@ -301,6 +302,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &logviewermnuitem_, true, false );
     if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
+    mAddMenuItem( menu, &logcubemnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
@@ -336,6 +338,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->wellAttribServer()->setAttribSet(
 				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid, -1 );
+    }
+    if ( mnuid == logcubemnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->wellAttribServer()->createLogCube( wellid );
     }
     else if ( mnuid == propertiesmnuitem_.id )
     {

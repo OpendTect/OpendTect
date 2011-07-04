@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.14 2011-05-05 08:53:01 cvssatyaki Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.15 2011-07-04 11:04:36 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ protected:
 
     MultiID		mid;
     MenuItem		attrmnuitem_;
+    MenuItem		logcubemnuitem_;
     MenuItem		sellogmnuitem_;
     MenuItem		propertiesmnuitem_;
     MenuItem		logviewermnuitem_;

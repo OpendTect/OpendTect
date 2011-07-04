@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.54 2011-07-01 13:47:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.55 2011-07-04 11:04:36 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
-#include "seistrc.h"
-#include "seiswrite.h"
 #include "survinfo.h"
 #include "seisioobjinfo.h"
+#include "seistrc.h"
 
+#include "createlogcube.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
@@ -309,62 +309,18 @@ bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 
 bool DataWriter::writeLogs2Cube( LogData& ld ) const
 {
-    if ( !wd_ || !wd_->haveD2TModel() ) return false;
-    bool allsucceeded = true; 
+    bool allsucceeded = true;
+    LogCubeCreator lcr( wd_->track(), wd_->d2TModel() ); 
+    ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true );
-	if ( !wtextr.execute() )
-	    pErrMsg( "unable to extract position" );
-
-	ld.curlog_ = &ld.logset_.getLog( idx );
-	ld.curidx_ = idx;
-	const int datasz = ld.curlog_->size();
-	ld.bids_.erase(); wtextr.getBIDs( ld.bids_ );
-
-	if ( !writeLog2Cube( ld ) )
-	    allsucceeded = false;
+	const Well::Log& wl = ld.logset_.getLog( idx );
+	logdatas += new LogCubeCreator::LogCubeData( wl, *ld.seisctioset_[idx]);
     }
-    return allsucceeded;
+    lcr.setInput( logdatas, ld.nrtraces_ );
+    return lcr.execute();
 }
 
-
-bool DataWriter::writeLog2Cube( LogData& ld) const
-{
-    if ( ld.ctioidxset_[ld.curidx_] < 0 ) return false;
-    SeisTrcWriter writer( ld.seisctioset_[ld.ctioidxset_[ld.curidx_]]->ioobj );
-
-    HorSampling hrg( false );
-    for ( int idbid=0; idbid<ld.bids_.size(); idbid++ )
-	hrg.include( ld.bids_[idbid] );
-
-    BinID bidvar( ld.nrtraces_-1, ld.nrtraces_-1 );
-    hrg.stop += bidvar;
-    hrg.start -= bidvar;
-    hrg.snapToSurvey();
-
-    SeisTrc trc( SI().zRange(true).nrSteps() );
-    trc.info().sampling.step = SI().zStep();
-    const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0;
-    if ( !d2t )
-	return false;
-    for ( int idx=0; idx<trc.size(); idx++ )
-    {
-	const float dah = d2t->getDah( trc.info().sampling.atIndex( idx )  );
-	trc.set( idx, ld.curlog_->getValue( dah, true ),0 );
-    }
-    HorSamplingIterator hsit( hrg );
-    bool succeeded = true;
-    BinID bid;
-    while ( hsit.next( bid ) )
-    {
-	trc.info().binid = bid;
-	if ( !writer.put(trc) )
-	    { pErrMsg( "cannot write new trace" ); succeeded = false; }
-    }
-
-    return succeeded;
-}
 
 
 Server::Server( const WellTie::Setup& wts )
