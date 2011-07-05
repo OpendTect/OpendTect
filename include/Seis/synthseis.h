@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.21 2011-05-26 15:43:09 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.22 2011-07-05 08:24:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
     virtual bool		setOutSampling(const StepInterval<float>&);
 
-    const char*			errMsg() const		{ return errmsg_.buf();}
+    const char*			errMsg() const	
+    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
