@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.37 2010-12-22 16:12:21 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.38 2011-07-05 08:32:34 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -18,8 +18,11 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.37 2010-12-22 16:12:21 cvsbert
 #include "keystrs.h"
 #include "randcolor.h"
 
+DefineEnumNames(Strat::UnitRef,Type,0,"Unit Type")
+{ "Node", "Leaved", "Leaf", 0 };
 
-//class  UnitRef
+
+//class UnitRef
 
 Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* d )
     : upnode_(up)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.38 2010-12-22 16:12:21 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.39 2011-07-05 08:32:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "compoundkey.h"
 #include "stratlevel.h"
+#include "enums.h"
 #include "iopar.h"
 
 
@@ -39,6 +40,7 @@ mClass UnitRef : public CallBacker
 public:
 
     enum Type		{ NodeOnly, Leaved, Leaf };
+    			DeclareEnumUtils(Type)
 
 			UnitRef(NodeUnitRef*,const char* d=0);
     virtual		~UnitRef();
