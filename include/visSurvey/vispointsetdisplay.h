@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.13 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "color.h"
+#include "dpsdispmgr.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "vistransform.h"
@@ -37,10 +37,8 @@ public:
     void			setPointSize(int);
     int				getPointSize() const;
 
-    virtual Color		getColor() const	{ return getColor(0); }
-    Color			getColor(int) const;
-    void			setColors(const TypeSet<Color>&);
-    void			setNrPointSets(int);
+    void			setDispProp(const DataPointSetDisplayProp*);
+    void			setPointSet();
     bool			hasColor() const 	{ return true; }
 
     void			update();
@@ -58,18 +56,15 @@ public:
     bool			canRemoveSelecion() const	{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
 
-    int				selPointSetIdx() const
-    				{ return selpointsetidx_; }
 protected:
 
-    int 			selpointsetidx_;
-    TypeSet<Color>		colors_;
-    ObjectSet<visBase::PointSet> pointsets_;
+    DataPointSetDisplayProp*	dpsdispprop_;
+    visBase::PointSet*		pointset_;
     DataPointSet*		data_;
     visBase::Transformation*	transformation_;
     visBase::EventCatcher*	eventcatcher_;
 
-    void			eventCB(CallBacker*);
+    //void			eventCB(CallBacker*);
 };
 
 };

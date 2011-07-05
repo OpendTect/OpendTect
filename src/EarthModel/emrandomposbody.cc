@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "emrandomposbody.h"
 
@@ -220,6 +220,26 @@ void RandomPosBody::copyFrom( const DataPointSet& data, int selgrp )
     for ( int idx=0; idx<data.size(); idx++ )
     {
 	if ( selgrp<0 || data.selGroup(idx) == selgrp )
+	{
+	    locations_ += Coord3( data.coord(idx), data.z(idx) );
+	    ids_ += idx;
+	}
+    }
+}
+
+
+void RandomPosBody::copyFrom( const DataPointSet& data, int dpscolid,
+			      const Interval<float>& valrg )
+{
+    locations_.erase();
+    ids_.erase();
+
+    if ( dpscolid<=0 || dpscolid>data.nrCols() )
+	return;
+
+    for ( int idx=0; idx<data.size(); idx++ )
+    {
+	if ( valrg.includes(data.value(dpscolid,idx)) )
 	{
 	    locations_ += Coord3( data.coord(idx), data.z(idx) );
 	    ids_ += idx;

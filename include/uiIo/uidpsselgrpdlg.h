@@ -37,7 +37,7 @@ protected:
     void				exportSelectionGrps(CallBacker*);
     void				remSelGrp(CallBacker*);
     void				changeColCB(CallBacker*);
-    void				scaleSelections(CallBacker*);
+    void				mapLikeliness(CallBacker*);
 };
 
 # endif

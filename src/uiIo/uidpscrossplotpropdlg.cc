@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.20 2010-10-06 07:09:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.21 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.20 2010-10-06 07:0
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uicolor.h"
 #include "uicolortable.h"
 #include "uiaxishandler.h"
 #include "uilineedit.h"
@@ -414,6 +415,73 @@ bool acceptOK()
 
 };
 
+class uiDPSCPDisplayPropTab : public uiDlgGroup
+{
+public:
+
+uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
+    : uiDlgGroup(p->tabParent(),"Display Properties")
+    , plotter_(p->plotter())
+{
+    const MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
+    sizefld_ = new uiGenInput( this, "Marker size", IntInpSpec(mstyle.size_));
+    BufferStringSet shapenms;
+    shapenms.add( "Square" );
+    shapenms.add( "Circle" );
+    shapenms.add( "Cross" );
+    shapenms.add( "Plus" );
+    shapenms.add( "Target" );
+    shapenms.add( "HLine" );
+    shapenms.add( "VLine" );
+    shapenms.add( "Plane" );
+    shapenms.add( "Triangle" );
+    shapenms.add( "Arrow" );
+
+    uiLabeledComboBox* llb =
+	new uiLabeledComboBox( this, shapenms, "Marker shape" );
+    shapefld_ = llb->box();
+    llb->attach( alignedBelow, sizefld_ );
+    shapefld_->setCurrentItem( (int)(mstyle.type_-1) );
+
+    Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
+    ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
+	    					.lbltxt("Y Axis Color") );
+    ycolinpfld_->attach( alignedBelow, llb );
+    
+    if ( plotter_.isY2Shown() )
+    {
+	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
+	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
+						.lbltxt("Y2 Axis Color") );
+	y2colinpfld_->attach( alignedBelow, ycolinpfld_ );
+    }
+}
+
+bool acceptOK()
+{
+    if ( sizefld_->getIntValue() <= 0 )
+    {
+	uiMSG().error( "Cannot put negative size for size." );
+	return false;
+    }	
+
+    MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
+    mstyle.size_ = sizefld_->getIntValue();
+    mstyle.type_ = (MarkerStyle2D::Type)(shapefld_->currentItem()+1);
+    plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
+    if ( plotter_.isY2Shown() ) 
+	plotter_.axisHandler(2)->setup().style_.color_ = y2colinpfld_->color();
+    return true;
+}
+
+
+    uiDataPointSetCrossPlotter& plotter_;
+    uiGenInput*			sizefld_;
+    uiComboBox*			shapefld_;
+    uiColorInput*		ycolinpfld_;
+    uiColorInput*		y2colinpfld_;
+};
+
 
 class uiDPSDensPlotSetTab : public uiDlgGroup
 {
@@ -543,6 +611,8 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     addGroup( statstab_ );
     userdeftab_ = new uiDPSUserDefTab( this );
     addGroup( userdeftab_ );
+    dispproptab_ = new uiDPSCPDisplayPropTab( this );
+    addGroup( dispproptab_ );
     densplottab_ = new uiDPSDensPlotSetTab( this );
     addGroup( densplottab_ );
 
@@ -560,6 +630,7 @@ bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
     if ( scaletab_ ) scaletab_->acceptOK();
     if ( statstab_ ) statstab_->acceptOK();
     if ( userdeftab_ ) userdeftab_->acceptOK();
+    if ( dispproptab_ ) dispproptab_->acceptOK();
     if ( densplottab_ ) densplottab_->acceptOK();
 
     plotter_.dataChanged();

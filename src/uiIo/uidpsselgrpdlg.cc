@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpsselgrpdlg.cc,v 1.1 2011-06-16 10:16:44 cvssatyaki Exp $: 
+ RCS:           $Id: uidpsselgrpdlg.cc,v 1.2 2011-07-05 09:44:30 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ static const char* rcsID = "";
 #include "uicolor.h"
 #include "uidatapointsetcrossplot.h"
 #include "uiimpexpselgrp.h"
+#include "uimsg.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
 
@@ -29,7 +30,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     , plotter_( p )
     , selgrps_(p.selectionGrps())
 {
-    setPrefHeight( 300 );
+    setPrefHeight( 500 );
     TypeSet<int> colids;
     const DataPointSet& dps = plotter_.dps();
 
@@ -67,8 +68,8 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     impgrpbut->attach( rightTo, expgrpbut );
     
     uiPushButton* scalesgbut =
-	new uiPushButton( this, "Scale selected selections", 
-			  mCB(this,uiDPSSelGrpDlg,scaleSelections), true );
+	new uiPushButton( this, "Map likeliness", 
+			  mCB(this,uiDPSSelGrpDlg,mapLikeliness), true );
     scalesgbut->attach( rightTo, impgrpbut );
 }
 
@@ -179,7 +180,10 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 }
 
 
-void uiDPSSelGrpDlg::scaleSelections( CallBacker* )
+void uiDPSSelGrpDlg::mapLikeliness( CallBacker* )
 {
-    plotter_.uiPointSet().addScaledSelColumn();
+    if ( tbl_->currentRow() < 0 )
+	return uiMSG().error("Select a selection group to map its likeliness.");
+
+    plotter_.uiPointSet().mapLikeliness();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.24 2011-06-16 10:25:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.25 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiDPSSelGrpDlg;
 class uiDataPointSetCrossPlotterPropDlg;
-class uiSelectionSettDlg;
+class uiDPSRefineSelDlg;
 class uiColorTable;
 class uiComboBox;
 class uiToolBar;
@@ -50,7 +50,7 @@ protected:
     uiDataPointSetCrossPlotter&	plotter_;
     uiDataPointSetCrossPlotterPropDlg* propdlg_;
     uiDPSSelGrpDlg*		selgrpdlg_;
-    uiSelectionSettDlg*		selsettdlg_;
+    uiDPSRefineSelDlg*		refineseldlg_;
     uiToolBar&			disptb_;
     uiToolBar&			seltb_;
     uiToolBar&			maniptb_;
@@ -69,7 +69,8 @@ protected:
     int				clearseltbid_;
     int				seltabletbid_;
     int				setselecttbid_;
-    int				selsettingstbid_;
+    int				refineseltbid_;
+    int				manseltbid_;
     int				multicolcodtbid_;
     int				minptsfordensity_;
     int				overlayproptbid_;

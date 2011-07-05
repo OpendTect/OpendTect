@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -34,7 +34,8 @@ static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.13 2011-04-2
 #include "vispointset.h"
 
 uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
-    : visserv_( serv )
+    : DataPointSetDisplayMgr()
+    , visserv_( serv )
     , vismenu_( visserv_.getMenuHandler() )
     , createbodymnuitem_( "Create Body" )
     , storepsmnuitem_( "Save as Pickset ..." )
@@ -120,51 +121,83 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 mClass uiCreateBodyDlg : public uiDialog
 {
 public:
-uiCreateBodyDlg( uiParent* p, const ObjectSet<DataPointSetDisplayMgrGrp>& mgr )
-    : uiDialog( p, uiDialog::Setup("Body Creation","Create new Body",mNoHelpID))
+uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
+    : uiDialog(p,uiDialog::Setup("Body Creation","Create new Body",mNoHelpID))
+    , selfld_( 0 )
+    , rgfld_( 0 )
 {
-    uiLabeledComboBox* cbx = new uiLabeledComboBox( this, "Selection Group" );
-    selfld_ = cbx->box();
-    for ( int idx=0; idx<mgr.size(); idx++ )
+    if ( dispprop.showSelected() )
     {
-	selfld_->addItem( mgr[idx]->name_ );
-	ioPixmap pixmap( 20, 20 );
-	pixmap.fill( mgr[idx]->col_ );
-	selfld_->setPixmap( pixmap, idx );
+	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,"Selection Group");
+	selfld_ = cbx->box();
+	BufferStringSet selgrpnms = dispprop.selGrpNames();
+	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
+	for ( int idx=0; idx<selgrpnms.size(); idx++ )
+	{
+	    selfld_->addItem( selgrpnms[0]->buf() );
+	    ioPixmap pixmap( 20, 20 );
+	    Color col = selgrpcols[ idx ];
+	    pixmap.fill( col );
+	    selfld_->setPixmap( pixmap, idx );
+	}
+    }
+    else
+    {
+	rgfld_ = new uiGenInput( this, "Create body from value range",
+				 FloatInpIntervalSpec(false) );
     }
 }
 
 int selGrpIdx() const
 { return selfld_->currentItem(); }
 
+Interval<float> geValRange() const
+{ return rgfld_->getFInterval(); }
+
     uiComboBox*		selfld_;
+    uiGenInput*		rgfld_;
 };
 
 
 mClass uiCreatePicksDlg : public uiCreatePicks
 {
 public:
-uiCreatePicksDlg( uiParent* p, const ObjectSet<DataPointSetDisplayMgrGrp>& mgr )
-    : uiCreatePicks( p )
-{
-    uiLabeledComboBox* cbx = new uiLabeledComboBox( this, "Selection Group" );
-    selfld_ = cbx->box();
-    for ( int idx=0; idx<mgr.size(); idx++ )
-    {
-	selfld_->addItem( mgr[idx]->name_ );
-	ioPixmap pixmap( 20, 20 );
-	pixmap.fill( mgr[idx]->col_ );
-	selfld_->setPixmap( pixmap, idx );
-    }
 
-    cbx->attach( alignedAbove, nmfld_ );
+uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
+    : uiCreatePicks( p )
+    , selfld_( 0 )
+    , rgfld_( 0 )
+{
+    if ( dispprop.showSelected() )
+    {
+	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,"Selection Group");
+	selfld_ = cbx->box();
+	BufferStringSet selgrpnms = dispprop.selGrpNames();
+	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
+	for ( int idx=0; idx<selgrpnms.size(); idx++ )
+	{
+	    selfld_->addItem( selgrpnms[0]->buf() );
+	    ioPixmap pixmap( 20, 20 );
+	    Color col = selgrpcols[ idx ];
+	    pixmap.fill( col );
+	    selfld_->setPixmap( pixmap, idx );
+	}
+    }
+    else
+    {
+	rgfld_ = new uiGenInput( this, "Create body from value range",
+				 FloatInpIntervalSpec(false) );
+    }
 }
 
 int selGrpIdx() const
 { return selfld_->currentItem(); }
 
-    uiComboBox*		selfld_;
+Interval<float> geValRange() const
+{ return rgfld_->getFInterval(); }
 
+    uiComboBox*		selfld_;
+    uiGenInput*		rgfld_;
 };
 
 
@@ -197,7 +230,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 
     if ( mnuid == createbodymnuitem_.id )
     {
-	uiCreateBodyDlg dlg( visserv_.appserv().parent(), dispmgrgrps_ );
+	uiCreateBodyDlg dlg( visserv_.appserv().parent(), *dispprop_ );
 	if ( dlg.go() )
 	{
 	    RefMan<EM::EMObject> emobj =
@@ -207,24 +240,31 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	    if ( !emps )
 		return;
 
-	    emps->copyFrom( *data, dlg.selGrpIdx() );
-	    emps->setPreferredColor( display->getColor(dlg.selGrpIdx()) );
+	    if ( dispprop_->showSelected() )
+		emps->copyFrom( *data, dlg.selGrpIdx() );
+	    else
+		emps->copyFrom( *data, dispprop_->dpsColID(),
+				dlg.geValRange() );
 	    treeToBeAdded.trigger( emps->id() );
 	}
     }
     else if ( mnuid == storepsmnuitem_.id )
     {
-	uiCreatePicksDlg dlg( visserv_.appserv().parent(), dispmgrgrps_ );
+	uiCreatePicksDlg dlg( visserv_.appserv().parent(), *dispprop_ );
 	if ( !dlg.go() )
-	return;
+	    return;
 
 	Pick::Set& pickset = *dlg.getPickSet();
 
 	const DataPointSet* data = display->getDataPack();
 	for ( int rid=0; rid<data->size(); rid++ )
 	{
-	    if ( data->selGroup(rid) == dlg.selGrpIdx() )
-	    pickset += Pick::Location( Coord3(data->coord(rid),data->z(rid)));
+	    if ( ((dispprop_->showSelected()) &&
+		  (data->selGroup(rid) == dlg.selGrpIdx())) ||
+		 (dlg.geValRange().includes(
+		      data->value(dispprop_->dpsColID(),rid))) )
+		pickset += Pick::Location(
+				Coord3(data->coord(rid),data->z(rid)));
 	}
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
@@ -307,21 +347,6 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 }
 
 
-void uiVisDataPointSetDisplayMgr::setDisplayCol( DispID dispid,
-						 const TypeSet<Color>& cols )
-{
-    const int dispidx = ids_.indexOf( dispid );
-    DisplayInfo& displayinfo = *displayinfos_[dispidx];
-    for ( int idx=0; idx<displayinfo.visids_.size(); idx++ )
-    {
-	const int visid = displayinfo.visids_[idx];
-	visSurvey::PointSetDisplay* display = getPSD( visserv_, visid );
-	if ( display )
-	    display->setColors( cols );
-    }
-}
-
-
 int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 					    const DataPointSet& dps )
 {
@@ -335,9 +360,6 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 
     int id = 0;
     while ( ids_.indexOf(id)!=-1 ) id++;
-    TypeSet<Color> selcols;
-    for ( int idx=0; idx<dispmgrgrps_.size(); idx++ )
-	selcols += dispmgrgrps_[idx]->col_;
 
     for ( int idx=0; idx<parents.size(); idx++ )
     {
@@ -356,8 +378,8 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	    continue;
 
 	visserv_.addObject( display, parents[idx], true );
+	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
-	display->setColors( selcols );
 
 	displayinfo->sceneids_ += allsceneids_[idx];
 	displayinfo->visids_ += display->id();
@@ -401,10 +423,6 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
     TypeSet<int> scenestoadd = wantedscenes;
     scenestoadd.createDifference( displayinfo.sceneids_ );
-
-    TypeSet<Color> selcols;
-    for ( int colnr=0; colnr<dispmgrgrps_.size(); colnr++ )
-	selcols += dispmgrgrps_[colnr]->col_;
 
     for ( int idy=0; idy<scenestoremove.size(); idy++ )
     {
@@ -462,8 +480,8 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	if ( !display )
 	    continue;
 
+	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
-	display->setColors( selcols );
     }
 }
 

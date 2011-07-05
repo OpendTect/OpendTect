@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.31 2011-06-16 10:25:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.32 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ public:
     void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
 
-    void			addScaledSelColumn();
+    void			mapLikeliness();
 protected:
 
     DataPointSet&		dps_;
@@ -214,6 +214,7 @@ protected:
     void			showSelPts(CallBacker*);
     void			removeSelPts(CallBacker*);
     void			addColumn(CallBacker*);
+    void			removeColumn(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

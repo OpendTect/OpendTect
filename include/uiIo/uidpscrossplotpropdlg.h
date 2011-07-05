@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.h,v 1.7 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.h,v 1.8 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,27 +17,29 @@ class uiDPSCPScalingTab;
 class uiDPSCPStatsTab;
 class uiDPSUserDefTab;
 class uiDPSCPBackdropTab;
+class uiDPSCPDisplayPropTab;
 class uiDPSDensPlotSetTab;
 
 		     
 mClass uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
 {
 public:
-			uiDataPointSetCrossPlotterPropDlg(
-					uiDataPointSetCrossPlotter*);
-    uiDataPointSetCrossPlotter&	plotter()		{ return plotter_; }
+					uiDataPointSetCrossPlotterPropDlg(
+					    uiDataPointSetCrossPlotter*);
+    uiDataPointSetCrossPlotter&		plotter()	{ return plotter_; }
 
 protected:
 
-    uiDataPointSetCrossPlotter&	plotter_;
-    uiDPSCPScalingTab*	scaletab_;
-    uiDPSCPStatsTab*	statstab_;
-    uiDPSUserDefTab*	userdeftab_;
-    uiDPSDensPlotSetTab* densplottab_;
-    uiDPSCPBackdropTab*	bdroptab_;
+    uiDataPointSetCrossPlotter&		plotter_;
+    uiDPSCPScalingTab*			scaletab_;
+    uiDPSCPStatsTab*			statstab_;
+    uiDPSUserDefTab*			userdeftab_;
+    uiDPSCPDisplayPropTab* 		dispproptab_;
+    uiDPSDensPlotSetTab* 		densplottab_;
+    uiDPSCPBackdropTab*			bdroptab_;
 
-    void		doApply(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    void				doApply(CallBacker*);
+    bool				acceptOK(CallBacker*);
 
 };
 

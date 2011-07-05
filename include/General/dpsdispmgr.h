@@ -7,14 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.4 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.5 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
-#include "bufstring.h"
+#include "bufstringset.h"
 #include "color.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 
 class DataPointSet;
 
@@ -28,15 +30,62 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-mStruct DataPointSetDisplayMgrGrp
+mStruct DataPointSetDisplayProp
 {
 public:
-    				DataPointSetDisplayMgrGrp( const char* nm,
-							   const Color& col )
-				    : name_(nm), col_(col)	{}
+				DataPointSetDisplayProp( 
+					const ColTab::Sequence& cs,
+				        const ColTab::MapperSetup& cm,int id)
+				    : coltab_(cs), coltabmappersu_(cm)
+				    , showsel_(false), dpscolid_(id)	{}
+				
+				DataPointSetDisplayProp( 
+					const BufferStringSet& nms,
+				        const TypeSet<Color>& cols)
+				    : selgrpnms_(nms), selgrpcols_(cols)
+				    , showsel_(true), dpscolid_(-1)	{}
 
-   BufferString			name_;
-   Color			col_;
+DataPointSetDisplayProp* clone() const
+{
+    if ( showsel_ )
+	return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
+    else
+	return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+}
+
+   int				dpsColID() const	{ return dpscolid_; }
+   bool				showSelected() const	{ return showsel_; }
+   const BufferStringSet&	selGrpNames() const	{ return selgrpnms_; }
+   const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
+   const ColTab::Sequence&	colSequence() const	{ return coltab_; }
+   const ColTab::MapperSetup&	colMapperSetUp() const
+   				{ return coltabmappersu_; }
+
+Color getColor( float val ) const
+{
+    if ( showsel_ )
+    {
+	return selgrpcols_.validIdx(mNINT(val)) ? selgrpcols_[mNINT(val)]
+	    					: Color::NoColor();
+    }
+
+    if ( mIsUdf(val) )
+	return coltab_.undefColor();
+
+    ColTab::Mapper mapper;
+    mapper.setup_ = coltabmappersu_;
+    const float pos = mapper.position( val );
+    return coltab_.color( pos );
+}    
+
+protected:
+
+   BufferStringSet		selgrpnms_;
+   TypeSet<Color>		selgrpcols_;
+   ColTab::Sequence		coltab_;
+   ColTab::MapperSetup		coltabmappersu_;
+   int				dpscolid_;
+   bool				showsel_;
 };
 
 
@@ -54,8 +103,6 @@ public:
     virtual int			getNrViewers() const			= 0;
     virtual const char*		getViewerName(int) const		= 0;
 
-    virtual void		setDisplayCol(DispID,
-	    				      const TypeSet<Color>&)	= 0;
     virtual DispID		addDisplay(const TypeSet<int>& parents,
 	    				   const DataPointSet&)		= 0;
     virtual void		updateDisplay(DispID id,
@@ -69,26 +116,18 @@ public:
     virtual void		getIconInfo(BufferString& fnm,
 	    				    BufferString& tootltip) const = 0;
 
-    void			addDispMgrGrp( const char* nm,const Color& col )
-    { dispmgrgrps_ += new DataPointSetDisplayMgrGrp( nm, col ); }
+    void			setDispProp( DataPointSetDisplayProp* prop )
+				{ dispprop_ = prop; }
 
-    void			removeDispMgrGrp( int nr )
-				{ if ( dispmgrgrps_.validIdx(nr) )
-				    delete dispmgrgrps_.remove( nr ); }
-
-    void			removeAllGrps()
-				{
-				    while ( !dispmgrgrps_.isEmpty() )
-					removeDispMgrGrp(dispmgrgrps_.size()-1);
-				}
+    void			clearDispProp()
+    				{ delete dispprop_; dispprop_ = 0; }
     
-    const ObjectSet<DataPointSetDisplayMgrGrp>& groups() const
-				{ return dispmgrgrps_; }
-
 protected:
 
+    				DataPointSetDisplayMgr()
+				    : dispprop_( 0 )	{}
     TypeSet<int>		availableviewers_;
-    ObjectSet<DataPointSetDisplayMgrGrp> dispmgrgrps_;
+    DataPointSetDisplayProp*	dispprop_;
 
 };
 	    				   

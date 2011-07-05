@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.13 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -28,11 +28,10 @@ PointSetDisplay::PointSetDisplay()
     , data_(0)
     , transformation_(0)
     , eventcatcher_(0)
-    , selpointsetidx_(-1)
+    , dpsdispprop_(0)
 {
     setMaterial( 0 );
-    colors_ += Color::DgbColor();
-    setNrPointSets( 1 );
+    setPointSet();
 }
 
 
@@ -40,64 +39,41 @@ PointSetDisplay::~PointSetDisplay()
 {
     setSceneEventCatcher(0);
 
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
-	removeChild( pointsets_[idx]->getInventorNode() );
+    removeChild( pointset_->getInventorNode() );
     if ( data_ )
 	DPM( DataPackMgr::PointID() ).release( data_->id() );
+    delete dpsdispprop_;
 }
 
 
-void PointSetDisplay::setNrPointSets( int nr )
+void PointSetDisplay::setPointSet()
 {
-    while ( nr != pointsets_.size() )
-    {
-	if ( nr > pointsets_.size() )
-	{
-	    visBase::PointSet* pst = visBase::PointSet::create();
-	    pst->setMaterial( visBase::Material::create() );
-	    addChild( pst->getInventorNode() );
-	    if ( transformation_ )
-		pst->setDisplayTransformation( transformation_ );
-	    pointsets_ += pst;
-	}
-	else
-	    pointsets_.remove( pointsets_.size()-1 );
-    }
-
-    while ( nr != colors_.size() )
-    {
-	if ( nr > colors_.size() )
-	    colors_ += getRandomColor();
-	else
-	    colors_.remove( colors_.size()-1 );
-    }
+    visBase::PointSet* pst = visBase::PointSet::create();
+    pst->setMaterial( visBase::Material::create() );
+    pst->setMaterialBinding(
+	    visBase::Shape::cPerVertexMaterialBinding() );
+    addChild( pst->getInventorNode() );
+    if ( transformation_ )
+	pst->setDisplayTransformation( transformation_ );
+    pointset_ = pst;
 }
 
 
-void PointSetDisplay::setColors( const TypeSet<Color>& cols )
+void PointSetDisplay::setDispProp( const DataPointSetDisplayProp* prop )
 {
-    colors_ = cols;
-    setNrPointSets( colors_.size() );
-
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
-	pointsets_[idx]->getMaterial()->setColor( colors_[idx] );
-
-    update();
+    delete dpsdispprop_;
+    dpsdispprop_ = prop->clone();
 }
-
-
-Color PointSetDisplay::getColor( int idx ) const
-{ return colors_[idx]; }
 
 
 void PointSetDisplay::setPointSize( int sz )
 {
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
-	pointsets_[idx]->setPointSize( sz );
+    pointset_->setPointSize( sz );
 }
 
 int PointSetDisplay::getPointSize() const
-{ return pointsets_[0]->getPointSize(); }
+{ return pointset_->getPointSize(); }
+
 
 bool PointSetDisplay::setDataPack( int dpsid )
 {
@@ -114,23 +90,28 @@ bool PointSetDisplay::setDataPack( int dpsid )
 
 void PointSetDisplay::update()
 {
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
-    {
-	pointsets_[idx]->getCoordinates()->removeAfter(-1);
-	pointsets_[idx]->getMaterial()->setColor( colors_[idx] );
-    }
+    pointset_->getCoordinates()->removeAfter(-1);
 
     for ( int idx=0; idx<data_->size(); idx++ )
     {
-	if ( !data_->isSelected(idx) )
+	if ( dpsdispprop_->showSelected() && !data_->isSelected(idx) )
 	    continue;
 
-	int selgrp = data_->selGroup(idx);
-	if ( !pointsets_.validIdx(selgrp) )
-	    selgrp = 0;
+	Color col;
+	if ( dpsdispprop_->showSelected() )
+	{
+	    int selgrp = data_->selGroup(idx);
+	    col = dpsdispprop_->getColor( (float)selgrp );
+	}
+	else
+	{
+	    const float val = data_->value( dpsdispprop_->dpsColID(), idx );
+	    col = dpsdispprop_->getColor( val );
+	}
 
-	pointsets_[selgrp]->getCoordinates()->addPos(
-		Coord3(data_->coord(idx),data_->z(idx)) );
+	const int ptidx = pointset_->getCoordinates()->addPos(
+				Coord3(data_->coord(idx),data_->z(idx)) );
+	pointset_->getMaterial()->setColor( col, ptidx );
     }
 }
 
@@ -141,19 +122,15 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
     if ( !selector.isOK() )
 	return;
 
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
+    for ( int idy=0; idy<pointset_->getCoordinates()->size(true); idy++ )
     {
-	visBase::PointSet* pointset = pointsets_[idx];
-	for ( int idy=0; idy<pointset->getCoordinates()->size(true); idy++ )
+	Coord3 pos = pointset_->getCoordinates()->getPos( idy );
+	if ( selector.includes(pos) )
 	{
-	    Coord3 pos = pointset->getCoordinates()->getPos( idy );
-	    if ( selector.includes(pos) )
-	    {
-		DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
-		if ( rid < 0 )
-		    continue;
-		data_->setSelected( rid, false );
-	    }
+	    DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
+	    if ( rid < 0 )
+		continue;
+	    data_->setSelected( rid, false );
 	}
     }
 
@@ -173,8 +150,7 @@ void PointSetDisplay::setDisplayTransformation( visBase::Transformation* nt )
     if ( transformation_ )
 	transformation_->ref();
 
-    for ( int idx=0; idx<pointsets_.size(); idx++ )
-	pointsets_[idx]->setDisplayTransformation( transformation_ );
+    pointset_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -184,22 +160,15 @@ visBase::Transformation* PointSetDisplay::getDisplayTransformation()
 
 void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(mCB(this,PointSetDisplay,eventCB));
-	eventcatcher_->unRef();
-    }
+    if ( eventcatcher_ ) eventcatcher_->unRef();
+
+    if ( !nevc ) return;
 
     eventcatcher_ = nevc;
-
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify(mCB(this,PointSetDisplay,eventCB));
-	eventcatcher_->ref();
-    }
+    eventcatcher_->ref();
 }
 
-void PointSetDisplay::eventCB( CallBacker* cb )
+/*void PointSetDisplay::eventCB( CallBacker* cb )
 {
     if ( !isOn() || isLocked() ) return;
 
@@ -215,15 +184,11 @@ void PointSetDisplay::eventCB( CallBacker* cb )
 	mDynamicCastGet(const visBase::PointSet*,pointset,pickedobj);
 	if ( !pointset ) continue;
 
-	for ( int pidx=0; pidx<pointsets_.size(); pidx++ )
-	{
-	    if ( pointsets_[pidx] == pointset )
-		selpointsetidx_ = pidx;
-	}
+	//if ( pointset_ == pointset )
+	    selpointsetidx_ = pidx;
     }
 
-//    eventcatcher_->setHandled();
-}
+}*/
 
 
 } //namespace visSurvey

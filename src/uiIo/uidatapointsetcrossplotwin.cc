@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.37 2011-06-16 10:25:25 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.38 2011-07-05 09:44:30 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.37 2011-06-16 10:25:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.38 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -19,19 +19,17 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.37 2011-06-16
 #include "uidatapointsetcrossplot.h"
 #include "uidatapointset.h"
 #include "uidialog.h"
-#include "uigeninput.h"
 #include "uicolor.h"
 #include "uicolortable.h"
 #include "uicombobox.h"
 #include "uidlggroup.h"
 #include "uidpsselgrpdlg.h"
-#include "uigeninput.h"
-#include "uigeninputdlg.h"
 #include "uigraphicsscene.h"
 #include "uiimpexpselgrp.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uidpsrefineseldlg.h"
 #include "uispinbox.h"
 #include "uistatusbar.h"
 #include "uitable.h"
@@ -68,7 +66,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			      uiToolBar::Left))
     , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
     , grpfld_(0)
-    , selsettdlg_(0)
+    , refineseldlg_(0)
     , propdlg_(0)
     , selgrpdlg_(0)
     , multicolcodtbid_(-1)
@@ -143,8 +141,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
     clearseltbid_ = seltb_.addButton( "clearselection.png",
-			"Remove all selections",
-			mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
+	    "Remove all selections",
+	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
     
     seldeltbid_ = seltb_.addButton( "trashcan.png", "Delete all selected",
 	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
@@ -152,9 +150,13 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltabletbid_ = seltb_.addButton( "seltable.png",
 	    "Show selections in table",
 	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel) ); 
+ 
+    manseltbid_ = seltb_.addButton( "selsettings.png",
+	"Manage Selections..",mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
 
-    selsettingstbid_ = seltb_.addButton( "settings.png", "Selection settings",
+    refineseltbid_ = seltb_.addButton( "refinesel.png", "Refine selection",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
+
 
     maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
 
@@ -165,9 +167,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     overlayproptbid_ = maniptb_.addButton( "overlayattr.png",
 	    "Select Overlay Attribute", mCB(this,uiDataPointSetCrossPlotWin,
 					    overlayAttrCB) );
-    maniptb_.addButton( "selsettings.png", "Manage Selections",
-			mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
-
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
@@ -182,7 +181,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
 	grpfld_ = new uiComboBox( dispgrp, "Group selection" );
 	BufferString txt( nrgrps == 2 ? "Both " : "All " );
-	txt += uidps_.groupType(); txt += "s";
+	txt += uidps_.groupType();
+	if ( uidps_.groupType() )
+	    txt += "s";
 	grpfld_->addItem( txt );
 	TypeSet<Color> ctseqs;
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
@@ -390,210 +391,9 @@ bool acceptOk( CallBacker* )
 };
 
 
-class uiSetSelDomainTab : public uiDlgGroup
-{
-public:
-
-struct DataColInfo
-{
-    			DataColInfo( const BufferStringSet& colnames,
-				     const TypeSet<int>& colids )
-			    : colnms_(colnames), colids_(colids) {}
-
-    BufferStringSet	colnms_;
-    TypeSet<int>	colids_;
-};
-
-uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
-		   const BufferString& mathobjstr, const TypeSet<int>& colids,
-       		   bool isdensityplot )
-    : uiDlgGroup( p->tabParent(), "Refine Selection" )
-    , mathobj_(0)
-    , datainfo_(info)
-    , dcolids_(colids)
-{
-    uiLabel* label =
-	new uiLabel( this, "Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)" );
-
-    inpfld_ = new uiGenInput( this, "Enter Ranges" );
-    inpfld_->setElemSzPol( uiObject::WideMax );
-    inpfld_->updateRequested.notify( mCB(this,uiSetSelDomainTab,parsePush) );
-    inpfld_->valuechanging.notify( mCB(this,uiSetSelDomainTab,checkMathExpr) );
-    label->attach( leftAlignedAbove, inpfld_ ); 
-
-    setbut_ = new uiPushButton( this, "Set", true );
-    setbut_->activated.notify( mCB(this,uiSetSelDomainTab,parsePush) );
-    setbut_->attach( rightTo, inpfld_ );
-
-    vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
-					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5*uiObject::baseFldSize())
-					.defrowlbl("") .fillcol(true)
-					.fillrow(true) .defrowstartidx(0),
-					"Variable X attribute table" );
-    const char* xcollbls[] = { "Select input for", 0 };
-    vartable_->setColumnLabels( xcollbls );
-    vartable_->setNrRows( 2 );
-    vartable_->setStretch( 2, 0 );
-    vartable_->setRowResizeMode( uiTable::Fixed );
-    vartable_->setColumnResizeMode( uiTable::Fixed );
-    vartable_->attach( alignedBelow, inpfld_ );
-    vartable_->display( false );
-    if ( !mathobjstr.isEmpty() )
-    {
-	inpfld_->setText( mathobjstr );
-	parsePush(0);
-    }
-}
-
-
-~uiSetSelDomainTab()
-{
-    delete datainfo_;
-}
-
-
-void checkMathExpr( CallBacker* )
-{
-    if ( mathexprstring_ != inpfld_->text() )
-	setbut_->setSensitive( true );
-    else
-	setbut_->setSensitive( false );
-}
-
-
-void parsePush( CallBacker* )
-{
-    mathexprstring_ = inpfld_->text();
-    MathExpressionParser mep( mathexprstring_ );
-    mathobj_ = mep.parse();
-    if ( !mathobj_ )
-    {
-	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
-	dcolids_.erase();
-	vartable_->display( false );
-	return;
-    }
-
-    setbut_->setSensitive( false );
-    updateDisplay();
-}
-
-
-int cColIds( int dcolid )
-{ return dcolid + 3; }
-
-
-void updateDisplay()
-{
-    const int nrvars = mathobj_->nrVariables();
-    vartable_->setNrRows( nrvars );
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiComboBox* varsel = new uiComboBox( 0, datainfo_->colnms_, "Variable");
-	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
-	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
-	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
-	vartable_->setCellObject( RowCol(idx,0), varsel );
-    }
-
-    vartable_->display( true );
-}
-
-
-bool acceptOK()
-{
-    dcolids_.erase();
-    if ( !mathobj_ )
-	return true;
-
-    int nrvars = mathobj_->nrVariables();
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
-	mDynamicCastGet( uiComboBox*, box, obj );
-	if ( !box )
-	    continue;
-
-	dcolids_ += datainfo_->colids_[box->currentItem()];
-    }
-
-    PtrMan<MathExpression> testexpr = mathobj_->clone();
-    nrvars = testexpr->nrVariables();
-    for ( int idx=0; idx<nrvars; idx++ )
-	testexpr->setVariableValue( idx, 100 );
-
-    if ( !mIsZero(testexpr->getValue(),mDefEps) &&
-	 !mIsZero(testexpr->getValue()-1,mDefEps) )
-    {
-	uiMSG().error( "Equation should return true or false" );
-	return false;
-    }
-
-    return true;
-}
-    
-    BufferString	mathexprstring_;
-    DataColInfo*	datainfo_;
-    MathExpression*	mathobj_;
-    TypeSet<int>	dcolids_;
-    
-    MathExpression*	mathObject()		{ return mathobj_; }
-    
-    uiGenInput*		inpfld_;
-    uiPushButton*	setbut_;
-    uiTable*		vartable_;
-};
-
-
-class uiSelectionSettDlg : public uiTabStackDlg
-{
-public:
-uiSelectionSettDlg( uiDataPointSetCrossPlotter& p,
-		    const BufferStringSet& colnames )
-    : uiTabStackDlg( p.parent(), uiDialog::Setup("Selection Settings",0,
-						 "111.0.4")
-				    .savebutton(!p.isADensityPlot())
-				    .savetext("Select on Ok").modal(false) )
-    , plotter_( p )
-{
-    TypeSet<int> colids;
-    const DataPointSet& dps = plotter_.dps();
-
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
-	colids += dcid;
-
-    uiSetSelDomainTab::DataColInfo* datainfo =
-	new uiSetSelDomainTab::DataColInfo( colnames, colids );
-    refseltab_ = new uiSetSelDomainTab( this, datainfo, plotter_.mathObjStr(),
-				       	plotter_.modifiedColIds(),
-				        plotter_.isADensityPlot() );
-    addGroup( refseltab_ );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    if ( refseltab_->acceptOK() )
-    {
-	plotter_.setMathObj( refseltab_->mathObject() );
-	plotter_.setMathObjStr( refseltab_->mathexprstring_ );
-	plotter_.setModifiedColIds( refseltab_->dcolids_ );
-    }
-
-    return true;
-}
-
-    uiDataPointSetCrossPlotter& 	plotter_;
-    uiSetSelDomainTab*			refseltab_;
-};
-
-
 uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
 {
-    delete selsettdlg_;
+    delete refineseldlg_;
     delete propdlg_;
     delete selgrpdlg_;
 }
@@ -607,10 +407,10 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
-    if ( !selsettdlg_ )
-	selsettdlg_ = new uiSelectionSettDlg( plotter_, colnames );
+    if ( !refineseldlg_ )
+	refineseldlg_ = new uiDPSRefineSelDlg( plotter_ );
 
-    selsettdlg_->go();
+    refineseldlg_->go();
 }
 
 
@@ -621,7 +421,8 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     seltb_.setSensitive( selmodechgtbid_, isoff );
-    seltb_.setSensitive( selsettingstbid_, isoff );
+    seltb_.setSensitive( refineseltbid_, isoff );
+    seltb_.setSensitive( manseltbid_, isoff );
     seltb_.setSensitive( seltabletbid_, isoff );
     seltb_.setSensitive( seldeltbid_, isoff );
     seltb_.setSensitive( clearseltbid_, isoff );
@@ -757,7 +558,7 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
     if ( !grpfld_ ) return;
 
     plotter_.curgrp_ = grpfld_->currentItem();
-    plotter_.dataChanged();
+    plotter_.drawContent();
 }
 
 

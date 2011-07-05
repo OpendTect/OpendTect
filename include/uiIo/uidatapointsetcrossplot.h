@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.39 2011-06-16 10:25:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.40 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,6 +211,8 @@ public:
     void			setSelArea(const SelectionArea&,int selgrpidx);
     bool			getSelArea(SelectionArea&,int selareaid);
     ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
+    const ObjectSet<SelectionGrp>& selectionGrps() const
+    				{ return selgrpset_; }
     int 			selAreaSize() const;
     void			reDrawSelections();
     TypeSet<Color>		selGrpCols() const;

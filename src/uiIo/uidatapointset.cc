@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.72 2011-06-17 05:15:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.73 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -202,6 +202,7 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
     mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
     mAddButton( "plus.png", addColumn, "Add column.." );
+    mAddButton( "minus.png", removeColumn, "Remove column" );
 #undef mAddButton
 
     disptb_ = new uiToolBar( this, "Display Tool bar" );
@@ -1250,17 +1251,75 @@ bool uiDataPointSet::doSave()
 }
 
 
+mClass uiDPSDispPropDlg : public uiDialog
+{
+public:
+uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter )
+    : uiDialog(this,uiDialog::Setup("Display Properties","",""))
+{
+    typefld_ =
+	new uiGenInput( this, "Show the points on the basis of",
+		        BoolInpSpec(false,"Selections","Overlay Attribute") );
+    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
+
+    BufferStringSet colnms;
+    const DataPointSet& dps = plotter.dps();
+    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
+	colnms.add( dps.colName(colidx) );
+
+    selfld_ = new uiLabeledComboBox( this, colnms, "Attribute to display" );
+    selfld_->attach( alignedBelow, typefld_ );
+}
+
+void typeChangedCB( CallBacker* )
+{ selfld_->display( !typefld_->getBoolValue() ); }
+
+bool type() const
+{ return typefld_->getBoolValue(); }
+
+const char* colName() const
+{ return selfld_->box()->text(); }
+
+    uiGenInput*		typefld_;
+    uiLabeledComboBox*	selfld_;
+};
+
+
 void uiDataPointSet::showSelPts( CallBacker* )
 {
+    uiDPSDispPropDlg dlg( this, xplotwin_->plotter() );
+    if ( !dlg.go() )
+	return;
+
     if ( !dpsdispmgr_ ) return;
 
     dpsdispmgr_->lock();
     
-    dpsdispmgr_->removeAllGrps();
-    ObjectSet<SelectionGrp> selgrps( xplotwin_->plotter().selectionGrps() );
+    const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
+    dpsdispmgr_->clearDispProp();
 
-    for ( int idx=0; idx<selgrps.size(); idx++ )
-	dpsdispmgr_->addDispMgrGrp( selgrps[idx]->name(), selgrps[idx]->col_ );
+    if ( dlg.type() )
+    {
+	ObjectSet<SelectionGrp> selgrps = plotter.selectionGrps();
+	BufferStringSet selgrpnms;
+	TypeSet<Color> selgrpcols;
+
+	for ( int idx=0; idx<selgrps.size(); idx++ )
+	{
+	    selgrpnms.add( selgrps[idx]->name() );
+	    selgrpcols += selgrps[idx]->col_;
+	}
+
+	dpsdispmgr_->setDispProp(
+		new DataPointSetDisplayProp(selgrpnms,selgrpcols) );
+    }
+    else
+    {
+	dpsdispmgr_->setDispProp(
+		new DataPointSetDisplayProp(plotter.y3CtSeq(),
+		    			    plotter.y3Mapper().setup_,
+					    dps_.indexOf(dlg.colName())) );
+    }
 
     int dpsid = dpsdispmgr_->getDisplayID(dps_);
     if ( dpsid < 0 )
@@ -1412,7 +1471,7 @@ uiDPSAddColumnDlg( uiParent* p, bool onlynm, bool hasy2 )
     nmfld_ = new uiGenInput( this, "Property Name" );
     if ( onlynm && hasy2 )
     {
-	sclaxtypfld_ = new uiGenInput( this, "Scaling selection for ",
+	sclaxtypfld_ = new uiGenInput( this, "Mapping likeliness for ",
 				       BoolInpSpec(false,"Y1 Axis","Y2 Axis") );
 	sclaxtypfld_->attach( alignedBelow, nmfld_ ); 
     }
@@ -1556,7 +1615,7 @@ protected:
 };
 
 
-void uiDataPointSet::addScaledSelColumn()
+void uiDataPointSet::mapLikeliness()
 {
     uiDPSAddColumnDlg coladddlg( this, true, xplotwin_->plotter().isY2Shown() );
     if ( !coladddlg.go() )
@@ -1620,9 +1679,24 @@ void uiDataPointSet::addColumn( CallBacker* )
 	    bvs.set( pos, vals ); 
 	}
 
+	unsavedchgs_ = true;
 	dps_.dataChanged();
 	tbl_->insertColumns( tbl_->nrCols()-1, 1 );
 	tbl_->setColumnLabel( tbl_->nrCols()-1, dlg.newAttribName() );
 	reDoTable();
     }
+}
+
+
+void uiDataPointSet::removeColumn( CallBacker* )
+{
+    const DColID dcolid = dColID();
+    if ( dcolid < 0 )
+	return uiMSG().error( "Cannot remove this column" );
+
+    unsavedchgs_ = true;
+    tbl_->removeColumn( tbl_->currentCol() );
+    dps_.dataSet().removeColumn( tColID(dcolid)+1 );
+    dps_.dataChanged();
+    reDoTable();
 }

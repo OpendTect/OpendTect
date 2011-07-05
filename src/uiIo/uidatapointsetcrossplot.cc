@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.82 2011-06-16 10:25:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.83 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.82 2011-06-16 10:25:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.83 2011-07-05 09:44:30 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1406,6 +1406,11 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	    overlaycol = getOverlayColor(rid,true);
 	else if ( showy4_ && isy2 && isY2Shown() )
 	    overlaycol = getOverlayColor(rid,false);
+
+	MarkerStyle2D mstyle( setup_.markerstyle_ );
+	mstyle.color_.setRgb( yad.axis_->setup().style_.color_.rgb() );
+	mDynamicCastGet(uiMarkerItem*,markeritem,item)
+	if ( markeritem ) markeritem->setMarkerStyle( mstyle );
 
 	item->setPenColor(!multclron_ ? overlaycol : multicol );
     }

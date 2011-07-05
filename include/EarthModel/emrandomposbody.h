@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.7 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:		$Id: emrandomposbody.h,v 1.8 2011-07-05 09:44:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,8 @@ public:
     void			copyFrom(const Pick::Set&);//get my own picks.
     void			copyFrom(const DataPointSet&,int selgrp);
     				//copy all for selgrp < 0.
+    void			copyFrom(const DataPointSet&,int dpscolid,
+	    				 const Interval<float>& valrg);
     void			setPositions(const TypeSet<Coord3>&);
     const TypeSet<Coord3>&	getPositions() const	{ return locations_; }
     bool			addPos(const Coord3&);
