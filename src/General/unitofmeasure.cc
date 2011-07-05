@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.20 2010-12-07 20:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.21 2011-07-05 08:31:51 cvsbert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -233,17 +233,32 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 
 const UnitOfMeasure* UnitOfMeasureRepository::get( const char* nm ) const
 {
+    return findBest( entries, nm );
+}
+
+
+const UnitOfMeasure* UnitOfMeasureRepository::get( PropertyRef::StdType typ,
+						   const char* nm ) const
+{
+    ObjectSet<const UnitOfMeasure> uns; getRelevant( typ, uns );
+    return findBest( uns, nm );
+}
+
+
+const UnitOfMeasure* UnitOfMeasureRepository::findBest(
+	const ObjectSet<const UnitOfMeasure>& uns, const char* nm ) const
+{
     if ( !nm || !*nm ) return 0;
 
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( caseInsensitiveEqual(entries[idx]->name().buf(),nm,0) )
-	    return entries[idx];
+	if ( caseInsensitiveEqual(uns[idx]->name().buf(),nm,0) )
+	    return uns[idx];
     }
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( caseInsensitiveEqual(entries[idx]->symbol(),nm,0) )
-	    return entries[idx];
+	if ( caseInsensitiveEqual(uns[idx]->symbol(),nm,0) )
+	    return uns[idx];
     }
     return 0;
 }

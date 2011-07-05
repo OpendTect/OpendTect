@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.14 2010-10-06 11:26:19 cvsraman Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.15 2011-07-05 08:31:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,8 +104,8 @@ mClass UnitOfMeasureRepository
 {
 public:
 
+    const UnitOfMeasure* get(PropertyRef::StdType,const char* nm) const;
     const UnitOfMeasure* get(const char* nm) const;
-    			//!< Will try names first, then symbols, otherwise null
     static const char*	guessedStdName(const char*);
     			//!< May return null
 
@@ -114,7 +114,7 @@ public:
 	    			    ObjectSet<const UnitOfMeasure>&) const;
 
     bool		add(const UnitOfMeasure&);
-    			//!< returns whether already present
+    			//!< returns false when already present
     bool		write(Repos::Source) const;
 
 private:
@@ -124,6 +124,9 @@ private:
     ObjectSet<const UnitOfMeasure> entries;
 
     void		addUnitsFromFile(const char*,Repos::Source);
+    const UnitOfMeasure* findBest(const ObjectSet<const UnitOfMeasure>&,
+	    			  const char* nm) const;
+    			//!< Will try names first, then symbols, otherwise null
 
     friend UnitOfMeasureRepository& UoMR();
 
