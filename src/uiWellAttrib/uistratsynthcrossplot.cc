@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.29 2011-07-01 12:12:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.30 2011-07-05 08:25:19 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -180,6 +180,12 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	const Strat::SeisEvent& ssev = evfld_->event();
 	const ObjectSet<const TimeDepthModel>& d2tmodels = psd.sd_.d2tmodels_;
 	const int nrmdls = psd.sd_.d2tmodels_.size();
+	for ( int imod=0; imod<nrmdls; imod++ )
+	{
+	    const PreStack::Gather& gather = *pspack.getGathers()[imod];
+	    const float dpth = lm_.sequence(imod).depthOf( lvl );
+	    lvltms += d2tmodels[imod]->getTime( dpth );//TODO snapp
+	}
 
 	const int nrextr = extrwin.nrSteps() + 1;
 	for ( int iextr=0; iextr<nrextr; iextr++ )

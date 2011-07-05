@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.26 2011-07-01 12:12:52 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.27 2011-07-05 08:25:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,13 +194,9 @@ protected:
     uiRayTrcParamsDlg*	raytrcpardlg_;
     uiOffsetSlicePos*	posfld_;
 
+    void		cleanSynthetics();
     void		doModelChange();
     const CubeSampling& getLimitSampling() const;
-
-    void		rayTrcParPush(CallBacker*);
-    void		rayTrcParChged(CallBacker*);
-    void		rayTrcPosChged(CallBacker*);
-    void		wvltChg(CallBacker*);
 
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;
@@ -210,7 +206,12 @@ protected:
 				    bool isps) const;
 
     void		addSynth2List(CallBacker*);
+    void		dataSetSel(CallBacker*);
+    void		rayTrcParPush(CallBacker*);
+    void		rayTrcParChged(CallBacker*);
+    void		rayTrcPosChged(CallBacker*);
     void		scalePush(CallBacker*);
+    void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
 };
 

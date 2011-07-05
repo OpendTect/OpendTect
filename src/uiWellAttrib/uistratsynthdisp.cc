@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.43 2011-07-01 12:12:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.44 2011-07-05 08:25:19 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -94,8 +94,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     modellist_ = new uiLabeledComboBox( modelgrp_, "View ", "" );
     modellist_->attach( hCentered );
-    modellist_->box()->addItem( "None" );
-    modellist_->setSensitive( false );
+    modellist_->box()->selectionChanged.notify(
+	    				mCB(this,uiStratSynthDisp,dataSetSel) );
+    cleanSynthetics();
 
     uiPushButton* createssynthbut 
 		= new uiPushButton( modelgrp_, "Create synthetics", false );
@@ -147,6 +148,17 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 }
 
 
+void uiStratSynthDisp::cleanSynthetics()
+{
+    deepErase( synthetics_ );
+    modellist_->box()->setEmpty();
+    modellist_->box()->addItem( "None" );
+    modellist_->setSensitive( false );
+    if ( lasttool_ )
+	lasttool_->setSensitive( false );
+}
+
+
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col )
 {
@@ -186,7 +198,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 
 void uiStratSynthDisp::wvltChg( CallBacker* )
 {
-    modelChanged();
+    doModelChange();
     wvltChanged.trigger();
 }
 
@@ -285,6 +297,8 @@ int uiStratSynthDisp::getDenIdx( bool& isden ) const
 
 void uiStratSynthDisp::modelChanged()
 {
+    cleanSynthetics();
+
     NotifyStopper ns( posfld_->positionChg );
     CubeSampling cs( raypars_.cs_ ); 
     HorSampling& hs = cs.hrg;
@@ -308,31 +322,51 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
+    delete wvlt_; wvlt_ = wvltfld_->getWavelet();
     deepErase( vwr_->appearance().annot_.auxdata_ );
-
     deepErase( d2tmodels_ );
-    delete wvlt_;
-    wvlt_ = wvltfld_->getWavelet();
-    if ( !wvlt_ )
-    {
-	const char* nm = wvltfld_->getName();
-	if ( nm && *nm )
-	    mErrRet("Cannot read chosen wavelet",return;)
-	else
-	    mErrRet(0,return)
-    }
-    DataPack* dp = genNewDataPack( raypars_, d2tmodels_, false );
-    if ( !dp ) return;
 
-    int maxaimodelsz =  0;
+    DataPack* dp = 0;
+    const int dataidx = modellist_->box()->currentItem();
+    if ( dataidx > 0 )
+    {
+	const SyntheticData& sd = *synthetics_[dataidx-1];
+	DataPack::FullID dpid = sd.packid_;
+	DataPackMgr::ID pmgrid = DataPackMgr::getID( dpid );
+	dp = DPM(pmgrid).obtain( DataPack::getID(dpid) );
+	mDynamicCastGet(PreStack::GatherSetDataPack*,gsetdp,dp)
+	if ( gsetdp ) 
+	{
+	    FlatDataPack* gdp = new PreStack::Gather(*gsetdp->getGathers()[0]);
+	    dp = gdp; 
+	    DPM(DataPackMgr::FlatID()).add( dp );
+	    if ( !dp ) return;
+	}
+	deepCopy( d2tmodels_, sd.d2tmodels_ );
+    }
+    else
+    {
+	if ( !wvlt_ )
+	{
+	    const char* nm = wvltfld_->getName();
+	    if ( nm && *nm )
+		mErrRet("Cannot read chosen wavelet",return;)
+	    else
+		mErrRet(0,return)
+	}
+	dp = genNewDataPack( raypars_, d2tmodels_, false );
+	DPM(DataPackMgr::FlatID()).add( dp );
+    }
+    if ( !dp ) 
+	return;
+
     for ( int idx=0; idx<d2tmodels_.size(); idx++ )
     {
+	int maxaimodelsz =  0;
 	if ( d2tmodels_[idx]->size() > maxaimodelsz )
 	    { maxaimodelsz = d2tmodels_[idx]->size(); longestaimdl_ = idx; }
     }
-
     deepErase( vwr_->appearance().annot_.auxdata_ );
-    DPM(DataPackMgr::FlatID()).add( dp );
     vwr_->setPack( true, dp->id(), false );
     vwr_->setPack( false, dp->id(), false );
 }
@@ -409,10 +443,13 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	    PreStack::Gather* gather = new PreStack::Gather();
 	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 		{ delete gather; continue; }
+	    gather->posData().setRange( true, 
+		    		StepInterval<double>(1,tbuf->size(),1) );
 	    gathers += gather;
 	}
 	rm.getD2T( tmpd2ts, true );
-	d2ts.append( tmpd2ts );
+	if ( !tmpd2ts.isEmpty() )
+	    d2ts += tmpd2ts[0]; 
     }
     if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty()) )
 	mErrRet("No seismic traces genereated ", return 0)
@@ -437,7 +474,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 
 	dp = dynamic_cast<DataPack*>(tdp);
     }
-    dp->setName( isgather ? "Synthetic Pre-Stack" : "Synthetics" );
+    dp->setName( "Synthetics" );
     return dp;
 }
 
@@ -496,6 +533,12 @@ void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 {
     NotifyStopper ns( posfld_->positionChg );
     posfld_->setCubeSampling( raypars_.cs_ );
+    doModelChange();
+}
+
+
+void uiStratSynthDisp::dataSetSel( CallBacker* )
+{
     doModelChange();
 }
 
