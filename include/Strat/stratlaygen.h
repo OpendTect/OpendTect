@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.1 2011-07-04 09:55:06 cvsbert Exp $
+ RCS:		$Id: stratlaygen.h,v 1.2 2011-07-05 15:13:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ public: \
     static void		initClass() { factory().addCreator(create,typeStr());} \
     virtual const char*	name() const; \
     virtual float	dispThickness(bool max=true) const; \
-    virtual void	usePar(const IOPar&,const Strat::RefTree&); \
+    virtual bool	usePar(const IOPar&,const Strat::RefTree&); \
     virtual void	fillPar(IOPar&) const; \
     virtual void	syncProps(const PropertyRefSelection&); \
     virtual void	updateUsedProps(PropertyRefSelection&) const

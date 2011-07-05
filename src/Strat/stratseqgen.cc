@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.22 2011-07-04 09:58:01 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.23 2011-07-05 15:13:45 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -73,13 +73,15 @@ Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 {
     Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type) );
     if ( !ret ) return 0;
-    ret->usePar( iop, rt );
-    return ret;
+    if ( ret->usePar(iop,rt) )
+	return ret;
+    delete ret; return 0;
 }
 
 
-void Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
+bool Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
 {
+    return true;
 }
 
 
@@ -322,7 +324,7 @@ void Strat::SingleLayerGenerator::updateUsedProps(
 }
 
 
-void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
+bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
     unit_ = 0;
     const char* res = iop.find( sKey::Unit );
@@ -362,13 +364,6 @@ void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     }
 
     reset();
-}
-
-
-bool Strat::SingleLayerGenerator::reset() const
-{
-    if ( !props_.prepareUsage() )
-	{ errmsg_ = props_.errMsg(); return false; }
     return true;
 }
 
@@ -385,6 +380,14 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 	iop.set( IOPar::compKey(ky,sKey::Type), prop.type() );
 	iop.set( IOPar::compKey(ky,sKey::Value), prop.def() );
     }
+}
+
+
+bool Strat::SingleLayerGenerator::reset() const
+{
+    if ( !props_.prepareUsage() )
+	{ errmsg_ = props_.errMsg(); return false; }
+    return true;
 }
 
 
