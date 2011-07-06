@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.11 2011-06-09 13:07:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.12 2011-07-06 15:09:40 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -62,7 +62,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     interpfld_->attach( ensureBelow, sep1 ); 
     interpfld_->attach( alignedBelow, subselfld_ ); 
 
-    cellsizefld_ = new uiLabeledSpinBox( this, "Grid cell size" );
+    cellsizefld_ = new uiLabeledSpinBox( this, "Lateral stepout (Inl/Crl)" );
     cellsizefld_->attach( alignedBelow, interpfld_ );
     cellsizefld_->box()->setInterval( 2, 12, 2 );
     cellsizefld_->box()->setValue( 8 );
