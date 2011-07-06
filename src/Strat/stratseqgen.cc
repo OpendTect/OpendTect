@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.24 2011-07-06 09:27:36 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.25 2011-07-06 15:05:10 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -127,7 +127,9 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     {
 	IOPar iop; iop.getFrom(astrm);
 	if ( iop.isEmpty() ) continue;
-	*this += LayerGenerator::get( iop, rt_ );
+	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
+	if ( lg )
+	    *this += lg;
     }
 
     propsel_.erase();
