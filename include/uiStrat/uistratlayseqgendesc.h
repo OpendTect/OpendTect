@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.10 2011-06-24 13:39:33 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.11 2011-07-06 15:05:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,9 +59,9 @@ protected:
     virtual void	doDraw()			= 0;
 
     uiPoint		clickpos_;
-    virtual bool	newDescReq(bool above)		= 0;
-    virtual bool	descEditReq()			= 0;
-    virtual bool	descRemoveReq()			= 0;
+    virtual bool	newLayGenReq(bool above)	= 0;
+    virtual bool	laygenEditReq()			= 0;
+    virtual bool	laygenRemoveReq()		= 0;
 
 };
 
@@ -69,9 +69,9 @@ protected:
 #define mDefuiLayerSequenceGenDescFns(clss,typstr) \
 protected: \
     virtual void	doDraw(); \
-    virtual bool	newDescReq(bool); \
-    virtual bool	descEditReq(); \
-    virtual bool	descRemoveReq(); \
+    virtual bool	newLayGenReq(bool); \
+    virtual bool	laygenEditReq(); \
+    virtual bool	laygenRemoveReq(); \
 public: \
     static const char*	typeStr()			{ return typstr; } \
     virtual const char*	factoryKeyword() const		{ return typeStr(); } \

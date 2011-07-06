@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.25 2011-07-04 09:55:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.26 2011-07-06 15:05:26 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.25 2011-07-04 09:55
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
-#include "survinfo.h"
 #include "unitofmeasure.h"
 #include "propertyimpl.h"
 #include "keyenum.h"
@@ -137,11 +136,11 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 
     bool ischgd = false;
     if ( mnuid == 0 )
-	ischgd = descEditReq();
+	ischgd = laygenEditReq();
     else if ( mnuid == 1 || mnuid == 2 )
-	ischgd = newDescReq( mnuid == 1 );
+	ischgd = newLayGenReq( mnuid == 1 );
     else if ( mnuid == 3 )
-	ischgd = descRemoveReq();
+	ischgd = laygenRemoveReq();
 
     if ( ischgd )
 	{ needsave_ = true; reDraw(0); }
@@ -565,7 +564,7 @@ bool acceptOK( CallBacker* )
 };
 
 
-bool uiBasicLayerSequenceGenDesc::newDescReq( bool above )
+bool uiBasicLayerSequenceGenDesc::newLayGenReq( bool above )
 {
     const int curunidx = curUnitIdx();
     uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
@@ -586,7 +585,7 @@ bool uiBasicLayerSequenceGenDesc::newDescReq( bool above )
 }
 
 
-bool uiBasicLayerSequenceGenDesc::descEditReq()
+bool uiBasicLayerSequenceGenDesc::laygenEditReq()
 {
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
@@ -600,7 +599,7 @@ bool uiBasicLayerSequenceGenDesc::descEditReq()
 }
 
 
-bool uiBasicLayerSequenceGenDesc::descRemoveReq()
+bool uiBasicLayerSequenceGenDesc::laygenRemoveReq()
 {
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
