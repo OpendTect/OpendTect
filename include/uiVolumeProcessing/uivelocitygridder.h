@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocitygridder.h,v 1.5 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivelocitygridder.h,v 1.6 2011-07-06 22:39:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,11 +38,14 @@ protected:
     static uiStepDialog*	create(uiParent*,VolProc::Step*);
 
     void			pickSelChange(CallBacker*);
+    void			nameChangeCB(CallBacker*);
+    void			sourceChangeCB(CallBacker*);
 
     uiGridder2DSel*		griddersel_;
     Vel::uiFunctionSel*		velfuncsel_;
     VelGriddingStep*		operation_;
 
+    bool			namenotset_;
 };
 
 

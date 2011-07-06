@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.9 2011-03-30 14:31:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.10 2011-07-06 22:39:10 cvskris Exp $";
 
 #include "uivelocitygridder.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.9 2011-03-30 14:31:06 
 #include "uilabel.h"
 #include "uivolprocchain.h"
 #include "velocitygridder.h"
+#include "velocityfunction.h"
 #include "volprocchain.h"
 
 namespace VolProc
@@ -49,9 +50,35 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
 
     velfuncsel_ = new Vel::uiFunctionSel( this, operation_->getSources(), 0 );
     velfuncsel_->attach( alignedBelow, label );
+    velfuncsel_->listChange.notify( mCB(this,uiVelocityGridder,sourceChangeCB));
 
     addNameFld( velfuncsel_ );
+
+    namenotset_ = namefld_->isUndef();
+    if ( namenotset_ )
+    {
+	namefld_->valuechanged.notify(
+		mCB(this,uiVelocityGridder,nameChangeCB) );
+    }
 }
+
+
+void uiVelocityGridder::nameChangeCB( CallBacker* )
+{
+    namenotset_ = false;
+}
+
+
+void uiVelocityGridder::sourceChangeCB( CallBacker* )
+{
+    if ( namenotset_ && velfuncsel_->getVelSources().size()==1 )
+    {
+	namefld_->valuechanged.remove(mCB(this,uiVelocityGridder,nameChangeCB));
+	namefld_->setText( velfuncsel_->getVelSources()[0]->userName() );
+	namefld_->valuechanged.notify(mCB(this,uiVelocityGridder,nameChangeCB));
+    }
+}
+
 
 
 bool uiVelocityGridder::acceptOK( CallBacker* cb )
