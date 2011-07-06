@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.11 2011-06-27 09:56:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.12 2011-07-06 07:47:57 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -191,32 +191,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	if ( dovelblock_ )
 	{
-	    TypeSet<Coord> velsc;
-	    velsc.setCapacity( nrlayers );
-	    for ( int idvel=0; idvel<velsc.size(); idvel++ )
-		velsc += Coord( depths[idvel], vels[idvel] );
-
-	    BendPointFinder2D finder( velsc, 1e-5 );
-	    if ( finder.execute() && finder.bendPoints().size()>0 )
-	    {
-		const TypeSet<int>& bpidvels = finder.bendPoints();
-
-		int bpidvel = 0; TypeSet<int> torem;
-		for ( int idvel=0; idvel<velsc.size(); idvel++ )
-		{
-		    if ( idvel !=  bpidvels[bpidvel] )
-			torem += idvel;
-		    else
-			bpidvel ++;
-		}
-
-		for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
-		{
-		    vels.remove( torem[idvel] );
-		    depths.remove( torem[idvel] );
-		}
-		nrlayers = vels.size();
-	    }
+	    BendPointVelBlock( depths, vels );
+	    nrlayers = vels.size();
 	}
 
 	TypeSet<float> offsets;

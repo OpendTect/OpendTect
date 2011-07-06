@@ -4,10 +4,11 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.53 2011-07-05 07:07:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.54 2011-07-06 07:47:57 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
+#include "bendpointfinder.h"
 #include "genericnumer.h"
 #include "idxable.h"
 #include "interpol1d.h"
@@ -1335,3 +1336,33 @@ void sampleIntvThomsenPars( const float* inarr, const float* t_in, int nr_in,
     }
 }
 
+
+void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels )
+{
+    if ( dpts.size() != vels.size() ) 
+	return;
+
+    TypeSet<Coord> velsc; velsc.setCapacity( vels.size() );
+    for ( int idvel=0; idvel<velsc.size(); idvel++ )
+	velsc += Coord( dpts[idvel], vels[idvel] );
+
+    BendPointFinder2D finder( velsc, 1e-5 );
+    if ( !finder.execute() ||  finder.bendPoints().isEmpty() )
+	return;
+
+    const TypeSet<int>& bpidvels = finder.bendPoints();
+    int bpidvel = 0; TypeSet<int> torem;
+    for ( int idvel=0; idvel<velsc.size(); idvel++ )
+    {
+	if ( idvel !=  bpidvels[bpidvel] )
+	    torem += idvel;
+	else
+	    bpidvel ++;
+    }
+
+    for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
+    {
+	vels.remove( torem[idvel] );
+	dpts.remove( torem[idvel] );
+    }
+}
