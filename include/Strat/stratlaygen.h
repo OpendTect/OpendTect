@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.2 2011-07-05 15:13:45 cvsbert Exp $
+ RCS:		$Id: stratlaygen.h,v 1.3 2011-07-06 04:33:34 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ public:
     virtual const char*	name() const				= 0;
     virtual float	dispThickness(bool max=true) const	= 0;
 
-    virtual void	usePar(const IOPar&,const RefTree&);
+    virtual bool	usePar(const IOPar&,const RefTree&);
     virtual void	fillPar(IOPar&) const;
 
     static LayerGenerator* get(const IOPar&,const RefTree&);
