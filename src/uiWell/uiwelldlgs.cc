@@ -7,19 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.100 2011-06-07 09:30:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.101 2011-07-06 07:26:09 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
+#include "uicombobox.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "unitofmeasure.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uiwellpartserv.h"
@@ -910,3 +912,40 @@ const Color& uiNewWellDlg::getWellColor()
 {
     return colsel_->color();
 }
+
+
+uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
+    : uiDialog(p,uiDialog::Setup("Edit unit of measure",mNoDlgTitle,mNoHelpID))
+    , logchanged_(false)
+    , log_(wl)			
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Unit of measure" );
+    unfld_ = lcb->box();
+    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
+    unfld_->addItem( "-" );
+    for ( int idx=0; idx<uns.size(); idx++ )
+	unfld_->addItem( uns[idx]->name() );
+
+    const char* curruom = log_.unitMeasLabel();
+    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
+    if ( uom )
+	unfld_->setCurrentItem( uom->name() );
+    else
+	unfld_->setCurrentItem( 0 );
+}
+
+
+bool uiWellLogUOMDlg::acceptOK( CallBacker* )
+{
+    const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( unfld_->text() );
+    const UnitOfMeasure* olduom = 
+			    UnitOfMeasure::getGuessed( log_.unitMeasLabel() );
+    logchanged_ = newuom != olduom;
+    if ( logchanged_ ) 
+	log_.setUnitMeasLabel( newuom->symbol() );
+
+    return true;
+}
+
+
+

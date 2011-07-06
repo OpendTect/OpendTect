@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.22 2011-01-24 08:50:18 cvsbruno Exp $
+ RCS:           $Id: uiwellman.h,v 1.23 2011-07-06 07:26:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ protected:
     void			renameLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
     void			checkMoveLogs(CallBacker*);
+    void			logUOMPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.38 2011-04-18 11:41:54 cvsnageswara Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.39 2011-07-06 07:26:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiButtonGroup;
 class uiCheckBox;
+class uiComboBox;
 class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
@@ -27,11 +28,12 @@ class uiLabeledListBox;
 class uiTable;
 class Coord3;
 class CtxtIOObj;
+class UnitOfMeasure;
 class StreamData;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
-namespace Well { class Data; class Track; class D2TModel; };
+namespace Well { class Data; class Track; class D2TModel; class Log; }
 
 
 /*! \brief Dialog for D2T Model editing. */
@@ -158,6 +160,24 @@ protected:
 
     virtual bool        	acceptOK(CallBacker*);
     const BufferStringSet&	mkWellNms();
+};
+
+
+/* brief some editable uom for the logs */
+mClass uiWellLogUOMDlg : public uiDialog
+{
+public:
+				uiWellLogUOMDlg(uiParent*,Well::Log&);
+
+    bool			logChanged() 	{ return logchanged_; }
+
+protected:
+
+    uiComboBox*                 unfld_;
+    bool			logchanged_;
+    Well::Log&			log_;
+
+    bool			acceptOK(CallBacker*);
 };
 
 #endif

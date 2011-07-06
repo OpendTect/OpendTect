@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.78 2011-05-02 09:13:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.79 2011-07-06 07:26:09 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -86,6 +86,8 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,removeLogPush) );
     butgrp->addButton( "export.png", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
+    butgrp->addButton( "unitofmeasure.png", "View/edit unit of measure",
+	    		mCB(this,uiWellMan,logUOMPush) );
     logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
 	    		mCB(this,uiWellMan,moveLogsPush) );
     logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
@@ -120,7 +122,6 @@ uiWellMan::uiWellMan( uiParent* p )
 	    		"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
-
 
     selChg( this );
     fieldsCreated()->trigger( this );
@@ -315,6 +316,24 @@ void uiWellMan::calcLogs( CallBacker* )
     if ( dlg.haveNewLogs() )
 	writeLogs();
 }
+
+
+void uiWellMan::logUOMPush( CallBacker* )
+{
+    if ( !curwd_ || !currdr_ ) return;
+
+    currdr_->getLogs();
+    const int curlogidx = logsfld_->currentItem();
+    Well::LogSet& wls = curwd_->logs();
+    if ( !wls.validIdx( curlogidx ) ) 
+	return;
+
+    uiWellLogUOMDlg dlg( this, wls.getLog( curlogidx ) );
+    dlg.go();
+    if ( dlg.logChanged() )
+	writeLogs();
+}
+
 
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
