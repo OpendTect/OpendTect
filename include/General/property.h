@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.25 2011-06-24 13:36:53 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.26 2011-07-06 09:27:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "factory.h"
 
 class PropertySet;
+class IOPar;
 
 
 /*!\brief A (usually petrophysical) property of some object.
@@ -34,6 +35,7 @@ public:
     			Property( const PropertyRef& pr )
 			: ref_(pr)			{}
     virtual Property*	clone() const			= 0;
+    static Property*	get(const IOPar&);
     virtual		~Property()			{}
 
     inline const PropertyRef& ref() const		{ return ref_; }
@@ -50,6 +52,10 @@ public:
     virtual const char*	type() const			= 0;
     virtual const char*	def() const			= 0;
     virtual void	setDef(const char*)		= 0;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
     mDefineFactory1ParamInClass(Property,const PropertyRef&,factory);
 
     mClass EvalOpts

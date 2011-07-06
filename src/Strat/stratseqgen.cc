@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.23 2011-07-05 15:13:45 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.24 2011-07-06 09:27:36 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -343,24 +343,9 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	if ( !proppar || proppar->isEmpty() )
 	    break;
 
-	const char* propnm = proppar->find( sKey::Name );
-	if ( !propnm || !*propnm )
-	    continue;
-	const PropertyRef* pref = PROPS().find( propnm );
-	if ( !pref && (pidx == 0 || Layer::thicknessRef().name() == propnm) )
-	    pref = &Layer::thicknessRef();
-	if ( !pref )
-	    continue;
-
-	const char* typ = proppar->find( sKey::Type );
-	if ( !typ || !*typ ) typ = ValueProperty::typeStr();
-	Property* prop = Property::factory().create( typ, *pref );
-
-	res = proppar->find( sKey::Value );
-	if ( res && *res )
-	    prop->setDef( res );
-
-	props_.set( prop );
+	Property* prop = Property::get( *proppar );
+	if ( prop )
+	    props_.set( prop );
     }
 
     reset();
@@ -374,11 +359,9 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
     iop.set( sKey::Unit, unit().fullCode() );
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {
-	const Property& prop = props_.get( pidx );
+	IOPar subpar; props_.get(pidx).fillPar( subpar );
 	const BufferString ky( IOPar::compKey(sKey::Property,pidx) );
-	iop.set( IOPar::compKey(ky,sKey::Name), prop.name() );
-	iop.set( IOPar::compKey(ky,sKey::Type), prop.type() );
-	iop.set( IOPar::compKey(ky,sKey::Value), prop.def() );
+	iop.mergeComp( subpar, ky );
     }
 }
 
