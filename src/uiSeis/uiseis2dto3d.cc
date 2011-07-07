@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.4 2011-05-06 13:44:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.5 2011-07-07 10:42:48 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiseis2dto3d.cc,v 1.4 2011-05-06 13:44:45 cvsbr
 #include "seisselection.h"
 #include "seistrctr.h"
 
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseis2dto3d.h"
@@ -35,17 +36,22 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 {
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
     
-    iterfld_ = new uiGenInput( this, "Iteration number" );
-    iterfld_->attach( alignedBelow, inpfld_ );
+    winfld_ = new uiGenInput( this,"Interpolation window (Inl/Crl)", 
+							IntInpIntervalSpec() );
+    winfld_->attach( alignedBelow, inpfld_ );
+    winfld_->setValue( Interval<float>(150,150) );
 
-    winfld_ = new uiGenInput( this,"Window (Inl/Crl)" );
-    winfld_->attach( alignedBelow, iterfld_ );
-    winfld_->setValue( 150 );
+    reusetrcsbox_ = new uiCheckBox( this, "Re-use interpolated traces" );
+    reusetrcsbox_->attach( alignedBelow, winfld_ );
+
+    velfiltfld_ = new uiGenInput( this, "Maximum velocity to pass (m/s)" );
+    velfiltfld_->setValue( 2000 );
+    velfiltfld_->attach( alignedBelow, reusetrcsbox_ );
 
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, winfld_ );
-   
+    outfld_->attach( alignedBelow, velfiltfld_ );
+
     outsubselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
     outsubselfld_->attachObj()->attach( alignedBelow, outfld_ );
 }
@@ -75,9 +81,14 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     CubeSampling cs(false); 
     outsubselfld_->getSampling( cs.hrg );
     outsubselfld_->getZRange( cs.zrg );
-    seis2dto3d_.setWin( winfld_->getIntValue() );
+
+    const int wininlstep = winfld_->getIInterval().start;
+    const int wincrlstep = winfld_->getIInterval().stop;
+    const float maxvel = velfiltfld_->getfValue();
+    const bool reusetrcs = reusetrcsbox_->isChecked();
+
+    seis2dto3d_.setParams( wininlstep, wincrlstep, maxvel, reusetrcs );
     seis2dto3d_.setOutput( *outctio_.ioobj, cs );
-    seis2dto3d_.setNrIter( iterfld_->getIntValue() );
 
     if ( seis2dto3d_.errMsg() )
 	uiMSG().error( seis2dto3d_.errMsg() );

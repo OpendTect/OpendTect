@@ -9,17 +9,19 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: seis2dto3d.cc,v 1.4 2011-06-10 13:35:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: seis2dto3d.cc,v 1.5 2011-07-07 10:42:48 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
 #include "arrayndutils.h"
 #include "bufstring.h"
+#include "fftfilter.h"
 #include "scaler.h"
 #include "dataclipper.h"
 #include "ioobj.h"
 #include "seis2dline.h"
 #include "seisbuf.h"
+#include "seisread.h"
 #include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -33,11 +35,10 @@ Seis2DTo3D::Seis2DTo3D()
     , seisbuf_(*new SeisTrcBuf(false))
     , wrr_(0)
     , cs_(false)
-    , nriter_(100)	
     , nrdone_(0)
     , ls_(0)
+    , sc_(0)
     , outioobj_(0)
-    , winsz_(50)
     , tmpseisbuf_(true)
 {}
 
@@ -52,9 +53,12 @@ void Seis2DTo3D::clear()
 {
     read_ = false;
     errmsg_.setEmpty();
-    delete wrr_; wrr_ = 0;
-    nriter_ = 1;
     totnr_ = -1; nrdone_ = 0;
+    maxvel_ = 0;
+    reusetrcs_ = false;
+
+    delete sc_; sc_ = 0;
+    delete wrr_; wrr_ = 0;
 }
 
 
@@ -68,16 +72,20 @@ void Seis2DTo3D::setInput( const IOObj& obj, const char* attrnm )
 }
 
 
-void Seis2DTo3D::setNrIter( int nriter )
+void Seis2DTo3D::setParams( int inlstep, int crlstep, float maxvel, bool reuse )
 {
-    nriter_ = nriter;
+    inlstep_ = inlstep;
+    crlstep_ = crlstep;
+    reusetrcs_ = reuse;
+    maxvel_ = maxvel;
 }
+
 
 void Seis2DTo3D::setOutput( IOObj& obj, const CubeSampling& outcs )
 {
     outioobj_ = &obj;
     cs_ = outcs;
-    cs_.hrg.step = BinID( winsz_, winsz_ );
+    cs_.hrg.step = BinID( inlstep_, crlstep_ );
 }
 
 
@@ -132,12 +140,16 @@ bool Seis2DTo3D::read()
 
     delete ls_;
 
+    sc_ = new SeisScaler( seisbuf_ );
+
     read_ = true;
     return true;
 }
 
 
-#define mInterpWinsz (int)(2*winsz_)
+#define mInterpInlWin (int)(2*inlstep_)
+#define mInterpCrlWin (int)(2*crlstep_)
+
 int Seis2DTo3D::nextStep()
 {
     if ( !read_ && !read() )
@@ -160,8 +172,8 @@ int Seis2DTo3D::nextStep()
     }
 
     const int inl = curbid_.inl; const int crl = curbid_.crl;
-    Interval<int> inlrg( inl-mInterpWinsz/2, inl+mInterpWinsz/2 );
-    Interval<int> crlrg( crl-mInterpWinsz/2, crl+mInterpWinsz/2 );
+    Interval<int> inlrg( inl-mInterpInlWin/2, inl+mInterpInlWin/2 );
+    Interval<int> crlrg( crl-mInterpCrlWin/2, crl+mInterpCrlWin/2 );
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
     HorSampling hrg; hrg.set( inlrg, crlrg );
@@ -169,19 +181,35 @@ int Seis2DTo3D::nextStep()
     HorSamplingIterator localhsit( hrg );
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
+    SeisTrcReader rdr( outioobj_ );
+    SeisTrcBuf outtrcbuf(false);
+    SeisBufReader sbrdr( rdr, outtrcbuf );
+    sbrdr.execute();
     while ( localhsit.next(binid) )
     {
 	const int idtrc = seisbuf_.find( binid  );
 	if ( idtrc >= 0 )
 	    trcs += seisbuf_.get( idtrc ); 
+	else if ( reusetrcs_ && !tmpseisbuf_.isEmpty() )
+	{
+	    const int idinterptrc = tmpseisbuf_.find( binid  );
+	    if ( idinterptrc >= 0 )
+		trcs += tmpseisbuf_.get( idinterptrc );
+	}
+	else if ( reusetrcs_ && !outtrcbuf.isEmpty() ) 
+	{
+	    const int outidtrc = outtrcbuf.find( binid  );
+	    if ( outidtrc >= 0 )
+		trcs += outtrcbuf.get( outidtrc );
+	}
     }
-    interpol_.setInput( trcs, hrg );
-    interpol_.setNrIter( nriter_ );
+    interpol_.setInput( trcs );
+    interpol_.setParams( hrg, maxvel_);
     if ( !trcs.isEmpty() && !interpol_.execute() )
 	{ errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
 
-    Interval<int> wininlrg( inl-winsz_/2, inl+winsz_/2);
-    Interval<int> wincrlrg( crl-winsz_/2, crl+winsz_/2);
+    Interval<int> wininlrg( inl-inlstep_/2, inlstep_/2);
+    Interval<int> wincrlrg( crl-crlstep_/2, crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
     HorSampling winhrg; winhrg.set( wininlrg, wincrlrg );
@@ -202,7 +230,10 @@ int Seis2DTo3D::nextStep()
     }
 
     for ( int idx=0; idx<outtrcs.size(); idx ++ )
+    {
+	sc_->scaleTrace( *outtrcs[idx] );
 	tmpseisbuf_.add( outtrcs[idx] );
+    } 
 
     nrdone_ ++;
     return MoreToDo();
@@ -259,8 +290,6 @@ SeisInterpol::SeisInterpol()
     : Executor("Interpolating")
     , hs_(false)
     , fft_(0)		
-    , nriter_(100)
-    , sc_(0)
     , nrdone_(0)
     , max_(0)
     , trcarr_(0)
@@ -271,35 +300,33 @@ SeisInterpol::~SeisInterpol()
 {
     clear();
     delete trcarr_;
-    delete sc_;
 }
 
 
 void SeisInterpol::clear()
 {
     errmsg_.setEmpty();
-    nriter_ = 1;
+    nriter_ = 120;
     totnr_ = -1; 
     nrdone_ = 0;
     szx_ = szy_ = szz_ = 0;
     max_ = 0;
+    maxvel_ = 0;
     posidxs_.erase();
 }
 
 
-void SeisInterpol::setInput( const ObjectSet<const SeisTrc>& trcs, 
-			    const HorSampling& hs )
+void SeisInterpol::setInput( const ObjectSet<const SeisTrc>& trcs )
 {
     clear();
-
     inptrcs_ = &trcs;
-    hs_ = hs;
 }
 
 
-void SeisInterpol::setNrIter( int nriter )
+void SeisInterpol::setParams( const HorSampling& hs, float maxvel )
 {
-    nriter_ = nriter;
+    hs_ = hs;
+    maxvel_ = maxvel;
 }
 
 
@@ -361,6 +388,10 @@ int SeisInterpol::nextStep()
 	{ return Executor::Finished(); }
 
     mDoTransform( fft_, true, trcarr_ );
+    const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
+    const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
+    const float fmax = maxvel_ / ( 2*mindist*sin( M_PI/6 ) );
+    const int poscutfreq = (int)(fmax/df);
 
 #define mDoLoopWork( docomputemax )\
     for ( int idx=0; idx<szx_; idx++ )\
@@ -371,9 +402,29 @@ int SeisInterpol::nextStep()
 	    {\
 		float real = trcarr_->get(idx,idy,idz).real();\
 		float imag = trcarr_->get(idx,idy,idz).imag();\
-		const float mod = real*real + imag*imag;\
+		float xfac; float yfac; float zfac;\
+		xfac = yfac = zfac = 0;\
+		if ( idz < poscutfreq || idz > szz_-poscutfreq )\
+		    zfac = 1;\
+		float dipangle; float revdipangle = 0;\
+		dipangle = revdipangle = 0;\
+		if ( idx < szx_/2 )\
+		{\
+		    dipangle = atan( idy/(float)idx );\
+		    revdipangle = atan( (szy_-idy-1)/(float)(idx) );\
+		}\
+		else\
+		{\
+		    dipangle = atan( idy/(float)(szx_-idx-1) );\
+		    revdipangle = atan( (szy_-idy-1)/(float)(szx_-idx-1) );\
+		}\
+		if ( dipangle > M_PI/4 && revdipangle > M_PI/4 )\
+		    { xfac = yfac = 1; }\
+		real *= xfac*yfac*zfac; imag *= xfac*yfac*zfac;\
+		float mod = real*real + imag*imag;\
 		if ( docomputemax )\
 		{\
+		    mod = real*real + imag*imag;\
 		    if ( mod > max_ )\
 			max_ = mod;\
 		}\
@@ -381,11 +432,6 @@ int SeisInterpol::nextStep()
 		{\
 		    if ( mod < max_*mDefThreshold )\
 			{ real = imag = 0; }\
-		    const float ax = 2/(float)szx_;\
-		    const float ay = 2/(float)szx_;\
-		    const float xfac = idx<szx_/2 ? -idx*ax+ 1 : idx*ax -1;\
-		    const float yfac = idy<szy_/2 ? -idy*ay+ 1 : idy*ay -1;\
-		    real *= xfac*yfac; imag *= xfac*yfac;\
 		    trcarr_->set(idx,idy,idz,float_complex(real,imag));\
 		}\
 	    }\
@@ -454,19 +500,6 @@ void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
 	    if ( mIsUdf(val) ) val = 0;
 	    trc->set( idz, val, 0 );
 	}
-	bool found = false;
-	for ( int idtrc=0; idtrc<posidxs_.size(); idtrc++ )
-	{
-	    const TrcPosTrl& trpos = posidxs_[idtrc];
-	    if ( trpos.trcpos_ >= inptrcs_->size() )
-		continue; 
-	    const BinID& trcbid = (*inptrcs_)[trpos.trcpos_]->info().binid;
-	    if ( trcbid == bid )
-		{ found = true; break; }
-	}
-	if ( !found )
-	    sc_->scaleTrace( *trc );
-
 	trcs += trc;
     }
 }
@@ -490,8 +523,6 @@ void SeisInterpol::setUpData()
 		posidxs_ += TrcPosTrl( idx, idy, trcidx );
 	}
     }
-    delete sc_;
-    sc_ = new SeisScaler( *inptrcs_ );
 }
 
 
@@ -502,17 +533,17 @@ void SeisInterpol::setUpData()
     for ( int idx=0; idx<tr.size(); idx ++ )\
         vals += tr.get( idx, 0 );\
     cl.putData( vals.arr(), tr.size() );\
-    cl.calculateRange( 0.05, rg );\
+    cl.calculateRange( 0.1, rg );\
     max = rg.stop; min = rg.start;\
 
-SeisScaler::SeisScaler( const ObjectSet<const SeisTrc>& trcs )
+SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
     : avgmaxval_(0)
     , avgminval_(0)
 {
     for ( int idtrc=0; idtrc<trcs.size(); idtrc++ )
     {
 	float maxval, minval;
-	const SeisTrc& curtrc = *trcs[idtrc];
+	const SeisTrc& curtrc = *trcs.get( idtrc );
 	mGetTrcRMSVal( curtrc, maxval, minval )
 	avgmaxval_ += maxval / trcs.size();
 	avgminval_ += minval / trcs.size();
@@ -523,7 +554,6 @@ SeisScaler::SeisScaler( const ObjectSet<const SeisTrc>& trcs )
 void SeisScaler::scaleTrace( SeisTrc& trc )
 {
     const Coord& crd = trc.info().coord;
-
     float trcmaxval, trcminval;
     mGetTrcRMSVal( trc, trcmaxval, trcminval )
     LinScaler sc( trcminval, avgminval_, trcmaxval, avgmaxval_ );

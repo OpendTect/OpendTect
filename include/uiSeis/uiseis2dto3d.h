@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2011
-RCS:           $Id: uiseis2dto3d.h,v 1.3 2011-05-04 22:12:38 cvskarthika Exp $
+RCS:           $Id: uiseis2dto3d.h,v 1.4 2011-07-07 10:42:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 
+class uiCheckBox;
 class uiSeisSel;
 class uiSeisSubSel;
 class uiGenInput;
@@ -39,6 +40,8 @@ protected:
     uiSeisSel*		outfld_;
     uiGenInput*		iterfld_;
     uiGenInput*		winfld_;
+    uiCheckBox*		reusetrcsbox_;
+    uiGenInput*		velfiltfld_;
 
     bool		acceptOK(CallBacker*);
 };

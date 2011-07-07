@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: seis2dto3d.h,v 1.3 2011-05-05 15:19:18 cvsbruno Exp $
+ RCS:           $Id: seis2dto3d.h,v 1.4 2011-07-07 10:42:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,8 @@ public:
     			SeisInterpol();
 			~SeisInterpol();
 
-    void		setInput(const ObjectSet<const SeisTrc>&,
-				 const HorSampling&);
-    void		setNrIter(int);
+    void		setInput(const ObjectSet<const SeisTrc>&);
+    void		setParams(const HorSampling&,float maxvel);
 
     void		getOutTrcs(ObjectSet<SeisTrc>&,
 					const HorSampling&) const;
@@ -53,6 +52,7 @@ protected:
 
     const ObjectSet<const SeisTrc>* inptrcs_; 
     int			nriter_;
+    float 		maxvel_;
     BufferString	errmsg_;
 
     int			nrdone_;
@@ -82,7 +82,6 @@ protected:
 
     Array3DImpl<float_complex>*  trcarr_;
     HorSampling		hs_;
-    SeisScaler*		sc_;
 
     void		clear();
     void		doPrepare();
@@ -106,8 +105,7 @@ public:
     void		setInput(const IOObj& lineset,const char* attrnm);
     void		setOutput(IOObj& cube,const CubeSampling& outcs);
 
-    void		setNrIter(int);
-    void		setWin(int win) 	{ winsz_ = win; }
+    void		setParams(int inl,int crl,float maxvel,bool reuse);
 
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
@@ -126,11 +124,15 @@ protected:
     BinID		curbid_;
     BinID		prevbid_;
 
-    int			nriter_;
-    int 		winsz_;
-    int 		interpolwinsz_;
+    float 		maxvel_;
+    bool		reusetrcs_;
+    int			inlstep_;
+    int			crlstep_;
+
     BufferString	errmsg_;
     BufferString	attrnm_;
+
+    SeisScaler*		sc_;
 
     SeisTrcBuf&		seisbuf_;
     SeisTrcWriter*      wrr_;
@@ -152,7 +154,7 @@ protected:
 mClass SeisScaler
 {
 public:
-			SeisScaler(const ObjectSet<const SeisTrc>&);
+			SeisScaler(const SeisTrcBuf&);
 
     void                scaleTrace(SeisTrc&);
 protected:
