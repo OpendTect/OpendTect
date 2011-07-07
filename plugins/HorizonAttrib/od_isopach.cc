@@ -1,0 +1,121 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nageswara
+ Date:		June 2011
+ static const char* rcsID = "$Id $";
+________________________________________________________________________
+
+-*/
+
+#include "batchprog.h"
+
+#include "emhorizon3d.h"
+#include "emmanager.h"
+#include "emsurfaceauxdata.h"
+#include "executor.h"
+#include "initearthmodel.h"
+#include "isopachmaker.h"
+#include "multiid.h"
+#include "survinfo.h"
+
+static bool loadHorizon( const MultiID& mid, std::ostream& strm )
+{
+    strm << "Loading horizon ... " << std::endl;
+    Executor* exec = EM::EMM().objectLoader( mid );
+    if ( !(exec && exec->execute( &strm, false, false, 0 )) )
+    {
+	strm << "Failed to load horizon: ";
+	strm << EM::EMM().objectName( mid ).buf() << std::endl;
+	return false;
+    }
+
+    return true;
+}
+
+
+static bool saveIsopach( const EM::Horizon3D* hor, const int attribidx,
+			 const bool overwrite )
+{
+    PtrMan<Executor> datasaver =
+			hor->auxdata.auxDataSaver( attribidx, overwrite );
+    return datasaver ? datasaver->execute() : false;
+}
+
+
+bool BatchProgram::go( std::ostream& strm )
+{
+    EarthModel::initStdClasses();
+
+    strm << "Loading Horizons" << std::endl;
+    MultiID mid1;
+    pars().get( IsopachMaker::sKeyHorizonID(), mid1 );
+    if ( !loadHorizon( mid1, strm ) )
+	return false;
+
+    EM::EMManager& em = EM::EMM();
+    EM::ObjectID emid1 = em.getObjectID( mid1 );
+    EM::EMObject* emobj1 = em.getObject( emid1 );
+    mDynamicCastGet(EM::Horizon3D*,horizon1,emobj1);
+    if ( !horizon1 )
+	return false;
+
+    MultiID mid2;
+    pars().get( IsopachMaker::sKeyHorizonID(), mid2 );
+    if ( !loadHorizon( mid2, strm ) )
+	return false;
+
+    EM::ObjectID emid2 = em.getObjectID( mid2 );
+    EM::EMObject* emobj2 = em.getObject( emid2 );
+    mDynamicCastGet(EM::Horizon3D*,horizon2,emobj2)
+    if ( !horizon2 )
+	return false;
+
+    strm << "Horizons successfully loaded" << std::endl;
+    horizon1->ref();
+    horizon2->ref();
+
+    BufferString attrnm;
+    pars().get( IsopachMaker::sKeyAttribName(), attrnm );
+    if ( attrnm.isEmpty() )
+    {
+	horizon1->unRef();horizon2->unRef();
+	return false;
+    }
+
+    int dataidx = horizon1->auxdata.auxDataIndex( attrnm );
+    if ( dataidx < 0 )
+	dataidx = horizon1->auxdata.addAuxData( attrnm );
+
+    strm << "Calculating isopach ..." << std::endl;
+    IsopachMaker maker( *horizon1, *horizon2, attrnm, 0, dataidx );
+    if ( SI().zIsTime() )
+    {
+	bool isinmsec = false;
+	pars().getYN( IsopachMaker::sKeyOutputInMilliSecYN(), isinmsec );
+	maker.setUnits( isinmsec );
+    }
+
+    if ( !maker.execute( &strm, false, false, 0 ) )
+    {
+	strm << "Failed to calculate isopach" << std::endl;
+	horizon1->unRef(); horizon2->unRef();
+	return false;
+    }
+
+    strm << "Isopach '" << attrnm.buf() << "' calculated successfully\n";
+    strm << "Saving isopach ..." << std::endl;
+    bool isoverwrite = false;
+    pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
+    if ( !saveIsopach( horizon1, dataidx, isoverwrite ) )
+    {
+	strm << "Failed save attribute" << std::endl;
+	horizon1->unRef(); horizon2->unRef();
+	return false;
+    }
+
+    strm << "Isopach saved successfully" << std::endl;
+    horizon1->unRef(); horizon2->unRef();
+    return true;
+}
