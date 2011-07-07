@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.8 2011-03-11 13:42:10 cvsbruno Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.9 2011-07-07 14:47:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,9 +48,8 @@ public:
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; }
 
+    PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
-    void		setPropertyRefs( const PropertyRefSelection& prs )
-							{ props_ = prs; }
 
     void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
