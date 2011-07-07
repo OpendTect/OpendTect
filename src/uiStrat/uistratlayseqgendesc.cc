@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.26 2011-07-06 15:05:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.27 2011-07-07 14:48:36 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -77,6 +77,7 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
     {
 	outeritm_ = scene().addItem( new uiRectItem );
 	outeritm_->setPenColor( Color::Black() );
+	outeritm_->setZValue( mUdf(int) );
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 	    		workrect_.width(), workrect_.height() );
@@ -255,8 +256,9 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     const bool growing = th1 > th0;
     const float& maxth = growing ? th1 : th0;
     const float& minth = growing ? th0 : th1;
-    disp.topy_ = (int)(workrect_.top() + curz * pixperm);
-    disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
+    disp.topy_ = (int)(workrect_.top() + curz * pixperm + .5);
+    curz += maxth;
+    disp.boty_ = (int)(workrect_.top() + curz * pixperm + .5);
 
     disp.nm_->setText( disp.gen_->name() );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
@@ -271,6 +273,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
     leftpt.y = rightpt.y = disp.topy_;
     disp.top_->setLine( leftpt, rightpt );
+    disp.top_->setZValue( 100 );
 
     uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
     TypeSet<uiPoint> pts;
@@ -316,7 +319,6 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     }
 
     disp.poly_->setPolygon( pts );
-    curz += maxth;
 }
 
 
