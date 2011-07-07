@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.23 2011-06-22 11:13:35 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.24 2011-07-07 14:48:06 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -240,7 +240,7 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
 	{
 	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
-	    newseq->setPropertyRefs( props_ );
+	    newseq->propertyRefs() = props_;
 	    seqs_ += newseq;
 	}
 	props_ = oth.props_;
