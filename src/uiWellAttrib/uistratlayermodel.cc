@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.24 2011-07-01 12:12:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.25 2011-07-07 08:41:09 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.24 2011-07-01 12:12:52
 #include "uiselsimple.h"
 #include "uisplitter.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uiioobjsel.h"
 #include "uitoolbutton.h"
 #include "uilabel.h"
@@ -34,6 +35,9 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.24 2011-07-01 12:12:52
 #include "strmprov.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "settings.h"
+
+static const char* sKeyModeler2Use = "dTect.Stratigraphic Modeler to use";
 
 
 class uiStratLayerModelLauncher : public CallBacker
@@ -51,16 +55,28 @@ void theCB( CallBacker* cb )
 
     mDynamicCastGet(uiToolButton*,tb,cb)
     if ( !tb ) return;
+
     uiParent* par = tb->parent();
     const char* nm = nms.get(0).buf();
-    if ( nms.size() > 1 )
+    const char* settres = Settings::common().find(sKeyModeler2Use);
+    if ( settres && nms.isPresent(settres) )
+	nm = settres;
+    else if ( nms.size() > 1 )
     {
-	uiSelectFromList ls( par,
+	uiSelectFromList dlg( par,
 		uiSelectFromList::Setup("Select modeling type",nms) );
-	ls.go();
-	const int sel = ls.selection();
+	uiCheckBox* alwusebut = new uiCheckBox( &dlg,
+					"Always use this modeling type");
+	alwusebut->attach( centeredBelow, dlg.selFld() );
+	if ( !dlg.go() ) return;
+	const int sel = dlg.selection();
 	if ( sel < 0 ) return;
 	nm = nms.get(sel).buf();
+	if ( alwusebut->isChecked() )
+	{
+	    Settings::common().set( sKeyModeler2Use, nm );
+	    Settings::common().write();
+	}
     }
 
     uiStratLayerModel dlg( par, nm );
