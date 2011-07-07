@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- static const char* rcsID = "$Id $";
+ RCS:		$Id: od_stratamp.cc,v 1.2 2011-07-07 12:16:30 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
     sdsel.rg = hs;
     strm << "Laoding " << em.objectName( mid ) << std::endl;
     Executor* exec = em.objectLoader( mid, &sdsel );
-    if ( !exec || !exec->execute( &strm, false, false, 0 ) )
+    if ( !(exec && exec->execute(&strm, false, false, 0) ) )
 	return 0;
 
     EM::ObjectID emid = em.getObjectID( mid );
@@ -68,15 +68,6 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
     emobj->ref();
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     return horizon;
-}
-
-
-static bool saveAttribute( const EM::Horizon3D* hor, const int attribidx,
-			   const bool overwrite, std::ostream& strm )
-{
-    PtrMan<Executor> datasaver =
-			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    return datasaver ? datasaver->execute( &strm, false, false, 0 ) : false;
 }
 
 
