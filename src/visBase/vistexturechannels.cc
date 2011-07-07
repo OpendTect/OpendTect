@@ -8,12 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.36 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.37 2011-07-07 05:09:25 cvsranojay Exp $";
 
 #include "vistexturechannels.h"
 
 #include "vistexturechannel2rgba.h"
 #include "SoTextureChannelSet.h"
+#include "SoTextureComposer.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "coltabmapper.h"
 
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: vistexturechannels.cc,v 1.36 2011-04-28 07:00:1
 
 
 mCreateFactoryEntry( visBase::TextureChannels );
+mCreateFactoryEntry( visBase::TextureComposer );
 
 
 namespace visBase
@@ -735,5 +737,37 @@ void TextureChannels::touchMappedData()
     tc_->touch();
 }
 
+
+// Texture Composer
+
+TextureComposer::TextureComposer()
+    : texturecomposer_(new SoTextureComposer())
+{
+    texturecomposer_->ref();
+}
+
+
+TextureComposer::~TextureComposer()
+{
+    texturecomposer_->unref();
+}
+
+
+SoNode* TextureComposer::gtInvntrNode()
+{
+    return texturecomposer_;
+}
+
+
+void TextureComposer::setOrigin( int val1, int val2, int val3 )
+{
+    texturecomposer_->origin.setValue( val1, val2, val3 );
+}
+
+
+void TextureComposer::setSize( int xsz, int ysz, int zsz )
+{
+    texturecomposer_->size.setValue( xsz, ysz, zsz );
+}
 
 }; // namespace visBase

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.18 2011-07-07 05:09:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 
 class SoSwitch;
+class SoTextureComposer;
 class SbImagei32;
 class TaskRunner;
 
@@ -92,6 +93,22 @@ protected:
 
 };
 
+
+
+mClass TextureComposer : public DataObject
+{
+public:
+
+    static TextureComposer*	create() 
+				mCreateDataObj(TextureComposer);
+    void			setOrigin(int,int,int);
+    void			setSize(int,int,int);
+protected:
+				~TextureComposer();
+    virtual SoNode*		gtInvntrNode();
+
+    SoTextureComposer*		texturecomposer_;
+};
 
 }; // Namespace
 
