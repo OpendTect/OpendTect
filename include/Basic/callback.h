@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.45 2010-12-01 03:26:59 cvsnanne Exp $
+ RCS:		$Id: callback.h,v 1.46 2011-07-07 21:45:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,7 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 
 typedef void (*StaticCallBackFunction)(CallBacker*);
 /*!> Macro casting a to StaticCallBacker::function */
-#define mSCBFn(clss,fn) ((StaticCallBackFunction)(&clss::fn))
-#define mSCB(clss,fn) CallBack( mSCBFn(clss,fn))
+#define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
 
 /*!\brief CallBacks object-oriented.
 
@@ -127,7 +126,7 @@ inline void CallBackSet::doCall( CallBacker* obj,
 	if ( indexOf(cb)==-1 )
 	    continue;
 
-	if ( cb.cbObj() != exclude )
+	if ( !exclude || cb.cbObj()!=exclude )
 	    cb.doCall( obj );
     }
 }
