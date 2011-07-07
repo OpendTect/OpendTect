@@ -8,59 +8,47 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.16 2010-04-13 08:31:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.17 2011-07-07 11:52:26 cvsnageswara Exp $";
 
 #include "uiisopachmaker.h"
 
+#include "datapointset.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "emsurfaceauxdata.h"
-#include "datapointset.h"
+#include "iopar.h"
+#include "isopachmaker.h"
+#include "multiid.h"
 #include "posvecdataset.h"
-#include "datacoldef.h"
 #include "survinfo.h"
 
-#include "uiioobjsel.h"
 #include "uigeninput.h"
-#include "uitaskrunner.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
-#include <math.h>
-
-
-uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
-	: uiDialog(p,Setup("Create isopach",mNoDlgTitle, "104.4.4"))
+uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
+        : uiGroup(p,"Create isopach")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
-	, baseemobj_(0)    				       
+	, baseemobj_(0)
 	, horid_(horid)
-	, basesel_(0)	       
-	, dps_(*new DataPointSet(false,true))
-	, saveattr_(false)
+	, basesel_(0)
 	, msecsfld_(0)
 {
-    BufferString title( "Create isopach" );
     baseemobj_ = EM::EMM().getObject( horid_ );
-
     if ( !baseemobj_ )
     {
 	basectio_.ctxt.forread = true;
 	basesel_ = new uiIOObjSel( this, basectio_, "Horizon" );
-	saveattr_ = true;
-    }
-    else
-    {
-	title += " for '";
-	title += getHorNm( horid );
-	title += "'";
     }
 
-    setTitleText( title.buf() );
     ctio_.ctxt.forread = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
-    horsel_->selectionDone.notify( mCB(this,uiIsopachMaker,toHorSel) );
+    horsel_->selectionDone.notify( mCB(this,uiIsopachMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
 	horsel_->setInput( MultiID("") );
@@ -77,210 +65,186 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
 				BoolInpSpec(true,"Milliseconds","Seconds") );
 	msecsfld_->attach( alignedBelow, attrnmfld_ );
     }
+
+    setHAlignObj( basesel_ ? basesel_ : horsel_ );
 }
 
 
-BufferString uiIsopachMaker::getHorNm( EM::ObjectID horid )
+BufferString uiIsopachMakerGrp::getHorNm( EM::ObjectID horid )
 {
     MultiID mid( EM::EMM().getMultiID( horid ) );
     return EM::EMM().objectName( mid );
 }
 
 
-uiIsopachMaker::~uiIsopachMaker()
+uiIsopachMakerGrp::~uiIsopachMakerGrp()
 {
     delete ctio_.ioobj; delete &ctio_;
     delete basectio_.ioobj; delete &basectio_;
-    delete &dps_;
 }
 
 
-void uiIsopachMaker::toHorSel( CallBacker* )
+void uiIsopachMakerGrp::toHorSel( CallBacker* )
 {
     if ( horsel_->ioobj(true) )
 	attrnmfld_->setText( BufferString("I: ",horsel_->ioobj()->name()) );
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
-bool uiIsopachMaker::acceptOK( CallBacker* )
+bool uiIsopachMakerGrp::chkInputFlds()
 {
+    if ( basesel_ && !basesel_->commitInput() )
+	return false;
+
     horsel_->commitInput();
     if ( !horsel_->ioobj() ) return false;
 
-    attrnm_ =  attrnmfld_->text();
-    if ( attrnm_.isEmpty() || attrnm_ == "<auto>" )
-	{ attrnm_ = "I: "; attrnm_ += horsel_->ioobj()->name(); }
-
-    return doWork();
-}
-
-
-class uiIsopachMakerCreater : public Executor
-{
-public:
-
-uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
-       		     const char* attrnm, DataPointSet& dps, int dataidx )
-    : Executor("Create isopach")
-    , hor1_(hor1)
-    , hor2_(hor2)
-    , msg_("Creating isopach")
-    , dataidx_(dataidx)
-    , dps_(dps)
-    , sectid1_(hor1.sectionID(0))
-    , sectid2_(hor2.sectionID(0))
-    , inmsec_(false)
-{
-    iter_ = hor1.createIterator( sectid1_ );
-    totnr_ = iter_->approximateSize();
-
-    const DataColDef sidcol( "Section ID" );
-    if ( dps_.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
-	dps_.dataSet().add( new DataColDef(sidcol) );
-    sidcolidx_ = dps_.dataSet().findColDef(
-	    sidcol, PosVecDataSet::NameExact ) - dps_.nrFixedCols();
-    dps_.dataSet().add( new DataColDef(attrnm) );
-    nrdone_ = 0;
-}
-
-~uiIsopachMakerCreater()
-{
-    delete iter_;
-}
-
-const char* message() const	{ return msg_.buf(); }
-const char* nrDoneText() const	{ return "Positions handled"; }
-od_int64 nrDone() const		{ return nrdone_; }
-od_int64 totalNr() const	{ return totnr_; }
-
-static const int sBlockSize = 1000;
-
-int nextStep()
-{
-    BinIDValueSet& bivs = dps_.bivSet();
-    mAllocVarLenArr( float, vals, bivs.nrVals() );
-    for ( int idx=0; idx<bivs.nrVals(); idx++ )
-	vals[idx] = mUdf(float);
-
-    const int nrfixedcols = dps_.nrFixedCols();
-    vals[sidcolidx_+nrfixedcols] = sectid1_;
-    const int startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
-
-    for ( int idx=0; idx<sBlockSize; idx++ )
+    BufferString attrnm =  attrnmfld_->text();
+    if ( attrnm.isEmpty() )
     {
-	const EM::PosID posid = iter_->next();
-	nrdone_++;
-	if ( posid.objectID() < 0 )
-	    return finishWork();
-	if ( posid.sectionID() != sectid1_ )
-	    continue;
-	const EM::SubID subid = posid.subID();
-	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
-	const float z1 = pos1.z;
-	const float z2 = hor2_.getPos( sectid2_, subid ).z;
-	if ( mIsUdf(z1) || mIsUdf(z2) )
-	{
-	    if ( dataidx_ != -1 )
-		hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
-	    continue;
-	}
-
-	float th = z1 > z2 ? z1 - z2 : z2 - z1;
-	if ( inmsec_ )
-	    th *= 1000;
-
-	if ( dataidx_ != -1 )
-	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
-
-	const DataPointSet::Pos dpspos( pos1 );
-	vals[0] = z1;
-	vals[startsourceidx] = th;
-	bivs.add( dpspos.binID(), vals );
+	uiMSG().message( "Please enter attrinute name" );
+	attrnm.add( "I: " ).add( horsel_->ioobj()->name() );
+	attrnmfld_->setText( attrnm );
+	return false;
     }
 
-    dps_.dataChanged();
-    return MoreToDo();
+    return true;
 }
 
-int finishWork()
+
+bool uiIsopachMakerGrp::fillPar( IOPar& par )
 {
-    dps_.dataChanged();
-    if ( dps_.isEmpty() )
-    {
-	msg_ = "No thickness values collected";
-	return ErrorOccurred();
-    }
-    return Finished();
+    par.set( IsopachMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
+	   					     : baseemobj_->multiID() );
+    par.set( IsopachMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
+    par.set( IsopachMaker::sKeyAttribName(), attrnmfld_->text() );
+    if ( msecsfld_ )
+	par.setYN( IsopachMaker::sKeyOutputInMilliSecYN(),
+		   msecsfld_->getBoolValue() );
+
+    return true;
 }
 
-    const EM::Horizon3D& hor1_;
-    const EM::Horizon3D& hor2_;
-    DataPointSet&	dps_;
-    EM::EMObjectIterator* iter_;
-    int			dataidx_;
-    int			sidcolidx_;
-    bool		inmsec_;
 
-    int			totnr_;
-    od_int64		nrdone_;
-    BufferString	msg_;
-    const EM::SectionID	sectid1_;
-    const EM::SectionID	sectid2_;
-};
+const char* uiIsopachMakerGrp::attrName() const
+{ return attrnmfld_->text(); }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiIsopachMaker::doWork()
+//uiIsopachMakerBatch
+uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
+    : uiFullBatchDialog( p,Setup("Create isopach").procprognm("od_isopach") )
 {
-    if ( !horsel_->ioobj() || (saveattr_ && !basesel_->ioobj()) )
+    grp_ = new uiIsopachMakerGrp( uppgrp_, -1 );
+    addStdFields();
+    uppgrp_->setHAlignObj( grp_ );
+}
+
+
+bool uiIsopachMakerBatch::prepareProcessing()
+{
+    if ( !grp_->chkInputFlds() )
 	return false;
 
-    uiTaskRunner tr( this );
-    if ( baseemobj_ )
-	baseemobj_->ref();
-    else
+    return true;
+}
+
+
+bool uiIsopachMakerBatch::fillPar( IOPar& par )
+{
+    if ( !grp_->fillPar( par ) )
+	return false;
+
+    MultiID mid;
+    par.get( IsopachMaker::sKeyHorizonID(), mid );
+    EM::IOObjInfo eminfo( mid );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+    BufferString attrnm;
+    par.get( IsopachMaker::sKeyAttribName(), attrnm );
+    isoverwrite_ = false;
+    if ( attrnms.isPresent( attrnm ) )
     {
-	baseemobj_ = EM::EMM().loadIfNotFullyLoaded( basesel_->ioobj()->key(),
-						     &tr );
-	baseemobj_->ref();
+	BufferString errmsg = "Attribute name ";
+	errmsg.add( attrnm ).add( " already exists, Overwrite?" );
+	if ( !uiMSG().askOverwrite(errmsg) )
+	    return false;
+
+	isoverwrite_ = true;
     }
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(
-					horsel_->ioobj()->key(), &tr );
+    par.setYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite_ );
+    return true;
+}
+
+
+//uiIsopachMakerDlg
+uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
+    : uiDialog(p,Setup("Create isopach",mNoDlgTitle, "104.4.4"))
+    , dps_( new DataPointSet(false,true) )
+{
+    grp_ = new uiIsopachMakerGrp( this, emid );
+    BufferString title( "Create isopach" );
+    title += " for '";
+    title += grp_->getHorNm( emid );
+    title += "'";
+    setTitleText( title.buf() );
+}
+
+
+uiIsopachMakerDlg::~uiIsopachMakerDlg()
+{
+    delete dps_;
+}
+
+
+bool uiIsopachMakerDlg::acceptOK( CallBacker* )
+{
+    if ( !grp_->chkInputFlds() )
+	return false;
+    
+    return doWork() ? true : false;
+}
+
+
+bool uiIsopachMakerDlg::doWork()
+{
+    IOPar par;
+    grp_->fillPar(par);
+    MultiID mid1, mid2;
+    par.get( IsopachMaker::sKeyHorizonID(), mid1 );
+    par.get( IsopachMaker::sKeyCalculateToHorID(), mid2 );
+    uiTaskRunner tr( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &tr );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
     h2->ref();
     
-    mDynamicCastGet(EM::Horizon3D*,h1,baseemobj_)
+    EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
+    EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
+    mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
 	{ h2->unRef(); mErrRet("Cannot find base horizon") }
 
-    int dataidx_ = -1;
+    h1->ref();
 
-    if ( saveattr_ )
+    int dataidx = -1;
+    BufferString attrnm;
+    if ( !par.get( IsopachMaker::sKeyAttribName(), attrnm ) )
+	return false;
+
+    dataidx = h1->auxdata.addAuxData( attrnm );
+    IsopachMaker ipmaker( *h1, *h2, attrnm, dps_, dataidx );
+    if ( SI().zIsTime() )
     {
-	if ( h1->auxdata.auxDataIndex( attrnm_ ) != -1 ) 
-	    mErrRet( "Attribute with this name for selected horizon "
-		     "already exits" )
-	else
-	    dataidx_ = h1->auxdata.addAuxData( attrnm_ );
+	bool isinmsec = false;
+	par.getYN( IsopachMaker::sKeyOutputInMilliSecYN(), isinmsec );
+	ipmaker.setUnits( isinmsec );
     }
 
-    uiIsopachMakerCreater mc( *h1, *h2, attrnm_, dps_, dataidx_ );
-    mc.inmsec_ = msecsfld_ ? msecsfld_->getBoolValue() : false;
-    bool rv = tr.execute( mc );
-   
-    if ( saveattr_ )
-    {
-	PtrMan<Executor> saver = h1->auxdata.auxDataSaver( dataidx_ );
-	if ( saver )
-	    rv = tr.execute( *saver );
-    }
-
+    bool rv = tr.execute( ipmaker );
     h1->unRef(); h2->unRef();
     return rv;
 }

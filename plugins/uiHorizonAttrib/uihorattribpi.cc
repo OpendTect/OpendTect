@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.25 2011-06-28 11:18:56 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.26 2011-07-07 11:52:26 cvsnageswara Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -150,7 +150,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
     if ( !parent ) return;
 
-    uiIsopachMaker dlg( appl_, hd->getObjectID() );
+    uiIsopachMakerDlg dlg( appl_, hd->getObjectID() );
     if ( !dlg.go() )
 	return;
 
@@ -169,7 +169,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
 
 void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
 {
-    uiIsopachMaker dlg( appl_, -1 );
+    uiIsopachMakerBatch dlg( appl_ );
     if ( !dlg.go() )
 	return;
 }
