@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.3 2011-07-06 04:33:34 cvsraman Exp $
+ RCS:		$Id: stratlaygen.h,v 1.4 2011-07-07 14:47:20 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -21,14 +21,21 @@ namespace Strat
 class RefTree;
 class LayerSequence;
 
-/*!\brief Description that can generate layers and add these to a sequence. */
+/*!\brief Description that can generate layers and add these to a sequence.
+ 
+  To be able to display this to users, youneed to be able to return a
+  non-varying thickness. This dispThickness() can be the maximum possible
+  (or if that is impossible, like 2 std devs), or an average/typical/center
+  value.
+ 
+ */
 
 mClass LayerGenerator
 {
 public:	
 
     virtual const char*	name() const				= 0;
-    virtual float	dispThickness(bool max=true) const	= 0;
+    virtual float	dispThickness(bool max=false) const	= 0;
 
     virtual bool	usePar(const IOPar&,const RefTree&);
     virtual void	fillPar(IOPar&) const;

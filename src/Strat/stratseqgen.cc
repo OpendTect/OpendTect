@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.25 2011-07-06 15:05:10 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.26 2011-07-07 14:47:20 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -95,11 +95,7 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
        					      Property::EvalOpts eo ) const
 {
     if ( seq.propertyRefs().isEmpty() )
-    {
-	PropertyRefSelection newprs;
-	updateUsedProps( newprs );
-	seq.setPropertyRefs( newprs );
-    }
+	updateUsedProps( seq.propertyRefs() );
     return genMaterial( seq, eo );
 }
 
@@ -285,7 +281,7 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
     const float th1 = props_.get(0).value( Property::EvalOpts(false,1) );
     if ( mIsUdf(th0) ) return th1; if ( mIsUdf(th1) ) return th0;
 
-    return max ? (th0 < th1 ? th1 : th0) : (th0 < th1 ? th0 : th1);
+    return max ? (th0 < th1 ? th1 : th0) : (th0 + th1) / 2;
 }
 
 
