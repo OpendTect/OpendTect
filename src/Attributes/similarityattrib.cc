@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.54 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.55 2011-07-07 14:17:13 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -25,6 +25,9 @@ static const char* rcsID = "$Id: similarityattrib.cc,v 1.54 2011-04-28 11:30:53 
 #define mExtensionRot90		1
 #define mExtensionRot180	2
 #define mExtensionCube		3
+#define mExtensionCross		4
+#define mExtensionAllDir	5
+#define mExtensionDiagonal	6
 
 namespace Attrib
 {
@@ -58,7 +61,10 @@ void Similarity::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
-    extension->setDefaultValue( mExtensionRot90 );
+    extension->addEnum( extensionTypeStr(mExtensionCross) );
+    extension->addEnum( extensionTypeStr(mExtensionAllDir) );
+    extension->addEnum( extensionTypeStr(mExtensionDiagonal) );
+    extension->setDefaultValue( mExtensionCross );
     desc->addParam( extension );
 
     BoolParam* steering = new BoolParam( steeringStr() );
@@ -93,21 +99,24 @@ void Similarity::initClass()
 void Similarity::updateDesc( Desc& desc )
 {
     BufferString extstr = desc.getValParam(extensionStr())->getStringValue();
-    const bool iscube = extstr == extensionTypeStr( mExtensionCube );
+    const bool usestep = extstr == extensionTypeStr( mExtensionCube )
+			|| extstr == extensionTypeStr( mExtensionCross )
+			|| extstr == extensionTypeStr( mExtensionAllDir )
+			|| extstr == extensionTypeStr( mExtensionDiagonal );
     const bool dosteer = desc.getValParam(steeringStr())->getBoolValue();
 
     desc.setParamEnabled( browsedipStr(), !dosteer );
     const bool dobrowsedip = !dosteer &&
 			     desc.getValParam(browsedipStr())->getBoolValue();
-    desc.setParamEnabled( pos0Str(), !iscube );
-    desc.setParamEnabled( pos1Str(), !iscube );
-    desc.setParamEnabled( stepoutStr(), iscube );
+    desc.setParamEnabled( pos0Str(), !usestep );
+    desc.setParamEnabled( pos1Str(), !usestep );
+    desc.setParamEnabled( stepoutStr(), usestep );
     desc.setParamEnabled( maxdipStr(), dobrowsedip );
     desc.setParamEnabled( ddipStr(), dobrowsedip );
 
     desc.inputSpec(1).enabled_ = dosteer;
     
-    if ( dobrowsedip )
+    if ( dobrowsedip ) 
 	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 6 : 7 );
 }
 
@@ -128,7 +137,10 @@ const char* Similarity::extensionTypeStr( int type )
     if ( type==mExtensionNone ) return "None";
     if ( type==mExtensionRot90 ) return "90";
     if ( type==mExtensionRot180 ) return "180";
-    return "Cube";
+    if ( type==mExtensionCube ) return "Cube";
+    if ( type==mExtensionCross ) return "Cross";
+    if ( type==mExtensionAllDir ) return "AllDir";
+    return "Diagonal";
 }
 
 
@@ -158,7 +170,7 @@ Similarity::Similarity( Desc& desc )
 	ddip_ = ddip_/dipFactor();
     }
 
-    if ( extension_==mExtensionCube )
+    if ( extension_>=mExtensionCube )
 	mGetBinID( stepout_, stepoutStr() )
     else
     {
@@ -192,6 +204,7 @@ Similarity::Similarity( Desc& desc )
 
 bool Similarity::getTrcPos()
 {
+    const bool is2d = desc_.is2D();
     trcpos_.erase();
     if ( extension_==mExtensionCube )
     {
@@ -207,6 +220,40 @@ bool Similarity::getTrcPos()
 		pos0s_ += idx;
 		pos1s_ += idy;
 	    }
+	}
+    }
+    else if ( extension_==mExtensionCross || extension_==mExtensionAllDir
+	      || extension_==mExtensionDiagonal )
+    {
+	trcpos_ += BinID(0,0);
+
+	if ( extension_==mExtensionCross )
+	{
+	    trcpos_ += BinID(0,stepout_.crl);
+	    if ( !is2d ) 
+		trcpos_ += BinID(stepout_.inl,0);
+
+	    trcpos_ += BinID(0,-stepout_.crl);
+	    if ( !is2d ) 
+		trcpos_ += BinID(-stepout_.inl,0);
+	}
+	else if ( extension_==mExtensionAllDir )
+	{
+	    trcpos_ += BinID(-stepout_.inl,stepout_.crl);
+	    trcpos_ += BinID(0,stepout_.crl);
+	    trcpos_ += BinID(stepout_.inl,stepout_.crl);
+	    trcpos_ += BinID(stepout_.inl,0);
+	    trcpos_ += BinID(stepout_.inl,-stepout_.crl);
+	    trcpos_ += BinID(0,-stepout_.crl);
+	    trcpos_ += BinID(-stepout_.inl,-stepout_.crl);
+	    trcpos_ += BinID(-stepout_.inl,0);
+	}
+	else
+	{
+	    trcpos_ += BinID(-stepout_.inl,stepout_.crl);
+	    trcpos_ += BinID(stepout_.inl,stepout_.crl);
+	    trcpos_ += BinID(stepout_.inl,-stepout_.crl);
+	    trcpos_ += BinID(-stepout_.inl,-stepout_.crl);
 	}
     }
     else
@@ -284,8 +331,17 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     int nrpairs;
     const bool iscubeext = extension_==mExtensionCube;
+    const bool isalldirext = extension_==mExtensionAllDir;
+    const bool isperpendicularext = extension_==mExtensionCross
+				|| extension_==mExtensionDiagonal;
+    const bool iscenteredext = isalldirext || isperpendicularext;
+
     if ( iscubeext )
 	nrpairs = pos0s_.size();
+    else if ( isalldirext )
+	nrpairs = 8;
+    else if ( isperpendicularext )
+	nrpairs = desc_.is2D() ? 2 : 4;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -307,11 +363,14 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     {
 	stats.clear();
 	float inldip = 0;
+	float crldip = 0;
 	float dipatmax = 0;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    const int idx0 = iscubeext ? pos0s_[pair] : pair*2;
-	    const int idx1 = iscubeext ? pos1s_[pair] : pair*2 +1;
+	    const int idx0 = iscubeext ? pos0s_[pair]
+				       : iscenteredext ? 0 : pair*2;
+	    const int idx1 = iscubeext ? pos1s_[pair]
+				       : iscenteredext ? pair+1 : pair*2 +1;
 
 	    float bases0 = firstsample + idx + samplegate.start;
 	    float bases1 = bases0;
@@ -391,9 +450,13 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    stats += maxsimi;
 	    }
 
-	    //TODO: inldip and crldip non-sense if coh pattern not preserved
-	    if ( dobrowsedip_ && !pair )
-		inldip = dipatmax;
+	    if ( dobrowsedip_ )
+	    { 
+		if ( !pair || pair==2 || desc_.is2D() )
+		    crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
+		else
+		    inldip = pair==1 ? (inldip + dipatmax)/2 : dipatmax;
+	    }
 	}
 
 	if ( stats.size() < 1 )
@@ -417,10 +480,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		if ( outputinterest_[5] )
 		    setOutputValue( output, 5, idx, z0,
-				    desc_.is2D() ? dipatmax*dipFactor()
+				    desc_.is2D() ? crldip*dipFactor()
 						 : inldip*dipFactor() );
 		if ( !desc_.is2D() && outputinterest_[6] )
-		    setOutputValue( output, 6, idx, z0, dipatmax*dipFactor() );
+		    setOutputValue( output, 6, idx, z0, crldip*dipFactor() );
 	    }
 	}
     }

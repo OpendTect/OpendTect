@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.34 2011-05-11 02:44:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.35 2011-07-07 14:17:13 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -29,6 +29,9 @@ static const char* extstrs3d[] =
 	"Mirror 90 degrees",
 	"Mirror 180 degrees",
 	"Full block",
+	"Cross",
+	"All Directions",
+	"Diagonal",
 	0
 };
 
@@ -37,6 +40,7 @@ static const char* extstrs2d[] =
 	"None",
 	"Mirror 180 degrees",
 	"Full block",
+	"All Directions",		//TODO get good name from users
 	0
 };
 
@@ -140,10 +144,19 @@ void uiSimilarityAttrib::extSel( CallBacker* )
     const char* ext = extfld_->text();
     
     const bool iscube = !strcmp(ext,extstrs3d[3]);
-    pos0fld_->display( !iscube );
-    pos1fld_->display( !iscube );
-    stepoutfld_->display( iscube );
+    const bool iscross = !strcmp(ext,extstrs3d[4]);
+    const bool isalldir = !strcmp(ext,extstrs3d[5]);
+    const bool isdiag = !strcmp(ext,extstrs3d[6]);
+    const bool needstepoutfld = iscube || iscross || isalldir || isdiag;
+    pos0fld_->display( !needstepoutfld);
+    pos1fld_->display( !needstepoutfld );
+    stepoutfld_->display( needstepoutfld );
     outpstatsfld_->display( strcmp(ext,extstrs3d[0]) );
+    if ( !iscross )
+    {
+	dooutpstatsfld_->setValue( true );
+	outSel(0);
+    }
 
     BufferString cursel = outpstatsfld_->text();
     StringListInpSpec spec( !strcmp(ext,extstrs3d[3]) ? outpstrsext : outpstrs);
@@ -158,6 +171,8 @@ void uiSimilarityAttrib::outSel(CallBacker*)
     const bool outstats = !wantbrowsedip || dooutpstatsfld_->getBoolValue();
     outpdipfld_->display( !outstats );
     outpstatsfld_->display( outstats );
+    if ( wantbrowsedip && !outstats )
+	extfld_->setText(extstrs3d[4]);
 }
 
 
@@ -226,7 +241,8 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     const char* ext = extfld_->text();
-    if ( !strcmp(ext,extstrs3d[3]) )
+    if ( !strcmp(ext,extstrs3d[3]) || !strcmp(ext,extstrs3d[4]) 
+	 || !strcmp(ext,extstrs3d[5]) || !strcmp(ext,extstrs3d[6]) )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld_->getBinID() ); }
     else
     {
@@ -288,7 +304,10 @@ void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Similarity::gateStr() );
 
-    if (   !strcmp(extstrs3d[3],extfld_->text()) )
+    if ( !strcmp(extstrs3d[3],extfld_->text())
+	    || !strcmp(extstrs3d[4],extfld_->text())
+	    || !strcmp(extstrs3d[5],extfld_->text())
+	    || !strcmp(extstrs3d[6],extfld_->text()) )
 	params += EvalParam( stepoutstr(), Similarity::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Similarity::pos0Str(),
@@ -302,6 +321,7 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
     maxdipfld_->display( wantbdip );
     deltadipfld_->display( wantbdip );
     dooutpstatsfld_->display( wantbdip );
+
     outSel(0);
 }
 
