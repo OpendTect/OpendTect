@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: seis2dto3d.cc,v 1.5 2011-07-07 10:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: seis2dto3d.cc,v 1.6 2011-07-08 13:03:43 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -208,8 +208,8 @@ int Seis2DTo3D::nextStep()
     if ( !trcs.isEmpty() && !interpol_.execute() )
 	{ errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
 
-    Interval<int> wininlrg( inl-inlstep_/2, inlstep_/2);
-    Interval<int> wincrlrg( crl-crlstep_/2, crlstep_/2);
+    Interval<int> wininlrg( inl-inlstep_/2, inl+inlstep_/2);
+    Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
     HorSampling winhrg; winhrg.set( wininlrg, wincrlrg );
@@ -306,7 +306,7 @@ SeisInterpol::~SeisInterpol()
 void SeisInterpol::clear()
 {
     errmsg_.setEmpty();
-    nriter_ = 120;
+    nriter_ = 10;
     totnr_ = -1; 
     nrdone_ = 0;
     szx_ = szy_ = szz_ = 0;
@@ -355,7 +355,7 @@ void SeisInterpol::doPrepare()
 }
 
 
-#define mDefThreshold ( (float)(nriter_-nrdone_-10)/ (float)nriter_ )
+#define mDefThreshold ( (float)(nriter_-nrdone_-1)/ (float)nriter_ )
 #define mDoTransform(tf,isstraight,arr) \
 {\
     tf->setInputInfo( arr->info() );\
@@ -406,7 +406,7 @@ int SeisInterpol::nextStep()
 		xfac = yfac = zfac = 0;\
 		if ( idz < poscutfreq || idz > szz_-poscutfreq )\
 		    zfac = 1;\
-		float dipangle; float revdipangle = 0;\
+		float dipangle; float revdipangle;\
 		dipangle = revdipangle = 0;\
 		if ( idx < szx_/2 )\
 		{\
