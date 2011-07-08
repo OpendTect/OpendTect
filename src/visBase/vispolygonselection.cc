@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.14 2011-01-04 09:12:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.15 2011-07-08 14:20:10 cvshelene Exp $";
 
 #include "vispolygonselection.h"
 
@@ -121,13 +121,37 @@ bool PolygonSelection::isSelfIntersecting() const
     if ( !polygon_ )
     {
 	polygon_ = new ODPolygon<double>;
-	const SbList<SbVec2f> sopolygon = selector_->getPolygon();
+	const SbList<SbVec2f>& sopolygon = selector_->getPolygon();
 	for ( int idx=0; idx<sopolygon.getLength(); idx++ )
 	    polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
     }
 
     return polygon_->isSelfIntersecting();
 }
+
+/*
+void PolygonSelection::getSelectionRays( TypeSet<Line3D>& rays ) const
+{
+    rays.empty();
+
+    const SbList<SbVec2f>& sopolygon = selector_->getPolygon();
+    for ( int idx=0; idx<sopolygon.getLength(); idx++ )
+    {
+	SbLine sodisplayspaceline;
+	selector_->projectPointFromScreen( sopolygon[idx], sodisplayspaceline );
+	SbVec3f pos = sodisplayspaceline.getPosition();
+	SbVec3f dir = sodisplayspaceline.getDirection();
+
+	Line3D displayspaceline( pos[0], pos[1], pos[2],
+				 dir[0], dir[1], dir[2] );
+
+	if ( transformation_ )
+	    transformation_.transformBack( pos );
+
+	rays += displayspaceline;
+    }
+}
+*/
 
 
 bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
@@ -142,7 +166,7 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
     if ( !displayspace && transformation_ )
 	checkcoord3d = transformation_->transform( checkcoord3d );
 
-    const SbVec2f coord2d = selector_->projectPoint(
+    const SbVec2f coord2d = selector_->projectPointToScreen(
 	    SbVec3f(checkcoord3d.x,checkcoord3d.y,checkcoord3d.z ) );
 
     const Coord checkcoord2d( coord2d[0], coord2d[1] );
@@ -201,7 +225,7 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     int nrundefs = 0;
     for ( int idx=0; idx<8; idx++ )
     {
-	const SbVec2f pt = selector_->projectPoint(
+	const SbVec2f pt = selector_->projectPointToScreen(
 	    SbVec3f(coords[idx].x,coords[idx].y,coords[idx].z ) );
 
 	const Coord vertex( pt[0], pt[1] );

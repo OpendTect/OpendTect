@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.9 2011-01-11 14:26:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.10 2011-07-08 14:20:10 cvshelene Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -64,7 +64,7 @@ SoPolygonSelect::~SoPolygonSelect()
 }
 
 
-SbVec2f SoPolygonSelect::projectPoint( const SbVec3f& pt ) const
+SbVec2f SoPolygonSelect::projectPointToScreen( const SbVec3f& pt ) const
 {
     SbVec3f modelpt;
     modelmatrix_.multMatrixVec( pt, modelpt );
@@ -76,6 +76,19 @@ SbVec2f SoPolygonSelect::projectPoint( const SbVec3f& pt ) const
 	return SbVec2f( 1e30, 1e30 ); // Undefined
 
     return SbVec2f( res[0], res[1] );
+}
+
+
+bool SoPolygonSelect::projectPointFromScreen( const SbVec2f& pt,
+       					      SbLine& line ) const
+{
+    SbLine modelline;
+    vv_.projectPointToLine( pt, modelline );
+
+    const SbMatrix inversemodelmatrix = modelmatrix_.inverse();
+    inversemodelmatrix.multLineMatrix( modelline, line );
+
+    return true;
 }
 
 
@@ -469,7 +482,7 @@ const SoPath* SoPolygonSelect::rayPickThrough( const SbVec3f& displaypos,
     else
 	raypickaction_ = new SoRayPickAction( svpr );
 
-    SbVec2f screenpos = projectPoint( displaypos );
+    SbVec2f screenpos = projectPointToScreen( displaypos );
     raypickaction_->setNormalizedPoint( screenpos );
     raypickaction_->setRadius( 1 );
     raypickaction_->setPickAll( depthidx>0 );

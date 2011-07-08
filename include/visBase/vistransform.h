@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.20 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vistransform.h,v 1.21 2011-07-08 14:20:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,9 @@ public:
     Coord3		transformBack(  const Coord3& ) const;
     void		transform( SbVec3f& ) const;
     void		transformBack( SbVec3f& ) const;
+
+    Coord3		transformDir(const Coord3&) const;
+    Coord3		transformDirBack(const Coord3&) const;
 
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );

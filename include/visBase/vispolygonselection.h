@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.11 2011-01-04 09:12:07 cvsjaap Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.12 2011-07-08 14:20:10 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,8 @@ public:
     bool			rayPickThrough(const Coord3& worldpos,
 					       TypeSet<int>& pickedobjids,
 					       int depthidx=0) const;
+
+/*    void			getSelectionRays(TypeSet<Line3D>&) const;*/
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.7 2011-01-04 09:12:07 cvsjaap Exp $
+ RCS:		$Id: SoPolygonSelect.h,v 1.8 2011-07-08 14:20:09 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,9 @@ public:
     SoSFEnum			mode;
 
     const SbList<SbVec2f>&	getPolygon() const	{ return polygon_; }
-    SbVec2f			projectPoint(const SbVec3f&) const;
+    SbVec2f			projectPointToScreen(const SbVec3f&) const;
+    bool			projectPointFromScreen(const SbVec2f&,
+						       SbLine&) const;
 
     SoCallbackList		paintStart;
     SoCallbackList		paintStop;

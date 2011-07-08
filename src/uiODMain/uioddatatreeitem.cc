@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.59 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.60 2011-07-08 14:20:10 cvshelene Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -396,10 +396,21 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiAmplSpectrum* asd = new uiAmplSpectrum(
+	const bool isselmodeon = visserv->isSelectionModeOn();
+
+	if ( !isselmodeon )
+	{
+	    uiAmplSpectrum* asd = new uiAmplSpectrum(
 					applMgr()->applService().parent() );
-	asd->setDeleteOnClose( true );
-	asd->setDataPackID( dpid, dmid ); asd->show();
+	    asd->setDeleteOnClose( true );
+	    asd->setDataPackID( dpid, dmid );
+	    asd->show();
+	}
+	else
+	{
+
+	}
+	
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
