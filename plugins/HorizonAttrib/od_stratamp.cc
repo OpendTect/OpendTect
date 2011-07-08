@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- RCS:		$Id: od_stratamp.cc,v 1.2 2011-07-07 12:16:30 cvsnageswara Exp $
+ RCS:		$Id: od_stratamp.cc,v 1.3 2011-07-08 04:40:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ bool BatchProgram::go( std::ostream& strm )
     bool isoverwrite = false;
     pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite );
     if ( !exec.saveAttribute( addtotop ? tophor : bothor, attribidx,
-			      isoverwrite ) )
+			      isoverwrite, &strm ) )
     {
 	strm << "Failed to save attribute";
 	mUnRef();

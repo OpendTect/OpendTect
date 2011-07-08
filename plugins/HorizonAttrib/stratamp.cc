@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.12 2011-06-29 03:41:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.13 2011-07-08 04:40:01 cvsraman Exp $";
 
 #include "stratamp.h"
 
@@ -248,18 +248,18 @@ int StratAmpCalc::nextStep()
 
 
 bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
-				  bool overwrite )
+				  bool overwrite, std::ostream* strm )
 {
     PtrMan<Executor> datasaver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->execute()) )
+    if ( !(datasaver && datasaver->execute(strm)) )
 	return false;
 
     if ( outfold_ )
     {
-	datasaver = 0;
+	datasaver.erase();
 	datasaver = hor->auxdata.auxDataSaver( dataidxfold_, overwrite );
-	if ( !(datasaver && datasaver->execute()) )
+	if ( !(datasaver && datasaver->execute(strm)) )
 	    return false;
     }
 

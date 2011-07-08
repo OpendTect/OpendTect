@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		March 2008
- RCS:		$Id: stratamp.h,v 1.9 2011-06-29 03:41:20 cvsnageswara Exp $
+ RCS:		$Id: stratamp.h,v 1.10 2011-07-08 04:40:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
 
     int			init(const IOPar&);
-    bool		saveAttribute(const EM::Horizon3D*,const int attribidx,
-	    			      const bool overwrite);
+    bool		saveAttribute(const EM::Horizon3D*,int attribidx,
+	    			      bool overwrite, std::ostream* strm=0);
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();

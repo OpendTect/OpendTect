@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2011
- RCS:           $Id: isopachmaker.cc,v 1.1 2011-07-07 11:45:43 cvsnageswara Exp $
+ RCS:           $Id: isopachmaker.cc,v 1.2 2011-07-08 04:40:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ const char* IsopachMaker::sKeyIsOverWriteYN()
 
 IsopachMaker::IsopachMaker( const EM::Horizon3D& hor1,
 			    const EM::Horizon3D& hor2,
-			    const char* attrnm, DataPointSet* dps, int dataidx )
+			    const char* attrnm, int dataidx, DataPointSet* dps )
     : Executor("Create isopach")
     , hor1_(hor1)
     , hor2_(hor2)

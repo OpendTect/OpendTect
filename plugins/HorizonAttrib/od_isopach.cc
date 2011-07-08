@@ -89,7 +89,7 @@ bool BatchProgram::go( std::ostream& strm )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
     strm << "Calculating isopach ..." << std::endl;
-    IsopachMaker maker( *horizon1, *horizon2, attrnm, 0, dataidx );
+    IsopachMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
 	bool isinmsec = false;
