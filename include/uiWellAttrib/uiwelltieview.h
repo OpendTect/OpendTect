@@ -50,6 +50,7 @@ public:
     void        		drawUserPicks();
     void 			redrawViewer();
     void 			redrawViewerAnnots();
+
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }

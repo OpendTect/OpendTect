@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.55 2011-07-04 11:04:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.56 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -392,7 +392,7 @@ bool Server::computeAll()
 
 bool Server::computeSynthetics()
 {
-    if ( !dataplayer_->generateSynthetics() )
+    if ( !dataplayer_->generateSynthetics(false) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
     return true;
 }

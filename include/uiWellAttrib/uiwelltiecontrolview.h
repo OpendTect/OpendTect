@@ -40,6 +40,7 @@ public:
     void		fillPar(IOPar& iop) const; 
 
     Notifier<uiControlView> redrawNeeded;
+    Notifier<uiControlView> redrawAnnotNeeded;
     
 protected:
     

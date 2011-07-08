@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.89 2011-06-21 12:31:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.90 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
+#include "uiwelltiecontrolview.h"
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -93,6 +94,11 @@ void uiTieView::redrawViewer()
 {
     drawTraces();
     redrawViewerAnnots();
+
+    vwr_->handleChange( FlatView::Viewer::All );
+    mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
+    if ( ctrl )
+	ctrl->setSelView( false, false );
     zoomChg(0);
 }
 
@@ -210,18 +216,16 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
 
 void uiTieView::setDataPack() 
 {
-    if ( !seisdp_ )
-    {
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
-				    SeisTrcInfo::TrcNr, "Seismic" );
-	dp->trcBufArr2D().setBufMine( false );
-	StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
-	dp->posData().setRange( true, xrange );
-	dp->setName( data_.seismic() );
-	DPM(DataPackMgr::FlatID()).add( dp );
-	vwr_->setPack( true, dp->id(), false, false );
-	seisdp_ = dp;
-    }
+    vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
+				SeisTrcInfo::TrcNr, "Seismic" );
+    dp->trcBufArr2D().setBufMine( false );
+    StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
+    dp->posData().setRange( true, xrange );
+    dp->setName( data_.seismic() );
+    DPM(DataPackMgr::FlatID()).add( dp );
+    vwr_->setPack( true, dp->id(), false, false );
+    vwr_->setPack( false, dp->id(), false, false );
 }
 
 

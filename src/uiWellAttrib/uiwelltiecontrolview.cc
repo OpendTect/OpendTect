@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.35 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.36 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -54,6 +54,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     , curview_(uiWorldRect(0,0,0,0))
     , server_(server)
     , redrawNeeded(this)
+    , redrawAnnotNeeded(this)
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -108,7 +109,7 @@ bool uiControlView::handleUserClick()
 	const SeisTrc& trc = synth ? server_.data().synthtrc_ 
 				   : server_.data().seistrc_; 
 	server_.pickMgr().addPick( wp.y, synth, &trc );
-	redrawNeeded.trigger();
+	redrawAnnotNeeded.trigger();
 	return true;
     }
     return false;

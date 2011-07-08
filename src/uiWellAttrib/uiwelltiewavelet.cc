@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.44 2011-05-09 10:03:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.45 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -55,18 +55,17 @@ uiWaveletView::~uiWaveletView()
 }
 
 
-#define mSetNm(nm,w) if ( w ) { nm += "("; nm += w->name(); nm += ")"; }
 void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
    
     const Wavelet* initw = wvltset_[0];
-    BufferString initwnm( "Initial " ); 
+    BufferString initwnm( "Initial :" ); 
     BufferString estwnm( "Estimated" ); 
-    mSetNm( initwnm, initw ) 
+    initwnm += initw->name();
+
     uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : "); 
-    activewvltfld_ = new uiGenInput( this, "",
-			    BoolInpSpec(true, initwnm, estwnm)  );
+    activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
 	   		 mCB(this, uiWaveletView, activeWvltChanged) );
@@ -88,6 +87,12 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
     uiwvlts_[1]->setAsActive( !isinitactive );
     CBCapsule<bool> caps( isinitactive, this );
     activeWvltChged.trigger( &caps ); 
+}
+
+
+void uiWaveletView::setActiveWavelet( bool initial )
+{
+    activewvltfld_->setValue( initial );
 }
 
 

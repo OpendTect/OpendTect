@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.64 2011-07-01 13:47:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.65 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -156,15 +156,23 @@ bool DataPlayer::prepareSynthetics()
 }
 
 
-bool DataPlayer::generateSynthetics()
+bool DataPlayer::generateSynthetics( bool withtaskrunner )
 {
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
     gen_.reSet( false );
     gen_.setWavelet( &wvlt, OD::UsePtr );
 
-    if ( !data_.trunner_->execute( gen_ ) )
-	mErrRet( gen_.errMsg() )
+    if ( withtaskrunner )
+    {
+	if ( !data_.trunner_->execute( gen_ ) )
+	    mErrRet( gen_.errMsg() )
+    }
+    else
+    {
+	if ( !gen_.execute() )
+	    mErrRet( gen_.errMsg() )
+    }
 
     const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
     rm.getSampledRefs( reflvals_ );

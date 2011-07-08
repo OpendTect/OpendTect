@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.91 2011-06-20 13:18:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.92 2011-07-08 14:53:40 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -156,6 +156,12 @@ void uiTieWin::reDrawSeisViewer( CallBacker* )
 }
 
 
+void uiTieWin::reDrawSeisViewerAnnot( CallBacker* )
+{
+    drawer_->redrawViewerAnnots();
+}
+
+
 void uiTieWin::reDrawAll( CallBacker* )
 {
     drawer_->fullRedraw();
@@ -179,6 +185,8 @@ void uiTieWin::addControls()
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
     controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
+    controlview_->redrawAnnotNeeded.notify( 
+	    			mCB(this,uiTieWin,reDrawSeisViewerAnnot) );
 }
 
 
@@ -396,18 +404,16 @@ void uiTieWin::applyPushed( CallBacker* cb )
 void uiTieWin::clearPicks( CallBacker* cb )
 {
     server_.pickMgr().clearAllPicks();
-    drawer_->drawUserPicks();
     checkIfPick( cb );
-    reDrawSeisViewer(0);
+    reDrawSeisViewerAnnot(0);
 }
 
 
 void uiTieWin::clearLastPick( CallBacker* cb )
 {
     server_.pickMgr().clearLastPicks();
-    drawer_->drawUserPicks();
     checkIfPick( cb );
-    reDrawSeisViewer(0);
+    reDrawSeisViewerAnnot(0);
 }
 
 
@@ -425,8 +431,8 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
-    clearPicks( cb );
     doWork( cb );
+    clearPicks( cb );
 
     if ( infodlg_ )
 	infodlg_->propChanged(0);
@@ -502,6 +508,8 @@ void uiTieWin::dispInfoMsg( CallBacker* cb )
 static const char* sKeyInfoIsInitWvltActive = "Is init wavelet active";
 static const char* sKeyInfoSelBoxIndex = "Selected index";
 static const char* sKeyInfoSelZrange = "Selected Z Range";
+static const char* sKeyStartMrkrName = "Start Marker Name";
+static const char* sKeyStopMrkrName = "Stop Marker Name";
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
@@ -524,6 +532,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvlts += &data_.estimatedwvlt_;
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
+    wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
     estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
@@ -590,8 +599,14 @@ void uiInfoDlg::putToScreen()
 {
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
 						 : data_.estimatedwvlt_;
+    wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
     estwvltlengthfld_->setValue( wvlt.samplePositions().width()*1000 );
     zrangeflds_[selidx_]->setValue( zrg_ );
+    if ( !selidx_ )
+    {
+	zrangeflds_[0]->setText( startmrknm_.buf(), 0 );
+	zrangeflds_[0]->setText( stopmrknm_.buf(), 1 );
+    }
 }
 
 
@@ -622,6 +637,8 @@ void uiInfoDlg::fillPar( IOPar& par ) const
     par.setYN( sKeyInfoIsInitWvltActive, data_.isinitwvltactive_ );
     par.set( sKeyInfoSelBoxIndex, selidx_ );
     par.set( sKeyInfoSelZrange, zrg_ );
+    par.set( sKeyStartMrkrName, zrangeflds_[0]->text(0) );
+    par.set( sKeyStopMrkrName, zrangeflds_[0]->text(1) );
 }
 
 
@@ -631,8 +648,9 @@ void uiInfoDlg::usePar( const IOPar& par )
     par.getYN( sKeyInfoIsInitWvltActive, isinitwvltactive );
     par.get( sKeyInfoSelBoxIndex, selidx_ );
     par.get( sKeyInfoSelZrange, zrg_ );
+    par.get( sKeyStartMrkrName, startmrknm_ );
+    par.get( sKeyStopMrkrName, stopmrknm_ );
 
-    server_.setInitWvltActive( isinitwvltactive );
     putToScreen();
     propChanged(0);
 }
@@ -673,25 +691,22 @@ void uiInfoDlg::propChanged( CallBacker* )
 
 
 #define mLag 200
+#define mDelAndReturn() { delete [] seisarr;  delete [] syntharr; return; }
 void uiInfoDlg::computeData()
 {
-    const int trcsz = data_.seistrc_.size();
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
-						 : data_.estimatedwvlt_;
-    if ( !wvlt.sampleRate() ) return;
-    int nrsamps = (int)(zrg_.width()/wvlt.sampleRate());
-
-    while ( trcsz < nrsamps )
-	nrsamps /= 2;
+    zrg_.limitTo( data_.timeintv_ );
+    const float step = data_.timeintv_.step;
+    const int nrsamps = (int)( zrg_.width()/step );
 
     mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
     mDeclareAndTryAlloc( float*, corrarr, float[nrsamps] );
     mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
 
+#define mGetIdx data_.timeintv_.getIndex( zrg_.atIndex( idx, step ) ) 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data_.seistrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
-	seisarr[idx] = data_.synthtrc_.get( idx + ( trcsz-nrsamps )/2, 0 );
+	syntharr[idx] = data_.seistrc_.get( mGetIdx, 0 );
+	seisarr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
     }
     GeoCalculator gc;
     double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
@@ -704,21 +719,27 @@ void uiInfoDlg::computeData()
 	int wvltsz = estwvltsz_;
 	wvltsz += wvltsz%2 ? 0 : 1;
 	data_.estimatedwvlt_.reSize( wvltsz );
-	if ( trcsz < wvltsz )
-	    { uiMSG().error( "Seismic trace shorter than wavelet" ); return; }
+	if ( data_.timeintv_.nrSteps() < wvltsz )
+	{ 
+	    uiMSG().error( "Seismic trace shorter than wavelet" ); 
+	    mDelAndReturn()
+	}
 
 	const Well::Log* log = data_.logset_.getLog( data_.reflectivity() );
 	if ( !log )
-	    { uiMSG().error( "No reflectivity to estimate wavelet" ); return; }
+	{ 
+	    uiMSG().error( "No reflectivity to estimate wavelet" ); 
+	    mDelAndReturn(); 
+	}
 
 	mDeclareAndTryAlloc( float*, refarr, float[nrsamps] );
 	mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
 	mDeclareAndTryAlloc( float*, wvltshiftedarr, float[wvltsz] );
 
 	for ( int idx=0; idx<nrsamps; idx++ )
-	    refarr[idx] = log->valArr()[idx+(log->size()-nrsamps)/2];
+	    refarr[idx] = log->valArr()[mGetIdx];
 
-	gc.deconvolve( seisarr, refarr, wvltarr, wvltsz );
+	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
 	for ( int idx=0; idx<wvltsz; idx++ )
 	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
 
@@ -729,10 +750,9 @@ void uiInfoDlg::computeData()
 	memcpy( wvltshiftedarr, wvltvals.getData(), wvltsz*sizeof(float) );
 
 	server_.setEstimatedWvlt( wvltshiftedarr, wvltsz );
-
-	delete [] wvltarr; 	delete [] wvltshiftedarr;
+	delete [] wvltarr; 	delete [] wvltshiftedarr;\
     }
-    delete [] seisarr;  delete [] syntharr; 
+    mDelAndReturn()
 }
 
 

@@ -37,6 +37,7 @@ public:
 	    			~uiWaveletView();
 
     void 			redrawWavelets();
+    void			setActiveWavelet(bool initial);
 
     Notifier<uiWaveletView> 	activeWvltChged;
     void 			activeWvltChanged(CallBacker*);

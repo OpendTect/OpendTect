@@ -35,7 +35,7 @@ public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 
     bool 		computeAll();
-    bool		generateSynthetics();
+    bool		generateSynthetics(bool withtaskrunner = true);
 
     const char*		errMSG() const		{ return errmsg_.buf(); } 
    
