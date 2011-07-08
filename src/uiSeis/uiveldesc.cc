@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.57 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.58 2011-07-08 11:04:56 cvshelene Exp $";
 
 #include "uiveldesc.h"
 
@@ -286,6 +286,7 @@ void uiVelSel::editCB(CallBacker*)
     trg_ = dlg.getVelocityTopRange();
     brg_ = dlg.getVelocityBottomRange();
     velrgchanged.trigger();
+    selectionDone.trigger();
     
     updateEditButton();
 }
