@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.18 2011-06-29 03:41:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.19 2011-07-08 05:41:52 cvsnageswara Exp $";
 
 #include "uistratamp.h"
 
@@ -187,28 +187,24 @@ bool uiStratAmpCalc::prepareProcessing()
 {
     if ( !checkInpFlds() ) return false;
 
-    isoverwrite_ = isOverwrite();
-    return true;
-}
-
-
-bool uiStratAmpCalc::isOverwrite() const
-{
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
     EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj->key()
 	    			   : horctio2_.ioobj->key() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
-    bool overwrite = false;
+    isoverwrite_ = false;
     if ( attrnms.indexOf( attribnm ) >= 0 )
     {
 	BufferString errmsg = "Attribute name ";
 	errmsg.add( attribnm ).add( " already exists, Overwrite?" );
-	overwrite = uiMSG().askOverwrite(errmsg) ? true : false;
+	if ( !uiMSG().askOverwrite(errmsg) )
+	    return false;
+	else
+	    isoverwrite_ = true;
     }
 
-    return overwrite;
+    return true;
 }
 
 

@@ -5,7 +5,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.7 2011-06-29 03:41:20 cvsnageswara Exp $
+ * ID       : $Id: uistratamp.h,v 1.8 2011-07-08 05:41:52 cvsnageswara Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -36,7 +36,6 @@ protected:
     bool		checkInpFlds();
     bool		fillPar(IOPar& iop);
     void		setParFileName();
-    bool		isOverwrite() const;
 
     CtxtIOObj&		horctio1_;
     CtxtIOObj&		horctio2_;
