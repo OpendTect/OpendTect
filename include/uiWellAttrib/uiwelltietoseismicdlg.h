@@ -114,6 +114,7 @@ protected:
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
+    void			reDrawSeisViewerAnnot(CallBacker*);
     void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
@@ -143,8 +144,6 @@ public:
 
 protected:
    
-    BufferStringSet             markernames_;
-
     Server&			server_;
     ObjectSet<uiGenInput>	zrangeflds_;
     ObjectSet<uiLabel>		zlabelflds_;
@@ -153,9 +152,13 @@ protected:
     uiCrossCorrView*      	crosscorr_;
     uiWaveletView*     		wvltdraw_;
 
+    BufferStringSet             markernames_;
+
     Interval<float>		zrg_;
     int				estwvltsz_;
     int				selidx_;
+    BufferString		startmrknm_;
+    BufferString		stopmrknm_;
 
     const Data& 		data_;
 
