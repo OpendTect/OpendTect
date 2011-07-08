@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.17 2011-07-07 11:52:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.18 2011-07-08 04:38:11 cvsraman Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -236,7 +236,7 @@ bool uiIsopachMakerDlg::doWork()
 	return false;
 
     dataidx = h1->auxdata.addAuxData( attrnm );
-    IsopachMaker ipmaker( *h1, *h2, attrnm, dps_, dataidx );
+    IsopachMaker ipmaker( *h1, *h2, attrnm, dataidx, dps_);
     if ( SI().zIsTime() )
     {
 	bool isinmsec = false;
