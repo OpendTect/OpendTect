@@ -22,12 +22,13 @@ ________________________________________________________________________
 
 static bool loadHorizon( const MultiID& mid, std::ostream& strm )
 {
-    strm << "Loading horizon ... " << std::endl;
-    Executor* exec = EM::EMM().objectLoader( mid );
+    EM::EMManager& em = EM::EMM();
+    strm << "Loading horizon '" << em.objectName( mid ) << "'" << std::endl;
+    Executor* exec = em.objectLoader( mid );
     if ( !(exec && exec->execute( &strm, false, false, 0 )) )
     {
 	strm << "Failed to load horizon: ";
-	strm << EM::EMM().objectName( mid ).buf() << std::endl;
+	strm << em.objectName( mid ).buf() << std::endl;
 	return false;
     }
 
@@ -35,20 +36,11 @@ static bool loadHorizon( const MultiID& mid, std::ostream& strm )
 }
 
 
-static bool saveIsopach( const EM::Horizon3D* hor, const int attribidx,
-			 const bool overwrite )
-{
-    PtrMan<Executor> datasaver =
-			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    return datasaver ? datasaver->execute() : false;
-}
-
-
 bool BatchProgram::go( std::ostream& strm )
 {
     EarthModel::initStdClasses();
 
-    strm << "Loading Horizons" << std::endl;
+    strm << "Loading Horizons ..." << std::endl;
     MultiID mid1;
     pars().get( IsopachMaker::sKeyHorizonID(), mid1 );
     if ( !loadHorizon( mid1, strm ) )
@@ -62,7 +54,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
 
     MultiID mid2;
-    pars().get( IsopachMaker::sKeyHorizonID(), mid2 );
+    pars().get( IsopachMaker::sKeyCalculateToHorID(), mid2 );
     if ( !loadHorizon( mid2, strm ) )
 	return false;
 
@@ -108,14 +100,14 @@ bool BatchProgram::go( std::ostream& strm )
     strm << "Saving isopach ..." << std::endl;
     bool isoverwrite = false;
     pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
-    if ( !saveIsopach( horizon1, dataidx, isoverwrite ) )
+    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
-	strm << "Failed save attribute" << std::endl;
+	strm << "Failed save isopach" << std::endl;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isopach saved successfully" << std::endl;
+    strm << "Isopach '" << attrnm.buf() << "' saved successfully" << std::endl;
     horizon1->unRef(); horizon2->unRef();
     return true;
 }
