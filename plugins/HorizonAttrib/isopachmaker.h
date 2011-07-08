@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		July 2011
- RCS:		$Id: isopachmaker.h,v 1.2 2011-07-08 04:40:01 cvsraman Exp $
+ RCS:		$Id: isopachmaker.h,v 1.3 2011-07-08 11:35:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
     od_int64		totalNr() const		{ return totnr_; }
 
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
+    bool		saveAttribute(const EM::Horizon3D*,int attribidx,
+	    			      bool overwrite, std::ostream* strm=0);
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();

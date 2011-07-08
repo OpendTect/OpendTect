@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2011
- RCS:           $Id: isopachmaker.cc,v 1.2 2011-07-08 04:40:01 cvsraman Exp $
+ RCS:           $Id: isopachmaker.cc,v 1.3 2011-07-08 11:35:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
+#include "ptrman.h"
 
 static const int sBlockSize = 1000;
 
@@ -141,4 +142,16 @@ int IsopachMaker::finishWork()
     }
 
     return Finished();
+}
+
+
+bool IsopachMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
+				  bool overwrite, std::ostream* strm )
+{
+    PtrMan<Executor> datasaver =
+			hor->auxdata.auxDataSaver( attribidx, overwrite );
+    if ( !(datasaver && datasaver->execute(strm,false,false,0)) )
+	return false;
+
+    return true;
 }
