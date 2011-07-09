@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.18 2010-12-03 03:47:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.19 2011-07-09 23:58:14 cvskris Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -244,7 +244,7 @@ bool uiWindowGrabber::go()
 
     if ( execthr_ )
     {
-	execthr_->stop();
+	execthr_->waitForFinish();
 	delete execthr_;
     }
     execthr_ = new Threads::Thread( mCB(this,uiWindowGrabber,mkThread) );
@@ -257,7 +257,7 @@ uiWindowGrabber::~uiWindowGrabber()
 {
     if ( execthr_ )
     {
-	execthr_->stop();
+	execthr_->waitForFinish();
 	delete execthr_;
     }
 }

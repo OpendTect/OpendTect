@@ -4,8 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.12 2011-04-21 13:09:13 cvsbert Exp $";
-static const char* rcsPrStr = "$Revision: 1.12 $ $Date: 2011-04-21 13:09:13 $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.13 2011-07-09 23:58:14 cvskris Exp $";
+static const char* rcsPrStr = "$Revision: 1.13 $ $Date: 2011-07-09 23:58:14 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -64,7 +64,7 @@ Usage::Server::~Server()
 {
     delete const_cast<IOPar*>( &pars_ );
     if ( thread_ )
-	{ thread_->stop(); delete thread_; }
+	{ thread_->waitForFinish(); delete thread_; }
 }
 
 
