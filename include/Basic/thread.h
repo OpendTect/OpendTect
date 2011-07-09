@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.43 2010-02-24 10:40:38 cvsnanne Exp $
+ RCS:		$Id: thread.h,v 1.44 2011-07-09 23:55:39 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -258,9 +258,11 @@ public:
 
     static void*		currentThread();
 
-    void			stop();
+    void			waitForFinish();
     				/*!< Stop the thread with this function.
 				    Will wait for the thread to return.  */
+    void			stop() { waitForFinish(); }
+    				//!<Legacy, use waitForFinish instead
 
 protected:
 

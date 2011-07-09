@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.36 2011-03-20 04:14:52 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.37 2011-07-09 23:55:39 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -38,7 +38,7 @@ public:
 
     			//Interface from manager
     void		assignTask(const ::Threads::Work&,
-	    			   CallBack* finishedcb, int queueid );
+	    			   const CallBack& finishedcb, int queueid );
 
     bool		getRetVal() const 	{ return retval_; }
     			/*!< Do only call when task is finished,
@@ -65,7 +65,7 @@ protected:
     bool		exitflag_;	//Set only from destructor
     bool		cancelflag_;	//Cancel current work and continue
     ::Threads::Work	task_;		
-    CallBack*		finishedcb_;
+    CallBack		finishedcb_;
     int			queueid_;
 
     Thread*		thread_;
@@ -106,7 +106,7 @@ Threads::WorkThread::~WorkThread()
 	controlcond_.signal(false);
 	controlcond_.unLock();
 
-	thread_->stop();
+	thread_->waitForFinish();
 	delete thread_;
 	thread_ = 0;
     }
@@ -147,7 +147,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    controlcond_.lock();
 	    retval_ = retval;
 
-	    if ( finishedcb_ ) finishedcb_->doCall( this );
+	    finishedcb_.doCall( this );
 	    manager_.workloadcond_.lock();
 	    bool isidle = false;
 
@@ -158,14 +158,15 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    if ( idx==-1 )
 	    {
 		queueid_ = -1;
-		finishedcb_ = 0;
+		finishedcb_ = CallBack(0,0);
 		isidle = true;
 	    }
 	    else
 	    {
 		task_ = manager_.workload_[idx];
 		manager_.workload_.remove( idx );
-		finishedcb_ = manager_.callbacks_.remove( idx );
+		finishedcb_ = manager_.callbacks_[idx];
+		manager_.callbacks_.remove( idx );
 		queueid_ = manager_.workqueueid_[idx];
 		manager_.workqueueid_.remove( idx );
 	    }
@@ -195,14 +196,14 @@ void Threads::WorkThread::exitWork(CallBacker*)
     controlcond_.signal( false );
     controlcond_.unLock();
 
-    thread_->stop();
+    thread_->waitForFinish();
     delete thread_;
     thread_ = 0;
 }
 
 
 void Threads::WorkThread::assignTask(const ::Threads::Work& newtask,
-				     CallBack* cb, int queueid )
+				     const CallBack& cb, int queueid )
 {
     controlcond_.lock();
     if ( task_.isOK() )
@@ -229,8 +230,6 @@ Threads::WorkManager::WorkManager( int nrthreads )
     , isidle( this )
     , freeid_( cDefaultQueueID() )
 {
-    callbacks_.allowNull(true);
-
     addQueue( MultiThread );
 
     if ( nrthreads == -1 )
@@ -286,7 +285,7 @@ void Threads::WorkManager::executeQueue( int queueid )
     while ( true )
     {
 	::Threads::Work task;
-	CallBack* cb = 0;
+	CallBack cb(0,0);
 	bool manage = false;
 	for ( int idx=0; idx<workload_.size(); idx++ )
 	{
@@ -295,7 +294,8 @@ void Threads::WorkManager::executeQueue( int queueid )
 		task = workload_[idx];
 		workload_.remove( idx );
 
-		cb = callbacks_.remove( idx );
+		cb = callbacks_[idx];
+		callbacks_.remove( idx );
 		workqueueid_.remove( idx );
 		break;
 	    }
@@ -308,7 +308,7 @@ void Threads::WorkManager::executeQueue( int queueid )
 	lock.unLock();
 
 	task.doRun();
-	if ( cb ) cb->doCall( 0 );
+	cb.doCall( 0 );
 
 	lock.lock();
 	queueidx = queueids_.indexOf( queueid );
@@ -411,6 +411,8 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	}
     }
 
+    const CallBack thecb( cb ? *cb : CallBack(0,0) );
+
     Threads::MutexLocker lock(workloadcond_);
     int const queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 || queueisclosing_[queueidx] )
@@ -429,7 +431,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	    const int threadidx = nrfreethreads-1;
 	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
 	    queueworkload_[queueidx]++;
-	    thread->assignTask( newtask, cb, queueid );
+	    thread->assignTask( newtask, thecb, queueid );
 	    return;
 	}
     }
@@ -438,13 +440,13 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
     {
 	workqueueid_.insert( 0, queueid );
 	workload_.insert( 0, newtask );
-	callbacks_.insertAt( cb, 0 );
+	callbacks_.insert( 0, thecb );
     }
     else
     {
 	workqueueid_ += queueid;
 	workload_ += newtask;
-	callbacks_ += cb;
+	callbacks_ += thecb;
     }
 }
 
