@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.8 2010-09-02 10:10:03 cvsnanne Exp $
+ RCS:		$Id: multidimstorage.h,v 1.9 2011-07-09 23:59:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
     				//!<\returns the size in highest dimension.
     MultiDimStorage<T>*		operator[](int);
     				//!<\returns zero if nrdims==1
+    const MultiDimStorage<T>*	operator[](int) const;
+    				//!<\returns zero if nrdims==1
     int				indexOf(int pos) const;
     				//!<\returns index in highest dimension
     int				getPos(int idx) const;
@@ -69,6 +71,7 @@ public:
     					/*!<Adds values to stucture. */
     template <class V, class POS> bool	add(const V& vals,const POS& pos);
     					/*!<Adds values to stucture. */
+    bool				append(const MultiDimStorage<T>&);
     template <class IDX> void		remove(const IDX& index);
     void				empty();
     					/*!<removes everything. */
@@ -180,6 +183,54 @@ void MultiDimStorage<T>::empty()
 
 
 template <class T> inline
+bool MultiDimStorage<T>::append( const MultiDimStorage<T>& b )
+{
+    if ( b.nrdims_!=nrdims_ ||
+	 b.nrvals_!=nrvals_ )
+	return false;
+
+    for ( int idx=b.size()-1; idx>=0; idx++ )
+    {
+	const int pos = b.getPos( idx );
+	const int targetidx = indexOf( pos );
+	int index = findFirstPos( pos );
+
+	const bool match = index>=0 && index<positions_.size() &&
+			   positions_[index]==pos;
+	if ( nrdims_!=1 )
+	{
+	    if ( !match )
+	    {	
+		MultiDimStorage<T>* newstorage =
+				new MultiDimStorage<T>( *b[idx] );
+		if ( index==lowerdimstorage_.size() )
+		{
+		    lowerdimstorage_ += newstorage;
+		    positions_ += pos;
+		}
+		else
+		{
+		    lowerdimstorage_.insertAt( newstorage, index );
+		    positions_.insert( index, pos );
+		}
+	    }
+	    else
+	    {
+		if ( lowerdimstorage_[index]->append( *b[idx] ) )
+		    return false;
+	    }
+	}
+	else
+	{
+	    add( &b.onedimstorage_[idx], &pos );
+	}
+    }
+
+    return true;
+}
+
+
+template <class T> inline
 bool MultiDimStorage<T>::allowsDuplicates() const
 { return allowduplicates_; }
 	
@@ -236,6 +287,14 @@ int MultiDimStorage<T>::size() const
 
 template <class T> inline
 MultiDimStorage<T>* MultiDimStorage<T>::operator[]( int idx )
+{
+    if ( nrdims_==1 ) return 0;
+    return lowerdimstorage_[idx];
+}
+
+
+template <class T> inline
+const MultiDimStorage<T>* MultiDimStorage<T>::operator[]( int idx ) const
 {
     if ( nrdims_==1 ) return 0;
     return lowerdimstorage_[idx];
