@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.30 2011-03-20 04:14:52 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.31 2011-07-09 23:56:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,7 +95,7 @@ protected:
     //Linked (one entry per que-entry)
     TypeSet<Work>		workload_;
     TypeSet<int>		workqueueid_;
-    ObjectSet<CallBack>		callbacks_;
+    TypeSet<CallBack>		callbacks_;
 
     ObjectSet<WorkThread>	threads_;
     ObjectSet<WorkThread>	freethreads_;
