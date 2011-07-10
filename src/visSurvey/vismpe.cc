@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.110 2011-06-06 08:31:41 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.111 2011-07-10 22:05:53 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -921,7 +921,6 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	    if ( !tmparr )
 	    {
 		channels_[0].turnOn( false );
-		DPM(DataPackMgr::CubeID()).release( cacheid_ );
 		return false;
 	    }
 	    else
