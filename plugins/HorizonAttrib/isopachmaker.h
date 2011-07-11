@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		July 2011
- RCS:		$Id: isopachmaker.h,v 1.3 2011-07-08 11:35:16 cvsnageswara Exp $
+ RCS:		$Id: isopachmaker.h,v 1.4 2011-07-11 11:43:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class DataPointSet;
 namespace EM{ class Horizon3D; class EMObjectIterator; }
 
-class IsopachMaker : public Executor
+mClass IsopachMaker : public Executor
 {
 public:
 			IsopachMaker(const EM::Horizon3D&,const EM::Horizon3D&,
