@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpsrefineseldlg.cc,v 1.1 2011-07-05 09:24:05 cvssatyaki Exp $: 
+ RCS:           $Id: uidpsrefineseldlg.cc,v 1.2 2011-07-11 11:50:16 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsrefineseldlg.cc,v 1.1 2011-07-05 09:24:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsrefineseldlg.cc,v 1.2 2011-07-11 11:50:16 cvssatyaki Exp $";
 
 
 #include "uidpsrefineseldlg.h"
@@ -109,7 +109,7 @@ void uiDPSRefineSelDlg::updateDisplay()
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
     for ( ; dcid<dps.nrCols(); dcid++ )
-	colnms_.add( plotter_.uiPointSet().userName(dcid) );
+	colnms_.add( plotter_.uidps().userName(dcid) );
 
 
     for ( int idx=0; idx<nrvars; idx++ )

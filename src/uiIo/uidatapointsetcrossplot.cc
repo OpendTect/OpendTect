@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.83 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.84 2011-07-11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.83 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.84 2011-07-11 11:50:16 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -53,13 +53,13 @@ static const char* sKeyPoly = "Polygon";
 static const char* sKeyPos = "Position";
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
-			    uiDataPointSet& uidps,
+			    uiDataPointSet& uidp,
 			    const uiDataPointSetCrossPlotter::Setup& su )
     : uiRGBArrayCanvas(p,*new uiRGBArray(false))
-    , dps_(uidps.pointSet())
-    , uidps_(uidps)
+    , dps_(uidp.pointSet())
+    , uidps_(uidp)
     , setup_(su)
-    , mincolid_(1-uidps.pointSet().nrFixedCols())
+    , mincolid_(1-uidp.pointSet().nrFixedCols())
     , selrow_(-1)
     , x_(*this,uiRect::Bottom)
     , y_(*this,uiRect::Left)
@@ -98,7 +98,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , selpolyitems_(0)
     , y1overlayctitem_(0)
     , y2overlayctitem_(0)
-    , eachcount_(0)
     , yrowidxs_(0)
     , y2rowidxs_(0)
     , cellsize_(1)
@@ -1321,8 +1320,8 @@ bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
 }
 
 
-float uiDataPointSetCrossPlotter::getSelLikekiness( uiDataPointSet::DRowID rid,
-						    bool fory2 )
+float uiDataPointSetCrossPlotter::getSelectedness( uiDataPointSet::DRowID rid,
+						   bool fory2 )
 {
     if ( !x_.axis_ || !y_.axis_ || (fory2 && !y2_.axis_)
 	 || !isSelectionValid(rid) )
@@ -1356,7 +1355,7 @@ float uiDataPointSetCrossPlotter::getSelLikekiness( uiDataPointSet::DRowID rid,
 	const bool itmselected = selarea.isInside( pt );
 
 	if ( itmselected )
-	    return selarea.likeliness( pt );
+	    return selarea.selectedness( pt );
     }
 
     return mUdf(float);

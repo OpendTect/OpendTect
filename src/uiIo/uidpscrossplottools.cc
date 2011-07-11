@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.4 2011-06-16 10:25:25 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.5 2011-07-11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.4 2011-06-16 10:25:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.5 2011-07-11 11:50:16 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -117,7 +117,7 @@ bool SelectionArea::operator==( const SelectionArea& selarea ) const
 }
 
 
-float SelectionArea::likeliness( uiPoint pt ) const
+float SelectionArea::selectedness( uiPoint pt ) const
 {
     if ( !isInside(pt) )
 	return mUdf(float);
@@ -126,7 +126,7 @@ float SelectionArea::likeliness( uiPoint pt ) const
 	maxdistest_ = maxDisToBorder();
 
     const double distobrder = minDisToBorder( pt );
-    if ( mIsEqual(distobrder,maxdistest_,0.05) )
+    if ( mIsEqual(distobrder,maxdistest_,0.15) )
 	return 1.00;
 
     if ( distobrder > maxdistest_ )
@@ -142,7 +142,7 @@ double SelectionArea::maxDisToBorder() const
 	return rect_.width() > rect_.height()
 			    ? ( (double)rect_.width()/(double)2 )
 			    : ( (double)rect_.height()/(double)2 );
-    return poly_.maxDistToBorderEstimate();
+    return poly_.maxDistToBorderEstimate(mDefEps);
 }
 
 

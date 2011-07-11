@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpsselgrpdlg.cc,v 1.2 2011-07-05 09:44:30 cvssatyaki Exp $: 
+ RCS:           $Id: uidpsselgrpdlg.cc,v 1.3 2011-07-11 11:50:16 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     tbl_->selectionChanged.notify( mCB(this,uiDPSSelGrpDlg,setCurSelGrp) );
     tbl_->setColumnLabel( 0, "Name" );
     tbl_->setColumnLabel( 1, "Color" );
+
     for ( int idx=0; idx<selgrps_.size(); idx++ )
     {
 	tbl_->setText( RowCol(idx,0), selgrps_[idx]->name() );
@@ -68,9 +69,12 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     impgrpbut->attach( rightTo, expgrpbut );
     
     uiPushButton* scalesgbut =
-	new uiPushButton( this, "Map likeliness", 
-			  mCB(this,uiDPSSelGrpDlg,mapLikeliness), true );
+	new uiPushButton( this, "Selectedness...", 
+			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
     scalesgbut->attach( rightTo, impgrpbut );
+    
+    tbl_->setSelected( RowCol(0,0), true );
+    tbl_->setCurrentCell( RowCol(0,0), true );
 }
 
 
@@ -180,10 +184,10 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 }
 
 
-void uiDPSSelGrpDlg::mapLikeliness( CallBacker* )
+void uiDPSSelGrpDlg::calcSelectedness( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 )
 	return uiMSG().error("Select a selection group to map its likeliness.");
 
-    plotter_.uiPointSet().mapLikeliness();
+    plotter_.uidps().calcSelectedness();
 }

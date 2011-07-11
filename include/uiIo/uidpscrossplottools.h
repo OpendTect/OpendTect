@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpscrossplottools.h,v 1.1 2011-06-16 10:31:03 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplottools.h,v 1.2 2011-07-11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ mStruct SelectionArea
     Interval<double>		getValueRange(bool forx,bool alt=false) const;
     BufferStringSet		getAxisNames() const;
     uiPoint			center() const;
-    float			likeliness(uiPoint) const;
+    float			selectedness(uiPoint) const;
 
 
     BufferString		xaxisnm_;

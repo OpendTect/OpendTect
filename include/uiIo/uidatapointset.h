@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.32 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.33 2011-07-11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
 
 class DataPointSetDisplayMgr;
+class DataPointSetDisplayProp;
 class Timer;
 namespace Stats { template <class T> class RunCalc; }
 
@@ -131,7 +132,8 @@ public:
     void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
 
-    void			mapLikeliness();
+    void			calcSelectedness();
+    void			setDisp(DataPointSetDisplayProp*);
 protected:
 
     DataPointSet&		dps_;

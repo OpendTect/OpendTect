@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.40 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.41 2011-07-11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,8 +141,8 @@ public:
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections(bool relfrmselgrp = true);
     void			deleteSelections();
-    float			getSelLikekiness(uiDataPointSet::DRowID,
-	    					 bool fory2);
+    float			getSelectedness(uiDataPointSet::DRowID,
+	    					bool fory2);
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&,
 				   bool rempt = false);
@@ -174,6 +174,11 @@ public:
     const TypeSet<int>&		modifiedColIds() const 	{ return modcolidxs_; }
 
     const DataPointSet&		dps() const 		{ return dps_; }
+    DataPointSet&		dps() 			{ return dps_; }
+
+    const uiDataPointSet&	uidps() const		{ return uidps_; }
+    uiDataPointSet&		uidps()			{ return uidps_; }
+    
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
 
     void			drawYUserDefLine(const Interval<int>&,bool draw,
@@ -254,8 +259,6 @@ public:
     const ColTab::Sequence&	y4CtSeq() const		{ return y4ctab_; }
 
     float			getVal(int colid,int rid) const;
-    const uiDataPointSet&	uiPointSet() const	{ return uidps_; }
-    uiDataPointSet&		uiPointSet()		{ return uidps_; }
 
 protected:
 
@@ -300,7 +303,6 @@ protected:
     bool                        drawuserdefline_;
     bool                        drawy2_;
     float			plotperc_;
-    int				eachcount_;
     int				curgrp_;
     int				selyitems_;
     int				sely2items_;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.12 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.13 2011-07-11 11:50:16 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -215,7 +215,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	sprdf->bins_.setSize( nrbins.arr() );
     }
 
-    DPSDensityCalcND denscalc( plotter_.uiPointSet(), axisparams,pdf.getData());
+    DPSDensityCalcND denscalc( plotter_.uidps(), axisparams,pdf.getData());
     uiTaskRunner tr( this );
     tr.execute( denscalc );
 }

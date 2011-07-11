@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.73 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.74 2011-07-11 11:50:16 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -38,6 +38,9 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.73 2011-07-05 09:44:30 cv
 #include "uitable.h"
 #include "uilabel.h"
 #include "uicombobox.h"
+#include "uicolortable.h"
+#include "uidpsaddcolumndlg.h"
+#include "uidpsselectednessdlg.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
@@ -138,8 +141,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
     selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
+    retrieve( 0 );
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
-    timer_->tick.notify( mCB(this,uiDataPointSet,retrieve) );
     creationCBS().doCall( this );
 }
 
@@ -232,7 +235,7 @@ void uiDataPointSet::mkToolBars()
 
 void uiDataPointSet::updColNames()
 {
-    const int nrcols = tbl_->nrCols();
+    const int nrcols = dps_.nrCols() + 3;
     const TColID zcid = 2;
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
@@ -252,6 +255,10 @@ void uiDataPointSet::updColNames()
 	    colnm += BufferString("Z (",zunitnm_,")");
 	else
 	    colnm += userName( dColID(tid) );
+	
+	if ( tid > tbl_->nrCols()-1 )
+	    tbl_->insertColumns( tid, 1 );
+
 	tbl_->setColumnLabel( tid, colnm );
     }
 }
@@ -796,6 +803,7 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 void uiDataPointSet::reDoTable()
 {
     calcIdxs();
+    updColNames();
 
     for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
     {
@@ -811,7 +819,6 @@ void uiDataPointSet::reDoTable()
 	fillData( tid );
     }
 
-    updColNames();
     tbl_->resizeRowsToContents();
 }
 
@@ -1254,12 +1261,14 @@ bool uiDataPointSet::doSave()
 mClass uiDPSDispPropDlg : public uiDialog
 {
 public:
-uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter )
+uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
+		  const DataPointSetDisplayProp* prevdispprop )
     : uiDialog(this,uiDialog::Setup("Display Properties","",""))
+    , plotter_(plotter)
 {
-    typefld_ =
-	new uiGenInput( this, "Show the points on the basis of",
-		        BoolInpSpec(false,"Selections","Overlay Attribute") );
+    BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
+	    	      "Selected Points","Attribute" );
+    typefld_ = new uiGenInput( this, "Display",binp );
     typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
     BufferStringSet colnms;
@@ -1267,37 +1276,75 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter )
     for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
 	colnms.add( dps.colName(colidx) );
 
-    selfld_ = new uiLabeledComboBox( this, colnms, "Attribute to display" );
-    selfld_->attach( alignedBelow, typefld_ );
+    uiLabeledComboBox* llb = new uiLabeledComboBox(
+	    			this, colnms, "Attribute to display" );
+    llb->attach( alignedBelow, typefld_ );
+    selfld_ = llb->box();
+    if ( prevdispprop && !prevdispprop->showSelected() )
+    {
+	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
+	selfld_->setCurrentItem( attrnm );
+    }
+
+    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
+
+    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
+    coltabfld_->attach( rightTo, llb );
+    if ( prevdispprop && !prevdispprop->showSelected() )
+    {
+	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
+	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
+    }
+
+    attribChanged( 0 );
+    typeChangedCB( 0 );
 }
 
+void attribChanged( CallBacker* )
+{
+    const DataPointSet& dps = plotter_.dps();
+    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
+    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
+    coltabfld_->setInterval( valrange );
+}
+
+
 void typeChangedCB( CallBacker* )
-{ selfld_->display( !typefld_->getBoolValue() ); }
+{
+    selfld_->display( !typefld_->getBoolValue(), true );
+    coltabfld_->display( !typefld_->getBoolValue(), true );
+}
 
 bool type() const
 { return typefld_->getBoolValue(); }
 
 const char* colName() const
-{ return selfld_->box()->text(); }
+{ return selfld_->text(); }
 
-    uiGenInput*		typefld_;
-    uiLabeledComboBox*	selfld_;
+const ColTab::Sequence& ctSeq() const
+{ return coltabfld_->colTabSeq(); }
+
+const ColTab::MapperSetup& ctMapperSetup() const
+{ return coltabfld_->colTabMapperSetup(); }
+
+    uiGenInput*				typefld_;
+    uiComboBox*				selfld_;
+    uiColorTable*			coltabfld_;
+    const uiDataPointSetCrossPlotter&	plotter_;
 };
 
 
 void uiDataPointSet::showSelPts( CallBacker* )
 {
-    uiDPSDispPropDlg dlg( this, xplotwin_->plotter() );
+    uiDPSDispPropDlg dlg( xplotwin_, xplotwin_->plotter(), dpsdispmgr_->dispProp() );
     if ( !dlg.go() )
 	return;
 
     if ( !dpsdispmgr_ ) return;
 
-    dpsdispmgr_->lock();
-    
     const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
-    dpsdispmgr_->clearDispProp();
 
+    DataPointSetDisplayProp* dispprop;
     if ( dlg.type() )
     {
 	ObjectSet<SelectionGrp> selgrps = plotter.selectionGrps();
@@ -1310,17 +1357,21 @@ void uiDataPointSet::showSelPts( CallBacker* )
 	    selgrpcols += selgrps[idx]->col_;
 	}
 
-	dpsdispmgr_->setDispProp(
-		new DataPointSetDisplayProp(selgrpnms,selgrpcols) );
+	dispprop = new DataPointSetDisplayProp( selgrpnms, selgrpcols );
     }
     else
-    {
-	dpsdispmgr_->setDispProp(
-		new DataPointSetDisplayProp(plotter.y3CtSeq(),
-		    			    plotter.y3Mapper().setup_,
-					    dps_.indexOf(dlg.colName())) );
-    }
+	dispprop = new DataPointSetDisplayProp( dlg.ctSeq(),dlg.ctMapperSetup(),
+						dps_.indexOf(dlg.colName()) );
+    setDisp( dispprop );
+}
 
+
+void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
+{
+    dpsdispmgr_->lock();
+    dpsdispmgr_->clearDispProp();
+    dpsdispmgr_->setDispProp( dispprop );
+    
     int dpsid = dpsdispmgr_->getDisplayID(dps_);
     if ( dpsid < 0 )
 	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
@@ -1455,190 +1506,11 @@ int uiDataPointSet::getSelectionGroupIdx( int selareaid ) const
     return xplotwin_ ? xplotwin_->plotter().getSelGrpIdx(selareaid) : -1;
 }
 
-class uiDPSAddColumnDlg : public uiDialog
+
+void uiDataPointSet::calcSelectedness()
 {
-public:
-
-uiDPSAddColumnDlg( uiParent* p, bool onlynm, bool hasy2 )
-    : uiDialog(p,uiDialog::Setup("Add Column","",""))
-    , mathobj_(0)
-    , needonlynm_(onlynm)
-    , inpfld_(0)
-    , setbut_(0)
-    , vartable_(0)
-    , sclaxtypfld_(0)
-{
-    nmfld_ = new uiGenInput( this, "Property Name" );
-    if ( onlynm && hasy2 )
-    {
-	sclaxtypfld_ = new uiGenInput( this, "Mapping likeliness for ",
-				       BoolInpSpec(false,"Y1 Axis","Y2 Axis") );
-	sclaxtypfld_->attach( alignedBelow, nmfld_ ); 
-    }
-
-    if ( !onlynm )
-    {
-	uiLabel* label = new uiLabel( this, "Define Mathematical Operation" );
-	label->attach( alignedBelow, nmfld_ ); 
-	
-	inpfld_ = new uiGenInput( this, "Define Math Operation" );
-	inpfld_->setElemSzPol( uiObject::WideMax );
-	inpfld_->updateRequested.notify(
-		mCB(this,uiDPSAddColumnDlg,parsePush) );
-	inpfld_->valuechanging.notify(
-		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
-	inpfld_->attach( alignedBelow, label ); 
-
-	setbut_ = new uiPushButton( this, "Set", true );
-	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
-	setbut_->attach( rightTo, inpfld_ );
-
-	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
-					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5*uiObject::baseFldSize())
-					.defrowlbl("") .fillcol(true)
-					.fillrow(true) .defrowstartidx(0),
-					"Variable X attribute table" );
-	const char* xcollbls[] = { "Select input for", 0 };
-	vartable_->setColumnLabels( xcollbls );
-	vartable_->setNrRows( 2 );
-	vartable_->setStretch( 2, 0 );
-	vartable_->setRowResizeMode( uiTable::Fixed );
-	vartable_->setColumnResizeMode( uiTable::Fixed );
-	vartable_->attach( alignedBelow, inpfld_ );
-	vartable_->display( false );
-    }
-}
-
-
-void setColInfos( const BufferStringSet& colnames, const TypeSet<int>& colids )
-{
-    colnames_ = colnames;
-    colids_ = colids;
-    updateDisplay();
-}
-
-
-void checkMathExpr( CallBacker* )
-{
-    if ( needonlynm_ ) return;
-
-    if ( mathexprstring_ != inpfld_->text() )
-	setbut_->setSensitive( true );
-    else
-	setbut_->setSensitive( false );
-}
-
-
-void parsePush( CallBacker* )
-{
-    if ( needonlynm_ ) return;
-
-    mathexprstring_ = inpfld_->text();
-    MathExpressionParser mep( mathexprstring_ );
-    mathobj_ = mep.parse();
-    if ( !mathobj_ )
-    {
-	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
-	vartable_->display( false );
-	return;
-    }
-
-    setbut_->setSensitive( false );
-    updateDisplay();
-}
-
-
-void updateDisplay()
-{
-    if ( needonlynm_ || !mathobj_ ) return;
-
-    const int nrvars = mathobj_->nrVariables();
-    vartable_->setNrRows( nrvars );
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiComboBox* varsel = new uiComboBox( 0, colnames_, "Variable");
-	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
-	vartable_->setCellObject( RowCol(idx,0), varsel );
-    }
-
-    vartable_->display( true );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    if ( !mathobj_ )
-	return true;
-
-    usedcolids_.erase();
-
-    int nrvars = mathobj_->nrVariables();
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
-	mDynamicCastGet( uiComboBox*, box, obj );
-	if ( !box )
-	    continue;
-
-	usedcolids_ += colids_[box->currentItem()];
-    }
-
-    return true;
-}
-    
-bool scaleType() const
-{
-    if ( sclaxtypfld_ )
-	return sclaxtypfld_->getBoolValue();
-    return true;
-}
-
-    MathExpression*	mathObject()		{ return mathobj_; }
-    const char*		newAttribName() const	{ return nmfld_->text(); }
-    const TypeSet<int>&	usedColIDs() const	{ return usedcolids_; }
- 
-protected:
-    BufferStringSet	colnames_;
-    TypeSet<int>	colids_;
-    TypeSet<int>	usedcolids_;
-
-    BufferString	mathexprstring_;
-    MathExpression*	mathobj_;
-    uiGenInput*		nmfld_;
-    uiGenInput*		inpfld_;
-    uiGenInput*		sclaxtypfld_;
-    uiPushButton*	setbut_;
-    uiTable*		vartable_;
-    bool		needonlynm_;
-};
-
-
-void uiDataPointSet::mapLikeliness()
-{
-    uiDPSAddColumnDlg coladddlg( this, true, xplotwin_->plotter().isY2Shown() );
-    if ( !coladddlg.go() )
-	return;
-
-    dps_.dataSet().add( new DataColDef(coladddlg.newAttribName()) );
-    for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
-    {
-	const float val =
-	    xplotwin_->plotter().getSelLikekiness( rid, !coladddlg.scaleType());
-	BinIDValueSet& bvs = dps_.bivSet();
-	BinIDValueSet::Pos pos = dps_.bvsPos( rid );
-	BinID curbid;
-	TypeSet<float> vals;
-	bvs.get( pos, curbid, vals );
-	vals[ vals.size()-1 ] = mIsUdf(val) ? mUdf(float) : val;
-	bvs.set( pos, vals ); 
-    }
-
-    dps_.dataChanged();
-    tbl_->insertColumns( tbl_->nrCols()-1, 1 );
-    tbl_->setColumnLabel( tbl_->nrCols()-1, "Likeliness" );
-    reDoTable();
+    uiDPSSelectednessDlg dlg( this, xplotwin_->plotter() );
+    dlg.go();
 }
 
 
@@ -1653,7 +1525,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	dcids += dcid;
     }
 
-    uiDPSAddColumnDlg dlg( this, false, false );
+    uiDPSAddColumnDlg dlg( this, true );
     dlg.setColInfos( colnames, dcids );
     if ( dlg.go() )
     {
@@ -1681,7 +1553,6 @@ void uiDataPointSet::addColumn( CallBacker* )
 
 	unsavedchgs_ = true;
 	dps_.dataChanged();
-	tbl_->insertColumns( tbl_->nrCols()-1, 1 );
 	tbl_->setColumnLabel( tbl_->nrCols()-1, dlg.newAttribName() );
 	reDoTable();
     }
