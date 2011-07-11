@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.9 2011-06-24 13:39:33 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.10 2011-07-11 07:28:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
 				~uiStratLayerModel();
 
     void			go()		{ show(); }
+
+    static const char*		sKeyModeler2Use();
 
 protected:
 

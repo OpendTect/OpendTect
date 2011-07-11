@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.25 2011-07-07 08:41:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.26 2011-07-11 07:28:08 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -37,7 +37,10 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.25 2011-07-07 08:41:09
 #include "ioobj.h"
 #include "settings.h"
 
-static const char* sKeyModeler2Use = "dTect.Stratigraphic Modeler to use";
+const char* uiStratLayerModel::sKeyModeler2Use()
+{
+    return "dTect.Stratigraphic Modeler to use";
+}
 
 
 class uiStratLayerModelLauncher : public CallBacker
@@ -58,7 +61,8 @@ void theCB( CallBacker* cb )
 
     uiParent* par = tb->parent();
     const char* nm = nms.get(0).buf();
-    const char* settres = Settings::common().find(sKeyModeler2Use);
+    const char* settres = Settings::common().find(
+	    			uiStratLayerModel::sKeyModeler2Use());
     if ( settres && nms.isPresent(settres) )
 	nm = settres;
     else if ( nms.size() > 1 )
@@ -74,7 +78,7 @@ void theCB( CallBacker* cb )
 	nm = nms.get(sel).buf();
 	if ( alwusebut->isChecked() )
 	{
-	    Settings::common().set( sKeyModeler2Use, nm );
+	    Settings::common().set( uiStratLayerModel::sKeyModeler2Use(), nm );
 	    Settings::common().write();
 	}
     }
