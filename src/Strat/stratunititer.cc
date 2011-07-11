@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunititer.cc,v 1.2 2011-07-11 13:37:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunititer.cc,v 1.3 2011-07-11 13:58:16 cvsbert Exp $";
 
 #include "stratunitrefiter.h"
 #include "stratunitref.h"
@@ -62,28 +62,38 @@ Strat::UnitRef* Strat::UnitRefIter::gtUnit() const
 }
 
 
+bool Strat::UnitRefIter::isValid( const UnitRef& ur,
+				  Strat::UnitRefIter::Pol pol )
+{
+    if ( pol == All )
+	return true;
+
+    switch ( ur.type() )
+    {
+    case UnitRef::Leaf:
+	if ( pol == Leaves )
+	    return true;
+    break;
+    case UnitRef::NodeOnly:
+	if ( pol == AllNodes || pol == NodesOnly )
+	    return true;
+    break;
+    case UnitRef::Leaved:
+	if ( pol == AllNodes || pol == LeavedNodes )
+	    return true;
+    break;
+    }
+
+    return false;
+}
+
+
 bool Strat::UnitRefIter::next()
 {
     while ( toNext() )
     {
-	if ( pol_ == All )
+	if ( isValid(*unit(),pol_) )
 	    return true;
-
-	switch ( unit()->type() )
-	{
-	case UnitRef::Leaf:
-	    if ( pol_ == Leaves )
-		return true;
-	break;
-	case UnitRef::NodeOnly:
-	    if ( pol_ == AllNodes || pol_ == NodesOnly )
-		return true;
-	break;
-	case UnitRef::Leaved:
-	    if ( pol_ == AllNodes || pol_ == LeavedNodes )
-		return true;
-	break;
-	}
     }
 
     return false;
@@ -132,4 +142,20 @@ bool Strat::UnitRefIter::toNext()
 
     curnode_ = 0;
     return false;
+}
+
+
+Interval<int> Strat::UnitRefIter::levelRange() const
+{
+    Strat::UnitRefIter it( *this );
+    while ( !isValid(*it.unit(),pol_) )
+    {
+	if ( !it.next() )
+	    return Interval<int>( itnode_->level(), itnode_->level() );
+    }
+    Interval<int> rg( it.unit()->level(), it.unit()->level() );
+    while ( it.next() )
+	rg.include( it.unit()->level() );
+
+    return rg;
 }
