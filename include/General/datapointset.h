@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.36 2010-04-08 11:34:24 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.37 2011-07-11 11:43:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,6 +163,7 @@ public:
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;
     float		value(ColID,RowID) const;
+    bool		setValue(ColID,RowID,float);
     float*		getValues(RowID);
     const float*	getValues(RowID) const;
     unsigned short	group(RowID) const;

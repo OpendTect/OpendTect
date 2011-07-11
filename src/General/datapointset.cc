@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.37 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.38 2011-07-11 11:43:47 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -460,6 +460,17 @@ float DataPointSet::value( DataPointSet::ColID cid,
     mChkColID(cid,mUdf(float));
     mChkRowID(rid,mUdf(float));
     return bivSet().getVal( bvsidxs_[rid], cid + nrfixedcols_ );
+}
+
+
+bool DataPointSet::setValue( DataPointSet::ColID cid, DataPointSet::RowID rid,
+			     float val )
+{
+    mChkColID(cid,false);
+    mChkRowID(rid,false);
+    float* vals = bivSet().getVals( bvsidxs_[rid] );
+    vals[cid + nrfixedcols_] = mUdf(float);
+    return true;
 }
 
 
