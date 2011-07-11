@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.15 2011-07-11 11:46:29 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -145,6 +145,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     {
 	rgfld_ = new uiGenInput( this, "Create body from value range",
 				 FloatInpIntervalSpec(false) );
+	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
     }
 }
 
@@ -182,11 +183,15 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	    pixmap.fill( col );
 	    selfld_->setPixmap( pixmap, idx );
 	}
+
+	cbx->attach( alignedAbove, nmfld_ );
     }
     else
     {
 	rgfld_ = new uiGenInput( this, "Create body from value range",
 				 FloatInpIntervalSpec(false) );
+	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
+	rgfld_->attach( alignedAbove, nmfld_ );
     }
 }
 
@@ -517,5 +522,5 @@ void uiVisDataPointSetDisplayMgr::getIconInfo( BufferString& fnm,
 					       BufferString& tooltip ) const
 {
     fnm = "picks.png";
-    tooltip = "Show selected points in workSpace";
+    tooltip = "Show points in 3D scene";
 }

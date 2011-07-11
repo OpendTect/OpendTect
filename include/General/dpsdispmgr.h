@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.5 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.6 2011-07-11 11:46:29 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,9 @@ Color getColor( float val ) const
     ColTab::Mapper mapper;
     mapper.setup_ = coltabmappersu_;
     const float pos = mapper.position( val );
-    return coltab_.color( pos );
+    Color col = coltab_.color( pos );
+    col.setTransparency( coltab_.transparencyAt(pos) );
+    return col;
 }    
 
 protected:
@@ -116,6 +118,8 @@ public:
     virtual void		getIconInfo(BufferString& fnm,
 	    				    BufferString& tootltip) const = 0;
 
+    const DataPointSetDisplayProp* dispProp() const
+    				{ return dispprop_; }
     void			setDispProp( DataPointSetDisplayProp* prop )
 				{ dispprop_ = prop; }
 
