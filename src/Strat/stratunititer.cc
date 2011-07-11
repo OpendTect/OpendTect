@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunititer.cc,v 1.1 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunititer.cc,v 1.2 2011-07-11 13:37:50 cvsbert Exp $";
 
 #include "stratunitrefiter.h"
 #include "stratunitref.h"
@@ -15,6 +15,19 @@ Strat::UnitRefIter::UnitRefIter( const NodeUnitRef& ur, Pol p )
     	, pol_(p)
 {
     reset();
+}
+
+Strat::UnitRefIter& Strat::UnitRefIter::operator =(
+				const Strat::UnitRefIter& oth )
+{
+    if ( this != &oth )
+    {
+	itnode_ = oth.itnode_;
+    	pol_ = oth.pol_;
+	curidx_ = oth.curidx_;
+	curnode_ = oth.curnode_;
+    }
+    return *this;
 }
 
 

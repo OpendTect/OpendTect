@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitrefiter.h,v 1.2 2011-07-11 13:30:01 cvsbert Exp $
+ RCS:		$Id: stratunitrefiter.h,v 1.3 2011-07-11 13:37:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,8 @@ public:
     static Pol		polOf(const UnitRef*);
 
 			UnitRefIter(const NodeUnitRef&,Pol p=All);
+			UnitRefIter( const UnitRefIter& uri )	{ *this = uri; }
+    UnitRefIter&	operator =(const UnitRefIter&);
 
     void		reset();
     bool		next();
@@ -42,6 +44,7 @@ public:
     const UnitRef*	unit() const	{ return gtUnit(); }
     Pol			pol() const	{ return pol_; }
     void		setPol( Pol p )	{ pol_ = p; reset(); }
+    Interval<int>	levelRange() const;
 
 protected:
 
