@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.55 2011-07-07 14:17:13 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.56 2011-07-11 10:06:29 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -450,7 +450,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    stats += maxsimi;
 	    }
 
-	    if ( dobrowsedip_ )
+	    if ( outputinterest_[5] || outputinterest_[6] )
 	    { 
 		if ( !pair || pair==2 || desc_.is2D() )
 		    crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
