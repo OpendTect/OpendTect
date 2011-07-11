@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.14 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.15 2011-07-11 11:48:55 cvssatyaki Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -106,12 +106,17 @@ void PointSetDisplay::update()
 	else
 	{
 	    const float val = data_->value( dpsdispprop_->dpsColID(), idx );
+	    if ( mIsUdf(val) )
+		continue;
+
 	    col = dpsdispprop_->getColor( val );
 	}
 
 	const int ptidx = pointset_->getCoordinates()->addPos(
 				Coord3(data_->coord(idx),data_->z(idx)) );
 	pointset_->getMaterial()->setColor( col, ptidx );
+	const float transp = (float)col.t();
+	pointset_->getMaterial()->setTransparency( transp/(float)255, ptidx );
     }
 }
 
@@ -130,7 +135,10 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
 	    DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
 	    if ( rid < 0 )
 		continue;
-	    data_->setSelected( rid, false );
+	    if ( dpsdispprop_->showSelected() )
+		data_->setSelected( rid, false );
+	    else
+		data_->setValue( dpsdispprop_->dpsColID(), rid, mUdf(float) );
 	}
     }
 
