@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.24 2010-10-21 14:04:14 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.25 2011-07-11 13:30:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     			//!< if null, assume everything has changed
 
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
+    virtual int		level() const			{ return 0; }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.39 2011-07-05 08:32:33 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.40 2011-07-11 13:30:11 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
     RefTree&		refTree(); // is the topNode
     const RefTree&	refTree() const;
     virtual bool	isParentOf(const UnitRef&) const { return false; }
+    virtual int		level() const			= 0;
 
     Notifier<UnitRef>	changed;
     Notifier<UnitRef>	toBeDeleted;
@@ -135,6 +136,7 @@ public:
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
 
     virtual int		nrLeaves() const;
+    virtual int		level() const { return upnode_?upnode_->level()+1:0; }
 
 protected:
 
@@ -223,6 +225,7 @@ public:
 
     const Lithology&	getLithology() const;
     Color		dispColor(bool lith_else_upnode) const;
+    virtual int		level() const { return upnode_?upnode_->level()+1:0; }
 
 protected:
 
