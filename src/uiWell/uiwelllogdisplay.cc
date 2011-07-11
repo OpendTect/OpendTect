@@ -227,6 +227,7 @@ void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
+    delete ld.curveitm_; ld.curveitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 || ld.disp_.size_ <=0 ) return;
 
