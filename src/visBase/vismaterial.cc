@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismaterial.cc,v 1.19 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.20 2011-07-11 11:48:13 cvssatyaki Exp $";
 
 #include "vismaterial.h"
 #include "iopar.h"
@@ -33,7 +33,6 @@ Material::Material()
     , specularintensity_( 0 )
     , emmissiveintensity_( 0 )
     , shininess_( 0 )
-    , transparency_( 0 )
     , change( this )
 {
     material_->ref();
@@ -96,6 +95,22 @@ float Material::getDiffIntensity( int idx ) const
 }
 
 
+void Material::setTransparency( float n, int idx )
+{
+    setMinNrOfMaterials(idx);
+    transparency_[idx] = n;
+    updateMaterial( idx );
+}
+
+
+float Material::getTransparency( int idx ) const
+{
+    if ( idx>=0 && idx<transparency_.size() )
+	return transparency_[idx];
+    return transparency_[0];
+}
+
+
 #define mSetGetProperty( Type, func, var ) \
 void Material::set##func( Type n ) \
 { \
@@ -112,7 +127,6 @@ mSetGetProperty( float, Ambience, ambience_ );
 mSetGetProperty( float, SpecIntensity, specularintensity_ );
 mSetGetProperty( float, EmmIntensity, emmissiveintensity_ );
 mSetGetProperty( float, Shininess, shininess_ );
-mSetGetProperty( float, Transparency, transparency_ );
 
 
 void Material::updateMaterial(int idx)
@@ -133,9 +147,9 @@ void Material::updateMaterial(int idx)
 		    color_[0].b() * emmissiveintensity_/255);
 
 	material_->shininess.set1Value(0, shininess_ );
-	material_->transparency.set1Value(0, transparency_ );
     }
 
+    material_->transparency.set1Value( idx, transparency_[idx] );
     material_->diffuseColor.set1Value( idx,
 		color_[idx].r() * diffuseintencity_[idx]/255,
 		color_[idx].g() * diffuseintencity_[idx]/255,
@@ -151,6 +165,7 @@ void Material::setMinNrOfMaterials(int minnr)
     {
 	color_ += Color(179,179,179);
 	diffuseintencity_ += 0.8;
+	transparency_ += 0.0;
     }
 }
 

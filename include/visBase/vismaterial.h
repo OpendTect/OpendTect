@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vismaterial.h,v 1.18 2011-07-11 11:48:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -59,9 +59,9 @@ public:
 			/*!< Should be between 0 and 1 */
     float		getShininess() const;
 
-    void		setTransparency(float);
+    void		setTransparency(float,int idx=0);
 			/*!< Should be between 0 and 1 */
-    float		getTransparency() const;
+    float		getTransparency(int idx=0) const;
 
     void		setDisplayTransformation(Transformation*) {}
     int			usePar(const IOPar&);
@@ -74,11 +74,12 @@ protected:
 
     TypeSet<Color>	color_;
     TypeSet<float>	diffuseintencity_;
+    TypeSet<float>	transparency_;
+    
     float		ambience_;
     float		specularintensity_;
     float		emmissiveintensity_;
     float		shininess_;
-    float		transparency_;
 
     SoMaterial*		material_;
 
