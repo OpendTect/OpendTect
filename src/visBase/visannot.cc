@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.33 2011-02-16 21:57:59 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.34 2011-07-12 09:36:16 cvsranojay Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -270,11 +270,6 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
     const Interval<int> crlrg = cs.hrg.crlRange();
     const Interval<float>& zrg = cs.zrg;
 
-    const BinID c0( cs.hrg.start.inl, cs.hrg.start.crl ); 
-    const BinID c1( cs.hrg.stop.inl, cs.hrg.start.crl ); 
-    const BinID c2( cs.hrg.stop.inl, cs.hrg.stop.crl ); 
-    const BinID c3( cs.hrg.start.inl, cs.hrg.stop.crl );
-    
     setCorner( 0, inlrg.start, crlrg.start, zrg.start );
     setCorner( 1, inlrg.stop, crlrg.start, zrg.start );
     setCorner( 2, inlrg.stop, crlrg.stop, zrg.start );
