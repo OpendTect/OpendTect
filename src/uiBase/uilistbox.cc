@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.117 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.118 2011-07-12 07:46:09 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -31,6 +31,8 @@ static const int cIconSz = 16;
 static const char* startmark = ":"; static const char* endmark = ":";
 #define mGetMarkededBufferString(nm,yn,inpstr) \
     const BufferString nm( yn ? startmark : "", inpstr, yn ? endmark : "" )
+
+const int uiListBox::cDefNrLines()	{ return 7; }
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -83,7 +85,8 @@ public:
 
     virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
-			    { return prefnrlines_ ? prefnrlines_ : 7; }
+			{ return prefnrlines_ > 0 ? prefnrlines_
+			    			  : uiListBox::cDefNrLines(); }
 
     int 		fieldwidth_;
     int 		prefnrlines_;

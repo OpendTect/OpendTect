@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.60 2011-04-22 06:35:59 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.61 2011-07-12 07:46:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ public:
     void 		setNrLines(int);
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
+    static const int	cDefNrLines();		//!< == 7 (July 2011)
 
     Notifier<uiListBox> selectionChanged;
     Notifier<uiListBox> itemChecked;		//!< or un-checked (of course)
