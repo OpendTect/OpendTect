@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.27 2011-07-05 08:25:19 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.28 2011-07-12 10:51:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
+class uiRayTracer1D;
 class uiLabeledComboBox;
 class uiOffsetSlicePos;
 class uiPushButton;
@@ -98,10 +99,8 @@ protected:
 
     RayParams& 			raypars_;
 
-    uiGenInput*			offsetfld_;
-    uiGenInput*			offsetstepfld_;
-    uiGenInput*			sourcerecfld_;
-    uiGenInput*			vp2vsfld_;
+    uiRayTracer1D*		raytrace1dgrp_;
+
     uiCheckBox*			nmobox_;
     uiGenInput*			stackfld_;
     CubeSampling		limitcs_;

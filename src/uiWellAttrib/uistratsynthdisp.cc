@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.44 2011-07-05 08:25:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.45 2011-07-12 10:51:55 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.44 2011-07-05 08:25:19 
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uiflatviewslicepos.h"
+#include "uiraytrace1d.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -43,7 +44,6 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.44 2011-07-05 08:25:19 
 
 static const int cMarkerSize = 6;
 
-#define mStdOffset 3000
 Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
 {
     static Notifier<uiStratSynthDisp> FieldsCreated(0);
@@ -306,7 +306,7 @@ void uiStratSynthDisp::modelChanged()
     hs.setCrlRange( Interval<int>(0,0) );
     raypars_.cs_ = cs;
     posfld_->setCubeSampling( raypars_.cs_ );
-    hs.setCrlRange( Interval<int>(0,mStdOffset) );
+    hs.setCrlRange( Interval<int>(0,uiRayTracer1D::sKeyStdMaxOffset()) );
     posfld_->setLimitSampling( cs );
     posfld_->attachGrp()->setSensitive( true );
 
@@ -627,8 +627,6 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     , raypars_(su.raypars_)
     , isoffsetdir_(su.offsetdir_)		  
     , previsoffsetdir_(su.offsetdir_)
-    , sourcerecfld_(0)
-    , vp2vsfld_(0)
 {
     nmobox_ = new uiCheckBox( this, "NMO corrections" );
     nmobox_->setChecked( raypars_.usenmotimes_ );
@@ -640,34 +638,9 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     stackfld_->valuechanged.notify( mCB(this,uiRayTrcParamsGrp,updateCB) );
     stackfld_->attach( hCentered );
 
-    offsetfld_ = new uiGenInput( this, "Offset range(m) (start/stop)",
-	    				IntInpIntervalSpec() );
-    offsetfld_->setValue( Interval<int>( 0, mStdOffset ) );
-    offsetfld_->setElemSzPol( uiObject::Small );
-    offsetstepfld_ = new uiGenInput( this, "step" );
-    offsetstepfld_->setValue( raypars_.cs_.hrg.crlRange().step );
-    offsetstepfld_->attach( rightOf, offsetfld_ );
-    offsetstepfld_->setElemSzPol( uiObject::Small );
-    offsetfld_->attach( alignedBelow, nmobox_ );
+    uiRayTracer1D::Setup rsu(0);
+    raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
 
-    if ( su.withraysettings_ )
-    {
-	uiSeparator* sp = new uiSeparator( this, "Offset/Setup sep" );
-	sp->attach( stretchedBelow, offsetfld_ );
-
-	sourcerecfld_ = new uiGenInput( this, "Source / Receiver depth",
-				    FloatInpIntervalSpec() );
-	sourcerecfld_->setValue(Interval<float>(raypars_.setup_.sourcedepth_,
-					    raypars_.setup_.receiverdepth_));
-	sourcerecfld_->attach( centeredBelow, nmobox_ );
-	sourcerecfld_->attach( ensureBelow, sp );
-
-	vp2vsfld_ = new uiGenInput( this, "Vp, Vs factors (a/b)", 
-				    FloatInpIntervalSpec() );
-	vp2vsfld_->setValue( Interval<float>( raypars_.setup_.pvel2svelafac_,
-					      raypars_.setup_.pvel2svelbfac_) );
-	vp2vsfld_->attach( alignedBelow, sourcerecfld_ );
-    }
     updateCB( 0 );
 }
 
@@ -690,13 +663,16 @@ void uiRayTrcParamsGrp::updateCB( CallBacker* )
     nmobox_->display( isoffsetdir_ );
     stackfld_->display( !isoffsetdir_ );
     const bool isstacked = stackfld_->getBoolValue();
-    offsetfld_->display( isoffsetdir_ || isstacked );
-    offsetstepfld_->display( isoffsetdir_ || isstacked );
+    raytrace1dgrp_->displayOffsetFlds( isoffsetdir_ || isstacked );
 
     if ( isoffsetdir_ || isstacked )
     {
-	raypars_.cs_.hrg.setCrlRange( offsetfld_->getIInterval() );
-	raypars_.cs_.hrg.step.crl = (int)offsetstepfld_->getfValue();
+	StepInterval<float> offsetrg;
+	raytrace1dgrp_->fill( raypars_.setup_ );
+	raytrace1dgrp_->getOffsets( offsetrg );
+	raypars_.cs_.hrg.setCrlRange( 
+		Interval<int>( (int)offsetrg.start, (int)offsetrg.stop ) );
+	raypars_.cs_.hrg.step.crl = (int)offsetrg.step;
 	if ( !isstacked )
 	    raypars_.cs_.hrg.setInlRange( Interval<int>(1,1) ); //model idx to 1
     }
@@ -707,14 +683,6 @@ void uiRayTrcParamsGrp::updateCB( CallBacker* )
     }
     raypars_.usenmotimes_ = !isoffsetdir_ ? true : nmobox_->isChecked();
     raypars_.dostack_ = isstacked;
-
-    if ( sourcerecfld_ && vp2vsfld_ )
-    {
-	raypars_.setup_.sourcedepth_ = sourcerecfld_->getFInterval().start;
-	raypars_.setup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
-	raypars_.setup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
-	raypars_.setup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
-    }
 
     previsoffsetdir_ = isoffsetdir_;
 }

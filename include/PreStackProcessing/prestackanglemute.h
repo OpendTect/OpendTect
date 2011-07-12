@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.6 2011-06-27 09:56:40 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.7 2011-07-12 10:51:55 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "prestackprocessor.h"
 #include "raytrace1d.h"
+#include "samplingdata.h"
 
 
 class MultiID;
@@ -25,33 +26,25 @@ namespace PreStack
 {
 
 
-mClass AngleMute : public Processor
+mClass AngleMuteBase 
 {
 public:
-    			mDefaultFactoryInstantiation(Processor,
-				AngleMute,"AngleMute",sFactoryKeyword());
+    mStruct Params
+    {
+			    Params()
+				: mutecutoff_(0)
+				, dovelblock_(false)
+				, velvolmid_(MultiID::udf())
+				{}	
 
-			AngleMute();
-			~AngleMute();
-    bool		doPrepare(int nrthreads);
+	float 			mutecutoff_;
+	bool			dovelblock_;
+	MultiID			velvolmid_;   
+	RayTracer1D::Setup	raysetup_;
+    };
 
-    void		setSetup(const RayTracer1D::Setup&);
-    const RayTracer1D::Setup& getSetup() const		{ return setup_; }
-    MultiID		velocityVolumeID() const	{ return velvolmid_; }
-    bool		setVelocityMid(const MultiID& mid);
-
-    			//Muter setup
-    void		setTailMute(bool yn=true);
-    void		setTaperLength(float l);
-    bool		isTailMute() const		{ return tail_; }
-    float		taperLength() const		{ return taperlen_; }
-    float		muteCutoff() const		{ return mutecutoff_; }
-    void		setMuteCutoff(float co)		{ mutecutoff_ = co; }
-    void		setVelBlock(bool yn)		{ dovelblock_ = yn; }
-    bool		isVelBlock() const		{ return dovelblock_; }
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
@@ -59,20 +52,60 @@ public:
     static const char*  sKeyVelBlock()		{ return "Block velocities"; }
 
 protected:
+    			AngleMuteBase();
+    			~AngleMuteBase();
+
+    Params*		pars_;
+
+    Vel::VolumeFunctionSource*	velsource_;
+
+    bool	setVelocityFunction();
+    bool	getAILayers(const BinID&,TypeSet<AILayer>&,
+	    			SamplingData<float>&,int resamplesz=-1);
+    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
+};
+
+
+
+mClass AngleMute : public Processor, public AngleMuteBase
+{
+public:
+    			mDefaultFactoryInstantiation(Processor,
+				AngleMute,"AngleMute",sFactoryKeyword());
+
+			AngleMute();
+			~AngleMute();
+
+    mStruct AngleMutePars : public AngleMuteBase::Params
+    {
+			AngleMutePars()
+			    : tail_(false)
+			    , taperlen_(10) 
+			    {}
+
+	bool 		tail_;
+	float 		taperlen_;			    
+    };
+    static const char*  sKeyTaperLength()	{ return "Taper lenght"; }
+    static const char*  sKeyIsTail()		{ return "Mute tail"; }
+
+    bool		doPrepare(int nrthreads);
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+    AngleMutePars&	 params();
+    const AngleMutePars& params() const;
+
+protected:
 
     od_int64 		nrIterations() const	{ return outputs_.size(); }
     bool		doWork(od_int64,od_int64,int);
 
     bool			raytraceparallel_;
-    MultiID			velvolmid_;   
     Muter*			muter_; 
-    bool			tail_;
-    bool			dovelblock_;
-    float			taperlen_;
-    float			mutecutoff_;
-    RayTracer1D::Setup		setup_;
-    ObjectSet<RayTracer1D>	rtracers_;
-    Vel::VolumeFunctionSource*	velsource_;
+
+    ObjectSet<RayTracer1D> 	rtracers_;
 };
 
 

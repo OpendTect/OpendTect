@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.417 2011-06-09 10:54:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.418 2011-07-12 10:51:55 cvsbruno Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1711,6 +1711,8 @@ void uiODApplMgr::saveDefColTab( int visid, int attrib )
 
 void uiODApplMgr::processPreStack( CallBacker* )
 { dispatcher_.processPreStack(); }
+void uiODApplMgr::genAngleMuteFunction( CallBacker* )
+{ dispatcher_.genAngleMuteFunction(); }
 void uiODApplMgr::bayesClass2D( CallBacker* )
 { dispatcher_.bayesClass(true); }
 void uiODApplMgr::bayesClass3D( CallBacker* )

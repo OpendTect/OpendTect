@@ -1,0 +1,49 @@
+#ifndef uiprestackanglemutecomputer_h
+#define uiprestackanglemutecomputer_h
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Bruno
+ Date:		July 2011
+ RCS:		$Id: uiprestackanglemutecomputer.h,v 1.1 2011-07-12 10:51:55 cvsbruno Exp $
+________________________________________________________________________
+
+
+-*/
+
+#include "uidialog.h"
+
+class CtxtIOObj;
+class uiGenInput;
+class uiIOObjSel;
+class uiSeisSubSel;
+class uiVelSel;
+
+namespace PreStack
+{
+    class uiAngleMuteGrp;
+    class AngleMuteComputer;
+
+mClass uiAngleMuteComputer : public uiDialog
+{
+public:
+			uiAngleMuteComputer(uiParent*);
+			~uiAngleMuteComputer();
+protected:
+
+    CtxtIOObj&		outctio_;
+
+    uiAngleMuteGrp*     anglemutegrp_;
+    AngleMuteComputer*	processor_;
+    uiSeisSubSel*	subsel_;
+    uiIOObjSel*		mutedeffld_;
+
+    bool		acceptOK(CallBacker*);
+};
+
+
+}; //namespace
+
+#endif

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.112 2011-06-09 10:54:53 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.113 2011-07-12 10:51:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,7 @@ public:
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
     void			processVelConv(CallBacker* =0);
+    void			genAngleMuteFunction(CallBacker* =0);
     void			bayesClass2D(CallBacker* =0);
     void			bayesClass3D(CallBacker* =0);
     void			resortSEGY(CallBacker* =0);

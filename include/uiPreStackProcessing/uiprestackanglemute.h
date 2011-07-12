@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiprestackanglemute.h,v 1.3 2011-06-27 09:56:40 cvsbruno Exp $
+ RCS:		$Id: uiprestackanglemute.h,v 1.4 2011-07-12 10:51:55 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
+#include "prestackanglemute.h"
 
 class CtxtIOObj;
 class uiCheckBox;
@@ -24,8 +26,27 @@ class uiVelSel;
 namespace PreStack
 {
 
-class AngleMute;
 class Processor;
+
+mClass uiAngleMuteGrp : public uiGroup
+{
+public:
+			uiAngleMuteGrp(uiParent*,AngleMuteBase::Params&,
+					bool dooffset = false);
+
+    bool		acceptOK();
+
+    const uiRayTracer1D* rayTracer() const	 { return raytracerfld_; }
+
+protected:
+    AngleMuteBase::Params& params_;
+
+    uiRayTracer1D*	raytracerfld_;
+    uiVelSel*		velfuncsel_;
+    uiGenInput*		cutofffld_;
+    uiCheckBox*		blockfld_;
+};
+
 
 mClass uiAngleMute : public uiDialog
 {
@@ -45,12 +66,9 @@ protected:
 
     AngleMute*		processor_;
     
-    uiVelSel*		velfuncsel_;
-    uiRayTracer1D*	raytracerfld_;
-    uiGenInput*		cutofffld_;
-    uiGenInput*		topfld_;
+    uiAngleMuteGrp*	anglemutegrp_;
     uiGenInput*		taperlenfld_;
-    uiCheckBox*		blockfld_;
+    uiGenInput*		topfld_;
 };
 
 

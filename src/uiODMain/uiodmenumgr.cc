@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.228 2011-06-09 10:54:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.229 2011-07-12 10:51:55 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -411,6 +411,9 @@ void uiODMenuMgr::fillProcMenu()
 	csoitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
+	csoitm->insertItem(
+	    new uiMenuItem("Angle mute function ...",
+			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes.png"));

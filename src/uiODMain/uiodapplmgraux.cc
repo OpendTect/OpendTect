@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.30 2011-06-15 04:42:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.31 2011-07-12 10:51:55 cvsbruno Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -47,6 +47,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.30 2011-06-15 04:42:34 cv
 #include "uiprestackimpmute.h"
 #include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
+#include "uiprestackanglemutecomputer.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
 #include "uiprobdenfuncman.h"
@@ -387,6 +388,8 @@ void uiODApplMgrDispatcher::openXPlot()
 
 void uiODApplMgrDispatcher::processPreStack()
 { PreStack::uiBatchProcSetup dlg( par_, false ); dlg.go(); }
+void uiODApplMgrDispatcher::genAngleMuteFunction()
+{ PreStack::uiAngleMuteComputer dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::bayesClass( bool is2d )
 { new uiSeisBayesClass( ODMainWin(), is2d ); }
 void uiODApplMgrDispatcher::reStartProc()
