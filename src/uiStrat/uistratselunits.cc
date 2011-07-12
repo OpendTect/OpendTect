@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratselunits.cc,v 1.1 2011-07-12 11:46:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratselunits.cc,v 1.2 2011-07-12 13:14:15 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -102,7 +102,8 @@ void uiStratSelUnits::mkTreeFld()
     }
 
     tree_ = new uiListView( this, setup_.fldtxt_,
-	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, false );
+	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, true );
+    tree_->setColumnText( 0, setup_.fldtxt_ );
 
     ObjectSet<const Strat::UnitRef> dispunits;
     it.setPol( Strat::UnitRefIter::All );
@@ -154,6 +155,8 @@ void uiStratSelUnits::mkTreeFld()
 
 	if ( needcheck )
 	    newit->stateChanged.notify( selchgcb );
+
+	lvitms_ += newit;
     }
 
     tree_->selectionChanged.notify( curchgcb );
@@ -173,8 +176,19 @@ bool uiStratSelUnits::isSelected( const Strat::UnitRef& ur ) const
     else
     {
 	const uiStratSelUnitsListItem* lvitm = find( &ur );
-	return lvitm && lvitm->isChecked();
+	if ( !lvitm ) return false;
+	if ( isMulti() )
+	    return lvitm->isChecked();
+	return lvitm == tree_->currentItem();
     }
+}
+
+
+bool uiStratSelUnits::isPresent( const Strat::UnitRef& ur ) const
+{
+    if ( combo_ )
+	return combo_->isPresent( ur.fullCode() );
+    return find( &ur );
 }
 
 
@@ -206,10 +220,24 @@ void uiStratSelUnits::getSelected( ObjectSet<const Strat::UnitRef>& urs ) const
     }
     else
     {
+	const uiListViewItem* curitm = tree_->currentItem();
 	for ( int idx=0; idx<lvitms_.size(); idx++ )
 	{
-	    if ( lvitms_[idx]->isChecked() )
-		urs += lvitms_[idx]->unit_;
+	    const uiStratSelUnitsListItem* itm = lvitms_[idx];
+	    if ( isMulti() )
+	    {
+		if ( itm->isChecked() )
+		    urs += itm->unit_;
+	    }
+	    else
+	    {
+		if ( itm == curitm )
+		{
+		    if ( Strat::UnitRefIter::isValid(*itm->unit_,setup_.pol_) )
+			urs += itm->unit_;
+		    break;
+		}
+	    }
 	}
     }
 }
@@ -222,8 +250,11 @@ void uiStratSelUnits::setSelected( const Strat::UnitRef& ur, bool yn )
     else
     {
 	uiStratSelUnitsListItem* lvitm = find( &ur );
-	if ( lvitm )
+	if ( !lvitm ) return;
+	if ( isMulti() )
 	    lvitm->setChecked( yn );
+	else
+	    tree_->setCurrentItem( lvitm );
     }
 }
 
@@ -232,12 +263,28 @@ void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
 {
     if ( combo_ )
 	combo_->setCurrentItem( ur.fullCode() );
+    else if ( isMulti() )
+	setSelected( ur );
     else
     {
 	uiStratSelUnitsListItem* lvitm = find( &ur );
 	if ( lvitm )
+	{
 	    tree_->setCurrentItem( lvitm );
+	    tree_->ensureItemVisible( lvitm );
+	}
     }
+}
+
+
+void uiStratSelUnits::presentAllUnits( bool yn )
+{
+    if ( combo_ ) return;
+
+    if ( yn )
+	tree_->expandAll();
+    else
+	tree_->collapseAll();
 }
 
 
@@ -266,7 +313,7 @@ void uiStratSelUnits::curChg( CallBacker* )
 
 void uiStratSelUnits::selChg( CallBacker* cb )
 {
-    if ( doingautosel_ || combo_ || !setup_.autoselchildparent_ )
+    if ( doingautosel_ || combo_ || isMulti() || !setup_.autoselchildparent_ )
 	return;
 
     mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,cb)
