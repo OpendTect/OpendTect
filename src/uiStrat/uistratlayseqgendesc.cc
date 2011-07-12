@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.27 2011-07-07 14:48:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.28 2011-07-12 13:14:55 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
+#include "uistratselunits.h"
 #include "uidialog.h"
 #include "uimenu.h"
 #include "uigeninput.h"
@@ -491,13 +492,16 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     else
 	edun_ = new Strat::SingleLayerGenerator;
 
-    BufferStringSet unnms;
-    Strat::UnitRefIter it( rt_, Strat::UnitRefIter::Leaves );
-    while ( it.next() )
-	unnms.add( it.unit()->fullCode() );
-    unfld_ = new uiGenInput( this, "Layer", StringListInpSpec(unnms) );
-    unfld_->setText( edun_->unit().fullCode() );
+    uiStratSelUnits::Setup ssusu( uiStratSelUnits::Single,
+	    			  Strat::UnitRefIter::Leaves );
+    ssusu.fldtxt( "Layer" );
+    unfld_ = new uiStratSelUnits( this, rt_, ssusu );
+    if ( unfld_->isPresent(edun_->unit()) )
+	unfld_->setCurrent( edun_->unit() );
+    else
+	unfld_->presentAllUnits();
 
+    uiGroup* propgrp = new uiGroup( this, "Property edit" );
     const PropertySet& props = edun_->properties();
     for ( int idx=0; idx<proprefs.size(); idx++ )
     {
@@ -518,13 +522,14 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	    workprops_.add( new ValueProperty(pr,defval) );
 	}
 
-	uiSimpPropertyEd* fld = new uiSimpPropertyEd(this,workprops_.get(idx));
-	if ( idx == 0 )
-	    fld->attach( alignedBelow, unfld_ );
-	else
+	uiSimpPropertyEd* fld = new uiSimpPropertyEd( propgrp,
+						      workprops_.get(idx) );
+	if ( idx > 0 )
 	    fld->attach( alignedBelow, propflds_[idx-1] );
 	propflds_ += fld;
     }
+
+    propgrp->attach( centeredRightOf, unfld_ );
 }
 
 bool rejectOK( CallBacker* )
@@ -547,13 +552,18 @@ bool acceptOK( CallBacker* )
 	}
     }
 
-    const Strat::UnitRef* ur = rt_.find( unfld_->text() );
+    const Strat::UnitRef* ur = unfld_->firstSelected();
+    if ( !ur || !ur->isLeaf() )
+    {
+	uiMSG().error( "Please select the layer" );
+	return false;
+    }
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
     edun_->properties() = workprops_;
     return true;
 }
 
-    uiGenInput*		unfld_;
+    uiStratSelUnits*		unfld_;
     ObjectSet<uiSimpPropertyEd>	propflds_;
 
     const Strat::LayerGenerator* inpun_;
