@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.1 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.2 2011-07-12 11:41:39 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.1 2011-07-12
 #include "uimsg.h"
 #include "uiraytrace1d.h"
 #include "uiseissubsel.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uiveldesc.h"
 
@@ -33,8 +34,12 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
 {
     anglemutegrp_ = new uiAngleMuteGrp( this, processor_->params(), true );
 
+    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    sep->attach( stretchedBelow, anglemutegrp_ );
+
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
-    subsel_->attach( ensureBelow, anglemutegrp_ );
+    subsel_->attach( ensureBelow, sep );
+    subsel_->attach( centeredBelow, anglemutegrp_ );
 
     outctio_.ctxt.forread = false;
     mutedeffld_ = new uiIOObjSel( this, outctio_ );
