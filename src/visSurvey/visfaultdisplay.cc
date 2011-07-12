@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.79 2011-06-22 08:31:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.80 2011-07-12 21:33:26 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -117,6 +117,13 @@ FaultDisplay::FaultDisplay()
 
 FaultDisplay::~FaultDisplay()
 {
+    if ( scene_ && scene_->getPolySelection() &&
+	 scene_->getPolySelection()->polygonFinished() )
+    {
+	const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
+	scene_->getPolySelection()->polygonFinished()->remove( cb );
+    }
+
     setSceneEventCatcher( 0 );
     if ( viseditor_ ) viseditor_->unRef();
 
