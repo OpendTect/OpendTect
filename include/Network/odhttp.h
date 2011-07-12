@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.8 2010-12-10 06:01:04 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.9 2011-07-12 22:12:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
     enum State		{ Unconnected, HostLookup, Connecting, Sending,
 			  Reading, Connected, Closing };
 
+    int			setProxy(const char* host,int port,
+				 const char* usrnm,const char* pwd);
     int			setHost(const char* host,int port=80);
     int			close();
     void		abort();
