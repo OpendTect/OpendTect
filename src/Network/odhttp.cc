@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.11 2010-12-10 06:01:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.12 2011-07-12 22:13:12 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -42,6 +42,12 @@ ODHttp::~ODHttp()
 {
     delete qhttpconn_;
 }
+
+
+// ToDo: support username and passwd
+int ODHttp::setProxy( const char* host, int port,
+		      const char* usrnm, const char* pwd )
+{ return qhttp_->setProxy( host, port ); }
 
 
 int ODHttp::setHost( const char* host, int port )
