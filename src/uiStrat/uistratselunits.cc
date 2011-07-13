@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratselunits.cc,v 1.2 2011-07-12 13:14:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratselunits.cc,v 1.3 2011-07-13 10:37:49 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -50,6 +50,7 @@ uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
     , doingautosel_(false)
     , curunit_(0)
     , currentChanged(this)
+    , selectionChanged(this)
 {
     if ( setup_.type_ == Simple )
 	mkBoxFld();
@@ -320,6 +321,8 @@ void uiStratSelUnits::selChg( CallBacker* cb )
     if ( !sslvi ) { pErrMsg("Huh"); return; }
     const Strat::UnitRef* ur = sslvi->unit_;
     if ( !ur ) return;
+
+    selectionChanged.trigger();
 
     if ( sslvi->isChecked() )
 	selRelated( ur );

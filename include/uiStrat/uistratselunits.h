@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.2 2011-07-12 13:14:15 cvsbert Exp $
+ RCS:           $Id: uistratselunits.h,v 1.3 2011-07-13 10:37:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
     void		presentAllUnits(bool yn=true);
 
     Notifier<uiStratSelUnits>	currentChanged;
+    Notifier<uiStratSelUnits>	selectionChanged; //!< Only issued for Multi
     const Strat::UnitRef*	curunit_;
 
 protected:
