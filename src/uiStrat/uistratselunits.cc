@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratselunits.cc,v 1.3 2011-07-13 10:37:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratselunits.cc,v 1.4 2011-07-13 13:33:43 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -314,7 +314,7 @@ void uiStratSelUnits::curChg( CallBacker* )
 
 void uiStratSelUnits::selChg( CallBacker* cb )
 {
-    if ( doingautosel_ || combo_ || isMulti() || !setup_.autoselchildparent_ )
+    if ( doingautosel_ || combo_ || !isMulti() || !setup_.autoselchildparent_ )
 	return;
 
     mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,cb)
@@ -324,9 +324,9 @@ void uiStratSelUnits::selChg( CallBacker* cb )
 
     selectionChanged.trigger();
 
-    if ( sslvi->isChecked() )
-	selRelated( ur );
-    else
+    const bool ischk = sslvi->isChecked();
+    selRelated( ur, ischk );
+    if ( !ischk )
 	unselParentIfLast( ur );
 }
 
@@ -342,11 +342,12 @@ uiStratSelUnitsListItem* uiStratSelUnits::find( const Strat::UnitRef* ur )
 }
 
 
-void uiStratSelUnits::selRelated( const Strat::UnitRef* ur )
+void uiStratSelUnits::selRelated( const Strat::UnitRef* ur, bool yn )
 {
     doingautosel_ = true;
-    checkParent( ur );
-    checkChildren( ur );
+    if ( yn )
+	checkParent( ur );
+    checkChildren( ur, yn );
     doingautosel_ = false;
 }
 
@@ -377,14 +378,14 @@ void uiStratSelUnits::checkParent( const Strat::UnitRef* ur )
     const Strat::NodeUnitRef* par = ur->upNode();
     if ( !par ) return;
     uiStratSelUnitsListItem* lvit = find( par );
-    if ( lvit->isChecked() ) return;
+    if ( !lvit || lvit->isChecked() ) return;
 
     lvit->setChecked( true );
     checkParent( par );
 }
 
 
-void uiStratSelUnits::checkChildren( const Strat::UnitRef* ur )
+void uiStratSelUnits::checkChildren( const Strat::UnitRef* ur, bool yn )
 {
     mDynamicCastGet(const Strat::NodeUnitRef*,nur,ur)
     if ( !nur ) return;
@@ -393,8 +394,10 @@ void uiStratSelUnits::checkChildren( const Strat::UnitRef* ur )
     {
 	const Strat::UnitRef* chld = &nur->ref( idx );
 	uiStratSelUnitsListItem* lvit = find( chld );
-	if ( !lvit || lvit->isChecked() ) continue;
-	lvit->setChecked( true );
-	checkChildren( chld );
+	if ( lvit )
+	{
+	    lvit->setChecked( yn );
+	    checkChildren( chld, yn );
+	}
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.3 2011-07-13 10:37:49 cvsbert Exp $
+ RCS:           $Id: uistratselunits.h,v 1.4 2011-07-13 13:33:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ protected:
     void			selChg(CallBacker*);
 
     inline bool			isMulti() const { return setup_.type_==Multi; }
-    void			selRelated(const Strat::UnitRef*);
+    void			selRelated(const Strat::UnitRef*,bool);
     void			checkParent(const Strat::UnitRef*);
-    void			checkChildren(const Strat::UnitRef*);
+    void			checkChildren(const Strat::UnitRef*,bool);
     void			unselParentIfLast(const Strat::UnitRef*);
 
     uiStratSelUnitsListItem*	find(const Strat::UnitRef*);
