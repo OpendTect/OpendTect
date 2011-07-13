@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunititer.cc,v 1.3 2011-07-11 13:58:16 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunititer.cc,v 1.4 2011-07-13 12:34:08 cvsbert Exp $";
 
 #include "stratunitrefiter.h"
 #include "stratunitref.h"
@@ -104,12 +104,13 @@ bool Strat::UnitRefIter::toNext()
 {
     if ( !curnode_ ) return false; // At end
 
-    // First see if we can simply take next ref or go down
     UnitRef* curun = gtUnit();
     if ( curun->isLeaf() )
     {
+	// If there is a next leaf, take it
 	if ( curidx_ < curnode_->nrRefs() - 1 )
 	    { curidx_++; return true; }
+	// No: this leavednode is done
     }
     else
     {
@@ -126,22 +127,25 @@ bool Strat::UnitRefIter::toNext()
 	    { curidx_ = 0; return true; }
     }
 
-    // OK so this node (and everything below) is done.
-    while ( true )
+    // This node (and everything below) is done.
+    if ( curnode_ != itnode_ )
     {
-	Strat::NodeUnitRef* par = curnode_->upNode();
-	if ( !par ) break;
+	while ( true )
+	{
+	    Strat::NodeUnitRef* par = curnode_->upNode();
+	    if ( !par ) break;
 
-	curidx_ = par->indexOf( curnode_ );
-	curnode_ = par;
-	if ( curidx_ < par->nrRefs() - 1 )
-	    { curidx_++; return true; }
+	    curidx_ = par->indexOf( curnode_ );
+	    curnode_ = par;
+	    if ( curidx_ < par->nrRefs() - 1 )
+		{ curidx_++; return true; }
 
-	if ( curnode_ == itnode_ ) break;
+	    if ( curnode_ == itnode_ ) break;
+	}
     }
 
-    curnode_ = 0;
-    return false;
+    // We're all done
+    curnode_ = 0; return false;
 }
 
 
