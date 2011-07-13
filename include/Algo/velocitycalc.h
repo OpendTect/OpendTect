@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.38 2011-07-06 07:47:57 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.39 2011-07-13 12:49:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,12 +298,13 @@ mGlobal bool fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
 			      float& error);
 	        
 	        
-/*!Given an irregularly sampled deptharr, create a regularly sampled one. The
-   function assumes initial depth and time are 0.*/
+/*!Given an irregularly sampled depth or time array, create a regularly sampled
+  one. The function assumes initial depth and time are 0.
+  if zarr is time, tord_in is corresponding depth and other way round */
 
-mGlobal void resampleDepth(const float* deptharr,const float* t_in, int nr_in,
+mGlobal void resampleZ(const float* zarr,const float* tord_in, int nr_in,
 			const SamplingData<double>& sd_out, int nr_out,
-			float* depthsampled);
+			float* zsampled);
 
 /*!Given an irregularly sampled effective Thomsen parameter array, create a
   regularly sampled one. The function assumes constant value of the parameter before and after the input interval.*/

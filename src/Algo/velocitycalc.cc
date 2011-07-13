@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.54 2011-07-06 07:47:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.55 2011-07-13 12:49:27 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -885,7 +885,7 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     if ( nr_in<2 )
 	return false;
     else
-	resampleDepth( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
+	resampleZ( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
 
     //compute Vint_sampled from depthsampled
     Vint_sampled[0] = 0;
@@ -997,11 +997,11 @@ bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
 }
 
 
-void resampleDepth( const float* deptharr, const float* t_in, int nr_in,
+void resampleZ( const float* zarr, const float* tord_in, int nr_in,
 		    const SamplingData<double>& sd_out, int nr_out,
-		    float* depthsampled )
+		    float* zsampled )
 {
-    resampleContinuousData(deptharr, t_in, nr_in, sd_out, nr_out, depthsampled);
+    resampleContinuousData( zarr, tord_in, nr_in, sd_out, nr_out, zsampled );
 }
 
 
@@ -1069,7 +1069,7 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     if ( nr_in<2 )
 	return false;
     else
-	resampleDepth( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
+	resampleZ( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
 
     //compute Vout from depthsampled
     Vout[0] = Vin[0];

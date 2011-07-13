@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.17 2011-07-08 15:28:57 cvshelene Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.18 2011-07-13 12:49:27 cvshelene Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -207,8 +207,9 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 }
 
 
-//TODO : make is Multi-threaded for Velocity input cubes
-//TODO
+#define mOpInverse(val,inv) \
+  ( inv ? 1.0/val : val )
+
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
 {
     StepInterval<float> trcrg = outcs_.zrg;
@@ -242,42 +243,61 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    SeisTrcValueSeries seistrcvsin( intrc, 0 );
 	    if ( forward_ ) modeltrc = intrc;
 	    SeisTrcValueSeries seistrcvsmodel( modeltrc, 0 );
-	    mAllocVarLenArr( float, times, insz );
-	    mAllocVarLenArr( float, truez, insz );
+
+	    // wanteddimvals = z computed from model, wanted dimension
+	    mAllocVarLenArr( float, wanteddimvals, insz );
+
+	    //truez and truezsampled = initial dimension
+	    mAllocVarLenArr( float, truez, insz );		
 	    mAllocVarLenArr( float, truezsampled, outsz );
-	    if ( !times || !truez || !truezsampled || modeltrc.size()<insz )
+
+	    if ( !wanteddimvals || !truez || !truezsampled
+		    || modeltrc.size()<insz )
 		return false;
 
 	    truez[0] = 0;
 	    SamplingData<double> modelsd( modeltrc.info().sampling );
 	    if ( isvint_ )
 	    {
-		TimeDepthConverter::calcTimes( seistrcvsmodel, insz, modelsd,
-					       times );
+		if ( forward_ )
+		    TimeDepthConverter::calcDepths( seistrcvsmodel, insz,
+						    modelsd, wanteddimvals );
+		else
+		    TimeDepthConverter::calcTimes( seistrcvsmodel, insz,
+			    			   modelsd, wanteddimvals );
+
 		for ( int idx=1; idx<insz; idx++ )
 		{
-		    float difftwt = times[idx] - times[idx-1];
-		    truez[idx] = truez[idx-1] +
-				 seistrcvsin.value(idx) * difftwt/2;
+		    float difftwt = wanteddimvals[idx]-wanteddimvals[idx-1];
+		    truez[idx] = truez[idx-1] + difftwt
+				 * mOpInverse( seistrcvsin.value(idx),forward_);
 		}
 	    }
 	    else //should be Vavg logically
 	    {
-		TimeDepthConverter tdconvmodel;
-		tdconvmodel.setVelocityModel( seistrcvsmodel, insz, modelsd,
-					      VelocityDesc::Avg, forward_ );
-		tdconvmodel.calcTimes( seistrcvsmodel, insz, modelsd, times );
-		for ( int idx=1; idx<insz; idx++ )
-		    truez[idx] = seistrcvsin.value(idx) * times[idx];
+		for ( int idx=0; idx<insz; idx++ )
+		{
+		    wanteddimvals[idx] = modelsd.atIndex(idx)
+			    * mOpInverse( 2.0, forward_ )
+			    * mOpInverse( seistrcvsmodel.value(idx), !forward_);
+		    if ( !idx ) continue;
+		    truez[idx] = wanteddimvals[idx]
+			    * mOpInverse( seistrcvsin.value(idx), forward_ );
+		}
 	    }
 
-	    resampleDepth( truez, times, insz, sd, outsz, truezsampled );
+	    resampleZ( truez, wanteddimvals, insz, sd, outsz, truezsampled );
 	    outtrc->set( 0, seistrcvsin.value(0), 0 );
 	    for ( int idx=1; idx<outsz; idx++ )
 	    {
-		const float val = isvint_
-		    ? (truezsampled[idx] - truezsampled[idx-1])/(sd.step/2)
-		    : truezsampled[idx] / sd.atIndex(idx);
+		const float val = forward_
+		    ? isvint_
+			? sd.step / (truezsampled[idx] - truezsampled[idx-1])
+			: sd.atIndex(idx) / truezsampled[idx]
+		    : isvint_
+			? (truezsampled[idx] - truezsampled[idx-1])/(sd.step/2)
+			: truezsampled[idx] / sd.atIndex(idx);
+
 		outtrc->set( idx, val, 0 );
 	    }
 	}
