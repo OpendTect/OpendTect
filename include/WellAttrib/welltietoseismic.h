@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ailayer.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
-#include "synthseis.h"
 #include "welltiegeocalculator.h"
 
 class LineKey;
@@ -35,13 +34,13 @@ public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 
     bool 		computeAll();
-    bool		generateSynthetics(bool withtaskrunner = true);
+    bool		doFullSynthetics();
+    bool		doFastSynthetics();
 
     const char*		errMSG() const		{ return errmsg_.buf(); } 
    
 protected:
 
-    bool		prepareSynthetics();
     bool		extractSeismics();
     bool		setAIModel();
     bool		copyDataToLogSet();
@@ -55,7 +54,6 @@ protected:
     const MultiID&	seisid_;
     const LineKey*	linekey_;
     TypeSet<float>	reflvals_;
-    Seis::ODRaySynthGenerator gen_;
 
     StepInterval<float> disprg_;
     StepInterval<float> workrg_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.22 2011-07-05 08:24:39 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.23 2011-07-14 08:09:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 class RayTracer1D;
 class SeisTrc;
 class TimeDepthModel;
+class TaskRunner;
 class Wavelet;
 
 typedef std::complex<float> float_complex;
@@ -35,15 +36,13 @@ namespace PreStack { class Gather; }
 namespace Seis
 {
 
-/* brief generates synthetic traces.The SynthGenerator performs the basic 
-   convolution with a reflectivity series and a wavelet. If you have AI layers 
-   and want directly some synthetics out of them, then you should use the 
-   RayTraceSynthGenerator.
+/* 
+   brief generates synthetic traces.The SynthGenerator performs the basic 
+   convolution with a reflectivity series and a wavelet.
+   The MultiTraceSynthGenerator is a Parallel runner of the SynthGenerator. 
 
-   The different constructors and generate() functions will optimize for
-   different situations. For example, if your Reflectivity/AI Model is fixed 
-   and you need to generate for multiple wavelets, then you benefit from only 
-   one anti-alias being done.
+   If you have AI layers and want directly some synthetics out of them, 
+   then you should use the RayTraceSynthGenerator. 
 */
 
 
@@ -52,6 +51,9 @@ mClass SynthGenBase
 public:
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
     virtual bool		setOutSampling(const StepInterval<float>&);
+
+    virtual void 		setConvolDomain(bool fourier) 
+    				{ isfourier_ = fourier; }
 
     const char*			errMsg() const	
     				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
@@ -98,7 +100,7 @@ protected:
     bool 			computeTrace(float* result); 
     bool 			doTimeConvolve(float* result); 
     bool 			doFFTConvolve(float* result);
-    void 			setConvolDomain(bool fourier);
+    void 			setConvDomain(bool fourier);
 
     const ReflectivityModel*	refmodel_;
 
@@ -108,6 +110,10 @@ protected:
     bool			needprepare_;	
     TypeSet<float_complex>	cresamprefl_;
     SeisTrc&			outtrc_;
+
+    bool			doresample_;
+public:
+    void			setDoResample(bool yn) 	{ doresample_ = yn; }
 };
 
 
@@ -122,30 +128,35 @@ public:
     void 			result(ObjectSet<const SeisTrc>&) const;
     void 			getSampledReflectivities(TypeSet<float>&) const;
 
+    const char*                 message() const 
+    					{ return "Generating synthetics..."; }
+
 protected:
 
     od_int64            	nrIterations() const;
     virtual bool        	doWork(od_int64,od_int64,int);
+
 
     ObjectSet<SynthGenerator>	synthgens_;
 };
 
 
 
-mClass RaySynthGenerator : public SynthGenBase, public Executor 
+mClass RaySynthGenerator : public SynthGenBase
 {
 public:
-    mDefineFactoryInClass( RaySynthGenerator, factory );
+			RaySynthGenerator() {};
+			~RaySynthGenerator();
 
-    virtual bool		addModel(const AIModel&);
-				/*!<you can have more than one model!*/
-    virtual bool		setRayParams(const TypeSet<float>& offs,
-					const RayTracer1D::Setup&,bool isnmo);
-
-    int				nextStep();
-    od_int64            	totalNr() const { return raymodels_.size(); }
-    od_int64            	nrDone() const 	{ return nrdone_; }
-    const char*         	message() const;
+    //input
+    virtual void	addModel(const AIModel&);
+    virtual void	setRayParams(const RayTracer1D::Setup&,
+				     const TypeSet<float>& offsets,
+				     bool isnmo);
+    //execute functions
+    bool		doWork(TaskRunner* tr=0);
+    bool		doRayTracing(TaskRunner* tr=0);
+    bool		doSynthetics(TaskRunner* tr=0); 
 
     mStruct RayModel
     {
@@ -155,6 +166,7 @@ public:
 	void 		getTraces(ObjectSet<const SeisTrc>&,bool steal);
 	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal);
 	void		getD2T(ObjectSet<const TimeDepthModel>&,bool steal);
+	void		getSampledRefs(TypeSet<float>&) const;
 
 	const SeisTrc*	stackedTrc() const;
 
@@ -165,47 +177,26 @@ public:
 	TypeSet<float>  			sampledrefs_;
 
     public:
-	void		getSampledRefs(TypeSet<float>&) const;
+	void		forceReflTimes(const StepInterval<float>&);
 
 	friend class 				RaySynthGenerator;
     };
 
     //available after execution
-    RayModel&			result(int id) { return *raymodels_[id]; }
-    const RayModel&		result(int id) const { return *raymodels_[id]; }
+    RayModel&		result(int id) 		{ return *raymodels_[id]; }
+    const RayModel&	result(int id) const 	{ return *raymodels_[id]; }
+
+    const Interval<float>&	raySampling() const { return raysampling_; }
 
 protected:
-    				RaySynthGenerator();
-    virtual 			~RaySynthGenerator();
 
-    void			clean();
-    int				nrdone_;
-    bool			israytracing_;
-
-    bool			doRayTracing();
-    int				doSynthetics();
-
-    StepInterval<float>		raysampling_;
-    TypeSet<float>		offsets_;
     TypeSet<AIModel>		aimodels_;
-    ObjectSet<RayModel>		raymodels_;
     RayTracer1D::Setup 		raysetup_;
+    TypeSet<float>		offsets_;
+    Interval<float>		raysampling_;
 
-public:
-    void			reSet( bool all ); 
+    ObjectSet<RayModel>		raymodels_;
 };
-
-
-
-mClass ODRaySynthGenerator : public RaySynthGenerator
-{
-protected:
-
-    static void         	initClass() 
-				{factory().addCreator(create,"Fast Generator");}
-    static RaySynthGenerator* 	create() { return new ODRaySynthGenerator; }
-};
-
 
 } //namespace
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.65 2011-07-08 14:53:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.66 2011-07-14 08:09:29 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.65 2011-07-08 14:53:40 
 #include "raytrace1d.h"
 #include "synthseis.h"
 #include "seistrc.h"
-#include "task.h"
 #include "wavelet.h"
 
 #include "welldata.h"
@@ -54,8 +53,7 @@ bool DataPlayer::computeAll()
     mGetWD()
 
     if 	(  !setAIModel() 
-	|| !prepareSynthetics() 
-	|| !generateSynthetics() 
+	|| !doFullSynthetics() 
 	|| !extractSeismics() )
 	return false;
 
@@ -128,55 +126,51 @@ bool DataPlayer::setAIModel()
 }
 
 
-bool DataPlayer::prepareSynthetics()
+bool DataPlayer::doFullSynthetics()
 {
-    gen_.reSet( true );
-    gen_.addModel( aimodel_ );
-    gen_.setOutSampling( disprg_ );
-    const Wavelet& wvlt = data_.initwvlt_;
-    gen_.setWavelet( &wvlt, OD::UsePtr );
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+						  : data_.estimatedwvlt_;
+    Seis::RaySynthGenerator gen;
+    gen.addModel( aimodel_ );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( disprg_ );
 
-    if ( !data_.trunner_->execute( gen_ ) )
-	mErrRet( gen_.errMsg() )
+    if ( !gen.doRayTracing( data_.trunner_ ) )
+	mErrRet( gen.errMsg() )
 
-    //hack because we need to set our own times there 
-    Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
-    ObjectSet<const ReflectivityModel> refms; 
-    rm.getRefs( refms, false );
-    for ( int idref=0; idref<refms.size(); idref++ )
+    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
+    rm.forceReflTimes( workrg_ );
+
+    if ( !gen.doSynthetics( data_.trunner_ ) )
+	mErrRet( gen.errMsg() )
+
+    rm.getSampledRefs( reflvals_ );
+    data_.synthtrc_ = *rm.stackedTrc();
+    for ( int idx=0; idx<reflvals_.size(); idx++ )
     {
-	ReflectivityModel& rfm = const_cast<ReflectivityModel&>(*refms[idref]);
-	for ( int idx=0; idx<rfm.size(); idx++ )
-	{
-	    rfm[idx].time_ = workrg_.atIndex(idx);
-	    rfm[idx].correctedtime_ = workrg_.atIndex(idx);
-	}
+	refmodel_ += ReflectivitySpike(); 
+	refmodel_[idx].reflectivity_ = reflvals_[idx];
     }
+
     return true;
 }
 
 
-bool DataPlayer::generateSynthetics( bool withtaskrunner )
+bool DataPlayer::doFastSynthetics()
 {
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
-    gen_.reSet( false );
-    gen_.setWavelet( &wvlt, OD::UsePtr );
+    Seis::SynthGenerator gen;
+    gen.setDoResample( false );
+    gen.setConvolDomain( false );
+    gen.setModel( refmodel_ );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( disprg_ );
 
-    if ( withtaskrunner )
-    {
-	if ( !data_.trunner_->execute( gen_ ) )
-	    mErrRet( gen_.errMsg() )
-    }
-    else
-    {
-	if ( !gen_.execute() )
-	    mErrRet( gen_.errMsg() )
-    }
+    if ( !gen.doWork() )
+	mErrRet( gen.errMsg() )
 
-    const Seis::RaySynthGenerator::RayModel& rm = gen_.result( 0 );
-    rm.getSampledRefs( reflvals_ );
-    data_.synthtrc_ = *rm.stackedTrc();
+    data_.synthtrc_ = *new SeisTrc( gen.result() );
 
     return true;
 }
