@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.45 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.46 2011-07-14 08:09:44 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -381,8 +381,8 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
     for ( int idx=0; idx<cs.nrCrl(); idx++ )
 	offsets += cs.hrg.crlRange().atIndex(idx);
 
-    Seis::ODRaySynthGenerator synthgen;
-    synthgen.setRayParams( offsets, raypars.setup_, raypars.usenmotimes_ );
+    Seis::RaySynthGenerator synthgen;
+    synthgen.setRayParams( raypars.setup_, offsets, raypars.usenmotimes_ );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     const int nraimdls = cs.nrInl();
 
@@ -403,8 +403,8 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	else
 	    synthgen.addModel( aimod );
     }
-    TaskRunner tr;
-    if ( !tr.execute( synthgen ) )
+
+    if ( !synthgen.doWork() )
 	mErrRet( synthgen.errMsg(), return 0 );
 
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
@@ -452,7 +452,7 @@ DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
 	    d2ts += tmpd2ts[0]; 
     }
     if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty()) )
-	mErrRet("No seismic traces genereated ", return 0)
+	mErrRet("No seismic trace genereated ", return 0)
 
     DataPack* dp =0;
     if ( isgather ) 
