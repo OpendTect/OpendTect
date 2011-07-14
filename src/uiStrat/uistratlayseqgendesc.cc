@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.29 2011-07-12 13:22:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.30 2011-07-14 09:26:19 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -358,14 +358,14 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
 {
     const PropertyRef& pr = prop.ref();
 
-    static const char* opts[] = { "Constant", "Range", 0 };
+    static const char* opts[] = { "Value", "Range", 0 };
     typfld_ = new uiComboBox( this, opts, BufferString(pr.name()," type") );
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
-    typfld_->setPrefWidthInChar( 14 );
+    typfld_->setHSzPol( uiObject::Small );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
-    unfld_ = new uiUnitSel( this, pr.stdType() );
+    unfld_ = new uiUnitSel( this, pr.stdType(), 0, true );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );
