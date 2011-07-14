@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.45 2011-07-06 09:27:36 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.46 2011-07-14 10:16:06 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: property.cc,v 1.45 2011-07-06 09:27:36 cvsbert 
 #include "iopar.h"
 #include "ioman.h"
 #include "errh.h"
+#include <typeinfo>
 
 static const char* filenamebase = "Properties";
 static const char* sKeyAliases = "Aliases";
@@ -433,6 +434,16 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
 const char* Property::name() const
 {
     return ref_.name().buf();
+}
+
+
+bool Property::isEqualTo( const Property& oth ) const
+{
+    if ( typeid(*this) != typeid(oth) )
+	return false;
+
+    const BufferString mydef( def() ), othdef( oth.def() );
+    return mydef == othdef;
 }
 
 

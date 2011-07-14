@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.26 2011-07-06 09:27:36 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.27 2011-07-14 10:16:06 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
+    bool		isEqualTo(const Property&) const;
 
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
