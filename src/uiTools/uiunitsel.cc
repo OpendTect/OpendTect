@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiunitsel.cc,v 1.2 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiunitsel.cc,v 1.3 2011-07-14 09:13:08 cvsbert Exp $";
 
 #include "uiunitsel.h"
 
@@ -17,11 +17,16 @@ static const char* rcsID = "$Id: uiunitsel.cc,v 1.2 2010-11-10 15:26:43 cvsbert 
 #include "unitofmeasure.h"
 
 
-uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt )
+uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
+       		      bool symb )
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
+    , symbolsdisp_(symb)
 {
     inpfld_ = new uiComboBox( this, "Units" );
+    if ( symbolsdisp_ )
+	inpfld_->setHSzPol( uiObject::Small );
+
     if ( txt && *txt )
     {
 	uiLabel* lbl = new uiLabel( this, txt );
@@ -35,7 +40,21 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt )
 
 void uiUnitSel::setUnit( const char* unitnm )
 {
-    inpfld_->setCurrentItem( unitnm );
+    if ( !unitnm || !*unitnm ) return;
+
+    if ( inpfld_->isPresent(unitnm) )
+	inpfld_->setCurrentItem( unitnm );
+    else
+    {
+	for ( int idx=0; idx<units_.size(); idx++ )
+	{
+	    const UnitOfMeasure& un = *units_[idx];
+	    const BufferString unnm( un.name() );
+	    const BufferString unsymb( un.symbol() );
+	    if ( unnm == unitnm || unsymb == unitnm )
+		{ inpfld_->setCurrentItem( idx ); break; }
+	}
+    }
 }
 
 
@@ -62,5 +81,9 @@ void uiUnitSel::update()
     units_.erase();
     UoMR().getRelevant( proptype_, units_ );
     for ( int idx=0; idx<units_.size(); idx++ )
-	inpfld_->addItem( units_[idx]->name() );
+    {
+	const char* disp = symbolsdisp_ ? units_[idx]->symbol()
+	    				: units_[idx]->name().buf();
+	inpfld_->addItem( disp );
+    }
 }
