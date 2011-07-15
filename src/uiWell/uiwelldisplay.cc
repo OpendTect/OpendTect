@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.15 2011-06-30 07:58:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.16 2011-07-15 12:00:17 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.15 2011-06-30 07:58:13 cvs
 #include "wellmarker.h"
 #include "uistatusbar.h"
 #include "uiwelldisplaycontrol.h"
-#include "uiwellinfopanels.h"
 #include "uiwelllogdisplay.h"
 #include "uiwellstratdisplay.h"
 
@@ -167,6 +166,7 @@ void uiWellDisplay::setDisplayProperties()
 	uiWellLogDisplay::LogData& ld1 = logdisps_[idx]->logData(true);
 	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
 
+	if ( !dpp.logs_.validIdx( idx ) ) continue;
 	const Well::DisplayProperties::Log& lp1 = dpp.logs_[idx]->left_;
 	const Well::DisplayProperties::Log& lp2 = dpp.logs_[idx]->right_;
 
