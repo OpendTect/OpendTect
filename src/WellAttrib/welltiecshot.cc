@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.17 2011-05-02 14:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.18 2011-07-15 12:01:12 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -41,20 +41,44 @@ CheckShotCorr::~CheckShotCorr()
 
 void CheckShotCorr::calibrateLog2CheckShot( const Well::Log& cs ) 
 {
-    TypeSet<float> ctrlvals, calibratedvals, logdahs;      
-    TypeSet<int> ctrlsamples;          
+    TypeSet<float> ctrlvals, calibratedvals, logdahs, logvals;    
+    TypeSet<int> ctrlsamples;
+
+    int logsz = log_.size();
+    int csidx = 0;
+    const float startdpt = log_.dah( 0 );
+    while ( startdpt > cs.dah(csidx) )
+    {
+	logvals += cs.value(csidx);
+	logdahs += cs.dah(csidx); 
+	csidx ++;
+    }
+    for ( int idx=0; idx<logsz; idx++ )
+    {
+	logvals += log_.value(idx);
+	logdahs += log_.dah( idx );
+    }
+    csidx = cs.size() -1;
+    const float stopdpt = log_.dah(log_.size()-1 );
+    logsz = logvals.size();
+    while ( csidx && cs.dah(csidx) > stopdpt ) 
+    {
+	logvals.insert( logsz-1, cs.value(csidx ) );
+	logdahs.insert( logsz-1, cs.dah(csidx) );
+	csidx --;
+    }
+    logsz = logvals.size();
+
     for ( int idx=0; idx<cs.size(); idx++ )
     {
-	int dahidx = log_.indexOf( cs.dah(idx) );
+	int dahidx = -1;
+	IdxAble::findFPPos( logdahs.arr(), logsz, cs.dah(idx), -1, dahidx );
 	if ( dahidx >= 0 )
 	    { ctrlvals += cs.value( idx ); ctrlsamples += dahidx; }
     }
-    const int logsz = log_.size();
-    for ( int idx=0; idx<logsz; idx++ )
-	logdahs += log_.dah( idx );
 
     calibratedvals.setSize( logsz );
-    IdxAble::callibrateArray( log_.valArr(), logsz,
+    IdxAble::callibrateArray( logvals.arr(), logsz,
 	                      ctrlvals.arr(), ctrlsamples.arr(), 
 			      ctrlvals.size(), false, calibratedvals.arr() );
     log_.erase(); 
