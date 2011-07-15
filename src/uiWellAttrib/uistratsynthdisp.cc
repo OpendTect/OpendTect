@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.47 2011-07-15 12:01:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.48 2011-07-15 13:06:54 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -104,7 +104,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiPushButton* createssynthbut 
 		= new uiPushButton( modelgrp_, "Create synthetics", false );
     createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    createssynthbut->attach( leftBorder );
+    modellist_->attach( ensureRightOf, createssynthbut );
 
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
@@ -157,7 +157,7 @@ void uiStratSynthDisp::cleanSynthetics()
 {
     deepErase( synthetics_ );
     modellist_->box()->setEmpty();
-    modellist_->box()->addItem( "-" );
+    modellist_->box()->addItem( "Free view" );
     modellist_->setSensitive( false );
     if ( lasttool_ )
 	lasttool_->setSensitive( false );
@@ -333,6 +333,7 @@ void uiStratSynthDisp::doModelChange()
 
     const SyntheticData* sd = 0;
     const int seldataidx = modellist_->box()->currentItem(); 
+    topgrp_->setSensitive( seldataidx == 0 );
     if ( seldataidx > 0 )
     {
 	 sd = synthetics_[seldataidx-1];
