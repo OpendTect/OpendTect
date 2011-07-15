@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.24 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.25 2011-07-15 09:36:56 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: seisiosimple.cc,v 1.24 2010-11-09 16:01:18 cvsb
 #include "survinfo.h"
 #include "oddirs.h"
 #include "strmprov.h"
+#include "strmoper.h"
 #include "ptrman.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -308,6 +309,10 @@ int SeisIOSimple::nextStep()
 
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
+    std::istream& strm = *sd_.istrm;
+    if ( !strm.good() )
+	return Executor::Finished();
+
     BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
     const bool is2d = Seis::is2D(data_.geom_);
     const bool isps = Seis::isPS(data_.geom_);
@@ -318,10 +323,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     {
 	if ( data_.isasc_ )
 	{
-	    *sd_.istrm >> coord.x;
+	    strm >> coord.x;
 	    nr = mNINT(coord.x);
 	    if ( data_.haverefnr_ )
-		*sd_.istrm >> refnr;
+		strm >> refnr;
 	}
 	else
 	{
@@ -354,7 +359,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( data_.isxy_ )
 	{
 	    if ( data_.isasc_ )
-		*sd_.istrm >> coord.x >> coord.y;
+		strm >> coord.x >> coord.y;
 	    else
 	    {
 		mStrmBinRead( coord.x, double );
@@ -366,7 +371,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    if ( data_.isasc_ )
 	    {
-		*sd_.istrm >> coord.x >> coord.y;
+		strm >> coord.x >> coord.y;
 		bid.inl = mNINT(coord.x); bid.crl = mNINT(coord.y);
 	    }
 	    else
@@ -386,14 +391,14 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	else
 	{
 	    if ( data_.isasc_ )
-		*sd_.istrm >> offs;
+		strm >> offs;
 	    else
 		mStrmBinRead( offs, float );
 	}
 	if ( data_.haveazim_ )
 	{
 	    if ( data_.isasc_ )
-		*sd_.istrm >> azim;
+		strm >> azim;
 	    else
 		mStrmBinRead( azim, float );
 	}
@@ -402,6 +407,9 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	else
 	    offsnr_++;
     }
+
+    if ( !strm.good() )
+	return Executor::Finished();
 
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
@@ -415,18 +423,27 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().nr = nr;
     trc.info().refnr = refnr;
     prevnr_ = nr;
-    float val;
+    float val; char buf[128]; const char* ptr = buf;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
 	if ( data_.isasc_ )
-	    *sd_.istrm >> val;
+	{
+	    if ( !StrmOper::wordFromLine( strm, buf, 127 ) )
+		return Executor::Finished();
+	    Conv::set( val, ptr );
+	}
 	else
+	{
 	    mStrmBinRead( val, float );
+	    if ( !strm.good() )
+		return Executor::Finished();
+	}
+
 	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
     }
 
-    return sd_.istrm->eof() ? Executor::Finished() : Executor::MoreToDo();
+    return Executor::MoreToDo();
 }
 
 
