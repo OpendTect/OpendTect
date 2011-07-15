@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.18 2011-07-01 12:12:52 cvsbruno Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.19 2011-07-15 12:01:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ protected:
 				    : sd_(sd)
 				    , pack_(dp)  
 				    {}
-				~PackSynthData();
 
 	const SyntheticData& 	sd_;
 	DataPack& 		pack_;

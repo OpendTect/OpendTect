@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.46 2011-07-14 08:09:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.47 2011-07-15 12:01:37 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -33,7 +33,6 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.46 2011-07-14 08:09:44 
 #include "ptrman.h"
 #include "prestackgather.h"
 #include "survinfo.h"
-#include "synthseis.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "stratlayermodel.h"
@@ -53,8 +52,12 @@ Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
+    , tmpsynthetic_(0)   
     , wvlt_(0)
     , lm_(lm)
+    , d2tmodels_(0)	     
+    , stratsynth_(*new StratSynth())
+    , raypars_(*new RayParams)				    
     , wvltChanged(this)
     , zoomChanged(this)
     , longestaimdl_(0)
@@ -128,9 +131,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
+    delete &raypars_;
     delete wvlt_; wvlt_ = 0;
+    delete &stratsynth_;
     deepErase( synthetics_ );
-    deepErase( d2tmodels_ );
+    delete tmpsynthetic_;
 }
 
 
@@ -152,7 +157,7 @@ void uiStratSynthDisp::cleanSynthetics()
 {
     deepErase( synthetics_ );
     modellist_->box()->setEmpty();
-    modellist_->box()->addItem( "None" );
+    modellist_->box()->addItem( "-" );
     modellist_->setSensitive( false );
     if ( lasttool_ )
 	lasttool_->setSensitive( false );
@@ -166,18 +171,18 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     FlatView::Annotation& ann = vwr_->appearance().annot_;
     deepErase( ann.auxdata_ );
 
-    if ( !d2tmodels_.isEmpty() && !zvals.isEmpty() )
+    if ( d2tmodels_ && !d2tmodels_->isEmpty() && !zvals.isEmpty() )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::Annotation::AuxData* auxd =
 			new FlatView::Annotation::AuxData("Level markers");
 	auxd->linestyle_.type_ = LineStyle::None;
-	for ( int imdl=0; imdl<d2tmodels_.size(); imdl++ )
+	for ( int imdl=0; imdl<d2tmodels_->size(); imdl++ )
 	{
 	    float tval = zvals[ imdl>=zvals.size() ? zvals.size()-1 :imdl ];
 	    if ( !mIsUdf(tval) )
 	    {
-		tval = d2tmodels_[imdl]->getTime( tval );
+		tval = (*d2tmodels_)[imdl]->getTime( tval );
 		if ( imdl < tbuf.size() )
 		    tbuf.get(imdl)->info().pick = tval;
 
@@ -232,13 +237,13 @@ void uiStratSynthDisp::zoomChg( CallBacker* )
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
     static uiWorldRect wr; wr = vwr_->curView();
-    if ( indpth && !d2tmodels_.isEmpty() )
+    if ( indpth && d2tmodels_ && !d2tmodels_->isEmpty() )
     {
 	int mdlidx = longestaimdl_;
-	if ( mdlidx >= d2tmodels_.size() )
-	    mdlidx = d2tmodels_.size()-1;
+	if ( mdlidx >= d2tmodels_->size() )
+	    mdlidx = d2tmodels_->size()-1;
 
-	const TimeDepthModel& d2t = *d2tmodels_[mdlidx];
+	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
 	wr.setTop( d2t.getDepth( (float)wr.top() ) );
 	wr.setBottom( d2t.getDepth( (float)wr.bottom() ) );
     }
@@ -246,16 +251,9 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 }
 
 
-const FlatDataPack* uiStratSynthDisp::dataPack() const
-{
-    const FlatDataPack* dp = vwr_->pack( true );
-    return dp ? dp : vwr_->pack( false );
-}
-
-
 const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 {
-    const FlatDataPack* dp = dataPack();
+    const FlatDataPack* dp = vwr_->pack( true );
     mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
     if ( !tbdp )
     {
@@ -263,33 +261,6 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 	return emptybuf;
     }
     return tbdp->trcBuf();
-}
-
-
-DataPack::FullID uiStratSynthDisp::packID() const
-{
-    const FlatDataPack* dp = dataPack();
-    if ( !dp ) return DataPack::cNoID();
-    return DataPack::FullID( DataPackMgr::FlatID(), dp->id() );
-}
-
-
-int uiStratSynthDisp::getVelIdx( bool& isvel ) const
-{
-    //TODO this requires a lot of work. Can be auto-detected form property
-    // StdType but sometimes user has many velocity providers:
-    // - Many versions (different measurements, sources, etc)
-    // - Sonic vs velocity
-    isvel = true; return 1; // This is what the simple generator generates
-}
-
-
-int uiStratSynthDisp::getDenIdx( bool& isden ) const
-{
-    //TODO support:
-    // - density itself
-    // - den = ai / vel
-    isden = true; return 2; // This is what the simple generator generates
 }
 
 
@@ -317,165 +288,62 @@ void uiStratSynthDisp::modelChanged()
 }
 
 
-void uiStratSynthDisp::doModelChange()
+void uiStratSynthDisp::displaySynthetics( const SyntheticData* sd )
 {
-    MouseCursorChanger mcs( MouseCursor::Busy );
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
-    delete wvlt_; wvlt_ = wvltfld_->getWavelet();
     deepErase( vwr_->appearance().annot_.auxdata_ );
-    deepErase( d2tmodels_ );
 
-    DataPack* dp = 0;
-    const int dataidx = modellist_->box()->currentItem();
-    if ( dataidx > 0 )
+    if ( !sd ) return;
+
+    DataPack::FullID dpid = sd->packid_;
+    DataPackMgr::ID pmgrid = DataPackMgr::getID( dpid );
+    DataPack* dp = DPM(pmgrid).obtain( DataPack::getID(dpid) );
+    mDynamicCastGet(PreStack::GatherSetDataPack*,gsetdp,dp)
+    if ( gsetdp ) 
     {
-	const SyntheticData& sd = *synthetics_[dataidx-1];
-	DataPack::FullID dpid = sd.packid_;
-	DataPackMgr::ID pmgrid = DataPackMgr::getID( dpid );
-	dp = DPM(pmgrid).obtain( DataPack::getID(dpid) );
-	mDynamicCastGet(PreStack::GatherSetDataPack*,gsetdp,dp)
-	if ( gsetdp ) 
-	{
-	    FlatDataPack* gdp = new PreStack::Gather(*gsetdp->getGathers()[0]);
-	    dp = gdp; 
-	    DPM(DataPackMgr::FlatID()).add( dp );
-	    if ( !dp ) return;
-	}
-	deepCopy( d2tmodels_, sd.d2tmodels_ );
-    }
-    else
-    {
-	if ( !wvlt_ )
-	{
-	    const char* nm = wvltfld_->getName();
-	    if ( nm && *nm )
-		mErrRet("Cannot read chosen wavelet",return;)
-	    else
-		mErrRet(0,return)
-	}
-	dp = genNewDataPack( raypars_, d2tmodels_, false );
+	FlatDataPack* gdp = new PreStack::Gather(*gsetdp->getGathers()[0]);
+	dp = gdp; 
 	DPM(DataPackMgr::FlatID()).add( dp );
     }
-    if ( !dp ) 
-	return;
+    if ( !dp ) return;
 
-    for ( int idx=0; idx<d2tmodels_.size(); idx++ )
+    d2tmodels_ = &sd->d2tmodels_;
+    for ( int idx=0; idx<d2tmodels_->size(); idx++ )
     {
 	int maxaimodelsz =  0;
-	if ( d2tmodels_[idx]->size() > maxaimodelsz )
-	    { maxaimodelsz = d2tmodels_[idx]->size(); longestaimdl_ = idx; }
+	if ( (*d2tmodels_)[idx]->size() > maxaimodelsz )
+	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
+
     deepErase( vwr_->appearance().annot_.auxdata_ );
     vwr_->setPack( true, dp->id(), false );
     vwr_->setPack( false, dp->id(), false );
 }
 
 
-DataPack* uiStratSynthDisp::genNewDataPack( const RayParams& raypars,
-					ObjectSet<const TimeDepthModel>& d2ts, 
-					bool isgather ) const
+void uiStratSynthDisp::doModelChange()
 {
-    const CubeSampling& cs = raypars.cs_;
-    TypeSet<float> offsets;
-    for ( int idx=0; idx<cs.nrCrl(); idx++ )
-	offsets += cs.hrg.crlRange().atIndex(idx);
+    MouseCursorChanger mcs( MouseCursor::Busy );
+    delete wvlt_; wvlt_ = wvltfld_->getWavelet();
+    delete tmpsynthetic_; tmpsynthetic_ = 0; 
+    stratsynth_.setModel( lm_ );
+    stratsynth_.setWavelet( *wvlt_ );
+    d2tmodels_ = 0;
 
-    Seis::RaySynthGenerator synthgen;
-    synthgen.setRayParams( raypars.setup_, offsets, raypars.usenmotimes_ );
-    synthgen.setWavelet( wvlt_, OD::UsePtr );
-    const int nraimdls = cs.nrInl();
-
-    bool isvel; const int velidx = getVelIdx( isvel );
-    bool isden; const int denidx = getDenIdx( isden );
-    if ( lm_.isEmpty() ) 
-	mErrRet( 0, return 0; )
-
-    for ( int iseq=0; iseq<cs.nrInl(); iseq++ )
+    const SyntheticData* sd = 0;
+    const int seldataidx = modellist_->box()->currentItem(); 
+    if ( seldataidx > 0 )
     {
-	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
-	const Strat::LayerSequence& seq = lm_.sequence( seqidx );
-	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
-	if ( aimod.isEmpty() )
-	    mErrRet( "Layer model is empty", return 0;) 
-	else if ( aimod.size() == 1  )
-	    mErrRet( "Please add at least one layer to the model", return 0;) 
-	else
-	    synthgen.addModel( aimod );
-    }
-
-    if ( !synthgen.doWork() )
-	mErrRet( synthgen.errMsg(), return 0 );
-
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-	    	      SI().crlRange(false).stop + crlstep );
-
-    ObjectSet<PreStack::Gather> gathers;
-    ObjectSet<const SeisTrc> trcs;
-    ObjectSet<const TimeDepthModel> tmpd2ts;
-    for ( int imdl=0; imdl<nraimdls; imdl++ )
-    {
-	Seis::RaySynthGenerator::RayModel& rm = 
-	    const_cast<Seis::RaySynthGenerator::RayModel&>( 
-						    synthgen.result( imdl ) );
-	trcs.erase(); 
-	if ( raypars.dostack_ )
-	    trcs += rm.stackedTrc();
-	else
-	    rm.getTraces( trcs, true );
-
-	if ( trcs.isEmpty() )
-	    continue;
-
-	for ( int idx=0; idx<trcs.size(); idx++ )
-	{
-	    SeisTrc* trc = const_cast<SeisTrc*>( trcs[idx] );
-	    const int trcnr = imdl + 1;
-	    trc->info().nr = trcnr;
-	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
-	    trc->info().coord = SI().transform( trc->info().binid );
-	    tbuf->add( trc );
-	}
-	if ( isgather )
-	{
-	    PreStack::Gather* gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-		{ delete gather; continue; }
-	    gather->posData().setRange( true, 
-		    		StepInterval<double>(1,tbuf->size(),1) );
-	    gathers += gather;
-	}
-	rm.getD2T( tmpd2ts, true );
-	if ( !tmpd2ts.isEmpty() )
-	    d2ts += tmpd2ts[0]; 
-    }
-    if ( ( isgather && gathers.isEmpty() ) || ( !isgather && tbuf->isEmpty()) )
-	mErrRet("No seismic trace genereated ", return 0)
-
-    DataPack* dp =0;
-    if ( isgather ) 
-    {
-	PreStack::GatherSetDataPack* pdp = new PreStack::GatherSetDataPack(
-							"GatherSet", gathers );
-	dp = dynamic_cast<DataPack*>(pdp);
+	 sd = synthetics_[seldataidx-1];
     }
     else
     {
-	SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
-			    tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
-	const SeisTrc& trc0 = *tbuf->get(0);
-	StepInterval<double> zrg( trc0.info().sampling.start,
-				  trc0.info().sampling.atIndex(trc0.size()-1),
-				  trc0.info().sampling.step );
-	tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
-	tdp->posData().setRange( false, zrg );
-
-	dp = dynamic_cast<DataPack*>(tdp);
+	sd = stratsynth_.generate( raypars_, false );
+	tmpsynthetic_ = sd;
     }
-    dp->setName( "Synthetics" );
-    return dp;
+
+    displaySynthetics( sd );
 }
 
 
@@ -484,21 +352,17 @@ void uiStratSynthDisp::addSynth2List( CallBacker* )
     uiStratSynthDisp2Crossplot dlg( this, getLimitSampling() ); 
     if ( dlg.go() )
     {
-	const bool isps = dlg.isPS();
-	const RayParams& raypar = dlg.rayParam(); 
-	SyntheticData* sd = new SyntheticData( dlg.packName() );
-	sd->wvlt_ = wvlt_;
-	sd->isps_ = isps;
-	DataPack* dp = genNewDataPack( raypar, sd->d2tmodels_, isps );
-	if ( !dp ) { delete sd; return; }
-	dp->setName( dlg.packName() );
+	if ( modellist_->box()->isPresent( dlg.rayParam().synthname_ ) )
+	    mErrRet( "Name is already present, please specify another name", 
+		    return );
 
-	DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() 
-				    : DataPackMgr::FlatID();
-	DPM( pmid ).add( dp );
-	sd->packid_ = DataPack::FullID( pmid, dp->id());
-	synthetics_ += sd;
-	modellist_->box()->addItem( dlg.packName() );
+	const SyntheticData* sd = 
+	    		stratsynth_.generate( dlg.rayParam(),dlg.isPS() );
+	if ( sd )
+	{
+	    synthetics_ += sd; 
+	    modellist_->box()->addItem( sd->name() );
+	}
     }
     modellist_->setSensitive( !synthetics_.isEmpty() );
     lasttool_->setSensitive( !synthetics_.isEmpty() );
@@ -541,6 +405,9 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 {
     doModelChange();
 }
+
+
+
 
 
 uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp ) 
@@ -639,7 +506,9 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     stackfld_->attach( hCentered );
 
     uiRayTracer1D::Setup rsu(0);
+    rsu.dooffsets_ = true; rsu.dopwave2swaveconv_ = true;
     raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
+    raytrace1dgrp_->attach( ensureBelow, stackfld_ );
 
     updateCB( 0 );
 }

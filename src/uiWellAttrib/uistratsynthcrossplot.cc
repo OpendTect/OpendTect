@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.30 2011-07-05 08:25:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.31 2011-07-15 12:01:37 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -41,13 +41,6 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.30 2011-07-05 08:2
 #include "velocitycalc.h"
 #include "valseriesevent.h"
 
-
-uiStratSynthCrossplot::PackSynthData::~PackSynthData()
-{
-    const DataPack::FullID dpid = sd_.packid_;
-    DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-    DPM(packmgrid).release( pack_.id() );
-}
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,

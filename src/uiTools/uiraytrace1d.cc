@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.4 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.5 2011-07-15 12:01:37 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -28,16 +28,14 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s)
 
     BufferString dptlbl( SI().zIsTime() ? "(ft)" : SI().getZUnitString(true) );
 
+    RayTracer1D::Setup rsu = s.raysetup_ ? *s.raysetup_ : RayTracer1D::Setup();
     if ( s.dosourcereceiverdepth_ )
     {
 	BufferString lb = "Source/Receiver depths"; lb += dptlbl;
 	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
-	if ( s.raysetup_ )
-	{
-	    Interval<float> depths( s.raysetup_->sourcedepth_, 
-				    s.raysetup_->receiverdepth_);
-	    srcdepthfld_->setValue( depths );
-	}
+	Interval<float> depths;
+	depths.set( rsu.sourcedepth_, rsu.receiverdepth_);
+	srcdepthfld_->setValue( depths );
     }
 
     if ( s.dooffsets_ )
@@ -67,11 +65,8 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s)
 	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
 	upwavefld_->attach( alignedBelow, downwavefld_ );
 
-	if ( s.raysetup_ )
-	{
-	    downwavefld_->setValue( s.raysetup_->pdown_ );
-	    upwavefld_->setValue( s.raysetup_->pup_ );
-	}
+	downwavefld_->setValue( rsu.pdown_ );
+	upwavefld_->setValue( rsu.pup_ );
     }
 
     if ( s.dopwave2swaveconv_ )
@@ -79,11 +74,15 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s)
 	vp2vsfld_ = new uiGenInput( this, "Vp, Vs factors (a/b)", 
 					FloatInpIntervalSpec() );
 	vp2vsfld_->attach( alignedBelow, srcdepthfld_ );
-	if ( s.raysetup_ )
-	{
-	    vp2vsfld_->setValue( Interval<float>( s.raysetup_->pvel2svelafac_,
-						  s.raysetup_->pvel2svelbfac_));
-	}
+	if ( offsetfld_ )
+	    vp2vsfld_->attach( alignedBelow, offsetfld_ );
+	else if ( downwavefld_ )
+	    vp2vsfld_->attach( alignedBelow, downwavefld_ );
+	else if ( srcdepthfld_ )
+	    vp2vsfld_->attach( alignedBelow, srcdepthfld_ );
+
+	vp2vsfld_->setValue( Interval<float>( rsu.pvel2svelafac_, 
+						rsu.pvel2svelbfac_) );
     }	
 
     if ( s.dosourcereceiverdepth_ )

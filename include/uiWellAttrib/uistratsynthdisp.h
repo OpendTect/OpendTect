@@ -7,19 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.28 2011-07-12 10:51:55 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.29 2011-07-15 12:01:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "cubesampling.h"
-#include "samplingdata.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uidialog.h"
 #include "uiflatviewslicepos.h"
-#include "datapack.h"
-#include "synthseis.h"
+#include "stratsynth.h"
 
 class FlatDataPack;
 class TimeDepthModel;
@@ -49,24 +46,6 @@ public:
 protected:
     uiGroup*		attachgrp_;
 };
-
-
-mStruct RayParams
-{				RayParams()
-				    : usenmotimes_(true)
-				    , dostack_(false)
-				{
-				    cs_.hrg.setInlRange(Interval<int>(1,1));
-				    cs_.hrg.setCrlRange(Interval<int>(0,0));
-				    cs_.hrg.step = BinID( 1, 100 );
-				    cs_.zrg.set( 0, 0, 0  );
-				}
-    CubeSampling 		cs_; //inl are models, crl are offsets
-    bool			usenmotimes_;
-    bool			dostack_;
-    RayTracer1D::Setup		setup_;
-};
-
 
 
 mClass uiRayTrcParamsGrp : public uiGroup
@@ -130,22 +109,6 @@ protected:
 };
 
 
-mClass SyntheticData 
-{
-public:
-				SyntheticData(const char* name)
-				    : packid_(DataPack::cNoID())
-				    {}
-
-    DataPack::FullID 		packid_;
-    bool			isps_;
-    ObjectSet<const TimeDepthModel> d2tmodels_;
-    const Wavelet*		wvlt_;
-};
-
-
-
-
 mClass uiStratSynthDisp : public uiGroup
 {
 public:
@@ -156,9 +119,6 @@ public:
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
     const uiWorldRect&	curView(bool indepth) const;
-    const SeisTrcBuf&	curTrcBuf() const;
-    const FlatDataPack* dataPack() const;
-    DataPack::FullID 	packID() const;
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
@@ -170,7 +130,6 @@ public:
 
     const ObjectSet<const SyntheticData>& getSynthetics() const 
     					{ return synthetics_;}
-
 protected:
 
     const Strat::LayerModel& lm_;
@@ -178,8 +137,10 @@ protected:
     BufferString	levelname_;
     int			longestaimdl_;
 
-    ObjectSet<const TimeDepthModel> d2tmodels_;
-    RayParams 		raypars_;
+    RayParams& 		raypars_;
+
+    const ObjectSet<const TimeDepthModel>* d2tmodels_;
+    const SyntheticData* tmpsynthetic_;
 
     ObjectSet<const SyntheticData> synthetics_;
 
@@ -192,17 +153,14 @@ protected:
     uiLabeledComboBox*	modellist_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
     uiOffsetSlicePos*	posfld_;
+    StratSynth&		stratsynth_;
 
     void		cleanSynthetics();
     void		doModelChange();
     const CubeSampling& getLimitSampling() const;
+    const SeisTrcBuf&	curTrcBuf() const;
 
-    int			getVelIdx(bool&) const;
-    int			getDenIdx(bool&) const;
-
-    DataPack*		genNewDataPack(const RayParams& raypars,
-				    ObjectSet<const TimeDepthModel>& d2ts,
-				    bool isps) const;
+    void		displaySynthetics(const SyntheticData*);
 
     void		addSynth2List(CallBacker*);
     void		dataSetSel(CallBacker*);
