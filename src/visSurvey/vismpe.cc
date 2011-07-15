@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.111 2011-07-10 22:05:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.112 2011-07-15 15:54:12 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -240,8 +240,11 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     as_ = as;
 
     // empty the cache first
-    DPM(DataPackMgr::CubeID()).release( volumecache_ );
-    volumecache_ = 0;
+    if ( volumecache_ )
+    {
+	DPM(DataPackMgr::CubeID()).release( volumecache_ );
+	volumecache_ = 0;
+    }
 
     channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
     
@@ -798,10 +801,13 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
     }
     
-    if ( volumecache_ )
-	dpman.release( volumecache_ );
-    volumecache_ = cdp;
-    
+    if ( volumecache_ != cdp )
+    {
+	if (volumecache_ )
+	    dpman.release( volumecache_ );
+	volumecache_ = cdp;
+    }
+
     return true;
 }
 
@@ -847,8 +853,12 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
     }
 
     DPM(DataPackMgr::CubeID()).release( cacheid_ );
-    cacheid_ = attrib_dpid;    
+    cacheid_ = attrib_dpid;
+
     bool retval = updateFromCacheID( attrib, tr );	
+    if ( !retval )
+	channels_[attrib].turnOn( false ); 
+	    
     DPM( DataPackMgr::CubeID() ).release( attrib_dpid );
 
     setCubeSampling( getCubeSampling(true,true,0) );
@@ -864,10 +874,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
 	engine_.getAttribCache( as_ )->get3DData() : 0;
     if ( !attrdata )
-    {
-	channels_[0].turnOn( false ); 
 	return false;
-    }
 	
     const Array3D<float>& data( attrdata->getCube(0) );
     const float* arr = data.getData();
@@ -881,10 +888,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	const CubeSampling attrcs = attrdata->cubeSampling();
 
 	if ( !attrcs.includes( displaycs ) )
-	{
-	    channels_[0].turnOn( false ); 
 	    return false;
-	}
 
 	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
 	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
@@ -907,10 +911,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 		const_cast< Array3D<float>& >(data) );
 
 	if ( !arrsubsel.isOK() )
-	{
-	    channels_[0].turnOn( false );
 	    return false;
-	}
 	
 	arr = arrsubsel.getData();
 
@@ -919,10 +920,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	    mDeclareAndTryAlloc( float*, tmparr, float[sz0 * sz1 * sz2] );
 
 	    if ( !tmparr )
-	    {
-		channels_[0].turnOn( false );
 		return false;
-	    }
 	    else
 	    {
 		arrsubsel.getAll( tmparr );
