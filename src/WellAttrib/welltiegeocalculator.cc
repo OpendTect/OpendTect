@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.61 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.62 2011-07-15 12:01:23 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -59,9 +59,9 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
 	vals += proclog.getValue( dah, true );
     }
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add( rdelev - surfelev, 0 ); //set KB Depth
+    d2tnew->add( rdelev - surfelev, 0 ); //set first value (SRD)
     for ( int idx=0; idx<dpt.size(); idx++ )
-	d2tnew->add( dpt[idx]-surfelev, vals[idx] );
+	d2tnew->add( dpt[idx], vals[idx] );
 
     return d2tnew;
 }
@@ -97,12 +97,16 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 {
     const int sz = log.size(); 
     if ( sz < 2 ) return;
+
     const bool issonic = conv == Son2Vel || conv == Son2TWT;
     UnitFactors uf; double velfac = uf.getVelFactor( log, issonic );
-    if ( !velfac ) velfac = 1;
+    if ( !velfac || mIsUdf(velfac) ) 
+	velfac = 1;
+
     TypeSet<float> dpts, vals;
-    for ( int idx=0; idx<log.size(); idx++ )
+    for ( int idx=0; idx<sz; idx++ )
 	{ dpts += log.dah( idx ); vals += log.value( idx ); }
+
     log.erase();
     float prevval, newval; newval = prevval = 0;
     for ( int idx=1; idx<sz; idx++ )
@@ -129,6 +133,7 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 	}
 	log.addValue( dpts[idx], newval );
     }
+    log.insertAtDah( dpts[0],log.value(0) );
 }
 
 
