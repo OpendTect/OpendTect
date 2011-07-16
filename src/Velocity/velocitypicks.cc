@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.21 2011-04-30 17:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.22 2011-07-16 20:37:18 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -803,6 +803,12 @@ const MultiID& Picks::storageID() const
 
 void Picks::setSmoother(Smoother1D<float>* ns )
 {
+    if ( !ns && !smoother_ )
+	return;
+
+    if ( ns && smoother_ && *smoother_==*ns )
+	return;
+
     delete smoother_;
     smoother_ = ns;
     changed_ = true;
