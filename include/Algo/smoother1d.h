@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.9 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: smoother1d.h,v 1.10 2011-07-16 20:48:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 
     				Smoother1D();
     				Smoother1D(const Smoother1D&);
+
+    bool			operator==(const Smoother1D<T>&) const;
 
     void			setInput(const T*,int sz);
     void			setOutput(T*);
@@ -102,6 +104,15 @@ template <class T> inline
 void Smoother1D<T>::setOutput( T* ni )
 {
     output_ = ni;
+}
+
+
+template <class T> inline
+bool Smoother1D<T>::operator==( const Smoother1D<T>& b ) const
+{
+    return window_.size()==b.window_.size() &&
+	   windowname_==b.windowname_ &&
+	   mIsEqual(windowparam_, b.windowparam_, 1e-3 );
 }
 
 
