@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.10 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.11 2011-07-17 02:41:53 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -263,8 +263,6 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }
 
-    const BinID stepout = procman->getInputStepout();
-
     BinID curbid; //inl not used if 2D
     BinID step;   //inl not used if 2D
     HorSamplingIterator hiter( horsampling );
@@ -316,6 +314,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    delete procman;
 	    return false;
 	}
+
+	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
 	for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )

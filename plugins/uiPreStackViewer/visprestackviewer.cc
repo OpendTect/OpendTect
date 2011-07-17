@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.66 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.67 2011-07-17 02:41:53 cvskris Exp $";
 
 #include "visprestackviewer.h"
 
@@ -205,9 +205,10 @@ DataPack::ID Viewer3D::preProcess()
     if ( !preprocmgr_ || !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
 	return -1;
 
-    const BinID stepout = preprocmgr_->getInputStepout();
     if ( !preprocmgr_->prepareWork() )
 	return -1;
+
+    const BinID stepout = preprocmgr_->getInputStepout();
 
     BinID relbid;
     for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.28 2010-12-07 17:21:20 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.29 2011-07-17 02:41:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -132,17 +132,8 @@ mClass ProcessManager : public CallBacker
 public:
     				ProcessManager();
     				~ProcessManager();
-
-    BinID			getInputStepout() const;
-    virtual bool		wantsInput(const BinID& relbid) const;
-    void			setInput(const BinID& relbid,DataPack::ID);
-
-    bool			reset();
-    				//!<Call when you are about to process new data
-    bool			prepareWork();
-    bool			process();
-    DataPack::ID		getOutput() const;
-
+				
+				//Setup
     int				nrProcessors() const;
     Processor*			getProcessor(int);
     const Processor*		getProcessor(int) const;
@@ -155,8 +146,22 @@ public:
     void			removeAllProcessors();
 
     void			notifyChange()	{ setupChange.trigger(); }
-
     Notifier<ProcessManager>	setupChange;
+
+				//Runtime
+    bool			reset();
+    				//!<Call when you are about to process new data
+    bool			prepareWork();
+    BinID			getInputStepout() const;
+    				//!<Only after prepareWork
+    virtual bool		wantsInput(const BinID& relbid) const;
+    				//!<Only after prepareWork
+    void			setInput(const BinID& relbid,DataPack::ID);
+    				//!<Only after prepareWork
+
+    bool			process();
+
+    DataPack::ID		getOutput() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
