@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.11 2011-07-17 02:41:53 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.12 2011-07-17 22:16:34 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -287,6 +287,10 @@ bool BatchProgram::go( std::ostream& strm )
 
     mSetCommState(Working);
 
+    ObjectSet<PreStack::Gather> gathers;
+    gathers.allowNull( true );
+    TypeSet<BinID> bids;
+
     while ( true )
     {
 	bool paused = false;
@@ -318,6 +322,7 @@ bool BatchProgram::go( std::ostream& strm )
 	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
+	PreStack::Gather* sparegather = 0;
 	for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
 	{
 	    for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl;relbid.crl++)
@@ -328,20 +333,45 @@ bool BatchProgram::go( std::ostream& strm )
 		const BinID inputbid( curbid.inl+relbid.inl*step.inl,
 				      curbid.crl+relbid.crl*step.crl );
 
-		PreStack::Gather* gather = new PreStack::Gather;
-		if ( !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+		PreStack::Gather* gather = 0;
+		const int bufidx = bids.indexOf( inputbid );
+		if ( bufidx!=-1 )
 		{
-		    delete gather;
-		    continue;
+		    gather = gathers[bufidx];
+		}
+		else
+		{
+		    if ( sparegather )
+		    {
+			gather = sparegather;
+			sparegather = 0;
+		    }
+		    else
+		    {
+			gather = new PreStack::Gather;
+		    }
+
+		    if ( !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+		    {
+			sparegather = gather;
+			gather = 0;
+		    }
+
+		    bids += inputbid;
+		    gathers += gather;
+		    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 		}
 
-		nrfound++;
+		if ( !gather )
+		    continue;
 
-		DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
+		nrfound ++;
+
 		procman->setInput( relbid, gather->id() );
-		DPM( DataPackMgr::FlatID() ).release( gather );
 	    }
 	}
+
+	delete sparegather;
 
 	if ( nrfound )
 	{
@@ -404,16 +434,32 @@ bool BatchProgram::go( std::ostream& strm )
 
 	if ( geomtype==Seis::VolPS )
 	{
-	    if ( !hiter.next(curbid) )
-		break;
+	    const int obsoleteline = curbid.inl - (stepout.inl+1)*step.inl;
+	    for ( int idx=bids.size()-1; idx>=0; idx-- )
+	    {
+		if ( bids[idx].inl<=obsoleteline )
+		{
+		    bids.remove( idx ); 
+		    DPM( DataPackMgr::FlatID() ).release(
+		    gathers.remove(idx) );
+		}
+	    }
 	}
 	else
 	{
 	    curbid.crl += cdprange.step;
 	    if ( !cdprange.includes( curbid.crl ) )
 		break;
+	    const int obsoletetrace = curbid.crl -(stepout.crl+1)*cdprange.step;
+	    for ( int idx=bids.size()-1; idx>=0; idx-- )
+	    {
+		if ( bids[idx].crl<=obsoletetrace )
+		{
+		    bids.remove( idx );
+		    DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
+		}
+	    }
 	}
-
     }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
