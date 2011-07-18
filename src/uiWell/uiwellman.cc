@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.79 2011-07-06 07:26:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.80 2011-07-18 14:03:46 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -86,7 +86,7 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,removeLogPush) );
     butgrp->addButton( "export.png", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
-    butgrp->addButton( "unitofmeasure.png", "View/edit unit of measure",
+    butgrp->addButton( "unitsofmeasure.png", "View/edit unit of measure",
 	    		mCB(this,uiWellMan,logUOMPush) );
     logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
 	    		mCB(this,uiWellMan,moveLogsPush) );
