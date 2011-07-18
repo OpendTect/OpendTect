@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.68 2011-04-20 14:55:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.69 2011-07-18 08:41:23 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -444,6 +444,10 @@ void uiListView::setCurrentItem( uiListViewItem* itm, int column )
 
 uiListViewItem* uiListView::currentItem() const
 { return mItemFor( body_->currentItem() ); }
+
+
+int uiListView::currentColumn() const
+{ return body_->currentColumn(); }
 
 
 uiListViewItem* uiListView::getItem( int idx ) const
