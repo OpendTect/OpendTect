@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2011
- RCS:           $Id: isopachmaker.cc,v 1.3 2011-07-08 11:35:16 cvsnageswara Exp $
+ RCS:           $Id: isopachmaker.cc,v 1.4 2011-07-18 22:26:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ IsopachMaker::~IsopachMaker()
 int IsopachMaker::nextStep()
 {
     mAllocVarLenArr( float, vals, dps_ ? dps_->bivSet().nrVals() : 0 );
-    int startsourceidx = mUdf(float);
+    int startsourceidx = mUdf(int);
     if ( dps_ )
     {
 	for ( int idx=0; idx<dps_->bivSet().nrVals(); idx++ )
