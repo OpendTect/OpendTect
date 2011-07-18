@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.93 2010-10-28 11:09:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.94 2011-07-18 14:05:14 cvsbert Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -957,6 +957,16 @@ UserInputObj* uiGenInput::element( int nr )
     if ( !finalised ) return 0; 
     return nr<idxes.size() && flds[idxes[nr].fldidx]
 	    ? flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
+}
+
+
+uiObject* uiGenInput::rightObj()
+{
+    if ( flds.isEmpty() ) return 0;
+    uiInputFld& fld = *flds[flds.size()-1];
+    const int nelem = fld.nElems();
+    if ( nelem < 1 ) return 0;
+    return fld.elemObj(nelem-1);
 }
 
 
