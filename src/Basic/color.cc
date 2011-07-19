@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.17 2011-06-22 11:11:14 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.18 2011-07-19 09:17:32 cvsbert Exp $";
 
 #include "color.h"
 
@@ -268,13 +268,17 @@ static unsigned char getCompFromStrPart( const char* str )
 void Color::setStdStr( const char* str )
 {
     if ( !str || !*str ) return;
-    if ( *str == '#' ) str++;
+    const bool isnorm = *str == '#';
+    if ( isnorm ) str++;
     const int len = strlen(str);
 
-    unsigned char r_ = getCompFromStrPart( str );
+    unsigned char c1 = getCompFromStrPart( str );
     unsigned char g_ = len > 2 ? getCompFromStrPart(str+2) : 255;
-    unsigned char b_ = len > 4 ? getCompFromStrPart(str+4) : 255;
+    unsigned char c3 = len > 4 ? getCompFromStrPart(str+4) : 255;
     unsigned char t_ = len > 6 ? getCompFromStrPart(str+6) : 255;
+
+    unsigned char r_ = isnorm ? c1 : c3;
+    unsigned char b_ = isnorm ? c3 : c1;
 
     set( r_, g_, b_, len > 6 ? t_ : t() );
 }
