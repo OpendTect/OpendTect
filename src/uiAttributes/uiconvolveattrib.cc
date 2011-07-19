@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.22 2011-07-19 16:48:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.23 2011-07-19 22:34:24 cvsnanne Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -15,15 +15,15 @@ static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.22 2011-07-19 16:48:40 
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribfactory.h"
+#include "ioman.h"
+#include "survinfo.h"
+#include "wavelet.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uispinbox.h"
 #include "uiioobjsel.h"
-#include "wavelet.h"
-#include "transl.h"
-#include "ioman.h"
-#include "survinfo.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
