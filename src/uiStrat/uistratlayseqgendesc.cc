@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.30 2011-07-14 09:26:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.31 2011-07-19 15:07:26 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -366,6 +366,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
     unfld_ = new uiUnitSel( this, pr.stdType(), 0, true );
+    unfld_->setUnit( pr.disp_.unit_ );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );
