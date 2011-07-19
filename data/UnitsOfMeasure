@@ -18,15 +18,13 @@ Km/second : Velocity`km/s`1000
 Microseconds/foot: Sonic travel time`us/ft`3.28084e-6
 Microseconds/meter: Sonic travel time`us/m`1e-6
 Seconds/meter: Sonic travel time`s/m`1
-Kg/m2s: Acoustic Impedance`kg/m2s`1
-Kg/m2us: Acoustic Impedance`kg/m2us`1000000
-G/ft2s: Acoustic Impedance`g/ft2s`0.0107639
-Percent: Porosity`%`0.01
-Fraction: Porosity``1
+Kg/m2s: Impedance`kg/m2s`1
+Kg/m2us: Impedance`kg/m2us`1000000
+G/ft2s: Impedance`g/ft2s`0.0107639
+Percent: Volumetrics`%`0.01
+Fraction: Volumetrics``1
 Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
-Percent: Saturation`%`0.01
-Fraction: Saturation``1
 API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
 OhmMeter: Resistivity`ohmm`1
