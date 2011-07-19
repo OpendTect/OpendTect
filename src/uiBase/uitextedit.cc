@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.48 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.49 2011-07-19 16:51:23 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -118,8 +118,8 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
     if ( !newcontents.isEmpty() )
 	contents += newcontents;
 
-    sd.close();
     qte().setText( contents.buf() );
+    sd.close();
 }
 
 
@@ -284,7 +284,8 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     , logviewmode_(lvmode)
     , lastlinestartpos_(-1)
 {
-    qte().document()->setMaximumBlockCount( mxlns );
+    if ( !mIsUdf(mxlns) )
+	qte().document()->setMaximumBlockCount( mxlns+2 );
 
     timer_ = new Timer();
     timer_->tick.notify( mCB(this,uiTextBrowser,readTailCB) );
