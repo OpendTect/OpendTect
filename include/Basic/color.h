@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.22 2011-04-01 10:46:50 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.23 2011-07-19 09:16:36 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -56,6 +56,7 @@ public:
     void		setStdStr(const char*); //!< e.g. "#00ff32"
     const char*		getStdStr(bool withhash=true,
 	    			  int transpopt=0) const;
+    			//!< without hash Google KML standard -> order reversed
     			//!< transpopt -1=opacity 0=not 1=transparency
 
     void		fill(char*) const;
