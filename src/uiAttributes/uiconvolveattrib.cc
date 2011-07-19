@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.21 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.22 2011-07-19 16:48:40 cvsnanne Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -88,8 +88,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 		       StringListInpSpec( is2d_ ? outpstrs2d : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
-    const TranslatorGroup& tr = TranslatorGroup::getGroup( "Wavelet" );
-    waveletfld_ = new uiIOObjSel( this, IOObjContext(&tr) );
+    waveletfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
     waveletfld_->attach( alignedBelow, kernelfld_ );
     waveletfld_->display(false);
 
