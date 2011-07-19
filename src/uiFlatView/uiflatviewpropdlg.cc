@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.57 2011-05-11 12:20:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.58 2011-07-19 16:52:18 cvsnanne Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -841,7 +841,7 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 {
     if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
     {
-	uiMSG().error( "Either select Wiggle or Visual Display" );
+	uiMSG().error( "No data selected for Wiggle or VD display." );
 	return false;
     }
      
