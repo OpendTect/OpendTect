@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.11 2011-06-24 13:38:53 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.12 2011-07-19 14:02:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,8 +38,8 @@ mClass PropertyRef : public NamedObject
 public:
 
     enum StdType	{
-			    Other, Time, Dist, Por, Perm, GR, Temp, Pres,
-			    Den, Vel, Son, AI, Sat, ElPot, Res, PR, Comp
+			    Other, Time, Dist, Volum, Perm, GR, Temp, Pres,
+			    Den, Vel, Son, Imp, ElPot, Res, PR, Comp
 			};
 			DeclareEnumUtils(StdType)
     static StdType	surveyZType();

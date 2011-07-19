@@ -2,15 +2,15 @@ dTect V4.2
 Properties
 Tue 05 Oct 2010, 12:28:38
 !
-Porosity: Porosity
-Aliases: Phi`Por
+Porosity: Volumetrics
+Aliases: Phi`Por`Phie`PIGN
 Color: 200`200`0
 Range: 0`30`%
 !
 Permeability: Permeability
 Aliases: Perm
 Color: 200`0`0
-Range: 1`1000000`mD
+Range: 1`500`mD
 Logarithmic: Yes
 !
 Gamma Ray: Gamma Ray
@@ -21,7 +21,7 @@ Range: 0`150`API
 Temperature: Temperature
 Aliases: Temp
 Color: 0`0`0
-Range: 0`100`deg.C
+Range: 0`200`deg.C
 !
 Pressure: Pressure
 Aliases: Pres`P
@@ -29,14 +29,14 @@ Color: 0`0`255
 Range: 0`200`bar
 !
 Density: Density
-Aliases: Den`Rho`RhoB
+Aliases: Den`Rho`RhoB`RhoZ
 Color: 0`0`200
-Range: 2`2.8`g/cc
+Range: 2.2`2.8`g/cc
 !
 P-wave velocity: Velocity
 Aliases: PVel`Vel`P-Vel`V
 Color: 0`200`0
-Range: 1500`5000`m/s
+Range: 1500`4500`m/s
 !
 S-wave velocity: Velocity
 Aliases: SVel`S-Vel
@@ -46,40 +46,55 @@ Range: 500`2000`m/s
 Sonic: Sonic travel time
 Aliases: DT
 Color: 0`255`255
-Range: 50`200`us/m
+Range: 40`140`us/ft
 !
-Acoustic Impedance: Acoustic Impedance
-Aliases: AI
+Shear Sonic: Sonic travel time
+Aliases: DTS
+Color: 255`20`147
+Range: 40`240`us/ft
+!
+Acoustic Impedance: Impedance
+Aliases: AI`P-Impedance
 Color: 255`150`0
-Range: 1000000`10000000
+Range: 2e6`2e7
 !
-Elastic Impedance: Acoustic Impedance
+Elastic Impedance: Impedance
 Aliases: EI
 Color: 200`255`100
-Range: 1000000`10000000
+Range: 2e6`2e7
 !
-Water Saturation: Saturation
-Aliases: Sat
+Shear Impedance: Impedance
+Aliases: SI
+Color: 100`255`100
+Range: 2e6`2e7
+!
+Water Saturation: Volumetrics
+Aliases: Sat`SW`SWE
 Color: 0`200`255
 Range: 0`100`%
 !
 Spontaneous Potential: Electrical Potential
 Aliases: SP
 Color: 255`100`0
-Range: 0`0.5`V
+Range: -1`1`V
 !
 Resistivity: Resistivity
 Aliases: Res
 Color: 200`200`0
-Range: 0`30`ohmm
+Range: 0`200`ohmm
 Logarithmic: Yes
 !
 Poisson's Ratio: Poisson's Ratio
-Aliases: Poi
+Aliases: Poi`PR
 Color: 200`100`200
 Range: 0.1`0.5
 !
 Compressibility: Compressibility
 Color: 100`200`100
-Range: 2e-06`2e-10
+Range: 2e-10`2e-06
+!
+V-Shale: Volumetrics
+Aliases: Vclay`VCL`VSH
+Color: 100`200`100
+Range: 0`100`%
 !
