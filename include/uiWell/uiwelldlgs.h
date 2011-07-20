@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.39 2011-07-06 07:26:09 cvsbruno Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.40 2011-07-20 13:13:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,23 +119,25 @@ protected:
 mClass uiExportLogs : public uiDialog
 {
 public:
-    				uiExportLogs(uiParent*,const Well::Data&,
-					    const BoolTypeSet&);
-
+    				uiExportLogs(uiParent*,
+					const ObjectSet<Well::Data>&,
+					const BufferStringSet&);
 protected:
-    const Well::Data&		wd;
-    const BoolTypeSet&		logsel;
+    const ObjectSet<Well::Data>& wds_;
+    const BufferStringSet&	logsel_;
 
-    uiGenInput*			typefld;
-    uiButtonGroup*		zunitgrp;
-    uiGenInput*			zrangefld;
-    uiFileInput*		outfld;
+    uiGenInput*			typefld_;
+    uiButtonGroup*		zunitgrp_;
+    uiGenInput*			zrangefld_;
+    uiFileInput*		outfld_;
+    uiGenInput*			multiwellsnamefld_;
 
     void			setDefaultRange(bool);
+    void			writeHeader(StreamData&,const Well::Data&);
+    void			writeLogs(StreamData&,const Well::Data&);
+
     void			typeSel(CallBacker*);
     virtual bool		acceptOK(CallBacker*);
-    void			writeHeader(StreamData&);
-    void			writeLogs(StreamData&);
 };
 
 
@@ -169,15 +171,13 @@ mClass uiWellLogUOMDlg : public uiDialog
 public:
 				uiWellLogUOMDlg(uiParent*,Well::Log&);
 
-    bool			logChanged() 	{ return logchanged_; }
-
 protected:
 
     uiComboBox*                 unfld_;
-    bool			logchanged_;
     Well::Log&			log_;
 
     bool			acceptOK(CallBacker*);
 };
+
 
 #endif

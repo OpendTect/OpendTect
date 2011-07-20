@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.80 2011-07-18 14:03:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.81 2011-07-20 13:13:12 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
 #include "bufstringset.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
@@ -58,9 +59,6 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
 				     "107.1.0").nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
-    , curwd_(0)
-    , currdr_(0)
-    , curfnm_("")
 {
     createDefaultUI();
     setPrefWidth( 50 );
@@ -72,11 +70,11 @@ uiWellMan::uiWellMan( uiParent* p )
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 	    					 false );
-    uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "&Import", false );
-    addlogsbut->activated.notify( mCB(this,uiWellMan,importLogs) );
-    uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "&Create", false );
-    calclogsbut->activated.notify( mCB(this,uiWellMan,calcLogs) );
-    calclogsbut->attach( rightOf, addlogsbut );
+    addlogsbut_ = new uiPushButton( logsbgrp, "&Import", false );
+    addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
+    calclogsbut_ = new uiPushButton( logsbgrp, "&Create", false );
+    calclogsbut_->activated.notify( mCB(this,uiWellMan,calcLogs) );
+    calclogsbut_->attach( rightOf, addlogsbut_ );
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
@@ -93,6 +91,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
 	    		mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
+    selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
@@ -130,8 +129,8 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
-    delete curwd_;
-    delete currdr_;
+    deepErase( currdrs_ );
+    deepErase( curwds_ );
 }
 
 
@@ -144,35 +143,82 @@ void uiWellMan::addTool( uiButton* but )
 
 void uiWellMan::ownSelChg()
 {
-    getCurrentWell();
+    getCurrentWells();
     fillLogsFld();
 }
 
 
-void uiWellMan::getCurrentWell()
+void uiWellMan::getCurrentWells()
 {
-    curfnm_ = ""; 
-    delete currdr_; currdr_ = 0;
-    delete curwd_; curwd_ = 0;
+    curfnms_.erase();
+    deepErase( currdrs_ );
+    deepErase( curwds_ );
+    multiids_.erase();
+
     if ( !curioobj_ ) return;
-    
-    curfnm_ = curioobj_->fullUserExpr( true );
-    curwd_ = new Well::Data;
-    currdr_ = new Well::Reader( curfnm_, *curwd_ );
-    currdr_->getInfo();
+
+    const int nrsel = selGroup()->getListField()->nrSelected();
+
+    for ( int idx=0; idx<nrsel; idx++ )
+    {
+	const IOObj* obj = IOM().get( selgrp_->selected(idx) );
+	if ( !obj ) continue;
+
+	multiids_ += obj->key();
+	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
+	curwds_ += new Well::Data;
+	currdrs_ += new Well::Reader( curfnms_[idx]->buf(), *curwds_[idx] );
+	currdrs_[idx]->getInfo();
+    }
 }
 
 
 void uiWellMan::fillLogsFld()
 {
     logsfld_->setEmpty();
-    if ( !currdr_ ) return;
+    if ( currdrs_.isEmpty() ) return;
 
-    BufferStringSet lognms;
-    currdr_->getLogInfo( lognms );
-    for ( int idx=0; idx<lognms.size(); idx++)
-	logsfld_->addItem( lognms.get(idx) );
+    BufferStringSet lognms, currentlognms;
+    for ( int idx=0; idx<currdrs_.size(); idx++ )
+    {
+	currentlognms.erase();
+	currdrs_[idx]->getLogInfo( currentlognms );
+	lognms.add( currentlognms, true );
+    }
+
+    if ( currdrs_.size() > 1 )
+    {
+	BufferStringSet alllognms;
+	while ( !lognms.isEmpty() )
+	{
+	    BufferString lognm = *lognms.remove(0);
+	    bool ispresent = true;
+	    for ( int idx=0; idx<currdrs_.size(); idx++ )
+	    {
+		currentlognms.erase();
+		currdrs_[idx]->getLogInfo( currentlognms );
+		if ( !currentlognms.isPresent( lognm ) )
+		    { ispresent = false; break; }
+	    }
+	    if ( ispresent )
+		alllognms.addIfNew( lognm );
+	}
+	currentlognms.erase();
+	currentlognms.add( alllognms, true );
+    }
+
+    for ( int idx=0; idx<currentlognms.size(); idx++)
+	logsfld_->addItem( currentlognms.get(idx) );
+
     logsfld_->selectAll( false );
+    checkButtons();
+}
+
+
+void uiWellMan::checkButtons()
+{
+    addlogsbut_->setSensitive( curwds_.size() == 1 );
+    calclogsbut_->setSensitive( curwds_.size() == 1 );
     checkMoveLogs(0);
 }
 
@@ -181,9 +227,12 @@ void uiWellMan::checkMoveLogs( CallBacker* )
 {
     const int curidx = logsfld_->currentItem();
     const int nrlogs = logsfld_->size();
-    bool nomove = logsfld_->nrSelected() != 1 || curidx < 0 || curidx >= nrlogs;
-    bool canmoveup = curidx > 0 && !nomove;
-    bool canmovedown = curidx < nrlogs-1 && !nomove;
+    const int nrlogsel = logsfld_->nrSelected();
+    const int nrsel_ = selGroup()->getListField()->nrSelected();
+    bool nomove = ( nrsel_ != 1 ) 
+			&& ( nrlogsel != 1 || curidx < 0 || curidx >= nrlogs );
+    bool canmoveup = curidx > 0 && !nomove && curwds_.size() == 1;
+    bool canmovedown = curidx < nrlogs-1 && !nomove && curwds_.size() == 1;
     logupbut_->setSensitive( canmoveup );
     logdownbut_->setSensitive( canmovedown );
 }
@@ -195,16 +244,16 @@ void uiWellMan::checkMoveLogs( CallBacker* )
 
 void uiWellMan::edMarkers( CallBacker* )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( curwd_->markers().isEmpty() )
-	    currdr_->getMarkers();
-	wd = curwd_;
+	if ( curwds_[0]->markers().isEmpty() )
+	    currdrs_[0]->getMarkers();
+	wd = curwds_[0];
     }
 
     wd->track().setName( curioobj_->name() );
@@ -213,7 +262,7 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !dlg.go() ) return;
 
     dlg.getMarkerSet( wd->markers() );
-    Well::Writer wtr( curfnm_, *wd );
+    Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putMarkers() ) 
 	uiMSG().error( "Cannot write new markers to disk" );
 
@@ -223,18 +272,18 @@ void uiWellMan::edMarkers( CallBacker* )
 
 void uiWellMan::edWellTrack( CallBacker* )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
-	wd = curwd_;
+	wd = curwds_[0];
 
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() ) return;
 
-    Well::Writer wtr( curfnm_, *wd );
+    Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putInfoAndTrack( ) )
 	uiMSG().error( "Cannot write new track to disk" );
 
@@ -257,18 +306,18 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( !chkshot && !curwd_->d2TModel() )
-	    currdr_->getD2T();
-	else if ( chkshot && !curwd_->checkShotModel() )
-	    currdr_->getCSMdl();
-	wd = curwd_;
+	if ( !chkshot && !curwds_[0]->d2TModel() )
+	    currdrs_[0]->getD2T();
+	else if ( chkshot && !curwds_[0]->checkShotModel() )
+	    currdrs_[0]->getCSMdl();
+	wd = curwds_[0];
     }
 
     if ( !chkshot && !wd->d2TModel() )
@@ -278,7 +327,7 @@ void uiWellMan::defD2T( bool chkshot )
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() ) return;
-    Well::Writer wtr( curfnm_, *wd );
+    Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
 	uiMSG().error( "Cannot write new model to disk" );
 }
@@ -291,16 +340,17 @@ void uiWellMan::logTools( CallBacker* )
 }
 
 
-#define mDeleteLogs() \
-    while ( curwd_->logs().size() ) \
-        delete curwd_->logs().remove(0);
+#define mDeleteLogs(idx) \
+    if ( !curwds_.validIdx( idx ) ) return;\
+    while ( curwds_[idx]->logs().size() ) \
+        delete curwds_[idx]->logs().remove(0);
 
 void uiWellMan::importLogs( CallBacker* )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
-    currdr_->getLogs();
-    uiLoadLogsDlg dlg( this, *curwd_ );
+    currdrs_[0]->getLogs();
+    uiLoadLogsDlg dlg( this, *curwds_[0] );
     if ( dlg.go() )
 	writeLogs();
 }
@@ -308,10 +358,10 @@ void uiWellMan::importLogs( CallBacker* )
 
 void uiWellMan::calcLogs( CallBacker* )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
-    currdr_->getLogs();
-    uiWellLogCalc dlg( this, curwd_->logs() );
+    currdrs_[0]->getLogs();
+    uiWellLogCalc dlg( this, curwds_[0]->logs() );
     dlg.go();
     if ( dlg.haveNewLogs() )
 	writeLogs();
@@ -320,25 +370,34 @@ void uiWellMan::calcLogs( CallBacker* )
 
 void uiWellMan::logUOMPush( CallBacker* )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( !logsfld_->size() || !logsfld_->nrSelected() )
+	mErrRet("No log selected")
 
-    currdr_->getLogs();
-    const int curlogidx = logsfld_->currentItem();
-    Well::LogSet& wls = curwd_->logs();
-    if ( !wls.validIdx( curlogidx ) ) 
-	return;
+    currdrs_[0]->getLogs();
+    const char* lognm = logsfld_->getText();
+    Well::LogSet& wls = curwds_[0]->logs();
+    const int curlogidx = wls.indexOf( lognm ); 
+    if ( curlogidx < 0 ) 
+	mErrRet( "Cannot read selected log" )
 
     uiWellLogUOMDlg dlg( this, wls.getLog( curlogidx ) );
-    dlg.go();
-    if ( dlg.logChanged() )
-	writeLogs();
+    if ( !dlg.go() ) return;
+
+    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
+    {
+	currdrs_[idwell]->getLogs();
+	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
+	if ( log ) log->setUnitMeasLabel(wls.getLog(curlogidx).unitMeasLabel());
+    }
+    writeLogs();
 }
 
 
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
 {
-    if ( !curwd_ || !currdr_ ) return;
+    if ( curwds_.isEmpty() || !currdrs_.isEmpty() ) return;
 
     mDynamicCastGet(uiToolButton*,toolbut,cb);
     if ( toolbut != logupbut_ && toolbut != logdownbut_ )
@@ -346,8 +405,8 @@ void uiWellMan::moveLogsPush( CallBacker* cb )
     bool isup = toolbut == logupbut_;
     const int curlogidx = logsfld_->currentItem();
     const int newlogidx = curlogidx + ( isup ? -1 : 1 );
-    Well::LogSet& wls = curwd_->logs();
-    currdr_->getLogs();
+    Well::LogSet& wls = curwds_[0]->logs();
+    currdrs_[0]->getLogs();
     if ( !wls.validIdx( curlogidx ) || !wls.validIdx( newlogidx ) )
 	return;
     wls.swap( curlogidx, newlogidx );
@@ -359,33 +418,39 @@ void uiWellMan::moveLogsPush( CallBacker* cb )
 
 void uiWellMan::writeLogs()
 {
-    Well::Writer wtr( curfnm_, *curwd_ );
-    wtr.putLogs();
+    for ( int idwell=0; idwell<curwds_.size(); idwell++ )
+    {
+	Well::Writer wtr( curfnms_[idwell]->buf(), *curwds_[idwell] );
+	wtr.putLogs();
 
-    fillLogsFld();
-    const MultiID& key = curioobj_->key();
-    Well::MGR().reload( key );
+	fillLogsFld();
+	Well::MGR().reload( multiids_[idwell] );
 
-    mDeleteLogs();
+	mDeleteLogs(idwell);
+    }
 }
 
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    if ( !logsfld_->size() || logsfld_->nrSelected() != 1 ) return;
+    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
 
-    BoolTypeSet issel;
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
-	issel += logsfld_->isSelected(idx);
+    BufferStringSet sellogs;
+    logsfld_->getSelectedItems( sellogs );
 
-    if ( !curwd_->d2TModel() )
-	currdr_->getD2T();
+    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
+    {
+	currdrs_[idwell]->getLogs();
+	currdrs_[idwell]->getD2T();
+	const IOObj* obj = IOM().get( multiids_[idwell] );
+	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
+    }
 
-    currdr_->getLogs();
-    uiExportLogs dlg( this, *curwd_, issel );
+    uiExportLogs dlg( this, curwds_, sellogs );
     dlg.go();
 
-    mDeleteLogs();
+    for ( int idw=0; idw<curwds_.size(); idw++ )
+	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
 }
 
 
@@ -399,42 +464,22 @@ void uiWellMan::removeLogPush( CallBacker* )
     if ( !uiMSG().askRemove(msg) )
 	return;
 
-    currdr_->getLogs();
-    Well::LogSet& wls = curwd_->logs();
-    BufferStringSet logs2rem;
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
+    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
-	if ( logsfld_->isSelected(idx) )
-	    logs2rem.add( wls.getLog(idx).name() );
-    }
+	currdrs_[idwell]->getLogs();
+	Well::LogSet& wls = curwds_[idwell]->logs();
+	BufferStringSet logs2rem;
+	logsfld_->getSelectedItems( logs2rem );
 
-    for ( int idx=0; idx<logs2rem.size(); idx++ )
-    {
-	BufferString& logname = logs2rem.get( idx );
-	for ( int logidx=0; logidx<wls.size(); logidx++ )
+	for ( int idrem=0; idrem<logs2rem.size(); idrem++ )
 	{
-	    if ( logname == wls.getLog(logidx).name() )
-	    {
-		Well::Log* log = wls.remove( logidx );
-		delete log;
-		break;
-	    }
+	    BufferString& logname = logs2rem.get( idrem );
+	    const Well::Log* log = wls.getLog( logname );
+	    if ( log )
+		delete wls.remove( wls.indexOf( logname ) );
 	}
     }
-
-    logs2rem.erase();
-
-    if ( currdr_->removeAll(Well::IO::sExtLog()) )
-    {
-	Well::Writer wtr( curfnm_, *curwd_ );
-	wtr.putLogs();
-	fillLogsFld();
-    }
-
-    const MultiID& key = curioobj_->key();
-    Well::MGR().reload( key );
-
-    mDeleteLogs();
+    writeLogs();
 }
 
 
@@ -443,44 +488,36 @@ void uiWellMan::renameLogPush( CallBacker* )
     if ( !logsfld_->size() || !logsfld_->nrSelected() )
 	mErrRet("No log selected")
 
-    const int lognr = logsfld_->currentItem() + 1;
-    FilePath fp( curfnm_ ); fp.setExtension( 0 );
-    BufferString logfnm = Well::IO::mkFileName( fp.fullPath(),
-	    					Well::IO::sExtLog(), lognr );
-    StreamProvider sp( logfnm );
-    StreamData sdi = sp.makeIStream();
-    bool res = currdr_->addLog( *sdi.istrm );
-    sdi.close();
-    if ( !res ) 
-	mErrRet("Cannot read selected log")
-
-    Well::Log* log = curwd_->logs().remove( 0 );
+    currdrs_[0]->getLogs();
+    Well::LogSet& wls = curwds_[0]->logs();
+    const char* lognm = logsfld_->getText();
+    if ( !wls.getLog( lognm ) ) 
+	mErrRet( "Cannot read selected log" )
 
     BufferString titl( "Rename '" );
-    titl += log->name(); titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name",
-    			new StringInpSpec(log->name()) );
-    if ( !dlg.go() ) return;
+    titl += lognm; titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
+    if ( !dlg.go() ) 
+	return;
 
     BufferString newnm = dlg.text();
     if ( logsfld_->isPresent(newnm) )
 	mErrRet("Name already in use")
 
-    log->setName( newnm );
-    Well::Writer wtr( curfnm_, *curwd_ );
-    StreamData sdo = sp.makeOStream();
-    wtr.putLog( *sdo.ostrm, *log );
-    sdo.close();
-    fillLogsFld();
-    const MultiID& key = curioobj_->key();
-    Well::MGR().reload( key );
-    delete log;
+    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
+    {
+	currdrs_[idwell]->getLogs();
+	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
+	if ( log ) log->setName( newnm );
+    }
+    writeLogs();
 }
 
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !curwd_ || !currdr_ || !curioobj_ )
+    if ( !curwds_.isEmpty() || curwds_.size() > 1 
+	    || !currdrs_.isEmpty() || currdrs_.size() > 1 || !curioobj_ )
     {
 	setInfo( "" );
 	return;
@@ -492,8 +529,8 @@ void uiWellMan::mkFileInfo()
     if ( !str.isEmpty() ) \
     { txt += key; txt += ": "; txt += str; txt += "\n"; }
 
-    const Well::Info& info = curwd_->info();
-    const Well::Track& track = curwd_->track();
+    const Well::Info& info = curwds_[0]->info();
+    const Well::Track& track = curwds_[0]->track();
 
     BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );
     BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );

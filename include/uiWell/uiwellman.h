@@ -7,15 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.23 2011-07-06 07:26:09 cvsbruno Exp $
+ RCS:           $Id: uiwellman.h,v 1.24 2011-07-20 13:13:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
+#include "bufstringset.h"
+
 class uiListBox;
 class uiButton;
 class uiGroup;
+class uiPushButton;
 namespace Well { class Data; class Reader; };
 
 
@@ -33,14 +36,19 @@ protected:
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
 
-    Well::Data*			curwd_;
-    Well::Reader*		currdr_;
-    BufferString		curfnm_;
+    ObjectSet<Well::Data>	curwds_;
+    ObjectSet<Well::Reader>	currdrs_;
+    TypeSet<MultiID>		multiids_;
+    BufferStringSet		curfnms_;
+
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
+    uiPushButton*		addlogsbut_;
+    uiPushButton*		calclogsbut_;
 
+    void			checkButtons();
     void			ownSelChg();
-    void			getCurrentWell();
+    void			getCurrentWells();
     void			mkFileInfo();
     void			writeLogs();
     void			fillLogsFld();

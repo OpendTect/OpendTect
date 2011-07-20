@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.101 2011-07-06 07:26:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.102 2011-07-20 13:13:12 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -675,39 +675,56 @@ static const char* exptypes[] =
 };
 
 
-uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_, 
-			  const BoolTypeSet& sel_ )
+uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds, 
+			  const BufferStringSet& logsel )
     : uiDialog(p,uiDialog::Setup("Export Well logs",
 				 "Specify format","107.1.3"))
-    , wd(wd_)
-    , logsel(sel_)
+    , wds_(wds)
+    , logsel_(logsel)
+    , multiwellsnamefld_(0)
 {
     const bool zinft = SI().depthsInFeetByDefault();
     BufferString lbl( "Depth range " ); lbl += zinft ? "(ft)" : "(m)";
-    zrangefld = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
+    zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld = new uiGenInput( this, "Output format", 
+    typefld_ = new uiGenInput( this, "Output format", 
 	    		      StringListInpSpec(exptypes) );
-    typefld->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
-    typefld->attach( alignedBelow, zrangefld );
+    typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
+    typefld_->attach( alignedBelow, zrangefld_ );
 
-    zunitgrp = new uiButtonGroup( this, "", false );
-    zunitgrp->attach( alignedBelow, typefld );
+    zunitgrp_ = new uiButtonGroup( this, "", false );
+    zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
-    zlbl->attach( leftOf, zunitgrp );
-    uiRadioButton* meterbut = new uiRadioButton( zunitgrp, "meter" );
-    uiRadioButton* feetbut = new uiRadioButton( zunitgrp, "feet" );
-    if ( SI().zIsTime() && wd.d2TModel() )
+    zlbl->attach( leftOf, zunitgrp_ );
+    uiRadioButton* meterbut = new uiRadioButton( zunitgrp_, "meter" );
+    uiRadioButton* feetbut = new uiRadioButton( zunitgrp_, "feet" );
+    bool have2dtmodel = true;
+    for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
-	uiRadioButton* secbut = new uiRadioButton( zunitgrp, "sec" );
-	uiRadioButton* msecbut = new uiRadioButton( zunitgrp, "msec" );
+	if ( !wds_[idwell]->haveD2TModel() ) 
+	    { have2dtmodel = false; break; }
     }
-    zunitgrp->selectButton( zinft );
+    if ( SI().zIsTime() && have2dtmodel)
+    {
+	uiRadioButton* secbut = new uiRadioButton( zunitgrp_, "sec" );
+	uiRadioButton* msecbut = new uiRadioButton( zunitgrp_, "msec" );
+    }
+    zunitgrp_->selectButton( zinft );
 
-    outfld = new uiFileInput( this, "Output file",
-			      uiFileInput::Setup().forread(false) );
-    outfld->attach( alignedBelow, zunitgrp );
+    const bool multiwells = wds.size() > 1;
+    outfld_ = new uiFileInput( this, multiwells ? "File Directory" 
+	    					: "Output file",
+			      uiFileInput::Setup().forread(false)
+			      			  .directories(multiwells) );
+    outfld_->attach( alignedBelow, zunitgrp_ );
+    if ( multiwells )
+    {
+	outfld_->setFileName( IOM().curDirName() );
+	multiwellsnamefld_ = new uiGenInput( this, "File name" );
+	multiwellsnamefld_->attach( alignedBelow, outfld_ );
+    }
+
     typeSel(0);
 }
 
@@ -715,16 +732,20 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
 void uiExportLogs::setDefaultRange( bool zinft )
 {
     StepInterval<float> dahintv;
-    for ( int idx=0; idx<wd.logs().size(); idx++ )
+    for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
-        const Well::Log& log = wd.logs().getLog(idx);
-        const int logsz = log.size();
-        if ( !logsz ) continue;
+	const Well::Data& wd = *wds_[idwell];
+	for ( int idx=0; idx<wd.logs().size(); idx++ )
+	{
+	    const Well::Log& log = wd.logs().getLog(idx);
+	    const int logsz = log.size();
+	    if ( !logsz ) continue;
 
-	dahintv.setFrom( wd.logs().dahInterval() );
-        const float width = log.dah(logsz-1) - log.dah(0);
-        dahintv.step = width / (logsz-1);
-	break;
+	    dahintv.include( wd.logs().dahInterval() );
+	    const float width = log.dah(logsz-1) - log.dah(0);
+	    dahintv.step = width / (logsz-1);
+	    break;
+	}
     }
 
     if ( zinft )
@@ -734,14 +755,14 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	dahintv.step *= mToFeetFactor;
     }
 
-    zrangefld->setValue( dahintv );
+    zrangefld_->setValue( dahintv );
 }
 
 
 void uiExportLogs::typeSel( CallBacker* )
 {
-    zunitgrp->setSensitive( 2, typefld->getIntValue() );
-    zunitgrp->setSensitive( 3, typefld->getIntValue() );
+    zunitgrp_->setSensitive( 2, typefld_->getIntValue() );
+    zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
 }
 
 
@@ -749,39 +770,62 @@ void uiExportLogs::typeSel( CallBacker* )
 
 bool uiExportLogs::acceptOK( CallBacker* )
 {
-    BufferString fname = outfld->fileName();
-    if ( !*fname ) mErrRet( "Please select filename" )
+    BufferString fname = outfld_->fileName();
+    if ( fname.isEmpty() )
+	 mErrRet( "Please select valid entry for the output" );
 
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
+    BufferStringSet fnames;
+    if ( wds_.size() > 1 )
     {
-	sdo.close();
-	mErrRet( "Cannot open output file" )
-    }
+	if ( !File::isDirectory(fname) )
+	    mErrRet( "Please enter a valid (existing) location" )
+	BufferString corename = multiwellsnamefld_->text();
+	if ( corename.isEmpty() )
+	    mErrRet( "Please enter a valid file name" )
 
-    writeHeader( sdo );
-    writeLogs( sdo );
-    sdo.close();
+	for ( int idx=0; idx<wds_.size(); idx++ )
+	{
+	    BufferString nm( fname ); 
+	    nm += "/"; nm += corename; nm += "_"; nm += wds_[idx]->name();
+	    fnames.add( nm );
+	}
+    }
+    else
+	fnames.add( fname );
+
+    for ( int idx=0; idx<fnames.size(); idx++ )
+    {
+	StreamData sdo = StreamProvider( fnames.get(idx) ).makeOStream();
+	if ( !sdo.usable() )
+	{
+	    sdo.close();
+	    mErrRet( "Cannot open output file" )
+	}
+	writeHeader( sdo, *wds_[idx] );
+	writeLogs( sdo, *wds_[idx] );
+	sdo.close();
+    }
     return true;
 }
 
 
-void uiExportLogs::writeHeader( StreamData& sdo )
+void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 {
     const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
     
-    if ( typefld->getIntValue() == 1 )
+    if ( typefld_->getIntValue() == 1 )
 	*sdo.ostrm << "X\tY\t";
-    else if ( typefld->getIntValue() == 2 )
+    else if ( typefld_->getIntValue() == 2 )
 	*sdo.ostrm << "Inline\tCrossline\t";
 
-    const int unitid = zunitgrp->selectedId();
+    const int unitid = zunitgrp_->selectedId();
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
     *sdo.ostrm << zstr << units[unitid];
+
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
-	if ( !logsel[idx] ) continue;
 	const Well::Log& log = wd.logs().getLog(idx);
+	if ( !logsel_.isPresent( log.name() ) ) continue;
 	BufferString lognm( log.name() );
 	cleanupString( lognm.buf(), 0, 0, 0 );
 	replaceCharacter( lognm.buf(), '+', '_' );
@@ -795,17 +839,17 @@ void uiExportLogs::writeHeader( StreamData& sdo )
 }
 
 
-void uiExportLogs::writeLogs( StreamData& sdo )
+void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 {
-    bool inmeter = zunitgrp->selectedId() == 0;
-    bool infeet = zunitgrp->selectedId() == 1;
-    bool insec = zunitgrp->selectedId() == 2;
-    bool inmsec = zunitgrp->selectedId() == 3;
+    bool inmeter = zunitgrp_->selectedId() == 0;
+    bool infeet = zunitgrp_->selectedId() == 1;
+    bool insec = zunitgrp_->selectedId() == 2;
+    bool inmsec = zunitgrp_->selectedId() == 3;
 
     const bool zinft = SI().depthsInFeetByDefault();
-    const int outtypesel = typefld->getIntValue();
+    const int outtypesel = typefld_->getIntValue();
     const bool dobinid = outtypesel == 2;
-    const StepInterval<float> intv = zrangefld->getFStepInterval();
+    const StepInterval<float> intv = zrangefld_->getFStepInterval();
     const int nrsteps = intv.nrSteps();
 
     for ( int idx=0; idx<nrsteps; idx++ )
@@ -845,16 +889,16 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
 	{
-	    if ( !logsel[logidx] ) continue;
-	    const float val = wd.logs().getLog(logidx).getValue( md );
+	    const Well::Log& log = wd.logs().getLog(logidx);
+	    if ( !logsel_.isPresent( log.name() ) ) continue;
+	    const float val = log.getValue( md );
 	    if ( mIsUdf(val) )
 		*sdo.ostrm << '\t' << "1e30";
 	    else
 		*sdo.ostrm << '\t' << val;
 	}
-
-	*sdo.ostrm << '\n';
     }
+    *sdo.ostrm << '\n';
 }
 
 
@@ -891,6 +935,7 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
     return *nms_;
 }
 
+
 bool uiNewWellDlg::acceptOK( CallBacker* )
 {
     BufferString tmp( text() );
@@ -915,10 +960,12 @@ const Color& uiNewWellDlg::getWellColor()
 
 
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
-    : uiDialog(p,uiDialog::Setup("Edit unit of measure",mNoDlgTitle,mNoHelpID))
-    , logchanged_(false)
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID))
     , log_(wl)			
 {
+    BufferString ttl( "Edit unit of measure :" );
+    ttl += wl.name();
+    setCaption( ttl.buf() );
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Unit of measure" );
     unfld_ = lcb->box();
     const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
@@ -938,14 +985,8 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
 bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
     const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( unfld_->text() );
-    const UnitOfMeasure* olduom = 
-			    UnitOfMeasure::getGuessed( log_.unitMeasLabel() );
-    logchanged_ = newuom != olduom;
-    if ( logchanged_ ) 
+    if ( newuom )
 	log_.setUnitMeasLabel( newuom->symbol() );
 
     return true;
 }
-
-
-
