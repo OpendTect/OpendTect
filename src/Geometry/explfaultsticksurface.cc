@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.44 2011-02-14 22:23:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.45 2011-07-20 14:33:15 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1349,7 +1349,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
 	sort_array( conns.arr(), conns.size() );
 
-	if ( lidx )
+	if ( lidx && conn.size() )
 	    mAddTriangle( lknots[lidx], rknots[conns[0]], lknots[lidx-1],
 		          lnormals[lidx], rnormals[conns[0]], lnormals[lidx-1]);
 
