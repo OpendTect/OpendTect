@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.31 2011-07-14 08:09:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.32 2011-07-20 13:17:35 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -339,6 +339,10 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 
 
 
+RaySynthGenerator::RaySynthGenerator()
+    : raysampling_(0,0)
+{}
+
 
 RaySynthGenerator::~RaySynthGenerator()
 {
@@ -398,6 +402,8 @@ bool RaySynthGenerator::doRayTracing( TaskRunner* tr )
 	}
 	raymodels_.insertAt( rm, 0 );
     }
+    if ( !raysampling_.width() )
+	mErrRet( "no valid time generated from raytracing" );
     return true;
 }
 
@@ -410,8 +416,10 @@ bool RaySynthGenerator::doSynthetics( TaskRunner* tr )
 	outputsampling_ = raysampling_; 
     if ( mIsUdf( outputsampling_.step ) )
 	outputsampling_.step = wavelet_->sampleRate();
+    if ( outputsampling_.width()/(float)outputsampling_.step<wavelet_->size() )
+	mErrRet( "Time range can not be smaller than wavelet" )
     if ( outputsampling_.nrSteps() < 1 )
-	mErrRet( "no valid times generated" )
+	mErrRet( "Time interval is empty" );
 
     IOPar par; fillPar( par );
     for ( int idx=0; idx<raymodels_.size(); idx++ )

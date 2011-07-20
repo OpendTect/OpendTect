@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.48 2011-07-15 13:06:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.49 2011-07-20 13:17:35 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -330,6 +330,7 @@ void uiStratSynthDisp::doModelChange()
     stratsynth_.setModel( lm_ );
     stratsynth_.setWavelet( *wvlt_ );
     d2tmodels_ = 0;
+    BufferString errmsg;
 
     const SyntheticData* sd = 0;
     const int seldataidx = modellist_->box()->currentItem(); 
@@ -340,17 +341,19 @@ void uiStratSynthDisp::doModelChange()
     }
     else
     {
-	sd = stratsynth_.generate( raypars_, false );
+	sd = stratsynth_.generate( raypars_, false, &errmsg );
 	tmpsynthetic_ = sd;
     }
 
     displaySynthetics( sd );
+    if ( !errmsg.isEmpty() )
+	mErrRet( errmsg.buf(), return )
 }
 
 
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
-    uiStratSynthDisp2Crossplot dlg( this, getLimitSampling() ); 
+    uiStratSynthDisp2Crossplot dlg( this, raypars_, getLimitSampling() ); 
     if ( dlg.go() )
     {
 	if ( modellist_->box()->isPresent( dlg.rayParam().synthname_ ) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.23 2011-07-14 08:09:29 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.24 2011-07-20 13:17:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ protected:
 mClass RaySynthGenerator : public SynthGenBase
 {
 public:
-			RaySynthGenerator() {};
+			RaySynthGenerator();
 			~RaySynthGenerator();
 
     //input

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.1 2011-07-15 12:01:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.2 2011-07-20 13:17:35 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -59,14 +59,13 @@ int StratSynth::getDenIdx( bool& isden ) const
     isden = true; return 2; // This is what the simple generator generates
 }
 
-#define mErrRet( msg, act ) { if ( errmsg )*errmsg = msg; act; }
+#define mErrRet( msg, act ) { if ( errmsg ) *errmsg = msg; act; }
 DataPack* StratSynth::genTrcBufDataPack( const RayParams& raypars,
 				ObjectSet<const TimeDepthModel>& d2ts,
 				BufferString* errmsg ) const 
 {
     ObjectSet<SeisTrcBuf> seisbufs;
-    genSeisBufs( raypars, d2ts, seisbufs );
-    if ( seisbufs.isEmpty() )
+    if ( !genSeisBufs( raypars, d2ts, seisbufs, errmsg ) || seisbufs.isEmpty() )
 	return 0;
 
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
@@ -138,7 +137,7 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 			    BufferString* errmsg ) const 
 {
     if ( !lm_ || lm_->isEmpty() ) 
-	mErrRet( 0, return false; )
+	return false;
 
     const CubeSampling& cs = raypars.cs_;
     TypeSet<float> offsets;
