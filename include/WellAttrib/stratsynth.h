@@ -7,14 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.1 2011-07-15 12:01:37 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.2 2011-07-20 11:28:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "cubesampling.h"
-#include "samplingdata.h"
 #include "datapack.h"
+#include "iopar.h"
+#include "samplingdata.h"
 #include "synthseis.h"
 
 class FlatDataPack;
@@ -34,6 +35,15 @@ mStruct RayParams
 				    cs_.hrg.setCrlRange(Interval<int>(0,0));
 				    cs_.hrg.step = BinID( 1, 100 );
 				    cs_.zrg.set( 0, 0, 0  );
+				}
+				RayParams(const RayParams& rp)
+				{
+				    cs_ = rp.cs_;
+				    usenmotimes_ = rp.usenmotimes_;
+				    dostack_ = rp.dostack_;
+				    IOPar spar; rp.setup_.fillPar( spar );
+				    setup_.usePar( spar );
+				    synthname_ = rp.synthname_;
 				}
     CubeSampling 		cs_; //inl are models, crl are offsets
     bool			usenmotimes_;
