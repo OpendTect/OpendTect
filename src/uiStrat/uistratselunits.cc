@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratselunits.cc,v 1.5 2011-07-19 09:18:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratselunits.cc,v 1.6 2011-07-21 09:54:59 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -264,7 +264,7 @@ void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
 {
     if ( combo_ )
 	combo_->setCurrentItem( ur.fullCode() );
-    else if ( isMulti() )
+    else if ( !isMulti() )
 	setSelected( ur );
     else
     {
