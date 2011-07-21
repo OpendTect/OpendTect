@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.59 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.60 2011-07-21 08:38:50 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -101,7 +101,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, "Name size" );
-    nmsizefld_->box()->setInterval(10,30,6);
+    nmsizefld_->box()->setInterval(5,30,2);
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
@@ -178,7 +178,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     colfld_->setSensitive( singlecolfld_->isChecked() );
    
     nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
-    nmsizefld_->box()->setInterval(10,30,6);
+    nmsizefld_->box()->setInterval(5,30,2);
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
     const char* styles[] = { "Normal", "Bold", "Italic", "Bold Italic", 0 };
