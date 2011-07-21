@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.81 2011-07-20 13:13:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.82 2011-07-21 07:51:11 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -397,7 +397,7 @@ void uiWellMan::logUOMPush( CallBacker* )
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
 {
-    if ( curwds_.isEmpty() || !currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     mDynamicCastGet(uiToolButton*,toolbut,cb);
     if ( toolbut != logupbut_ && toolbut != logdownbut_ )
@@ -464,20 +464,21 @@ void uiWellMan::removeLogPush( CallBacker* )
     if ( !uiMSG().askRemove(msg) )
 	return;
 
+    BufferStringSet logs2rem;
+    logsfld_->getSelectedItems( logs2rem );
+
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
 	Well::LogSet& wls = curwds_[idwell]->logs();
-	BufferStringSet logs2rem;
-	logsfld_->getSelectedItems( logs2rem );
-
 	for ( int idrem=0; idrem<logs2rem.size(); idrem++ )
 	{
-	    BufferString& logname = logs2rem.get( idrem );
+	    BufferString logname( logs2rem.get( idrem ) );
 	    const Well::Log* log = wls.getLog( logname );
 	    if ( log )
 		delete wls.remove( wls.indexOf( logname ) );
 	}
+	currdrs_[idwell]->removeAll( Well::IO::sExtLog() );
     }
     writeLogs();
 }
