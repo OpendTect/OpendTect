@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.21 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.22 2011-07-22 19:31:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,16 @@ bool uiMapperRangeEditor::setDataPackID( DataPack::ID dpid,
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
     if ( retval ) drawAgain();
     return retval;
+}
+
+
+void uiMapperRangeEditor::setData( const Array2D<float>* data )
+{
+    histogramdisp_->setData( data );
+    const bool nodata = histogramdisp_->xVals().isEmpty();
+    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
+    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    drawAgain();
 }
 
 

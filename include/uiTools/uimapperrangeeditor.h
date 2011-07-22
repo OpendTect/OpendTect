@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.8 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.9 2011-07-22 19:31:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiPixmapItem;
 class uiTextItem;
 class uiAxisHandler;
 
+template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
 mClass uiMapperRangeEditor : public uiGroup
@@ -34,6 +35,7 @@ public:
     int				ID()		       { return id_; }
 
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
+    void                        setData(const Array2D<float>*);
     void                        setMarkValue(float,bool forx);
 
     void			setColTabMapperSetup(
