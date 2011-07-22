@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.102 2011-07-20 13:13:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.103 2011-07-22 12:20:43 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -720,9 +720,10 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
-	outfld_->setFileName( IOM().curDirName() );
-	multiwellsnamefld_ = new uiGenInput( this, "File name" );
+	outfld_->setFileName( IOM().rootDir() );
+	multiwellsnamefld_ = new uiGenInput( this, "File name suffix" );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
+	multiwellsnamefld_->setText( "logs.txt" );
     }
 
     typeSel(0);
@@ -779,14 +780,14 @@ bool uiExportLogs::acceptOK( CallBacker* )
     {
 	if ( !File::isDirectory(fname) )
 	    mErrRet( "Please enter a valid (existing) location" )
-	BufferString corename = multiwellsnamefld_->text();
-	if ( corename.isEmpty() )
+	BufferString suffix = multiwellsnamefld_->text();
+	if ( suffix.isEmpty() )
 	    mErrRet( "Please enter a valid file name" )
 
 	for ( int idx=0; idx<wds_.size(); idx++ )
 	{
 	    BufferString nm( fname ); 
-	    nm += "/"; nm += corename; nm += "_"; nm += wds_[idx]->name();
+	    nm += "/"; nm += wds_[idx]->name(); nm += "_"; nm += suffix;
 	    fnames.add( nm );
 	}
     }
@@ -889,7 +890,7 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 
 	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
 	{
-	    const Well::Log& log = wd.logs().getLog(logidx);
+	    const Well::Log& log = wd.logs().getLog( logidx );
 	    if ( !logsel_.isPresent( log.name() ) ) continue;
 	    const float val = log.getValue( md );
 	    if ( mIsUdf(val) )
@@ -897,8 +898,8 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 	    else
 		*sdo.ostrm << '\t' << val;
 	}
+	*sdo.ostrm << '\n';
     }
-    *sdo.ostrm << '\n';
 }
 
 
