@@ -8,8 +8,9 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.27 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.28 2011-07-22 13:38:13 cvsbert Exp $
 
+ For making your own plugins, no need to include this file. Use odplugin.h.
 ________________________________________________________________________
 
 -*/
@@ -38,6 +39,9 @@ int LoadPlugin(const char* libnm);
 }
 
 /*!\brief Plugin manager - loads plugins: shared libs or DLLs.
+
+Note: there are macros making most of the below stuff not interesting.
+See header file odplugin.h.
  
  For shared libs to be in any way useful, an init function
  must be called. The name of that function should predictable.
