@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.43 2011-03-04 08:58:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.44 2011-07-22 20:19:48 cvsyuancheng Exp $";
 
 #include "uicolortable.h"
 
@@ -144,7 +144,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 	canvas_->attach( rightOf, minfld_ );
 	maxfld_->attach( rightOf, canvas_ );
 	selfld_->attach( rightOf, maxfld_ );
-	setHAlignObj(selfld_); setHCentreObj(selfld_);
+	setHAlignObj(minfld_); setHCentreObj(minfld_);
     }
 }
 
