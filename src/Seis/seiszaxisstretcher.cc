@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.18 2011-07-13 12:49:27 cvshelene Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.19 2011-07-22 09:14:50 cvshelene Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -240,6 +240,21 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
 	if ( stretchz_ && ( forward_ || getModelTrace( modeltrc, curbid ) ) )
 	{
+	    if ( isvrms_ )                                                      
+	    {                                                                   
+		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
+		SamplingData<double> inputsd( intrc.info().sampling );          
+		mAllocVarLenArr( float, vintarr, insz );                        
+		if ( !vintarr ) return false;                                   
+
+		computeDix( tmpseistrcvsin.arr(), inputsd, insz, vintarr );
+
+		for ( int ids=0; ids<insz; ids++ )
+		    intrc.set( ids, vintarr[ids], 0 );
+
+		isvint_ = true;
+	    }
+
 	    SeisTrcValueSeries seistrcvsin( intrc, 0 );
 	    if ( forward_ ) modeltrc = intrc;
 	    SeisTrcValueSeries seistrcvsmodel( modeltrc, 0 );

@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.9 2011-06-08 11:57:39 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.10 2011-07-22 09:14:50 cvshelene Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -85,10 +85,20 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	strm << "\nDetected that the stretching will be done on velocities.\n"
 	        "Will stretch in z-domain and convert back to velocities.\n";
+
 	exec = new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
 				       velmid, istime2depth, isvel );
 	//would we convert Thomsen? nothing prepared for this now
 	exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
+
+	const bool isvrms = veldesc.type_ == VelocityDesc::RMS;
+	if ( isvrms )                                                           
+	{                                                                       
+	    exec->setVelTypeIsVrms( isvrms );                                   
+	    strm << "\nDetected that the input cube contains RMS velocities.\n" 
+		"RMS velocities are not present in Depth domain;\n"
+		"a conversion to interval velocities will thus be processed.\n";
+	}
     }
     else
     {

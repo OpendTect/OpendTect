@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.55 2011-07-13 12:49:27 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.56 2011-07-22 09:14:50 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -763,12 +763,9 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
  \
     if ( !hasvals ) \
     { \
-	idx_prev = 0; \
-	Vint[0] = mUdf(float); \
+	for ( int idx=0; idx<nrvels; idx++ ) \
+	    Vint[idx] = mUdf(float); \
     } \
- \
-    for ( int idx=idx_prev+1; idx<nrvels; idx++ ) \
-	Vint[idx] = Vint[idx_prev]; \
  \
     return true
 

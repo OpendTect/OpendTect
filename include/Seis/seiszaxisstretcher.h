@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.10 2011-06-08 11:57:39 cvshelene Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.11 2011-07-22 09:14:50 cvshelene Exp $
 ________________________________________________________________________
 
 */
@@ -52,6 +52,7 @@ public:
     const char*		message() const { return "Stretching data"; }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
+    void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }
 
 protected:
 
@@ -87,6 +88,7 @@ protected:
 
     int					totalnr_;
     bool				isvint_;
+    bool				isvrms_;
 
 };
 
