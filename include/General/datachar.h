@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.15 2010-12-29 15:24:40 cvskris Exp $
+ RCS:		$Id: datachar.h,v 1.16 2011-07-23 22:08:12 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
-#include <bindatadesc.h>
-#include <enums.h>
+#include "bindatadesc.h"
+#include "enums.h"
 
 
 /*!\brief byte-level data characteristics of stored data.
