@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.19 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: scaler.h,v 1.20 2011-07-23 22:06:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include "gendefs.h"
 #include "undefval.h"
 
 #define sLinScaler	"Linear"

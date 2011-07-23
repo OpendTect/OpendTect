@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: timeser.h,v 1.1 2010-11-12 10:17:54 cvsbert Exp $
+ RCS:		$Id: timeser.h,v 1.2 2011-07-23 22:06:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <gendefs.h>
+#include "gendefs.h"
 
 #ifdef __cpp__
 extern "C" {
