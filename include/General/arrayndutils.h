@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.39 2011-01-07 12:56:43 cvsbruno Exp $
+ RCS:           $Id: arrayndutils.h,v 1.40 2011-07-23 22:26:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,11 +16,12 @@ ________________________________________________________________________
 #include "enums.h"
 #include "databuf.h"
 #include "arrayndslice.h"
+#include "iostrm.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
 #include "odcomplex.h"
 
-#include <iostrm.h>
+
 #include <math.h>
 
 #ifndef M_PI
