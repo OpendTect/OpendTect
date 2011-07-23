@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.13 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:		$Id: compoundkey.h,v 1.14 2011-07-23 22:06:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #ifndef general_h
-#include <general.h>
+#include "general.h"
 #endif
 #include <stdlib.h>
 #include <iostream>
