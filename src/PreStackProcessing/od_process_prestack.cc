@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.12 2011-07-17 22:16:34 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.13 2011-07-24 13:13:04 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -46,8 +46,6 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.12 2011-07-17 22:16:
 #define mDestroyWorkers \
 	{ delete procman; procman = 0; writer = 0; }
 
-//defineTranslatorGroup(AttribDescSet,"Attribute definitions");
-
 
 #define mRetError(s) \
 { errorMsg(s); mDestroyWorkers; return false; }
@@ -56,19 +54,6 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.12 2011-07-17 22:16:
 	{  \
 	    if ( comm ) comm->setState( JobCommunic::HostError ); \
 	    mRetError(s) \
-	}
-
-#define mRetJobErr(s) \
-	{  \
-	    if ( comm ) comm->setState( JobCommunic::JobError ); \
-	    mRetError(s) \
-	}
-
-#define mRetFileProb(fdesc,fnm,s) \
-	{ \
-	    BufferString msg(fdesc); \
-	    msg += " ("; msg += fnm; msg += ") "; msg += s; \
-	    mRetHostErr( msg ); \
 	}
 
 #define mStrmWithProcID(s) \
