@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.28 2011-07-11 11:43:09 cvssatyaki Exp $
+ RCS:		$Id: polygon.h,v 1.29 2011-07-24 13:03:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,7 @@ protected:
 
     static bool doCoincide( const Geom::Point2D<T>& point1,
 			    const Geom::Point2D<T>& point2,
-			    T eps );
+			    T eps=mDefEps );
 
     static double sgnDistToLine( const Geom::Point2D<T>& point,
 				 const Geom::Point2D<T>& dirvec,
@@ -495,7 +495,7 @@ bool ODPolygon<T>::isRightOfLine( const Geom::Point2D<T>& point,
 template <class T> inline
 bool ODPolygon<T>::doCoincide( const Geom::Point2D<T>& point1,
 			       const Geom::Point2D<T>& point2,
-			       T eps=mDefEps )
+			       T eps )
 {
     return point1.sqDistTo( point2 ) <= eps * eps;
 }
