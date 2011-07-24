@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: attribdescsettr.h,v 1.3 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: attribdescsettr.h,v 1.4 2011-07-24 13:06:35 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
  
-#include <transl.h>
-#include <ctxtioobj.h>
+#include "transl.h"
+#include "ctxtioobj.h"
 class Conn;
 namespace Attrib { class DescSet; }
 

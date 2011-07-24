@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.19 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: wavelettrans.h,v 1.20 2011-07-24 13:07:24 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -103,7 +103,7 @@ protected:
 	void		setWaveletType( WaveletTransform::WaveletType );
     protected:
 
-#include <templ_wavlttransimpl.h>
+#include "templ_wavlttransimpl.h"
 
 	WaveletTransform::WaveletType		wt_;
 

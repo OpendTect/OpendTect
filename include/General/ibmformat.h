@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: ibmformat.h,v 1.4 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: ibmformat.h,v 1.5 2011-07-24 13:06:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <gendefs.h>
+#include "gendefs.h"
 
 
 mClass IbmFormat
