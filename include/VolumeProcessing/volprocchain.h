@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.13 2010-08-13 15:21:03 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.14 2011-07-24 13:10:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -90,6 +90,9 @@ public:
     				Step(Chain&);
     virtual			~Step();
     const Chain&		getChain() const	{ return chain_; }
+
+    virtual const char*		factoryDisplayName() const { return factoryKeyword(); } \
+    virtual const char* factoryKeyword() const { return 0; }
 
     virtual const char*		type() const 				= 0;
     virtual const char*		userName() const;
