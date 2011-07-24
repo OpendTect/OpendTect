@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.5 2010-09-10 14:27:34 cvskris Exp $
+ RCS:		$Id: smoother2d.h,v 1.6 2011-07-24 13:04:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ Smoother2D<T>::~Smoother2D()
 
 template <class T> inline
 int Smoother2D<T>::getWindowSize(int dim) const
-{ return window_.info().getSize( dim ); }
+{ return window_->info().getSize( dim ); }
 
 
 template <class T> inline
@@ -136,7 +136,7 @@ void Smoother2D<T>::fillPar( IOPar& par ) const
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
 
-    par.set(sKeyWinSize(),window_.info().getSize(0),window_.info().getSize(1));
+    par.set(sKeyWinSize(),window_->info().getSize(0),window_->info().getSize(1));
 }
 
 
