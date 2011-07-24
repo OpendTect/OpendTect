@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
+ * ID       : $Id: seisseqio.h,v 1.12 2011-07-24 13:09:11 cvskris Exp $
 -*/
 
 #include "seistype.h"
@@ -103,7 +103,7 @@ public:
 
 protected:
 
-    mutable SeisTrcBuf&	gath_;
+    SeisTrcBuf&     gath_;
     mutable int		curposidx_;
     mutable int		segidx_;
     mutable int		ldidx_;
