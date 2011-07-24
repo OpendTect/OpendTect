@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.63 2010-12-07 20:27:57 cvskris Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.64 2011-07-24 13:12:06 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -22,10 +22,11 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.63 2010-12-07 20:27:57 cvskris 
 #include "envvars.h"
 #include "seistype.h"
 #include "keystrs.h"
-#include <math.h>
-#include <timeser.h>
+#include "timeser.h"
+
 #include <float.h>
 #include <iostream>
+#include <math.h>
 
 const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
 const char* SeisTrcInfo::sNrSamples = "Nr of samples";

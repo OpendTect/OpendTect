@@ -4,10 +4,10 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.12 2010-10-08 14:38:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.13 2011-07-24 13:11:35 cvskris Exp $";
 
-#include <transform.h>
-#include <arraynd.h>
+#include "transform.h"
+#include "arraynd.h"
 
 
 GenericTransformND::GenericTransformND()
