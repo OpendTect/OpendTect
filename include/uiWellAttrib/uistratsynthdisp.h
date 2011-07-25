@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.29 2011-07-15 12:01:37 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.30 2011-07-25 15:07:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
+class uiElasticPropSelDlg;
 class uiRayTracer1D;
 class uiLabeledComboBox;
 class uiOffsetSlicePos;
@@ -151,6 +152,7 @@ protected:
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiLabeledComboBox*	modellist_;
+    uiElasticPropSelDlg* layerpropseldlg_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
     uiOffsetSlicePos*	posfld_;
     StratSynth&		stratsynth_;
@@ -164,6 +166,7 @@ protected:
 
     void		addSynth2List(CallBacker*);
     void		dataSetSel(CallBacker*);
+    void		layerPropsPush(CallBacker*);
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
     void		rayTrcPosChged(CallBacker*);

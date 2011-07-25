@@ -8,119 +8,138 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.2 2011-07-20 14:23:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.3 2011-07-25 15:07:49 cvsbruno Exp $";
 
 #include "elasticpropsel.h"
 #include "math.h"
+#include "mathexpression.h"
 
 
-#define mDefPVel 2000
-#define mDefDen 2
-#define mDefSVel 500
 
-
-void ElasticPropSel::fill( ElasticModel& model )
+void ElasticFormulaRepository::addFormula( const char* nm, const char* expr )
 {
-    for ( int idx=0; idx<model.size(); idx++ )
-	fill( model[idx] );
+    formulas_ += new ElasticFormula( nm, expr ); 
 }
 
 
-void ElasticPropSel::fill( AIModel& model )
+DenElasticFormulaRepository::DenElasticFormulaRepository()
 {
-    for ( int idx=0; idx<model.size(); idx++ )
-	fill( model[idx] );
+    addFormula( "AI", "AI/Velocity" ); 
 }
 
 
-void ElasticPropSel::fill( AILayer& layer )
+PVelElasticFormulaRepository::PVelElasticFormulaRepository()
 {
-    float dummysvel = mUdf(float);
-    ElasticProps ep( layer.den_, layer.vel_, dummysvel );
-    fill( ep );
+    addFormula( "Sonic", "1/Sonic" );
+    addFormula( "AI", "AI/Density" );
+    addFormula( "S-Wave", "sqrt( a*SWave^2 + b )");
 }
 
 
-void ElasticPropSel::fill( ElasticLayer& layer )
+SVelElasticFormulaRepository::SVelElasticFormulaRepository()
 {
-    ElasticProps ep( layer.den_, layer.vel_, layer.svel_ );
-    fill( ep );
+    addFormula( "Shear Sonic", "1/ShearSonic" );
+    addFormula( "P-Wave", "sqrt( a*PWave^2+ b )" );
 }
 
 
-void ElasticPropSel::fill( ElasticProps& props )
+
+void ElasticPropGen::guessInputFromProps( const PropertyRefSelection& pps )
 {
-    fillPVel( props );
-    fillSVel( props );
-    fillDen( props );
+    findDen( pps );
+    findPVel( pps );
+    findSVel( pps );
 }
 
 
-void ElasticPropSel::fillPVel( ElasticProps& props )
+void ElasticPropGen::fill( AILayer& el, const float* vals, int sz )
 {
-    float& pvel = props.pvel_;
-    if ( !mIsUdf( pvel ) ) return;
+    el.den_ = getDen( vals, sz );
+    el.vel_ = getPVel( vals, sz );
+}
 
-    valStatus status = params_.pvelstat_;
 
-    if ( status == FromVel )
+void ElasticPropGen::fill( ElasticLayer& el, const float* vals, int sz )
+{
+    el.den_ = getDen( vals, sz );
+    el.vel_ = getPVel( vals, sz );
+    el.svel_ = getSVel( vals, sz );
+}
+
+
+float ElasticPropGen::getDen( const float* vals, int sz )
+{
+    return getVal( deninpdata_, vals, sz );
+}
+
+
+float ElasticPropGen::getPVel( const float* vals, int sz )
+{
+    return getVal( pvelinpdata_, vals, sz );
+}
+
+
+float ElasticPropGen::getSVel( const float* vals, int sz )  
+{
+    return getVal( svelinpdata_, vals, sz );
+}
+
+
+float ElasticPropGen::getVal( InpData& inp, const float* vals, int sz )
+{
+    MathExpression* expr = inp.expr_;
+    const TypeSet<int>& selidxs = inp.selidxs_;
+
+    if ( expr ) 
     {
-	const float svel = props.svel_;
-	const float p2safac = params_.pvel2svelafac_;
-	const float p2sbfac = params_.pvel2svelbfac_;
-	pvel = sqrt( (svel*svel - p2sbfac)/p2safac );
+	for ( int idx=0; idx<selidxs.size(); idx++ )
+	    expr->setVariableValue( idx, vals[selidxs[idx]] );
+	return expr->getValue();
     }
-    else if ( status == FromAI  )
-    {
-	const float den = props.den_;
-	const float ai = props.ai_;
-	if ( mIsUdf( den ) || den == 0)
-	    pvel = ai / mDefDen;
-	else
-	    pvel = ai / den;
-    }
-
-    if ( mIsUdf( pvel ) ) 
-	pvel = mDefPVel;
+    return selidxs.size() ? vals[selidxs[0]] : mUdf( float );
 }
 
 
-void ElasticPropSel::fillSVel( ElasticProps& props  )
+void ElasticPropGen::findDen( const PropertyRefSelection& pps )
 {
-    float& svel = props.svel_;
-    if ( !mIsUdf( svel ) ) return;
-
-    valStatus status = params_.svelstat_;
-
-    if ( status == FromVel )
-    {
-	const float pvel = props.pvel_;
-	const float p2safac = params_.pvel2svelafac_;
-	const float p2sbfac = params_.pvel2svelbfac_;
-	svel = sqrt( p2safac*pvel*pvel + p2sbfac );
-    }
-    if ( mIsUdf( svel ) ) 
-	svel = mDefSVel;
+    const int denidx = findQuantity( pps, PropertyRef::Den );
+    if ( denidx >= 0 ) 
+	deninpdata_.selidxs_ += denidx;
 }
 
 
-
-void ElasticPropSel::fillDen( ElasticProps& props )
+void ElasticPropGen::findPVel( const PropertyRefSelection& pps )
 {
-    float& den = props.den_;
-    if ( !mIsUdf(den) ) return;
-
-    valStatus status = params_.denstat_;
-
-    if ( status == FromAI ) 
+    const int pvelidx = findQuantity( pps, PropertyRef::Vel );
+    InpData& inpdata = pvelinpdata_;
+    if ( pvelidx >= 0 ) 
+	inpdata.selidxs_ += pvelidx;
+    else 
     {
-	const float pvel = props.pvel_;
-	const float ai = props.ai_;
-	if ( mIsUdf( pvel ) || pvel == 0)
-	    den = ai / mDefPVel;
-	else
-	    den = ai / pvel;
+	const int sonidx = findQuantity( pps, PropertyRef::Son );
+	if ( sonidx >= 0 )
+	{
+	}
     }
-    if ( mIsUdf( den ) ) 
-	den = mDefDen;
 }
+
+
+void ElasticPropGen::findSVel( const PropertyRefSelection& pps )
+{
+    const int svelidx = findQuantity( pps, PropertyRef::Vel );
+    if ( svelidx >= 0 ) 
+	svelinpdata_.selidxs_ += svelidx;
+}
+
+
+int ElasticPropGen::findQuantity( const PropertyRefSelection& pps,
+					 const PropertyRef::StdType& stdtype )
+{
+    for ( int idx=0; idx<pps.size(); idx++ )
+    {
+	if ( pps[idx]->stdType() == stdtype )
+	    return idx;
+    }
+    return -1;
+}
+

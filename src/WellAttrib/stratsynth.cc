@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.2 2011-07-20 13:17:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.3 2011-07-25 15:07:49 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
 
+#include "elasticpropsel.h"
 #include "flatposdata.h"
 #include "prestackgather.h"
 #include "survinfo.h"
@@ -26,12 +27,14 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.2 2011-07-20 13:17:35 cvsbrun
 StratSynth::StratSynth()
     : lm_(0)
     , wvlt_(0)
+    , propgen_(*new ElasticPropGen()) 
 {}
 
 
 void StratSynth::setModel( const Strat::LayerModel& lm )
 {
     lm_ = &lm;
+    propgen_.guessInputFromProps( lm.propertyRefs() );
 }
 
 
@@ -40,24 +43,6 @@ void StratSynth::setWavelet( const Wavelet& wvlt )
     wvlt_ = &wvlt;
 }
 
-
-int StratSynth::getVelIdx( bool& isvel ) const
-{
-    //TODO this requires a lot of work. Can be auto-detected form property
-    // StdType but sometimes user has many velocity providers:
-    // - Many versions (different measurements, sources, etc)
-    // - Sonic vs velocity
-    isvel = true; return 1; // This is what the simple generator generates
-}
-
-
-int StratSynth::getDenIdx( bool& isden ) const
-{
-    //TODO support:
-    // - density itself
-    // - den = ai / vel
-    isden = true; return 2; // This is what the simple generator generates
-}
 
 #define mErrRet( msg, act ) { if ( errmsg ) *errmsg = msg; act; }
 DataPack* StratSynth::genTrcBufDataPack( const RayParams& raypars,
@@ -149,14 +134,10 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     const int nraimdls = cs.nrInl();
 
-    bool isvel; const int velidx = getVelIdx( isvel );
-    bool isden; const int denidx = getDenIdx( isden );
-
     for ( int iseq=0; iseq<nraimdls; iseq++ )
     {
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
-	const Strat::LayerSequence& seq = lm_->sequence( seqidx );
-	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
+	AIModel aimod; fillAIModel( aimod, lm_->sequence( seqidx ) );
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
 	else if ( aimod.size() == 1  )
@@ -207,6 +188,24 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 }
 
 
+void StratSynth::fillAIModel( AIModel& aimodel, 
+				const Strat::LayerSequence& seq ) const
+{
+    const int sz = seq.size();
+    if ( sz < 1 )
+	return;
+
+    const Strat::Layer* lay = 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	lay = seq.layers()[idx];
+	AILayer ail ( lay->thickness(), 0, 0 );
+	propgen_.fill( ail, lay->values(), lay->nrValues() ); 
+	aimodel += ail;
+    }
+}
+
+
 const SyntheticData* StratSynth::generate( const RayParams& rp, bool isps, 
 					BufferString* errmsg ) const
 {
@@ -227,6 +226,7 @@ const SyntheticData* StratSynth::generate( const RayParams& rp, bool isps,
 }
 
 
+
 SyntheticData::~SyntheticData()
 {
     deepErase( d2tmodels_ );
@@ -236,3 +236,5 @@ SyntheticData::~SyntheticData()
     if ( dp )
 	DPM(packmgrid).release( dp->id() );
 }
+
+

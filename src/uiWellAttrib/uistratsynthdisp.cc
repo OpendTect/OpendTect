@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.49 2011-07-20 13:17:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.50 2011-07-25 15:07:49 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -20,9 +20,11 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.49 2011-07-20 13:17:35 
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uielasticpropsel.h"
 #include "uiflatviewslicepos.h"
 #include "uiraytrace1d.h"
 #include "uispinbox.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -62,26 +64,36 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , zoomChanged(this)
     , longestaimdl_(0)
     , lasttool_(0)
+    , layerpropseldlg_(0)
     , raytrcpardlg_(0)
 {
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
 
-    uiGroup* paramgrp = new uiGroup( topgrp_, "Param group" );
+    uiToolButton* layertb = new uiToolButton( topgrp_, "defprops.png", 
+				    "Specify synthetic layers properties", 
+				    mCB(this,uiStratSynthDisp,layerPropsPush) );
+
+    uiSeparator* pp2wvltsep = new uiSeparator( topgrp_, "Prop2Wvlt Sep", false);
+    pp2wvltsep->attach( stretchedRightTo, layertb );
 
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
+    wvltfld_->attach( rightOf, pp2wvltsep );
 
     scalebut_ = new uiPushButton( topgrp_, "Scale", false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
+    uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
+    wvlt2raysep->attach( stretchedRightTo, scalebut_ );
+
     uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace.png", 
 				    "Specify ray tracer parameters", 
 				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
-    rttb->attach( rightOf, scalebut_ );
+    rttb->attach( rightOf, wvlt2raysep );
 
     posfld_ = new uiOffsetSlicePos( topgrp_ );
     posfld_->setLabels( "Model", "Offset", "Z" );
@@ -136,6 +148,16 @@ uiStratSynthDisp::~uiStratSynthDisp()
     delete &stratsynth_;
     deepErase( synthetics_ );
     delete tmpsynthetic_;
+}
+
+
+void uiStratSynthDisp::layerPropsPush( CallBacker* )
+{
+    if ( !layerpropseldlg_ )
+	layerpropseldlg_ = new uiElasticPropSelDlg( this, 
+				lm_.propertyRefs(), stratsynth_.propGen() );
+    if ( layerpropseldlg_->go() )
+	doModelChange();
 }
 
 
@@ -269,6 +291,8 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 void uiStratSynthDisp::modelChanged()
 {
     cleanSynthetics();
+    if ( layerpropseldlg_ ) 
+	{ delete layerpropseldlg_; layerpropseldlg_ =0; }
 
     NotifyStopper ns( posfld_->positionChg );
     CubeSampling cs( raypars_.cs_ ); 

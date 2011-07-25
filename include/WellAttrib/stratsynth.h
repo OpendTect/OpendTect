@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.2 2011-07-20 11:28:45 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.3 2011-07-25 15:07:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,12 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "synthseis.h"
 
+class ElasticPropGen;
 class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
-namespace Strat { class LayerModel; }
+namespace Strat { class LayerModel; class LayerSequence; }
 
 
 mStruct RayParams
@@ -81,16 +82,19 @@ public:
     void		setWavelet(const Wavelet&);
     void		setModel(const Strat::LayerModel&);
 
+    ElasticPropGen&	propGen() { return propgen_; }
+
     const SyntheticData* generate(const RayParams& raypars,bool isps,
 				    BufferString* errmsg=0) const;
 protected:
 
     const Strat::LayerModel* lm_;
     const Wavelet*	wvlt_;
-    BufferString	errmsg_;
+    TypeSet<AIModel>	aimodels_;
 
-    int			getVelIdx(bool&) const;
-    int			getDenIdx(bool&) const;
+    ElasticPropGen& propgen_;
+
+    BufferString	errmsg_;
 
     DataPack*		genTrcBufDataPack(const RayParams& raypars,
 				ObjectSet<const TimeDepthModel>& d2ts,
@@ -102,6 +106,8 @@ protected:
 	    			ObjectSet<const TimeDepthModel>& d2ts,
 				ObjectSet<SeisTrcBuf>&,
 	    			BufferString* errmsg=0) const;
+
+    void		fillAIModel(AIModel&,const Strat::LayerSequence&) const;
 };
 
 #endif
