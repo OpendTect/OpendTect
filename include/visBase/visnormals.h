@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.16 2011-04-28 18:42:50 cvsyuancheng Exp $
+ RCS:		$Id: visnormals.h,v 1.17 2011-07-25 13:32:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ protected:
     SoNormal*			normals_;
 
     TypeSet<int>		unusednormals_;
-    mutable Threads::Mutex&	mutex_;
+    Threads::Mutex&		mutex_;
 
     Transformation*		transformation_;
 

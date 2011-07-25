@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.16 2010-08-09 10:46:58 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.17 2011-07-25 13:32:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ protected:
     Setup		setup_;
     IOPar		iop_;
     Pos::Provider*	prov_;
-    mutable CubeSampling& cs_;
+    CubeSampling&	cs_;
 
     void		doDlg(CallBacker*);
     BufferString	getSummary() const;
