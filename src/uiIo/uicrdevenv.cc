@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.35 2010-09-14 05:36:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.36 2011-07-25 04:09:23 cvsranojay Exp $";
 
 #include "uicrdevenv.h"
 
@@ -189,7 +189,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     cmd += fp.fullPath();
     cmd += " "; cmd += swdir;
     char shortpath[1024];
-    GetShortPathName(workdirnm.buf(),shortpath,strlen(shortpath));
+    GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
     StreamProvider( cmd ).executeCommand( false, true );
 #else
