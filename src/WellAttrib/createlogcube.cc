@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.3 2011-07-11 14:25:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.4 2011-07-25 15:09:02 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: createlogcube.cc,v 1.3 2011-07-11 14:25:04 cvsb
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "welltrack.h"
 
 
 LogCubeCreator::LogCubeData::~LogCubeData()
@@ -30,6 +31,7 @@ LogCubeCreator::LogCubeData::~LogCubeData()
 
 LogCubeCreator::LogCubeCreator( const Well::Track& t, const Well::D2TModel* d2t)
     : d2t_(d2t)
+    , track_(t)  
     , hrg_(false)
     , nrduplicatetrcs_(0)		 
 {
@@ -102,7 +104,7 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     for ( int idx=0; idx<trc.size(); idx++ )
     {
 	float z = trc.info().sampling.atIndex( idx );
-	if ( d2t_ ) z = d2t_->getDah( z );
+	z = d2t_ ? d2t_->getDah( z ) : track_.getDahForTVD( z );
 	trc.set( idx, lcd.log_.getValue( z, true ),0 );
     }
     HorSamplingIterator hsit( hrg_ );

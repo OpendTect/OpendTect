@@ -46,6 +46,7 @@ public:
 protected:
 
     const Well::D2TModel*	d2t_;
+    const Well::Track&		track_;
 
     BufferString 		errmsg_;
     TypeSet<BinID>		binids_;

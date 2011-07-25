@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.1 2011-07-04 11:04:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.2 2011-07-25 15:09:02 cvsbruno Exp $";
 
 #include "uicreatelogcubedlg.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.1 2011-07-04 11:04:36
 
 #include "createlogcube.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -64,7 +65,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     if ( !savefld_->text() )
 	mErrRet( "Please enter a valid name extension for the new cubes" );
 
-    LogCubeCreator lcr( wd_.track(), wd_.d2TModel() );
+    LogCubeCreator lcr( wd_.track(), SI().zIsTime() ? wd_.d2TModel() : 0 );
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     TypeSet<int> selidxs; loglistfld_->getSelectedItems( selidxs );
     for ( int idx=0; idx<selidxs.size(); idx++ )
