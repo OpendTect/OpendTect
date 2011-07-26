@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.47 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.48 2011-07-26 11:20:37 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -342,6 +342,9 @@ void SoPlaneWellLog::buildSimpleLog(int lnr, const SbVec3f& projdir, int res)
     SoMFVec3f& path   = lnr==1 ? path1   : path2;
     SoMFFloat& log    = lnr==1 ? log1    : log2;
     SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
+
+    if ( log.getNum() == 0 )
+	return;
     
     bool revscale = lnr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
@@ -394,6 +397,9 @@ void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
     SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
     SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     SoSFFloat& shift  = lnr==1 ? shift1  : shift2;
+
+    if ( log.getNum() == 0 )
+	return;
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
@@ -499,6 +505,9 @@ void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
     SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
     SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
+
+    if ( filllog.getNum() == 0 )
+	return;
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
