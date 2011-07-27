@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.1 2010-09-14 10:32:32 cvsbert Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.2 2011-07-27 11:10:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ public:
     const BufferStringSet&	userNames() const	{ return usernames_; }
     const BufferStringSet&	versions() const	{ return versions_; }
     const BufferStringSet&	categories() const	{ return categories_; }
-    void			getSummaries(BufferStringSet& summaries,
-	    				     bool assigned);
+    void			getSummaries(const char* usernm,
+	    				     BufferStringSet& summaries);
 
     bool			addBug(BugTableEntry&,BugTextTableEntry&,
 	    			       const char* note);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.6 2011-07-27 11:10:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,12 +84,11 @@ SqlDB::MantisDBMgr::~MantisDBMgr()
     acc_.close();
     if ( query_ )
 	{ query().finish(); delete query_; }
+
     deepErase( bugs_ );
     deepErase( texttables_ );
     delete bugtable_;
     delete bugtexttable_;
-    if ( bugidsetmyself_.size() != 0 )
-	bugidsetmyself_.erase();
 }
 
 
@@ -259,32 +258,34 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 }
 
 
-void SqlDB::MantisDBMgr::getSummaries( BufferStringSet& summaries,
-				bool isassignedtome )
+void SqlDB::MantisDBMgr::getSummaries( const char* usernm,
+				       BufferStringSet& summaries )
 {
-    const int uid = getUserID( false );
-    const int nrbugs = nrBugs();
-    if ( bugidsetmyself_.size() != 0 )
-	bugidsetmyself_.erase();
+    if ( !usernm ) return;
 
+    int usrid = userNames().indexOf( usernm );
+    if ( !userIDs().validIdx( usrid ) )
+	usrid = -1;
+
+    usrid = usrid < 0 ? -1 : userIDs()[usrid];
+    bugidsetmyself_.erase();
+    const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
 	BugTableEntry* bugtable = getBugTableEntry( idx );
 	if ( !bugtable )
-	    return;
-
-	if ( isassignedtome )
+	    continue;
+	
+	if ( usrid < 0 )
 	{
-	   if ( uid == bugtable->handlerid_ )
-	   {
-	       bugidsetmyself_.add( bugtable->id_ );
-	       summaries.add( bugtable->summary_ );
-	   }
-	   else
-	       continue;
-	}
-	else
 	    summaries.add( bugtable->summary_ );
+	    bugidsetmyself_.add( bugtable->id_ );
+	}
+	else if ( usrid == bugtable->handlerid_ )
+	{
+	    bugidsetmyself_.add( bugtable->id_ );
+	    summaries.add( bugtable->summary_ );
+	}
     }
 }
 
@@ -382,6 +383,9 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
 	return;
 
     const int userid = getUserID( false );
+    if ( userid < 0 )
+	return;
+
     BufferString date = bugtable->date_;
     for ( int ihist=0; ihist<history.size(); ihist++ )
     {
@@ -414,7 +418,11 @@ void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int bidx )
 	return;
 
     texttabhistory->bugid_ = bugtable->id_;
-    texttabhistory->userid_ = getUserID( false );
+    const int usrid = getUserID( false );
+    if ( usrid < 0 )
+	return;
+
+    texttabhistory->userid_ = usrid;
     texttabhistory->date_ = bugtable->date_;
 
     ObjectSet<BugHistoryTableEntry> history;
@@ -584,42 +592,30 @@ int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
 {
     const char* username = 0;
     username = GetEnvVar( "USER" );
-    if ( !username )
+    if ( !username || !*username )
 	return -1;
 
-    const TypeSet<int>& userids = userIDs();
-    int uid = -1;
-    for ( int uidx=0; uidx<usernames_.size(); uidx++ )
+    const bool ispresent = developers().isPresent( username );
+    if ( isdeveloper && !ispresent )
     {
-	if ( isdeveloper )
-	{
-	    for ( int idx=0; idx<developers_.size(); idx++ )
-	    {
-		if ( developers_.get(idx) == username )
-		{
-		    uid = 0;
-		    break;
-		}
-    	    }
-	}
-
-	if ( isdeveloper && uid != 0 )
-	    break;
-
-       if ( usernames_.get(uidx) == username )
-       {
-	   uid = userids[uidx];
-	   break;
-       }
+	BufferString msg( "'",username );
+	msg.add ( "' does not existed in mantis developers list" );
+	UsrMsg( msg );
+	return -1;
     }
 
-    if ( uid < 0 )
+    if ( !usernames_.isPresent(username) )
     {
 	UsrMsg( BufferString("User ",username," does not exist in Mantis") );
 	return -1;
     }
 
-    return uid;
+    const TypeSet<int>& userids = userIDs();
+    const int uid = usernames_.indexOf( username );
+    if ( !userids.validIdx( uid ) )
+	return -1;
+
+    return userids[uid];
 }
 
 
