@@ -22,8 +22,6 @@ class LineKey;
 class MultiID;
 namespace Well { class Data; }
 
-template <class T> class TypeSet;
-
 namespace WellTie
 {
     class Data;

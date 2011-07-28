@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.90 2011-07-08 14:53:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.91 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -79,7 +79,7 @@ void uiTieView::initWellControl()
 void uiTieView::fullRedraw()
 {
     setLogsParams();
-    drawLog( data_.sonic(), true, 0, !data_.isSonic() );
+    drawLog( data_.usedsonic(), true, 0, !data_.isSonic() );
     drawLog( data_.density(), false, 0, false );
     drawLog( data_.ai(), true, 1, false );
     drawLog( data_.reflectivity(), false, 1, true );
@@ -407,26 +407,43 @@ void uiTieView::drawCShot()
 	return;
 
     mGetWD(return)
-    const Well::Log* cslog = wd->logs().getLog( data_.checkshotlog() );
-    if ( !cslog ) 
-	return;
+    const Well::D2TModel* d2tm = wd->d2TModel();
+    if ( !d2tm ) return;
+
+    const Well::D2TModel* cs = wd->checkShotModel();
+    if ( !cs ) return;
+
+    GeoCalculator geocalc;
+    Well::Log cslog;
+    geocalc.d2TModel2Log( *cs, cslog );
+
+    float startdah = d2tm->dah(0);
+    if ( data_.isSonic() )
+	geocalc.son2TWT( cslog, false, startdah );
+    else
+	geocalc.vel2TWT( cslog, false, startdah );
 
     TypeSet<uiPoint> pts;
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData(true);
     const Interval<float>& zrg = ld.zrg_;
-    const Well::D2TModel* d2tm = wd->d2TModel();
-    for ( int idx=0; idx<cslog->size(); idx++ )
+    for ( int idx=0; idx<cslog.size(); idx++ )
     {
-	const float val  = cslog->value( idx );
-	float zpos = cslog->dah( idx );
-	if ( !params_.iszintime_ ) 
-	    zpos = d2tm ? d2tm->getDah( zpos ) : zpos;
+	float val  = cslog.value( idx );
+	float zpos = cslog.dah( idx );
+	if ( params_.iszintime_ ) 
+	    zpos = d2tm ? d2tm->getTime( zpos )*1000 : zpos;
 	if ( zpos < zrg.start )
 	    continue;
 	else if ( zpos > zrg.stop )
 	    break;
 	if ( params_.iszinft_ ) zpos *= mToFeetFactor;
 	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
+
+	if ( idx < cslog.size()-1 )
+	{
+	    val = cslog.value(idx+1);
+	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
+	}
     }
     if ( pts.isEmpty() ) return;
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );

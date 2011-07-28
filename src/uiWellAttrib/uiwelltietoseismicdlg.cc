@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.92 2011-07-08 14:53:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.93 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -341,7 +341,6 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
 {
     getDispParams();
 
-    server_.setIsCSCorr( params_.iscscorr_ );
     server_.computeD2TModel();
 
     doWork( cb );
@@ -362,14 +361,12 @@ void uiTieWin::infoPushed( CallBacker* )
 
 void uiTieWin::editD2TPushed( CallBacker* cb )
 {
-    mGetWD(return);
-    Well::Data newwd( *wd );
-    uiD2TModelDlg d2tmdlg( this, newwd, false );
+    Well::Data* wd = server_.wd(); 
+    if ( !wd || !wd->haveD2TModel() ) return;
+    
+    uiD2TModelDlg d2tmdlg( this, *wd, false );
     if ( d2tmdlg.go() )
-    {
-	server_.resetD2TModel( newwd.d2TModel() );
 	doWork( cb );
-    }
 }
 
 

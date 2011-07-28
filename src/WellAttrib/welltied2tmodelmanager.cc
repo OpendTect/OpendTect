@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.31 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.32 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.31 2011-06-20 11:
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
+#include "welltrack.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
@@ -25,23 +26,34 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.31 2011-06-20 11:
 namespace WellTie
 {
 
-D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& su )
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
 	: orgd2t_(0)					    
 	, prvd2t_(0)
-	, issonic_(su.issonic_)
+	, data_(data)	    
 	, datawriter_(dwr)    
 	, wd_(&wd)
-	, emptyoninit_(false)		  
+	, emptyoninit_(false)
+	, startdah_(0)			     
 {
     if ( mIsUnvalidD2TM( wd ) )
 	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
 
-    if ( emptyoninit_ || !su.useexisting_ )
-	setFromVelLog( su.currvellog_ );
+    if ( emptyoninit_ || !data_.setup().useexistingd2tm_ )
+	computeD2TModel();
+
+    const Well::Track& track = wd.track();
+    float rdelev = track.dah( 0 ) - track.value( 0 );
+    if ( mIsUdf( rdelev ) ) rdelev = 0;
+
+    const Well::Info& info = wd_->info();
+    float surfelev = -info.surfaceelev;
+    if ( mIsUdf( fabs(surfelev) ) ) surfelev = 0;
+
+    startdah_ = rdelev - surfelev;
 
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
     ensureValid( *d2T() );
-} 
+}
 
 
 D2TModelMgr::~D2TModelMgr()
@@ -56,26 +68,45 @@ Well::D2TModel* D2TModelMgr::d2T()
 }
 
 
+void D2TModelMgr::computeD2TModel()
+{
+    if ( wd_ && wd_->haveCheckShotModel() && data_.dispparams_.iscscorr_ )
+    {
+	Well::Log* wl = wd_->logs().getLog( data_.sonic() );
+	if ( !wl ) return;
+
+	Well::Log* corrlog = new Well::Log( *wl );
+	CheckShotCorr cscorr( *corrlog, startdah_,
+			*wd_->checkShotModel(), data_.setup().issonic_ );
+	corrlog->setName( data_.corrsonic() );
+
+	const int oldlogidx = wd_->logs().indexOf( data_.corrsonic() ); 
+	if ( oldlogidx >= 0 ) delete wd_->logs().remove( oldlogidx );
+	wd_->logs().add( corrlog );
+
+	setFromVelLog( data_.corrsonic() );
+	applyCheckShotFirstPointShiftToModel(); 
+    }
+    else
+	setFromVelLog( data_.sonic() );
+}
+
+
 void D2TModelMgr::setFromVelLog( const char* lognm )
 {
     Well::Log* log = wd_ ? wd_->logs().getLog( lognm ) : 0;
     if ( !log ) return;
 
-    const Well::Info& info = wd_->info();
-    float surf = -info.surfaceelev;
-    if ( mIsUdf( fabs(surf) ) ) surf = 0;
-
-    Well::D2TModel* d2tm = 
-	calc_.getModelFromVelLog( *log, &wd_->track(), surf, issonic_ );
+    Well::D2TModel* d2tm = calc_.getModelFromVelLog( 
+				*log, startdah_, data_.setup().issonic_ );
 
     if ( !d2tm ) return;
 
     setAsCurrent( d2tm );
-    applyCheckShotShiftToModel();
 }
 
 
-void D2TModelMgr::applyCheckShotShiftToModel()
+void D2TModelMgr::applyCheckShotFirstPointShiftToModel()
 {
     Well::D2TModel* d2tm = d2T();
     if ( !d2tm ) return;

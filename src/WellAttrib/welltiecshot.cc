@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.18 2011-07-15 12:01:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.19 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -19,34 +19,35 @@ static const char* rcsID = "$Id: welltiecshot.cc,v 1.18 2011-07-15 12:01:12 cvsb
 namespace WellTie
 {
 
-CheckShotCorr::CheckShotCorr( Well::Log& l, const Well::D2TModel& c, bool isson)
-    : log_(l)
-    , cslog_(*new Well::Log)
+CheckShotCorr::CheckShotCorr( Well::Log& log, float startdah, 
+				const Well::D2TModel& c, bool isson)
 {
+    Well::Log cslog;
     GeoCalculator geocalc;
-    geocalc.d2TModel2Log( c, cslog_ );
-    geocalc.velLogConv( cslog_, GeoCalculator::TWT2Vel );
-    cslog_.setUnitMeasLabel( log_.unitMeasLabel() );
+    geocalc.d2TModel2Log( c, cslog );
     if ( isson )
-	geocalc.velLogConv( cslog_, GeoCalculator::Vel2Son );
-    calibrateLog2CheckShot( cslog_ );
+    {
+	geocalc.son2TWT( log, true, startdah );
+	calibrateLog2Log( cslog, log );
+	geocalc.son2TWT( log, false, startdah );
+    }
+    else
+    {
+	geocalc.vel2TWT( log, true, startdah );
+	calibrateLog2Log( cslog, log );
+	geocalc.vel2TWT( log, false, startdah );
+    }
 }
 
 
-CheckShotCorr::~CheckShotCorr()
-{
-    delete &cslog_;
-}
-
-
-void CheckShotCorr::calibrateLog2CheckShot( const Well::Log& cs ) 
+void CheckShotCorr::calibrateLog2Log( const Well::Log& cs, Well::Log& log ) 
 {
     TypeSet<float> ctrlvals, calibratedvals, logdahs, logvals;    
     TypeSet<int> ctrlsamples;
 
-    int logsz = log_.size();
+    int logsz = log.size();
     int csidx = 0;
-    const float startdpt = log_.dah( 0 );
+    const float startdpt = log.dah( 0 );
     while ( startdpt > cs.dah(csidx) )
     {
 	logvals += cs.value(csidx);
@@ -55,11 +56,11 @@ void CheckShotCorr::calibrateLog2CheckShot( const Well::Log& cs )
     }
     for ( int idx=0; idx<logsz; idx++ )
     {
-	logvals += log_.value(idx);
-	logdahs += log_.dah( idx );
+	logvals += log.value(idx);
+	logdahs += log.dah( idx );
     }
     csidx = cs.size() -1;
-    const float stopdpt = log_.dah(log_.size()-1 );
+    const float stopdpt = log.dah(log.size()-1 );
     logsz = logvals.size();
     while ( csidx && cs.dah(csidx) > stopdpt ) 
     {
@@ -81,9 +82,9 @@ void CheckShotCorr::calibrateLog2CheckShot( const Well::Log& cs )
     IdxAble::callibrateArray( logvals.arr(), logsz,
 	                      ctrlvals.arr(), ctrlsamples.arr(), 
 			      ctrlvals.size(), false, calibratedvals.arr() );
-    log_.erase(); 
+    log.erase(); 
     for ( int idx=0; idx<logsz; idx++ )
-	log_.addValue( logdahs[idx], calibratedvals[idx] );
+	log.addValue( logdahs[idx], calibratedvals[idx] );
 }
 
 }; //namespace WellTie

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.25 2011-06-20 11:55:52 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.26 2011-07-28 08:11:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,17 +27,16 @@ mClass GeoCalculator
 public :
 //Well data operations
     Well::D2TModel* 	getModelFromVelLog(const Well::Log&,
-					   const Well::Track*,
-					   float surfelev, bool issonic) const;
+					   float startdah, bool issonic) const;
     void		ensureValidD2TModel(Well::D2TModel&) const;
 
-    enum		Conv { Vel2TWT, Son2TWT, TWT2Vel, Son2Vel, Vel2Son };
-    void 		velLogConv(Well::Log&,Conv) const;
+    void		son2TWT(Well::Log&,bool straight,float startdah) const;
+    void 		vel2TWT(Well::Log&,bool straight,float startdah) const;
+    void		son2Vel(Well::Log&,bool yn) const;
     void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
 
 //others  
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
-    int 		getIdx(const Array1DImpl<float>&,float) const; 
     double 		crossCorr(const float*,const float*,float*,int) const;
     void 		deconvolve(const float*,const float*,float*,int) const;
 };

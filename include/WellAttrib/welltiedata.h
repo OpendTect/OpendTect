@@ -98,21 +98,20 @@ public :
     SeisTrc&			seistrc_;
     Wavelet&			initwvlt_;
     Wavelet&			estimatedwvlt_;
+    const Well::Log*		cslog_;
     bool			isinitwvltactive_;
     const StepInterval<float>& 	timeintv_;
     const Setup&		setup() const	{ return setup_; }
 
     const char*  		sonic() 	const;
     const char*  		corrsonic() 	const;
-    const char*  		checkshotlog() 	const;
+    const char*  		usedsonic() 	const;
     const char*  		density() 	const;
     const char*  		ai() 		const;
     const char*  		reflectivity() 	const;
     const char*  		synthetic() 	const;
     const char*  		seismic() 	const;
     bool			isSonic() 	const;
-
-    void			setIsCSCorr( bool iscs );
 
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
@@ -122,7 +121,6 @@ public :
 protected:
 
     const Setup&		setup_;
-    bool			iscscorr_;
 };
 
 
@@ -221,6 +219,7 @@ public :
     				~Server();
 
     const Well::Data* 		wd() const	{ return data_->wd_; }
+    Well::Data* 		wd()		{ return data_->wd_; }
 
     PickSetMgr&			pickMgr() 	{ return *pickmgr_; }
     D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
@@ -233,10 +232,6 @@ public :
 
     bool			is2D() const	{ return is2d_; }
 
-    void			setIsCSCorr( bool iscs)
-				{ data_->setIsCSCorr( iscs ); }
-    void			resetD2TModel( Well::D2TModel* d2t )
-				{ d2tmgr_->setAsCurrent(d2t); }
     bool                	undoD2TModel()
 				{ return d2tmgr_->undo(); }
     bool                	cancelD2TModel()
@@ -244,7 +239,7 @@ public :
     bool                	commitD2TModel()
 				{ return d2tmgr_->commitToWD(); }
     void			computeD2TModel()
-    				{ d2tmgr_->setFromVelLog( data_->sonic() ); }
+    				{ d2tmgr_->computeD2TModel(); }
 
     bool			computeAll();
     bool			computeSynthetics();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.57 2011-07-14 08:09:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.58 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -86,7 +86,6 @@ Data::Data( const Setup& wts, Well::Data& w)
     : logset_(*new Well::LogSet)  
     , wd_(&w)  
     , setup_(wts)  
-    , iscscorr_(false)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
     , estimatedwvlt_(*new Wavelet(initwvlt_))
     , isinitwvltactive_(true)					     
@@ -101,6 +100,8 @@ Data::Data( const Setup& wts, Well::Data& w)
 	dispparams_.allmarkernms_.add( w.markers()[idx]->name() );
 	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
     }
+    dispparams_.iscscorr_ = w.haveCheckShotModel() && !wts.useexistingd2tm_;
+    dispparams_.iscsdisp_ = dispparams_.iscscorr_;
 }
 
 
@@ -115,7 +116,7 @@ Data::~Data()
 }
 
 const char* Data::sonic() const
-{ return iscscorr_ ? setup_.corrvellognm_ : setup_.vellognm_; }
+{ return setup_.vellognm_; }
 
 const char* Data::corrsonic() const
 { return setup_.corrvellognm_; }
@@ -135,14 +136,11 @@ const char* Data::synthetic() const
 const char* Data::seismic() const
 { return "Seismic"; }
 
-const char* Data::checkshotlog() const
-{ return "CheckShot log"; }
-
 bool Data::isSonic() const
 { return setup_.issonic_; }
 
-void Data::setIsCSCorr( bool iscs )
-{ iscscorr_ = iscs; }
+const char* Data::usedsonic() const
+{ return dispparams_.iscscorr_ ? corrsonic() : sonic(); }
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
@@ -335,23 +333,7 @@ Server::Server( const WellTie::Setup& wts )
     data_ = new Data( wts, *w );
     datawriter_ = new DataWriter( *w, wts.wellid_ );
 
-    if ( w->haveCheckShotModel() && !wts.useexistingd2tm_ )
-    {
-	Well::Log* wl = w->logs().getLog( data_->sonic() );
-	if ( !wl ) return;
-	Well::Log* corrlog = new Well::Log( *wl );
-	CheckShotCorr cscorr( *corrlog, *w->checkShotModel(), wts.issonic_ );
-	corrlog->setName( data_->corrsonic() );
-	w->logs().add( corrlog );
-	data_->setIsCSCorr( true );
-
-	Well::Log* cslog = new Well::Log( cscorr.csLog() );
-	cslog->setName( data_->checkshotlog() );
-	w->logs().add( cslog );
-    }
-
-    D2TModelMgr::Setup s(wts.useexistingd2tm_,wts.issonic_,data_->sonic()); 
-    d2tmgr_ = new D2TModelMgr( *w, *datawriter_, s );
+    d2tmgr_ = new D2TModelMgr( *w, *datawriter_, *data_ );
     dataplayer_ = new DataPlayer( *data_, wts.seisid_, &wts.linekey_ );
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
     hormgr_ = new HorizonMgr( data_->horizons_ );

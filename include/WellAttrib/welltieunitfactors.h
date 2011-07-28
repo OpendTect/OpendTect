@@ -28,6 +28,10 @@ public:
     double    		getVelFactor(const Well::Log&,bool issonic) const;
     double    		getDenFactor(const Well::Log&) const;
 
+    static const char* 	getStdVelLabel();
+    static const char* 	getStdTimeLabel();
+    static const char* 	getStdSonLabel();
+
 protected:
  
     const UnitOfMeasure* getUOM(const Well::Log&) const;

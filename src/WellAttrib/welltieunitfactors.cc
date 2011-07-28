@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.39 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.40 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 #include "unitofmeasure.h"
@@ -15,6 +15,16 @@ static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.39 2011-01-20 10:21:3
 
 namespace WellTie
 {
+
+const char*  UnitFactors::getStdVelLabel() 
+{ return "m/s"; }
+
+const char*  UnitFactors::getStdTimeLabel() 
+{ return "s"; }
+
+const char*  UnitFactors::getStdSonLabel()
+{ return "us/m";  }
+
 
 double UnitFactors::getDenFactor( const Well::Log& denlog  ) const
 {

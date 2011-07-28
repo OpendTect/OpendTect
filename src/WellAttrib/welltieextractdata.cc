@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.35 2011-07-01 13:47:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.36 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -32,6 +32,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, rdr_(new SeisTrcReader( &ioobj ))
 	, trcbuf_(new SeisTrcBuf(false))				   
 	, nrdone_(0)
+	, outtrc_(0)	    
 	, cs_(new CubeSampling(false))	    
 	, extrintv_(SI().zRange(false))
 	, linekey_(0)		  
@@ -51,13 +52,15 @@ SeismicExtractor::~SeismicExtractor()
 void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 {
     extrintv_ = itv;
-    outtrc_ = new SeisTrc( itv.nrSteps() );
+    delete outtrc_;
+    outtrc_ = new SeisTrc( itv.nrSteps() + 1 );
+    outtrc_->zero();
 }
 
 
 void SeismicExtractor::collectTracesAroundPath() 
 {
-    if ( !bidset_.size() ) return;
+    if ( bidset_.isEmpty() ) return;
 
     if ( rdr_->is2D() )
     {

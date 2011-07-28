@@ -28,27 +28,13 @@ namespace Well
 namespace WellTie
 {
 
+class Data;
 class DataWriter;
 
 mClass D2TModelMgr
 {
 public:
-
-    mClass Setup
-    {
-	public:
-			Setup(bool existing,bool sonic,const char* log)
-			    : useexisting_(existing) 
-			    , issonic_(sonic)
-			    , currvellog_(log)	       
-			{}
-
-	    mDefSetupMemb(bool,useexisting)
-	    mDefSetupMemb(bool,issonic)
-	    mDefSetupMemb(const char*,currvellog)
-    };
-
-			D2TModelMgr(Well::Data&,DataWriter&,const Setup&);
+			D2TModelMgr(Well::Data&,DataWriter&,const Data&);
 			~D2TModelMgr();
 
     bool 		undo();
@@ -58,18 +44,18 @@ public:
     bool      		commitToWD();
 
     void		setWD( Well::Data* wd ) 	{ wd_ = wd; }
-    void 		applyCheckShotShiftToModel();
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
     void		setFromVelLog(const char*);
     void		setFromData(float* dah,float* time,int sz);
+    void		computeD2TModel();
 
 protected:
 
     Well::Data* 	wd_;
 
     bool		emptyoninit_;
-    bool		issonic_;
+    float		startdah_;
 
     Well::D2TModel* 	d2T();
     Well::D2TModel* 	prvd2t_;
@@ -77,7 +63,9 @@ protected:
 
     GeoCalculator	calc_;
     DataWriter&		datawriter_;
+    const Data&		data_;
 
+    void 		applyCheckShotFirstPointShiftToModel();
     void		ensureValid(Well::D2TModel&);
 };
 

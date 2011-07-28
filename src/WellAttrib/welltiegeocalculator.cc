@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.62 2011-07-15 12:01:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.63 2011-07-28 08:11:37 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.62 2011-07-15 12:01
 #include "genericnumer.h"
 #include "spectrogram.h"
 #include "welllog.h"
-#include "welltrack.h"
 #include "welltieunitfactors.h"
 #include "welld2tmodel.h"
 
@@ -31,26 +30,16 @@ namespace WellTie
 {
 
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log, 
-					    const Well::Track* track, 
-					    float surfelev, bool issonic ) const
+					    float startdah, bool issonic ) const
 {
-    float rdelev = 0;
-    if ( track && !track->isEmpty() )
-    {
-	rdelev = track->dah( 0 ) - track->value( 0 );
-	if ( mIsUdf( rdelev ) ) rdelev = 0;
-    }
-
     Well::Log proclog = Well::Log( log );
-    if ( track )
-    {
-	proclog.insertAtDah( -track->value(0), 0 );
-    }
-    removeSpikes( proclog.valArr(), proclog.size(), 10, 3 );
-    velLogConv( proclog, issonic ? Son2TWT : Vel2TWT );
+    
+    if ( issonic )
+	son2TWT( proclog, true, startdah );
+    else
+	vel2TWT( proclog, true, startdah );
 
     TypeSet<float> dpt, vals;
-
     for ( int idx=0; idx<proclog.size(); idx++ )
     {
 	float dah = proclog.dah( idx );
@@ -58,8 +47,9 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
 	dpt += dah;
 	vals += proclog.getValue( dah, true );
     }
+
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add( rdelev - surfelev, 0 ); //set first value (SRD)
+    d2tnew->add( startdah, 0 ); //set SRD Depth
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
 
@@ -93,47 +83,79 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
 }
 
 
-void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
+#define mMicroSFactor 10e5
+void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
+{
+    UnitFactors uf; double velfac = uf.getVelFactor( log, straight );
+    if ( !velfac || mIsUdf(velfac) ) 
+	velfac = 1;
+
+    for ( int idx=0; idx<log.size(); idx++ )
+    {
+	float& val = log.valArr()[idx];
+	val = val ? velfac/val : val;
+	val *= straight ? 1 : mMicroSFactor;
+    }
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel() 
+				   : UnitFactors::getStdSonLabel() );
+}
+
+
+void GeoCalculator::son2TWT(Well::Log& log, bool straight, float startdah) const
+{
+    if ( straight ) 
+    {
+	son2Vel(log,straight); 
+	vel2TWT(log,straight,startdah); 
+    }
+    else
+    { 
+	vel2TWT( log, straight, startdah ); 
+	son2Vel( log, straight);
+    }
+}
+
+
+void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
 {
     const int sz = log.size(); 
     if ( sz < 2 ) return;
 
-    const bool issonic = conv == Son2Vel || conv == Son2TWT;
-    UnitFactors uf; double velfac = uf.getVelFactor( log, issonic );
+    UnitFactors uf; double velfac = uf.getVelFactor( log, false );
     if ( !velfac || mIsUdf(velfac) ) 
 	velfac = 1;
 
     TypeSet<float> dpts, vals;
+    dpts += startdah; vals += straight ? log.value( 0 ) : 0; 
     for ( int idx=0; idx<sz; idx++ )
-	{ dpts += log.dah( idx ); vals += log.value( idx ); }
+    {
+	const float dah = log.dah( idx );
+	if ( dah >= startdah )
+	    { dpts += dah; vals += log.value( idx ); }
+    }
 
     log.erase();
     float prevval, newval; newval = prevval = 0;
-    for ( int idx=1; idx<sz; idx++ )
+    for ( int idx=1; idx<dpts.size(); idx++ )
     {
-	if ( conv == Vel2TWT || conv == Son2TWT )
+	if ( straight )
 	{
-	    float v = vals[idx]; 
-	    if ( conv == Son2TWT ) v = 1/v;
+	    float v = vals[idx];
+	    if ( !v ) continue; 
 	    newval = 2*( dpts[idx] - dpts[idx-1] )/(v*velfac);
 	    newval += prevval;
 	    prevval = newval;
 	}
-	else if ( conv == TWT2Vel )
+	else 
 	{
-	    newval = 2*( dpts[idx] - dpts[idx-1] )/( vals[idx]-vals[idx-1] );
-	}
-	else if ( conv == Son2Vel )
-	{
-	    newval = velfac/vals[idx];
-	}
-	else if ( conv == Vel2Son )
-	{
-	    newval = 1/vals[idx]*velfac;
+	    if ( vals[idx] != vals[idx-1] )
+		newval = 2*( dpts[idx] - dpts[idx-1] )
+		    		/ fabs(vals[idx]-vals[idx-1]);
 	}
 	log.addValue( dpts[idx], newval );
     }
-    log.insertAtDah( dpts[0],log.value(0) );
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdTimeLabel() 
+	    			   : UnitFactors::getStdVelLabel() ); 
 }
 
 
@@ -254,25 +276,14 @@ double GeoCalculator::crossCorr( const float* seis, const float* synth,
 }
 
 
-int GeoCalculator::getIdx( const Array1DImpl<float>& inp, float pos) const 
-{
-    int idx = 0;
-    while ( inp.get(idx)<pos )
-    {
-	if( idx == inp.info().getSize(0)-1 )
-	    break;
-	idx++;
-    }
-    return idx;
-}
-
-
 void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t, 
 					Well::Log& log ) const
 {
     log.erase();
     for ( int idx=0; idx<d2t.size(); idx++ )
 	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
+
+    log.setUnitMeasLabel( UnitFactors::getStdTimeLabel() ); 
 }
 
 }; //namespace WellTie

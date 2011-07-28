@@ -7,27 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.66 2011-07-14 08:09:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.67 2011-07-28 08:11:37 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
-#include "arrayndimpl.h"
 #include "ioman.h"
-#include "mousecursor.h"
-#include "raytrace1d.h"
 #include "synthseis.h"
 #include "seistrc.h"
 #include "wavelet.h"
-
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
-
 #include "welltiedata.h"
+#include "welltieunitfactors.h"
 #include "welltieextractdata.h"
-#include "welltiesetup.h"
 
 
 namespace WellTie
@@ -52,9 +47,7 @@ bool DataPlayer::computeAll()
 {
     mGetWD()
 
-    if 	(  !setAIModel() 
-	|| !doFullSynthetics() 
-	|| !extractSeismics() )
+    if ( !setAIModel() || !doFullSynthetics()  || !extractSeismics() )
 	return false;
 
     copyDataToLogSet();
@@ -100,16 +93,16 @@ bool DataPlayer::setAIModel()
 {
     aimodel_.erase();
 
-    const Well::Log* sonlog = wd_->logs().getLog( data_.sonic() );
+    const Well::Log* sonlog = wd_->logs().getLog( data_.usedsonic() );
     const Well::Log* denlog = wd_->logs().getLog( data_.density() );
 
     Well::Log pslog, pdlog;
-    if ( !processLog( sonlog, pslog, data_.sonic() ) 
+    if ( !processLog( sonlog, pslog, data_.usedsonic() ) 
 	    || !processLog( denlog, pdlog, data_.density() ) )
 	return false;
 
     if ( data_.isSonic() )
-	{ GeoCalculator gc; gc.velLogConv( pslog, GeoCalculator::Son2Vel ); }
+	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
 
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
@@ -179,6 +172,7 @@ bool DataPlayer::doFastSynthetics()
 bool DataPlayer::extractSeismics()
 {
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel() );
+    wtextr.setSampling( disprg_ );
     data_.trunner_->execute( wtextr ); 
 
     const IOObj& ioobj = *IOM().get( seisid_ );
@@ -191,7 +185,7 @@ bool DataPlayer::extractSeismics()
     seisextr.setBIDValues( bids );
     seisextr.setInterval( disprg_ );
     data_.trunner_->execute( seisextr );
-    data_.seistrc_ = seisextr.result(); 
+    data_.seistrc_.copyDataFrom( seisextr.result() );
     return true;
 }
 
@@ -213,17 +207,20 @@ bool DataPlayer::copyDataToLogSet()
 	ai += layer.vel_*layer.den_;
 	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
     }
-    createLog( data_.sonic(), dah.arr(), son.arr(), son.size() ); 
+    createLog( data_.usedsonic(), dah.arr(), son.arr(), son.size() ); 
     createLog( data_.density(), dah.arr(), den.arr(), den.size() ); 
     createLog( data_.ai(), dah.arr(), ai.arr(), ai.size() );
     createLog( data_.reflectivity(), dah.arr(), refs.arr(), refs.size()  );
 
     if ( data_.isSonic() )
     {
-	GeoCalculator gc;
-	Well::Log* vellog = data_.logset_.getLog( data_.sonic() );
+	Well::Log* vellog = data_.logset_.getLog( data_.usedsonic() );
 	if ( vellog )
-	    gc.velLogConv( *vellog, GeoCalculator::Vel2Son );
+	{ 
+	    vellog->setUnitMeasLabel( UnitFactors::getStdVelLabel() );
+	    GeoCalculator gc; 
+	    gc.son2Vel( *vellog, false ); 
+	}
     }
     return true;
 }
@@ -237,7 +234,6 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
 	const Well::Log* wdlog = wd_->logs().getLog( nm );
-	if ( wdlog ) log->setUnitMeasLabel( wdlog->unitMeasLabel() );
     }
     else
 	log = data_.logset_.getLog( nm );

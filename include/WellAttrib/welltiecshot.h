@@ -22,17 +22,11 @@ namespace WellTie
 mClass CheckShotCorr  
 {
 public:
-			CheckShotCorr( Well::Log&,const Well::D2TModel&,
-					bool isvelocitylog = false );
-			~CheckShotCorr();
+			CheckShotCorr( Well::Log&, float startdah,
+				const Well::D2TModel&,bool isvelocitylog);
 
-    Well::Log&		csLog()		{ return cslog_; }
-
-protected:
-
-    Well::Log& 		log_;
-    Well::Log& 		cslog_;
-    void 		calibrateLog2CheckShot(const Well::Log&);
+    static void		calibrateLog2Log( const Well::Log& calibrationlog,
+	    				 	Well::Log& calibratedlog );
 };
 
 }; //namespace WellTie
