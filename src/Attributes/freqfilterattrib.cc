@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.57 2011-07-26 12:21:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.58 2011-07-28 12:23:28 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -432,11 +432,14 @@ void FreqFilter::fftFilter( const DataHolder& output,
     fftinv_->run( true );
 
     const int firstidx = nrsamples < mMINNRSAMPLES ? fftsz_/2 - nrsamples/2: sz;
+    bool needrestorebias = filtertype_==mFilterLowPass
+			    || ( filtertype_==mFilterBandPass && minfreq_==0 );
+    const float correctbias = needrestorebias ? avg : 0;
     for ( int idx=0; idx<undefvalidxs.size(); idx++ )
 	timecplxoutp_.set( firstidx + undefvalidxs[idx], mUdf(float) );
     for ( int idx=0; idx<nrsamples; idx++ )
 	setOutputValue( output, 0, idx, z0, 
-		    timecplxoutp_.get( firstidx + idx ).real() + avg );
+		    timecplxoutp_.get( firstidx + idx ).real() + correctbias );
 }
 
 
