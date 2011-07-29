@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.56 2011-06-14 09:14:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.57 2011-07-29 18:10:06 cvsnanne Exp $";
 
 #include "uifiledlg.h"
 
@@ -160,7 +160,7 @@ int uiFileDialog::go()
 	{
 	    flt += ";;All files (*";
 #ifdef __win__
-	    flt += ".*";
+	    flt += " *.*";
 #endif
 	    flt += ")";
 	}
