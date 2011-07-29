@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.57 2011-07-29 18:10:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.58 2011-07-29 22:38:32 cvsnanne Exp $";
 
 #include "uifiledlg.h"
 
@@ -332,7 +332,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 
     const char* allfiles = "All files (*)";
 #ifdef __win__
-	allfiles = "All files (*.*)";
+    allfiles = "All files (* *.*)";
 #endif
     if ( !*filters )
 	filters = allfiles;
