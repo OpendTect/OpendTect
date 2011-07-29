@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.17 2010-07-21 07:55:31 cvskris Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.18 2011-07-29 07:50:31 cvshelene Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -28,7 +28,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     , set_( set )
     , psd_( psd )
 {
-    setTitleText( "Specity picks style" );
+    setTitleText( "Specify picks style" );
     usedrawstylefld_ = new uiCheckBox( this, "Connect picks" );
     const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
