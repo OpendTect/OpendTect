@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.69 2011-07-18 08:41:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.70 2011-07-29 22:47:27 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
 #include "uishortcutsmgr.h"
 
+#include "hiddenparam.h"
 #include "texttranslator.h"
 #include "odqtobjset.h"
 #include "pixmap.h"
@@ -218,6 +219,9 @@ bool uiListViewBody::moveItem( QKeyEvent* ev )
 }
 
 
+HiddenParam<uiListViewItem,char> waschecked( false );
+
+
 uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
@@ -247,8 +251,15 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
 
 void uiListView::cursorSelectionChanged( CallBacker* )
 {
-    if ( selectedItem() )
+    uiListViewItem* itm = selectedItem();
+    if ( !itm ) return;
+
+    const bool needstrigger = waschecked.getParam(itm) != itm->isChecked();
+    if ( needstrigger )
+    {
 	selectedItem()->stateChanged.trigger();
+	waschecked.setParam( itm, itm->isChecked() );
+    }
 }
 
    
@@ -599,8 +610,12 @@ void uiListViewItem::init( const Setup& setup )
     ischeckable_ = setup.type_ == uiListViewItem::CheckBox;
     updateFlags();
 
+    waschecked.setParam( this, false );
     if ( ischeckable_ )
+    {
 	setChecked( setup.setcheck_ );
+	waschecked.setParam( this, setup.setcheck_ );
+    }
 
     if ( setup.labels_.size() )
     {
@@ -848,6 +863,7 @@ void uiListViewItem::setChecked( bool yn, bool trigger )
     NotifyStopper ns( stateChanged );
     if ( trigger ) ns.restore();
     qItem()->setCheckState( 0, yn ? Qt::Checked : Qt::Unchecked );
+    waschecked.setParam( this, yn );
     stateChanged.trigger();
 }
 
