@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.26 2011-07-11 07:28:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.27 2011-07-29 14:38:58 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.26 2011-07-11 07:28:08
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
 #include "executor.h"
+#include "elasticpropsel.h"
+#include "uielasticpropsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiselsimple.h"
@@ -151,6 +153,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
+    synthdisp_->layerPropSelNeeded.notify(
+				mCB(this,uiStratLayerModel,selElasticPropsCB) );
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->addTool( tbsu );
@@ -214,6 +218,15 @@ void uiStratLayerModel::manPropsCB( CallBacker* )
 {
     seqdisp_->selProps();
 }
+
+
+void uiStratLayerModel::selElasticPropsCB( CallBacker* )
+{
+    uiElasticPropSelDlg dlg(this, modl_.propertyRefs(), modl_.elasticPropSel());
+    if ( dlg.go() )
+	synthdisp_->modelChanged();
+}
+
 
 
 bool uiStratLayerModel::saveGenDescIfNecessary() const
@@ -298,6 +311,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
+
+    ElasticPropGuess( modl_.propertyRefs(), modl_.elasticPropSel() );
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();

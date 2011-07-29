@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.3 2011-07-25 15:07:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -24,18 +24,11 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.3 2011-07-25 15:07:49 cvsbrun
 #include "wavelet.h"
 
 
-StratSynth::StratSynth()
-    : lm_(0)
+StratSynth::StratSynth( const Strat::LayerModel& lm )
+    : lm_(lm)
     , wvlt_(0)
-    , propgen_(*new ElasticPropGen()) 
+    , propgen_(*new ElasticPropGen(lm.elasticPropSel())) 
 {}
-
-
-void StratSynth::setModel( const Strat::LayerModel& lm )
-{
-    lm_ = &lm;
-    propgen_.guessInputFromProps( lm.propertyRefs() );
-}
 
 
 void StratSynth::setWavelet( const Wavelet& wvlt )
@@ -121,7 +114,7 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 			    ObjectSet<SeisTrcBuf>& seisbufs,
 			    BufferString* errmsg ) const 
 {
-    if ( !lm_ || lm_->isEmpty() ) 
+    if ( lm_.isEmpty() ) 
 	return false;
 
     const CubeSampling& cs = raypars.cs_;
@@ -137,7 +130,7 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
     for ( int iseq=0; iseq<nraimdls; iseq++ )
     {
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
-	AIModel aimod; fillAIModel( aimod, lm_->sequence( seqidx ) );
+	AIModel aimod; fillAIModel( aimod, lm_.sequence( seqidx ) );
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
 	else if ( aimod.size() == 1  )

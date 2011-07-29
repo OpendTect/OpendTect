@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.3 2011-07-25 15:07:49 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,18 +77,15 @@ public:
 mClass StratSynth
 {
 public:
-    			StratSynth();
+    			StratSynth(const Strat::LayerModel&);
 
     void		setWavelet(const Wavelet&);
-    void		setModel(const Strat::LayerModel&);
-
-    ElasticPropGen&	propGen() { return propgen_; }
 
     const SyntheticData* generate(const RayParams& raypars,bool isps,
 				    BufferString* errmsg=0) const;
 protected:
 
-    const Strat::LayerModel* lm_;
+    const Strat::LayerModel& lm_;
     const Wavelet*	wvlt_;
     TypeSet<AIModel>	aimodels_;
 

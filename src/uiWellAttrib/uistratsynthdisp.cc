@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.50 2011-07-25 15:07:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.51 2011-07-29 14:38:58 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.50 2011-07-25 15:07:49 
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
-#include "uielasticpropsel.h"
 #include "uiflatviewslicepos.h"
 #include "uiraytrace1d.h"
 #include "uispinbox.h"
@@ -58,20 +57,20 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , wvlt_(0)
     , lm_(lm)
     , d2tmodels_(0)	     
-    , stratsynth_(*new StratSynth())
+    , stratsynth_(*new StratSynth(lm_))
     , raypars_(*new RayParams)				    
     , wvltChanged(this)
     , zoomChanged(this)
+    , layerPropSelNeeded(this)
     , longestaimdl_(0)
     , lasttool_(0)
-    , layerpropseldlg_(0)
     , raytrcpardlg_(0)
 {
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
 
-    uiToolButton* layertb = new uiToolButton( topgrp_, "defprops.png", 
+    uiToolButton* layertb = new uiToolButton( topgrp_, "defraytraceprops.png", 
 				    "Specify synthetic layers properties", 
 				    mCB(this,uiStratSynthDisp,layerPropsPush) );
 
@@ -153,11 +152,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
 
 void uiStratSynthDisp::layerPropsPush( CallBacker* )
 {
-    if ( !layerpropseldlg_ )
-	layerpropseldlg_ = new uiElasticPropSelDlg( this, 
-				lm_.propertyRefs(), stratsynth_.propGen() );
-    if ( layerpropseldlg_->go() )
-	doModelChange();
+    layerPropSelNeeded.trigger();
 }
 
 
@@ -291,8 +286,9 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 void uiStratSynthDisp::modelChanged()
 {
     cleanSynthetics();
-    if ( layerpropseldlg_ ) 
-	{ delete layerpropseldlg_; layerpropseldlg_ =0; }
+
+    if ( lm_.isEmpty() )
+	return;
 
     NotifyStopper ns( posfld_->positionChg );
     CubeSampling cs( raypars_.cs_ ); 
@@ -351,7 +347,7 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
     delete wvlt_; wvlt_ = wvltfld_->getWavelet();
     delete tmpsynthetic_; tmpsynthetic_ = 0; 
-    stratsynth_.setModel( lm_ );
+
     stratsynth_.setWavelet( *wvlt_ );
     d2tmodels_ = 0;
     BufferString errmsg;

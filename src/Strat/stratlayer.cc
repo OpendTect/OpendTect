@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.25 2011-07-25 15:07:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.26 2011-07-29 14:38:58 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -269,6 +269,8 @@ bool Strat::LayerModel::read( std::istream& strm, IOPar& pars )
     if ( nms.isEmpty() )
 	return false;
 
+    elasticprops_.usePar( pars );
+
     // TODO create props_ from nms
     // read data
     return false;
@@ -309,5 +311,6 @@ bool Strat::LayerModel::write( std::ostream& strm, const IOPar& pars ) const
 	}
 	astrm.newParagraph();
     }
+    elasticprops_.fillPar( iop );
     return true;
 }
