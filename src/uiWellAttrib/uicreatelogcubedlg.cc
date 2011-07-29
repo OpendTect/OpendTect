@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.2 2011-07-25 15:09:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.3 2011-07-29 07:37:43 cvsbruno Exp $";
 
 #include "uicreatelogcubedlg.h"
 
@@ -46,12 +46,11 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const Well::Data& wd )
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
     savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with extension" );
+    savefld_ = new uiGenInput( this, "with suffix" );
     savefld_->setElemSzPol( uiObject::Small );
     BufferString extnm( "_" ); extnm += wd_.name();
     savefld_->setText( extnm );
     savefld_->attach( rightOf, savelbl );
-    savefld_->setStretch( 0, 0 );
 }
 
 
