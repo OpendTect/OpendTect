@@ -7,14 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.13 2011-07-04 09:58:01 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.14 2011-08-01 15:41:04 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "propertyref.h"
+#include "elasticpropsel.h"
 #include "objectset.h"
+#include "propertyref.h"
 class IOPar;
 
 namespace Strat
@@ -41,6 +42,9 @@ public:
     const PropertyRefSelection& propSelection() const	{ return propsel_; }
     void		setPropSelection(const PropertyRefSelection&);
 
+    const ElasticPropSelection& elasticPropSel() const {return elasticpropsel_;}
+    void		setElasticPropSelection(const ElasticPropSelection&);
+
     bool		getFrom(std::istream&);
     bool		putTo(std::ostream&) const;
 
@@ -58,6 +62,7 @@ protected:
 
     const RefTree&		rt_;
     PropertyRefSelection	propsel_;
+    ElasticPropSelection        elasticpropsel_;
 
     mutable BufferString	errmsg_;
 

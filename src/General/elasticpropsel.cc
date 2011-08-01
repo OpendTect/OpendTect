@@ -8,35 +8,48 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.5 2011-08-01 15:41:04 cvsbruno Exp $";
 
 #include "elasticpropsel.h"
 #include "math.h"
 #include "mathexpression.h"
 
 
-static const char* sKeyFormulaName = "Name of formula";
-static const char* sKeyMathExpr = "Mathetmatic Expression";
+static const char* sKeyFormulaName 	= "Name of formula";
+static const char* sKeyMathExpr 	= "Mathetmatic Expression";
+static const char* sKeySelVarIdxs 	= "Indices of selected properties";
+static const char* sKeySelCteVars 	= "Values of constant";
 
-static const char* sKeySelVarIdxs = "Indices of selected properties";
-static const char* sKeySelCteVars = "Values of constant";
-static const char* sKeyTypeNr = "Type";
+static const char* sKeyDen 	= "Density";
+static const char* sKeyPVel 	= "P-Wave";
+static const char* sKeySVel 	= "S-Wave";
 
 
-int ElasticFormula::type2Int( Type tp ) 
+ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 {
-    return  tp == ElasticFormula::Den ? 0 
-	  : tp == ElasticFormula::PVel ? 1 
-	  : tp == ElasticFormula::SVel ? 2 
-	  : -1;
+    if ( this != &ef )
+    {
+	setName( ef.name() );
+	type_ = ef.type_;
+	expression_ = ef.expression_;
+    }
+    return *this;
 }
 
 
-ElasticFormula::Type ElasticFormula::int2Type( int tpnr ) 
+const char* ElasticFormula::type2Char( ElasticType tp ) 
 {
-    return tpnr == 1 ? ElasticFormula::PVel 
-	 : tpnr == 2 ? ElasticFormula::SVel 
-		     : ElasticFormula::Den;
+    return tp == ElasticFormula::PVel ? sKeyPVel 
+	 : tp == ElasticFormula::SVel ? sKeySVel
+	 : sKeyDen; 
+}
+
+
+ElasticFormula::ElasticType ElasticFormula::char2Type( const char* tp ) 
+{
+    return !strcmp(tp,sKeyPVel) ? ElasticFormula::PVel 
+	 : !strcmp(tp,sKeySVel) ? ElasticFormula::SVel 
+	 : ElasticFormula::Den;
 }
 
 
@@ -49,26 +62,28 @@ ElasticFormulaRepository& elasticFormulas()
 }
 
 
+const char* ElasticFormulaPropSel::subjectName() const
+{ return ElasticFormula::type2Char( formula_.type() ); }
+
+
 void ElasticFormulaPropSel::fillPar( IOPar& par ) const
 {
-    par.set( sKeyFormulaName, formula_.name() );
-    par.set( sKeyMathExpr, formula_.expression() );
-    par.set( sKeyTypeNr,  ElasticFormula::type2Int( formula_.type() ) );
-    par.set( sKeySelVarIdxs, selidxs_ );
-    par.set( sKeySelCteVars, ctes_ );
+    par.set( IOPar::compKey(subjectName(),sKeyFormulaName), formula_.name() );
+    par.set( IOPar::compKey(subjectName(),sKeyMathExpr), formula_.expression());
+    par.set( IOPar::compKey(subjectName(),sKeySelVarIdxs), selidxs_ );
+    par.set( IOPar::compKey(subjectName(),sKeySelCteVars), ctes_ );
 }
 
 
 void ElasticFormulaPropSel::usePar( const IOPar& par ) 
 {
     BufferString nm, expr; 
-    int typenr;
-    par.get( sKeyFormulaName, nm );
-    par.get( sKeyMathExpr, expr );
-    par.get( sKeyTypeNr, typenr );
-    formula_ = ElasticFormula( expr, nm, ElasticFormula::int2Type( typenr ) );
-    par.get( sKeySelVarIdxs, selidxs_ );
-    par.get( sKeySelCteVars, ctes_ );
+    if ( !par.get( IOPar::compKey(subjectName(),sKeyFormulaName), nm ) 
+    	|| !par.get( IOPar::compKey(subjectName(),sKeyMathExpr), expr ) )
+	return;
+    formula_ = ElasticFormula( nm, expr, formula_.type() );
+    par.get( IOPar::compKey(subjectName(),sKeySelVarIdxs), selidxs_ );
+    par.get( IOPar::compKey(subjectName(),sKeySelCteVars), ctes_ );
 }
 
 
@@ -88,9 +103,15 @@ void ElasticPropSelection::usePar( const IOPar& iop )
 }
 
 
+bool ElasticPropSelection::isValidInput() const
+{
+    return !denformula_.selidxs_.isEmpty() && !pvelformula_.selidxs_.isEmpty(); 
+    //TODO support SWave 
+}
+
 
 void ElasticFormulaRepository::addFormula( const char* nm, const char* expr, 
-					    ElasticFormula::Type tp )
+					    ElasticFormula::ElasticType tp )
 {
     if ( tp == ElasticFormula::PVel )
 	pvelformulas_ += ElasticFormula( nm, expr, tp );

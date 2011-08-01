@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.5 2011-08-01 15:41:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,36 +18,47 @@ ________________________________________________________________________
 #include "enums.h"
 #include "propertyref.h"
 
+
+static const char* sKeyElasticPropSel = "Elastic Properties selection";
+
 mStruct ElasticFormula : public NamedObject
 {
 public:
-    enum Type        	{ Den, PVel, SVel };
+    enum ElasticType 	{ Den, PVel, SVel };
+    			DeclareEnumUtils(ElasticType)
 
-    			ElasticFormula(const char* nm,const char* expr,Type tp)
+    			ElasticFormula(const char* nm,const char* expr,
+					ElasticType tp)
 				: NamedObject( nm ) 
 				, expression_(expr ? expr : "")
-				, type_(tp)    
-				{} 
-
-			ElasticFormula( const ElasticFormula& fm )
-				: NamedObject(fm.name())	   
-				, expression_(fm.expression_)
+				, type_(tp)
 				{}
 
+			ElasticFormula( const ElasticFormula& fm )
+			{ *this = fm; }
+
+
+    ElasticFormula&	operator =(const ElasticFormula&);
+    inline bool 	operator ==( const ElasticFormula& pr ) const
+			{ return name() == pr.name(); }
+    inline bool         operator !=( const ElasticFormula& pr ) const
+			{ return name() != pr.name(); }
+
+
     void		setExpression( const char* expr) 
-			{ expression_ = expr ? expr : ""; }
+    { expression_ = expr ? expr : ""; }
     const char*		expression() const 
-    			{ return expression_.isEmpty() ? 0 : expression_.buf();}
+    { return expression_.isEmpty() ? 0 : expression_.buf();}
 
-    inline Type      	type() const 			{ return type_; }
-    inline bool        	hasType( Type t ) const		{ return type_ == t;}
+    inline ElasticType 	type() const 			{ return type_; }
+    inline bool        	hasType( ElasticType t ) const 	{ return type_ == t;}
 
-    static int		type2Int(Type tp);
-    static Type		int2Type(int typenr);
+    static const char*	type2Char(ElasticType tp);
+    static ElasticType		char2Type(const char* tptxt);
 
 protected:
     BufferString 	expression_; 
-    Type		type_;
+    ElasticType		type_;
 };
 
 
@@ -55,7 +66,7 @@ protected:
 mStruct ElasticFormulaPropSel 
 {
 			ElasticFormulaPropSel(const char* nm, const char* expr,
-			       			ElasticFormula::Type tp )
+			       			ElasticFormula::ElasticType tp )
 			    : formula_(nm,expr,tp) {} 
 
 			ElasticFormulaPropSel( const ElasticFormula& fm )
@@ -63,6 +74,8 @@ mStruct ElasticFormulaPropSel
 
     TypeSet<int> 	selidxs_; //index of selected variables, -1 is constant
     TypeSet<float> 	ctes_; 	  //values of constants
+
+    const char* 	subjectName() const;
 
     virtual void 	fillPar(IOPar&) const;
     virtual void 	usePar(const IOPar&);
@@ -76,7 +89,7 @@ mClass ElasticFormulaRepository
 public:
     void			addFormula(const ElasticFormula&); 
     void			addFormula(const char* nm, const char* expr,
-					    ElasticFormula::Type);
+					    ElasticFormula::ElasticType);
 
     const TypeSet<ElasticFormula>& denFormulas() const { return denformulas_; }
     const TypeSet<ElasticFormula>& pvelFormulas() const { return pvelformulas_;}
@@ -112,14 +125,16 @@ mClass ElasticPropSelection
 {
 public:
 				ElasticPropSelection()
-				    : denformula_(0,0,ElasticFormula::Den)
-				    , pvelformula_(0,0,ElasticFormula::PVel)
-				    , svelformula_(0,0,ElasticFormula::SVel)
+				    : denformula_("","",ElasticFormula::Den)
+				    , pvelformula_("","",ElasticFormula::PVel)
+				    , svelformula_("","",ElasticFormula::SVel)
 				    {}
 
     ElasticFormulaPropSel	denformula_;
     ElasticFormulaPropSel	pvelformula_;
     ElasticFormulaPropSel 	svelformula_;
+
+    bool			isValidInput() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
