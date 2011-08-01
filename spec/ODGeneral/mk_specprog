@@ -49,11 +49,11 @@ if ( $?OWNGCCDIR ) then
 endif
 
 if ( $?DEBUG ) then
-    ${comp} -ggdb3 -D$HDIR -fsigned-char -Wconversion -Wimplicit -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I$incdir -I$incdir/Basic -I$incdir/Prog -D__prog__ -o $gmdexec $prog.cc $libdir/${libpref}Basic${libext} $extraflgs -lstdc++ -lQtCore -L$OD_QTDIR/lib ${mylibs}
+    ${comp} -ggdb3 -D$HDIR -fsigned-char -Wconversion -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I$incdir -I$incdir/Basic -I$incdir/Prog -D__prog__ -o $gmdexec $prog.cc $libdir/${libpref}Basic${libext} $extraflgs -lstdc++ -lQtCore -L$OD_QTDIR/lib ${mylibs}
 
 else
 
-    ${comp} -O3 -D$HDIR -fsigned-char -Wconversion -Wimplicit -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I$incdir -I$incdir/Basic -I$incdir/Prog -D__prog__ -o $gmdexec $prog.cc $libdir/${libpref}Basic${libext} $extraflgs -lstdc++ -lQtCore -L$OD_QTDIR/lib ${mylibs}
+    ${comp} -O3 -D$HDIR -fsigned-char -Wconversion -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I$incdir -I$incdir/Basic -I$incdir/Prog -D__prog__ -o $gmdexec $prog.cc $libdir/${libpref}Basic${libext} $extraflgs -lstdc++ -lQtCore -L$OD_QTDIR/lib ${mylibs}
 
     strip $gmdexec
 
