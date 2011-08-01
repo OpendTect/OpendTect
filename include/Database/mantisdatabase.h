@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.2 2011-07-27 11:10:11 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.3 2011-08-01 10:11:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,10 +87,11 @@ public:
 	    						   bool isadded,
 							   bool isnoteempty);
     void			updateBugTextTableEntryHistory(int idx);
-    int				getBugTableID(int bugid);
+    int				getBugTableIdx(int bugid);
     bool			getInfoFromTables();
-    TypeSet<int>&		getBugsMySelf();
-
+    bool			fillBugsIdx(const char* usernm,
+	    				    TypeSet<int>& bugsassigned );
+    TypeSet<int>&		getBugsIndex();
     static void			prepareForQuery(BufferString&);
 
     static const char*	sKeyBugNoteTable();
@@ -102,6 +103,7 @@ public:
     static const int 	cOpenDtectProjectID();
     static const int 	cAccessLevelDeveloper();
     static const int 	cAccessLevelCaseStudy();
+
 
 protected:
 
@@ -131,10 +133,9 @@ protected:
     BugTextTableEntry*	bugtexttable_;
     ObjectSet<BugTableEntry>	bugs_;
     ObjectSet<BugTextTableEntry> texttables_;
-    TypeSet<int>	bugidsetmyself_;
+    TypeSet<int>	bugsindex_;
 
     mutable BufferString errmsg_;
-
 };
 
 

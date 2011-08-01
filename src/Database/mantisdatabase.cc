@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.6 2011-07-27 11:10:11 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.7 2011-08-01 10:11:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "convert.h"
 #include "envvars.h"
+#include "errh.h"
 #include "mantistables.h"
 #include "ptrman.h"
-#include "errh.h"
+
 
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTable()
 { return "mantis_bugnote_table"; }
@@ -42,7 +43,7 @@ SqlDB::MantisQuery::MantisQuery( SqlDB::MantisAccess& acc )
 
 
 bool SqlDB::MantisQuery::updateTables( BugTableEntry& bugtable,
-					BugTextTableEntry& tte )
+				       BugTextTableEntry& tte )
 {
     BufferStringSet colnms, values;
     bugtable.getQueryInfo( colnms, values, true );
@@ -153,6 +154,8 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( ".id ) ORDER BY " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".id ASC" );
 
+    UsrMsg( BufferString(querystr) );
+
     if ( !query().execute(querystr) )
 	return false;
 
@@ -207,6 +210,7 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
 	return false;
 
     developers_.erase();
+    developers_.add( "All" );
     while ( query().next() )
 	developers_.add( query().data(0) );
 
@@ -221,6 +225,8 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
 
     usernames_.erase();
     userids_.erase();
+    usernames_.add( "All" );
+    userids_.add( 9999 );
     while ( query().next() )
     {
 	usernames_.add( query().data(0) );
@@ -258,6 +264,39 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 }
 
 
+bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
+				      TypeSet<int>& bugsassigned )
+{
+    if ( !usernm ) return false;
+
+    int usridx = userNames().indexOf( usernm );
+    if ( !userIDs().validIdx( usridx ) )
+    {
+	UsrMsg( BufferString("User ",usernm," does not exist in Mantis") );
+	return false;
+    }
+
+    const int usrid = userIDs()[usridx];
+    bugsindex_.erase();
+    const int nrbugs = nrBugs();
+    for ( int idx=0; idx<nrbugs; idx++ )
+    {
+	BugTableEntry* bugtable = getBugTableEntry( idx );
+	if ( !bugtable )
+	    continue;
+	
+	if ( usrid == 9999 )
+	    bugsindex_.add( idx );
+	else if ( usrid == bugtable->handlerid_ )
+	    bugsindex_.add( idx );
+    }
+
+    bugsassigned = bugsindex_;
+
+    return bugsassigned.isEmpty() ? false : true;
+}
+
+
 void SqlDB::MantisDBMgr::getSummaries( const char* usernm,
 				       BufferStringSet& summaries )
 {
@@ -268,7 +307,7 @@ void SqlDB::MantisDBMgr::getSummaries( const char* usernm,
 	usrid = -1;
 
     usrid = usrid < 0 ? -1 : userIDs()[usrid];
-    bugidsetmyself_.erase();
+    bugsindex_.erase();
     const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
@@ -279,11 +318,11 @@ void SqlDB::MantisDBMgr::getSummaries( const char* usernm,
 	if ( usrid < 0 )
 	{
 	    summaries.add( bugtable->summary_ );
-	    bugidsetmyself_.add( bugtable->id_ );
+	    bugsindex_.add( bugtable->id_ );
 	}
 	else if ( usrid == bugtable->handlerid_ )
 	{
-	    bugidsetmyself_.add( bugtable->id_ );
+	    bugsindex_.add( bugtable->id_ );
 	    summaries.add( bugtable->summary_ );
 	}
     }
@@ -328,9 +367,8 @@ SqlDB::BugTextTableEntry* SqlDB::MantisDBMgr::getBugTextTableEntry( int idx )
 }
 
 
-int SqlDB::MantisDBMgr::getBugTableID( int bugid )
+int SqlDB::MantisDBMgr::getBugTableIdx( int bugid )
 {
-    int tableid = -1;
     BugTableEntry* table = 0;
     for( int idx=0; idx<nrBugs(); idx++ )
     {
@@ -339,22 +377,19 @@ int SqlDB::MantisDBMgr::getBugTableID( int bugid )
 	    continue;
 
 	if ( table->id_ == bugid )
-	{
-	    tableid = idx;
-	    break;
-	}
+	    return idx;
     }
 
-    return tableid;
+    return -1;
 }
 
 
-TypeSet<int>& SqlDB::MantisDBMgr::getBugsMySelf()
-{ return bugidsetmyself_; }
+TypeSet<int>& SqlDB::MantisDBMgr::getBugsIndex()
+{ return bugsindex_; }
 
 
 void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
-					      bool isnoteempty )
+						     bool isnoteempty )
 {
     BugTableEntry* bugtable = 0;
     bugtable = bidx < 0 ? bugtable_ : getBugTableEntry( bidx );
@@ -466,12 +501,11 @@ void SqlDB::MantisDBMgr::eraseCurrentEntries( bool isfix )
     {
 	bugtable_ = new BugTableEntry();
 	bugtexttable_ = new BugTextTableEntry();
+	return;
     }
-    else
-    {
-	bugtable_->init();
-	bugtexttable_->init();
-    }
+
+    bugtable_->init();
+    bugtexttable_->init();
 }
 
 
@@ -480,11 +514,7 @@ bool SqlDB::MantisDBMgr::addToBugTextTable( BugTextTableEntry& bugtt )
     errmsg_.setEmpty();
     BufferStringSet colnms, values;
     bugtt.getQueryInfo( colnms, values );
-    if ( !query().insert(colnms, values,
-			    BugTextTableEntry::sKeyBugTextTable()) )
-	return false;
-
-    return true;
+    return query().insert(colnms,values,BugTextTableEntry::sKeyBugTextTable());
 }
 
 
@@ -501,10 +531,7 @@ bool SqlDB::MantisDBMgr::addToBugTable( BugTableEntry& bugtable )
     querystr.add( BugTableEntry::sKeyBugTable() )
 	    .add( " SET bug_text_id=id WHERE id= (SELECT MAX(id) FROM " )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ")" );
-    if ( !query().execute( querystr ) )
-	return false;
-
-    return true;
+    return query().execute( querystr );
 }
 
 
@@ -514,10 +541,7 @@ bool SqlDB::MantisDBMgr::addToBugNoteTextTable( const char* note )
     BufferStringSet colmns,values;
     colmns.add( "id" ).add( "note" );
     values.add( "" ).add( note );
-    if ( !query().insert( colmns, values, sKeyBugNoteTextTable() ) )
-	return false;
-
-    return true;
+    return query().insert( colmns, values, sKeyBugNoteTextTable() );
 }
 
 
@@ -546,10 +570,7 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     querystr.add( sKeyBugNoteTable() )
 	    .add( " SET bugnote_text_id=id WHERE id= (SELECT MAX(id) FROM " )
 	    .add( sKeyBugNoteTextTable() ).add( ")" );
-    if ( !query().execute( querystr ) )
-	return false;
-
-    return true;
+    return query().execute( querystr );
 }
 
 
@@ -567,15 +588,12 @@ bool SqlDB::MantisDBMgr::addBug( BugTableEntry& bugtable,
     if ( !*note )
 	return true;
 
-    if ( !addToBugNoteTable( note, bugtable.id_ ) )
-	return false;
-
-    return true;
+    return addToBugNoteTable( note, bugtable.id_ );
 }
 
 
 bool SqlDB::MantisDBMgr::editBug( BugTableEntry& bugtable,
-			   BugTextTableEntry& tte, const char* note )
+				  BugTextTableEntry& tte, const char* note )
 {
     const bool isedit = query().updateTables( bugtable, tte );
     if ( !isedit )
