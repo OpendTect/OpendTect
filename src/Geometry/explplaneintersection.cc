@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.18 2011-04-15 21:32:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.19 2011-08-01 20:30:37 cvsyuancheng Exp $";
 
 
 #include "explplaneintersection.h"
@@ -113,6 +113,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
     intersectioncoordids_.allowDuplicates( false );
     output_ = const_cast<IndexedGeometry*>( explsurf_.getGeometry()[0] );
     output_->removeAll( true );
+    addedposes_.erase();
 }
 
 
@@ -133,6 +134,9 @@ od_int64 nrIterations() const
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
+    if ( !explsurf_.nrPlanes() )
+	return false;
+
     for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const IndexedGeometry* inputgeom =
@@ -193,6 +197,38 @@ bool doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+bool addNewPos( const Coord3& point, int& residx ) 
+{
+    addedposlock_.readLock(); 
+    int tmpposidx = addedposes_.indexOf(point);
+    
+    if ( tmpposidx>=0 ) 
+    { 
+	residx = crdlistidx_[tmpposidx]; 
+    	addedposlock_.readUnLock(); 
+	return false;
+    } 
+ 
+    if ( !addedposlock_.convReadToWriteLock() ) 
+    { 
+	tmpposidx = addedposes_.indexOf(point); 
+	if ( tmpposidx>=0 ) 
+	{
+	    residx = crdlistidx_[tmpposidx]; 
+	    addedposlock_.writeUnLock(); 
+	    return false;
+	}
+    } 
+ 
+    residx = explsurf_.coordList()->add( point ); 
+    addedposes_ += point; 
+    crdlistidx_ += residx; 
+
+    addedposlock_.writeUnLock();
+    return true; 
+}
+
+
 void intersectTriangle( int lci0, int lci1, int lci2 ) 
 {
     RefMan<const Coord3List> coordlist = explsurf_.getShape()->coordList();
@@ -217,8 +253,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	    continue;
 	
 	const Coord3 ptonplane = explsurf_.planePolygon( planeid )[0]-centerpt;
-	const Plane3 plane( planenormal, ptonplane, false);
-
+	Plane3 plane( planenormal, ptonplane, false);
 	Line3 intersectionline;
 	if ( !triangleplane.intersectWith( plane, intersectionline ) )
 	    continue;
@@ -256,12 +291,27 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     	    const float d12 = plane.distanceToPoint(edge12.getPoint(edget12));
     	    const float d20 = plane.distanceToPoint(edge20.getPoint(edget20));
 
-	    if ( d01>d12 && d01>d20 ) 
-		edgeok01 = false;
-	    else if ( d12>d01 && d12>d20 )
-		edgeok12 = false;
-	    else 
-		edgeok20 = false;
+	    if ( mIsZero(d01,1e-5) && mIsZero(d12,1e-5) && mIsZero(d20,1e-5) )
+	    {
+		const float d0 = (plane.getProjection(c0)-c0).sqAbs();
+		const float d1 = (plane.getProjection(c1)-c1).sqAbs();
+		const float d2 = (plane.getProjection(c2)-c2).sqAbs();
+		if ( d0>d1 && d0>d2 )
+		    edgeok12 = false;
+		else if ( d1>d0 && d1>d2 )
+		    edgeok20 = false;
+		else
+		    edgeok01 = false;
+	    }
+	    else
+	    {
+		if ( d01>d12 && d01>d20 )
+		    edgeok01 = false;
+		else if ( d12>d01 && d12>d20 )
+		    edgeok12 = false;
+		else
+		    edgeok20 = false;
+	    }
 	}
 
 	if ( edgeok01 && edgeok12 )
@@ -279,14 +329,12 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	    continue;
 
 	bool startcut = false, stopcut = false;
+	Coord3 startpt = intersectionline.getPoint( t[startedge] ) + centerpt;
+	Coord3 stoppt = intersectionline.getPoint( t[stopedge] ) + centerpt;
 	if ( planes_[planeidx] )
 	{
-	    const char sum =
-		planes_[planeidx]->isInside( 
-			intersectionline.getPoint(t[startedge]) + centerpt ) +
-		planes_[planeidx]->isInside(
-			intersectionline.getPoint(t[stopedge]) + centerpt );
-
+	    const char sum = planes_[planeidx]->isInside( startpt ) +
+			     planes_[planeidx]->isInside( stoppt );
 	    if ( sum==0 )
 		continue;
 
@@ -307,7 +355,6 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     else { arraypos[1]=mMIN(lci2,lci0); arraypos[2]=mMAX(lci2,lci0); } 
 
 	int ci0;
-	Coord3 startpt = intersectionline.getPoint( t[startedge] ) + centerpt;
 	startpt.z /= zscale;
 	if ( !startcut )
 	{
@@ -316,12 +363,11 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	}
 	else
 	{
-	    ci0 = explsurf_.coordList()->add( startpt );
+	    addNewPos( startpt, ci0 );
 	}
 
-	Coord3 stoppt = intersectionline.getPoint( t[stopedge] ) + centerpt;
-	stoppt.z /= zscale;
 	int ci1;
+	stoppt.z /= zscale;
 	if ( !stopcut )
 	{
 	    mSetArrPos( stopedge )
@@ -329,11 +375,22 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	}
 	else
 	{
-	    ci1 = explsurf_.coordList()->add( stoppt );
+	    addNewPos( stoppt, ci1 );
 	}
+
+	if ( ci0==ci1 || ci0<0 || ci1<0 )
+	    continue;
 
 	Threads::MutexLocker reslock( output_->lock_ );
 
+	if ( output_->coordindices_.size() )
+	    output_->coordindices_ += -1;
+
+	output_->coordindices_ += ci0;
+	output_->coordindices_ += ci1;
+	output_->ischanged_ = true;
+
+	/*
 	const int ci0idx = output_->coordindices_.indexOf( ci0 );
 	if ( ci0idx==-1 )
 	{
@@ -373,7 +430,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	    output_->ischanged_ = true;
 	}
 	else
-	    pErrMsg("Hmm");
+	    pErrMsg("Hmm");*/
     }
 }
 
@@ -382,11 +439,12 @@ int getCoordIndex( const int* arraypos, const Coord3& point,
 		   Coord3List& coordlist )
 {
     tablelock_.readLock();
-    
+   
+    int res; 
     int idxs[3];
     if ( intersectioncoordids_.findFirst( arraypos, idxs ) )
     {
-	int res = intersectioncoordids_.getRef( idxs, 0 );
+	res = intersectioncoordids_.getRef( idxs, 0 );
 	tablelock_.readUnLock();
 	return res;
     }
@@ -395,14 +453,14 @@ int getCoordIndex( const int* arraypos, const Coord3& point,
     {
 	if ( intersectioncoordids_.findFirst( arraypos, idxs ) )
 	{
-	    int res = intersectioncoordids_.getRef( idxs, 0 );
+	    res = intersectioncoordids_.getRef( idxs, 0 );
 	    tablelock_.writeUnLock();
 	    return res;
 	}
     }
 
-    const int res = coordlist.add( point );
-    intersectioncoordids_.add( &res, arraypos );
+    if ( addNewPos(point,res) )
+	intersectioncoordids_.add( &res, arraypos );
 
     tablelock_.writeUnLock();
     return res;
@@ -414,6 +472,10 @@ int getCoordIndex( const int* arraypos, const Coord3& point,
     IndexedGeometry*					output_;
     ObjectSet<ExplPlaneIntersectionExtractorPlane>	planes_;
     ExplPlaneIntersection&				explsurf_;
+
+    Threads::ReadWriteLock				addedposlock_;
+    TypeSet<Coord3>					addedposes_;
+    TypeSet<int>					crdlistidx_;
 };
 
 
