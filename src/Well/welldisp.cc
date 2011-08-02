@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.23 2011-06-29 13:58:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.24 2011-08-02 06:03:01 cvsraman Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -141,7 +141,7 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
 	font_.getFrom( fontdata );
     else
     {
-	int sz;
+	int sz = 0;
 	par.get( IOPar::compKey(subjectName(),sKeyTrackNmSize), sz );
 	font_.setPointSize( sz );
     }
@@ -173,7 +173,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 	font_.getFrom( fontdata );
     else
     {
-	int sz;
+	int sz = 0;
 	par.get( IOPar::compKey(subjectName(),sKeyTrackNmSize), sz );
 	font_.setPointSize( sz );
     }
@@ -301,7 +301,7 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
     track_.usePar( *par );
     markers_.usePar( *par );
     logs_[0]->left_.useLeftPar( *par );
-    logs_[0]->right_.useLeftPar( *par );
+    logs_[0]->right_.useRightPar( *par );
     int widx=1; IOPar* welliop = par->subselect( toString(widx) );
     while ( welliop )
     {
