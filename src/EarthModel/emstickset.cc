@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.12 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.13 2011-08-02 09:37:13 cvskris Exp $";
 
 #include "emstickset.h"
 
@@ -29,7 +29,7 @@ EM::EMObject* EM::StickSet::create(EMManager& emm)
 { return new EM::StickSet( emm ); }
 
 
-void EM::StickSet::initClass(EMManager& emm)
+void EM::StickSet::initClass(EM::EMManager& emm)
 {
     emm.addFactory( new ObjectFactory( create,
 			 EMStickSetTranslatorGroup::ioContext(),
