@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.24 2011-08-02 06:03:01 cvsraman Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.25 2011-08-02 09:45:12 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -174,7 +174,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     else
     {
 	int sz = 0;
-	par.get( IOPar::compKey(subjectName(),sKeyTrackNmSize), sz );
+	par.get( IOPar::compKey(subjectName(),sKeyMarkerNmSize), sz );
 	font_.setPointSize( sz );
     }
 }
