@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.h,v 1.7 2010-11-18 08:41:05 cvskarthika Exp $
+ RCS:           $Id: SoMFImage.h,v 1.8 2011-08-02 09:13:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include <Inventor/fields/SoSubField.h>
 
-#include <SbImagei32.h>
+#include "SbImagei32.h"
 
 #include "soodbasic.h"
 

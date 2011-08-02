@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdragger.cc,v 1.20 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visdragger.cc,v 1.21 2011-08-02 09:09:22 cvskris Exp $";
 
 
 #include "visdragger.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: visdragger.cc,v 1.20 2011-04-28 07:00:12 cvsber
 #include <Inventor/draggers/SoTranslate2Dragger.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include <SoScale3Dragger.h>
+#include "SoScale3Dragger.h"
 
 mCreateFactoryEntry( visBase::Dragger );
 

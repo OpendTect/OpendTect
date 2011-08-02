@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.6 2010-09-15 06:31:55 cvskarthika Exp $
+ RCS:           $Id: SoTextureChannelSet.h,v 1.7 2011-08-02 09:13:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include <SoMFImage.h>
+#include "SoMFImage.h"
 #include <Inventor/fields/SoMFBool.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>

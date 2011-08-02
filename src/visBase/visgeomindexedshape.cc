@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.28 2011-02-22 19:53:41 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.29 2011-08-02 09:09:22 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -19,11 +19,11 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.28 2011-02-22 19:53:
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexturecoords.h"
+#include "SoIndexedTriangleFanSet.h"
 
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoShapeHints.h>
-#include <SoIndexedTriangleFanSet.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/SoDB.h>
