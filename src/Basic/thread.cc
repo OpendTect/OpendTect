@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.54 2011-07-09 23:55:39 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.55 2011-08-02 09:40:39 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -308,6 +308,13 @@ void Threads::Barrier::setNrThreads( int nthreads )
 
 bool Threads::Barrier::waitForAll( bool unlock )
 {
+    if ( nrthreads_==-1 )
+    {
+	pErrMsg("Nr threads not set");
+	DBG::forceCrash(true);
+	return false;
+    }
+
     condvar_.lock();
 
     //Check of all threads our out of previous iteration
