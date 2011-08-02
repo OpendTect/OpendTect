@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiseparator.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiseparator.h,v 1.7 2011-08-02 09:37:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include "uiobj.h"
 
 //class QFrame;
 

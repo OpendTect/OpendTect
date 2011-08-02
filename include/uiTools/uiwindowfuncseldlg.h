@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.29 2009-11-23 15:59:22 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.30 2011-08-02 09:37:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "multiid.h"
 #include "arrayndutils.h"
-#include <arrayndimpl.h>
+#include "arrayndimpl.h"
 
 class uiAxisHandler;
 class uiGenInput;
