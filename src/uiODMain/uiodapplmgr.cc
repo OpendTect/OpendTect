@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.418 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.419 2011-08-03 09:23:08 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -44,6 +44,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.418 2011-07-12 10:51:55 cvsb
 #include "visplanedatadisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "visselman.h"
 #include "visseis2ddisplay.h"
 #include "vistexturechannels.h"
 
@@ -1648,8 +1649,15 @@ void uiODApplMgr::cleanPreview()
 
 void uiODApplMgr::storeEMObject()
 {
-    const int trackerid = mpeserv_->activeTrackerID();
-    const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
+	return;
+
+    mDynamicCastGet( visSurvey::EMObjectDisplay*,
+	    			surface, visserv_->getObject(selectedids[0]) );
+    if ( !surface ) return;
+    
+    const EM::ObjectID emid = surface->getObjectID();
     MultiID mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const bool saveas = mid.isEmpty() || !ioobj;
