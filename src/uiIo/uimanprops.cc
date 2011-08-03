@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.4 2011-06-24 13:35:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.5 2011-08-03 15:09:18 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -33,13 +33,14 @@ public:
     virtual void	editReq(bool);
     virtual void	removeReq();
     virtual void	itemSwitch(const char*,const char*);
+    void		initGrp(CallBacker*);
 
 };
 
 
 uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"property type","property")
+	    uiBuildListFromList::Setup(false,"property type","usable property")
 	    .withio(false).withtitles(true), "PropertyRef selection group")
     , props_(prs)
 {
@@ -53,8 +54,15 @@ uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     pnms.sort();
     for ( int idx=0; idx<pnms.size(); idx++ )
 	addItem( pnms.get(idx) );
+
+    finaliseDone.notify( mCB(this,uiBuildPROPS,initGrp) );
 }
 
+void uiBuildPROPS::initGrp( CallBacker* )
+{
+    if ( !props_.isEmpty() )
+	setCurDefSel( props_[0]->name() );
+}
 
 const char* uiBuildPROPS::avFromDef( const char* nm ) const
 {
@@ -296,7 +304,7 @@ void uiSelectPropRefs::fillList()
     }
 
     if ( nrsel == 0 )
-	propfld_->setSelected( 0 );
+	propfld_->setCurrentItem( 0 );
 }
 
 
