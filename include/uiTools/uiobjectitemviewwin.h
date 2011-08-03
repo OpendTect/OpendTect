@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.8 2011-06-29 11:16:11 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.9 2011-08-03 13:06:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,12 @@ public:
 
     void 		addObject(uiObject* grp,uiObject* infogrp=0);
     void 		addGroup(uiGroup* grp,uiGroup* infogrp=0);
+
+    void                removeObject(uiObject*);
+    void                removeGroup(uiGroup*);
+
+    void                insertObject(int idx,uiObject*,uiObject* info=0);
+    void                insertGroup(int idx,uiGroup*,uiGroup* info=0);
 
     void		removeAllItems();
 
@@ -117,6 +123,8 @@ public:
     void		removeItem(uiObjectItem* itm);
     void		updateItemsPos();
     void		reSizeItems();
+
+    void                removeItemByCouple(uiObjectItem* coupleditem);
 
 protected:
     ObjectSet<uiObjectItem> coupleditems_; 

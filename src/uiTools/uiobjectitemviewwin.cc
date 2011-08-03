@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.11 2011-06-29 13:58:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.12 2011-08-03 13:06:12 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -178,6 +178,54 @@ void uiObjectItemViewWin::removeAllItems()
 }
 
 
+void uiObjectItemViewWin::removeGroup( uiGroup* grp )
+{
+    for ( int idx=0; idx<mainviewer_->nrItems(); idx++ )
+    {
+	uiObjectItem* itm = mainviewer_->getItem( idx );
+	if ( itm->getGroup() == grp )
+	{
+	    infobar_->removeItem( itm );
+	    mainviewer_->removeItem( itm );
+	    break;
+	}
+    }
+}
+
+
+void uiObjectItemViewWin::removeObject( uiObject* obj )
+{
+    for ( int idx=0; idx<mainviewer_->nrItems(); idx++ )
+    {
+	uiObjectItem* itm = mainviewer_->getItem( idx );
+	if ( itm->getObject() == obj )
+	{
+	    infobar_->removeItem( itm );
+	    mainviewer_->removeItem( itm );
+	    break;
+	}
+    }
+}
+
+
+void uiObjectItemViewWin::insertGroup( int idx, uiGroup* grp, uiGroup* infogrp )
+{
+    uiObjectItem* itm = new uiObjectItem( grp );
+    uiObjectItem* infoitm = infogrp ? new uiObjectItem( infogrp ) : 0;
+    insertItem( idx, itm, infoitm );
+}
+
+
+void uiObjectItemViewWin::insertObject(int idx, uiObject* obj,uiObject* infoobj)
+{
+    uiObjectItem* itm = new uiObjectItem( obj );
+    uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
+    insertItem( idx, itm, infoitm );
+}
+
+
+
+
 void uiObjectItemViewWin::scrollBarCB( CallBacker* )
 {
     const uiRect& mainrect = mainviewer_->getViewArea();
@@ -259,6 +307,14 @@ void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
     if ( idx >= 0 ) coupleditems_.remove( idx );
     uiObjectItemView::removeItem( itm );
     updateItemsPos();
+}
+
+
+void uiObjectItemViewInfoBar::removeItemByCouple( uiObjectItem* coupleditem )
+{
+    const int idx = coupleditems_.indexOf( coupleditem );
+    if ( objectitems_.validIdx( idx ) )
+	removeItem( objectitems_[idx] );
 }
 
 
