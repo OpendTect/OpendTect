@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.59 2011-08-03 20:04:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.60 2011-08-03 20:15:58 cvsyuancheng Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -65,10 +65,8 @@ uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
     delete uiwellpropdlg_;
-
-    Well::Man& wman = Well::MGR();
-    for ( int idx=wman.keys().size()-1; idx>=0; idx-- )
-    	delete wman.release( *wman.keys()[idx] );
+    deepErase( Well::MGR().wells() );
+    deepErase( Well::MGR().keys() );
 }
 
 
