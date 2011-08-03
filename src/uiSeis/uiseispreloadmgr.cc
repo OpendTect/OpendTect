@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.27 2011-03-11 11:36:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.28 2011-08-03 15:09:05 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -118,7 +118,7 @@ void uiSeisPreLoadMgr::fillList()
 	listfld_->addItem( ioobj->name() );
     }
 
-    listfld_->setSelected( 0 );
+    listfld_->setCurrentItem( 0 );
 }
 
 

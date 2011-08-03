@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.18 2011-04-22 09:32:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.19 2011-08-03 15:09:05 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -123,7 +123,7 @@ void uiSeis2DFileMan::fillLineBox()
     objinfo_->ioObjInfo().getLineNames( linenames );
     lb->setEmpty();
     lb->addItems( linenames );
-    lb->setSelected( curitm );
+    lb->setCurrentItem( curitm );
 }
 
 

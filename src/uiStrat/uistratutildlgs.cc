@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.50 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.51 2011-08-03 15:09:05 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -87,8 +87,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	}
 	if ( lithids_.size() )
 	    unitlithfld_->setSelectedItems( lithids_ );
-	else if ( unitlithfld_->size() )
-	    unitlithfld_->setSelected( 0 );
+	else if ( !unitlithfld_->isEmpty() )
+	    unitlithfld_->setCurrentItem( 0 );
     }
 
     putToScreen();
