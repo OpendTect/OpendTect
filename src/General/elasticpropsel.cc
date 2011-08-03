@@ -8,22 +8,30 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.5 2011-08-01 15:41:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.6 2011-08-03 15:17:51 cvsbruno Exp $";
 
+#include "ascstream.h"
+#include "streamconn.h"
+#include "keystrs.h"
 #include "elasticpropsel.h"
+#include "file.h"
+#include "filepath.h"
 #include "math.h"
 #include "mathexpression.h"
+#include "strmprov.h"
 
+
+static const char* filenamebase 	= "ElasticFormulas";
 
 static const char* sKeyFormulaName 	= "Name of formula";
 static const char* sKeyMathExpr 	= "Mathetmatic Expression";
-static const char* sKeySelVarIdxs 	= "Indices of selected properties";
-static const char* sKeySelCteVars 	= "Values of constant";
+static const char* sKeySelVars 		= "Selected properties";
+static const char* sKeyType 		= "Type";
 
-static const char* sKeyDen 	= "Density";
-static const char* sKeyPVel 	= "P-Wave";
-static const char* sKeySVel 	= "S-Wave";
+DefineEnumNames(ElasticFormula,ElasticType,0,"Elastic Property")
+{ "Density", "P-Wave", "S-Wave", 0 };
 
+defineTranslatorGroup(ElasticPropSelection,"Elastic Property Selection");
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 {
@@ -32,118 +40,189 @@ ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 	setName( ef.name() );
 	type_ = ef.type_;
 	expression_ = ef.expression_;
+	variables_ = ef.variables_;
     }
     return *this;
 }
 
 
-const char* ElasticFormula::type2Char( ElasticType tp ) 
+void ElasticFormula::fillPar( IOPar& par ) const
 {
-    return tp == ElasticFormula::PVel ? sKeyPVel 
-	 : tp == ElasticFormula::SVel ? sKeySVel
-	 : sKeyDen; 
+    par.set( sKeyFormulaName, name() );
+    par.set( sKeyType, getElasticTypeString( type_ ) );
+    par.set( sKeyMathExpr, expression_ );
+    par.set( sKeySelVars, variables_ );
 }
 
 
-ElasticFormula::ElasticType ElasticFormula::char2Type( const char* tp ) 
+void ElasticFormula::usePar( const IOPar& par ) 
 {
-    return !strcmp(tp,sKeyPVel) ? ElasticFormula::PVel 
-	 : !strcmp(tp,sKeySVel) ? ElasticFormula::SVel 
-	 : ElasticFormula::Den;
+    BufferString nm; par.get( sKeyFormulaName, nm ); setName( nm );
+    parseEnumElasticType( par.find( sKeyType ), type_ );
+    par.get( sKeyMathExpr, expression_ );
+    par.get( sKeySelVars, variables_ );
 }
 
 
-ElasticFormulaRepository* ElasticFormulaRepository::elasticrepos_ = 0;
-ElasticFormulaRepository& elasticFormulas()
+const char* ElasticFormula::parseVariable( int idx, float& val ) const
 {
-    if ( !ElasticFormulaRepository::elasticrepos_ )
-	ElasticFormulaRepository::elasticrepos_ = new ElasticFormulaRepository;
-    return *::ElasticFormulaRepository::elasticrepos_;
+    if ( !variables_.validIdx( idx ) ) 
+	return 0;
+
+    val = mUdf( float );
+    const char* var = variables_.get( idx );
+    getFromString( val, var );
+
+    return var;
 }
 
 
-const char* ElasticFormulaPropSel::subjectName() const
-{ return ElasticFormula::type2Char( formula_.type() ); }
-
-
-void ElasticFormulaPropSel::fillPar( IOPar& par ) const
+ElasticFormulaRepository& ElFR()
 {
-    par.set( IOPar::compKey(subjectName(),sKeyFormulaName), formula_.name() );
-    par.set( IOPar::compKey(subjectName(),sKeyMathExpr), formula_.expression());
-    par.set( IOPar::compKey(subjectName(),sKeySelVarIdxs), selidxs_ );
-    par.set( IOPar::compKey(subjectName(),sKeySelCteVars), ctes_ );
+    static ElasticFormulaRepository* elasticrepos = 0;
+    if ( !elasticrepos )
+    {
+	elasticrepos = new ElasticFormulaRepository;
+    }
+    return *elasticrepos;
 }
 
 
-void ElasticFormulaPropSel::usePar( const IOPar& par ) 
+ElasticFormulaRepository::ElasticFormulaRepository()
 {
-    BufferString nm, expr; 
-    if ( !par.get( IOPar::compKey(subjectName(),sKeyFormulaName), nm ) 
-    	|| !par.get( IOPar::compKey(subjectName(),sKeyMathExpr), expr ) )
-	return;
-    formula_ = ElasticFormula( nm, expr, formula_.type() );
-    par.get( IOPar::compKey(subjectName(),sKeySelVarIdxs), selidxs_ );
-    par.get( IOPar::compKey(subjectName(),sKeySelCteVars), ctes_ );
+    Repos::FileProvider rfp( filenamebase );
+    while ( rfp.next() )
+	addFormulasFromFile( rfp.fileName(), rfp.source() );
 }
 
 
-void ElasticPropSelection::fillPar( IOPar& iop ) const
+void ElasticFormulaRepository::addFormulasFromFile( const char* fnm, 
+						    Repos::Source src )
 {
-    denformula_.fillPar( iop ); 
-    pvelformula_.fillPar( iop );
-    svelformula_.fillPar( iop );
+    if ( !File::exists(fnm) ) return;
+    StreamData sd = StreamProvider( fnm ).makeIStream();
+    if ( !sd.usable() ) return;
+
+    ascistream stream( *sd.istrm, true );
+    while ( !atEndOfSection( stream.next() ) )
+    {
+	IOPar iop; iop.getFrom( stream );
+	if ( iop.isEmpty() )
+	    continue;
+	ElasticFormula fm("","",ElasticFormula::Den); 
+	fm.usePar( iop );
+	formulas_ += fm;
+    }
+
+    sd.close();
 }
 
 
-void ElasticPropSelection::usePar( const IOPar& iop )
+bool ElasticFormulaRepository::write( Repos::Source src ) const
 {
-    denformula_.usePar( iop ); 
-    pvelformula_.usePar( iop );
-    svelformula_.usePar( iop );
-}
+    Repos::FileProvider rfp( filenamebase );
+    const BufferString fnm = rfp.fileName( src );
 
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot write to " ); msg += fnm;
+	ErrMsg( fnm );
+	return false;
+    }
 
-bool ElasticPropSelection::isValidInput() const
-{
-    return !denformula_.selidxs_.isEmpty() && !pvelformula_.selidxs_.isEmpty(); 
-    //TODO support SWave 
+    ascostream strm( *sd.ostrm );
+    strm.putHeader( "Elastic formulas" );
+    for ( int idx=0; idx<formulas_.size(); idx++ )
+    {
+	IOPar iop; 
+	formulas_[idx].fillPar( iop );
+	iop.putTo( strm );
+    }
+
+    sd.close();
+    return true;
 }
 
 
 void ElasticFormulaRepository::addFormula( const char* nm, const char* expr, 
-					    ElasticFormula::ElasticType tp )
+					    ElasticFormula::ElasticType tp,
+					    const BufferStringSet& vars )
 {
-    if ( tp == ElasticFormula::PVel )
-	pvelformulas_ += ElasticFormula( nm, expr, tp );
-    else if ( tp == ElasticFormula::SVel )
-	svelformulas_ += ElasticFormula( nm, expr, tp );
-    else
-	denformulas_ += ElasticFormula( nm, expr, tp );
-
+    ElasticFormula fm( nm, expr, tp );
+    fm.variables() = vars;
+    formulas_ += fm;
 }
 
 
 void ElasticFormulaRepository::addFormula( const ElasticFormula& fm )
 {
-    if ( fm.hasType( ElasticFormula::PVel ) )
-	pvelformulas_ += fm;
-    else if ( fm.hasType( ElasticFormula::SVel ) )
-	svelformulas_ += fm;
-    else
-	denformulas_ += fm;
+    formulas_ += fm;
 }
 
 
-void ElasticFormulaRepository::fillPreDefFormulas()
+void ElasticFormulaRepository::getByType( ElasticFormula::ElasticType tp,
+					    TypeSet<ElasticFormula>& efs ) const
 {
-    addFormula( "AI", "AI/Velocity", ElasticFormula::Den ); 
+    for ( int idx=0; idx<formulas_.size(); idx++ )
+    {
+	if ( formulas_[idx].type() == tp )
+	   efs += formulas_[idx]; 
+    }
+}
 
-    addFormula( "Sonic", "1/Sonic", ElasticFormula::PVel );
-    addFormula( "AI", "AI/Density" , ElasticFormula::PVel);
-    addFormula( "S-Wave", "sqrt( a*SWave^2 + b )", ElasticFormula::PVel);
 
-    addFormula( "Shear Sonic", "1/ShearSonic" , ElasticFormula::SVel);
-    addFormula( "P-Wave", "sqrt( a*PWave^2 + b )" , ElasticFormula::SVel);
+
+ElasticPropSelection::ElasticPropSelection( const char* nm )
+    : NamedObject(nm)
+{
+    const char** props = ElasticFormula::ElasticTypeNames();
+    for ( int idx=0; props[idx]; idx++ )
+    {
+	ElasticFormula::ElasticType tp;
+	ElasticFormula::parseEnumElasticType( props[idx], tp );
+	selectedformulas_ += ElasticFormula( "","", tp ); 
+    }
+}
+
+
+ElasticFormula& ElasticPropSelection::getFormula(ElasticFormula::ElasticType tp)
+{
+    for ( int idx=0; idx<selectedformulas_.size(); idx++ )
+    {
+	if ( selectedformulas_[idx].type() == tp )
+	    return selectedformulas_[idx];
+    }
+    return selectedformulas_[0];
+}
+
+
+const ElasticFormula& ElasticPropSelection::getFormula( 
+					ElasticFormula::ElasticType tp ) const
+{
+    for ( int idx=0; idx<selectedformulas_.size(); idx++ )
+    {
+	if ( selectedformulas_[idx].type() == tp )
+	return selectedformulas_[idx];
+    }
+    return selectedformulas_[0];
+}
+
+
+
+bool ElasticPropSelection::isValidInput() const
+{
+    bool isvalid = true;
+    for ( int idx=0; idx<selectedformulas_.size(); idx++ )
+    {
+	//TODO support SWave 
+	if ( selectedformulas_[idx].type() == ElasticFormula::SVel )
+	    continue;
+
+	if ( selectedformulas_[idx].variables().isEmpty() )
+	    isvalid = false;
+    }
+    return isvalid;
 }
 
 
@@ -152,69 +231,42 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& pps,
 				    ElasticPropSelection& sel )
     : elasticprops_(sel)
 {
-    guessDen( pps );
-    guessPVel( pps ); 
-    guessSVel( pps );
+    const char** props = ElasticFormula::ElasticTypeNames();
+    for ( int idx=0; props[idx]; idx++ )
+    {
+	ElasticFormula::ElasticType tp;
+	ElasticFormula::parseEnumElasticType( props[idx], tp );
+	guessQuantity( pps, tp );
+    }
 }
 
 
-bool ElasticPropGuess::guessDen( const PropertyRefSelection& pps )
+void ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps, 
+					ElasticFormula::ElasticType tp )
 {
-    ElasticFormulaPropSel& inpdata = elasticprops_.denformula_;
-    if ( !inpdata.selidxs_.isEmpty() )
-       return true;
+    ElasticFormula& fm = elasticprops_.getFormula( tp );
+    if ( !fm.variables().isEmpty() )
+	return;
 
-    const int denidx = guessQuantity( pps, PropertyRef::Den );
-    if ( denidx >= 0 ) 
-	inpdata.selidxs_ += denidx;
-
-    //TODO search best formula by name from the repos when not found
-
-    return !inpdata.selidxs_.isEmpty();
-}
-
-
-bool ElasticPropGuess::guessPVel( const PropertyRefSelection& pps )
-{
-    ElasticFormulaPropSel& inpdata = elasticprops_.pvelformula_;
-    if ( !inpdata.selidxs_.isEmpty() )
-       return true;
-
-    const int pvelidx = guessQuantity( pps, PropertyRef::Vel );
-    if ( pvelidx >= 0 ) 
-	inpdata.selidxs_ += pvelidx;
-
-    //TODO search best formula by name
-
-    return !inpdata.selidxs_.isEmpty();
-}
-
-
-bool ElasticPropGuess::guessSVel( const PropertyRefSelection& pps )
-{
-    ElasticFormulaPropSel& inpdata = elasticprops_.svelformula_;
-    if ( !inpdata.selidxs_.isEmpty() )
-       return true;
-
-    const int svelidx = guessQuantity( pps, PropertyRef::Vel );
-    if ( svelidx >= 0 ) 
-	inpdata.selidxs_ += svelidx;
-
-    //TODO search best formula by name
-
-    return !inpdata.selidxs_.isEmpty();
-}
-
-
-int ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps,
-					 const PropertyRef::StdType& stdtype )
-{
     for ( int idx=0; idx<pps.size(); idx++ )
     {
-	if ( pps[idx]->stdType() == stdtype )
-	    return idx;
+	if ( pps[idx]->stdType() == elasticToStdType( tp ) )
+	    { fm.variables().add( pps[idx]->name() ); break; }
+
+	//TODO search best formula by name from the repos when not found
     }
-    return -1;
+}
+
+
+PropertyRef::StdType ElasticPropGuess::elasticToStdType( 
+					ElasticFormula::ElasticType tp ) const
+{
+    if ( tp == ElasticFormula::PVel || tp == ElasticFormula::SVel )
+	return PropertyRef::Vel;
+    if ( tp == ElasticFormula::Den )
+	return PropertyRef::Den;
+
+    return PropertyRef::Other;
 }
 
 
@@ -223,54 +275,165 @@ int ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps,
 
 void ElasticPropGen::fill( AILayer& el, const float* vals, int sz )
 {
-    el.den_ = getDen( vals, sz );
-    el.vel_ = getPVel( vals, sz );
+    el.den_ = setVal( elasticprops_.getFormula(ElasticFormula::Den), vals, sz );
+    el.vel_ = setVal( elasticprops_.getFormula(ElasticFormula::PVel), vals, sz);
 }
 
 
 void ElasticPropGen::fill( ElasticLayer& el, const float* vals, int sz )
 {
-    el.den_ = getDen( vals, sz );
-    el.vel_ = getPVel( vals, sz );
-    el.svel_ = getSVel( vals, sz );
+    el.den_ = setVal( elasticprops_.getFormula(ElasticFormula::Den), vals, sz);
+    el.vel_ = setVal( elasticprops_.getFormula(ElasticFormula::PVel), vals, sz);
+    el.svel_ = setVal(elasticprops_.getFormula(ElasticFormula::SVel), vals, sz);
 }
 
 
-float ElasticPropGen::getDen( const float* vals, int sz )
+float ElasticPropGen::setVal(const ElasticFormula& ef,const float* vals,int sz)
 {
-    return getVal( elasticprops_.denformula_, vals, sz );
-}
+    const BufferStringSet& selvars = ef.variables();
+    if ( selvars.isEmpty() )
+	return mUdf( float );
 
-
-float ElasticPropGen::getPVel( const float* vals, int sz )
-{
-    return getVal( elasticprops_.pvelformula_, vals, sz );
-}
-
-
-float ElasticPropGen::getSVel( const float* vals, int sz )  
-{
-    return getVal( elasticprops_.svelformula_, vals, sz );
-}
-
-
-float ElasticPropGen::getVal( const ElasticFormulaPropSel& efps, 
-				const float* vals, int sz )
-{
-    const TypeSet<int>& selidxs = efps.selidxs_;
-    const bool hasexpr = efps.formula_.expression();
-    if ( hasexpr ) 
+    MathExpression* expr = 0;
+    if ( ef.expression() )
     {
-	MathExpressionParser mep( efps.formula_.expression() );
-	MathExpression* expr = mep.parse();
-	if ( expr ) 
+	MathExpressionParser mep( ef.expression() ); expr = mep.parse();
+    }
+
+    float val = mUdf(float);
+    for ( int idx=0; idx<selvars.size(); idx++ )
+    {
+	const char* var = ef.parseVariable( idx, val );
+
+	if ( refprops_.isPresent( var ) )
+	    val = vals[refprops_.indexOf(var)];
+
+	if ( !expr ) 
+	    break;
+
+	expr->setVariableValue( idx, val );
+    }
+    return expr ? expr->getValue() : val;
+}
+
+
+
+
+
+ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
+{
+    if ( !ioobj ) return 0;
+    ElasticPropSelectionTranslator* tr = 
+		(ElasticPropSelectionTranslator*)ioobj->getTranslator();
+
+    if ( !tr ) return 0;
+    ElasticPropSelection* newelprop = 0;
+
+    Conn* connptr = ioobj->getConn( Conn::Read );
+    if ( connptr && !connptr->bad() )
+    {
+	newelprop = new ElasticPropSelection;
+	if ( !tr->read( newelprop, *connptr ) )
 	{
-	    for ( int idx=0; idx<selidxs.size(); idx++ )
-		expr->setVariableValue( idx, vals[selidxs[idx]] );
-	    return expr->getValue();
+	    ErrMsg( "Problem reading ElasticPropSelection from file" );
+	    delete newelprop;
+	    newelprop = 0;
 	}
     }
-    return selidxs.size() ? vals[selidxs[0]] : mUdf( float );
+    else
+	ErrMsg( "Cannot open ElasticPropSelection file" );
+
+    delete connptr; delete tr;
+    return newelprop;
+}
+
+
+bool ElasticPropSelection::put( const IOObj* ioobj ) const
+{
+    if ( !ioobj ) return false;
+    ElasticPropSelectionTranslator* tr = 
+		(ElasticPropSelectionTranslator*)ioobj->getTranslator();
+    if ( !tr ) return false;
+    bool retval = false;
+
+    Conn* connptr = ioobj->getConn( Conn::Write );
+    if ( connptr && !connptr->bad() )
+    {
+	if ( tr->write( this, *connptr ) )
+	    retval = true;
+	else
+	    ErrMsg( "Cannot write ElasticPropSelection" );
+    }
+    else
+	ErrMsg( "Cannot open ElasticPropSelection file for write" );
+
+    delete connptr; delete tr;
+    return retval;
+}
+
+
+
+int ElasticPropSelectionTranslatorGroup::selector( const char* key )
+{
+    int retval = defaultSelector( theInst().userName(), key );
+    if ( retval ) return retval;
+
+    if ( defaultSelector("ElasticPropSelection directory",key)
+	|| defaultSelector("Seismic directory",key) ) return 1;
+    return 0;
+}
+
+mDefSimpleTranslatorioContext(ElasticPropSelection,Seis)
+
+
+bool ElasticPropSelectionTranslator::read( ElasticPropSelection* eps, 
+						Conn& conn)
+{
+    if ( !conn.forRead() || !conn.isStream() )  return false;
+
+    ascistream astream( ((StreamConn&)conn).iStream() );
+    if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
+	return false;
+
+    while ( !atEndOfSection( astream.next() ) )
+    {
+	IOPar iop; iop.getFrom( astream );
+	/*
+	eps->denformula_.usePar( iop ); 
+	eps->pvelformula_.usePar( iop );
+	eps->svelformula_.usePar( iop );
+	if ( astream.hasKeyword( sLength ) )
+	else if ( astream.hasKeyword( sIndex ) )
+	else if ( astream.hasKeyword(sKey::Name) )
+	else if ( astream.hasKeyword( sSampRate ) )
+	*/
+    }
+    return astream.stream().good();
+}
+
+
+
+bool ElasticPropSelectionTranslator::write( const ElasticPropSelection* eps, 
+						Conn& conn )
+{
+    if ( !conn.forWrite() || !conn.isStream() ) return false;
+
+    ascostream astream( ((StreamConn&)conn).oStream() );
+    const BufferString head( mTranslGroupName(ElasticPropSelection), " file" );
+    if ( !astream.putHeader( head ) ) return false;
+
+    /*
+    if ( *(const char*)eps->name() ) astream.put( sKey::Name, eps->name() );
+    IOPar iop; 
+    eps->denformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
+    astream.newParagraph();
+    eps->pvelformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
+    astream.newParagraph();
+    eps->svelformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
+    astream.newParagraph();
+    */
+
+    return astream.stream().good();
 }
 
 

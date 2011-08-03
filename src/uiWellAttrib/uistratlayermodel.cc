@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.28 2011-08-01 15:41:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.29 2011-08-03 15:17:51 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -225,7 +225,6 @@ void uiStratLayerModel::selElasticPropsCB( CallBacker* )
     uiElasticPropSelDlg dlg(this, modl_.propertyRefs(), modl_.elasticPropSel());
     if ( dlg.go() )
     {
-	seqdisp_->desc().setElasticPropSelection( modl_.elasticPropSel() );
 	synthdisp_->modelChanged();
     }
 }
@@ -297,7 +296,6 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->setNeedSave( false );
     seqdisp_->descHasChanged();
     modl_.setEmpty();
-    modl_.elasticPropSel() = seqdisp_->desc().elasticPropSel();
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     return true;
@@ -320,8 +318,6 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     if ( !modl_.elasticPropSel().isValidInput() )
 	selElasticPropsCB(0);
     
-    seqdisp_->desc().setElasticPropSelection( modl_.elasticPropSel() );
-
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     levelChg( cb );

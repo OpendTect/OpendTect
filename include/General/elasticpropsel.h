@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.5 2011-08-01 15:41:04 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.6 2011-08-03 15:17:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,130 +15,72 @@ ________________________________________________________________________
 /*! brief assigns values to an elastic layer depending on user defined parameters !*/
 
 #include "ailayer.h"
-#include "enums.h"
+#include "elasticprop.h"
 #include "propertyref.h"
+#include "transl.h"
 
+class IOObj;
 
-static const char* sKeyElasticPropSel = "Elastic Properties selection";
-
-mStruct ElasticFormula : public NamedObject
+mClass ElasticPropSelection : public NamedObject
 {
 public:
-    enum ElasticType 	{ Den, PVel, SVel };
-    			DeclareEnumUtils(ElasticType)
+				ElasticPropSelection(const char* nm=0);
 
-    			ElasticFormula(const char* nm,const char* expr,
-					ElasticType tp)
-				: NamedObject( nm ) 
-				, expression_(expr ? expr : "")
-				, type_(tp)
-				{}
+    ElasticFormula&		getFormula(ElasticFormula::ElasticType);
+    const ElasticFormula&	getFormula(ElasticFormula::ElasticType) const;
 
-			ElasticFormula( const ElasticFormula& fm )
-			{ *this = fm; }
-
-
-    ElasticFormula&	operator =(const ElasticFormula&);
-    inline bool 	operator ==( const ElasticFormula& pr ) const
-			{ return name() == pr.name(); }
-    inline bool         operator !=( const ElasticFormula& pr ) const
-			{ return name() != pr.name(); }
-
-
-    void		setExpression( const char* expr) 
-    { expression_ = expr ? expr : ""; }
-    const char*		expression() const 
-    { return expression_.isEmpty() ? 0 : expression_.buf();}
-
-    inline ElasticType 	type() const 			{ return type_; }
-    inline bool        	hasType( ElasticType t ) const 	{ return type_ == t;}
-
-    static const char*	type2Char(ElasticType tp);
-    static ElasticType		char2Type(const char* tptxt);
-
-protected:
-    BufferString 	expression_; 
-    ElasticType		type_;
-};
-
-
-
-mStruct ElasticFormulaPropSel 
-{
-			ElasticFormulaPropSel(const char* nm, const char* expr,
-			       			ElasticFormula::ElasticType tp )
-			    : formula_(nm,expr,tp) {} 
-
-			ElasticFormulaPropSel( const ElasticFormula& fm )
-			    : formula_(fm) {} 
-
-    TypeSet<int> 	selidxs_; //index of selected variables, -1 is constant
-    TypeSet<float> 	ctes_; 	  //values of constants
-
-    const char* 	subjectName() const;
-
-    virtual void 	fillPar(IOPar&) const;
-    virtual void 	usePar(const IOPar&);
-
-    ElasticFormula	formula_;
-};
-
-
-mClass ElasticFormulaRepository 
-{
-public:
-    void			addFormula(const ElasticFormula&); 
-    void			addFormula(const char* nm, const char* expr,
-					    ElasticFormula::ElasticType);
-
-    const TypeSet<ElasticFormula>& denFormulas() const { return denformulas_; }
-    const TypeSet<ElasticFormula>& pvelFormulas() const { return pvelformulas_;}
-    const TypeSet<ElasticFormula>& svelFormulas() const { return svelformulas_;}
-
-    void			clear() 
-				{ 
-				    denformulas_.erase(); 
-				    pvelformulas_.erase();
-				    svelformulas_.erase();
-				}
-protected:
-    				ElasticFormulaRepository()
-				{ 
-				    fillPreDefFormulas(); 
-				}
-
-    void			fillPreDefFormulas();
-
-    TypeSet<ElasticFormula> 	denformulas_;
-    TypeSet<ElasticFormula> 	pvelformulas_;
-    TypeSet<ElasticFormula> 	svelformulas_;
-
-    static ElasticFormulaRepository* elasticrepos_;
-    mGlobal friend ElasticFormulaRepository& elasticFormulas();
-};
-
-mGlobal ElasticFormulaRepository& elasticFormulas();
-
-
-
-mClass ElasticPropSelection
-{
-public:
-				ElasticPropSelection()
-				    : denformula_("","",ElasticFormula::Den)
-				    , pvelformula_("","",ElasticFormula::PVel)
-				    , svelformula_("","",ElasticFormula::SVel)
-				    {}
-
-    ElasticFormulaPropSel	denformula_;
-    ElasticFormulaPropSel	pvelformula_;
-    ElasticFormulaPropSel 	svelformula_;
+    static ElasticPropSelection* get(const IOObj*);
+    bool                	put(const IOObj*) const;
 
     bool			isValidInput() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
+
+protected :
+    TypeSet<ElasticFormula> 	selectedformulas_;
 };
+
+
+
+mClass ElasticPropSelectionTranslatorGroup : public TranslatorGroup
+{                			isTranslatorGroup(ElasticPropSelection)
+public:
+		    mDefEmptyTranslatorGroupConstructor(ElasticPropSelection)
+
+    const char*          defExtension() const           { return "elastic"; }
+};
+
+
+
+mClass ElasticPropSelectionTranslator : public Translator
+{
+public:
+			mDefEmptyTranslatorBaseConstructor(ElasticPropSelection)
+
+    bool 		read(ElasticPropSelection*,Conn&);
+    bool 		write(const ElasticPropSelection*,Conn&);
+};
+
+
+mClass ElasticPropGen
+{
+public:
+    			ElasticPropGen(const ElasticPropSelection& eps,
+					const PropertyRefSelection& rps)
+			    : elasticprops_(eps), refprops_(rps) {}
+
+    void		fill(AILayer&,const float* proprefvals,int sz);
+    void		fill(ElasticLayer&,const float* proprefvals,int sz);
+protected:
+
+    const ElasticPropSelection& elasticprops_;
+    const PropertyRefSelection& refprops_;
+
+    float		setVal(const ElasticFormula& ef,
+	    			const float* proprefvals,int proprefsz); 
+};
+
 
 
 mClass ElasticPropGuess
@@ -147,36 +89,14 @@ public:
     			ElasticPropGuess(const PropertyRefSelection&,
 						ElasticPropSelection&);
 protected:
-    bool 		guessInputFromProps(const PropertyRefSelection&);
-    bool		guessDen(const PropertyRefSelection& pps);
-    bool		guessPVel(const PropertyRefSelection& pps);
-    bool		guessSVel(const PropertyRefSelection& pps);
-    int			guessQuantity(const PropertyRefSelection&,
-				     const PropertyRef::StdType&);
+    void		guessQuantity(const PropertyRefSelection&,
+				    ElasticFormula::ElasticType);
+
+    PropertyRef::StdType elasticToStdType(ElasticFormula::ElasticType) const;
 
     ElasticPropSelection& elasticprops_; 
 };
 
-
-mClass ElasticPropGen
-{
-public:
-    			ElasticPropGen(const ElasticPropSelection& eps)
-			    : elasticprops_(eps) {}
-
-    void		fill(AILayer&,const float* vals,int sz);
-    void		fill(ElasticLayer&,const float* vals,int sz);
-
-protected:
-
-    const ElasticPropSelection& elasticprops_;
-
-    float		getPVel(const float* vals,int valsz);
-    float		getSVel(const float* vals,int valsz);
-    float		getDen(const float* vals,int valsz);
-
-    float		getVal(const ElasticFormulaPropSel&,const float*,int); 
-};
 
 #endif
 

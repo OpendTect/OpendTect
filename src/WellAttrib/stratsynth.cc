@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.5 2011-08-03 15:17:51 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.4 2011-07-29 14:38:58 cvsbrun
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
-    , propgen_(*new ElasticPropGen(lm.elasticPropSel())) 
+    , propgen_(*new ElasticPropGen(lm.elasticPropSel(),lm.propertyRefs())) 
 {}
 
 

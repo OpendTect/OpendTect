@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.27 2011-08-01 15:41:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.28 2011-08-03 15:17:51 cvsbruno Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -122,20 +122,12 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	const bool iselasticprops = astrm.hasKeyword(sKeyElasticPropSel);
 	IOPar iop; iop.getFrom(astrm);
 	if ( iop.isEmpty() ) 
 	    continue;
-	if ( iselasticprops )
-	{
-	    elasticpropsel_.usePar( iop );
-	}
-	else
-	{
-	    LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
-	    if ( lg )
-		*this += lg;
-	}
+	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
+	if ( lg )
+	    *this += lg;
     }
 
     propsel_.erase();
@@ -160,9 +152,6 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	IOPar iop; (*this)[idx]->fillPar(iop);
 	iop.putTo( astrm );
     }
-    astrm.put( sKeyElasticPropSel );
-    IOPar iop; elasticpropsel_.fillPar( iop );
-    iop.putTo( astrm );
 
     return true;
 }
@@ -174,13 +163,6 @@ void Strat::LayerSequenceGenDesc::setPropSelection(
     propsel_ = prsel;
     for ( int idx=0; idx<size(); idx++ )
 	(*this)[idx]->syncProps( propsel_ );
-}
-
-
-void Strat::LayerSequenceGenDesc::setElasticPropSelection(
-				    const ElasticPropSelection& prsel )
-{
-    elasticpropsel_ = prsel;
 }
 
 
