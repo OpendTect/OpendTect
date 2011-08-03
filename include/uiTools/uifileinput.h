@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.32 2010-04-15 15:42:37 cvsjaap Exp $
+ RCS:           $Id: uifileinput.h,v 1.33 2011-08-03 09:26:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir(const char*);
+    const char*		defaultSelectionDir() const	   { return defseldir_;}
     void		setFilter( const char* fltr )	   { filter_ = fltr; }
     const char*		selectedFilter() const		   { return selfltr_; }
     void		setSelectedFilter( const char* f ) { selfltr_ = f; }
