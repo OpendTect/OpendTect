@@ -2,6 +2,21 @@ dTect V4.3
 Properties
 Tue Jul 19 16:08:14 2011
 !
+Density: Density
+Aliases: Den`Rho`RhoB`RhoZ
+Color: 0`0`200
+Range: 2.2`2.8`g/cc
+!
+P-wave velocity: Velocity
+Aliases: PVel`Vel`P-Vel`V
+Color: 0`200`0
+Range: 1500`4500`m/s
+!
+S-wave velocity: Velocity
+Aliases: SVel`S-Vel
+Color: 0`255`0
+Range: 500`2000`m/s
+!
 Porosity: Volumetrics
 Aliases: Phi`Por`Phie`PIGN
 Color: 200`200`0
@@ -27,21 +42,6 @@ Pressure: Pressure
 Aliases: Pres`P
 Color: 0`0`255
 Range: 0`200`bar
-!
-Density: Density
-Aliases: Den`Rho`RhoB`RhoZ
-Color: 0`0`200
-Range: 2.2`2.8`g/cc
-!
-P-wave velocity: Velocity
-Aliases: PVel`Vel`P-Vel`V
-Color: 0`200`0
-Range: 1500`4500`m/s
-!
-S-wave velocity: Velocity
-Aliases: SVel`S-Vel
-Color: 0`255`0
-Range: 500`2000`m/s
 !
 Sonic: Sonic travel time
 Aliases: DT
