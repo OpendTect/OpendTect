@@ -43,6 +43,8 @@ public:
 
     const char* 		errMsg() const;
 
+    od_int64    		totalNr() const { return nrdone_; };
+
 protected:
 
     const Well::D2TModel*	d2t_;
@@ -55,6 +57,8 @@ protected:
     ObjectSet<LogCubeData>	logdatas_;
 
     od_int64                    nrIterations() const { return logdatas_.size();}
+    od_int64            	nrdone_;
+    
     bool			doPrepare(int);
     bool 			doWork(od_int64,od_int64,int);
 

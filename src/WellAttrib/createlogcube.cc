@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.4 2011-07-25 15:09:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.5 2011-08-03 14:07:51 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -88,6 +88,7 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( !writeLog2Cube( *logdatas_[idx] ) )
 	    { errmsg_ = "One or several logs could not be written"; }
+
 	addToNrDone( 1 );
     }
     return true;
