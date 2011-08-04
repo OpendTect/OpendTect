@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.43 2011-06-24 13:34:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.44 2011-08-04 14:04:15 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -867,7 +867,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
     }
 
-    mMkDefFld( grp, offs, Offs, true, true, true );
+    mMkDefFld( grp, offs, Offs, true, false, true );
     if ( psposfld_ ) offsdeffld_->attach( alignedBelow, psposfld_ );
     mMkDefFld( grp, azim, Azim, true, true, false );
     azimdeffld_->attach( alignedBelow, offsdeffld_ );
