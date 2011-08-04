@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.5 2011-03-30 14:31:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.6 2011-08-04 06:43:12 cvskris Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -77,7 +77,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     mirroredgesfld_->attach( alignedBelow, weightedfld_ );
 
     const char* udfhanlingstrs[] =
-	{ "Average", "Fixed value", "Interpoate", 0 };
+	{ "Average", "Fixed value", "Interpolate", 0 };
     udfhandling_ = new uiGenInput( this, "Undefined substitution",
 	    StringListInpSpec( udfhanlingstrs ) );
     udfhandling_->attach( alignedBelow, mirroredgesfld_ );
