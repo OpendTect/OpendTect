@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.8 2011-08-01 10:15:15 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.9 2011-08-04 08:24:31 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 
+const char* SqlDB::MantisDBMgr::sKeyAll()
+{ return "All"; }
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTable()
 { return "mantis_bugnote_table"; }
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTextTable()
@@ -208,7 +210,6 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
 	return false;
 
     developers_.erase();
-    developers_.add( "All" );
     while ( query().next() )
 	developers_.add( query().data(0) );
 
@@ -223,8 +224,6 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
 
     usernames_.erase();
     userids_.erase();
-    usernames_.add( "All" );
-    userids_.add( 9999 );
     while ( query().next() )
     {
 	usernames_.add( query().data(0) );
@@ -265,17 +264,18 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
 				      TypeSet<int>& bugsassigned )
 {
+    bugsindex_.erase();
     if ( !usernm ) return false;
 
-    int usridx = userNames().indexOf( usernm );
-    if ( !userIDs().validIdx( usridx ) )
+    const int usridx = userNames().indexOf( usernm );
+    const bool isall = caseInsensitiveEqual( usernm, sKeyAll() );
+    if ( !userIDs().validIdx( usridx ) && !isall )
     {
 	UsrMsg( BufferString("User ",usernm," does not exist in Mantis") );
 	return false;
     }
 
-    const int usrid = userIDs()[usridx];
-    bugsindex_.erase();
+    const int usrid = isall ? -1 : userIDs()[usridx];
     const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
@@ -283,7 +283,7 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
 	if ( !bugtable )
 	    continue;
 	
-	if ( usrid == 9999 )
+	if ( usrid < 0  )
 	    bugsindex_.add( idx );
 	else if ( usrid == bugtable->handlerid_ )
 	    bugsindex_.add( idx );
