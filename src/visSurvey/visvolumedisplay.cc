@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.127 2011-04-28 07:00:13 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.128 2011-08-04 09:58:37 cvskarthika Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -1110,13 +1110,7 @@ void VolumeDisplay::turnOn( bool yn )
 {
     onoffstatus_ = yn;
     
-    const int nrslices = slices_.size();
-    for ( int idx=0; idx<nrslices; idx++ )
-	slices_[idx]->turnOn( slices_[idx]->isOn() );
-	
-    showVolRen( isVolRenShown() );
-	
-    VisualObjectImpl::turnOn( isAttribEnabled( 0 ) );
+    VisualObjectImpl::turnOn( isAttribEnabled( 0 ) && yn );
 }
 
 
