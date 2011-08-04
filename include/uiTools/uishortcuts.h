@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.7 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uishortcuts.h,v 1.8 2011-08-04 16:36:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiComboBox;
 class uiShortcutsList;
+class uiLabeledSpinBox;
 
 /*! \brief: setup a dialog where the user can select which key will be used as 
   shortcuts.
@@ -34,6 +35,7 @@ protected:
 
     ObjectSet<uiComboBox> stateboxes_;
     ObjectSet<uiComboBox> keyboxes_;
+    ObjectSet<uiLabeledSpinBox> lblspinboxes_;
     uiShortcutsList&	scl_;
 };
 

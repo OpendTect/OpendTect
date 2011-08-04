@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.14 2011-05-05 07:26:12 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.15 2011-08-04 16:36:02 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ protected:
     void		updatePositionDlg(CallBacker*);
     void		posDlgClosed(CallBacker*);
     void		keyPressCB(CallBacker*);
-    void		movePlane(bool forward);
+    void		movePlane(bool forward,int step=1);
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);

@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcuts.cc,v 1.14 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uishortcuts.cc,v 1.15 2011-08-04 16:36:02 cvshelene Exp $";
 
 
 #include "uishortcuts.h"
 #include "uishortcutsmgr.h"
 #include "uicombobox.h"
+#include "uilabel.h"
+#include "uispinbox.h"
 
 
 static const char* sSupportedStates[] =
@@ -26,12 +28,12 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
     uiLabeledComboBox* prevlcbox = 0;
     for ( int idx=0; idx<scl_.names().size(); idx++ )
     {
-	const uiKeyDesc& kd = scl_.keyDescs()[idx];
+	const uiKeyDesc* kd = scl_.keyDescs()[idx];
 	const BufferString& nm = scl_.names().get( idx );
 
 	uiLabeledComboBox* lcbox
 	    	= new uiLabeledComboBox( this, sSupportedStates, nm );
-	lcbox->box()->setCurrentItem( kd.stateStr() );
+	lcbox->box()->setCurrentItem( kd->stateStr() );
 	stateboxes_ += lcbox->box();
 	if ( prevlcbox )
 	    lcbox->attach( alignedBelow, prevlcbox );
@@ -39,9 +41,22 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 
 	uiComboBox* box = new uiComboBox( this, uiKeyDesc::sKeyKeyStrs(),
 					  BufferString("Keys",idx).buf() );
-	box->setCurrentItem( kd.keyStr() );
+	box->setCurrentItem( kd->keyStr() );
 	keyboxes_ += box;
 	box->attach( rightOf, lcbox );
+
+	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(kd);
+	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
+	if ( eikd )
+	{
+	    uiLabeledSpinBox* lsb = new uiLabeledSpinBox(this,eikd->getLabel());
+	    lsb->box()->setMinValue( 1 );
+	    lsb->box()->setValue( eikd->getIntValue() );
+	    lblspinboxes_ += lsb;
+	    lsb->attach( rightOf, box );
+	}
+	else
+	    lblspinboxes_ += 0;
     }
 }
 
@@ -59,7 +74,16 @@ bool uiShortcutsDlg::acceptOK( CallBacker* )
     {
 	uiComboBox* statecb = stateboxes_[idx];
 	uiComboBox* keycb = keyboxes_[idx];
-	scl_.keyDescs() += uiKeyDesc( statecb->text(), keycb->text() );
+	if ( lblspinboxes_[idx] )
+	{
+	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statecb->text(),
+		    			keycb->text(),
+					lblspinboxes_[idx]->box()->getValue() );
+	    uieikd->setIntLabel( lblspinboxes_[idx]->label()->text() );
+	    scl_.keyDescs() += uieikd;
+	}
+	else
+	    scl_.keyDescs() += new uiKeyDesc( statecb->text(), keycb->text() );
     }
 
     SCMgr().setList( scl_ );

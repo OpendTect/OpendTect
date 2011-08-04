@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.46 2011-05-05 07:26:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.47 2011-08-04 16:36:02 cvshelene Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -339,18 +339,19 @@ void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
     const bool bwd = fwd ? false : act == "Move slice backward";
     if ( !fwd && !bwd ) return;
 
+    int step = scl.valueOf(caps->data);
     caps->data.setKey( 0 );
-    movePlane( fwd );
+    movePlane( fwd, step );
 }
 
 
-void uiODPlaneDataTreeItem::movePlane( bool forward )
+void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
 
     CubeSampling cs = pdd->getCubeSampling();
-    const int dir = forward ? 1 : -1;
+    const int dir = forward ? step : -step;
 
     if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.9 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.10 2011-08-04 16:36:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,9 @@ public:
     
     OD::ButtonState	state() const 		{ return state_; }
     void		setState( OD::ButtonState bs )	{ state_ = bs; }
-    int			key() const 		{ return key_; }
+
+    //virtual: just to have the base class be polymorphic, allows dynamic cast
+    virtual int		key() const 		{ return key_; }
     void		setKey( int k )		{ key_ = k; }
     char 		asciiChar() const;
     bool		isSimpleAscii() const;
@@ -68,12 +70,13 @@ public:
 
     void		fillPar(IOPar&) const;
     
-    TypeSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }	
-    const TypeSet<uiKeyDesc>& keyDescs() const { return keydescs_; }	
+    ObjectSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }	
+    const ObjectSet<uiKeyDesc>& keyDescs() const { return keydescs_; }	
     BufferStringSet& 	names()			{ return names_; }
     const BufferStringSet&  names() const	{ return names_; }
-    uiKeyDesc		keyDescOf(const char*) const;
+    const uiKeyDesc*	keyDescOf(const char*) const;
     const char*		nameOf(const uiKeyDesc&) const;
+    int			valueOf(const uiKeyDesc&) const;
 
     void		empty();
 
@@ -82,13 +85,15 @@ protected:
     friend class	uiShortcutsMgr;
     			uiShortcutsList(const char* selkey);
 
-    BufferString	selkey_;
-    TypeSet<uiKeyDesc>	keydescs_;
-    BufferStringSet	names_;
+    BufferString		selkey_;
+    ObjectSet<uiKeyDesc>	keydescs_;
+    BufferStringSet		names_;
 
     bool		getKeyValues(const IOPar&,int,
 	    			     BufferString&,BufferString&) const;
     bool		getSCNames(const IOPar&,int,BufferString&) const;
+    bool		getSCProperties(const IOPar&,int,
+	    				BufferString&,int&) const;
 };
 
 
@@ -109,6 +114,31 @@ protected:
     IOPar*		getStored(const char*);
     bool		putStored(const char*,const IOPar&);
 
+};
+
+
+mClass uiExtraIntKeyDesc : public uiKeyDesc
+{
+public:			
+			uiExtraIntKeyDesc(const char* statestr=0,
+					  const char* keystr=0,
+					  int val=1);
+			uiExtraIntKeyDesc(const uiExtraIntKeyDesc&);
+			
+    bool		operator==(const uiExtraIntKeyDesc& ev) const
+			{ return key_==ev.key_ && state_==ev.state_;
+			         val_==ev.val_; }
+
+    bool		set(const char* statestr,const char* keystr,int val);
+    void		setIntLabel( const char* lbl )	{ extralbl_ = lbl; }
+
+    int			getIntValue() const	{ return val_; }
+    const char*		getLabel() const	{ return extralbl_.buf(); }
+
+protected:
+
+    int			val_;
+    BufferString	extralbl_;
 };
 
 #endif

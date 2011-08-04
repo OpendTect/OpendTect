@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.15 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.16 2011-08-04 16:36:02 cvshelene Exp $";
 
 
 #include "uishortcutsmgr.h"
@@ -165,7 +165,18 @@ uiShortcutsList::uiShortcutsList( const char* selkey )
 	    return;
 
 	names_.add( name );
-	keydescs_ += uiKeyDesc( val1, val2 );
+	BufferString proplbl;
+       	int propval;
+	if ( getSCProperties( *pars, index, proplbl, propval ) )
+	{
+	    uiExtraIntKeyDesc* uieikd =
+				new uiExtraIntKeyDesc( val1, val2, propval );
+	    uieikd->setIntLabel( proplbl.buf() );
+	    keydescs_ += uieikd;
+	}
+	else
+	    keydescs_ += new uiKeyDesc( val1, val2 );
+
 	index++;
     }
 }
@@ -176,15 +187,30 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
     if ( this == &scl ) return *this;
     empty();
     selkey_ = scl.selkey_;
-    keydescs_ = scl.keydescs_;
     names_ = scl.names_;
-    return *this;
+
+    //personalized deepCopy
+    if ( &keydescs_ == &scl.keydescs_ ) return *this;
+    deepErase( keydescs_ );
+    keydescs_.allowNull( scl.keydescs_.nullAllowed() );
+    const int sz = scl.keydescs_.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(scl.keydescs_[idx]);
+	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
+	if ( eikd )
+	    keydescs_ += new uiExtraIntKeyDesc( *eikd );
+	else
+	    keydescs_ += new uiKeyDesc( *nonconstkd );
+
+    }
+    return *this; 
 }
 
 
 void uiShortcutsList::empty()
 {
-    keydescs_.erase(); names_.erase();
+    deepErase(keydescs_); names_.erase();
 }
 
 
@@ -201,7 +227,14 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
 	BufferString basekey = IOPar::compKey(selkey_,idx);
 	iop.set( IOPar::compKey(basekey,sKey::Name), names_.get(idx) );
 	iop.set( IOPar::compKey(basekey,sKey::Keys),
-			keydescs_[idx].stateStr(), keydescs_[idx].keyStr() );
+			keydescs_[idx]->stateStr(), keydescs_[idx]->keyStr() );
+	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(keydescs_[idx]);
+	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
+	if ( eikd )
+	{
+	    iop.set( IOPar::compKey(basekey,sKey::Property), eikd->getLabel());
+	    iop.set( IOPar::compKey(basekey,sKey::Value), eikd->getIntValue() );
+	}
     }
 }
 
@@ -215,14 +248,24 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 }
 
 
-uiKeyDesc uiShortcutsList::keyDescOf( const char* nm ) const
+bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
+				       BufferString& proplbl,
+				       int& propval) const
+{                                                                               
+    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property );
+    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value );
+    return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );
+}
+
+
+const uiKeyDesc* uiShortcutsList::keyDescOf( const char* nm ) const
 {
     for ( int idx=0; idx<names_.size(); idx++ )
     {
-	if ( names_.get(idx) == nm )
+	if ( names_.get(idx) == nm && keydescs_[idx] )
 	    return keydescs_[idx];
     }
-    return uiKeyDesc(0,0);
+    return 0;
 }
 
 
@@ -230,10 +273,26 @@ const char* uiShortcutsList::nameOf( const uiKeyDesc& kd ) const
 {
     for ( int idx=0; idx<names_.size(); idx++ )
     {
-	if ( keydescs_[idx] == kd )
+	if ( keydescs_[idx] && *keydescs_[idx] == kd )
 	    return names_.get( idx );
     }
     return 0;
+}
+
+
+int uiShortcutsList::valueOf( const uiKeyDesc& kd ) const
+{
+    for ( int idx=0; idx<keydescs_.size(); idx++ )
+    {
+	if ( keydescs_[idx] && *keydescs_[idx] == kd )
+	{
+	    uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(keydescs_[idx]);
+	    mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
+	    return eikd ? eikd->getIntValue(): 1;
+	}
+    }
+
+    return 1;
 }
 
 
@@ -306,3 +365,28 @@ bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
     myscl = scl;
     return true;
 }
+
+
+
+uiExtraIntKeyDesc::uiExtraIntKeyDesc( const char* str1, const char* str2,
+				      int val )
+    : uiKeyDesc( str1, str2 )
+    , val_( val )
+{
+}
+
+
+uiExtraIntKeyDesc::uiExtraIntKeyDesc( const uiExtraIntKeyDesc& uieikd )
+    : uiKeyDesc( uieikd.stateStr(), uieikd.keyStr() )
+    , val_( uieikd.getIntValue() )
+{
+    setIntLabel( uieikd.getLabel() );
+}
+
+
+bool uiExtraIntKeyDesc::set( const char* statestr, const char* keystr, int val )
+{
+    val_ = val;
+    return uiKeyDesc::set( statestr, keystr );
+}
+
