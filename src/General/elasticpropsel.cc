@@ -8,17 +8,23 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.6 2011-08-03 15:17:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.7 2011-08-05 14:49:47 cvsbruno Exp $";
+
+
+#include "elasticpropsel.h"
+#include "elasticpropseltransl.h"
 
 #include "ascstream.h"
 #include "streamconn.h"
 #include "keystrs.h"
-#include "elasticpropsel.h"
 #include "file.h"
 #include "filepath.h"
 #include "math.h"
 #include "mathexpression.h"
 #include "strmprov.h"
+
+
+#define mFileType "Elastic Properties Selection"
 
 
 static const char* filenamebase 	= "ElasticFormulas";
@@ -28,10 +34,11 @@ static const char* sKeyMathExpr 	= "Mathetmatic Expression";
 static const char* sKeySelVars 		= "Selected properties";
 static const char* sKeyType 		= "Type";
 
+mDefSimpleTranslators(ElasticPropSelection,mFileType,od,Seis);
+
 DefineEnumNames(ElasticFormula,ElasticType,0,"Elastic Property")
 { "Density", "P-Wave", "S-Wave", 0 };
 
-defineTranslatorGroup(ElasticPropSelection,"Elastic Property Selection");
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 {
@@ -319,7 +326,6 @@ float ElasticPropGen::setVal(const ElasticFormula& ef,const float* vals,int sz)
 
 
 
-
 ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
@@ -327,24 +333,34 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 		(ElasticPropSelectionTranslator*)ioobj->getTranslator();
 
     if ( !tr ) return 0;
-    ElasticPropSelection* newelprop = 0;
+    ElasticPropSelection* eps = 0;
 
-    Conn* connptr = ioobj->getConn( Conn::Read );
-    if ( connptr && !connptr->bad() )
+    Conn* conn = ioobj->getConn( Conn::Read );
+    if ( conn && !conn->bad() )
     {
-	newelprop = new ElasticPropSelection;
-	if ( !tr->read( newelprop, *connptr ) )
+	eps = new ElasticPropSelection;
+	
+	if ( !conn->forRead() || !conn->isStream() )  return false;
+
+	ascistream astream( ((StreamConn&)(*conn)).iStream() );
+	if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
+	    return false;
+
+	while ( !atEndOfSection( astream.next() ) )
 	{
-	    ErrMsg( "Problem reading ElasticPropSelection from file" );
-	    delete newelprop;
-	    newelprop = 0;
+	    IOPar iop; iop.getFrom( astream );
+	    ElasticFormula::ElasticType tp; 
+	    ElasticFormula::parseEnumElasticType( iop.find( sKeyType ), tp );
+	    eps->getFormula( tp ).usePar( iop ); 
 	}
+	if ( !astream.stream().good() )
+	    ErrMsg( "Problem reading ElasticPropSelection from file" );
     }
     else
 	ErrMsg( "Cannot open ElasticPropSelection file" );
 
-    delete connptr; delete tr;
-    return newelprop;
+    delete conn; delete tr;
+    return eps;
 }
 
 
@@ -356,84 +372,32 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     if ( !tr ) return false;
     bool retval = false;
 
-    Conn* connptr = ioobj->getConn( Conn::Write );
-    if ( connptr && !connptr->bad() )
+    Conn* conn = ioobj->getConn( Conn::Write );
+    if ( conn && !conn->bad() )
     {
-	if ( tr->write( this, *connptr ) )
+	if ( !conn->forWrite() || !conn->isStream() ) return false;
+
+	ascostream astream( ((StreamConn&)(*conn)).oStream() );
+	const BufferString head( 
+			mTranslGroupName(ElasticPropSelection), " file" );
+	if ( !astream.putHeader( head ) ) return false;
+
+	IOPar iop; 
+	for ( int idx=0; idx<getFormulas().size(); idx++ )
+	{
+	    getFormulas()[idx].fillPar( iop ); 
+	    iop.putTo( astream ); iop.setEmpty();
+	}
+	if ( astream.stream().good() )
 	    retval = true;
 	else
-	    ErrMsg( "Cannot write ElasticPropSelection" );
+	    ErrMsg( "Cannot write Elastic property selection" );
     }
     else
-	ErrMsg( "Cannot open ElasticPropSelection file for write" );
+	ErrMsg( "Cannot open elastic property selection file for write" );
 
-    delete connptr; delete tr;
+    delete conn; delete tr;
     return retval;
-}
-
-
-
-int ElasticPropSelectionTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector("ElasticPropSelection directory",key)
-	|| defaultSelector("Seismic directory",key) ) return 1;
-    return 0;
-}
-
-mDefSimpleTranslatorioContext(ElasticPropSelection,Seis)
-
-
-bool ElasticPropSelectionTranslator::read( ElasticPropSelection* eps, 
-						Conn& conn)
-{
-    if ( !conn.forRead() || !conn.isStream() )  return false;
-
-    ascistream astream( ((StreamConn&)conn).iStream() );
-    if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
-	return false;
-
-    while ( !atEndOfSection( astream.next() ) )
-    {
-	IOPar iop; iop.getFrom( astream );
-	/*
-	eps->denformula_.usePar( iop ); 
-	eps->pvelformula_.usePar( iop );
-	eps->svelformula_.usePar( iop );
-	if ( astream.hasKeyword( sLength ) )
-	else if ( astream.hasKeyword( sIndex ) )
-	else if ( astream.hasKeyword(sKey::Name) )
-	else if ( astream.hasKeyword( sSampRate ) )
-	*/
-    }
-    return astream.stream().good();
-}
-
-
-
-bool ElasticPropSelectionTranslator::write( const ElasticPropSelection* eps, 
-						Conn& conn )
-{
-    if ( !conn.forWrite() || !conn.isStream() ) return false;
-
-    ascostream astream( ((StreamConn&)conn).oStream() );
-    const BufferString head( mTranslGroupName(ElasticPropSelection), " file" );
-    if ( !astream.putHeader( head ) ) return false;
-
-    /*
-    if ( *(const char*)eps->name() ) astream.put( sKey::Name, eps->name() );
-    IOPar iop; 
-    eps->denformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
-    astream.newParagraph();
-    eps->pvelformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
-    astream.newParagraph();
-    eps->svelformula_.fillPar( iop ); iop.putTo( astream ); iop.setEmpty();
-    astream.newParagraph();
-    */
-
-    return astream.stream().good();
 }
 
 

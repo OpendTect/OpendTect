@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.6 2011-08-03 15:17:51 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.7 2011-08-05 14:49:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "ailayer.h"
 #include "elasticprop.h"
 #include "propertyref.h"
-#include "transl.h"
 
 class IOObj;
 
@@ -37,30 +36,13 @@ public:
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
+    const TypeSet<ElasticFormula>& getFormulas() const 
+    				{ return selectedformulas_; }
+
 protected :
     TypeSet<ElasticFormula> 	selectedformulas_;
 };
 
-
-
-mClass ElasticPropSelectionTranslatorGroup : public TranslatorGroup
-{                			isTranslatorGroup(ElasticPropSelection)
-public:
-		    mDefEmptyTranslatorGroupConstructor(ElasticPropSelection)
-
-    const char*          defExtension() const           { return "elastic"; }
-};
-
-
-
-mClass ElasticPropSelectionTranslator : public Translator
-{
-public:
-			mDefEmptyTranslatorBaseConstructor(ElasticPropSelection)
-
-    bool 		read(ElasticPropSelection*,Conn&);
-    bool 		write(const ElasticPropSelection*,Conn&);
-};
 
 
 mClass ElasticPropGen
