@@ -7,19 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.19 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.20 2011-08-05 08:06:23 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
 
-#include "arrayndimpl.h"
 #include "ctxtioobj.h"
-#include "fourier.h"
 #include "ioobj.h"
 #include "iodirentry.h"
 #include "ioman.h"
-#include "interpol1d.h"
-#include "mathfunc.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletattrib.h"
@@ -30,7 +26,6 @@ static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.19 2010-08-11 16:55:33 cvs
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiwindowfuncseldlg.h"
-#include "uiworld2ui.h"
 
 
 uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su ) 
