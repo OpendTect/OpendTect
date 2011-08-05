@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.42 2011-06-27 05:35:39 cvsraman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.43 2011-08-05 09:05:57 cvsjaap Exp $";
 
 #include "flthortools.h"
 
@@ -663,30 +663,33 @@ bool FaultTraceExtractor::get2DFaultTrace()
     mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
     if ( !fss ) return false;
 
-    EM::SectionID fltsid = fault_->sectionID( 0 );
+    EM::SectionID sid = fault_->sectionID( 0 );
     S2DPOS().setCurLineSet( geomid_.lsid_ );
     PosInfo::Line2DData linegeom;
     if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom) )
 	return false;
 
-    const int nrsticks = fss->geometry().nrSticks( fltsid );
+    const int nrsticks = fss->geometry().nrSticks( sid );
     TypeSet<int> indices;
-    for ( int sticknr=0; sticknr<nrsticks; sticknr++ )
+    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {
-	PtrMan<IOObj> lsobj =
-	    IOM().get( *fss->geometry().lineSet(fltsid,sticknr) );
+	const Geometry::FaultStickSet* fltgeom =
+				fss->geometry().sectionGeometry( sid );
+	if ( !fltgeom ) continue;
+
+	const int sticknr = fltgeom->rowRange().atIndex( stickidx );
+	const MultiID* lsid = fss->geometry().lineSet( sid, sticknr );
+	if ( !lsid ) continue;
+
+	PtrMan<IOObj> lsobj = IOM().get( *lsid );
 	if ( !lsobj ) continue;
 
-	const char* linenm = fss->geometry().lineName( fltsid, sticknr );
+	const char* linenm = fss->geometry().lineName( sid, sticknr );
 	PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),linenm );
-	if ( !(geomid==geomid_) )
-	    continue;
+	if ( !(geomid==geomid_) ) continue;
 
-	const int nrknots = fss->geometry().nrKnots( fltsid, sticknr );
-	const Geometry::FaultStickSet* fltgeom =
-	    fss->geometry().sectionGeometry( fltsid );
-	if ( !fltgeom || nrknots < 2 )
-	    continue;
+	const int nrknots = fltgeom->nrKnots( sticknr );
+	if ( nrknots < 2 ) continue;
 
 	if ( !flttrc_ )
 	{
