@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.105 2011-06-07 09:33:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.106 2011-08-05 14:14:15 cvshelene Exp $";
 
 #include "uiseissel.h"
 
@@ -27,7 +27,9 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.105 2011-06-07 09:33:20 cvssat
 #include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
+#include "seisread.h"
 #include "seisselection.h"
+#include "seistrctr.h"
 #include "seistype.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -100,6 +102,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
     : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false)
     , attrfld_(0)
+    , compfld_(0)
     , attrlistfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
@@ -157,6 +160,17 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     entrySel(0);
     if ( attrlistfld_ && selgrp_->getCtxtIOObj().ctxt.forread )
 	attrNmSel(0);
+
+    if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
+    {
+	compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
+	if ( attrfld_ )
+	    compfld_->attach( rightTo, attrfld_ );
+	else
+	    compfld_->attach( alignedBelow, selgrp_ );
+
+	entrySel(0);
+    }
 }
 
 
@@ -164,30 +178,52 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 {
     // ioobj should already be filled by base class
     const IOObj* ioobj = ioObj();
-    if ( !ioobj || !attrfld_ )
+    if ( !ioobj || ( !attrfld_ && !compfld_ ) )
 	return;
 
-    SeisIOObjInfo oinf( *ioobj );
-    const bool is2d = oinf.is2D();
-    const bool isps = oinf.isPS();
-    attrfld_->display( is2d && !isps );
     IOObjContext ctxt = selgrp_->getCtxtIOObj().ctxt;
 
     BufferStringSet nms;
-    SeisIOObjInfo::Opts2D o2d;
-    o2d.steerpol_ = (int)steerpol_;
-    o2d.zdomky_ = zdomainkey_;
-    oinf.getAttribNames( nms, o2d );
+    if ( attrfld_ )
+    {
+	SeisIOObjInfo oinf( *ioobj );
+	const bool is2d = oinf.is2D();
+	const bool isps = oinf.isPS();
+	attrfld_->display( is2d && !isps );
+	SeisIOObjInfo::Opts2D o2d;
+	o2d.steerpol_ = (int)steerpol_;
+	o2d.zdomky_ = zdomainkey_;
+	oinf.getAttribNames( nms, o2d );
+    }
 
     if ( ctxt.forread )
     {
-	const int defidx = nms.indexOf( LineKey::sKeyDefAttrib() );
-	attrfld_->newSpec( StringListInpSpec(nms), 0 );
-	if ( defidx >= 0 )
-	    attrfld_->setValue( defidx );
+	if ( attrfld_ )
+	{
+	    const int defidx = nms.indexOf( LineKey::sKeyDefAttrib() );
+	    attrfld_->newSpec( StringListInpSpec(nms), 0 );
+	    if ( defidx >= 0 )
+		attrfld_->setValue( defidx );
+	}
+
+	if ( compfld_ )
+	{
+	    compfld_->box()->setCurrentItem(0);
+	    SeisTrcReader rdr( ioobj );
+	    if ( !rdr.prepareWork(Seis::PreScan) ) return;
+	    SeisTrcTranslator* transl = rdr.seisTranslator();
+	    if ( !transl ) return;
+	    BufferStringSet compnms;
+	    transl->getComponentNames( compnms );
+	    compfld_->box()->setEmpty();
+	    compfld_->box()->addItems( compnms );
+	    compfld_->display( transl->componentInfo().size()>1 );
+	}
     }
     else
     {
+	if ( !attrfld_ ) return;
+
 	const BufferString attrnm( attrfld_->text() );
         attrlistfld_->setEmpty();
 	attrlistfld_->addItems( nms ); 
@@ -217,18 +253,53 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
     if ( attrfld_ ) iopar.set( sKey::Attribute, attrfld_->text() );
+    if ( compfld_ )
+    {
+	BufferStringSet compnms;
+	getComponentNames( compnms );
+	const int compnr = compnms.indexOf( compfld_->box()->text() );
+	if ( compnr>=0 )
+	    iopar.set( sKey::Component, compnr );
+    }
 }
 
 
 void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
+
+    if ( attrfld_ || compfld_ )
+	entrySel(0);
+
     if ( attrfld_ )
     {
-	entrySel(0);
 	const char* selattrnm = iopar.find( sKey::Attribute );
 	if ( selattrnm ) attrfld_->setText( selattrnm );
     }
+    if ( compfld_ )
+    {
+	int selcompnr = mUdf(int);
+	if ( iopar.get( sKey::Component, selcompnr ) && !mIsUdf( selcompnr) )
+	{
+	    BufferStringSet compnms;
+	    getComponentNames( compnms );
+	    if ( selcompnr >= compnms.size() ) return;
+	    compfld_->box()->setText( compnms.get(selcompnr).buf() );
+	}
+    }
+}
+
+
+void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
+{
+    compnms.erase();
+    const IOObj* ioobj = ioObj();
+    if ( !ioobj ) return;
+    SeisTrcReader rdr( ioobj );                                         
+    if ( !rdr.prepareWork(Seis::PreScan) ) return;
+    SeisTrcTranslator* transl = rdr.seisTranslator();
+    if ( !transl ) return;                     
+    transl->getComponentNames( compnms );
 }
 
 
@@ -252,6 +323,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread))
     	, seissetup_(mkSetup(su,ctxt.forread))
     	, othdombox_(0)
+        , compnr_(0)
 {
     workctio_.ctxt = inctio_.ctxt;
     if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
@@ -266,6 +338,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
     	, seissetup_(mkSetup(su,c.ctxt.forread))
     	, othdombox_(0)
+        , compnr_(0)
 {
     workctio_.ctxt = inctio_.ctxt;
     if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
@@ -348,6 +421,9 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar_ );
     setAttrNm( dlgiopar_.find( sKey::Attribute ) );
+
+    if ( seissetup_.selectcomp_ && !dlgiopar_.get(sKey::Component, compnr_) )
+	setCompNr( compnr_ );
 }
 
 
@@ -393,9 +469,47 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
 }
 
 
+void uiSeisSel::setCompNr( int nr )
+{
+    compnr_ = nr;
+    if ( mIsUdf(compnr_) )
+	dlgiopar_.removeWithKey( sKey::Component );
+    else
+	dlgiopar_.set( sKey::Component, nr );
+    updateInput();
+}
+
+
+const char* uiSeisSel::compNameFromKey( const char* txt ) const
+{
+    if ( !txt || !*txt ) return "";
+
+    BufferString compnm;
+    LineKey lk( txt );
+    compnm = uiIOObjSel::userNameFromKey( lk.attrName() );
+    if ( is2D() )
+    {
+	const char* ptr = "";
+	ptr = strchr( compnm.buf(), '|' );
+	if ( ptr )
+	    { ptr++; mSkipBlanks(ptr); }
+	else
+	    ptr = "";
+
+	compnm = BufferString( ptr );
+    }
+    return compnm.buf();
+}
+
+
 bool uiSeisSel::existingTyped() const
 {
-    return !is2D() || isPS() ? uiIOObjSel::existingTyped()
+    bool containscompnm = false;
+    const char* ptr = "";                                                   
+    ptr = strchr( getInput(), '|' );                                      
+    if ( ptr )
+	containscompnm = true;
+    return (!is2D() && !containscompnm) || isPS() ? uiIOObjSel::existingTyped()
 	 : existingUsrName( LineKey(getInput()).lineName() );
 }
 
@@ -412,6 +526,9 @@ void uiSeisSel::usePar( const IOPar& iop )
     uiIOObjSel::usePar( iop );
     dlgiopar_.merge( iop );
     attrnm_ = iop.find( sKey::Attribute );
+
+    if ( seissetup_.selectcomp_ && !iop.get(sKey::Component, compnr_) )
+	compnr_ = 0;
 }
 
 
@@ -423,7 +540,24 @@ void uiSeisSel::updateInput()
 
     if ( workctio_.ctxt.forread )
 	updateAttrNm();
+
     uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
+
+    if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
+    {
+	SeisTrcReader rdr( workctio_.ioobj );
+	if ( !rdr.prepareWork(Seis::PreScan) ) return;
+	SeisTrcTranslator* transl = rdr.seisTranslator();
+	if ( !transl ) return;
+	BufferStringSet compnms;
+	transl->getComponentNames( compnms );
+	if ( compnr_ >= compnms.size() || compnms.size()<2 ) return;
+
+	BufferString text = userNameFromKey( LineKey(ioobjkey,attrnm_).buf() );
+	text += "|";
+	text += compnms.get( compnr_ );
+	uiIOSelect::setInputText( text.buf() );
+    }
 }
 
 

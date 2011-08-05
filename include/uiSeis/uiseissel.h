@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.52 2011-05-31 08:55:15 cvssatyaki Exp $
+ RCS:           $Id: uiseissel.h,v 1.53 2011-08-05 14:14:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 
 class uiSeisIOObjInfo;
+class uiLabeledComboBox;
 class uiListBox;
 class uiCheckBox;
 
@@ -33,14 +34,16 @@ public:
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
 			    , allowlinesetsel_(true)
-			    , enabotherdomain_(false)	{}
+			    , enabotherdomain_(false)
+			    , selectcomp_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
 			    , allowlinesetsel_(true)
-			    , enabotherdomain_(false)	{}
+			    , enabotherdomain_(false)
+			    , selectcomp_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)		//!< 2D: can user select attrib?
@@ -49,6 +52,7 @@ public:
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(bool,allowlinesetsel)
+	mDefSetupMemb(bool,selectcomp)		//!< Select only one component
 
 	Setup&		wantSteering( bool yn=true )
 			{
@@ -69,8 +73,10 @@ public:
     inline bool		isPS() const	{ return Seis::isPS(seissetup_.geom_); }
 
     void		setAttrNm(const char*);
+    void		setCompNr(int);
     void		updateAttrNm();
     const char*		attrNm() const	{ return attrnm_.buf(); }
+    int			compNr() const	{ return compnr_; }
     virtual void	processInput();
     virtual bool	existingTyped() const;
     virtual void	updateInput();
@@ -84,6 +90,7 @@ protected:
 
     Setup		seissetup_;
     BufferString	attrnm_;
+    int			compnr_;
     mutable BufferString curusrnm_;
     IOPar		dlgiopar_;
     uiCheckBox*		othdombox_;
@@ -93,6 +100,7 @@ protected:
     virtual void	commitSucceeded();
     virtual IOObj*	createEntry(const char*);
     virtual const char*	userNameFromKey(const char*) const;
+    virtual const char* compNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
     void		mkOthDomBox();
 };
@@ -112,6 +120,7 @@ protected:
 
     uiListBox*		attrlistfld_;
     uiGenInput*		attrfld_;
+    uiLabeledComboBox*	compfld_;
     int			steerpol_;
     BufferString	notalloweddatatype_;	// 2D only
     BufferString	zdomainkey_;	// 2D only
@@ -119,6 +128,7 @@ protected:
     void		entrySel(CallBacker*);
     void 		attrNmSel(CallBacker*);
     const char*		getDataType();
+    void		getComponentNames(BufferStringSet&) const;
 };
 
 
