@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.1 2011-08-05 14:57:46 cvsbruno Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.2 2011-08-05 15:15:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 
 #include "uigroup.h"
-#include "uiobjfileman.h"
-#include "uiobjectquicksel.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
