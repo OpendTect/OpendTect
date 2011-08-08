@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2011
- RCS:		$Id: hiddenparam.h,v 1.2 2011-04-30 15:05:36 cvskris Exp $
+ RCS:		$Id: hiddenparam.h,v 1.3 2011-08-08 13:56:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,9 @@ public:
     		HiddenParam( const V& def )
 		    : default_( def ) 	{}
     void	setParam( O* obj, const V& val );
-
     const V&	getParam( const O* obj ) const;
+
+    bool	hasParam( const O* ) const;
 
     void	removeParam( O* );
 protected:
@@ -95,6 +96,15 @@ const V& HiddenParam<O,V>::getParam( const O* obj ) const
 
     return params_[idx];
 }
+
+
+template <class O, class V>
+bool HiddenParam<O,V>::hasParam( const O* obj ) const
+{
+    Threads::MutexLocker lock( lock_ );
+    return objects_.indexOf( obj ) !=-1;
+}
+
 
 
 template <class O, class V>
