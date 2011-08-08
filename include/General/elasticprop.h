@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.1 2011-08-03 15:17:51 cvsbruno Exp $
+ RCS:		$Id: elasticprop.h,v 1.2 2011-08-08 07:24:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ protected:
 
     void 			addFormulasFromFile(const char*,Repos::Source);
 
-    friend ElasticFormulaRepository& ElFR();
+    mGlobal friend ElasticFormulaRepository& ElFR();
 };
 
 mGlobal ElasticFormulaRepository& ElFR();
