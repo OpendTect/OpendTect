@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.1 2011-08-05 14:57:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.2 2011-08-08 13:59:22 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -157,13 +157,23 @@ void uiElasticPropSelGrp::selChgCB( CallBacker* )
     const bool wantmathexpr = selidx > 0;
 
     elformsel_.setExpression( "" );
-    const ElasticFormula* ef = availableformulas_.validIdx(selidx-1) ? 
-					&availableformulas_[selidx-1] : 0;
-    formfld_->setText( ef ? ef->expression() : "" );
-    BufferString* formulanm = new BufferString( selmathfld_->box()->text() );
-    elformsel_.setName( formulanm->buf() );
-    if ( ef ) 
-	elformsel_.setExpression( ef->expression() );
+
+    if ( selidx == selmathfld_->box()->size() -1 )
+    {
+	BufferString* formulanm = new BufferString( "User defined formula" );
+	elformsel_.setName( formulanm->buf() );
+	elformsel_.setExpression( formfld_->text() );
+    }
+    else
+    {
+	const ElasticFormula* ef = availableformulas_.validIdx(selidx-1) ? 
+					    &availableformulas_[selidx-1] : 0;
+	formfld_->setText( ef ? ef->expression() : "" );
+	BufferString* formulanm = new BufferString(selmathfld_->box()->text());
+	elformsel_.setName( formulanm->buf() );
+	if ( ef ) 
+	    elformsel_.setExpression( ef->expression() );
+    }
 
     putToScreen();
 }
@@ -207,7 +217,8 @@ void uiElasticPropSelGrp::getFromScreen()
 void uiElasticPropSelGrp::putToScreen()
 {
     const BufferString& expr = elformsel_.expression();
-    const bool hasexpr = !expr.isEmpty();
+    const bool hasexpr = !expr.isEmpty() 
+	|| selmathfld_->box()->currentItem() == selmathfld_->box()->size()-1;
     const BufferStringSet& selvariables = elformsel_.variables();
 
     selmathfld_->box()->setCurrentItem( elformsel_.name() );
@@ -216,21 +227,19 @@ void uiElasticPropSelGrp::putToScreen()
     getMathExpr();
 
     float val = mUdf(float);
-    if ( hasexpr )
+    formfld_->setText( expr );
+    for ( int idx=0; idx<inpgrps_.size(); idx++ )
     {
-	formfld_->setText( expr );
-	for ( int idx=0; idx<inpgrps_.size(); idx++ )
-	{
-	    const char* vartxt = elformsel_.parseVariable( idx, val );
-	    inpgrps_[idx]->setVariable( vartxt, val ); 
-	    inpgrps_[idx]->use( expr_ );
-	}
+	const char* vartxt = elformsel_.parseVariable( idx, val );
+	inpgrps_[idx]->setVariable( vartxt, val ); 
+	inpgrps_[idx]->use( expr_ );
     }
-    else
+    if ( !hasexpr )
     {
 	const char* vartxt = elformsel_.parseVariable( 0, val );
 	singleinpfld_->box()->setCurrentItem( vartxt );
     }
+
     formfld_->display( hasexpr );
     singleinpfld_->display( !hasexpr );
 }
@@ -241,14 +250,19 @@ static const char** props = ElasticFormula::ElasticTypeNames();
 
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p, 
 					const PropertyRefSelection& prs,
-					ElasticPropSelection& elpropsel )
-    : uiDialog(p,uiDialog::Setup("Synthetic layer properties selection",
+					const MultiID& elpropselid )
+    : uiDialog(p,uiDialog::Setup("Synthetic layers property selection",
 		"Select quantities to compute density, p-wave and s-wave"
 		,mTODOHelpID))
-    , elpropsel_(elpropsel)
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection)) 
 {
-    ts_ = new uiTabStack( this, "Properties selection tab stack" );
+    ElasticPropSelection* eps = ElasticPropSelection::get( elpropselid );
+    elpropsel_ = eps ? *eps : *(new ElasticPropSelection()); 
+    if ( !eps ) 
+	ElasticPropGuess( prs, elpropsel_ );
+    delete eps;
+
+    ts_ = new uiTabStack( this, "Property selection tab stack" );
     ObjectSet<uiGroup> tgs;
     for ( int idx=0; props[idx]; idx++ )
     {
@@ -258,7 +272,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
 	propflds_ += new uiElasticPropSelGrp( tgs[idx], prs, 
-					elpropsel.getFormula( tp ), formulas );
+					elpropsel_.getFormula( tp ), formulas );
 	ts_->addTab( tgs[idx], props[idx] );
     }
 
@@ -291,7 +305,10 @@ void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 
 bool uiElasticPropSelDlg::acceptOK( CallBacker* )
 {
-    savePropSel();
+    if( !ctio_.ioobj )
+	savePropSel(); 
+    else 
+	doSave( *ctio_.ioobj );
 
     return true;
 }
@@ -302,19 +319,31 @@ bool uiElasticPropSelDlg::savePropSel()
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->getFromScreen();
 
-    ctio_.ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, ctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    if ( !ctio_.ioobj )
+    {
+	ctio_.ctxt.forread = false;
+	uiIOObjSelDlg dlg( this, ctio_ );
+	if ( !dlg.go() || !dlg.ioObj() )
+	    return false;
+	ctio_.setObj( dlg.ioObj()->clone() );
+    }
+    if ( !ctio_.ioobj ) 
 	return false;
 
-    ctio_.setObj( dlg.ioObj()->clone() );
+    storedmid_ = ctio_.ioobj->key();
 
-    const BufferString fnm( ctio_.ioobj->fullUserExpr(false) );
+    return  doSave( *ctio_.ioobj );
+}
+
+
+bool uiElasticPropSelDlg::doSave( const IOObj& ioobj )
+{
+    const BufferString fnm( ioobj.fullUserExpr(false) );
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
     if ( !sd.usable() )
 	uiMSG().error( "Cannot open output file" );
-    else if ( !elpropsel_.put(ctio_.ioobj) )
+    else if ( !elpropsel_.put(&ioobj) )
 	uiMSG().error( "Cann not write file" );
     else
 	rv = true;

@@ -6,17 +6,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.2 2011-08-05 15:15:41 cvsbruno Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.3 2011-08-08 13:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "multiid.h"
 #include "elasticpropsel.h"
 
 #include "uigroup.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
+class IOObj;
+class MultiID;
 class MathExpression;
 class PropertyRefSelection;
 
@@ -68,6 +71,8 @@ protected:
 	uiGenInput* 		varnmfld_;
 	uiGenInput*		ctefld_;
 
+	uiGenInput*		storenamefld_;
+
 	void			selVarCB(CallBacker*);
     };
     ObjectSet<uiSelInpGrp> 	inpgrps_;
@@ -83,21 +88,25 @@ mClass uiElasticPropSelDlg : public uiDialog
 public:
 				uiElasticPropSelDlg(uiParent*,
 					const PropertyRefSelection&,
-					ElasticPropSelection&);
+					const MultiID& elpsel);
 				~uiElasticPropSelDlg();
+
+    const MultiID& 		storedKey() const { return storedmid_; }
 protected:
 
     ObjectSet<uiElasticPropSelGrp> propflds_;
     uiTabStack*			ts_;
-    ElasticPropSelection&	elpropsel_;
     CtxtIOObj&			ctio_;
 
+    ElasticPropSelection	elpropsel_;
+    MultiID			storedmid_;
+
+    bool			doSave(const IOObj&);
+
     bool			openPropSel();
-    bool			savePropSel(); 
     void                        openPropSelCB(CallBacker*) { openPropSel(); }
+    bool			savePropSel(); 
     void                        savePropSelCB(CallBacker*) { savePropSel(); }
-
-
     bool			acceptOK(CallBacker*);
     void			elasticPropSelectionChanged(CallBacker*);
 };

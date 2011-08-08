@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.7 2011-08-05 14:49:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.8 2011-08-08 13:59:22 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -19,12 +19,13 @@ static const char* rcsID = "$Id: elasticpropsel.cc,v 1.7 2011-08-05 14:49:47 cvs
 #include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "math.h"
 #include "mathexpression.h"
 #include "strmprov.h"
 
 
-#define mFileType "Elastic Properties Selection"
+#define mFileType "Elastic Property Selection"
 
 
 static const char* filenamebase 	= "ElasticFormulas";
@@ -193,6 +194,19 @@ ElasticPropSelection::ElasticPropSelection( const char* nm )
 }
 
 
+ElasticPropSelection& ElasticPropSelection::operator =( const ElasticPropSelection& eps )
+{
+    if ( this != &eps )
+    {
+	setName( eps.name() );
+	selectedformulas_.erase();
+	for ( int idx=0; idx<eps.getFormulas().size(); idx++ )
+	    selectedformulas_ += eps.getFormulas()[idx];
+    }
+    return *this;
+}
+
+
 ElasticFormula& ElasticPropSelection::getFormula(ElasticFormula::ElasticType tp)
 {
     for ( int idx=0; idx<selectedformulas_.size(); idx++ )
@@ -326,6 +340,13 @@ float ElasticPropGen::setVal(const ElasticFormula& ef,const float* vals,int sz)
 
 
 
+ElasticPropSelection* ElasticPropSelection::get( const MultiID& mid ) 
+{
+    const IOObj* obj = mid.isEmpty() ? 0 : IOM().get( mid );
+    return obj ? get( obj ) : 0;
+}
+
+
 ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
@@ -354,10 +375,10 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 	    eps->getFormula( tp ).usePar( iop ); 
 	}
 	if ( !astream.stream().good() )
-	    ErrMsg( "Problem reading ElasticPropSelection from file" );
+	    ErrMsg( "Problem reading Elastic property selection from file" );
     }
     else
-	ErrMsg( "Cannot open ElasticPropSelection file" );
+	ErrMsg( "Cannot open elastic property selection file" );
 
     delete conn; delete tr;
     return eps;

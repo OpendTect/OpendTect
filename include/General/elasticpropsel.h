@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.7 2011-08-05 14:49:47 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.8 2011-08-08 13:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,15 +19,27 @@ ________________________________________________________________________
 #include "propertyref.h"
 
 class IOObj;
+class MultiID;
 
 mClass ElasticPropSelection : public NamedObject
 {
 public:
 				ElasticPropSelection(const char* nm=0);
+				ElasticPropSelection(
+					const ElasticPropSelection& elp)
+				{ *this = elp; }
+
+    ElasticPropSelection&     	operator =(const ElasticPropSelection&);
+    inline bool         	operator ==(const ElasticPropSelection& e) const
+   				{ return name() == e.name(); }
+    inline bool         	operator !=(const ElasticPropSelection& e) const
+    				{ return name() != e.name(); }
+
 
     ElasticFormula&		getFormula(ElasticFormula::ElasticType);
     const ElasticFormula&	getFormula(ElasticFormula::ElasticType) const;
 
+    static ElasticPropSelection* get(const MultiID&);
     static ElasticPropSelection* get(const IOObj*);
     bool                	put(const IOObj*) const;
 
@@ -56,7 +68,7 @@ public:
     void		fill(ElasticLayer&,const float* proprefvals,int sz);
 protected:
 
-    const ElasticPropSelection& elasticprops_;
+    ElasticPropSelection elasticprops_;
     const PropertyRefSelection& refprops_;
 
     float		setVal(const ElasticFormula& ef,

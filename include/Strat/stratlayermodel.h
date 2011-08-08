@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.7 2011-07-29 14:38:58 cvsbruno Exp $
+ RCS:		$Id: stratlayermodel.h,v 1.8 2011-08-08 13:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "stratlayersequence.h"
-#include "elasticpropsel.h"
+#include "multiid.h"
 
 
 namespace Strat
@@ -50,8 +50,8 @@ public:
     PropertyRefSelection&	propertyRefs()		{ return props_; }
     const PropertyRefSelection&	propertyRefs() const	{ return props_; }
     void			prepareUse() const;
-    ElasticPropSelection& 	elasticPropSel() 	{ return elasticprops_;}
-    const ElasticPropSelection& elasticPropSel() const 	{ return elasticprops_;}
+    MultiID& 			elasticPropSel() 	{return elasticselmid_;}
+    const MultiID& 		elasticPropSel() const 	{return elasticselmid_;}
 
     const RefTree&		refTree() const;
 
@@ -64,7 +64,7 @@ protected:
 
     ObjectSet<LayerSequence>	seqs_;
     PropertyRefSelection	props_;
-    ElasticPropSelection	elasticprops_;
+    MultiID			elasticselmid_;
 
 };
 

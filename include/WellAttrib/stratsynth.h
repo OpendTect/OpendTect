@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.4 2011-07-29 14:38:58 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.5 2011-08-08 13:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "cubesampling.h"
 #include "datapack.h"
+#include "elasticpropsel.h"
 #include "iopar.h"
 #include "samplingdata.h"
 #include "synthseis.h"
 
-class ElasticPropGen;
-class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
@@ -89,8 +88,6 @@ protected:
     const Wavelet*	wvlt_;
     TypeSet<AIModel>	aimodels_;
 
-    ElasticPropGen& propgen_;
-
     BufferString	errmsg_;
 
     DataPack*		genTrcBufDataPack(const RayParams& raypars,
@@ -104,7 +101,8 @@ protected:
 				ObjectSet<SeisTrcBuf>&,
 	    			BufferString* errmsg=0) const;
 
-    void		fillAIModel(AIModel&,const Strat::LayerSequence&) const;
+    bool		fillAIModel(AIModel&,const Strat::LayerSequence&,
+				    BufferString* errmsg=0) const;
 };
 
 #endif

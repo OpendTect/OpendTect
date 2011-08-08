@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.29 2011-08-03 15:17:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.30 2011-08-08 13:59:22 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -34,9 +34,11 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.29 2011-08-03 15:17:51
 #include "uilabel.h"
 #include "uigroup.h"
 #include "uimsg.h"
-#include "strmprov.h"
+
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "ioman.h"
+#include "strmprov.h"
 #include "settings.h"
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -224,9 +226,7 @@ void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 {
     uiElasticPropSelDlg dlg(this, modl_.propertyRefs(), modl_.elasticPropSel());
     if ( dlg.go() )
-    {
-	synthdisp_->modelChanged();
-    }
+	desc_.setElasticPropSel( dlg.storedKey() );
 }
 
 
@@ -314,10 +314,12 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
 
-    ElasticPropGuess( modl_.propertyRefs(), modl_.elasticPropSel() );
-    if ( !modl_.elasticPropSel().isValidInput() )
+    const ElasticPropSelection* eps = 
+		ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
+    if ( !eps  || !eps->isValidInput() )
 	selElasticPropsCB(0);
-    
+    modl_.elasticPropSel() = seqdisp_->desc().elasticPropSel();
+
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     levelChg( cb );

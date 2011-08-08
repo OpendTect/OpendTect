@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.28 2011-08-03 15:17:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.29 2011-08-08 13:59:22 cvsbruno Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: stratseqgen.cc,v 1.28 2011-08-03 15:17:51 cvsbr
 
 static const char* sKeyFileType = mFileType;
 static const char* sKeyIDNew = "[New]";
+static const char* sKeyElasticPropSelID = "Elastic Property Selection";
+
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
@@ -103,6 +105,7 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
 {
+    elasticpropselmid_.setEmpty(); 
 }
 
 
@@ -125,6 +128,8 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 	IOPar iop; iop.getFrom(astrm);
 	if ( iop.isEmpty() ) 
 	    continue;
+
+	iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
 	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
 	if ( lg )
 	    *this += lg;
@@ -152,6 +157,8 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	IOPar iop; (*this)[idx]->fillPar(iop);
 	iop.putTo( astrm );
     }
+    IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.putTo( astrm );
 
     return true;
 }
@@ -163,6 +170,18 @@ void Strat::LayerSequenceGenDesc::setPropSelection(
     propsel_ = prsel;
     for ( int idx=0; idx<size(); idx++ )
 	(*this)[idx]->syncProps( propsel_ );
+}
+
+
+void Strat::LayerSequenceGenDesc::setElasticPropSel( const MultiID& mid )
+{
+    elasticpropselmid_ = mid;
+}
+
+
+const MultiID& Strat::LayerSequenceGenDesc::elasticPropSel() const
+{
+    return elasticpropselmid_; 
 }
 
 

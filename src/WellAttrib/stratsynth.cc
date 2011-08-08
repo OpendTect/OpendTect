@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.5 2011-08-03 15:17:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.6 2011-08-08 13:59:22 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -27,9 +27,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.5 2011-08-03 15:17:51 cvsbrun
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
-    , propgen_(*new ElasticPropGen(lm.elasticPropSel(),lm.propertyRefs())) 
 {}
-
 
 void StratSynth::setWavelet( const Wavelet& wvlt )
 {
@@ -130,7 +128,9 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
     for ( int iseq=0; iseq<nraimdls; iseq++ )
     {
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
-	AIModel aimod; fillAIModel( aimod, lm_.sequence( seqidx ) );
+	AIModel aimod; 
+	if ( !fillAIModel( aimod, lm_.sequence( seqidx ), errmsg ) )
+	    return false;
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
 	else if ( aimod.size() == 1  )
@@ -181,21 +181,28 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 }
 
 
-void StratSynth::fillAIModel( AIModel& aimodel, 
-				const Strat::LayerSequence& seq ) const
+bool StratSynth::fillAIModel( AIModel& aimodel, const Strat::LayerSequence& seq,
+			    BufferString* errmsg ) const
 {
     const int sz = seq.size();
     if ( sz < 1 )
-	return;
+	return false;
 
+    const ElasticPropSelection* eps = 
+			ElasticPropSelection::get( lm_.elasticPropSel() );
+    if ( !eps || !eps->isValidInput() )
+	mErrRet( "No valid elastic propery found", delete eps; return false; )
+
+    ElasticPropGen propgen( *eps, lm_.propertyRefs() );
     const Strat::Layer* lay = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
 	lay = seq.layers()[idx];
 	AILayer ail ( lay->thickness(), 0, 0 );
-	propgen_.fill( ail, lay->values(), lay->nrValues() ); 
+	propgen.fill( ail, lay->values(), lay->nrValues() ); 
 	aimodel += ail;
     }
+    return true;
 }
 
 

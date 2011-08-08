@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.27 2011-08-01 15:41:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.28 2011-08-08 13:59:22 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -222,6 +222,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
+    elasticselmid_.setEmpty();
 }
 
 

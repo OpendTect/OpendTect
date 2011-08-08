@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.15 2011-08-03 15:17:51 cvsbruno Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.16 2011-08-08 13:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "objectset.h"
+#include "multiid.h"
 #include "propertyref.h"
 class IOPar;
 
@@ -41,6 +42,9 @@ public:
     const PropertyRefSelection& propSelection() const	{ return propsel_; }
     void		setPropSelection(const PropertyRefSelection&);
 
+    const MultiID& 	elasticPropSel() const;
+    void		setElasticPropSel(const MultiID&);
+
     bool		getFrom(std::istream&);
     bool		putTo(std::ostream&) const;
 
@@ -58,6 +62,7 @@ protected:
 
     const RefTree&		rt_;
     PropertyRefSelection	propsel_;
+    MultiID			elasticpropselmid_;
 
     mutable BufferString	errmsg_;
 
