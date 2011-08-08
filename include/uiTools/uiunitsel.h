@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Feb 2010
- RCS:           $Id: uiunitsel.h,v 1.3 2011-07-14 09:13:08 cvsbert Exp $
+ RCS:           $Id: uiunitsel.h,v 1.4 2011-08-08 15:38:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,10 @@ public:
 
     void			setPropType(PropertyRef::StdType);
 
+    uiComboBox*			inpFld() const	{ return inpfld_; }
+
+    Notifier<uiUnitSel>		selChange;
+
 protected:
 
     PropertyRef::StdType	proptype_;
@@ -40,7 +44,9 @@ protected:
 
     uiComboBox*			inpfld_;
 
+    void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			update();
 };
+
 
 #endif

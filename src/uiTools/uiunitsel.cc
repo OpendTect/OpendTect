@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiunitsel.cc,v 1.3 2011-07-14 09:13:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiunitsel.cc,v 1.4 2011-08-08 15:38:06 cvsbert Exp $";
 
 #include "uiunitsel.h"
 
@@ -22,10 +22,12 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
     , symbolsdisp_(symb)
+    , selChange(this)
 {
     inpfld_ = new uiComboBox( this, "Units" );
     if ( symbolsdisp_ )
 	inpfld_->setHSzPol( uiObject::Small );
+    inpfld_->selectionChanged.notify( mCB(this,uiUnitSel,selChg) );
 
     if ( txt && *txt )
     {
