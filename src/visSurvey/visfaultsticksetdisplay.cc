@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.41 2011-02-22 12:44:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.42 2011-08-08 08:47:44 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -88,6 +88,13 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 
 FaultStickSetDisplay::~FaultStickSetDisplay()
 {
+    if ( scene_ && scene_->getPolySelection() &&
+	 scene_->getPolySelection()->polygonFinished() )
+    {
+	const CallBack cb = mCB(this, FaultStickSetDisplay, polygonFinishedCB);
+	scene_->getPolySelection()->polygonFinished()->remove( cb );
+    }
+
     setSceneEventCatcher( 0 );
 
     if ( viseditor_ )
@@ -997,7 +1004,6 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
-
 }
 
 
