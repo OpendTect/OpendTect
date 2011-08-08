@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.14 2009-09-03 09:52:46 cvssatyaki Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.15 2011-08-08 13:16:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,8 @@ public:
     			/*!<Specifies a rectangle on the canvas where the
 			    axis should be drawn. If set to zero, drawer will
 			    draw in the full draw area. */
-    void		setup(const uiWorldRect&);
+    void		setup(const uiWorldRect&,float xfactor=1,
+	    		      float yfactor=1);
     void		setup(const StepInterval<float>& xrg,
 	    		      const StepInterval<float>& yrg);
 

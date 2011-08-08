@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.63 2011-02-10 11:27:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.64 2011-08-08 13:16:44 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -175,6 +175,7 @@ FlatView::Annotation::AxisData::AxisData()
     , sampling_( mUdf(float), mUdf(float) )
     , showannot_( false )
     , showgridlines_( false )			 
+    , factor_( 1 )
 {}
 
 

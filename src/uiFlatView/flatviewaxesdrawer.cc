@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.14 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.15 2011-08-08 13:16:44 cvskris Exp $";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
@@ -28,11 +28,12 @@ FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
 
 void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
 {
-    setDrawRectangle( &uir ); setup( wr );
-
     const FlatView::Annotation& annot = vwr_.appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
+
+    setDrawRectangle( &uir );
+    setup( wr, ad1.factor_, ad2.factor_ );
 
     drawAxes( ad1.showannot_, ad2.showannot_, true, true );
     drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );

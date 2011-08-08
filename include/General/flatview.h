@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.53 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:           $Id: flatview.h,v 1.54 2011-08-08 13:16:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,7 @@ public:
 	bool			showannot_;
 	bool			showgridlines_;
 	bool			reversed_;
+	float			factor_;
 
 	void			showAll(bool yn);
     };

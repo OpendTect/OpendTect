@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.33 2011-05-12 12:26:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.34 2011-08-08 13:16:44 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -65,15 +65,17 @@ void DrawAxis2D::setDrawRectangle( const uiRect* ur )
 }
 
 
-void DrawAxis2D::setup( const uiWorldRect& wr )
+void DrawAxis2D::setup( const uiWorldRect& wr, float xfactor, float yfactor )
 {
     xrg_.start = wr.left();
     xrg_.stop = wr.right();
-    xaxis_ = AxisLayout( Interval<float>(wr.left(),wr.right()) ).sd;
+    xaxis_ = AxisLayout(
+	    Interval<float>(wr.left() * xfactor,wr.right() * xfactor) ).sd;
 
     yrg_.start = wr.top();
     yrg_.stop = wr.bottom();
-    yaxis_ = AxisLayout( Interval<float>(wr.top(),wr.bottom()) ).sd;
+    yaxis_ = AxisLayout(
+	    Interval<float>(wr.top() * yfactor, wr.bottom() * yfactor) ).sd;
 }
 
 
