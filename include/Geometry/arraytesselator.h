@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.6 2011-07-08 18:23:21 cvsyuancheng Exp $
+RCS:           $Id: arraytesselator.h,v 1.7 2011-08-08 15:06:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ public:
 					const StepInterval<int>& crg);
 
     od_int64		nrIterations() const	
-			{ return rowrange_.nrSteps()*colrange_.nrSteps(); }
+			{ return (rowrange_.nrSteps()+1) * 
+			    	 (colrange_.nrSteps()+1); }
     
     			/*<s= 0 for points, 1 for lines, 2 for triangles.*/
     TypeSet<int>	getIndices(char s=2) const
@@ -95,20 +96,20 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 {
     const int glastrowidx = datarowsize_ - 1;
     const int glastcolidx = datacolsize_ - 1;
-    const int colsz = colrange_.nrSteps();
+    const int colsz = colrange_.nrSteps()+1;
     const int startidx = rowrange_.start * datacolsize_ + colrange_.start;
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int currow = idx / colsz + rowrange_.start;
-	const int curcol = idx % colsz + colrange_.start;
+	const int currow = (idx/colsz)*rowrange_.step + rowrange_.start;
+	const int curcol = (idx%colsz)*colrange_.step + colrange_.start;
 	if ( currow > glastrowidx || curcol > glastcolidx )
 	    continue;
 
 	const bool islastrow = currow == glastrowidx;
 	const bool islastcol = curcol == glastcolidx;
-	const int nextrow = currow + 1;
-	const int nextcol = curcol + 1;
+	const int nextrow = currow + rowrange_.step;
+	const int nextcol = curcol + colrange_.step;
 
 	const int c11 = mGlobleIdx( currow, curcol );
 	const int c12 = mGlobleIdx( currow, nextcol );
@@ -151,8 +152,8 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	}
 	else if ( def11 )
 	{
-	    const int prerow = currow - 1;
-	    const int precol = curcol - 1;
+	    const int prerow = currow - rowrange_.step;
+	    const int precol = curcol - colrange_.step;
 
 	    const int c01 = mGlobleIdx( prerow, curcol );
     	    const int c10 = mGlobleIdx( currow, precol );
