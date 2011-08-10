@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.12 2011-07-29 14:38:58 cvsbruno Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.13 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 class CtxtIOObj;
+class ElasticPropSelection;
 class uiGenInput;
 class uiSpinBox;
 class uiStratSynthDisp;
@@ -44,6 +45,9 @@ protected:
     Strat::LayerSequenceGenDesc& desc_;
     Strat::LayerModel&		modl_;
     CtxtIOObj&			descctio_;
+    ElasticPropSelection*	elpropsel_;
+
+    void			addElasticProps();
 
     void			dispEachChg(CallBacker*);
     void			levelChg(CallBacker*);

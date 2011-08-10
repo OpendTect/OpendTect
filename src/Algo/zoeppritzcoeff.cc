@@ -29,15 +29,14 @@ ZoeppritzCoeff::ZoeppritzCoeff()
 {}
 
 
-void ZoeppritzCoeff::setInterface( float p, 
-				const AILayer& pl1, const AILayer& pl2, 
-				const AILayer& sl1, const AILayer& sl2 )	
+void ZoeppritzCoeff::setInterface( float p, const ElasticLayer& el1, 
+					    const ElasticLayer& el2 ) 
 {
     float p2 = p * p; 
-    float pvel1 = pl1.vel_;
-    float pvel2 = pl2.vel_;
-    float svel1 = sl1.vel_;
-    float svel2 = sl2.vel_;
+    float pvel1 = el1.vel_;
+    float pvel2 = el2.vel_;
+    float svel1 = el1.svel_;
+    float svel2 = el2.svel_;
     
     bool waterabove = mIsZero(svel1,mDefEps);	//Detect water
     bool waterbelow = mIsZero(svel2,mDefEps);
@@ -50,13 +49,13 @@ void ZoeppritzCoeff::setInterface( float p,
     float l1p2 = pvel1 * pvel1;
     float l2p2 = pvel2 * pvel2;
 
-    float_complex a = pl2.den_ * (1 -  2 * l2s2 * p2) -
-	      pl1.den_ * (1 -  2 * l1s2 * p2);	
-    float_complex b = pl2.den_ * (1 -  2 * l2s2 * p2) +
-	      pl1.den_ * 2 * l1s2 * p2;	
-    float_complex c = pl1.den_ * (1 -  2 * l1s2 * p2) +
-	      pl2.den_ * 2 * l2s2 * p2;	
-    float_complex d = 2 * (pl2.den_ * l2s2 - pl1.den_ * l1s2);
+    float_complex a = el2.den_ * (1 -  2 * l2s2 * p2) -
+	      el1.den_ * (1 -  2 * l1s2 * p2);	
+    float_complex b = el2.den_ * (1 -  2 * l2s2 * p2) +
+	      el1.den_ * 2 * l1s2 * p2;	
+    float_complex c = el1.den_ * (1 -  2 * l1s2 * p2) +
+	      el2.den_ * 2 * l2s2 * p2;	
+    float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
 
     float_complex pzi1 = sqrt( float_complex( 1/l1p2 - p2, 0) );
     float_complex pzi2 = sqrt( float_complex( 1/l2p2 - p2, 0) );
@@ -74,29 +73,29 @@ void ZoeppritzCoeff::setInterface( float p,
 
     pdn_pup_ = ( (b*pzi1 - c*pzi2) * ff - 
 				(a + d * pzi1 * pzj2) * hh * p2) / dd;
-    pdn_pdn_ = 2 * pl1.den_ * pzi1 * ff * pvel1/(pvel2*dd);
+    pdn_pdn_ = 2 * el1.den_ * pzi1 * ff * pvel1/(pvel2*dd);
 
     pdn_sup_ = -f2 * pzi1 * ( a*b + c*d * pzi2*pzj2 ) 
 				* p * pvel1 /(svel2 *dd);
-    pdn_sdn_ = 2 * pl1.den_ * pzi1 * hh * p * pvel1/(svel2*dd);
+    pdn_sdn_ = 2 * el1.den_ * pzi1 * hh * p * pvel1/(svel2*dd);
 
     sdn_pup_ = -f2 * pzj1 * (a*b + c*d * pzi2*pzj2) * p * svel1/(pvel1*dd);
-    sdn_pdn_ = -2 * pl1.den_ * pzj1 * gg * 
+    sdn_pdn_ = -2 * el1.den_ * pzj1 * gg * 
 				p * svel1/(pvel2*dd);
     sdn_sup_ = -( (b*pzj1 - c*pzj2) * ee - 
 				(a + d*pzi2*pzj1) * gg*p2) /dd;
-    sdn_sdn_ = 2 * pl1.den_ * pzj1 * ee * svel1/(svel2*dd);
-    pup_pup_ = 2 * pl2.den_ * pzi2 * ff * pvel2/(pvel1*dd);
+    sdn_sdn_ = 2 * el1.den_ * pzj1 * ee * svel1/(svel2*dd);
+    pup_pup_ = 2 * el2.den_ * pzi2 * ff * pvel2/(pvel1*dd);
     pup_pdn_ = -( ( b*pzi1 - c*pzi2 ) * ff + 
 				(a + d*pzi2*pzj1) * gg * p2)/dd;
-    pup_sup_ = -2 * pl2.den_ * pzi2 * gg * p * pvel2/(svel1*dd);
+    pup_sup_ = -2 * el2.den_ * pzi2 * gg * p * pvel2/(svel1*dd);
     pup_sdn_ = f2 * pzi2 * ( a*c + b*d*pzi1*pzj1) 
 				* p * pvel2/(svel2*dd);
 
-    sup_pup_ = 2 * pl2.den_ * pzj2 * hh * p * svel2/(pvel1*dd);
+    sup_pup_ = 2 * el2.den_ * pzj2 * hh * p * svel2/(pvel1*dd);
     sup_pdn_ = f2 * pzj2 * (a*c + b*d * pzi1 * pzj1)  
 				* p * svel2/(pvel2*dd);
-    sup_sup_ = 2 * pl2.den_ * pzj2 * ee * svel2/(svel1*dd);
+    sup_sup_ = 2 * el2.den_ * pzj2 * ee * svel2/(svel1*dd);
     sup_sdn_ = ( (b*pzj1 - c*pzj2) * ee + 
 				(a + d*pzi1*pzj2) * hh*p2)/dd;
 
@@ -193,19 +192,18 @@ float_complex ZoeppritzCoeff::getCoeff( bool downin, bool downout,
 
 
 
-float_complex getFastCoeff(float par, 
-			const AILayer& player1, const AILayer& player2, 
-			const AILayer& slayer1, const AILayer& slayer2 )
+float_complex getFastCoeff( float par, const ElasticLayer& el1, 
+				       const ElasticLayer& el2 )
 {
-    const float vp1 = player1.vel_; 
-    const float vp2 = player2.vel_;
-    const float dp1 = player1.den_; 
-    const float dp2 = player2.den_;
+    const float vp1 = el1.vel_; 
+    const float vp2 = el2.vel_;
+    const float dp1 = el1.den_; 
+    const float dp2 = el2.den_;
 
-    const float vs1 = slayer1.vel_; 
-    const float vs2 = slayer2.vel_;
-    const float ds1 = slayer1.den_; 
-    const float ds2 = slayer2.den_;
+    const float vs1 = el1.svel_; 
+    const float vs2 = el2.svel_;
+    const float ds1 = el1.den_; 
+    const float ds2 = el2.den_;
 
     const float s1 = 0.5*( vp1*vp1 - 2*vs1*vs1 ) / ( vp1*vp1 - vs1*vs1 );
     const float s2 = 0.5*( vp2*vp2 - 2*vs2*vs2 ) / ( vp2*vp2 - vs2*vs2 );

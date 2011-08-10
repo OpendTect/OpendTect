@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.23 2011-05-03 15:12:58 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.24 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -58,13 +58,14 @@ public:
     virtual const Setup&	setup() const		{ return setup_; }
     virtual void		setSetup(const Setup&);
 
-    void		setModel(bool pmodel,const AIModel&);
-    			/*!<Note, if both p-model and s-model are set,
-			    they should be identical with regards to their sizes
-			    and the layers' depths. */
-    void		setOffsets(const TypeSet<float>& offsets);
+    void			setModel(const ElasticModel&);
+				/*!<Note, if either p-wave or s-wave are undef, 
+				  will fill them with Castagna 
+				  to compute zoeppritz coeffs <!*/
 
-    const char*		errMsg() const { return errmsg_.str(); }
+    void			setOffsets(const TypeSet<float>& offsets);
+
+    const char*			errMsg() const { return errmsg_.str(); }
 
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
@@ -82,11 +83,11 @@ protected:
     virtual bool	init();
     virtual bool	compute(int,int,float);
 
-    int			findLayer(const AIModel& model,float targetdepth) const;
+    int			findLayer(const ElasticModel& model,
+	    			float targetdepth) const;
 
     			//Setup variables
-    AIModel		pmodel_;
-    AIModel		smodel_;
+    ElasticModel	model_;
     TypeSet<float>	offsets_;
     Setup		setup_;
 

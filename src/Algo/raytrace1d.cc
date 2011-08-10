@@ -48,12 +48,9 @@ void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
 { setup_ = s; }
 
 
-void RayTracer1D::setModel( bool pwave, const AIModel& lys )
+void RayTracer1D::setModel( const ElasticModel& lys )
 {
-    if ( pwave )
-	pmodel_ = lys;
-    else 
-	smodel_ = lys;
+
 }
 
 
@@ -62,10 +59,10 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 
 
 od_int64 RayTracer1D::nrIterations() const
-{ return (pmodel_.size() ? pmodel_.size() : smodel_.size() )-1; }
+{ return model_.size() -1; }
 
 
-int RayTracer1D::findLayer( const AIModel& model, float targetdepth ) const
+int RayTracer1D::findLayer( const ElasticModel& model, float targetdepth ) const
 {
     int res; float depth = setup_.sourcedepth_;
     for ( res=0; res<model.size(); res++ )
@@ -85,8 +82,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	return false;
 
     const int layersize = nrIterations();
-    const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
 
     const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
 
@@ -94,22 +89,22 @@ bool RayTracer1D::doPrepare( int nrthreads )
     velmax_ +=0;
     for ( int idx=firstlayer_; idx<layersize; idx++ )
     {
+	const ElasticLayer& layer = model_[idx];
 	dnmotimes += 0; dvrmssum += 0;
 	unmotimes += 0; uvrmssum += 0;
+	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
+	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
+	const float dz = layer.thickness_;
 	if ( idx >= sourcelayer_)
 	{
-	    float dz = dlayers[idx].thickness_;
-	    float vel = dlayers[idx].vel_;
-	    dnmotimes[idx] += dz / vel;
-	    dvrmssum[idx] += dz * vel; 
+	    dnmotimes[idx] += dz / dvel;
+	    dvrmssum[idx] += dz * dvel; 
 	}
 
 	if ( idx >= receiverlayer_ )
 	{
-	    float dz = ulayers[idx].thickness_;
-	    float vel = ulayers[idx].vel_;
-	    unmotimes[idx] += dz / vel;
-	    uvrmssum[idx] += dz * vel; 
+	    unmotimes[idx] += dz / uvel;
+	    uvrmssum[idx] += dz * uvel; 
 	}
 	if ( idx ) 
 	{
@@ -142,53 +137,41 @@ bool RayTracer1D::init()
     if ( !found )
 	offsets_ += 0;
 
-    const int psz = pmodel_.size();
-    const int ssz = smodel_.size();
+    const int sz = model_.size();
     const float p2safac = setup_.pvel2svelafac_;
     const float p2sbfac = setup_.pvel2svelbfac_;
 
-    if ( !psz && !ssz )
+    if ( sz < 1 )
     {
-	errmsg_ = "Model is empty, please specify a valid model";
-	return false;
-    }
-    if ( (!ssz && psz == 1) || (ssz == 1 && !psz) )
-    {
-	errmsg_ = "Model is only one layer, please specify a valid model";
+	errmsg_ = sz ? "Model is only one layer, please specify a valid model"
+		     : "Model is empty, please specify a valid model";
 	return false;
     }
 
-
-
-    if ( !ssz )
+    for ( int idx=0; idx<sz; idx++ )
     {
-	for ( int idx=0; idx<psz; idx++ )
+	ElasticLayer& layer = model_[idx];
+	float& pvel = layer.vel_;
+	float& svel = layer.svel_;
+	if ( mIsUdf( pvel ) && !mIsUdf( svel ) )
 	{
-	    const AILayer& pl = pmodel_[idx];
-	    const float vs = sqrt( p2safac*pl.vel_*pl.vel_ + p2sbfac );
-	    smodel_ += AILayer( pl.thickness_, vs, pl.den_ );
+	    pvel = p2safac ? sqrt( (svel*svel-p2sbfac)/p2safac ) : mUdf(float);
 	}
-    }
-    else if ( !psz )
-    {
-	for ( int idx=0; idx<ssz; idx++ )
+	else if ( mIsUdf( svel ) && !mIsUdf( pvel ) )
 	{
-	    const AILayer& sl = smodel_[idx];
-	    const float vp = sqrt( (sl.vel_*sl.vel_ - p2sbfac)/p2safac );
-	    pmodel_ += AILayer( sl.thickness_, vp, sl.den_ );
+	    svel = sqrt( p2safac*pvel*pvel + p2sbfac );
+	}
+	if ( !mIsUdf( pvel ) && !mIsUdf( svel ) )
+	{
+	    BufferString errmsg( "P-Wave and S-Wave are undefined for layer " );
+	    errmsg += toString( idx+1 );
+	    errmsg_ = errmsg;
+	    return false;
 	}
     }
 
-    if ( psz && ssz && psz!=ssz )
-    {
-	errmsg_ = "P and S model sizes must be identical";
-	return false;
-    }
-
-    const AIModel& depthmodel = psz ? pmodel_ : smodel_;
-
-    sourcelayer_ = findLayer( depthmodel, setup_.sourcedepth_ );
-    receiverlayer_ = findLayer( depthmodel, setup_.receiverdepth_ );
+    sourcelayer_ = findLayer( model_, setup_.sourcedepth_ );
+    receiverlayer_ = findLayer( model_, setup_.receiverdepth_ );
 
     const int layersize = nrIterations();
     if ( sourcelayer_>=layersize || receiverlayer_>=layersize )
@@ -229,8 +212,8 @@ bool RayTracer1D::init()
     reflectivity_->setAll( mUdf( float_complex ) );
 
     for ( int idx=0; idx<layersize+1; idx++ )
-	depths_ += idx ? depths_[idx-1] + depthmodel[idx].thickness_ 
-	               : setup_.sourcedepth_ + depthmodel[idx].thickness_;
+	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
+	               : setup_.sourcedepth_ + model_[idx].thickness_;
 
     return true;
 }
@@ -240,17 +223,17 @@ bool RayTracer1D::init()
 bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
-    const AIModel& model = setup_.pdown_ ? pmodel_ : smodel_;
 
     for ( int layer=start; layer<=stop; layer++ )
     {
-	const AILayer& ailayer = model[layer];
+	const ElasticLayer& ellayer = model_[layer];
 	const float depth = depths_[layer];
+	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
 	    const float offset = offsets_[osidx];
 	    const float angle = depth ? atan( offset / depth ) : 0;
-	    const float rayparam = sin(angle) / ailayer.vel_;
+	    const float rayparam = sin(angle) / vel;
 
 	    if ( !compute( layer+1, osidx, rayparam ) )
 	    { 
@@ -267,10 +250,11 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
+    const ElasticLayer& ellayer = model_[layer];
+    const float downvel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
+    const float upvel = setup_.pup_ ? ellayer.vel_ : ellayer.svel_;
 
-    const float sini = dlayers[layer-1].vel_ * rayparam;
+    const float sini = downvel * rayparam;
     sini_->set( layer-1, offsetidx, sini );
 
     const float off = offsets_[offsetidx];
@@ -281,13 +265,11 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     {
 	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
 	for ( int idx=firstlayer_; idx<layer; idx++ )
-	    coefs[idx].setInterface( rayparam, pmodel_[idx], pmodel_[idx+1],
-				    smodel_[idx], smodel_[idx+1] );
+	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
 	int lidx = sourcelayer_;
 	reflectivity = coefs[lidx].getCoeff( true, 
 				lidx!=layer-1, setup_.pdown_,
 				lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
-
 	lidx++;
 
 	while ( lidx < layer )
@@ -306,8 +288,8 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     }
     else
     {
-	const AILayer& ail0 = dlayers[ layer-1 ];
-	const AILayer& ail1 = dlayers[ layer ];
+	const ElasticLayer& ail0 = model_[ layer-1 ];
+	const ElasticLayer& ail1 = model_[ layer ];
 	const float ai0 = ail0.vel_ * ail0.den_;
 	const float ai1 = ail1.vel_ * ail1.den_;
         reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
@@ -356,7 +338,6 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     model.setCapacity( nrlayers );
     ReflectivitySpike spike;
 
-    const AIModel& layers = pmodel_.size() ? pmodel_ : smodel_;
     for ( int idx=0; idx<nrlayers; idx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( idx, offsetidx );
@@ -379,9 +360,8 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
 	return false;
 
-    const AIModel& layers = pmodel_.size() ? pmodel_ : smodel_;
     const int nrtimes = twt_->info().getSize(0);
-    const int nrlayers = layers.size();
+    const int nrlayers = model_.size();
 
     TypeSet<float> times, depths;
     times += 0; depths += setup_.sourcedepth_;
@@ -389,7 +369,7 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     {
 	depths += depths_[idx];
 	times += idx < nrtimes ? twt_->get( idx, offsetidx ) : 
-	    times[times.size()-1] + 2*layers[idx].thickness_/layers[idx].vel_;
+	    times[times.size()-1] + 2*model_[idx].thickness_/model_[idx].vel_;
     }
     sort_array( times.arr(), nrlayers+1 );
     return d2tm.setModel( depths.arr(), times.arr(), nrlayers+1 ); 

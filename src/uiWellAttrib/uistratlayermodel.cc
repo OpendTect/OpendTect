@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.30 2011-08-08 13:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.31 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -112,6 +112,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(p,"Layer modeling",0,false,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , modl_(*new Strat::LayerModel)
+    , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
 {
     uiGroup* gengrp = new uiGroup( this, "SeqGen disp" );
@@ -224,9 +225,12 @@ void uiStratLayerModel::manPropsCB( CallBacker* )
 
 void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 {
-    uiElasticPropSelDlg dlg(this, modl_.propertyRefs(), modl_.elasticPropSel());
+    uiElasticPropSelDlg dlg(this, seqdisp_->desc().propSelection(), 
+	    			seqdisp_->desc().elasticPropSel() );
     if ( dlg.go() )
 	desc_.setElasticPropSel( dlg.storedKey() );
+
+    elpropsel_ = ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
 }
 
 
@@ -314,15 +318,25 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
 
-    const ElasticPropSelection* eps = 
-		ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
-    if ( !eps  || !eps->isValidInput() )
-	selElasticPropsCB(0);
-    modl_.elasticPropSel() = seqdisp_->desc().elasticPropSel();
+    addElasticProps();
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     levelChg( cb );
+}
+
+
+void uiStratLayerModel::addElasticProps()
+{
+    elpropsel_ = ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
+
+    if ( !elpropsel_ || !elpropsel_->isValidInput() )
+	selElasticPropsCB(0);
+
+    if ( !elpropsel_ ) 
+	return;
+
+    modl_.addElasticPropSel( *elpropsel_ );
 }
 
 

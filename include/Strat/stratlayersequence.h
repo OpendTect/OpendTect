@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.10 2011-07-25 15:07:49 cvsbruno Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.11 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "ailayer.h"
 #include "stratlayer.h"
 #include "propertyref.h"
+
+class ElasticPropSelection;
 
 namespace Strat
 {
@@ -50,6 +52,8 @@ public:
 
     PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
+
+    void 		addElasticPropSel(const ElasticPropSelection&);
 
     void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}

@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.13 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.14 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -80,7 +80,8 @@ bool AngleMuteBase::setVelocityFunction()
 
 
 
-bool AngleMuteBase::getAILayers(const BinID& bid, TypeSet<AILayer>& layers, 
+bool AngleMuteBase::getLayers(const BinID& bid, 
+				TypeSet<ElasticLayer>& layers, 
 				SamplingData<float>& sd, int resamplesz )
 { 
     TypeSet<float> vels;
@@ -132,7 +133,8 @@ bool AngleMuteBase::getAILayers(const BinID& bid, TypeSet<AILayer>& layers,
     }
 
     for ( int il=1; il<nrlayers; il++ )
-	layers += AILayer(depths[il]-depths[il-1], vels[il-1], mUdf(float));
+	layers += ElasticLayer(depths[il]-depths[il-1], 
+			vels[il-1], mUdf(float), mUdf(float) );
 
     return !layers.isEmpty();
 }
@@ -267,19 +269,20 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !output || !input )
 	    continue;
 
+
 	const BinID bid = input->getBinID();
 
 	int nrlayers = input->data().info().getSize( Gather::zDim() );
-	TypeSet<AILayer> layers; SamplingData<float> sd;
-	if ( !getAILayers( bid, layers, sd, nrlayers ) )
+	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
+	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;
 	
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
 	    offsets += input->getOffset( ioffset );
-	rtracers_[thread]->setOffsets( offsets );	
-	rtracers_[thread]->setModel( true, layers );
+	rtracers_[thread]->setOffsets( offsets );
+	rtracers_[thread]->setModel( layers );
 	if ( !rtracers_[thread]->execute(raytraceparallel_) )
 	    continue;
 

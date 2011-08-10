@@ -45,7 +45,7 @@ protected:
     bool		processLog(const Well::Log*,Well::Log&,const char*); 
     void		createLog(const char*nm,float* dah,float* vals,int sz);
 
-    AIModel 		aimodel_;
+    ElasticModel 	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
 

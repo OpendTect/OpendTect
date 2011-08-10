@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: raytracerrunner.h,v 1.3 2011-05-26 15:42:47 cvsbruno Exp $
+ RCS:           $Id: raytracerrunner.h,v 1.4 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 mClass RayTracerRunner : public Executor
 {
 public:
-    				RayTracerRunner(const TypeSet<AIModel>&,
+    				RayTracerRunner(const TypeSet<ElasticModel>&,
 						const TypeSet<float>& offs,
 						const RayTracer1D::Setup&);
     				~RayTracerRunner();
@@ -42,7 +42,7 @@ protected:
 
     BufferString		errmsg_;
 
-    const TypeSet<AIModel>&	aimodels_;
+    const TypeSet<ElasticModel>& aimodels_;
     ObjectSet<RayTracer1D> 	raytracers_;
 };
 

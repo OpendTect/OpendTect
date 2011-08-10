@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.51 2011-07-29 14:38:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.52 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -530,7 +530,7 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     stackfld_->attach( hCentered );
 
     uiRayTracer1D::Setup rsu(0);
-    rsu.dooffsets_ = true; rsu.dopwave2swaveconv_ = true;
+    rsu.dooffsets_ = true; 
     raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
     raytrace1dgrp_->attach( ensureBelow, stackfld_ );
 

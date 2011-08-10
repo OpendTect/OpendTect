@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.6 2011-08-08 13:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.7 2011-08-10 15:03:51 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.6 2011-08-08 13:59:22 cvsbrun
 #include "elasticpropsel.h"
 #include "flatposdata.h"
 #include "prestackgather.h"
+#include "propertyref.h"
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
@@ -128,8 +129,8 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
     for ( int iseq=0; iseq<nraimdls; iseq++ )
     {
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
-	AIModel aimod; 
-	if ( !fillAIModel( aimod, lm_.sequence( seqidx ), errmsg ) )
+	ElasticModel aimod; 
+	if ( !fillElasticModel( aimod, lm_.sequence( seqidx ), errmsg ) )
 	    return false;
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
@@ -181,25 +182,31 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 }
 
 
-bool StratSynth::fillAIModel( AIModel& aimodel, const Strat::LayerSequence& seq,
-			    BufferString* errmsg ) const
+bool StratSynth::fillElasticModel( ElasticModel& aimodel, 
+				const Strat::LayerSequence& seq,
+				BufferString* errmsg ) const
 {
     const int sz = seq.size();
     if ( sz < 1 )
 	return false;
 
-    const ElasticPropSelection* eps = 
-			ElasticPropSelection::get( lm_.elasticPropSel() );
-    if ( !eps || !eps->isValidInput() )
-	mErrRet( "No valid elastic propery found", delete eps; return false; )
+    const ElasticPropSelection& eps = lm_.elasticPropSel();
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    if ( !eps.isValidInput() )
+	mErrRet( "No valid elastic propery found", return false; )
 
-    ElasticPropGen propgen( *eps, lm_.propertyRefs() );
     const Strat::Layer* lay = 0;
+    int didx = props.indexOf(eps.getPropertyRef(ElasticFormula::Den).name() );
+    int pvidx = props.indexOf(eps.getPropertyRef(ElasticFormula::PVel).name() );
+    int svidx = props.indexOf(eps.getPropertyRef(ElasticFormula::SVel).name() );
     for ( int idx=0; idx<sz; idx++ )
     {
 	lay = seq.layers()[idx];
-	AILayer ail ( lay->thickness(), 0, 0 );
-	propgen.fill( ail, lay->values(), lay->nrValues() ); 
+	const float den = didx >= 0 ? lay->value( didx ) : mUdf( float );
+	const float pval = pvidx >= 0 ? lay->value( pvidx ) : mUdf( float );
+	const float sval = svidx >= 0 ? lay->value( svidx ) : mUdf( float );
+
+	AILayer ail ( lay->thickness(), den, pval );
 	aimodel += ail;
     }
     return true;

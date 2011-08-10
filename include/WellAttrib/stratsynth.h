@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.5 2011-08-08 13:59:22 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.6 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,8 @@ protected:
 				ObjectSet<SeisTrcBuf>&,
 	    			BufferString* errmsg=0) const;
 
-    bool		fillAIModel(AIModel&,const Strat::LayerSequence&,
+    bool		fillElasticModel(ElasticModel&,
+				    const Strat::LayerSequence&,
 				    BufferString* errmsg=0) const;
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.24 2011-07-20 13:17:35 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.25 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ public:
 			~RaySynthGenerator();
 
     //input
-    virtual void	addModel(const AIModel&);
+    virtual void	addModel(const ElasticModel&);
     virtual void	setRayParams(const RayTracer1D::Setup&,
 				     const TypeSet<float>& offsets,
 				     bool isnmo);
@@ -190,7 +190,7 @@ public:
 
 protected:
 
-    TypeSet<AIModel>		aimodels_;
+    TypeSet<ElasticModel>	aimodels_;
     RayTracer1D::Setup 		raysetup_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;

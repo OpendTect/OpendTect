@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.7 2011-07-12 10:51:55 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.8 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ protected:
     Vel::VolumeFunctionSource*	velsource_;
 
     bool	setVelocityFunction();
-    bool	getAILayers(const BinID&,TypeSet<AILayer>&,
+    bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
 	    			SamplingData<float>&,int resamplesz=-1);
     float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
 };

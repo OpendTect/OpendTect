@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: zoeppritzcoeff.h,v 1.4 2011-04-14 14:23:27 cvsbruno Exp $
+ RCS:		$Id: zoeppritzcoeff.h,v 1.5 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 */
 
 #include "odcomplex.h"
 
-class AILayer;
+class ElasticLayer;
 
 mClass ZoeppritzCoeff 
 {
@@ -23,10 +23,8 @@ public:
 
 
     virtual void 	setInterface(float p,
-					const AILayer& p_layer1,
-					const AILayer& p_layer2,
-					const AILayer& slayer1,
-					const AILayer& slayer2);
+					const ElasticLayer& el_layer1,
+					const ElasticLayer& el_layer2 );
 
     float_complex       getCoeff(bool din,bool dout,bool pin,bool pout) const;
 
@@ -55,9 +53,7 @@ protected:
 
 
 /*! Aki-Richard approx !*/
-mGlobal float_complex getFastCoeff(float p,const AILayer& p_layer1,
-				    	 const AILayer& p_layer2,
-				   	 const AILayer& slayer1,
-				    	 const AILayer& slayer2);
+mGlobal float_complex getFastCoeff(float p, const ElasticLayer& el_layer1,
+					    const ElasticLayer& el_layer2 );
 
 #endif

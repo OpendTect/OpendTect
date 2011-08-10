@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.28 2011-08-08 13:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.29 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: stratlayer.cc,v 1.28 2011-08-08 13:59:22 cvsbru
 #include "separstr.h"
 #include "ascstream.h"
 #include "keystrs.h"
+#include "elasticpropsel.h"
 
 static const char* sKeyLayModFileType = "Layer Model";
 
@@ -183,6 +184,26 @@ void Strat::LayerSequence::prepareUse() const
 }
 
 
+void Strat::LayerSequence::addElasticPropSel( const ElasticPropSelection& elp )
+{
+    ElasticPropGen elpgen( elp, props_ );
+    for ( int idx=0; idx<elp.getPropertyRefs().size(); idx++ )
+    {
+	const ElasticPropertyRef& epref = elp.getPropertyRefs()[idx]; 
+	if ( props_.isPresent( epref.name() ) )
+	    props_ += new PropertyRef( epref );
+
+	for ( int ilayer=0; ilayer<layers_.size(); ilayer++ )
+	{
+	    Layer& layer = *layers_[ilayer];
+	    const float val = elpgen.getVal(epref,layer.values(),props_.size());
+	    layer.setValue( layer.nrValues(), val ); 
+	}
+    }
+}
+
+
+
 Strat::LayerModel::LayerModel()
 {
     props_ += &Layer::thicknessRef();
@@ -222,7 +243,6 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
-    elasticselmid_.setEmpty();
 }
 
 
@@ -311,4 +331,18 @@ bool Strat::LayerModel::write( std::ostream& strm, const IOPar& pars ) const
 	astrm.newParagraph();
     }
     return true;
+}
+
+
+void Strat::LayerModel::addElasticPropSel( const ElasticPropSelection& elp )
+{
+    elasticpropsel_ = elp;
+    for ( int idx=0; idx<elp.getPropertyRefs().size(); idx++ )
+    {
+	const PropertyRef& prref = elp.getPropertyRefs()[idx]; 
+	if ( !props_.isPresent( prref.name() ) )
+	    props_ += new PropertyRef( prref );
+    }
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	seqs_[idx]->addElasticPropSel( elp );
 }

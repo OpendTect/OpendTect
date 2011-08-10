@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.32 2011-07-20 13:17:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.33 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -350,7 +350,7 @@ RaySynthGenerator::~RaySynthGenerator()
 }
 
 
-void RaySynthGenerator::addModel( const AIModel& aim )
+void RaySynthGenerator::addModel( const ElasticModel& aim )
 {
     aimodels_ += aim;
 }

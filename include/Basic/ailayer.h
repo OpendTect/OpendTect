@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.6 2011-07-20 14:19:13 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.7 2011-08-10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ mClass ElasticLayer : public AILayer
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
 		    : AILayer(thkness,pvel,den), svel_(svel) {}
+		ElasticLayer(const AILayer& ailayer)
+		    : AILayer(ailayer), svel_(mUdf(float)) {}
 
     bool	operator ==( const ElasticLayer& p ) const
 		{ return thickness_ == p.thickness_; }

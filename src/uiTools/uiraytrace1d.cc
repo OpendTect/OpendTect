@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.5 2011-07-15 12:01:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.6 2011-08-10 15:03:51 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -69,22 +69,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s)
 	upwavefld_->setValue( rsu.pup_ );
     }
 
-    if ( s.dopwave2swaveconv_ )
-    {
-	vp2vsfld_ = new uiGenInput( this, "Vp, Vs factors (a/b)", 
-					FloatInpIntervalSpec() );
-	vp2vsfld_->attach( alignedBelow, srcdepthfld_ );
-	if ( offsetfld_ )
-	    vp2vsfld_->attach( alignedBelow, offsetfld_ );
-	else if ( downwavefld_ )
-	    vp2vsfld_->attach( alignedBelow, downwavefld_ );
-	else if ( srcdepthfld_ )
-	    vp2vsfld_->attach( alignedBelow, srcdepthfld_ );
-
-	vp2vsfld_->setValue( Interval<float>( rsu.pvel2svelafac_, 
-						rsu.pvel2svelbfac_) );
-    }	
-
     if ( s.dosourcereceiverdepth_ )
 	setHAlignObj( srcdepthfld_ );
     else
@@ -107,11 +91,6 @@ bool uiRayTracer1D::fill( RayTracer1D::Setup& setup )
 	setup.pup_ = upwavefld_->getBoolValue();
     }
 
-    if ( vp2vsfld_ )
-    {
-	setup.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
-	setup.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
-    }
     return true;
 }
 
