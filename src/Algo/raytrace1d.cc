@@ -49,9 +49,7 @@ void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
 
 
 void RayTracer1D::setModel( const ElasticModel& lys )
-{
-
-}
+{ model_ = lys; }
 
 
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
@@ -161,7 +159,7 @@ bool RayTracer1D::init()
 	{
 	    svel = sqrt( p2safac*pvel*pvel + p2sbfac );
 	}
-	if ( !mIsUdf( pvel ) && !mIsUdf( svel ) )
+	if ( mIsUdf( pvel ) && mIsUdf( svel ) )
 	{
 	    BufferString errmsg( "P-Wave and S-Wave are undefined for layer " );
 	    errmsg += toString( idx+1 );

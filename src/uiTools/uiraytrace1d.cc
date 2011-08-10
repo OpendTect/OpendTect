@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.6 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.7 2011-08-10 15:24:09 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -19,7 +19,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s)
     , upwavefld_( 0 )
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
-    , vp2vsfld_( 0 )			 
 {
     if ( !s.dosourcereceiverdepth_ && !s.convertedwaves_ )
     {
