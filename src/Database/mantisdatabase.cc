@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.9 2011-08-04 08:24:31 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.10 2011-08-10 11:17:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 const char* SqlDB::MantisDBMgr::sKeyAll()
 { return "All"; }
+const char* SqlDB::MantisDBMgr::sKeyProjectTable()
+{ return "mantis_project_table"; }
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTable()
 { return "mantis_bugnote_table"; }
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTextTable()
@@ -187,7 +189,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 }
 
 
-bool SqlDB::MantisDBMgr::fillUserNamesIDs()
+bool SqlDB::MantisDBMgr::fillUsersInfo()
 {
     errmsg_.setEmpty();
     BufferString querystr( "SELECT " );
@@ -234,6 +236,26 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
 }
 
 
+bool SqlDB::MantisDBMgr::fillProjectsInfo()
+{
+    errmsg_.setEmpty();
+    BufferString querystr( "SELECT id,name FROM " );
+    querystr.add( sKeyProjectTable() ).add( " WHERE enabled=1" );
+    if ( !query().execute( querystr ) )
+	return false;
+    projectids_.erase();
+    projectnms_.erase();
+    while ( query().next() )
+    {
+	projectids_.add( toInt(query().data(0).buf()) );
+	projectnms_.add( query().data(1) );
+    }
+
+    return true;
+
+}
+
+
 bool SqlDB::MantisDBMgr::fillVersions()
 {
     errmsg_.setEmpty();
@@ -251,12 +273,29 @@ bool SqlDB::MantisDBMgr::fillVersions()
 }
 
 
+void SqlDB::MantisDBMgr::fillSeverity()
+{
+    sevirities_.erase();
+    severityvals_.erase();
+    sevirities_.add( "Feature" ).add( "Trivial" ).add( "Text" ).add( "Tweak" )
+	       .add( "Minor" ).add( "Major" ).add( "Crash" );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityFeature() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityTrivial() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityText() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityTweak() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityMinor() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityMajor() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityCrash() );
+}
+
+
 bool SqlDB::MantisDBMgr::getInfoFromTables()
 {
-    if ( !fillCategories() || !fillBugTableEntries() || !fillUserNamesIDs()
-	 || !fillVersions() )
+    if ( !fillCategories() || !fillProjectsInfo() || !fillBugTableEntries()
+	 || !fillUsersInfo() || !fillVersions() )
 	return false;
 
+    fillSeverity();
     return true;
 }
 

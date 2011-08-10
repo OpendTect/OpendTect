@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.4 2011-08-04 08:24:31 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.5 2011-08-10 11:17:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,10 +66,15 @@ public:
     BugTextTableEntry*		getBugTextTableEntry(int tableidx);
     inline int			nrBugs() const		{ return bugs_.size(); }
     const TypeSet<int>&		userIDs() const		{ return userids_; }
+    const TypeSet<int>&		projectIDs() const	{ return projectids_; }
+    const TypeSet<int>&		severityVals() const
+    				{ return severityvals_; }
     const BufferStringSet&	developers() const	{ return developers_; }
     const BufferStringSet&	userNames() const	{ return usernames_; }
     const BufferStringSet&	versions() const	{ return versions_; }
     const BufferStringSet&	categories() const	{ return categories_; }
+    const BufferStringSet&	projects() const	{ return projectnms_; }
+    const BufferStringSet&	severities() const	{ return sevirities_; }
     void			getSummaries(const char* usernm,
 	    				     BufferStringSet& summaries);
 
@@ -101,6 +106,7 @@ public:
     static const char*	sKeyUserTable();
     static const char*	sKeyProjectUserListTable();
     static const char*	sKeyProjectVersionTable();
+    static const char*	sKeyProjectTable();
     static const int 	cOpenDtectProjectID();
     static const int 	cAccessLevelDeveloper();
     static const int 	cAccessLevelCaseStudy();
@@ -114,9 +120,10 @@ protected:
     bool		addToBugNoteTextTable(const char*);
     bool		fillCategories();
     bool		fillBugTableEntries();
-    bool		fillBugsInfoSet();
-    bool		fillUserNamesIDs();
+    bool		fillProjectsInfo();
+    bool		fillUsersInfo();
     bool		fillVersions();
+    void		fillSeverity();
     void		addHistoryToSet(BugHistoryTableEntry&);
 
     bool		updateBugHistoryTable(ObjectSet<BugHistoryTableEntry>&,
@@ -126,15 +133,19 @@ protected:
     mutable MantisQuery* query_;
 
     TypeSet<int>	userids_;
+    TypeSet<int>	projectids_;
+    BufferStringSet	projectnms_;
     BufferStringSet	usernames_;
     BufferStringSet	developers_;
     BufferStringSet	versions_;
     BufferStringSet	categories_;
+    BufferStringSet	sevirities_;
     BugTableEntry*	bugtable_;
     BugTextTableEntry*	bugtexttable_;
     ObjectSet<BugTableEntry>	bugs_;
     ObjectSet<BugTextTableEntry> texttables_;
     TypeSet<int>	bugsindex_;
+    TypeSet<int>	severityvals_;
 
     mutable BufferString errmsg_;
 };
