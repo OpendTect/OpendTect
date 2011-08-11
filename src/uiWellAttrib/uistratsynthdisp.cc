@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.52 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.53 2011-08-11 14:06:38 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -286,9 +286,6 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 void uiStratSynthDisp::modelChanged()
 {
     cleanSynthetics();
-
-    if ( lm_.isEmpty() )
-	return;
 
     NotifyStopper ns( posfld_->positionChg );
     CubeSampling cs( raypars_.cs_ ); 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.32 2011-08-11 13:47:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.33 2011-08-11 14:06:38 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -337,19 +337,17 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
 void uiStratLayerModel::setElasticProps()
 {
-    const bool hadsel = elpropsel_;
-
     if ( !elpropsel_ )
 	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
 
     if ( !elpropsel_ || !elpropsel_->isValidInput() )
+    {
 	selElasticProps();
+	if ( !elpropsel_ ) 
+	    return;
 
-    if ( !elpropsel_ ) 
-	return;
-
-    if ( !hadsel )
 	seqdisp_->setNeedSave( true );
+    }
 
     modl_.addElasticPropSel( *elpropsel_ );
 }
