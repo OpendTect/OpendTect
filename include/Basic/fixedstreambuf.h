@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: fixedstreambuf.h,v 1.5 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: fixedstreambuf.h,v 1.6 2011-08-11 06:04:30 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -34,6 +34,7 @@ public:
 
 fixedstreambuf( char_type* b, off_type sz, bool manbuf=false )
     : mine_(manbuf)
+    , newpos_(0)
 {
     setbuf( b, sz );
 }
@@ -56,33 +57,33 @@ virtual fixedstreambuf* setbuf( char_type* b, streamsize n )
 virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
 			  ios_base::openmode which )
 {
-    pos_type newpos = offs;
+    newpos_ = offs;
     if ( sd == ios_base::cur )
-	newpos += which == ios_base::in ? gptr() - buf_ : pptr() - buf_;
+	newpos_ += which == ios_base::in ? gptr() - buf_ : pptr() - buf_;
     else if ( sd == ios_base::end )
-	newpos = sz_ + newpos;
+	newpos_ = sz_ + newpos_;
 
-    return seekpos( newpos, which );
+    return seekpos( newpos_, which );
 }
-
 
 virtual pos_type seekpos( pos_type newpos, ios_base::openmode which )
 {
-    if ( newpos < 0 || newpos >= sz_ )
-	newpos = -1;
+    if ( newpos_ < 0 || newpos_ >= sz_ )
+	newpos_ = -1;
     else if ( which == ios_base::in )
-	setg( buf_, buf_+newpos, buf_ + sz_ );
+	setg( buf_, buf_+newpos_, buf_ + sz_ );
     else
-	setp( buf_+newpos, buf_ + sz_ );
+	setp( buf_+newpos_, buf_ + sz_ );
 
-    return newpos;
+    return newpos_;
 }
 
 virtual streamsize xsgetn( char_type* s, streamsize n )
 {
     streamsize toget = n;
-    if ( toget > (egptr() - gptr()) )
-	toget = egptr() - gptr();
+    const int memsz = epptr() - pptr();
+    if ( toget > memsz && memsz >= 0  )
+	toget = memsz;
 
     memcpy( s, gptr(), toget );
     gbump( toget );
@@ -93,8 +94,9 @@ virtual streamsize xsgetn( char_type* s, streamsize n )
 virtual streamsize xsputn( const char_type* s, streamsize n )
 {
     streamsize toput = n;
-    if ( toput > (epptr() - pptr()) )
-	toput = epptr() - pptr();
+    const int memsz = epptr() - pptr();
+    if ( toput > memsz && memsz >= 0  )
+	toput = memsz;
 
     memcpy( pptr(), s, toput );
     pbump( toput );
@@ -105,7 +107,7 @@ virtual streamsize xsputn( const char_type* s, streamsize n )
     char_type*	buf_;
     off_type	sz_;
     bool	mine_;
-
+    off_type	newpos_;
 };
 
 } // namespace std
