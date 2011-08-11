@@ -4,19 +4,13 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: voxelconnectivityfilterpi.cc,v 1.1 2011-08-11 09:46:19 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilterpi.cc,v 1.2 2011-08-11 09:54:15 cvskris Exp $";
 
-#include "plugins.h"
-
+#include "odplugin.h"
 #include "voxelconnectivityfilter.h"
 
-mExternC int GetVoxelConnectivityFilterPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetVoxelConnectivityFilterPluginInfo()
+mDefODPluginEarlyLoad(VoxelConnectivityFilter);
+mDefODPluginInfo(VoxelConnectivityFilter)
 {
     static PluginInfo retpi = {
 	"VoxelConnectivityFilter plugin",
@@ -27,7 +21,7 @@ mExternC PluginInfo* GetVoxelConnectivityFilterPluginInfo()
 }
 
 
-mExternC const char* InitVoxelConnectivityFilterPlugin( int, char** )
+mDefODInitPlugin(VoxelConnectivityFilter)
 {
     VolProc::VoxelConnectivityFilter::initClass();
     return 0; // All OK - no error messages
