@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.9 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.10 2011-08-11 13:47:30 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -247,15 +247,55 @@ const ElasticPropertyRef& ElasticPropSelection::getPropertyRef(
 
 
 
-bool ElasticPropSelection::isValidInput() const
+bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
 {
-    bool isvalid = true;
     for ( int idx=0; idx<elasticprops_.size(); idx++ )
     {
-	if ( elasticprops_[idx].formula().variables().isEmpty() )
-	    isvalid = false;
+	const char* propnm = elasticprops_[idx].name();
+	const BufferStringSet& vars = elasticprops_[idx].formula().variables();
+	if ( vars.isEmpty() )
+	 {
+	    if ( errmsg )
+	    {	
+		*errmsg = "No variable specified for "; 
+		*errmsg += propnm; 
+	    }
+	    return false; 
+	 }
+
+	if ( !elasticprops_[idx].formula().expression() )
+	    continue;
+
+	if ( vars.isPresent( elasticprops_[idx].name() ) )
+	{ 
+	    if ( errmsg )
+	    {	
+		*errmsg += propnm; 
+		*errmsg += " is dependent on itself"; 
+	    }
+	    return false; 
+	}
+
+	for ( int idpr=0; idpr<elasticprops_.size(); idpr++ )
+	{
+	    if ( idpr == idx )
+		continue;
+
+	    const ElasticPropertyRef& elpr = elasticprops_[idpr];
+	    const char* nm = elpr.name();
+	    const ElasticFormula& form = elpr.formula();
+	    if ( vars.isPresent(nm) && form.variables().isPresent( propnm ) )
+	    { 
+		if ( errmsg )
+		{
+		    *errmsg += propnm; *errmsg += " and "; *errmsg += nm;
+		    *errmsg += " depend on each other"; 
+		}
+		return false; 
+	    }
+	}
     }
-    return isvalid;
+    return true;
 }
 
 
@@ -266,6 +306,16 @@ bool ElasticPropSelection::isPresent( const char* propname ) const
 	elpropnms.addIfNew( elasticprops_[idx].name() );
 
     return elpropnms.isPresent( propname );
+}
+
+
+int ElasticPropSelection::indexOf( const char* propname ) const
+{
+    BufferStringSet elpropnms;
+    for ( int idx=0; idx<elasticprops_.size(); idx++ )
+	elpropnms.addIfNew( elasticprops_[idx].name() );
+
+    return elpropnms.indexOf( propname );
 }
 
 
@@ -322,7 +372,10 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	if ( refprops_.isPresent( var ) )
 	    val = vals[refprops_.indexOf(var)];
 	else if ( elasticprops_.isPresent( var ) )
-	    val = getVal( ef, vals, sz );
+	{
+	    const int propidx = elasticprops_.indexOf(var);
+	    val = getVal( elasticprops_.getPropertyRefs()[propidx], vals, sz );
+	}
 
 	if ( !expr ) 
 	    break;

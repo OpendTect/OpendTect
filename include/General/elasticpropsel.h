@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.9 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.10 2011-08-11 13:47:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,14 +36,16 @@ public:
     				{ return name() != e.name(); }
 
     bool			isPresent(const char*) const;
+    int				indexOf(const char*) const;
 
     ElasticPropertyRef&		getPropertyRef(ElasticFormula::Type);
     const ElasticPropertyRef&	getPropertyRef(ElasticFormula::Type) const;
+
     static ElasticPropSelection* get(const MultiID&);
     static ElasticPropSelection* get(const IOObj*);
     bool                	put(const IOObj*) const;
 
-    bool			isValidInput() const;
+    bool			isValidInput(BufferString* errmsg=0) const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

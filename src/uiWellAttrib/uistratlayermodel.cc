@@ -7,39 +7,40 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.31 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.32 2011-08-11 13:47:30 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
-#include "uistratbasiclayseqgendesc.h"
-#include "uistratlaymoddisp.h"
-#include "uistratsynthdisp.h"
-#include "uistratsynthcrossplot.h"
-#include "uistrattreewin.h"
+
+#include "ctxtioobj.h"
+#include "elasticpropsel.h"
+#include "executor.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "strmprov.h"
+#include "settings.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
-#include "executor.h"
-#include "elasticpropsel.h"
+
 #include "uielasticpropsel.h"
+#include "uiioobjsel.h"
+#include "uigeninput.h"
+#include "uigroup.h"
+#include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
-#include "uitaskrunner.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
-#include "uigeninput.h"
-#include "uilistbox.h"
-#include "uiioobjsel.h"
+#include "uistratbasiclayseqgendesc.h"
+#include "uistratlaymoddisp.h"
+#include "uistratsynthdisp.h"
+#include "uistratsynthcrossplot.h"
+#include "uistrattreewin.h"
+#include "uitaskrunner.h"
 #include "uitoolbutton.h"
-#include "uilabel.h"
-#include "uigroup.h"
-#include "uimsg.h"
 
-#include "ctxtioobj.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "strmprov.h"
-#include "settings.h"
 
 const char* uiStratLayerModel::sKeyModeler2Use()
 {
@@ -225,14 +226,21 @@ void uiStratLayerModel::manPropsCB( CallBacker* )
 
 void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 {
-    uiElasticPropSelDlg dlg(this, seqdisp_->desc().propSelection(), 
-	    			seqdisp_->desc().elasticPropSel() );
-    if ( dlg.go() )
-	desc_.setElasticPropSel( dlg.storedKey() );
-
-    elpropsel_ = ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
+    selElasticProps();
+    genModels(0);
 }
 
+
+void uiStratLayerModel::selElasticProps()
+{
+    uiElasticPropSelDlg dlg(this,desc_.propSelection(),desc_.elasticPropSel());
+    if ( dlg.go() )
+    {
+	desc_.setElasticPropSel( dlg.storedKey() );
+	delete elpropsel_; 
+	elpropsel_ = new ElasticPropSelection( dlg.elasticSel() );
+    }
+}
 
 
 bool uiStratLayerModel::saveGenDescIfNecessary() const
@@ -302,6 +310,7 @@ bool uiStratLayerModel::openGenDesc()
     modl_.setEmpty();
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
+    delete elpropsel_; elpropsel_ = 0;
     return true;
 }
 
@@ -318,7 +327,7 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
 
-    addElasticProps();
+    setElasticProps();
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
@@ -326,15 +335,21 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 }
 
 
-void uiStratLayerModel::addElasticProps()
+void uiStratLayerModel::setElasticProps()
 {
-    elpropsel_ = ElasticPropSelection::get( seqdisp_->desc().elasticPropSel() );
+    const bool hadsel = elpropsel_;
+
+    if ( !elpropsel_ )
+	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
 
     if ( !elpropsel_ || !elpropsel_->isValidInput() )
-	selElasticPropsCB(0);
+	selElasticProps();
 
     if ( !elpropsel_ ) 
 	return;
+
+    if ( !hadsel )
+	seqdisp_->setNeedSave( true );
 
     modl_.addElasticPropSel( *elpropsel_ );
 }

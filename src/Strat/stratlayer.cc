@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.29 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.30 2011-08-11 13:47:30 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -191,7 +191,9 @@ void Strat::LayerSequence::addElasticPropSel( const ElasticPropSelection& elp )
     {
 	const ElasticPropertyRef& epref = elp.getPropertyRefs()[idx]; 
 	if ( props_.isPresent( epref.name() ) )
-	    props_ += new PropertyRef( epref );
+	    continue;
+
+	props_ += new PropertyRef( epref );
 
 	for ( int ilayer=0; ilayer<layers_.size(); ilayer++ )
 	{

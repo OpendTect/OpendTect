@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.4 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.5 2011-08-11 13:47:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ protected:
 	const char*		textOfVariable() const;
 	void			setVariable(const char*,float val);
 
+	bool			isActive() 	{ return isactive_; }
 	void			use(MathExpression*);
 
 	void			fillList();
@@ -89,7 +90,8 @@ protected:
     uiSeparator*		storenamesep_;
 
     void			getMathExpr();
-    void			selChgCB(CallBacker*);
+    void			selFormulaChgCB(CallBacker*);
+    void			selComputeFldChgCB(CallBacker*);
 };
 
 
@@ -101,11 +103,13 @@ public:
 					const MultiID& elpsel);
 				~uiElasticPropSelDlg();
 
-    const MultiID& 		storedKey() const { return storedmid_; }
+    const ElasticPropSelection&	elasticSel() const 	{ return elpropsel_; }
+    const MultiID& 		storedKey() const 	{ return storedmid_; }
 protected:
 
+    BufferStringSet		orgpropnms_;
     BufferStringSet		propnms_;
-    BufferStringSet		tmpelasticnms_;
+
     ObjectSet<uiElasticPropSelGrp> propflds_;
     uiTabStack*			ts_;
     CtxtIOObj&			ctio_;
@@ -113,8 +117,10 @@ protected:
     ElasticPropSelection	elpropsel_;
     MultiID			storedmid_;
 
-    bool			doSave(const IOObj&);
+    bool			doRead(const MultiID&);
+    bool			doStore(const IOObj&);
 
+    void			updateFields();
     bool			openPropSel();
     void                        openPropSelCB(CallBacker*) { openPropSel(); }
     bool			savePropSel(); 

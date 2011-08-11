@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.4 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.5 2011-08-11 13:47:30 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
@@ -53,10 +53,10 @@ int RayTracerRunner::nextStep()
     RayTracer1D* rt1d = new RayTracer1D( raysetup_ );
     rt1d->setModel( aim );
     rt1d->setOffsets( offsets_ );
+    raytracers_ += rt1d;
+
     if ( !rt1d->execute() )
 	mErrRet( rt1d->errMsg() );
-
-    raytracers_ += rt1d;
 
     nrdone_ ++;
     return MoreToDo();

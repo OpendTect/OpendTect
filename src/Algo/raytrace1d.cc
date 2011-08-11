@@ -161,9 +161,7 @@ bool RayTracer1D::init()
 	}
 	if ( mIsUdf( pvel ) && mIsUdf( svel ) )
 	{
-	    BufferString errmsg( "P-Wave and S-Wave are undefined for layer " );
-	    errmsg += toString( idx+1 );
-	    errmsg_ = errmsg;
+	    errmsg_ = "P-Wave or S-Wave velocities are invalid";
 	    return false;
 	}
     }

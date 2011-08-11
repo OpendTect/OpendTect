@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.7 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.8 2011-08-11 13:47:30 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -202,11 +202,11 @@ bool StratSynth::fillElasticModel( ElasticModel& aimodel,
     for ( int idx=0; idx<sz; idx++ )
     {
 	lay = seq.layers()[idx];
-	const float den = didx >= 0 ? lay->value( didx ) : mUdf( float );
+	const float den  = didx  >= 0 ? lay->value( didx )  : mUdf( float );
 	const float pval = pvidx >= 0 ? lay->value( pvidx ) : mUdf( float );
 	const float sval = svidx >= 0 ? lay->value( svidx ) : mUdf( float );
 
-	AILayer ail ( lay->thickness(), den, pval );
+	ElasticLayer ail ( lay->thickness(), pval, sval, den );
 	aimodel += ail;
     }
     return true;
