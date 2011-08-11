@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.24 2010-12-02 17:48:40 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.25 2011-08-11 12:30:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ mClass FactoryBase
 {
 public:
     virtual			~FactoryBase();
+    bool			hasName(const char* n) {return indexOf(n)>=0;}
     const BufferStringSet&	getNames(bool username=false) const;
     void			setDefaultName(int idx);
     				//!<idx refers to names in names_,
