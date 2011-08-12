@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.36 2010-12-14 15:53:16 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.37 2011-08-12 12:10:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,16 +100,16 @@ public:
 
 protected:
 
-    BufferString	fname_;
-    BufferString	hostname_;
-    BufferString	rshcomm_;
+    BufferString		fname_;
+    BufferString		hostname_;
+    BufferString		rshcomm_;
 
-    long		blocksize_;
-    bool		isbad_;
-    bool		iscomm_;
+    long			blocksize_;
+    bool			isbad_;
+    bool			iscomm_;
 
-    void		mkOSCmd(bool) const;
-    static StreamData	makePLIStream(int);
+    void			mkOSCmd(bool,BufferString&) const;
+    static StreamData		makePLIStream(int);
 
     static void	sendCBMsg(const CallBack*,const char*);
     		//!< The callback will be called with a const char* capsule
