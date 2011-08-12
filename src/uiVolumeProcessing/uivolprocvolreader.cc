@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.7 2011-03-30 14:31:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.8 2011-08-12 13:24:00 cvskris Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -24,13 +24,13 @@ namespace VolProc
 
 void uiVolumeReader::initClass()
 {
-    uiChain::factory().addCreator(create, VolumeReader::sKeyType(),
-	   VolumeReader::sUserName() );
+    uiChain::factory().addCreator(create, VolumeReader::sFactoryKeyword(),
+	   VolumeReader::sFactoryDisplayName() );
 }    
 
 
 uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
-    : uiStepDialog( p, VolumeReader::sUserName(), vr )
+    : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr )
     , volumereader_( vr )
     , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {

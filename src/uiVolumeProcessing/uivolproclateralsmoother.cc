@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.6 2011-08-04 06:43:12 cvskris Exp $";
+static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.7 2011-08-12 13:24:00 cvskris Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -24,13 +24,13 @@ namespace VolProc
 
 void uiLateralSmoother::initClass()
 {
-    uiChain::factory().addCreator( create, LateralSmoother::sKeyType(),
-	   LateralSmoother::sUserName() );
+    uiChain::factory().addCreator( create, LateralSmoother::sFactoryKeyword(),
+	   LateralSmoother::sFactoryDisplayName() );
 }    
 
 
 uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
-    : uiStepDialog( p, LateralSmoother::sUserName(), hf )
+    : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
 {
     setHelpID( "103.6.3" ); 

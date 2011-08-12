@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.3 2011-03-30 14:31:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.4 2011-08-12 13:24:00 cvskris Exp $";
 
 #include "uivolprocbodyfiller.h"
 
@@ -22,15 +22,15 @@ namespace VolProc
 
 void uiBodyFiller::initClass()
 {
-    SeparString str( BodyFiller::sKeyType(), uiChain::factory().cSeparator() );
+    SeparString str( BodyFiller::sFactoryKeyword(), uiChain::factory().cSeparator() );
     str += BodyFiller::sKeyOldType();
 
-    uiChain::factory().addCreator( create, str, BodyFiller::sUserName() );
+    uiChain::factory().addCreator( create, str, BodyFiller::sFactoryDisplayName() );
 }    
 
 
 uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
-    : uiStepDialog( p, BodyFiller::sUserName(), mp )
+    : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), mp )
     , bodyfiller_( mp )
     , ctio_(mMkCtxtIOObj(EMBody))
 {

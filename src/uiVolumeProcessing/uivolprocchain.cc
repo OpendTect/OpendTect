@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.23 2011-03-23 14:47:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.24 2011-08-12 13:24:00 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -235,12 +235,15 @@ void uiChain::updateList()
     int idx=0;
     for ( ; idx<chain_.nrSteps(); idx ++ )
     {
-	const char* key = chain_.getStep(idx)->type();
+	const char* key = chain_.getStep(idx)->factoryKeyword();
 	const char* username = chain_.getStep(idx)->userName();
-	const int keyidx = factory().getNames(false).indexOf( key );
-	const char* displayname = username
-	    ? username
-	    : factory().getNames(true)[keyidx]->buf();
+	const char* displayname = username;
+	if ( !displayname )
+	{
+	    displayname = chain_.getStep(idx)->factoryDisplayName();
+	    if ( !displayname )
+		displayname = key;
+	}
 
 	if ( idx>=steplist_->size() )
 	    steplist_->addItem( displayname, false);
@@ -265,7 +268,10 @@ void uiChain::updateButtons()
     movedownbutton_->setSensitive( stepsel!=-1 &&
 	    stepsel!=steplist_->size()-1 );
 
-    propertiesbutton_->setSensitive( stepsel!=-1 );
+    const bool hasdlg = stepsel>=0 &&
+	factory().hasName(chain_.getStep(stepsel)->factoryKeyword());
+
+    propertiesbutton_->setSensitive( hasdlg );
 }
 
 
@@ -274,7 +280,7 @@ bool uiChain::showPropDialog( int idx )
     Step* step = chain_.getStep( idx );
     if ( !step ) return false;
 
-    PtrMan<uiStepDialog> dlg = factory().create( step->type(), this, step );
+    PtrMan<uiStepDialog> dlg = factory().create( step->factoryKeyword(), this, step );
     if ( !dlg )
     {
 	uiMSG().error( "Internal error. Step cannot be created" );
@@ -353,7 +359,7 @@ void uiChain::addStepPush(CallBacker*)
 	return;
 
     const char* steptype = factory().getNames(false)[sel]->buf();
-    Step* step = PS().create( steptype, chain_ );
+    Step* step = Step::factory().create( steptype );
     if ( !step ) return;
 
     chain_.addStep( step );
