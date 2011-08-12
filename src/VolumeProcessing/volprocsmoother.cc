@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volprocsmoother.cc,v 1.7 2010-05-11 13:55:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprocsmoother.cc,v 1.8 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -16,16 +16,8 @@ static const char* rcsID = "$Id: volprocsmoother.cc,v 1.7 2010-05-11 13:55:05 cv
 namespace VolProc
 {
 
-void Smoother::initClass()
-{
-    VolProc::PS().addCreator( create, Smoother::sKeyType(),
-	    Smoother::sUserName() );
-}
-    
-    
-Smoother::Smoother(Chain& pc)
-    : Step( pc )
-    , smoother_( new Smoother3D<float> )
+Smoother::Smoother()
+    : smoother_( new Smoother3D<float> )
 {
     setOperator( BoxWindow::sName(), 0, 3, 3, 3 );
 }
@@ -68,10 +60,6 @@ StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& inrg ) const
 
     return res;
 }
-
-
-Step*  Smoother::create( Chain& pc )
-{ return new Smoother( pc ); }
 
 
 bool Smoother::setOperator( const char* nm, float param,

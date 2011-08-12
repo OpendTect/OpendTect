@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volprocsmoother.h,v 1.7 2010-05-11 13:55:05 cvsyuancheng Exp $
+ RCS:		$Id: volprocsmoother.h,v 1.8 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,12 @@ namespace VolProc
 mClass Smoother : public Step
 {
 public:
-    static void		initClass();
+			mDefaultFactoryInstantiation( VolProc::Step,
+			    Smoother, "Smoother", sFactoryKeyword() );
     
     			~Smoother();
-			Smoother(Chain&);
+			Smoother();
 
-    const char*		type() const			{ return sKeyType(); }
     bool		needsInput(const HorSampling&) const { return true; }
     HorSampling		getInputHRg(const HorSampling&) const;
     StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
@@ -50,13 +50,9 @@ public:
     bool		canInputAndOutputBeSame() const	{ return false; }
     bool		needsFullVolume() const 	{ return true; }
 
-    static const char*	sKeyType()			{ return "Smoother"; }
-    static const char*	sUserName()			{ return sKeyType(); }
-
     Task*		createTask();
 
 protected:
-    static Step*		create(Chain&);
     static const char*		sKeyZStepout()		{ return "ZStepout"; }
 
     bool                        prepareComp(int)	{ return true; }

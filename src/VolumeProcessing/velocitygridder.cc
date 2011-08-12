@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.18 2011-05-02 17:47:48 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.19 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -425,24 +425,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 }
 
 
-void VelGriddingStep::initClass()
-{
-    VolProc::PS().addCreator( create, VelGriddingStep::sType(),
-	  		      VelGriddingStep::sUserName() );
-}
-
-
-VolProc::Step* VelGriddingStep::create( VolProc::Chain& vr )
-{
-    VolProc::Step* res;
-    mTryAlloc( res, VelGriddingStep( vr ) );
-    return res;
-}
-
-
-VelGriddingStep::VelGriddingStep( VolProc::Chain& vr )
-    : VolProc::Step( vr )
-    , gridder_( 0 )
+VelGriddingStep::VelGriddingStep()
+    : gridder_( 0 )
 { }
 
 

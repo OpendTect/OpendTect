@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volproclateralsmoother.h,v 1.5 2010-10-04 19:56:14 cvskris Exp $
+ RCS:		$Id: volproclateralsmoother.h,v 1.6 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,12 @@ namespace VolProc
 mClass LateralSmoother : public Step
 {
 public:
-    static void		initClass();
+    mDefaultFactoryInstantiation( VolProc::Step,
+	    LateralSmoother, "LateralSmoother", "Lateral Smoother" );
     
+			LateralSmoother();
 			~LateralSmoother();
-			LateralSmoother(Chain&);
 
-    const char*		type() const;
     bool		needsInput(const HorSampling&) const;
     HorSampling		getInputHRg(const HorSampling&) const;
 
@@ -50,9 +50,6 @@ public:
     bool		canInputAndOutputBeSame() const {return true;}
     bool		needsFullVolume() const		{return false;}
 
-    static const char*	sKeyType()	{ return "LateralSmoother"; }
-    static const char*	sUserName()	{ return "Lateral Smoother"; }
-
     Task*		createTask();
 
 protected:
@@ -62,7 +59,6 @@ protected:
     static const char*	sKeyInterpolateUdf(){ return "Interpolate Udf";}
     static const char*	sKeyFixedValue() { return "Fixed Value"; }
     
-    static Step*	create(Chain&);
     Array2DFilterPars	pars_;
 
     bool		mirroredges_;

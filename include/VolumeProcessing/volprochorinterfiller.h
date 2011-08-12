@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.6 2010-05-11 13:55:05 cvsyuancheng Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.7 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,15 @@ namespace VolProc
 mClass HorInterFiller : public Step
 {
 public:
-    static void			initClass();
-    
+				mDefaultFactoryInstantiation( VolProc::Step,
+				    HorInterFiller, "HorInterFiller",
+				    "Horizon based painter" );
+
     				~HorInterFiller();
-				HorInterFiller(Chain&);
+				HorInterFiller();
 
     bool			isOK() const;
 
-    const char*			type() const { return sKeyType(); }
     bool			needsInput(const HorSampling& ) const
                                 	{ return true; }			
 
@@ -67,8 +68,6 @@ public:
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
 
-    static const char*		sKeyType()  { return "HorInterFiller"; }
-    static const char*		sUserName() { return "Horizon based painter"; }
     
 protected:
     bool			prefersBinIDWise() const        { return true; }
@@ -84,7 +83,6 @@ protected:
 
   
     EM::Horizon*		loadHorizon(const MultiID&) const;
-    static Step*      		create(Chain&);
 
     float    			topvalue_;    
     float			bottomvalue_;

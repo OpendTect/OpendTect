@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.12 2010-10-13 22:09:38 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.13 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -17,16 +17,8 @@ static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.12 2010-10-13 22:0
 namespace VolProc
 {
 
-void HorInterFiller::initClass()
-{
-    VolProc::PS().addCreator( create, HorInterFiller::sKeyType(),
-	    		      HorInterFiller::sUserName() );
-}
-    
-    
-HorInterFiller::HorInterFiller(Chain& pc)
-    : Step( pc )
-    , topvalue_( mUdf(float) )
+HorInterFiller::HorInterFiller()
+    : topvalue_( mUdf(float) )
     , bottomvalue_( mUdf(float) )
     , tophorizon_( 0 )
     , bottomhorizon_( 0 )
@@ -138,10 +130,6 @@ EM::Horizon* HorInterFiller::loadHorizon( const MultiID& mid ) const
     newhor->unRefNoDelete();
     return newhor;
 }
-
-
-Step*  HorInterFiller::create( Chain& pc )
-{ return new HorInterFiller( pc ); }
 
 
 bool HorInterFiller::computeBinID( const BinID& bid, int )

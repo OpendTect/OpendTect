@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2007
- RCS:		$Id: volprocbodyfiller.h,v 1.5 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:		$Id: volprocbodyfiller.h,v 1.6 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,11 +26,12 @@ class Step;
 mClass BodyFiller : public Step
 {
 public:
-    static void			initClass();
-    				BodyFiller(Chain&);
+	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );
+	mDefaultFactoryInstanciationBase( "BodyFiller", "Body shape painter");
+
+    				BodyFiller();
     				~BodyFiller();
 
-    const char*			type() const { return sKeyType(); }
     bool			needsInput(const HorSampling&) const; 
     bool			areSamplesIndependent() const { return true; }
     
@@ -57,11 +58,10 @@ public:
     MultiID			getSurfaceID() { return mid_; }
     Task*			createTask();
 
-    static const char*		sKeyType() { return "BodyFiller"; }
     static const char*		sKeyOldType() { return "MarchingCubes"; }
-    static const char* 		sUserName(){ return "Body shape painter"; }
     static const char*		sKeyMultiID(){return "Body ID"; }
-    static const char*		sKeyOldMultiID(){return "MarchingCubeSurface ID"; }
+    static const char*		sKeyOldMultiID()
+    					{ return "MarchingCubeSurface ID"; }
     static const char*		sKeyInsideOutsideValue() 
     					{ return "Surface InsideOutsideValue"; }
    
@@ -72,7 +72,6 @@ protected:
     bool			computeBinID(const BinID&,int); 
     bool			getFlatPlgZRange(const BinID&,
 						 Interval<double>& result); 
-    static Step*		create(Chain&);
 
     EM::Body*			body_;
     EM::EMObject*		emobj_;

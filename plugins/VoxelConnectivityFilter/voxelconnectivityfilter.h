@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id: voxelconnectivityfilter.h,v 1.1 2011-08-11 09:46:19 cvskris Exp $
+ RCS:		$Id: voxelconnectivityfilter.h,v 1.2 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,11 @@ namespace VolProc
 mClass VoxelConnectivityFilter : public Step
 {
 public:
-    mDefaultFactoryInstanciationBase( "VoxelConnectivityFilter",
-				      "Voxel Connection Filter" );
 
-    static Step*	createInstance(Chain& c)
-			{ return new VoxelConnectivityFilter(c); }
+			mDefaultFactoryInstantiation( Step,
+				VoxelConnectivityFilter,
+				"VoxelConnectivityFilter",
+				"Voxel Connection Filter" );
 
     enum		Connectivity { Faces, Edges, Corners };
     			DeclareEnumUtils( Connectivity );
@@ -67,7 +67,7 @@ public:
 
 protected:
 
-		    VoxelConnectivityFilter( Chain& );
+		    VoxelConnectivityFilter();
 		    ~VoxelConnectivityFilter();
 
     static const char*	sKeyRange()		{ return "Range"; }

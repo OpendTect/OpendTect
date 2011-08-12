@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.1 2011-08-11 09:46:19 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.2 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -30,12 +30,6 @@ DefineEnumNames( VoxelConnectivityFilter, AcceptOutput, 0, "AcceptOutput")
 
 DefineEnumNames( VoxelConnectivityFilter, Connectivity, 0, "Connectivity")
 { "Faces", "Edges", "Corners", 0 };
-
-
-void VoxelConnectivityFilter::initClass()
-{
-    PS().addCreator( createInstance, sFactoryKeyword(), sFactoryDisplayName() );
-}
 
 
 class VoxelConnectivityFilterTask : public ParallelTask
@@ -470,9 +464,8 @@ void VoxelConnectivityFilterTask::addBodyAlias( od_int64 id0, od_int64 id1)
 }
 
 
-VoxelConnectivityFilter::VoxelConnectivityFilter( Chain& chain )
-    : Step( chain )
-    , minbodysize_( mUdf(int) )
+VoxelConnectivityFilter::VoxelConnectivityFilter()
+    : minbodysize_( mUdf(int) )
     , rejectvalue_( mUdf(float) )
     , acceptoutput_( Input )
     , acceptvalue_( mUdf(float) )

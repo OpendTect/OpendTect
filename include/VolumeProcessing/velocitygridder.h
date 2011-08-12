@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.11 2011-03-30 14:31:06 cvsyuancheng Exp $
+ RCS:		$Id: velocitygridder.h,v 1.12 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,10 +30,11 @@ namespace VolProc
 mClass VelGriddingStep : public VolProc::Step
 {
 public:
-    static void		initClass();
-
-			VelGriddingStep(VolProc::Chain&);
+			VelGriddingStep();
     			~VelGriddingStep();
+
+			mDefaultFactoryInstantiation( VolProc::Step,
+				VelGriddingStep, "Gridding", "Velocity gridder" );
 
     const char*		type() const			{ return sType(); }
     const VelocityDesc* getVelDesc() const;

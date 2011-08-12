@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.18 2010-08-30 04:51:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.19 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: volprocchain.cc,v 1.18 2010-08-30 04:51:36 cvsn
 namespace VolProc
 {
 
-mImplFactory1Param( Step, Chain&, PS );
+mImplFactory( Step, Step::factory );
 
 
 class BinIDWiseTask : public ParallelTask
@@ -317,7 +317,10 @@ int Chain::indexOf(const Step* r) const
 
 
 void Chain::addStep( Step* r )
-{ steps_ += r; }
+{
+    r->setChain( *this );
+    steps_ += r;
+}
 
 
 void Chain::insertStep( int idx, Step* r )
@@ -366,7 +369,7 @@ void Chain::fillPar(IOPar& par) const
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
 	IOPar oppar;
-	oppar.set( sKeyStepType(), steps_[idx]->type() );
+	oppar.set( sKeyStepType(), steps_[idx]->factoryKeyword() );
 	steps_[idx]->fillPar( oppar );
 
 	par.mergeComp( oppar, toString(idx) );
@@ -404,7 +407,7 @@ bool Chain::usePar( const IOPar& par )
 	    return false;
 	}
 
-	Step* step = PS().create( type.buf(), *this );
+	Step* step = Step::factory().create( type.buf() );
 	if ( !step )
 	{
 	    errmsg_ = "Cannot create Volume processing step ";
@@ -436,8 +439,8 @@ const char* Chain::errMsg() const
 { return errmsg_.str(); }
 
 
-Step::Step( Chain& chain )
-    : chain_( chain )
+Step::Step()
+    : chain_( 0 )
     , output_( 0 )
     , input_( 0 )
     , enabled_( true )

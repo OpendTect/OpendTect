@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.13 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.14 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -317,24 +317,12 @@ bool processKernel( int start, int stop, int thread )
 };
 
 
-void LateralSmoother::initClass()
-{
-    VolProc::PS().addCreator( create, LateralSmoother::sKeyType(),
-	    		      LateralSmoother::sUserName() );
-}
-
-
-const char* LateralSmoother::type() const
-{ return sKeyType(); }
-
-
 bool LateralSmoother::needsInput(const HorSampling&) const
 { return true; }
     
     
-LateralSmoother::LateralSmoother(Chain& pc)
-    : Step( pc )
-    , mirroredges_( true )
+LateralSmoother::LateralSmoother()
+    : mirroredges_( true )
     , interpolateundefs_( false )
     , fixedvalue_( mUdf(float) )
 {}
@@ -353,10 +341,6 @@ HorSampling LateralSmoother::getInputHRg( const HorSampling& hrg ) const
     res.stop.crl = hrg.stop.crl + res.step.crl * pars_.stepout_.col;
     return res;
 }
-
-
-Step*  LateralSmoother::create( Chain& pc )
-{ return new LateralSmoother( pc ); }
 
 
 void LateralSmoother::setPars( const Array2DFilterPars& pars )

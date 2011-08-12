@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.14 2011-07-24 13:10:50 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.15 2011-08-12 13:18:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,14 +87,13 @@ protected:
 mClass Step
 {
 public:
-    				Step(Chain&);
+				mDefineFactoryInClass( Step, factory );
+    				Step();
     virtual			~Step();
-    const Chain&		getChain() const	{ return chain_; }
 
-    virtual const char*		factoryDisplayName() const { return factoryKeyword(); } \
-    virtual const char* factoryKeyword() const { return 0; }
+    Chain&			getChain() { return *chain_; }
+    void			setChain(Chain& c) { chain_ = &c; }
 
-    virtual const char*		type() const 				= 0;
     virtual const char*		userName() const;
     virtual void		setUserName(const char* nm);
 
@@ -145,8 +144,9 @@ protected:
     virtual bool	prepareComp(int nrthreads)		{ return true;}
 
     static const char*		sKeyEnabled() { return "Enabled"; }
-    Chain&			chain_;
     bool			enabled_;
+
+    Chain*			chain_;
 
     Attrib::DataCubes*		output_;
     const Attrib::DataCubes*	input_;
@@ -155,11 +155,9 @@ protected:
 
     HorSampling			hrg_;
     StepInterval<int>		zrg_;
-
 };
 
 
-mDefineFactory1Param( Step, Chain&, PS );
 
 mClass ChainExecutor : public Executor
 {

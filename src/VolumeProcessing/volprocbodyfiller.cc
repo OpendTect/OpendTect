@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.8 2011-03-22 08:54:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.9 2011-08-12 13:18:51 cvskris Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -28,22 +28,15 @@ namespace VolProc
 
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sKeyType(), VolProc::PS().cSeparator() );
+    SeparString keys( BodyFiller::sFactoryKeyword(), VolProc::Step::factory().cSeparator() );
     keys += BodyFiller::sKeyOldType();
 
-    VolProc::PS().addCreator( create, keys, BodyFiller::sUserName() );
+    VolProc::Step::factory().addCreator( createInstance, keys, BodyFiller::sFactoryDisplayName() );
 }    
 
 
-Step* BodyFiller::create( Chain& pc )
-{ 
-    return new VolProc::BodyFiller( pc ); 
-}
-
-
-BodyFiller::BodyFiller( Chain& pc )
-    : Step( pc )
-    , body_( 0 )  
+BodyFiller::BodyFiller()
+    : body_( 0 )  
     , emobj_( 0 )
     , implicitbody_( 0 )
     , insideval_( mUdf(float) )
