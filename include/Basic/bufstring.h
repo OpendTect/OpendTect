@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.46 2011-02-03 21:28:41 cvskris Exp $
+ RCS:		$Id: bufstring.h,v 1.47 2011-08-12 10:16:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ public:
     bool		isEqual(const char*,bool caseinsens=false) const;
     bool		isStartOf(const char*,bool caseinsens=false) const;
     bool		matches(const char*,bool caseinsens=false) const;
+    void                fill(char*) const; //<!Caller should ensure enough space
 
     BufferString&	add(const char*);
     BufferString&	add( const BufferString& b )	{ return add(b.buf()); }
