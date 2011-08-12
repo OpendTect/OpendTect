@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.89 2011-02-04 15:44:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.90 2011-08-12 13:32:49 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.89 2011-02-04 15:44:59 cvsjaap Exp
 #include "separstr.h"
 #include "ascstream.h"
 #include "samplingdata.h"
+#include "staticstring.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
@@ -175,7 +176,7 @@ void IOPar::merge( const IOPar& iopar )
 
 const char* IOPar::compKey( const char* key1, int k2 )
 {
-    static BufferString intstr;
+    BufferString& intstr = StaticStringManager::STM().getString();
     intstr = ""; intstr += k2;
     return compKey( key1, (const char*)intstr );
 }
@@ -183,7 +184,7 @@ const char* IOPar::compKey( const char* key1, int k2 )
 
 const char* IOPar::compKey( const char* key1, const char* key2 )
 {
-    static BufferString ret;
+    BufferString& ret = StaticStringManager::STM().getString();
     ret = key1;
     if ( key1 && key2 && *key1 && *key2 ) ret += ".";
     ret += key2;

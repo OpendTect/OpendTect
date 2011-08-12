@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.5 2011-03-31 11:03:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.6 2011-08-12 13:30:40 cvskris Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "staticstring.h"
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }
@@ -127,7 +128,7 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 {
     if ( withparens )
     {
-	static BufferString ret;
+	BufferString& ret = StaticStringManager::STM().getString();
 	ret = "";
 	BufferString unitstr = unitStr( false );
 	if ( !unitstr.isEmpty() )

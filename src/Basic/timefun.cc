@@ -5,10 +5,11 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.22 2010-09-15 05:18:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.23 2011-08-12 13:32:49 cvskris Exp $";
 
 #include "timefun.h"
 #include "bufstring.h"
+#include "staticstring.h"
 
 #include <QDateTime>
 #include <QTime>
@@ -56,7 +57,7 @@ const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
 const char* getDateTimeString( const char* fmt, bool local )
 {
-    static BufferString datetimestr;
+    BufferString& datetimestr = StaticStringManager::STM().getString();
     QDateTime qdt = QDateTime::currentDateTime();
     if ( !local ) qdt = qdt.toUTC();
     datetimestr = qdt.toString( fmt ).toAscii().constData();

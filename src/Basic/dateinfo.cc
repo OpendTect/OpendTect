@@ -5,12 +5,13 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.18 2010-12-07 22:16:38 cvskris Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.19 2011-08-12 13:32:49 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
 #include "keystrs.h"
 #include "separstr.h"
+#include "staticstring.h"
 #include <time.h>
 
 	//  0   1   2   3    4    5    6    7    8    9   10   11   12
@@ -269,7 +270,7 @@ void DateInfo::calcDays1900()
 
 const char* DateInfo::whenRelative( const DateInfo* di ) const
 {
-    static BufferString ret;
+    BufferString& ret = StaticStringManager::STM().getString();
 
     if ( di )	getRel( *di, ret );
     else	getRelToday( ret );

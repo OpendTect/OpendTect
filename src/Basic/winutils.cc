@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.19 2010-04-08 07:24:32 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.20 2011-08-12 13:32:49 cvskris Exp $";
 
 
 #include "winutils.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: winutils.cc,v 1.19 2010-04-08 07:24:32 cvsranoj
 #include "envvars.h"
 #include "debugmasks.h"
 #include "string2.h"
+#include "staticstring.h"
 
 #ifdef __win__
 # include <windows.h>
@@ -36,7 +37,7 @@ const char* getCleanUnxPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static BufferString res;
+    BufferString& res = StaticStringManager::STM().getString();
 
     BufferString buf; buf = path;
     char* ptr = buf.buf();
@@ -72,7 +73,7 @@ const char* getCleanWinPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static BufferString ret;
+    BufferString& ret = StaticStringManager::STM().getString();
     ret = path;
     replaceCharacter( ret.buf(), ';' , ':' );
 
@@ -128,7 +129,7 @@ const char* getCleanWinPath( const char* path )
 
 const char* getCygDir()
 {
-    static BufferString answer;
+    BufferString& answer = StaticStringManager::STM().getString();
     if ( !answer.isEmpty() )  return answer;
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
@@ -165,7 +166,7 @@ const char* getCygDir()
 
 const char* GetSpecialFolderLocation(int nFolder)
 {
-    static BufferString Result;
+    BufferString& Result = StaticStringManager::STM().getString();
 
     LPITEMIDLIST pidl;
     HRESULT hr = SHGetSpecialFolderLocation(NULL, nFolder, &pidl);

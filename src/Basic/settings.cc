@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.45 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.46 2011-08-12 13:32:49 cvskris Exp $";
 
 #include "settings.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: settings.cc,v 1.45 2011-04-21 13:09:13 cvsbert 
 #include "filepath.h"
 #include "oddirs.h"
 #include "safefileio.h"
+#include "staticstring.h"
 
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";
@@ -207,7 +208,7 @@ bool Settings::write( bool do_merge ) const
 mExternC const char* GetSettingsDataDir();
 mExternC const char* GetSettingsDataDir()
 {
-    static BufferString dirnm;
+    BufferString& dirnm = StaticStringManager::STM().getString();
     Settings::common().get( "Default DATA directory", dirnm );
     return dirnm.buf();
 }
