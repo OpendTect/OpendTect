@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: seisparallelreader.cc,v 1.1 2011-08-10 06:15:41 cvskris Exp $";
+static const char* rcsID = "$Id: seisparallelreader.cc,v 1.2 2011-08-12 13:17:03 cvskris Exp $";
 
 #include "seisparallelreader.h"
 
@@ -17,9 +17,10 @@ static const char* rcsID = "$Id: seisparallelreader.cc,v 1.1 2011-08-10 06:15:41
 #include "seistrctr.h"
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
-	const TypeSet<int>& components, ObjectSet<Array3D<float> >& arrays,
+	const TypeSet<int>& components,
+	const ObjectSet<Array3D<float> >& arrays,
 	const CubeSampling& cs )
-    : arrays_( &arrays )
+    : arrays_( new ObjectSet<Array3D<float> >( arrays ) )
     , components_( components )
     , bidvals_( 0 )
     , cs_( cs )
@@ -30,7 +31,7 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
                       BinIDValueSet& bidvals,
-				      const TypeSet<int>& components )
+		      const TypeSet<int>& components )
     : arrays_( 0 )
     , components_( components )
     , bidvals_( &bidvals )
@@ -41,27 +42,65 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 
 Seis::ParallelReader::~ParallelReader()
 {
+    delete arrays_;
     delete ioobj_;
 }
 
 
 bool Seis::ParallelReader::doPrepare( int nrthreads )
 {
+    const char* allocprob = "Cannot allocate memory";
+
     if ( bidvals_ )
     {
-        if ( bidvals_->nrVals()!=1+components_.size() )
-	        bidvals_->setNrVals( 1+components_.size(), true );
+	pErrMsg("The bidval-code is not tested. Run through step by step, make "
+		"sure everything is OK and remove this warning.");
+	const int nrvals = 1+components_.size();
+        if ( bidvals_->nrVals()!=nrvals )
+	{
+	    if ( !bidvals_->setNrVals( nrvals, true ) )
+	    {
+		errmsg_ = allocprob;
+		return false;
+	    }
+	}
     }
     else
     {
         for ( int idx=0; idx<components_.size(); idx++ )
         {
+	    const Array3DInfoImpl sizes( cs_.hrg.nrInl(), cs_.hrg.nrCrl(),
+				     cs_.zrg.nrSteps()+1 );
+	    bool setbg = false;
             if ( idx>=arrays_->size() )
             {
-                (*arrays_) += new Array3DImpl<float>( cs_.hrg.nrInl(),
-                                                   cs_.hrg.nrCrl(),
-                                                   cs_.zrg.nrSteps() );
+		mDeclareAndTryAlloc( Array3D<float>*, arr,
+				     Array3DImpl<float>( sizes ) );
+		if ( !arr || !arr->isOK() )
+		{
+		    errmsg_ = allocprob;
+		    return false;
+		}
+
+                (*arrays_) +=  arr;
+		setbg = true;
             }
+	    else
+	    {
+		if ( (*arrays_)[idx]->info()!=sizes ) 
+		{
+		    if ( !(*arrays_)[idx]->setInfo( sizes ) )
+		    {
+			errmsg_ = allocprob;
+			return false;
+		    }
+
+		    setbg = true;
+		}
+	    }
+
+	    if ( setbg )
+		(*arrays_)[idx]->setAll( mUdf(float) );
         }
     }
     
@@ -71,18 +110,27 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 
 bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj_ );
-    if ( !reader || !reader->prepareWork() )
+    PtrMan<IOObj> ioobj = ioobj_->clone();
+    PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj );
+    if ( !reader )
     {
+	errmsg_ = "Cannot open storage";
 	return false;
     }
-    //Set ranges, at least z-range
 
+    if ( !reader->prepareWork() )
+    {
+	errmsg_ = reader->errMsg();
+	return false;
+    }
+
+    //Set ranges, at least z-range
     mDynamicCastGet( SeisTrcTranslator*, translator,
 		     reader->translator() );
 
     if ( !translator || !translator->supportsGoTo() )
     {
+	errmsg_ = "Storage does not support random access";
 	return false;
     }
 
@@ -101,29 +149,59 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     {
         iter.setSampling( cs_.hrg );
         curbid = cs_.hrg.atIndex( start );
+	if ( !iter.next( curbid ) ) //As first next does nothing ...
+	    return false;
     }
 
     SeisTrc trc;
 
-    for ( od_int64 idx=start; true; idx++ )
+#define mUpdateInterval 100
+    int nrdone = 0;
+    for ( od_int64 idx=start; true; idx++, nrdone++ )
     {
+	if ( nrdone>mUpdateInterval )
+	{
+	    addToNrDone( nrdone );
+	    nrdone = 0;
+
+	    if ( !shouldContinue() )
+		return false;
+	}
+
         if ( translator->goTo( curbid ) && reader->get( trc ) &&
             trc.info().binid==curbid )
         {
             if ( bidvals_ )
             {
+		float* vals = bidvals_->getVals(bidvalpos);
+		const float z = vals[0];
+		if ( !mIsUdf(z) )
+		{
+		    for ( int idc=components_.size()-1; idc>=0; idc-- )
+		    {
+			vals[idc+1] = trc.getValue( z, components_[idc] );
+		    }
+		}
             }
             else
             {
-            }
-        }
-        else
-        {
-            if ( bidvals_ )
-            {
-            }
-            else
-            {
+		const int inlidx = cs_.hrg.inlIdx( curbid.inl );
+		const int crlidx = cs_.hrg.crlIdx( curbid.crl );
+
+		for ( int idz=(*arrays_)[0]->info().getSize(2)-1; idz>=0; idz--)
+		{
+		    bool dobg;
+		    float val;
+		    const double z = cs_.zrg.atIndex( idz );
+		    for ( int idc=arrays_->size()-1; idc>=0; idc-- )
+		    {
+			val = trc.getValue( z, components_[idc] );
+			if ( !mIsUdf(val) )
+			{
+			    (*arrays_)[idc]->set( inlidx, crlidx, idz, val );
+			}
+		    }
+		}
             }
         }
 
@@ -143,6 +221,8 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
                 return false;
         }
     }
+
+    addToNrDone( nrdone );
     
     return true;
 }
