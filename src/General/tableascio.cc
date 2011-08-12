@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.36 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.37 2011-08-12 09:31:49 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: tableascio.cc,v 1.36 2011-01-10 13:29:58 cvsber
 #include "ascstream.h"
 #include "keystrs.h"
 #include "file.h"
+#include "staticstring.h"
 #include <iostream>
 
 mBasicExtern std::ostream& logMsgStrm();
@@ -752,7 +753,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     if ( isNumberString(sval,flg) )
 	return sval;
 
-    static BufferString bufstr;
+    BufferString& bufstr = StaticStringManager::STM().getString();
     bufstr = sval;
     sval = bufstr.buf();
     char* ptr = bufstr.buf() + bufstr.size() - 1;
