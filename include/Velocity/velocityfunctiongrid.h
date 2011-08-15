@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.9 2011-03-22 22:00:18 cvsyuancheng Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.10 2011-08-15 12:28:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
     bool		isInfluencedBy(const BinID&) const;
 
     void		setGridder(const Gridder2D&); //!<I will clone
+    Gridder2D*		getGridder() { return gridder_; }
 
 protected:
     			~GriddedFunction();
