@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.21 2011-03-22 22:00:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.22 2011-08-15 12:58:01 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -69,7 +69,6 @@ bool GriddedFunction::fetchSources()
     {
 	const Coord workpos = SI().transform( bid_ );
 	if ( gridder_ && (!gridder_->setGridPoint( workpos ) || 
-	     !gridder_->setPoints( gvs.gridsourcecoords_ ) ||
 	     !gridder_->init()) )
 	    return false;
 
@@ -130,6 +129,10 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 
     delete gridder_;
     gridder_ = ng.clone();
+
+    if ( ng.getPoints() )
+	gridder_->setPoints( *ng.getPoints() );
+
     removeCache();
     fetchSources();
 }
@@ -403,9 +406,17 @@ bool GriddedSource::initGridder()
 	sourcepos_.append( bids );
     }
 
-    GridderSourceFilter filter( sourcepos_, gridsourcebids_, gridsourcecoords_ );
+    GridderSourceFilter filter( sourcepos_, gridsourcebids_,gridsourcecoords_);
     if ( !filter.execute( true ) || !gridder_->setPoints( gridsourcecoords_ ) )
 	return false;
+
+    for ( int idx=functions_.size()-1; idx>=0; idx-- )
+    {
+ 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
+	if ( func->getGridder() )
+	    func->getGridder()->setPoints( gridsourcecoords_ );
+    }
+
 
     gridderinited_ = true;
     return true;
