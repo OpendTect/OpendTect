@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.19 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.20 2011-08-15 12:40:40 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -81,6 +81,7 @@ public:
     				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
+    const char*			nrDoneText() const    { return "CDPs gridded"; }
 
     VelGriddingStep&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
