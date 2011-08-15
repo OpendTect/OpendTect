@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.22 2011-08-15 12:58:01 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.23 2011-08-15 14:38:49 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -131,7 +131,15 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
     gridder_ = ng.clone();
 
     if ( ng.getPoints() )
-	gridder_->setPoints( *ng.getPoints() );
+    {
+	//Hack to hope for a better randomization 
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    if ( gridder_->setPoints( *ng.getPoints() ) )
+		break;
+	}
+    }
+
 
     removeCache();
     fetchSources();
@@ -412,9 +420,16 @@ bool GriddedSource::initGridder()
 
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
- 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
+	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
 	if ( func->getGridder() )
-	    func->getGridder()->setPoints( gridsourcecoords_ );
+	{
+	    //Hack to hope for a better randomization 
+            for ( int idy=0; idy<3; idy++ )
+	    {
+		if ( func->getGridder()->setPoints( gridsourcecoords_ ) )
+		    break;
+	    }
+	}
     }
 
 
