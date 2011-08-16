@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.90 2011-08-12 13:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.91 2011-08-16 09:49:49 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -176,8 +176,7 @@ void IOPar::merge( const IOPar& iopar )
 
 const char* IOPar::compKey( const char* key1, int k2 )
 {
-    BufferString& intstr = StaticStringManager::STM().getString();
-    intstr = ""; intstr += k2;
+    BufferString intstr = ""; intstr += k2;
     return compKey( key1, (const char*)intstr );
 }
 
