@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.30 2011-08-16 14:01:18 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.31 2011-08-16 14:05:58 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -200,7 +200,7 @@ bool InverseDistanceGridder2D::init()
 	}
 
 	const double dist = Math::Sqrt( sqdist );
-	const double weight = 1-dist/radius_;
+	const double weight = useradius ? 1-dist/radius_ : 1/dist;
 
 	weightsum += weight;
 	weights_ += weight;
