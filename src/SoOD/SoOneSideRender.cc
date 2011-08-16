@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoOneSideRender.cc,v 1.2 2011-02-16 21:50:09 cvskris Exp $";
+static const char* rcsID = "$Id: SoOneSideRender.cc,v 1.3 2011-08-16 08:00:26 cvskris Exp $";
 
 #include "SoOneSideRender.h"
 
@@ -50,17 +50,26 @@ bool SoOneSideRender::shouldRender( int idx, SoState* state ) const
 	 idx>=normals.getNum() || !nodes[idx] )
 	return false;
 
-    const SbVec3f position = positions[idx];
     const SbVec3f normal = normals[idx];
-
     const SbViewVolume& vv = SoViewVolumeElement::get(state);
-    const SbVec3f worldcamerapos = vv.getProjectionPoint();
     const SbMatrix& mat = SoModelMatrixElement::get(state).inverse();
-    SbVec3f localcamerapos;
-    mat.multVecMatrix( worldcamerapos, localcamerapos );
 
-    const SbVec3f cameradir = localcamerapos-position;
-    return cameradir.dot(normal)>=0;
+    if ( vv.getProjectionType()==SbViewVolume::PERSPECTIVE )
+    {
+	const SbVec3f worldcamerapos = vv.getProjectionPoint();
+	SbVec3f localcamerapos;
+	mat.multVecMatrix( worldcamerapos, localcamerapos );
+
+	const SbVec3f position = positions[idx];
+	const SbVec3f cameradir = localcamerapos-position;
+	return cameradir.dot(normal)>=0;
+    }
+
+    //Orthographic
+    const SbVec3f& worldprojdir = vv.getProjectionDirection();
+    SbVec3f localprojdir;
+    mat.multDirMatrix( worldprojdir, localprojdir );
+    return localprojdir.dot(normal)<=0;
 }
 
 #define mImplementFunc( func, actiontype )		\
