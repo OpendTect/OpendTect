@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.24 2011-08-16 13:56:10 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.25 2011-08-17 06:22:48 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -189,6 +189,8 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     const bool nogridding = velocityfunctions_.size()==1;
 
+    const bool doinverse = getDesc().isVelocity();
+
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
@@ -201,34 +203,34 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	TypeSet<int> undefpos;
 	int nrnull = 0;
 
-	double slownesssum = 0;
-	int nrslowness = 0;
+	double gridvaluesum = 0;
+	int nrgridvalues = 0;
 
 	const TypeSet<int>& usedpoints = gridder_->usedValues();
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
-	    const float vel = velocityfunctions_[idy]->getVelocity( z );
-	    if ( mIsZero(vel,1e-3) )
+	    const float value = velocityfunctions_[idy]->getVelocity( z );
+	    if ( doinverse && mIsZero(value,1e-3) )
 	    {
 		undefpos += usedpoints[idy];
 		nrnull ++;
 		continue;
 	    }
 
-	    if ( mIsUdf(vel) )
+	    if ( mIsUdf(value) )
 	    {
 		undefpos += usedpoints[idy];
 		continue;
 	    }
 
-	    const float slowness = 1.0/vel;
+	    const float gridvalue = doinverse ? 1.0/value : value;
 
-	    gridvalues_[usedpoints[idy]] = slowness;
-	    slownesssum += slowness;
-	    nrslowness++;
+	    gridvalues_[usedpoints[idy]] = gridvalue;
+	    gridvaluesum += gridvalue;
+	    nrgridvalues++;
 	}
 
-	if ( nrslowness<usedpoints.size() )
+	if ( nrgridvalues<usedpoints.size() )
 	{
 	    if ( nrnull==usedpoints.size() ) //All are null
 	    {
@@ -236,20 +238,23 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		continue;
 	    }
 
-	    if ( !nrslowness )
+	    if ( !nrgridvalues )
 	    {
 		res[idx] = mUdf(float);
 		continue;
 	    }
 
-	    const float averageslowness = slownesssum/nrslowness;
+	    const float averageval = gridvaluesum/nrgridvalues;
 	    for ( int idy=undefpos.size()-1; idy>=0; idy-- )
-		gridvalues_[undefpos[idy]] = averageslowness;
+		gridvalues_[undefpos[idy]] = averageval;
 	}
 
 	gridder_->setValues( gridvalues_, false );
-	const float slowness = gridder_->getValue();
-	res[idx] = mIsZero(slowness, 1e-7 ) ? mUdf(float) : 1.0/slowness;
+	const float val = gridder_->getValue();
+	if ( doinverse )
+	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0/val;
+	else
+	    res[idx] = val;
     }
 
     return true;
