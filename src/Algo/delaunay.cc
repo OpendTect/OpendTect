@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.46 2010-08-20 02:24:47 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.47 2011-08-17 11:37:01 cvskris Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1526,15 +1526,18 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 	float weightsum = 0, remwsum = 0;
 	for ( int idx=0; idx<tmpv.size(); idx++ )
 	{
-	    const Coord df = triangles_.coordList()[tmpv[idx]] - pt;
-	    if ( df.sqAbs()<maxdist*maxdist )
+	    const int vertice = tmpv[idx];
+	    const float weight = tmpw[idx];
+
+	    const Coord df = triangles_.coordList()[vertice] - pt;
+	    if ( weight>mDefEps && df.sqAbs()<maxdist*maxdist )
 	    {
-		vertices += tmpv[idx];
-		weights += tmpw[idx];
-		weightsum += tmpw[idx];
+		vertices += vertice;
+		weights += weight;
+		weightsum += weight;
 	    }
 	    else
-		remwsum += tmpw[idx];
+		remwsum += weight;
 	}	
 
 	for ( int idx=0; idx<vertices.size(); idx++ )
