@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.32 2010-02-17 17:18:30 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.33 2011-08-17 11:40:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,6 +170,10 @@ protected:
     od_int64		nrIterations() const;
     bool		doWork(od_int64,od_int64, int );
     bool		doPrepare(int);
+
+    const char*		nrDoneText() const
+			{ return "Points triagulated"; }
+    const char*		message() const { return "Triangulating"; }
 
     od_int64*		permutation_;
     bool		israndom_;
