@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.6 2010-07-06 17:37:50 cvsnanne Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.7 2011-08-18 08:44:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
     bool		waiting() const		{ return status_==Waiting; }
     const Coord3&	getPos() const		{ return pickedpos_; }
     int			getSceneID() const	{ return pickedscene_; }
+    const TypeSet<int>&	getPickedObjIDs() const	{ return pickedobjids_; }
     			
     void		addScene(visSurvey::Scene*);
     void		removeScene(visSurvey::Scene*);
@@ -40,6 +41,7 @@ protected:
 
     ObjectSet<visSurvey::Scene>	scenes_;
     TypeSet<int>		allowedscenes_;
+    TypeSet<int>		pickedobjids_;
 
     enum Status			{ Idle, Waiting, Failed, Success } status_;
     Coord3			pickedpos_;

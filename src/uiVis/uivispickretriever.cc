@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispickretriever.cc,v 1.11 2010-12-08 09:57:21 cvsraman Exp $";
+static const char* rcsID = "$Id: uivispickretriever.cc,v 1.12 2011-08-18 08:44:15 cvssatyaki Exp $";
 
 #include "uivispickretriever.h"
 
@@ -101,6 +101,8 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	pickedscene_ = scene->id();
 	status_ = Success;
     }
+
+    pickedobjids_ = eventinfo.pickedobjids;
 
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
