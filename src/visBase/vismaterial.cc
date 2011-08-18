@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismaterial.cc,v 1.20 2011-07-11 11:48:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.21 2011-08-18 08:44:47 cvssatyaki Exp $";
 
 #include "vismaterial.h"
 #include "iopar.h"
@@ -157,6 +157,10 @@ void Material::updateMaterial(int idx)
 
     change.trigger();
 }
+
+
+int Material::nrOfMaterial() const
+{ return color_.size(); }
 
 
 void Material::setMinNrOfMaterials(int minnr)
