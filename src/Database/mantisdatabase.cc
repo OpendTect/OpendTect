@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.10 2011-08-10 11:17:29 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.11 2011-08-18 09:54:17 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -716,4 +716,35 @@ void SqlDB::MantisDBMgr::prepareForQuery( BufferString& str )
 	replaceString( str.buf(), "'", "''" ); // ANSI standard
     if ( nrdrepl > 0 )
 	replaceString( str.buf(), "\"", "\\\"" ); // MySql specific
+}
+
+
+void SqlDB::MantisDBMgr::getMajorVersions( BufferStringSet& majorvers )
+{
+    majorvers.erase();
+    majorvers.add( sKeyAll() );
+    const BufferStringSet& vers = versions();
+    if ( vers.isEmpty() ) return;
+
+    for ( int idx=0; idx<vers.size(); idx++ )
+    {
+	BufferString str( vers.get( idx ) );
+	char* ver = str.buf();
+	if ( !ver || !*ver ) continue;
+
+	int found = 0;
+	while ( *ver )
+	{
+	    if ( '.' == *ver )
+	    {
+		found++;
+		if ( found > 1 )
+		    *ver = '\0';
+	    }
+
+	    ver++;
+	}
+
+	majorvers.addIfNew( str.buf() );
+    }
 }
