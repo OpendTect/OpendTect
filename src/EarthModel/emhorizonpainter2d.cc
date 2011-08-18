@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.7 2011-06-06 07:44:36 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.8 2011-08-18 04:14:41 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,9 @@ bool HorizonPainter2D::addPolyLine()
 	    }
 	    
 	    int idx = trcnos_.indexOf(bid.crl);
+	    if ( idx == -1 )
+		continue;
+
 	    marker->marker_->poly_ +=
 				FlatView::Point( distances_[idx], crd.z );
 
@@ -275,6 +278,9 @@ void HorizonPainter2D::changePolyLinePosition( const EM::PosID& pid )
 	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
 	    {
 		int trcidx = trcnos_.indexOf(binid.crl);
+		if ( trcidx == -1 )
+		    continue;
+
 		if ( distances_[trcidx] == auxdata->poly_[posidx].x )
 		{
 		    auxdata->poly_[posidx].y = crd.z;
