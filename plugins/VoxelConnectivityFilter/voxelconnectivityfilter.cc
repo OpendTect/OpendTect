@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.2 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.3 2011-08-19 05:22:28 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -369,7 +369,8 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    TypeSet<od_int64> bodysizecopy( bodysizes_ );
 	    mAllocVarLenIdxArr( int, idxs, nrbodies );
-	    sort_coupled( bodysizecopy.arr(), idxs, bodysizecopy.size() );
+	    sort_coupled( bodysizecopy.arr(), mVarLenArr(idxs),
+		    	  bodysizecopy.size() );
 
 	    mTryAlloc( bodyranking_, int[nrbodies] );
 
