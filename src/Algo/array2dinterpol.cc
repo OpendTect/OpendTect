@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.31 2011-01-10 10:20:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.32 2011-08-19 15:00:02 cvsjaap Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1346,7 +1346,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 		Interval<double>( yrg.start*colstep_, yrg.stop*colstep_ ) ) )
 	return false;
 
-    ParallelDTriangulator triangulator( *triangulation_ );
+    DelaunayTriangulator triangulator( *triangulation_ );
     triangulator.dataIsRandom( false );
 
     if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
