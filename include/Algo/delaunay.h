@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.33 2011-08-17 11:40:30 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.34 2011-08-19 14:58:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
    For the triangulation, it will skip undefined or duplicated points, all the 
    points should be in random order. We use Kohout's pessimistic method to
    triangulate. The problem is that the pessimistic method only give a 10% speed
-   increase, while the locks slows it down. The paralell code is thus
+   increase, while the locks slows it down. The parallel code is thus
    disabled with a macro.
 */
 
@@ -75,16 +75,16 @@ public:
 
     void		dumpTo(std::ostream&) const;
     			//!<Dumps all triangles to stream;
+    void		dumpTriangulationToIV(std::ostream&) const;
+
 
     static int		cNoVertex()	{ return -1; }
 
 protected:
 
-    static char		cIsOnEdge() 	{ return 0; }
-    static char		cNotOnEdge() 	{ return 1; }
-    static char		cIsInside()	{ return 2; }
-    static char		cIsDuplicate()	{ return 3; }
-    static char		cIsOutside()	{ return 4; }
+    static char		cIsOutside()	{ return 0; }
+    static char		cIsInside()	{ return 1; }
+    static char		cIsDuplicate()	{ return 2; }
     static char		cError()	{ return -1; }
 
     static int		cNoTriangle()	{ return -1; }
@@ -92,21 +92,12 @@ protected:
     static int		cInitVertex1()	{ return -3; }
     static int		cInitVertex2()	{ return -4; }
 
-    char	getCommonEdge(int ti0,int ti1) const;
-    		/*!return the common edge in ti0. */
-    char	searchTriangle(const Coord& pt,int start, int& t0,int& t1,
+    char	searchTriangle(const Coord& pt,int start,int& t0,
 	    		       int& dupid) const;
-    char	searchFurther(const Coord& pt,int& nti0,int& nti1,
-	    		      int& dupid) const;
-    char	searchTriangleOnEdge(const Coord& pt,int ti,int& resti,
-	    			     char& edge, int& did) const;
-   		/*!<assume ci is on the edge of ti.*/
-    int		searchNeighbor(int ti,char edge) const;
+    char	searchFurther(const Coord& pt,int& nti0,int& dupid) const;
 
     void	splitTriangleInside(int ci,int ti);
     		/*!ci is assumed to be inside the triangle ti. */
-    void	splitTriangleOnEdge(int ci,int ti0,int ti1);
-    		/*!ci is on the shared edge of triangles ti0, ti1. */
     void	legalizeTriangles(TypeSet<char>& v0s,TypeSet<char>& v1s,
 			TypeSet<int>& tis);
     		/*!Check neighbor triangle of the edge v0-v1 in ti, 
@@ -114,10 +105,7 @@ protected:
 
     int		getNeighbor(int v0,int v1,int ti) const;
     int		searchChild(int v0,int v1,int ti) const;
-    char	isOnEdge(const Coord& p,const Coord& a,const Coord& b,
-			 bool& duponfirst,double& signedsqdist ) const;
-    char	isInside(const Coord& pt,int ti,char& edge,double& disttoedge,
-	    		 int& dupid) const;
+    char	isInside(const Coord& pt,int ti,int& dupid) const;
 
     struct DAGTriangle
     {
@@ -132,31 +120,29 @@ protected:
 	bool		hasChildren() const;
     };
 
-#ifndef mDAGTriangleForceSingleThread
+    bool				multithreadsupport_;
+
     mutable Threads::ReadWriteLock	trianglelock_;
-#endif
+
     double				epsilon_;
     TypeSet<DAGTriangle>		triangles_;
 
     TypeSet<Coord>*			coordlist_;
     bool				ownscoordlist_;
 
-#ifndef mDAGTriangleForceSingleThread
     mutable Threads::ReadWriteLock	coordlock_;
-#endif
 
-    bool				planedirection_;
-    					/*!All triangles have the same sign. */
     Coord				initialcoords_[3]; 
     					/*!<-2,-3,-4 are their indices.*/
 };
 
-/*!<The parallel DTriangulation works for only one processor now.*/
-mClass ParallelDTriangulator : public ParallelTask
+
+/*!<The parallel triangulation works for only one processor now.*/
+mClass DelaunayTriangulator : public ParallelTask
 {
 public:
-			ParallelDTriangulator(DAGTriangleTree&);
-			~ParallelDTriangulator();
+			DelaunayTriangulator(DAGTriangleTree&);
+			~DelaunayTriangulator();
 	
     bool		isDataRandom()		{ return israndom_; }
     void		dataIsRandom(bool yn)	{ israndom_ = yn; }
