@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.32 2011-04-28 14:48:33 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.33 2011-08-22 14:37:56 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -122,5 +122,10 @@ ________________________________________________________________________
 # define mGeneralGlobal	dll_import
 # define mGeneralExtern	extern dll_import
 #endif
+
+#define mVisitThisOnlyOnce() \
+    static bool _already_visited_ = false; \
+    if ( _already_visited_ ) return; \
+    _already_visited_ = true
 
 #endif
