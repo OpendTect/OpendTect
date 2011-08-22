@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.20 2011-06-15 07:50:33 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.21 2011-08-22 11:56:07 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -374,8 +374,8 @@ bool uiContourTreeItem::computeContours( const Array2D<float>& field,
 	if ( mIsUdf(rg_.start) )
 	    return false;
 
-	AxisLayout al( rg_ );
-	SamplingData<float> sd = al.sd;
+	AxisLayout<float> al( rg_ );
+	SamplingData<float> sd = al.sd_;
 	sd.step /= 5;
 	const float offset = ( sd.start - rg_.start ) / sd.step;
 	if ( offset < 0 || offset > 1 )

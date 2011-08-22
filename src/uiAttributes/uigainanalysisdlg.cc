@@ -38,8 +38,8 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     if ( !scalefac.size() )
 	scalerg = Interval<float>(0,100);
 
-    AxisLayout al( scalerg );
-    scalerg = Interval<float>( al.sd.start, al.stop );
+    AxisLayout<float> al( scalerg );
+    scalerg = Interval<float>( al.sd_.start, al.stop_ );
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
     Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
@@ -67,7 +67,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiGainAnalysisDlg,dispRangeChgd) );
-    stepfld_->box()->setValue( al.sd.step );
+    stepfld_->box()->setValue( al.sd_.step );
 
     ampscaletypefld_ = new uiGenInput( mandispgrp, "Amplitude Scale",
 	    			    BoolInpSpec(true,"Linear","dB") );

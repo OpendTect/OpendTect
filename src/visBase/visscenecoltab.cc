@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.21 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.22 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "visscenecoltab.h"
 
@@ -128,13 +128,13 @@ void SceneColTab::updateVis()
     }
     
     legendkit_->clearTicks();
-    AxisLayout al; al.setDataRange( rg_ );
+    AxisLayout<float> al; al.setDataRange( rg_ );
     LinScaler scaler( rg_.start, 0, rg_.stop, 1 );
 
-    const int upto = abs( mNINT((al.stop-al.sd.start)/al.sd.step) );
+    const int upto = abs( mNINT((al.stop_-al.sd_.start)/al.sd_.step) );
     for ( int idx=0; idx<=upto; idx++ )
     {
-	const float val = al.sd.start + idx*al.sd.step;
+	const float val = al.sd_.start + idx*al.sd_.step;
 	const float normval = scaler.scale( val );
 	if ( normval>=0 && normval<=1 )
 	    legendkit_->addBigTick( normval, val );

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.34 2011-07-12 09:36:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.35 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -158,7 +158,7 @@ void Annotation::updateGridLines(int dim)
     SbVec3f p1;
     getAxisCoords( dim, p0, p1 );
     Interval<float> range( p0[dim], p1[dim] );
-    const SamplingData<float> sd = AxisLayout( range ).sd;
+    const SamplingData<float> sd = AxisLayout<float>( range ).sd_;
 
     SbVec3f corners[4];
     int gridlineidxs[4];
@@ -400,7 +400,7 @@ void Annotation::updateTextPos( int dim )
 			->setPosition( Coord3(tp[0],tp[1],tp[2]) );
 
     Interval<float> range( p0[dim], p1[dim] );
-    const SamplingData<float> sd = AxisLayout( range ).sd;
+    const SamplingData<float> sd = AxisLayout<float>( range ).sd_;
     scales_[dim]->removeAll();
 
     for ( int idx=0; ; idx++ )

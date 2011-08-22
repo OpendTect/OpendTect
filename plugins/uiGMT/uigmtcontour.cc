@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.22 2011-04-25 07:03:37 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.23 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -199,8 +199,8 @@ void uiGMTContourGrp::resetCB( CallBacker* )
 	nrcontourfld_->clear();
     }
 
-    AxisLayout zaxis( valrg_ );
-    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd.step/5 );
+    AxisLayout<float> zaxis( valrg_ );
+    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd_.step/5 );
     rgfld_->setValue( zrg );
     nrcontourfld_->setValue( zrg.nrSteps() + 1 );
     resetbut_->setSensitive( false );

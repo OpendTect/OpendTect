@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.13 2011-04-01 09:44:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.14 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "uigmtbasemap.h"
 
@@ -197,10 +197,10 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 	return;
     }
 
-    const AxisLayout xaxis( xrg );
-    const AxisLayout yaxis( yrg );
-    lebelintvfld_->setValue( Interval<float>(xaxis.sd.step,yaxis.sd.step) );
-    const float scaleval = (aspectratio_>1?xaxis.sd.step:yaxis.sd.step) * 20;
+    const AxisLayout<float> xaxis( xrg );
+    const AxisLayout<float> yaxis( yrg );
+    lebelintvfld_->setValue( Interval<float>(xaxis.sd_.step,yaxis.sd_.step) );
+    const float scaleval = (aspectratio_>1?xaxis.sd_.step:yaxis.sd_.step) * 20;
     xdimfld_->setValue( xrg.width() * 100 / scaleval );
     ydimfld_->setValue( yrg.width() * 100 / scaleval );
     scalefld_->setValue( scaleval );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.54 2011-05-12 12:26:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.55 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -89,11 +89,11 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 void uiAxisHandler::setBounds( Interval<float> rg )
 {
     const bool isrev = rg.start > rg.stop;
-    AxisLayout al( rg );
-    if ( (!isrev && (al.sd.start < rg.start))
-      || ( isrev && (al.sd.start > rg.start)) )
-	al.sd.start += al.sd.step;
-    setRange( StepInterval<float>(rg.start,rg.stop,al.sd.step), &al.sd.start );
+    AxisLayout<float> al( rg );
+    if ( (!isrev && (al.sd_.start < rg.start))
+      || ( isrev && (al.sd_.start > rg.start)) )
+	al.sd_.start += al.sd_.step;
+    setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step), &al.sd_.start );
 }
 
 

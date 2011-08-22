@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxisdata.cc,v 1.7 2010-12-02 10:07:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxisdata.cc,v 1.8 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"
@@ -81,8 +81,8 @@ void uiAxisData::handleAutoScale( const Stats::RunCalc<float>& rc )
 	rg_.stop = rc.clipVal( autoscalepars_.clipratio_, true );
     }
 
-    AxisLayout al( rg_ );
-    axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
+    AxisLayout<float> al( rg_ );
+    axis_->setRange( StepInterval<float>( al.sd_.start, al.stop_, al.sd_.step ) );
     needautoscale_ = false;
 }
 
@@ -93,8 +93,8 @@ void uiAxisData::handleAutoScale( const DataClipper& dtclip )
 	return;
 
     dtclip.getRange( autoscalepars_.clipratio_, rg_ );
-    AxisLayout al( rg_ );
-    axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
+    AxisLayout<float> al( rg_ );
+    axis_->setRange( StepInterval<float>( al.sd_.start, al.stop_, al.sd_.step ) );
     needautoscale_ = false;
 }
 

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiworld2ui.cc,v 1.12 2010-08-26 05:54:51 cvsraman Exp $";
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.13 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "uiworld2ui.h"
 
@@ -258,8 +258,8 @@ void uiWorld2Ui::getAppopriateRange( float min, float max,
     bool rev = min > max;
     if ( rev )	Swap( min, max );
     Interval<float> intv( min, max );
-    AxisLayout al( intv );
-    newmin = al.sd.start;
+    AxisLayout<float> al( intv );
+    newmin = al.sd_.start;
     newmax = al.findEnd( max );
     if ( rev )	Swap( newmin, newmax );
 }

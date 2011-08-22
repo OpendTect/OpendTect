@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.15 2011-08-08 13:16:44 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.16 2011-08-22 11:56:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,9 @@ protected:
 
     SamplingData<double> xaxis_;
     SamplingData<double> yaxis_;
+
+    float		xfactor_;
+    float		yfactor_;
 
     uiRect		uirect_;
     bool		useuirect_;

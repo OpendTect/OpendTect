@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.34 2011-08-08 13:16:44 cvskris Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.35 2011-08-22 11:56:07 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -29,7 +29,9 @@ static const char* rcsID = "$Id: drawaxis2d.cc,v 1.34 2011-08-08 13:16:44 cvskri
     , xaxtxtitmgrp_( 0 ) \
     , yaxtxtitmgrp_( 0 ) \
     , xaxrectitem_( 0 ) \
-    , yaxlineitem_( 0 )
+    , yaxlineitem_( 0 ) \
+    , xfactor_( 1 ) \
+    , yfactor_( 1 )
 
 DrawAxis2D::DrawAxis2D( uiGraphicsView& drawview )
     : drawscene_( drawview.scene() )
@@ -67,15 +69,15 @@ void DrawAxis2D::setDrawRectangle( const uiRect* ur )
 
 void DrawAxis2D::setup( const uiWorldRect& wr, float xfactor, float yfactor )
 {
+    xfactor_ = xfactor;
+    yfactor_ = yfactor;
     xrg_.start = wr.left();
     xrg_.stop = wr.right();
-    xaxis_ = AxisLayout(
-	    Interval<float>(wr.left() * xfactor,wr.right() * xfactor) ).sd;
+    xaxis_ = AxisLayout<double>( Interval<double>(wr.left(),wr.right()) ).sd_;
 
     yrg_.start = wr.top();
     yrg_.stop = wr.bottom();
-    yaxis_ = AxisLayout(
-	    Interval<float>(wr.top() * yfactor, wr.bottom() * yfactor) ).sd;
+    yaxis_ = AxisLayout<double>( Interval<double>(wr.top(), wr.bottom()) ).sd_;
 }
 
 
@@ -255,8 +257,7 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	yaxtxtitmgrp_->removeAll( true );
     mLoopStart( y )
 	BufferString text;
-	const double displaypos =
-	    getAnnotTextAndPos( false, ypos, &text );
+	const double displaypos = getAnnotTextAndPos( false, ypos, &text );
 	const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( drawarea.left(), wy, drawarea.left() + bias, wy );
@@ -363,6 +364,6 @@ uiRect DrawAxis2D::getDrawArea() const
 double DrawAxis2D::getAnnotTextAndPos( bool isx, double proposedpos,
 				     BufferString* text ) const
 {
-    if ( text ) (*text) = proposedpos;
+    if ( text ) (*text) = proposedpos * (isx ? xfactor_ : yfactor_ );
     return proposedpos;
 }
