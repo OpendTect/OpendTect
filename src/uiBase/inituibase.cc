@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituibase.cc,v 1.4 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituibase.cc,v 1.5 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "inituibase.h"
+#include "moddepmgr.h"
 #include "uicursor.h"
 
-void uiBase::initStdClasses()
+mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
 

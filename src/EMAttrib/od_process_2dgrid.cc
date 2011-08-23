@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.2 2010-12-03 12:10:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.3 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "batchprog.h"
 
 #include "emhorizon2d.h"
 #include "gridcreator.h"
 #include "hor2dfrom3dcreator.h"
-#include "initearthmodel.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.2 2010-12-03 12:10:44 
 
 bool BatchProgram::go( std::ostream& strm )
 {
-    EarthModel::initStdClasses();
+    OD::ModDeps().ensureLoaded( "EarthModel" );
 
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )

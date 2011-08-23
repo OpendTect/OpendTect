@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiseis.cc,v 1.3 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiseis.cc,v 1.4 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "inituiseis.h"
+#include "moddepmgr.h"
 #include "uiveldesc.h"
 #include "uit2dvelconvselgroup.h"
 
-void uiSeis::initStdClasses()
+mDefModInitFn(uiSeis)
 {
     mIfNotFirstTime( return );
 

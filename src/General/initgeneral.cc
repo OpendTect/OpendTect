@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgeneral.cc,v 1.8 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initgeneral.cc,v 1.9 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initgeneral.h"
+#include "moddepmgr.h"
 #include "rangeposprovider.h"
 #include "propertyimpl.h"
 
-void General::initStdClasses()
+mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
 

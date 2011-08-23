@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.10 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.11 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initvolumeprocessing.h"
 
+#include "moddepmgr.h"
 #include "velocitygridder.h"
 #include "volprochorinterfiller.h"
 #include "volprocattrib.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.10 2011-08-23 06:54
 #include "volprocvolreader.h"
 
 
-void VolumeProcessing::initStdClasses()
+mDefModInitFn(VolumeProcessing)
 {
     mIfNotFirstTime( return );
 
@@ -32,5 +32,3 @@ void VolumeProcessing::initStdClasses()
     VolProc::VelGriddingStep::initClass();
     VolProc::VolumeReader::initClass();
 }
-
-

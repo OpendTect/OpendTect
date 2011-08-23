@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "executor.h"
-#include "initearthmodel.h"
 #include "isopachmaker.h"
 #include "multiid.h"
 #include "survinfo.h"
+#include "moddepmgr.h"
 
 static bool loadHorizon( const MultiID& mid, std::ostream& strm )
 {
@@ -38,7 +38,7 @@ static bool loadHorizon( const MultiID& mid, std::ostream& strm )
 
 bool BatchProgram::go( std::ostream& strm )
 {
-    EarthModel::initStdClasses();
+    OD::ModDeps().ensureLoaded( "EarthModel" );
 
     strm << "Loading Horizons ..." << std::endl;
     MultiID mid1;

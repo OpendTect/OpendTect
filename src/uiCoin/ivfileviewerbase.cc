@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.9 2010-07-07 13:10:45 cvskris Exp $";
+static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.10 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -14,7 +14,7 @@ static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.9 2010-07-07 13:10:45
 #include <Inventor/nodes/SoSeparator.h>
 
 #ifdef USESOODCLASSES
-# include "initsood.h"
+# include "moddepmgr.h"
 # include "file.h"
 # include "uifiledlg.h"
 # ifdef __msvc__
@@ -27,7 +27,7 @@ int main( int narg, char** argv )
     QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
 
 #ifdef USESOODCLASSES
-    SoOD::initStdClasses();
+    OD::ModDeps().ensureLoaded( "SoOD" );
 #endif
 
     if ( myWindow==NULL ) return 1;

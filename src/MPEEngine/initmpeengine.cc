@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initmpeengine.cc,v 1.12 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initmpeengine.cc,v 1.13 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initmpeengine.h"
+#include "moddepmgr.h"
 #include "faulteditor.h"
 #include "faultstickseteditor.h"
 #include "faulttracker.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: initmpeengine.cc,v 1.12 2011-08-23 06:54:11 cvs
 #include "horizon3dextender.h"
 #include "polygonsurfeditor.h"
 
-void MPEEngine::initStdClasses()
+mDefModInitFn(MPEEngine)
 {
     mIfNotFirstTime( return );
 

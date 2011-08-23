@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituitools.cc,v 1.6 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituitools.cc,v 1.7 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "inituitools.h"
+#include "moddepmgr.h"
 #include "uigridder2d.h"
 #include "uiarray2dinterpol.h"
 
-void uiTools::initStdClasses()
+mDefModInitFn(uiTools)
 {
     mIfNotFirstTime( return );
 

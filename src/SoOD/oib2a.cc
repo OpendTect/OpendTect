@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* rcsID = "$Id: oib2a.cc,v 1.3 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: oib2a.cc,v 1.4 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -11,7 +11,6 @@ static const char* rcsID = "$Id: oib2a.cc,v 1.3 2009-07-22 16:01:35 cvsbert Exp 
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/lists/SbStringList.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include "initsood.h"
 
 /*! \brief
 oib2a is a program that reads in a binary iv file and dumps it as a
@@ -22,12 +21,13 @@ The syntax is
 oifileviewer <filename> [outfile]
 */
 
+extern "C" void od_SoOD_initStdClasses();
 
 int main( int narg, char** argv )
 {
     SoDB::init();
     SoVolumeRendering::init();
-    SoOD::initStdClasses();
+    od_SoOD_initStdClasses();
 
     if ( narg<2 || narg>3)
     {

@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horattribpi.cc,v 1.8 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: horattribpi.cc,v 1.9 2011-08-23 14:51:33 cvsbert Exp $";
 
 
 #include "horizonattrib.h"
-#include "initearthmodel.h"
 #include "odplugin.h"
+#include "moddepmgr.h"
 
 
 mDefODPluginEarlyLoad(HorizonAttrib)
@@ -29,7 +29,7 @@ mDefODPluginInfo(HorizonAttrib)
 
 mDefODInitPlugin(HorizonAttrib)
 {
-    EarthModel::initStdClasses();
+    OD::ModDeps().ensureLoaded( "EarthModel" );
     Attrib::Horizon::initClass();
 
     return 0; // All OK - no error messages

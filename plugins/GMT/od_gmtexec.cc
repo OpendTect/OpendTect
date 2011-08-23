@@ -7,19 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.12 2011-02-04 20:48:46 cvskris Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.13 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
 #include "gmtpar.h"
-#include "initearthmodel.h"
-#include "initgeneral.h"
 #include "initgmt.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "timefun.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
@@ -36,8 +35,7 @@ static const char* rcsID = "$Id: od_gmtexec.cc,v 1.12 2011-02-04 20:48:46 cvskri
 
 bool BatchProgram::go( std::ostream& strm )
 {
-    General::initStdClasses();
-    EarthModel::initStdClasses();
+    OD::ModDeps().ensureLoaded( "EarthModel" );
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName );

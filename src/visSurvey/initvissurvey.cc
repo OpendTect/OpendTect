@@ -4,11 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvissurvey.cc,v 1.8 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: initvissurvey.cc,v 1.9 2011-08-23 14:51:33 cvsbert Exp $";
 
 
-#include "initvissurvey.h"
-
+#include "moddepmgr.h"
 #include "visfaultdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "vishingeline.h"
@@ -30,32 +29,27 @@ static const char* rcsID = "$Id: initvissurvey.cc,v 1.8 2011-08-23 06:54:12 cvsb
 #include "viswelldisplay.h"
 
 
-namespace visSurvey
-{
-
-void initStdClasses()
+mDefModInitFn(visSurvey)
 {
     mIfNotFirstTime( return );
 
-    EdgeLineSetDisplay::initClass();
-    FaultDisplay::initClass();
-    FaultStickSetDisplay::initClass();
-    Horizon2DDisplay::initClass();
-    HorizonDisplay::initClass();
-    MarchingCubesDisplay::initClass();
-    MPEDisplay::initClass();
-    MPEEditor::initClass();
-    MPEClickCatcher::initClass();
-    PickSetDisplay::initClass();
-    RandomPosBodyDisplay::initClass();
-    PlaneDataDisplay::initClass();
-    PolygonBodyDisplay::initClass();
-    PolyLineDisplay::initClass();
-    RandomTrackDisplay::initClass();
-    Seis2DDisplay::initClass();
-    Scene::initClass();
-    VolumeDisplay::initClass();
-    WellDisplay::initClass();
+    visSurvey::EdgeLineSetDisplay::initClass();
+    visSurvey::FaultDisplay::initClass();
+    visSurvey::FaultStickSetDisplay::initClass();
+    visSurvey::Horizon2DDisplay::initClass();
+    visSurvey::HorizonDisplay::initClass();
+    visSurvey::MarchingCubesDisplay::initClass();
+    visSurvey::MPEDisplay::initClass();
+    visSurvey::MPEEditor::initClass();
+    visSurvey::MPEClickCatcher::initClass();
+    visSurvey::PickSetDisplay::initClass();
+    visSurvey::RandomPosBodyDisplay::initClass();
+    visSurvey::PlaneDataDisplay::initClass();
+    visSurvey::PolygonBodyDisplay::initClass();
+    visSurvey::PolyLineDisplay::initClass();
+    visSurvey::RandomTrackDisplay::initClass();
+    visSurvey::Seis2DDisplay::initClass();
+    visSurvey::Scene::initClass();
+    visSurvey::VolumeDisplay::initClass();
+    visSurvey::WellDisplay::initClass();
 }
-
-}; // namespace visBase

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.144 2011-06-03 14:10:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.145 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -45,6 +45,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.144 2011-06-03 14:10:26 cvsbrun
 #include "oddirs.h"
 #include "odsessionfact.h"
 #include "odver.h"
+#include "moddepmgr.h"
 #include "pixmap.h"
 #include "plugins.h"
 #include "ptrman.h"
@@ -52,37 +53,6 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.144 2011-06-03 14:10:26 cvsbrun
 #include "settings.h"
 #include "survinfo.h"
 #include "timer.h"
-
-#include "initalgo.h"
-#include "initgeneral.h"
-#include "initgeometry.h"
-#include "initattributes.h"
-#include "initattributeengine.h"
-#include "initearthmodel.h"
-#include "initmpeengine.h"
-#include "initprestackprocessing.h"
-#include "initseis.h"
-#include "initstrat.h"
-#include "initvelocity.h"
-#include "initvolumeprocessing.h"
-#include "initwell.h"
-#include "inituibase.h"
-#include "inituitools.h"
-#include "inituiio.h"
-#include "inituiseis.h"
-#include "inituistrat.h"
-#include "inituiviewer2d.h"
-#include "inituiwell.h"
-#include "inituiearthmodel.h"
-#include "inituiattributes.h"
-#include "inituiwellattrib.h"
-#include "inituimpe.h"
-#include "inituivolumeprocessing.h"
-#include "inituivelocity.h"
-#include "inituiprestackprocessing.h"
-#include "initsood.h"
-#include "initvisbase.h"
-#include "initvissurvey.h"
 
 
 extern "C" const char* GetSettingsDataDir();
@@ -104,50 +74,9 @@ uiODMain* ODMainWin()
 }
 
 
-static void initNonUiStdClasses()
-{
-    Algo::initStdClasses();
-    General::initStdClasses();
-    Geometry::initStdClasses();
-    EarthModel::initStdClasses();
-    Seis::initStdClasses();
-    Strat::initStdClasses();
-    AttributeEngine::initStdClasses();
-    PreStackProcessing::initStdClasses();
-    VolumeProcessing::initStdClasses();
-    Attributes::initStdClasses();
-    MPEEngine::initStdClasses();
-    Velocity::initStdClasses();
-    Well::initStdClasses();
-}
-
-
-static void initUiStdClasses()
-{
-    uiBase::initStdClasses();
-    uiTools::initStdClasses();
-    uiIo::initStdClasses();
-    uiStrat::initStdClasses();
-    uiEarthModel::initStdClasses();
-    uiSeis::initStdClasses();
-    uiWell::initStdClasses();
-    uiAttributes::initStdClasses();
-    uiWellAttrib::initStdClasses();
-    uiVolumeProcessing::initStdClasses();
-    uiPreStackProcessing::initStdClasses();
-    uiMPE::initStdClasses();
-    uiVelocity::initStdClasses();
-    uiViewer2D::initStdClasses();
-
-    SoOD::initStdClasses();
-    visBase::initStdClasses();
-    visSurvey::initStdClasses();
-}
-
-
 int ODMain( int argc, char** argv )
 {
-    initNonUiStdClasses();
+    OD::ModDeps().ensureLoaded( "AllNonUi" );
 
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
@@ -169,7 +98,7 @@ int ODMain( int argc, char** argv )
 	    dlg.go();
     }
 
-    initUiStdClasses();
+    OD::ModDeps().ensureLoaded( "uiODMain" );
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;

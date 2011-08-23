@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiio.cc,v 1.9 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiio.cc,v 1.10 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "inituiio.h"
+#include "moddepmgr.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
 #include "uit2dconvsel.h"
 
-void uiIo::initStdClasses()
+mDefModInitFn(uiIo)
 {
     mIfNotFirstTime( return );
 

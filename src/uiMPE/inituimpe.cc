@@ -7,15 +7,15 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituimpe.cc,v 1.6 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituimpe.cc,v 1.7 2011-08-23 14:51:33 cvsbert Exp $";
 
 
-#include "inituimpe.h"
+#include "moddepmgr.h"
 #include "uiemhorizoneditor.h"
 #include "uihorizontracksetup.h"
 
 
-void uiMPE::initStdClasses()
+mDefModInitFn(uiMPE)
 {
     mIfNotFirstTime( return );
 

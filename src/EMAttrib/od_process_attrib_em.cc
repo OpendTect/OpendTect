@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.82 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.83 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -31,12 +31,6 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.82 2011-04-21 13:09
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "hostdata.h"
-#include "initalgo.h"
-#include "initattributeengine.h"
-#include "initattributes.h"
-#include "initearthmodel.h"
-#include "initgeometry.h"
-#include "initprestackprocessing.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
@@ -50,6 +44,7 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.82 2011-04-21 13:09
 #include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "moddepmgr.h"
 
 
 using namespace Attrib;
@@ -324,12 +319,8 @@ static void interpolate( EM::Horizon3D* horizon,
 
 bool BatchProgram::go( std::ostream& strm )
 {
-    Algo::initStdClasses();
-    AttributeEngine::initStdClasses();
-    Attributes::initStdClasses();
-    EarthModel::initStdClasses();
-    Geometry::initStdClasses();
-    PreStackProcessing::initStdClasses();
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    OD::ModDeps().ensureLoaded( "Attributes" );
 
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
     if ( cmdLineOpts().size() )
@@ -419,7 +410,6 @@ bool BatchProgram::go( std::ostream& strm )
 	objects += emobj;
     }
 
-    StorageProvider::initClass();
     DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
     if ( !attribset.usePar(*attribs,vnr) )

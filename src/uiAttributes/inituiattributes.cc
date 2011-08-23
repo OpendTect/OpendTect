@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.7 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiattributes.cc,v 1.8 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "inituiattributes.h"
 
+#include "moddepmgr.h"
 #include "uiconvolveattrib.h"
 #include "uideltaresampleattrib.h"
 #include "uidipfilterattrib.h"
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: inituiattributes.cc,v 1.7 2011-08-23 06:54:12 c
 #include "uivolstatsattrib.h"
 
 
-void uiAttributes::initStdClasses()
+mDefModInitFn(uiAttributes)
 {
     mIfNotFirstTime( return );
 
@@ -56,4 +56,3 @@ void uiAttributes::initStdClasses()
     uiSpecDecompAttrib::initClass();
     uiVolumeStatisticsAttrib::initClass();
 }
-

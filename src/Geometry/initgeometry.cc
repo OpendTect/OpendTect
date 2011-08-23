@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgeometry.cc,v 1.5 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initgeometry.cc,v 1.6 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initgeometry.h"
+#include "moddepmgr.h"
 #include "polyposprovider.h"
 #include "tableposprovider.h"
 
-void Geometry::initStdClasses()
+mDefModInitFn(Geometry)
 {
     mIfNotFirstTime( return );
 

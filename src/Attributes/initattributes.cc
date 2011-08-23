@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributes.cc,v 1.8 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.9 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initattributes.h"
+#include "moddepmgr.h"
 #include "convolveattrib.h"
 #include "deltaresampleattrib.h"
 #include "dipfilterattrib.h"
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: initattributes.cc,v 1.8 2011-08-23 06:54:11 cvs
 #include "specdecompattrib.h"
 #include "volstatsattrib.h"
 
-void Attributes::initStdClasses()
+mDefModInitFn(Attributes)
 {
     mIfNotFirstTime( return );
 

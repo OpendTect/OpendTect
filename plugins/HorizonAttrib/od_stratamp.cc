@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- RCS:		$Id: od_stratamp.cc,v 1.3 2011-07-08 04:40:01 cvsraman Exp $
+ RCS:		$Id: od_stratamp.cc,v 1.4 2011-08-23 14:51:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,15 +19,11 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "genc.h"
-#include "initalgo.h"
-#include "initearthmodel.h"
-#include "initattributes.h"
-#include "initattributeengine.h"
-#include "initprestackprocessing.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "stratamp.h"
 #include "stattype.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
@@ -75,11 +71,8 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
 
 bool BatchProgram::go( std::ostream& strm )
 {
-    Algo::initStdClasses();
-    Attributes::initStdClasses();
-    Attrib::StorageProvider::initClass();
-    EarthModel::initStdClasses();
-    PreStackProcessing::initStdClasses();
+    OD::ModDeps().ensureLoaded( "EMAttrib" );
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
     HorSampling hs;
     if ( !getHorsampling( pars(), hs ) )

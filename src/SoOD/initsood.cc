@@ -7,11 +7,10 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.29 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.30 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
-#include "initsood.h"
 #include "SoArrow.h"
 #include "SoCameraInfo.h"
 #include "SoCameraInfoElement.h"
@@ -55,7 +54,8 @@ static const char* rcsID = "$Id: initsood.cc,v 1.29 2011-08-23 06:54:11 cvsbert 
 #include "SoBeachBall.h"
 #include "SoDGBDragPointDragger.h"
 
-void SoOD::initStdClasses()
+extern "C" void od_SoOD_initStdClasses();
+extern "C" void od_SoOD_initStdClasses()
 {
     static bool have_inited = false;
     if ( have_inited ) return;

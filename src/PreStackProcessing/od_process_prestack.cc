@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.13 2011-07-24 13:13:04 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.14 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -30,15 +30,7 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.13 2011-07-24 13:13:
 #include "seistype.h"
 #include "survinfo.h"
 #include "thread.h"
-
-
-#include "initalgo.h"
-#include "initgeneral.h"
-#include "initgeometry.h"
-#include "initearthmodel.h"
-#include "initseis.h"
-#include "initattributeengine.h"
-#include "initprestackprocessing.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
@@ -81,13 +73,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     const int process_id = GetPID();
 
-    Algo::initStdClasses();
-    General::initStdClasses();
-    Geometry::initStdClasses();
-    EarthModel::initStdClasses();
-    Seis::initStdClasses();
-    AttributeEngine::initStdClasses();
-    PreStackProcessing::initStdClasses();
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );

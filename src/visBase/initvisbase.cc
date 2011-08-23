@@ -4,11 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.22 2011-08-23 06:54:12 cvsbert Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.23 2011-08-23 14:51:33 cvsbert Exp $";
 
 
-#include "initvisbase.h"
 
+#include "moddepmgr.h"
 #include "visanchor.h"
 #include "visannot.h"
 #include "visbeachball.h"
@@ -78,90 +78,85 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.22 2011-08-23 06:54:12 cvsbe
 #include "viswell.h"
 
 
-namespace visBase
-{
-
-void initStdClasses()
+mDefModInitFn(visBase)
 {
     mIfNotFirstTime( return );
 
-    Anchor::initClass();
-    Annotation::initClass();
-    BeachBall::initClass();
-    BoxDragger::initClass();
-    Camera::initClass();
-    CameraInfo::initClass();
-    ColorSequence::initClass();
-    VisColorTab::initClass();
-    VisColTabMod::initClass();
-    Coordinates::initClass();
-    Cube::initClass();
-    DataObjectGroup::initClass();
-    DepthTabPlaneDragger::initClass();
-    Dragger::initClass();
-    DrawStyle::initClass();
-    Ellipsoid::initClass();
-    EventCatcher::initClass();
-    FaceSet::initClass();
-    FlatViewer::initClass();
-    ForegroundLifter::initClass();
-    GeomIndexedShape::initClass();
-    GridLines::initClass();
-    HorizonSection::initClass();
-    Image::initClass();
-    InvisibleLineDragger::initClass();
-    LevelOfDetail::initClass();
-    PointLight::initClass();
-    DirectionalLight::initClass();
-    SpotLight::initClass();
-    MarchingCubesSurface::initClass();
-    Marker::initClass();
-    Material::initClass();
-    MultiTexture2::initClass();
-    Normals::initClass();
-    PickStyle::initClass();
-    RandomPos2Body::initClass();
-    PointSet::initClass();
-    PolygonOffset::initClass();
-    PolygonSelection::initClass();
-    PolyLine::initClass();
-    IndexedPolyLine::initClass();
-    IndexedPolyLine3D::initClass();
-    RandomTrack::initClass();
-    RandomTrackDragger::initClass();
-    RectangleDragger::initClass();
-    Rectangle::initClass();
-    RotationDragger::initClass();
-    Scene::initClass();
-    SceneColTab::initClass();
-    ShapeHints::initClass();
-    ShapeScale::initClass();
-    SplitTextureRandomLine::initClass();
-    SplitTexture2Rectangle::initClass();
-    SplitTextureSeis2D::initClass();
-    Text2::initClass();
-    TextBox::initClass();
-    Texture2::initClass();
-    Texture2Set::initClass();
-    Texture3::initClass();
-    Texture3Viewer::initClass();
-    MovableTextureSlice::initClass();
-    Texture3Slice::initClass();
-    TextureCoords::initClass();
-    TextureChannels::initClass();
-    ColTabTextureChannel2RGBA::initClass();
-    TextureChannel2VolData::initClass();
-    TextureRect::initClass();
-    Transformation::initClass();
-    Rotation::initClass();
-    TriangleStripSet::initClass();
-    ObliqueSlice::initClass();
-    OrthogonalSlice::initClass();
-    RGBATextureChannel2RGBA::initClass();
-    VolrenDisplay::initClass();
-    VolumeRenderScalarField::initClass();
-    Well::initClass();
-    TopBotImage::initClass();
+    visBase::Anchor::initClass();
+    visBase::Annotation::initClass();
+    visBase::BeachBall::initClass();
+    visBase::BoxDragger::initClass();
+    visBase::Camera::initClass();
+    visBase::CameraInfo::initClass();
+    visBase::ColorSequence::initClass();
+    visBase::VisColorTab::initClass();
+    visBase::VisColTabMod::initClass();
+    visBase::Coordinates::initClass();
+    visBase::Cube::initClass();
+    visBase::DataObjectGroup::initClass();
+    visBase::DepthTabPlaneDragger::initClass();
+    visBase::Dragger::initClass();
+    visBase::DrawStyle::initClass();
+    visBase::Ellipsoid::initClass();
+    visBase::EventCatcher::initClass();
+    visBase::FaceSet::initClass();
+    visBase::FlatViewer::initClass();
+    visBase::ForegroundLifter::initClass();
+    visBase::GeomIndexedShape::initClass();
+    visBase::GridLines::initClass();
+    visBase::HorizonSection::initClass();
+    visBase::Image::initClass();
+    visBase::InvisibleLineDragger::initClass();
+    visBase::LevelOfDetail::initClass();
+    visBase::PointLight::initClass();
+    visBase::DirectionalLight::initClass();
+    visBase::SpotLight::initClass();
+    visBase::MarchingCubesSurface::initClass();
+    visBase::Marker::initClass();
+    visBase::Material::initClass();
+    visBase::MultiTexture2::initClass();
+    visBase::Normals::initClass();
+    visBase::PickStyle::initClass();
+    visBase::RandomPos2Body::initClass();
+    visBase::PointSet::initClass();
+    visBase::PolygonOffset::initClass();
+    visBase::PolygonSelection::initClass();
+    visBase::PolyLine::initClass();
+    visBase::IndexedPolyLine::initClass();
+    visBase::IndexedPolyLine3D::initClass();
+    visBase::RandomTrack::initClass();
+    visBase::RandomTrackDragger::initClass();
+    visBase::RectangleDragger::initClass();
+    visBase::Rectangle::initClass();
+    visBase::RotationDragger::initClass();
+    visBase::Scene::initClass();
+    visBase::SceneColTab::initClass();
+    visBase::ShapeHints::initClass();
+    visBase::ShapeScale::initClass();
+    visBase::SplitTextureRandomLine::initClass();
+    visBase::SplitTexture2Rectangle::initClass();
+    visBase::SplitTextureSeis2D::initClass();
+    visBase::Text2::initClass();
+    visBase::TextBox::initClass();
+    visBase::Texture2::initClass();
+    visBase::Texture2Set::initClass();
+    visBase::Texture3::initClass();
+    visBase::Texture3Viewer::initClass();
+    visBase::MovableTextureSlice::initClass();
+    visBase::Texture3Slice::initClass();
+    visBase::TextureCoords::initClass();
+    visBase::TextureChannels::initClass();
+    visBase::ColTabTextureChannel2RGBA::initClass();
+    visBase::TextureChannel2VolData::initClass();
+    visBase::TextureRect::initClass();
+    visBase::Transformation::initClass();
+    visBase::Rotation::initClass();
+    visBase::TriangleStripSet::initClass();
+    visBase::ObliqueSlice::initClass();
+    visBase::OrthogonalSlice::initClass();
+    visBase::RGBATextureChannel2RGBA::initClass();
+    visBase::VolrenDisplay::initClass();
+    visBase::VolumeRenderScalarField::initClass();
+    visBase::Well::initClass();
+    visBase::TopBotImage::initClass();
 }
-
-}; // namespace visBase

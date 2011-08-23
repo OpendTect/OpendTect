@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initearthmodel.cc,v 1.10 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initearthmodel.cc,v 1.11 2011-08-23 14:51:33 cvsbert Exp $";
 
 
-#include "initearthmodel.h"
+#include "moddepmgr.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: initearthmodel.cc,v 1.10 2011-08-23 06:54:11 cv
 #include "emsurfaceposprov.h"
 
 
-void EarthModel::initStdClasses()
+mDefModInitFn(EarthModel)
 {
     mIfNotFirstTime( return );
 
@@ -40,4 +40,3 @@ void EarthModel::initStdClasses()
     Pos::EMSurfaceProvider3D::initClass();
     Pos::EMSurfaceProvider2D::initClass();
 }
-

@@ -7,17 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.21 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.22 2011-08-23 14:51:33 cvsbert Exp $";
 
-#include "initalgo.h"
-
+#include "moddepmgr.h"
 #include "gridder2d.h"
 #include "array2dinterpolimpl.h"
 #include "posfilterstd.h"
 #include "windowfunction.h"
 #include "fourier.h"
 
-void Algo::initStdClasses()
+mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
 
@@ -28,8 +27,6 @@ void Algo::initStdClasses()
     HanningWindow::initClass();
 
     InverseDistanceGridder2D::initClass();
-//TriangulatedNeighborhoodGridder2D::initClass();
-//Not good enough for production
     TriangulatedGridder2D::initClass();
 
     Pos::RandomFilter3D::initClass();

@@ -4,15 +4,13 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.40 2011-06-29 14:39:31 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.41 2011-08-23 14:51:33 cvsbert Exp $";
 
 #include "batchprog.h"
 
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "attribengman.h"
-#include "initattributes.h"
-#include "initprestackprocessing.h"
 #include "attriboutput.h"
 #include "attribprocessor.h"
 #include "attribstorprovider.h"
@@ -20,7 +18,6 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.40 2011-06-29 14:39:31
 #include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
-#include "initalgo.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -32,6 +29,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.40 2011-06-29 14:39:31
 #include "separstr.h"
 #include "thread.h"
 #include "jobcommunic.h"
+#include "moddepmgr.h"
 
 
 #define mDestroyWorkers \
@@ -85,12 +83,11 @@ bool BatchProgram::go( std::ostream& strm )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }
 
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    OD::ModDeps().ensureLoaded( "Attributes" );
+    
     const int process_id = GetPID();
     Attrib::Processor* proc = 0;
-    Attributes::initStdClasses();
-    Algo::initStdClasses();
-    PreStackProcessing::initStdClasses();
-    
     const char* tempdir = pars().find(sKey::TmpStor);
     if ( tempdir && *tempdir )
     {
@@ -155,7 +152,6 @@ bool BatchProgram::go( std::ostream& strm )
 
     }
 
-    Attrib::StorageProvider::initClass();
     Attrib::DescSet attribset( false );
     const char* setid = pars().find("Attribute Set");
     if ( setid && *setid )
