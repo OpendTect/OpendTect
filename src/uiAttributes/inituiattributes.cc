@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.6 2010-08-31 11:40:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: inituiattributes.cc,v 1.7 2011-08-23 06:54:12 cvsbert Exp $";
 
 #include "inituiattributes.h"
 
@@ -34,6 +34,8 @@ static const char* rcsID = "$Id: inituiattributes.cc,v 1.6 2010-08-31 11:40:55 c
 
 void uiAttributes::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     uiConvolveAttrib::initClass();
     uiDeltaResampleAttrib::initClass();
     uiDipFilterAttrib::initClass();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initprestackprocessing.cc,v 1.6 2011-01-27 22:48:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initprestackprocessing.cc,v 1.7 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include "initprestackprocessing.h"
 
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: initprestackprocessing.cc,v 1.6 2011-01-27 22:4
 
 void PreStackProcessing::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     PreStack::Mute::initClass();
     PreStack::AGC::initClass();
     PreStack::LateralStack::initClass();

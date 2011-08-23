@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiwell.cc,v 1.1 2010-05-31 15:12:08 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiwell.cc,v 1.2 2011-08-23 06:54:12 cvsbert Exp $";
 
 #include "inituiwell.h"
 #include "uiwellt2dconv.h"
 
 void uiWell::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     uiT2DWellConvSelGroup::initClass();
 }

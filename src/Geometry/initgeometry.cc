@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgeometry.cc,v 1.4 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initgeometry.cc,v 1.5 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include "initgeometry.h"
 #include "polyposprovider.h"
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: initgeometry.cc,v 1.4 2009-07-22 16:01:33 cvsbe
 
 void Geometry::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 }

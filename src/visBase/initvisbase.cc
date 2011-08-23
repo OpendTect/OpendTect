@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.21 2011-02-14 23:21:16 cvskris Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.22 2011-08-23 06:54:12 cvsbert Exp $";
 
 
 #include "initvisbase.h"
@@ -83,6 +83,8 @@ namespace visBase
 
 void initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     Anchor::initClass();
     Annotation::initClass();
     BeachBall::initClass();

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituimpe.cc,v 1.5 2011-05-02 06:10:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: inituimpe.cc,v 1.6 2011-08-23 06:54:12 cvsbert Exp $";
 
 
 #include "inituimpe.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: inituimpe.cc,v 1.5 2011-05-02 06:10:06 cvsumesh
 
 void uiMPE::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     MPE::uiEMHorizonEditor::initClass();
     MPE::uiBaseHorizonSetupGroup::initClass();
 }

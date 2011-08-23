@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.28 2011-04-22 15:57:43 cvskris Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.29 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -57,6 +57,10 @@ static const char* rcsID = "$Id: initsood.cc,v 1.28 2011-04-22 15:57:43 cvskris 
 
 void SoOD::initStdClasses()
 {
+    static bool have_inited = false;
+    if ( have_inited ) return;
+    have_inited = true;
+
     SoVolumeRendering::init();
 
     //Elements first 

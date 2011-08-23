@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: initvelocity.cc,v 1.3 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: initvelocity.cc,v 1.4 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include "initvelocity.h"
 
@@ -16,6 +16,8 @@ namespace Velocity
 
 void initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     Vel::VolumeFunctionSource::initClass();
     Vel::StoredFunctionSource::initClass();
 }

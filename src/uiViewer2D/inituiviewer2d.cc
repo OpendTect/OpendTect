@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: inituiviewer2d.cc,v 1.1 2011-06-03 14:10:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: inituiviewer2d.cc,v 1.2 2011-08-23 06:54:12 cvsbert Exp $";
 
 
 #include "inituiviewer2d.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: inituiviewer2d.cc,v 1.1 2011-06-03 14:10:26 cvs
 
 void uiViewer2D::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     VW2DFaultSS2D::initClass();
     VW2DFaultSS3D::initClass();
     VW2DFault::initClass();

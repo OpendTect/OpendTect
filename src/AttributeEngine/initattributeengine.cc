@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributeengine.cc,v 1.4 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributeengine.cc,v 1.5 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include "initattributeengine.h"
 #include "attribstorprovider.h"
 
 void AttributeEngine::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     Attrib::StorageProvider::initClass();
 }
 

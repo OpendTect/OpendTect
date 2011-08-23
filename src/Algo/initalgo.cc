@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.20 2010-11-30 16:52:40 cvskris Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.21 2011-08-23 06:54:11 cvsbert Exp $";
 
 #include "initalgo.h"
 
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: initalgo.cc,v 1.20 2010-11-30 16:52:40 cvskris 
 
 void Algo::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     BartlettWindow::initClass();
     BoxWindow::initClass();
     CosTaperWindow::initClass();

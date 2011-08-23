@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initearthmodel.cc,v 1.9 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: initearthmodel.cc,v 1.10 2011-08-23 06:54:11 cvsbert Exp $";
 
 
 #include "initearthmodel.h"
@@ -27,6 +27,8 @@ static const char* rcsID = "$Id: initearthmodel.cc,v 1.9 2009-07-22 16:01:32 cvs
 
 void EarthModel::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     EM::FaultStickSet::initClass();
     EM::Fault3D::initClass();
     EM::Horizon2D::initClass();

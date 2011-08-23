@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiio.cc,v 1.8 2010-05-31 14:52:50 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiio.cc,v 1.9 2011-08-23 06:54:12 cvsbert Exp $";
 
 #include "inituiio.h"
 #include "uiposprovgroupstd.h"
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: inituiio.cc,v 1.8 2010-05-31 14:52:50 cvsbert E
 
 void uiIo::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     uiRangePosProvGroup::initClass();
     uiPolyPosProvGroup::initClass();
     uiTablePosProvGroup::initClass();

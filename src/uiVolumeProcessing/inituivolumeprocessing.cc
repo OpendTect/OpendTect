@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.9 2009-09-18 18:13:43 cvskris Exp $";
+static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.10 2011-08-23 06:54:12 cvsbert Exp $";
 
 #include "inituivolumeprocessing.h"
 
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.9 2009-09-18 18:1
 
 void uiVolumeProcessing::initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     VolProc::uiHorInterFiller::initClass();
     VolProc::uiBodyFiller::initClass();
     VolProc::uiLateralSmoother::initClass();

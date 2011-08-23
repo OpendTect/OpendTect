@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvissurvey.cc,v 1.7 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: initvissurvey.cc,v 1.8 2011-08-23 06:54:12 cvsbert Exp $";
 
 
 #include "initvissurvey.h"
@@ -35,6 +35,8 @@ namespace visSurvey
 
 void initStdClasses()
 {
+    mIfNotFirstTime( return );
+
     EdgeLineSetDisplay::initClass();
     FaultDisplay::initClass();
     FaultStickSetDisplay::initClass();
