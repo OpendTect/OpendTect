@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.70 2011-08-23 11:42:03 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.71 2011-08-23 14:52:21 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: plugins.cc,v 1.70 2011-08-23 11:42:03 cvsbert E
 #include "settings.h"
 #include "strmprov.h"
 #include "staticstring.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
@@ -349,23 +350,32 @@ void PluginManager::openALOEntries()
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
+	data.sla_ = 0;
 	if ( data.autosource_ == Data::None )
 	    continue;
+
 	data.sla_ = new SharedLibAccess( getFileName(data) );
 	if ( !data.sla_->isOK() )
 	{
-	    if ( data.autosource_ != Data::Both )
-		continue;
+	    delete data.sla_; data.sla_ = 0;
 
-	    data.autosource_ = Data::AppDir;
-	    data.sla_ = new SharedLibAccess( getFileName(data) );
-	    if ( !data.sla_->isOK() )
-		{ delete data.sla_; data.sla_ = 0; continue; }
+	    if ( data.autosource_ == Data::Both )
+	    {
+		data.autosource_ = data.autosource_ == Data::UserDir
+				    ? Data::AppDir : Data::UserDir;
+		data.sla_ = new SharedLibAccess( getFileName(data) );
+		if ( !data.sla_->isOK() )
+		    { delete data.sla_; data.sla_ = 0; }
+	    }
 	}
 
-
-	data.autotype_ = getPluginType( data.sla_, data.name_ );
-	data.info_ = getPluginInfo( data.sla_, data.name_ );
+	if ( !data.sla_ )
+	    OD::ModDeps().ensureLoaded( data.name_ );
+	else
+	{
+	    data.autotype_ = getPluginType( data.sla_, data.name_ );
+	    data.info_ = getPluginInfo( data.sla_, data.name_ );
+	}
     }
 }
 
