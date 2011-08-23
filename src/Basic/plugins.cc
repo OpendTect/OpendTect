@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.69 2011-08-12 13:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.70 2011-08-23 11:42:03 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -116,7 +116,7 @@ void SharedLibAccess::close()
 }
 
 
-void* SharedLibAccess::getFunction( const char* fnnm )
+void* SharedLibAccess::getFunction( const char* fnnm ) const
 {
     if ( !handle_ )
 	return 0;
@@ -127,6 +127,23 @@ void* SharedLibAccess::getFunction( const char* fnnm )
     return dlsym( handle_, fnnm );
 #endif
 }
+
+
+
+void SharedLibAccess::getLibName( const char* modnm, char* out )
+{
+#ifdef __win__
+    strcpy( out, modnm ); strcat( out, ".dll" );
+#else
+    strcpy( out, "lib" ); strcat( out, modnm );
+# ifdef __mac__
+    strcat( out, ".dylib" );
+# else
+    strcat( out, ".so" );
+# endif
+#endif
+}
+
 
 
 static const char* errargv[] = { "<not set>", 0 };
@@ -374,16 +391,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    sd.istrm->getline( buf, 128 );
 	    if ( buf[0] == '\0' ) continue;
 
-#ifdef __win__
-	    BufferString libnm = buf; libnm += ".dll";
-#else
-# ifdef __mac__
-	    BufferString libnm = "lib"; libnm += buf; libnm += ".dylib";
-# else
-	    BufferString libnm = "lib"; libnm += buf; libnm += ".so";
-# endif
-#endif
-
+	    char libnm[256]; SharedLibAccess::getLibName( buf, libnm );
 	    Data* data = findData( libnm );
 	    if ( !data )
 	    {
