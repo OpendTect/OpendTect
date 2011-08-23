@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.13 2011-08-18 11:45:07 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.14 2011-08-23 06:07:58 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,14 +139,17 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".handler_id," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".platform," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".version," )
+	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description" )
 	    .add( " FROM " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( "," )
-	    .add( BugTextTableEntry::sKeyBugTextTable() )
+	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( "," )
+	    .add( sKeyProjectTable() )
 	    .add( " WHERE ( ")
-	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id=" )
-	    .add( cOpenDtectProjectID() ).add( " AND " )
-	    .add( BugTableEntry::sKeyBugTable() ).add( ".id=" )
+	    .add( sKeyProjectTable() ).add( ".id" ).add( " = " )
+	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id" )
+	    .add ( " AND " ).add( sKeyProjectTable() ).add( ".enabled = 1 " )
+	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() ).add( ".id=" )
 	    .add( BugTableEntry::sKeyBugTable() )
 	    .add( ".bug_text_id" ).add( " AND " )
 	    .add( "(" ).add( BugTableEntry::sKeyBugTable() ).add( ".status=" )
@@ -176,6 +179,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->handlerid_ = query().iValue( ++qidx );
 	bugtable->platform_ = query().data( ++qidx );
 	bugtable->version_ = query().data( ++qidx );
+	bugtable->projectid_ = query().iValue( ++qidx );
 	texttable->description_ = query().data( ++qidx );
 
 	bugs_ += bugtable;
@@ -261,7 +265,7 @@ bool SqlDB::MantisDBMgr::fillVersions()
     errmsg_.setEmpty();
     BufferString querystr( "SELECT version FROM " );
     querystr.add( sKeyProjectVersionTable() ).add( " WHERE ( " )
-	    .add( "project_id=1 AND version > '3.0' AND released=1 )" )
+	    .add( "version > '3.2' AND released=1 )" )
     	    .add( " ORDER BY version DESC " );
     if ( !query().execute( querystr ) )
 	return false;
@@ -278,7 +282,7 @@ void SqlDB::MantisDBMgr::fillSeverity()
     sevirities_.erase();
     severityvals_.erase();
     sevirities_.add( "Feature" ).add( "Trivial" ).add( "Text" ).add( "Tweak" )
-	       .add( "Minor" ).add( "Major" ).add( "Crash" );
+	       .add( "Minor" ).add( "Major" ).add( "Crash" ).add( "Block" );
     severityvals_.add( SqlDB::BugTableEntry::cSeverityFeature() );
     severityvals_.add( SqlDB::BugTableEntry::cSeverityTrivial() );
     severityvals_.add( SqlDB::BugTableEntry::cSeverityText() );
@@ -286,6 +290,7 @@ void SqlDB::MantisDBMgr::fillSeverity()
     severityvals_.add( SqlDB::BugTableEntry::cSeverityMinor() );
     severityvals_.add( SqlDB::BugTableEntry::cSeverityMajor() );
     severityvals_.add( SqlDB::BugTableEntry::cSeverityCrash() );
+    severityvals_.add( SqlDB::BugTableEntry::cSeverityBlock() );
 }
 
 
@@ -300,7 +305,7 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 }
 
 
-bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
+bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 				      TypeSet<int>& bugsassigned )
 {
     bugsindex_.erase();
@@ -314,6 +319,19 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
 	return false;
     }
 
+    const bool isallprojs = caseInsensitiveEqual( projectnm, sKeyAll() );
+    const int projidx = projects().indexOf( projectnm );
+    if ( !isallprojs && projidx < 0 )
+    {
+	UsrMsg( BufferString( "Project ", projectnm,
+		    	      " does not exist in Mantis") );
+	return false;
+    }
+
+    if ( !isallprojs && !projectIDs().validIdx(projidx ) )
+	return false;
+
+    const int projid = isallprojs ? -1 : projectIDs()[projidx];
     const int usrid = isall ? -1 : userIDs()[usridx];
     const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
@@ -322,47 +340,17 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* usernm,
 	if ( !bugtable )
 	    continue;
 	
-	if ( usrid < 0  )
+	const bool isprojequal = projid < 0 ? true
+	    				    : bugtable->projectid_ == projid;
+	if ( isprojequal && usrid < 0  )
 	    bugsindex_.add( idx );
-	else if ( usrid == bugtable->handlerid_ )
+	else if ( isprojequal && usrid == bugtable->handlerid_ )
 	    bugsindex_.add( idx );
     }
 
     bugsassigned = bugsindex_;
 
     return bugsassigned.isEmpty() ? false : true;
-}
-
-
-void SqlDB::MantisDBMgr::getSummaries( const char* usernm,
-				       BufferStringSet& summaries )
-{
-    if ( !usernm ) return;
-
-    int usrid = userNames().indexOf( usernm );
-    if ( !userIDs().validIdx( usrid ) )
-	usrid = -1;
-
-    usrid = usrid < 0 ? -1 : userIDs()[usrid];
-    bugsindex_.erase();
-    const int nrbugs = nrBugs();
-    for ( int idx=0; idx<nrbugs; idx++ )
-    {
-	BugTableEntry* bugtable = getBugTableEntry( idx );
-	if ( !bugtable )
-	    continue;
-	
-	if ( usrid < 0 )
-	{
-	    summaries.add( bugtable->summary_ );
-	    bugsindex_.add( bugtable->id_ );
-	}
-	else if ( usrid == bugtable->handlerid_ )
-	{
-	    bugsindex_.add( bugtable->id_ );
-	    summaries.add( bugtable->summary_ );
-	}
-    }
 }
 
 
@@ -653,7 +641,7 @@ int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
     const bool ispresent = developers().isPresent( username );
     if ( isdeveloper && !ispresent )
     {
-	BufferString msg( "'",username );
+	BufferString msg( "'", username );
 	msg.add ( "' does not existed in mantis developers list" );
 	UsrMsg( msg );
 	return -1;
