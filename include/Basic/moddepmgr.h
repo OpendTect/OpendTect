@@ -1,12 +1,12 @@
-#ifndef plugins_h
-#define plugins_h
+#ifndef moddepmgr_h
+#define moddepmgr_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2011
- RCS:		$Id: moddepmgr.h,v 1.1 2011-08-23 11:42:33 cvsbert Exp $
+ RCS:		$Id: moddepmgr.h,v 1.2 2011-08-23 14:50:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     const ObjectSet<ModDep>&	deps() const	{ return deps_; }
 
     void			ensureLoaded(const char*) const;
+    const SharedLibAccess*	shLibAccess(const char*) const;
 
 protected:
 
@@ -58,13 +59,13 @@ protected:
     void		readDeps(std::istream&);
     int			getLoadIdx(const char*) const;
 
-public:
-
-    void		ensureInited(const char*) const;
-
 };
 
 mGlobal const ModDepMgr& ModDeps();
+
+#define mDefModInitFn(nm) \
+    extern "C" void od_##nm##_initStdClasses(); \
+extern "C" void od_##nm##_initStdClasses()
 
 
 } // namespace OD

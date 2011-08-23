@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.1 2011-08-23 11:42:33 cvsbert Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.2 2011-08-23 14:50:23 cvsbert Exp $";
 
 
 #include "moddepmgr.h"
@@ -164,7 +164,7 @@ void OD::ModDepMgr::readDeps( std::istream& strm )
 	deps_ += newdep;
 
 	for ( int idx=depmods.size()-1; idx>=0; idx-- )
-	    newdep->mods_ += depmods[idx];
+	    newdep->mods_.add( depmods.get(idx) );
     }
 }
 
@@ -177,6 +177,8 @@ const OD::ModDep* OD::ModDepMgr::find( const char* nm ) const
 
 void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 {
+    if ( !nm || !*nm ) return;
+
     const OD::ModDep* md = find( nm );
     if ( !md ) return;
 
@@ -197,32 +199,21 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	loadedmods_.add( modnm );
 	shlibaccs_ += sla;
-    }
 
-    ensureInited( nm );
-}
-
-
-void OD::ModDepMgr::ensureInited( const char* nm ) const
-{
-    const OD::ModDep* md = find( nm );
-    if ( !md ) return;
-
-    for ( int idep=md->mods_.size()-1; idep>=0; idep-- )
-    {
-	const BufferString& modnm( md->mods_.get(idep) );
-	const int loadedidx = getLoadIdx( modnm );
-	if ( loadedidx < 0 )
-	    continue;
-
-	const SharedLibAccess& sla = *shlibaccs_[loadedidx];
 	BufferString fnnm( "od_" );
-	fnnm.add( nm ).add( "_initStdClasses" );
+	fnnm.add( modnm ).add( "_initStdClasses" );
 	typedef void (*ModuleInitFn)(void);
-	ModuleInitFn fn = (ModuleInitFn)sla.getFunction( fnnm );
+	ModuleInitFn fn = (ModuleInitFn)sla->getFunction( fnnm );
 	if ( fn )
 	    (*fn)();
     }
+}
+
+
+const SharedLibAccess* OD::ModDepMgr::shLibAccess( const char* nm ) const
+{
+    const int loadedidx = getLoadIdx( nm );
+    return loadedidx < 0 ? 0 : shlibaccs_[loadedidx];
 }
 
 
