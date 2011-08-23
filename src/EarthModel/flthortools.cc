@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.43 2011-08-05 09:05:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.44 2011-08-23 15:47:51 cvsyuancheng Exp $";
 
 #include "flthortools.h"
 
@@ -488,14 +488,15 @@ void FaultTrace::computeRange()
 	    floattrcrg.include( trcnrs_[idx], false );
 
 	trcrange_.set( (int) floattrcrg.start, (int) ceil(floattrcrg.stop) );
-	return;
     }
-
-    for ( int idx=0; idx<coords_.size(); idx++ )
+    else
     {
-	const BinID bid = SI().transform( coords_[idx] );
-	trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
-	zrange_.include( coords_[idx].z, false );
+	for ( int idx=0; idx<coords_.size(); idx++ )
+	{
+	    const BinID bid = SI().transform( coords_[idx] );
+	    trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
+	    zrange_.include( coords_[idx].z, false );
+	}
     }
 
     computeTraceSegments();
