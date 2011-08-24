@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.95 2010-09-23 04:46:25 cvsnanne Exp $
+ RCS:		$Id: emobject.h,v 1.96 2011-08-24 22:14:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -273,9 +273,10 @@ protected:
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
-				clss( EM::EMManager& ); \
+				clss(EM::EMManager&); \
     static void			initClass(); \
-    static EMObject*		create( EM::EMManager& emm ); \
+    static EMObject*		create(EM::EMManager&); \
+    static clss*		create(const char* nm); \
     static const char*		typeStr(); \
     const char*			getTypeStr() const; \
     void			setNewName(); \
@@ -298,8 +299,15 @@ EMObject* clss::create( EM::EMManager& emm ) \
     obj->unRefNoDelete(); \
     return obj; \
 } \
- \
- \
+\
+clss* clss::create( const char* nm ) \
+{ \
+    const ObjectID objid = EMM().createObject( typeStr(), nm ); \
+    EMObject* emobj = EMM().getObject( objid ); \
+    mDynamicCastGet(clss*,newobj,emobj); \
+    return newobj; \
+} \
+\
 const char* clss::typeStr() { return typenm; } \
 const char* clss::getTypeStr() const { return typeStr(); } \
 void clss::setNewName() \
