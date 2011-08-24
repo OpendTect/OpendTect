@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.71 2011-08-23 14:52:21 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.72 2011-08-24 13:27:26 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -430,15 +430,8 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
        			const char* libnm )
 {
     mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
-    if ( !fn )
-    {
-	const BufferString libnmonly = FilePath(libnm).fileName();
-	BufferString msg( "Cannot find " );
-	msg += getFnName(libnmonly,"Init","Plugin");
-	msg += " function in "; msg += libnm;
-	ErrMsg( msg );
+    if ( !fn ) // their bad
 	return false;
-    }
 
     const char* ret = (*fn)( argc, argv );
     if ( ret )
