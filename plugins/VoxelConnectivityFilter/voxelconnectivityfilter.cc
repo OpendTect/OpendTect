@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.3 2011-08-19 05:22:28 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.4 2011-08-24 12:06:57 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -26,7 +26,7 @@ namespace VolProc
 {
 
 DefineEnumNames( VoxelConnectivityFilter, AcceptOutput, 0, "AcceptOutput")
-{ "Body-size rank", "Body size", "Value", "Input", 0 };
+{ "Body-size rank", "Body size", "Value", "Transparent", 0 };
 
 DefineEnumNames( VoxelConnectivityFilter, Connectivity, 0, "Connectivity")
 { "Faces", "Edges", "Corners", 0 };
@@ -444,7 +444,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	    outputvs->setValue( idx, acceptval );
 	}
     }
-    else if ( acceptoutput==VoxelConnectivityFilter::Input )
+    else if ( acceptoutput==VoxelConnectivityFilter::Transparent )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
@@ -468,7 +468,7 @@ void VoxelConnectivityFilterTask::addBodyAlias( od_int64 id0, od_int64 id1)
 VoxelConnectivityFilter::VoxelConnectivityFilter()
     : minbodysize_( mUdf(int) )
     , rejectvalue_( mUdf(float) )
-    , acceptoutput_( Input )
+    , acceptoutput_( Transparent )
     , acceptvalue_( mUdf(float) )
     , connectivity_( Corners )
     , range_( mUdf(float), mUdf(float) )
