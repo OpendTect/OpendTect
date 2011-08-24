@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.17 2011-08-12 13:24:00 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.18 2011-08-24 13:19:43 cvskris Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -22,13 +22,6 @@ static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.17 2011-08-12 13
 
 namespace VolProc
 {
-
-
-void uiHorInterFiller::initClass()
-{
-    uiChain::factory().addCreator( create, HorInterFiller::sFactoryKeyword(),
-	   HorInterFiller::sFactoryDisplayName() );
-}    
 
 
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
@@ -103,7 +96,7 @@ void uiHorInterFiller::updateFlds( CallBacker* )
 }
 
 
-uiStepDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
+uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps )
 {
     mDynamicCastGet( HorInterFiller*, hf, ps );
     if ( !hf ) return 0;

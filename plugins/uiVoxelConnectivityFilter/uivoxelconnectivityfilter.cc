@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.2 2011-08-24 12:32:24 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.3 2011-08-24 13:19:43 cvskris Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -105,6 +105,8 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     rejectoutputvalfld_->attach( alignedBelow, rejectoutputudffld_ );
 
     updateFieldsCB( 0 );
+    
+    addNameFld( rejectoutputvalfld_ );
 }
 
 

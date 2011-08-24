@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.12 2011-08-12 13:18:51 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.13 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,6 @@ public:
 			mDefaultFactoryInstantiation( VolProc::Step,
 				VelGriddingStep, "Gridding", "Velocity gridder" );
 
-    const char*		type() const			{ return sType(); }
     const VelocityDesc* getVelDesc() const;
 
     void		setSources(ObjectSet<Vel::FunctionSource>&);
@@ -55,8 +54,6 @@ public:
     
     const char*		errMsg() const		{ return errmsg_.str(); }
 
-    static const char*	sType()			{ return "Gridding"; }
-    static const char*	sUserName()		{ return "Velocity gridder"; }
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
     static const char*	sKeyNrSources()		{ return "NrSources"; }

@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.10 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.11 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "iopar.h"
-#include "factory.h"
 #include "uivolprocstepdlg.h"
 
 class IOObj;
@@ -35,8 +34,6 @@ class Step;
 mClass uiChain : public uiDialog
 {
 public:
-
-    mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 
 				uiChain(uiParent*,Chain&, bool withprocessnow);
 				~uiChain();

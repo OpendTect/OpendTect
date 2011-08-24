@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocitygridder.h,v 1.6 2011-07-06 22:39:10 cvskris Exp $
+ RCS:		$Id: uivelocitygridder.h,v 1.7 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uivolprocstepdlg.h"
+#include "velocitygridder.h"
 
 class uiGridder2DSel;
 namespace VolProc { class Step; }
@@ -29,13 +30,16 @@ mClass uiVelocityGridder : public uiStepDialog
 {
 public:
 
-    static void		initClass();
-			uiVelocityGridder(uiParent*,VelGriddingStep*);
+		mDefaultFactoryInstanciationBase(
+		    VolProc::VelGriddingStep::sFactoryKeyword(),
+		    VolProc::VelGriddingStep::sFactoryDisplayName())
+		    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
 protected:
 
+				uiVelocityGridder(uiParent*,VelGriddingStep*);
     bool			acceptOK(CallBacker*);
-    static uiStepDialog*	create(uiParent*,VolProc::Step*);
+    static uiStepDialog*	createInstance(uiParent*,VolProc::Step*);
 
     void			pickSelChange(CallBacker*);
     void			nameChangeCB(CallBacker*);

@@ -7,33 +7,35 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.7 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivolprocstepdlg.h"
+#include "volprochorinterfiller.h"
+
 class uiIOObjSel;
 class CtxtIOObj;
 
 
 namespace VolProc
 {
-class HorInterFiller;
-
 
 mClass uiHorInterFiller : public uiStepDialog
 {
 public:
+    mDefaultFactoryInstanciationBase(
+	    VolProc::HorInterFiller::sFactoryKeyword(),
+	    VolProc::HorInterFiller::sFactoryDisplayName())
+	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+protected:
 
-   static void			initClass();
 
 				uiHorInterFiller(uiParent*,HorInterFiller*);
    				~uiHorInterFiller();
+    static uiStepDialog*	createInstance(uiParent*,Step*);
 
-protected:
-
-    static uiStepDialog*	create(uiParent*,Step*);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 

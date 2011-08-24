@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id: uivoxelconnectivityfilter.h,v 1.2 2011-08-24 12:32:24 cvskris Exp $
+ RCS:		$Id: uivoxelconnectivityfilter.h,v 1.3 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,15 @@ public:
 	    VolProc::VoxelConnectivityFilter::sFactoryKeyword(),
 	    VolProc::VoxelConnectivityFilter::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+
+
+
+protected:
 
     				uiVoxelConnectivityFilter(uiParent*,
 					    VoxelConnectivityFilter*);
-
+    static uiStepDialog*	createInstance(uiParent*,Step*);
     bool			acceptOK(CallBacker*);
-
-protected:
 
     void		updateFieldsCB(CallBacker*);
 

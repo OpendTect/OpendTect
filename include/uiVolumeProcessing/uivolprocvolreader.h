@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: uivolprocvolreader.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivolprocvolreader.h,v 1.5 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivolprocchain.h"
+
+#include "volprocvolreader.h"
 
 class uiSeisSel;
 class CtxtIOObj;
@@ -20,20 +22,21 @@ class CtxtIOObj;
 namespace VolProc
 {
 
-class Step;
-class VolumeReader;
-
 mClass uiVolumeReader : public uiStepDialog
 {
 public:
-   static void			initClass();
-   				~uiVolumeReader();
+    mDefaultFactoryInstanciationBase(
+	    VolProc::VolumeReader::sFactoryKeyword(),
+	    VolProc::VolumeReader::sFactoryDisplayName())
+    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+
 				
-				uiVolumeReader(uiParent*,VolumeReader*);
 
 protected:
+				uiVolumeReader(uiParent*,VolumeReader*);
+   				~uiVolumeReader();
+    static uiStepDialog*	createInstance(uiParent*, Step*);
 
-    static uiStepDialog*	create(uiParent*, Step*);
     void			volSel(CallBacker*);
     void			updateFlds(CallBacker*);
     bool			acceptOK(CallBacker*);

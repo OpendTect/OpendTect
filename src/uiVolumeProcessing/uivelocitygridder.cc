@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.11 2011-08-12 13:24:00 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.12 2011-08-24 13:19:43 cvskris Exp $";
 
 #include "uivelocitygridder.h"
 
@@ -21,14 +21,7 @@ static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.11 2011-08-12 13:24:00
 namespace VolProc
 {
 
-void uiVelocityGridder::initClass()
-{
-    uiChain::factory().addCreator( create, VelGriddingStep::sType(),
-	   VelGriddingStep::sFactoryDisplayName() );
-}
-
-
-uiStepDialog* uiVelocityGridder::create( uiParent* p, VolProc::Step* ro )
+uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, VolProc::Step* ro )
 {
     mDynamicCastGet( VelGriddingStep*, gridop, ro );
     if ( !gridop ) return 0;

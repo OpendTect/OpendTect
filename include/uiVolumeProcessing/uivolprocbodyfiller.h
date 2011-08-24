@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		November 2007
- RCS:		$Id: uivolprocbodyfiller.h,v 1.1 2009-09-18 18:13:43 cvskris Exp $
+ RCS:		$Id: uivolprocbodyfiller.h,v 1.2 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivolprocstepdlg.h"
+#include "volprocbodyfiller.h"
+
 class CtxtIOObj;
 class uiIOObjSel;
 
@@ -20,20 +22,18 @@ class uiIOObjSel;
 namespace VolProc
 {
 
-class BodyFiller;
-
 mClass uiBodyFiller: public uiStepDialog
 {
 public:
-
-   static void			initClass();
-
-				uiBodyFiller(uiParent*, BodyFiller*);
-   				~uiBodyFiller();
+	mDefaultFactoryInstanciationBase(
+		VolProc::BodyFiller::sFactoryKeyword(),
+		VolProc::BodyFiller::sFactoryDisplayName());
 
 protected:
+				uiBodyFiller(uiParent*, BodyFiller*);
+   				~uiBodyFiller();
+    static uiStepDialog*	createInstance(uiParent*, Step*);
 
-    static uiStepDialog*	create(uiParent*, Step*);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 

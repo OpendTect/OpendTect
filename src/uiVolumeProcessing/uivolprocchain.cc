@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.24 2011-08-12 13:24:00 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.25 2011-08-24 13:19:43 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -32,7 +32,7 @@ namespace VolProc
 const char* uiChain::sKeySettingKey()
 { return "dTect.ProcessVolumeBuilderOnOK"; }   
 
-mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
+mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
 
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
@@ -94,7 +94,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
-    factorylist_ = new uiListBox( flowgrp, factory().getNames(true) );
+    factorylist_ = new uiListBox( flowgrp, uiStepDialog::factory().getNames(true) );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
@@ -269,7 +269,8 @@ void uiChain::updateButtons()
 	    stepsel!=steplist_->size()-1 );
 
     const bool hasdlg = stepsel>=0 &&
-	factory().hasName(chain_.getStep(stepsel)->factoryKeyword());
+	uiStepDialog::factory().hasName(
+		chain_.getStep(stepsel)->factoryKeyword());
 
     propertiesbutton_->setSensitive( hasdlg );
 }
@@ -280,7 +281,8 @@ bool uiChain::showPropDialog( int idx )
     Step* step = chain_.getStep( idx );
     if ( !step ) return false;
 
-    PtrMan<uiStepDialog> dlg = factory().create( step->factoryKeyword(), this, step );
+    PtrMan<uiStepDialog> dlg = uiStepDialog::factory().create(
+	    step->factoryKeyword(), this, step );
     if ( !dlg )
     {
 	uiMSG().error( "Internal error. Step cannot be created" );
@@ -358,7 +360,7 @@ void uiChain::addStepPush(CallBacker*)
     if ( sel == -1 )
 	return;
 
-    const char* steptype = factory().getNames(false)[sel]->buf();
+    const char* steptype = uiStepDialog::factory().getNames(false)[sel]->buf();
     Step* step = Step::factory().create( steptype );
     if ( !step ) return;
 

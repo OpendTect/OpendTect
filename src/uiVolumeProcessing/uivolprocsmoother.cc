@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.15 2011-08-12 13:24:00 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.16 2011-08-24 13:19:43 cvskris Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -23,13 +23,6 @@ static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.15 2011-08-12 13:24:00
 
 namespace VolProc
 {
-
-
-void uiSmoother::initClass()
-{
-    uiChain::factory().addCreator( create, Smoother::sFactoryKeyword(),
-	   Smoother::sFactoryDisplayName() );
-}    
 
 
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
@@ -78,7 +71,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
 }
 
 
-uiStepDialog* uiSmoother::create( uiParent* parent, Step* ps )
+uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps )
 {
     mDynamicCastGet( Smoother*, hf, ps );
     if ( !hf ) return 0;

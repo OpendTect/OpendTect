@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolproclateralsmoother.h,v 1.3 2010-10-04 19:56:14 cvskris Exp $
+ RCS:		$Id: uivolproclateralsmoother.h,v 1.4 2011-08-24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivolprocchain.h"
+#include "volproclateralsmoother.h"
 
 class uiGenInput;
 class uiLabeledSpinBox;
@@ -26,14 +27,17 @@ class LateralSmoother;
 mClass uiLateralSmoother : public uiStepDialog
 {
 public:
+    mDefaultFactoryInstanciationBase(
+	VolProc::LateralSmoother::sFactoryKeyword(),
+	VolProc::LateralSmoother::sFactoryDisplayName())
+	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
-   static void			initClass();
-				
-				uiLateralSmoother(uiParent*,LateralSmoother*);
 
 protected:
 
-    static uiStepDialog*	create(uiParent*, Step*);
+				uiLateralSmoother(uiParent*,LateralSmoother*);
+    static uiStepDialog*	createInstance(uiParent*, Step*);
+
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 
