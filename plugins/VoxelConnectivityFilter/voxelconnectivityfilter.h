@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id: voxelconnectivityfilter.h,v 1.2 2011-08-12 13:18:51 cvskris Exp $
+ RCS:		$Id: voxelconnectivityfilter.h,v 1.3 2011-08-24 12:04:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
 			mDefaultFactoryInstantiation( Step,
 				VoxelConnectivityFilter,
 				"VoxelConnectivityFilter",
-				"Voxel Connection Filter" );
+				"Voxel Connectivity Filter" );
 
     enum		Connectivity { Faces, Edges, Corners };
     			DeclareEnumUtils( Connectivity );
