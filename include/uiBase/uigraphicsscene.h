@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.35 2011-06-10 12:32:55 cvsbruno Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.36 2011-08-24 05:57:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,10 @@ public:
 
     int				getDPI() const;
     void			saveAsImage(const char*,int,int,int);
-    void			saveAsPDF(const char*,int);
-    void			saveAsPS(const char*,int);
-    void			saveAsPDF_PS(const char*,bool pdf_or_ps,int);
+    void			saveAsPDF(const char*,int w,int h,int r);
+    void			saveAsPS(const char*,int w,int h,int r);
+    void			saveAsPDF_PS(const char*,bool pdf_or_ps,int w,
+	    				     int h,int r);
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 

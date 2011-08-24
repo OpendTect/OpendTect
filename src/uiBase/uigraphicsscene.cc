@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.57 2011-06-10 12:32:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.58 2011-08-24 05:57:17 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -404,14 +404,14 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 
 
 void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
-       				    int res )
+       				    int w, int h,int res )
 {
     QString fileName( filename );
     QPrinter* pdfprinter = new QPrinter();
     pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
 				       : QPrinter::PostScriptFormat );
-    pdfprinter->setPageSize( QPrinter::A4 );
-    pdfprinter->setFullPage( true );
+    pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
+    pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
 
     QPainter* pdfpainter = new QPainter();
@@ -427,11 +427,11 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 }
 
 
-void uiGraphicsScene::saveAsPDF( const char* filename, int res )
-{ saveAsPDF_PS( filename, true, res ); }
+void uiGraphicsScene::saveAsPDF( const char* filename, int w, int h, int res )
+{ saveAsPDF_PS( filename, true, w, h, res ); }
 
-void uiGraphicsScene::saveAsPS( const char* filename, int res )
-{ saveAsPDF_PS( filename, false, res ); }
+void uiGraphicsScene::saveAsPS( const char* filename, int w, int h, int res )
+{ saveAsPDF_PS( filename, false, w, h, res ); }
 
 
 int uiGraphicsScene::indexOf( int id ) const

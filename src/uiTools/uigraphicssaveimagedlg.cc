@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.12 2011-05-04 08:03:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.13 2011-08-24 05:57:17 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -105,9 +105,11 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
     if ( !filenameOK() ) return false;
     BufferString ext( getExtension() );
     if ( ext == "pdf" ) 
-	scene_->saveAsPDF(fileinputfld_->fileName(),dpifld_->box()->getValue());
+	scene_->saveAsPDF(fileinputfld_->fileName(),(int)sizepix_.width(),
+			  (int)sizepix_.height(),dpifld_->box()->getValue());
     else if ( ext == "ps" || ext == "eps" )
-	scene_->saveAsPS( fileinputfld_->fileName(),dpifld_->box()->getValue());
+	scene_->saveAsPS( fileinputfld_->fileName(),(int)sizepix_.width(),
+			  (int)sizepix_.height(),dpifld_->box()->getValue());
     else
 	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
 	       		     (int)sizepix_.height(),dpifld_->box()->getValue());
