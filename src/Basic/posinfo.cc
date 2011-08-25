@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.29 2011-04-15 10:27:38 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.30 2011-08-25 07:39:28 cvskris Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -631,6 +631,9 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
     if ( nrinl < 0 )
 	return false;
 
+    const Interval<int> reasonableinls = SI().reasonableRange( true );
+    const Interval<int> reasonablecrls = SI().reasonableRange( false );
+
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	int linenr = 0, nrseg = 0;
@@ -643,6 +646,10 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 	    nrseg = buf[1];
 	}
 	if ( linenr == 0 ) continue;
+
+	if ( !reasonableinls.includes( linenr, false ) )
+	    return false;
+
 
 	PosInfo::LineData* iinf = new PosInfo::LineData( linenr );
 
@@ -658,6 +665,17 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 		crls.stop = buf[1];
 		crls.step = buf[2];
 	    }
+
+	    if ( !reasonablecrls.includes( crls.start,false ) ||
+		 !reasonablecrls.includes( crls.stop, false ) )
+		    return false;
+
+	    if ( crls.step<1 )
+	    {
+		if ( crls.step<0 || crls.start!=crls.stop )
+		    return false;
+	    }
+
 	    iinf->segments_ += crls;
 	}
 
