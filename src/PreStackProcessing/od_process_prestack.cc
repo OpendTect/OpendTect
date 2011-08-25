@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.14 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.15 2011-08-25 15:04:23 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -193,6 +193,8 @@ bool BatchProgram::go( std::ostream& strm )
 		horsampling.setCrlRange( crlrg );
 	    }
         }
+
+	progressmeter.setTotalNr( horsampling.totalNr() );
     }
     else
     {
@@ -210,6 +212,8 @@ bool BatchProgram::go( std::ostream& strm )
 		    cdprange.include( posdata.positions()[idx].nr_ );
 	    }
 	}
+
+	progressmeter.setTotalNr( cdprange.nrSteps()+1 );
     }
 
     if ( !reader3d && !reader2d )
@@ -405,14 +409,21 @@ bool BatchProgram::go( std::ostream& strm )
 
 	if ( geomtype==Seis::VolPS )
 	{
-	    const int obsoleteline = curbid.inl - (stepout.inl+1)*step.inl;
-	    for ( int idx=bids.size()-1; idx>=0; idx-- )
+	    const int prevline = curbid.inl;
+	    if ( !hiter.next(curbid) )
+		break;
+
+	    if ( prevline!=curbid.inl )
 	    {
-		if ( bids[idx].inl<=obsoleteline )
+		const int obsoleteline = curbid.inl - (stepout.inl+1)*step.inl;
+		for ( int idx=bids.size()-1; idx>=0; idx-- )
 		{
-		    bids.remove( idx ); 
-		    DPM( DataPackMgr::FlatID() ).release(
-		    gathers.remove(idx) );
+		    if ( bids[idx].inl<=obsoleteline )
+		    {
+			bids.remove( idx ); 
+			DPM( DataPackMgr::FlatID() ).release(
+			gathers.remove(idx) );
+		    }
 		}
 	    }
 	}
@@ -438,6 +449,9 @@ bool BatchProgram::go( std::ostream& strm )
     progressmeter.setFinished();
     mStrmWithProcID( "Threads closed; Writing finish status" );
 
+    for ( int idx=gathers.size()-1;  idx>=0; idx-- )
+	DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
+
     if ( !comm )
     {
 	delete procman;
@@ -453,6 +467,7 @@ bool BatchProgram::go( std::ostream& strm )
 	mStrmWithProcID( "Could not write finish status" );
 
     delete procman;
+
     return ret;
 }
 
