@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.99 2010-11-23 20:13:15 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.100 2011-08-25 06:30:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ public:
 				//!< Checks if in or near survey
     bool		isReasonable(const Coord&) const;
 				//!< Checks if in or near survey
+    Interval<int>	reasonableRange(bool inl) const;
     int			maxNrTraces(bool work) const;
 
     void		checkInlRange(Interval<int>&,bool work) const;

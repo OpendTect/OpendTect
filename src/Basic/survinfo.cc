@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.155 2011-04-27 07:47:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.156 2011-08-25 06:30:31 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -406,14 +406,22 @@ void SurveyInfo::setWorkRange( const CubeSampling& cs )
 }
 
 
+Interval<int> SurveyInfo::reasonableRange( bool inl ) const
+{
+    const Interval<int> rg = inl
+      ? Interval<int>( cs_.hrg.start.inl, cs_.hrg.stop.inl )
+      : Interval<int>( cs_.hrg.start.crl, cs_.hrg.stop.crl );
+
+    const int w = rg.stop - rg.start;
+
+    return Interval<int>( rg.start - 3*w, rg.stop +3*w );
+}
+
+
 bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    BinID w( cs_.hrg.stop.inl - cs_.hrg.start.inl,
-             cs_.hrg.stop.crl - cs_.hrg.start.crl );
-    return b.inl > cs_.hrg.start.inl - 3 * w.inl
-	&& b.inl < cs_.hrg.stop.inl  + 3 * w.crl
-	&& b.crl > cs_.hrg.start.crl - 3 * w.crl
-	&& b.crl < cs_.hrg.stop.crl  + 3 * w.crl;
+    return reasonableRange( true ).includes( b.inl ) &&
+	   reasonableRange( false ).includes( b.crl );
 }
 
 
