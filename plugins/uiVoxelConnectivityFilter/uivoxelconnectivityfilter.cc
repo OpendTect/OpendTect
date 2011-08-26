@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.3 2011-08-24 13:19:43 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.4 2011-08-26 07:03:06 cvskris Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -123,8 +123,11 @@ void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
 }
 
 
-bool uiVoxelConnectivityFilter::acceptOK( CallBacker* )
+bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 {
+    if ( !uiStepDialog::acceptOK( cb ) )
+	return false;
+
     Interval<float> range;
     if ( cutofftypefld_->getIntValue()==mCutOutside )
     {
