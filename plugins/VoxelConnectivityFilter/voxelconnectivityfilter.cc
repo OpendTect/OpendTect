@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.4 2011-08-24 12:06:57 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.5 2011-08-26 06:33:43 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -481,6 +481,10 @@ VoxelConnectivityFilter::~VoxelConnectivityFilter()
 
 Task* VoxelConnectivityFilter::createTask()
 {
+    if ( !input_ || input_->nrCubes()<1 ||
+	 !output_ || !output_->nrCubes()<1 )
+	return 0;
+
     return new VoxelConnectivityFilterTask( *this, input_->getCube(0),
 	    				    output_->getCube(0) );
 }
