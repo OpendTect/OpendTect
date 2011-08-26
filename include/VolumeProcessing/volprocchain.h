@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.15 2011-08-12 13:18:51 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.16 2011-08-26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -100,7 +100,7 @@ public:
     void			enable(bool yn);
     bool			enabled() const;
 
-    virtual bool		needsInput(const HorSampling&) const	= 0;
+    virtual bool		needsInput() const		= 0;
     				/*!<When computing HorSampling, do I need
 				    the input? */
     virtual HorSampling		getInputHRg(const HorSampling&) const;

@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.20 2011-08-15 12:40:40 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.21 2011-08-26 08:24:52 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -469,7 +469,7 @@ const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
 { return sources_; }
 
 
-bool VelGriddingStep::needsInput(const HorSampling&) const
+bool VelGriddingStep::needsInput() const
 { return false; }
 
 

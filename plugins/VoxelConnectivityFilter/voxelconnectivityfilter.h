@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id: voxelconnectivityfilter.h,v 1.4 2011-08-24 12:06:57 cvskris Exp $
+ RCS:		$Id: voxelconnectivityfilter.h,v 1.5 2011-08-26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,16 +54,16 @@ public:
     float		getAcceptValue() const  { return acceptvalue_; }
 
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    const char* type() const { return sFactoryKeyword(); }
-    bool	needsInput(const HorSampling&) const 	{ return true; }
-    bool	canInputAndOutputBeSame() const		{ return true; }
-    bool	needsFullVolume() const			{ return true; }
-    bool	areSamplesIndependent() const		{ return false; }
+    bool		needsInput() const 		{ return true; }
+    bool		canInputAndOutputBeSame() const	{ return true; }
+    bool		needsFullVolume() const		{ return true; }
+    bool		areSamplesIndependent() const	{ return false; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
-    Task*	createTask();
+    Task*		createTask();
 
 protected:
 
@@ -77,6 +77,7 @@ protected:
     static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
     static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
 
+    FixedString		errmsg_;
     od_int64		minbodysize_;
     Interval<float>	range_;
     float		rejectvalue_;

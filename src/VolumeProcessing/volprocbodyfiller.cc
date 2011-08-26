@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.9 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.10 2011-08-26 08:24:52 cvskris Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -205,7 +205,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 }
 
 
-bool BodyFiller::needsInput( const HorSampling& ) const
+bool BodyFiller::needsInput() const
 { return true; }
 
 

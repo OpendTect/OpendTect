@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.26 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.27 2011-08-26 08:24:52 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -77,8 +77,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	od_uint64 inputsize = 0;
 
-	const bool needsinput =  idx &&
-	                chain->getStep(idx)->needsInput( inputhrg );
+	const bool needsinput =  idx && chain->getStep(idx)->needsInput();
 	if ( needsinput )
 	{
 	    inputzrg = chain->getStep(idx)->getInputZRg( inputzrg );

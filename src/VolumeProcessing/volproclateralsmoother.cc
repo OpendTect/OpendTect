@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.14 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.15 2011-08-26 08:24:52 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -317,7 +317,7 @@ bool processKernel( int start, int stop, int thread )
 };
 
 
-bool LateralSmoother::needsInput(const HorSampling&) const
+bool LateralSmoother::needsInput() const
 { return true; }
     
     

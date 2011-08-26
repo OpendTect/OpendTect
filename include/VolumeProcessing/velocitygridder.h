@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.13 2011-08-24 13:19:43 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.14 2011-08-26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ public:
     void		setGridder(Gridder2D*); //becomes mine
     const Gridder2D*	getGridder() const;
 
-    bool		needsInput(const HorSampling&) const;
+    bool		needsInput() const;
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 

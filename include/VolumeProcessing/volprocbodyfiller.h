@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2007
- RCS:		$Id: volprocbodyfiller.h,v 1.6 2011-08-12 13:18:51 cvskris Exp $
+ RCS:		$Id: volprocbodyfiller.h,v 1.7 2011-08-26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ public:
     				BodyFiller();
     				~BodyFiller();
 
-    bool			needsInput(const HorSampling&) const; 
+    bool			needsInput() const; 
     bool			areSamplesIndependent() const { return true; }
     
     void			fillPar(IOPar&) const;

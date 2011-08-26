@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.19 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.20 2011-08-26 08:24:52 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -242,7 +242,16 @@ bool ChainExecutor::prepareNewStep()
     curtask_ = steps_[currentstep_]->createTask();
     if ( !curtask_ )
     {
-	errmsg_ = "Cannot create task";
+	const char* steperr = steps_[currentstep_]->errMsg();
+	if ( steperr )
+	{
+	    errmsg_ = steps_[currentstep_]->userName();
+	    errmsg_ += ": ";
+	    errmsg_ += steperr;
+	}
+	else
+	    errmsg_ = "Cannot create task.";
+
 	return false;
     }
 
@@ -286,6 +295,9 @@ od_int64 ChainExecutor::totalNr() const
 
 const char* ChainExecutor::message() const
 {
+    if ( !errmsg_.isEmpty() )
+	return errmsg_;
+
     Threads::MutexLocker lock( curtasklock_ );
     if ( curtask_ )
 	return curtask_->message();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: volprocvolreader.h,v 1.5 2011-08-12 13:18:51 cvskris Exp $
+ RCS:		$Id: volprocvolreader.h,v 1.6 2011-08-26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 				"VolumeReader", "Stored Volume" );
     			~VolumeReader();
 
-    bool		needsInput(const HorSampling&) const	{ return true; }			
+    bool		needsInput() const			{ return false;}
     bool 		setVolumeID(const MultiID&);
     const MultiID&	getVolumeID() const			{ return mid_; }
 
