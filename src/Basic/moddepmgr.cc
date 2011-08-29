@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.2 2011-08-23 14:50:23 cvsbert Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.3 2011-08-29 05:50:50 cvsranojay Exp $";
 
 
 #include "moddepmgr.h"
@@ -20,6 +20,12 @@ static const char* rcsID = "$Id: moddepmgr.cc,v 1.2 2011-08-23 14:50:23 cvsbert 
 #include "sharedlibs.h"
 #include <iostream>
 
+static const bool isdebug = 
+# ifdef __debug__
+    true;
+# else
+    false;
+# endif
 
 const OD::ModDepMgr& OD::ModDeps()
 {
@@ -79,17 +85,26 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     relfp.set( GetBinPlfDir() );
 #ifndef __win__
     relfp.add( "so" );
-#endif
     relbindir_ = relfp.fullPath();
     devfp.setFileName( 0 );
     devfp.setFileName( "lib" ); devfp.add( GetPlfSubDir() );
     devfp.add( "G" );
-    devbindir_ = devfp.fullPath();
     if ( !File::exists(devbindir_) )
     {
 	devfp.setFileName( "OG" );
 	devbindir_ = devfp.fullPath();
     }
+#else
+    relbindir_ = relfp.fullPath();
+    devfp.setFileName( 0 );
+    BufferString plfdir( GetPlfSubDir() );
+    plfdir = plfdir == "win64" ? "x64" : "win32";
+    devfp.setFileName( "msvc10" ); devfp.add( plfdir );
+    devfp.add( isdebug ? "debug" : "release" );
+    devbindir_ = devfp.fullPath();
+    if ( !File::exists(devbindir_) )
+	devbindir_ = "";
+#endif
 }
 
 
@@ -193,6 +208,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
 	FilePath fp( isrel_ ? relbindir_ : devbindir_ );
 	fp.add( libnm );
+
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { delete sla; continue; }
