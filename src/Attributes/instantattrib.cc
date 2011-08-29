@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.22 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.23 2011-08-29 12:57:10 cvsbruno Exp $";
 
 #include "instantattrib.h"
 
@@ -30,9 +30,14 @@ void Instantaneous::initClass()
 {
     mAttrStartInitClass
 
+    FloatParam* rotangle_ = new FloatParam( rotateAngle() );
+    rotangle_->setLimits( Interval<float>(-180,180) );
+    rotangle_->setDefaultValue(90);
+    desc->addParam( rotangle_ );
+
     desc->addInput( InputSpec("Real Data",true) );
     desc->addInput( InputSpec("Imag Data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 13 );
+    desc->setNrOutputs( Seis::UnknowData, 14 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -43,8 +48,11 @@ Instantaneous::Instantaneous( Desc& ds )
     : Provider( ds )
     , sampgate1_( -1,1 )
     , sampgate2_( -2,2 )
+    , rotangle_(0)			
 {
     if ( !isOK() ) return;
+
+    mGetFloat( rotangle_, rotateAngle() );
 }
 
 
@@ -102,6 +110,8 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 11, idx, z0, calcBandWidth(idx,z0) );
 	if ( isOutputEnabled(12) )
 	    setOutputValue( output, 12, idx, z0, calcQFactor(idx,z0) );
+	if ( isOutputEnabled(13) )
+	    setOutputValue(output, 13, idx, z0, calcRotPhase(idx,z0,rotangle_));
     }
 
     return true;
@@ -192,6 +202,14 @@ float Instantaneous::calcQFactor( int cursample, int z0 ) const
     const float bandwth = calcBandWidth( cursample, z0 );
     mCheckRetUdf( ifq, bandwth );
     return (-0.5 * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6 : bandwth ) );
+}
+
+
+float Instantaneous::calcRotPhase( int cursample, int z0, float angle ) const
+{
+    const float real = mGetRVal( cursample );
+    const float imag = mGetIVal( cursample );
+    return real*cos( angle*M_PI/180 ) - imag*sin( angle*M_PI/180 );
 }
 
 

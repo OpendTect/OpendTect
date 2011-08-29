@@ -8,19 +8,22 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.12 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.13 2011-08-29 12:57:10 cvsbruno Exp $";
 
 
 #include "uiinstantattrib.h"
 #include "instantattrib.h"
 
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
+static const char* rotphase = "Rotate phase";
 const char* uiInstantaneousAttrib::outstrs[] =
 {
 	"Amplitude",
@@ -36,6 +39,7 @@ const char* uiInstantaneousAttrib::outstrs[] =
 	"Thin bed indicator",
 	"Bandwidth",
 	"Q factor",
+	rotphase,
 	0
 };
 
@@ -52,6 +56,11 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outstrs) );
     outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
+    outpfld->valuechanged.notify( mCB(this,uiInstantaneousAttrib,outputSelCB) );
+
+    phaserotfld = new uiLabeledSpinBox(this,"Specify angle (deg)");
+    phaserotfld->box()->setInterval( -180, 180 );
+    phaserotfld->attach( alignedBelow, outpfld );
 
     setHAlignObj( inpfld );
 }
@@ -59,6 +68,8 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )
 {
+    mIfGetFloat( Instantaneous::rotateAngle(), rotangle_, 
+	    	 phaserotfld->box()->setValue( rotangle_ ) );
     return !strcmp(desc.attribName(),Instantaneous::attribName());
 }
 
@@ -73,12 +84,14 @@ bool uiInstantaneousAttrib::setInput( const Desc& desc )
 bool uiInstantaneousAttrib::setOutput( const Desc& desc )
 {
     outpfld->setValue( desc.selectedOutput() );
+    outputSelCB(0);
     return true;
 }
 
 
 bool uiInstantaneousAttrib::getParameters( Desc& desc )
 {
+    mSetFloat( Instantaneous::rotateAngle(), phaserotfld->box()->getValue() );
     return !strcmp(desc.attribName(),Instantaneous::attribName());
 }
 
@@ -94,4 +107,10 @@ bool uiInstantaneousAttrib::getOutput( Desc& desc )
 {
     fillOutput( desc, outpfld->getIntValue() );
     return true;
+}
+
+
+void uiInstantaneousAttrib::outputSelCB( CallBacker* )
+{
+    phaserotfld->display( !strcmp(rotphase,outstrs[outpfld->getIntValue()] ) );
 }

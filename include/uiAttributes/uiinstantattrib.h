@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiinstantattrib.h,v 1.8 2011-08-29 12:57:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ namespace Attrib { class Desc; };
 
 class uiImagAttrSel;
 class uiGenInput;
+class uiLabeledSpinBox;
 
 /*! \brief Instantaneous Attribute description editor */
 
@@ -31,6 +32,7 @@ protected:
 
     uiImagAttrSel*	inpfld;
     uiGenInput*		outpfld;
+    uiLabeledSpinBox*	phaserotfld;
 
     static const char*	outstrs[];
 
@@ -41,6 +43,8 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
+
+    void		outputSelCB(CallBacker*);
 
     			mDeclReqAttribUIFns
 };

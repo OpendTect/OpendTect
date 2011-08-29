@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.11 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: instantattrib.h,v 1.12 2011-08-29 12:57:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
     				Instantaneous(Desc&);
 
     static const char*		attribName()	{ return "Instantaneous"; }
+    static const char*		rotateAngle()	{ return "Rotation angle"; }
 
 protected:
     				~Instantaneous() {}
@@ -54,6 +55,7 @@ protected:
     const DataHolder*		imagdata_;
     int				realidx_;
     int				imagidx_;
+    float			rotangle_;
 
 private:
     float			calcAmplitude(int,int) const;
@@ -68,6 +70,7 @@ private:
     float			calcBandWidth(int,int) const;
     float			calcQFactor(int,int) const;
     float			calcRMSAmplitude(int,int) const;
+    float			calcRotPhase(int,int,float angle) const;
 };
 
 }; // namespace Attrib
