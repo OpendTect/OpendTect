@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.44 2011-08-23 15:47:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.45 2011-08-29 20:40:01 cvsyuancheng Exp $";
 
 #include "flthortools.h"
 
@@ -104,14 +104,12 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 			   const StepInterval<int>& trcrg,
 			   BinID& bidimg, float& zimg, bool posdir ) const
 {
-if ( !isinl_ ) return false;
+    if ( !isinl_ ) return false;
 
     float z1 = posdir ? ztop.start : ztop.stop;
     float z2 = posdir ? zbot.start : zbot.stop;
-    if ( mIsEqual(z1,z2,1e-6) )
-	return false;
 
-    const float frac = ( z - z1 ) / ( z2 - z1 );
+    const float frac = mIsEqual(z1,z2,1e-6) ? 0 : ( z - z1 ) / ( z2 - z1 );
     z1 = posdir ? ztop.stop : ztop.start;
     z2 = posdir ? zbot.stop : zbot.start;
     zimg = z1 + frac * ( z2 - z1 );
@@ -238,7 +236,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     float starttopz=mUdf(float), startbotz=mUdf(float);
     int& startvar = isinl_ ? start.crl : start.inl;
     int step = isinl_ ? SI().crlStep() : SI().inlStep();
-    for ( int idx=0; idx<1024; idx++,startvar += step )
+    const int bvssz = bvs.totalSize();
+    for ( int idx=0; idx<bvssz; idx++,startvar += step )
     {
 	BinIDValueSet::Pos pos = bvs.findFirst( start );
 	if ( !pos.valid() )
@@ -259,7 +258,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     BinID stoptopbid, stopbotbid, prevstoptopbid, prevstopbotbid;
     bool foundtop = false, foundbot = false;
     bool tophasisect = false, bothasisect = false;
-    for ( int idx=0; idx<1024; idx++,stopvar += step )
+    for ( int idx=0; idx<bvssz; idx++,stopvar += step )
     {
 	if ( foundtop && foundbot )
 	    break;
@@ -312,9 +311,9 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     if ( !tophasisect && !bothasisect )
 	return false;
 
-    if ( !tophasisect )
+    if ( !tophasisect && !mIsUdf(zrange_.start) )
 	prevstoptopz = stoptopz = zrange_.start;
-    if ( !bothasisect )
+    if ( !bothasisect && !mIsUdf(zrange_.stop) )
 	prevstopbotz = stopbotz = zrange_.stop;
 
     if ( trcnrs_.size() )
