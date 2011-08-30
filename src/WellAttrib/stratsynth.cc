@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.8 2011-08-11 13:47:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.9 2011-08-30 10:32:31 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -36,7 +36,12 @@ void StratSynth::setWavelet( const Wavelet& wvlt )
 }
 
 
-#define mErrRet( msg, act ) { if ( errmsg ) *errmsg = msg; act; }
+#define mErrRet( msg, act )\
+{\
+    BufferString newmsg("Can not generate synthetics:\n");\
+    if ( errmsg ) { newmsg += *errmsg; *errmsg = newmsg; }\
+    act;\
+}
 DataPack* StratSynth::genTrcBufDataPack( const RayParams& raypars,
 				ObjectSet<const TimeDepthModel>& d2ts,
 				BufferString* errmsg ) const 
@@ -59,7 +64,7 @@ DataPack* StratSynth::genTrcBufDataPack( const RayParams& raypars,
     deepErase( seisbufs );
 
     if ( tbuf->isEmpty() ) 
-	mErrRet("No seismic trace genereated ", return 0)
+	mErrRet( "No seismic trace genereated ", return 0 )
 
     SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
 			tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
@@ -131,7 +136,7 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
 	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
 	ElasticModel aimod; 
 	if ( !fillElasticModel( aimod, lm_.sequence( seqidx ), errmsg ) )
-	    return false;
+	    mErrRet( errmsg ? errmsg->buf() : "", return false;) 
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
 	else if ( aimod.size() == 1  )
@@ -192,8 +197,8 @@ bool StratSynth::fillElasticModel( ElasticModel& aimodel,
 
     const ElasticPropSelection& eps = lm_.elasticPropSel();
     const PropertyRefSelection& props = lm_.propertyRefs();
-    if ( !eps.isValidInput() )
-	mErrRet( "No valid elastic propery found", return false; )
+    if ( !eps.isValidInput( errmsg ) )
+	return false; 
 
     const Strat::Layer* lay = 0;
     int didx = props.indexOf(eps.getPropertyRef(ElasticFormula::Den).name() );
