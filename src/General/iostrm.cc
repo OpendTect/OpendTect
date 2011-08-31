@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.40 2011-08-12 09:31:49 cvskris Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.41 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "iostrm.h"
 #include "ioman.h"
@@ -79,7 +79,8 @@ void IOStream::copyFrom( const IOObj* obj )
 
 const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     StreamProvider* sp = streamProvider( forread, fillwc );
     if ( !sp ) return "<bad>";
     ret = sp->fullName();
@@ -95,7 +96,8 @@ const char* IOStream::fullDirName() const
 	fp.setFileName( 0 );
     else
 	{ fp.set( IOM().rootDir() ); fp.add( dirName() ); }
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = fp.fullPath();
     return ret.buf();
 }

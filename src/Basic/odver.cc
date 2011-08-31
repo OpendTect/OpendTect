@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.13 2011-08-12 13:32:49 cvskris Exp $
+ RCS:           $Id: odver.cc,v 1.14 2011-08-31 13:08:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.13 2011-08-12 13:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.14 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -37,7 +37,8 @@ DefineEnumNames(OD::Platform,Type,0,"Platform")
 
 extern "C" const char* GetFullODVersion()
 {
-    BufferString& res = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& res = stm.getString();
     if ( !res.isEmpty() ) return res.buf();
 
     GetSpecificODVersion( 0, res );

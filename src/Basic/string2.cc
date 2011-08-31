@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.8 2011-06-14 14:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.9 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -50,7 +50,8 @@ void removeTrailingBlanks( char* str )
 const char* getStringFromInt( od_int32 val, char* str )
 
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     sprintf( ret, "%d", val );
     return ret;
 }
@@ -58,7 +59,8 @@ const char* getStringFromInt( od_int32 val, char* str )
 
 const char* getStringFromUInt( od_uint32 val, char* str )
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     sprintf( ret, "%du", val );
     return ret;
 }
@@ -92,7 +94,8 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 
 const char* getStringFromInt64( od_int64 val, char* str )
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     const bool isneg = val < 0 ? 1 : 0;
     if ( isneg ) val = -val;
     mkUIntStr( ret, (od_uint64)val, isneg );
@@ -102,7 +105,8 @@ const char* getStringFromInt64( od_int64 val, char* str )
 
 const char* getStringFromUInt64( od_uint64 val, char* str )
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     mkUIntStr( ret, val, 0 );
     return ret;
 }
@@ -110,7 +114,8 @@ const char* getStringFromUInt64( od_uint64 val, char* str )
 
 const char* getStringFromDouble( const char* fmt, double actualval, char* str )
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     const bool isneg = actualval < 0;
     const double val = isneg ? -actualval : actualval;
     char* bufptr;
@@ -137,7 +142,8 @@ const char* getBytesString( od_uint64 sz )
     for ( nrshifts=0; nrshifts<4 && sz>=1024; nrshifts++ )
 	sz >>= 10;
 
-    char* res = StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* res = stm.getString().buf();
     getStringFromUInt64( sz, res );
     strcat( res, postfix[nrshifts] );
 
@@ -176,7 +182,8 @@ static void truncFloatStr( float val, char* str )
 
 const char* getStringFromFloat( const char* fmt, float actualval, char* str )
 {
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     static const char* normalfmt = "%f";
     const bool isneg = actualval < 0;
     const float val = isneg ? -actualval : actualval;
@@ -622,7 +629,8 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
     if ( parensonunit )
 	val += ")";
 
-    char* ret = str ? str : StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
     strcpy( ret, val.buf() );
 
     return ret;
@@ -668,7 +676,8 @@ const char* toString( unsigned char c )
 
 const char* toString( const char* str )
 {
-    char* ret = StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* ret = stm.getString().buf();
     if ( str )
 	strcpy( ret, str );
     else
@@ -680,7 +689,8 @@ const char* toString( const char* str )
 
 const char* toString( signed char c )
 {
-    char* buf = StaticStringManager::STM().getString().buf();
+    static StaticStringManager stm;
+    char* buf = stm.getString().buf();
     buf[0] = (char)c; buf[1] = '\0';
     return buf;
 }

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.109 2011-08-12 09:31:49 cvskris Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.110 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -501,7 +501,8 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 
 const char* IOMan::nameOf( const char* id ) const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     if ( !id || !*id || !IOObj::isKey(id) )
 	return id;
 
@@ -622,7 +623,8 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
     cleanupString( ptr, false, false, true );
-    BufferString& fnm = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& fnm = stm.getString();
     for ( int subnr=0; ; subnr++ )
     {
 	fnm = cleanname;

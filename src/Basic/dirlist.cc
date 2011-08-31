@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.20 2011-08-12 13:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.21 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "dirlist.h"
 
@@ -63,7 +63,8 @@ void DirList::update()
 
 const char* DirList::fullPath( int idx ) const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = "";
 
     if ( idx < size() )

@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.44 2011-08-12 09:31:49 cvskris Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.45 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "helpview.h"
 
@@ -257,8 +257,9 @@ const char* HelpViewer::getCreditsSpecificFileName( const char* winid )
     const BufferString cfnm( getCreditsFileName(winid) );
     if ( !getCreditsData(cfnm,iop) )
 	return 0;
-
-    BufferString& ret = StaticStringManager::STM().getString();
+    
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = iop.find( unScoped(winid) );
     return ret.isEmpty() ? 0 : ret.buf();
 }

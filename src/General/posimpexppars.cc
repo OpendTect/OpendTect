@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: posimpexppars.cc,v 1.4 2011-08-12 09:31:49 cvskris Exp $";
+static const char* rcsID = "$Id: posimpexppars.cc,v 1.5 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "posimpexppars.h"
 #include "survinfo.h"
@@ -46,7 +46,8 @@ void PosImpExpPars::getFromSI()
 
 const char* PosImpExpPars::fullKey( const char* attr, bool scl )
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = IOPar::compKey( sKeyBase(), attr );
     ret = IOPar::compKey( ret.buf(), scl ? sKeyScale() : sKeyOffset() );
     return ret.buf();

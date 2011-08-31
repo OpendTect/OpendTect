@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.23 2011-05-17 11:30:09 cvsraman Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.24 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "surv2dgeom.h"
 
@@ -748,7 +748,8 @@ PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 
 const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 {
-    BufferString& fnm = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& fnm = stm.getString();
     BufferString cleannm( lsnm );
     cleanupString( cleannm.buf(), false, false, false );
     
@@ -763,7 +764,8 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
        					      const char* linenm ) const
 {
-    BufferString& fnm = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& fnm = stm.getString();
     BufferString cllsnm( lsnm );
     cleanupString( cllsnm.buf(), false, false, false );
     BufferString cllnm( linenm );

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.91 2011-08-16 09:49:49 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.92 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -183,7 +183,8 @@ const char* IOPar::compKey( const char* key1, int k2 )
 
 const char* IOPar::compKey( const char* key1, const char* key2 )
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = key1;
     if ( key1 && key2 && *key1 && *key2 ) ret += ".";
     ret += key2;

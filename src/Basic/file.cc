@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.28 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:		$Id: file.cc,v 1.29 2011-08-31 13:08:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,8 @@ bool isDirectory( const char* fnm )
 const char* getCanonicalPath( const char* dir )
 {
 #ifndef OD_NO_QT
-    BufferString& pathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& pathstr = stm.getString();
     QDir qdir( dir );
     pathstr = qdir.canonicalPath().toAscii().constData();
     return pathstr;
@@ -129,7 +130,8 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 #ifndef OD_NO_QT
     BufferString reltopath = getCanonicalPath( reltodir );
     BufferString path = getCanonicalPath( fnm );
-    BufferString& relpathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& relpathstr = stm.getString();
     QDir qdir( reltopath.buf() );
     relpathstr = qdir.relativeFilePath( path.buf() ).toAscii().constData();
     return relpathstr.isEmpty() ? fnm : relpathstr.buf();
@@ -348,7 +350,8 @@ int getKbSize( const char* fnm )
 
 const char* timeCreated( const char* fnm, const char* fmt )
 {
-    BufferString& timestr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& timestr = stm.getString();
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     QString qstr = qfi.created().toString( fmt );
@@ -362,7 +365,8 @@ const char* timeCreated( const char* fnm, const char* fmt )
 
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
-    BufferString& timestr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& timestr = stm.getString();
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     QString qstr = qfi.lastModified().toString( fmt );
@@ -393,7 +397,8 @@ od_int64 getTimeInSeconds( const char* fnm )
 const char* linkTarget( const char* linknm )
 {
 #ifndef OD_NO_QT
-    BufferString& linkstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& linkstr = stm.getString();
     QFileInfo qfi( linknm );
     linkstr = qfi.isSymLink() ? qfi.symLinkTarget().toAscii().constData()
 			      : linknm;
@@ -407,7 +412,8 @@ const char* linkTarget( const char* linknm )
 
 const char* getCurrentPath()
 {
-    BufferString& pathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& pathstr = stm.getString();
 
 #ifndef OD_NO_QT
     pathstr = QDir::currentPath().toAscii().constData();
@@ -420,7 +426,8 @@ const char* getCurrentPath()
 
 const char* getHomePath()
 {
-    BufferString& pathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& pathstr = stm.getString();
 #ifndef OD_NO_QT
     pathstr = QDir::homePath().toAscii().constData();
 #else
@@ -432,7 +439,8 @@ const char* getHomePath()
 
 const char* getTempPath()
 {
-    BufferString& pathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& pathstr = stm.getString();
 #ifndef OD_NO_QT
     pathstr = QDir::tempPath().toAscii().constData();
 #else
@@ -444,7 +452,8 @@ const char* getTempPath()
 
 const char* getRootPath( const char* path )
 {
-    BufferString& pathstr = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& pathstr = stm.getString();
     QDir qdir( path );
     pathstr = qdir.rootPath().toAscii().constData();
     return pathstr.buf();

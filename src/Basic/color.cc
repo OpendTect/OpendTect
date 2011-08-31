@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.20 2011-08-12 13:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.21 2011-08-31 13:08:35 cvskris Exp $";
 
 #include "color.h"
 
@@ -487,7 +487,8 @@ static const ColorDescriptionData cColDD[] = {
 
 static const char* getApproxDesc( const char* nm )
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = "~";
     ret += nm;
     return ret.buf();
@@ -565,7 +566,8 @@ const TypeSet<Color>& Color::descriptionCenters()
 
 const char* Color::largeUserInfoString() const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
 
     ret = getStdStr();
 

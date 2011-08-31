@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.112 2011-08-12 12:10:20 cvskris Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.113 2011-08-31 13:08:35 cvskris Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -684,7 +684,8 @@ bool StreamProvider::isNormalFile() const
 
 const char* StreamProvider::fullName() const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     ret = "";
     if ( iscomm_ )
 	ret += "@";
@@ -1008,6 +1009,7 @@ static const char* getCmd( const char* fnm )
     
     if ( interp )
     {
+	static StaticStringManager stm;
 	BufferString& fullexec = StaticStringManager::STM().getString();
 
 	fullexec = "\"";

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.72 2011-08-24 13:27:26 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.73 2011-08-31 13:08:35 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -178,7 +178,8 @@ static BufferString getProgNm( const char* argv0 )
 static const char* getFnName( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
 
     ret = fnbeg;
 
@@ -263,7 +264,8 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
 
 const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 {
-    BufferString& ret = StaticStringManager::STM().getString();
+    static StaticStringManager stm;
+    BufferString& ret = stm.getString();
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else
