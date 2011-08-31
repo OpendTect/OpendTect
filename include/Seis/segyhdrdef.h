@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.4 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.5 2011-08-31 09:01:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 			    , type_(dt)
 			    , desc_(0)
     			    , name_(0)	{}
+			~HdrEntry() { delete [] desc_; delete [] name_; }
 
     const char*		description() const;
     void		setDescription(const char*);
