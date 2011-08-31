@@ -2,16 +2,16 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.10 2007-06-26 18:24:54 cvskris Exp $
+# $Id: gendeps.pl,v 1.11 2011-08-31 13:20:53 cvskris Exp $
 #______________________________________________________________________________
 
 
-do go();
+go();
 
 
 sub go
 {
-    do initVars();
+    initVars();
 
     open( OUTPUTFILE, "> $outfile" );
     print OUTPUTFILE "# ************************************\n";
@@ -24,9 +24,9 @@ sub go
     foreach $fil ( @srcfiles )
     {
 	print " $fil" if ( $dbglvl eq 1 );
-	do genDeps( $fil );
-	do cleanDeps();
-	do outputDeps( $fil );
+	genDeps( $fil );
+	cleanDeps();
+	outputDeps( $fil );
     }
     print " done.\n" if ( $dbglvl eq 1 );
 
@@ -45,9 +45,9 @@ sub doExit
 
 sub initVars
 {
-    do setDefaults();
-    do parseCmdLine();
-    do getNoDeps();
+    setDefaults();
+    parseCmdLine();
+    getNoDeps();
 
     if ( $dbglvl eq 2 )
     {
