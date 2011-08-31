@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.5 2011-08-11 13:47:30 cvsbruno Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.6 2011-08-31 14:50:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,11 +100,13 @@ mClass uiElasticPropSelDlg : public uiDialog
 public:
 				uiElasticPropSelDlg(uiParent*,
 					const PropertyRefSelection&,
-					const MultiID& elpsel);
+					ElasticPropSelection&);
 				~uiElasticPropSelDlg();
 
     const ElasticPropSelection&	elasticSel() const 	{ return elpropsel_; }
     const MultiID& 		storedKey() const 	{ return storedmid_; }
+    bool			propSaved() const 	{ return propsaved_; }
+
 protected:
 
     BufferStringSet		orgpropnms_;
@@ -114,8 +116,10 @@ protected:
     uiTabStack*			ts_;
     CtxtIOObj&			ctio_;
 
-    ElasticPropSelection	elpropsel_;
+    ElasticPropSelection&	elpropsel_;
+    ElasticPropSelection&	orgelpropsel_;
     MultiID			storedmid_;
+    bool 			propsaved_;
 
     bool			doRead(const MultiID&);
     bool			doStore(const IOObj&);
@@ -126,6 +130,7 @@ protected:
     bool			savePropSel(); 
     void                        savePropSelCB(CallBacker*) { savePropSel(); }
     bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
     void			elasticPropSelectionChanged(CallBacker*);
     bool			screenSelectionChanged(CallBacker*);
 };

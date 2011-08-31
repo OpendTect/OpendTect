@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.4 2011-08-11 13:47:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.5 2011-08-31 14:50:01 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -306,12 +306,14 @@ static const char** props = ElasticFormula::TypeNames();
 #define mErrRet(s,act) { uiMSG().error(s); act; }
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p, 
 					const PropertyRefSelection& prs,
-					const MultiID& elpropselid )
+					ElasticPropSelection& elsel )
     : uiDialog(p,uiDialog::Setup("Synthetic layers property selection",
 		"Select quantities to compute density, p-wave and s-wave"
 		,mTODOHelpID))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection)) 
-    , storedmid_(elpropselid)
+    , elpropsel_(elsel)
+    , orgelpropsel_(elsel)
+    , propsaved_(false)			  
 {
     orgpropnms_.erase();
     for ( int idx=0; idx<prs.size(); idx++ )
@@ -322,9 +324,6 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     if ( orgpropnms_.isEmpty() )
 	mErrRet( "No property found", return );
     propnms_ = orgpropnms_;
-
-    if ( !doRead( elpropselid  ) )
-	ElasticPropGuess( prs, elpropsel_ );
 
     ts_ = new uiTabStack( this, "Property selection tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -403,14 +402,20 @@ void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 }
 
 
+bool uiElasticPropSelDlg::rejectOK( CallBacker* )
+{
+    elpropsel_ = orgelpropsel_;
+    propsaved_ = false;
+    return true;
+}
+
+
 bool uiElasticPropSelDlg::acceptOK( CallBacker* )
 {
     if ( !screenSelectionChanged(0) )
 	return false;
 
-    if( !ctio_.ioobj )
-	savePropSel(); 
-    else 
+    if( ctio_.ioobj )
 	doStore( *ctio_.ioobj );
 
     BufferString msg;

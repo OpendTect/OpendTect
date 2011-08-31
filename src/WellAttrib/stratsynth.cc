@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.9 2011-08-30 10:32:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.10 2011-08-31 14:50:01 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -146,7 +146,10 @@ bool StratSynth::genSeisBufs( const RayParams& raypars,
     }
 
     if ( !synthgen.doWork() )
-	mErrRet( synthgen.errMsg(), return 0 );
+    {
+	if ( errmsg  ) *errmsg = synthgen.errMsg();
+	mErrRet( errmsg ? errmsg->buf() : "", return 0 ) ;
+    }
 
     const int crlstep = SI().crlStep();
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),

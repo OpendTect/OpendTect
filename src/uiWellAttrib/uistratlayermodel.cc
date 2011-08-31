@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.33 2011-08-11 14:06:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.34 2011-08-31 14:50:01 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -226,19 +226,20 @@ void uiStratLayerModel::manPropsCB( CallBacker* )
 
 void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 {
-    selElasticProps();
+    if ( !elpropsel_ )
+	elpropsel_ = new ElasticPropSelection;
+    selElasticProps( *elpropsel_ );
     genModels(0);
 }
 
 
-void uiStratLayerModel::selElasticProps()
+void uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 {
-    uiElasticPropSelDlg dlg(this,desc_.propSelection(),desc_.elasticPropSel());
-    if ( dlg.go() )
+    uiElasticPropSelDlg dlg( this, desc_.propSelection(), elsel );
+    if ( dlg.go() && dlg.propSaved() )
     {
 	desc_.setElasticPropSel( dlg.storedKey() );
-	delete elpropsel_; 
-	elpropsel_ = new ElasticPropSelection( dlg.elasticSel() );
+	seqdisp_->setNeedSave( true );
     }
 }
 
@@ -340,13 +341,21 @@ void uiStratLayerModel::setElasticProps()
     if ( !elpropsel_ )
 	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
 
-    if ( !elpropsel_ || !elpropsel_->isValidInput() )
+    if ( !elpropsel_ )
     {
-	selElasticProps();
-	if ( !elpropsel_ ) 
-	    return;
+	elpropsel_ = new ElasticPropSelection;
+	ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+    }
 
-	seqdisp_->setNeedSave( true );
+    BufferString errmsg;
+    if ( !elpropsel_->isValidInput( &errmsg) )
+    {
+	if ( !errmsg.isEmpty() )
+	{
+	    errmsg += "\nPlease define a new value. ";
+	    uiMSG().message( errmsg.buf() );
+	}
+	selElasticProps( *elpropsel_ );
     }
 
     modl_.addElasticPropSel( *elpropsel_ );
