@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathexpression.cc,v 1.1 2011-09-01 12:16:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathexpression.cc,v 1.2 2011-09-01 15:27:02 cvsbert Exp $";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"
@@ -40,6 +40,8 @@ uiMathExpression::uiMathExpression( uiParent* p, bool withfns )
     grpfld_->setCurrentItem( 2 );
     grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
     new uiLabel( insgrp, "   \\", grpfld_ );
+    grpfld_->setHSzPol( uiObject::Medium );
+    grpfld_->setStretch( 0, 0 );
 
     fnfld_ = new uiComboBox( insgrp, "Formula desc" );
     fnfld_->attach( rightOf, grpfld_ );
