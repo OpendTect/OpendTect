@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.30 2011-08-25 07:39:28 cvskris Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.31 2011-09-01 06:23:14 cvskris Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -68,7 +68,7 @@ int PosInfo::LineData::segmentOf( int nr ) const
 {
     for ( int iseg=0; iseg<segments_.size(); iseg++ )
     {
-	if ( segments_[iseg].includes(nr) )
+	if ( segments_[iseg].includes(nr,false) )
 	    return !((nr-segments_[iseg].start) % segments_[iseg].step);
     }
 
@@ -358,7 +358,7 @@ bool PosInfo::CubeData::includes( int lnr, int crl ) const
 {
     int ilnr = indexOf( lnr ); if ( ilnr < 0 ) return false;
     for ( int iseg=0; iseg<(*this)[ilnr]->segments_.size(); iseg++ )
-	if ( (*this)[ilnr]->segments_[iseg].includes(crl) )
+	if ( (*this)[ilnr]->segments_[iseg].includes(crl,false) )
 	    return true;
     return false;
 }
@@ -497,7 +497,7 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
-	if ( segs[iseg].includes(bid.crl) )
+	if ( segs[iseg].includes(bid.crl,false) )
 	{
 	    cdp.segnr_ = iseg;
 	    cdp.sidx_ = segs[iseg].getIndex( bid.crl );

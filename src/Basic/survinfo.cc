@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.156 2011-08-25 06:30:31 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.157 2011-09-01 06:23:14 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -420,8 +420,8 @@ Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 
 bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    return reasonableRange( true ).includes( b.inl ) &&
-	   reasonableRange( false ).includes( b.crl );
+    return reasonableRange( true ).includes( b.inl,false ) &&
+	   reasonableRange( false ).includes( b.crl,false );
 }
 
 
@@ -924,5 +924,5 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 {
     const Interval<int> inlrg( inlRange(work) );
     const Interval<int> crlrg( crlRange(work) );
-    return inlrg.includes(bid.inl) && crlrg.includes(bid.crl);
+    return inlrg.includes(bid.inl,false) && crlrg.includes(bid.crl,false);
 }

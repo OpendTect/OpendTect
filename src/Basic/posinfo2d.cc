@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo2d.cc,v 1.3 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: posinfo2d.cc,v 1.4 2011-09-01 06:23:14 cvskris Exp $";
 
 #include "posinfo2d.h"
 #include "math2.h"
@@ -119,7 +119,7 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
 				     const Interval<int>& nrrg ) const
 {
     int posidx = gtIndex( pos );
-    if ( nrrg.includes(posns_[posidx].nr_) )
+    if ( nrrg.includes(posns_[posidx].nr_,false) )
 	return posidx;
 
     double sqd0 = pos.sqDistTo(posns_[nrrg.start].coord_);
