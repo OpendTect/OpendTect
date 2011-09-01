@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.18 2010-07-14 16:54:12 cvskris Exp $
+ RCS:           $Id: mathexpression.h,v 1.19 2011-09-01 12:16:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,36 @@ protected:
     mutable BufferString	errmsg_;
 
     MathExpression*		parse(const char*) const;
+
+};
+
+/*!\brief Expression desc to build UI */
+
+mClass MathExpressionOperatorDesc
+{
+public:
+    			MathExpressionOperatorDesc( const char* s,
+					const char* d, bool isop, int n )
+			    : symbol_(s), desc_(d)
+			    , isoperator_(isop), nrargs_(n)	{}
+
+    const char*		symbol_; // can have spaces, e.g. "? :"
+    const char*		desc_;
+    bool		isoperator_; //!< if not, function
+    int			nrargs_; //!< 2 for normal operators
+};
+
+
+/*!\brief Group of similar expression descs */
+
+mClass MathExpressionOperatorDescGroup
+{
+public:
+
+    BufferString				name_;
+    ObjectSet<MathExpressionOperatorDesc>	opers_;
+
+    static const ObjectSet<const MathExpressionOperatorDescGroup>& supported();
 
 };
 

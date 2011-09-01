@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.12 2010-12-29 10:09:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.13 2011-09-01 12:16:24 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uimathexpression.h"
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -126,12 +127,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
-    formfld_ = new uiGenInput( inpgrp, "Formula (like 'den / son')",
-				     StringInpSpec().setName("Formula") );
-    formfld_->valuechanged.notify( formsetcb );
-    UserInputObj* uiobj = formfld_->element(0);
-    mDynamicCastGet(uiLineEdit*,le,uiobj)
-    if ( le ) le->returnPressed.notify( formsetcb );
+    formfld_ = new uiMathExpression( inpgrp );
+    uiLabel* lbl = new uiLabel( inpgrp, "Formula (like 'den / son')" );
+    formfld_->attach( rightOf, lbl );
+    formfld_->formSet.notify( formsetcb );
     uiButton* setbut = new uiPushButton( inpgrp, "&Set", formsetcb, true );
     setbut->attach( rightOf, formfld_ );
     inpgrp->setHAlignObj( formfld_ );

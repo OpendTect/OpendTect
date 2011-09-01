@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.53 2011-03-04 11:49:43 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.54 2011-09-01 12:16:24 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -26,6 +26,77 @@ static const char* rcsID = "$Id: mathexpression.cc,v 1.53 2011-03-04 11:49:43 cv
 #ifndef M_PI
 # define M_PI           3.14159265358979323846  /* pi */
 #endif
+
+
+#define mAddDesc(s,d,i,n) \
+    grp->opers_ += new MathExpressionOperatorDesc(s,d,i,n)
+
+const ObjectSet<const MathExpressionOperatorDescGroup>&
+			MathExpressionOperatorDescGroup::supported()
+{
+    static ObjectSet<const MathExpressionOperatorDescGroup>* ret = 0;
+    if ( ret ) return *ret;
+    ret = new ObjectSet<const MathExpressionOperatorDescGroup>;
+
+    MathExpressionOperatorDescGroup* grp = new MathExpressionOperatorDescGroup;
+    grp->name_ = "Basic";
+    mAddDesc("+","Add",true,2);
+    mAddDesc("-","Subtract",true,2);
+    mAddDesc("*","Multiply",true,2);
+    mAddDesc("/","Divide",true,2);
+    mAddDesc("^","Power",true,2);
+    mAddDesc("|","Integer division",true,2);
+    mAddDesc("%","Rest after integer division",true,2);
+    mAddDesc("| |","Absolute value",true,1);
+    *ret += grp;
+
+    grp = new MathExpressionOperatorDescGroup;
+    grp->name_ = "Logical";
+    mAddDesc("<","Less than",true,2);
+    mAddDesc(">","Greater than",true,2);
+    mAddDesc("<=","Less than or equal",true,2);
+    mAddDesc(">=","Greater than or equal",true,2);
+    mAddDesc("==","Equal",true,2);
+    mAddDesc("!=","Not equal",true,2);
+    mAddDesc("? :","Conditional value",true,3);
+    mAddDesc("&&","AND",true,2);
+    mAddDesc("||","OR",true,2);
+    *ret += grp;
+
+    grp = new MathExpressionOperatorDescGroup;
+    grp->name_ = "MathFunctions";
+    mAddDesc("sqrt","Square root",false,1);
+    mAddDesc("exp","E-power",false,1);
+    mAddDesc("ln","Natural logarithm",false,1);
+    mAddDesc("log","10-Logarithm",false,1);
+    mAddDesc("sin","Sinus",false,1);
+    mAddDesc("cos","Cosinus",false,1);
+    mAddDesc("tan","Tangent",false,1);
+    mAddDesc("asin","ArcSinus",false,1);
+    mAddDesc("acos","ArcCosinus",false,1);
+    mAddDesc("atan","ArcTangent",false,1);
+    *ret += grp;
+
+    grp = new MathExpressionOperatorDescGroup;
+    grp->name_ = "Statistical";
+    mAddDesc("rand","Random number",false,0);
+    mAddDesc("randg","Gaussian random number",false,0);
+    mAddDesc("min","Minimum",false,2);
+    mAddDesc("max","Maximum",false,2);
+    mAddDesc("sum","Sum",false,3);
+    mAddDesc("avg","Average",false,3);
+    mAddDesc("med","Median",false,3);
+    mAddDesc("var","Variance",false,3);
+    *ret += grp;
+
+    grp = new MathExpressionOperatorDescGroup;
+    grp->name_ = "Various";
+    mAddDesc("pi","PI",true,0);
+    mAddDesc("undef","Undefined",true,0);
+    *ret += grp;
+
+    return *ret;
+}
 
 
 
@@ -650,7 +721,6 @@ MathExpression* MathExpressionParser::parse() const
 
 MathExpression* MathExpressionParser::parse( const char* input ) const
 {
-    
     int len = input ? strlen(input) : 0;
     if ( !len ) return 0;
 
@@ -1071,54 +1141,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     // random number
     mParseFunction( "rand", Random )
     mParseFunction( "randg", GaussRandom )
-/*
-    if ( !strncasecmp( str, "atan2(", 6 ) && str[len-1] == ')' )
-    {
-	TypeSet<int> argumentstop;
-	for ( int idx=6; idx<len; idx++ )
-	{
-	    absolute( str, idx, inabs)
-	    if ( inabs ) continue;
 
-	    parens(str, idx, parenslevel, len);
-	    if ( parenslevel ) continue;
-
-	    if ( str[idx] == ',' || str[idx] == ')' )
-	    {
-		if ( !idx ) return 0;
-
-		argumentstop += idx;
-		if ( str[idx] == ')' ) break;
-	    }
-	}
-
-	ObjectSet<MathExpression> inputs_;
-
-	int prevstop = 3;
-	for ( int idx=0; idx<argumentstop.size(); idx++ )
-	{
-	    ArrPtrMan<char> arg = new char[len+1];
-	    strncpy( arg, &str[prevstop+1], argumentstop[idx]-prevstop-1);
-	    arg[argumentstop[idx]-prevstop-1] = 0;
-	    prevstop = argumentstop[idx];
-	    
-	    MathExpression* inp = parse( arg );
-	    if ( !inp )
-	    {
-		deepErase( inputs_ );
-		return 0;
-	    }
-
-	    inputs_ += inp;
-	}
-
-	if ( inputs_.size() != 2 )
-	{
-	    deepErase( inputs_ );
-	    return 0;
-	}
-*/
-///////
     if ( (!strncasecmp( str, "min(", 4 ) || 
 	  !strncasecmp( str, "max(", 4 ) ||
 	  !strncasecmp( str, "sum(", 4 ) ||

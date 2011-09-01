@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.5 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.6 2011-09-01 12:16:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
+class uiMathExpression;
 class MathExpression;
 class uiWellLogCalcInpData;
 namespace Well { class Log; class LogSet; }
@@ -33,7 +34,7 @@ public:
 
 protected:
 
-    uiGenInput*			formfld_;
+    uiMathExpression*		formfld_;
     uiGenInput*			nmfld_;
     uiGenInput*			dahrgfld_;
     uiCheckBox*			ftbox_;
