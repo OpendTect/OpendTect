@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.25 2011-06-27 05:35:15 cvsraman Exp $
+ RCS:		$Id: flthortools.h,v 1.26 2011-09-01 16:02:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,23 +94,24 @@ protected:
 mClass FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor(EM::Fault*,int,bool);
-    			FaultTraceExtractor(EM::Fault*,const PosInfo::GeomID&);
-			~FaultTraceExtractor();
+    				FaultTraceExtractor(EM::Fault*,int,bool);
+    				FaultTraceExtractor(EM::Fault*,
+						    const PosInfo::GeomID&);
+				~FaultTraceExtractor();
 
-    bool		execute();
-    FaultTrace*		getFaultTrace()		{ return flttrc_; }
+    bool			execute();
+    ObjectSet<FaultTrace>&	getFaultTraces()	{ return flttrcs_; }
 
 protected:
 
-    bool		isinl_;
-    int			nr_;
-    PosInfo::GeomID	geomid_;	// For 2D
-    EM::Fault*		fault_;
-    FaultTrace*		flttrc_;
-    bool		is2d_;
+    bool			get2DFaultTrace();
 
-    bool		get2DFaultTrace();
+    bool			isinl_;
+    int				nr_;
+    PosInfo::GeomID		geomid_;	// For 2D
+    EM::Fault*			fault_;
+    ObjectSet<FaultTrace>	flttrcs_;
+    bool			is2d_;
 };
 
 

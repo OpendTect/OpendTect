@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.45 2011-08-29 20:40:01 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.46 2011-09-01 16:02:19 cvsyuancheng Exp $";
 
 #include "flthortools.h"
 
@@ -487,6 +487,9 @@ void FaultTrace::computeRange()
 	    floattrcrg.include( trcnrs_[idx], false );
 
 	trcrange_.set( (int) floattrcrg.start, (int) ceil(floattrcrg.stop) );
+	
+	for ( int idx=0; idx<coords_.size(); idx++ )
+	    zrange_.include( coords_[idx].z, false );
     }
     else
     {
@@ -524,7 +527,6 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
 					  int nr, bool isinl )
   : fault_(flt)
   , nr_(nr), isinl_(isinl)
-  , flttrc_(0)
   , is2d_(false)
 {
     fault_->ref();
@@ -536,7 +538,6 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
   : fault_(flt)
   , nr_(0),isinl_(true)
   , geomid_(geomid)
-  , flttrc_(0)
   , is2d_(true)
 {
     fault_->ref();
@@ -547,18 +548,13 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
 FaultTraceExtractor::~FaultTraceExtractor()
 {
     fault_->unRef();
-    if ( flttrc_ ) flttrc_->unRef();
+    deepUnRef( flttrcs_ );
 }
 
 
 bool FaultTraceExtractor::execute()
 {
-    if ( flttrc_ )
-    {
-	flttrc_->unRef();
-	flttrc_ = 0;
-    }
-
+    deepUnRef( flttrcs_ );
     if ( is2d_ )
 	return get2DFaultTrace();
 
@@ -599,12 +595,13 @@ bool FaultTraceExtractor::execute()
     const Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
     if ( !idxgeom ) return false;
 
-    flttrc_ = flttrc->clone();
-    flttrc_->ref();
-    flttrc_->setIndices( idxgeom->coordindices_ );
-    flttrc_->setIsInl( isinl_ );
-    flttrc_->setLineNr( nr_ );
-    flttrc_->computeRange();
+    FaultTrace* nft = flttrc->clone();
+    nft->ref();
+    nft->setIndices( idxgeom->coordindices_ );
+    nft->setIsInl( isinl_ );
+    nft->setLineNr( nr_ );
+    nft->computeRange();
+    flttrcs_ += nft;
     delete efss;
     delete insectn;
     return true;
@@ -670,7 +667,6 @@ bool FaultTraceExtractor::get2DFaultTrace()
 	return false;
 
     const int nrsticks = fss->geometry().nrSticks( sid );
-    TypeSet<int> indices;
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {
 	const Geometry::FaultStickSet* fltgeom =
@@ -690,16 +686,14 @@ bool FaultTraceExtractor::get2DFaultTrace()
 
 	const int nrknots = fltgeom->nrKnots( sticknr );
 	if ( nrknots < 2 ) continue;
-
-	if ( !flttrc_ )
-	{
-	    flttrc_ = new FaultTrace;
-	    flttrc_->ref();
-	    flttrc_->setIsInl( true );
-	    flttrc_->setLineNr( 0 );
-	}
+	
+	FaultTrace* flttrc = new FaultTrace;
+	flttrc->ref();
+	flttrc->setIsInl( true );
+	flttrc->setLineNr( 0 );
 
 	StepInterval<int> colrg = fltgeom->colRange( sticknr );
+	TypeSet<int> indices;
 	for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
 	{
 	    const Coord3 knot = fltgeom->getKnot( RowCol(sticknr,idx) );
@@ -707,18 +701,16 @@ bool FaultTraceExtractor::get2DFaultTrace()
 	    if ( mIsUdf(trcnr) )
 		break;
 
-	    indices += flttrc_->add( knot, trcnr );
+	    indices += flttrc->add( knot, trcnr );
 	}
 
 	indices += -1;
+	flttrc->setIndices( indices );
+	flttrc->computeRange();
+	flttrcs_ += flttrc;
     }
 
-    if ( !flttrc_ )
-	return false;
-
-    flttrc_->setIndices( indices );
-    flttrc_->computeRange();
-    return flttrc_->getSize() > 1;
+    return flttrcs_.size();
 }
 
 
@@ -765,11 +757,14 @@ int FaultTraceCalc::nextStep()
     if ( !ext.execute() )
 	return ErrorOccurred();
 
-    FaultTrace* flttrc = ext.getFaultTrace();
-    if ( flttrc )
-	flttrc->ref();
+    ObjectSet<FaultTrace>& flttrcs = ext.getFaultTraces();
+    for ( int idx=0; idx<flttrcs.size(); idx++ )
+    {
+	if ( flttrcs[idx] )
+	    flttrcs[idx]->ref();
+	flttrcs_ += flttrcs[idx];
+    }
 
-    flttrcs_ += flttrc;
     curnr_ += isinl_ ? hs_.step.inl : hs_.step.crl;
     nrdone_++;
     return MoreToDo();
