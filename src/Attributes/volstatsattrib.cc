@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.56 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.57 2011-09-01 15:09:38 cvsbruno Exp $";
 
 #include "volstatsattrib.h"
 
@@ -44,85 +44,42 @@ static int outputtypes[] =
 };
 
 
-mAttrDefCreateInstance(VolStats)
-
-void VolStats::initClass()
+int* VolStatsBase::outputTypes() const
 {
-    mAttrStartInitClassWithDescAndDefaultsUpdate
+    return outputtypes;
+}
 
+
+void VolStatsBase::initDesc( Desc& desc )
+{
     const BinID defstepout( 1, 1 );
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( defstepout );
-    desc->addParam( stepout );
-
-    EnumParam* shape = new EnumParam( shapeStr() );
-    //Note: Ordering must be the same as numbering!
-    shape->addEnum( shapeTypeStr(mShapeRectangle) );
-    shape->addEnum( shapeTypeStr(mShapeEllipse) );
-    shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
-    shape->setDefaultValue( mShapeEllipse );
-    desc->addParam( shape );
+    desc.addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     gate->setDefaultValue( Interval<float>(-28, 28) );
-    desc->addParam( gate );
+    desc.addParam( gate );
 
     IntParam* nrtrcs = new IntParam( nrtrcsStr() );
     nrtrcs->setDefaultValue( 1 );
     nrtrcs->setRequired( false );
-    desc->addParam( nrtrcs );
+    desc.addParam( nrtrcs );
 
-    BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
-    edgeeffect->setDefaultValue( false );
-    edgeeffect->setRequired( false );
-    desc->addParam( edgeeffect );
-
-    BoolParam* steering = new BoolParam( steeringStr() );
-    steering->setDefaultValue( false );
-    nrtrcs->setRequired( false );
-    desc->addParam( steering );
-
-    IntParam* optstackstep = new IntParam( optstackstepStr() );
-    optstackstep->setDefaultValue( 1 );
-    optstackstep->setRequired( false );
-    desc->addParam( optstackstep );
-
-    EnumParam* osdir = new EnumParam( optstackdirStr() );
-    //Note: Ordering must be the same as numbering!
-    osdir->addEnum( optStackDirTypeStr(mDirLine) );
-    osdir->addEnum( optStackDirTypeStr(mDirNorm) );
-    osdir->setDefaultValue( mDirNorm );
-    desc->addParam( osdir );
-
-    desc->addInput( InputSpec("Input data",true) );
+    desc.addInput( InputSpec("Input data",true) );
 
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering_ = true;
-    desc->addInput( steeringspec );
+    desc.addInput( steeringspec );
 
     int res =0;
     while ( outputtypes[res++] != -1 )
-	desc->addOutputDataType( Seis::UnknowData );
-
-    mAttrEndInitClass
+	desc.addOutputDataType( Seis::UnknowData );
 }
 
 
-void VolStats::updateDesc( Desc& desc )
-{
-    desc.inputSpec(1).enabled_ =
-	desc.getValParam(steeringStr())->getBoolValue();
-
-    BufferString shapestr = desc.getValParam(shapeStr())->getStringValue();
-    const bool isoptstack = shapestr == shapeTypeStr( mShapeOpticalStack );
-    desc.setParamEnabled( stepoutStr(), !isoptstack );
-    desc.setParamEnabled( optstackstepStr(), isoptstack );
-    desc.setParamEnabled( optstackdirStr(), isoptstack );
-}
-
-
-void VolStats::updateDefaults( Desc& desc )
+void VolStatsBase::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
@@ -133,7 +90,7 @@ void VolStats::updateDefaults( Desc& desc )
 }
 
 
-const char* VolStats::shapeTypeStr( int type )
+const char* VolStatsBase::shapeTypeStr( int type )
 {
     return type==mShapeRectangle ? "Rectangle"
 				 : type==mShapeEllipse ? "Ellipse"
@@ -141,44 +98,27 @@ const char* VolStats::shapeTypeStr( int type )
 }
 
    
-const char* VolStats::optStackDirTypeStr( int type )
-{
-    return type==mDirLine ? "LineDir" : "NormalToLine";
-}
-
-   
-VolStats::VolStats( Desc& ds )
+VolStatsBase::VolStatsBase( Desc& ds )
     : Provider( ds )
     , positions_(0,BinID(0,0))
-    , desgate_( 0, 0 )
     , gate_( 0, 0 )
-    , linepath_(0)
-    , linetruepos_(0)
-    , allowedgeeffects_( false )
 {
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
     
     mGetBinID( stepout_, stepoutStr() );
-    mGetBool( allowedgeeffects_, allowEdgeEffStr() );
     mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
     gate_.sort();
+}
 
-    if ( allowedgeeffects_ )
-	desgate_ = gate_;
 
-    mGetInt( optstackstep_, optstackstepStr() );
-    mGetEnum( optstackdir_, optstackdirStr() );
-    mGetBool( dosteer_, steeringStr() );
-
-    if ( shape_ == mShapeOpticalStack )
-	stepout_ = BinID( optstackstep_, optstackstep_ );
-
-    if ( dosteer_ )
+void VolStatsBase::init()
+{
+    if ( doSteer() )
     {
 	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
 	const float maxsecdip = maxSecureDip();
@@ -201,23 +141,16 @@ VolStats::VolStats( Desc& ds )
 		continue;
 
 	    positions_ += pos;
-	    if ( dosteer_ )
+	    if ( doSteer() )
 		steerindexes_ += getSteeringIndex( pos );
 	}
     }
 }
 
 
-VolStats::~VolStats()
+bool VolStatsBase::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( linetruepos_ ) delete linetruepos_;
-    if ( linepath_ ) delete linepath_;
-}
-
-
-bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
-{
-    if ( !dosteer_ || input<inputs_.size()-1 ) 
+    if ( !doSteer() || input<inputs_.size()-1 ) 
 	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<positions_.size(); idx++ )
@@ -227,17 +160,15 @@ bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool VolStats::getInputData( const BinID& relpos, int zintv )
+bool VolStatsBase::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_.erase();
-    if ( shape_ == mShapeOpticalStack )
-	reInitPosAndSteerIdxes();
 
     while ( inputdata_.size()<positions_.size() )
 	inputdata_ += 0;
 
-    steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
-    if ( dosteer_ && !steeringdata_ )
+    steeringdata_ = doSteer() ? inputs_[1]->getData( relpos, zintv ) : 0;
+    if ( doSteer() && !steeringdata_ )
 	return false;
 
     const BinID bidstep = inputs_[0]->getStepoutStep();
@@ -257,7 +188,7 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 		continue;
 	}
 
-	if ( dosteer_ )
+	if ( doSteer() )
 	{
 	    const int steeridx = steerindexes_[posidx];
 	    if ( !steeringdata_->series(steeridx) )
@@ -281,7 +212,7 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 }
 
 
-const BinID* VolStats::desStepout( int inp, int out ) const
+const BinID* VolStatsBase::desStepout( int inp, int out ) const
 { return inp == 0 ? &stepout_ : 0; }
 
 
@@ -295,7 +226,7 @@ const BinID* VolStats::desStepout( int inp, int out ) const
     }\
 }
     
-void VolStats::prepPriorToBoundsCalc()
+void VolStatsBase::prepPriorToBoundsCalc()
 {
     const int truestep = mNINT( refstep_*zFactor() );
     if ( truestep == 0 )
@@ -311,6 +242,112 @@ void VolStats::prepPriorToBoundsCalc()
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
 
+    Provider::prepPriorToBoundsCalc();
+}
+
+
+const Interval<float>* VolStatsBase::reqZMargin( int inp, int ) const
+{ 
+    return &gate_; 
+}
+
+
+const Interval<float>* VolStatsBase::desZMargin( int inp, int ) const
+{     
+    if ( inp || (!desgate_.start && !desgate_.stop)  ) return 0;
+    
+    return &desgate_;
+}
+
+
+
+
+mAttrDefCreateInstance(VolStats)
+
+void VolStats::initClass()
+{
+    mAttrStartInitClassWithDescAndDefaultsUpdate
+    initDesc( *desc );
+
+    EnumParam* shape = new EnumParam( shapeStr() );
+    //Note: Ordering must be the same as numbering!
+    shape->addEnum( shapeTypeStr(mShapeRectangle) );
+    shape->addEnum( shapeTypeStr(mShapeEllipse) );
+    shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
+    shape->setDefaultValue( mShapeEllipse );
+    desc->addParam( shape );
+
+    BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
+    edgeeffect->setDefaultValue( false );
+    edgeeffect->setRequired( false );
+    desc->addParam( edgeeffect );
+
+    BoolParam* steering = new BoolParam( steeringStr() );
+    steering->setDefaultValue( false );
+    desc->addParam( steering );
+
+    IntParam* optstackstep = new IntParam( optstackstepStr() );
+    optstackstep->setDefaultValue( 1 );
+    optstackstep->setRequired( false );
+    desc->addParam( optstackstep );
+
+    EnumParam* osdir = new EnumParam( optstackdirStr() );
+    //Note: Ordering must be the same as numbering!
+    osdir->addEnum( optStackDirTypeStr(mDirLine) );
+    osdir->addEnum( optStackDirTypeStr(mDirNorm) );
+    osdir->setDefaultValue( mDirNorm );
+    desc->addParam( osdir );
+
+    mAttrEndInitClass
+}
+
+
+VolStats::VolStats( Desc& ds )
+    : VolStatsBase( ds )
+    , linepath_(0)
+    , linetruepos_(0)
+    , allowedgeeffects_( false )
+{
+    mGetBool( allowedgeeffects_, allowEdgeEffStr() );
+
+    if ( allowedgeeffects_ )
+	desgate_ = gate_;
+
+    mGetInt( optstackstep_, optstackstepStr() );
+    mGetEnum( optstackdir_, optstackdirStr() );
+    mGetBool( dosteer_, steeringStr() );
+
+    if ( shape_ == mShapeOpticalStack )
+	stepout_ = BinID( optstackstep_, optstackstep_ );
+
+    init();
+}
+
+
+VolStats::~VolStats()
+{
+    if ( linetruepos_ ) delete linetruepos_;
+    if ( linepath_ ) delete linepath_;
+}
+
+
+const char* VolStats::optStackDirTypeStr( int type )
+{
+    return type==mDirLine ? "LineDir" : "NormalToLine";
+}
+
+
+bool VolStats::getInputData( const BinID& relpos, int zintv )
+{
+    inputdata_.erase();
+    if ( shape_ == mShapeOpticalStack )
+	reInitPosAndSteerIdxes();
+    return VolStatsBase::getInputData( relpos, zintv );
+}
+
+
+void VolStats::prepPriorToBoundsCalc()
+{
     if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
     {
 	errmsg_ = "Optical Stack only works on elements\n";
@@ -318,7 +355,20 @@ void VolStats::prepPriorToBoundsCalc()
 	return;
     }
 
-    Provider::prepPriorToBoundsCalc();
+    VolStatsBase::prepPriorToBoundsCalc();
+}
+
+
+void VolStats::updateDesc( Desc& desc )
+{
+    desc.inputSpec(1).enabled_ =
+	desc.getValParam(steeringStr())->getBoolValue();
+
+    BufferString shapestr = desc.getValParam(shapeStr())->getStringValue();
+    const bool isoptstack = shapestr == shapeTypeStr( mShapeOpticalStack );
+    desc.setParamEnabled( stepoutStr(), !isoptstack );
+    desc.setParamEnabled( optstackstepStr(), isoptstack );
+    desc.setParamEnabled( optstackdirStr(), isoptstack );
 }
 
 
@@ -331,15 +381,7 @@ const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 }
 
 
-const Interval<float>* VolStats::desZMargin( int inp, int ) const
-{     
-    if ( inp || (!desgate_.start && !desgate_.stop)  ) return 0;
-    
-    return &desgate_;
-}
-
-
-bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
+bool VolStatsBase::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
@@ -371,7 +413,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !dh ) continue;
 
 	    float shift = extrasamp;
-	    if ( dosteer_ )
+	    if ( doSteer() )
 		shift += getInputValue( *steeringdata_, steerindexes_[posidx],
 					idz, z0 );
 
@@ -389,7 +431,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		if ( !dh ) continue;
 
 		float shift = extrasamp;
-		if ( dosteer_ )
+		if ( doSteer() )
 		    shift += getInputValue(*steeringdata_,steerindexes_[posidx],
 					    isamp+samplegate.stop, z0 );
 

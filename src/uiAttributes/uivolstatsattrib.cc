@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.27 2011-04-14 22:06:49 cvskris Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.28 2011-09-01 15:09:38 cvsbruno Exp $";
 
 
 
@@ -50,13 +50,11 @@ static const char* shapestrs[] =
 	0
 };
 
-mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
-	      sKeyStatsGrp())
-
-
-uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.16")
- 
+uiVolumeStatisticsAttribBase::uiVolumeStatisticsAttribBase( uiParent* p, 
+						bool is2d,
+						const StringListInpSpec& shapes,
+						const char* helpid)
+    : uiAttrDescEd(p,is2d,helpid)
 {
     inpfld_ = createInpFld( is2d );
 
@@ -65,29 +63,17 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
-    edgeeffectfld_->attach( rightOf, gatefld_ );
-
-    shapefld_ = new uiGenInput( this, "Shape", StringListInpSpec(shapestrs) );
-    shapefld_->valuechanged.notify(mCB(this,uiVolumeStatisticsAttrib,shapeChg));
+    shapefld_ = new uiGenInput( this, "Shape", shapes );
+    shapefld_->valuechanged.notify(
+			    mCB(this,uiVolumeStatisticsAttribBase,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
     shapefld_->display( !is2d_ );
     
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
     stepoutfld_->valueChanged.notify(
-			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
+			mCB(this,uiVolumeStatisticsAttribBase,stepoutChg) );
     stepoutfld_->attach( alignedBelow, shapefld_ );
-
-    optstackstepfld_ = new uiLabeledSpinBox( this, "Stack stepout" );
-    optstackstepfld_->box()->setMinValue( 1 );
-    optstackstepfld_->box()->valueChanged.notify(
-			mCB(this,uiVolumeStatisticsAttrib,stackstepChg) );
-    optstackstepfld_->attach( alignedBelow, shapefld_ );
-
-    stackdirfld_ = new uiGenInput( this, "Direction",
-	    			   BoolInpSpec( true, "Perpendicular", "Line"));
-    stackdirfld_->attach( rightTo,optstackstepfld_ );
 
     nrtrcsfld_ = new uiLabeledSpinBox( this, "Min nr of valid traces" );
     nrtrcsfld_->box()->setMinValue( 1 );
@@ -105,7 +91,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 }
 
 
-void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
+void uiVolumeStatisticsAttribBase::stepoutChg( CallBacker* )
 {
     const BinID so = stepoutfld_->getBinID();
     int nrtrcs = 1;
@@ -113,6 +99,96 @@ void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
 	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
     nrtrcsfld_->box()->setInterval( 1, nrtrcs );
 }
+
+
+bool uiVolumeStatisticsAttribBase::setParameters( const Desc& desc )
+{
+    mIfGetFloatInterval( VolStats::gateStr(), gate,
+	    		 gatefld_->setValue(gate) );
+    mIfGetBinID( VolStats::stepoutStr(), stepout,
+	         stepoutfld_->setBinID(stepout) );
+    mIfGetEnum( VolStats::shapeStr(), shape,
+	        shapefld_->setValue(shape) );
+    mIfGetInt( VolStats::nrtrcsStr(), nrtrcs,
+	       nrtrcsfld_->box()->setValue(nrtrcs) );
+
+    stepoutChg(0);
+    shapeChg(0);
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttribBase::setInput( const Desc& desc )
+{
+    putInp( inpfld_, desc, 0 );
+    putInp( steerfld_, desc, 1 );
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttribBase::setOutput( const Desc& desc )
+{
+    outpfld_->setValue( desc.selectedOutput() );
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttribBase::getParameters( Desc& desc )
+{
+    mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
+    mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
+    mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
+    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
+
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttribBase::getInput( Desc& desc )
+{
+    inpfld_->processInput();
+    fillInp( inpfld_, desc, 0 );
+    fillInp( steerfld_, desc, 1 );
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttribBase::getOutput( Desc& desc )
+{
+    fillOutput( desc, outpfld_->getIntValue() );
+    return true;
+}
+
+
+void uiVolumeStatisticsAttribBase::getEvalParams( 
+					TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr(), VolStats::gateStr() );
+    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+}
+
+
+
+mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
+	      sKeyStatsGrp())
+
+uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
+    : uiVolumeStatisticsAttribBase(p,is2d,shapestrs,"101.0.16")
+{
+    edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
+    edgeeffectfld_->attach( rightOf, gatefld_ );
+
+    optstackstepfld_ = new uiLabeledSpinBox( this, "Stack stepout" );
+    optstackstepfld_->box()->setMinValue( 1 );
+    optstackstepfld_->box()->valueChanged.notify(
+			mCB(this,uiVolumeStatisticsAttrib,stackstepChg) );
+    optstackstepfld_->attach( alignedBelow, shapefld_ );
+
+    stackdirfld_ = new uiGenInput( this, "Direction",
+			       BoolInpSpec( true, "Perpendicular", "Line"));
+    stackdirfld_->attach( rightTo,optstackstepfld_ );
+}
+
 
 
 void uiVolumeStatisticsAttrib::stackstepChg( CallBacker* )
@@ -126,38 +202,14 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
 
-    mIfGetFloatInterval( VolStats::gateStr(), gate,
-	    		 gatefld_->setValue(gate) );
     mIfGetBool( VolStats::allowEdgeEffStr(), edgeeff,
 	    	edgeeffectfld_->setChecked( edgeeff ) );
-    mIfGetBinID( VolStats::stepoutStr(), stepout,
-	         stepoutfld_->setBinID(stepout) );
-    mIfGetEnum( VolStats::shapeStr(), shape,
-	        shapefld_->setValue(shape) );
-    mIfGetInt( VolStats::nrtrcsStr(), nrtrcs,
-	       nrtrcsfld_->box()->setValue(nrtrcs) );
     mIfGetEnum( VolStats::optstackdirStr(), dir,
 	        stackdirfld_->setValue(dir) );
     mIfGetInt( VolStats::optstackstepStr(), stackstep,
 	       optstackstepfld_->box()->setValue(stackstep) );
-    stepoutChg(0);
-    shapeChg(0);
-    return true;
-}
 
-
-bool uiVolumeStatisticsAttrib::setInput( const Desc& desc )
-{
-    putInp( inpfld_, desc, 0 );
-    putInp( steerfld_, desc, 1 );
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttrib::setOutput( const Desc& desc )
-{
-    outpfld_->setValue( desc.selectedOutput() );
-    return true;
+    return uiVolumeStatisticsAttribBase::setParameters( desc );
 }
 
 
@@ -166,39 +218,12 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
 
-    mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
     mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );
-    mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
-    mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
     mSetBool( VolStats::steeringStr(), steerfld_->willSteer() );
-    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
     mSetInt( VolStats::optstackstepStr(), optstackstepfld_->box()->getValue() );
     mSetEnum( VolStats::optstackdirStr(), stackdirfld_->getBoolValue() );
 
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
-{
-    inpfld_->processInput();
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
-{
-    fillOutput( desc, outpfld_->getIntValue() );
-    return true;
-}
-
-
-void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
-{
-    params += EvalParam( timegatestr(), VolStats::gateStr() );
-    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+    return uiVolumeStatisticsAttribBase::getParameters( desc );
 }
 
 

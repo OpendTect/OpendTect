@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.28 2011-05-02 11:58:58 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.29 2011-09-01 15:09:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,13 +48,11 @@ Outputs:
 namespace Attrib
 {
 
-mClass VolStats : public Provider
+mClass VolStatsBase : public Provider
 {
 public:
-    static void			initClass();
-				VolStats(Desc&);
+    static void			initDesc(Desc&);
 
-    static const char*		attribName()	  { return "VolumeStatistics"; }
     static const char*		nrvolumesStr()	  { return "nrvolumes"; }
     static const char*		stepoutStr()	  { return "stepout"; }
     static const char*		shapeStr()	  { return "shape"; }
@@ -62,12 +60,66 @@ public:
     static const char*		absolutegateStr() { return "absolutegate"; }
     static const char*		nrtrcsStr()	  { return "nrtrcs"; }
     static const char*		steeringStr()	  { return "steering"; }
-    static const char*		optstackstepStr() { return "optstackstep"; }
-    static const char*		optstackdirStr()  { return "optstackdir"; }
-    static const char*		allowEdgeEffStr() { return "allowedgeeffects"; }
     static const char*		shapeTypeStr(int);
-    static const char*		optStackDirTypeStr(int);
+
     void			initSteering()	{ stdPrepSteering(stepout_); }
+
+    virtual void		prepPriorToBoundsCalc();
+    bool			isSingleTrace() const
+				{ return !stepout_.inl && !stepout_.crl; }
+
+protected:
+				VolStatsBase(Desc&);
+
+    void			init();
+    int*			outputTypes() const;
+
+    static void			updateDefaults(Desc&);
+
+    virtual bool		doSteer() const 	=0;
+
+    bool			allowParallelComputation() const
+				{ return true; }
+
+    bool			getInputOutput(int,TypeSet<int>& res) const;
+    virtual bool		getInputData(const BinID&,int zintv);
+
+    virtual bool		computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples,
+					    int threadid) const;
+
+    const BinID*		desStepout(int input,int output) const;
+    const Interval<float>* 	desZMargin( int inp, int ) const;
+    virtual const Interval<float>* reqZMargin(int input,int output) const;
+
+    BinID			stepout_;
+    int				shape_;
+    Interval<float>		gate_;
+    Interval<float>             desgate_;
+    int				minnrtrcs_;
+
+    TypeSet<BinID>      	positions_;
+    int				dataidx_;
+    TypeSet<int>		steerindexes_;
+
+    ObjectSet<const DataHolder>	inputdata_;
+    const DataHolder*           steeringdata_;
+};
+
+
+
+mClass VolStats : public VolStatsBase
+{
+public:
+    static void			initClass();
+				VolStats(Desc&);
+
+    static const char*		attribName()	  { return "VolumeStatistics"; }
+    static const char*		allowEdgeEffStr() { return "allowedgeeffects"; }
+    static const char*          optstackstepStr() { return "optstackstep"; }
+    static const char*          optstackdirStr()  { return "optstackdir"; }
+    static const char*          optStackDirTypeStr(int);
 
     void			prepPriorToBoundsCalc();
     void			setRdmPaths( TypeSet<BinID>* truepos,
@@ -78,24 +130,15 @@ public:
 				  linepath_ = snappedpos
 					    ? new TypeSet<BinID>(*snappedpos)
 					    : new TypeSet<BinID>(); }
-    virtual bool		isSingleTrace() const
-				{ return !stepout_.inl && !stepout_.crl; }
 
 protected:
 				~VolStats();
+
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
-    static void			updateDefaults(Desc&);
 
-    bool			allowParallelComputation() const
-				{ return true; }
-
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
-    bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
-					    int z0,int nrsamples,
-					    int threadid) const;
+    bool			doSteer() const 	{ return dosteer_; }
+    virtual bool		getInputData(const BinID&,int zintv);
 
     void			getStackPositions(TypeSet<BinID>&) const;
     void			getIdealStackPos(
@@ -103,29 +146,16 @@ protected:
 				  	TypeSet< Geom::Point2D<float> >&) const;
     void			reInitPosAndSteerIdxes();
 
-    const BinID*		desStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
 
-    BinID			stepout_;
-    int				shape_;
-    Interval<float>		gate_;
-    int				minnrtrcs_;
     bool			dosteer_;
     bool			allowedgeeffects_;
     Interval<float>             desgate_;
-
-    TypeSet<BinID>      	positions_;
-    int				dataidx_;
-    TypeSet<int>		steerindexes_;
 
     TypeSet<BinID>*		linepath_;
     TypeSet<BinID>*		linetruepos_;
     int				optstackdir_;
     int				optstackstep_;
-
-    ObjectSet<const DataHolder>	inputdata_;
-    const DataHolder*		steeringdata_;
 };
 
 } // namespace Attrib
