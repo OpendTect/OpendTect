@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.47 2011-09-01 19:47:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.48 2011-09-01 21:36:25 cvsyuancheng Exp $";
 
 #include "flthortools.h"
 
@@ -186,7 +186,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 
 	Coord intersectn = getIntersection( origin, z, bid, z );
 	if ( !intersectn.isDefined() )
-	    break; //return false;
+	    return false;
 
 	if ( fabs(intersectn.x - (float)trcvar) > 10 )
 	    break;
@@ -214,7 +214,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 
 	Coord intersectn = getIntersection( origin, z, bid, z );
 	if ( !intersectn.isDefined() )
-	    break; //return false;
+	    return false;
 
 	if ( fabs(intersectn.x - (float)trcvar) > 10 )
 	    break;
