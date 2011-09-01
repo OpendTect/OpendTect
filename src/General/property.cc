@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.47 2011-07-19 14:02:31 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.48 2011-09-01 15:27:33 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -551,6 +551,7 @@ float RangeProperty::value( Property::EvalOpts eo ) const
 MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , expr_(0)
+    , uom_(0)
 {
     inps_.allowNull( true );
     if ( df && *df )
@@ -561,6 +562,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
 MathProperty::MathProperty( const MathProperty& mp )
     : Property(mp.ref())
     , expr_(0)
+    , uom_(mp.uom_)
 {
     inps_.allowNull( true );
     if ( !mp.def_.isEmpty() )
@@ -691,20 +693,29 @@ bool MathProperty::init( const PropertySet& ps ) const
 
 const char* MathProperty::def() const
 {
-    return def_.buf();
+    fulldef_ = def_;
+    if ( uom_ )
+	fulldef_.add( "`" ).add( uom_->name() );
+
+    return fulldef_.buf();
 }
 
 
 void MathProperty::setDef( const char* s )
 {
     inps_.erase();
-    def_ = s;
+    FileMultiString fms( s );
+    def_ = fms[0];
+
     MathExpressionParser mep( def_ );
     delete expr_; expr_ = mep.parse();
     if ( !expr_ ) return;
     const int sz = expr_->nrVariables();
     while ( sz > inps_.size() )
 	inps_ += 0;
+
+    if ( fms.size() > 1 )
+	uom_ = UoMR().get( ref_.stdType(), fms[1] );
 }
 
 
@@ -737,7 +748,10 @@ float MathProperty::value( Property::EvalOpts eo ) const
 	expr_->setVariableValue( idx, v );
     }
 
-    return expr_->getValue();
+    float res = expr_->getValue();
+    if ( uom_ )
+	res = uom_->getSIValue( res );
+    return res;
 }
 
 

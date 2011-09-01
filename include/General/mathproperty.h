@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.19 2011-06-24 13:37:39 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.20 2011-09-01 15:27:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "property.h"
 #include "undefval.h"
 class MathExpression;
+class UnitOfMeasure;
 
 
 /*!\brief Simple property */
@@ -83,6 +84,8 @@ public:
     virtual bool	init(const PropertySet&) const;
     virtual const char*	errMsg() const		{ return errmsg_.buf(); }
     virtual bool	dependsOn(const Property&) const;
+    void		setUnit( const UnitOfMeasure* u )	{ uom_ = u; }
+    const UnitOfMeasure* unit() const				{ return uom_; }
 
     mDefPropertyFns(MathProperty,"Math");
 
@@ -91,9 +94,12 @@ public:
 protected:
 
     BufferString		def_;
-    MathExpression*		expr_;
+    const UnitOfMeasure*	uom_;
+
+    mutable MathExpression*	expr_;
     mutable ObjectSet<const Property> inps_;
     mutable BufferString	errmsg_;
+    mutable BufferString	fulldef_;
 
     const Property*		findInput(const PropertySet&,const char*,
 	    				  bool) const;
