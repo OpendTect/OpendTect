@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.57 2011-09-01 15:09:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.58 2011-09-02 08:38:21 cvsbruno Exp $";
 
 #include "volstatsattrib.h"
 
@@ -113,19 +113,7 @@ VolStatsBase::VolStatsBase( Desc& ds )
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
     gate_.sort();
-}
 
-
-void VolStatsBase::init()
-{
-    if ( doSteer() )
-    {
-	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
-	const float maxsecdip = maxSecureDip();
-	desgate_.start = gate_.start - maxso*maxsecdip;
-	desgate_.stop = gate_.stop + maxso*maxsecdip;
-    }
-	
     BinID pos;
     for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
     {
@@ -141,8 +129,6 @@ void VolStatsBase::init()
 		continue;
 
 	    positions_ += pos;
-	    if ( doSteer() )
-		steerindexes_ += getSteeringIndex( pos );
 	}
     }
 }
@@ -150,65 +136,13 @@ void VolStatsBase::init()
 
 bool VolStatsBase::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !doSteer() || input<inputs_.size()-1 ) 
-	return Provider::getInputOutput( input, res );
-
-    for ( int idx=0; idx<positions_.size(); idx++ )
-	res += steerindexes_[idx];
-
-    return true;
+    return Provider::getInputOutput( input, res );
 }
 
 
-bool VolStatsBase::getInputData( const BinID& relpos, int zintv )
+bool VolStatsBase::getInputData( const BinID& relpos, int zintv ) 
 {
-    inputdata_.erase();
-
-    while ( inputdata_.size()<positions_.size() )
-	inputdata_ += 0;
-
-    steeringdata_ = doSteer() ? inputs_[1]->getData( relpos, zintv ) : 0;
-    if ( doSteer() && !steeringdata_ )
-	return false;
-
-    const BinID bidstep = inputs_[0]->getStepoutStep();
-    const int nrpos = positions_.size();
-
-    int nrvalidtrcs = 0;
-    for ( int posidx=0; posidx<nrpos; posidx++ )
-    {
-	const bool atcenterpos = positions_[posidx] == BinID(0,0);
-	const BinID truepos = relpos + positions_[posidx] * bidstep;
-	const DataHolder* indata = inputs_[0]->getData( truepos, zintv );
-	if ( !indata )
-	{
-	    if ( atcenterpos )
-		return false;
-	    else
-		continue;
-	}
-
-	if ( doSteer() )
-	{
-	    const int steeridx = steerindexes_[posidx];
-	    if ( !steeringdata_->series(steeridx) )
-	    {
-		if ( atcenterpos )
-		    return false;
-		else
-		    continue;
-	    }
-	}
-
-	inputdata_.replace( posidx, indata );
-	nrvalidtrcs++;
-    }
-
-    if ( nrvalidtrcs < minnrtrcs_ )
-	return false;
-
-    dataidx_ = getDataIndex( 0 );
-    return true;
+    return Provider::getInputData( relpos, zintv );
 }
 
 
@@ -320,7 +254,16 @@ VolStats::VolStats( Desc& ds )
     if ( shape_ == mShapeOpticalStack )
 	stepout_ = BinID( optstackstep_, optstackstep_ );
 
-    init();
+    if ( dosteer_ )
+    {
+	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
+	const float maxsecdip = maxSecureDip();
+	desgate_.start = gate_.start - maxso*maxsecdip;
+	desgate_.stop = gate_.stop + maxso*maxsecdip;
+
+	for ( int idx=0; idx<positions_.size(); idx++ )
+	    steerindexes_ += getSteeringIndex( positions_[idx] );
+    }
 }
 
 
@@ -337,12 +280,71 @@ const char* VolStats::optStackDirTypeStr( int type )
 }
 
 
+bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
+{
+    if ( !dosteer_ || input<inputs_.size()-1 ) 
+	return Provider::getInputOutput( input, res );
+
+    for ( int idx=0; idx<positions_.size(); idx++ )
+	res += steerindexes_[idx];
+
+    return true;
+}
+
+
 bool VolStats::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_.erase();
     if ( shape_ == mShapeOpticalStack )
 	reInitPosAndSteerIdxes();
-    return VolStatsBase::getInputData( relpos, zintv );
+
+    inputdata_.erase();
+
+    while ( inputdata_.size()<positions_.size() )
+	inputdata_ += 0;
+
+    steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
+    if ( dosteer_ && !steeringdata_ )
+	return false;
+
+    const BinID bidstep = inputs_[0]->getStepoutStep();
+    const int nrpos = positions_.size();
+
+    int nrvalidtrcs = 0;
+    for ( int posidx=0; posidx<nrpos; posidx++ )
+    {
+	const bool atcenterpos = positions_[posidx] == BinID(0,0);
+	const BinID truepos = relpos + positions_[posidx] * bidstep;
+	const DataHolder* indata = inputs_[0]->getData( truepos, zintv );
+	if ( !indata )
+	{
+	    if ( atcenterpos )
+		return false;
+	    else
+		continue;
+	}
+
+	if ( dosteer_ )
+	{
+	    const int steeridx = steerindexes_[posidx];
+	    if ( !steeringdata_->series(steeridx) )
+	    {
+		if ( atcenterpos )
+		    return false;
+		else
+		    continue;
+	    }
+	}
+
+	inputdata_.replace( posidx, indata );
+	nrvalidtrcs++;
+    }
+
+    if ( nrvalidtrcs < minnrtrcs_ )
+	return false;
+
+    dataidx_ = getDataIndex( 0 );
+    return true;
 }
 
 
@@ -381,7 +383,7 @@ const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 }
 
 
-bool VolStatsBase::computeData( const DataHolder& output, const BinID& relpos,
+bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
@@ -413,7 +415,7 @@ bool VolStatsBase::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !dh ) continue;
 
 	    float shift = extrasamp;
-	    if ( doSteer() )
+	    if ( dosteer_ )
 		shift += getInputValue( *steeringdata_, steerindexes_[posidx],
 					idz, z0 );
 
@@ -431,7 +433,7 @@ bool VolStatsBase::computeData( const DataHolder& output, const BinID& relpos,
 		if ( !dh ) continue;
 
 		float shift = extrasamp;
-		if ( doSteer() )
+		if ( dosteer_ )
 		    shift += getInputValue(*steeringdata_,steerindexes_[posidx],
 					    isamp+samplegate.stop, z0 );
 

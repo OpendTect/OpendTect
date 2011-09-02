@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.29 2011-09-01 15:09:38 cvsbruno Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.30 2011-09-02 08:38:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,18 +76,16 @@ protected:
 
     static void			updateDefaults(Desc&);
 
-    virtual bool		doSteer() const 	=0;
-
     bool			allowParallelComputation() const
 				{ return true; }
 
-    bool			getInputOutput(int,TypeSet<int>& res) const;
+    virtual bool		getInputOutput(int,TypeSet<int>& res) const;
     virtual bool		getInputData(const BinID&,int zintv);
 
     virtual bool		computeData(const DataHolder&,
 	    				    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const = 0;
 
     const BinID*		desStepout(int input,int output) const;
     const Interval<float>* 	desZMargin( int inp, int ) const;
@@ -101,7 +99,6 @@ protected:
 
     TypeSet<BinID>      	positions_;
     int				dataidx_;
-    TypeSet<int>		steerindexes_;
 
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*           steeringdata_;
@@ -137,8 +134,13 @@ protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			doSteer() const 	{ return dosteer_; }
     virtual bool		getInputData(const BinID&,int zintv);
+    virtual bool		getInputOutput(int,TypeSet<int>& res) const;
+
+    virtual bool		computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     void			getStackPositions(TypeSet<BinID>&) const;
     void			getIdealStackPos(
@@ -152,6 +154,7 @@ protected:
     bool			allowedgeeffects_;
     Interval<float>             desgate_;
 
+    TypeSet<int>		steerindexes_;
     TypeSet<BinID>*		linepath_;
     TypeSet<BinID>*		linetruepos_;
     int				optstackdir_;
