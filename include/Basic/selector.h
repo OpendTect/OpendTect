@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.10 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: selector.h,v 1.11 2011-09-02 08:51:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
 			{ return new RangeSelector(range_.start,range_.stop); }
 
     virtual bool	includes( const T& t ) const
-			{ return range_.includes( t ); }
+			{ return range_.includes( t, true ); }
     virtual bool	include( const T& t, const char* )
 			{ range_.include( t ); return true; }
 

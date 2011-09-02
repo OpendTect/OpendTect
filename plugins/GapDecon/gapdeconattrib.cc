@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.22 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.23 2011-09-02 08:52:41 cvskris Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -165,9 +165,9 @@ GapDecon::GapDecon( Desc& desc )
 
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
-    if ( !SI().zRange(true).includes(gate_.start) )
+    if ( !SI().zRange(true).includes(gate_.start,false) )
 	gate_.start = SI().zRange(true).start;
-    if ( !SI().zRange(true).includes(gate_.stop) )
+    if ( !SI().zRange(true).includes(gate_.stop,false) )
 	gate_.stop = SI().zRange(true).stop;
 
     mGetBool( useonlyacorr_, onlyacorrStr() );

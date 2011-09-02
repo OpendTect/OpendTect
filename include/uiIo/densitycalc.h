@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.7 2010-12-02 10:07:52 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.8 2011-09-02 08:52:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	uiPoint pos( x_.axis_->getPix(xval), y_.axis_->getPix(yval) );
 	uiPoint datapt = w2ui_.transform( wpt );
 	
-	if ( !xpixrg_.includes(pos.x) || !ypixrg_.includes(pos.y) )
+	if ( !xpixrg_.includes(pos.x,true) || !ypixrg_.includes(pos.y,true) )
 	    continue;
 
 	if ( usedxpixrg_.width() == 0 && usedxpixrg_.start == 0 )

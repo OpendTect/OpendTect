@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.37 2011-02-10 06:29:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.38 2011-09-02 08:53:30 cvskris Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -96,8 +96,8 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setLineKey( lk_ );
 
     CubeSampling cs = cs_;
-    if ( !SI().zRange(0).includes( cs_.zrg.start) ||
-	 !SI().zRange(0).includes( cs_.zrg.stop) )
+    if ( !SI().zRange(0).includes( cs_.zrg.start, false ) ||
+	 !SI().zRange(0).includes( cs_.zrg.stop, false ) )
     {
 	//'fake' a 'normal' cubesampling for the attribute engine
 	cs.zrg.start = SI().sampling(0).zrg.start;	
@@ -128,8 +128,8 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	correctd2dh->trcinfoset_ += info;
     }
     
-    if ( ( !SI().zRange(0).includes(cs_.zrg.start)
-	|| !SI().zRange(0).includes(cs_.zrg.stop) )
+    if ( ( !SI().zRange(0).includes(cs_.zrg.start, false )
+	|| !SI().zRange(0).includes(cs_.zrg.stop, false ) )
 	 && correctd2dh.ptr()->trcinfoset_.size() )
     {
 	//we previously 'faked' a 'normal' cubesampling for the attribute engine
@@ -161,8 +161,8 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 	return;
     
     output->ref();
-    bool csmatchessurv = SI().zRange(0).includes(cs_.zrg.start)
-			&& SI().zRange(0).includes(cs_.zrg.stop);
+    bool csmatchessurv = SI().zRange(0).includes(cs_.zrg.start, false )
+			&& SI().zRange(0).includes(cs_.zrg.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
     CubeSampling cs = csmatchessurv ? output->cubeSampling() : cs_;

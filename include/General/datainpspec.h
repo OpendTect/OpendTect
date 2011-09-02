@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.78 2011-04-26 11:56:27 cvsbert Exp $
+ RCS:           $Id: datainpspec.h,v 1.79 2011-09-02 08:51:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,7 +225,7 @@ public:
 			{
 			    if ( !limits_ ) return true;
 			    if ( !isUndef(idx) )
-				return limits_->includes( value() );;
+				return limits_->includes( value(), true );;
 
 			    const bool startudf = mIsUdf(limits_->start);
 			    const bool stopudf = mIsUdf(limits_->stop);
@@ -409,7 +409,7 @@ public:
 			    const Interval<T>* lims = limits(idx);
 			    if ( !lims ) return true;
 			    if ( !isUndef(idx) )
-				return lims->includes( value(idx) );;
+				return lims->includes( value(idx), true );
 
 			    const bool startudf = mIsUdf(lims->start);
 			    const bool stopudf = mIsUdf(lims->stop);
