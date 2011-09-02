@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.212 2011-06-29 10:30:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.213 2011-09-02 13:13:36 cvskris Exp $";
 
 #include "uimpeman.h"
 
@@ -408,7 +408,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	newvolume = clickcatcher->info().getObjCS();
 	const CubeSampling trkplanecs = engine.trackPlane().boundingBox();
 
-	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z) && 
+	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z,true) && 
 	     trkplanecs.hrg.includes( SI().transform(seedpos) ) &&
 	     trkplanecs.defaultDir()==newvolume.defaultDir() )
 	{

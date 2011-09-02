@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.80 2011-07-12 21:33:26 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.81 2011-09-02 13:19:31 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -959,7 +959,7 @@ void FaultDisplay::updateActiveStickMarker()
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
     const StepInterval<int> rowrg = fss->rowRange();
-    if ( rowrg.isUdf() || !rowrg.includes(activestick_) )
+    if ( rowrg.isUdf() || !rowrg.includes(activestick_,false) )
     {
 	activestickmarker_->turnOn( false );
 	return;
@@ -1525,7 +1525,8 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 {
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
-    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+    if ( !scene_ || !rowrg.includes(sticknr,false) ||
+	 rowrg.snap(sticknr)!=sticknr )
 	return false;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
@@ -1560,7 +1561,8 @@ bool FaultDisplay::coincidesWithPlane(
     bool res = false;
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
-    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+    if ( !scene_ || !rowrg.includes(sticknr,false) ||
+	  rowrg.snap(sticknr)!=sticknr )
 	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )

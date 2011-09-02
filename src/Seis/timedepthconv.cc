@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.39 2011-04-22 13:30:35 cvsbert Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.40 2011-09-02 13:00:13 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -344,7 +344,9 @@ Time2DepthStretcherProcessor( FloatMathFunction& func,
     , sd_( sd )
     , res_( res )
     , nriter_( nriter )
-{}
+{
+    trg_.sort();
+}
 
 
 bool doWork( od_int64 start, od_int64 stop, int )
@@ -353,7 +355,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const float t = sd_.atIndex( idx );
-	res_[idx] = trg_.includes(t) &&
+	res_[idx] = trg_.includes(t,false) &&
 		findValue( samplfunc_, zrg_.start, zrg_.stop, depth, t )
 	? res_[idx] = depth : mUdf(float);
     }
@@ -430,7 +432,9 @@ void Time2DepthStretcher::transform(const BinID& bid,
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const float t = sd.atIndex( idx );
-	    res[idx] = zrg.includes(t) ? samplfunc.getValue(t) : mUdf(float);
+	    res[idx] = zrg.includes(t,false)
+		? samplfunc.getValue(t)
+		: mUdf(float);
 	}
     }
     else
@@ -498,7 +502,9 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const float d = sd.atIndex( idx );
-	    res[idx] = zrg.includes(d) ? samplfunc.getValue(d) : mUdf(float);
+	    res[idx] = zrg.includes(d,false)
+		? samplfunc.getValue(d)
+		: mUdf(float);
 	}
     }
     else

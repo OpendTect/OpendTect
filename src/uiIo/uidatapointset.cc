@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.74 2011-07-11 11:50:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.75 2011-09-02 13:04:51 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1481,8 +1481,8 @@ void uiDataPointSet::removeHiddenRows()
 	else
 	    val = dps_.value( dColID(sortcol_), drowid );
 	
-	if ( valrange.includes(val) || (valrange.start==val)
-				    || (valrange.stop==val) )
+	if ( valrange.includes(val,true) || (valrange.start==val)
+					 || (valrange.stop==val) )
 	    dps_.setInactive( drowid, true );
 	continue;
 	

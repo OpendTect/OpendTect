@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.45 2011-05-05 08:53:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.46 2011-09-02 13:23:48 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -433,7 +433,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick );
 	if ( mpedisplay && cs.hrg.includes(nodebid) && 
-	     cs.zrg.includes(nodepos.z) )
+	     cs.zrg.includes(nodepos.z,false) )
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( mpedisplay->id() );
@@ -463,7 +463,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
 	    continue;
 
-	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
+	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z,false) )
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );

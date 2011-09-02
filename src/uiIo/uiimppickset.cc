@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.48 2010-12-13 12:33:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.49 2011-09-02 13:06:19 cvskris Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -246,7 +246,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    float constz = constzfld_->getfValue();
 	    if ( SI().zIsTime() ) constz /= 1000;
 
-	    if ( !SI().zRange(false).includes( constz ) )
+	    if ( !SI().zRange(false).includes( constz,false ) )
 		mErrRet( "Please Enter a valid Z value" );
 	}
     }

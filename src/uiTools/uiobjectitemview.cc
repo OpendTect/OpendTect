@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.20 2011-06-10 13:31:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.21 2011-09-02 13:11:35 cvskris Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -117,7 +117,7 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
 	borders.stop += objectitems_[idx]->objectSize().width(); 
-	if ( borders.includes( pos.x ) ) return objectitems_[idx];
+	if ( borders.includes( pos.x,true ) ) return objectitems_[idx];
 	borders.start = borders.stop;
     }
     return 0;
@@ -132,8 +132,8 @@ void uiObjectItemView::getItemsFromRect( const uiRect& rect,
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
 	objborders.stop += objectitems_[idx]->objectSize().width();
-	if ( rectborders.includes( objborders.start ) ||
-	   		rectborders.includes( objborders.stop ) )	
+	if ( rectborders.includes( objborders.start,true ) ||
+	     rectborders.includes( objborders.stop,true ) )	
 	    objs += objectitems_[idx];
 	objborders.start = objborders.stop;
     }

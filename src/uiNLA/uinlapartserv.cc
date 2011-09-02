@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.77 2011-02-03 11:59:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.78 2011-09-02 13:06:59 cvskris Exp $";
 
 #include "uinlapartserv.h"
 
@@ -201,7 +201,7 @@ void valrgChg( CallBacker* )
     TypeSet<float> newdatavals;
     for ( int idx=0; idx<datavals.size(); idx++ )
     {
-	if ( rg_.includes( datavals[idx] ) )
+	if ( rg_.includes( datavals[idx],false ) )
 	    newdatavals += datavals[idx];
     }
     statsfld_->setData( newdatavals.arr(), newdatavals.size() );

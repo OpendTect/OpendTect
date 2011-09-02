@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.22 2011-07-22 19:31:50 cvsyuancheng Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.23 2011-09-02 13:08:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,8 +96,8 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
     StepInterval<float> axrange = axhndler->range();
 
-    if ( !ms.range_.includes(axrange.start) ||
-	 !ms.range_.includes(axrange.stop) )
+    if ( !ms.range_.includes(axrange.start,true) ||
+	 !ms.range_.includes(axrange.stop,true) )
     {
 	axrange.include( ms.range_ );
 	histogramdisp_->setup().xrg( axrange );
@@ -238,8 +238,8 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     const int mousepix = ev.pos().x;
     const float mouseposval = xax_->getVal( ev.pos().x );
 
-    if ( !(datarg_.includes(mouseposval) || 
-	   histogramdisp_->setup().xrg_.includes(mouseposval)) )
+    if ( !(datarg_.includes(mouseposval,true) || 
+	   histogramdisp_->setup().xrg_.includes(mouseposval,true)) )
 	return false;
 
     if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )

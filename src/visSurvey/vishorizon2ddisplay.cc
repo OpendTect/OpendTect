@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.43 2011-02-18 09:47:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.44 2011-09-02 13:20:12 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -190,8 +190,8 @@ bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 	for ( int idx=0; idx<linergs.trcrgs[rc.row].size(); idx++ )
 	{
 	    if ( idx<linergs.zrgs[rc.row].size() &&
-		 linergs.zrgs[rc.row][idx].includes(z) && 
-		 linergs.trcrgs[rc.row][idx].includes(rc.col) )
+		 linergs.zrgs[rc.row][idx].includes(z,true) && 
+		 linergs.trcrgs[rc.row][idx].includes(rc.col,true) )
 		return true;
 	}
     }

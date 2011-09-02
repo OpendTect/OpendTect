@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.10 2011-06-22 09:04:35 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.11 2011-09-02 13:12:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,7 +182,7 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	    z = cs.zrg.start;
 	}
 
-	return ( cs.hrg.includes(bid) && cs.zrg.includes(z) ) ? 
+	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ? 
 	    Coord3( SI().transform(bid), z ) : Coord3::udf();
     }
 

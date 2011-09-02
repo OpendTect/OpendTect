@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.37 2011-06-29 11:15:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.38 2011-09-02 13:08:01 cvskris Exp $";
 
 #include "uistratdisplay.h"
 
@@ -280,7 +280,7 @@ int uiStratDisplay::getColIdxFromPos() const
     for ( int idx=0; idx<data_.nrCols(); idx++ )
     {
 	borders.stop += drawer_.colItem(idx).size_;
-	if ( borders.includes( xpos ) ) 
+	if ( borders.includes( xpos, true ) ) 
 	    return idx;
 	borders.start = borders.stop;
     }
@@ -501,8 +501,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[unidx];
 	Interval<float> unitrg = unit.zrg_;
-	if ( ( ( !rg.includes(unitrg.start) && !rg.includes(unitrg.stop) )
-	    && ( !unitrg.includes(rg.start) && !unitrg.includes(rg.stop) ) )
+	if ( ( ( !rg.includes(unitrg.start,true) && !rg.includes(unitrg.stop,true) )
+	    && ( !unitrg.includes(rg.start,true) && !unitrg.includes(rg.stop,true) ) )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 

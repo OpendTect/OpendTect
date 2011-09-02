@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.7 2011-01-31 12:19:26 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.8 2011-09-02 13:00:38 cvskris Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -202,7 +202,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	Interval<float> insiderg( lay.zTop(), lay.zBot() );
 	if ( statupscl_ == Stats::TakeNearest )
 	{
-	   if ( insiderg.includes(midz) )
+	   if ( insiderg.includes(midz,true) )
 		{ vals += lay.value(validx_); wts += 1; break; }
 	   continue;
 	}

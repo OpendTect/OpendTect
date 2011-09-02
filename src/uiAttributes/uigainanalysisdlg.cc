@@ -185,8 +185,8 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
     for ( int idx=0; idx<yvals.size(); idx++ )
 	yvalrange.include( yvals[idx], false );
 
-    if ( (!mIsUdf(yvalrange.start) && !range.includes(yvalrange.start)) ||
-	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop)) )
+    if ( (!mIsUdf(yvalrange.start) && !range.includes(yvalrange.start,true)) ||
+	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop,true)) )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
 	return uiMSG().error( "Scale Curve does not fit in the range" );

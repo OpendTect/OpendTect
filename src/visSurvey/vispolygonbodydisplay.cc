@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.14 2010-12-28 22:23:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.15 2011-09-02 13:24:35 cvskris Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -637,7 +637,7 @@ void PolygonBodyDisplay::updateNearestPolygonMarker()
 		empolygonsurf_->sectionGeometry(empolygonsurf_->sectionID(0)));
 
 	const StepInterval<int> rowrg = plgs->rowRange();
-	if ( rowrg.isUdf() || !rowrg.includes(nearestpolygon_) )
+	if ( rowrg.isUdf() || !rowrg.includes(nearestpolygon_,false) )
 	{
 	    nearestpolygonmarker_->turnOn( false );
 	    return;

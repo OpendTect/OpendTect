@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.91 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.92 2011-09-02 13:14:39 cvskris Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -298,7 +298,7 @@ void uiTieView::drawViewerWellMarkers()
 	
 	float zpos = d2tm->getTime( marker->dah() );
 	
-	if ( !zrange_.includes( zpos ) )
+	if ( !zrange_.includes( zpos, true ) )
 	    continue;
 
 	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_ 

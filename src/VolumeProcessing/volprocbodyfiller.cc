@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.10 2011-08-26 08:24:52 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.11 2011-09-02 13:01:12 cvskris Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -142,8 +142,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
     {
-	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl) ||
-		     !flatpolygon_.hrg.crlRange().includes(bid.crl);
+	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl,false) ||
+		     !flatpolygon_.hrg.crlRange().includes(bid.crl,false);
 	if ( !alloutside )
 	{
 	    if ( !getFlatPlgZRange( bid, plgzrg ) )
@@ -169,7 +169,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	{
 	    const float z = (output_->z0_+idx)*output_->zstep_;
 	    if ( flatbody )
-		val = plgzrg.includes( z * SI().zScale() ) ? insideval_
+		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
 							   : outsideval_;
 	    else
 	    {

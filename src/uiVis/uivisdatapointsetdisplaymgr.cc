@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.15 2011-07-11 11:46:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.16 2011-09-02 13:13:45 cvskris Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -267,7 +267,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	    if ( ((dispprop_->showSelected()) &&
 		  (data->selGroup(rid) == dlg.selGrpIdx())) ||
 		 (dlg.geValRange().includes(
-		      data->value(dispprop_->dpsColID(),rid))) )
+		      data->value(dispprop_->dpsColID(),rid),true)) )
 		pickset += Pick::Location(
 				Coord3(data->coord(rid),data->z(rid)));
 	}

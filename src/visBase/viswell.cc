@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.67 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.68 2011-09-02 13:19:06 cvskris Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -174,7 +174,7 @@ const LineStyle& Well::lineStyle() const
     well##post##txt_->setDisplayTransformation( transformation_ ); \
     well##post##txt_->setText( nm ); \
     well##post##txt_->setFontData( font ); \
-    if ( !SI().zRange(true).includes(pos->z) ) \
+    if ( !SI().zRange(true).includes(pos->z, false) ) \
 	pos->z = SI().zRange(true).limitValue( pos->z ); \
     well##post##txt_->setPosition( *pos ); \
     well##post##txt_->setJustification( Text::Center );

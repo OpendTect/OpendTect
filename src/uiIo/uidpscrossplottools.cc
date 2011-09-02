@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.5 2011-07-11 11:50:16 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.6 2011-09-02 13:06:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.5 2011-07-11 11:50:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.6 2011-09-02 13:06:05 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -171,8 +171,8 @@ bool SelectionArea::isInside( const uiPoint& pos ) const
 {
     if ( !isrectangle_ )
     {
-	if ( !poly_.getRange(true).includes(pos.x) ||
-	     !poly_.getRange(false).includes(pos.y) )
+	if ( !poly_.getRange(true).includes(pos.x,true) ||
+	     !poly_.getRange(false).includes(pos.y,true) )
 	    return false;
     }
 

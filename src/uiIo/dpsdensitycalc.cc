@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Mar 2010
- RCS:           $Id: dpsdensitycalc.cc,v 1.3 2010-03-17 12:02:05 cvssatyaki Exp $
+ RCS:           $Id: dpsdensitycalc.cc,v 1.4 2011-09-02 13:04:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ bool DPSDensityCalcND::getPositions( TypeSet<int>& indexs, int rid )
     {
 	AxisParam* axis = axisdatas_[idx];
 	const float val = uidps_.getValue( axis->colid_, rid, true );
-	if ( mIsUdf(val) || !axis->valrange_.includes(val) ) return false;
+	if ( mIsUdf(val) || !axis->valrange_.includes(val,true) ) return false;
 	indexs += axis->valrange_.getIndex( val );
     }
 

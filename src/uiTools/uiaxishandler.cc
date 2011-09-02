@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.55 2011-08-22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.56 2011-09-02 13:08:23 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -394,7 +394,7 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
     if ( lp.ax == 0 )
     {
 	const int ypix = yah.getPix( lp.a0 );
-	if ( !ypixrg.includes( ypix ) ) return;
+	if ( !ypixrg.includes( ypix,true ) ) return;
 	from.x = xpixrg.start; to.x = xpixrg.stop;
 	from.y = to.y = ypix;
     }
@@ -404,10 +404,10 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
  	const float xx1 = xvalrg.stop; const float yx1 = lp.getValue( xx1 );
 	const float yy0 = yvalrg.start; const float xy0 = lp.getXValue( yy0 );
  	const float yy1 = yvalrg.stop; const float xy1 = lp.getXValue( yy1 );
-	const bool yx0ok = yvalrg.includes( yx0 );
-	const bool yx1ok = yvalrg.includes( yx1 );
-	const bool xy0ok = xvalrg.includes( xy0 );
-	const bool xy1ok = xvalrg.includes( xy1 );
+	const bool yx0ok = yvalrg.includes( yx0,true );
+	const bool yx1ok = yvalrg.includes( yx1,true );
+	const bool xy0ok = xvalrg.includes( xy0,true );
+	const bool xy1ok = xvalrg.includes( xy1,true );
 
 	if ( !yx0ok && !yx1ok && !xy0ok && !xy1ok )
 	    return;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.21 2010-12-02 10:54:26 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.22 2011-09-02 13:03:42 cvskris Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -260,7 +260,7 @@ int Horizon2DScanner::nextStep()
 
 	const float val = data[validx];
 
-	if ( mIsUdf(val) || !validzrg.includes(val) )
+	if ( mIsUdf(val) || !validzrg.includes(val,false) )
 	    data[validx] = mUdf(float);
 	else
 	{

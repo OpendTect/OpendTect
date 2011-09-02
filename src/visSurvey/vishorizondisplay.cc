@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.150 2011-05-05 08:53:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.151 2011-09-02 13:21:57 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1361,7 +1361,7 @@ static void traverseLine( bool oninline, ZAxisTransform* zat,
 	slowdim = 1; fastdim = 0;
     }
 
-    if ( !rg.includes(targetline) )
+    if ( !rg.includes(targetline,false) )
     {
 	mEndLine;
 	return;
@@ -1395,7 +1395,7 @@ static void traverseLine( bool oninline, ZAxisTransform* zat,
 	    }
 	}
 
-	if ( !pos.isDefined() || !cs.zrg.includes(pos.z) )
+	if ( !pos.isDefined() || !cs.zrg.includes(pos.z,false) )
 	{
 	    mEndLine;
 	    continue;
@@ -1474,7 +1474,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		pos.z = (1-ifrac)*( (1-cfrac)*p00.z + cfrac*p01.z ) +
 			   ifrac *( (1-cfrac)*p10.z + cfrac*p11.z );
 
-		if ( zrg.includes(pos.z) )
+		if ( zrg.includes(pos.z,true) )
 		{
 		    line->setCoordIndex( cii++, 
 			    		 line->getCoordinates()->addPos(pos) );

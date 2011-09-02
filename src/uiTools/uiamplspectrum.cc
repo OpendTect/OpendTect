@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.30 2011-08-29 04:12:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.31 2011-09-02 13:08:11 cvskris Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -284,8 +284,8 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
     Interval<float> rg( disp_->xAxis()->getVal( pos.x ), 
 			disp_->yAxis(false)->getVal( pos.y ) );
-    const bool disp = disp_->xAxis()->range().includes(rg.start) && 
-		      disp_->yAxis(false)->range().includes(rg.stop);
+    const bool disp = disp_->xAxis()->range().includes(rg.start,true) && 
+		      disp_->yAxis(false)->range().includes(rg.stop,true);
     valfld_->display( disp );
     if ( !disp )
 	return;

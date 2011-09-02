@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.22 2011-03-11 11:18:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.23 2011-09-02 13:04:25 cvskris Exp $";
 
 #include "uicreatepicks.h"
 
@@ -313,7 +313,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
 	survzrg.scale( SI().zFactor() );
-	if ( !survzrg.includes(zrg.start) || !survzrg.includes(zrg.stop) )
+	if ( !survzrg.includes(zrg.start,false) || !survzrg.includes(zrg.stop,false) )
 		mErrRet( "Please Enter a valid Z Range" );
     }
 

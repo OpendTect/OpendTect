@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.146 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.147 2011-09-02 13:25:57 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -451,7 +451,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	const float dah = wl.dah(idx);
 	const float val = wl.value(idx);
 
-	if ( mIsUdf( val ) || !range.includes( val ) )
+	if ( mIsUdf( val ) || !range.includes( val, true ) )
 	    continue;
 
 	Coord3 pos = track.getPos( dah );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemhorizoneditor.cc,v 1.27 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiemhorizoneditor.cc,v 1.28 2011-09-02 13:06:38 cvskris Exp $";
 
 #include "uiemhorizoneditor.h"
 
@@ -69,7 +69,7 @@ bool uiEMHorizonEditorSetting::acceptOK(CallBacker*)
 {
     const RowCol rc( horsizefld->getIntValue(0), horsizefld->getIntValue(1) );
     const Interval<int> range( 0,25 );
-    if ( !range.includes(rc.row) || !range.includes(rc.col) )
+    if ( !range.includes(rc.row,false) || !range.includes(rc.col,false) )
     {
 	BufferString msg = "Allowed size is 0 to ";
 	msg += range.stop;

@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.13 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.14 2011-09-02 13:01:47 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -141,7 +141,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
    			 output_->inlsampling_.atIndex( output_->getInlSz()-1 ),
 			 output_->inlsampling_.step );
 
-    if ( !outputinlrg.includes( bid.inl ) ||
+    if ( !outputinlrg.includes( bid.inl, false ) ||
          (bid.inl-outputinlrg.start)%outputinlrg.step )
 	return false;
 
@@ -149,7 +149,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 			output_->crlsampling_.atIndex( output_->getCrlSz()-1 ),
 			output_->crlsampling_.step );
 
-    if ( !outputcrlrg.includes( bid.crl ) ||
+    if ( !outputcrlrg.includes( bid.crl, false ) ||
          (bid.crl-outputcrlrg.start)%outputcrlrg.step )
 	return false;
 
@@ -190,7 +190,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     if ( inputarr )
     {
 	inputinlrg = input_->inlsampling_.interval( input_->getInlSz() );
-	if ( !inputinlrg.includes( bid.inl ) ||
+	if ( !inputinlrg.includes( bid.inl, false ) ||
 	      (bid.inl-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
     }
@@ -199,7 +199,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     if ( inputarr )
     {
 	inputcrlrg = input_->crlsampling_.interval( input_->getCrlSz() );
-	if ( !inputcrlrg.includes( bid.crl ) ||
+	if ( !inputcrlrg.includes( bid.crl, false ) ||
 	      (bid.crl-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
     }

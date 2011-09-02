@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.44 2011-05-06 09:54:35 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.45 2011-09-02 13:14:13 cvskris Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -440,7 +440,7 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
     for ( int midx=0; midx<markers.size(); midx++ )
     {
 	const float val = markers[midx]->dah() * zFactor();
-	const bool isbetween = dahrg.includes( val );
+	const bool isbetween = dahrg.includes( val, true );
 	const RowCol rcname( midx, cNameCol );
 	if ( !isbetween )
 	    errmsg.add( "'" ).add( markers[midx]->name() ).add( "' " );

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.112 2011-07-15 15:54:12 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.113 2011-09-02 13:23:15 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -323,9 +323,9 @@ void MPEDisplay::moveMPEPlane( int nr )
     const float sign = nr > 0 ? 1.001 : -1.001;
     // sign is slightly to big to avoid that it does not trigger a track
     
-    sx.widen( 0.5*SI().inlStep(), true );
-    sy.widen( 0.5*SI().crlStep(), true );
-    sz.widen( 0.5*SI().zStep(), true );
+    sx.widen( 0.5*SI().inlStep(), true ); sx.swap();
+    sy.widen( 0.5*SI().crlStep(), true ); sy.swap();
+    sz.widen( 0.5*SI().zStep(), true ); sz.swap();
     // assure that border lines of survey are reachable in spite of foregoing
     
     for ( int idx=0; idx<nrsteps; idx++ )
@@ -337,8 +337,8 @@ void MPEDisplay::moveMPEPlane( int nr )
 	else
 	    center.z += sign * SI().zStep();
 
-	if ( !sx.includes(center.x) || !sy.includes(center.y) || 
-	     !sz.includes(center.z) )
+	if ( !sx.includes(center.x,false) || !sy.includes(center.y,false) || 
+	     !sz.includes(center.z,false) )
 	    return;
 	
 	Coord3 newcenter( center );
@@ -664,7 +664,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    zdiff = cs.zrg.includes(xytpos.z)
+    zdiff = cs.zrg.includes(xytpos.z,false)
 	     ? 0
 	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
 	       zfactor  * scene_->getZStretch();

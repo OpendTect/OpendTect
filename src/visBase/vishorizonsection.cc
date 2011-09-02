@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.117 2011-03-01 07:59:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.118 2011-09-02 13:17:11 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -363,7 +363,7 @@ protected:
 	    for ( int rowidx=0; rowidx<nrCrdsPerTileSide_ ; rowidx++ )
 	    {
 		const int row = origin.row + rowidx*rrg_.step;
-		const bool rowok = rrg_.includes(row);
+		const bool rowok = rrg_.includes(row, false);
 		const StepInterval<int> colrg( 
 			mMAX(geo_.colRange(row).start, crg_.start),
 		        mMIN(geo_.colRange(row).stop, crg_.stop), crg_.step );
@@ -371,7 +371,7 @@ protected:
 		for ( int colidx=0; colidx<nrCrdsPerTileSide_ ; colidx++ )
 		{
 		    const int col = origin.col + colidx*colrg.step;
-		    Coord3 pos = rowok && colrg.includes(col)
+		    Coord3 pos = rowok && colrg.includes(col, false)
 			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
 		    if ( zat_ ) pos.z = zat_->transform( pos );		
@@ -719,8 +719,8 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
     {
 	const BinID bid = geometry_->getKnotRowCol(idx);
 	if ( userchangedisplayrg_ &&
-	     ( !displayrrg_.includes(bid.inl) || 
-	       !displaycrg_.includes(bid.crl) ||
+	     ( !displayrrg_.includes(bid.inl, false) || 
+	       !displaycrg_.includes(bid.crl, false) ||
 	       ((bid.inl-displayrrg_.start)%displayrrg_.step) ||
   	       ((bid.crl-displaycrg_.start)%displaycrg_.step) ) )
 	    continue;
@@ -845,8 +845,8 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	    continue;
 
 	const BinID bid = data->getBinID( pos );
-	if ( userchangedisplayrg_ && (!rrg.includes(bid.inl) ||
-		    		      !crg.includes(bid.crl)) )
+	if ( userchangedisplayrg_ && (!rrg.includes(bid.inl, false) ||
+		    		      !crg.includes(bid.crl, false)) )
 	    continue;
 
 	const int inlidx = rrg.nearestIndex(bid.inl);

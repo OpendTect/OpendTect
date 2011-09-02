@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc";
 #define mDefZPosInLoop(val) \
     float zpos = val;\
     mDefZPos(zpos)\
-    if ( !zdata_.zrg_.includes( zpos ) )\
+    if ( !zdata_.zrg_.includes( zpos, true ) )\
         continue;
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,

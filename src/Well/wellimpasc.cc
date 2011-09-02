@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.80 2011-06-29 10:28:26 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.81 2011-09-02 13:02:43 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -25,7 +25,7 @@ static bool convToDah( const Well::Track& trck, float& val,
 {
     const Interval<float> trckzrg( trck.pos(0).z - 1e-6,
 	    			 trck.pos(trck.size()-1).z + 1e-6 );
-    if ( !trckzrg.includes(val) )
+    if ( !trckzrg.includes(val,false) )
 	return false;
 
     val = trck.getDahForTVD( val, prev );

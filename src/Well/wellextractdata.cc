@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.60 2011-07-04 11:04:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.61 2011-09-02 13:02:18 cvskris Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -535,7 +535,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     for ( int idx=0; idx<wl.size(); idx++ )
     {
 	float newdah = wl.dah( idx );
-	if ( rg.includes(newdah) )
+	if ( rg.includes(newdah,false) )
 	{
 	    float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
@@ -644,7 +644,7 @@ int Well::SimpleTrackSampler::nextStep()
     pos.z = zval;
 
     const BinID& bid = SI().transform( pos );
-    if ( tracklimits_.includes(zval) ) 
+    if ( tracklimits_.includes(zval,true) ) 
     {
 	if ( isinsidesurvey_ && !SI().includes( bid, zval, true ) ) 
 	    return Executor::MoreToDo();

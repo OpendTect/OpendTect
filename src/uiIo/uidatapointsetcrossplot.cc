@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.84 2011-07-11 11:50:16 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.85 2011-09-02 13:05:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.84 2011-07-11 11:50:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.85 2011-09-02 13:05:09 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -992,7 +992,7 @@ static void updLS( const TypeSet<float>& inpxvals,
     for ( int idx=0; idx<inpxvals.size(); idx++ )
     {
 	const float x = inpxvals[idx]; const float y = inpyvals[idx];
-	if ( xrg.includes(x) && yrg.includes(y) )
+	if ( xrg.includes(x,true) && yrg.includes(y,true) )
 	    { xvals += x; yvals += y; }
     }
 
@@ -1303,20 +1303,20 @@ bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
     Interval<double> rg = area.getValueRange( false );
     Interval<double> altrg = area.getValueRange( false, true );
     
-    if ( !x_.axis_->range().includes(xrg.start) ||
-	 !x_.axis_->range().includes(xrg.stop) )
+    if ( !x_.axis_->range().includes(xrg.start,true) ||
+	 !x_.axis_->range().includes(xrg.stop,true) )
 	return false;
     if ( area.axistype_ == SelectionArea::Y1 )
-	return y_.axis_->range().includes(rg.start) &&
-	       y_.axis_->range().includes(rg.stop);
+	return y_.axis_->range().includes(rg.start,true) &&
+	       y_.axis_->range().includes(rg.stop,true);
     else if ( area.axistype_ == SelectionArea::Y2 )
-	return y2_.axis_->range().includes( rg.start ) &&
-	       y2_.axis_->range().includes( rg.stop );
+	return y2_.axis_->range().includes( rg.start,true ) &&
+	       y2_.axis_->range().includes( rg.stop,true );
 
-    return y_.axis_->range().includes(rg.start) &&
-	   y_.axis_->range().includes(rg.stop) &&
-           y2_.axis_->range().includes(altrg.start) &&
-	   y2_.axis_->range().includes(altrg.stop);
+    return y_.axis_->range().includes(rg.start,true) &&
+	   y_.axis_->range().includes(rg.stop,true) &&
+           y2_.axis_->range().includes(altrg.start,true) &&
+	   y2_.axis_->range().includes(altrg.stop,true);
 }
 
 
@@ -1637,7 +1637,7 @@ bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
 
     const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
 
-    if ( !xpixrg.includes(pt.x) || !ypixrg.includes(pt.y) )
+    if ( !xpixrg.includes(pt.x,true) || !ypixrg.includes(pt.y,true) )
 	return false;
 
     addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid, isy2 );

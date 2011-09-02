@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.255 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.256 2011-09-02 13:24:09 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -355,7 +355,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    zdiff = cs.zrg.includes(xytpos.z)
+    zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
 	: mMIN(fabs(xytpos.z-cs.zrg.start),fabs(xytpos.z-cs.zrg.stop)) *
 	  zfactor  * scene_->getZStretch();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.35 2011-08-22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.36 2011-09-02 13:16:37 cvskris Exp $";
 
 #include "visflatviewer.h"
 
@@ -263,6 +263,7 @@ void FlatViewer::updateGridLines( bool x1 )
     }
 
     Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    range.sort();
     const float rgwidth = !range.width() ? 1 : range.width();
     SamplingData<float> sd = x1 ? appearance().annot_.x1_.sampling_
 				: appearance().annot_.x2_.sampling_;
@@ -272,7 +273,7 @@ void FlatViewer::updateGridLines( bool x1 )
     int coordidx = 0, ciidx = 0;
     visBase::Coordinates* coords = gridlines->getCoordinates();
     float pos = sd.start;
-    while ( range.includes( pos ) )
+    while ( range.includes( pos, false ) )
     {
 	const float relpos = (pos-range.start)/rgwidth;
 

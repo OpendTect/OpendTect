@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.60 2011-06-17 07:11:50 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.61 2011-09-02 13:11:50 cvskris Exp $";
 
 #include "uislicesel.h"
 
@@ -264,7 +264,7 @@ void doAdvance( bool reversed )
     else
     {
 	float newval = slcsel_->cs_.zrg.start + step / zfact_;
-	if ( !SI().sampling(true).zrg.includes(newval) )
+	if ( !SI().sampling(true).zrg.includes(newval,false) )
 	    stopAuto( true );
 	else
 	{

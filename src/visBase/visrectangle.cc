@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrectangle.cc,v 1.51 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.52 2011-09-02 13:18:54 cvskris Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -783,8 +783,9 @@ void Rectangle::moveManipRectangletoDragger(CallBacker*)
 
     float startpos = snapPos( 0, getStartPos(0, newx, newxscale ));
     float stoppos = snapPos( 0, getStopPos( 0, newx, newxscale ) );
-    if ( xrange.includes( startpos ) && xrange.includes( stoppos ) &&
-	    wxrange.includes( fabs(stoppos-startpos)))
+    if ( xrange.includes( startpos, true ) &&
+	 xrange.includes( stoppos, true ) &&
+	 wxrange.includes( fabs(stoppos-startpos), true))
     {
 	x = getCenterCoord( 0, startpos, stoppos-startpos );
 	xscale= getScale( 0, stoppos-startpos);
@@ -793,8 +794,9 @@ void Rectangle::moveManipRectangletoDragger(CallBacker*)
 
     startpos = snapPos( 1, getStartPos(1, newy, newyscale ));
     stoppos = snapPos( 1, getStopPos( 1, newy, newyscale ));
-    if ( yrange.includes( startpos ) && yrange.includes( stoppos ) &&
-	    wyrange.includes( fabs(stoppos-startpos)))
+    if ( yrange.includes( startpos, true ) &&
+	 yrange.includes( stoppos, true ) &&
+	 wyrange.includes( fabs(stoppos-startpos), true ))
     {
 	y = getCenterCoord( 1, startpos, stoppos-startpos );
 	yscale= getScale( 1, stoppos-startpos);
@@ -802,7 +804,7 @@ void Rectangle::moveManipRectangletoDragger(CallBacker*)
     
 
     startpos = snapPos(2, getStartPos( 2, orientation_!=XY ? -newz : newz, 0));
-    if ( zrange.includes( startpos ) )
+    if ( zrange.includes( startpos, true ) )
     {
 	z = orientation_ != XY ? -getCenterCoord( 2, startpos, 0 )
 			      : getCenterCoord( 2, startpos, 0 );

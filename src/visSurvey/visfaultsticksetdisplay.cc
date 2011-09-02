@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.42 2011-08-08 08:47:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.43 2011-09-02 13:19:58 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -824,7 +824,8 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 {
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
-    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+    if ( !scene_ || !rowrg.includes(sticknr,false) ||
+	 rowrg.snap(sticknr)!=sticknr )
 	return false;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
@@ -860,7 +861,8 @@ bool FaultStickSetDisplay::coincidesWithPlane(
     bool res = false;
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
-    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+    if ( !scene_ || !rowrg.includes(sticknr,false) ||
+	  rowrg.snap(sticknr)!=sticknr )
 	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )

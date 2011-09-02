@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visboxdragger.cc,v 1.20 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visboxdragger.cc,v 1.21 2011-09-02 13:15:22 cvskris Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -234,8 +234,8 @@ void BoxDragger::motionCB( void* obj, SoDragger* )
 #define mCheckDim(dim)\
 if ( thisp->dim##interval_ )\
 {\
-    if ( !thisp->dim##interval_->includes(center.dim-width.dim/2) || \
-	 !thisp->dim##interval_->includes(center.dim+width.dim/2))\
+    if ( !thisp->dim##interval_->includes(center.dim-width.dim/2,true) || \
+	 !thisp->dim##interval_->includes(center.dim+width.dim/2,true))\
     {\
 	if ( constantwidth ) center.dim = thisp->prevcenter_.dim; \
 	else \

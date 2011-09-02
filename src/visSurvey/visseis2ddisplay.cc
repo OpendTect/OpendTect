@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.131 2011-05-09 08:48:09 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.132 2011-09-02 13:25:47 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -128,7 +128,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
-	if ( !s2d_.trcdisplayinfo_.rg.includes(trcnr) )
+	if ( !s2d_.trcdisplayinfo_.rg.includes(trcnr,true) )
 	{
 	    addToNrDone( 1 );
 	    continue;
@@ -258,7 +258,7 @@ float get( int idx0, int idx1 ) const
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
     const int trcnr = allpos[idx0 + starttrcidx];
-    if ( !s2d_.trcdisplayinfo_.rg.includes( trcnr ) )
+    if ( !s2d_.trcdisplayinfo_.rg.includes( trcnr,true ) )
 	return mUdf(float);
     
     const int dataidx = data2dh_.getDataHolderIndex( trcnr );
@@ -835,7 +835,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
     StepInterval<float> zrg = getZRange( true );
     float zdif = 0;
-    if ( !zrg.includes(xytpos.z) )
+    if ( !zrg.includes(xytpos.z,false) )
     {
 	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
 	const float zscale = scene_
@@ -1056,14 +1056,14 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
     for ( int aidx=0; aidx<posns.size()-1; aidx++ )
     {
 	const Coord posa = posns[aidx].coord_;
-	if ( !posa.isDefined() || !trcrg.includes(posns[aidx].nr_) )
+	if ( !posa.isDefined() || !trcrg.includes(posns[aidx].nr_,false) )
 	    continue;
 
 	Coord posb = Coord::udf();
 	int bidx = aidx;
 
 	while ( !posb.isDefined() && bidx<posns.size()-1 &&
-		trcrg.includes(posns[bidx+1].nr_) )
+		trcrg.includes(posns[bidx+1].nr_,false) )
 	{
 	    bidx++;
 	    posb = posns[bidx].coord_;
