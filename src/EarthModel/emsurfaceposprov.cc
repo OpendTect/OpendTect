@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.25 2010-12-14 05:20:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.26 2011-09-02 09:08:24 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -183,7 +183,7 @@ bool Pos::EMSurfaceProvider::toNextPos()
     {
 	SI().snapZ( curzrg_.start, 1 );
 	SI().snapZ( curzrg_.stop, -1 );
-	if ( !unsnappedzrg.includes(curzrg_.start) )
+	if ( !unsnappedzrg.includes(curzrg_.start, false) )
 	{
 	    curz_ = mUdf(float);
 	    return true;
@@ -347,7 +347,7 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
     }
 
     zrg += extraz_;
-    return zrg.includes( z );
+    return zrg.includes( z, false );
 }
 
 
@@ -446,7 +446,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     }
 
     zrg += extraz_;
-    return zrg.includes( z );
+    return zrg.includes( z, false );
 }
 
 
@@ -556,7 +556,7 @@ bool Pos::EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
 	zrg.include( dpssurf2_.z(rid2), false );
     zrg += extraz_;
     zrg.widen( SI().zStep() * .5, false );
-    return zrg.includes( z );
+    return zrg.includes( z, false );
 }
 
 

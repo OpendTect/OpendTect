@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.15 2011-08-25 15:04:23 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.16 2011-09-02 09:20:28 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -430,7 +430,7 @@ bool BatchProgram::go( std::ostream& strm )
 	else
 	{
 	    curbid.crl += cdprange.step;
-	    if ( !cdprange.includes( curbid.crl ) )
+	    if ( !cdprange.includes( curbid.crl, true ) )
 		break;
 	    const int obsoletetrace = curbid.crl -(stepout.crl+1)*cdprange.step;
 	    for ( int idx=bids.size()-1; idx>=0; idx-- )

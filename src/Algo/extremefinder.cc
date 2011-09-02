@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.16 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.17 2011-09-02 08:58:24 cvskris Exp $";
 
 #include "extremefinder.h"
 #include "mathfunc.h"
@@ -67,7 +67,7 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 	if ( startfuncval<stopfuncval )
 	{
 	    current.start -= halfwidth;
-	    if ( limits && !limits->includes(current.start) )
+	    if ( limits && !limits->includes(current.start,true) )
 	    { isok = false; return; }
 
 	    current.stop -= halfwidth;
@@ -79,7 +79,7 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 	else
 	{
 	    current.stop += halfwidth;
-	    if ( limits && !limits->includes(current.stop) )
+	    if ( limits && !limits->includes(current.stop,true) )
 	    { isok = false; return; }
 
 	    current.start += halfwidth;
@@ -352,7 +352,7 @@ int ExtremeFinder1D::nextStep()
 	    SHIFT(v,w,x,u);
 	    SHIFT(fv,fw,fx,fu);
 	    //We have a new estimate - return
-	    return limits && limits->includes(x) ? 1 : 0;
+	    return limits && limits->includes(x,true) ? 1 : 0;
 	}
 	else
 	{

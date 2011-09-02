@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.21 2010-12-14 05:10:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.22 2011-09-02 08:59:43 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -117,7 +117,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
     float p0 = lowz-1 < z0_ ? mUdf(float) : series(serieidx)->value(lowz-1-z0_);
     float p1 = series(serieidx)->value(lowz-z0_);
     float p2 = series(serieidx)->value(highz-z0_);
-    float p3 = !datarg.includes(highz+1) ? mUdf(float)
+    float p3 = !datarg.includes(highz+1,false) ? mUdf(float)
 					 : series(serieidx)->value(highz+1-z0_);
     if ( classstatus_[serieidx] ==-1 || classstatus_[serieidx] == 1 )
     {

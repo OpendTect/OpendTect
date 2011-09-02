@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.26 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.27 2011-09-02 09:04:05 cvskris Exp $";
 
 
 #include "referenceattrib.h"
@@ -85,7 +85,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 		int idi = -1;
 		for ( int index=0; index<localcomputezintervals_.size(); index++)
 		{
-		    if ( localcomputezintervals_[index].includes( z0 ) )
+		    if ( localcomputezintervals_[index].includes( z0, true ) )
 		    {
 			idi = index;
 			break;

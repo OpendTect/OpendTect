@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.34 2011-04-12 02:10:00 cvskris Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.35 2011-09-02 09:03:22 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -167,6 +167,7 @@ DipFilter::DipFilter( Desc& ds )
 
     kernel_.setSize( desc_.is2D() ? 1 : size_, size_, size_ );
     valrange_ = Interval<float>(minvel_,maxvel_);
+    valrange_.sort();
     stepout_ = desc_.is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
     zmargin_ = Interval<int>( -hsz, hsz );
 }
@@ -247,7 +248,7 @@ bool DipFilter::initKernel()
 		    }
 		    else
 		    {
-			if ( valrange_.includes( val ) )
+			if ( valrange_.includes( val, false ) )
 			{
 			    float htaperlen = taperlen_/2;
 			    float ratio = (val - valrange_.start)
@@ -369,7 +370,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 		for ( int idt=0, relt = -hsz; idt<size_; idt++, relt++ )
 		{
 		    const int sample = z0 + idx + relt;
-		    if ( dhinterval.includes(sample) )
+		    if ( dhinterval.includes(sample, false) )
 		    {
 			const float weight = kernel_.get( idi, idc, idt );
 

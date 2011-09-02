@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.133 2011-05-13 09:29:10 cvsraman Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.134 2011-09-02 09:02:13 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1490,7 +1490,7 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
     {
 	int intvidx = 0;
 	for ( int idx=0; idx<localcomputezintervals_.size(); idx++ )
-	    if ( localcomputezintervals_[idx].includes(z0) )
+	    if ( localcomputezintervals_[idx].includes(z0,true) )
 		intvidx = idx;
 
 	float exacttime = exactz_[intvidx];
@@ -1613,8 +1613,8 @@ float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
     int intvidx = -1;
     for ( int idx=0; idx<localcomputezintervals_.size(); idx++ )
     {
-	 if ( localcomputezintervals_[idx].includes( z0 ) &&
-	      localcomputezintervals_[idx].includes( z0+nrsamples-1 ) )
+	 if ( localcomputezintervals_[idx].includes( z0,true ) &&
+	      localcomputezintervals_[idx].includes( z0+nrsamples-1,true ) )
 	 {
 	     intvidx = idx;
 	     break;

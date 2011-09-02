@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.15 2011-04-22 13:28:56 cvsbert Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.16 2011-09-02 09:13:56 cvskris Exp $";
 
 #include "parametriccurve.h"
 
@@ -110,7 +110,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	if ( fabs(diff)<eps )
 	    return true;
 
-	if ( !prange.includes(p) )
+	if ( !prange.includes(p,false) )
 	    return false;
     }
 

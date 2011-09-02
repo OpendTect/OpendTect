@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.10 2011-06-02 10:32:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.11 2011-09-02 09:15:41 cvskris Exp $";
 
 #include "horizon2dextender.h"
 
@@ -106,7 +106,7 @@ void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     do 
     {
 	neighborrc += RowCol( 0, upwards ? colrange.step : -colrange.step );
-	if ( !colrange.includes(neighborrc.col) )
+	if ( !colrange.includes(neighborrc.col,false) )
 	    return;
 	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighborrc)) )
 	    return;

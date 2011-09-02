@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.109 2011-04-26 13:25:48 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.110 2011-09-02 09:00:42 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -631,7 +631,7 @@ TwoDOutput::~TwoDOutput()
 
 bool TwoDOutput::wantsOutput( const BinID& bid ) const
 {
-    return seldata_->crlRange().includes(bid.crl);
+    return seldata_->crlRange().includes(bid.crl,true);
 } 
  
 
@@ -742,9 +742,10 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	int lowz;
 	DataHolder::getExtraZAndSampIdxFromExactZ( vals[0], refstep, lowz );
 	const int highz = lowz + 1;
-	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
-	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
-			      && datarg.includes(highz);
+	bool isfulldataok = datarg.includes(lowz-1,false) &&
+	    		    datarg.includes(highz+1,false);
+	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false) 
+			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
 	    computeAndSetVals( data, refstep, vals );
 
@@ -1223,9 +1224,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	int lowz;
 	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
 	const int highz = lowz + 1;
-	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
-	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
-			      && datarg.includes(highz);
+	bool isfulldataok = datarg.includes(lowz-1,false) &&
+	    		    datarg.includes(highz+1,false);
+	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false) 
+			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
 	    computeAndSetVals( data, refstep, zval, vals );
     }

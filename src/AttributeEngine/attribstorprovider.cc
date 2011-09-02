@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.108 2011-05-13 09:29:10 cvsraman Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.109 2011-09-02 09:02:44 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -733,7 +733,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    {
 		compidx++;
 		const int compnr = desc_.is2D() ? idy : compidx;
-		const float val = trcrange.includes(curt) ? 
+		const float val = trcrange.includes(curt,false) ? 
 		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compnr)
 				  : trc->getValue(curt, compnr) )
 		   : mUdf(float);
@@ -827,7 +827,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	    if ( cubeidx >= dc->nrCubes() && !dc->addCube(mUdf(float)) )
 		continue;
 
-	    if ( !trcrange.includes(curt) )
+	    if ( !trcrange.includes(curt,false) )
 		continue;
 
 	    //the component index inthe trace is depending on outputinterest_,

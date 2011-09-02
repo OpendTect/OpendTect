@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackprop.cc,v 1.4 2009-10-23 21:35:14 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprop.cc,v 1.5 2011-09-02 09:20:44 cvskris Exp $";
 
 #include "prestackprop.h"
 
@@ -116,7 +116,7 @@ float PropCalc::getVal( int sampnr ) const
 	for ( int itrc=0; itrc<nroffsets; itrc++ )
 	{
 	    const float offset = gather_->getOffset(itrc);
-	    if ( !offsrg.includes( offset ) )
+	    if ( !offsrg.includes( offset, true ) )
 		continue;
 
 	    const int cursamp = sampnr + ishft;
@@ -160,7 +160,7 @@ float PropCalc::getVal( float z ) const
     for ( int itrc=0; itrc<nroffsets; itrc++ )
     {
 	const float offset = gather_->getOffset(itrc);
-	if ( !offsrg.includes( offset ) )
+	if ( !offsrg.includes( offset, true ) )
 	    continue;
 
 	const float* seisdata = gather_->data().getData() +

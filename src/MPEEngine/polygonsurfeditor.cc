@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.12 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.13 2011-09-02 09:18:28 cvskris Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -294,9 +294,9 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( !mpos.isDefined() ) return false;
     
     const BinID bid = SI().transform( mpos );
-    if ( !SI().inlRange( true ).includes(bid.inl) || 
-	 !SI().crlRange( true ).includes(bid.crl) || 
-	 !SI().zRange( true ).includes(mpos.z) )
+    if ( !SI().inlRange( true ).includes(bid.inl,false) || 
+	 !SI().crlRange( true ).includes(bid.crl,false) || 
+	 !SI().zRange( true ).includes(mpos.z,false) )
 	return false;
 
     const Geometry::Element* ge = emObject().sectionGeometry(pid.sectionID());

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.27 2011-02-22 11:25:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.28 2011-09-02 09:14:35 cvskris Exp $";
 
 #include "autotracker.h"
 
@@ -400,7 +400,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
     if ( !emobject_.isAtEdge(pid) )	return false;
 
     const Coord3& pos = emobject_.getPos(pid);
-    if ( !engine().activeVolume().zrg.includes(pos.z) )	return false;
+    if ( !engine().activeVolume().zrg.includes(pos.z,false) )	return false;
     const BinID bid = SI().transform(pos);
     if ( !engine().activeVolume().hrg.includes(bid) )	return false;
 

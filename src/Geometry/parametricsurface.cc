@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.29 2010-09-07 04:41:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.30 2011-09-02 09:14:14 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -396,7 +396,7 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
 }
 
 #define mRemovePart( rc0, rc0start, incop, rc1, removefunc ) \
-    for ( int rc0=rc0##rng.rc0start; rc0##rng.includes(rc0); \
+    for ( int rc0=rc0##rng.rc0start; rc0##rng.includes(rc0,false); \
 	  rc0 incop rc0##rng.step ) \
     { \
 	bool founddefknot = false; \

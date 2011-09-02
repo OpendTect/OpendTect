@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.37 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.38 2011-09-02 09:12:00 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -910,7 +910,7 @@ void BinIDValueSet::removeRange( int valnr, const Interval<float>& rg,
     while ( next(pos) )
     {
 	const float* v = getVals( pos );
-	if ( inside == rg.includes(v[valnr]) )
+	if ( inside == rg.includes(v[valnr],true) )
 	    poss += pos;
     }
     remove( poss );
@@ -925,7 +925,7 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
     for ( int idx=inls_.size()-1; idx>=0; idx-- )
     {
 	const int inl = inls_[idx];
-	bool isin = inlrg.includes(inl) && inlrg.snap( inl )==inl;
+	bool isin = inlrg.includes(inl,false) && inlrg.snap( inl )==inl;
 	if ( isin==removeinside )
 	    removeLine( idx );
 	else
@@ -935,7 +935,7 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
 	    for ( int idy=crls.size()-1; idy>=0; idy-- )
 	    {
 		const int crl = crls[idy];
-		isin = crlrg.includes(crl) && crlrg.snap( crl )==crl;
+		isin = crlrg.includes(crl,false) && crlrg.snap( crl )==crl;
 		if ( isin==removeinside )
 		{
 		    crls.remove( idy );

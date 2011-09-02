@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.146 2011-02-17 05:27:09 cvsraman Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.147 2011-09-02 09:07:23 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -635,7 +635,7 @@ bool dgbSurfaceReader::shouldSkipRow( int row ) const
     if ( !readrowrange_ )
 	return false;
 
-    if ( !readrowrange_->includes( row ) )
+    if ( !readrowrange_->includes( row, false ) )
 	return true;
 
     return (row-readrowrange_->start)%readrowrange_->step;
@@ -703,7 +703,7 @@ int dgbSurfaceReader::nextStep()
     const StepInterval<int> workrowrange = SI().inlRange( true );
     while ( shouldSkipRow( currentRow() ) )
     {
-	if ( workrowrange.includes(currentRow()) )
+	if ( workrowrange.includes(currentRow(), false) )
     	    fullyread_ = false;
 
 	const int res = skipRow( strm );
@@ -926,14 +926,14 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 	    return false;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row) ||
+	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row, false) ||
 		    ((surfrc.row-readrowrange_->start)%readrowrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col) ||
+	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col, false) ||
 		    ((surfrc.col-readcolrange_->start)%readcolrange_->step)))
 	{
 	    fullyread_ = false;
@@ -980,14 +980,14 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 	    return false;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col) ||
+	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col, false) ||
 		    ((rowcol.col-readcolrange_->start)%readcolrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row) ||
+	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row, false) ||
 		    ((rowcol.row-readrowrange_->start)%readrowrange_->step)))
 	{
 	    fullyread_ = false;

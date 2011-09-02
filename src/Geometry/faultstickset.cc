@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.13 2010-08-05 14:19:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.14 2011-09-02 09:13:25 cvskris Exp $";
 
 #include "faultstickset.h"
 #include <math.h>
@@ -348,7 +348,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
     {
 	for ( int idx=sticknrs.size()-1; idx>=0; idx-- )
 	{
-	    if ( !rowrg.includes(sticknrs[idx]) )
+	    if ( !rowrg.includes(sticknrs[idx],false) )
 		sticknrs.remove( idx );
 	}
     }

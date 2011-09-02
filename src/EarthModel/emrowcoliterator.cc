@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emrowcoliterator.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emrowcoliterator.cc,v 1.9 2011-09-02 09:06:47 cvskris Exp $";
 
 #include "emrowcoliterator.h"
 
@@ -61,10 +61,10 @@ PosID RowColIterator::next()
 	else
 	{
 	    rc_.col += colrg_.step;
-	    if ( !colrg_.includes(rc_.col) )
+	    if ( !colrg_.includes(rc_.col,true) )
 	    {
 		rc_.row += rowrg_.step;
-		if ( !rowrg_.includes(rc_.row) )
+		if ( !rowrg_.includes(rc_.row,true) )
 		{
 		    cursection_ = 0;
 		    if ( !nextSection() )
@@ -86,7 +86,7 @@ PosID RowColIterator::next()
 	pos_ = surf_.getPos( sid_, rc_.toInt64() );
 	bid_ = SI().transform( pos_ );
 
-	if ( csbound_->hrg.includes(bid_) && csbound_->zrg.includes(pos_.z) )
+	if ( csbound_->hrg.includes(bid_) && csbound_->zrg.includes(pos_.z,false) )
 	    break;
     }
 

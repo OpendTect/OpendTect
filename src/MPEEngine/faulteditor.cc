@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.17 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.18 2011-09-02 09:15:17 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -276,7 +276,7 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
     for ( int count=1; count<=2*rowrange.nrSteps(); count++ )
     {
 	refnr += rowrange.step * count * (refnr<sticknr ? 1 : -1);
-	if ( !rowrange.includes(refnr) )
+	if ( !rowrange.includes(refnr,false) )
 	    continue;
 
 	const StepInterval<int> colrange1 = surface.colRange( refnr );

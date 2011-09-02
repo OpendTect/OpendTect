@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dselector.cc,v 1.2 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dselector.cc,v 1.3 2011-09-02 09:17:32 cvskris Exp $";
 
 #include "horizon2dselector.h"
 
@@ -63,8 +63,9 @@ int Horizon2DSelector::nextStep()
 
 	const Coord3 pos = horizon_.getPos( sectionid_, subid );
 	const BinID bid = SI().transform( pos );
-	if ( !inlrg.includes( bid.inl ) || !crlrg.includes( bid.crl ) ||
-	     !zrg.includes( pos.z ) )
+	if ( !inlrg.includes( bid.inl,true ) ||
+	     !crlrg.includes( bid.crl,true ) ||
+	     !zrg.includes( pos.z,true ) )
 	    continue;
 
 	if ( selectall || horizon_.isAtEdge(pid) )

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: seis2dto3d.cc,v 1.6 2011-07-08 13:03:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: seis2dto3d.cc,v 1.7 2011-09-02 09:21:17 cvskris Exp $";
 
 #include "seis2dto3d.h"
 
@@ -120,7 +120,7 @@ bool Seis2DTo3D::read()
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
 	const BinID& bid = trc.info().binid; 
-	if ( !inlrg.includes( bid.inl ) || !crlrg.includes( bid.crl ) )
+	if ( !inlrg.includes( bid.inl,false ) || !crlrg.includes( bid.crl,false ) )
 	    { seisbuf_.remove( idx ); continue; }
 
 	linecs.hrg.include( bid );

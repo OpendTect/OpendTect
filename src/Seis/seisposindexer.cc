@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.15 2011-03-30 11:47:16 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.16 2011-09-02 09:21:48 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -543,10 +543,10 @@ bool Seis::PosIndexer::isReasonable( const BinID& bid ) const
     if ( is2d_ )
 	return true;
 
-    if ( !goodinlrg_.includes( bid.inl ) )
+    if ( !goodinlrg_.includes( bid.inl,false ) )
 	return false;
 
-    if ( !goodcrlrg_.includes( bid.crl ) )
+    if ( !goodcrlrg_.includes( bid.crl,false ) )
 	return false;
 
     return true;

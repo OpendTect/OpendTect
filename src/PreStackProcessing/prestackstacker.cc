@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.10 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.11 2011-09-02 09:20:55 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -90,7 +90,7 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int ioff=0; ioff<nroffsets; ioff++ )
 	    {
 		const float offset = input->getOffset(ioff);
-		if ( offsetrg_ && !offsetrg_->includes( offset ) )
+		if ( offsetrg_ && !offsetrg_->includes( offset, true ) )
 		    continue;
 
 		const float val = input->data().get( ioff, idz );

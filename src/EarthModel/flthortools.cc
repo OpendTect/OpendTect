@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.48 2011-09-01 21:36:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.49 2011-09-02 09:10:25 cvskris Exp $";
 
 #include "flthortools.h"
 
@@ -372,8 +372,8 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 
 bool FaultTrace::includes( const BinID& bid ) const
 {
-    return isinl_ ? bid.inl == nr_ && trcrange_.includes( bid.crl )
-		  : bid.crl == nr_ && trcrange_.includes( bid.inl );
+    return isinl_ ? bid.inl == nr_ && trcrange_.includes( bid.crl, true )
+		  : bid.crl == nr_ && trcrange_.includes( bid.inl, true );
 }
 
 
@@ -464,7 +464,7 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
     bid.inl = isinl_ ? nr_ : trcnr;
     bid.crl = isinl_ ? trcnr : nr_;
     z = intersection.y;
-    return !intv || intv->includes( trcnr );
+    return !intv || intv->includes( trcnr, true );
 }
 
 

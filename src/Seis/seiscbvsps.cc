@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.52 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.53 2011-09-02 09:21:30 cvskris Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -138,7 +138,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 	if ( inlrg )
 	{
 	    const int inl = getInlNr( dl.get(idx) );
-	    if ( inl < 1 || !inlrg->includes(inl) )
+	    if ( inl < 1 || !inlrg->includes(inl,true) )
 		continue;
 
 	    mDynamicCastGet(const StepInterval<int>*,si,inlrg)

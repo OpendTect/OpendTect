@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.41 2011-03-01 14:40:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.42 2011-09-02 09:04:29 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -373,12 +373,12 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	bool found = false;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
 	{
-	    if ( !found && samplegates[sgidx].includes(csamp) )
+	    if ( !found && samplegates[sgidx].includes(csamp, true ) )
 	    {
 		if ( statstype_ == mStatsTypeDetrend )
 		    scalefactors[sgidx] = trends_[sgidx].valueAtX( csamp );
 		if ( sgidx+1 < samplegates.size() && 
-		     samplegates[sgidx+1].includes(csamp) )
+		     samplegates[sgidx+1].includes(csamp, true ) )
 		{
 		    if ( statstype_ == mStatsTypeDetrend )
 			scalefactors[sgidx+1] =trends_[sgidx+1].valueAtX(csamp);
@@ -445,7 +445,7 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     
     while ( true )
     {
-	if ( gates[curgateidx].includes(z0) || (curgateidx>=gates.size()-1) )
+	if ( gates[curgateidx].includes(z0, true ) || (curgateidx>=gates.size()-1) )
 	    break;
 	curgateidx++;
     }
@@ -453,7 +453,7 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = (idx+z0)*refstep_;
-	if ( !gates_[curgateidx].includes(curt) && curgateidx<gates_.size()-1 )
+	if ( !gates_[curgateidx].includes(curt, true ) && curgateidx<gates_.size()-1 )
 	    curgateidx++;
 
 	const float scalefacstart =

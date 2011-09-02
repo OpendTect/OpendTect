@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.26 2011-06-29 10:29:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.27 2011-09-02 09:15:57 cvskris Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -285,7 +285,7 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
     trackbounds_.erase();   
     junctions_.erase();
 
-    if ( colrg.includes(startcol) )
+    if ( colrg.includes(startcol,false) )
     {
 	extendSeedListEraseInBetween( false, startcol, startwasdefined,
 				      -colrg.step );
@@ -335,7 +335,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	currc.col += step;
 
 	// reaching end of line
-	if ( !colrg.includes(currc.col) )
+	if ( !colrg.includes(currc.col,false) )
 	{
 	    if  ( seedconmode_ == TrackFromSeeds )
 		trackbounds_ += prevpid;

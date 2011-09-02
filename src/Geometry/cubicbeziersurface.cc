@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.29 2011-04-22 13:28:56 cvsbert Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.30 2011-09-02 09:13:10 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -266,7 +266,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
     Coord3 center( bbox.getRange(0).center(), bbox.getRange(1).center(),
 			 bbox.getRange(2).center() );
     Coord3 closestpointonline = line.getPoint( line.closestPoint(center) );
-    if ( !bbox.includes(closestpointonline) )
+    if ( !bbox.includes(closestpointonline,false) )
 	return false;
 
     RowCol rc(origin_);
@@ -286,7 +286,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	    center.z = bbox.getRange(2).center();
 
 	    closestpointonline = line.getPoint( line.closestPoint(center) );
-	    if ( !bbox.includes(closestpointonline) )
+	    if ( !bbox.includes(closestpointonline,false) )
 		continue;
 
 	    PtrMan<CubicBezierSurfacePatch> dummypatch = 0;
@@ -705,9 +705,9 @@ ParametricCurve* CubicBezierSurface::createRowCurve( float row,
     StepInterval<int> outputrange = colrange;
     if ( cl )
     {
-	if ( outputrange.includes( cl->start ) )
+	if ( outputrange.includes( cl->start,false ) )
 	    outputrange.start = outputrange.snap(cl->start);
-	if ( outputrange.includes( cl->stop ) )
+	if ( outputrange.includes( cl->stop,false ) )
 	    outputrange.stop = outputrange.snap(cl->stop);
     }
 
@@ -743,9 +743,9 @@ ParametricCurve* CubicBezierSurface::createColCurve( float col,
     StepInterval<int> outputrange = rowrange;
     if ( rw )
     {
-	if ( outputrange.includes(rw->start) )
+	if ( outputrange.includes(rw->start,false) )
 	    outputrange.start = outputrange.snap( rw->start );
-	if ( outputrange.includes(rw->stop) )
+	if ( outputrange.includes(rw->stop,false) )
 	    outputrange.stop = outputrange.snap( rw->stop );
     }
 
@@ -787,13 +787,13 @@ bool CubicBezierSurface::checkSelfIntersection( const RowCol& ownrc ) const
     for ( RowCol rc(-2,-2); rc.row<=1; rc.row++ )
     {
 	affectedrc.row = ownrc.row+rc.row*step_.row;
-	if ( !rowrange.includes(affectedrc.row) )
+	if ( !rowrange.includes(affectedrc.row,false) )
 	    continue;
 
 	for ( rc.col=-2; rc.col<=1; rc.col++ )
 	{
 	    affectedrc.col = ownrc.col+rc.col*step_.col;
-	    if ( !colrange.includes(affectedrc.col) )
+	    if ( !colrange.includes(affectedrc.col,false) )
 		continue;
 
 	    affectedrcs += affectedrc;
@@ -825,7 +825,7 @@ bool CubicBezierSurface::checkSelfIntersection( const RowCol& ownrc ) const
 		const IntervalND<float> bbox = boundingBox(rc,false);
 		if ( !bbox.isSet() ) continue;
 
-		if ( ownbbox.intersects(bbox) )
+		if ( ownbbox.intersects(bbox,false) )
 		    return true;
 	    }
 	}

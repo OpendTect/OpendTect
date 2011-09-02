@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.56 2011-07-22 09:14:50 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.57 2011-09-02 08:58:45 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -1240,7 +1240,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     TypeSet<int> indices;
     for ( int idx=0; idx<nr; idx++ )
     {
-	if ( zlayer.includes(zin[idx]) )
+	if ( zlayer.includes(zin[idx],false) )
 	    indices += idx;
     }
     const int nrsmps = indices.size();

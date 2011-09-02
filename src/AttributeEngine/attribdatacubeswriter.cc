@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.8 2010-08-13 12:16:51 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.9 2011-09-02 08:59:11 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -77,7 +77,8 @@ int DataCubesWriter::nextStep()
 	writer_ = new SeisTrcWriter( ioobj );
 
 	const Interval<int> cubezrg( cube_.z0_, cube_.z0_+cube_.getZSz()-1 );
-	if ( !cubezrg.includes( zrg_.start ) || !cubezrg.includes( zrg_.stop ) )
+	if ( !cubezrg.includes( zrg_.start,false ) ||
+	     !cubezrg.includes( zrg_.stop,false ) )
 	    zrg_ = cubezrg;
 
 	const int trcsz = zrg_.width()+1;

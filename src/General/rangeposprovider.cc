@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.15 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.16 2011-09-02 09:12:13 cvskris Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -258,7 +258,7 @@ Coord Pos::RangeProvider2D::curCoord() const
 
 bool Pos::RangeProvider2D::includes( int nr, float z ) const
 {
-    bool issel = rg_.includes( nr );
+    bool issel = rg_.includes( nr, true );
     if ( !issel ) return false;
     if ( mIsUdf(z) ) return true;
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.39 2010-12-30 11:59:40 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.40 2011-09-02 09:17:51 cvskris Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -75,7 +75,7 @@ bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
     const BinID seedbid = SI().transform( seedcrd );
     const HorSampling hrg = engine().activeVolume().hrg;
     const StepInterval<float> zrg = engine().activeVolume().zrg;
-    if ( !zrg.includes(seedcrd.z) || !hrg.includes(seedbid) )
+    if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
 	return false;
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );

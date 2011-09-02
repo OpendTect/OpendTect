@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.47 2010-12-02 10:54:26 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.48 2011-09-02 09:11:12 cvskris Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -245,8 +245,8 @@ bool HorizonScanner::analyzeData()
 	bool validvert = false;
 	if ( !mIsUdf(val) ) 
 	{
-	    if ( validrg.includes(val) ) { nrnoscale++; validvert=true; }
-	    if ( zistime && validrg.includes(val*fac) )
+	    if ( validrg.includes(val,false) ) { nrnoscale++; validvert=true; }
+	    if ( zistime && validrg.includes(val*fac,false) )
 	    { nrscale++; validvert=true; }
 	}
 
@@ -273,7 +273,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
     zrg.sort();
     zrg.start -= zwidth;
     zrg.stop += zwidth;
-    return zrg.includes( zval );
+    return zrg.includes( zval, false );
 }
 
 

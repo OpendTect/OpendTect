@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.17 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.18 2011-09-02 09:19:27 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -106,8 +106,9 @@ void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 	const RowCol node(allnodes[idx]);
 	const Coord3 pos = surface->getKnot(node);
 	const BinID bid = SI().transform(pos);
-	if ( !inlrange.includes(bid.inl) || !crlrange.includes(bid.crl) ||
-	     !zrange.includes(pos.z) )
+	if ( !inlrange.includes(bid.inl,true) ||
+	     !crlrange.includes(bid.crl,true) ||
+	     !zrange.includes(pos.z,true) )
 	    continue;
 
 	if ( !surface->isAtEdge(node) )

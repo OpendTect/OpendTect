@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.26 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.27 2011-09-02 09:14:48 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -160,7 +160,7 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
 
 	if ( !trackvolume.hrg.includes( bid ) )
 	    return false;
-	if ( !trackvolume.zrg.includes( pos.z ) )
+	if ( !trackvolume.zrg.includes( pos.z,false ) )
 	    return false;
     }
 
