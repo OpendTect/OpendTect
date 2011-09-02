@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.6 2011-08-26 08:24:52 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.7 2011-09-02 08:50:00 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.6 2011-08-26 08:
 #include "odmemory.h"
 #include "sortedtable.h"
 #include "thread.h"
+
+#include <float.h>
 
 #define mRejectValue		-1
 #define mUnassignedValue	0
@@ -109,7 +111,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     return memsetter.execute();
 }
 
-#define mTestValue( val )  if ( !mIsUdf(val) && range.includes( val ) )
+#define mTestValue( val )  if ( !mIsUdf(val) && range.includes( val, false ) )
 
 #define mHandleNeighbor \
     if ( arrinfo_.validPos( neighbor ) ) \
@@ -184,7 +186,11 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
 
 bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 {
-    const Interval<float> range = step_.getAcceptRange();
+    Interval<float> range = step_.getAcceptRange();
+    if ( mIsUdf(range.start) )
+	range.start = -FLT_MAX;
+    else if ( mIsUdf(range.stop) )
+	range.stop = FLT_MAX;
 
     const ValueSeries<float>* inputvs = input_.getStorage();
     const VoxelConnectivityFilter::Connectivity connectivity =
@@ -487,7 +493,7 @@ Task* VoxelConnectivityFilter::createTask()
 	return 0;
     }
 
-    if ( !output_ || !output_->nrCubes()<1 )
+    if ( !output_ || output_->nrCubes()<1 )
     {
 	errmsg_ = "No output provided.";
 	return 0;
