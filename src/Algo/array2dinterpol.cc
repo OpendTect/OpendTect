@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.32 2011-08-19 15:00:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.33 2011-09-02 08:55:25 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -274,7 +274,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 		hadaninside = true;
 
-		if ( !rowrg.includes(irow) ) break;
+		if ( !rowrg.includes(irow,false) ) break;
 
 		irow--;
 		pt.x = irow;
@@ -307,7 +307,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 		hadaninside = true;
 
-		if ( !rowrg.includes(irow) ) break;
+		if ( !rowrg.includes(irow,false) ) break;
 
 		irow++;
 		pt.x = irow;
