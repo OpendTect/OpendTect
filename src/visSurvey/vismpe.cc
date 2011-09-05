@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.113 2011-09-02 13:23:15 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.114 2011-09-05 12:41:06 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -323,9 +323,9 @@ void MPEDisplay::moveMPEPlane( int nr )
     const float sign = nr > 0 ? 1.001 : -1.001;
     // sign is slightly to big to avoid that it does not trigger a track
     
-    sx.widen( 0.5*SI().inlStep(), true ); sx.swap();
-    sy.widen( 0.5*SI().crlStep(), true ); sy.swap();
-    sz.widen( 0.5*SI().zStep(), true ); sz.swap();
+    sx.widen( 0.5*SI().inlStep(), true ); sx.sort();
+    sy.widen( 0.5*SI().crlStep(), true ); sy.sort();
+    sz.widen( 0.5*SI().zStep(), true ); sz.sort();
     // assure that border lines of survey are reachable in spite of foregoing
     
     for ( int idx=0; idx<nrsteps; idx++ )
