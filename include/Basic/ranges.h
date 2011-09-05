@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.63 2011-05-02 01:53:43 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.64 2011-09-05 07:36:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,8 +172,9 @@ public:
     void			include(const X& val);
 
     template <class X> inline
-    bool			includes(const X& val) const;
-    inline bool			intersects(const IntervalND<T>&) const;
+    bool			includes(const X& val,bool allowrev=true) const;
+    inline bool			intersects(const IntervalND<T>&,
+	    				   bool allowrev = true) const;
 
 protected:
 
@@ -224,7 +225,7 @@ void IntervalND<T>::include( const X& val )
 
 
 template <class T> template <class X> inline
-bool IntervalND<T>::includes( const X& val ) const
+bool IntervalND<T>::includes( const X& val, bool allowrev ) const
 {
 #ifdef __debug__
     if ( !isset )
@@ -236,7 +237,7 @@ bool IntervalND<T>::includes( const X& val ) const
 
     for ( int dim=0; dim<ndim; dim++ )
     {
-	if ( !ranges[dim].includes(val[dim]) )
+	if ( !ranges[dim].includes(val[dim], allowrev) )
 	    return false;
     }
 
@@ -245,7 +246,7 @@ bool IntervalND<T>::includes( const X& val ) const
 
 
 template <class T> inline
-bool IntervalND<T>::intersects( const IntervalND<T>& b ) const
+bool IntervalND<T>::intersects( const IntervalND<T>& b, bool allowrev ) const
 {
     if ( !isset || !b.isset || ndim!=b.ndim)
     {
@@ -263,7 +264,7 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b ) const
 
     do
     {
-	if ( b.includes((T*)vector) )
+	if ( b.includes((T*)vector, allowrev) )
 	    return true;
 
 	int dim = 0;
