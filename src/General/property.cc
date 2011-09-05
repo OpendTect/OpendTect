@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.48 2011-09-01 15:27:33 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.49 2011-09-05 13:16:04 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -721,12 +721,7 @@ void MathProperty::setDef( const char* s )
 
 bool MathProperty::isUdf() const
 {
-    if ( !expr_ )
-	return true;
-    for ( int idx=0; idx<inps_.size(); idx++ )
-	if ( !inps_[idx] )
-	    return true;
-    return false;
+    return def_.isEmpty();
 }
 
 
