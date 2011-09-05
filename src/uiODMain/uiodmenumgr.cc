@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.229 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.230 2011-09-05 10:40:16 cvssatyaki Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -359,6 +359,8 @@ void uiODMenuMgr::fillManMenu()
 		 mManPDFMnuItm, "man_prdfs.png" );
     mInsertPixmapItem( manmnu_, "2D Geometry ..",
 		 mManGeomItm, "man2dgeom.png" );
+    mInsertPixmapItem( manmnu_, "Cross Plot..",
+		 mManCrossPlotItm, "manxplot.png" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 		   "man_seis.png" );
 
@@ -968,6 +970,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManStratMnuItm:		mDoOp(Man,Strat,0); break;
     case mManPDFMnuItm:			mDoOp(Man,PDF,0); break;
     case mManGeomItm:			mDoOp(Man,Geom,0); break;
+    case mManCrossPlotItm:		mDoOp(Man,PVDS,0); break;
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;

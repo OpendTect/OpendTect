@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.75 2011-09-02 13:04:51 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.76 2011-09-05 10:40:16 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -141,7 +141,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
     selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
-    retrieve( 0 );
+
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
     creationCBS().doCall( this );
 }
@@ -1131,7 +1131,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 	    				     dps_.isMinimal() );
     if ( newdps->isEmpty() )
-	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
+    { delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
     setCaption( seldlg.ioObj()->name() );
     selPtsToBeRemoved.trigger();
@@ -1532,14 +1532,14 @@ void uiDataPointSet::addColumn( CallBacker* )
 	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
 	BinIDValueSet& bvs = dps_.bivSet();
 	BinIDValueSet::Pos pos;
-	while ( bvs.next(pos,true) )
+	while ( bvs.next(pos,false) )
 	{
 	    TypeSet<int> colids = dlg.usedColIDs();
 	    MathExpression* mathobj = dlg.mathObject();
 	    BinID curbid;
 	    TypeSet<float> vals;
 	    bvs.get( pos, curbid, vals );
-	    DataPointSet::RowID rid = dps_.findFirst( curbid );
+	    DataPointSet::RowID rid = dps_.getRowID( pos );
 	    
 	    for ( int idx=0; idx<colids.size(); idx++ )
 	    {

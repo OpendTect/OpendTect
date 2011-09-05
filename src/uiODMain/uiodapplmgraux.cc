@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.31 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.32 2011-09-05 10:40:16 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.31 2011-07-12 10:51:55 cv
 #include "oddirs.h"
 #include "odplatform.h"
 #include "posvecdataset.h"
+#include "posvecdatasettr.h"
 #include "separstr.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -34,6 +35,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.31 2011-07-12 10:51:55 cv
 #include "vissurvscene.h"
 
 #include "ui2dgeomman.h"
+#include "uidatapointsetman.h"
 #include "uimsg.h"
 #include "uiconvpos.h"
 #include "uidatapointset.h"
@@ -270,6 +272,11 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiImpPVDS dlg( par_ );
 	    dlg.go();
 	}
+    	else if ( at == uiODApplMgr::Man )
+	{
+	    uiDataPointSetMan mandlg( par_ );
+	    mandlg.go();
+	}
     break;
     }
 }
@@ -374,8 +381,23 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
 
 void uiODApplMgrDispatcher::openXPlot()
 {
+    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
+    ctio.ctxt.forread = true;
+    uiIOObjSelDlg seldlg( par_, ctio );
+    if ( !seldlg.go() || !seldlg.ioObj() ) return;
+
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+
     PosVecDataSet pvds;
-    pvds.setEmpty();
+    BufferString errmsg;
+    bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+    MouseCursorManager::restoreOverride();
+
+    if ( !rv )
+    { uiMSG().error( errmsg ); return; }
+    if ( pvds.data().isEmpty() )
+    { uiMSG().error("Selected data set is empty"); return; }
+
     DataPointSet* newdps = new DataPointSet( pvds, false );
     DPM(DataPackMgr::PointID()).addAndObtain( newdps );
     uiDataPointSet* uidps =

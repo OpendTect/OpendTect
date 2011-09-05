@@ -186,6 +186,8 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 			       "How do you want to match positions?" );
     mlcbox->attach( leftAlignedBelow, tbl_ );
     matchpolfld_ = mlcbox->box();
+    matchpolfld_->selectionChanged.notify(
+	    mCB(this,uiDataPointSetMerger,matchPolChangedCB) );
 
     BufferStringSet replaceopts;
     replaceopts.add( "Keep original" );
@@ -207,6 +209,12 @@ uiDataPointSetMerger::~uiDataPointSetMerger()
 {
     DPM( DataPackMgr::PointID() ).release( mdps_->id() );
     DPM( DataPackMgr::PointID() ).release( sdps_->id() );
+}
+
+
+void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )
+{
+    replacepolfld_->setSensitive( matchpolfld_->currentItem()!=2 );
 }
 
 
