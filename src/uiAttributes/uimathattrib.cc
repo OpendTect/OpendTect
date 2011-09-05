@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.37 2011-02-11 15:16:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.38 2011-09-05 08:29:20 cvsbruno Exp $";
 
 
 #include "uimathattrib.h"
@@ -109,7 +109,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 	BufferString errmsg = "Invalid formula:\n";
 	errmsg += mep.errMsg();
 	errmsg += "\nFormula should have variable names";
-	errmsg += "or constants c0, c1, c2 ...\n";
+	errmsg += " or constants c0, c1, c2 ...\n";
 	errmsg += "Please read documentation for detailed examples\n ";
 	errmsg += "on recursive formulas, shift....";
 	uiMSG().error( errmsg.buf() );
