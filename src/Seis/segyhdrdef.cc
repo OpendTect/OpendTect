@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.6 2011-03-02 16:11:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.7 2011-09-05 14:23:19 cvsbert Exp $";
 
 
 #include "segythdef.h"
@@ -27,6 +27,20 @@ const char* TrcHeaderDef::sAzimByte()	{ return "Azimuth byte"; }
 const char* TrcHeaderDef::sTrNrByte()	{ return "Trace number byte"; }
 const char* TrcHeaderDef::sRefNrByte()	{ return "Reference number byte"; }
 const char* TrcHeaderDef::sPickByte()	{ return "Pick byte"; }
+}
+
+
+SEGY::HdrEntry& SEGY::HdrEntry::operator =( const SEGY::HdrEntry& he )
+{
+    if ( this != &he )
+    {
+	bytepos_ = he.bytepos_;
+	small_ = he.small_;
+	type_ = he.type_;
+	setDescription( he.desc_ );
+	setName( he.name_ );
+    }
+    return *this;
 }
 
 

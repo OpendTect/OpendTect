@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.5 2011-08-31 09:01:47 cvskris Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.6 2011-09-05 14:23:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,12 @@ public:
 
 			HdrEntry( BytePos bp=udfBP(), bool issmall=false,
 				  DataType dt=SInt )
-			    : bytepos_(bp)
-			    , small_(issmall)
-			    , type_(dt)
-			    , desc_(0)
-    			    , name_(0)	{}
+			    : bytepos_(bp), small_(issmall), type_(dt)
+			    , desc_(0), name_(0)	{}
+			HdrEntry( const HdrEntry& he )
+			    : desc_(0), name_(0)	{ *this = he; }
 			~HdrEntry() { delete [] desc_; delete [] name_; }
+    HdrEntry&		operator =(const HdrEntry&);
 
     const char*		description() const;
     void		setDescription(const char*);
