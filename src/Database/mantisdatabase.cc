@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.14 2011-08-23 06:07:58 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.15 2011-09-05 06:08:57 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 const char* SqlDB::MantisDBMgr::sKeyAll()
 { return "All"; }
+const char* SqlDB::MantisDBMgr::sKeyUnAssigned()
+{ return "Un assigned"; }
 const char* SqlDB::MantisDBMgr::sKeyProjectTable()
 { return "mantis_project_table"; }
 const char* SqlDB::MantisDBMgr::sKeyBugNoteTable()
@@ -306,14 +308,15 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 
 
 bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
-				      TypeSet<int>& bugsassigned )
+				      TypeSet<int>& bugstofix )
 {
     bugsindex_.erase();
     if ( !usernm ) return false;
 
     const int usridx = userNames().indexOf( usernm );
     const bool isall = caseInsensitiveEqual( usernm, sKeyAll() );
-    if ( !userIDs().validIdx( usridx ) && !isall )
+    const bool isunassign = caseInsensitiveEqual( usernm, sKeyUnAssigned() );
+    if ( !isunassign && !userIDs().validIdx( usridx ) && !isall )
     {
 	UsrMsg( BufferString("User ",usernm," does not exist in Mantis") );
 	return false;
@@ -332,25 +335,32 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 	return false;
 
     const int projid = isallprojs ? -1 : projectIDs()[projidx];
-    const int usrid = isall ? -1 : userIDs()[usridx];
+    const int usrid = isall || isunassign ? -1 : userIDs()[usridx];
     const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
 	BugTableEntry* bugtable = getBugTableEntry( idx );
 	if ( !bugtable )
 	    continue;
-	
+
+	if ( isunassign )
+	{
+	    bool isstatusequal =
+	    		bugtable->status_ == SqlDB::BugTableEntry::cStatusNew();
+	    if ( !isstatusequal ) continue;
+	}
+
 	const bool isprojequal = projid < 0 ? true
 	    				    : bugtable->projectid_ == projid;
-	if ( isprojequal && usrid < 0  )
+	if ( isprojequal && usrid < 0 )
 	    bugsindex_.add( idx );
 	else if ( isprojequal && usrid == bugtable->handlerid_ )
 	    bugsindex_.add( idx );
     }
 
-    bugsassigned = bugsindex_;
+    bugstofix = bugsindex_;
 
-    return bugsassigned.isEmpty() ? false : true;
+    return bugstofix.isEmpty() ? false : true;
 }
 
 
