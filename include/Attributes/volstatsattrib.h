@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.30 2011-09-02 08:38:21 cvsbruno Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.31 2011-09-06 15:14:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,9 +62,8 @@ public:
     static const char*		steeringStr()	  { return "steering"; }
     static const char*		shapeTypeStr(int);
 
-    void			initSteering()	{ stdPrepSteering(stepout_); }
-
     virtual void		prepPriorToBoundsCalc();
+    virtual void		initSteering() { stdPrepSteering(stepout_); }
     bool			isSingleTrace() const
 				{ return !stepout_.inl && !stepout_.crl; }
 
