@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.34 2011-08-31 14:50:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.35 2011-09-06 12:03:11 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -72,8 +72,9 @@ void theCB( CallBacker* cb )
 	nm = settres;
     else if ( nms.size() > 1 )
     {
-	uiSelectFromList dlg( par,
-		uiSelectFromList::Setup("Select modeling type",nms) );
+	uiSelectFromList::Setup sflsu( "Select modeling type", nms );
+	sflsu.current( nms.size()-1 );
+	uiSelectFromList dlg( par, sflsu );
 	uiCheckBox* alwusebut = new uiCheckBox( &dlg,
 					"Always use this modeling type");
 	alwusebut->attach( centeredBelow, dlg.selFld() );
