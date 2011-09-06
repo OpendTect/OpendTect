@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.9 2011-07-12 10:51:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.10 2011-09-06 15:37:41 cvsbert Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -47,6 +47,8 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     blockfld_ = new uiCheckBox( this, "Block (bend points)" );
     blockfld_->attach( alignedBelow, cutofffld_ );
     blockfld_->setChecked( params_.dovelblock_ );
+
+    setHAlignObj( cutofffld_ );
 }
 
 
