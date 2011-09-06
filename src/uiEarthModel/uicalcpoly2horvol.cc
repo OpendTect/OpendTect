@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.11 2011-04-28 17:06:36 cvskris Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.12 2011-09-06 15:31:42 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.11 2011-04-28 17:06:36
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "uichecklist.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uilabel.h"
@@ -36,6 +37,7 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 	: uiDialog(p,Setup("Calculate volume",dlgtxt,"104.4.5"))
 	, zinft_(SI().depthsInFeetByDefault())
 	, velfld_(0)
+	, valfld_(0)
 {
     setCtrlStyle( LeaveOnly );
 }
@@ -48,18 +50,15 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
 
-    upwbox_ = new uiCheckBox( grp, "Upward" );
-    upwbox_->setChecked( true ); upwbox_->activated.notify( chgcb );
-    ignnegbox_ = new uiCheckBox( grp, "Ignore negative thicknesses" );
-    ignnegbox_->setChecked( true ); ignnegbox_->activated.notify( chgcb );
-    upwbox_->attach( leftOf, ignnegbox_ );
+    optsfld_ = new uiCheckList( grp, "Ignore negative thicknesses", "Upward" );
+    optsfld_->setChecked( 0, true ); optsfld_->setChecked( 1, true );
 
-    uiObject* attobj = ignnegbox_;
+    uiObject* attobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
 	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
 	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(zinft_?10000:3000) );
-	velfld_->attach( alignedBelow, ignnegbox_ );
+	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
     }
@@ -102,7 +101,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 
 void uiCalcHorVol::haveChg( CallBacker* )
 {
-    valfld_->clear();
+    if ( valfld_ ) valfld_->clear();
 }
 
 
@@ -124,7 +123,8 @@ void uiCalcHorVol::calcReq( CallBacker* )
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
-    float m3 = ph2v.getM3( vel, upwbox_->isChecked(), !ignnegbox_->isChecked());
+    float m3 = ph2v.getM3( vel, optsfld_->isChecked(0),
+	    			!optsfld_->isChecked(1));
     valfld_->setText( ph2v.dispText(m3,zinft_) );
 }
 
