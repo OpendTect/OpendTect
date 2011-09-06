@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichecklist.cc,v 1.1 2011-09-06 12:02:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uichecklist.cc,v 1.2 2011-09-06 14:49:37 cvsbert Exp $";
 
 #include "uichecklist.h"
 #include "uibutton.h"
@@ -48,6 +48,9 @@ void uiCheckList::addBox( const char* txt, bool hor )
 
 void uiCheckList::initGrp( CallBacker* )
 {
+    if ( pol_ >= uiCheckList::Chain1st )
+	handleChain();
+
     const CallBack cb( mCB(this,uiCheckList,boxChk) );
     for ( int idx=0; idx<boxs_.size(); idx++ )
 	boxs_[idx]->activated.notify( cb );
@@ -107,7 +110,15 @@ void uiCheckList::ensureOne( bool ischckd )
 
 void uiCheckList::handleChain()
 {
-    pErrMsg( "TODO: implement uiCheckList::handleChain()" );
+    bool prevchk = boxs_[0]->isChecked();
+
+    for ( int idx=1; idx<boxs_.size(); idx++ )
+    {
+	const bool ischkd = boxs_[idx]->isChecked();
+	setBox( idx, prevchk ? ischkd : false, prevchk );
+	if ( pol_ == ChainAll && prevchk )
+	    prevchk = boxs_[idx]->isChecked();
+    }
 }
 
 
