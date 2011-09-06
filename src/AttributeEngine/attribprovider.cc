@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.134 2011-09-02 09:02:13 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.135 2011-09-06 10:16:13 cvsbruno Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -712,7 +712,7 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	bool needmscp1 = true;
 	bool needmscp2 = true;
 	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
-	SeisMSCProvider* seismscprov2 = input1->getMSCProvider( needmscp1 );
+	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
 	int compres = seismscprov1 && seismscprov2
 	    		? seismscprov1->comparePos( *seismscprov2 )
 			: (!needmscp1 || !needmscp2) &&
