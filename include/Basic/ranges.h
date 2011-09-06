@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.64 2011-09-05 07:36:22 cvsbruno Exp $
+ RCS:		$Id: ranges.h,v 1.65 2011-09-06 13:15:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ public:
     template <class X>
     inline bool		overlaps(const Interval<X>&,bool allrev=true) const;
     template <class X>
-    inline bool		includes(const X&, bool allowrev=true ) const;
+    inline bool		includes(const X&, bool allowrev ) const;
     template <class X>
     inline float        pos(X val,bool limit=true,bool allowrev=true) const;
 			/*!<\returns a value between 0 and 1 if val is 
@@ -172,9 +172,9 @@ public:
     void			include(const X& val);
 
     template <class X> inline
-    bool			includes(const X& val,bool allowrev=true) const;
+    bool			includes(const X& val,bool allowrev) const;
     inline bool			intersects(const IntervalND<T>&,
-	    				   bool allowrev = true) const;
+	    				   bool allowrev) const;
 
 protected:
 
@@ -237,7 +237,7 @@ bool IntervalND<T>::includes( const X& val, bool allowrev ) const
 
     for ( int dim=0; dim<ndim; dim++ )
     {
-	if ( !ranges[dim].includes(val[dim], allowrev) )
+	if ( !ranges[dim].includes(val[dim], allowrev ) )
 	    return false;
     }
 
@@ -264,7 +264,7 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b, bool allowrev ) const
 
     do
     {
-	if ( b.includes((T*)vector, allowrev) )
+	if ( b.includes((T*)vector, allowrev ) )
 	    return true;
 
 	int dim = 0;
