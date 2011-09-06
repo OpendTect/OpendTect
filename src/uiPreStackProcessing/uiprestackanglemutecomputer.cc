@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.2 2011-07-12 11:41:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.3 2011-09-06 15:37:57 cvsbert Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -27,7 +27,7 @@ namespace PreStack
 {
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Angel Mute Computer",
+    : uiDialog( p, uiDialog::Setup("Angle Mute Computer",
 				    mNoDlgTitle,mTODOHelpID) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer) 
@@ -38,8 +38,8 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     sep->attach( stretchedBelow, anglemutegrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
+    subsel_->attach( alignedBelow, anglemutegrp_ );
     subsel_->attach( ensureBelow, sep );
-    subsel_->attach( centeredBelow, anglemutegrp_ );
 
     outctio_.ctxt.forread = false;
     mutedeffld_ = new uiIOObjSel( this, outctio_ );
