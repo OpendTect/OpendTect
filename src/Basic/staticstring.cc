@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: staticstring.cc,v 1.3 2011-02-09 17:01:15 cvskarthika Exp $";
+static const char* rcsID = "$Id: staticstring.cc,v 1.4 2011-09-06 13:16:02 cvskris Exp $";
 
 #include "staticstring.h"
 
@@ -28,11 +28,5 @@ BufferString& StaticStringManager::getString()
 
 
 StaticStringManager::~StaticStringManager()
-{ }
-
-
-StaticStringManager& StaticStringManager::STM()
 {
-    static StaticStringManager stm;
-    return stm;
 }
