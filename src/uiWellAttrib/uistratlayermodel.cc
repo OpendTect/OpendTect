@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.35 2011-09-06 12:03:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.36 2011-09-06 14:50:15 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.35 2011-09-06 12:03:11
 #include "ioman.h"
 #include "strmprov.h"
 #include "settings.h"
+#include "separstr.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
 #include "strattransl.h"
@@ -40,6 +41,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.35 2011-09-06 12:03:11
 #include "uistrattreewin.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
+#include "uichecklist.h"
 
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -65,31 +67,65 @@ void theCB( CallBacker* cb )
     if ( !tb ) return;
 
     uiParent* par = tb->parent();
-    const char* nm = nms.get(0).buf();
     const char* settres = Settings::common().find(
 	    			uiStratLayerModel::sKeyModeler2Use());
-    if ( settres && nms.isPresent(settres) )
-	nm = settres;
-    else if ( nms.size() > 1 )
+    BufferString modnm( settres );
+    int defmodnr = -1;
+    bool givechoice = nms.size() > 1;
+    if ( modnm.isEmpty() )
+	modnm = nms.get( nms.size() - 1 );
+    else
     {
-	uiSelectFromList::Setup sflsu( "Select modeling type", nms );
-	sflsu.current( nms.size()-1 );
-	uiSelectFromList dlg( par, sflsu );
-	uiCheckBox* alwusebut = new uiCheckBox( &dlg,
-					"Always use this modeling type");
-	alwusebut->attach( centeredBelow, dlg.selFld() );
-	if ( !dlg.go() ) return;
-	const int sel = dlg.selection();
-	if ( sel < 0 ) return;
-	nm = nms.get(sel).buf();
-	if ( alwusebut->isChecked() )
-	{
-	    Settings::common().set( uiStratLayerModel::sKeyModeler2Use(), nm );
-	    Settings::common().write();
-	}
+	FileMultiString fms( modnm );
+	modnm = fms[0];
+	defmodnr = nms.indexOf( modnm.buf() );
+	if ( defmodnr < 0 )
+	    modnm.setEmpty();
+	else
+	    givechoice = *fms[1] != 'A';
     }
 
-    uiStratLayerModel dlg( par, nm );
+    if ( givechoice )
+    {
+	uiSelectFromList::Setup sflsu( "Select modeling type", nms );
+	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
+	uiSelectFromList dlg( par, sflsu );
+	uiCheckList* defpol = new uiCheckList( &dlg, "Set as default",
+				"Always use this type", uiCheckList::Chain1st );
+	defpol->setChecked( 0, defmodnr >= 0 );
+	defpol->attach( centeredBelow, dlg.selFld() );
+	if ( !dlg.go() ) return;
+
+	const int sel = dlg.selection();
+	if ( sel < 0 ) return;
+	const BufferString newmodnm = nms.get( sel );
+	int indic = defpol->isChecked(0) ? (defpol->isChecked(1) ? 2 : 1) : 0;
+	bool needwrite = true;
+	if ( indic == 0 )
+	{
+	    if ( defmodnr < 0 )
+		needwrite = false;
+	    else
+		Settings::common().removeWithKey(
+				    uiStratLayerModel::sKeyModeler2Use() );
+	}
+	else
+	{
+	    if ( indic == 2 || modnm != newmodnm )
+	    {
+		Settings::common().set( uiStratLayerModel::sKeyModeler2Use(),
+			BufferString(newmodnm, indic == 2 ? "`A" : "") );
+	    }
+	    else if ( defmodnr >= 0 )
+		needwrite = false;
+	}
+
+	if ( needwrite )
+	    Settings::common().write( false );
+	modnm = newmodnm;
+    }
+
+    uiStratLayerModel dlg( par, modnm );
     dlg.go();
 }
 
