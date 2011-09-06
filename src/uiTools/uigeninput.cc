@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.94 2011-07-18 14:05:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.95 2011-09-06 12:02:33 cvsbert Exp $";
 
 #include "uigeninput.h"
+#include "uigeninput_impl.h"
 #include "uilineedit.h"
-#include "uiboolinp.h"
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -21,13 +21,13 @@ static const char* rcsID = "$Id: uigeninput.cc,v 1.94 2011-07-18 14:05:14 cvsber
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx
-class FieldIdx
+class uiGenInputFieldIdx
 {
 public:
-                FieldIdx( int fidx, int sidx )
+                uiGenInputFieldIdx( int fidx, int sidx )
                     : fldidx( fidx ), subidx( sidx ) {}
 
-    bool	operator ==( const FieldIdx& idx ) const
+    bool	operator ==( const uiGenInputFieldIdx& idx ) const
 		{ return fldidx == idx.fldidx && subidx == idx.subidx; }
 
     int         fldidx;
@@ -35,228 +35,27 @@ public:
 };
 
 
-/*! \brief Generalised data input field.
-
-Provides a generalized interface towards data inputs from the user interface.
-
-Of course it doesn't make much sense to use f.e. setBoolValue on an element
-that is supposed to input double precision float's, but that's up to the
-programmer to decide.
-
-*/
-
-class uiInputFld : public CallBacker
-{
-public:
-                        uiInputFld( uiGenInput* p, const DataInpSpec& dis ) 
-			: spec_( *dis.clone() ), p_( p ) {}
-
-    virtual		~uiInputFld()			{ delete &spec_; }
-
-    virtual int		nElems() const			{ return 1; }
-
-    virtual UserInputObj* element( int idx=0 )		= 0;
-
-    const UserInputObj*	element( int idx=0 ) const
-			{ return const_cast<uiInputFld*>(this)->element(idx); }
-
-    virtual uiObject*	mainObj()			= 0;
-
-                        // can be a uiGroup, i.e. for radio button group
-    virtual uiObject*	elemObj( int idx=0 )
-			{
-			    UserInputObj* elem = element(idx);
-			    if ( !elem ) return 0;
-			    mDynamicCastGet(uiGroup*,grp,elem)
-			    if ( grp ) return grp->mainObject();
-			    mDynamicCastGet(uiObject*,ob,elem)
-			    return ob;
-			}
-
-    virtual bool	isUndef( int idx ) const
-			{ return mIsUdf(text(idx)); } 
-
-    const char*		text( int idx ) const
-			{ 
-			    const UserInputObj* obj = element( idx );
-			    const char* ret = obj ? obj->text() : 0;
-			    return ret ? ret : mUdf(const char*);
-			}
-#define mImplGetFn(typ,fn) \
-    typ			fn( int idx ) const \
-			{  \
-			    const UserInputObj* obj = element( idx ); \
-			    return obj ? obj->fn() : mUdf(typ); \
-			}
-    			mImplGetFn(int,getIntValue)
-    			mImplGetFn(float,getfValue)
-    			mImplGetFn(double,getdValue)
-    			mImplGetFn(bool,getBoolValue)
-
-    template <class T>
-    void		setValue( T t, int idx )
-			{
-			    UserInputObj* obj = element( idx );
-			    if ( !obj ) return;
-			    if ( mIsUdf(t) )
-				obj->clear();
-			    else
-				obj->setValue(t);
-			}
-    virtual void	setText( const char* s, int idx )
-			    { setValue( s, idx ); }
-    void		setValue( bool b, int idx )
-			    { if ( element(idx) ) element(idx)->setValue(b); }
-
-#define mDoAllElems(fn) \
-			for( int idx=0; idx<nElems(); idx++ ) \
-			{ \
-			    UserInputObj* obj = element( idx ); \
-			    if ( obj ) obj->fn; \
-			    else pErrMsg("Found null field"); \
-			}
-#define mDoAllElemObjs(fn) \
-			for( int idx=0; idx<nElems(); idx++ ) \
-			{ \
-			    uiObject* obj = elemObj( idx ); \
-			    if ( obj ) obj->fn; \
-			    else pErrMsg("Found null elemObj"); \
-			}
-
-			//! stores current value as clear state.
-    void		initClearValue()
-			{ mDoAllElems(initClearValue()) }
-    void		clear()
-			{ mDoAllElems(clear()) }
-
-    void		display( bool yn, int elemidx )
-			{
-			    if ( elemidx < 0 )
-				{ mDoAllElemObjs(display(yn)) }
-			    else
-			    {
-				uiObject* obj = elemObj( elemidx );
-				if ( obj )
-				    obj->display( yn );
-			    }
-			} 
-
-
-    bool		isReadOnly( int idx=0 ) const
-			{ 
-			    const UserInputObj* obj = element( idx );
-			    return obj && obj->isReadOnly();
-			}
-    virtual void	setReadOnly( bool yn=true, int idx=0 )
-			{
-			    UserInputObj* obj = element( idx );
-			    if ( obj ) obj->setReadOnly( yn );
-			}
-
-    void		setSensitive(bool yn, int elemidx=-1 )
-			{ 
-			    if ( elemidx < 0 )
-				{ mDoAllElemObjs(setSensitive(yn)) }
-			    else
-			    {
-				uiObject* obj = elemObj( elemidx );
-				if ( obj )
-				    obj->setSensitive( yn );
-			    }
-			}
-
-    DataInpSpec&	spec()				{ return spec_; }
-    const DataInpSpec&	spec() const			{ return spec_; }
-
-    bool                update( const DataInpSpec& nw )
-			{
-			    if ( spec_.type() == nw.type() && update_(nw) )
-			    {
-				spec_ = nw;
-				return true;
-			    }
-
-			    return false;
-			}
-
-    virtual void	updateSpec()
-			{ 
-			    for( int idx=0; idx<nElems()&&element(idx); idx++ )
-				spec_.setText( element(idx)->text(), idx );
-			}
-
-    void		valChangingNotify(CallBacker*)
-			    { p_->valuechanging.trigger( *p_ ); }
-
-    void		valChangedNotify(CallBacker*)
-			    { p_->valuechanged.trigger( *p_ ); }
-
-    void		updateReqNotify(CallBacker*)
-			{ p_->updateRequested.trigger( *p_ ); }
-
-protected:
-
-    virtual bool        update_( const DataInpSpec& nw )
-			    { 
-				return nElems() == 1 && element( 0 )
-						    ? element( 0 )->update(nw)
-						    : false; 
-			    } 
-
-    DataInpSpec&	spec_;
-    uiGenInput*		p_;
-
-    void		init()
-			    {
-				update_( spec_ );
-
-				uiObject::SzPolicy hpol =
-					 p_ ? p_->elemSzPol() : uiObject::Undef;
-
-				if ( hpol == uiObject::Undef )
-				{
-				    int nel = p_ ? p_->nrElements() : nElems();
-
-				    switch( spec_.type().rep() )
-				    {
-				    case DataType::stringTp:
-					hpol = nel > 1 ? uiObject::SmallVar
-						       : uiObject::MedVar;
-				    break;
-				    case DataType::boolTp:
-					hpol = nel > 1 ? uiObject::SmallVar
-						       : uiObject::MedVar;
-				    break;
-				    default:
-					hpol = nel > 1 ? uiObject::Small
-						       : uiObject::Medium;
-				    break;
-				    }
-				}
-
-				mDoAllElemObjs(setHSzPol(hpol))
-			    }
-};
-
-
 #define mName( dis, idx, defnm ) \
     ( dis.name(idx) ? dis.name(idx) : defnm )
-				      
+
 template <class T>
-class uiSimpleInputFld : public uiInputFld
+class uiSimpleInputFld : public uiGenInputInputFld
 {
 public:
 uiSimpleInputFld( uiGenInput* p, const DataInpSpec& dis,
 		  const char* nm="Line Edit Field" ) 
-    : uiInputFld(p,dis)
+    : uiGenInputInputFld(p,dis)
     , usrinpobj(*new T(p,dis,mName(dis,0,nm))) 
 {
     init();
     setReadOnly( false );
 
-    usrinpobj.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-    usrinpobj.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
-    usrinpobj.notifyUpdateRequested( mCB(this,uiInputFld,updateReqNotify) );
+    usrinpobj.notifyValueChanging(
+	    		mCB(this,uiGenInputInputFld,valChangingNotify) );
+    usrinpobj.notifyValueChanged(
+	    		mCB(this,uiGenInputInputFld,valChangedNotify) );
+    usrinpobj.notifyUpdateRequested(
+	    		mCB(this,uiGenInputInputFld,updateReqNotify) );
 }
 
 virtual	~uiSimpleInputFld()	{ delete &usrinpobj; }
@@ -293,13 +92,13 @@ public:
 			    }
 };
 
-class uiBoolInpFld : public uiSimpleInputFld<uiBoolInput>
+class uiBoolInpFld : public uiSimpleInputFld<uiGenInputBoolFld>
 {
 public:
 			uiBoolInpFld( uiGenInput* p, 
 					 const DataInpSpec& dis,
 					 const char* nm="Bool Input Field" ) 
-			    : uiSimpleInputFld<uiBoolInput>( p, dis, 
+			    : uiSimpleInputFld<uiGenInputBoolFld>( p, dis, 
 				    			     mName(dis,0,nm) )
 			    {}
 
@@ -307,7 +106,7 @@ public:
 };
 
 
-class uiPositionInpFld : public uiInputFld
+class uiPositionInpFld : public uiGenInputInputFld
 {
 public:
 			uiPositionInpFld( uiGenInput* p, 
@@ -344,7 +143,7 @@ protected:
 
 uiPositionInpFld::uiPositionInpFld( uiGenInput* p, const DataInpSpec& dis,
 			 		const char* nm ) 
-    : uiInputFld(p,dis)
+    : uiGenInputInputFld(p,dis)
     , valueChanged(this)
 {
     mDynamicCastGet(const PositionInpSpec*,spc,&dis)
@@ -367,8 +166,8 @@ void uiPositionInpFld::addFld( uiParent* p, const char* nm )
     BufferString lenm( nm ); nm += elemidx;
     uiLineEdit* fld = new uiLineEdit( p, lenm );
     flds_ += fld;
-    fld->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-    fld->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    fld->notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
+    fld->notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
     if ( elemidx > 0 )
 	flds_[elemidx]->attach( rightTo, flds_[elemidx-1] );
 }
@@ -463,7 +262,7 @@ void uiPositionInpFld::setvalue_( const char* t, int idx )
 
 
 template<class T>
-class uiIntervalInpFld : public uiInputFld
+class uiIntervalInpFld : public uiGenInputInputFld
 {
 public:
 
@@ -515,7 +314,7 @@ protected:
 template<class T>
 uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 				       const char* nm ) 
-    : uiInputFld( p, dis )
+    : uiGenInputInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,mName(dis,0,nm)) )
     , stop( *new uiLineEdit(&intvalGrp,mName(dis,1,nm)) )
@@ -530,11 +329,11 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 	stop.setName( BufferString(nm," stop").buf() );
     }
 
-    start.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-    stop.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+    start.notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
+    stop.notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
 
-    start.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
-    stop.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    start.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
+    stop.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
 
     start.setReadOnly( false );
     stop.setReadOnly( false );
@@ -545,8 +344,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 	if ( !dis.name(2) && nm && *nm )
 	    step->setName( BufferString(nm," step").buf() );
 
-	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+	step->notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
+	step->notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
 	step->setReadOnly( false );
 
 	lbl = new uiLabel(&intvalGrp, "Step" );
@@ -576,13 +375,13 @@ bool uiIntervalInpFld<T>::update_( const DataInpSpec& dis )
 }
 
 
-class uiStrLstInpFld : public uiInputFld
+class uiStrLstInpFld : public uiGenInputInputFld
 {
 public:
 			uiStrLstInpFld( uiGenInput* p, 
 					 const DataInpSpec& dis,
 					 const char* nm="uiStrLstInpFld" ) 
-			    : uiInputFld( p, dis )
+			    : uiGenInputInputFld( p, dis )
 			    , cbb( *new uiComboBox(p,mName(dis,0,nm)) ) 
 			{
 			    init();
@@ -590,7 +389,7 @@ public:
 			    cbb.setReadOnly( true );
 
 			    cbb.selectionChanged.notify( 
-				mCB(this,uiInputFld,valChangedNotify) );
+				mCB(this,uiGenInputInputFld,valChangedNotify) );
 			}
 
     virtual bool	isUndef(int) const		{ return false; }
@@ -624,9 +423,9 @@ creates a new InpFld and attaches it rightTo the last one already present in
 'flds', except if this is a position: in this case it will be alignedBelow it.
 
 */
-uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
+uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 {
-    uiInputFld* fld=0;
+    uiGenInputInputFld* fld=0;
 
     switch( desc.type().rep() )
     {
@@ -688,7 +487,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     flds += fld;
 
     for( int idx=0; idx<fld->nElems(); idx++ )
-	idxes += FieldIdx( flds.size()-1, idx );
+	idxes += uiGenInputFieldIdx( flds.size()-1, idx );
 
     return *fld;
 }
@@ -699,7 +498,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 #define mInitStdMembs \
     : uiGroup(p,disptxt) \
     , finalised(false) \
-    , idxes(*new TypeSet<FieldIdx>) \
+    , idxes(*new TypeSet<uiGenInputFieldIdx>) \
     , selText(""), withchk(false), withclr(false) \
     , labl(0), cbox(0), selbut(0), clrbut(0) \
     , valuechanging(this), valuechanged(this) \
@@ -963,7 +762,7 @@ UserInputObj* uiGenInput::element( int nr )
 uiObject* uiGenInput::rightObj()
 {
     if ( flds.isEmpty() ) return 0;
-    uiInputFld& fld = *flds[flds.size()-1];
+    uiGenInputInputFld& fld = *flds[flds.size()-1];
     const int nelem = fld.nElems();
     if ( nelem < 1 ) return 0;
     return fld.elemObj(nelem-1);
@@ -985,12 +784,12 @@ DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
 }
 
 
-uiInputFld* uiGenInput::getInputFldAndIndex( const int nr, int& idx ) const
+uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr, int& idx ) const
 {
     if ( nr < 0 || nr >= idxes.size() ) return 0;
 
     idx = idxes[nr].subidx;
-    return const_cast<uiInputFld*>( flds[idxes[nr].fldidx] );
+    return const_cast<uiGenInputInputFld*>( flds[idxes[nr].fldidx] );
 }
 
 
@@ -1004,7 +803,7 @@ bool uiGenInput::isUndef( int nr ) const
 	return dis ? dis->isUndef(elemidx) : true;
     }
 
-    uiInputFld* fld = getInputFldAndIndex( nr, elemidx );
+    uiGenInputInputFld* fld = getInputFldAndIndex( nr, elemidx );
 
     return fld ? fld->isUndef(elemidx) : true;
 }
@@ -1058,31 +857,43 @@ int uiGenInput::getTrcNr( int nr, int udfval ) const
 }
 
 
+#define mDefuiLineEditGetSet(getfn,setfn,fntyp) \
+ \
+fntyp uiGenInput::getfn( int nr, fntyp undefVal ) const \
+{ \
+    if ( isUndef(nr) ) return undefVal; \
+    int elemidx=0; \
+\
+    if ( !finalised ) \
+    { \
+	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
+	return dis ? dis->getfn(elemidx) : undefVal; \
+    } \
+\
+    uiGenInputInputFld* fld = getInputFldAndIndex( nr, elemidx ); \
+    return fld ? fld->getfn(elemidx) : undefVal; \
+}\
+\
+void uiGenInput::setfn( fntyp var, int nr ) \
+{ \
+    int elemidx =0; \
+    if ( !finalised ) \
+    {\
+	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
+	if ( dis ) dis->setfn( var, elemidx ); \
+	return; \
+    } \
+ \
+    uiGenInputInputFld* fld = getInputFldAndIndex( nr, elemidx ); \
+    if ( fld ) fld->setfn( var, elemidx ); \
+}
 
-#define g_func	text
-#define s_func	setText
-#define gs_type const char*
-#include "fromlegs.h"
 
-#define g_func	getIntValue
-#define s_func	setValue
-#define gs_type int
-#include "fromlegs.h"
-
-#define g_func	getdValue
-#define s_func	setValue
-#define gs_type double
-#include "fromlegs.h"
-
-#define g_func	getfValue
-#define s_func	setValue
-#define gs_type float
-#include "fromlegs.h"
-
-#define g_func	getBoolValue
-#define s_func	setValue
-#define gs_type bool
-#include "fromlegs.h"
+mDefuiLineEditGetSet(text,setText,const char*)
+mDefuiLineEditGetSet(getIntValue,setValue,int)
+mDefuiLineEditGetSet(getdValue,setValue,double)
+mDefuiLineEditGetSet(getfValue,setValue,float)
+mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 
 const char* uiGenInput::titleText()

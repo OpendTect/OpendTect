@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.42 2011-07-18 14:05:14 cvsbert Exp $
+ RCS:           $Id: uigeninput.h,v 1.43 2011-09-06 12:02:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,9 @@ class uiLabel;
 class uiCheckBox;
 class uiPushButton;
 
-class uiInputFld;
+class uiGenInputInputFld;
+class uiGenInputFieldIdx;
 class DataInpSpec;
-
-class FieldIdx;
 class UserInputObj;
 
 /*! \brief General Input Element
@@ -225,8 +224,8 @@ Returns true, if changes are accepted.
 
 protected:
 
-    ObjectSet<uiInputFld>	flds;
-    TypeSet<FieldIdx>&		idxes;
+    ObjectSet<uiGenInputInputFld>	flds;
+    TypeSet<uiGenInputFieldIdx>&	idxes;
 
     bool		finalised;
 
@@ -248,7 +247,7 @@ protected:
     void 		checkBoxSel(CallBacker*);
 
 			//! DataInpField factory
-    uiInputFld& 	createInpFld(const DataInpSpec&);
+    uiGenInputInputFld&	createInpFld(const DataInpSpec&);
     void		doFinalise(CallBacker*);
     inline DataInpSpec*	spec( int nr )
 			{
@@ -267,8 +266,9 @@ private:
 
     uiObject::SzPolicy	elemszpol;
 
-    DataInpSpec* 	getInputSpecAndIndex( const int nr, int& idx ) const;
-    uiInputFld* 	getInputFldAndIndex( const int nr, int& idx ) const;
+    DataInpSpec* 	getInputSpecAndIndex(const int,int&) const;
+    uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
+
 };
 
 
