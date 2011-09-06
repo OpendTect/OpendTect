@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.9 2010-03-15 13:26:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.10 2011-09-06 13:13:26 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -101,7 +101,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
     float zval = zvalfld_->getfValue();
     if ( mIsUdf(zval) ) zval = defzval_;
     zval /= SI().zFactor();
-    if ( !SI().zRange(false).includes(zval) )
+    if ( !SI().zRange(false).includes(zval,false) )
 	mErrRet("Please provide a Z value inside the survey Z Range")
 
     seisselout_->commitInput();

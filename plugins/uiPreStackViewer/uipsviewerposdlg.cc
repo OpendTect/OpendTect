@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.19 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.20 2011-09-06 13:13:37 cvskris Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -151,7 +151,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		return true;
 
 	    const StepInterval<int> crlrg = SI().crlRange( true );
-	    if ( crlrg.includes( location ) )
+	    if ( crlrg.includes( location, false ) )
 	    	newpos.crl = location;
 	    else
 	    {
@@ -169,7 +169,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		return true;
 
 	    const StepInterval<int> inlrg = SI().inlRange( true );
-	    if ( inlrg.includes( location ) )
+	    if ( inlrg.includes( location, false ) )
 	    	newpos.inl = location;
 	    else
 	    {
@@ -194,7 +194,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 
 	const Interval<int> trcrg = 
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
-	if ( !trcrg.includes(location) )
+	if ( !trcrg.includes(location, true) )
 	{
 	    BufferString msg = "The trace number should be between ";
 	    msg += trcrg.start;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.30 2011-02-14 22:53:17 cvskris Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.31 2011-09-06 13:13:09 cvskris Exp $";
 
 #include "viscallout.h"
 
@@ -475,8 +475,8 @@ void Callout::updateArrow()
     {
 	const Coord3 pickpos =
 	    faceset_->getCoordinates()->getPos( mPickPosIdx );
-	if ( !mIsZero( pickpos.z, 1e-3) || !xrange.includes(pickpos.x) ||
-	     !yrange.includes(pickpos.y) )
+	if ( !mIsZero( pickpos.z, 1e-3) || !xrange.includes(pickpos.x,false) ||
+	     !yrange.includes(pickpos.y,false) )
 	{
 	    float minsqdist;
 	    int startidx;
