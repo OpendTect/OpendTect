@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.67 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.68 2011-09-06 15:20:08 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -121,6 +121,7 @@ bool DataPlayer::setAIModel()
 
 bool DataPlayer::doFullSynthetics()
 {
+    refmodel_.erase();
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
     Seis::RaySynthGenerator gen;
