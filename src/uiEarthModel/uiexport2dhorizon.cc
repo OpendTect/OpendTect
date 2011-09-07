@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.14 2011-03-17 12:22:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.15 2011-09-07 12:04:49 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.14 2011-03-17 12:22:26
 #include "surfaceinfo.h"
 #include "survinfo.h"
 
-#include "uibutton.h"
+#include "uichecklist.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
@@ -68,24 +68,15 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    wrlnmsbox_ = new uiCheckBox( this, "Write line name" );
-    wrlnmsbox_->attach( alignedBelow, udffld_ );
-    wrlnmsbox_->setChecked( true );
-    bool setchk = true;
-    if ( SI().zIsTime() )
-	zbox_ = new uiCheckBox( this, "Z in msec" );
-    else
-    {
-	zbox_ = new uiCheckBox( this, "Z in feet" );
-	setchk = SI().depthsInFeetByDefault();
-    }
-
-    zbox_->setChecked( setchk );
-    zbox_->attach( rightTo, wrlnmsbox_ );
+    optsfld_ = new uiCheckList( this, "Write line name",
+	    		SI().zIsTime() ? "Z in msec" : "Z in feet" );
+    optsfld_->attach( alignedBelow, udffld_ );
+    optsfld_->setChecked( 0, true );
+    optsfld_->setChecked( 1, !SI().zIsTime() && SI().depthsInFeetByDefault() );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		      uiFileInput::Setup().forread(false) );
-    outfld_->attach( alignedBelow, wrlnmsbox_ );
+    outfld_->attach( alignedBelow, optsfld_ );
 
     horChg( 0 );
 }
@@ -146,9 +137,9 @@ bool uiExport2DHorizon::doExport()
 	    undefstr = "-";
     }
 
-    const float zfac = !zbox_->isChecked() ? 1
+    const float zfac = !optsfld_->isChecked(1) ? 1
 		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
-    const bool wrlnms = wrlnmsbox_->isChecked();
+    const bool wrlnms = optsfld_->isChecked( 0 );
     char buf[180];
     writeHeader( *sd.ostrm );
     for ( int idx=0; idx< linenms.size(); idx++ )
@@ -220,8 +211,8 @@ void uiExport2DHorizon::writeHeader( std::ostream& strm )
     if ( headerfld_->getIntValue() == 0 )
 	return;
 
-    const bool wrtlnm = wrlnmsbox_->isChecked();
-    BufferString zstr( "Z", zbox_->isChecked() ? "(ms)" : "(s)" );
+    const bool wrtlnm = optsfld_->isChecked( 0 );
+    BufferString zstr( "Z", optsfld_->isChecked(1) ? "(ms)" : "(s)" );
     BufferString headerstr;
     if ( headerfld_->getIntValue() == 1 )
     {

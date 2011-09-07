@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.19 2011-05-09 05:42:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.20 2011-09-07 12:04:49 cvsbert Exp $";
 
 #include "uiexpfault.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiexpfault.cc,v 1.19 2011-05-09 05:42:38 cvssat
 #include "strmprov.h"
 #include "survinfo.h"
 #include "uibutton.h"
+#include "uichecklist.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
@@ -71,24 +72,26 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     zbox_->setChecked( setchk );
     zbox_->attach( rightTo, coordfld_ );
 
-    stickfld_ = new uiCheckBox( this, "stick index" );
-    stickfld_->setChecked( true );
-    stickfld_->attach( alignedBelow, coordfld_ );
-    nodefld_ = new uiCheckBox( this, "node index" );
-    nodefld_->setChecked( false );
-    nodefld_->attach( rightTo, stickfld_ );
-    uiLabel* lbl = new uiLabel( this, "Write", stickfld_ );
+    stickidsfld_ = new uiCheckList( this, "Stick index", "Node Index",
+	    			    uiCheckList::ChainAll );
+    stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
+    stickidsfld_->attach( alignedBelow, coordfld_ );
+    uiLabel* lbl = new uiLabel( this, "Write" );
+    lbl->attach( leftOf, stickidsfld_ );
 
     if ( mGet(typ,true,false) )
     {
 	linenmfld_ = new uiCheckBox( this, "Write line name if picked on 2D" );
 	linenmfld_->setChecked( true );
-	linenmfld_->attach( alignedBelow, stickfld_ );
+	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
-    outfld_->attach( alignedBelow, linenmfld_ ? linenmfld_ : stickfld_ );
+    if ( linenmfld_ )
+	outfld_->attach( alignedBelow, linenmfld_ );
+    else
+	outfld_->attach( alignedBelow, stickidsfld_ );
 }
 
 
@@ -156,8 +159,8 @@ bool uiExportFault::writeAscii()
     const float zfac = !zbox_->isChecked() ? 1
 		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
     const bool doxy = coordfld_->getBoolValue();
-    const bool inclstickidx = stickfld_->isChecked();
-    const bool inclknotidx = nodefld_->isChecked();
+    const bool inclstickidx = stickidsfld_->isChecked( 0 );
+    const bool inclknotidx = stickidsfld_->isChecked( 1 );
     const EM::SectionID sectionid = emobj->sectionID( 0 );
     const int nrsticks = nrSticks( emobj.ptr(), sectionid );
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
