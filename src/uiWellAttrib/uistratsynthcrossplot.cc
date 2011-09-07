@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.31 2011-07-15 12:01:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.32 2011-09-07 08:59:11 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -81,7 +81,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     if ( fids.isEmpty() && psfids.isEmpty() )
 	{ errmsg_ = "Missing or invalid datapacks"; return;}
 
-    uiAttribDescSetBuild::Setup bsu( !SI().has3D() );
+    uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() );
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
     seisattrfld_->setDataPackInp( fids, false );
