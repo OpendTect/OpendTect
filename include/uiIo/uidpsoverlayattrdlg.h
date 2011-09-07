@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 class uiColorTable;
 class uiComboBox;
-class uiCheckBox;
 class uiDataPointSetCrossPlotter;
 		     
 mClass uiDPSOverlayPropDlg : public uiDialog
@@ -32,8 +31,6 @@ protected:
     uiColorTable*		y4coltabfld_;
     uiComboBox*			y3propselfld_;
     uiComboBox*			y4propselfld_;
-    uiCheckBox*			y3chkbox_;
-    uiCheckBox*			y4chkbox_;
     TypeSet<int>		colids_;
 
     const char* 	userName(int did) const;
