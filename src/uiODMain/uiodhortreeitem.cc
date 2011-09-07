@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.72 2011-05-09 05:57:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.73 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -63,8 +63,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
-    mnu.insertItem( new uiMenuItem("Load &color blended..."), mLoadCBIdx );
+    mnu.insertItem( new uiMenuItem("&Add ..."), mLoadIdx );
+    mnu.insertItem( new uiMenuItem("Add &color blended..."), mLoadCBIdx );
 
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
     mnu.insertItem( newmenu, mNewIdx );
@@ -237,14 +237,14 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
 
 void uiODHorizonTreeItem::initMenuItems()
 {
+    algomnuitem_.text = "&Tools";
+    workflowsmnuitem_.text = "Workflows";
     positionmnuitem_.text = "&Position ...";
     shiftmnuitem_.text = "&Shift ...";
-    algomnuitem_.text = "&Algorithms";
-    fillholesmnuitem_.text = "&Grid ...";
-    filterhormnuitem_.text = "&Filter ...";
-    snapeventmnuitem_.text = "Snap to &event ...";
+    fillholesmnuitem_.text = "&Gridding ...";
+    filterhormnuitem_.text = "&Filtering ...";
+    snapeventmnuitem_.text = "Snapping ...";
     geom2attrmnuitem_.text = "Store Z as &Attribute ...";
-    removeselectionmnuitem_.text = "&Remove selection";
 }
 
 
@@ -380,23 +380,22 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &geom2attrmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
-	if ( selector )
-    	    mResetMenuItem( &removeselectionmnuitem_ );
     }
     else
     {
-	mAddMenuItem( menu, &createflatscenemnuitem_, true, false );
-	mAddMenuItem( menu, &positionmnuitem_, true, false );
+	mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
-	mAddMenuItem( menu, &shiftmnuitem_, !islocked, false )
+	
 	mAddMenuItem( menu, &algomnuitem_, true, false );
-	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
+	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
+	mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
 	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
-	mAddMenuItem( menu, &removeselectionmnuitem_, (!islocked && selector), 
-		      false );
+
+	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
+	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, true, false );
     }
 }
 
@@ -529,16 +528,6 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( emid_, isenabled, curshift,
 				     visserv_->canAddAttrib( visid, 1) );
-    }
-    else if ( mnuid==removeselectionmnuitem_.id )
-    {
-	const Selector<Coord3>* sel = 
-	    applMgr()->visServer()->getCoordSelector( sceneID() );
-	if ( sel && sel->isOK() )
-	{
-	    uiTaskRunner taskrunner( getUiParent() );
-	    EM::EMM().removeSelected( emid_, *sel, &taskrunner );
-	}
     }
     else
 	handled = false;
@@ -694,7 +683,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
 {
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
     snapeventmnuitem_.text = "Snap to &event ...";
-    interploatemnuitem_.text = "&Interpolate ...";
+    interpolatemnuitem_.text = "&Interpolate ...";
 }
 
 
@@ -729,7 +718,7 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
-	mResetMenuItem( &interploatemnuitem_ );
+	mResetMenuItem( &interpolatemnuitem_ );
     }
     else
     {
@@ -737,7 +726,7 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
 	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
 	mAddMenuItem( menu, &snapeventmnuitem_, !isempty, false );
-	mAddMenuItem( menu, &interploatemnuitem_, !isempty, false );
+	mAddMenuItem( menu, &interpolatemnuitem_, !isempty, false );
     }
 	
 }
@@ -752,7 +741,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     bool handled = true;
-    if ( mnuid==interploatemnuitem_.id )
+    if ( mnuid==interpolatemnuitem_.id )
     {
 	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);

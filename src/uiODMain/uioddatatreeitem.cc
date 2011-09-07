@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.60 2011-07-08 14:20:10 cvshelene Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.61 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -42,6 +42,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movetobottommnuitem_("to &bottom")
     , moveupmnuitem_("&up")
     , movedownmnuitem_("&down")
+    , displaymnuitem_("&Display")
     , removemnuitem_("&Remove",-1000)
     , changetransparencyitem_("Change &transparency ...")
     , statisticsitem_("Show &Histogram ...")
@@ -264,23 +265,24 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &movemnuitem_ );
     }
 
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
     const bool isvert = visserv->isVerticalDisp( displayID() );
     if ( hasdatapack )
-	mAddMenuItem( menu, &statisticsitem_, true, false )
+	mAddMenuItem( &displaymnuitem_, &statisticsitem_, true, false )
     else
 	mResetMenuItem( &statisticsitem_ )
 
     if ( hasdatapack && isvert )
-	mAddMenuItem( menu, &amplspectrumitem_, true, false )
+	mAddMenuItem( &displaymnuitem_, &amplspectrumitem_, true, false )
     else
 	mResetMenuItem( &amplspectrumitem_ )
 
     mAddMenuItem( menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
     if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
-	mAddMenuItem( menu, &changetransparencyitem_, true, false )
+	mAddMenuItem( &displaymnuitem_, &changetransparencyitem_, true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
@@ -302,7 +304,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	    mResetMenuItem( &view2dwvaitem_ );
 
 	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, hasattrib, false )
-	mAddMenuItem( menu, &addto2dvieweritem_, hasattrib, false )
+	mAddMenuItem( &displaymnuitem_, &addto2dvieweritem_, hasattrib, false )
     }
     else
     {

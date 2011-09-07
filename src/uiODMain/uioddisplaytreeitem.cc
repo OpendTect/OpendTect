@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.50 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.51 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -54,6 +54,8 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 }
 
 static const int cHistogramIdx = 991;
+static const int cAddIdx = 999;
+static const int cDisplayIdx = 998;
 static const int cAttribIdx = 1000;
 static const int cTextureInterpIdx = 997;
 static const int cDuplicateIdx = 900;
@@ -66,17 +68,19 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
-    , addattribmnuitem_("&Add attribute",cAttribIdx)
-    , addvolprocmnuitem_("Add &Volume Processing attribute",cAttribIdx)
+    , addmnuitem_("&Add",cAddIdx)
+    , addattribmnuitem_("&Attribute",cAttribIdx)
+    , addvolprocmnuitem_("&Volume Processing attribute",cAttribIdx)
+    , displaymnuitem_("&Display",cDisplayIdx)
     , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
-    , displyhistgram_("&Show histogram ...",cHistogramIdx)		   
+    , histogrammnuitem_("&Histogram ...",cHistogramIdx)		   
     , linkmnuitem_("&Link ...",cLinkIdx)
     , lockmnuitem_("&Lock",cLockIdx)
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
 {
     removemnuitem_.iconfnm = "stop.png";
-    displyhistgram_.iconfnm = "histogram.png";
+    histogrammnuitem_.iconfnm = "histogram.png";
     lockmnuitem_.iconfnm = "lock_small.png";
 }
 
@@ -273,10 +277,10 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( visserv_->hasAttrib(displayid_) &&
 	 visserv_->canHaveMultipleAttribs(displayid_) )
     {
-	mAddMenuItem( tb, &displyhistgram_, true, false );
+	mAddMenuItem( tb, &histogrammnuitem_, true, false );
     }
     else
-	mResetMenuItem( &displyhistgram_ );
+	mResetMenuItem( &histogrammnuitem_ );
 
     mAddMenuItem( tb, &lockmnuitem_, true, false );
     mAddMenuItem( tb, &removemnuitem_, !visserv_->isLocked(displayid_),false);
@@ -292,26 +296,31 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     if ( visserv_->hasAttrib(displayid_) &&
 	 visserv_->canHaveMultipleAttribs(displayid_) )
     {
-	mAddMenuItem( menu, &addattribmnuitem_,
+	mAddMenuItem( menu, &addmnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addattribmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
-	mAddMenuItem( menu, &displyhistgram_, true, false );
-	mAddMenuItem( menu, &addvolprocmnuitem_,
+	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	mAddMenuItem( &displaymnuitem_, &histogrammnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addvolprocmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
-		      visserv_->canAddAttrib( displayid_,1 ), false );
+		      visserv_->canAddAttrib(displayid_,1), false );
     }
     else
     {
 	mResetMenuItem( &addvolprocmnuitem_ );
 	mResetMenuItem( &addattribmnuitem_ );
-	mResetMenuItem( &displyhistgram_ );
+	mResetMenuItem( &histogrammnuitem_ );
     }
 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
+
+#ifdef __debug__
     if ( visserv_->canHaveMultipleAttribs(displayid_) )
     { mAddMenuItem( menu, &linkmnuitem_, true, false ); }
     else
 	mResetMenuItem( &linkmnuitem_ );
+#endif
     
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
@@ -380,7 +389,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
-    else if ( mnuid==displyhistgram_.id )
+    else if ( mnuid==histogrammnuitem_.id )
     {
 	visserv_->displayMapperRangeEditForAttrbs( displayID() );
     }
@@ -408,5 +417,3 @@ void uiODDisplayTreeItem::prepareForShutdown()
     visserv_->turnSeedPickingOn( false );
     visserv_->removeObject( displayid_, sceneID() );
 }
-
-

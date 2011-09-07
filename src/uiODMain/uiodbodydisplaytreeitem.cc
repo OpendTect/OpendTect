@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.31 2011-05-27 11:53:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.32 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -54,7 +54,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Add ..."), 0 );
     mnu.insertItem( new uiMenuItem("&New polygon body..."), 1 );
     //mnu.insertItem( new uiMenuItem("&New body combination..."), 2 );
     addStandardItems( mnu );
@@ -158,15 +158,14 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     , savemnuitem_("&Save")
     , saveasmnuitem_("Save &as ...")
-    , displaymnuitem_( "&Display ..." )
-    , displaybodymnuitem_ ( "&Body" )
-    , displaypolygonmnuitem_( "&Picked polygons" )			    
-    , displayintersectionmnuitem_( "&Intersections" )
-    , removeselectedmnuitem_( "&Remove selection" )
-    , singlecolormnuitem_( "Use Single &color" )
-    , mcd_( 0 )
-    , plg_( 0 )
-    , rpb_( 0 ) 	       
+    , displaymnuitem_("&Display")
+    , displaybodymnuitem_("&Body")
+    , displaypolygonmnuitem_("&Picked polygons")			    
+    , displayintersectionmnuitem_("&Intersections")
+    , singlecolormnuitem_("Use single &color")
+    , mcd_(0)
+    , plg_(0)
+    , rpb_(0) 	       
 {
     displaybodymnuitem_.checkable = true;
     displaypolygonmnuitem_.checkable = true;
@@ -180,15 +179,14 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , emid_( -1 )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
-    , displaymnuitem_( "Display ..." )				   
-    , displaybodymnuitem_ ( "Body" )
-    , displaypolygonmnuitem_( "Picked polygons" )			    
-    , displayintersectionmnuitem_( "Intersections" )
-    , removeselectedmnuitem_( "&Remove selection" )
-    , singlecolormnuitem_( "Use Single &color" )
-    , mcd_( 0 )
-    , plg_( 0 )	       
-    , rpb_( 0 ) 	       
+    , displaymnuitem_("Display")				   
+    , displaybodymnuitem_("Body")
+    , displaypolygonmnuitem_("Picked polygons")			    
+    , displayintersectionmnuitem_("Intersections")
+    , singlecolormnuitem_("Use single &color")
+    , mcd_(0)
+    , plg_(0)	       
+    , rpb_(0) 	       
 {
     displayid_ = id;
     displaybodymnuitem_.checkable = true;
@@ -376,23 +374,21 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd )
     {
+	mAddMenuItem( menu, &displaymnuitem_, true, true );
+	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, !mcd->usesTexture() );
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
-	mAddMenuItem( menu, &singlecolormnuitem_, true, !mcd->usesTexture() );
     }
 
     if ( plg )
     {
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		      plg_->isBodyDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
-		      plg_->arePolygonsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		      plg_->areIntersectionsDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
+		      plg_->arePolygonsDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	
-	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-	mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
 	
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );

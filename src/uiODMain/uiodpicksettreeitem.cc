@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.71 2011-06-17 05:23:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.72 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -126,8 +126,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load PickSet ..."), mLoadIdx );
-    mnu.insertItem( new uiMenuItem("Load &Polygon..."), mLoadPolyIdx );
+    mnu.insertItem( new uiMenuItem("&Add PickSet ..."), mLoadIdx );
+    mnu.insertItem( new uiMenuItem("Add &Polygon..."), mLoadPolyIdx );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New PickSet" );
     newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
     newmnu->insertItem( new uiMenuItem("Generate &3D..."), mGen3DIdx );
@@ -138,7 +138,6 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     if ( children_.size() > 0 )
     {
-	mnu.insertItem( new uiMenuItem("&Save changes"), mSaveIdx );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
 	    new uiMenuItem( "&Display picks only at sections" );
@@ -148,7 +147,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Merge Sets"), mMergeIdx );
+	mnu.insertItem( new uiMenuItem("&Merge Sets ..."), mMergeIdx );
+	mnu.insertItem( new uiMenuItem("&Save changes"), mSaveIdx );
     }
 
     addStandardItems( mnu );
@@ -226,10 +226,9 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , storemnuitem_("&Save")
     , storeasmnuitem_("Save &As ...")
     , dirmnuitem_("Set &directions ...")
-    , onlyatsectmnuitem_("Display &only at sections")
+    , onlyatsectmnuitem_("&Only at sections")
     , propertymnuitem_("&Properties ...")
     , closepolyitem_("&Close Polygon")
-    , removeselectionmnuitem_( "&Remove selection" )
     , convertbodymnuitem_( "Convert to body" )
 {
     displayid_ = did;
@@ -301,21 +300,18 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     else
 	mResetMenuItem( &closepolyitem_ );
 
-    const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
-
-    mAddMenuItem( menu, &propertymnuitem_, true, false );
-    mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
-
     const bool hasbody = psd && psd->isBodyDisplayed();
     mAddMenuItem( menu, &convertbodymnuitem_, hasbody, false )
 
-    mAddMenuItem( menu, &dirmnuitem_, true, false );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true, !psd->allShown() );
+    mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &dirmnuitem_, true, false );
 
     const int setidx = Pick::Mgr().indexOf( set_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     mAddMenuItem( menu, &storemnuitem_, changed, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-    mAddMenuItem( menu, &removeselectionmnuitem_, selector, false );
 }
 
 
@@ -367,15 +363,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
 	convertbodymnuitem_.enabled = psd ? psd->isBodyDisplayed() : false;
-    }
-    else if( mnuid==removeselectionmnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-	if ( sel->isOK() )
-	    psd->removeSelection( *sel, 0 );
-	else
-	    uiMSG().error("Invalid selection : self-intersecting polygon");
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {

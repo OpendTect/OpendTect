@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.82 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.83 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -191,11 +191,11 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
        							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_("Z values")
-    , savesurfacedatamnuitem_("Save attribute ...")
+    , savesurfacedatamnuitem_("Save as Surface data ...")
     , loadsurfacedatamnuitem_("Surface data ...")
-    , algomnuitem_("&Algorithms")
-    , fillholesmnuitem_("&Grid ...")
-    , filtermnuitem_("&Filter ...")
+    , algomnuitem_("&Tools")
+    , fillholesmnuitem_("&Gridding ...")
+    , filtermnuitem_("&Filtering ...")
     , attr2geommnuitm_("Set &Z values ...")
     , changed_(false)
     , emid_(objid)
@@ -236,8 +236,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
 }
 

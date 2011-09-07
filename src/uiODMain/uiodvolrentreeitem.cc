@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.58 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.59 2011-09-07 17:36:01 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -103,13 +103,13 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
-    : positionmnuitem_("P&osition ...")
-    , statisticsmnuitem_("Show &Histogram ...") 
-    , amplspectrummnuitem_( "Show Amplitude Sp&ectrum ...")		     
-    , addmnuitem_("&Add")
+    : addmnuitem_("&Add")
+    , statisticsmnuitem_("&Histogram ...") 
+    , amplspectrummnuitem_( "&Amplitude Spectrum ...")		     
+    , positionmnuitem_("&Position ...")
     , addlinlslicemnuitem_("&In-line slice")
     , addlcrlslicemnuitem_("&Cross-line slice")
-    , addltimeslicemnuitem_("&Time slice")
+    , addltimeslicemnuitem_("&Z slice")
     , addvolumemnuitem_("&Volume")
     , addisosurfacemnuitem_("Iso s&urface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
@@ -192,15 +192,16 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
     if ( attrserv->getIOObj(*as) )
 	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
 
-    mAddMenuItem( menu, &positionmnuitem_, !islocked, false );
-    mAddMenuItem( menu, &statisticsmnuitem_, true, false );
-    mAddMenuItem( menu, &amplspectrummnuitem_, true, false );
-    mAddMenuItem( menu, &addmnuitem_, true, false );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
     mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
     mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
     mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
     mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
     mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &statisticsmnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, !islocked, false );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn ); 

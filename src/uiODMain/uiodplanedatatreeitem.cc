@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.47 2011-08-04 16:36:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.48 2011-09-07 17:36:01 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -222,9 +222,9 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem( menu, &positionmnuitem_, !visserv_->isLocked(displayid_),
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, !visserv_->isLocked(displayid_),
 	          false );
-    mAddMenuItem( menu, &gridlinesmnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &gridlinesmnuitem_, true, false );
 }
 
 

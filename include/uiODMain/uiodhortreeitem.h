@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.18 2011-05-05 08:53:01 cvssatyaki Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.19 2011-09-07 17:36:01 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -53,13 +53,13 @@ protected:
 
     uEMHorizonShiftDialog* horshiftdlg_;
     MenuItem		algomnuitem_;
+    MenuItem		workflowsmnuitem_;
     MenuItem		fillholesmnuitem_;
     MenuItem		filterhormnuitem_;
     MenuItem		geom2attrmnuitem_;
     MenuItem		positionmnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
-    MenuItem		removeselectionmnuitem_;
     bool		rgba_;
 };
 
@@ -98,7 +98,7 @@ protected:
 
     MenuItem		derive3dhormnuitem_;
     MenuItem		snapeventmnuitem_;
-    MenuItem		interploatemnuitem_;
+    MenuItem		interpolatemnuitem_;
 };
 
 
