@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.113 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.114 2011-09-07 11:00:08 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1010,10 +1010,10 @@ static const char* getCmd( const char* fnm )
     if ( interp )
     {
 	static StaticStringManager stm;
-	BufferString& fullexec = StaticStringManager::STM().getString();
+	BufferString& fullexec = stm.getString();
 
 	fullexec = "\"";
-
+	 
 	FilePath interpfp;
 
 	if ( getCygDir() )
