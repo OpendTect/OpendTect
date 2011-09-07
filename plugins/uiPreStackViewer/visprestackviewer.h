@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.29 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.30 2011-09-07 19:45:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     bool			isOrientationInline() const;
     const Coord			getBaseDirection() const; 
     const StepInterval<int>	getTraceRange(const BinID& bid) const;
+    NotifierAccess*		getMovementNotifier() { return &movefinished_; }
 
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
@@ -150,6 +151,7 @@ protected:
 
     SeisPSReader*			reader_;
     IOObj*				ioobj_;
+    Notifier<Viewer3D>			movefinished_;
 };
 
 }; //namespace
