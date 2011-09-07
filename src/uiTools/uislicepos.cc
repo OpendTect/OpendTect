@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.13 2011-04-04 12:36:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.14 2011-09-07 16:10:06 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -88,7 +88,7 @@ void uiSlicePos::setBoxLabel( Orientation orientation )
     else if ( orientation == uiSlicePos::Crossline )
 	label_->setText( boxlabels_.get(1) );
     else
-	label_->setText( boxlabels_.get(1) );
+	label_->setText( boxlabels_.get(2) );
 }
 
 
