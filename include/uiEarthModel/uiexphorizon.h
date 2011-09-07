@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.20 2011-03-15 12:19:08 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.21 2011-09-07 12:04:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 class uiFileInput;
 class uiGenInput;
 class uiSurfaceRead;
-class uiCheckBox;
 class uiUnitSel;
 class uiPushButton;
 class uiT2DConvSel;
