@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.2 2011-09-07 10:59:26 cvsranojay Exp $
+ RCS:           $Id: uichecklist.h,v 1.3 2011-09-07 12:03:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class BufferStringSet;
 
 /*! \brief Group of check boxes
  
- If you construct with 2 strings, then then th layout will be single-line
+ If you construct with 2 strings, then then the layout will be single-line
  (horizontal). With the BufferStringSet, it will be vertical.
  Policies:
  - Unrel: all boxes can be on or off
@@ -41,6 +41,7 @@ public:
 				    const char*,const char*,Pol=Unrel);
     Pol			pol() const		{ return pol_; }
 
+    int			size() const		{ return boxs_.size(); }
     bool		isChecked(int) const;
     void		setChecked(int,bool);
 
