@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.1 2011-09-06 12:02:43 cvsbert Exp $
+ RCS:           $Id: uichecklist.h,v 1.2 2011-09-07 10:59:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class BufferStringSet;
  
  */
 
-class uiCheckList : public uiGroup
+mClass uiCheckList : public uiGroup
 {
 public:
 
