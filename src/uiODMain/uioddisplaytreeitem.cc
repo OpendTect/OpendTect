@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.51 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.52 2011-09-07 18:07:06 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -59,7 +59,6 @@ static const int cDisplayIdx = 998;
 static const int cAttribIdx = 1000;
 static const int cTextureInterpIdx = 997;
 static const int cDuplicateIdx = 900;
-static const int cLinkIdx = 800;
 static const int cLockIdx = -900;
 static const int cHideIdx = -950;
 static const int cRemoveIdx = -1000;
@@ -74,7 +73,6 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , displaymnuitem_("&Display",cDisplayIdx)
     , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
     , histogrammnuitem_("&Histogram ...",cHistogramIdx)		   
-    , linkmnuitem_("&Link ...",cLinkIdx)
     , lockmnuitem_("&Lock",cLockIdx)
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
@@ -315,13 +313,6 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
 
-#ifdef __debug__
-    if ( visserv_->canHaveMultipleAttribs(displayid_) )
-    { mAddMenuItem( menu, &linkmnuitem_, true, false ); }
-    else
-	mResetMenuItem( &linkmnuitem_ );
-#endif
-    
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
 
@@ -398,10 +389,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	visserv_->turnOn( displayid_, false );
 	updateCheckStatus();
-    }
-    else if ( mnuid==linkmnuitem_.id )
-    {
-	uiMSG().message( "Not implemented yet" );
     }
 }
 
