@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.20 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.21 2011-09-07 12:06:52 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -63,17 +63,18 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     const CallBack locb( mCB(this,uiGenRanLinesByContour,largestOnlyChg) );
     largestfld_ = new uiCheckBox( this, "Only use largest", locb );
     largestfld_->setChecked( false );
-    largestfld_->attach( alignedBelow, contzrgfld_ );
     nrlargestfld_ = new uiSpinBox( this, 0, "Number of largest" );
     nrlargestfld_->setInterval( 1, INT_MAX );
     nrlargestfld_->attach( rightOf, largestfld_ );
     largestendfld_ = new uiLabel( this, "Z-contour(s)" );
+    nrlargestfld_->attach( alignedBelow, contzrgfld_ );
+    largestfld_->attach( leftOf, nrlargestfld_ );
     largestendfld_->attach( rightOf, nrlargestfld_ );
     largestOnlyChg( 0 );
 
-    vtxthreshfld_ = new uiLabeledSpinBox( this, "Vertex threshold" );
+    vtxthreshfld_ = new uiLabeledSpinBox( this, "Minimum number of points" );
     vtxthreshfld_->box()->setInterval( 2, INT_MAX );
-    vtxthreshfld_->attach( alignedBelow, largestfld_ );
+    vtxthreshfld_->attach( alignedBelow, nrlargestfld_ );
 
     static const char* fldnm = "Random line Z range";
     const float wdth = 50 * sizrg.step;
