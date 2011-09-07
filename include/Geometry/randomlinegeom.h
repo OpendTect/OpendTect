@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.10 2009-07-23 11:18:52 cvsraman Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.11 2011-09-07 13:51:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,10 @@ public:
     int			nrNodes() const;
     const BinID&	nodePosition(int) const;
     void		allNodePositions(TypeSet<BinID>&) const;
+    static void		getPathBids(const TypeSet<BinID>& knots,
+	    				  TypeSet<BinID>& path,
+					  bool allowduplicate=false,
+					  TypeSet<int>* segments=0); 
 
     void		setZRange( const Interval<float>& rg )
     			{ zrange_ = rg; zrangeChanged.trigger(); }

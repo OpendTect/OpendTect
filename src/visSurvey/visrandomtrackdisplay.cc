@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.129 2010-11-30 12:22:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.130 2011-09-07 13:51:29 cvsbruno Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.129 2010-11-30 12:
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "interpol1d.h"
+#include "randomlinegeom.h"
 #include "scaler.h"
 #include "keystrs.h"
 #include "mousecursor.h"
@@ -399,45 +400,14 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 { getDataTraceBids( bids, 0 ); }
 
 
-#define mGetBinIDs( x, y ) \
-    bool reverse = stop.x - start.x < 0; \
-    int step = inlwise ? SI().inlStep() : SI().crlStep(); \
-    if ( reverse ) step *= -1; \
-    for ( int idi=0; idi<nrlines; idi++ ) \
-    { \
-	BinID bid; \
-	int bidx = start.x + idi*step; \
-	float val = Interpolate::linear1D( (float)start.x, (float)start.y, \
-					   (float)stop.x, (float)stop.y, \
-					   (float)bidx ); \
-	int bidy = (int)(val + .5); \
-	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
-	SI().snap( nextbid ); \
-	const_cast<RandomTrackDisplay*>(this)->trcspath_.addIfNew( nextbid ); \
-	bids += nextbid ; \
-	if ( segments ) (*segments) += (idx-1);\
-    }
-
-
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
        					   TypeSet<int>* segments ) const
 {
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase(); 
-    TypeSet<BinID> knots;
-    getAllKnotPos( knots );
-    for ( int idx=1; idx<knots.size(); idx++ )
-    {
-	BinID start = knots[idx-1];
-	BinID stop = knots[idx];
-	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
-	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
-	bool inlwise = nrinl > nrcrl;
-	int nrlines = inlwise ? nrinl : nrcrl;
-	if ( inlwise )
-	{ mGetBinIDs(inl,crl); }
-	else 
-	{ mGetBinIDs(crl,inl); }
-    }
+    TypeSet<BinID> knots; getAllKnotPos( knots );
+    Geometry::RandomLine::getPathBids( knots, bids, true, segments );
+    for ( int idx=0; idx<bids.size(); idx++ )
+	const_cast<RandomTrackDisplay*>(this)->trcspath_.addIfNew( bids[idx] );
 }
 
 

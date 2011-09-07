@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: randomlinegeom.cc,v 1.9 2009-07-23 11:19:16 cvsraman Exp $";
+static const char* rcsID = "$Id: randomlinegeom.cc,v 1.10 2011-09-07 13:51:29 cvsbruno Exp $";
 
 #include "randomlinegeom.h"
+
+#include "interpol1d.h"
 #include "cubesampling.h"
 #include "iopar.h"
 #include "survinfo.h"
@@ -106,6 +108,51 @@ void RandomLine::limitTo( const CubeSampling& cs )
 	nodes_[1] = SI().transform( points[0] );
     }
 }
+
+
+#define mGetBinIDs( x, y ) \
+    bool reverse = stop.x - start.x < 0; \
+    int step = inlwise ? SI().inlStep() : SI().crlStep(); \
+    if ( reverse ) step *= -1; \
+    for ( int idi=0; idi<nrlines; idi++ ) \
+    { \
+	BinID bid; \
+	int bidx = start.x + idi*step; \
+	float val = Interpolate::linear1D( (float)start.x, (float)start.y, \
+					   (float)stop.x, (float)stop.y, \
+					   (float)bidx ); \
+	int bidy = (int)(val + .5); \
+	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
+	SI().snap( nextbid ); \
+	if ( allowduplicate ) \
+	    bids += nextbid ; \
+	else \
+	    bids.addIfNew( nextbid ); \
+	if ( segments ) (*segments) += (idx-1);\
+    }
+
+void RandomLine::getPathBids( const TypeSet<BinID>& knots, 
+			    TypeSet<BinID>& bids, 
+			    bool allowduplicate,
+			    TypeSet<int>* segments ) 
+{
+    for ( int idx=1; idx<knots.size(); idx++ )
+    {
+	BinID start = knots[idx-1];
+	BinID stop = knots[idx];
+	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
+	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
+	bool inlwise = nrinl > nrcrl;
+	int nrlines = inlwise ? nrinl : nrcrl;
+	if ( inlwise )
+	    { mGetBinIDs(inl,crl); }
+	else
+	    { mGetBinIDs(crl,inl); }
+    }
+}
+
+
+
 
 
 RandomLineSet::RandomLineSet()
@@ -229,5 +276,6 @@ void RandomLineSet::limitTo( const CubeSampling& cs )
     }
 }
 
+} //namespace
 
-} // namespace
+
