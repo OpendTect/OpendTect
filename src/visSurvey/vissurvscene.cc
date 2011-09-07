@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.147 2011-05-17 12:00:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.148 2011-09-07 19:48:27 cvsyuancheng Exp $";
 
 #include "vissurvscene.h"
 
@@ -307,7 +307,7 @@ void Scene::addObject( visBase::DataObject* obj )
 	so->setZAxisTransform( datatransform_,0 );
 
     if ( so )
-	objectMoved(0);
+	objectMoved( obj );
 }
 
 
