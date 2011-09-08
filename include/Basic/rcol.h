@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.22 2010-10-14 09:58:06 cvsbert Exp $
+ RCS:		$Id: rcol.h,v 1.23 2011-09-08 15:05:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,8 +101,8 @@ bool	clss::use(const char* str) \
 bool clss::isNeighborTo( const clss& rc, const clss& step, \
 		         bool eightconnectivity ) const \
 { \
-    const clss diff(abs(row-rc.row),abs(row-rc.row)); \
-    const bool areeightconnected = diff.row<=step.row && diff.col<=step.row && \
+    const clss diff(abs(row-rc.row),abs(col-rc.col)); \
+    const bool areeightconnected = diff.row<=step.row && diff.col<=step.col && \
 	                                 !(!diff.row && !diff.col); \
     if ( eightconnectivity ) \
 	return areeightconnected; \
