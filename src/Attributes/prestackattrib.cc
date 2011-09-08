@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.23 2011-06-27 08:41:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.24 2011-09-08 14:14:00 cvsbruno Exp $";
 
 #include "prestackattrib.h"
 
@@ -205,7 +205,13 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	PreStack::Gather* curgather = 0;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )  
 	{                                       
-           if ( gatherset_[idx]->getBinID() == bid )
+	    //TODO full support for 2d : idx is not really my nymber of traces
+	    if ( desc_.is2D() )
+	    {
+		if ( idx == bid.crl )
+		   curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
+	    }
+            else if ( gatherset_[idx]->getBinID() == bid )
 	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
 	}
 	if (!curgather ) return false;
