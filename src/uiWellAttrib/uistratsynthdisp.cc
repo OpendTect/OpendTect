@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.55 2011-09-08 14:16:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.56 2011-09-08 15:09:09 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -147,6 +147,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
     delete wvlt_; wvlt_ = 0;
     delete &stratsynth_;
     deepErase( synthetics_ );
+    deepErase( tmpsynthetics_ );
     delete tmpsynthetic_;
 }
 
@@ -444,21 +445,24 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 
 const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() 
 {
+    deepErase( tmpsynthetics_ );
     if ( synthetics_.isEmpty() && tmpsynthetic_ )
     {
-	const bool isps = raypars_.cs_.hrg.crlRange().width() > 0;
-	raypars_.synthname_ = getSynthDefaultName( raypars_ );
-	addSynthetic( raypars_, isps ); 
+	RayParams rp( raypars_ );
+	const bool isps = rp.cs_.hrg.crlRange().width() > 0;
+	rp.synthname_ = getSynthDefaultName( rp );
+	const SyntheticData* sd = stratsynth_.generate( rp, isps );
+	if ( sd ) tmpsynthetics_ += sd;
 
-	raypars_ = isps ? RayParams::genDefaultPostStack( lm_.size() ) 
+	rp = isps ? RayParams::genDefaultPostStack( lm_.size() ) 
 			: RayParams::genDefaultPreStack( lm_.size() ); 
-	raypars_.synthname_ = getSynthDefaultName( raypars_ );
-	addSynthetic( raypars_, !isps ); 
+	rp.synthname_ = getSynthDefaultName( rp );
+	sd = stratsynth_.generate( rp, !isps );
+	if ( sd ) tmpsynthetics_ += sd;
+	return tmpsynthetics_;
     }
-
     return synthetics_;
 }
-
 
 
 uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp ) 
