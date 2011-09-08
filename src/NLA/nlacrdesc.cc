@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.21 2009-10-15 10:07:13 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.22 2011-09-08 15:13:10 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -57,7 +57,6 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 					  DataPointSet& dps ) const
 {
     int nrout = dpss.size();
-    BufferString dpsnmadd;
     int totnrvec = 0;
 
     if ( doextraction )
@@ -84,8 +83,6 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	const bool ismini = dpss[0]->isMinimal();
 	deepErase( ncdpss );
 	ncdpss += new DataPointSet( vds, is2d, ismini );
-	dpsnmadd += " (data from '";
-	dpsnmadd += ioobj->name(); dpsnmadd += "')";
 	nrout = 1;
 	totnrvec = dpss[0]->size();
 	const_cast<NLACreationDesc*>(this)->pars.merge( vds.pars() );
@@ -93,18 +90,30 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     if ( totnrvec < 1 )
 	return "No data vectors found";
 
+    dps.setEmpty();
+    const DataPointSet& dps0 = *dpss[0];
+    int nrcols = dps0.nrCols();
+    BoolTypeSet isincl; isincl += true;
+    for ( int icol=0; icol<nrcols; icol++ )
+    {
+	const DataColDef& cd( dps0.colDef(icol) );
+	const char* colnm = cd.name_.buf();
+	const bool issel = design.inputs.isPresent(colnm)
+			|| design.outputs.isPresent(colnm);
+	isincl += issel;
+	if ( issel )
+	    dps.dataSet().add( new DataColDef(cd) );
+    }
+
     // If not direct prediction, add a ColumnDef for each output node
-    dps.dataSet().copyStructureFrom( dpss[0]->dataSet() );
-    const int orgnrcols = dps.dataSet().nrCols();
-    int nrcols = orgnrcols;
-    if ( doextraction && !isdirect )
+    const bool addcols = doextraction && !isdirect;
+    if ( addcols )
     {
         for ( int iout=0; iout<nrout; iout++ )
 	{
 	    BufferString psnm = LineKey::defKey2DispName( outids.get(iout) );
             dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
-	nrcols = dps.nrCols();
     }
 
     // Get the data into train and test set
@@ -117,14 +126,24 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	const DataPointSet& curdps = *dpss[idps];
 	for ( DataPointSet::RowID irow=0; irow<curdps.size(); irow++ )
 	{
-	    DataPointSet::DataRow dr( curdps.dataRow(irow) );
-	    for ( int idx=0; idx<nrout; idx++ )
-		dr.data_ += idx == idps ? 1 : 0;
+	    DataPointSet::DataRow inpdr( curdps.dataRow(irow) );
+	    DataPointSet::DataRow outdr( inpdr );
+	    outdr.data_.erase();
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		if ( isincl[icol] )
+		    outdr.data_ += inpdr.data_[icol];
+	    }
+	    if ( addcols )
+	    {
+		for ( int iout=0; iout<nrout; iout++ )
+		    outdr.data_ += iout == idps ? 1 : 0;
+	    }
 
 	    const bool istest = extractrand ? Stats::RandGen::get() < ratiotst
 					     : irow > lasttrain;
-	    dr.setGroup( istest ? 2 : 1 );
-	    dps.addRow( dr );
+	    outdr.setGroup( istest ? 2 : 1 );
+	    dps.addRow( outdr );
 	}
     }
 
