@@ -27,7 +27,7 @@ static const char* rcsID = "$";
 static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("CrossPlot file management",
+    : uiObjFileMan(p,uiDialog::Setup("CrossPlot data file management",
 				     "Manage cross plots",
 				     mTODOHelpID).nrstatusflds(1),
 	           PosVecDataSetTranslatorGroup::ioContext())
@@ -72,7 +72,9 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
 
-    uiIOObjSelDlg seldlg( this, ctio, "Select CrossPlot to merge" );
+    BufferString lbl( "Select CrossPlot data to merge with '" );
+    lbl += dps->name(); lbl += "'";
+    uiIOObjSelDlg seldlg( this, ctio, lbl );
     if ( !seldlg.go() )
 	return;
 

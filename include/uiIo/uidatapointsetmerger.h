@@ -7,17 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          August 2011
- RCS:           $Id: uidatapointsetmerger.h,v 1.2 2011-09-05 10:40:16 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetmerger.h,v 1.3 2011-09-08 05:02:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "executor.h"
-#include "uidialog.h"
+#include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"
+#include "executor.h"
 
+#include "uidialog.h"
+
+class uiCheckBox;
 class uiComboBox;
+class uiGenInput;
 class uiIOObjSel;
 class uiTable;
 
@@ -31,7 +35,10 @@ public:
     				DPSMergerProp( const MultiID& id, int mid,
 					       int sid )
 				    : masterdpsid_(mid), slavedpsid_(sid)
-			       	    , newdpsid_(id)	{}
+			       	    , newdpsid_(id), maxz_(mUdf(float))
+			       	    , maxhordist_(mUdf(float))
+			       	    , dooverwriteundef_(false)	{}
+
    void				setColid(int masterid,int slaveid);
    
    enum	MatchPolicy		{ Exact, Nearest, NoMatch };
@@ -45,21 +52,38 @@ public:
 
    ReplacePolicy		replacePolicy() const	{ return replacepol_; }
 
-   int 				masterDPID() const	{ return masterdpsid_; }
+   int 				masterDPID() const	{ return masterdpsid_;}
    int 				slaveDPID() const	{ return slavedpsid_; }
    const MultiID&		newDPSID() const	{ return newdpsid_; }
-   const TypeSet<int>&		masterColIDs() const	{ return mastercolids_;}
-   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_; }
+   const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
+   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
+
+   float 			maxAllowedHorDist() const
+       				{ return maxhordist_; }
+   void				setMaxAllowedHorDist( float maxdist )
+   				{ maxhordist_ = maxdist; }
+
+   float			maxAllowedZDist() const	{ return maxz_; }
+   void				setMaxAllowedZDist( float maxz )
+       				{ maxz_ = maxz; }
+
+   bool				overWriteUndef() const
+   				{ return dooverwriteundef_; }
+   void				setOverWriteUndef( bool yn )
+       				{ dooverwriteundef_ = yn; }
 protected:
 
    MatchPolicy			matchpol_;
    ReplacePolicy		replacepol_;
 
+   bool				dooverwriteundef_;
    int 				masterdpsid_;
    int 				slavedpsid_;
    TypeSet<int>			mastercolids_;
    TypeSet<int>			slavecolids_;
    MultiID			newdpsid_;
+   float			maxhordist_;
+   float			maxz_;
 };
 
 
@@ -68,8 +92,9 @@ mClass DPSMerger : public Executor
 public:
     				DPSMerger(const DPSMergerProp&);
     
+    void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const		{ return rowdone_; }
-    od_int64			totalNr() const		{ return sdps_->size();}
+    od_int64			totalNr() const		{return sdps_->size();}
     const char*			nrDoneText() const
     				{ return "Postion processed"; }
     DataPointSet*		getNewDPS()		{ return newdps_; }
@@ -82,7 +107,6 @@ protected:
 
     int 			nextStep();
 
-    void 			addNewCols();
     int 			getSlaveColID(int mcolid);
     DataPointSet::DataRow 	getDataRow(int,int);
     DataPointSet::DataRow 	getNewDataRow(int);
@@ -98,6 +122,7 @@ public:
 				~uiDataPointSetMerger();
 protected:
 
+    BufferStringSet		newcolnames_;
     DataPointSet*		mdps_;
     DataPointSet*		sdps_;
     CtxtIOObj			ctio_;
@@ -105,10 +130,14 @@ protected:
     uiTable*			tbl_;
     uiComboBox*			matchpolfld_;
     uiComboBox*			replacepolfld_;
+    uiCheckBox*			overwritefld_;
+    uiGenInput*			distfld_;
+    uiGenInput*			zgatefld_;
     uiIOObjSel*			outfld_;
 
     void			setTable();
     bool			acceptOK(CallBacker*);
+    void			addColumn(CallBacker*);
     void			matchPolChangedCB(CallBacker*);
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsaddcolumndlg.cc,v 1.1 2011-07-11 11:40:57 cvssatyaki Exp $: 
+ RCS:           $Id: uidpsaddcolumndlg.cc,v 1.2 2011-09-08 05:02:11 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ void uiDPSAddColumnDlg::updateDisplay()
 
 bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
 {
-    if ( withmathop_ && !mathobj_ )
+    if ( !withmathop_ || (withmathop_ && !mathobj_) )
 	return true;
 
     usedcolids_.erase();

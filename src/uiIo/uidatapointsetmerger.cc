@@ -15,13 +15,17 @@ static const char* rcsID = "$";
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "ioman.h"
+#include "survinfo.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uidpsaddcolumndlg.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uicombobox.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
+#include "uitoolbutton.h"
 
 
 static int sAttrCol = 1;
@@ -38,20 +42,24 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     DataPack* sdp = DPM( DataPackMgr::PointID() ).obtain( prop.slaveDPID() );
     mDynamicCast(DataPointSet*,sdps_,sdp);
     newdps_ = new DataPointSet( *mdps_ );
-    addNewCols();
 }
 
 
-void DPSMerger::addNewCols()
+void DPSMerger::addNewCols( const BufferStringSet& clnms )
 {
+    if ( !clnms.size() ) return;
+
     TypeSet<int> slavecolids = prop_.slaveColIDs();
     TypeSet<int> mastercolids = prop_.masterColIDs();
+    int newcolidx = 0;
     for ( int col=0; col<mastercolids.size(); col++ )
     {
 	if ( mIsUdf(mastercolids[col]) )
 	{
-	    newdps_->dataSet().add(
-		    new DataColDef(sdps_->colName(slavecolids[col])) );
+	    if ( !clnms.validIdx(newcolidx) )
+		continue;
+	    newdps_->dataSet().add( new DataColDef(clnms[newcolidx]->buf()) );
+	    newcolidx++;
 	}
     }
 }
@@ -84,7 +92,10 @@ int DPSMerger::findMatchingMrowID( int srowid )
 	return -1;
 
     DataPointSet::Pos pos = sdps_->pos( srowid );
-    return mdps_->find( pos );
+    return prop_.matchPolicy()==DPSMergerProp::Exact
+			    ? mdps_->find( pos )
+			    : mdps_->find( pos, prop_.maxAllowedHorDist(),
+					   prop_.maxAllowedZDist() );
 }
 
 
@@ -129,11 +140,25 @@ DataPointSet::DataRow DPSMerger::getDataRow( int srowid, int mrowid )
     DataPointSet::DataRow mdr = mdps_->dataRow( mrowid );
     for ( int col=0; col<mastercolids.size(); col++ )
     {
-	mdr.data_[mastercolids[col]] =
-	    prop_.replacePolicy()==DPSMergerProp::Average
-	    	? (sdr.data()[slavecolids[col]]+
-		   mdr.data()[mastercolids[col]])/(float)2
-		: sdr.data()[slavecolids[col]];
+	int mastercolid = mastercolids[col];
+	if ( mIsUdf(mastercolid) )
+	{
+	    mdr.data_ += mUdf(float);
+	    mastercolid = mdr.data_.size()-1;
+	}
+	const float masterval = mdr.data_[mastercolid];
+	const float slaveval = sdr.data()[slavecolids[col]];
+	if ( prop_.overWriteUndef() && (mIsUdf(masterval) || mIsUdf(slaveval)) )
+	{
+	    if ( mIsUdf(masterval) )
+		mdr.data_[mastercolid] = slaveval;
+	}
+	else if ( prop_.replacePolicy()!=DPSMergerProp::No )
+	{
+	    mdr.data_[mastercolid] =
+		prop_.replacePolicy()==DPSMergerProp::Average
+		    ? (slaveval+ masterval)/(float)2 : slaveval;
+	}
     }
 
     return mdr;
@@ -163,19 +188,27 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     , sdps_(sdps)
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
 {
+    setPrefHeight( 500 );
     DPM( DataPackMgr::PointID() ).addAndObtain( mdps_ );
     DPM( DataPackMgr::PointID() ).addAndObtain( sdps_ );
  
-    BufferString capt( "Merge " );
-    capt += mdps->name();
-    capt += " with ";
-    capt += sdps_->name();
+    BufferString capt( "Merge '" );
+    capt += mdps->name(); 
+    capt += "' with '";
+    capt += sdps_->name(); capt += "'";
     setCaption( capt );
 
     tbl_ =
 	new uiTable( this, uiTable::Setup(mdps_->nrCols(),3).rowgrow(true), "");
     setTable();
 
+    BufferString addtxt( "Add new column to '" );
+    addtxt += mdps_->name(); addtxt += "'";
+
+    uiToolButton* addcolbut =
+	new uiToolButton( this, "plus.png", addtxt,
+			  mCB(this,uiDataPointSetMerger,addColumn) );
+    addcolbut->attach( rightTo, tbl_ );
 
     BufferStringSet matchopts;
     matchopts.add( "Exact match" );
@@ -186,22 +219,46 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 			       "How do you want to match positions?" );
     mlcbox->attach( leftAlignedBelow, tbl_ );
     matchpolfld_ = mlcbox->box();
+    matchpolfld_->setCurrentItem( 1 );
     matchpolfld_->selectionChanged.notify(
 	    mCB(this,uiDataPointSetMerger,matchPolChangedCB) );
 
+    BufferString maxtxt( "Within a horizontal distance" );
+    maxtxt += SI().getXYUnitString();
+    maxtxt += " of";
+    distfld_ = new uiGenInput( this, maxtxt, FloatInpSpec() );
+    distfld_->attach( alignedBelow, mlcbox );
+    distfld_->setValue( SI().inlDistance() );
+    
+    BufferString ztxt( "Within a vertical distance" );
+    ztxt += SI().getZUnitString();
+    ztxt += " of";
+    zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
+    zgatefld_->attach( alignedBelow, distfld_ );
+    zgatefld_->setValue( SI().zStep()*SI().zFactor() );
+    
     BufferStringSet replaceopts;
-    replaceopts.add( "Keep original" );
-    replaceopts.add( "Replace with new" );
-    replaceopts.add( "Average of both" );
+    BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
+    replaceopts.add( opt1 );
+
+    BufferString opt2( "Overwrite with '" );opt2 += sdps_->name();opt2 += "'";
+    replaceopts.add( opt2 );
+    replaceopts.add( "Take the average of both" );
+
     uiLabeledComboBox* rlcbox =
 	new uiLabeledComboBox( this, replaceopts,
 			       "Replace policy for matching positions" );
-    rlcbox->attach( leftAlignedBelow, mlcbox );
+    rlcbox->attach( alignedBelow, zgatefld_ );
     replacepolfld_ = rlcbox->box();
+
+    overwritefld_ = new uiCheckBox( this, "Always overwrite undefined values" );
+    overwritefld_->attach( leftAlignedBelow, rlcbox );
 
     ctio_.ctxt.forread = false;
     outfld_ = new uiIOObjSel( this, ctio_, "Output Crossplot" );
-    outfld_->attach( leftAlignedBelow, rlcbox ); 
+    outfld_->attach( leftAlignedBelow, overwritefld_ ); 
+
+    matchPolChangedCB( 0 );
 }
 
 
@@ -215,6 +272,9 @@ uiDataPointSetMerger::~uiDataPointSetMerger()
 void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )
 {
     replacepolfld_->setSensitive( matchpolfld_->currentItem()!=2 );
+    overwritefld_->display( matchpolfld_->currentItem()!=2 );
+    distfld_->display( matchpolfld_->currentItem()==1 );
+    zgatefld_->display( matchpolfld_->currentItem()==1 );
 }
 
 
@@ -222,26 +282,65 @@ void uiDataPointSetMerger::setTable()
 {
     tbl_->setColumnLabel( 0, mdps_->name() );
     tbl_->setColumnLabel( 1, sdps_->name() );
-    tbl_->setColumnLabel( 2, "Merger option" );
+    tbl_->setColumnLabel( 2, newcolnames_.size() ? "Merge/Add option"
+	    					 : "Merger option" );
     BufferStringSet colnames;
     for ( int colnr=0; colnr<sdps_->nrCols(); colnr++ )
 	colnames.add( sdps_->colName(colnr) );
 
-    for ( int rowidx=0; rowidx<mdps_->nrCols(); rowidx++ )
+    const int nrcols = mdps_->nrCols();
+    tbl_->setNrRows( nrcols+newcolnames_.size() );
+    
+    for ( int rowidx=0; rowidx<nrcols+newcolnames_.size(); rowidx++ )
     {
-	tbl_->setText( RowCol(rowidx,0), mdps_->colName(rowidx) );
+	const bool isnew = rowidx > nrcols-1;
+	BufferString colnm( isnew ? newcolnames_.get(rowidx-nrcols).buf()
+				  : mdps_->colName(rowidx) );
+	tbl_->setText( RowCol(rowidx,0), colnm );
 	uiComboBox* lb = new uiComboBox( 0, colnames, "Attributes" );
+	const int nearmatchidx = colnames.nearestMatch( colnm );
+	if ( nearmatchidx>= 0 )
+	    lb->setCurrentItem( nearmatchidx );
+	
 	tbl_->setCellObject( RowCol(rowidx,sAttrCol), lb );
+	
 	uiCheckBox* cb = new uiCheckBox( 0, "Merge" );
-	tbl_->setCellObject( RowCol(rowidx,sChkCol), new uiCheckBox(0,"Merge"));
+	tbl_->setCellObject( RowCol(rowidx,sChkCol),
+			     new uiCheckBox(0,isnew ? "Add" : "Merge"));
     }
+}
+
+
+
+void uiDataPointSetMerger::addColumn( CallBacker* )
+{
+    uiDPSAddColumnDlg dlg( this, false );
+    if ( !dlg.go() )
+	return;
+
+    newcolnames_.add( dlg.newAttribName() );
+    setTable();
 }
 
 
 bool uiDataPointSetMerger::acceptOK( CallBacker* )
 {
-    if ( !outfld_->ioobj() )
-    { uiMSG().error( "Select output first." ); return false; }
+   if ( !outfld_->ioobj() )
+       return false;
+
+    if ( matchpolfld_->currentItem()==1 )
+    {
+	if ( mIsUdf(distfld_->getfValue()) || distfld_->getfValue()<0 )
+	{
+	    uiMSG().error( "Choose a proper horizontal search radius" );
+	    return false;
+	}
+	else if ( mIsUdf(zgatefld_->getfValue()) || zgatefld_->getfValue()<0 )
+	{
+	    uiMSG().error( "Choose a proper vertical search radius" );
+	    return false;
+	}
+    }
 
     PtrMan<IOObj> dpsobj = outfld_->getIOObj();
     DPSMergerProp dpsmrfprop( dpsobj->key(), mdps_->id(), sdps_->id());
@@ -251,6 +350,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 	    (DPSMergerProp::ReplacePolicy)replacepolfld_->currentItem() );
     for ( int rowidx=0; rowidx<tbl_->nrRows(); rowidx++ )
     {
+	const bool isnew = rowidx > mdps_->nrCols()-1;
 	uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,sAttrCol) );
 	mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	if ( !combobox )
@@ -259,11 +359,17 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 	uiObject* obj = tbl_->getCellObject( RowCol(rowidx,sChkCol) );
 	mDynamicCastGet(uiCheckBox*,cb,obj);
 	if ( cb && cb->isChecked() )
-	    dpsmrfprop.setColid( rowidx, combobox->currentItem() );
+	    dpsmrfprop.setColid( isnew ? mUdf(int) : rowidx,
+		    		 combobox->currentItem() );
     }
 
     uiTaskRunner tr( this );
+    dpsmrfprop.setOverWriteUndef( overwritefld_->isChecked() );
+    dpsmrfprop.setMaxAllowedHorDist( distfld_->getfValue() );
+    dpsmrfprop.setMaxAllowedZDist( zgatefld_->getfValue()/SI().zFactor() );
+    
     DPSMerger merger( dpsmrfprop ); 
+    merger.addNewCols( newcolnames_ );
     tr.execute( merger );
 
     BufferString errmsg;
