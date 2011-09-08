@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.25 2009-08-07 12:53:11 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.h,v 1.26 2011-09-08 10:33:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ public:
 	    					 const char* filters=0);
     static void		setExternalFilenames(const FileMultiString&);
     static const char*	getExternalFilenamesErrMsg();
+    			// Warning starts with '!'-symbol
 
 protected:
 
@@ -92,7 +93,7 @@ protected:
     BufferString	filter_;
     BufferString	caption_;
     uiParent*		parnt_;
-    BufferStringSet	filenames;
+    BufferStringSet	filenames_;
     BufferString	selectedfilter_;
     BufferString	currentdir_;
     bool		addallexts_;

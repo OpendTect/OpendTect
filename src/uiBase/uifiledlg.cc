@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.58 2011-07-29 22:38:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.59 2011-09-08 10:33:02 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -145,7 +145,7 @@ int uiFileDialog::go()
 	le->setText( dirname );
 	new uiLabel( &dlg, "File name", le );
 	if ( !dlg.go() ) return 0;
-	fn = le->text(); filenames.add( fn );
+	fn = le->text(); filenames_.add( fn );
 	return 1;
     }
 
@@ -208,7 +208,7 @@ int uiFileDialog::go()
 #ifdef __win__
 	replaceCharacter( bs.buf(), '/', '\\' );
 #endif
-	filenames.add( bs );
+	filenames_.add( bs );
     }
 
     endCmdRecEvent( refnr, true );
@@ -218,7 +218,7 @@ int uiFileDialog::go()
 
 void uiFileDialog::getFileNames( BufferStringSet& fnms ) const
 {
-    deepCopy( fnms, filenames );
+    deepCopy( fnms, filenames_ );
 }
 
 
@@ -299,10 +299,11 @@ static bool filterIncludesExt( const char* fltr, const char* ext )
 }
 
 
-#define mRetErrMsg( pathname, msg ) \
+#define mRetMsg( pathname, msg, msgretval ) \
 { \
     if ( msg ) \
     { \
+	extfilenameserrmsg_ += msgretval ? "!" : ""; \
 	extfilenameserrmsg_ += "Path name \""; \
 	extfilenameserrmsg_ += pathname; \
 	extfilenameserrmsg_ += "\" "; \
@@ -310,8 +311,12 @@ static bool filterIncludesExt( const char* fltr, const char* ext )
     } \
     delete externalfilenames_; \
     externalfilenames_ = 0; \
-    return msg ? 0 : 1; \
+    return msg ? msgretval : 1; \
 }
+
+#define mRetErrMsg( pathname, msg ) \
+    mRetMsg( pathname, msg, 0 )
+
 
 int uiFileDialog::processExternalFilenames( const char* dir, 
 					    const char* filters )
@@ -319,7 +324,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     if ( !externalfilenames_ )
 	return 0;
 
-    deepErase( filenames );
+    deepErase( filenames_ );
     fn.setEmpty();
 
     if ( externalfilenames_->isEmpty() )
@@ -330,18 +335,16 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     if ( !filters )
 	filters = filter_.buf();
 
-    const char* allfiles = "All files (*)";
-#ifdef __win__
-    allfiles = "All files (* *.*)";
-#endif
-    if ( !*filters )
-	filters = allfiles;
-
+    TypeSet<int> fltidxset;
     BufferStringSet filterset;
     const SeparString fltsep( filters, uiFileDialog::filesep_[0] );
     for ( int fltidx=0; fltidx<fltsep.size(); fltidx++ )
+    {
 	filterset.add( fltsep[fltidx] );
-    
+	fltidxset += fltidx;
+    }
+
+    int wrongextidx = -1;
     for ( int idx=0; idx<externalfilenames_->size(); idx++ )
     {
 	BufferString fname( externalfilenames_[idx] );
@@ -388,21 +391,32 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 #ifdef __win__
 	replaceCharacter( bs->buf(), '/', '\\' );
 #endif
-	filenames += bs;
+	filenames_ += bs;
 	
 	if ( !idx )
 	    fn = *bs;
 
-	for ( int fltidx=filterset.size()-1; fltidx>=0; fltidx-- )
+	if ( wrongextidx < 0 )
+	    wrongextidx = idx;
+
+	for ( int fltidx=0; fltidx<filterset.size(); fltidx++ )
 	{
 	    if ( !filterIncludesExt(filterset[fltidx]->buf(),fp.extension()) )
-		filterset.remove( fltidx );
+		fltidxset -= fltidx;
+	    else if ( wrongextidx == idx )
+		wrongextidx = -1;
 	}
-	if ( filterset.isEmpty() )
-	    mRetErrMsg( fname, "has an incompatible file extension" );
     }
 
-    selectedfilter_ = filterset[0]->buf();
+    if ( !fltidxset.isEmpty() )
+	selectedfilter_ = filterset[fltidxset[0]]->buf();
+
+    if ( *filters && wrongextidx>=0 )
+    {
+	mRetMsg( externalfilenames_[wrongextidx],
+		 "has an incompatible file extension", 1 );
+    }
+
     mRetErrMsg( "", 0 );
 }
 
@@ -428,10 +442,10 @@ int uiFileDialog::beginCmdRecEvent( const char* wintitle )
 void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 {
     BufferString msg( "QFileDlg" );
-    if ( ok && !filenames.isEmpty() )
+    if ( ok && !filenames_.isEmpty() )
     {
 	FileMultiString fms;
-	fms += filenames;
+	fms += filenames_;
 	msg += " "; msg += fms; 
     }
 
