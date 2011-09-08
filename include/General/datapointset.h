@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.37 2011-07-11 11:43:47 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.38 2011-09-08 05:00:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,6 +180,7 @@ public:
     void		purgeSelected(bool selected_rows=true);
 
     RowID		find(const Pos&) const;
+    RowID		find(const Pos&,float horradius,float deltaz) const;
     RowID		findFirst(const Coord&) const;
     RowID		findFirst(const BinID&) const;
 

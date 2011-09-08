@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.38 2011-07-11 11:43:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.39 2011-09-08 05:00:38 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -665,6 +665,50 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos ) const
 	    return getRowID( bpos );
     }
     return -1;
+}
+
+
+#define mGetZ( dz, res ) \
+if ( !SI().zIsTime() ) \
+{ \
+    if ( (SI().xyInFeet() && SI().zInFeet()) || \
+	 (!SI().xyInFeet() && SI().zInMeter()) ) \
+	res = dz; \
+    else \
+	res = SI().xyInFeet()&&SI().zInMeter() ? dz*mToFeetFactor \
+					       : dz*mFromFeetFactor; \
+} \
+else \
+{ \
+    res = dz * SI().zFactor(); \
+    if ( SI().xyInFeet() ) \
+	res *= mToFeetFactor; \
+} 
+
+
+DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
+					float horradius, float deltaz ) const
+{
+    float zinxy = mUdf(float);
+    mGetZ( deltaz, zinxy );
+    const float maxdist = Math::Sqrt(2*(horradius*horradius) + deltaz*deltaz);
+    float mindist = mUdf(float);
+    int resrowidx=-1;
+    mGetZ( dpos.z_, zinxy );
+    Coord3 targetpos( dpos.coord(), zinxy );
+    for ( int rowidx=0; rowidx<bvsidxs_.size(); rowidx++ )
+    {
+	mGetZ( z(rowidx), zinxy );
+	Coord3 poscoord( coord(rowidx), zinxy );
+	const float dist = poscoord.distTo( targetpos );
+	if ( dist < maxdist  && dist < mindist )
+	{
+	    resrowidx=rowidx;
+	    mindist = dist;
+	}
+    }
+
+    return resrowidx;
 }
 
 
