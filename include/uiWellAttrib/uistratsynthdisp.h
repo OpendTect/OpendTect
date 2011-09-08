@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.31 2011-07-29 14:38:58 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.32 2011-09-08 09:08:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     			uiOffsetSlicePos(uiParent*);
 
     uiGroup*		attachGrp() 	{ return attachgrp_; }
+    void		setStep(int);
 protected:
     uiGroup*		attachgrp_;
 };
@@ -129,8 +130,8 @@ public:
 
     void		modelChanged();
 
-    const ObjectSet<const SyntheticData>& getSynthetics() const 
-    					{ return synthetics_;}
+    const ObjectSet<const SyntheticData>& getSynthetics();
+
 protected:
 
     const Strat::LayerModel& lm_;
@@ -141,8 +142,8 @@ protected:
     RayParams& 		raypars_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    const SyntheticData* tmpsynthetic_;
 
+    const SyntheticData* tmpsynthetic_;
     ObjectSet<const SyntheticData> synthetics_;
 
     uiGroup*		topgrp_;

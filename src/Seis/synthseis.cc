@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.33 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.34 2011-09-08 09:08:08 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -413,7 +413,10 @@ bool RaySynthGenerator::doSynthetics( TaskRunner* tr )
     if ( !wavelet_ )
 	mErrRet( "no wavelet found" )
     if ( mIsUdf( outputsampling_.start ) )
+    {
+	raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
 	outputsampling_ = raysampling_; 
+    }
     if ( mIsUdf( outputsampling_.step ) )
 	outputsampling_.step = wavelet_->sampleRate();
     if ( outputsampling_.width()/(float)outputsampling_.step<wavelet_->size() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.5 2011-08-31 14:50:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.6 2011-09-08 09:08:08 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -158,7 +158,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     storenamesep_ = new uiSeparator( this, "sep" );
     storenamesep_->attach( stretchedBelow, inpgrps_[inpgrps_.size()-1]  );
 
-    storenamefld_ = new uiGenInput( this, "Save as:" );
+    storenamefld_ = new uiGenInput( this, "Quantity name:" );
     storenamefld_->attach( alignedBelow, inpgrps_[inpgrps_.size()-1] );
     storenamefld_->attach( ensureBelow, storenamesep_ );
 
@@ -290,7 +290,6 @@ void uiElasticPropSelGrp::putToScreen()
     {
 	const char* vartxt = elformsel_.parseVariable( 0, val );
 	singleinpfld_->box()->setCurrentItem( vartxt );
-	storenamefld_->setText( vartxt );
     }
 
     formfld_->display( hasexpr );

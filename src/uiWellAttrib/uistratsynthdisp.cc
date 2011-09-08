@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.53 2011-08-11 14:06:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.54 2011-09-08 09:08:08 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -113,7 +113,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     cleanSynthetics();
 
     uiPushButton* createssynthbut 
-		= new uiPushButton( modelgrp_, "Create synthetics", false );
+		= new uiPushButton( modelgrp_, "Add new synthetics", false );
     createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
     modellist_->attach( ensureRightOf, createssynthbut );
 
@@ -166,7 +166,6 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 
     modellist_->attach( ensureLeftOf, tb );
     lasttool_ = tb;
-    tb->setSensitive( false );
 }
 
 
@@ -176,8 +175,6 @@ void uiStratSynthDisp::cleanSynthetics()
     modellist_->box()->setEmpty();
     modellist_->box()->addItem( "Free view" );
     modellist_->setSensitive( false );
-    if ( lasttool_ )
-	lasttool_->setSensitive( false );
 }
 
 
@@ -294,6 +291,7 @@ void uiStratSynthDisp::modelChanged()
     hs.setCrlRange( Interval<int>(0,0) );
     raypars_.cs_ = cs;
     posfld_->setCubeSampling( raypars_.cs_ );
+
     hs.setCrlRange( Interval<int>(0,uiRayTracer1D::sKeyStdMaxOffset()) );
     posfld_->setLimitSampling( cs );
     posfld_->attachGrp()->setSensitive( true );
@@ -370,23 +368,22 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
-    uiStratSynthDisp2Crossplot dlg( this, raypars_, getLimitSampling() ); 
+    raypars_.synthname_ = wvltfld_->getName();
+    uiStratSynthDisp2Crossplot dlg( this, raypars_, getLimitSampling() );
     if ( dlg.go() )
     {
 	if ( modellist_->box()->isPresent( dlg.rayParam().synthname_ ) )
 	    mErrRet( "Name is already present, please specify another name", 
 		    return );
-
 	const SyntheticData* sd = 
 	    		stratsynth_.generate( dlg.rayParam(),dlg.isPS() );
 	if ( sd )
 	{
-	    synthetics_ += sd; 
+	    synthetics_ += sd;
 	    modellist_->box()->addItem( sd->name() );
 	}
     }
     modellist_->setSensitive( !synthetics_.isEmpty() );
-    lasttool_->setSensitive( !synthetics_.isEmpty() );
 }
 
 
@@ -418,6 +415,8 @@ void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 {
     NotifyStopper ns( posfld_->positionChg );
     posfld_->setCubeSampling( raypars_.cs_ );
+    if ( raypars_.cs_.hrg.crlRange().width() )
+	posfld_->setStep( 1 );
     doModelChange();
 }
 
@@ -428,6 +427,13 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 }
 
 
+const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() 
+{
+    if ( synthetics_.isEmpty() && tmpsynthetic_ )
+	addSynth2List(0);
+
+    return synthetics_;
+}
 
 
 
@@ -455,7 +461,6 @@ void uiRayTrcParamsDlg::setLimitSampling( const CubeSampling& cs )
     raytrcpargrp_->setLimitSampling( cs );
     dirChg(0);
 }
-
 
 void uiRayTrcParamsDlg::dirChg( CallBacker* )
 {
@@ -509,6 +514,10 @@ uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
 }
 
 
+void uiOffsetSlicePos::setStep( int step )
+{
+    slicestepbox_->setValue( step );
+}
 
 uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     : uiGroup(p,"Ray paramrs group" )
@@ -526,10 +535,15 @@ uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
     stackfld_->valuechanged.notify( mCB(this,uiRayTrcParamsGrp,updateCB) );
     stackfld_->attach( hCentered );
 
-    uiRayTracer1D::Setup rsu(0);
-    rsu.dooffsets_ = true; 
+    uiRayTracer1D::Setup rsu( &raypars_.setup_ );
+    rsu.dooffsets_ = true;
+    const float step = raypars_.cs_.hrg.step.crl;
+    const Interval<int> offs = raypars_.cs_.hrg.crlRange();
+    if ( offs.width() )
+	rsu.offsetrg_ = StepInterval<float>( offs.start, offs.stop, step );
+    rsu.offsetrg_.step = raypars_.cs_.hrg.step.crl;
     raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
-    raytrace1dgrp_->attach( ensureBelow, stackfld_ );
+    raytrace1dgrp_->attach( alignedBelow, stackfld_ );
 
     updateCB( 0 );
 }
@@ -566,7 +580,7 @@ void uiRayTrcParamsGrp::updateCB( CallBacker* )
 	if ( !isstacked )
 	    raypars_.cs_.hrg.setInlRange( Interval<int>(1,1) ); //model idx to 1
     }
-    if ( !isoffsetdir_ )
+    else
     {
 	raypars_.cs_.hrg.step.inl = 1;
 	raypars_.cs_.hrg.setCrlRange( Interval<int>( 0, 0 ) ); //offset to 0

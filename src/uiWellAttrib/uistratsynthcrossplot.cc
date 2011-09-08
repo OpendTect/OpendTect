@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.32 2011-09-07 08:59:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.33 2011-09-08 09:08:08 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -114,6 +114,14 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::Level& lvl,
 					const StepInterval<float>& extrwin )
 {
+    //If default Desc(s) present remove it
+    for ( int idx=seisattrs.size()-1; idx>=0; idx-- )
+    {
+	const Attrib::Desc* tmpdesc = seisattrs.desc(idx);
+	if ( tmpdesc && tmpdesc->isStored() && !tmpdesc->isStoredInMem() )
+	    const_cast<Attrib::DescSet*>(&seisattrs)->removeDesc(tmpdesc->id());
+    }
+
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup());
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return false; }
@@ -262,18 +270,6 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 					    const Attrib::DescSet& attrs ) const
 {                                                                               
     Attrib::EngineMan* aem = new Attrib::EngineMan;
-
-    //If default Desc(s) present remove it
-    int idx = -1;
-    while( true && idx < attrs.size()-1 )
-    {
-	idx++;
-	const Attrib::Desc* tmpdesc = attrs.desc(idx);
-	if ( tmpdesc && tmpdesc->isStored() && !tmpdesc->isStoredInMem() )
-	    const_cast<Attrib::DescSet*>(&attrs)->removeDesc( tmpdesc->id() );
-	else
-	    break;
-    }
 
     TypeSet<Attrib::SelSpec> attribspecs;
     attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
