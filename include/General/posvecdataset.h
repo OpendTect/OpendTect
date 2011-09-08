@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.13 2011-02-03 11:58:14 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.14 2011-09-08 07:35:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     PosVecDataSet&	operator =(const PosVecDataSet&);
     void		copyStructureFrom(const PosVecDataSet&);
 
+    bool		isEmpty() const		{ return data_.isEmpty(); }
     void		setEmpty();
     int			add(DataColDef*);
     			//!<\returns index
