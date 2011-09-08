@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.10 2011-08-31 14:50:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.11 2011-09-08 14:16:05 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -25,10 +25,35 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.10 2011-08-31 14:50:01 cvsbru
 #include "wavelet.h"
 
 
+const RayParams RayParams::genDefaultPostStack( int nrmodl ) 
+{
+    RayParams rp;
+    rp.cs_.hrg.setInlRange(Interval<int>(1,nrmodl));
+    rp.cs_.hrg.setCrlRange(Interval<int>(0,0));
+    rp.cs_.hrg.step = BinID( 1, 100 );
+    rp.cs_.zrg.set( 0, 0, 0  );
+
+    return rp;
+}
+
+
+const RayParams RayParams::genDefaultPreStack( int nrmodl ) 
+{
+    RayParams rp;
+    rp.cs_.hrg.setInlRange(Interval<int>(1,nrmodl));
+    rp.cs_.hrg.setCrlRange(Interval<int>(0,RayTracer1D::sKeyStdMaxOffset()));
+    rp.cs_.hrg.step = BinID( 1, RayTracer1D::sKeyStdStep() );
+    rp.cs_.zrg.set( 0, 0, 0  );
+    return rp;
+}
+
+
+
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
 {}
+
 
 void StratSynth::setWavelet( const Wavelet& wvlt )
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.54 2011-09-08 09:08:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.55 2011-09-08 14:16:05 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -111,6 +111,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     modellist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
     cleanSynthetics();
+    raypars_ = RayParams::genDefaultPostStack(lm_.size());
 
     uiPushButton* createssynthbut 
 		= new uiPushButton( modelgrp_, "Add new synthetics", false );
@@ -292,7 +293,7 @@ void uiStratSynthDisp::modelChanged()
     raypars_.cs_ = cs;
     posfld_->setCubeSampling( raypars_.cs_ );
 
-    hs.setCrlRange( Interval<int>(0,uiRayTracer1D::sKeyStdMaxOffset()) );
+    hs.setCrlRange( Interval<int>(0,RayTracer1D::sKeyStdMaxOffset()) );
     posfld_->setLimitSampling( cs );
     posfld_->attachGrp()->setSensitive( true );
 
@@ -366,22 +367,36 @@ void uiStratSynthDisp::doModelChange()
 }
 
 
+BufferString uiStratSynthDisp::getSynthDefaultName( const RayParams& rp ) const
+{
+    BufferString nm = rp.cs_.hrg.crlRange().width() ? "Pre-Stack " 
+						    : "Post-Stack ";
+    nm += wvltfld_->getName();
+    return nm;
+}
+
+
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
-    raypars_.synthname_ = wvltfld_->getName();
+    raypars_.synthname_ = getSynthDefaultName( raypars_ );
     uiStratSynthDisp2Crossplot dlg( this, raypars_, getLimitSampling() );
     if ( dlg.go() )
     {
 	if ( modellist_->box()->isPresent( dlg.rayParam().synthname_ ) )
 	    mErrRet( "Name is already present, please specify another name", 
 		    return );
-	const SyntheticData* sd = 
-	    		stratsynth_.generate( dlg.rayParam(),dlg.isPS() );
-	if ( sd )
-	{
-	    synthetics_ += sd;
-	    modellist_->box()->addItem( sd->name() );
-	}
+	addSynthetic( dlg.rayParam(),dlg.isPS() );
+    }
+}
+
+
+void uiStratSynthDisp::addSynthetic( const RayParams& rp, bool isps )
+{
+    const SyntheticData* sd = stratsynth_.generate( rp, isps );
+    if ( sd )
+    {
+	synthetics_ += sd;
+	modellist_->box()->addItem( sd->name() );
     }
     modellist_->setSensitive( !synthetics_.isEmpty() );
 }
@@ -430,7 +445,16 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() 
 {
     if ( synthetics_.isEmpty() && tmpsynthetic_ )
-	addSynth2List(0);
+    {
+	const bool isps = raypars_.cs_.hrg.crlRange().width() > 0;
+	raypars_.synthname_ = getSynthDefaultName( raypars_ );
+	addSynthetic( raypars_, isps ); 
+
+	raypars_ = isps ? RayParams::genDefaultPostStack( lm_.size() ) 
+			: RayParams::genDefaultPreStack( lm_.size() ); 
+	raypars_.synthname_ = getSynthDefaultName( raypars_ );
+	addSynthetic( raypars_, !isps ); 
+    }
 
     return synthetics_;
 }

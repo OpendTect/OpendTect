@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.32 2011-09-08 09:08:08 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.33 2011-09-08 14:16:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,6 +163,8 @@ protected:
     const SeisTrcBuf&	curTrcBuf() const;
 
     void		displaySynthetics(const SyntheticData*);
+    void		addSynthetic(const RayParams& rp,bool isps);
+    BufferString	getSynthDefaultName(const RayParams&) const;
 
     void		addSynth2List(CallBacker*);
     void		dataSetSel(CallBacker*);

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.24 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.25 2011-09-08 14:16:05 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -73,6 +73,9 @@ public:
 
     bool                getReflectivity(int offset,ReflectivityModel&) const;
     bool		getTWT(int offset,TimeDepthModel&) const;
+
+    static int          sKeyStdMaxOffset()              { return 3000; }
+    static int          sKeyStdStep()                   { return 100; }
 
 protected:
 

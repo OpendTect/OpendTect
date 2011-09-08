@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.6 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.7 2011-09-08 14:16:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,7 @@ mStruct RayParams
 				    : usenmotimes_(true)
 				    , dostack_(false)
 				    , synthname_("Synthetics")
-				{
-				    cs_.hrg.setInlRange(Interval<int>(1,1));
-				    cs_.hrg.setCrlRange(Interval<int>(0,0));
-				    cs_.hrg.step = BinID( 1, 100 );
-				    cs_.zrg.set( 0, 0, 0  );
-				}
+				{}
 				RayParams(const RayParams& rp)
 				{
 				    cs_ = rp.cs_;
@@ -50,6 +45,9 @@ mStruct RayParams
     bool			dostack_;
     RayTracer1D::Setup		setup_;
     BufferString		synthname_;
+
+    static  const RayParams 	genDefaultPostStack(int nrmodels);
+    static  const RayParams 	genDefaultPreStack(int nrmodels);
 };
 
 
