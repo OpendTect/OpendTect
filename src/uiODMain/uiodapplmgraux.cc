@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.32 2011-09-05 10:40:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.33 2011-09-09 05:56:26 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -120,9 +120,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Imp):	
 	    if ( opt == 0 )
-		am_.emserv_->import3DHorizon( true );
+		am_.emserv_->import3DHorGeom();
 	    else if ( opt == 1 )
-		am_.emserv_->import3DHorizon( false );
+		am_.emserv_->import3DHorAttr();
 	    else if ( opt == 2 )
 		am_.emattrserv_->import2DHorizon();
 	    break;
@@ -150,22 +150,18 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Imp):
 	    if ( opt == 0 )
-		am_.emserv_->importFault(
-				EMFault3DTranslatorGroup::keyword() );
+		am_.emserv_->importFault();
 	    else if ( opt == 1 )
-		am_.emserv_->importFault(
-				EMFaultStickSetTranslatorGroup::keyword() );
+		am_.emserv_->importFaultStickSet();
 	    else if ( opt == 2 )
 		am_.emattrserv_->import2DFaultStickset(
 				EMFaultStickSetTranslatorGroup::keyword() );
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )
-		am_.emserv_->exportFault(
-				EMFault3DTranslatorGroup::keyword() );
+		am_.emserv_->exportFault();
 	    else if ( opt == 1 )
-		am_.emserv_->exportFault(
-				EMFaultStickSetTranslatorGroup::keyword());
+		am_.emserv_->exportFaultStickSet();
 	    break;
 	mCase(Man):
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;

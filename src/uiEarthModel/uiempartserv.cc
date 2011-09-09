@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.221 2011-05-31 06:58:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.222 2011-09-09 05:56:26 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -100,10 +100,13 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , em_(EM::EMM())
     , disponcreation_(false)
     , selectedrg_(false)
-    , imphordlg_(0)
+    , imphorattrdlg_(0)
+    , imphorgeomdlg_(0)
     , impfltdlg_(0)
     , exphordlg_(0)
     , expfltdlg_(0)
+    , expfltstickdlg_(0)
+    , impfltstickdlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
@@ -117,7 +120,8 @@ uiEMPartServer::~uiEMPartServer()
 
 void uiEMPartServer::survChangedCB( CallBacker* )
 {
-    delete imphordlg_; imphordlg_ = 0;
+    delete imphorattrdlg_; imphorattrdlg_ = 0;
+    delete imphorgeomdlg_; imphorgeomdlg_ = 0;
     delete impfltdlg_; impfltdlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
@@ -143,17 +147,33 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 }
 
 
-bool uiEMPartServer::import3DHorizon( bool isgeom )
+bool uiEMPartServer::import3DHorAttr()
 {
-    if ( imphordlg_ )
-	imphordlg_->raise();
+    if ( imphorattrdlg_ )
+	imphorattrdlg_->raise();
     else
     {
-	imphordlg_ = new uiImportHorizon( parent(), isgeom );
-	imphordlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
+	imphorattrdlg_ = new uiImportHorizon( parent(), false );
+	imphorattrdlg_->importReady.notify(
+		mCB(this,uiEMPartServer,importReadyCB));
     }
 
-    return imphordlg_->go();
+    return imphorattrdlg_->go();
+}
+
+
+bool uiEMPartServer::import3DHorGeom()
+{
+    if ( imphorgeomdlg_ )
+	imphorgeomdlg_->raise();
+    else
+    {
+	imphorgeomdlg_ = new uiImportHorizon( parent(), true );
+	imphorgeomdlg_->importReady.notify(
+		mCB(this,uiEMPartServer,importReadyCB));
+    }
+
+    return imphorgeomdlg_->go();
 }
 
 
@@ -190,13 +210,14 @@ bool uiEMPartServer::export3DHorizon()
 }
 
 
-bool uiEMPartServer::importFault( const char* type )
+bool uiEMPartServer::importFault()
 {
     if ( impfltdlg_ )
 	impfltdlg_->raise();
     else
     {
-	impfltdlg_ = new uiImportFault3D( parent(), type );
+	impfltdlg_ =
+	    new uiImportFault3D( parent(), EMFault3DTranslatorGroup::keyword());
 	impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
     }
 
@@ -204,14 +225,45 @@ bool uiEMPartServer::importFault( const char* type )
 }
 
 
-bool uiEMPartServer::exportFault( const char* type )
+bool uiEMPartServer::importFaultStickSet()
+{
+    if ( impfltstickdlg_ )
+	impfltstickdlg_->raise();
+    else
+    {
+	impfltstickdlg_ =
+	    new uiImportFault3D( parent(),
+		    		 EMFaultStickSetTranslatorGroup::keyword() );
+	impfltstickdlg_->importReady.notify(
+		mCB(this,uiEMPartServer,importReadyCB));
+    }
+
+    return impfltstickdlg_->go();
+}
+
+
+bool uiEMPartServer::exportFault()
 {
     if ( expfltdlg_ )
 	expfltdlg_->raise();
     else
-	expfltdlg_ = new uiExportFault( parent(), type );
+	expfltdlg_ = new uiExportFault( parent(),
+					EMFault3DTranslatorGroup::keyword() );
     return expfltdlg_->go();
 } 
+
+
+bool uiEMPartServer::exportFaultStickSet()
+{
+    if ( expfltstickdlg_ )
+	expfltstickdlg_->raise();
+    else
+	expfltstickdlg_ =
+	    new uiExportFault( parent(),
+		    	       EMFaultStickSetTranslatorGroup::keyword() );
+    return expfltstickdlg_->go();
+} 
+
 
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const

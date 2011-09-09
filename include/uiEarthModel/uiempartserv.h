@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.108 2011-05-10 09:46:11 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.109 2011-09-09 05:56:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,11 +49,14 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		import3DHorizon(bool isgeom);
+    bool		import3DHorGeom();
+    bool		import3DHorAttr();
     bool		export3DHorizon();
     bool		export2DHorizon();
-    bool		importFault(const char* type);
-    bool		exportFault(const char* type);
+    bool		importFault();
+    bool		importFaultStickSet();
+    bool		exportFault();
+    bool		exportFaultStickSet();
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -166,10 +169,13 @@ protected:
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
-    uiImportHorizon*	imphordlg_;
+    uiImportHorizon*	imphorattrdlg_;
+    uiImportHorizon*	imphorgeomdlg_;
     uiImportFault3D*	impfltdlg_;
+    uiImportFault3D*	impfltstickdlg_;
     uiExportHorizon*	exphordlg_;
     uiExportFault*	expfltdlg_;
+    uiExportFault*	expfltstickdlg_;
 
     HorSampling		selectedrg_;    
     bool		disponcreation_;
