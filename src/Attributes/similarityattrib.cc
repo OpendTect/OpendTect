@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.56 2011-07-11 10:06:29 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.57 2011-09-09 13:51:00 cvsnanne Exp $";
 
 #include "similarityattrib.h"
 
@@ -117,7 +117,7 @@ void Similarity::updateDesc( Desc& desc )
     desc.inputSpec(1).enabled_ = dosteer;
     
     if ( dobrowsedip ) 
-	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 6 : 7 );
+	desc.setNrOutputs( Seis::UnknowData, desc.is2D() ? 6 : 7 );
 }
 
 
@@ -450,12 +450,17 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    stats += maxsimi;
 	    }
 
-	    if ( outputinterest_[5] || outputinterest_[6] )
-	    { 
-		if ( !pair || pair==2 || desc_.is2D() )
-		    crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
-		else
-		    inldip = pair==1 ? (inldip + dipatmax)/2 : dipatmax;
+	    if ( dobrowsedip_ )
+	    {
+		const bool hasoutput = outputinterest_[5] ||
+			(!desc_.is2D() && outputinterest_[6]);
+		if ( hasoutput )
+		{ 
+		    if ( !pair || pair==2 || desc_.is2D() )
+			crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
+		    else
+			inldip = pair==1 ? (inldip + dipatmax)/2 : dipatmax;
+		}
 	    }
 	}
 
