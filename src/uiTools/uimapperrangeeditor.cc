@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.23 2011-09-02 13:08:49 cvskris Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.24 2011-09-09 13:52:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ void uiMapperRangeEditor::setData( const Array2D<float>* data )
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    histogramdisp_->setup().xrg( datarg_ );
     drawAgain();
 }
 
