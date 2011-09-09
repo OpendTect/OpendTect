@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          August 2011
- RCS:           $Id: uidatapointsetmerger.h,v 1.3 2011-09-08 05:02:11 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetmerger.h,v 1.4 2011-09-09 11:59:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
@@ -122,7 +121,6 @@ public:
 				~uiDataPointSetMerger();
 protected:
 
-    BufferStringSet		newcolnames_;
     DataPointSet*		mdps_;
     DataPointSet*		sdps_;
     CtxtIOObj			ctio_;
@@ -130,14 +128,17 @@ protected:
     uiTable*			tbl_;
     uiComboBox*			matchpolfld_;
     uiComboBox*			replacepolfld_;
-    uiCheckBox*			overwritefld_;
+    uiGenInput*			overwritefld_;
+    uiGenInput*			addcoloptfld_;
     uiGenInput*			distfld_;
     uiGenInput*			zgatefld_;
     uiIOObjSel*			outfld_;
 
     void			setTable();
+    BufferStringSet		checkForNewColumns() const;
+    void			checkForSameColNms(BufferStringSet&) const;
     bool			acceptOK(CallBacker*);
-    void			addColumn(CallBacker*);
+    void			attribChangedCB(CallBacker*);
     void			matchPolChangedCB(CallBacker*);
 };
 
