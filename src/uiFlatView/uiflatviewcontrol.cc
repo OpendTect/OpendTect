@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.53 2011-05-04 15:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.54 2011-09-09 13:51:31 cvsnanne Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -240,9 +240,10 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO handle when zoom is disabled
     const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
-    if ( (selarea->topLeft() == selarea->bottomRight()) ||
+    if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) ||
 	 (selarea->width()<5 && selarea->height()<5) )
 	return;
+
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
