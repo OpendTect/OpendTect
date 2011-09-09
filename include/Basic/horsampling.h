@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.12 2011-03-21 11:05:53 cvsraman Exp $
+ RCS:           $Id: horsampling.h,v 1.13 2011-09-09 13:47:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     inline int		crlIdx( int crl ) const
 			{ return step.crl ? (crl-start.crl) / step.crl
 					  : (crl==start.crl ? 0 : -1); }
+    inline od_int64	globalIdx( const BinID& bid ) const
+			{ return inlIdx(bid.inl)*nrCrl() + crlIdx(bid.crl); }
     BinID		atIndex( int i0, int i1 ) const
 			{ return BinID( start.inl + i0*step.inl,
 					start.crl + i1*step.crl ); }
