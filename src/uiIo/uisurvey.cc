@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.130 2011-05-26 07:07:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.131 2011-09-09 13:53:50 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -318,6 +318,8 @@ uiSurveyGetCopyDir( uiParent* p, const char* cursurv )
 	FilePath fp( GetBaseDataDir() ); fp.add( cursurv );
 	curfnm = fp.fullPath();
     }
+    else
+	curfnm = GetBaseDataDir();
 
     inpsurveyfld_ = new uiSurveySelect( this,"Survey to copy" );
     inpsurveyfld_->setSurveyPath( curfnm );
