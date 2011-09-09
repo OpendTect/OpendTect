@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.39 2010-12-13 10:15:09 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.40 2011-09-09 13:48:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,16 +54,23 @@ public:
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
 
-    void		addItem(const wchar_t*);
+    void		addItem(const wchar_t*,int id=-1);
     virtual void	addItem(const char*);
+    void		addItem(const char*,int id);
     void		addItems(const BufferStringSet&);
     void		addSeparator();
-    void		insertItem(const char*,int index=-1);
-    void		insertItem(const ioPixmap&,const char*,int index=-1);
+    void		insertItem(const char*,int index=-1,int id=-1);
+    void		insertItem(const ioPixmap&,const char*,
+				   int index=-1,int id=-1);
 
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
     void		setPixmap(const ioPixmap&,int index);
+
+    void		setItemID(int index,int id);
+    int			currentItemID() const;
+    int			getItemID(int index) const;
+    int			getItemIndex(int id) const;
 
     Notifier<uiComboBox> editTextChanged;
     Notifier<uiComboBox> selectionChanged;
@@ -83,6 +90,7 @@ private:
 
     int			oldnritems_;
     int			oldcuritem_;
+    TypeSet<int>	itemids_;
 
     mutable BufferString rettxt_;
 

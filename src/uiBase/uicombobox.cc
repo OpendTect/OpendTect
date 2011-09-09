@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.62 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.63 2011-09-09 13:48:49 cvsnanne Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -135,6 +135,7 @@ void uiComboBox::setEmpty()
 {
     mBlockCmdRec;
     body_->QComboBox::clear();
+    itemids_.erase();
 }
 
 
@@ -240,7 +241,7 @@ bool uiComboBox::isReadOnly() const
 { return !body_->isEditable(); }
 
 
-void uiComboBox::addItem( const wchar_t* txt )
+void uiComboBox::addItem( const wchar_t* txt, int id )
 {
     mBlockCmdRec;
 #ifdef __win__
@@ -253,13 +254,19 @@ void uiComboBox::addItem( const wchar_t* txt )
     QString itmtxt = QString::fromWCharArray( txt );
 #endif
     body_->addItem( itmtxt );
+    itemids_ += id;
 }
 
 
-void uiComboBox::addItem( const char* txt ) 
+void uiComboBox::addItem( const char* txt )
+{ addItem( txt, -1 ); }
+
+
+void uiComboBox::addItem( const char* txt, int id ) 
 {
     mBlockCmdRec;
     body_->addItem( QString(txt) );
+    itemids_ += id;
 }
 
 
@@ -274,18 +281,34 @@ void uiComboBox::addSeparator()
 { body_->insertSeparator( size() ); }
 
 
-void uiComboBox::insertItem( const char* txt, int index )
+void uiComboBox::insertItem( const char* txt, int index, int id )
 {
     mBlockCmdRec;
     body_->insertItem( index, QString(txt) );
+    itemids_.insert( index, id );
 }
 
 
-void uiComboBox::insertItem( const ioPixmap& pm, const char* txt , int index )
+void uiComboBox::insertItem( const ioPixmap& pm, const char* txt,
+			     int index, int id )
 {
     mBlockCmdRec;
     body_->insertItem( index, *pm.qpixmap(), QString(txt) );
+    itemids_.insert( index, id );
 }
+
+
+void uiComboBox::setItemID( int index, int id )
+{ if ( itemids_.validIdx(index) ) itemids_[index] = id; }
+
+int uiComboBox::currentItemID() const
+{ return getItemID(currentItem()); }
+
+int uiComboBox::getItemID( int index ) const
+{ return itemids_.validIdx(index) ? itemids_[index] : -1; }
+
+int uiComboBox::getItemIndex( int id ) const
+{ return itemids_.indexOf( id ); }
 
 
 void uiComboBox::notifyHandler( bool selectionchanged )
