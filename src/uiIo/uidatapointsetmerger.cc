@@ -27,10 +27,6 @@ static const char* rcsID = "$";
 #include "uitaskrunner.h"
 
 
-static int sAttrCol = 1;
-static int sChkCol = 2;
-
-
 DPSMerger::DPSMerger( const DPSMergerProp& prop )
     : Executor( "Merging Positions" )
     , rowdone_(-1)
@@ -176,7 +172,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup("Merge crossplot","",mTODOHelpID) )
+    : uiDialog(p,uiDialog::Setup("Crossplot data merging","",mTODOHelpID) )
     , mdps_(mdps)
     , sdps_(sdps)
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
@@ -189,14 +185,14 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     capt += mdps->name(); 
     capt += "' with '";
     capt += sdps_->name(); capt += "'";
-    setCaption( capt );
+    setTitleText( capt );
 
-    tbl_ = new uiTable( this,uiTable::Setup(mdps_->nrCols(),2)
+    tbl_ = new uiTable( this,uiTable::Setup(mdps_->nrCols(),1)
 						.insertrowallowed(false)
 						.removerowallowed(false), "" );
     setTable();
     uiLabel* tbllbl = new uiLabel( this, "Column matching" );
-    tbllbl->attach( centeredAbove, tbl_ );
+    tbllbl->attach( leftOf, tbl_ );
 
     BufferString addtxt( "Add new column to '" );
     addtxt += mdps_->name(); addtxt += "'";
@@ -206,8 +202,9 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     addcoloptfld_ =
 	new uiGenInput( this, addcolmsg, BoolInpSpec(true,"add all",
 		    				     "ignore all") );
-    addcoloptfld_->attach( leftAlignedBelow, tbl_ );
-
+    addcoloptfld_->attach( leftAlignedBelow, tbllbl );
+    addcoloptfld_->attach( ensureBelow, tbl_ );
+    
     BufferStringSet matchopts;
     matchopts.add( "Exact match" );
     matchopts.add( "Nearby match" );
@@ -285,8 +282,7 @@ void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )
 
 void uiDataPointSetMerger::setTable()
 {
-    tbl_->setColumnLabel( 0, mdps_->name() );
-    tbl_->setColumnLabel( 1, sdps_->name() );
+    tbl_->setColumnLabel( 0, sdps_->name() );
     BufferStringSet colnames;
     colnames.add( "None" );
     for ( int colnr=0; colnr<sdps_->nrCols(); colnr++ )
@@ -300,7 +296,7 @@ void uiDataPointSetMerger::setTable()
 	BufferString colnm( mdps_->colName(rowidx) );
 	BufferString celltxt( "Couple '");
 	celltxt += colnm; celltxt += "' to";
-	tbl_->setText( RowCol(rowidx,0), celltxt );
+	tbl_->setRowLabel( rowidx, celltxt );
 	uiComboBox* cb = new uiComboBox( 0, colnames, "Attributes" );
 	cb->selectionChanged.notify(
 		mCB(this,uiDataPointSetMerger,attribChangedCB) );
@@ -308,7 +304,7 @@ void uiDataPointSetMerger::setTable()
 	if ( nearmatchidx>= 0 )
 	    cb->setCurrentItem( nearmatchidx );
 	
-	tbl_->setCellObject( RowCol(rowidx,sAttrCol), cb );
+	tbl_->setCellObject( RowCol(rowidx,0), cb );
     }
 }
 
@@ -319,7 +315,7 @@ void uiDataPointSetMerger::attribChangedCB( CallBacker* )
     TypeSet<int> scolids;
     for ( int rowidx=0; rowidx<tbl_->nrRows(); rowidx++ )
     {
-	uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,sAttrCol) );
+	uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,0) );
 	mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	if ( !combobox )
 	    continue;
@@ -343,7 +339,7 @@ BufferStringSet uiDataPointSetMerger::checkForNewColumns() const
 
     for ( int rowidx=0; rowidx<tbl_->nrRows(); rowidx++ )
     {
-	uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,sAttrCol) );
+	uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,0) );
 	mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	if ( !combobox )
 	    continue;
@@ -403,7 +399,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 	const bool isnew = rowidx > nrrows-1;
 	if ( !isnew )
 	{
-	    uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,sAttrCol) );
+	    uiObject* cbobj = tbl_->getCellObject( RowCol(rowidx,0) );
 	    mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	    if ( !combobox )
 		continue;
