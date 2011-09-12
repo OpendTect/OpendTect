@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.12 2011-09-01 15:09:38 cvsbruno Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.13 2011-09-12 08:56:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,11 +49,11 @@ protected:
     virtual void	shapeChg(CallBacker*) {};
 
     virtual bool	setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
+    virtual bool	setInput(const Attrib::Desc&);
     bool		setOutput(const Attrib::Desc&);
 
     virtual bool	getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    virtual bool	getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 };
 
