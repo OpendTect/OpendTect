@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.9 2011-07-22 19:31:50 cvsyuancheng Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.10 2011-09-12 15:43:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,9 @@ public:
 	    				const ColTab::MapperSetup&);
     void			setColTabSeq(const ColTab::Sequence&);
     const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctmapper_; }
-    
+
+    uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }    
+
     Notifier<uiMapperRangeEditor>	rangeChanged;
 
 protected:
