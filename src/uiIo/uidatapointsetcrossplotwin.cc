@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.38 2011-07-05 09:44:30 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.39 2011-09-12 09:28:57 cvsbruno Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.38 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.39 2011-09-12 09:28:57 cvsbruno Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -162,7 +162,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addButton( "xplotprop.png", "Properties",
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
-    maniptb_.addButton( "prdfs.png", "Create Probabily Density Function",
+    maniptb_.addButton( "prdfs.png", "Create Probability Density Function",
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
     overlayproptbid_ = maniptb_.addButton( "overlayattr.png",
 	    "Select Overlay Attribute", mCB(this,uiDataPointSetCrossPlotWin,
