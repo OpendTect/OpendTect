@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.34 2011-09-08 09:08:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.35 2011-09-13 13:51:50 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -32,6 +32,7 @@ SynthGenBase::SynthGenBase()
     , isfourier_(true)
     , usenmotimes_(false)
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
+    , tr_(0)		  
 {}
 
 
@@ -86,9 +87,9 @@ SynthGenerator::SynthGenerator()
     , fftsz_(0)			   
     , freqwavelet_(0)
     , outtrc_(*new SeisTrc)
-    , refmodel_(0)			   
+    , refmodel_(0)
     , needprepare_(true)
-    , doresample_(true)			
+    , doresample_(true)
 {}
 
 
@@ -206,7 +207,10 @@ bool SynthGenerator::computeTrace( float* res )
 	ReflectivitySampler sampler( *refmodel_, outputsampling_, 
 				    cresamprefl_, usenmotimes_ );
 	sampler.setTargetDomain( (bool)fft_ );
-	sampler.execute();
+	if ( tr_ ) 
+	    tr_->execute( sampler );
+	else
+	    sampler.execute();
     }
     else
     {
@@ -314,6 +318,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 	synthgen.setWavelet( wavelet_, OD::UsePtr );
 	IOPar par; fillPar( par ); synthgen.usePar( par ); 
 	synthgen.setOutSampling( outputsampling_ );
+	synthgen.setTaskRunner( tr_ );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg() );	
 	
@@ -365,13 +370,7 @@ void RaySynthGenerator::setRayParams( const RayTracer1D::Setup& su,
 }
 
 
-bool RaySynthGenerator::doWork( TaskRunner* tr )
-{
-    return doRayTracing( tr ) && doSynthetics( tr );
-}
-
-
-bool RaySynthGenerator::doRayTracing( TaskRunner* tr )
+bool RaySynthGenerator::doRayTracing()
 {
     deepErase( raymodels_ );
     if ( offsets_.isEmpty() )
@@ -381,7 +380,7 @@ bool RaySynthGenerator::doRayTracing( TaskRunner* tr )
 	mErrRet( "No AI model found" );
 
     RayTracerRunner rtr( aimodels_, offsets_, raysetup_ );
-    if ( tr && !tr->execute( rtr ) )
+    if ( tr_ && !tr_->execute( rtr ) )
 	mErrRet( rtr.errMsg(); )
     else if ( !rtr.execute() )
 	mErrRet( rtr.errMsg(); )
@@ -408,7 +407,7 @@ bool RaySynthGenerator::doRayTracing( TaskRunner* tr )
 }
 
 
-bool RaySynthGenerator::doSynthetics( TaskRunner* tr )
+bool RaySynthGenerator::doSynthetics()
 {
     if ( !wavelet_ )
 	mErrRet( "no wavelet found" )
@@ -432,12 +431,13 @@ bool RaySynthGenerator::doSynthetics( TaskRunner* tr )
 
 	rm.sampledrefs_.erase();
 	MultiTraceSynthGenerator multitracegen;
+	multitracegen.setTaskRunner( tr_ );
 	multitracegen.setModels( rm.refmodels_ );
 	multitracegen.setWavelet( wavelet_, OD::UsePtr );
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 
-	if ( tr && !tr->execute( multitracegen ) )
+	if ( tr_ && !tr_->execute( multitracegen ) )
 	    mErrRet( multitracegen.errMsg(); )
 	else if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg())

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.25 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.26 2011-09-13 13:51:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ public:
     virtual void 		setConvolDomain(bool fourier) 
     				{ isfourier_ = fourier; }
 
+    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+
     const char*			errMsg() const	
     				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
@@ -73,6 +75,7 @@ protected:
     bool			waveletismine_;
     const Wavelet*		wavelet_;
     StepInterval<float>		outputsampling_;
+    TaskRunner* 		tr_;
 
     BufferString		errmsg_;
 };
@@ -154,9 +157,9 @@ public:
 				     const TypeSet<float>& offsets,
 				     bool isnmo);
     //execute functions
-    bool		doWork(TaskRunner* tr=0);
-    bool		doRayTracing(TaskRunner* tr=0);
-    bool		doSynthetics(TaskRunner* tr=0); 
+    bool		doRayTracing();
+    bool		doSynthetics(); 
+    bool		doWork() { return doRayTracing() && doSynthetics(); }
 
     mStruct RayModel
     {

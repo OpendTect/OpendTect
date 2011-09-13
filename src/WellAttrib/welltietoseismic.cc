@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.68 2011-09-06 15:20:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.69 2011-09-13 13:51:50 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -129,13 +129,14 @@ bool DataPlayer::doFullSynthetics()
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
 
-    if ( !gen.doRayTracing( data_.trunner_ ) )
+    gen.setTaskRunner( data_.trunner_ );
+    if ( !gen.doRayTracing() )
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     rm.forceReflTimes( workrg_ );
 
-    if ( !gen.doSynthetics( data_.trunner_ ) )
+    if ( !gen.doSynthetics() )
 	mErrRet( gen.errMsg() )
 
     rm.getSampledRefs( reflvals_ );
