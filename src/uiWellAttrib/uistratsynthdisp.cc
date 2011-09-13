@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.57 2011-09-13 14:14:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.58 2011-09-13 15:05:01 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -110,6 +110,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     modellist_->attach( hCentered );
     modellist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
+    modellist_->setStretch( 0, 0 );
     cleanSynthetics();
     raypars_ = RayParams::genDefaultPostStack(lm_.size());
 
