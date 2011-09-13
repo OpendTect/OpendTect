@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.22 2011-09-08 15:13:10 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.23 2011-09-13 09:25:57 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -52,6 +52,44 @@ void NLACreationDesc::clear()
 }
 
 
+static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
+{
+    if ( *inpnodenm == '[' )
+	{ inpnodenm++; if ( !*inpnodenm ) return false; }
+    BufferString nodenm( inpnodenm );
+    if ( nodenm[colnm.size()-1] == ']' )
+	nodenm[colnm.size()-1] = '\0';
+
+    if ( colnm == nodenm )
+	return true;
+
+    if ( IOObj::isKey(colnm.buf()) )
+	colnm = IOM().nameOf( colnm.buf() );
+    if ( IOObj::isKey(nodenm.buf()) )
+	nodenm = IOM().nameOf( nodenm.buf() );
+
+    return colnm == nodenm;
+}
+
+
+static bool isPresentInDesgn( const NLADesign& des, const char* inpcolnm )
+{
+    if ( *inpcolnm == '[' )
+	{ inpcolnm++; if ( !*inpcolnm ) return false; }
+    BufferString colnm( inpcolnm );
+    if ( colnm[colnm.size()-1] == ']' )
+	colnm[colnm.size()-1] = '\0';
+
+    for ( int idx=0; idx<des.inputs.size(); idx++ )
+	if ( haveColNmMatch( colnm, des.inputs.get(idx).buf() ) )
+	    return true;
+    for ( int idx=0; idx<des.outputs.size(); idx++ )
+	if ( haveColNmMatch( colnm, des.outputs.get(idx).buf() ) )
+	    return true;
+
+    return false;
+}
+
 
 const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 					  DataPointSet& dps ) const
@@ -98,8 +136,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     {
 	const DataColDef& cd( dps0.colDef(icol) );
 	const char* colnm = cd.name_.buf();
-	const bool issel = design.inputs.isPresent(colnm)
-			|| design.outputs.isPresent(colnm);
+	const bool issel = isPresentInDesgn( design, colnm );
 	isincl += issel;
 	if ( issel )
 	    dps.dataSet().add( new DataColDef(cd) );
