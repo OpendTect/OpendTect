@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.58 2011-09-13 15:05:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.59 2011-09-13 15:07:55 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -95,7 +95,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     rttb->attach( rightOf, wvlt2raysep );
 
     posfld_ = new uiOffsetSlicePos( topgrp_ );
-    posfld_->setLabels( "Model", "Offset", "Z" );
+    posfld_->setLabels( "Model", "Offset", "Offset" );
     posfld_->attachGrp()->attach( rightOf, rttb );
     posfld_->attachGrp()->setSensitive( false );
     posfld_->setCubeSampling( raypars_.cs_ );
