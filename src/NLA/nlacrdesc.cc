@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.23 2011-09-13 09:25:57 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.24 2011-09-13 14:09:54 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -131,7 +131,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     dps.setEmpty();
     const DataPointSet& dps0 = *dpss[0];
     int nrcols = dps0.nrCols();
-    BoolTypeSet isincl; isincl += true;
+    BoolTypeSet isincl;
     for ( int icol=0; icol<nrcols; icol++ )
     {
 	const DataColDef& cd( dps0.colDef(icol) );
