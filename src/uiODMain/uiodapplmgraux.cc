@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.33 2011-09-09 05:56:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.34 2011-09-13 11:15:47 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -395,6 +395,7 @@ void uiODApplMgrDispatcher::openXPlot()
     { uiMSG().error("Selected data set is empty"); return; }
 
     DataPointSet* newdps = new DataPointSet( pvds, false );
+    newdps->setName( seldlg.ioObj()->name() );
     DPM(DataPackMgr::PointID()).addAndObtain( newdps );
     uiDataPointSet* uidps =
 	new uiDataPointSet( ODMainWin(), *newdps,
