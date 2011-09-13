@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseiswvltsel.h,v 1.4 2011-01-11 11:10:37 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltsel.h,v 1.5 2011-09-13 15:09:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 			uiSeisWaveletSel(uiParent*,
 					 const char* seltxt="Wavelet");
 			~uiSeisWaveletSel();
+    void		rebuildList();
 
     const char*		getName() const;
     const MultiID&	getID() const;
@@ -45,7 +46,6 @@ protected:
     void		initFlds(CallBacker*);
     void		startMan(CallBacker*);
     void		selChg(CallBacker*);
-    void		fillBox();
 
 };
 

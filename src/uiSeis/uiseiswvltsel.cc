@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.6 2010-12-13 11:54:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.7 2011-09-13 15:09:24 cvsbert Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -34,7 +34,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
     tb->attach( rightOf, lcb );
     setHAlignObj( lcb );
 
-    fillBox();
+    rebuildList();
     finaliseDone.notify( mCB(this,uiSeisWaveletSel,initFlds) );
     setFrame( true );
 }
@@ -55,7 +55,11 @@ void uiSeisWaveletSel::initFlds( CallBacker* )
 void uiSeisWaveletSel::setInput( const char* nm )
 {
     if ( nm && *nm )
+    {
+	if ( !nmfld_->isPresent(nm) )
+	    rebuildList();
 	nmfld_->setText( nm );
+    }
 }
 
 
@@ -66,7 +70,7 @@ void uiSeisWaveletSel::setInput( const MultiID& mid )
     IOObj* ioobj = IOM().get( mid );
     if ( !ioobj ) return;
 
-    nmfld_->setText( ioobj->name() );
+    setInput( ioobj->name() );
     delete ioobj;
 }
 
@@ -101,7 +105,7 @@ void uiSeisWaveletSel::startMan( CallBacker* )
 {
     uiSeisWvltMan dlg( this );
     dlg.go();
-    fillBox();
+    rebuildList();
     selChg( nmfld_ );
 }
 
@@ -112,7 +116,7 @@ void uiSeisWaveletSel::selChg( CallBacker* )
 }
 
 
-void uiSeisWaveletSel::fillBox()
+void uiSeisWaveletSel::rebuildList()
 {
     IOObjContext ctxt( mIOObjContext(Wavelet) );
     IOM().to( ctxt.getSelKey() );
@@ -126,8 +130,8 @@ void uiSeisWaveletSel::fillBox()
 
     BufferString curwvlt( nmfld_->text() );
     nmfld_->selectionChanged.disable();
+
     nmfld_->setEmpty(); nmfld_->addItems( nms_ );
-    nmfld_->selectionChanged.enable();
 
     int newidx = nms_.indexOf( curwvlt.buf() );
     if ( curwvlt.isEmpty() || newidx < 0 )
@@ -142,10 +146,12 @@ void uiSeisWaveletSel::fillBox()
 		curwvlt = ioobj->name();
 		newidx = nms_.indexOf( curwvlt.buf() );
 		delete ioobj;
+		nmfld_->selectionChanged.enable();
 	    }
 	}
     }
 
     if ( newidx >= 0 )
 	nmfld_->setCurrentItem( newidx );
+    nmfld_->selectionChanged.enable();
 }
