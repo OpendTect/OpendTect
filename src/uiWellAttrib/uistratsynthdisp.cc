@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.56 2011-09-08 15:09:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.57 2011-09-13 14:14:59 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -240,7 +240,14 @@ void uiStratSynthDisp::scalePush( CallBacker* )
 
     uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname_ );
     if ( dlg.go() )
+    {
+	MultiID mid( dlg.selWvltID() );
+	if ( mid.isEmpty() )
+	    pErrMsg( "Huh" );
+	else
+	    wvltfld_->setInput( mid );
 	vwr_->handleChange( FlatView::Viewer::All );
+    }
 }
 
 

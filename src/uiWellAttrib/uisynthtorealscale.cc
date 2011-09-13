@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.10 2011-05-02 12:03:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.11 2011-09-13 14:14:59 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.10 2011-05-02 12:03:0
 #include "polygon.h"
 #include "position.h"
 #include "seistrc.h"
-#include "seistrcprop.h"
 #include "seisbuf.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -26,6 +25,7 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.10 2011-05-02 12:03:0
 #include "statruncalc.h"
 #include "picksettr.h"
 #include "wavelet.h"
+#include "ioman.h"
 
 #include "uislider.h"
 #include "uistratseisevent.h"
@@ -140,8 +140,12 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 			mTODOHelpID))
     , is2d_(is2d)
     , synth_(tb)
-    , wvltid_(wid)
+    , inpwvltid_(wid)
 {
+    BufferString wintitle( "Determine scaling for synthetics using '" );
+    wintitle.add( IOM().nameOf( inpwvltid_ ) ).add( "'" );
+    setTitleText( wintitle );
+
     uiSeisSel::Setup sssu( is2d_, false );
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
 	    		      sssu );
@@ -190,8 +194,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 
     IOObjContext wvltctxt( mIOObjContext(Wavelet) );
     wvltctxt.forread = false;
-    uiIOObjSel::Setup wvltsu( "Save scaled Wavelet" ); wvltsu.optional( true );
-    wvltfld_ = new uiIOObjSel( this, wvltctxt, wvltsu );
+    wvltfld_ = new uiIOObjSel( this, wvltctxt, "Save scaled Wavelet as" );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 
     finaliseDone.notify( mCB(this,uiSynthToRealScale,initWin) );
@@ -225,10 +228,34 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 {
     if ( !evfld_->getFromScreen() )
 	return false;
+    const float scalefac = finalscalefld_->getfValue();
+    if ( mIsUdf(scalefac) )
+	{ uiMSG().error( "Please enter the scale factor" ); return false; }
 
-    SeisTrc& trc = *synth_.get( 0 );
-    SeisTrcPropChg tpc( *synth_.get(synth_.size()/2) );
-    tpc.scale( 3 );
+    const IOObj* ioobj = wvltfld_->ioobj();
+    if ( !ioobj )
+	return false;
+
+    IOObj* inpioobj = IOM().get( inpwvltid_ );
+    Wavelet* wvlt = Wavelet::get( inpioobj );
+    delete inpioobj;
+    if ( !wvlt )
+    {
+	uiMSG().error( "Cannot save scaled wavelet because:\nThe "
+		"original wavelet cannot be read." );
+	delete ioobj; return false;
+    }
+
+    wvlt->transform( 0, scalefac );
+    if ( !wvlt->put(ioobj) )
+    {
+	uiMSG().error( "Cannot write scaled Wavelet.\n"
+			"Please check file permissions" );
+	delete ioobj; return false;
+    }
+    delete wvlt;
+
+    outwvltid_ = ioobj->key();
     return true;
 }
 
