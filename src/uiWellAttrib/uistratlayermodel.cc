@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.37 2011-09-13 14:14:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.38 2011-09-13 15:04:34 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -252,6 +252,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 void uiStratLayerModel::wvltChg( CallBacker* cb )
 {
     zoomChg( cb );
+    levelChg( cb );
 }
 
 
