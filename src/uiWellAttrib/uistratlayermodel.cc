@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.36 2011-09-06 14:50:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.37 2011-09-13 14:14:16 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -111,7 +111,7 @@ void theCB( CallBacker* cb )
 	}
 	else
 	{
-	    if ( indic == 2 || modnm != newmodnm )
+	    if ( indic == 2 || defmodnr < 0 || modnm != newmodnm )
 	    {
 		Settings::common().set( uiStratLayerModel::sKeyModeler2Use(),
 			BufferString(newmodnm, indic == 2 ? "`A" : "") );
