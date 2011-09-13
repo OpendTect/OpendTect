@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.4 2011-09-06 11:47:50 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.5 2011-09-13 09:09:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
 
 //BugTableEntry
 const char* SqlDB::BugTableEntry::sKeyBugTable() { return "mantis_bug_table"; }
+const char* SqlDB::BugTableEntry::sKeyFixedInVersion()
+{ return "fixed_in_version"; }
 const int SqlDB::BugTableEntry::cStatusNew() { return 10; }
 const int SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
 const int SqlDB::BugTableEntry::cStatusResolved() { return 80; }
