@@ -33,8 +33,6 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp_->getListField()->doubleClicked.notify(
-	    			mCB(this,uiDataPointSetMan,mergePush) );
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     manipgrp->addButton( "mergeseis.png", "Merge CrossPlot",
@@ -96,6 +94,8 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
     uiDataPointSetMerger merger( this, dps, sdps );
     merger.go();
+    if ( curioobj_ )
+	selgrp_->fullUpdate( curioobj_->key() );
 }
 
 

@@ -162,7 +162,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 	mastercolids_ += mastercolid;
 	slavecolids_ += slavecolid;
     }
-    else if ( mastercolids_.isPresent(mastercolid) )
+    else 
     {
 	const int idx = mastercolids_.indexOf( mastercolid );
 	slavecolids_[idx] = slavecolid;
