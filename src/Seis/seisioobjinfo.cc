@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.42 2011-06-06 10:24:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.43 2011-09-14 22:46:50 cvsnanne Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -368,7 +368,20 @@ bool SeisIOObjInfo::getRanges( const LineKey& lk, StepInterval<int>& trcrg,
 BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
 					     const char* ioobjnm )
 {
-    return LineKey::defKey2DispName( defkey, ioobjnm );
+    if ( !IOObj::isKey(defkey) )
+	return BufferString( defkey );
+
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(defkey) );
+    if ( !ioobj )
+	return BufferString( "" );
+
+    if ( SeisTrcTranslator::is2D(*ioobj,false) )
+	return LineKey::defKey2DispName( defkey, ioobjnm );
+
+    BufferString ret( "[",
+		      ioobjnm && *ioobjnm ? ioobjnm : ioobj->name().buf(),
+		      "]" );
+    return ret;
 }
 
 
