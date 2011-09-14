@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.65 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.66 2011-09-14 15:10:33 cvsjaap Exp $";
 
 #include "uimain.h"
 
@@ -125,6 +125,7 @@ protected:
     bool		eventFilter(QObject*,QEvent*);
 
     int			longleftstamp_;
+    Geom::Point2D<int>	longleftorigin_;
     bool		mousepressed_;
 };
 
@@ -168,8 +169,13 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     {
 	mousepressed_ = true;
 	if ( qme->button() == Qt::LeftButton )
+	{
 	    longleftstamp_ = Time::getMilliSeconds();
+	    longleftorigin_ = TabletInfo::currentState()->pos_;
+	}
     }
+    else if ( longleftorigin_.distTo(TabletInfo::currentState()->pos_) > 5 )
+	longleftstamp_ = mUdf(int);
 
     if ( ev->type()==QEvent::MouseMove && mousepressed_ )
     {
