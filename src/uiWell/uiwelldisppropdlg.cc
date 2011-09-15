@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.34 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.35 2011-09-15 12:22:59 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -42,8 +42,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(),is2d ? "Log1" : "Left log properties");
-    tgs += new uiGroup( ts_->tabGroup(),is2d ? "Log2" : "Right log properties");
+    tgs += new uiGroup( ts_->tabGroup(),"Left log properties");
+    tgs += new uiGroup( ts_->tabGroup(),"Right log properties");
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
     if ( !is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
@@ -71,7 +71,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 					mCB(this,uiWellDispPropDlg,propChg) );
 	if ( !strcmp( sKey::Log, propflds_[idx]->props().subjectName() ) )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? "Right Log" : "Left Log" );
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log" 
+		    			    : is2d ? "Log 1" : "Left Log" );
 	    foundlog = true;
 	}
 	else
