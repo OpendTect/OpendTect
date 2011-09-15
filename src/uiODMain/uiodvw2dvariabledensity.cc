@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.12 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.13 2011-09-15 09:15:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "filepath.h"
+#include "flatposdata.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -229,13 +230,13 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     if ( !dp ) return;
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp)
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     MenuItem* subitem;
     applMgr()->attrServer()->resetMenuItems();
-    if ( dp3d )
+    if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
     else if ( dp2ddh )
     {
@@ -247,7 +248,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    if( dp3d )
+    if( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
     else if ( dp2ddh )
     {
@@ -276,17 +277,29 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     DataPack::ID newid = DataPack::cNoID();
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
 
     bool dousemulticomp = false;
-    if ( dp3d )
+    if ( dp3d || dprdm )
     {
 	if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	{
 	    attrserv->setTargetSelSpec( selas );
-	    newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
-		    			    DataPack::cNoID() );
+	    if ( dp3d )
+	    {
+		newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
+					        DataPack::cNoID() );
+	    }
+	    else
+	    {
+		const Interval<float> zrg( dprdm->posData().range(false).start, 
+					   dprdm->posData().range(false).stop );
+		TypeSet<BinID> bids;
+		if ( dprdm->pathBIDs() )
+		    bids = *dprdm->pathBIDs();
+		newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
+	    }
 	}
     }
     else if ( dp2ddh )

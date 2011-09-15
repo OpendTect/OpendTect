@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.49 2011-06-28 13:35:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.50 2011-09-15 09:15:44 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -93,11 +93,12 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
+    mDynamicCastGet(Attrib::FlatRdmTrcsDataPack*,dprdm,dp)
 
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( dp3d )
+	if ( dp3d || dprdm )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 	else if ( dp2ddh )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();

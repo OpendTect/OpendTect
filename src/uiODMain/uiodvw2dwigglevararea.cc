@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.9 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.10 2011-09-15 09:15:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "flatposdata.h"
 #include "linekey.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
@@ -183,13 +184,13 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     if ( !dp ) return;
     
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
     MenuItem* subitem;
     applMgr()->attrServer()->resetMenuItems();
-    if ( dp3d )
+    if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
     else if ( dp2ddh )
     {
@@ -201,7 +202,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    if ( dp3d )
+    if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true);
     else if ( dp2ddh )
     {
@@ -230,19 +231,28 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     DataPack::ID newid = DataPack::cNoID();
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
 
 
     bool dousemulticomp = false;
-    if ( dp3d )
+    if ( dp3d || dprdm )
     {
 	if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	{
 	    attrserv->setTargetSelSpec( selas );
-	    newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
+	    if ( dp3d )
+		newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
 		    			    DataPack::cNoID() );
-
+	    else
+	    {
+		const Interval<float> zrg( dprdm->posData().range(false).start,
+					   dprdm->posData().range(false).stop );
+		TypeSet<BinID> bids;
+		if ( dprdm->pathBIDs() )
+		    bids = *dprdm->pathBIDs();
+		newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
+	    }
 	}
     }
     else if ( dp2ddh )
