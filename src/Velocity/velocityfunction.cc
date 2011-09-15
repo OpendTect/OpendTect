@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.10 2011-03-30 01:33:28 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.11 2011-09-15 11:41:44 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -93,7 +93,7 @@ float Function::getVelocity( float z )const
 
     lock.unLock();
 
-    const float fsample = cachesd_.getIndex( z );
+    const float fsample = cachesd_.getfIndex( z );
     const int isample = (int) fsample;
     if ( isample<0 || isample>=cache_->size() )
 	return mUdf(float);
