@@ -388,7 +388,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     *curpts += closept;
 
-    uiPoint pt;
+    uiPoint pt; uiPoint prevpt = closept;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = mNINT(idx*step);
@@ -422,7 +422,11 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 	pt.x = ld.xax_.getPix(val);
 	pt.y = ld.yax_.getPix(zpos);
+	
+	*curpts += prevpt;
 	*curpts += pt;
+
+	prevpt = pt;
 
 	if ( colindex != prevcolidx )
 	{
