@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.12 2011-08-03 13:06:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.13 2011-09-15 08:35:47 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -25,7 +25,8 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.12 2011-08-03 13:06:
 #include "uitoolbutton.h"
 
 
-#define mSldUnits 250
+#define mSldUnits 300
+#define mZoomFac 15
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
@@ -147,7 +148,9 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	NotifyStopper ns( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
-    LinScaler scaler(1,1,mSldUnits,2*mainviewer_->nrItems());
+    const float nritems = mainviewer_->nrItems();
+    const float zoomfac = startwidth_/(nritems*mZoomFac);
+    LinScaler scaler(1,1,mSldUnits,zoomfac);
     hslval_ = scaler.scale( hslval_ );
     vslval_ = scaler.scale( vslval_ );
     reSizeItems();
