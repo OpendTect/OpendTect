@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.15 2011-09-05 06:08:57 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.16 2011-09-15 06:39:17 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "errh.h"
 #include "mantistables.h"
+#include "odver.h"
 #include "ptrman.h"
 
 
@@ -94,6 +95,7 @@ SqlDB::MantisDBMgr::~MantisDBMgr()
 
     deepErase( bugs_ );
     deepErase( texttables_ );
+    deepErase( versionsbyproject_ );
     delete bugtable_;
     delete bugtexttable_;
 }
@@ -264,10 +266,12 @@ bool SqlDB::MantisDBMgr::fillProjectsInfo()
 
 bool SqlDB::MantisDBMgr::fillVersions()
 {
+    const char* vers = GetFullODVersion();
+    const float ver = toFloat( vers )-1;
     errmsg_.setEmpty();
     BufferString querystr( "SELECT version FROM " );
     querystr.add( sKeyProjectVersionTable() ).add( " WHERE ( " )
-	    .add( "version > '3.2' AND released=1 )" )
+	    .add( "version > ").add( ver ).add(" AND released=1 )" )
     	    .add( " ORDER BY version DESC " );
     if ( !query().execute( querystr ) )
 	return false;
@@ -276,6 +280,46 @@ bool SqlDB::MantisDBMgr::fillVersions()
 	versions_.add( query().data(0) );
 
     return true;
+}
+
+
+bool SqlDB::MantisDBMgr::fillVersionsByProject()
+{
+    const char* vers = GetFullODVersion();
+    const float ver = toFloat( vers ) - 1;
+    errmsg_.setEmpty();
+    for ( int pidx=0; pidx<projectIDs().size(); pidx++ )
+    {
+	BufferStringSet* versbyproj = new BufferStringSet();
+	BufferString querystr( "SELECT version FROM " );
+	querystr.add( sKeyProjectVersionTable() ).add( " WHERE ( " )
+		.add( "version > ").add( ver ).add(" AND released=1 )" )
+		.add( " AND project_id=" ).add( projectIDs()[pidx] )
+		.add( " ORDER BY version DESC " );
+	if ( !query().execute( querystr ) )
+	    return false;
+
+	while ( query().next() )
+	    versbyproj->add( query().data(0) );
+
+	versionsbyproject_ += versbyproj;
+    }
+
+    return true;
+}
+
+
+const BufferStringSet* SqlDB::MantisDBMgr::getVersions(const char* projnm) const
+{
+    const BufferStringSet& projectnms = projects();
+    if ( projectnms.size() != versionsbyproject_.size() )
+	return 0;
+
+    const int pidx = projectnms.indexOf( projnm );
+    if ( ! pidx < 0 || !versionsbyproject_.validIdx( pidx ) )
+	return 0;
+
+    return versionsbyproject_[pidx];
 }
 
 
