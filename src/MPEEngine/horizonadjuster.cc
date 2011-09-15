@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.65 2011-09-02 09:18:14 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.66 2011-09-15 11:30:11 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -227,7 +227,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const float startz = horizon_.getPos( sectionid_, to.toInt64() ).z;
     tracker_->setRangeStep( sd.step );
 
-    tracker_->setTarget( &toarr, zsz, sd.getIndex(startz) );
+    tracker_->setTarget( &toarr, zsz, sd.getfIndex(startz) );
 
     if ( from.inl!=-1 && from.crl!=-1 )
     {
@@ -259,7 +259,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
 	const float fromz = horizon_.getPos(sectionid_,from.toInt64()).z;
-	tracker_->setSource( &fromarr, zsz, sd.getIndex(fromz) );
+	tracker_->setSource( &fromarr, zsz, sd.getfIndex(fromz) );
 
 	if ( !tracker_->isOK() )
 	    return false;
