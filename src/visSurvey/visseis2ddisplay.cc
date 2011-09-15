@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.132 2011-09-02 13:25:47 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.133 2011-09-15 12:45:42 cvsbert Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -119,7 +119,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int firstdhsample = sd.nearestIndex( firstz );  
 
     const bool samplebased = mIsEqual( sd.step, outputzstep_, 1e-3 ) &&
-	mIsEqual( sd.getIndex(firstz), firstdhsample, 1e-3 );
+	mIsEqual( sd.getfIndex(firstz), firstdhsample, 1e-3 );
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
@@ -246,7 +246,7 @@ float get( int idx0, int idx1 ) const
 
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling;
     const float firstz = data2dh_.dataset_[0]->z0_ * sd.step;
-    const float firstdhsamplef = sd.getIndex( firstz );
+    const float firstdhsamplef = sd.getfIndex( firstz );
     const int firstdhsample = sd.nearestIndex( firstz );
     const bool samestep = s2d_.datatransform_ ||
 	mIsEqual(sd.step,s2d_.getScene()->getCubeSampling().zrg.step,1e-3);
