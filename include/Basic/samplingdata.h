@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.17 2010-03-12 11:21:13 cvsbert Exp $
+ RCS:		$Id: samplingdata.h,v 1.18 2011-09-15 11:25:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     inline bool				operator!=(const SamplingData&)const;
 
     template <class IT> inline StepInterval<T> interval(IT nrsamples) const;
-    template <class FT> inline float	getIndex(FT) const;
+    template <class FT> inline float	getfIndex(FT) const;
     template <class FT> inline int	nearestIndex(FT) const;
     template <class IT> inline T	atIndex(IT) const;
     template <class FT> inline T	snap(FT) const;
@@ -112,14 +112,14 @@ StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
 
 template <class T>
 template <class FT> inline
-float SamplingData<T>::getIndex( FT val ) const
+float SamplingData<T>::getfIndex( FT val ) const
 { return (val-start) / ((float)step); }
 
 
 template <class T>
 template <class FT> inline
 int SamplingData<T>::nearestIndex( FT x ) const
-{ const float fidx = getIndex(x); return mNINT(fidx); }
+{ const float fidx = getfIndex(x); return mNINT(fidx); }
 
 
 template <class T>
