@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.93 2011-04-27 15:09:09 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.94 2011-09-16 10:57:52 cvskris Exp $";
 
 
 #include "segyhdr.h"
@@ -625,7 +625,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     float nrfac = 1;
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	nrfac = 1 / ((float)(-scalnr));
+	nrfac = 1. / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
     ti.coord.x = ti.coord.y = 0;

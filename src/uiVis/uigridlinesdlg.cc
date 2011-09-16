@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.14 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.15 2011-09-16 11:02:00 cvskris Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -180,7 +180,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( zfld_ )
     {
 	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
-	cs.zrg.scale( 1/SI().zFactor() );
+	cs.zrg.scale( 1./SI().zFactor() );
     }
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||

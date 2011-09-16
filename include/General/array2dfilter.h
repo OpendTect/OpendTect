@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.12 2010-08-17 20:05:00 cvskris Exp $
+ RCS:           $Id: array2dfilter.h,v 1.13 2011-09-16 10:52:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -268,7 +268,7 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 		const int coldist = icol - col;
 		const int coldist2 = coldist*coldist;
 		float wt = pars_.rowdist_ * rowdist2 + coldist2 ;
-		wt = 1 / (1 + pars_.distfac_ * wt);
+		wt = 1. / (1 + pars_.distfac_ * wt);
 		calc_->addValue( *buf, wt );
 	    }
 	    else

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emrandlinegen.cc,v 1.15 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emrandlinegen.cc,v 1.16 2011-09-16 11:04:01 cvskris Exp $";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"
@@ -48,7 +48,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 				Geometry::RandomLineSet& rls ) const
 {
     BinID bid, prevbid;
-    const float zfac = SI().zFactor(); // for line name
+    const int zfac = SI().zFactor(); // for line name
 
     for ( int isect=0; isect<geom_.nrSections(); isect++ )
     {

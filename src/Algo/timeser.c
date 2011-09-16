@@ -9,7 +9,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: timeser.c,v 1.2 2010-11-12 14:44:51 cvsbert Exp $";
+static const char* rcsID = "$Id: timeser.c,v 1.3 2011-09-16 10:54:03 cvskris Exp $";
 
 
 #include "timeser.h"
@@ -155,7 +155,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
     float* wts;
 
     if ( frac < 0 ) frac = -frac;
-    width = 2 * (1 / frac + .5);
+    width = 2 * (1. / frac + .5);
     if ( width < 2 || frac >= 1 )
     {
 	memcpy( arrout, arrin, sz * sizeof(float) );

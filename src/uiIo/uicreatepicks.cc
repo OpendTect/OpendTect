@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.23 2011-09-02 13:04:25 cvskris Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.24 2011-09-16 10:59:58 cvskris Exp $";
 
 #include "uicreatepicks.h"
 
@@ -290,7 +290,7 @@ void uiGenRandPicks2D::mkRandPars()
     else
     {
 	randpars_.zrg_ = zfld_->getFInterval();
-	randpars_.zrg_.scale( 1 / SI().zFactor() );
+	randpars_.zrg_.scale( 1. / SI().zFactor() );
     }
 }
 

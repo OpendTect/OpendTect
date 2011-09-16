@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.42 2011-09-02 09:04:29 cvskris Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.43 2011-09-16 10:55:12 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -228,8 +228,8 @@ Scaling::Scaling( Desc& desc )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/(2*SI().zFactor()), 
-				width_/(2*SI().zFactor()) );
+    window_ = Interval<float>( -width_/(2.*SI().zFactor()), 
+				width_/(2.*SI().zFactor()) );
 }
 
 
@@ -278,7 +278,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 
 	float val = (float)stats.getValue( statstype );
-	scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
+	scalefactors += !mIsZero(val,mDefEps) ? 1./val : 1;
 	stats.clear();
     }
 }

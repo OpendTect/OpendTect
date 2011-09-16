@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.9 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.10 2011-09-16 11:01:15 cvskris Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -382,7 +382,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, 1/slopeindecade );
+    const float slopeinhertz = pow( 10, 1./slopeindecade );
     TaperData& td = mGetData();
 
     if ( isminactive_ )
@@ -397,7 +397,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    float slope = fabs( 1/Math::Log10( d.rg_.stop / d.rg_.start ) );
+    float slope = fabs( 1./Math::Log10( d.rg_.stop / d.rg_.start ) );
     d.slope_ = slope*mDec2Oct;
 }
 

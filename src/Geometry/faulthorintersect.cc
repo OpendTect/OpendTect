@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.16 2011-04-25 21:39:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.17 2011-09-16 10:56:26 cvskris Exp $";
 
 #include "faulthorintersect.h"
 
@@ -247,7 +247,7 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 		return true;
 	    }
 	    else
-		dist = 1/dist;
+		dist = 1./dist;
 	    
 	    weights += dist;
 	    weightsum += dist;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.26 2011-09-15 11:26:27 cvskris Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.27 2011-09-16 10:54:03 cvskris Exp $";
 
 
 #include "sampledprobdenfunc.h"
@@ -211,7 +211,7 @@ float ArrayNDProbDenFunc::getNormFac() const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	sumval += values[idx];
 
-    return 1 / sumval;
+    return 1. / sumval;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.31 2011-05-12 10:03:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.32 2011-09-16 10:58:40 cvskris Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -233,7 +233,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 		if ( numsteps > 0 )
 		    mat.scale( 1.2, 1.2 );
 		else
-		    mat.scale( 1/1.2, 1/1.2 );
+		    mat.scale( 1./1.2, 1./1.2 );
 	    }
 	}
 

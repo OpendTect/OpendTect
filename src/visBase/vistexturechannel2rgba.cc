@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.58 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.59 2011-09-16 11:02:54 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -669,7 +669,7 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"void processLayer( in float val, in float layeropacity, in float ctab, in bool first )\n"
 	"{								\n"
 	"    float ctabval = 0.001953125+0.996093750*val;		\n"
-	// ctabval = 1/512 + 255/256*val
+	// ctabval = 1./512 + 255/256*val
 	// Layers ordered from back to front. First = backmost
 	"    vec4 col = texture2D( ctabunit, vec2( ctabval, ctab ) );	\n"
 	// Process only if pixel is not transparent.

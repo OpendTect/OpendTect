@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.8 2010-11-30 14:50:53 cvskris Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.9 2011-09-16 10:54:03 cvskris Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -56,7 +56,7 @@ float CC::getNyqvist( float samplespacing )
 
 
 float CC::getDf( float samplespacing, int nrsamples )
-{ return 1 / (samplespacing * nrsamples); }
+{ return 1. / (samplespacing * nrsamples); }
 
 
 bool CC::isFast( int sz ) const 

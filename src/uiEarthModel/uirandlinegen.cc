@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.21 2011-09-07 12:06:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.22 2011-09-16 10:59:42 cvskris Exp $";
 
 #include "uirandlinegen.h"
 
@@ -166,7 +166,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     StepInterval<float> contzrg = contzrgfld_->getFStepInterval();
     const bool isrel = isrelfld_->isChecked();
     Interval<float> linezrg = (isrel?relzrgfld_:abszrgfld_)->getFStepInterval();
-    const float zfac = 1 / SI().zFactor();
+    const float zfac = 1. / SI().zFactor();
     contzrg.scale( zfac ); linezrg.scale( zfac );
 
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );

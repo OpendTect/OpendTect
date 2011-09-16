@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.48 2011-08-19 14:58:14 cvsjaap Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.49 2011-09-16 10:54:03 cvskris Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -838,7 +838,7 @@ bool DAGTriangleTree::getWeights( int vertexidx, const TypeSet<int>& conns,
     const Coord& vertex = mCrd(vertexidx);
     for ( int knot=0; knot<conns.size(); knot++ )
     {
-	const double weight = 1/vertex.distTo(mCrd(conns[knot]));
+	const double weight = 1./vertex.distTo(mCrd(conns[knot]));
 	weights += weight;
 	if ( normalize ) sum += weight;
     }

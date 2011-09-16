@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.57 2011-05-03 19:46:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.58 2011-09-16 10:54:03 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -418,7 +418,7 @@ bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
     }
     else
     {
-	line.slope_ = -1 / slope_;
+	line.slope_ = -1. / slope_;
 	line.yintcpt_ = point.y - line.slope_ * point.x;
     }
 

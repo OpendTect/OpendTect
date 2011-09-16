@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.7 2011-03-31 08:24:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.8 2011-09-16 11:02:24 cvskris Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -217,7 +217,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
 	Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
-	Interval<float> trg( zrg ); trg.scale( 1 / vel_ );
+	Interval<float> trg( zrg ); trg.scale( 1. / vel_ );
 	d2t->add( 0, trg.start );
 	d2t->add( wcd.td_, trg.stop );
 	wd.setD2TModel( d2t );

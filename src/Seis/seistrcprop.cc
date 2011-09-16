@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.20 2010-02-23 09:49:23 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.21 2011-09-16 10:57:52 cvskris Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -309,7 +309,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     if ( (myval > val0 && myval > val1) || (myval < val0 && myval < val1) )
     {
 	float wvpos = ev2.pos - ev1.pos;
-	return wvpos > 1e-6 ? 1 / wvpos : mUdf(float);
+	return wvpos > 1e-6 ? 1. / wvpos : mUdf(float);
     }
 
     // Now find next events ...
@@ -329,7 +329,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     float d1 = (mypos - ev1.pos) / dpos;
     float d2 = (ev2.pos - mypos) / dpos;
     float wvpos = dpos + d1*(ev3.pos-ev2.pos) + d2*(ev1.pos-ev0.pos);
-    return wvpos > 1e-6 ? 1 / wvpos : mUdf(float);
+    return wvpos > 1e-6 ? 1. / wvpos : mUdf(float);
 }
 
 

@@ -461,7 +461,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 }
 
 
-#define mMrkrScale2DFac 1/(float)5
+#define mMrkrScale2DFac 1./(float)5
 #define mDefHorLineX1X2Y() \
 const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
 const int x2 = ld1_.xax_.getRelPosPix( 1 ); \

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.24 2010-10-27 12:07:22 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.25 2011-09-16 11:01:15 cvskris Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -262,7 +262,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 bool uiWaveletExtraction::checkWaveletSize()
 {
     wvltsize_ = mNINT( wtlengthfld_->getIntValue() /
-	    		      (datastep_ * SI().zFactor()) ) + 1;
+	    		      (datastep_ * ((float) SI().zFactor())) ) + 1;
     if ( wvltsize_ < 3 )
     {
 	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
@@ -350,13 +350,14 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	    sdset += sd_;
 	}
 
-	extractor = new WaveletExtractor( *linesel2dfld_->getIOObj(),							  wvltsize_ );
+	extractor = new WaveletExtractor( *linesel2dfld_->getIOObj(),
+					  wvltsize_ );
 	extractor->setSelData( sdset );
     }
 
     const int taperlength = taperfld_->getIntValue();
     const float val =
-		  1-(2*taperlength/( (wvltsize_-1)*datastep_*SI().zFactor()) );
+	  1-(2*taperlength/( (wvltsize_-1)*datastep_*((float)SI().zFactor())) );
     const float paramval = val == 1 ? 1.0 - 1e-6 : val;
     extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );

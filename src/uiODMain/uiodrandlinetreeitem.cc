@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.44 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.45 2011-09-16 11:00:27 cvskris Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -263,7 +263,7 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 	rtd->setKnotPositions( newbids );
 
 	table->getZRange( zrg );
-	zrg.scale( 1/SI().zFactor() );
+	zrg.scale( 1./SI().zFactor() );
 	rtd->setDepthInterval( zrg );
     }
 }
@@ -485,7 +485,7 @@ void uiODRandomLineTreeItem::editNodes()
 	rtd->setKnotPositions( newbids );
 
 	table->getZRange( zrg );
-	zrg.scale( 1/SI().zFactor() );
+	zrg.scale( 1./SI().zFactor() );
 	rtd->setDepthInterval( zrg );
 
 	visserv_->setSelObjectId( rtd->id() );

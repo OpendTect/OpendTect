@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.10 2011-07-08 14:20:10 cvshelene Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.11 2011-09-16 10:58:13 cvskris Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -320,7 +320,7 @@ void SoPolygonSelect::rub( const SbVec2f& pt )
     polybuf_.append( pt );
     prevpos_ = pt;
 
-    transform( polybuf_, 1/rubradius, cosphi, -sinphi );
+    transform( polybuf_, 1./rubradius, cosphi, -sinphi );
 
     SbVec2f c1 = polybuf_[sz];
     SbVec2f c2 = polybuf_[sz+1];

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.57 2011-09-09 13:51:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.58 2011-09-16 10:55:12 cvskris Exp $";
 
 #include "similarityattrib.h"
 
@@ -153,7 +153,7 @@ Similarity::Similarity( Desc& desc )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( donormalize_, normalizeStr() );
     mGetEnum( extension_, extensionStr() );

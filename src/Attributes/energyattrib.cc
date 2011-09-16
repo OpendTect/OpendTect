@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.35 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.36 2011-09-16 10:55:12 cvskris Exp $";
 
 #include "energyattrib.h"
 
@@ -51,7 +51,7 @@ Energy::Energy( Desc& ds )
 
     mGetBool( dograd_, dogradStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1/zFactor() );
+    gate_.scale( 1./zFactor() );
     if ( dograd_ )
 	dessampgate_ = Interval<int>(-1,1);
 }
