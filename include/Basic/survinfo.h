@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.100 2011-08-25 06:30:31 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.101 2011-09-16 11:33:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,9 @@ public:
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
     const char*		getZUnitString(bool withparens=true) const;
-    float		zFactor() const;
+    int			zFactor() const;
     			//!< Factor between real and displayed unit in UI
-    static float	zFactor(bool time);
+    static int		zFactor(bool time);
     			//!< Factor between real and displayed unit in UI
     bool		depthsInFeetByDefault() const;
 
