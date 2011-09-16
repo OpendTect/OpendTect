@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.23 2011-09-02 08:52:41 cvskris Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.24 2011-09-16 11:33:24 cvskris Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -164,7 +164,7 @@ GapDecon::GapDecon( Desc& desc )
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1/zFactor() );
+    gate_.scale( 1./zFactor() );
     if ( !SI().zRange(true).includes(gate_.start,false) )
 	gate_.start = SI().zRange(true).start;
     if ( !SI().zRange(true).includes(gate_.stop,false) )
@@ -275,7 +275,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
 
-    float scale = 1/autocorr[0];
+    float scale = 1./autocorr[0];
     for ( int idx=0; idx<safelcorr; idx++)  
 	autocorr[idx] *= scale;
 
@@ -340,7 +340,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 						 ncorr_, startcorr, inputoutarr,
 						 lcorr_, 0, autocorrptr );
 
-    float scale2 = 1/autocorr[0];
+    float scale2 = 1./autocorr[0];
     for ( int idx=0; idx<lcorr_; idx++)
 	autocorr[idx] *= scale2;
 

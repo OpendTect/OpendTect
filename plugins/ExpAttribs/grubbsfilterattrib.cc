@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.4 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.5 2011-09-16 11:32:35 cvskris Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -76,7 +76,7 @@ GrubbsFilter::GrubbsFilter( Desc& desc )
     mGetFloat( cogrubbsval_, grubbsvalStr() );
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBinID( stepout_, stepoutStr() )
     getTrcPos();

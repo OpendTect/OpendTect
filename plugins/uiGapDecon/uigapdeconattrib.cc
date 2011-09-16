@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.49 2011-06-17 07:17:33 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.50 2011-09-16 11:33:24 cvskris Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -550,7 +550,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    gate.scale(1/SI().zFactor());
+    gate.scale(1./SI().zFactor());
     if ( cs.zrg.start < gate.start )
 	cs.zrg.start = gate.start;
     if ( cs.zrg.stop > gate.stop )
@@ -682,7 +682,7 @@ void uiGDPositionDlg::popUpPosDlg()
 		    		     = inputcs.hrg.crlRange().snappedCenter();
 	}
 
-	float zstop = 500/SI().zFactor();
+	float zstop = 500./SI().zFactor();
 	inputcs.zrg.start = 0;
     }
 
