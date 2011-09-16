@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.46 2011-07-07 21:45:07 cvsyuancheng Exp $
+ RCS:		$Id: callback.h,v 1.47 2011-09-16 10:00:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,25 +32,25 @@ interested in).
 */
 
 
-struct CallBacker { virtual ~CallBacker() {} };
-
+//!> To be able to send and/or receive CallBacks, inherit from this class
+mClass CallBacker { public: virtual ~CallBacker() {} };
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
-/*!> Macro casting a to CallBacker::function */
 #define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
-/*!> Macro to simply define a callback from an instance pointer and a method */
+
+//!> To make your CallBack. Used in many places, especially the UI.
 #define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss,fn))
 
 typedef void (*StaticCallBackFunction)(CallBacker*);
-/*!> Macro casting a to StaticCallBacker::function */
 #define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
 
-/*!\brief CallBacks object-oriented.
 
-CallBack is simply a function pointer + optionally an object to call it on. It
-may be empty, in which case doCall() will simply do nothing. If you want to be
-able to send a CallBack, you must provide a 'sender' CallBacker* (usually
-'this').
+/*!\brief CallBacks object-oriented (object + method).
+
+CallBack is nothing more than a function pointer + optionally an object to call
+it on. It may be null, in which case doCall() will simply do nothing. If you
+want to be able to send a CallBack, you must provide a 'sender' CallBacker*
+(usually 'this').
 
 */
 
@@ -61,24 +61,14 @@ public:
 			    : obj_( o ), fn_( f ), sfn_( 0 )	{}
 			CallBack( StaticCallBackFunction f )
 			    : obj_( 0 ), fn_( 0 ), sfn_( f )	{}
-    inline int		operator==( const CallBack& cb ) const
-			{
-			    return obj_ == cb.obj_ &&
-				   fn_ == cb.fn_ &&
-				   sfn_==cb.sfn_;
-			}
+    inline int		operator==( const CallBack& c ) const
+			{ return obj_==c.obj_ && fn_==c.fn_ && sfn_==c.sfn_; }
     inline int		operator!=( const CallBack& cb ) const
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
 			{ return obj_ && (fn_ || sfn_); }
-    inline void		doCall( CallBacker* o )
-			{
-			    if ( obj_ && fn_ )
-				(obj_->*fn_)( o );
-			    else if ( sfn_ )
-				sfn_( o );
-			}
+    void		doCall(CallBacker*);
 
     inline CallBacker*			cbObj()			{ return obj_; }
     inline const CallBacker*		cbObj() const		{ return obj_; }
@@ -87,9 +77,10 @@ public:
 
 protected:
 
-    CallBacker*			obj_;
-    CallBackFunction		fn_;
-    StaticCallBackFunction	sfn_;
+    CallBacker*				obj_;
+    CallBackFunction			fn_;
+    StaticCallBackFunction		sfn_;
+
 };
 
 
@@ -101,46 +92,14 @@ public:
 
     void	doCall(CallBacker*,const bool* enabledflag=0,
 	    		CallBacker* exclude=0);
-    		/*!<\param enabledflag
-		  If enabledflag points to a bool (i.e. is non-zero) that bool
-		  will be checked between each call. If the bool is false, the
-		  traverse will stop and the remaining cbs won't be called.
-		  This makes it possible to terminate a traverse during the
-		  traversal.  */
+    		/*!<\param enabledflag: if non-null, content will be checked
+		  between each call, caling will stop if false. */
+
     void	removeWith(CallBacker*);
-    		//!< Removes callbacks to this caller
+    void	removeWith(CallBackFunction);
+    void	removeWith(StaticCallBackFunction);
+
 };
-
-inline void CallBackSet::doCall( CallBacker* obj,
-				 const bool* enabledflag,
-       				 CallBacker* exclude )
-{
-    const bool enabled_ = true;
-    const bool& enabled = enabledflag ? *enabledflag : enabled_;
-    if ( !enabled ) return;
-
-    TypeSet<CallBack> cbscopy = *this;
-    for ( int idx=0; idx<cbscopy.size(); idx++ )
-    {
-	CallBack& cb = cbscopy[idx];
-	if ( indexOf(cb)==-1 )
-	    continue;
-
-	if ( !exclude || cb.cbObj()!=exclude )
-	    cb.doCall( obj );
-    }
-}
-
-
-inline void CallBackSet::removeWith( CallBacker* cbrm )
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	CallBack& cb = (*this)[idx];
-	if ( cb.cbObj() == cbrm )
-	    { remove( idx ); idx--; }
-    }
-}
 
 
 /*!\brief Capsule class to wrap any class into a CallBacker.
@@ -218,67 +177,17 @@ public:
     virtual void	notifyIfNotNotified(const CallBack&)	=0;
     virtual void	remove(const CallBack&)			=0;
 
-    bool		enable( bool newstatus=true )
-    			{ return doEnable(newstatus); }
-    			/*!<\return previous status */
-    bool		disable()		{ return doEnable(false); }
-    			/*!<\return previous status */
     bool		isEnabled() const	{ return enabled_; }
+    bool		enable( bool yn=true )	{ return doEnable(yn); }
+    bool		disable()		{ return doEnable(false); }
 
 protected:
 
     bool		enabled_;
-    inline bool		doEnable( bool newstatus=true )
-    			{ bool res=enabled_; enabled_=newstatus; return res; }
-    			/*!<\return previous status */
+    inline bool		doEnable( bool yn=true )
+    			{ bool ret = enabled_; enabled_ = yn; return ret; }
+    			/*!< returns previous status */
 };
-
-
-/*!\brief List of named Notifier objects.
-
-To be able to set up generalised communication mechanisms based on callbacks,
-we'll need to be able to 'publish' a Notifier under a symbolic name.
-The list needs to support:
-
-1) void add( const char* name, NotifierAccess* )
-2) NotifierAccess* find( const char* name )
-
-No management or whatsoever is supported as this is just a generalised way
-to 'publish' event notification abilities.
-
-*/
-
-mClass NamedNotifierSet
-{
-public:
-				~NamedNotifierSet()
-				{ deepErase( names_ ); }
-
-    void			add(const char* nm,NotifierAccess&);
-    NotifierAccess*		find(const char*) const;
-
-protected:
-
-    ObjectSet<NotifierAccess>	notifs_;
-    ObjectSet<std::string>	names_;
-
-};
-
-
-inline void NamedNotifierSet::add( const char* nm, NotifierAccess& na )
-{
-    names_ += new std::string( nm );
-    notifs_ += &na;
-}
-
-
-inline NotifierAccess* NamedNotifierSet::find( const char* nm ) const
-{
-    for ( int idx=0; idx<names_.size(); idx++ )
-	if ( *names_[idx] == nm )
-	    return const_cast<NotifierAccess*>( notifs_[idx] );
-    return 0;
-}
 
 
 /*!\brief implementation class for Notifier */
@@ -296,17 +205,8 @@ public:
     CallBackSet		cbs_;
     CallBacker*		cber_;
 
-			i_Notifier()	{}
+			i_Notifier()			{}
 };
-
-
-inline void i_Notifier::removeWith( CallBacker* cb )
-{
-    if ( cber_ == cb )
-	{ cbs_.erase(); cber_ = 0; return; }
-
-    cbs_.removeWith( cb );
-}
 
 
 /*!\brief class to help setup a callback handling.
@@ -324,18 +224,18 @@ rigorous uncoupling.
 
 Simply declare a Notifier<T> in the interface, like:
 \code
-Notifier<MyClass>	buttonclicked;
+Notifier<MyClass>	buttonClicked;
 \endcode
 
 Then users of the class can issue:
 
 \code
-amyclass.buttonclicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
+amyclass.buttonClicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
 \endcode
 
 The callback is issued when you call the trigger() method, like:
 \code
-buttonclicked.trigger();
+buttonClicked.trigger();
 \endcode
 
 The notification can be temporary stopped using disable()/enable() pair,
@@ -351,51 +251,13 @@ public:
 
     void		trigger( T& t )	{ trigger(&t); }
 
-// protected: (should be used by T class only)
+// Following functions are usually used by T class only:
 
 			Notifier( T* c ) 			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
 			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
 
-};
-
-
-/*!\brief temporarily disables a notifier
-
-CallBacks can be disabled. To do that temporarily, use NotifyStopper.
-If the Stopper goes out of scope, the callback is re-enabled. like:
-
-void xxx:doSomething()
-{
-    NotifyStopper stopper( a_notifier );
-
-    // doing things that would otherwise trigger notifier
-
-    // On exit, notifier gets re-enabled automatically
-}
-
-*/
-
-mClass NotifyStopper 
-{
-public:
-			NotifyStopper( NotifierAccess& n ) 
-			    : thenotif(n)
-			    , oldstatus( n.doEnable(false) )
-			{}
-
-    inline		~NotifyStopper()
-    			{ restore(); }
-
-    inline void		enable()		{ thenotif.doEnable(false); }
-    inline void		disable()		{ thenotif.doEnable(true); }
-    inline void		restore()		{ thenotif.doEnable(oldstatus);}
-
-protected:
-
-    NotifierAccess& 	thenotif;
-    bool		oldstatus;
 };
 
 
@@ -418,25 +280,74 @@ public:
 
     void		trigger( C c, T& t )		{ trigger(c,&t); }
 
-// almost protected (as above):
+// Following functions are usually used by T class only:
 
 			CNotifier( T* cb )	{ cber_ = cb; }
 
     inline void		trigger( CallBacker* cb=0 )
-			{
-			    if( !enabled_ ) return; 
-			    C c;
-			    trigger(c,cb);
-			}
+			    { if( !enabled_ ) return; C c; trigger(c,cb); }
 
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
-			    if( !enabled_ ) return; 
-			    CBCapsule<C> caps( c, cb ? cb : cber_ );
-			    cbs_.doCall( &caps, &enabled_ );
+			    if ( enabled_ )
+			    {
+				CBCapsule<C> caps( c, cb ? cb : cber_ );
+				cbs_.doCall( &caps, &enabled_ );
+			    }
 			}
 };
 
+
+/*!\brief temporarily disables a notifier
+
+Notifiers can be disabled. To do that temporarily, use NotifyStopper.
+If the Stopper goes out of scope, the callback is re-enabled. like:
+
+void xxx:doSomething()
+{
+    NotifyStopper stopper( a_notifier );
+    // doing things that would otherwise trigger notifier
+    // On exit, notifier gets re-enabled automatically
+}
+
+*/
+
+mClass NotifyStopper 
+{
+public:
+			NotifyStopper( NotifierAccess& na ) 
+			    : oldst_(na.doEnable(false))
+			    , thenotif_(na)	{}
+
+    inline		~NotifyStopper()	{ restore(); }
+
+    inline void		enable()		{ thenotif_.doEnable(false); }
+    inline void		disable()		{ thenotif_.doEnable(true); }
+    inline void		restore()		{ thenotif_.doEnable(oldst_);}
+
+protected:
+
+    NotifierAccess& 	thenotif_;
+    bool		oldst_;
+
+};
+
+
+// Set of macros to add an instanceCreated() notifier
+// This can provide a notification of any instance of a class being produced
+
+#define mDeclInstanceCreatedNotifierAccess(clss) \
+    static Notifier<clss>&	instanceCreated()
+
+#define mDefineInstanceCreatedNotifierAccess(clss) \
+Notifier<clss>& clss::instanceCreated() \
+{ \
+    static Notifier<clss> theNotif(0); \
+    return theNotif; \
+}
+
+#define mTriggerInstanceCreatedNotifier() \
+    instanceCreated().trigger( this )
 
 
 #endif
