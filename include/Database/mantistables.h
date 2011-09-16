@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.3 2011-09-13 09:09:46 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.4 2011-09-16 12:34:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ public:
 
     static const char*  sKeyBugTable();
     static const char*	sKeyFixedInVersion();
+    static const char*	sKeySevear();
+    static const char*	sKeyMinor();
     static const int    cStatusNew();
     static const int    cStatusAssigned();
     static const int    cStatusResolved();
@@ -118,6 +120,8 @@ public:
     BufferString	version_;
     BufferString	fixedinversion_;
     BufferString	summary_;
+
+    static bool		isSevear(int);
 
 protected:
 
