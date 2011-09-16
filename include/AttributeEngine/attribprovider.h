@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.88 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.89 2011-09-16 10:51:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,8 +320,8 @@ protected:
     float			getExtraZFromSampInterval(int,int) const;
 
     bool                        zIsTime() const;
-    float			zFactor() const   {return zIsTime() ? 1000 : 1;}
-    float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
+    float			zFactor() const;
+    float			dipFactor() const;
     float			inldist() const; 
     float			crldist() const;
     float			maxSecureDip() const
