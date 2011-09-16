@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.19 2011-09-16 09:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.20 2011-09-16 10:26:15 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -51,6 +51,9 @@ void Table::ExportHandler::finish()
 
 int Table::Converter::nextStep()
 {
+    if ( atend_ )
+	{ exphndlr_.finish(); return Finished(); }
+
     if ( selcolnr_ == -1 && !exphndlr_.init() )
     {
 	msg_ = "Cannot write first output";
@@ -68,7 +71,7 @@ int Table::Converter::nextStep()
 	    return msg_.isEmpty() ? Finished() : ErrorOccurred();
 
 	if ( imphndlr_.atEnd() )
-	    { exphndlr_.finish(); return Finished(); }
+	    atend_ = true;
 	if ( impstate == Table::ImportHandler::EndRow )
 	    return MoreToDo();
     }

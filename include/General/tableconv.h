@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.9 2011-09-16 09:45:53 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.10 2011-09-16 10:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ public:
     			Converter( ImportHandler& i, ExportHandler& o )
 			    : Executor("Data import")
 			    , imphndlr_(i), exphndlr_(o)
-			    , rowsdone_(0), selcolnr_(-1)
+			    , rowsdone_(0), selcolnr_(-1), atend_(false)
 			    , msg_("Importing")		{}
     // Setup
     TypeSet<int>	selcols_;
@@ -122,6 +122,7 @@ protected:
     int			colnr_;
     int			selcolnr_;
     int			rowsdone_;
+    bool		atend_;
 
     bool		handleImpState(ImportHandler::State);
     inline bool		colSel() const
