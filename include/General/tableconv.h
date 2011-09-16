@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.9 2011-09-16 09:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 			{
 			    char c = strm_.peek();
 			    strm_.ignore( 1 );
-			    return c;
+			    return atEnd() ? '\n' : c;
 			}
     inline bool		atEnd() const		{ return strm_.eof(); }
 
