@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.9 2011-08-03 13:06:12 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.10 2011-09-16 14:53:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
 			uiObjectItemViewWin(uiParent*,const Setup&);
 
 
+    int 		nrItems() const { return mainviewer_->nrItems(); } 
     uiObjectItemView*	mainViewer() 	{ return mainviewer_; }
 
     void 		addObject(uiObject* grp,uiObject* infogrp=0);
