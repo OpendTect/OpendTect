@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.76 2011-09-05 10:40:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.77 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -54,6 +54,8 @@ static const int cNrPosCols = 3;
 static const int cMinPtsForDensity = 20000;
 static const char* sKeyGroups = "Groups";
 
+mDefineInstanceCreatedNotifierAccess(uiDataPointSet)
+
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"111.0.0")
@@ -66,20 +68,6 @@ uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     modal_ = ismodal;
     nrstatusflds_ = 1;
 }
-
-
-static CallBackSet& creationCBS()
-{
-    static CallBackSet* cbs = 0;
-    if ( !cbs ) cbs = new CallBackSet;
-    return *cbs;
-}
-
-
-void uiDataPointSet::createNotify( const CallBack& cb )
-{ creationCBS() += cb; }
-void uiDataPointSet::stopCreateNotify( CallBacker* c )
-{ creationCBS().removeWith( c ); }
 
 
 #define mDPM DPM(DataPackMgr::PointID())
@@ -143,7 +131,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     setPrefWidth( 800 ); setPrefHeight( 600 );
 
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
-    creationCBS().doCall( this );
+    mTriggerInstanceCreatedNotifier();
 }
 
 

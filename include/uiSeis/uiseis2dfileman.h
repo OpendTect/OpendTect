@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne/Bert
  Date:          April 2002/Nov 2009
- RCS:           $Id: uiseis2dfileman.h,v 1.6 2010-04-26 08:28:23 cvsbert Exp $
+ RCS:           $Id: uiseis2dfileman.h,v 1.7 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     Seis2DLineSet*	lineset_;
     uiSeisIOObjInfo*	objinfo_;
 
-    static Notifier<uiSeis2DFileMan>* fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiSeis2DFileMan);
 
 protected:
 

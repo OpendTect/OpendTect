@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.10 2010-11-09 04:41:37 cvsnanne Exp $
+ RCS:           $Id: uiseispsman.h,v 1.11 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ public:
 			uiSeisPreStackMan(uiParent*,bool for2d);
 			~uiSeisPreStackMan();
 
-    static Notifier<uiSeisPreStackMan>* fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiSeisPreStackMan);
 
 protected:
 

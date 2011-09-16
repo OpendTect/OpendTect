@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.26 2011-03-16 12:10:40 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.27 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ public:
 
     bool		is2D() const		{ return is2d_; }
 
-    static Notifier<uiSeisFileMan>* fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiSeisFileMan);
 
 protected:
 

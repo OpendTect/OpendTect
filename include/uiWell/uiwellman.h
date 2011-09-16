@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.24 2011-07-20 13:13:12 cvsbruno Exp $
+ RCS:           $Id: uiwellman.h,v 1.25 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     				uiWellMan(uiParent*);
 				~uiWellMan();
 
-    static Notifier<uiWellMan>*	fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiWellMan);
     void			addTool(uiButton*);
 
 protected:

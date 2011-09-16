@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.123 2011-04-28 18:37:24 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.124 2011-09-16 10:01:23 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -41,12 +41,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.123 2011-04-28 18:37:24 cv
 #include "uisplitter.h"
 #include "uitaskrunner.h"
 
-
-Notifier<uiSeisFileMan>* uiSeisFileMan::fieldsCreated()
-{
-    static Notifier<uiSeisFileMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
@@ -93,8 +88,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     manipgrp->addButton( "man_ps.png", "Manage Pre-Stack data",
 			 mCB(this,uiSeisFileMan,manPS) );
 
+    mTriggerInstanceCreatedNotifier();
     selChg(0);
-    fieldsCreated()->trigger( this );
 }
 
 

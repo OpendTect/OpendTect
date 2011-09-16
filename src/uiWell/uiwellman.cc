@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.82 2011-07-21 07:51:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.83 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -47,12 +47,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.82 2011-07-21 07:51:11 cvsbrun
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
 
-
-Notifier<uiWellMan>* uiWellMan::fieldsCreated()
-{
-    static Notifier<uiWellMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 
 uiWellMan::uiWellMan( uiParent* p )
@@ -123,7 +118,7 @@ uiWellMan::uiWellMan( uiParent* p )
     lastexternal_ = logtoolbut;
 
     selChg( this );
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
 }
 
 

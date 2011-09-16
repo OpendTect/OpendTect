@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.33 2011-07-11 11:50:16 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.34 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,11 +75,6 @@ public:
     				{ zfac_ = f; zunitnm_ = unnm; }
 					//!< Default is SI().zFactor()
 
-    static void			createNotify(const CallBack&);
-				    //!< Will be called at end of constructor
-				    //!< Makes it possible to add buttons etc
-    static void			stopCreateNotify(CallBacker*);
-
     uiTable*			table()		{ return tbl_; }
     uiToolBar*			ioToolBar()	{ return iotb_; }
     uiToolBar*			dispToolBar()	{ return disptb_; }
@@ -134,6 +129,9 @@ public:
 
     void			calcSelectedness();
     void			setDisp(DataPointSetDisplayProp*);
+
+    mDeclInstanceCreatedNotifierAccess(uiDataPointSet);
+
 protected:
 
     DataPointSet&		dps_;

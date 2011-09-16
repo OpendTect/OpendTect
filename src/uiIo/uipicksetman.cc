@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.18 2011-04-01 11:45:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.19 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -24,11 +24,7 @@ static const char* rcsID = "$Id: uipicksetman.cc,v 1.18 2011-04-01 11:45:56 cvsb
 #include "keystrs.h"
 #include "polygon.h"
 
-Notifier<uiPickSetMan>* uiPickSetMan::fieldsCreated()
-{
-    static Notifier<uiPickSetMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
@@ -40,7 +36,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
     createDefaultUI();
     selgrp_->getManipGroup()->addButton( "mergepicksets.png", "Merge pick sets",
 					 mCB(this,uiPickSetMan,mergeSets) );
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
 

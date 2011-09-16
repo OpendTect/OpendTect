@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.86 2011-05-16 12:05:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.87 2011-09-16 10:01:23 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -74,11 +74,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.86 2011-05-16 12:05:28 cvsn
 
 using namespace EM;
 
-Notifier<uiSurfaceMan>* uiSurfaceMan::fieldsCreated()
-{
-    static Notifier<uiSurfaceMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiSurfaceMan)
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
@@ -134,7 +130,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	setPrefWidth( 50 );
     }
 
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     selChg( this ); 
 }
 

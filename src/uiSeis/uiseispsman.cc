@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.22 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.23 2011-09-16 10:01:23 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -24,12 +24,7 @@ static const char* rcsID = "$Id: uiseispsman.cc,v 1.22 2010-11-16 11:30:12 cvsbe
 #include "uiseismulticubeps.h"
 #include "uitextedit.h"
 
-
-Notifier<uiSeisPreStackMan>* uiSeisPreStackMan::fieldsCreated()
-{
-    static Notifier<uiSeisPreStackMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
@@ -52,7 +47,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
     }
 
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     selChg(0);
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.67 2011-02-10 05:24:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.68 2011-09-16 10:01:23 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -38,11 +38,7 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.67 2011-02-10 05:24:26 cvs
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-Notifier<uiSeisWvltMan>* uiSeisWvltMan::fieldsCreated()
-{
-    static Notifier<uiSeisWvltMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
@@ -106,7 +102,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvltfld_->setStretch( 1, 2 );
     wvltfld_->setExtraBorders( uiRect(2,5,2,5) );
 
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }
 

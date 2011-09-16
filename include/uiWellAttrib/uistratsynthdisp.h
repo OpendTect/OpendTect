@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.34 2011-09-08 15:09:09 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.35 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ public:
     Notifier<uiStratSynthDisp>	zoomChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
 
-    static Notifier<uiStratSynthDisp>&	fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
 
     void		modelChanged();

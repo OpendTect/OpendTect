@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.19 2011-08-03 15:09:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.20 2011-09-16 10:01:23 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -40,12 +40,7 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.19 2011-08-03 15:09:05 c
 #include "uitextedit.h"
 #include "uitaskrunner.h"
 
-
-Notifier<uiSeis2DFileMan>* uiSeis2DFileMan::fieldsCreated()
-{
-    static Notifier<uiSeis2DFileMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
@@ -103,7 +98,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     fillLineBox();
 
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     lineSel(0);
 }
 

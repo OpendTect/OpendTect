@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.19 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.20 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
@@ -81,9 +81,9 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
-    uiWellMan::fieldsCreated()->notify(
+    uiWellMan::instanceCreated().notify(
 				mCB(this,uiGoogleIOMgr,mkExportWellsIcon) );
-    uiSeis2DFileMan::fieldsCreated()->notify(
+    uiSeis2DFileMan::instanceCreated().notify(
 				mCB(this,uiGoogleIOMgr,mkExportLinesIcon) );
 }
 

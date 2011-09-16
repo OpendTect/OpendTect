@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsetman.cc,v 1.11 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.12 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uiattrsetman.h"
 
@@ -21,12 +21,7 @@ static const char* rcsID = "$Id: uiattrsetman.cc,v 1.11 2010-11-09 04:41:37 cvsn
 #include "ctxtioobj.h"
 #include "survinfo.h"
 
-
-Notifier<uiAttrSetMan>* uiAttrSetMan::fieldsCreated()
-{
-    static Notifier<uiAttrSetMan> FieldsCreated(0);
-    return &FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
@@ -36,7 +31,7 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p )
 	           AttribDescSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    fieldsCreated()->trigger( this );
+    mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
 

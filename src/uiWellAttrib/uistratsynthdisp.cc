@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.59 2011-09-13 15:07:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.60 2011-09-16 10:01:23 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -44,11 +44,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.59 2011-09-13 15:07:55 
 
 static const int cMarkerSize = 6;
 
-Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
-{
-    static Notifier<uiStratSynthDisp> FieldsCreated(0);
-    return FieldsCreated;
-}
+mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
@@ -139,6 +135,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	    .tba( (int)uiToolBar::Right );
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
+
+    mTriggerInstanceCreatedNotifier();
 }
 
 

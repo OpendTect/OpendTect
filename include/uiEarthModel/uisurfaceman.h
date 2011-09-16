@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.28 2011-05-16 12:05:28 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.29 2011-09-16 10:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 			uiSurfaceMan(uiParent*,const char* typ);
 			~uiSurfaceMan();
 
-    static Notifier<uiSurfaceMan>* fieldsCreated();
+    mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
     void		addTool(uiButton*);
 
 protected:
