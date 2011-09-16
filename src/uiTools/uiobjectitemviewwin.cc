@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.13 2011-09-15 08:35:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.14 2011-09-16 14:53:24 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -25,13 +25,13 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.13 2011-09-15 08:35:
 #include "uitoolbutton.h"
 
 
-#define mSldUnits 300
-#define mZoomFac 15
+#define mSldUnits 250
+#define mZoomFac 2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
     , startwidth_(su.startwidth_)
-    , startheight_(su.startheight_) 
+    , startheight_(su.startheight_)
     , hslval_(1)
     , vslval_(1)
 {
@@ -61,6 +61,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
 void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );
+    itm->setObjectSize( obj->width(), obj->height() );
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
     addItem( itm, infoitm );
 }
@@ -69,6 +70,7 @@ void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 void uiObjectItemViewWin::addGroup( uiGroup* obj, uiGroup* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );
+    itm->setObjectSize(obj->mainObject()->width(),obj->mainObject()->height());
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
     addItem( itm, infoitm );
 }
@@ -148,26 +150,24 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	NotifyStopper ns( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
-    const float nritems = mainviewer_->nrItems();
-    const float zoomfac = startwidth_/(nritems*mZoomFac);
-    LinScaler scaler(1,1,mSldUnits,zoomfac);
-    hslval_ = scaler.scale( hslval_ );
-    vslval_ = scaler.scale( vslval_ );
     reSizeItems();
 }
 
 
 void uiObjectItemViewWin::reSizeItems()
 {
-    const int nritems = mainviewer_->nrItems();
+    const float nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
-    const int width = mNINT( hslval_*startwidth_/(float)nritems );
-    const int height = mNINT(vslval_*startheight_ );
+    LinScaler scaler(1,1,mSldUnits,nritems*mZoomFac);
+    hslval_ = scaler.scale( hslval_ );
+    scaler.set(1,1,mSldUnits,mZoomFac);
+    vslval_ = scaler.scale( vslval_ );
 
-    const uiSize objsz = uiSize( width, height );
+    const int w = mNINT( hslval_*startwidth_/(float)nritems );
+    const int h = mNINT( vslval_*startheight_ );
     for ( int idx=0; idx<nritems; idx++ )
-	mainviewer_->reSizeItem( idx, objsz );
+	mainviewer_->reSizeItem( idx, uiSize( w, h ) );
 
     mainviewer_->resetViewArea(0);
     infobar_->reSizeItems(); 
@@ -225,8 +225,6 @@ void uiObjectItemViewWin::insertObject(int idx, uiObject* obj,uiObject* infoobj)
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
     insertItem( idx, itm, infoitm );
 }
-
-
 
 
 void uiObjectItemViewWin::scrollBarCB( CallBacker* )
