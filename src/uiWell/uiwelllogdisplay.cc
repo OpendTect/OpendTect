@@ -406,6 +406,8 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	    iscoltabrev = !iscoltabrev;
 	float valdiff = iscoltabrev ? rgstop-val : val-rgstart;
 	int colindex = (int)( valdiff/colstep );
+	if ( colindex > 255 ) colindex = 255; 
+	if ( colindex < 0 )   colindex = 0; 
 	if ( fullpanelfill ) 
 	    val = first ? rgstart : rgstop;
 
