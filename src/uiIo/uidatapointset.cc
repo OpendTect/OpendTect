@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.77 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.78 2011-09-19 13:33:08 cvsbert Exp $";
 
 #include "uidatapointset.h"
+#include "uidatapointsetman.h"
 #include "uistatsdisplaywin.h"
 #include "uidatapointsetcrossplotwin.h"
 
@@ -45,6 +46,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.77 2011-09-16 10:01:23 cv
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uiioobjsel.h"
+#include "uiioobjmanip.h"
 #include "uifileinput.h"
 #include "uistatusbar.h"
 #include "uiobjdisposer.h"
@@ -1105,7 +1107,12 @@ void uiDataPointSet::retrieve( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
-    if ( !seldlg.go() || !seldlg.ioObj() ) return;
+    seldlg.selGrp()->getManipGroup()->addButton( "manxplot.png",
+	    	"Manage cross-plot data", mCB(this,uiDataPointSet,manage) );
+    curseldlg_ = &seldlg;
+    const bool selok = seldlg.go() && seldlg.ioObj();
+    curseldlg_ = 0;
+    if ( !selok ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PosVecDataSet pvds;
@@ -1243,6 +1250,17 @@ bool uiDataPointSet::doSave()
 	unsavedchgs_ = false;
 
     return ret;
+}
+
+
+void uiDataPointSet::manage( CallBacker* )
+{
+    uiDataPointSetMan dlg( this );
+    dlg.go();
+    MultiID mid;
+    if ( curseldlg_ && curseldlg_->ioObj() )
+	mid = curseldlg_->ioObj()->key();
+    curseldlg_->selGrp()->fullUpdate( mid );
 }
 
 

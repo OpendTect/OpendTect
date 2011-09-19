@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.34 2011-09-16 10:01:23 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.35 2011-09-19 13:33:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiTable;
 class uiSpinBox;
 class uiToolBar;
+class uiIOObjSelDlg;
 class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
 
@@ -173,6 +174,7 @@ protected:
     int				xplottbid_;
     int				dispxytbid_;
     int				dispztbid_;
+    uiIOObjSelDlg*		curseldlg_;
 
     void			mkToolBars();
 
@@ -208,6 +210,7 @@ protected:
     void			showStatsWin(CallBacker*);
     void			retrieve(CallBacker*);
     void			save(CallBacker*);
+    void			manage(CallBacker*);
     void			delSelRows(CallBacker*);
     void			showStatusMsg(CallBacker*);
     void			closeNotify(CallBacker*);
