@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.44 2011-05-16 09:23:01 cvsbert Exp $
+ RCS:		$Id: arraynd.h,v 1.45 2011-09-19 11:13:40 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -395,8 +395,7 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
     const ValueSeries<T>* stor = getStorage();
     if ( stor )
     {
-	for ( od_int64 idx=0; idx<totalsz; idx++ )
-	    vs.setValue( idx, stor->value( idx ) );
+	stor->getValues( vs, totalsz );
 	return;
     }
 
