@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.60 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.61 2011-09-19 09:32:16 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uistratsynthdisp2crossplot.h"
@@ -468,6 +468,12 @@ const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics()
 	return tmpsynthetics_;
     }
     return synthetics_;
+}
+
+
+const MultiID& uiStratSynthDisp::waveletID() const
+{
+    return wvltfld_->getID();
 }
 
 

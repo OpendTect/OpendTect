@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.35 2011-09-16 10:01:23 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.36 2011-09-19 09:32:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,11 @@ public:
     			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
+    const Strat::LayerModel& layerModel() const	{ return lm_; }
+    const char*		levelName() const	{ return levelname_; }
+    const ObjectSet<const SyntheticData>& getSynthetics();
+    const MultiID&	waveletID() const;
+
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
     const uiWorldRect&	curView(bool indepth) const;
@@ -130,7 +135,6 @@ public:
 
     void		modelChanged();
 
-    const ObjectSet<const SyntheticData>& getSynthetics();
 
 protected:
 
@@ -176,6 +180,7 @@ protected:
     void		scalePush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
+
 };
 
 #endif
