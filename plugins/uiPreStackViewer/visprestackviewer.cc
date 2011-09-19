@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.69 2011-09-19 05:18:43 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.70 2011-09-19 11:22:25 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -982,7 +982,7 @@ void Viewer3D::displayPSEvents( PreStack::EventManager* evm )
 	    return;
 
     const int size = eventset->events_.size();
-    eventlinedisplay_->clearDislay();
+    eventlinedisplay_->clearDisplay();
     eventlinedisplay_->setLineColor( evm->getColor() );
     const Coord dir = posside_ ? basedirection_ : -basedirection_;
     TypeSet<Coord3> coords;
