@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.59 2011-09-16 11:02:54 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.60 2011-09-19 12:26:13 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -672,19 +672,20 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	// ctabval = 1./512 + 255/256*val
 	// Layers ordered from back to front. First = backmost
 	"    vec4 col = texture2D( ctabunit, vec2( ctabval, ctab ) );	\n"
+	"    float blend = col.a * layeropacity;			\n"
 	// Process only if pixel is not transparent.
-	"    if ( (col.a==0.0) || (layeropacity==0.0) )	\n"
-	"        return;  \n"
-	"    \n"
+	"    if ( (blend==0.0) )					\n"
+	"        return;  						\n"
+	"    								\n"
 	"    if ( first )						\n"
-	"        gl_FragColor = col * layeropacity;	\n"
-	"    else \n"
+	"    {								\n"
+	"        gl_FragColor.rgb = col.rgb;				\n"
+	"	 gl_FragColor.a = blend;				\n"
+	"    }								\n"
+	"    else							\n"
 	"    {								\n"
 	// Color values are premultiplied with their alpha values.
-	"        vec4 prevcol = gl_FragColor;  \n"
-	"        vec4 newcol = col * layeropacity;  \n"
-	"        gl_FragColor.rgb = newcol.rgb + prevcol.rgb * (1.0 - newcol.a); \n"
-	"        gl_FragColor.a = newcol.a + prevcol.a*(1.0-newcol.a);	\n"
+	"        gl_FragColor.rgb = col.rgb*blend + gl_FragColor.rgb * (1.0 - blend); \n"
 	"    }								\n"
 	"}								\n\n";
 
