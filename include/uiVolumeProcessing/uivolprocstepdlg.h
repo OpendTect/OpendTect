@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2009
- RCS:		$Id: uivolprocstepdlg.h,v 1.3 2011-08-24 13:19:43 cvskris Exp $
+ RCS:		$Id: uivolprocstepdlg.h,v 1.4 2011-09-19 12:27:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 
     			uiStepDialog(uiParent*,const char* stepnm,Step*);
-
+    virtual bool	isOK() const		{ return true; }
     bool		acceptOK(CallBacker*);
 
 protected:
