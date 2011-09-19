@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.13 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.14 2011-09-19 05:18:43 cvsranojay Exp $";
 
 #include "uipsviewersettingdlg.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.13 2009-07-22 16:01
 #include "uipsviewerappearancetab.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerpreproctab.h"
+#include "uipsviewereventstab.h"
 #include "visprestackviewer.h"
 #include "visflatviewer.h"
 #include "prestackprocessor.h"
@@ -45,7 +46,10 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     	preproctab_ = 
 	    new uiViewer3DPreProcTab( tabParent(), viewer, mgr, prepromgr );
 	addGroup( preproctab_ );
-    }
+    } 
+    
+    eventstab_ = new uiViewer3DEventsTab( tabParent(), viewer, mgr );
+    addGroup( eventstab_ );
 
     applytoallfld_ = new uiCheckBox(this,"&Apply to all viewers");
     applytoallfld_->attach( centeredBelow, tabObject() );

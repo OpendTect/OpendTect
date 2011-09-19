@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id: uipsviewersettingdlg.h,v 1.7 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:           $Id: uipsviewersettingdlg.h,v 1.8 2011-09-19 05:18:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidlggroup.h"
+#include "multiid.h"
 
 class uiCheckBox;
 namespace PreStack { class ProcessManager; }
@@ -25,7 +26,7 @@ namespace PreStackView
     class uiViewer3DAppearanceTab; 
     class uiViewer3DShapeTab;
     class uiViewer3DPreProcTab;
-
+    class uiViewer3DEventsTab;
 
 class uiViewer3DSettingDlg : public uiTabStackDlg
 {
@@ -42,6 +43,7 @@ protected:
     uiViewer3DScalingTab*	scaletab_;
     uiViewer3DAppearanceTab*	apptab_;
     uiViewer3DPreProcTab* 	preproctab_;
+    uiViewer3DEventsTab*	eventstab_;
     uiCheckBox*			applytoallfld_;
 };
 

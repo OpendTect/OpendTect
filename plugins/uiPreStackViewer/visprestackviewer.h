@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.30 2011-09-07 19:45:24 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.31 2011-09-19 05:18:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,15 @@ ________________________________________________________________________
 class IOObj;
 class SeisPSReader;
 
-namespace PreStack { class ProcessManager; }
+namespace PreStack { class ProcessManager; class EventManager; }
 namespace visBase 
 {
     class DepthTabPlaneDragger;
+    class EventCatcher;
     class FaceSet;
     class FlatViewer;
     class PickStyle;
+    class SeedPolyLine;
 };
 
 namespace visSurvey 
@@ -38,7 +40,7 @@ namespace visSurvey
 namespace PreStackView
 {
 
-class Viewer3D : public visBase::VisualObjectImpl, 
+mClass Viewer3D : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject
 {
 public:
@@ -52,7 +54,6 @@ public:
     bool			isOrientationInline() const;
     const Coord			getBaseDirection() const; 
     const StepInterval<int>	getTraceRange(const BinID& bid) const;
-    NotifierAccess*		getMovementNotifier() { return &movefinished_; }
 
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
@@ -102,7 +103,8 @@ public:
     void			otherObjectsMoved( 
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
-
+    void			displayPSEvents(PreStack::EventManager*);
+     
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
@@ -132,8 +134,9 @@ protected:
     visBase::FlatViewer*		flatviewer_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			pickstyle_;
+    visBase::SeedPolyLine*		eventlinedisplay_;
     PreStack::ProcessManager*		preprocmgr_;
-
+    
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;
     visSurvey::Seis2DDisplay*		seis2d_;
@@ -151,6 +154,7 @@ protected:
 
     SeisPSReader*			reader_;
     IOObj*				ioobj_;
+    PreStack::EventManager*		pseventmgr_;
     Notifier<Viewer3D>			movefinished_;
 };
 

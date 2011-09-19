@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.68 2011-09-07 19:45:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.69 2011-09-19 05:18:43 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.68 2011-09-07 19:45:24
 #include "iopar.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
+#include "prestackevents.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
@@ -36,6 +37,7 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.68 2011-09-07 19:45:24
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
+#include "visseedpolyline.h"
 #include <math.h>
 
 
@@ -52,6 +54,7 @@ Viewer3D::Viewer3D()
     , pickstyle_( visBase::PickStyle::create() )
     , planedragger_( visBase::DepthTabPlaneDragger::create() )	
     , flatviewer_( visBase::FlatViewer::create() )
+    , eventlinedisplay_( visBase::SeedPolyLine::create() )
     , draggermoving( this )
     , draggerpos_( -1, -1 )					 
     , bid_( -1, -1 )
@@ -70,7 +73,8 @@ Viewer3D::Viewer3D()
     , preprocmgr_( 0 )			
     , reader_( 0 )
     , ioobj_( 0 )
-    , movefinished_( this )		 
+    , pseventmgr_(0)
+    , movefinished_(this)
 {
     setMaterial( 0 );
     planedragger_->ref();
@@ -104,7 +108,7 @@ Viewer3D::Viewer3D()
     
     pickstyle_->ref();
     addChild( pickstyle_->getInventorNode() );
-    pickstyle_->setStyle( visBase::PickStyle::Unpickable );
+    pickstyle_->setStyle( visBase::PickStyle::Shape );
 
     flatviewer_->ref();
     flatviewer_->setSelectable( false );
@@ -116,6 +120,9 @@ Viewer3D::Viewer3D()
 
     flatviewer_->dataChange.notify( mCB( this, Viewer3D, dataChangedCB ) );
     addChild( flatviewer_->getInventorNode() );
+    eventlinedisplay_->ref();
+    addChild( eventlinedisplay_->getInventorNode() );
+    eventlinedisplay_->setPickMode( false );
 }
 
 
@@ -150,6 +157,8 @@ Viewer3D::~Viewer3D()
 	seis2d_->unRef();
     }
 
+    removeChild( eventlinedisplay_->getInventorNode() );
+    eventlinedisplay_->unRef();
     delete reader_;
     delete ioobj_;
 }
@@ -286,7 +295,6 @@ bool Viewer3D::setPosition( const BinID& nb )
 
     draggerpos_ = bid_;
     draggermoving.trigger();
-    movefinished_.trigger();
     dataChangedCB( 0 );
     return updateData();
 }
@@ -569,7 +577,9 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
     }
     
-    draggermaterial_->setTransparency( 1 ); 
+    draggermaterial_->setTransparency( 1 );
+    if ( pseventmgr_ )
+	displayPSEvents( pseventmgr_ );
 }
 
 
@@ -598,6 +608,9 @@ void Viewer3D::setDisplayTransformation( visBase::Transformation* nt )
 
     if ( seis2d_ )
 	seis2d_->setDisplayTransformation( nt );
+
+    if ( eventlinedisplay_ )
+	eventlinedisplay_->setDisplayTransformation( nt );
 }
 
 
@@ -955,6 +968,53 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( offsetsample, zsample );
 
+}
+
+
+void Viewer3D::displayPSEvents( PreStack::EventManager* evm )
+{
+    if ( !evm )
+	return;
+    pseventmgr_ = evm;
+
+    RefMan<PreStack::EventSet> eventset = evm->getEvents( bid_, true, false );
+	if ( !eventset )
+	    return;
+
+    const int size = eventset->events_.size();
+    eventlinedisplay_->clearDislay();
+    eventlinedisplay_->setLineColor( evm->getColor() );
+    const Coord dir = posside_ ? basedirection_ : -basedirection_;
+    TypeSet<Coord3> coords;
+    TypeSet<Coord3> finalcoords;
+    TypeSet<float> offsets;
+    TypeSet<int> cii;
+    int ci = 0;
+    for ( int idx=0; idx<size; idx++ )
+    {
+	const PreStack::Event* psevent = eventset->events_[idx];
+	if ( !psevent->sz_ )
+	    continue;
+	const int sz = psevent->sz_;
+	coords.erase(); offsets.erase();
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    const float offset = psevent->offsetazimuth_[idy].offset();
+	    offsets += offset;
+	    Coord3 pos( bid_.inl, bid_.crl, psevent->pick_[idy] );
+	    const Coord offs = dir * offset * factor_;
+	    pos.x += offs.x / SI().crlDistance();
+	    pos.y += offs.y / SI().crlDistance();
+	    coords += pos;
+	    cii += ci++;
+	}
+
+	sort_coupled( offsets.arr(), coords.arr(), sz );
+	finalcoords.append( coords );
+	cii += -1;
+    }
+
+    eventlinedisplay_->updateCoords( cii, finalcoords );
 }
 
 
