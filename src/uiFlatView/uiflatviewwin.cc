@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.27 2011-05-05 15:38:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.28 2011-09-19 12:29:54 cvskris Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -52,7 +52,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 {
     int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) mesg += "; ";
+#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
     const char* vdstr = pars.find( "Variable density data" );
     const char* wvastr = pars.find( "Wiggle/VA data" );
