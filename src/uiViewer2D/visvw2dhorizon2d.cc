@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.11 2011-06-03 14:40:12 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.12 2011-09-19 12:31:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ void Vw2DHorizon2D::draw()
 	 if ( horeds_[ivwr] )
 	     horeds_[ivwr]->setMouseEventHandler(
 	     		&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	 horeds_[ivwr]->setCubeSampling(dp2ddh->dataholder().getCubeSampling());
+	 horeds_[ivwr]->setCubeSampling(dp2ddh->dataarray()->cubesampling_);
 	 horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	 horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	 horeds_[ivwr]->setLineSetID( lsetid_ );
