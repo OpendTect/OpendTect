@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.13 2011-09-15 09:15:44 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.14 2011-09-19 12:24:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "attribdatacubes.h"
-#include "attribdataholder.h"
 #include "attribdatapack.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -314,7 +313,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	dp2ddh->getLineName( ln );
 
 	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
-	const CubeSampling cs = dp2ddh->dataholder().getCubeSampling();
+	const CubeSampling cs = dp2ddh->getCubeSampling();
 	const LineKey lk( ln.buf(), attrbnm );
 	
 	if ( !stored )

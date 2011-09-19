@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.124 2011-06-06 08:41:25 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.125 2011-09-19 12:24:56 cvskris Exp $";
 
 #include "uimpepartserv.h"
 
@@ -738,9 +738,9 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 
 
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
-				     const Attrib::Data2DHolder* newdata )
+				     const Attrib::Data2DArray* newdata )
 {
-    RefMan<const Attrib::Data2DHolder> reffer = newdata;
+    RefMan<const Attrib::Data2DArray> reffer = newdata;
 
     if ( !newdata )
     {
@@ -749,7 +749,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
     }
 
     RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
-    dh->setCubeSampling( newdata->getCubeSampling() );
+    dh->setCubeSampling( newdata->cubesampling_ );
     dh->set2DData( newdata );
 
     MPE::engine().setAttribData( as, dh );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.50 2011-09-15 09:15:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.51 2011-09-19 12:24:56 cvskris Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -30,7 +30,6 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.50 2011-09-15 09:15:44 cvsb
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
-#include "attribdataholder.h"
 #include "attribsel.h"
 #include "settings.h"
 #include "sorting.h"
@@ -138,8 +137,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	if ( dp3d )
 	    treetp_->updCubeSamling( dp3d->cube().cubeSampling(), true );
 	else if ( dp2ddh )
-	    treetp_->updCubeSamling( dp2ddh->dataholder().getCubeSampling(),
-		    		     true );
+	    treetp_->updCubeSamling( dp2ddh->getCubeSampling(), true );
     }
     
     viewwin()->start();
