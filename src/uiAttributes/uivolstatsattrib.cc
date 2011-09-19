@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.28 2011-09-01 15:09:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.29 2011-09-19 09:53:19 cvsbruno Exp $";
 
 
 
@@ -50,11 +50,13 @@ static const char* shapestrs[] =
 	0
 };
 
-uiVolumeStatisticsAttribBase::uiVolumeStatisticsAttribBase( uiParent* p, 
-						bool is2d,
-						const StringListInpSpec& shapes,
-						const char* helpid)
-    : uiAttrDescEd(p,is2d,helpid)
+
+
+mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
+	      sKeyStatsGrp())
+
+uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
+    : uiAttrDescEd(p,is2d,"101.0.16")
 {
     inpfld_ = createInpFld( is2d );
 
@@ -63,16 +65,16 @@ uiVolumeStatisticsAttribBase::uiVolumeStatisticsAttribBase( uiParent* p,
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    shapefld_ = new uiGenInput( this, "Shape", shapes );
+    shapefld_ = new uiGenInput( this, "Shape", *shapestrs );
     shapefld_->valuechanged.notify(
-			    mCB(this,uiVolumeStatisticsAttribBase,shapeChg));
+			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
     shapefld_->display( !is2d_ );
     
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
     stepoutfld_->valueChanged.notify(
-			mCB(this,uiVolumeStatisticsAttribBase,stepoutChg) );
+			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld_->attach( alignedBelow, shapefld_ );
 
     nrtrcsfld_ = new uiLabeledSpinBox( this, "Min nr of valid traces" );
@@ -86,95 +88,6 @@ uiVolumeStatisticsAttribBase::uiVolumeStatisticsAttribBase( uiParent* p,
     steerfld_ = new uiSteeringSel( this, 0, is2d );
     steerfld_->attach( alignedBelow, outpfld_ );
 
-    setHAlignObj( inpfld_ );
-    shapeChg(0);
-}
-
-
-void uiVolumeStatisticsAttribBase::stepoutChg( CallBacker* )
-{
-    const BinID so = stepoutfld_->getBinID();
-    int nrtrcs = 1;
-    if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
-	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
-    nrtrcsfld_->box()->setInterval( 1, nrtrcs );
-}
-
-
-bool uiVolumeStatisticsAttribBase::setParameters( const Desc& desc )
-{
-    mIfGetFloatInterval( VolStats::gateStr(), gate,
-	    		 gatefld_->setValue(gate) );
-    mIfGetBinID( VolStats::stepoutStr(), stepout,
-	         stepoutfld_->setBinID(stepout) );
-    mIfGetEnum( VolStats::shapeStr(), shape,
-	        shapefld_->setValue(shape) );
-    mIfGetInt( VolStats::nrtrcsStr(), nrtrcs,
-	       nrtrcsfld_->box()->setValue(nrtrcs) );
-
-    stepoutChg(0);
-    shapeChg(0);
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttribBase::setInput( const Desc& desc )
-{
-    putInp( inpfld_, desc, 0 );
-    putInp( steerfld_, desc, 1 );
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttribBase::setOutput( const Desc& desc )
-{
-    outpfld_->setValue( desc.selectedOutput() );
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttribBase::getParameters( Desc& desc )
-{
-    mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
-    mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
-    mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
-    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
-
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttribBase::getInput( Desc& desc )
-{
-    inpfld_->processInput();
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-    return true;
-}
-
-
-bool uiVolumeStatisticsAttribBase::getOutput( Desc& desc )
-{
-    fillOutput( desc, outpfld_->getIntValue() );
-    return true;
-}
-
-
-void uiVolumeStatisticsAttribBase::getEvalParams( 
-					TypeSet<EvalParam>& params ) const
-{
-    params += EvalParam( timegatestr(), VolStats::gateStr() );
-    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
-}
-
-
-
-mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
-	      sKeyStatsGrp())
-
-uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
-    : uiVolumeStatisticsAttribBase(p,is2d,shapestrs,"101.0.16")
-{
     edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
     edgeeffectfld_->attach( rightOf, gatefld_ );
 
@@ -187,6 +100,9 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     stackdirfld_ = new uiGenInput( this, "Direction",
 			       BoolInpSpec( true, "Perpendicular", "Line"));
     stackdirfld_->attach( rightTo,optstackstepfld_ );
+
+    setHAlignObj( inpfld_ );
+    shapeChg(0);
 }
 
 
@@ -209,7 +125,18 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
     mIfGetInt( VolStats::optstackstepStr(), stackstep,
 	       optstackstepfld_->box()->setValue(stackstep) );
 
-    return uiVolumeStatisticsAttribBase::setParameters( desc );
+    mIfGetFloatInterval( VolStats::gateStr(), gate,
+	    		 gatefld_->setValue(gate) );
+    mIfGetBinID( VolStats::stepoutStr(), stepout,
+	         stepoutfld_->setBinID(stepout) );
+    mIfGetEnum( VolStats::shapeStr(), shape,
+	        shapefld_->setValue(shape) );
+    mIfGetInt( VolStats::nrtrcsStr(), nrtrcs,
+	       nrtrcsfld_->box()->setValue(nrtrcs) );
+
+    stepoutChg(0);
+    shapeChg(0);
+    return true;
 }
 
 
@@ -223,7 +150,12 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
     mSetInt( VolStats::optstackstepStr(), optstackstepfld_->box()->getValue() );
     mSetEnum( VolStats::optstackdirStr(), stackdirfld_->getBoolValue() );
 
-    return uiVolumeStatisticsAttribBase::getParameters( desc );
+    mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
+    mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
+    mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
+    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
+
+    return true;
 }
 
 
@@ -234,5 +166,56 @@ void uiVolumeStatisticsAttrib::shapeChg( CallBacker* )
     optstackstepfld_->display( shapeidx>1 );
     stackdirfld_->display( shapeidx>1 );
 }
+
+
+void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
+{
+    const BinID so = stepoutfld_->getBinID();
+    int nrtrcs = 1;
+    if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
+	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
+    nrtrcsfld_->box()->setInterval( 1, nrtrcs );
+}
+
+
+bool uiVolumeStatisticsAttrib::setInput( const Desc& desc )
+{
+    putInp( inpfld_, desc, 0 );
+    putInp( steerfld_, desc, 1 );
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttrib::setOutput( const Desc& desc )
+{
+    outpfld_->setValue( desc.selectedOutput() );
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
+{
+    inpfld_->processInput();
+    fillInp( inpfld_, desc, 0 );
+    fillInp( steerfld_, desc, 1 );
+
+    return true;
+}
+
+
+bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
+{
+    fillOutput( desc, outpfld_->getIntValue() );
+    return true;
+}
+
+
+void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr(), VolStats::gateStr() );
+    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+}
+
+
 
 

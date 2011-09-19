@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.13 2011-09-12 08:56:52 cvsbruno Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.14 2011-09-19 09:53:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
+#include "uigroup.h"
 
 namespace Attrib { class Desc; };
 class StringListInpSpec;
@@ -26,17 +27,15 @@ class uiStepOutSel;
 
 /*! \brief VolumeStatistics Attribute description editor */
 
-
-mClass uiVolumeStatisticsAttribBase : public uiAttrDescEd
+mClass uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
+			uiVolumeStatisticsAttrib(uiParent*,bool);
 
     void		getEvalParams(TypeSet<EvalParam>& params) const;
 
 protected:
-			uiVolumeStatisticsAttribBase(uiParent*,bool,
-						const StringListInpSpec& shapes,
-						const char* helpid);
+
     uiAttrSel*		inpfld_;
     uiSteeringSel*	steerfld_;
     uiGenInput*		gatefld_;
@@ -45,33 +44,21 @@ protected:
     uiLabeledSpinBox*	nrtrcsfld_;
     uiGenInput*		outpfld_;
 
-    void		stepoutChg(CallBacker*);
-    virtual void	shapeChg(CallBacker*) {};
-
-    virtual bool	setParameters(const Attrib::Desc&);
-    virtual bool	setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
-
-    virtual bool	getParameters(Attrib::Desc&);
-    virtual bool	getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
-};
-
-
-mClass uiVolumeStatisticsAttrib : public uiVolumeStatisticsAttribBase
-{
-public:
-			uiVolumeStatisticsAttrib(uiParent*,bool);
-protected:
     uiLabeledSpinBox*	optstackstepfld_;
     uiCheckBox*		edgeeffectfld_;
     uiGenInput*		stackdirfld_;
 
     void		stackstepChg(CallBacker*);
+     void		stepoutChg(CallBacker*);
     void		shapeChg(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
+    bool		setInput(const Attrib::Desc&);
+    bool		setOutput(const Attrib::Desc&);
+
     bool		getParameters(Attrib::Desc&);
+    bool		getInput(Attrib::Desc&);
+    bool		getOutput(Attrib::Desc&);
 
     			mDeclReqAttribUIFns
 };
