@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.32 2010-03-15 18:35:30 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.33 2011-09-19 11:12:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,9 @@ class ValueSeries
 public:
 
     virtual		~ValueSeries()		{}
+
+    void		getValues(ValueSeries<T>&,od_int64 nrvals) const;
+    void		getValues(T*,od_int64 nrvals) const;
 
     virtual ValueSeries<T>* clone() const			= 0;
     virtual bool	isOK() const			{ return true; }
@@ -173,6 +176,79 @@ protected:
     od_int64		cursize_;
     const unsigned int	chunksize_;
 };
+
+template <class T>
+mClass ValueSeriesGetAll : public ParallelTask
+{
+public:
+    				ValueSeriesGetAll(const ValueSeries<T>& from,
+						  ValueSeries<T>& to,
+				       		  od_int64 nriterations	)
+				    : from_( from )
+				    , to_( &to )
+				    , toptr_( 0 )
+				    , nriterations_( nriterations )
+				{}
+
+    				ValueSeriesGetAll(const ValueSeries<T>& from,
+						  T* to,
+				       		  od_int64 nriterations	)
+				    : from_( from )
+				    , toptr_( to )
+				    , to_( 0 )
+				    , nriterations_( nriterations )
+				{}
+    od_int64			nrIterations() const { return nriterations_; }
+    bool			doWork( od_int64 start, od_int64 stop, int )
+				{
+				    od_int64 nrleft = stop-start+1;
+				    const T* fromarr = from_.arr();
+				    T* toarr = toptr_ ? toptr_ : to_->arr();
+				    if ( toarr && fromarr )
+					memcpy( toarr+start, fromarr+start, nrleft*from_.bytesPerItem() );
+				    else if ( toarr )
+				    {
+					toarr += start;
+					for ( od_int64 idx=start; idx<=stop; idx++, toarr++ )
+					    *toarr = from_.value( idx );
+				    }
+				    else if ( fromarr )
+				    {
+					fromarr += start;
+					for ( od_int64 idx=start; idx<=stop; idx++, fromarr++ )
+					    to_->setValue(idx, *fromarr );
+				    }
+				    else
+				    {
+					for ( od_int64 idx=start; idx<=stop; idx++ )
+					    to_->setValue(idx, from_.value(idx) );
+				    }
+
+				    return true;
+				}
+
+protected:
+    od_int64			nriterations_;
+    const ValueSeries<T>&	from_;
+    ValueSeries<T>*		to_;
+    T*				toptr_;
+};
+
+
+template <class T> inline
+void ValueSeries<T>::getValues( ValueSeries<T>& to, od_int64 nrvals ) const
+{
+    ValueSeriesGetAll<T> setter( *this, to, nrvals );
+    setter.execute();
+}
+
+
+template <class T> inline
+void ValueSeries<T>::getValues( T* to, od_int64 nrvals ) const
+{
+    ValueSeriesGetAll<T> setter( *this, to, nrvals );
+    setter.execute();
+}
 
 
 template <class RT, class AT> inline
