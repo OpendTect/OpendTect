@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.16 2011-05-06 21:01:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.17 2011-09-19 12:54:15 cvskris Exp $";
 
 #include "embodyoperator.h"
 
@@ -732,8 +732,8 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     
     TypeSet<Coord3> pts = bodypts;
-    const float zscale = SI().zFactor();
-    if ( !mIsZero(zscale-1,1e-5) )
+    const int zscale = SI().zFactor();
+    if ( zscale!=1 )
     {
     	for ( int idx=0; idx<bodypts.size(); idx++ )
     	    pts[idx].z *= zscale;

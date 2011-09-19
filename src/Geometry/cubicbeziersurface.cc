@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.30 2011-09-02 09:13:10 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.31 2011-09-19 12:54:40 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -290,9 +290,9 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 		continue;
 
 	    PtrMan<CubicBezierSurfacePatch> dummypatch = 0;
-	    const float zfactor = SI().zFactor();
+	    const int zfactor = SI().zFactor();
 	    Line3 intersectionline( line );
-	    if ( !mIsEqual(zfactor,1,1e-3) )
+	    if ( zfactor!=1 )
 	    {
 		dummypatch = patch->clone();
 		for ( int idx=dummypatch->nrPos()-1; idx>=0; idx-- )

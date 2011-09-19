@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.13 2011-09-02 09:18:28 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.14 2011-09-19 12:54:40 cvskris Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -314,7 +314,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( colrg.nrSteps()<3 )
 	return emobject.setPos( pid, mpos, addtoundo );
 
-    const float zscale =  SI().zFactor();   
+    const int zscale =  SI().zFactor();   
     const int previdx = rc.col==colrg.start ? colrg.stop : rc.col-colrg.step;
     const int nextidx = rc.col<colrg.stop ? rc.col+colrg.step : colrg.start;
     
