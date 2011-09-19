@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.66 2011-09-15 11:30:11 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.67 2011-09-19 12:23:22 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -200,24 +200,30 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return false;
 
     const ValueSeries<float>* storage = 0;
+    od_int64 tooffset = 0;
     if ( !attrdata_->is2D() && attrdata_->get3DData() )
-	storage = attrdata_->get3DData()->getCube(0).getStorage();
+    {
+	const Array3D<float>& arr = attrdata_->get3DData()->getCube(0);
+	storage = arr.getStorage();
+	tooffset = arr.info().getOffset( toinlidx, tocrlidx, 0 );
+    }
     else if ( attrdata_->is2D() && attrdata_->get2DData() )
     {
-	const int dhidx = attrdata_->get2DData()->getDataHolderIndex( to.crl );
-	if ( dhidx < 0 ) return false;
-	storage = attrdata_->get2DData()->dataset_[dhidx]->series(0);
+	const int dhidx = attrdata_->get2DData()->indexOf( to.crl );
+	if ( dhidx<0 )
+	    return false;
+
+	const Array3D<float>& arr = *attrdata_->get2DData()->dataset_;
+	storage = arr.getStorage();
+	const int component = 0;
+	tooffset = arr.info().getOffset( component, dhidx, 0 );
     }
+
     if ( !storage ) return false; 
 
     const int zsz = cs.nrZ();
 
     const SamplingData<double> sd( cs.zrg.start,cs.zrg.step );
-
-    od_int64 tooffset = !attrdata_->is2D() ?
-		attrdata_->get3DData()->getCube(0).info().getOffset(
-							toinlidx, tocrlidx, 0 )
-		: 0;
 
     const OffsetValueSeries<float> toarr( 
 		    const_cast<ValueSeries<float>&>(*storage), tooffset ); 
@@ -241,17 +247,20 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
 
-	od_int64 fromoffset = !attrdata_->is2D() ?
-	    	attrdata_->get3DData()->getCube(0).info().getOffset(
-						frominlidx, fromcrlidx, 0 )
-		: 0;
+	od_int64 fromoffset;
+	if ( !attrdata_->is2D() )
+	    fromoffset = attrdata_->get3DData()->getCube(0).info().getOffset(
+						frominlidx, fromcrlidx, 0 );
 
 	if ( attrdata_->is2D() && attrdata_->get2DData() )
 	{
-	    const int dhidx =
-		attrdata_->get2DData()->getDataHolderIndex( from.crl );
-	    if ( dhidx < 0 ) return false;
-	    storage = attrdata_->get2DData()->dataset_[dhidx]->series(0);
+	    const int dhidx = attrdata_->get2DData()->indexOf( from.crl );
+	    if ( dhidx<0 )
+		return false;
+
+	    const Array3D<float>& arr = *attrdata_->get2DData()->dataset_;
+	    const int component = 0;
+	    fromoffset = arr.info().getOffset( component, dhidx, 0 );
 	}
 
 	const OffsetValueSeries<float> fromarr( 

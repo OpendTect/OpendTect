@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.53 2011-06-29 10:29:32 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.54 2011-09-19 12:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,42 +58,40 @@ public:
 mClass DataHolder : public AbstDataHolder
 {
 public:
-    			DataHolder()
-			: AbstDataHolder()
-			, is2d_( false )
-			, dcdata_(0)
-			, d2dhdata_(0)
-			{ cs_.setEmpty(); }
-    
-    bool		is2D() const		{ return is2d_; }
-    void		setCubeSampling(const CubeSampling cs)
-			{ cs_ = cs; }
-    CubeSampling	getCubeSampling() const
-			{ return cs_; }
-    void		set3DData(const Attrib::DataCubes* dc)
-			{ is2d_ = false; dcdata_ = dc; }
-    const Attrib::DataCubes*
-			get3DData() const	{ return dcdata_; }
-    void		set2DData(const Attrib::Data2DHolder* d2h)
-			{ is2d_ = true; d2dhdata_ = d2h; }
-    const Attrib::Data2DHolder*
-			get2DData() const	{ return d2dhdata_; }
-    const int		nrCubes() const
-			{
-			    if ( !dcdata_ && !d2dhdata_ )
-				return 0;
-			    if ( !is2d_ && dcdata_ )
-				return dcdata_->nrCubes();
-			    if ( is2d_ && d2dhdata_ )
-				return d2dhdata_->dataset_.size();
+				DataHolder()
+				    : AbstDataHolder()
+				    , is2d_( false )
+				    , dcdata_(0)
+				    , d2dhdata_(0)
+				{ cs_.setEmpty(); }
+	    
+    bool			is2D() const		{ return is2d_; }
+    void			setCubeSampling(const CubeSampling cs)
+				{ cs_ = cs; }
+    CubeSampling		getCubeSampling() const
+				{ return cs_; }
+    void			set3DData(const Attrib::DataCubes* dc)
+				{ is2d_ = false; dcdata_ = dc; }
+    const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
+    void			set2DData(const Attrib::Data2DArray* d2h)
+				{ is2d_ = true; d2dhdata_ = d2h; }
+    const Attrib::Data2DArray*	get2DData() const	{ return d2dhdata_; }
+    const int			nrCubes() const
+				{
+				    if ( !dcdata_ && !d2dhdata_ )
+					return 0;
+				    if ( !is2d_ && dcdata_ )
+					return dcdata_->nrCubes();
+				    if ( is2d_ && d2dhdata_ )
+					return d2dhdata_->nrTraces();
 
-			    return 0;
-			}
+				    return 0;
+				}
 
 protected:
     CubeSampling		cs_;
     const Attrib::DataCubes*	dcdata_;
-    const Attrib::Data2DHolder*	d2dhdata_;
+    const Attrib::Data2DArray*	d2dhdata_;
     bool			is2d_;
 
 private:

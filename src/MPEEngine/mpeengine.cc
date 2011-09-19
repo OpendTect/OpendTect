@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.104 2011-06-29 10:29:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.105 2011-09-19 12:23:22 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -507,8 +507,8 @@ const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
-	dh->setCubeSampling( dp2d->dataholder().getCubeSampling() );
-	dh->set2DData( &dp2d->dataholder() );
+	dh->setCubeSampling( dp2d->dataarray()->cubesampling_ );
+	dh->set2DData( dp2d->dataarray() );
     }
 
     if ( dh->getCubeSampling().isEmpty() )

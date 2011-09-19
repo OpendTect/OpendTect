@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.51 2011-02-24 15:05:21 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.52 2011-09-19 12:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiDialog;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }
-namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
+namespace Attrib { class DescSet; class DataCubes; class Data2DArray; }
 
 
 /*! \brief Implementation of Tracking part server interface */
@@ -89,7 +89,7 @@ public:
     void			setAttribData(const Attrib::SelSpec&,
 					      const Attrib::DataCubes*);
     void			setAttribData(const Attrib::SelSpec&,
-					      const Attrib::Data2DHolder*);
+					      const Attrib::Data2DArray*);
 
     static const int		evCreate2DSelSpec();
     const MultiID&		get2DLineSet() const;
