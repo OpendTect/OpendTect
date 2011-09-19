@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.53 2011-05-09 08:48:09 cvsbert Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.54 2011-09-19 12:23:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visBase
     class SplitTextureSeis2D;
 }
 
-namespace Attrib  { class Data2DHolder; }
+namespace Attrib  { class Data2DArray; }
 namespace PosInfo { class Line2DData; }
 
 namespace visSurvey
@@ -68,12 +68,12 @@ public:
 				{ return DataPackMgr::FlatID(); }
 
     void			setTraceData(int attrib,
-	    				     const Attrib::Data2DHolder&,
+	    				     const Attrib::Data2DArray&,
 					     TaskRunner*);
     virtual void		setTraceData( int attrib, SeisTrcBuf& tb,
 					     TaskRunner* tr )
 				{ SurveyObject::setTraceData(attrib,tb,tr); }
-    const Attrib::Data2DHolder*	getCache(int attrib) const;
+    const Attrib::Data2DArray*	getCache(int attrib) const;
     void			updateDataFromCache(TaskRunner*);
 
     bool			allowsPicks() const		{ return true; }
@@ -154,7 +154,7 @@ protected:
 				    z-coordinates & texture coordinates.*/
 
     void			updateLineNamePos();
-    void			setData(int attrib,const Attrib::Data2DHolder&,
+    void			setData(int attrib,const Attrib::Data2DArray&,
 	    				TaskRunner*);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
@@ -164,7 +164,7 @@ protected:
     mutable int			prevtrcidx_;
 
     visBase::SplitTextureSeis2D*		triangles_;
-    ObjectSet<const Attrib::Data2DHolder>	cache_;
+    ObjectSet<const Attrib::Data2DArray>	cache_;
     TypeSet<DataPack::ID>			datapackids_;
     MultiID					linesetid_;
 
@@ -187,7 +187,6 @@ protected:
     PosInfo::GeomID				geomid_;
     ZAxisTransform*				datatransform_;
     int						voiidx_;
-    int						seriesidx_;
 
     static const char*				sKeyLineSetID();
     static const char*				sKeyTrcNrRange();
