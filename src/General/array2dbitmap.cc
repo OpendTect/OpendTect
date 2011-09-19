@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.39 2010-06-10 17:15:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.40 2011-09-19 12:27:09 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -96,7 +96,11 @@ void A2DBitMapPosSetup::setDim0Positions( float* p )
 	    dim0pos_[idx] = idx;
     }
 
-    Interval<float> posbounds( dim0pos_[0], dim0pos_[szdim0_-1] );
+
+    Interval<float> posbounds( dim0pos_[0], dim0pos_[0] );
+    for ( int idx=1; idx<szdim0_; idx++ )
+	posbounds.include( dim0pos_[idx] );
+
     dim0avgdist_ = 1;
     if ( dim0pos_[0] != dim0pos_[szdim0_-1] )
     {
