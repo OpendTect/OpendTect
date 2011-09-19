@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.31 2010-09-16 10:07:36 cvsumesh Exp $
+ RCS:		$Id: attribdatapack.h,v 1.32 2011-09-19 12:21:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ namespace Attrib
 class DataCubes;
 class Data2DHolder;
 class DataHolderArray;
+class Data2DArray;
 
 /*!\brief Mixin to provide general services to Attrib data packs */
 
@@ -87,9 +88,10 @@ public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
 					 bool usesingtrc=false,int component=0);
 			~Flat2DDHDataPack();
+
+    const Data2DArray*	dataarray() const	{ return dataholderarr_; }
     virtual const char*	sourceType() const	{ return "2D"; }
 
-    const Data2DHolder&	dataholder() const	{ return dh_; }
     void		getPosDataTable(TypeSet<int>& trcnrs,
 	    				TypeSet<float>& dist) const;
     void		getCoordDataTable(const TypeSet<int>& trcnrs,
@@ -102,15 +104,17 @@ public:
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
 
+    const CubeSampling&	getCubeSampling() const;
+
 protected:
 
-    const Data2DHolder& dh_;
-    DataHolderArray*	array3d_;
-    Array2DSlice<float>* arr2dsl_;
-    bool		usesingtrc_;
-    BufferString	linenm_;
+    Array2DSlice<float>*	array2dslice_;
+    const Data2DArray*		dataholderarr_;
 
-    void		setPosData();
+    bool			usesingtrc_;
+    BufferString		linenm_;
+
+    void			setPosData();
 };
 
 

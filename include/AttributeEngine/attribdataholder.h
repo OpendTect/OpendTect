@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.24 2010-04-12 11:20:29 cvsumesh Exp $
+ RCS:           $Id: attribdataholder.h,v 1.25 2011-09-19 12:21:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
@@ -96,6 +97,21 @@ public:
 
     inline bool			isEmpty() const	{ return size() == 0; }
 
+};
+
+mClass Data2DArray
+{ mRefCountImpl(Data2DArray);
+public:
+    				Data2DArray(const Data2DHolder&);
+
+    int				indexOf(int tracenr) const;
+
+    int				nrTraces() const;
+    bool			isEmpty() const { return !nrTraces(); }
+
+    Array3DImpl<float>*		dataset_;
+    ObjectSet<SeisTrcInfo>	trcinfoset_;
+    CubeSampling		cubesampling_;
 };
 
 

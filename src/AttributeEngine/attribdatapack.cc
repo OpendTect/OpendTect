@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.44 2011-08-18 04:13:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.45 2011-09-19 12:21:58 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -267,7 +267,7 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     iop.set( mKeyY, c.y );
     iop.set( "Inline", bid.inl );
     iop.set( "Crossline", bid.crl );
-    iop.set( "Z", c.z );
+    iop.set( "Z", c.z*SI().zFactor() );
 
     if ( usemultcubes_ )
 	iop.set( mKeyCube, cube_.cubeSampling().nrZ() > 1 ? i0 : i1 );
@@ -305,18 +305,25 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
        				    bool usesingtrc, int component )
     : Flat2DDataPack( did )
-    , dh_( dh )
     , usesingtrc_( usesingtrc )
+    , dataholderarr_( new Data2DArray( dh ) )
 {
-    dh_.ref();
+    dataholderarr_->ref();
+    array2dslice_ = new Array2DSlice<float>( *dataholderarr_->dataset_ );
 
-    array3d_ = new DataHolderArray( dh_.dataset_, false );
-    arr2dsl_ = new Array2DSlice<float>( *array3d_ );
+    if ( usesingtrc )
+    {
+	array2dslice_->setPos( 1, 0 );
+	array2dslice_->setDimMap( 0, 0 );
+    }
+    else
+    {
+	array2dslice_->setPos(  0, component );
+	array2dslice_->setDimMap( 0, 1 );
+    }
 
-    arr2dsl_->setPos( usesingtrc ? 1 : 0, usesingtrc ? 0 : component );
-    arr2dsl_->setDimMap( 0, usesingtrc ? 0 : 1 );
-    arr2dsl_->setDimMap( 1, 2 );
-    arr2dsl_->init();
+    array2dslice_->setDimMap( 1, 2 );
+    array2dslice_->init();
 
     setPosData();
 }
@@ -324,9 +331,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 
 Flat2DDHDataPack::~Flat2DDHDataPack()
 {
-    delete arr2dsl_;
-    delete array3d_;
-    dh_.unRef();
+    dataholderarr_->unRef();
 }
 
 
@@ -334,12 +339,12 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
 					TypeSet<float>& dist ) const
 {
     trcnrs.erase(); dist.erase();
-    const int nrtrcs = dh_.trcinfoset_.size();
+    const int nrtrcs = dataholderarr_->trcinfoset_.size();
     trcnrs.setSize( nrtrcs, -1 );
     dist.setSize( nrtrcs, -1 );
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
-	trcnrs[idx] = dh_.trcinfoset_[idx]->nr;
+	trcnrs[idx] = dataholderarr_->trcinfoset_[idx]->nr;
 	if ( posdata_.width(true)/posdata_.range(true).step > idx )
 	    dist[idx] = posdata_.position( true, idx );
 	else
@@ -348,23 +353,27 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
 }
 
 
+const CubeSampling& Flat2DDHDataPack::getCubeSampling() const
+{ return dataholderarr_->cubesampling_; }
+
+
 void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
 					  TypeSet<Coord>& coords ) const
 {
     if ( trcnrs.size() > 0 )
-	coords.setSize( dh_.trcinfoset_.size(), Coord::udf() );
+	coords.setSize( dataholderarr_->trcinfoset_.size(), Coord::udf() );
 
     for ( int idx=0; idx<trcnrs.size(); idx++ )
     {
-	if ( trcnrs[idx] == dh_.trcinfoset_[idx]->nr )
-	    coords[idx] = dh_.trcinfoset_[idx]->coord;
+	if ( trcnrs[idx] == dataholderarr_->trcinfoset_[idx]->nr )
+	    coords[idx] = dataholderarr_->trcinfoset_[idx]->coord;
     }
 }
 
 
 Array2D<float>& Flat2DDHDataPack::data()
 {
-    return *arr2dsl_;
+    return *array2dslice_;
 }
 
 
@@ -373,11 +382,12 @@ void Flat2DDHDataPack::getLineName( BufferString& nm ) const
     nm = linenm_;
 }
 
+#define mNrTrcDim 1
+
 
 void Flat2DDHDataPack::setPosData()
 {
-    const int nrpos = usesingtrc_ ? array3d_->info().getSize(0)
-				  : dh_.trcinfoset_.size();
+    const int nrpos = dataholderarr_->dataset_->info().getSize(mNrTrcDim);
     if ( nrpos < 1 ) return;
 
     if ( usesingtrc_ )
@@ -386,54 +396,59 @@ void Flat2DDHDataPack::setPosData()
     {
 	float* pos = new float[nrpos];
 	pos[0] = 0;
-	Coord prevcrd = dh_.trcinfoset_[0]->coord;
+	Coord prevcrd = dataholderarr_->trcinfoset_[0]->coord;
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
-	    Coord crd = dh_.trcinfoset_[idx]->coord;
-	    pos[idx] = pos[idx-1] + dh_.trcinfoset_[idx-1]->coord.distTo( crd );
+	    Coord crd = dataholderarr_->trcinfoset_[idx]->coord;
+	    pos[idx] = pos[idx-1] +
+		dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd );
 	    prevcrd = crd;
 	}
+
 	posdata_.setX1Pos( pos, nrpos, 0 );
     }
 
-    const StepInterval<float> zrg = dh_.getCubeSampling().zrg;
+    const StepInterval<float> zrg = dataholderarr_->cubesampling_.zrg;
     posdata_.setRange( false, mStepIntvD(zrg) );
 }
 
 
 double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
-    bool isi0wrong = i0 < 0 || ( usesingtrc_ ? i0 >= dh_.dataset_[0]->nrSeries()
-	    				     : i0 >= dh_.trcinfoset_.size() );
-    return isi0wrong || ikey < 0 || ikey >= tiflds_.size()
-	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
-	 : usesingtrc_ ? i0 	//what else can we do?
-	 	       : dh_.trcinfoset_[i0]->getValue( tiflds_[ikey] );
+    const int nrpos = dataholderarr_->dataset_->info().getSize(mNrTrcDim);
+    bool isi0wrong = i0<0 || i0>=nrpos;
+
+    if ( isi0wrong || !tiflds_.validIdx(ikey) )
+	return FlatDataPack::getAltDim0Value( ikey, i0 );
+
+     if ( usesingtrc_ )
+	return i0;	//what else can we do?
+
+
+    return dataholderarr_->trcinfoset_[i0]->getValue( tiflds_[ikey] );
 }
 
 
 void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     int trcinfoidx = usesingtrc_ ? 0 : i0;
-    if ( trcinfoidx<0 || trcinfoidx>= dh_.trcinfoset_.size() ) return;
+    if ( trcinfoidx<0 || trcinfoidx>= dataholderarr_->trcinfoset_.size() )
+	return;
     
-    const SeisTrcInfo& ti = *dh_.trcinfoset_[ trcinfoidx ];
+    const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
-    const Coord3 c( getCoord(ti.binid.inl,ti.binid.crl) );
-    iop.set( mKeyX, c.x );
-    iop.set( mKeyY, c.y );
-
-    iop.set( "Z-Coord", ti.samplePos(i1) );
+    iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zFactor() );
 }
 
 
 Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 {
-    if ( dh_.trcinfoset_.isEmpty() ) return Coord3();
+    if ( dataholderarr_->trcinfoset_.isEmpty() ) return Coord3();
 
     if ( i0 < 0 || usesingtrc_ ) i0 = 0;
-    if ( i0 >= dh_.trcinfoset_.size() ) i0 = dh_.trcinfoset_.size() - 1;
-    const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
+    if ( i0 >= dataholderarr_->trcinfoset_.size() )
+	i0 = dataholderarr_->trcinfoset_.size() - 1;
+    const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[i0];
     return Coord3( ti.coord, ti.sampling.atIndex(i1) );
 }
 
@@ -544,7 +559,7 @@ void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 	return;
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
-    iop.set( "Z-Coord", ti.samplePos(i1) );
+    iop.set( "Z-Coord", ti.samplePos(i1)*SI().zFactor() );
 }
 
 

@@ -5,11 +5,13 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.22 2011-09-02 08:59:43 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.23 2011-09-19 12:21:58 cvskris Exp $";
 
 #include "attribdataholder.h"
 
+#include "attribdataholderarray.h"
 #include "arraynd.h"
+#include "arrayndslice.h"
 #include "attribdatacubes.h"
 #include "cubesampling.h"
 #include "genericnumer.h"
@@ -306,6 +308,57 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 
     return -1;
 }
+
+
+Data2DArray::Data2DArray( const Data2DHolder& dh )
+    : dataset_( 0 )
+{
+    dh.ref();
+
+    DataHolderArray array3d( dh.dataset_, false );
+    dataset_ = new Array3DImpl<float>( array3d );
+
+    for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
+    {
+	SeisTrcInfo* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
+	ni->sampling.start = dh.dataset_[idx]->z0_ * ni->sampling.step;
+	trcinfoset_ += ni;
+    }
+
+    cubesampling_ = dh.getCubeSampling();
+
+    dh.unRef();
+}
+
+
+Data2DArray::~Data2DArray()
+{
+    delete dataset_;
+}
+
+
+int Data2DArray::indexOf( int trcnr ) const
+{
+    if ( trcinfoset_.isEmpty() )
+	return -1;
+
+    const int guessedidx = trcnr-trcinfoset_[0]->nr;
+    if ( trcinfoset_.validIdx(guessedidx) &&
+	 trcnr == trcinfoset_[guessedidx]->nr )
+	return guessedidx;
+
+    for ( int idx=0; idx<trcinfoset_.size(); idx++ )
+    {
+	if ( trcnr == trcinfoset_[idx]->nr )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+int Data2DArray::nrTraces() const
+{ return dataset_->info().getSize(0); }
 
 
 } // namespace Attrib
