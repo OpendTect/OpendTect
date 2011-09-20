@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.2 2011-01-27 14:56:39 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.3 2011-09-20 06:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ mClass Sower : public visBase::VisualObjectImpl
 {
 
 public:
-			Sower(const visBase::VisualObjectImpl&);
+			Sower(const visBase::VisualObjectImpl* =0);
 			~Sower();
 
     void		setDisplayTransformation( mVisTrans* );
@@ -74,7 +74,7 @@ protected:
 
     void		reset();
 
-    const visBase::VisualObjectImpl&	editobject_;
+    const visBase::VisualObjectImpl*	editobject_;
     visBase::EventCatcher*		eventcatcher_;
     visBase::PolyLine*			sowingline_;
     bool				linelost_;

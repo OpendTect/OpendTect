@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.68 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.69 2011-09-20 06:44:09 cvssatyaki Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -77,7 +77,7 @@ LocationDisplay::LocationDisplay()
 
     setSetMgr( &Pick::Mgr() );
 
-    sower_ = new Sower( *this );
+    sower_ = new Sower( this );
     addChild( sower_->getInventorNode() );
 }
     

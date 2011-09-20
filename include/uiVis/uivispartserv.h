@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.266 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.267 2011-09-20 06:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ template <class T> class Selector;
 namespace Attrib    { class SelSpec; class DataCubes; }
 namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
-namespace visBase   { class DataObject; }
+namespace visBase   { class DataObject; class EventCatcher; }
 namespace visSurvey { class Scene; }
 namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
@@ -297,6 +297,7 @@ public:
     void			setZAxisTransform(int sceneid,ZAxisTransform*,
 						  TaskRunner*);
     ZAxisTransform*		getZAxisTransform(int sceneid);
+    visBase::EventCatcher*	getEventCatcher(int sceneid);
 
     const Selector<Coord3>*	getCoordSelector(int scene) const;
     void			turnOn(int,bool,bool doclean=false);

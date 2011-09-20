@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.2 2011-01-27 14:56:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.3 2011-09-20 06:44:09 cvssatyaki Exp $";
 
 
 #include "vissower.h"
@@ -29,7 +29,7 @@ namespace visSurvey
 {
 
 
-Sower::Sower( const visBase::VisualObjectImpl& editobj )
+Sower::Sower( const visBase::VisualObjectImpl* editobj )
     : visBase::VisualObjectImpl( false )
     , editobject_( editobj )
     , eventcatcher_( 0 )
@@ -376,11 +376,13 @@ void Sower::setEraserMask( bool yn, OD::ButtonState mask )
 
 EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
 {
-    mDynamicCastGet( const MPEEditor*, mpeeditor, &editobject_ );
+    if ( !editobject_ ) return EM::PosID::udf();
+
+    mDynamicCastGet( const MPEEditor*, mpeeditor, editobject_ );
     if ( mpeeditor )
 	return mpeeditor->mouseClickDragger( eventinfo.pickedobjids );
 
-    mDynamicCastGet( const LocationDisplay*, locdisp, &editobject_ );
+    mDynamicCastGet( const LocationDisplay*, locdisp, editobject_ );
     if ( locdisp )
     {
 	const int knotid = locdisp->isMarkerClick( eventinfo.pickedobjids );

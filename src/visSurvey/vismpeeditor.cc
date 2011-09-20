@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.45 2010-12-20 15:01:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.46 2011-09-20 06:44:09 cvssatyaki Exp $";
 
 #include "vismpeeditor.h"
 
@@ -56,7 +56,7 @@ MPEEditor::MPEEditor()
     dummyemptysep_ = visBase::DataObjectGroup::create();
     dummyemptysep_->ref();
 
-    sower_ = new Sower( *this );
+    sower_ = new Sower( this );
     addChild( sower_->getInventorNode() );
 }
 

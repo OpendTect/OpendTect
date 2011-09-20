@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.465 2011-06-01 09:07:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.466 2011-09-20 06:44:08 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -1195,6 +1195,12 @@ ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid )
     return scene ? scene->getZAxisTransform() : 0;
 }
 
+
+visBase::EventCatcher* uiVisPartServer::getEventCatcher( int sceneid )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? &scene->eventCatcher() : 0;
+}
 
 // Directional light-related
 void uiVisPartServer::setDirectionalLight()
