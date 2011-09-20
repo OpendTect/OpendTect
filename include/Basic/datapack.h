@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.10 2011-01-25 13:26:43 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.11 2011-09-20 13:02:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ public:
 
     static const char*	sKeyCategory();
     static const ID	cNoID()		    { return 0; }
+
+    virtual bool	isOK() const 		{ return true; }
 
 protected:
 
