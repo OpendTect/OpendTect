@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.14 2011-09-16 14:53:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.15 2011-09-20 10:30:15 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -32,6 +32,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
+    , infoheight_(su.infoheight_) 
     , hslval_(1)
     , vslval_(1)
 {
@@ -63,6 +64,8 @@ void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
     uiObjectItem* itm = new uiObjectItem( obj );
     itm->setObjectSize( obj->width(), obj->height() );
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
+    if ( infoitm )
+       infoitm->setObjectSize(obj->width(),infoheight_);
     addItem( itm, infoitm );
 }
 
@@ -72,6 +75,8 @@ void uiObjectItemViewWin::addGroup( uiGroup* obj, uiGroup* infoobj )
     uiObjectItem* itm = new uiObjectItem( obj );
     itm->setObjectSize(obj->mainObject()->width(),obj->mainObject()->height());
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
+    if ( infoitm )
+       infoitm->setObjectSize(obj->mainObject()->width(),infoheight_);
     addItem( itm, infoitm );
 }
 

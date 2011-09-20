@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.10 2011-09-16 14:53:00 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.11 2011-09-20 10:30:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ protected:
 
     int			startwidth_;
     int			startheight_;
+    int			infoheight_;
 
     float		hslval_;
     float		vslval_;
