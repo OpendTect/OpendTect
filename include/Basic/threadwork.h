@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.31 2011-07-09 23:56:20 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.32 2011-09-20 13:04:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -79,6 +79,9 @@ public:
 				   returned. */
 
     int				nrThreads() const { return threads_.size(); }
+    int				nrFreeThreads() const;
+    				//!<Valid right now, may change any time
+    bool			isWorkThread() const;
 
     Notifier<WorkManager>	isidle;
     
@@ -98,6 +101,7 @@ protected:
     TypeSet<CallBack>		callbacks_;
 
     ObjectSet<WorkThread>	threads_;
+    ObjectSet<const void>	threadids_;
     ObjectSet<WorkThread>	freethreads_;
 
 

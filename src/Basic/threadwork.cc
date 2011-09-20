@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.37 2011-07-09 23:55:39 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.38 2011-09-20 13:04:57 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -51,6 +51,8 @@ public:
     			//!< If a nullpointer is given, it will cancel
     			//!< regardless of which task we are working on
     const ::Threads::Work* getTask() const { return &task_; }
+
+    const void*		threadID() const { return thread_->threadID(); }
 
 protected:
 
@@ -239,6 +241,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
     {
 	WorkThread* wt = new WorkThread( *this );
 	threads_ += wt;
+	threadids_ += wt->threadID();
 	freethreads_ += wt;
     }
 }
@@ -592,6 +595,21 @@ int Threads::WorkManager::reportFinishedAndAskForMore(WorkThread* caller,
 
     freethreads_ += caller;
     return -1;
+}
+
+
+int Threads::WorkManager::nrFreeThreads() const
+{
+    workloadcond_.lock();
+    const int res = freethreads_.size();
+    workloadcond_.unLock();
+    return res;
+}
+
+
+bool Threads::WorkManager::isWorkThread() const
+{
+    return threadids_.indexOf( Threads::Thread::currentThread() )!=-1;
 }
 
 
