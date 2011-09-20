@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.16 2011-07-15 12:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.17 2011-09-20 10:30:31 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -68,7 +68,8 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     if ( disp.displaystrat_ )
     {
 	stratdisp_ = new uiWellStratDisplay( this );
-	stratdisp_->attach( rightOf, logdisps_[logdisps_.size()-1] );
+	if ( !logdisps_.isEmpty() )
+	    stratdisp_->attach( rightOf, logdisps_[logdisps_.size()-1] );
     }
     if ( s.nobackground_ )
     {
