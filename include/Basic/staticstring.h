@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: staticstring.h,v 1.4 2011-09-06 13:16:02 cvskris Exp $
+ RCS:		$Id: staticstring.h,v 1.5 2011-09-20 13:03:15 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -29,7 +29,7 @@ public:
 protected:
 
     BufferStringSet     	strings_;
-    ObjectSet<void>     	threadids_;
+    ObjectSet<const void>     	threadids_;
     Threads::Mutex		lock_;
 };
 
