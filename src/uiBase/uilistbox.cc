@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.119 2011-09-20 10:37:40 cvsraman Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.120 2011-09-20 13:17:25 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -465,11 +465,15 @@ void uiListBox::sortItems( bool asc )
     const int sz = size();
     if ( sz < 2 ) return;
 
-    BoolTypeSet mrkd;
+    NotifyStopper nss( selectionChanged );
+    NotifyStopper nsc( itemChecked );
+    BoolTypeSet mrkd, selected;
+    const BufferString cur( getText() );
     BufferStringSet nms;
     for ( int idx=0; idx<sz; idx++ )
     {
 	mrkd += isMarked( idx );
+	selected += isSelected( idx );
 	nms.add( textOfItem(idx) );
     }
     int* sortidxs = nms.getSortIndexes(true,asc);
@@ -478,10 +482,13 @@ void uiListBox::sortItems( bool asc )
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( mrkd[ sortidxs[idx] ] )
-	    setMarked( sortidxs[idx], true );
+	const int newidx = sortidxs[idx];
+	setMarked( newidx, selected[idx] );
+	setSelected( newidx, selected[idx] );
     }
     delete [] sortidxs;
+    if ( !cur.isEmpty() )
+	setCurrentItem( cur );
 }
 
 
