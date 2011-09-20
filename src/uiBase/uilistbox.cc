@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.118 2011-07-12 07:46:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.119 2011-09-20 10:37:40 cvsraman Exp $";
 
 #include "uilistbox.h"
 
@@ -669,6 +669,27 @@ void uiListBox::setItemText( int idx, const char* txt )
 
     mGetMarkededBufferString( itmtxt, isMarked(idx), txt );
     body_->item(idx)->setText( QString(itmtxt.buf()) );
+}
+
+
+void uiListBox::setItemSelectable( int idx, bool yn )
+{
+    if ( !validIndex(idx) ) return;
+
+    Qt::ItemFlags flags = body_->item(idx)->flags();
+    const bool isselectable = flags.testFlag( Qt::ItemIsSelectable );
+    if ( isselectable == yn )
+	return;
+
+    body_->item(idx)->setFlags( flags^Qt::ItemIsSelectable );
+    setItemChecked( idx, false );
+}
+
+
+bool uiListBox::isItemSelectable( int idx ) const
+{
+    return validIndex(idx) &&
+	body_->item(idx)->flags().testFlag( Qt::ItemIsSelectable );
 }
 
 
