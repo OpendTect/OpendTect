@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.16 2011-09-15 11:41:44 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.17 2011-09-20 14:16:48 cvsbruno Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -194,7 +194,7 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 SeisTrcReader* VolumeFunctionSource::getReader()
 {
     Threads::MutexLocker lock( readerlock_ );
-    void* thread = Threads::Thread::currentThread();
+    const void* thread = Threads::Thread::currentThread();
 
     const int idx = threads_.indexOf( thread );
     if ( threads_.validIdx(idx) )

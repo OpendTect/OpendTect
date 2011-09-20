@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.8 2010-11-09 22:05:14 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.9 2011-09-20 14:16:48 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ protected:
     SeisTrcReader*		getReader();
 
     ObjectSet<SeisTrcReader>	velreader_;
-    ObjectSet<void>		threads_;
+    ObjectSet<const void>	threads_;
 
     Threads::Mutex		readerlock_;
     bool			zit_;

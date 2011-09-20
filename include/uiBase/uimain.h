@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.22 2010-12-09 10:34:09 cvsnanne Exp $
+ RCS:           $Id: uimain.h,v 1.23 2011-09-20 14:16:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ protected:
 };
 
 
-mGlobal bool isMainThread(void*);
+mGlobal bool isMainThread(const void*);
 mGlobal bool isMainThreadCurrent();
 
 #endif

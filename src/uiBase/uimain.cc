@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.66 2011-09-14 15:10:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.67 2011-09-20 14:16:48 cvsbruno Exp $";
 
 #include "uimain.h"
 
@@ -479,7 +479,7 @@ void myMessageOutput( QtMsgType type, const char *msg )
 }
 
 
-bool isMainThread( void* thread )
+bool isMainThread( const void* thread )
 { return uiMain::theMain().thread() == thread; }
 
 bool isMainThreadCurrent()
