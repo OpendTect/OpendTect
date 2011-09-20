@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.61 2011-07-12 07:46:09 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.62 2011-09-20 10:36:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,8 @@ public:
     bool		isItemChecked(int) const;
     int			nrChecked() const;
 
+    void		setItemSelectable(int,bool);
+    bool		isItemSelectable(int) const;
     void		setSelectedItems(const BufferStringSet&);
     void		setSelectedItems(const TypeSet<int>&);
     void		setCheckedItems(const BufferStringSet&);
