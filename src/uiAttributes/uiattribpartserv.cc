@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.176 2011-05-05 08:53:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.177 2011-09-21 08:56:12 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -745,7 +745,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !aem ) return -1;
 
     BufferString errmsg;
-    Data2DHolder* data2d = new Data2DHolder;
+    RefMan<Data2DHolder> data2d = new Data2DHolder;
     PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
@@ -766,8 +766,11 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     }
     
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    Flat2DDHDataPack* newpack =
-	new Attrib::Flat2DDHDataPack( adid, *data2d, false, component );
+    mDeclareAndTryAlloc( Flat2DDHDataPack*, newpack, 
+	Attrib::Flat2DDHDataPack( adid, *data2d, false, component ) );
+    if ( !newpack || newpack->isOK() )
+	return DataPack::cNoID();
+
     newpack->setName( linekey.attrName() );
     newpack->setLineName( linekey.lineName() );
     dpman.add( newpack );
