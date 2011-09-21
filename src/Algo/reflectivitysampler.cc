@@ -112,6 +112,8 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	    ptr++;
 	    freqidx++;
 	}
+
+	addToNrDone( 1 );
     }
 
     return true;
