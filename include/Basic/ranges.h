@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.65 2011-09-06 13:15:07 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.66 2011-09-21 06:47:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -642,7 +642,7 @@ inline int StepInterval<typ>::nrSteps() const \
     typ ns = ( (start > stop ? start : stop) \
 	    - (start > stop ? stop : start) ) \
 	      / (step > 0 ? step : -step); \
-    return (int)(ns * (1. + eps)); \
+    return (int)(ns + eps); \
 }
 
 mDefFNrSteps(float,1e-4)
