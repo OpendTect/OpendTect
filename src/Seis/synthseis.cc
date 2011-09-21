@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.35 2011-09-13 13:51:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.36 2011-09-21 14:47:27 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: synthseis.cc,v 1.35 2011-09-13 13:51:50 cvsbrun
 #include "reflectivitysampler.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "sorting.h"
 #include "synthseis.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
@@ -32,7 +33,7 @@ SynthGenBase::SynthGenBase()
     , isfourier_(true)
     , usenmotimes_(false)
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
-    , tr_(0)		  
+    , tr_(0)
 {}
 
 
@@ -90,6 +91,7 @@ SynthGenerator::SynthGenerator()
     , refmodel_(0)
     , needprepare_(true)
     , doresample_(true)
+    , progress_(-1)
 {}
 
 
@@ -207,10 +209,8 @@ bool SynthGenerator::computeTrace( float* res )
 	ReflectivitySampler sampler( *refmodel_, outputsampling_, 
 				    cresamprefl_, usenmotimes_ );
 	sampler.setTargetDomain( (bool)fft_ );
-	if ( tr_ ) 
-	    tr_->execute( sampler );
-	else
-	    sampler.execute();
+	sampler.execute( true );
+	progress_ = sampler.nrDone();
     }
     else
     {
@@ -285,53 +285,82 @@ void SynthGenerator::getSampledReflectivities( TypeSet<float>& refs ) const
 
 
 
+MultiTraceSynthGenerator::MultiTraceSynthGenerator()
+    : totalnr_( -1 )
+{}
+
+
 MultiTraceSynthGenerator::~MultiTraceSynthGenerator()
 {
     deepErase( synthgens_ );
+    deepErase( trcs_ );
+}
+
+
+bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
+{
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	SynthGenerator* synthgen = new SynthGenerator();
+	synthgens_ += synthgen;
+    }
+
+    return true;
 }
 
 
 void MultiTraceSynthGenerator::setModels( 
 			const ObjectSet<const ReflectivityModel>& refmodels ) 
 {
+    totalnr_ = 0;
+    models_ = &refmodels;
     for ( int idx=0; idx<refmodels.size(); idx++ )
-    {
-	SynthGenerator* synthgen = new SynthGenerator();
-	synthgen->setModel( *refmodels[idx] );
-	synthgens_ += synthgen;
-    }
+	totalnr_ += refmodels[idx]->size();
 }
 
 
 od_int64 MultiTraceSynthGenerator::nrIterations() const
-{ return synthgens_.size(); }
+{ return models_->size(); }
 
 
 bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 {
+    SynthGenerator& synthgen = *synthgens_[thread];
     for ( int idx=start; idx<=stop; idx++ )
     {
-	SynthGenerator& synthgen = *synthgens_[idx];
-	if ( !synthgen.doPrepare() )
-	    mErrRet( synthgen.errMsg() );	
+	synthgen.setModel( *(*models_)[idx] );
 
+	if ( !synthgen.doPrepare() )
+	    mErrRet( synthgen.errMsg() );
 	synthgen.setWavelet( wavelet_, OD::UsePtr );
 	IOPar par; fillPar( par ); synthgen.usePar( par ); 
 	synthgen.setOutSampling( outputsampling_ );
-	synthgen.setTaskRunner( tr_ );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg() );	
 	
-	addToNrDone( 1 );
+	lock_.lock();
+
+	trcs_ += new SeisTrc( synthgen.result() );
+	trcidxs_ += idx;
+
+	lock_.unLock();
+
+	addToNrDone( synthgen.currentProgress() );
     }
     return true;
 }
 
 
-void MultiTraceSynthGenerator::result( ObjectSet<const SeisTrc>& trcs ) const 
+void MultiTraceSynthGenerator::getResult( ObjectSet<const SeisTrc>& trcs ) 
 {
-    for ( int idx=0; idx<synthgens_.size(); idx++ )
-	trcs += new SeisTrc( synthgens_[idx]->result() );
+    TypeSet<int> sortidxs; 
+    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
+	sortidxs += idtrc;
+    sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
+    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
+	trcs += trcs_[ sortidxs[idtrc] ]; 
+
+    trcs_.erase();
 }
 
 
@@ -442,7 +471,7 @@ bool RaySynthGenerator::doSynthetics()
 	else if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg())
 
-	multitracegen.result( rm.outtrcs_ );
+	multitracegen.getResult( rm.outtrcs_ );
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
 	    multitracegen.getSampledReflectivities( rm.sampledrefs_ );
     }

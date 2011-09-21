@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.26 2011-09-13 13:51:50 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.27 2011-09-21 14:47:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,32 +115,45 @@ protected:
     SeisTrc&			outtrc_;
 
     bool			doresample_;
+
+    od_int64                    progress_;
+
+
 public:
     void			setDoResample(bool yn) 	{ doresample_ = yn; }
+    od_int64                    currentProgress() const { return progress_; }
 };
 
 
 mClass MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
 {
 public:
+    				MultiTraceSynthGenerator();
     				~MultiTraceSynthGenerator();
 
     void 			setModels(
 				    const ObjectSet<const ReflectivityModel>&);
 
-    void 			result(ObjectSet<const SeisTrc>&) const;
+    void 			getResult(ObjectSet<const SeisTrc>&); 
     void 			getSampledReflectivities(TypeSet<float>&) const;
 
     const char*                 message() const 
     					{ return "Generating synthetics..."; }
 
+    od_int64                    totalNr() const         { return totalnr_; }
+
 protected:
 
     od_int64            	nrIterations() const;
+    bool                        doPrepare(int);
     virtual bool        	doWork(od_int64,od_int64,int);
 
-
+    const ObjectSet<const ReflectivityModel>* models_;
     ObjectSet<SynthGenerator>	synthgens_;
+    ObjectSet<const SeisTrc>	trcs_;
+    TypeSet<int>		trcidxs_;
+    od_int64                    totalnr_;
+    Threads::Mutex              lock_;
 };
 
 
