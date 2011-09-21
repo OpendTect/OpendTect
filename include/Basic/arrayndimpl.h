@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.75 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.76 2011-09-21 08:55:23 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -226,6 +226,8 @@ bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
 }
 
 #define mArrNDImplDoNormalCopy \
+    if ( !this->isOK() ) \
+	return; \
     if ( this->getData() ) \
     { \
 	templ.getAll( this->getData() ); \
