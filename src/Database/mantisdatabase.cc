@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.16 2011-09-15 06:39:17 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.17 2011-09-21 05:54:59 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,25 +264,6 @@ bool SqlDB::MantisDBMgr::fillProjectsInfo()
 }
 
 
-bool SqlDB::MantisDBMgr::fillVersions()
-{
-    const char* vers = GetFullODVersion();
-    const float ver = toFloat( vers )-1;
-    errmsg_.setEmpty();
-    BufferString querystr( "SELECT version FROM " );
-    querystr.add( sKeyProjectVersionTable() ).add( " WHERE ( " )
-	    .add( "version > ").add( ver ).add(" AND released=1 )" )
-    	    .add( " ORDER BY version DESC " );
-    if ( !query().execute( querystr ) )
-	return false;
-
-    while ( query().next() )
-	versions_.add( query().data(0) );
-
-    return true;
-}
-
-
 bool SqlDB::MantisDBMgr::fillVersionsByProject()
 {
     const char* vers = GetFullODVersion();
@@ -306,6 +287,24 @@ bool SqlDB::MantisDBMgr::fillVersionsByProject()
     }
 
     return true;
+}
+
+
+void SqlDB::MantisDBMgr::getAllVersions( BufferStringSet& versions ) const
+{
+    versions.erase();
+    if ( !versionsbyproject_.size() )
+	return;
+
+    for ( int vidx=0; vidx<versionsbyproject_.size(); vidx++ )
+    {
+	const BufferStringSet* vers = versionsbyproject_[vidx];
+	if ( !vers )
+	    continue;
+
+	for ( int idx=0; idx<vers->size(); idx++ )
+	    versions.addIfNew( vers->get( idx ) );
+    }
 }
 
 
@@ -343,7 +342,7 @@ void SqlDB::MantisDBMgr::fillSeverity()
 bool SqlDB::MantisDBMgr::getInfoFromTables()
 {
     if ( !fillCategories() || !fillProjectsInfo() || !fillBugTableEntries()
-	 || !fillUsersInfo() || !fillVersions() )
+	 || !fillUsersInfo() || !fillVersionsByProject() )
 	return false;
 
     fillSeverity();
@@ -761,11 +760,15 @@ void SqlDB::MantisDBMgr::prepareForQuery( BufferString& str )
 }
 
 
-void SqlDB::MantisDBMgr::getMajorVersions( BufferStringSet& majorvers )
+void SqlDB::MantisDBMgr::getMajorVersions( BufferStringSet& majorvers,
+       					   bool isalladd ) const
 {
     majorvers.erase();
-    majorvers.add( sKeyAll() );
-    const BufferStringSet& vers = versions();
+    if ( isalladd )
+	majorvers.add( sKeyAll() );
+
+    BufferStringSet vers;
+    getAllVersions( vers );
     if ( vers.isEmpty() ) return;
 
     for ( int idx=0; idx<vers.size(); idx++ )

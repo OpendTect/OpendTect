@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.9 2011-09-15 06:39:17 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.10 2011-09-21 05:54:59 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,11 +71,11 @@ public:
     				{ return severityvals_; }
     const BufferStringSet&	developers() const	{ return developers_; }
     const BufferStringSet&	userNames() const	{ return usernames_; }
-    const BufferStringSet&	versions() const	{ return versions_; }
     const BufferStringSet&	categories() const	{ return categories_; }
     const BufferStringSet&	projects() const	{ return projectnms_; }
     const BufferStringSet&	severities() const	{ return sevirities_; }
-    void			getMajorVersions(BufferStringSet&);
+    void			getMajorVersions(BufferStringSet&,
+	    					 bool isalladd=true) const;
     bool			addBug(BugTableEntry&,BugTextTableEntry&,
 	    			       const char* note);
     bool			editBug(BugTableEntry&,BugTextTableEntry&,
@@ -123,8 +123,8 @@ protected:
     bool		fillBugTableEntries();
     bool		fillProjectsInfo();
     bool		fillUsersInfo();
-    bool		fillVersions();
     bool		fillVersionsByProject();
+    void		getAllVersions(BufferStringSet&) const;
     void		fillSeverity();
     void		addHistoryToSet(BugHistoryTableEntry&);
 
@@ -139,7 +139,6 @@ protected:
     BufferStringSet	projectnms_;
     BufferStringSet	usernames_;
     BufferStringSet	developers_;
-    BufferStringSet	versions_;
     BufferStringSet	categories_;
     BufferStringSet	sevirities_;
     BugTableEntry*	bugtable_;
