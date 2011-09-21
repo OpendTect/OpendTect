@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.8 2010-03-09 22:50:23 cvskris Exp $
+ RCS:           $Id: arrayndslice.h,v 1.9 2011-09-21 14:23:12 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -174,6 +174,13 @@ const ValueSeries<T>* Array1DSlice<T>::getStorage_() const
     if ( !source_.getStorage() )
 	return 0;
 
+    if ( offset_==0 )
+    {
+	delete storage_;
+	storage_ = 0;
+	return source_.getStorage();
+    }
+
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
 	delete storage_;
@@ -250,6 +257,13 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 
     if ( !source_.getStorage() )
 	return 0;
+
+    if ( offset_==0 )
+    {
+	delete storage_;
+	storage_ = 0;
+	return source_.getStorage();
+    }
 
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
