@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.35 2011-09-19 13:33:08 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.36 2011-09-21 11:29:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,7 @@ public:
     Stats::RunCalc<float>&	getRunCalc(DColID) const;
 
     IOPar&			storePars()	{ return storepars_; }
+    const IOPar&		storePars() const { return storepars_; }
     Notifier<uiDataPointSet>	valueChanged;
 
     Notifier<uiDataPointSet>	selPtsToBeShown;	// to show in 3D
