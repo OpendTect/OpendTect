@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.32 2011-09-19 12:21:58 cvskris Exp $
+ RCS:		$Id: attribdatapack.h,v 1.33 2011-09-21 08:54:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
 					 bool usesingtrc=false,int component=0);
 			~Flat2DDHDataPack();
+    bool		isOK() const		{ return dataholderarr_; }
 
     const Data2DArray*	dataarray() const	{ return dataholderarr_; }
     virtual const char*	sourceType() const	{ return "2D"; }

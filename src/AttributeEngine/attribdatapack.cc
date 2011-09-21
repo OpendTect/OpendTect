@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.45 2011-09-19 12:21:58 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.46 2011-09-21 08:54:47 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -306,10 +306,27 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
        				    bool usesingtrc, int component )
     : Flat2DDataPack( did )
     , usesingtrc_( usesingtrc )
-    , dataholderarr_( new Data2DArray( dh ) )
+    , dataholderarr_( 0 )
+    , array2dslice_( 0 )
 {
+    RefMan<const Data2DHolder> dataref( &dh );
+    mTryAlloc( dataholderarr_, Data2DArray( dh ) );
+    if ( !dataholderarr_ )
+	return;
+    
     dataholderarr_->ref();
-    array2dslice_ = new Array2DSlice<float>( *dataholderarr_->dataset_ );
+
+    if ( !dataholderarr_->isOK() )
+    {
+	dataholderarr_->unRef();
+	dataholderarr_ = 0;
+	return;
+    }
+
+    mTryAlloc( array2dslice_, Array2DSlice<float>(*dataholderarr_->dataset_) );
+
+    if ( !array2dslice_ )
+	return;
 
     if ( usesingtrc )
     {
