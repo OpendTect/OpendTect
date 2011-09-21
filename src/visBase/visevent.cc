@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.35 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.36 2011-09-21 08:56:35 cvskris Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -293,7 +293,7 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     SoState* state = action->getState();
 
     const SoPickedPoint* pickedpoint = evcb->getPickedPoint();
-    const SbViewVolume &vv = SoViewVolumeElement::get(state);
+    const SbViewVolume& vv = SoViewVolumeElement::get(state);
     const SbViewportRegion& viewportregion = action->getViewportRegion();
 
     const SbVec2f normmousepos = event->getNormalizedPosition(viewportregion);
