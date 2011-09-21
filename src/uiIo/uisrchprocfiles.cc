@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.14 2011-09-21 09:56:33 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.13 2011-04-21 13:09:14 c
 #include "ioobj.h"
 #include "oddirs.h"
 #include "dirlist.h"
-#include "filepath.h"
 #include "ctxtioobj.h"
 #include "keystrs.h"
 
@@ -104,8 +103,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	sel = dlg.selection();
     }
 
-    FilePath fp( dirnm ); fp.add( fnms.get(sel) );
-    fnamefld->setText( fp.fullPath() );
+    fnamefld->setText( fnms.get(sel) );
     mRet(0)
 }
 
