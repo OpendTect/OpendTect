@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.36 2011-07-08 14:53:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.37 2011-09-21 14:23:31 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -174,7 +174,7 @@ void uiControlView::keyPressCB( CallBacker* )
 void uiControlView::setSelView( bool isnewsel, bool viewall )
 {
     uiWorldRect wr = (curview_.height() > 0)  ? curview_ : vwr_.boundingBox();
-    if ( isnewsel )
+    if ( isnewsel && vwr_.rgbCanvas().getSelectedArea() )
     {
 	const uiRect viewarea = *vwr_.rgbCanvas().getSelectedArea();
 	if ( viewarea.topLeft() == viewarea.bottomRight() || 
