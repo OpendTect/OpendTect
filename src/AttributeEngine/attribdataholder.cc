@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.23 2011-09-19 12:21:58 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.24 2011-09-21 08:53:33 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -316,7 +316,12 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
     dh.ref();
 
     DataHolderArray array3d( dh.dataset_, false );
-    dataset_ = new Array3DImpl<float>( array3d );
+    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
+    if ( !dataset_ || !dataset_->isOK() )
+    {
+	delete dataset_;
+	dataset_ = 0;
+    }
 
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
     {
@@ -335,6 +340,10 @@ Data2DArray::~Data2DArray()
 {
     delete dataset_;
 }
+
+
+bool Data2DArray::isOK() const
+{ return dataset_ && dataset_->isOK(); }
 
 
 int Data2DArray::indexOf( int trcnr ) const

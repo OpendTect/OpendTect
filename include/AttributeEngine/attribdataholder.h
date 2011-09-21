@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.25 2011-09-19 12:21:58 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.26 2011-09-21 08:53:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,8 @@ mClass Data2DArray
 { mRefCountImpl(Data2DArray);
 public:
     				Data2DArray(const Data2DHolder&);
+
+    bool			isOK() const;
 
     int				indexOf(int tracenr) const;
 
