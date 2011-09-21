@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.10 2010-07-12 14:24:33 cvsbert Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.11 2011-09-21 09:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,8 @@ public:
     				//!<Is assumed to remain in memory
 
     void			setDisplayedGeometry(const Interval<int>& trcrg,
-						    const Interval<float>& zrg);
+						     const Interval<float>& zrg);
+    				//!<trcrg is indexes in path
 
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans* 			getDisplayTransformation();

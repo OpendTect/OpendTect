@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.14 2009-09-24 17:49:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.15 2011-09-21 09:01:01 cvskris Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -148,18 +148,7 @@ void SplitTextureSeis2D::updateHorSplit()
 	return;
 
     deepErase( horblocktrcindices_ );
-    int startidx = 0;
-    while ( trcrg_.start>trcnrs_[startidx] && startidx<geomsz-1 )
-	startidx++;
-    
-    if ( startidx>=geomsz-1 )
-	return;
-
-    int stopidx = startidx;
-    while ( trcrg_.stop>trcnrs_[stopidx] && stopidx<geomsz-1 )
-	stopidx++;
-    
-    const int nrtrcs = stopidx - startidx + 1; 
+    const int nrtrcs = trcrg_.width()+1;
     const int nrhorblocks = nrBlocks( nrtrcs, mMaxHorSz, 1 );
     for ( int idx=0; idx<nrhorblocks; idx++ )
     {
@@ -168,7 +157,7 @@ void SplitTextureSeis2D::updateHorSplit()
 	    blockidxrg.stop = nrtrcs-1;
 
 	const int pathsize = blockidxrg.width()+1;
-	const int offset = blockidxrg.start+startidx;
+	const int offset = blockidxrg.start+trcrg_.start;
 	BendPointFinder2D finder( path_.arr()+offset, pathsize, 0.5 );
 	finder.execute();
 
@@ -241,16 +230,8 @@ void SplitTextureSeis2D::updateSeparator( SoSeparator* sep,
 
 void SplitTextureSeis2D::updateDisplay( )
 {
-    if ( !zrg_.width() || !trcrg_.width() )
+    if ( !zrg_.width() || trcrg_.width()<0 )
 	return;
-
-    int firstpathidx = 0;
-    while ( trcrg_.start>trcnrs_[firstpathidx] )
-    {
-	firstpathidx++;
-	if ( firstpathidx >= trcnrs_.size() )
-	    return;
-    }
 
     const int verblocks = nrBlocks( nrzpixels_, mMaxVerSz, 1 );
     ObjectSet<SoSeparator> unusedseparators = separators_;

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.134 2011-09-19 12:23:58 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.135 2011-09-21 09:01:02 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -231,6 +231,9 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 
 void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 {
+    trcdisplayinfo_.rg.start = -1;
+    trcdisplayinfo_.rg.stop = -1;
+
     if ( maxtrcnrrg_.isRev() )
     {
 	pErrMsg("Geometry not set");
@@ -243,53 +246,41 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( !rg.width() )
 	return;
 
-    trcdisplayinfo_.rg = rg;
-    int startidx = trcdisplayinfo_.alltrcnrs.indexOf( rg.start );
-    if ( startidx<0 )
+    for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs.size(); idx++ )
     {
-	for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs.size(); idx++ )
+	if ( trcdisplayinfo_.alltrcnrs[idx]>=rg.start )
 	{
-	    if ( trcdisplayinfo_.alltrcnrs[idx]>= rg.start )
-	    {
-		startidx = idx;
-		trcdisplayinfo_.rg.start = trcdisplayinfo_.alltrcnrs[idx];
-		break;
-	    }
+	    trcdisplayinfo_.rg.start = idx;
+	    break;
 	}
     }
-    if ( startidx<0 )
-	mRetErrGeo;
-    
-    int stopidx = trcdisplayinfo_.alltrcnrs.indexOf( rg.stop );
-    if ( stopidx<0 )
+
+    for ( int idx=mMIN(trcdisplayinfo_.alltrcnrs.size(),mMaxImageSize)-1;
+	  idx>=0; idx-- )
     {
-	for ( int idx=trcdisplayinfo_.alltrcnrs.size()-1; idx>=0; idx-- )
+	if ( trcdisplayinfo_.alltrcnrs[idx]<=rg.stop )
 	{
-	    if ( trcdisplayinfo_.alltrcnrs[idx] <= rg.stop )
-	    {
-		stopidx = idx;
-		trcdisplayinfo_.rg.stop = trcdisplayinfo_.alltrcnrs[idx];
-		break;
-	    }
+	    trcdisplayinfo_.rg.stop = idx;
+	    break;
 	}
     }
-    if ( stopidx<0 )
+
+    if ( trcdisplayinfo_.rg.stop<0 || trcdisplayinfo_.rg.start<0 )
 	mRetErrGeo;
 
-    trcdisplayinfo_.size = stopidx - startidx + 1;
-    if ( trcdisplayinfo_.size > mMaxImageSize )
-    {
-	trcdisplayinfo_.rg.stop =
-	    trcdisplayinfo_.alltrcnrs[startidx + mMaxImageSize-1];
-	trcdisplayinfo_.size = mMaxImageSize;
-    }
-        
     updateVizPath();
 }
 
 
-const Interval<int>& Seis2DDisplay::getTraceNrRange() const
-{ return trcdisplayinfo_.rg; }
+Interval<int> Seis2DDisplay::getTraceNrRange() const
+{
+    if ( !trcdisplayinfo_.alltrcnrs.validIdx( trcdisplayinfo_.rg.start ) ||
+	 !trcdisplayinfo_.alltrcnrs.validIdx( trcdisplayinfo_.rg.stop ) )
+	return Interval<int>( mUdf(int), mUdf(int) );
+
+    return Interval<int>( trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
+		          trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
+}
 
 
 const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
@@ -388,16 +379,20 @@ void Seis2DDisplay::setData( int attrib,
 		mTryAlloc( tmparr, 
 		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
 		usedarr = tmparr;
-		const int startidx = trcdisplayinfo_.alltrcnrs.indexOf( 
-			trcdisplayinfo_.rg.start );
+		const int startidx = trcdisplayinfo_.rg.start;
 		float* sampleptr = tmparr->getData();
 		for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 		{
 		    const int trcnr =
 			trcdisplayinfo_.alltrcnrs[crlidx+startidx];
 		    const int trcidx =  data2dh.indexOf( trcnr );
-		    const float* trcptr = slice2d.getData() +
-			slice2d.info().getOffset( trcidx, 0 );
+		    const float* trcptr = slice2d.getData();
+		    const ValueSeries<float>* stor = slice2d.getStorage();
+		    od_int64 offset = slice2d.info().getOffset( trcidx, 0 );
+
+		    if ( trcptr ) trcptr += offset;
+		    OffsetValueSeries<float> trcstor( *stor, offset );
+
 		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++,sampleptr++)
 		    {
 			if ( trcidx==-1 )
@@ -409,8 +404,12 @@ void Seis2DDisplay::setData( int attrib,
 			const float z = trcdisplayinfo_.zrg.atIndex( zidx );
 			const float sample = sd.getfIndex( z );
 			float val = mUdf(float);
-			IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						 val, false );
+			if ( trcptr )
+			    IdxAble::interpolateReg( trcptr, nrsamples, sample,
+						     val, false );
+			else
+			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
+						     val, false );
 			*sampleptr = val;
 		    }
 		}
@@ -424,8 +423,8 @@ void Seis2DDisplay::setData( int attrib,
 	{
 	    CubeSampling cs;
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	    cs.hrg.start.crl = trcdisplayinfo_.rg.start;
-	    cs.hrg.stop.crl = trcdisplayinfo_.rg.stop;
+	    cs.hrg.start.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
+	    cs.hrg.stop.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
@@ -445,8 +444,7 @@ void Seis2DDisplay::setData( int attrib,
 	    usedarr = tmparr;
 	    const float firstz = sd.start;
 	    const int z0idx = arrayzrg.nearestIndex( firstz );
-	    const int startidx = trcdisplayinfo_.alltrcnrs.indexOf( 
-		    trcdisplayinfo_.rg.start );
+	    const int startidx = trcdisplayinfo_.rg.start;
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
@@ -568,7 +566,8 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     Seis2DDisplay* s2dd = create();
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg );
-    s2dd->setTraceNrRange( trcdisplayinfo_.rg );
+    s2dd->setTraceNrRange( getTraceNrRange() );
+
     s2dd->setResolution( getResolution(), tr );
 
     s2dd->setLineInfo( linesetid_, getLineName() );
@@ -813,8 +812,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 					float& frac ) const
 {
     float mindist2 = MAXFLOAT;
-    const Interval<int>& trcrg = usemaxrange ? getMaxTraceNrRange() :
-					       getTraceNrRange();
+    Interval<int> trcrg = getTraceNrRange();
+    if ( usemaxrange ) trcrg = getMaxTraceNrRange();
 
     const TypeSet<PosInfo::Line2DPos>& posns = geometry_.positions();
     for ( int aidx=0; aidx<posns.size()-1; aidx++ )
@@ -907,7 +906,10 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 {
     if ( geometry_.isEmpty() ) return false;
 
-    const int nidx = geometry_.nearestIdx( pos, trcdisplayinfo_.rg );
+    const Interval<int> trcnrrg(
+	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
+	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
+    const int nidx = geometry_.nearestIdx( pos, trcnrrg );
     mindist = geometry_.positions()[nidx].coord_.distTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
@@ -1046,7 +1048,10 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( "GeomID", geomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
-    par.set( sKeyTrcNrRange(), trcdisplayinfo_.rg );
+    const Interval<int> trcnrrg(
+	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
+	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
+    par.set( sKeyTrcNrRange(), trcnrrg );
     par.set( sKeyZRange(), trcdisplayinfo_.zrg );
 }
 
@@ -1080,7 +1085,27 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
 	if ( res!=1 ) return res;
 
-	par.get( sKeyTrcNrRange(), trcdisplayinfo_.rg );
+	Interval<int> trcnrrg;
+	if ( par.get( sKeyTrcNrRange(), trcnrrg ) )
+	{
+	    for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs.size(); idx++ )
+	    {
+		if ( trcdisplayinfo_.alltrcnrs[idx]>=trcnrrg.start )
+		{
+		    trcdisplayinfo_.rg.start = idx;
+		    break;
+		}
+	    }
+
+	    for ( int idx=trcdisplayinfo_.alltrcnrs.size()-1; idx>=0; idx-- )
+	    {
+		if ( trcdisplayinfo_.alltrcnrs[idx]<=trcnrrg.start )
+		{
+		    trcdisplayinfo_.rg.stop = idx;
+		    break;
+		}
+	    }
+	}
 	
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
