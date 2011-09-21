@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.7 2009-09-04 18:20:34 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.8 2011-09-21 14:46:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 Usage:
 1. Create
 2. call execute();
-3. (optional) call set with new arrays, and call execute() again.
+3. (optional) call set with rew arrays, and call execute() again.
 */
 
 
@@ -43,6 +43,12 @@ public:
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
+    inline		Array2DReSampler(const Array2D<T>& from,
+			    ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
+			    const Geom::PosRectangle<float>* rectinfrom=0 );
+    			/*!<\param rectinfrom specifies a part of from
+			     that should serve as source. If ommitted,
+			     the entire from array is used. */
 
     inline void		set(const Array2D<T>& from, Array2D<TT>& to,
 	    		    bool fromhasudfs,
@@ -51,6 +57,12 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline void		set(const Array2D<T>& from, TT* to, int sz0, int sz1,
+	    		    bool fromhasudfs,
+			    const Geom::PosRectangle<float>* rectinfrom=0 );
+    			/*!<\param rectinfrom specifies a part of from
+			     that should serve as source. If ommitted,
+			     the entire from array is used. */
+    inline void		set(const Array2D<T>& from, ValueSeries<TT>& to, int sz0, int sz1,
 	    		    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
     			/*!<\param rectinfrom specifies a part of from
@@ -68,6 +80,7 @@ private:
     Array2D<TT>*		to_;
     Array2DInfoImpl		toinfo_;
     TT*				toptr_;
+    ValueSeries<TT>*		tovs_;
     Array2DFunc<TT,float,T>	func_;
     SamplingData<float>		xsampling_;
     SamplingData<float>		ysampling_;
@@ -93,6 +106,18 @@ Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 
 
 template <class T, class TT> inline
+Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
+			ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
+			const Geom::PosRectangle<float>* rectinfrom )
+{ set( from, to, sz0, sz1, fromhasudfs, rectinfrom ); }
+
+
+#define mUpdateResampler \
+    from_ = &from;  \
+    func_.set( from, fromhasudfs ); \
+    updateScale( rectinfromptr )
+
+template <class T, class TT> inline
 void Array2DReSampler<T,TT>::set( const Array2D<T>& from, Array2D<TT>& to,
 				 bool fromhasudfs,
 				 const Geom::PosRectangle<float>* rectinfromptr)
@@ -101,18 +126,24 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, Array2D<TT>& to,
     {
 	toptr_ = to.getData();
 	to_ = 0;
+	tovs_ = 0;
+    }
+    else if ( to.getStorage() )
+    {
+	to_ = 0;
+	toptr_ = 0;
+	tovs_ = to.getStorage();
     }
     else
     {
 	to_ = &to;
 	toptr_ = 0;
+	tovs_ = 0;
     }
 
-    from_ = &from; 
-    func_.set( from, fromhasudfs );
     toinfo_ = to.info();
 
-    updateScale( rectinfromptr );
+    mUpdateResampler;
 }
 
 
@@ -123,13 +154,36 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, TT* to,
 {
     toptr_ = to; 
     to_ = 0;
+    tovs_ = 0;
 
-    from_ = &from; 
-    func_.set( from, fromhasudfs );
     toinfo_.setSize( mXDim, sz0 );
     toinfo_.setSize( mYDim, sz1 );
 
-    updateScale( rectinfromptr );
+    mUpdateResampler;
+}
+
+
+template <class T, class TT> inline
+void Array2DReSampler<T,TT>::set( const Array2D<T>& from, ValueSeries<TT>& to,
+	int sz0, int sz1, bool fromhasudfs,
+	const Geom::PosRectangle<float>* rectinfromptr)
+{
+    if ( to.arr() )
+    {
+	toptr_ = to.arr();
+	tovs_ = 0;
+	to_ = 0;
+    }
+    else
+    {
+	toptr_ = 0; 
+	tovs_ = &to;
+	to_ = 0;
+    }
+
+    toinfo_.setSize( mXDim, sz0 );
+    toinfo_.setSize( mYDim, sz1 );
+    mUpdateResampler;
 }
 
 
@@ -172,6 +226,8 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int ysize = toinfo_.getSize( mYDim );
     int localnrdone = 0;
+    od_int64 offset = start*ysize;
+    TT* toptr = toptr_ ? toptr_+offset : 0;
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const float sourcex = xsampling_.atIndex( idx );
@@ -182,11 +238,15 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 	    const TT val = interpolate_ 
 		? func_.getValue( sourcex, sourcey )
 		: from_->get( mNINT(sourcex), mNINT( sourcey ) );
-	    if ( to_ )
-		to_->set( idx, idy , val );
+	    if ( toptr )
+	    {
+		*toptr = val;
+		toptr++;
+	    }
+	    else if ( tovs_ )
+		tovs_->setValue( offset++, val );
 	    else
-		toptr_[idx*ysize+idy] = val;
-
+		to_->set( idx, idy , val );
 	}
 
 	localnrdone++;
@@ -205,6 +265,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 
 #undef mXDim
 #undef mYDim
+#undef mUpdateResampler
 
 
 
