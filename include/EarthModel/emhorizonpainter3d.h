@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter3d.h,v 1.2 2010-08-03 09:03:28 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.h,v 1.3 2011-09-21 10:41:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,12 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "flatview.h"
 
+class FlatPosData;
+
 namespace EM
 {
+
+class Horizon3D;
 
 mClass HorizonPainter3D : public CallBacker
 {
@@ -26,6 +30,8 @@ public:
 			~HorizonPainter3D();
 
     void		setCubeSampling(const CubeSampling&,bool upd=false);
+    void		setPath(const TypeSet<BinID>*);
+    void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
     void		enableSeed(bool);
@@ -52,8 +58,16 @@ public:
 
 protected:
 
+    typedef ObjectSet<Marker3D>         SectionMarker3DLine;
+
     bool		addPolyLine();
     void		removePolyLine();
+
+    void		generateNewMarker(const Horizon3D&,const SectionID&,
+	   				  SectionMarker3DLine&,Marker3D*&); 
+    void		addDataToMarker(const BinID&,const Coord3&,
+	    				const PosID&,const Horizon3D&,
+					Marker3D&,int idx=-1);
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
@@ -62,12 +76,13 @@ protected:
 
     EM::ObjectID        id_;
     CubeSampling        cs_;
+    const TypeSet<BinID>* 	path_;
+    const FlatPosData*	flatposdata_;
 
     LineStyle           markerlinestyle_;
     MarkerStyle2D       markerstyle_;
     FlatView::Viewer&   viewer_;
 
-    typedef ObjectSet<Marker3D>         SectionMarker3DLine;
     ObjectSet<SectionMarker3DLine>      markerline_;
     Marker3D*                           markerseeds_;
 

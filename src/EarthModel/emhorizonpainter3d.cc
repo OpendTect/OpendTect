@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.6 2011-06-03 14:00:21 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.7 2011-09-21 10:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "flatposdata.h"
 
 namespace EM
 {
@@ -26,6 +27,8 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
+    , path_(0)
+    , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
 {
@@ -55,6 +58,19 @@ HorizonPainter3D::~HorizonPainter3D()
 void HorizonPainter3D::setCubeSampling( const CubeSampling& cs, bool update )
 {
     cs_ = cs;
+}
+
+
+void HorizonPainter3D::setPath( const TypeSet<BinID>* path ) 
+{
+    path_ = path;
+}
+
+
+void HorizonPainter3D::setFlatPosData( const FlatPosData* fps )
+{
+    if ( path_ )
+	flatposdata_ = fps;
 }
 
 
@@ -95,9 +111,39 @@ bool HorizonPainter3D::addPolyLine()
 	bool coorddefined = true;
 	
 	Marker3D* marker = 0;
-	HorSamplingIterator iter( cs_.hrg );
-	
 	BinID bid;
+
+	if ( path_ )
+	{
+	    for ( int idx = 0; idx<path_->size(); idx++ )
+	    {
+		bid = (*path_)[idx];
+		const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
+		EM::PosID posid( id_, sid, bid.toInt64() );
+
+		if ( !crd.isDefined() )
+		{
+		    coorddefined = false;
+		    continue;
+		}
+		else if ( !coorddefined )
+		{
+		    coorddefined = true;
+		    newmarker = true;
+		}
+
+		if ( newmarker )
+		{
+		    generateNewMarker( *hor3d, sid, *secmarkerln, marker );
+		    newmarker = false;
+		}
+
+		addDataToMarker( bid, crd, posid, *hor3d, *marker, idx );
+	    }
+	    continue;
+	}
+
+	HorSamplingIterator iter( cs_.hrg );
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl;
@@ -118,41 +164,70 @@ bool HorizonPainter3D::addPolyLine()
 	    
 	    if ( newmarker )
 	    {
-		FlatView::Annotation::AuxData* auxdata =
-		new FlatView::Annotation::AuxData( "" );
-		viewer_.appearance().annot_.auxdata_ += auxdata;
-		auxdata->poly_.erase();
-		auxdata->linestyle_ = markerlinestyle_;
-		Color prefcol = hor3d->preferredColor();
-		prefcol.setTransparency( 0 );
-		auxdata->linestyle_.color_ = prefcol;
-		auxdata->fillcolor_ = prefcol;
-		auxdata->enabled_ = linenabled_;
-		auxdata->name_ = hor3d->name();
-		marker = new Marker3D;
-		(*secmarkerln) += marker;
-		marker->marker_ = auxdata;
-		marker->sectionid_ = sid;
+		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
 		newmarker = false;
 	    }
-	    if ( cs_.nrInl() == 1 )
-	    {
-		marker->marker_->poly_ += FlatView::Point( bid.crl, crd.z );
-		if ( hor3d->isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-		    markerseeds_->marker_->poly_ +=
-					FlatView::Point( bid.crl, crd.z );
-	    }
-	    else if ( cs_.nrCrl() == 1 )
-	    {
-		marker->marker_->poly_ += FlatView::Point( bid.inl, crd.z );
-		if ( hor3d->isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-		    markerseeds_->marker_->poly_ +=
-					FlatView::Point( bid.inl, crd.z );
-	    }
+
+	    addDataToMarker( bid, crd, posid, *hor3d, *marker );
 	}
     }
     
     return true;
+}
+
+
+void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
+					  const EM::SectionID& sid,
+					  SectionMarker3DLine& secmarkerln,
+					  Marker3D*& marker )
+{
+    FlatView::Annotation::AuxData* auxdata =
+					new FlatView::Annotation::AuxData( "" );
+    viewer_.appearance().annot_.auxdata_ += auxdata;
+    auxdata->poly_.erase();
+    auxdata->linestyle_ = markerlinestyle_;
+    Color prefcol = hor3d.preferredColor();
+    prefcol.setTransparency( 0 );
+    auxdata->linestyle_.color_ = prefcol;
+    auxdata->fillcolor_ = prefcol;
+    auxdata->enabled_ = linenabled_;
+    auxdata->name_ = hor3d.name();
+    marker = new Marker3D;
+    secmarkerln += marker;
+    marker->marker_ = auxdata;
+    marker->sectionid_ = sid;
+}
+
+
+void HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
+					const EM::PosID& posid,
+					const EM::Horizon3D& hor3d,
+					Marker3D& marker, int idx )
+{
+    if ( path_ )
+    {
+	double dist = flatposdata_->position( true, idx );
+	marker.marker_->poly_ += FlatView::Point( dist, crd.z );
+	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
+	    markerseeds_->marker_->poly_ +=
+				FlatView::Point( dist, crd.z );
+	return;
+    }
+
+    if ( cs_.nrInl() == 1 )
+    {
+	marker.marker_->poly_ += FlatView::Point( bid.crl, crd.z );
+	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
+	    markerseeds_->marker_->poly_ +=
+				FlatView::Point( bid.crl, crd.z );
+    }
+    else if ( cs_.nrCrl() == 1 )
+    {
+	marker.marker_->poly_ += FlatView::Point( bid.inl, crd.z );
+	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
+	    markerseeds_->marker_->poly_ +=
+				FlatView::Point( bid.inl, crd.z );
+    }
 }
 
 
@@ -179,7 +254,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		
 		BinID bid;
 		bid.fromInt64( cbdata.pid0.subID() );
-		if ( cs_.hrg.includes(bid) )
+		if ( cs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
 		    viewer_.handleChange( FlatView::Viewer::Annot );
@@ -262,6 +337,18 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 					(*secmarkerlines)[markidx]->marker_;
 	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
 	    {
+		if ( path_ )
+		{
+		    if ( mIsEqual(
+			flatposdata_->position(true,path_->indexOf(binid)),
+			auxdata->poly_[posidx].x,.001) )
+		    {
+			auxdata->poly_[posidx].y = crd.z;
+			return;
+		    }
+		    continue;
+		}
+
 		if ( cs_.nrInl() == 1 )
 		{
 		    if ( binid.crl == auxdata->poly_[posidx].x )
@@ -282,6 +369,12 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 	    
 	    if ( crd.isDefined() )
 	    {
+		if ( path_ )
+		{
+		    auxdata->poly_ += FlatView::Point(
+		flatposdata_->position(true,path_->indexOf(binid)), crd.z );
+		    continue;
+		}
 		if ( cs_.nrInl() == 1 )
 		    auxdata->poly_ += FlatView::Point( binid.crl, crd.z );
 		else if ( cs_.nrCrl() == 1 )

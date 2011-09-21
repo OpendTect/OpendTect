@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.cc,v 1.10 2011-06-03 14:40:12 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon3d.cc,v 1.11 2011-09-21 10:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,8 @@ void Vw2DHorizon3D::setEditors()
 	}
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	if ( !dp3d )
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	if ( !(dp3d||dprdm) )
 	{
 	    horeds_ += 0;
 	    continue;
@@ -116,13 +117,21 @@ void Vw2DHorizon3D::draw()
 	if ( !fdp ) continue;
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	if ( !dp3d ) continue;
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	if ( !(dp3d||dprdm) ) continue;
 
 	if ( horeds_[ivwr] )
 	{
 	    horeds_[ivwr]->setMouseEventHandler(
 		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    horeds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+	    if ( dp3d )
+		horeds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+
+	    if ( dprdm )
+	    {
+		horeds_[ivwr]->setPath( dprdm->pathBIDs() );
+		horeds_[ivwr]->setFlatPosData( &dprdm->posData() );
+	    }
 	    horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	    horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	    horeds_[ivwr]->paint();

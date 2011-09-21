@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.8 2010-12-03 10:49:17 cvsjaap Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.9 2011-09-21 10:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,18 @@ void HorizonFlatViewEditor3D::setCubeSampling( const CubeSampling& cs )
 {
     curcs_ = cs;
     horpainter_->setCubeSampling( cs );
+}
+
+
+void HorizonFlatViewEditor3D::setPath( const TypeSet<BinID>* path )
+{
+    horpainter_->setPath( path );
+}
+
+
+void HorizonFlatViewEditor3D::setFlatPosData( const FlatPosData* fpd )
+{
+    horpainter_->setFlatPosData( fpd );
 }
 
 

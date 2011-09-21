@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.h,v 1.5 2010-09-15 14:03:06 cvsbruno Exp $
+ RCS:		$Id: horflatvieweditor3d.h,v 1.6 2011-09-21 10:41:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
 			~HorizonFlatViewEditor3D();
     
     void		setCubeSampling(const CubeSampling&);
+    void		setPath(const TypeSet<BinID>*);
+    void		setFlatPosData(const FlatPosData*);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 
     FlatView::AuxDataEditor* getEditor()                { return editor_; }
