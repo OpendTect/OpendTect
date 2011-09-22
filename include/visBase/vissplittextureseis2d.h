@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.11 2011-09-21 09:01:01 cvskris Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.12 2011-09-22 14:37:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ protected:
     Interval<int>		trcrg_;
     int				nrzpixels_;
     int				horscale_;
+    int				maxtexturesz_;
     ObjectSet<TypeSet<int> > 	horblocktrcindices_;
 
     Coordinates*		coords_;

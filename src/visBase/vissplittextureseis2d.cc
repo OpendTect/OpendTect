@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.15 2011-09-21 09:01:01 cvskris Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.16 2011-09-22 14:37:41 cvskris Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -18,15 +18,13 @@ static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.15 2011-09-21 09:0
 #include "survinfo.h"
 #include "viscoord.h"
 #include "vistexturecoords.h"
+#include "SoOD.h"
 
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
-
-#define mMaxHorSz 256
-#define mMaxVerSz 256
 
 mCreateFactoryEntry( visBase::SplitTextureSeis2D );
 
@@ -39,6 +37,7 @@ SplitTextureSeis2D::SplitTextureSeis2D()
     , trcrg_( 0, 0 )
     , nrzpixels_( 0 )
     , horscale_( 1 )		     
+    , maxtexturesz_( SoOD::maxTexture2DSize() )
 {
     coords_ = visBase::Coordinates::create();
     coords_->ref();
@@ -108,7 +107,7 @@ void SplitTextureSeis2D::setDisplayedGeometry( const Interval<int>& trcrg,
 	return;
 
     zrg_ = zrg;
-    if ( trcrg_!=trcrg )
+    if ( trcrg_!=trcrg || SoOD::maxTexture2DSize()!=maxtexturesz_ )
     {
 	trcrg_ = trcrg;
 	updateHorSplit();
@@ -143,16 +142,19 @@ void SplitTextureSeis2D::setDisplayTransformation( mVisTrans* nt )
 
 void SplitTextureSeis2D::updateHorSplit()
 {
+    maxtexturesz_ = SoOD::maxTexture2DSize();
+
     const int geomsz = path_.size();
     if ( !trcrg_.width() || !geomsz ) 
 	return;
 
     deepErase( horblocktrcindices_ );
     const int nrtrcs = trcrg_.width()+1;
-    const int nrhorblocks = nrBlocks( nrtrcs, mMaxHorSz, 1 );
+    const int nrhorblocks = nrBlocks( nrtrcs, maxtexturesz_, 1 );
     for ( int idx=0; idx<nrhorblocks; idx++ )
     {
-	Interval<int> blockidxrg( idx*(mMaxHorSz-1), (idx+1)*(mMaxHorSz-1) );
+	Interval<int> blockidxrg( idx*(maxtexturesz_-1),
+		 		  (idx+1)*(maxtexturesz_-1) );
 	if ( blockidxrg.stop>=nrtrcs || nrhorblocks==1 ) 
 	    blockidxrg.stop = nrtrcs-1;
 
@@ -233,14 +235,14 @@ void SplitTextureSeis2D::updateDisplay( )
     if ( !zrg_.width() || trcrg_.width()<0 )
 	return;
 
-    const int verblocks = nrBlocks( nrzpixels_, mMaxVerSz, 1 );
+    const int verblocks = nrBlocks( nrzpixels_, maxtexturesz_, 1 );
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
     const float inithorpos = (*horblocktrcindices_[0])[0];
     for ( int horidx=0; horidx<horblocktrcindices_.size(); horidx++ )
     {
-	const int starthorpixel = horidx * (mMaxVerSz-1) * horscale_;
+	const int starthorpixel = horidx * (maxtexturesz_-1) * horscale_;
 	TypeSet<int>* horblockrg = horblocktrcindices_[ horidx ];
 	for ( int idz=0; idz<verblocks; idz++ )
 	{
@@ -261,8 +263,8 @@ void SplitTextureSeis2D::updateDisplay( )
 
 	    updateSeparator( sep, tristrip, tc, tcomp, nrzpixels_ );
 	    
-	    const int startzpixel = idz * (mMaxVerSz-1);
-	    int stopzpixel = startzpixel + mMaxVerSz-1;
+	    const int startzpixel = idz * (maxtexturesz_-1);
+	    int stopzpixel = startzpixel + maxtexturesz_-1;
 	    if ( stopzpixel>=nrzpixels_ || verblocks==1 ) 
 		stopzpixel = nrzpixels_-1;
 	    
