@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.24 2010-02-22 09:56:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.25 2011-09-22 13:32:01 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -31,9 +31,11 @@ int SoOD::supportsFragShading()
 #else
 	if ( coin_gl_current_context() )
 #endif
+	{
 	    answer =
 		SoFragmentShader::isSupported( SoShaderObject::GLSL_PROGRAM)
 		    ? 1 : -1;
+	}
     }
 
     return answer;
@@ -76,6 +78,30 @@ int SoOD::maxNrTextureUnits()
     }
 
     return answer ? answer : 1;
+}
+
+
+int SoOD::maxTexture2DSize()
+{
+    static int answer = -1;
+    if ( answer==-1 )
+    {
+#ifdef win
+	if ( wglGetCurrentContext() )
+#elif lux
+	if ( glXGetCurrentContext() )
+#else
+	if ( coin_gl_current_context() )
+#endif
+	{
+	    GLint maxr;
+	    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxr);
+	    if ( glGetError()==GL_NO_ERROR )
+		answer = maxr;
+	}
+    }
+
+    return answer==-1 ? 1024 : answer;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.10 2011-09-22 13:32:01 cvskris Exp $";
 
 #include "SoColTabMultiTexture2.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.9 2011-04-21 13:09
 #include <Inventor/elements/SoGLTextureImageElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
 #include <Inventor/elements/SoTextureOverrideElement.h>
-//#include <Inventor/elements/SoTextureScalePolicyElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
@@ -38,6 +37,7 @@ static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.9 2011-04-21 13:09
 #include <Inventor/C/glue/gl.h>
 
 #include "limits.h"
+#include "SoOD.h"
 
 class SoColTabMultiTextureProcessor
 {
@@ -480,17 +480,9 @@ SoColTabMultiTexture2::~SoColTabMultiTexture2()
 
 int SoColTabMultiTexture2::getMaxSize()
 {
-    static int maxsize = -1;
-    if ( maxsize!=-1 )
-	return maxsize;
-
-    GLint maxr;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxr);
-    if ( glGetError()==GL_NO_ERROR )
-    {
-	maxsize = maxr;
-	return maxsize;
-    }
+    int res = SoOD::maxTexture2DSize();
+    if ( res!=-1 )
+	return res;
 
     return 2048; //conservative default
 }

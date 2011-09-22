@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.11 2010-02-20 00:58:42 cvskarthika Exp $
+ RCS:		$Id: SoOD.h,v 1.12 2011-09-22 13:32:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,11 @@ mGlobal static int	supportsVertexShading();
 			*/
 
 mGlobal static int	maxNrTextureUnits();
-			/*!<If not know, function will return 1.  */
+			/*!<If not known, function will return 1.  */
+
+mGlobal static int	maxTexture2DSize();
+			/*!<If not known, function will return 1024.
+			    which is a safe default.*/
 
 mGlobal static void	getLineWidthBounds( int& min, int& max );
 			/*!<Get the bounds of the line width, which are 
