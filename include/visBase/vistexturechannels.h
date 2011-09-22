@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.18 2011-07-07 05:09:25 cvsranojay Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.19 2011-09-22 11:41:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,9 @@ public:
     int				currentVersion(int channel) const;
     void			setCurrentVersion(int channel,int version);
 
+    bool			setUnMappedVSData(int channel,int version,
+	    				        const ValueSeries<float>*, OD::PtrPolicy,
+						TaskRunner*);
     bool			setUnMappedData(int channel,int version,
 	    				        const float*, OD::PtrPolicy,
 						TaskRunner*);
