@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.27 2011-09-20 13:06:06 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.28 2011-09-22 08:58:49 cvskris Exp $";
 
 #include "task.h"
 
@@ -190,10 +190,19 @@ Task::Control TaskGroup::getState() const
 }
 
 
+#define mUpdateProgressMeter \
+	progressmeter_->setNrDone( nrDone() ); \
+	progressmeter_->setTotalNr( totalNr() ); \
+	progressmeter_->setNrDoneText( nrDoneText() ); \
+	progressmeter_->setMessage( message() )
 
 void SequentialTask::setProgressMeter( ProgressMeter* pm )
 {
     progressmeter_ = pm;
+    if ( progressmeter_ )
+    {
+	mUpdateProgressMeter;
+    }
 }
 
 
@@ -204,10 +213,7 @@ int SequentialTask::doStep()
     const int res = nextStep();
     if ( progressmeter_ )
     {
-	progressmeter_->setNrDone( nrDone() );
-	progressmeter_->setTotalNr( totalNr() );
-	progressmeter_->setNrDoneText( nrDoneText() );
-	progressmeter_->setMessage( message() );
+	mUpdateProgressMeter;
 	
 	if ( res<1 )
 	    progressmeter_->setFinished();
