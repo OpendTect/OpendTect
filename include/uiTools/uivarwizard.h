@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizard.h,v 1.2 2010-02-17 16:11:06 cvsbert Exp $
+ RCS:           $Id: uivarwizard.h,v 1.3 2011-09-22 05:16:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ protected:
     { \
 	const bool doleave = mustLeave(dlg); \
 	dlg = 0; \
-	mSetState( doleave ? cCancelled() : ((int)backstate) ); \
+	mSetVWState( doleave ? cCancelled() : ((int)backstate) ); \
     }
 
 
