@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.177 2011-09-21 08:56:12 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.178 2011-09-22 12:02:54 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -346,7 +346,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	selspec.setRefFromID( *attrdata.nlamodel_ );
     else if ( !isnla )
 	selspec.setRefFromID( attrdata.attrSet() );
-    selspec.setZDomainKey( dlg.zDomainKey() );
+    //selspec.setZDomainKey( dlg.zDomainKey() );
 
     return true;
 }
