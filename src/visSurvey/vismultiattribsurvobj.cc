@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.63 2010-12-21 18:35:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.64 2011-09-22 12:52:01 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -485,6 +485,7 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
+
     if ( texture_ )
     {
 	visBase::VisColorTab& vt = texture_->getColorTab( attrib );
@@ -507,8 +508,13 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     }
     else
     {
-	channels_->setColTabMapperSetup( attrib, mapper );
-	channels_->reMapData( attrib, 0 );
+	const ColTab::MapperSetup& old =
+	    channels_->getColTabMapperSetup( attrib, 0 );
+	if ( old!=mapper )
+	{
+	    channels_->setColTabMapperSetup( attrib, mapper );
+	    channels_->reMapData( attrib, 0 );
+	}
     }
 }
 
