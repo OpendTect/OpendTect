@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.111 2011-06-06 10:24:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.112 2011-09-22 13:01:36 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.111 2011-06-06 10:24:54 cv
 #include "separstr.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "odver.h"
 
 namespace Attrib
 {
@@ -587,6 +588,9 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 bool DescSet::usePar( const IOPar& par, float versionnr,
 		      BufferStringSet* errmsgs )
 {
+    if ( mIsUdf(versionnr) )
+	versionnr = mODVersion * 0.01;
+
     const char* typestr = par.find( sKey::Type );
     if ( typestr )
     {

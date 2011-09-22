@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.51 2011-02-16 08:39:34 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.52 2011-09-22 13:01:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,8 @@ public:
     bool 		isAttribUsed(const DescID&) const;
 
     void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&,float,BufferStringSet* errmsgs=0);
+    bool		usePar(const IOPar&,float version=mUdf(float),
+	    			BufferStringSet* errmsgs=0);
     bool 		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
 	    				  BufferStringSet*);
     bool		createSteeringDesc(const IOPar&,BufferString,
