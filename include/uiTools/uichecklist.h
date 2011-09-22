@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.3 2011-09-07 12:03:31 cvsbert Exp $
+ RCS:           $Id: uichecklist.h,v 1.4 2011-09-22 13:49:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,9 @@ public:
 
     enum Pol		{ Unrel, NotAll, AtLeastOne, Chain1st, ChainAll };
 
-                        uiCheckList(uiParent*,const BufferStringSet&,Pol=Unrel);
-                        uiCheckList(uiParent*,
+			uiCheckList(uiParent*,const BufferStringSet&,Pol=Unrel,
+				    bool force_hor=false);
+			uiCheckList(uiParent*,
 				    const char*,const char*,Pol=Unrel);
     Pol			pol() const		{ return pol_; }
 
