@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.37 2011-07-07 05:09:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.38 2011-09-22 12:36:04 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -47,7 +47,7 @@ public:
 
     void			removeCaches();
 
-    bool			setUnMappedData(int version,const float*,
+    bool			setUnMappedData(int version,const ValueSeries<float>*,
 	    					OD::PtrPolicy, TaskRunner*);
     bool			setMappedData(int version,unsigned char*,
 	    				      OD::PtrPolicy);
@@ -60,7 +60,7 @@ public:
 
     ObjectSet<unsigned char>			mappeddata_;
     BoolTypeSet					ownsmappeddata_;
-    ObjectSet<const float>			unmappeddata_;
+    ObjectSet<const ValueSeries<float> >	unmappeddata_;
     BoolTypeSet					ownsunmappeddata_;
     ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
@@ -145,9 +145,7 @@ void ChannelInfo::clipData( int version, TaskRunner* tr )
 	if ( !unmappeddata_[idx] )
 	    continue;
 
-	const ArrayValueSeries<float,float> valseries(
-		(float*) unmappeddata_[idx], false, sz );
-	mappers_[idx]->setData( &valseries, sz, tr );
+	mappers_[idx]->setData( unmappeddata_[idx], sz, tr );
 	mappers_[idx]->setup_.triggerRangeChange();
     }
 }
@@ -171,7 +169,7 @@ bool ChannelInfo::reMapData( TaskRunner* tr )
 void ChannelInfo::removeCaches()
 {
     ObjectSet<unsigned char> mappeddata = mappeddata_;
-    ObjectSet<const float> unmappeddata = unmappeddata_;
+    ObjectSet<const ValueSeries<float> > unmappeddata = unmappeddata_;
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
 	mappeddata_.replace( idx, 0 );
@@ -185,7 +183,7 @@ void ChannelInfo::removeCaches()
 	if ( ownsmappeddata_[idx] )
 	    delete [] mappeddata[idx];
 	if ( ownsunmappeddata_[idx] )
-	    delete [] unmappeddata[idx];
+	    delete unmappeddata[idx];
     }
 }
 
@@ -200,7 +198,7 @@ void ChannelInfo::setNrVersions( int nsz )
 	if ( ownsmappeddata_[nsz] )
 	    delete [] mappeddata_[nsz];
 	if ( ownsunmappeddata_[nsz] )
-	    delete [] unmappeddata_[nsz];
+	    delete unmappeddata_[nsz];
 
 	mappeddata_.remove( nsz );
 	unmappeddata_.remove( nsz );
@@ -232,7 +230,7 @@ int ChannelInfo::nrVersions() const
 { return ownsmappeddata_.size(); }
 
 
-bool ChannelInfo::setUnMappedData(int version, const float* data,
+bool ChannelInfo::setUnMappedData(int version, const ValueSeries<float>* data,
 	    			  OD::PtrPolicy policy, TaskRunner* tr )
 {
     if ( version<0 || version>=nrVersions() )
@@ -249,7 +247,7 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
     if ( unmappeddata_[version] )
     {
 	if ( ownsunmappeddata_[version] )
-	    delete [] unmappeddata_[version];
+	    delete unmappeddata_[version];
 
 	unmappeddata_.replace( version, 0 );
     }
@@ -263,10 +261,9 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
     {
 	if ( data )
 	{
-	    mDeclareAndTryAlloc(float*, newdata, float[sz] );
-	    if ( !newdata ) return false;
-	    MemCopier<float> copier( newdata, data, sz );
-	    copier.execute();
+	    ValueSeries<float>* newdata = new MultiArrayValueSeries<float,float>(sz);
+	    if ( !newdata || !newdata->isOK() ) return false;
+	    data->getValues( *newdata, sz );
 	    unmappeddata_.replace( version, newdata );
 	}
 	else
@@ -322,7 +319,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     }
 
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], sz,
-	    mNrColors, unmappeddata_[version], mappeddata_[version] );
+	    mNrColors, *unmappeddata_[version], mappeddata_[version] );
     if ( ( tr && tr->execute(maptask) ) || maptask.execute() )
     {
 	int max = 0;
@@ -622,6 +619,19 @@ void TextureChannels::setCurrentVersion( int idx, int version )
     return false; \
 }
 
+bool TextureChannels::setUnMappedVSData( int channel, int version,
+	const ValueSeries<float>* data, OD::PtrPolicy cp, TaskRunner* tr )
+{
+    if ( channel<0 || channel>=channelinfo_.size() )
+    {
+	if ( cp==OD::TakeOverPtr ) delete data;
+	return false;
+    }
+
+    return channelinfo_[channel]->setUnMappedData( version, data, cp, tr );
+}
+
+
 bool TextureChannels::setUnMappedData( int channel, int version,
 	const float* data, OD::PtrPolicy cp, TaskRunner* tr )
 {
@@ -631,7 +641,33 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	return false;
     }
 
-    return channelinfo_[channel]->setUnMappedData( version, data, cp, tr );
+    const float* useddata = data;
+    if ( cp==OD::CopyPtr )
+    {
+	od_int64 sz = size_[0];
+	sz *= size_[1];
+	sz *= size_[2];
+
+	mDeclareAndTryAlloc( float*, newdata, float[sz] );
+	if ( !useddata )
+	    return false;
+
+	MemCopier<float> copier( newdata, data, sz );
+	if ( !copier.execute() )
+	{
+	    delete [] newdata;
+	    return false;
+	}
+
+	cp = OD::TakeOverPtr;
+	useddata = newdata;
+    }
+
+    ValueSeries<float>* vs = new ArrayValueSeries<float,float>( 
+	    const_cast<float*>(useddata), cp==OD::TakeOverPtr );
+
+    return channelinfo_[channel]->setUnMappedData( version, vs,
+						   OD::TakeOverPtr, tr );
 }
 
 
