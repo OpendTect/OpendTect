@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.48 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.49 2011-09-22 10:28:53 cvsraman Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -84,7 +84,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->unRef();
     }
 
-    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+//    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.remove(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -149,7 +149,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
-    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+//    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.notify(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
