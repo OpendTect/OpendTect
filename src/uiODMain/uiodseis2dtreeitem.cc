@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.107 2011-05-27 06:52:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.108 2011-09-22 14:39:48 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -1138,11 +1138,11 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpec( attribNr(), myas );
+    applMgr()->useDefColTab( displayID(), attribNr() );
     s2d->setDataPackID( attribNr(), dpid, 0 );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
-    applMgr()->useDefColTab( displayID(), attribNr() );
 
     return true;
 }
