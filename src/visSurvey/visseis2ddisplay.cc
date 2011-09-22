@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.135 2011-09-21 09:01:02 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.136 2011-09-22 14:38:17 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -336,7 +336,7 @@ void Seis2DDisplay::setData( int attrib,
 {
     if ( data2dh.isEmpty() ) 
     {
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, tr );
+	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, tr );
 	channels_->turnOn( false );
 	return;
     }
@@ -485,27 +485,32 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	float* tarr = !resolution_ || !tmparr ? usedarr->getData() : 0;
-	bool ownstarr = false;
+	ValueSeries<float>* stor = !resolution_ || !tmparr ? usedarr->getStorage() : 0;
+	bool ownsstor = false;
 
-	if ( !tarr )
+	//We are only interested in the global, permanent storage
+	if ( stor && stor!=data2dh.dataset_->getStorage() )
+	    stor = 0; 
+
+	if ( !stor )
 	{
-	    mTryAlloc( tarr, float[sz0*sz1] );
-	    ownstarr = true;
+	    stor = new MultiArrayValueSeries<float,float>(sz0*sz1);
+	    ownsstor = true;
 	}
 
-	if ( !tarr )
+	if ( !stor || !stor->isOK() )
 	{
 	    channels_->turnOn( false );
 	    pErrMsg(
 		    "Insufficient memory; cannot display the 2D seismics.");
+	    if ( ownsstor ) delete stor;
 	    return;
 	}
 	
-	if ( ownstarr )
+	if ( ownsstor )
 	{
 	    if ( resolution_==0 )
-		usedarr->getAll( tarr );
+		usedarr->getAll( *stor );
 	    else
 	    {
 		// Copy all the data from usedarr to an Array2DImpl and pass 
@@ -525,15 +530,15 @@ void Seis2DDisplay::setData( int attrib,
 		sourcearr2d.copyFrom( *usedarr );
 
 		Array2DReSampler<float,float> 
-			resampler( sourcearr2d, tarr, sz0, sz1, true );
+			resampler( sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		resampler.execute();
 	    }
 	}
 
 	channels_->setSize( 1, sz0, sz1 );
-	channels_->setUnMappedData(attrib, seriesidx, tarr, 
-			ownstarr ? OD::TakeOverPtr : OD::UsePtr, tr);
+	channels_->setUnMappedVSData(attrib, seriesidx, stor, 
+			ownsstor ? OD::TakeOverPtr : OD::UsePtr, tr);
     }
 
     triangles_->setTextureZPixelsAndPathScale( sz1, resolution_+1 );
@@ -1001,7 +1006,7 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 void Seis2DDisplay::clearTexture( int attribnr )
 {
     channels_->setNrVersions( attribnr, 1 );
-    channels_->setUnMappedData( attribnr, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedVSData( attribnr, 0, 0, OD::UsePtr, 0 );
     channels_->turnOn( false );
 
     Attrib::SelSpec as;
