@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.103 2011-07-22 12:20:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.104 2011-09-23 15:08:19 cvsyuancheng Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -124,11 +124,8 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 	const Coord3& c( track_.pos(idx) );
 	tbl_->setValue( RowCol(idx,0), c.x );
 	tbl_->setValue( RowCol(idx,1), c.y );
-	if ( !zinft )
-	{
-	    tbl_->setValue( RowCol(idx,2), c.z*fac );
-	    tbl_->setValue( RowCol(idx,3), track_.dah(idx)*fac );
-	}
+	tbl_->setValue( RowCol(idx,2), c.z*fac );
+	tbl_->setValue( RowCol(idx,3), track_.dah(idx)*fac );
     }
 
     if ( curcell.row >= newsz ) curcell.row = newsz-1;
