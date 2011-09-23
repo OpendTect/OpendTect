@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.25 2011-09-22 13:32:01 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.26 2011-09-23 13:15:54 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -18,6 +18,30 @@ extern "C" { extern void* glXGetCurrentContext(); }
 #elif mac
 extern "C" { extern void* coin_gl_current_context(); }
 #endif
+
+bool SoOD::getAllParams()
+{
+    static bool answer = false;
+    if ( !answer )
+    {
+#ifdef win
+	if ( wglGetCurrentContext() )
+#elif lux
+	if ( glXGetCurrentContext() )
+#else
+	if ( coin_gl_current_context() )
+#endif
+	{
+	    supportsFragShading();
+	    supportsVertexShading();
+	    maxNrTextureUnits();
+	    maxTexture2DSize();
+	    answer =  true;
+	}
+    }
+
+    return answer;
+}
 
 int SoOD::supportsFragShading()
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.12 2011-09-22 13:32:01 cvskris Exp $
+ RCS:		$Id: SoOD.h,v 1.13 2011-09-23 13:15:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,11 @@ ________________________________________________________________________
 class SoOD
 {
 public:
+
+mGlobal static bool	getAllParams();
+			/*!<Calls all of the below to make sure their
+			    static variables are set. */
+
 mGlobal static int	supportsFragShading();
     			/*!<\retval -1 not supported
 			    \retval  0 don't know
@@ -43,6 +48,7 @@ mGlobal static void	getLineWidthBounds( int& min, int& max );
 			 * OpenGL-dependent. */
 
 };
+
 
 /*!\mainpage
 SoOD cointains extensions to OpenInventor that are used to visualize 3D
