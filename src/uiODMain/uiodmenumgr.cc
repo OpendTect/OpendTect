@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.231 2011-09-09 05:57:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.232 2011-09-23 14:18:09 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.231 2011-09-09 05:57:31 cvss
 #include "uisettings.h"
 #include "uisoviewer.h"
 #include "uitextfile.h"
+#include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
@@ -36,6 +37,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.231 2011-09-09 05:57:31 cvss
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "odmemory.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -639,7 +641,12 @@ void uiODMenuMgr::fillUtilMenu()
     const bool enabdpdump = GetEnvVarYN( "OD_ENABLE_DATAPACK_DUMP" );
 #endif
     if ( enabdpdump )
+    {
 	mInsertItem( toolsmnu_, "Data pack dump ...", mDumpDataPacksMnuItm );
+	mInsertItem( toolsmnu_, "Display memory info ...",
+		     mDisplayMemoryMnuItm );
+    }
+
 }
 
 
@@ -1026,6 +1033,18 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
 	    if ( sd.usable() ) DataPackMgr::dumpDPMs( *sd.ostrm );
 	}
+    } break;
+    case mDisplayMemoryMnuItm: {
+	IOPar iopar;
+	OD::dumpMemInfo( iopar );
+	BufferString text;
+	iopar.dumpPretty( text );
+	uiDialog dlg( &appl_, uiDialog::Setup("Memory information", mNoDlgTitle,
+					      mNoHelpID ) );
+	uiTextBrowser* browser = new uiTextBrowser( &dlg );
+	browser->setText( text.buf() );
+	dlg.setCancelText( 0 );
+	dlg.go();
     } break;
 
     case mSettGeneral: {
