@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.63 2010-11-09 16:01:18 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.64 2011-09-23 13:02:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,7 @@ public:
     			//!< If filetype is set to null no ascstream header
     			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(std::ostream&,const char* filetyp) const;
+    void		dumpPretty(BufferString&) const;
     void		dumpPretty(std::ostream&) const;
 
     static const char*	sKeyDumpPretty()         { return "_pretty"; }

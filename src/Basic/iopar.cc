@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.92 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.93 2011-09-23 13:02:19 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -1105,8 +1105,21 @@ bool IOPar::write( std::ostream& strm, const char* typ ) const
 
 void IOPar::dumpPretty( std::ostream& strm ) const
 {
+    BufferString res;
+    dumpPretty( res );
+    strm << res.buf();
+    strm.flush();
+}
+
+
+void IOPar::dumpPretty( BufferString& res ) const
+{
     if ( !name().isEmpty() )
-	strm << "> " << name() << " <\n";
+    {
+	res += "> ";
+	res += name();
+	res += " <\n";
+    }
 
     int maxkeylen = 0;
     bool haveval = false;
@@ -1128,16 +1141,27 @@ void IOPar::dumpPretty( std::ostream& strm ) const
     {
 	const BufferString& ky = *keys_[idx];
 	if ( ky == sKeyHdr() )
-	    { strm << "\n\n* " << vals_.get(idx) << " *\n\n"; continue; }
+	{
+	    res += "\n\n* ";
+	    res += vals_.get(idx);
+	    res += " *\n\n";
+	    continue;
+	}
 	else if ( ky == sKeySubHdr() )
-	    { strm << "\n  - " << vals_.get(idx) << "\n\n"; continue; }
+	{
+	    res += "\n  - ";
+	    res += vals_.get(idx);
+	    res += "\n\n";
+	    continue;
+	}
 
 	BufferString keyprint( maxkeylen + 1, true );
 	const int extra = maxkeylen - ky.size();
 	for ( int ispc=0; ispc<extra; ispc++ )
 	    keyprint[ispc] = ' ';
 	keyprint += ky;
-	strm << keyprint << (haveval ? " : " : "");
+	res += keyprint;
+	res += (haveval ? " : " : "");
 
 	BufferString valstr( vals_.get(idx) );
 	char* startptr = valstr.buf();
@@ -1146,13 +1170,16 @@ void IOPar::dumpPretty( std::ostream& strm ) const
 	    char* nlptr = strchr( startptr, '\n' );
 	    if ( nlptr )
 		*nlptr = '\0';
-	    strm << startptr;
+	    res += startptr;
 	    if ( !nlptr ) break;
 
 	    startptr = nlptr + 1;
 	    if ( *startptr )
-		strm << '\n' << valposstr;
+	    {
+		res += "\n";
+		res += valposstr;
+	    }
 	}
-	strm << std::endl;
+	res += "\n";
     }
 }
