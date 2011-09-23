@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.44 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.45 2011-09-23 13:17:17 cvskris Exp $";
 
 #include "visscene.h"
 
@@ -20,10 +20,13 @@ static const char* rcsID = "$Id: visscene.cc,v 1.44 2011-04-28 07:00:12 cvsbert 
 #include "vismarker.h"
 #include "vispolygonoffset.h"
 #include "vislight.h"
+#include "SoOD.h"
 
+#include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTextureMatrixTransform.h>
+#include <Inventor/nodes/SoCallback.h>
 
 #define mDefaultFactor	1
 #define mDefaultUnits	200
@@ -43,8 +46,16 @@ Scene::Scene()
     , mousedownid_( -1 )
     , blockmousesel_( false )
     , nameChanged(this)
+    , callback_( 0 )
 {
     selroot_->ref();
+
+    if ( !SoOD::getAllParams() )
+    {
+	callback_ = new SoCallback;
+	selroot_->addChild( callback_ );
+	callback_->setCallback( firstRender, this );
+    }
 
     polygonoffset_->ref();
     polygonoffset_->setStyle( PolygonOffset::Filled );
@@ -98,6 +109,7 @@ Scene::~Scene()
 
 void Scene::addObject( DataObject* dataobj )
 {
+    removeCallback();
     mDynamicCastGet( VisualObject*, vo, dataobj );
     if ( vo ) vo->setSceneEventCatcher( &events_ );
     DataObjectGroup::addObject( dataobj );
@@ -106,6 +118,7 @@ void Scene::addObject( DataObject* dataobj )
 
 void Scene::insertObject( int idx, DataObject* dataobj )
 {
+    removeCallback();
     mDynamicCastGet( VisualObject*, vo, dataobj );
     if ( vo ) vo->setSceneEventCatcher( &events_ );
     DataObjectGroup::insertObject( idx, dataobj );
@@ -297,5 +310,28 @@ int Scene::usePar( const IOPar& par )
 
     return 1;
 }
+
+
+void Scene::firstRender( void*, SoAction* action )
+{
+    if ( action->isOfType( SoGLRenderAction::getClassTypeId()) )
+	SoOD::getAllParams();
+}
+
+
+void Scene::removeCallback()
+{
+    if ( !callback_ )
+	return;
+
+    if ( SoOD::getAllParams() )
+    {
+	selroot_->removeChild( callback_ );
+	callback_ = 0;
+    }
+}
+
+
+
 
 }; // namespace visBase
