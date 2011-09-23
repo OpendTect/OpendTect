@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.9 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.10 2011-09-23 14:10:20 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -70,6 +70,13 @@ const char* getStringFromUInt( od_uint32 val, char* str )
 
 static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 {
+    if ( !val )
+    {
+	buf[0] = '0';
+	buf[1] = 0;
+	return;
+    }
+
     /* Fill the string with least significant first, i.e. reversed: */
     char* pbuf = buf;
     while ( val )
