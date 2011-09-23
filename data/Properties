@@ -7,13 +7,13 @@ Aliases: Den`Rho`RhoB`RhoZ
 Color: 0`0`200
 Range: 2.2`2.8`g/cc
 !
-P-wave velocity: Velocity
-Aliases: PVel`Vel`P-Vel`V
+Pwave velocity: Velocity
+Aliases: PVel`Vel`V
 Color: 0`200`0
 Range: 1500`4500`m/s
 !
-S-wave velocity: Velocity
-Aliases: SVel`S-Vel
+Swave velocity: Velocity
+Aliases: SVel`Svel
 Color: 0`255`0
 Range: 500`2000`m/s
 !
@@ -54,7 +54,7 @@ Color: 255`20`147
 Range: 40`240`us/ft
 !
 Acoustic Impedance: Impedance
-Aliases: AI`P-Impedance
+Aliases: AI`Pimpedance
 Color: 255`150`0
 Range: 2e6`2e7
 !
@@ -93,7 +93,7 @@ Compressibility: Compressibility
 Color: 100`200`100
 Range: 2e-10`2e-06
 !
-V-Shale: Volumetrics
+Vshale: Volumetrics
 Aliases: Vclay`VCL`VSH
 Color: 100`200`100
 Range: 0`100`%
