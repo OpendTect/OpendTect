@@ -84,7 +84,7 @@ Color: 200`200`0
 Range: 0`200`ohmm
 Logarithmic: Yes
 !
-Poisson's Ratio: Poisson's Ratio
+Poissons Ratio: Poisson's Ratio
 Aliases: Poi`PR
 Color: 200`100`200
 Range: 0.1`0.5
