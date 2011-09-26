@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.81 2011-09-02 13:19:31 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.82 2011-09-26 08:12:27 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -125,6 +125,8 @@ FaultDisplay::~FaultDisplay()
     }
 
     setSceneEventCatcher( 0 );
+    showManipulator( false );
+
     if ( viseditor_ ) viseditor_->unRef();
 
     if ( faulteditor_ ) faulteditor_->unRef();
