@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.30 2011-08-23 06:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.31 2011-09-26 07:43:13 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -329,7 +329,12 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
     {
 	const PropertyRef& pr = *prsel[idx];
 	if ( props_.indexOf(pr) < 0 )
-	    props_.add( new ValueProperty(pr) );
+	{
+	    if ( pr.disp_.defval_ )
+		props_.add( pr.disp_.defval_->clone() );
+	    else
+		props_.add( new ValueProperty(pr) );
+	}
     }
 }
 
