@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.38 2011-09-22 12:36:04 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.39 2011-09-26 10:34:02 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -642,7 +642,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
     }
 
     const float* useddata = data;
-    if ( cp==OD::CopyPtr )
+    if ( useddata && cp==OD::CopyPtr )
     {
 	od_int64 sz = size_[0];
 	sz *= size_[1];
@@ -663,8 +663,10 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	useddata = newdata;
     }
 
-    ValueSeries<float>* vs = new ArrayValueSeries<float,float>( 
-	    const_cast<float*>(useddata), cp==OD::TakeOverPtr );
+    ValueSeries<float>* vs = useddata
+	? new ArrayValueSeries<float,float>( 
+	    const_cast<float*>(useddata), cp==OD::TakeOverPtr )
+	: 0;
 
     return channelinfo_[channel]->setUnMappedData( version, vs,
 						   OD::TakeOverPtr, tr );
