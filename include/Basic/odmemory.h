@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.5 2011-09-23 13:14:39 cvskris Exp $
+ RCS:		$Id: odmemory.h,v 1.6 2011-09-26 15:11:25 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -19,6 +19,7 @@ namespace OD
 {
     enum		PtrPolicy { UsePtr, CopyPtr, TakeOverPtr };
 
+    mGlobal bool	canDumpMemInfo();
     mGlobal void	dumpMemInfo(IOPar&);
 };
 

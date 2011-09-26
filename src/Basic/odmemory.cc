@@ -7,17 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.2 2011-09-26 05:47:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.3 2011-09-26 15:11:25 cvskris Exp $";
 
 #include "odmemory.h"
 
+#ifdef lux
 #include "malloc.h" 
+#endif
+
 #include "iopar.h" 
 #include "string2.h" 
 
+bool OD::canDumpMemInfo()
+{
+#ifdef lux
+    return true;
+#else
+    return false;
+#endif
+}
+
 void OD::dumpMemInfo( IOPar& res )
 {
-#ifndef __win__
+#ifdef lux
     struct mallinfo info = mallinfo();
 
     res.set( "Total heap size", getBytesString( info.arena ) );
