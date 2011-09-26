@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.12 2011-07-19 14:02:31 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.13 2011-09-26 07:42:27 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "repos.h"
 
+class Property;
 class ascistream;
 class ascostream;
 
@@ -76,9 +77,12 @@ public:
     {
 			DispDefs()
 			: color_(Color::Black())
+			, defval_(0)
 			, range_(mUdf(float),mUdf(float))	{}
+			~DispDefs();
 
 	Color		color_;
+	Property*	defval_;
 	Interval<float>	range_;		//!< Internal units
 	BufferString	unit_;
 

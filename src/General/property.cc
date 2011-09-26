@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.50 2011-09-23 11:44:56 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.51 2011-09-26 07:42:27 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: property.cc,v 1.50 2011-09-23 11:44:56 cvsbert 
 static const char* filenamebase = "Properties";
 static const char* sKeyAliases = "Aliases";
 static const char* sKeyIsLog = "Logarithmic";
+static const char* sKeyDefaultValue = "DefaultValue";
 
 mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 
@@ -87,6 +88,11 @@ const PropertyRef& PropertyRef::thickness()
     return *ptm->ref_;
 }
 
+
+PropertyRef::DispDefs::~DispDefs()
+{
+    delete defval_;
+}
 
 
 float PropertyRef::DispDefs::possibleValue() const
@@ -184,6 +190,20 @@ void PropertyRef::usePar( const IOPar& iop )
     }
 
     iop.get( sKey::Color, disp_.color_ );
+
+    fms = iop.find( sKeyDefaultValue );
+    sz = fms.size();
+    if ( sz > 1 )
+    {
+	const BufferString typ( fms[0] );
+	Property* prop = Property::factory().create( typ, *this );
+	if ( prop )
+	{
+	    prop->setDef( fms[1] );
+	    delete disp_.defval_;
+	    disp_.defval_ = prop;
+	}
+    }
 }
 
 
@@ -216,6 +236,13 @@ void PropertyRef::fillPar( IOPar& iop ) const
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
     iop.set( sKey::Range, fms );
+
+    if ( disp_.defval_ )
+    {
+	fms = disp_.defval_->type();
+	fms += disp_.defval_->def();
+	iop.set( sKeyDefaultValue, fms );
+    }
 }
 
 
