@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.10 2011-01-31 10:19:02 cvsjaap Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.11 2011-09-26 09:29:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "flatposdata.h"
 #include "survinfo.h"
 #include "trigonometry.h"
 
@@ -63,6 +64,19 @@ FaultStickPainter::~FaultStickPainter()
 void FaultStickPainter::setCubeSampling( const CubeSampling& cs, bool update )
 {
     cs_ = cs;
+}
+
+
+void FaultStickPainter::setPath( const TypeSet<BinID>* path )
+{
+    path_ = path;
+}
+
+
+void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
+{
+    if ( path_ )
+	flatposdata_ = fps;
 }
 
 
@@ -122,18 +136,52 @@ bool FaultStickPainter::addPolyLine()
 	    }
 	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row) )
 	    {
-		if ( cs_.isEmpty() ) continue;
+		if ( cs_.isEmpty() && !path_ ) continue;
 	    }
 	    else continue;
 
-	    if ( cs_.isEmpty() ) // this means this is a 2D Line
+	    if ( cs_.isEmpty() ) // this means this is a 2D or random Line
 	    {
-		for ( rc.col=colrg.start;rc.col<=colrg.stop;rc.col+=colrg.step )
+		if ( path_ )
 		{
-		    const Coord3 pos = fss->getKnot( rc );
-		    float dist;
-		    if ( getNearestDistance(pos,dist) )
-			stickauxdata->poly_ += FlatView::Point( dist , pos.z );
+		    BinID bid;
+
+		    for ( rc.col=colrg.start;rc.col<=colrg.stop;
+			  rc.col+=colrg.step )
+		    {
+			const Coord3 pos = fss->getKnot( rc );
+			bid = SI().transform( pos.coord() );
+			int idx = path_->indexOf( bid );
+
+			if ( idx < 0 ) continue;
+
+			Coord3 editnormal( getNormalInRandLine(idx), 0 );
+			const Coord3 nzednor = editnormal.normalize();
+			const Coord3 stkednor =
+			    emfss->geometry().getEditPlaneNormal(sid,rc.row);
+			const bool equinormal =
+			    mIsEqual(nzednor.x,stkednor.x,.001) &&
+			    mIsEqual(nzednor.y,stkednor.y,.001) &&
+			    mIsEqual(nzednor.z,stkednor.z,.00001);
+
+			if ( !equinormal ) continue;
+
+			stickauxdata->poly_ +=
+			    FlatView::Point( flatposdata_->position(true,idx),
+				    	     pos.z );
+		    }
+		}
+		else
+		{
+		    for ( rc.col=colrg.start;rc.col<=colrg.stop;
+			  rc.col+=colrg.step ) 
+		    {
+			const Coord3 pos = fss->getKnot( rc );
+			float dist;
+			if ( getNearestDistance(pos,dist) )
+			    stickauxdata->poly_ +=
+						FlatView::Point( dist , pos.z );
+		    }
 		}
 	    }
 	    else
@@ -459,6 +507,31 @@ Coord FaultStickPainter::getNormalToTrace( int trcnr ) const
 	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
+}
+
+
+Coord FaultStickPainter::getNormalInRandLine( int idx ) const
+{
+    if ( !path_ )
+	return Coord(mUdf(float), mUdf(float));
+
+    if ( idx < 0 || path_->size() == 0 )
+	return Coord(mUdf(float), mUdf(float));
+
+    BinID pivotbid = (*path_)[idx];
+    BinID nextbid;
+
+    if ( idx+1 < path_->size() )
+	nextbid = (*path_)[idx+1];
+    else if ( idx-1 > 0 )
+	nextbid = (*path_)[idx-1];
+
+    if ( pivotbid.inl == nextbid.inl )
+	return  SI().binID2Coord().rowDir();
+    else if ( pivotbid.crl == nextbid.crl )
+	return SI().binID2Coord().colDir();
+
+    return Coord(mUdf(float), mUdf(float));
 }
 
 } //namespace EM

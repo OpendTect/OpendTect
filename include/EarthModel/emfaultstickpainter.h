@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.7 2010-06-24 10:46:44 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.8 2011-09-26 09:28:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 namespace FlatView { class Viewer; }
 
+class FlatPosData;
 class MultiID;
 
 namespace EM
@@ -37,6 +38,8 @@ public:
     void		setCubeSampling(const CubeSampling&,bool);
     const CubeSampling&	getCubeSampling() const			{ return cs_; }
 
+    void                setPath(const TypeSet<BinID>*);
+    void                setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);
 
@@ -63,6 +66,8 @@ public:
     			{ lsetid_ = lsetid; }
     const MultiID&	getLineSetID() const		{ return lsetid_; }
     Coord		getNormalToTrace( int trcnr ) const;
+    Coord		getNormalInRandLine( int idx ) const; 
+    			//<! idx of BinID in path_ of RandomLine
 
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
@@ -85,6 +90,8 @@ protected:
     virtual void	fssChangedCB(CallBacker*);
 
     CubeSampling	cs_;
+    const TypeSet<BinID>*	path_;
+    const FlatPosData*	flatposdata_;
 
     LineStyle		markerlinestyle_;
     MarkerStyle2D       markerstyle_;

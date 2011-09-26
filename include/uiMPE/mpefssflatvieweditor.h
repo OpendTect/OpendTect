@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.9 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.10 2011-09-26 09:28:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
+class FlatPosData;
 class MouseEventHandler;
 class IndexInfo;
 
@@ -36,6 +37,8 @@ public:
     void		updateActStkContainer();
 
     void		setCubeSampling(const CubeSampling&);
+    void                setPath(const TypeSet<BinID>*);
+    void                setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enablePainting(bool);
     void		enableKnots(bool);
@@ -77,6 +80,8 @@ protected:
 				    Coord3& worldpos) const;
     Coord3			getScaleVector() const;
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+
+    const TypeSet<BinID>*       path_;
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;

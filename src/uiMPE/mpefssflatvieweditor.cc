@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.19 2010-12-03 10:49:56 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.20 2011-09-26 09:29:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , editor_(ed)
     , fsspainter_( new EM::FaultStickPainter(ed->viewer(),oid) )
     , meh_(0)
+    , path_(0)
     , activestickid_(-1)
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
@@ -51,7 +52,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
-    if ( meh_ )
+    if ( !path_ && meh_ )
     {
 	editor_->movementStarted.remove(
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
@@ -74,6 +75,9 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 
 void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( path_ )
+	return;
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -117,6 +121,19 @@ void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 {
     EM::FaultStickSetFlatViewEditor::setCubeSampling( cs );
     fsspainter_->setCubeSampling( cs, true );
+}
+
+
+void FaultStickSetFlatViewEditor::setPath( const TypeSet<BinID>* path )
+{
+    path_ = path;
+    fsspainter_->setPath( path );
+}
+
+
+void FaultStickSetFlatViewEditor::setFlatPosData( const FlatPosData* fpd )
+{
+    fsspainter_->setFlatPosData( fpd );
 }
 
 
