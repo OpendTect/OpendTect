@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.1 2011-09-23 13:11:35 cvskris Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.2 2011-09-26 05:47:07 cvsranojay Exp $";
 
 #include "odmemory.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: odmemory.cc,v 1.1 2011-09-23 13:11:35 cvskris E
 
 void OD::dumpMemInfo( IOPar& res )
 {
+#ifndef __win__
     struct mallinfo info = mallinfo();
 
     res.set( "Total heap size", getBytesString( info.arena ) );
@@ -29,4 +30,5 @@ void OD::dumpMemInfo( IOPar& res )
     res.set( "Total used memory",
 	    getBytesString(info.uordblks+info.ordblks*8+info.usmblks+
 			   info.hblkhd ));
+#endif
 }
