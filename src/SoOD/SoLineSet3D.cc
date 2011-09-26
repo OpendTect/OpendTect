@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoLineSet3D.cc,v 1.2 2011-09-12 08:16:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoLineSet3D.cc,v 1.3 2011-09-26 15:28:54 cvsyuancheng Exp $";
 
 #include "SoLineSet3D.h"
 
@@ -137,9 +137,9 @@ void SoLineSet3D::GLRender(SoGLRenderAction* action)
 	    if ( nrvertex==-1 )
 		lastc = nrcoords-1;
 	    else
-		lastc = curc+nrvertex;
+		lastc = curc+nrvertex-1;
 
-	    while ( curc<lastc )
+	    while ( curc<=lastc )
 		ci[nci++] = curc++;
 
 	    ci[nci++] = -1;
