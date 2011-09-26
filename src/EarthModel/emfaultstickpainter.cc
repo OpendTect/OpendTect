@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.11 2011-09-26 09:29:11 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.12 2011-09-26 11:31:42 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , activestickid_( -1 )
     , is2d_( false )
     , linenm_( 0 )
+    , path_(0)
+    , flatposdata_(0)
     , lsetid_( 0 )
     , abouttorepaint_( this )
     , repaintdone_( this )
