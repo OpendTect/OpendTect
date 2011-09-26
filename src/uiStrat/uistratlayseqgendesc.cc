@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.31 2011-07-19 15:07:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.32 2011-09-26 07:44:03 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -516,15 +516,27 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	    workprops_.add( props.get(idxof).clone() );
 	else
 	{
-	    float defval = pr.disp_.range_.center();
-	    if ( nearun )
+	    Property* toadd = 0;
+	    if ( pr.disp_.defval_ )
 	    {
-		const int nidxof = nearun->properties().indexOf( pr );
-		if ( nidxof >= 0 )
-		    defval = nearun->properties().get(nidxof).value(
-			    	Property::EvalOpts(true) );
+		const char* typ = pr.disp_.defval_->type();
+		if ( !strcmp(typ,ValueProperty::typeStr())
+		  || !strcmp(typ,RangeProperty::typeStr()) )
+		    toadd = pr.disp_.defval_->clone();
 	    }
-	    workprops_.add( new ValueProperty(pr,defval) );
+	    if ( !toadd )
+	    {
+		float defval = pr.disp_.range_.center();
+		if ( nearun )
+		{
+		    const int nidxof = nearun->properties().indexOf( pr );
+		    if ( nidxof >= 0 )
+			defval = nearun->properties().get(nidxof).value(
+				    Property::EvalOpts(true) );
+		}
+		toadd = new ValueProperty( pr, defval );
+	    }
+	    workprops_.add( toadd );
 	}
 
 	uiSimpPropertyEd* fld = new uiSimpPropertyEd( propgrp,
