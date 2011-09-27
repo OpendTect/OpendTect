@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.38 2011-09-20 13:04:57 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.39 2011-09-27 12:35:25 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -434,6 +434,8 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	    const int threadidx = nrfreethreads-1;
 	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
 	    queueworkload_[queueidx]++;
+
+	    lock.unLock();
 	    thread->assignTask( newtask, thecb, queueid );
 	    return;
 	}
