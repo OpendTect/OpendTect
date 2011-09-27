@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.16 2011-03-03 12:46:05 cvsbert Exp $
+ RCS:		$Id: strmoper.h,v 1.17 2011-09-27 05:32:08 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -31,10 +31,13 @@ namespace StrmOper
     mGlobal bool	readLine(std::istream&,BufferString* b=0);
     mGlobal bool	readFile(std::istream&,BufferString&);
 
-    mGlobal void	seek(std::istream&,od_int64 pos);
     mGlobal od_int64	tell(std::istream&);
-    mGlobal void	seek(std::istream&,od_int64 offset,std::ios::seekdir);
     mGlobal od_int64	tell(std::ostream&);
+    mGlobal void	seek(std::istream&,od_int64 pos);
+    mGlobal void	seek(std::istream&,od_int64 offset,std::ios::seekdir);
+    mGlobal void	seek(std::ostream&,od_int64 pos);
+    mGlobal void	seek(std::ostream&,od_int64 offset,std::ios::seekdir);
+   
 
 }
 

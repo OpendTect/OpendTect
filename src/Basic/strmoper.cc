@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.35 2011-09-23 08:58:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.36 2011-09-27 05:32:08 cvsranojay Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -223,6 +223,37 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
 }
 
 
+void StrmOper::seek( std::ostream& strm, od_int64 offset,
+		     std::ios::seekdir dir )
+{
+#ifndef __win32__
+    strm.seekp( offset, dir );
+#else
+    static int smalloffset = INT_MAX - 1;
+    
+    if ( offset < smalloffset )
+    { strm.seekp( offset, dir ); return; }
+
+    strm.seekp( smalloffset, dir );
+    od_int64 curoffset = smalloffset;
+
+    while ( curoffset < offset )
+    {
+	const od_int64 diff = offset - curoffset;
+	diff > smalloffset ? strm.seekp( smalloffset, std::ios::cur ) 
+			   : strm.seekp( diff, std::ios::cur );
+	curoffset += smalloffset;
+    }
+#endif
+}
+
+
+void StrmOper::seek( std::ostream& strm, od_int64 pos )
+{
+    StrmOper::seek( strm, pos, std::ios::beg );
+}
+
+
 od_int64 StrmOper::tell( std::istream& strm )
 {
 #ifndef __win__
@@ -300,7 +331,7 @@ bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
 bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
 {
     if ( !ostrm_ ) return false;
-    ostrm_->seekp( pos, dir );
+    StrmOper::seek( *ostrm_, pos, dir ); 
     return !ostrm_->fail();
 }
 
