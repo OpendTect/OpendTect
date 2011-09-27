@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichecklist.cc,v 1.3 2011-09-22 13:49:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uichecklist.cc,v 1.4 2011-09-27 04:08:32 cvsraman Exp $";
 
 #include "uichecklist.h"
 #include "uibutton.h"
@@ -34,6 +34,8 @@ uiCheckList::uiCheckList( uiParent* p, const BufferStringSet& bss,
 {
     for ( int idx=0; idx<bss.size(); idx++ )
 	addBox( bss.get(idx), forcehor );
+
+    finaliseDone.notify( mCB(this,uiCheckList,initGrp) );
 }
 
 
