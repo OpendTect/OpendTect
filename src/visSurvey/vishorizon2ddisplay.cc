@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.44 2011-09-02 13:20:12 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.45 2011-09-28 20:10:25 cvsyuancheng Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -58,7 +58,7 @@ void Horizon2DDisplay::setDisplayTransformation( mVisTrans* nt )
     for ( int idx=0; idx<lines_.size(); idx++ )
 	lines_[idx]->setDisplayTransformation(transformation_);
 
-    for ( int idx=0; idx<lines_.size(); idx++ )
+    for ( int idx=0; idx<points_.size(); idx++ )
     {
 	if( points_[idx] )
 	    points_[idx]->setDisplayTransformation(transformation_);
@@ -379,6 +379,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	ps = visBase::PointSet::create();
 	ps->ref();
 	ps->getCoordinates()->removeAfter(-1);
+	ps->setDisplayTransformation( transformation_ );
 	points_.replace( idx, ps );
 	addChild( ps->getInventorNode() );
     }
