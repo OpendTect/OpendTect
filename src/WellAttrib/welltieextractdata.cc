@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.36 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.37 2011-09-28 10:35:34 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -54,6 +54,7 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
     extrintv_ = itv;
     delete outtrc_;
     outtrc_ = new SeisTrc( itv.nrSteps() + 1 );
+    outtrc_->info().sampling = itv;
     outtrc_->zero();
 }
 
