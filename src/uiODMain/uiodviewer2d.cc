@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.51 2011-09-19 12:24:56 cvskris Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.52 2011-09-28 14:20:45 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -413,12 +413,19 @@ void uiODViewer2D::usePar( const IOPar& iop )
 {
     IOPar* vdselspecpar = iop.subselect( sKeyVDSelSpec() );
     if ( vdselspecpar ) vdselspec_.usePar( *vdselspecpar );
-    IOPar* wvaselspecpar = iop.subselect( sKeyVDSelSpec() );
-    if ( vdselspecpar ) vdselspec_.usePar( *wvaselspecpar );
+    IOPar* wvaselspecpar = iop.subselect( sKeyWVASelSpec() );
+    if ( wvaselspecpar ) wvaselspec_.usePar( *wvaselspecpar );
     delete vdselspecpar; delete wvaselspecpar;
     IOPar* cspar = iop.subselect( sKeyPos() );
     if ( cspar ) cs_.usePar( *cspar );
-    setPos( cs_ );
+    if ( viewwin()->nrViewers() > 0 )
+    {
+	const bool iswva = wvaselspec_.id().isValid();
+	const DataPack* dp = viewwin()->viewer(0).pack( iswva );
+	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp)
+	if ( dp3d )
+	    setPos( cs_ );
+    }
 
     datamgr_->usePar( iop, viewwin(), dataEditor() );
     rebuildTree();
