@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.92 2011-09-02 13:14:39 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.93 2011-09-28 10:36:35 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -194,6 +194,7 @@ void uiTieView::drawTraces()
 	const bool issynth = idx < midtrc;
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
+	trc->info().sampling = data_.synthtrc_.info().sampling;
 	trc->info().sampling.scale( 1000 );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
