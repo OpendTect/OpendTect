@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.17 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.18 2011-09-29 14:47:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,8 +148,6 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
 	fssview_ = VW2DFaultSS2D::create( emid_, viewer2D()->viewwin(),
 					 viewer2D()->dataEditor() );
-
-	viewer2D()->dataMgr()->addObject( fssview_ );
     }
     else
     {
@@ -180,6 +178,9 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 	deselnotify->notify( mCB(this,uiODVw2DFaultSS2DTreeItem,deSelCB) );
 
     fssview_->draw();
+
+    if ( displayid_ < 0 ) 
+	viewer2D()->dataMgr()->addObject( fssview_ );
 
     return true;
 }

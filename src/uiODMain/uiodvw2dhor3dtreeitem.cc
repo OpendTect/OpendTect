@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.20 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.21 2011-09-29 14:47:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,7 +192,6 @@ bool uiODVw2DHor3DTreeItem::init()
 
 	horview_ = Vw2DHorizon3D::create( emid_, viewer2D()->viewwin(),
 				      viewer2D()->dataEditor() );
-	viewer2D()->dataMgr()->addObject( horview_ );
     }
     else
     {
@@ -229,6 +228,10 @@ bool uiODVw2DHor3DTreeItem::init()
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
     horview_->draw();
+
+    if ( displayid_ < 0 )
+	viewer2D()->dataMgr()->addObject( horview_ );
+
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );

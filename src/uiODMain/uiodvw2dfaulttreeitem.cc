@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.15 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.16 2011-09-29 14:47:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,6 @@ bool uiODVw2DFaultTreeItem::init()
 
 	faultview_ = VW2DFault::create( emid_, viewer2D()->viewwin(),
 				   viewer2D()->dataEditor() );
-	viewer2D()->dataMgr()->addObject( faultview_ );
     }
     else
     {
@@ -164,6 +163,9 @@ bool uiODVw2DFaultTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
 
     faultview_->draw();
+
+    if ( displayid_ < 0 )
+	viewer2D()->dataMgr()->addObject( faultview_ );
 
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
