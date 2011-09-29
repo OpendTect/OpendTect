@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.19 2011-06-20 11:55:52 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.20 2011-09-29 12:28:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,6 @@ public:
 			    , wvltid_(-1)
 			    , issonic_(true)
 			    , isinitdlg_(true)
-			    , corrvellognm_("CS Corrected ")
 			    , linekey_(0)	 
 			    , useexistingd2tm_(true)  	 
 			    , is2d_(false)				 
@@ -74,6 +73,8 @@ public:
 
     static Setup&		defaults();
     static void                 commitDefaults();
+
+    static const char*  	sKeyCSCorrTxt() { return "CS Corrected "; }
 };
 
 

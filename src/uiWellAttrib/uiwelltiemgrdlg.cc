@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.44 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.45 2011-09-29 12:28:57 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -302,6 +302,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	mErrRet("velocity and density logs are the same, please select different logs")
     if ( !strcmp ( wtsetup_.vellognm_, sKeyPlsSel ) )
 	mErrRet("Please select a log for the velocity")
+
+    wtsetup_.corrvellognm_ = WellTie::Setup::sKeyCSCorrTxt();
     wtsetup_.corrvellognm_ += wtsetup_.vellognm_;	    
     wtsetup_.denlognm_ = denlogfld_->text();
     if ( !strcmp( wtsetup_.denlognm_, sKeyPlsSel ) )
