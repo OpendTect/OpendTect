@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.11 2011-09-20 10:30:15 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.12 2011-09-29 14:10:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uigroup.h"
 #include "uiobjectitemview.h"
+#include "scaler.h"
 
 class uiCheckBox;
 class uiObjectItem;
@@ -94,17 +95,20 @@ protected:
 
     float		hslval_;
     float		vslval_;
+    LinScaler		scaler_;
 
     void		init();
     void		makeSliders();
     void 		setUpView();
     virtual void	reSizeItems();
+    virtual void	scaleVal(float&,bool,bool);
 
     void 		addItem(uiObjectItem* itm,uiObjectItem* infoitm=0);
     void		insertItem(int idx,uiObjectItem*,uiObjectItem* info=0);
 
     void		fitToScreen(CallBacker*);
     void		reSizeSld(CallBacker*);
+    void		rubBandCB(CallBacker*);
     void		scrollBarCB(CallBacker*);
 };
 

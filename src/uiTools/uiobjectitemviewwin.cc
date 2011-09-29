@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.15 2011-09-20 10:30:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.16 2011-09-29 14:10:17 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
-#include "scaler.h"
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uibutton.h"
@@ -26,7 +25,7 @@ static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.15 2011-09-20 10:30:
 
 
 #define mSldUnits 250
-#define mZoomFac 2
+#define mMaxObjectSize 10 //6 x object size
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
@@ -45,6 +44,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->setPrefHeight( startheight_ );
     mainviewer_->enableScrollBars( true );
     mainviewer_->disableScrollZoom();
+    mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ );
@@ -62,10 +62,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
 void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );
-    itm->setObjectSize( obj->width(), obj->height() );
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
-    if ( infoitm )
-       infoitm->setObjectSize(obj->width(),infoheight_);
     addItem( itm, infoitm );
 }
 
@@ -73,10 +70,7 @@ void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 void uiObjectItemViewWin::addGroup( uiGroup* obj, uiGroup* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );
-    itm->setObjectSize(obj->mainObject()->width(),obj->mainObject()->height());
     uiObjectItem* infoitm = infoobj ? new uiObjectItem( infoobj ) : 0;
-    if ( infoitm )
-       infoitm->setObjectSize(obj->mainObject()->width(),infoheight_);
     addItem( itm, infoitm );
 }
 
@@ -137,6 +131,9 @@ void uiObjectItemViewWin::makeSliders()
 
 void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 {
+    const float prevhslval = hslval_;
+    const float prevvslval = vslval_;
+
     uiSlider* hsldr = horsliderfld_->sldr();
     uiSlider* vsldr = versliderfld_->sldr();
     hslval_ = hsldr->getValue();
@@ -147,15 +144,27 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
     {
 	bool ishor = sld == hsldr;
 	uiSlider* revsld = ishor ? vsldr : hsldr;
-	if ( ishor )
-	    vslval_ = hslval_;
-	else
-	    hslval_ = vslval_;
+	ishor ? vslval_ = hslval_ : hslval_ = vslval_;
 
-	NotifyStopper ns( revsld->sliderReleased );
+	NotifyStopper nsl( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
+    const uiRect& screct = mainviewer_->getViewArea();
+
     reSizeItems();
+
+    const float hfac = hslval_/prevhslval;
+    const float vfac = vslval_/prevvslval;
+    mainviewer_->setViewArea( screct.left()*hfac, screct.top()*vfac,
+			      screct.width()*hfac, screct.height()*vfac );
+}
+
+
+void uiObjectItemViewWin::scaleVal( float& val, bool hor, bool yn )
+{
+    const float nritems = hor ? mainviewer_->nrItems() : 1;
+    scaler_.set( 1, 1, mSldUnits, mMaxObjectSize );
+    val = yn ? scaler_.scale( val ) : scaler_.unScale( val );
 }
 
 
@@ -164,18 +173,17 @@ void uiObjectItemViewWin::reSizeItems()
     const float nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
-    LinScaler scaler(1,1,mSldUnits,nritems*mZoomFac);
-    hslval_ = scaler.scale( hslval_ );
-    scaler.set(1,1,mSldUnits,mZoomFac);
-    vslval_ = scaler.scale( vslval_ );
+    scaleVal( hslval_, true, true ); 
+    scaleVal( vslval_, false, true ); 
 
     const int w = mNINT( hslval_*startwidth_/(float)nritems );
     const int h = mNINT( vslval_*startheight_ );
     for ( int idx=0; idx<nritems; idx++ )
 	mainviewer_->reSizeItem( idx, uiSize( w, h ) );
 
-    mainviewer_->resetViewArea(0);
     infobar_->reSizeItems(); 
+    mainviewer_->resetViewArea(0);
+    infobar_->resetViewArea(0);
 }
 
 
@@ -289,6 +297,43 @@ void uiObjectItemViewWin::usePar( const IOPar& iop )
 }
 
 
+#define mMinSelWidth 50
+void uiObjectItemViewWin::rubBandCB( CallBacker* )
+{
+    const uiRect* selrect = mainviewer_->getSelectedArea();
+    if ( !selrect || selrect->width() < mMinSelWidth ) return;
+
+    const float selwidth = selrect->width();
+    const float selheight = selrect->height();
+
+    const uiRect viewrect = mainviewer_->getViewArea();
+    const float viewwidth = viewrect.width(); 
+    const float viewheight = viewrect.height(); 
+
+    const float xfac = viewwidth/selwidth;
+    const float yfac = viewheight/selheight;
+
+    zoomratiofld_->setChecked(false);
+
+    float newhorfac = xfac*hslval_;
+    scaleVal( newhorfac, true, false ); 
+    float newverfac = yfac*vslval_;
+    scaleVal( newverfac, false, false ); 
+
+    uiSlider* hsldr = horsliderfld_->sldr();
+    uiSlider* vsldr = versliderfld_->sldr();
+    NotifyStopper nsh( hsldr->sliderReleased );
+    NotifyStopper nsv( vsldr->sliderReleased );
+    hsldr->setValue( newhorfac );
+    vsldr->setValue( newverfac );
+    reSizeSld(0);
+
+    mainviewer_->setViewArea( selrect->left()*xfac, selrect->top()*yfac, 
+			      selrect->width()*xfac, selrect->height()*yfac );
+}
+
+
+
 
 
 uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
@@ -379,6 +424,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     mainviewer_.disableScrollZoom();
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
+    mainviewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
     mainviewer_.scene().setMouseEventActive( true );
 }
 
@@ -394,12 +440,13 @@ void uiObjectItemViewControl::stateCB( CallBacker* )
     changeStatus();
 }
 
+
 void uiObjectItemViewControl::changeStatus() 
 {
     manip_ = !manip_;
 
     uiGraphicsViewBase::ODDragMode mode = !manip_ ? 
-	uiGraphicsViewBase::NoDrag : uiGraphicsViewBase::ScrollHandDrag;
+	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
 
     if ( manipdrawbut_ ) 
 	manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
