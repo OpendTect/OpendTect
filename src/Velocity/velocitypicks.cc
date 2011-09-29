@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.22 2011-07-16 20:37:18 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.23 2011-09-29 06:40:05 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -655,6 +655,36 @@ EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
 
 const EM::Horizon3D* Picks::getHorizon( EM::ObjectID id ) const
 { return const_cast<Picks*>( this )->getHorizon( id ); }
+
+
+char Picks::getHorizonStatus( const BinID& bid ) const
+{
+    bool defined = false;
+    bool undefined = false;
+
+    if ( !nrHorizons() )
+	return 0;
+
+    for ( int idx=nrHorizons()-1; idx>=0; idx-- )
+    {
+	RefMan<const EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
+	if ( !hor ) continue;
+
+	const EM::SectionID sid = hor->sectionID( 0 );
+	if ( hor->isDefined( sid, bid.toInt64() ) )
+	    defined = true;
+	else
+	    undefined = true;
+    }
+
+    if ( !undefined )
+	return 2;
+
+    if ( !defined )
+	return 0;
+
+    return 1;
+}
 
 
 bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,

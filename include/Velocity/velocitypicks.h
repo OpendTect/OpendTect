@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.15 2011-04-20 15:47:30 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.16 2011-09-29 06:40:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,6 +150,11 @@ public:
     				/*!<Interpolates vel at all locations in
 				    the valset. First value in valset will
 				    be horizon depth, second will be velocity.*/
+    char			getHorizonStatus(const BinID&) const;
+				/*!<\retval 0 no defined hors.
+				    \retval 1 some defined, some undefined.
+				    \retval 2 all defined. */
+
 
     static const char*		sKeyVelocityPicks();
     static const char*		sKeyRefOffset();
