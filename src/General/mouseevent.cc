@@ -4,9 +4,10 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.11 2010-10-13 13:36:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.12 2011-09-29 15:59:37 cvsjaap Exp $";
 
 #include "mouseevent.h"
+#include "timefun.h"
 
 
 
@@ -23,6 +24,9 @@ TabletInfo::TabletInfo()
     , xtilt_( 0 )
     , ytilt_( 0 )
     , z_( 0 )
+    , presstimestamp_( mUdf(int) )
+    , maxpostpressdist_( mUdf(float) )
+    , globalpresspos_( Geom::Point2D<int>::udf() )
 {}
 
 
@@ -38,6 +42,37 @@ const TabletInfo* TabletInfo::currentState()
     return (latestState().eventtype_==None ||
 	    latestState().eventtype_==LeaveProximity) ? 0 : &latestState();
 }
+
+
+void TabletInfo::updatePressData()
+{
+    if ( eventtype_ == Press )
+    {
+	presstimestamp_ = Time::getMilliSeconds();
+	globalpresspos_ = TabletInfo::currentState()->globalpos_;
+	maxpostpressdist_ = 0;
+    }
+    else if ( !mIsUdf(maxpostpressdist_) && maxpostpressdist_<postPressDist() )
+	maxpostpressdist_ = postPressDist();
+}
+
+
+int TabletInfo::postPressTime() const
+{
+    return mIsUdf(presstimestamp_) ? mUdf(int)
+				   : Time::passedSince(presstimestamp_);
+}
+
+
+float TabletInfo::postPressDist() const
+{
+    return globalpresspos_.isDefined() ? globalpresspos_.distTo(globalpos_)
+				       : mUdf(float);
+}
+
+
+float TabletInfo::maxPostPressDist() const
+{ return maxpostpressdist_; }
 
 
 MouseEvent::~MouseEvent()
@@ -108,7 +143,6 @@ MouseEventHandler::MouseEventHandler()
     , doubleClick(this)
     , wheelMove(this)
     , event_(0)
-    , tabletispressed_( false )
 {}
 
 
@@ -136,12 +170,12 @@ void MouseEventHandler::setEvent( const MouseEvent* ev )
     }
 }
 
-/*
+
 #define mImplMouseEventHandlerFn(fn,trig) \
 void MouseEventHandler::trigger##fn( const MouseEvent& ev ) \
 { \
     ishandled_ = false; \
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0; \
     setEvent( &ev ); \
     trig.trigger(); \
     setEvent( parentevent ); \
@@ -152,117 +186,6 @@ mImplMouseEventHandlerFn(ButtonPressed,buttonPressed)
 mImplMouseEventHandlerFn(ButtonReleased,buttonReleased)
 mImplMouseEventHandlerFn(DoubleClick,doubleClick)
 mImplMouseEventHandlerFn(Wheel,wheelMove)
-*/
-
-// Macro used by hack to repair Qt-Linux tablet bug
-#define mTabletPressCheck( insync ) \
-    if ( event_->tabletInfo()->eventtype_ == TabletInfo::Press ) \
-    { \
-	tabletispressed_ = true; \
-	tabletinsyncwithmouse_ = insync; \
-    }
-
-void MouseEventHandler::triggerMovement( const MouseEvent& ev )
-{
-    ishandled_ = false;
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
-    setEvent( &ev );
-
-    // Hack to repair missing mouse release events from tablet pen on Linux
-    if ( event_ && event_->tabletInfo() )
-    {
-	mTabletPressCheck( false );
-	if ( tabletispressed_ )
-	{
-	    if ( event_->tabletInfo()->eventtype_==TabletInfo::Release ||
-		 (!event_->tabletInfo()->pressure_ && !tabletinsyncwithmouse_) )
-	    {
-		event_->setButtonState( curtabletbutstate_ );
-		tabletispressed_ = false;
-		buttonReleased.trigger();
-		setEvent( parentevent );
-		return;
-	    }
-	}
-    }
-    // End of hack
-
-    movement.trigger();
-    setEvent( parentevent );
-}
-
-
-void MouseEventHandler::triggerButtonPressed( const MouseEvent& ev )
-{
-    ishandled_ = false;
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
-    setEvent( &ev );
-
-    // Hack to repair missing mouse release events from tablet pen on Linux
-    if ( event_ && event_->tabletInfo() )
-    {
-	mTabletPressCheck( true );
-	curtabletbutstate_ = event_->buttonState();
-    }
-    // End of hack
-
-    buttonPressed.trigger();
-    setEvent( parentevent );
-}
-
-
-void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
-{
-    ishandled_ = false;
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
-    setEvent( &ev );
-
-    // Hack to repair missing mouse release events from tablet pen on Linux
-    if ( event_ && event_->tabletInfo() )
-    {
-	mTabletPressCheck( false );
-	if ( !tabletispressed_ )
-	{
-	    movement.trigger();
-	    setEvent( parentevent );
-	    return;
-	}
-	tabletispressed_ = false;
-    }
-    // End of hack
-
-    buttonReleased.trigger();
-    setEvent( parentevent );
-}
-
-
-void MouseEventHandler::triggerDoubleClick( const MouseEvent& ev )
-{
-    ishandled_ = false;
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
-    setEvent( &ev );
-
-    // Hack to repair missing mouse release events from tablet pen on Linux
-    if ( event_ && event_->tabletInfo() )
-    {
-	mTabletPressCheck( true );
-	curtabletbutstate_ = event_->buttonState();
-    }
-    // End of hack
-
-    doubleClick.trigger();
-    setEvent( parentevent );
-}
-
-
-void MouseEventHandler::triggerWheel( const MouseEvent& ev )
-{
-    ishandled_ = false;
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
-    setEvent( &ev );
-    wheelMove.trigger();
-    setEvent( parentevent );
-}
 
 
 MouseCursorExchange::MouseCursorExchange()

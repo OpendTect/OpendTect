@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.24 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.25 2011-09-29 15:59:37 cvsjaap Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.24 2010-08-19 08
 #include "ranges.h"
 #include "iopar.h"
 #include "keyenum.h"
+#include "mouseevent.h"
 
 #include <Inventor/nodes/SoSeparator.h>
 
@@ -387,16 +388,22 @@ Coord3 DepthTabPlaneDragger::dragger2World( const Coord3& drag,
     return tpos;
 }
 
+static SbVec3f startcenter_;
 
-void DepthTabPlaneDragger::startCB( void* obj, SoDragger* )
+void DepthTabPlaneDragger::startCB( void* obj, SoDragger* sod )
 {
+    startcenter_ = ((SoDepthTabPlaneDragger*)sod)->translation.getValue();
     ((DepthTabPlaneDragger*)obj)->started.trigger();
 }
 
 
-void DepthTabPlaneDragger::motionCB( void* obj, SoDragger* )
+void DepthTabPlaneDragger::motionCB( void* obj, SoDragger* sod )
 {
-    ((DepthTabPlaneDragger*)obj)->motion.trigger();
+    const TabletInfo* ti = TabletInfo::currentState();
+    if ( ti && ti->maxPostPressDist()<5 )
+	((SoDepthTabPlaneDragger*)sod)->translation.setValue( startcenter_ );
+    else
+	((DepthTabPlaneDragger*)obj)->motion.trigger();
 }
 
 

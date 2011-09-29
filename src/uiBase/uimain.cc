@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.67 2011-09-20 14:16:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.68 2011-09-29 15:59:37 cvsjaap Exp $";
 
 #include "uimain.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uimain.cc,v 1.67 2011-09-20 14:16:48 cvsbruno E
 #include "oddirs.h"
 #include "settings.h"
 #include "thread.h"
-#include "timefun.h"
 
 #include <QApplication>
 #include <QKeyEvent>
@@ -118,15 +117,21 @@ mClass QtTabletEventFilter : public QObject
 {
 public:
     			QtTabletEventFilter()
-			    : longleftstamp_( mUdf(int) )
-			    , mousepressed_( false )
+			    : mousepressed_( false )
+			    , checklongleft_( false )
+			    , lostreleasefixevent_( 0 )
 			{}
 protected:
     bool		eventFilter(QObject*,QEvent*);
 
-    int			longleftstamp_;
-    Geom::Point2D<int>	longleftorigin_;
     bool		mousepressed_;
+    bool		checklongleft_;
+
+    QMouseEvent*	lostreleasefixevent_;
+    bool		islostreleasefixed_;
+    Qt::MouseButton	mousebutton_;
+
+    Geom::Point2D<int>	lastdragpos_;
 };
 
 
@@ -152,36 +157,85 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 	ti.ytilt_ = qte->yTilt();
 	ti.z_ = qte->z();
 
+	ti.updatePressData();
 	return false;		// Qt will resent it as a QMouseEvent
     }
 
     const QMouseEvent* qme = dynamic_cast<QMouseEvent*>( ev );
-    if ( !qme || !TabletInfo::currentState() )
+    const TabletInfo* ti = TabletInfo::currentState();
+
+    if ( !qme )
 	return false;
 
-    if ( !TabletInfo::currentState()->pressure_ )
+    // Hack to repair missing mouse release events from tablet pen on Linux
+    if ( mousepressed_ && !lostreleasefixevent_ && ti && !ti->pressure_ &&
+	 qme->type()!=QEvent::MouseButtonRelease )
     {
-	mousepressed_ = false;
-	longleftstamp_ = mUdf(int);
+	lostreleasefixevent_ = new QMouseEvent( QEvent::MouseButtonRelease,
+						qme->pos(), qme->globalPos(),
+						mousebutton_,
+						qme->buttons() & ~mousebutton_,
+					       	qme->modifiers() );
+	QApplication::postEvent( obj, lostreleasefixevent_ );
     }
+
+    if ( qme->type()==QEvent::MouseButtonPress )
+    {
+	lostreleasefixevent_ = 0;
+	islostreleasefixed_ = false;
+	mousebutton_ = qme->button();
+    }
+
+    if ( qme == lostreleasefixevent_ )
+    {
+	if ( !mousepressed_ )
+	    return true;
+
+	islostreleasefixed_ = true;
+    }
+    else if ( qme->type()==QEvent::MouseButtonRelease )
+    {
+	if ( islostreleasefixed_ )
+	    return true;
+    }
+    // End of hack
+
+    // Hack to solve mouse/tablet dragging refresh problem
+    if ( qme->type() == QEvent::MouseButtonPress )
+	lastdragpos_ = Geom::Point2D<int>::udf();
+
+    if ( qme->type()==QEvent::MouseMove && mousepressed_ )
+    {
+	const Geom::Point2D<int> curpos( qme->globalX(), qme->globalY() );
+	if ( !lastdragpos_.isDefined() )
+	    lastdragpos_ = curpos;
+	else if ( lastdragpos_ != curpos )
+	{
+	    lastdragpos_ = Geom::Point2D<int>::udf();
+	    return true;
+	}
+    }
+    // End of hack
 
     if ( qme->type() == QEvent::MouseButtonPress )
     {
 	mousepressed_ = true;
 	if ( qme->button() == Qt::LeftButton )
-	{
-	    longleftstamp_ = Time::getMilliSeconds();
-	    longleftorigin_ = TabletInfo::currentState()->pos_;
-	}
+	    checklongleft_ = true;
     }
-    else if ( longleftorigin_.distTo(TabletInfo::currentState()->pos_) > 5 )
-	longleftstamp_ = mUdf(int);
 
-    if ( ev->type()==QEvent::MouseMove && mousepressed_ )
+    if ( qme->type() == QEvent::MouseButtonRelease )
     {
-	if ( !mIsUdf(longleftstamp_) && Time::passedSince(longleftstamp_)>500 )
+	mousepressed_ = false;
+	checklongleft_ = false;
+    }
+    
+    if ( ti && qme->type()==QEvent::MouseMove && mousepressed_ )
+    {
+	if ( checklongleft_ &&
+	     ti->postPressTime()>500 && ti->maxPostPressDist()<5 )
 	{
-	    longleftstamp_ = mUdf(int);
+	    checklongleft_ = false;
 	    QEvent* qev = new QEvent( mUsrEvLongTabletPress );
 	    QApplication::postEvent( QApplication::focusWidget(), qev );
 	}

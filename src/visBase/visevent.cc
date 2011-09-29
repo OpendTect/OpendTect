@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.36 2011-09-21 08:56:35 cvskris Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.37 2011-09-29 15:59:37 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -134,7 +134,6 @@ EventCatcher::EventCatcher()
     , type_( Any )
     , rehandling_( false )
     , rehandled_( true )
-    , tabletispressed_( false )
 {
     node_->ref();
     setCBs();
@@ -352,31 +351,6 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     }
     else if ( eventtype==SoLocation2Event::getClassTypeId() )
     {
-
-#ifdef __win__
-	// Hack to solve mouse/tablet dragging refresh problem on Windows
-
-	static ObjectSet<EventCatcher> blocklist;
-	static bool isblocking = false;
-
-	const TabletInfo* ti = TabletInfo::currentState();
-	if ( !ti || (ti->eventtype_==TabletInfo::Move && ti->pressure_) )
-	{
-	    if ( blocklist.indexOf(eventcatcher) >= 0 )
-	    {
-		isblocking = true;
-		blocklist -= eventcatcher;
-		return;
-	    }
-
-	    if ( isblocking )
-		blocklist.erase();
-
-	    isblocking = false;
-	    blocklist += eventcatcher;
-	}
-#endif
-
 	eventinfo.type = MouseMovement;
 	eventinfo.setTabletInfo( TabletInfo::currentState() );
     }
@@ -399,43 +373,6 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	else
 	    eventinfo.pressed = false;
     }
-
-    // Hack to repair missing mouse release events from tablet pen on Linux
-    if ( eventinfo.tabletinfo )
-    {
-	if ( eventinfo.type==MouseClick && eventinfo.pressed )
-	{
-	    mTabletPressCheck( true );
-	    eventcatcher->curtabletbutstate_ = (OD::ButtonState) buttonstate;
-	}
-	else if ( eventinfo.type==MouseClick && !eventinfo.pressed )
-	{
-	    mTabletPressCheck( false );
-	    if ( !eventcatcher->tabletispressed_ )
-	    {
-		eventinfo.type = MouseMovement;
-		buttonstate &= OD::MouseButtonMask;
-	    }
-	    eventcatcher->tabletispressed_ = false;
-	}
-	else if ( eventinfo.type == MouseMovement )
-	{
-	    mTabletPressCheck( false );
-	    if ( eventcatcher->tabletispressed_ )
-	    {
-		if ( eventinfo.tabletinfo->eventtype_==TabletInfo::Release
-		     || (!eventinfo.tabletinfo->pressure_ &&
-			 !eventcatcher->tabletinsyncwithmouse_) )
-		{
-		    eventinfo.type = MouseClick;
-		    eventinfo.pressed = false;
-		    buttonstate = eventcatcher->curtabletbutstate_;
-		    eventcatcher->tabletispressed_ = false;
-		} 
-	    }
-	}
-    }
-    // End of hack
 
     eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
 

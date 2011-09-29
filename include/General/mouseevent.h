@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.12 2010-10-06 13:41:25 cvsjaap Exp $
+ RCS:           $Id: mouseevent.h,v 1.13 2011-09-29 15:59:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,10 +51,20 @@ public:
     int			ytilt_;
     int			z_;
 
+    int			postPressTime() const;
+    float 		postPressDist() const;
+    float		maxPostPressDist() const;
+
     static const TabletInfo*	currentState();
 
 protected:
-    static TabletInfo&		latestState(); 	
+
+    int			presstimestamp_;
+    float		maxpostpressdist_;
+    Geom::Point2D<int>	globalpresspos_;
+
+    static TabletInfo&	latestState(); 	
+    void		updatePressData();
 };
 
 
@@ -171,11 +181,6 @@ protected:
     MouseEvent*			event_;
 
     bool			ishandled_;
-
-    				// To repair Qt-Linux tablet bug
-    bool			tabletispressed_;
-    OD::ButtonState		curtabletbutstate_;
-    bool			tabletinsyncwithmouse_;
 };
 
 
