@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.70 2011-09-19 11:22:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.71 2011-09-29 07:03:43 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -979,7 +979,7 @@ void Viewer3D::displayPSEvents( PreStack::EventManager* evm )
 
     RefMan<PreStack::EventSet> eventset = evm->getEvents( bid_, true, false );
 	if ( !eventset )
-	    return;
+	    return eventlinedisplay_->clearDisplay();
 
     const int size = eventset->events_.size();
     eventlinedisplay_->clearDisplay();
@@ -1003,7 +1003,7 @@ void Viewer3D::displayPSEvents( PreStack::EventManager* evm )
 	    offsets += offset;
 	    Coord3 pos( bid_.inl, bid_.crl, psevent->pick_[idy] );
 	    const Coord offs = dir * offset * factor_;
-	    pos.x += offs.x / SI().crlDistance();
+	    pos.x += offs.x / SI().inlDistance();
 	    pos.y += offs.y / SI().crlDistance();
 	    coords += pos;
 	    cii += ci++;
@@ -1015,6 +1015,12 @@ void Viewer3D::displayPSEvents( PreStack::EventManager* evm )
     }
 
     eventlinedisplay_->updateCoords( cii, finalcoords );
+}
+
+
+void Viewer3D::clearEventsDisplay()
+{
+    eventlinedisplay_->clearDisplay();
 }
 
 

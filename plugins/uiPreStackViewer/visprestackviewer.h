@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.31 2011-09-19 05:18:43 cvsranojay Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.32 2011-09-29 07:03:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,8 @@ public:
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
     void			displayPSEvents(PreStack::EventManager*);
+    void			clearEventsDisplay();
+
      
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
