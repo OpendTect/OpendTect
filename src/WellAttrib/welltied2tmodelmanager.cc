@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.32 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.33 2011-09-29 12:28:22 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
-#include "arrayndimpl.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllogset.h"
