@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.16 2011-04-14 14:32:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.17 2011-09-30 17:52:02 cvsyuancheng Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -393,29 +393,30 @@ uiArray2DInterpol* uiTriangulationArray2DInterpol::create( uiParent* p )
 uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     : uiArray2DInterpol( p, "Inverse distance" )
 {
-    interpolatefld_ = new uiCheckBox( this, "Interpolate" );
-    interpolatefld_->setChecked( true );
-    interpolatefld_->activated.notify(
+    useneighborfld_ = new uiCheckBox( this, "Use nearest neighbor" );
+    useneighborfld_->setChecked( false );
+    useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
     
-    maxdistfld_ = 
-	new uiGenInput( this, "Max distance(optional)", FloatInpSpec() );
-    maxdistfld_->attach( alignedBelow, interpolatefld_ );
+    maxdistfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    maxdistfld_->setWithCheck( true );
+    maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
-    setHAlignObj( interpolatefld_ );
+    setHAlignObj( useneighborfld_ );
     setDistanceUnit( 0 );
+    intCB( 0 );
 }
 
 
 void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 {
-    maxdistfld_->display( interpolatefld_->isChecked() );
+    maxdistfld_->display( !useneighborfld_->isChecked() );
 }
 
 
 void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
 {
-    BufferString res = "Max distance(optional)";
+    BufferString res = "Max interpolate distance";
     if ( d )
     {
 	res += " ";
@@ -428,19 +429,24 @@ void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
 
 bool uiTriangulationArray2DInterpol::acceptOK()
 {
+    bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
     const float maxdist = maxdistfld_->getfValue();
-    if ( !mIsUdf(maxdist) && maxdist<0 )
+    if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
     {
 	uiMSG().error( "Maximum distance must be > 0. " );
 	return false;
     }
 
     if ( result_ )
-	{ delete result_; result_ = 0; }
+    { 
+	delete result_; 
+	result_ = 0; 
+    }
     
     TriangulationArray2DInterpol* res = new TriangulationArray2DInterpol;
-    res->doInterpolation( interpolatefld_->isChecked() );
-    res->setMaxDistance( maxdist );
+    res->doInterpolation( !useneighborfld_->isChecked() );
+    if ( usemax )
+    	res->setMaxDistance( maxdist );
     
     result_ = res;
     return true;
