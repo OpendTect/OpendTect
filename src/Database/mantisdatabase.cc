@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.17 2011-09-21 05:54:59 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.18 2011-09-30 11:41:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -681,6 +681,74 @@ bool SqlDB::MantisDBMgr::editBug( BugTableEntry& bugtable,
 	return true;
 
     return addToBugNoteTable( note, bugtable.id_ );
+}
+
+
+bool SqlDB::MantisDBMgr::deleteBug( int id )
+{
+    return deleteBugHistory( id ) && deleteBugNoteInfo( id ) &&
+	   deleteBugTableInfo( id );
+}
+
+
+bool SqlDB::MantisDBMgr::deleteBugHistory( int id )
+{
+    const char* tblnm = SqlDB::BugHistoryTableEntry::sKeyBugHistoryTable();
+    const bool isok = query().deleteInfo( tblnm, "bug_id", id );
+
+    if ( !isok )
+	mErrRet( "Unable to delete history");
+
+    return true;
+}
+
+
+bool SqlDB::MantisDBMgr::deleteBugNoteInfo( int id )
+{
+    const char* bntt = sKeyBugNoteTextTable();
+    const char* bnt = sKeyBugNoteTable();
+    BufferString qstr( "SELECT id FROM " );
+    qstr.add( bnt ).add ( " WHERE " ).add( " bug_id=" ).add( id );
+    bool isok = false;
+    isok = query().execute(qstr);
+    if ( !isok )
+	mErrRet( "Unable to get bug note ids" );
+
+    TypeSet<int> notesid;
+    while ( query().next() )
+	notesid.add( query().iValue(0) );
+
+    if ( notesid.isEmpty() )
+	return true;
+
+    for ( int nidx=0; nidx<notesid.size(); nidx++ )
+    {
+	isok = query().deleteInfo( bntt, "id", notesid[nidx] );
+	if ( !isok )
+	    mErrRet( "Unable to delete note info from BugNoteTextTable" );
+    }
+
+    isok = query().deleteInfo( bnt, "bug_id", id );
+    if ( !isok )
+	mErrRet( "Unable to delete note info from BugNoteTable" );
+
+    return true;
+}
+
+
+bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
+{
+    const char* btt = SqlDB::BugTextTableEntry::sKeyBugTextTable();
+    const char* bt = SqlDB::BugTableEntry::sKeyBugTable();
+    bool isok = query().deleteInfo( btt, "id", id );
+    if ( !isok )
+	mErrRet( "Unable to delete bug info from BugTextTable" );
+
+    bool isexec = query().deleteInfo( bt, "bug_id", id );
+    if ( !isexec )
+	mErrRet( "Unable to delete bug info from BugTable" );
+
+    return true;
 }
 
 

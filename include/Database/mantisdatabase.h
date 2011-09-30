@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.10 2011-09-21 05:54:59 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.11 2011-09-30 11:41:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
 	    			       const char* note);
     bool			editBug(BugTableEntry&,BugTextTableEntry&,
 	    				const char* note);
+    bool			deleteBug(int id);
     void			addBugTableEntryToSet(BugTableEntry&);
     void			addBugTextTableEntryToSet(BugTextTableEntry&);
     void			removeBugTableEntryFromSet(int tableidx);
@@ -130,6 +131,10 @@ protected:
 
     bool		updateBugHistoryTable(ObjectSet<BugHistoryTableEntry>&,
 	    				      bool isadded);
+
+    bool		deleteBugHistory(int id);
+    bool		deleteBugNoteInfo(int id);
+    bool		deleteBugTableInfo(int id);
 
     MantisAccess	acc_;
     mutable MantisQuery* query_;

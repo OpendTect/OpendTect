@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.3 2010-09-14 11:19:56 cvsbert Exp $
+ RCS:           $Id: sqlquery.cc,v 1.4 2011-09-30 11:41:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,8 +140,8 @@ BufferString SqlDB::Query::getCurrentDateTime()
 
 
 bool SqlDB::Query::insert( const BufferStringSet& colnms,
-                    const BufferStringSet& values,
-                    const BufferString& tablenm )
+			   const BufferStringSet& values,
+			   const BufferString& tablenm )
 {
     BufferString qstr = getInsertString( colnms, values, tablenm );
     return execute( qstr );
@@ -149,8 +149,8 @@ bool SqlDB::Query::insert( const BufferStringSet& colnms,
 
 
 BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
-				     const BufferStringSet& values,
-				     const BufferString& tablenm ) const
+					    const BufferStringSet& values,
+					    const BufferString& tablenm ) const
 {
     BufferString querystr;
     if ( colnms.size() != values.size() )
@@ -177,9 +177,9 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 
 
 BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
-				     const BufferStringSet& values,
-				     const BufferString& tablenm,
-				     int bugid ) const
+					    const BufferStringSet& values,
+					    const BufferString& tablenm,
+					    int bugid ) const
 {
     BufferString querystr;
     if ( bugid<0 || colnms.size()!=values.size() )
@@ -193,14 +193,14 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 	    	.add( values[idx]->buf() )
 		.add( idx != nrvals-1 ? "'," : "'" );
     }
-    querystr.add( " WHERE id=" ).add( bugid );
 
+    querystr.add( " WHERE id=" ).add( bugid );
     return querystr;
 }
 
 
 BufferString SqlDB::Query::select( const BufferStringSet& colnms,
-			    const BufferString& tablenm, int id )
+				   const BufferString& tablenm, int id )
 {
     BufferString querystr;
     if ( id < 0 )
@@ -215,15 +215,23 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
     }
 
     querystr.add( "FROM " ).add( tablenm ).add( " WHERE id=" ).add( id );
-
     return querystr;
 }
 
 
 bool SqlDB::Query::update( const BufferStringSet& colnms,
-		    const BufferStringSet& values,
-		    const BufferString& tablenm, int bugid )
+			   const BufferStringSet& values,
+			   const BufferString& tablenm, int bugid )
 {
     BufferString qstr = getUpdateString( colnms, values, tablenm, bugid );
+    return execute( qstr );
+}
+
+
+bool SqlDB::Query::deleteInfo( const char* tablenm, const char* fieldnm,
+			       int id )
+{
+    BufferString qstr( "DELETE FROM " );
+    qstr.add( tablenm ).add( " WHERE " ).add( fieldnm ).add( "=" ).add( id );
     return execute( qstr );
 }
