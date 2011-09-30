@@ -11,11 +11,51 @@
 #include "fourier.h"
 
 
+FourierInterpolBase::FourierInterpolBase()
+    : fft_( new Fourier::CC ) 
+{}
+
+
+FourierInterpolBase::~FourierInterpolBase()
+{
+    delete fft_;
+}
+
+
+void FourierInterpolBase::setTargetDomain( bool fourier )
+{
+    if ( fourier != ((bool) fft_ ) )
+    return;
+
+    if ( fft_ )
+    {
+	delete fft_;
+	fft_ = 0;
+    }
+    else
+    {
+	fft_ = new Fourier::CC;
+    }
+}
+
+
+
+#define mDoFFT( arr )\
+{\
+    if ( fft_ )\
+    {\
+	fft_->setInputInfo( arr->info() );\
+	fft_->setDir( false );\
+	fft_->setNormalization( true );\
+	fft_->setInput( arr->getData() );\
+	fft_->setOutput( arr->getData() );\
+	fft_->run( true );\
+    }\
+}
 
 FourierInterpol1D::FourierInterpol1D( const TypeSet<Point>& pts,
-			    const StepInterval<float>& sampling)
-    : fft_( new Fourier::CC )
-    , sampling_(sampling)
+				    const StepInterval<float>& sampling)
+    : sampling_(sampling)
     , pts_(pts)
 {
     sz_ = sampling_.nrSteps()+1;
@@ -63,9 +103,10 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cplxref = cexp*cplxval;
 	    float_complex outpval = interpvals.get( idx );
-	    outpval += cplxref; 
+	    outpval += ( freq>nyqfreq ) ? 0 : cplxref; 
 	    interpvals.set( idx, outpval );
 	}
+	addToNrDone( 1 );
     }
     return true;
 }
@@ -88,12 +129,7 @@ bool FourierInterpol1D::doFinish( bool success )
 	delete &arr;
     }
 
-    fft_->setInputInfo( Array1DInfoImpl(sz_ ) );
-    fft_->setDir( false );
-    fft_->setNormalization( true );
-    fft_->setInput( arrs_[0]->getData() );
-    fft_->setOutput( arrs_[0]->getData() );
-    fft_->run( true );
+    mDoFFT( arrs_[0] )
 
     return true;
 }
@@ -104,8 +140,7 @@ bool FourierInterpol1D::doFinish( bool success )
 FourierInterpol2D::FourierInterpol2D( const TypeSet<Point>& pts,
 			    const StepInterval<float>& xsampling,
 			    const StepInterval<float>& ysampling )
-    : fft_( new Fourier::CC )
-    , xsampling_(xsampling)
+    : xsampling_(xsampling)
     , ysampling_(ysampling)
     , pts_(pts)
 {
@@ -168,10 +203,11 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 							    sin(angley) );
 		const float_complex cplxref = cxexp*cyexp*cplxval;
 		float_complex outpval = interpvals.get( idx, idy );
-		outpval += cplxref;
+		outpval += ( freqx>nyqxfreq || freqy>nyqyfreq ) ? 0 : cplxref; 
 		interpvals.set( idx, idy, outpval );
 	    }
 	}
+	addToNrDone( 1 );
     }
     return true;
 }
@@ -197,12 +233,7 @@ bool FourierInterpol2D::doFinish( bool success )
 	delete &arr;
     }
 
-    fft_->setInputInfo( Array2DInfoImpl(szx_,szy_) );
-    fft_->setDir( false );
-    fft_->setNormalization( true );
-    fft_->setInput( arrs_[0]->getData() );
-    fft_->setOutput( arrs_[0]->getData() );
-    fft_->run( true );
+    mDoFFT( arrs_[0] )
 
     return true;
 }
@@ -214,8 +245,7 @@ FourierInterpol3D::FourierInterpol3D( const TypeSet<Point>& pts,
 			    const StepInterval<float>& xsampling,
 			    const StepInterval<float>& ysampling,
 			    const StepInterval<float>& zsampling )
-    : fft_( new Fourier::CC )
-    , xsampling_(xsampling)
+    : xsampling_(xsampling)
     , ysampling_(ysampling)
     , zsampling_(zsampling)
     , pts_(pts)
@@ -262,9 +292,9 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 	if ( mIsUdf( cplxval ) ) 
 	    cplxval = float_complex( 0, 0 );
 
-	const float timex = pts_[idpt].xpos_; 
-	const float timey = pts_[idpt].ypos_; 
-	const float timez = pts_[idpt].zpos_;
+	const float timex = pts_[idpt].xpos_-xsampling_.start; 
+	const float timey = pts_[idpt].ypos_-ysampling_.start; 
+	const float timez = pts_[idpt].zpos_-zsampling_.start;
 
 	const float xanglesampling = -timex * dfx;
 	const float yanglesampling = -timey * dfy;
@@ -290,13 +320,14 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 			    					sin(anglez) );
 
 		    const float_complex cplxref = cxexp*cyexp*czexp*cplxval;
-
 		    float_complex outpval = interpvals.get( idx, idy, idz );
-		    outpval += cplxref; //freqz > nyqzfreq ? 0 : cplxref; 
+		    outpval += ( freqx>nyqxfreq || freqy>nyqyfreq 
+				|| freqz>nyqzfreq ) ? 0 : cplxref; 
 		    interpvals.set( idx, idy, idz, outpval );
 		}
 	    }
 	}
+	addToNrDone( 1 );
     }
     return true;
 }
@@ -325,12 +356,7 @@ bool FourierInterpol3D::doFinish( bool success )
 	delete &arr;
     }
 
-    fft_->setInputInfo( Array3DInfoImpl(szx_,szy_,szz_) );
-    fft_->setDir( false );
-    fft_->setNormalization( true );
-    fft_->setInput( arrs_[0]->getData() );
-    fft_->setOutput( arrs_[0]->getData() );
-    fft_->run( true );
+    mDoFFT( arrs_[0] )
 
     return true;
 }

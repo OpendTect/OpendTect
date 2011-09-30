@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Sept 2011
- RCS:		$Id: fourierinterpol.h,v 1.1 2011-09-28 10:30:29 cvsbruno Exp $
+ RCS:		$Id: fourierinterpol.h,v 1.2 2011-09-30 09:22:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,20 @@ ________________________________________________________________________
 
 namespace Fourier { class CC; };
 
-mClass FourierInterpol1D : public ParallelTask
+mClass FourierInterpolBase
+{
+public:
+    void                	setTargetDomain(bool fourier);
+				/*!<Default is time-domain */
+protected:
+    				FourierInterpolBase(); 
+				~FourierInterpolBase();
+
+    Fourier::CC*                fft_;
+};
+
+
+mClass FourierInterpol1D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
@@ -56,13 +69,11 @@ protected:
     const StepInterval<float>&	sampling_;
 
     ObjectSet< Array1DImpl<float_complex> > arrs_;
-
-    Fourier::CC*		fft_;
 };
 
 
 
-mClass FourierInterpol2D : public ParallelTask
+mClass FourierInterpol2D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
@@ -100,13 +111,11 @@ protected:
     const StepInterval<float>&	xsampling_, ysampling_;
 
     ObjectSet< Array2DImpl<float_complex> > arrs_;
-
-    Fourier::CC*		fft_;
 };
 
 
 
-mClass FourierInterpol3D : public ParallelTask
+mClass FourierInterpol3D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
@@ -149,8 +158,6 @@ protected:
     const StepInterval<float>&	xsampling_, ysampling_, zsampling_;
 
     ObjectSet< Array3DImpl<float_complex> > arrs_;
-
-    Fourier::CC*		fft_;
 };
 
 #endif
