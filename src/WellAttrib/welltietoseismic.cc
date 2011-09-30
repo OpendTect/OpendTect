@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.69 2011-09-13 13:51:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.70 2011-09-30 07:32:40 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -173,7 +173,7 @@ bool DataPlayer::doFastSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel() );
+    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true );
     wtextr.setSampling( disprg_ );
     data_.trunner_->execute( wtextr ); 
 
@@ -187,7 +187,7 @@ bool DataPlayer::extractSeismics()
     seisextr.setBIDValues( bids );
     seisextr.setInterval( disprg_ );
     data_.trunner_->execute( seisextr );
-    data_.seistrc_.copyDataFrom( seisextr.result() );
+    data_.seistrc_ = SeisTrc( seisextr.result() );
     return true;
 }
 

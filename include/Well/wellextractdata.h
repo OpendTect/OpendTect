@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.26 2011-07-01 13:47:55 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.27 2011-09-30 07:32:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,8 @@ mClass SimpleTrackSampler : public Executor
 public:
 			SimpleTrackSampler(const Well::Track&,
 					  const Well::D2TModel*,
-					  bool stayinsidesurvey=false);
+					  bool extrapolate_ = false,
+					  bool stayinsidesurvey = false);
 
     void                setSampling(const StepInterval<float>& intv)
 			{ extrintv_ = intv; } //In time if d2TModel is provided
@@ -206,6 +207,7 @@ protected:
     TypeSet<Coord>      coords_;
 
     bool		isinsidesurvey_;
+    bool		extrapolate_;
 
     Interval<float>     tracklimits_;
     const Well::Track&  track_;

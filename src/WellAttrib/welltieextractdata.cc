@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.37 2011-09-28 10:35:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.38 2011-09-30 07:32:40 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -124,13 +124,14 @@ int SeismicExtractor::nextStep()
 	BinID b = trc->info().binid;
 	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
 	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
+	const float trcval = trc->get( nrdone_, 0 );
 
 	if ( rdr_->is2D() )
 	{
 	    if ( ( xx0 + yy0  ) < prevradius || mIsUdf(prevradius) )
 	    {
 		prevradius = xx0 + yy0;
-		val = trc->get( nrdone_, 0 );
+		val += mIsUdf(trcval) ? 0 : trcval;
 		nrtracesinradius = 1;
 	    }
 	}
@@ -138,12 +139,11 @@ int SeismicExtractor::nextStep()
 	{
 	    if ( xx0 + yy0 < radius_*radius_ )
 	    {
+		val += mIsUdf(trcval) ? 0 : trcval;
 		nrtracesinradius ++;
-		val += trc->get( nrdone_, 0 );
 	    }
 	}
     }
-    if ( mIsUdf(val) ) val =0;
     outtrc_->set( nrdone_, val/nrtracesinradius, 0 );
 
     nrdone_ ++;
