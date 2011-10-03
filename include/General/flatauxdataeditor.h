@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.23 2011-01-27 14:56:39 cvsjaap Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.24 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,11 @@ public:
 
     SowingMode		mode()				{ return mode_; }
 
+    void		reInitSettings();
+
     void		reverseSowingOrder(bool yn=true);
     void		alternateSowingOrder(bool yn=true);
+    void		intersow(bool yn=true);
 
     bool		moreToSow() const;
     void		stopSowing();
@@ -85,6 +88,7 @@ protected:
 
     bool			reversesowingorder_;
     bool			alternatesowingorder_;
+    bool			intersow_;
 
     OD::ButtonState		sequentsowmask_;
     OD::ButtonState		ifdraginvertmask_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.20 2011-09-26 09:29:11 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.21 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "faultstickseteditor.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
+#include "keystrs.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
@@ -45,8 +46,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
-    editor_->sower().alternateSowingOrder();
-    editor_->sower().setIfDragInvertMask();
 }
 
 
@@ -68,6 +67,7 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
     }
 //	setMouseEventHandler( 0 );
+    cleanActStkContainer();
     delete fsspainter_;
     deepErase( markeridinfo_ );
 }
@@ -308,8 +308,8 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
 
 bool FaultStickSetFlatViewEditor::getMousePosInfo(
-			const Geom::Point2D<int>& mousepos,
-			IndexInfo& ix, IndexInfo& iy, Coord3& worldpos ) const
+	    const Geom::Point2D<int>& mousepos, IndexInfo& ix, IndexInfo& iy,
+	    Coord3& worldpos, int* trcnr ) const
 {
     const FlatDataPack* dp = editor_->viewer().pack( false );
     if ( !dp )
@@ -329,6 +329,14 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     iy = pd.indexInfo( false, wp.y );
     worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
     worldpos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+
+    if ( trcnr )
+    {
+	IOPar infopar;
+	dp->getAuxInfo( ix.nearest_, iy.nearest_, infopar );
+	infopar.get( sKey::TraceNr, *trcnr );
+    }
+
     return true;
 }
 
@@ -451,6 +459,9 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
     {
+	editor_->sower().reInitSettings();
+	editor_->sower().alternateSowingOrder();
+	editor_->sower().setIfDragInvertMask();
 	editor_->sower().activate( emobject->preferredColor(), meh_->event() );
 	return;
     }
@@ -534,7 +545,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( editor_->sower().accept(mouseevent,true) )
 	return;
 
-    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+    int trcnr = -1;
+    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos, &trcnr) )
 	return;
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
@@ -575,9 +587,9 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
 	if ( cs_.isEmpty() )
 	{
-	    editnormal = Coord3( fsspainter_->getNormalToTrace(ix.nearest_),0 );
 	    lineset = &fsspainter_->getLineSetID();
 	    linenm = fsspainter_->getLineName();
+	    editnormal = Coord3( fsspainter_->getNormalToTrace(trcnr), 0 );
 	}
 
 	const int sid = emfss->sectionID(0);

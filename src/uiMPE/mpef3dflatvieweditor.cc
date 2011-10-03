@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.12 2010-12-03 10:49:56 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.13 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,6 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
-    editor_->sower().alternateSowingOrder();
-    editor_->sower().setIfDragInvertMask();
 }
 
 
@@ -67,6 +65,7 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
     }
 //	setMouseEventHandler( 0 );
+    cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
 }
@@ -392,6 +391,9 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
     {
+	editor_->sower().reInitSettings();
+	editor_->sower().alternateSowingOrder();
+	editor_->sower().setIfDragInvertMask();
 	editor_->sower().activate( emobject->preferredColor(), meh_->event() );
 	return;
     }

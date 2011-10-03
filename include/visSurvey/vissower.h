@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.3 2011-09-20 06:44:08 cvssatyaki Exp $
+ RCS:		$Id: vissower.h,v 1.4 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,11 @@ public:
 
     SowingMode		mode()				{ return mode_; }
 
+    void		reInitSettings();
+
     void		reverseSowingOrder(bool yn=true);
     void		alternateSowingOrder(bool yn=true);
+    void		intersow(bool yn=true);
 
     void		setSequentSowMask(bool yn=true,
 				      OD::ButtonState mask=OD::LeftButton);
@@ -85,6 +88,7 @@ protected:
 
     bool				reversesowingorder_;
     bool				alternatesowingorder_;
+    bool				intersow_;
 
     OD::ButtonState			sequentsowmask_;
     OD::ButtonState			ifdraginvertmask_;

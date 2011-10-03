@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.24 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.25 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
     bool		stopSeedPick(bool iscancel=false);
 
     bool		addSeed(const Coord3&,bool drop);
+    bool		addSeed(const Coord3& seedcrd,bool drop,
+				const Coord3& seedkey);
     bool		removeSeed(const EM::PosID&,
 	    			   bool environment,
 	    			   bool retrack);
@@ -63,7 +65,7 @@ public:
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
 
-    void		setSowerMode( bool yn )		{ sowermode_ = yn; };
+    void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 
 protected:
     bool		retrackOnActiveLine( const BinID& startbid, 
@@ -77,10 +79,6 @@ protected:
     int 		nrLineNeighbors(const EM::PosID& pid,
 	    				bool perptotrackdir=false) const;
 
-    void		eraseInBetween(const EM::PosID& firstpid,
-				       const EM::PosID& lastpid);
-
-
     bool		interpolateSeeds();
     CubeSampling	getTrackBox() const;
 
@@ -91,7 +89,8 @@ protected:
     TypeSet<EM::PosID>	junctions_;
     TypeSet<EM::PosID>	eraselist_;
 
-    EM::PosID		lastseedpicked_;
+    EM::PosID		lastseedpid_;
+    Coord3		lastseedkey_;
     bool		sowermode_;
 
     bool		didchecksupport_;

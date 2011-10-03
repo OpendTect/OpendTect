@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.42 2011-05-02 09:21:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.43 2011-10-03 08:07:19 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -669,6 +669,9 @@ int AuxDataEditor::dataSetIdxAt( const Geom::Point2D<int>& pt ) const
 const Point* AuxDataEditor::markerPosAt(
 				    const Geom::Point2D<int>& mousepos ) const
 {
+    if ( sower_->mode() == Sower::SequentSowing )
+	return 0;
+
     int datasetidx;
     TypeSet<int> selptidxlist;
     findSelection( mousepos, datasetidx, &selptidxlist );
@@ -714,19 +717,13 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     : editor_( ade )
     , mouseeventhandler_( meh )
     , mode_( Idle )
-    , reversesowingorder_( false )
-    , alternatesowingorder_( false )
     , singleseeded_( true )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
 {
     sowingline_ = new Annotation::AuxData( 0 );
     editor_.viewer().appearance().annot_.auxdata_ += sowingline_;
-
-    setIfDragInvertMask( false );
-    setSequentSowMask();
-    setLaserMask();
-    setEraserMask();
+    reInitSettings();
 }
 
 
@@ -740,12 +737,29 @@ Sower::~Sower()
 }
 
 
+void Sower::reInitSettings()
+{
+    reversesowingorder_ = false;
+    alternatesowingorder_ = false;
+    intersow_ = false;
+
+    setIfDragInvertMask( false );
+    setSequentSowMask();
+    setLaserMask();
+    setEraserMask();
+}
+
+
 void Sower::reverseSowingOrder( bool yn )
 { reversesowingorder_ = yn; }
 
 
 void Sower::alternateSowingOrder( bool yn )
 { alternatesowingorder_ = yn; }
+
+
+void Sower::intersow( bool yn )
+{ intersow_ = yn; }
 
 
 void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
@@ -843,6 +857,9 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	if ( mouserectangle_.isOutside(mouseevent.pos()) )
 	    mReturnHandled( true );
 
+	if ( sz && mouseevent.pos()==eventlist_[sz-1]->pos() )
+	    mReturnHandled( true );
+
 	const RowCol rc = RowCol( mouseevent.x(), mouseevent.y() );
 	const Point pt = transformation_.transform( rc );
 	sowingline_->poly_ += pt;
@@ -898,11 +915,31 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 
     BendPointFinder2D bpfinder ( mousecoords_, 2 );
     bpfinder.execute( true );
-    bendpoints_ = bpfinder.bendPoints();
+
+    bendpoints_.erase();
+
+    const int last = intersow_ ? eventlist_.size()-1
+			       : bpfinder.bendPoints().size()-1;
+
+    for ( int idx=0; idx<=last; idx++ )
+    {
+	int eventidx = idx;
+	if ( alternatesowingorder_ )
+	    eventidx = idx%2 ? last-idx/2 : idx/2;
+
+	bendpoints_ += intersow_ ? eventidx : bpfinder.bendPoints()[eventidx];
+	if ( intersow_ && bpfinder.bendPoints().indexOf(eventidx)>=0 )
+	    bendpoints_ += eventidx;
+    }
+
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
 
+    if ( intersow_ )
+	bendpoints_[0] = bendpoints_[bendpoints_.size()-1];
+
     mode_ = FirstSowing;
+    int count = 0;
     while ( bendpoints_.size() )
     {
 	int idx = bendpoints_[0];
@@ -912,10 +949,9 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Release, Released );
 
 	bendpoints_.remove( 0 );
-	if ( alternatesowingorder_ )
-	    bendpoints_.reverse();
 
-	mode_ = SequentSowing;
+	if ( !intersow_ || count++ )
+	    mode_ = SequentSowing;
     }
 
     reset();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.9 2011-09-21 10:41:37 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.10 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
     }
 //	setMouseEventHandler( 0 );
+    cleanAuxInfoContainer();
     delete horpainter_;
     deepErase( markeridinfos_ );
 }
@@ -214,8 +215,14 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     const MouseEvent& mouseevent = mehandler_->event();
     const Color& prefcol = emobj->preferredColor();
 
-    if ( editor_ && editor_->sower().activate(prefcol, mouseevent) )
-	return;
+    if ( editor_ )
+    {
+	editor_->sower().reInitSettings();
+	editor_->sower().intersow();
+	editor_->sower().reverseSowingOrder();
+	if ( editor_->sower().activate(prefcol, mouseevent) )
+	    return;
+    }
 }
 
 
@@ -435,18 +442,19 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 }
 
 
-bool HorizonFlatViewEditor3D::doTheSeed(EMSeedPicker& spk, const Coord3& crd,
-					const MouseEvent& mev ) const
+bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
+					 const MouseEvent& mev ) const
 {
     EM::PosID pid;
     getPosID( crd, pid );
 
-    const bool ctrlshiftclicked =  mev.ctrlStatus() && mev.shiftStatus();
+    const bool ctrlshiftclicked = mev.ctrlStatus() && mev.shiftStatus();
     const bool ismarker = editor_->markerPosAt( mev.pos() );
 
     if ( !ismarker || (ismarker && !mev.ctrlStatus() && !mev.shiftStatus()) )
     {
-	if ( spk.addSeed(crd, ismarker ? false : ctrlshiftclicked) )
+	const bool drop = ismarker ? false : ctrlshiftclicked;
+	if ( spk.addSeed(crd, drop, Coord3(mev.x(),mev.y(),0)) )
 	    return true;
     }
     else

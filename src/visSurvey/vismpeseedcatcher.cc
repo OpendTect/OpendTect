@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.46 2011-09-02 13:23:48 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.47 2011-10-03 08:07:19 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -304,9 +304,9 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !emobj ) 
 	return;
     
-    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode(),
-						       eventinfo.pickedobjids );
-    info().setNode( nodepid );
+    const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
+						      eventinfo.pickedobjids );
+    info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
 
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
@@ -405,10 +405,10 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     if ( !emobj ) 
 	return;
     
-    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode(),
-						       eventinfo.pickedobjids );
+    const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
+						      eventinfo.pickedobjids );
     Coord3 nodepos = emobj->getPos( nodepid );
-    info().setNode( nodepid );
+    info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
     
     if ( !nodepos.isDefined() )
     {

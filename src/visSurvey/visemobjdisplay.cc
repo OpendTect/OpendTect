@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.133 2011-06-21 05:32:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.134 2011-10-03 08:07:19 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -451,6 +451,8 @@ void EMObjectDisplay::enableEditing( bool yn )
 	editor_->ref();
 	editor_->setSceneEventCatcher( eventcatcher_ );
 	editor_->setDisplayTransformation( transformation_ );
+	editor_->sower().intersow();
+	editor_->sower().reverseSowingOrder();
 	editor_->setEditor(mpeeditor);
 	addChild( editor_->getInventorNode() );
     }

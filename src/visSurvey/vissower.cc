@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.3 2011-09-20 06:44:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.4 2011-10-03 08:07:19 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -35,8 +35,6 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , eventcatcher_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
-    , reversesowingorder_( false )
-    , alternatesowingorder_( false )
     , linelost_( false )
     , singleseeded_( true )
     , curpid_( EM::PosID::udf() )
@@ -45,11 +43,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
     sowingline_->setMaterial( visBase::Material::create() );
-
-    setIfDragInvertMask( false );
-    setSequentSowMask();
-    setLaserMask();
-    setEraserMask();
+    reInitSettings();
 }
 
 
@@ -61,12 +55,29 @@ Sower::~Sower()
 }
 
 
+void Sower::reInitSettings()
+{
+    reversesowingorder_ = false;
+    alternatesowingorder_ = false;
+    intersow_ = false;
+
+    setIfDragInvertMask( false );
+    setSequentSowMask();
+    setLaserMask();
+    setEraserMask();
+}
+
+
 void Sower::reverseSowingOrder( bool yn )
 { reversesowingorder_ = yn; }
 
 
 void Sower::alternateSowingOrder( bool yn )
 { alternatesowingorder_ = yn; }
+
+
+void Sower::intersow( bool yn )
+{ intersow_ = yn; }
 
 
 void Sower::setDisplayTransformation( visBase::Transformation* transformation )
@@ -163,6 +174,9 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     const int sz = eventlist_.size();
     if ( eventinfo.type==visBase::MouseMovement || eventinfo.pressed )
     {
+	if ( sz && eventinfo.mousepos==eventlist_[sz-1]->mousepos )
+	    mReturnHandled( true );
+
 	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids )
 	{
 	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
@@ -220,11 +234,31 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 
     BendPointFinder2D bpfinder ( mousecoords_, 2 );
     bpfinder.execute( true );
-    bendpoints_ = bpfinder.bendPoints();
+
+    bendpoints_.erase();
+
+    const int last = intersow_ ? eventlist_.size()-1
+			       : bpfinder.bendPoints().size()-1;
+
+    for ( int idx=0; idx<=last; idx++ )
+    {
+	int eventidx = idx;
+	if ( alternatesowingorder_ )
+	    eventidx = idx%2 ? last-idx/2 : idx/2;
+
+	bendpoints_ += intersow_ ? eventidx : bpfinder.bendPoints()[eventidx];
+	if ( intersow_ && bpfinder.bendPoints().indexOf(eventidx)>=0 )
+	    bendpoints_ += eventidx;
+    }
+
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
 
+    if ( intersow_ )
+	bendpoints_[0] = bendpoints_[bendpoints_.size()-1];
+
     mode_ = FirstSowing;
+    int count = 0;
     while ( bendpoints_.size() )
     {
 	int eventidx = bendpoints_[0];
@@ -236,10 +270,9 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	}
 
 	bendpoints_.remove( 0 );
-	if ( alternatesowingorder_ )
-	    bendpoints_.reverse();
 
-	mode_ = SequentSowing;
+	if ( !intersow_ || count++ )
+	    mode_ = SequentSowing;
     }
 
     reset();

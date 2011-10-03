@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.27 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.28 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
 
     virtual bool	canAddSeed() const			{ return false;}
     virtual bool	addSeed(const Coord3&,bool drop=false)	{ return false;}
+    virtual bool	addSeed(const Coord3& seedcrd,bool drop,
+				const Coord3& seedkey)		{ return false;}
     virtual bool	canRemoveSeed() const			{ return false;}
     virtual bool	removeSeed(const EM::PosID&,
 	    			   bool enviromment=true,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.10 2011-09-26 09:28:40 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.11 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ protected:
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
 				    IndexInfo& ix, IndexInfo& iy,
-				    Coord3& worldpos) const;
+				    Coord3& worldpos,int* trcnr=0) const;
     Coord3			getScaleVector() const;
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 

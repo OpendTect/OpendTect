@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.10 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.11 2011-10-03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 
     bool		canAddSeed() const;
     bool		addSeed(const Coord3&,bool);
+    bool		addSeed(const Coord3& seedcrd,bool drop,
+				const Coord3& seedkey)	    { return false; }
     bool		canRemoveSeed() const;
     bool		removeSeed(const EM::PosID&,bool environment,
 	    			   bool retrack);
