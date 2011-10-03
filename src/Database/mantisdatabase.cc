@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.18 2011-09-30 11:41:56 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.19 2011-10-03 07:32:59 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -744,7 +744,7 @@ bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
     if ( !isok )
 	mErrRet( "Unable to delete bug info from BugTextTable" );
 
-    bool isexec = query().deleteInfo( bt, "bug_id", id );
+    bool isexec = query().deleteInfo( bt, "id", id );
     if ( !isexec )
 	mErrRet( "Unable to delete bug info from BugTable" );
 
