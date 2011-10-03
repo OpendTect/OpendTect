@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandompos2body.cc,v 1.3 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandompos2body.cc,v 1.4 2011-10-03 17:24:46 cvsyuancheng Exp $";
 
 #include "visrandompos2body.h"
 
@@ -31,6 +31,7 @@ RandomPos2Body::RandomPos2Body()
     , hints_( new SoShapeHints )		  
 {
     addChild( hints_ );
+    renderOneSide( 0 );
 }
 
 
