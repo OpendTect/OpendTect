@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.27 2011-06-27 08:41:16 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.28 2011-10-04 12:08:38 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -135,6 +135,8 @@ public:
 						  const ObjectSet<Gather>&); 
 				~GatherSetDataPack();
 
+    void			fill(Array2D<float>&,int offsetidx);
+
     virtual float 		nrKBytes() const 	{ return 0; }
 
     const Gather*		getGather(const BinID&) const;
@@ -144,7 +146,6 @@ protected:
 
     ObjectSet<Gather>		gathers_;
 };
-
 
 }; //namespace
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.35 2011-07-17 02:41:20 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.36 2011-10-04 12:08:38 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -372,5 +372,16 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
     }
 
     return 0;
+}
+
+
+void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx )
+{
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+    {
+	Array2D<float>& data = gathers_[idx]->data();
+	for ( int idz=0; idz<data.info().getSize(0); idz++ )
+	    inp.set( idx, idz, data.get( offsetidx, idz ) );
+    }
 }
 
