@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.74 2011-05-17 12:00:22 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.75 2011-10-04 13:44:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class BaseMap;
+class BaseMapMarkers;
 class Color;
 class MouseCursor;
 class TaskRunner;
@@ -157,7 +158,7 @@ public:
 
     void			setAnnotColor(const Color&);
     const Color&		getAnnotColor() const;
-    void			setMarkerPos(const Coord3&);
+    void			setMarkerPos(const Coord3&,int sceneid);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
     const Color&		getMarkerColor() const;
@@ -184,6 +185,7 @@ protected:
     void			createTransforms(const HorSampling&);
     void			mouseMoveCB(CallBacker*);
     visBase::Marker*		createMarker() const;
+    void			updateBaseMapCursor(const Coord&);
     static const Color&		cDefaultMarkerColor();
     
     visBase::Transformation*	zscaletransform_;
@@ -192,6 +194,7 @@ protected:
     ZAxisTransform*		datatransform_;
 
     BaseMap*			basemap_;
+    BaseMapMarkers*		basemapcursor_;
 
     visBase::Annotation*	annot_;
     visBase::Marker*		marker_;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.9 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.10 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"
@@ -49,46 +49,92 @@ void uiBaseMapObject::update()
 {
     if ( !bmobject_ ) return;
 
+    Threads::MutexLocker( bmobject_->lock_ );
+
     TypeSet<Coord> crds;
-    bmobject_->getPoints( -1, crds );
-    
-    if ( bmobject_->connectPoints(-1) == BaseMapObject::cConnect() )
+    int itemnr = 0;
+    for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
-	if ( itemgrp_->isEmpty() )
-	    itemgrp_->add( new uiLineItem() );
+	bmobject_->getPoints( idx, crds );
 
-	mDynamicCastGet(uiLineItem*,li,itemgrp_->getUiItem(0))
-	if ( !li ) return;
+	if ( bmobject_->getLineStyle(idx) &&
+	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	{
+	    while ( itemgrp_->size()>itemnr )
+	    {
+		mDynamicCastGet(uiPolyLineItem*,itm,itemgrp_->getUiItem(itemnr));
+		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		else break;
+	    }
 
-	uiPoint pt1 = transform_->transform( uiWorldPoint(crds[0]) );
-	uiPoint pt2 = transform_->transform( uiWorldPoint(crds[1]) );
-	li->setLine( pt1, pt2 );
+	    if ( itemgrp_->size()<=itemnr )
+		itemgrp_->add( new uiPolyLineItem() );
+
+	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_->getUiItem(itemnr))
+	    if ( !li ) return;
+
+	    TypeSet<uiPoint> uipts;
+	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+		uipts += transform_->transform( crds[ptidx] );
+
+	    if ( bmobject_->close(idx) )
+		uipts += transform_->transform( crds[0] );
+
+	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
+	    li->setPolyLine( uipts );
+	    itemnr++;
+	}
+
+	if ( bmobject_->fill(idx) )
+	{
+	    while ( itemgrp_->size()>itemnr )
+	    {
+		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(itemnr));
+		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		else break;
+	    }
+
+	    if ( itemgrp_->size()<=itemnr )
+		itemgrp_->add( new uiPolygonItem() );
+
+	    mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(itemnr))
+	    if ( !itm ) return;
+
+	    TypeSet<uiPoint> pts;
+	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+		pts += transform_->transform( uiWorldPoint(crds[ptidx]) );
+	    itm->setPolygon( pts );
+	    itm->fill();
+	    itemnr++;
+	}
+
+	if ( bmobject_->getMarkerStyle(idx) &&
+	     bmobject_->getMarkerStyle(idx)->type_!=MarkerStyle2D::None )
+	{
+	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+	    {
+		while ( itemgrp_->size()>itemnr )
+		{
+		    mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
+		    if ( !itm )
+			itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		    else break;
+		}
+
+		if ( itemgrp_->size()<=itemnr )
+		    itemgrp_->add( new uiMarkerItem() );
+
+		mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
+		itm->setMarkerStyle( *bmobject_->getMarkerStyle(idx) );
+		itm->setPos( transform_->transform( uiWorldPoint(crds[ptidx]) ) );
+		itemnr++;
+	    }
+	}
     }
-    else if ( bmobject_->connectPoints(-1) == BaseMapObject::cPolygon() )
+
+    while ( itemgrp_->size()>itemnr )
     {
-	if ( itemgrp_->isEmpty() )
-	    itemgrp_->add( new uiPolygonItem() );
-
-	mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(0))
-	if ( !itm ) return;
-
-	TypeSet<uiPoint> pts;
-	for ( int idx=0; idx<crds.size(); idx++ )
-	    pts += transform_->transform( uiWorldPoint(crds[idx]) );
-	itm->setPolygon( pts );
-    }
-    else if ( bmobject_->connectPoints(-1) == BaseMapObject::cDontConnect() )
-    {
-	if ( itemgrp_->isEmpty() )
-	    itemgrp_->add( new uiMarkerItem(true) );
-
-	mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(0))
-	if ( !itm ) return;
-
-	const Color* col = bmobject_->getColor(-1);
-	if ( col ) itm->setFillColor( *col );
-	if ( crds.size() > 0 )
-	    itm->setPos( transform_->transform( uiWorldPoint(crds[0]) ) );
+	itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
     }
 }
 
@@ -115,11 +161,19 @@ uiBaseMap::~uiBaseMap()
 
 void uiBaseMap::addObject( BaseMapObject* obj )
 {
-    uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
-    if ( !uiobj )
-	return;
+    const int index = indexOf( obj );
+    if ( index==-1 )
+    {
+	uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
+	if ( !uiobj )
+	    return;
 
-    addObject( uiobj );
+	addObject( uiobj );
+    }
+    else
+    {
+	objects_[index]->update();
+    }
 }
 
 
@@ -131,18 +185,24 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
 }
 
 
-void uiBaseMap::removeObject( const BaseMapObject* obj )
+int uiBaseMap::indexOf( const BaseMapObject* obj ) const
 {
-    int index = -1;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	if ( objects_[idx]->bmobject_==obj )
 	{
-	    index = idx;
-	    break;
+	    return idx;
 	}
     }
 
+    return -1;
+
+}
+
+
+void uiBaseMap::removeObject( const BaseMapObject* obj )
+{
+    const int index = indexOf( obj );
     if ( index==-1 )
     {
 	pErrMsg( "Base map object not found" );

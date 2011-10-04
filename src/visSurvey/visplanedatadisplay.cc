@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.256 2011-09-02 13:24:09 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.257 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -53,14 +53,16 @@ class PlaneDataDisplayBaseMapObject : public BaseMapObject
 public:
 		PlaneDataDisplayBaseMapObject(PlaneDataDisplay* pdd);
 
-    const char*	getType() const;
-    void	updateGeometry();
-    int		nrShapes() const;
-    const char*	getShapeName(int) const;
-    void	getPoints(int,TypeSet<Coord>& res) const;
-    char	connectPoints(int) const;
+    const char*		getType() const;
+    void		updateGeometry();
+    int			nrShapes() const;
+    const char*		getShapeName(int) const;
+    void		getPoints(int,TypeSet<Coord>& res) const;
+    const LineStyle*	getLineStyle(int) const { return &lst_; }
+    bool		close(int) const;
 
 protected:
+    LineStyle			lst_;
     PlaneDataDisplay*		pdd_;
 };
 
@@ -108,10 +110,9 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 }
 
 
-char PlaneDataDisplayBaseMapObject::connectPoints(int) const
+bool PlaneDataDisplayBaseMapObject::close(int) const
 {
-    return pdd_->getOrientation()==PlaneDataDisplay::Zslice
-	? BaseMapObject::cPolygon() : BaseMapObject::cConnect();
+    return pdd_->getOrientation()==PlaneDataDisplay::Zslice;
 }
 
 

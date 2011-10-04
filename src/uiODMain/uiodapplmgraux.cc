@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.34 2011-09-13 11:15:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.35 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -95,6 +95,13 @@ void uiODApplMgrDispatcher::survChg( bool before )
 {
     if ( before && convposdlg_ )
 	{ delete convposdlg_; convposdlg_ = 0; }
+
+    if ( basemapdlg_ )
+    {
+	delete basemapdlg_;
+	basemapdlg_ = 0;
+	basemap_ = 0;
+    }
 }
 
 

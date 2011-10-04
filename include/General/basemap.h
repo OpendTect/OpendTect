@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.6 2010-08-27 02:45:29 cvsnanne Exp $
+ RCS:		$Id: basemap.h,v 1.7 2011-10-04 13:44:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
+#include "thread.h"
 
 namespace OD { class RGBImage; }
 
 class Coord;
-class Color;
-
+class MarkerStyle2D;
+class LineStyle;
 
 /*!Object that can be painted in a basemap. */
 
@@ -27,6 +28,8 @@ mClass BaseMapObject : public NamedObject
 {
 public:
 				BaseMapObject(const char* nm);
+
+    Threads::Mutex		lock_;
 
     virtual const char*		getType() const				= 0;
 
@@ -42,13 +45,10 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const; 
     				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
-    virtual char		connectPoints(int shapeidx) const;
-    				/*!\retval cDontConnect() - don't connect
-				   \retval cConnect() - connect
-				   \retval cPolygon() - connect as polygon.
-				   \retval cFilledPolygon() - connect as
-				   		polygon and fill */
-    virtual const Color*	getColor(int shapeidx) const;
+    virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
+    virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
+    virtual bool		fill(int shapeidx) const	{ return false;}
+    virtual bool		close(int shapeidx) const	{ return false;}
 
     virtual const OD::RGBImage*	getImage(Coord& origin,Coord& p11) const;
     				/*!<Returns image in xy plane. p11 is the
@@ -58,10 +58,6 @@ public:
     				/*!<Returns a preview image that has
 				    approximately the size of the specified
 				    diagonal. */
-    static char			cDontConnect()		{ return 0; }
-    static char			cConnect()		{ return 1; }
-    static char			cPolygon()		{ return 2; }
-    static char			cFilledPolygon()	{ return 3; }
 
     Notifier<BaseMapObject>	changed;
 

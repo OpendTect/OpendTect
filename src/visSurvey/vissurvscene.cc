@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.148 2011-09-07 19:48:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.149 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "vissurvscene.h"
 
+#include "basemapimpl.h"
 #include "cubesampling.h"
 #include "envvars.h"
 #include "iopar.h"
@@ -72,6 +73,7 @@ Scene::Scene()
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
     , basemap_( 0 )
+    , basemapcursor_( 0 )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
@@ -153,6 +155,13 @@ void Scene::init()
 
 Scene::~Scene()
 {
+    if ( basemap_ && basemapcursor_ )
+    {
+	basemap_->removeObject( basemapcursor_ );
+	delete basemapcursor_;
+	basemapcursor_ = 0;
+    }
+
     events_.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
     int objidx = getFirstIdx( inlcrl2disptransform_ );
@@ -528,7 +537,6 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		}
 
 		mousecursor_ = so->getMouseCursor();
-
 		break;
 	    }
 	}
@@ -540,6 +548,13 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
 void Scene::setBaseMap( BaseMap* bm )
 {
+    if ( basemap_ && basemapcursor_ )
+    {
+	basemap_->removeObject( basemapcursor_ );
+	delete basemapcursor_;
+	basemapcursor_ = 0; 
+    }
+
     basemap_ = bm;
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -595,9 +610,13 @@ ZAxisTransform* Scene::getZAxisTransform()
 { return datatransform_; }
 
 
-void Scene::setMarkerPos( const Coord3& coord )
+void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 {
+    updateBaseMapCursor( coord );
+
     Coord3 displaypos = coord;
+    if ( sceneid==id() )
+	displaypos = Coord3::udf();
 
     if ( datatransform_ && coord.isDefined() )
     {
@@ -630,6 +649,43 @@ void Scene::setMarkerPos( const Coord3& coord )
 
     marker_->turnOn( true );
     marker_->setCenterPos( displaypos );
+}
+
+
+void Scene::updateBaseMapCursor( const Coord& coord )
+{
+    if ( !basemap_ )
+	return;
+
+    const bool defined = coord.isDefined();
+
+    if ( defined && !basemapcursor_ )
+    {
+	basemapcursor_ = new BaseMapMarkers;
+	basemapcursor_->setMarkerStyle(
+		MarkerStyle2D(MarkerStyle2D::Target) );
+    }
+
+    if ( basemapcursor_ && basemapcursor_->lock_.tryLock() )
+    {
+	if ( defined )
+	{
+	    if ( basemapcursor_->positions().size() )
+		basemapcursor_->positions()[0] = coord;
+	    else
+		basemapcursor_->positions() += coord;
+	}
+	else
+	{
+	    basemapcursor_->positions().erase();
+	}
+
+	basemapcursor_->lock_.unLock();
+	basemapcursor_->updateGeometry();
+    }
+
+    if ( basemapcursor_ )
+	basemap_->addObject( basemapcursor_ );
 }
 
 

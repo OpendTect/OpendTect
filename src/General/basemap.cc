@@ -4,9 +4,10 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: basemap.cc,v 1.2 2010-08-27 02:45:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: basemap.cc,v 1.3 2011-10-04 13:44:59 cvskris Exp $";
 
-#include "basemap.h"
+#include "basemapimpl.h"
+#include "position.h"
 
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
@@ -26,17 +27,39 @@ void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
 
-char BaseMapObject::connectPoints(int) const
-{ return cDontConnect(); }
-
-
-const Color* BaseMapObject::getColor(int) const
-{ return 0; }
-
-
 const OD::RGBImage* BaseMapObject::getImage(Coord& origin,Coord& p11) const
 { return 0; }
 
 
 const OD::RGBImage* BaseMapObject::getPreview(int approxdiagonal) const
 { return 0; }
+
+
+BaseMapMarkers::BaseMapMarkers()
+    : BaseMapObject( 0 )
+{}
+
+
+BaseMapMarkers::~BaseMapMarkers()
+{ }
+
+
+void BaseMapMarkers::setMarkerStyle( const MarkerStyle2D& ms )
+{
+    if ( markerstyle_==ms )
+	return;
+    
+    markerstyle_ = ms;
+}
+
+
+void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
+{
+    res = positions_;
+}
+
+
+void BaseMapMarkers::updateGeometry()
+{
+    changed.trigger();
+}

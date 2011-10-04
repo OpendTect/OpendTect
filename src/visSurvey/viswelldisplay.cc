@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.147 2011-09-02 13:25:57 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.148 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -58,17 +58,21 @@ public:
     const char*		getShapeName(int) const;
     void		getPoints(int,TypeSet<Coord>& res) const;
     char		connectPoints(int) const;
-    const Color*	getColor(int) const;
+    const MarkerStyle2D* getMarkerStyle(int) const
+			{ return &markerstyle_; }
 
 protected:
     WellDisplay*	wd_;
+    MarkerStyle2D	markerstyle_;
 };
 
 
 WellDisplayBaseMapObject::WellDisplayBaseMapObject( WellDisplay* wd )
     : BaseMapObject( wd->name() )
     , wd_( wd )
-{}
+{
+    markerstyle_.color_ = wd->getColor();
+}
 
 
 const char* WellDisplayBaseMapObject::getType() const
@@ -91,17 +95,6 @@ void WellDisplayBaseMapObject::getPoints( int, TypeSet<Coord>& res ) const
 {
     if ( wd_->getWD() )
 	res += wd_->getWD()->info().surfacecoord;
-}
-
-
-char WellDisplayBaseMapObject::connectPoints( int ) const
-{ return cDontConnect(); }
-
-const Color* WellDisplayBaseMapObject::getColor(int) const
-{
-    static Color col;
-    col = wd_->getColor();
-    return &col;
 }
 
 

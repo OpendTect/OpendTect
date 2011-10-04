@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.8 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uibasemap.h,v 1.9 2011-10-04 13:44:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,12 +51,14 @@ public:
     virtual			~uiBaseMap();
 
     void			addObject(BaseMapObject*);
-    void			addObject(uiBaseMapObject*);
-    				//! object becomes mine, obviously.
-
+    				//!Owned by caller
     void			removeObject(const BaseMapObject*);
 
+    void			addObject(uiBaseMapObject*);
+    				//! object becomes mine, obviously.
 protected:
+
+    int				indexOf(const BaseMapObject*) const;
 
     uiGraphicsView&		view_;
     ObjectSet<uiBaseMapObject>	objects_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.466 2011-09-20 06:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.467 2011-10-04 13:44:59 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -1889,12 +1889,7 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	if ( scenes_[idx]->id()==dontsetscene )
-	    scenes_[idx]->setMarkerPos( Coord3::udf() );
-	else
-	    scenes_[idx]->setMarkerPos( worldpos );
-    }
+	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
 }
 
 
