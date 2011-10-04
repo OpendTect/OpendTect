@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: visvw2dfault.cc,v 1.6 2011-06-03 14:40:12 cvsbruno Exp $
+ RCS:		$Id: visvw2dfault.cc,v 1.7 2011-10-04 05:52:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,8 @@ void VW2DFault::setEditors()
 	}
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	if ( !dp3d )
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	if ( !(dp3d||dprdm) )
 	{
 	    faulteds_ += 0;
 	    continue;
@@ -104,11 +105,20 @@ void VW2DFault::draw()
 	if ( !fdp ) continue;
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	if ( !dp3d ) continue;
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	if ( !(dp3d||dprdm) ) continue;
 
 	if ( faulteds_[ivwr] )
 	{
-	    faulteds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+	    if ( dp3d )
+		faulteds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+
+	    if ( dprdm )
+	    {
+		faulteds_[ivwr]->setPath( dprdm->pathBIDs() );
+		faulteds_[ivwr]->setFlatPosData( &dprdm->posData() );
+	    }
+
 	    faulteds_[ivwr]->drawFault();
 	}
     }

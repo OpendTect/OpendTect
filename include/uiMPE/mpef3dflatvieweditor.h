@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.h,v 1.4 2010-08-31 14:33:26 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.5 2011-10-04 05:52:14 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,9 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-class MouseEventHandler;
+class FlatPosData;
 class IndexInfo;
+class MouseEventHandler;
 
 namespace EM { class Fault3DPainter; }
 namespace FlatView { class AuxDataEditor; }
@@ -37,6 +38,8 @@ public:
     void		updateActStkContainer();
 
     void		setCubeSampling(const CubeSampling&);
+    void                setPath(const TypeSet<BinID>*);
+    void                setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enablePainting(bool);
     void		enableKnots(bool);
@@ -70,6 +73,8 @@ protected:
 					Coord3& worldpos) const;
     Coord3			getScaleVector() const;
     				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+
+    const TypeSet<BinID>*       path_;
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;

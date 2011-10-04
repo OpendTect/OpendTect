@@ -4,18 +4,20 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.11 2011-01-31 10:19:02 cvsjaap Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.12 2011-10-04 05:52:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emfault3dpainter.h"
 
+#include "bendpointfinder.h"
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
+#include "flatposdata.h"
 #include "positionlist.h"
 #include "survinfo.h"
 #include "trigonometry.h"
@@ -29,6 +31,8 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
     , markerstyle_(MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( mUdf(int) )
+    , path_(0)
+    , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
     , linenabled_(true)
@@ -60,6 +64,36 @@ Fault3DPainter::~Fault3DPainter()
 
 void Fault3DPainter::setCubeSampling( const CubeSampling& cs, bool update )
 { cs_ = cs; }
+
+
+void Fault3DPainter::setPath( const TypeSet<BinID>* path )
+{
+    path_ = path;
+}
+
+
+void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
+{
+    if ( !path_ )
+	return;
+    
+    flatposdata_ = fps;
+
+    if ( flatposdata_->nrPts(true) < 2 )
+	return;
+
+    TypeSet<Coord> pts;
+    for ( int idx=0; idx<path_->size(); idx++ )
+    {
+	pts += SI().transform((*path_)[idx]);
+    }
+
+    BendPointFinder2D bpfinder( pts, 0.5 );
+    if ( !bpfinder.execute() || bpfinder.bendPoints().size()<1 )
+	return;
+
+    bendpts_ = bpfinder.bendPoints();
+}
 
 
 bool Fault3DPainter::addPolyLine()
@@ -103,7 +137,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
     if ( !fss || fss->isEmpty() )
 	return false;
 
-    if ( cs_.isEmpty() ) return false;
+    if ( !path_ && cs_.isEmpty() ) return false;
 
     RowCol rc;
     const StepInterval<int> rowrg = fss->rowRange();
@@ -123,77 +157,17 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	    stickauxdata->markerstyles_.erase();
 	stickauxdata->enabled_ = linenabled_;
 
-	Coord3 editnormal( 0, 0, 1 ); 
-	// Let's assume cs default dir. is 'Z'
-
-	if ( cs_.defaultDir() == CubeSampling::Inl )
-	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
-	else if ( cs_.defaultDir() == CubeSampling::Crl )
-	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
-
-	const Coord3 nzednor = editnormal.normalize();
 	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(sid,rc.row);
 
-	const bool equinormal =
-	    mIsEqual(nzednor.x,stkednor.x,.001) &&
-	    mIsEqual(nzednor.y,stkednor.y,.001) &&
-	    mIsEqual(nzednor.z,stkednor.z,.00001);
-
-	if ( !equinormal ) continue;	
-
-	// we need to deal in different way if cs direction is Z
-	if ( cs_.defaultDir() != CubeSampling::Z )
+	if ( !path_ )
 	{
-	    BinID extrbid1, extrbid2;
-	    if ( cs_.defaultDir() == CubeSampling::Inl )
-	    {
-		extrbid1.inl = extrbid2.inl = cs_.hrg.inlRange().start;
-		extrbid1.crl = cs_.hrg.crlRange().start;
-		extrbid2.crl = cs_.hrg.crlRange().stop;
-	    }
-	    else if ( cs_.defaultDir() == CubeSampling::Crl )
-	    {
-		extrbid1.inl = cs_.hrg.inlRange().start;
-		extrbid2.inl = cs_.hrg.inlRange().stop;
-		extrbid1.crl = extrbid2.crl = cs_.hrg.crlRange().start;
-	    }
-	    
-	    Coord extrcoord1, extrcoord2;
-	    extrcoord1 = SI().transform( extrbid1 );
-	    extrcoord2 = SI().transform( extrbid2 );
-
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
-	    {
-		const Coord3& pos = fss->getKnot( rc );
-		BinID knotbinid = SI().transform( pos );
-		if ( pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
-		     || (cs_.defaultDir()==CubeSampling::Inl
-		         && knotbinid.inl==extrbid1.inl)
-	   	     || (cs_.defaultDir()==CubeSampling::Crl
-			 && knotbinid.crl==extrbid1.crl) )
-		{
-		    if ( cs_.defaultDir() == CubeSampling::Inl )
-			stickauxdata->poly_ += FlatView::Point(
-					SI().transform(pos.coord()).crl, pos.z);
-		    else if ( cs_.defaultDir() == CubeSampling::Crl )
-			stickauxdata->poly_ += FlatView::Point(
-					SI().transform(pos.coord()).inl, pos.z);
-		}
-	    }
+	    if ( !paintStickOnPlane(*fss,rc,colrg,stkednor,*stickauxdata) )
+		continue;
 	}
 	else
 	{
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; 
-				      rc.col+=colrg.step )
-	    {
-		const Coord3 pos = fss->getKnot( rc );
-		if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
-		    break;
-
-		BinID binid = SI().transform(pos.coord());
-		stickauxdata->poly_ +=
-			FlatView::Point( binid.inl, binid.crl );
-	    }
+	    if ( !paintStickOnRLine(*fss,rc,colrg,stkednor,*stickauxdata) )
+		continue;
 	}
 
 	if ( stickauxdata->poly_.size() == 0 )
@@ -212,6 +186,116 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 }
 
 
+bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
+					RowCol& rc,const StepInterval<int>& crg,
+					const Coord3& stkednor,
+				FlatView::Annotation::AuxData& stickauxdata )
+{
+    Coord3 editnormal( 0, 0, 1 );
+
+    if ( cs_.defaultDir() == CubeSampling::Inl )
+	editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
+    else if ( cs_.defaultDir() == CubeSampling::Crl )
+	editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
+
+    const Coord3 nzednor = editnormal.normalize();
+
+    const bool equinormal =
+	mIsEqual(nzednor.x,stkednor.x,.001) &&
+	mIsEqual(nzednor.y,stkednor.y,.001) &&
+	mIsEqual(nzednor.z,stkednor.z,.00001);
+
+    if ( !equinormal ) return false;
+
+    if ( cs_.defaultDir() != CubeSampling::Z )
+    {
+	BinID extrbid1, extrbid2;
+	if ( cs_.defaultDir() == CubeSampling::Inl )
+	{
+	    extrbid1.inl = extrbid2.inl = cs_.hrg.inlRange().start;
+	    extrbid1.crl = cs_.hrg.crlRange().start;
+	    extrbid2.crl = cs_.hrg.crlRange().stop;
+	}
+	else if ( cs_.defaultDir() == CubeSampling::Crl )
+	{
+	    extrbid1.inl = cs_.hrg.inlRange().start;
+	    extrbid2.inl = cs_.hrg.inlRange().stop;
+	    extrbid1.crl = extrbid2.crl = cs_.hrg.crlRange().start;
+	}
+
+	Coord extrcoord1, extrcoord2;
+	extrcoord1 = SI().transform( extrbid1 );
+	extrcoord2 = SI().transform( extrbid2 );
+
+	for ( rc.col=crg.start; rc.col<=crg.stop; rc.col+=crg.step )
+	{
+	    const Coord3& pos = fss.getKnot( rc );
+	    BinID knotbinid = SI().transform( pos );
+
+	    if ( pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
+		 || (cs_.defaultDir()==CubeSampling::Inl
+		     && knotbinid.inl==extrbid1.inl)
+		 || (cs_.defaultDir()==CubeSampling::Crl
+		     && knotbinid.crl==extrbid1.crl) )
+	    {
+		if ( cs_.defaultDir() == CubeSampling::Inl )
+		    stickauxdata.poly_ += FlatView::Point(
+			    		SI().transform(pos.coord()).crl, pos.z);
+		else if ( cs_.defaultDir() == CubeSampling::Crl )
+		    stickauxdata.poly_ += FlatView::Point(
+			    		SI().transform(pos.coord()).inl, pos.z);
+	    }
+	}
+    }
+    else
+    {
+	for ( rc.col=crg.start; rc.col<=crg.stop; rc.col+=crg.step )
+	{
+	    const Coord3 pos = fss.getKnot( rc );
+	    if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
+		break;
+
+	    BinID binid = SI().transform(pos.coord());
+	    stickauxdata.poly_ += FlatView::Point( binid.inl, binid.crl );
+	}
+    }
+
+    return true;
+}
+
+
+bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
+					RowCol& rc,const StepInterval<int>& crg,
+					const Coord3& stkednor,
+				   FlatView::Annotation::AuxData& stickauxdata )
+{
+    BinID bid;
+    for ( rc.col=crg.start;rc.col<=crg.stop;rc.col+=crg.step )
+    {
+	const Coord3 pos = fss.getKnot( rc );
+	bid = SI().transform( pos.coord() );
+	int idx = path_->indexOf( bid );
+
+	if ( idx < 0 ) continue;
+
+	Coord3 editnormal( getNormalInRandLine(idx), 0 );
+	const Coord3 nzednor = editnormal.normalize();
+
+	const bool equinormal =
+	    mIsEqual(nzednor.x,stkednor.x,.001) &&
+	    mIsEqual(nzednor.y,stkednor.y,.001) &&
+	    mIsEqual(nzednor.z,stkednor.z,.00001);
+
+	if ( !equinormal )
+	    return false;
+
+	stickauxdata.poly_ += FlatView::Point( flatposdata_->position(true,idx),
+					       pos.z );
+    }
+    return true;
+}
+
+
 bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 					const EM::SectionID& sid,
 					Fault3DMarker* f3dmaker )
@@ -223,26 +307,77 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     if ( !faultsurf->update(true,0) )
 	return false;
     
-    BinID start( cs_.hrg.start.inl, cs_.hrg.start.crl );
-    BinID stop(cs_.hrg.stop.inl, cs_.hrg.stop.crl );
-
-    Coord3 p0( SI().transform(start), cs_.zrg.start );
-    Coord3 p1( SI().transform(start), cs_.zrg.stop );
-    Coord3 p2( SI().transform(stop), cs_.zrg.stop );
-    Coord3 p3( SI().transform(stop), cs_.zrg.start );
-
-    TypeSet<Coord3> pts;
-
-    pts += p0; pts += p1; pts += p2; pts += p3;
-
-    const Coord3 normal = (p1-p0).cross(p3-p0).normalize();
-
-    PtrMan<Geometry::ExplPlaneIntersection> intersectn = 
+    PtrMan<Geometry::ExplPlaneIntersection> intxn =
 					new Geometry::ExplPlaneIntersection;
-    intersectn->setShape( *faultsurf );
-    intersectn->addPlane( normal, pts );
+    intxn->setShape( *faultsurf );
 
-    Geometry::IndexedShape* idxshape = intersectn;
+    if ( path_ )
+    {
+	//TODO make it multithreaded
+	double zstart = flatposdata_->position( false, 0 );
+	double zstop = flatposdata_->position( false,
+					       flatposdata_->nrPts(false)-1 );
+	
+	TypeSet<Coord3> pts;
+
+	bool status = false;
+
+	for ( int bdptidx=1; bdptidx<bendpts_.size(); bdptidx++ )
+	{
+	    pts.erase();
+
+	    Coord3 p0( SI().transform((*path_)[bendpts_[bdptidx-1]]), zstart );
+	    Coord3 p1( SI().transform((*path_)[bendpts_[bdptidx-1]]), zstop );
+	    Coord3 p2( SI().transform((*path_)[bendpts_[bdptidx]]), zstart );
+	    Coord3 p3( SI().transform((*path_)[bendpts_[bdptidx]]), zstop );
+
+	    pts += p0; pts += p1; pts += p2; pts += p3;
+
+	    if ( paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
+		status = true;
+	}
+
+	return status;
+    }
+    else
+    {
+	BinID start( cs_.hrg.start.inl, cs_.hrg.start.crl );
+	BinID stop(cs_.hrg.stop.inl, cs_.hrg.stop.crl );
+
+	Coord3 p0( SI().transform(start), cs_.zrg.start );
+	Coord3 p1( SI().transform(start), cs_.zrg.stop );
+	Coord3 p2( SI().transform(stop), cs_.zrg.start );
+	Coord3 p3( SI().transform(stop), cs_.zrg.stop );
+
+	TypeSet<Coord3> pts;
+	
+	pts += p0; pts += p1; pts += p2; pts += p3;
+
+	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
+				     Geometry::ExplPlaneIntersection* intxn,
+				     TypeSet<Coord3>& pts )
+{
+    if ( pts.size() < 4 ) return false;
+
+    if ( !intxn ) return false;
+
+    int nrplanes = intxn->nrPlanes();
+
+    for ( int idx=0; idx<nrplanes; idx++ )
+	intxn->removePlane( intxn->planeID(idx) );
+
+    const Coord3 normal = (pts[1]-pts[0]).cross(pts[3]-pts[0]).normalize();
+    intxn->addPlane( normal, pts );
+
+    Geometry::IndexedShape* idxshape = intxn;
     idxshape->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
 
     if ( !idxshape->update(true,0) )
@@ -258,21 +393,33 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	return false;
 
     Coord3List* clist = idxshape->coordList();
-    mDynamicCastGet(Coord3ListImpl*,intersecposlist,clist);
-    TypeSet<Coord3> intersecposs;
-    if ( intersecposlist->getSize() )
+    mDynamicCastGet(Coord3ListImpl*,intxnposlist,clist);
+    TypeSet<Coord3> intxnposs;
+    if ( intxnposlist->getSize() )
     {
-	int nextposid = intersecposlist->nextID( -1 );
+	int nextposid = intxnposlist->nextID( -1 );
 	while ( nextposid!=-1 )
 	{
-	    if ( intersecposlist->isDefined(nextposid) )
-		intersecposs += intersecposlist->get( nextposid );
-	    nextposid = intersecposlist->nextID( nextposid );
+	    if ( intxnposlist->isDefined(nextposid) )
+		intxnposs += intxnposlist->get( nextposid );
+	    nextposid = intxnposlist->nextID( nextposid );
 	}
     }
 
-    FlatView::Annotation::AuxData* intsecauxdat = 
-	    				new FlatView::Annotation::AuxData( 0 );
+
+    genIntersectionAuxData( f3d, f3dmaker, coordindices, intxnposs );
+
+    return true;
+}
+
+
+void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
+					    Fault3DMarker* f3dmaker,
+					    TypeSet<int>& coordindices,
+					    TypeSet<Coord3>& intxnposs)
+{
+    FlatView::Annotation::AuxData* intsecauxdat =
+					new FlatView::Annotation::AuxData( 0 );
     intsecauxdat->poly_.erase();
     intsecauxdat->linestyle_ = markerlinestyle_;
     intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
@@ -294,11 +441,21 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	    continue;
 	}
 
-	const Coord3 pos = intersecposs[coordindices[idx]];
+	const Coord3 pos = intxnposs[coordindices[idx]];
 	BinID posbid =  SI().transform( pos.coord() );
+
+	if ( path_ )
+	{
+	    int bididx = path_->indexOf( posbid );
+	    if ( bididx != -1 )
+		intsecauxdat->poly_ += FlatView::Point(
+			flatposdata_->position(true,bididx), pos.z );
+
+	    continue;
+	}
+
 	if ( cs_.nrZ() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl,
-						    posbid.crl );
+	    intsecauxdat->poly_ += FlatView::Point( posbid.inl, posbid.crl );
 	else if ( cs_.nrCrl() == 1 )
 	    intsecauxdat->poly_ += FlatView::Point( posbid.inl, pos.z );
 	else if ( cs_.nrInl() == 1 )
@@ -307,8 +464,6 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 
     viewer_.appearance().annot_.auxdata_ += intsecauxdat;
     f3dmaker->intsecmarker_ += intsecauxdat;
-
-    return true;
 }
 
 
@@ -499,6 +654,31 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	}
 	default: break;
     }
+}
+
+
+Coord Fault3DPainter::getNormalInRandLine( int idx ) const
+{
+    if ( !path_ )
+	return Coord(mUdf(float), mUdf(float));
+
+    if ( idx < 0 || path_->size() == 0 )
+	return Coord(mUdf(float), mUdf(float));
+
+    BinID pivotbid = (*path_)[idx];
+    BinID nextbid;
+
+    if ( idx+1 < path_->size() )
+	nextbid = (*path_)[idx+1];
+    else if ( idx-1 > 0 )
+	nextbid = (*path_)[idx-1];
+
+    if ( pivotbid.inl == nextbid.inl )
+	return  SI().binID2Coord().rowDir();
+    else if ( pivotbid.crl == nextbid.crl )
+	return SI().binID2Coord().colDir();
+
+    return Coord(mUdf(float), mUdf(float));
 }
 
 

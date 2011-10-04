@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.4 2010-06-24 10:46:44 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.5 2011-10-04 05:52:14 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,9 @@ ________________________________________________________________________
 #include "flatview.h"
 
 namespace FlatView { class Viewer; }
+namespace Geometry { class FaultStickSurface; class ExplPlaneIntersection; }
+
+class FlatPosData;
 
 namespace EM
 {
@@ -33,6 +36,8 @@ public:
 
     void		setCubeSampling(const CubeSampling&,bool);
     const CubeSampling&	getCubeSampling() const			{ return cs_; }
+    void		setPath(const TypeSet<BinID>*);
+    void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -74,14 +79,34 @@ protected:
 
     bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
 				    Fault3DMarker*);
+    bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
+	    				  RowCol&,const StepInterval<int>&,
+					  const Coord3&,
+					  FlatView::Annotation::AuxData&);
+    bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
+	    				  RowCol&,const StepInterval<int>&,
+					  const Coord3&,
+					  FlatView::Annotation::AuxData&);
     bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
 	    				  Fault3DMarker*);
+    bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
+	    				Geometry::ExplPlaneIntersection*,
+					TypeSet<Coord3>&);
+    void		genIntersectionAuxData(EM::Fault3D&,Fault3DMarker*,
+	    				       TypeSet<int>& coordindices,
+					       TypeSet<Coord3>& intxnposs);
     void		removePolyLine();
     void		repaintFault3D();
+
+    Coord		getNormalInRandLine( int idx ) const;
 
     virtual void	fault3DChangedCB(CallBacker*);
      
     CubeSampling	cs_;
+    const TypeSet<BinID>* path_;
+    const FlatPosData*  flatposdata_;
+    TypeSet<int>	bendpts_;
+
     FlatView::Viewer&	viewer_;
 
     LineStyle		markerlinestyle_;

@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.13 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.14 2011-10-04 05:52:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , f3dpainter_( new EM::Fault3DPainter(ed->viewer(),oid) )
     , meh_(0)
     , activestickid_(mUdf(int))
+    , path_(0)
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
 {
@@ -49,7 +50,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
-    if ( meh_ )
+    if ( !path_ && meh_ )
     {
 	editor_->movementStarted.remove(
 		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
@@ -73,6 +74,9 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 
 void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( path_ )
+	return;
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -116,6 +120,19 @@ void Fault3DFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 {
     EM::FaultStickSetFlatViewEditor::setCubeSampling( cs );
     f3dpainter_->setCubeSampling( cs, true );
+}
+
+
+void Fault3DFlatViewEditor::setPath( const TypeSet<BinID>* path )
+{
+    path_ = path;
+    f3dpainter_->setPath( path );
+}
+
+
+void Fault3DFlatViewEditor::setFlatPosData( const FlatPosData* fpd )
+{
+    f3dpainter_->setFlatPosData( fpd );
 }
 
 
