@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.4 2011-10-03 08:07:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.5 2011-10-05 14:59:30 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -237,8 +237,10 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 
     bendpoints_.erase();
 
-    const int last = intersow_ ? eventlist_.size()-1
-			       : bpfinder.bendPoints().size()-1;
+    const bool intersowing = intersow_ && eventlist_.size()>1;
+
+    const int last = intersowing ? eventlist_.size()-1
+				 : bpfinder.bendPoints().size()-1;
 
     for ( int idx=0; idx<=last; idx++ )
     {
@@ -246,15 +248,15 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( alternatesowingorder_ )
 	    eventidx = idx%2 ? last-idx/2 : idx/2;
 
-	bendpoints_ += intersow_ ? eventidx : bpfinder.bendPoints()[eventidx];
-	if ( intersow_ && bpfinder.bendPoints().indexOf(eventidx)>=0 )
+	bendpoints_ += intersowing ? eventidx : bpfinder.bendPoints()[eventidx];
+	if ( intersowing && bpfinder.bendPoints().indexOf(eventidx)>=0 )
 	    bendpoints_ += eventidx;
     }
 
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
 
-    if ( intersow_ )
+    if ( intersowing )
 	bendpoints_[0] = bendpoints_[bendpoints_.size()-1];
 
     mode_ = FirstSowing;
@@ -271,7 +273,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 
 	bendpoints_.remove( 0 );
 
-	if ( !intersow_ || count++ )
+	if ( !intersowing || count++ )
 	    mode_ = SequentSowing;
     }
 

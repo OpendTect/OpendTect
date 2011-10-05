@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.43 2011-10-03 08:07:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.44 2011-10-05 14:59:30 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -918,8 +918,10 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 
     bendpoints_.erase();
 
-    const int last = intersow_ ? eventlist_.size()-1
-			       : bpfinder.bendPoints().size()-1;
+    const bool intersowing = intersow_ && eventlist_.size()>1;
+
+    const int last = intersowing ? eventlist_.size()-1
+				 : bpfinder.bendPoints().size()-1;
 
     for ( int idx=0; idx<=last; idx++ )
     {
@@ -927,15 +929,15 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	if ( alternatesowingorder_ )
 	    eventidx = idx%2 ? last-idx/2 : idx/2;
 
-	bendpoints_ += intersow_ ? eventidx : bpfinder.bendPoints()[eventidx];
-	if ( intersow_ && bpfinder.bendPoints().indexOf(eventidx)>=0 )
+	bendpoints_ += intersowing ? eventidx : bpfinder.bendPoints()[eventidx];
+	if ( intersowing && bpfinder.bendPoints().indexOf(eventidx)>=0 )
 	    bendpoints_ += eventidx;
     }
 
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
 
-    if ( intersow_ )
+    if ( intersowing )
 	bendpoints_[0] = bendpoints_[bendpoints_.size()-1];
 
     mode_ = FirstSowing;
@@ -950,7 +952,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 
 	bendpoints_.remove( 0 );
 
-	if ( !intersow_ || count++ )
+	if ( !intersowing || count++ )
 	    mode_ = SequentSowing;
     }
 
