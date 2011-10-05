@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.19 2011-07-15 12:01:37 cvsbruno Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.20 2011-10-05 12:25:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,7 @@ mClass uiStratSynthCrossplot : public uiDialog
 public:
 				uiStratSynthCrossplot(uiParent*,
 				    const Strat::LayerModel&,
-				    const ObjectSet<const SyntheticData>&);
-				~uiStratSynthCrossplot();
+				    const ObjectSet<SyntheticData>&);
 
     void			setRefLevel(const char*);
     const char*			errMsg() const 
@@ -49,19 +48,7 @@ protected:
 
     const Strat::LayerModel&	lm_;
 
-    mStruct PackSynthData
-    {
-				PackSynthData(DataPack& dp,
-						const SyntheticData& sd)
-				    : sd_(sd)
-				    , pack_(dp)  
-				    {}
-
-	const SyntheticData& 	sd_;
-	DataPack& 		pack_;
-    };
-    ObjectSet<PackSynthData>	synthdatas_;
-    ObjectSet<PackSynthData>	pssynthdatas_;
+    const ObjectSet<SyntheticData>& synthdatas_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;

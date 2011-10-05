@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.7 2011-09-08 14:16:05 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.8 2011-10-05 12:25:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,52 +21,62 @@ ________________________________________________________________________
 
 class TimeDepthModel;
 class SeisTrcBuf;
+class SeisTrcBufDataPack;
 class Wavelet;
 namespace Strat { class LayerModel; class LayerSequence; }
+namespace PreStack { class GatherSetDataPack; }
 
 
 mStruct RayParams
 {				RayParams()
-				    : usenmotimes_(true)
-				    , dostack_(false)
-				    , synthname_("Synthetics")
-				{}
+				    : synthname_("Synthetics")
+				    , usenmotimes_(true)	
+				    , offsetrg_(0,
+					    RayTracer1D::sKeyStdMaxOffset(),
+					    RayTracer1D::sKeyStdStep())
+				    {}
+
 				RayParams(const RayParams& rp)
 				{
-				    cs_ = rp.cs_;
-				    usenmotimes_ = rp.usenmotimes_;
-				    dostack_ = rp.dostack_;
-				    IOPar spar; rp.setup_.fillPar( spar );
+				    usenmotimes_ 	= rp.usenmotimes_;
+				    synthname_ 		= rp.synthname_;
+				    offsetrg_ 		= rp.offsetrg_;
+				    IOPar spar; 
+				    rp.setup_.fillPar( spar );
 				    setup_.usePar( spar );
-				    synthname_ = rp.synthname_;
 				}
-    CubeSampling 		cs_; //inl are models, crl are offsets
-    bool			usenmotimes_;
-    bool			dostack_;
-    RayTracer1D::Setup		setup_;
-    BufferString		synthname_;
 
-    static  const RayParams 	genDefaultPostStack(int nrmodels);
-    static  const RayParams 	genDefaultPreStack(int nrmodels);
+    bool 			usenmotimes_;
+    BufferString		synthname_;
+    RayTracer1D::Setup		setup_;
+    StepInterval<float>		offsetrg_;
 };
 
 
-/*! brief the basic synthetic dataset. Keep traces of how it was buit */
+/*! brief the basic synthetic dataset. contains the data cube*/
 mClass SyntheticData : public NamedObject 
 {
 public:
-				SyntheticData(const char* nm)
-				    : NamedObject(nm)
-				    , packid_(DataPack::cNoID())
-				    {}
-				~SyntheticData();
+					SyntheticData(const char* nm,
+					    PreStack::GatherSetDataPack&);
+					~SyntheticData();
 
-    DataPack::FullID 		packid_;
-    ObjectSet<const TimeDepthModel> d2tmodels_;
-    bool			isps_;
+    const DataPack*			getPack(bool isps) const; 
+    ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
-    RayParams			raypars_;
-    const Wavelet*		wvlt_;
+    DataPack::FullID			prestackpackid_;
+    DataPack::FullID 			poststackpackid_;
+
+    void				setPostStack(int offset);
+
+    RayParams				raypars_;
+
+protected:
+    const PreStack::GatherSetDataPack&	prestackpack_;
+    const SeisTrcBufDataPack*		poststackpack_;
+
+    void				setPack(bool isps,DataPack*);
+    void				removePack(bool isps);
 };
 
 
@@ -75,33 +85,35 @@ mClass StratSynth
 {
 public:
     			StratSynth(const Strat::LayerModel&);
+    			~StratSynth();
 
-    void		setWavelet(const Wavelet&);
+    const Strat::LayerModel& layerModel() const 	{ return lm_; }
 
-    const SyntheticData* generate(const RayParams& raypars,bool isps,
-				    BufferString* errmsg=0) const;
+    void		addSynthetics(SyntheticData* sd); 
+    SyntheticData* 	getSynthetic( int selid ); 
+    const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
+
+    void		setWavelet(const Wavelet*);
+
+    RayParams&		rayPars() 	{ return raypars_; }
+
+    const char* 	errMsg() const 
+    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+
 protected:
 
+    RayParams		raypars_;
     const Strat::LayerModel& lm_;
     const Wavelet*	wvlt_;
     TypeSet<AIModel>	aimodels_;
 
+    ObjectSet<SyntheticData> synthetics_;
+
     BufferString	errmsg_;
 
-    DataPack*		genTrcBufDataPack(const RayParams& raypars,
-				ObjectSet<const TimeDepthModel>& d2ts,
-	    			BufferString* errmsg=0) const;
-    DataPack*		genGatherDataPack(const RayParams& raypars,
-				ObjectSet<const TimeDepthModel>& d2ts,
-	    			BufferString* errmsg=0) const;
-    bool		genSeisBufs(const RayParams& raypars,
-	    			ObjectSet<const TimeDepthModel>& d2ts,
-				ObjectSet<SeisTrcBuf>&,
-	    			BufferString* errmsg=0) const;
-
+    SyntheticData* 	generate();
     bool		fillElasticModel(ElasticModel&,
-				    const Strat::LayerSequence&,
-				    BufferString* errmsg=0) const;
+				    	const Strat::LayerSequence&);
 };
 
 #endif

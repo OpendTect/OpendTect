@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.11 2011-09-08 14:16:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.12 2011-10-05 12:25:32 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -25,214 +25,154 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.11 2011-09-08 14:16:05 cvsbru
 #include "wavelet.h"
 
 
-const RayParams RayParams::genDefaultPostStack( int nrmodl ) 
-{
-    RayParams rp;
-    rp.cs_.hrg.setInlRange(Interval<int>(1,nrmodl));
-    rp.cs_.hrg.setCrlRange(Interval<int>(0,0));
-    rp.cs_.hrg.step = BinID( 1, 100 );
-    rp.cs_.zrg.set( 0, 0, 0  );
-
-    return rp;
-}
-
-
-const RayParams RayParams::genDefaultPreStack( int nrmodl ) 
-{
-    RayParams rp;
-    rp.cs_.hrg.setInlRange(Interval<int>(1,nrmodl));
-    rp.cs_.hrg.setCrlRange(Interval<int>(0,RayTracer1D::sKeyStdMaxOffset()));
-    rp.cs_.hrg.step = BinID( 1, RayTracer1D::sKeyStdStep() );
-    rp.cs_.zrg.set( 0, 0, 0  );
-    return rp;
-}
-
-
-
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
 {}
 
 
-void StratSynth::setWavelet( const Wavelet& wvlt )
+StratSynth::~StratSynth()
 {
-    wvlt_ = &wvlt;
+    deepErase( synthetics_ );
+    setWavelet( 0 );
+}
+
+
+void StratSynth::setWavelet( const Wavelet* wvlt )
+{
+    delete wvlt_;
+    wvlt_ = wvlt;
 }
 
 
 #define mErrRet( msg, act )\
 {\
-    BufferString newmsg("Can not generate synthetics:\n");\
-    if ( errmsg ) { newmsg += *errmsg; *errmsg = newmsg; }\
+    errmsg_ = "Can not generate synthetics:\n";\
+    errmsg_ += msg;\
     act;\
 }
-DataPack* StratSynth::genTrcBufDataPack( const RayParams& raypars,
-				ObjectSet<const TimeDepthModel>& d2ts,
-				BufferString* errmsg ) const 
+
+void StratSynth::addSynthetics( SyntheticData* sd )
 {
-    ObjectSet<SeisTrcBuf> seisbufs;
-    if ( !genSeisBufs( raypars, d2ts, seisbufs, errmsg ) || seisbufs.isEmpty() )
-	return 0;
-
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-	    	      SI().crlRange(false).stop + crlstep );
-
-    const int nraimdls = raypars.cs_.nrInl();
-    ObjectSet<const SeisTrc> trcs;
-    for ( int imdl=0; imdl<nraimdls; imdl++ )
-    {
-	tbuf->stealTracesFrom( *seisbufs[imdl] );
-    }
-    deepErase( seisbufs );
-
-    if ( tbuf->isEmpty() ) 
-	mErrRet( "No seismic trace genereated ", return 0 )
-
-    SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
-			tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
-    const SeisTrc& trc0 = *tbuf->get(0);
-    StepInterval<double> zrg( trc0.info().sampling.start,
-			      trc0.info().sampling.atIndex(trc0.size()-1),
-			      trc0.info().sampling.step );
-    tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
-    tdp->posData().setRange( false, zrg );
-    tdp->setName( raypars.synthname_ );
-
-    return tdp;
+    synthetics_ += synthetics_.replace( 0, generate() );
 }
 
 
-DataPack* StratSynth::genGatherDataPack( const RayParams& raypars,
-				ObjectSet<const TimeDepthModel>& d2ts,
-       				BufferString* errmsg ) const 
+SyntheticData* StratSynth::getSynthetic( int selid ) 
 {
-    ObjectSet<SeisTrcBuf> seisbufs;
-    genSeisBufs( raypars, d2ts, seisbufs );
-    if ( seisbufs.isEmpty() )
-	return 0;
-
-    ObjectSet<PreStack::Gather> gathers;
-    const int nraimdls = raypars.cs_.nrInl();
-    for ( int imdl=0; imdl<nraimdls; imdl++ )
+    if ( !selid )
     {
-	SeisTrcBuf& tbuf = *seisbufs[imdl];
-	PreStack::Gather* gather = new PreStack::Gather();
-	if ( !gather->setFromTrcBuf( tbuf, 0 ) )
-	    { delete gather; continue; }
+	if ( !synthetics_.isEmpty() )
+	    delete synthetics_.remove(0);
 
-	gather->posData().setRange(true,StepInterval<double>(1,tbuf.size(),1));
-	gathers += gather;
+	synthetics_.insertAt( generate(), 0 );
     }
-    deepErase( seisbufs );
+    if ( synthetics_.validIdx( selid ) )
+	return synthetics_[selid];
 
-    if ( gathers.isEmpty() ) 
-	mErrRet("No seismic trace genereated ", return 0)
-
-    PreStack::GatherSetDataPack* pdp = new PreStack::GatherSetDataPack(
-							"GatherSet", gathers );
-    pdp->setName( raypars.synthname_ );
-    return pdp;
+    return 0;
 }
 
 
-bool StratSynth::genSeisBufs( const RayParams& raypars,
-			    ObjectSet<const TimeDepthModel>& d2ts,
-			    ObjectSet<SeisTrcBuf>& seisbufs,
-			    BufferString* errmsg ) const 
+SyntheticData* StratSynth::generate()
 {
+    errmsg_.setEmpty(); 
+
     if ( lm_.isEmpty() ) 
 	return false;
 
-    const CubeSampling& cs = raypars.cs_;
-    TypeSet<float> offsets;
-    for ( int idx=0; idx<cs.nrCrl(); idx++ )
-	offsets += cs.hrg.crlRange().atIndex(idx);
+    const RayParams& rp = raypars_;
+    TypeSet<float> offs;
+    for ( int idoff=0; idoff<rp.offsetrg_.nrSteps(); idoff++ )
+	offs += rp.offsetrg_.atIndex( idoff );
 
     Seis::RaySynthGenerator synthgen;
-    synthgen.setRayParams( raypars.setup_, offsets, raypars.usenmotimes_ );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    const int nraimdls = cs.nrInl();
+    synthgen.setRayParams( rp.setup_, offs, rp.usenmotimes_ );
 
-    for ( int iseq=0; iseq<nraimdls; iseq++ )
+    const int nraimdls = lm_.size();
+    for ( int idm=0; idm<nraimdls; idm++ )
     {
-	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
 	ElasticModel aimod; 
-	if ( !fillElasticModel( aimod, lm_.sequence( seqidx ), errmsg ) )
-	    mErrRet( errmsg ? errmsg->buf() : "", return false;) 
+	const Strat::LayerSequence& seq = lm_.sequence( idm ); 
+	const int sz = seq.size();
+	if ( sz < 1 )
+	    continue;
+
+	if ( !fillElasticModel( aimod, seq ) )
+	{
+	    BufferString msg( errmsg_ );
+	    mErrRet( msg.buf(), return false;) 
+	}
 	if ( aimod.isEmpty() )
 	    mErrRet( "Layer model is empty", return false;) 
-	else if ( aimod.size() == 1  )
-	    mErrRet("Please add at least one layer to the model", return false;)
 
 	synthgen.addModel( aimod );
     }
-
     if ( !synthgen.doWork() )
     {
-	if ( errmsg  ) *errmsg = synthgen.errMsg();
-	mErrRet( errmsg ? errmsg->buf() : "", return 0 ) ;
+	const char* errmsg = synthgen.errMsg();
+	mErrRet( errmsg ? errmsg : "", return 0 ) ;
     }
 
     const int crlstep = SI().crlStep();
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 	    	      SI().crlRange(false).stop + crlstep );
 
-    ObjectSet<const SeisTrc> trcs;
-    ObjectSet<const TimeDepthModel> tmpd2ts;
+    ObjectSet<PreStack::Gather> gatherset;
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
-	Seis::RaySynthGenerator::RayModel& rm = 
-	    const_cast<Seis::RaySynthGenerator::RayModel&>( 
-						    synthgen.result( imdl ) );
-	trcs.erase(); 
-	if ( raypars.dostack_ )
-	    trcs += rm.stackedTrc();
-	else
-	    rm.getTraces( trcs, true );
-
-	if ( trcs.isEmpty() )
-	    continue;
-
-	seisbufs += new SeisTrcBuf( true );
+	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
+	PreStack::Gather* gather = new PreStack::Gather();
+	ObjectSet<const SeisTrc> trcs; rm.getTraces( trcs, true );
+	SeisTrcBuf tbuf( false );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = const_cast<SeisTrc*>( trcs[idx] );
 	    const int trcnr = imdl + 1;
 	    trc->info().nr = trcnr;
+	    trc->info().offset = idx;
 	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
 	    trc->info().coord = SI().transform( trc->info().binid );
-	    seisbufs[imdl]->add( trc );
+	    tbuf.add( trc );
 	}
+	if ( !gather->setFromTrcBuf( tbuf, 0 ) )
+	    { delete gather; continue; }
+
+	gatherset += gather;
+    }
+
+    PreStack::GatherSetDataPack* gdp = 
+		    new PreStack::GatherSetDataPack( 0, gatherset );
+    SyntheticData* sd = new SyntheticData( rp.synthname_, *gdp );
+    sd->raypars_ = rp;
+
+    ObjectSet<const TimeDepthModel> tmpd2ts;
+    for ( int imdl=0; imdl<nraimdls; imdl++ )
+    {
+	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	rm.getD2T( tmpd2ts, true );
 	if ( !tmpd2ts.isEmpty() )
-	    d2ts += tmpd2ts.remove(0);
+	    sd->d2tmodels_ += tmpd2ts.remove(0);
 	deepErase( tmpd2ts );
     }
-    return true;
+    return sd;
 }
 
 
 bool StratSynth::fillElasticModel( ElasticModel& aimodel, 
-				const Strat::LayerSequence& seq,
-				BufferString* errmsg ) const
+				const Strat::LayerSequence& seq )
 {
-    const int sz = seq.size();
-    if ( sz < 1 )
-	return false;
-
     const ElasticPropSelection& eps = lm_.elasticPropSel();
     const PropertyRefSelection& props = lm_.propertyRefs();
-    if ( !eps.isValidInput( errmsg ) )
+    if ( !eps.isValidInput( &errmsg_ ) )
 	return false; 
 
     const Strat::Layer* lay = 0;
     int didx = props.indexOf(eps.getPropertyRef(ElasticFormula::Den).name() );
     int pvidx = props.indexOf(eps.getPropertyRef(ElasticFormula::PVel).name() );
     int svidx = props.indexOf(eps.getPropertyRef(ElasticFormula::SVel).name() );
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
 	const float den  = didx  >= 0 ? lay->value( didx )  : mUdf( float );
@@ -246,31 +186,74 @@ bool StratSynth::fillElasticModel( ElasticModel& aimodel,
 }
 
 
-const SyntheticData* StratSynth::generate( const RayParams& rp, bool isps, 
-					BufferString* errmsg ) const
+
+
+SyntheticData::SyntheticData( const char* nm, 
+			      PreStack::GatherSetDataPack& p )
+    : NamedObject(nm)
+    , prestackpack_(p)
+    , poststackpack_(0)		      
+    , poststackpackid_(DataPack::cNoID())    
+    , prestackpackid_(DataPack::cNoID())    
 {
-    SyntheticData* sd = new SyntheticData( rp.synthname_ );
-    DataPack* dp = isps ? genGatherDataPack( rp, sd->d2tmodels_, errmsg )
-		        : genTrcBufDataPack( rp, sd->d2tmodels_, errmsg );
-    if ( !dp ) 
-	{ delete sd; return 0; }
-
-    DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() : DataPackMgr::FlatID();
-    DPM( pmid ).add( dp );
-
-    sd->wvlt_ = wvlt_;
-    sd->isps_ = isps;
-    sd->packid_ = DataPack::FullID( pmid, dp->id());
-
-    return sd;
+    p.setName( name() );
+    setPack( true, &p );
+    setPostStack( 0 );
 }
-
 
 
 SyntheticData::~SyntheticData()
 {
     deepErase( d2tmodels_ );
-    const DataPack::FullID dpid = packid_;
+    removePack( false );
+    removePack( true ); 
+}
+
+
+const DataPack* SyntheticData::getPack( bool isps ) const
+{
+    if ( isps ) 
+	return &prestackpack_;
+    else
+	return poststackpack_;
+}
+
+
+void SyntheticData::setPostStack( int offset )
+{
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    prestackpack_.fill( *tbuf, offset );
+    if ( tbuf->isEmpty() )
+	return;
+
+    SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
+			tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
+
+    const SeisTrc& trc0 = *tbuf->get(0);
+    StepInterval<double> zrg( trc0.info().sampling.start,
+			      trc0.info().sampling.atIndex(trc0.size()-1),
+			      trc0.info().sampling.step );
+    tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
+    tdp->posData().setRange( false, zrg );
+    tdp->setName( name() ); 
+
+    setPack( false, tdp );
+    poststackpack_ = tdp; 
+}
+
+
+void SyntheticData::setPack( bool isps, DataPack* dp )
+{
+    removePack( isps );
+    if ( !dp ) return;
+    DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() : DataPackMgr::FlatID();
+    DPM( pmid ).add( dp );
+}
+
+
+void SyntheticData::removePack( bool isps )
+{
+    const DataPack::FullID dpid = isps ? prestackpackid_ : poststackpackid_;
     DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
     const DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
     if ( dp )

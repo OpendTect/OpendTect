@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.33 2011-09-08 09:08:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.34 2011-10-05 12:25:32 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -45,10 +45,11 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.33 2011-09-08 09:0
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
-			const ObjectSet<const SyntheticData>& synths)
+			const ObjectSet<SyntheticData>& synths)
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , lm_(lm)
+    , synthdatas_(synths)	     
 {
     if ( lm.isEmpty() )
 	{ errmsg_ = "Model is empty"; return;}
@@ -57,26 +58,11 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     for ( int idx=0; idx<synths.size(); idx++ )
     {
 	const SyntheticData& sd = *synths[idx];
-	const DataPack::FullID dpid = sd.packid_;
+	if ( !sd.getPack( false ) || !sd.getPack( true ) ) 
+	    continue;
 
-	DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-	DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
-	if ( !dp ) continue;
-
-	if ( sd.isps_ )
-	{
-	    mDynamicCastGet(PreStack::GatherSetDataPack*,psdp,dp)
-	    if ( !psdp ) continue; 
-	    pssynthdatas_ += new PackSynthData( *psdp, sd );
-	    psfids += dpid; 
-	}
-	else
-	{
-	    mDynamicCastGet(SeisTrcBufDataPack*,tbdp,dp)
-	    if ( !tbdp ) continue;
-	    synthdatas_ += new PackSynthData( *tbdp, sd );
-	    fids += dpid; 
-	}
+	psfids += sd.prestackpackid_; 
+	fids += sd.poststackpackid_; 
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
 	{ errmsg_ = "Missing or invalid datapacks"; return;}
@@ -100,12 +86,6 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     evfld_ = new uiStratSeisEvent( this, uiStratSeisEvent::Setup(true) );
     evfld_->attach( alignedWith, layseqattrfld_ );
     evfld_->attach( ensureBelow, sep );
-}
-
-
-uiStratSynthCrossplot::~uiStratSynthCrossplot()
-{
-    deepErase( synthdatas_ ); deepErase( pssynthdatas_ );
 }
 
 
@@ -133,13 +113,14 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 
     for ( int idx=0; idx<synthdatas_.size(); idx++ )
     {
-	const PackSynthData& psd = *synthdatas_[idx];
-	const ObjectSet<const TimeDepthModel>& d2tmodels = psd.sd_.d2tmodels_;
-	const int nrmdls = psd.sd_.d2tmodels_.size();
+	const SyntheticData& sd = *synthdatas_[idx];
+	const ObjectSet<const TimeDepthModel>& d2tmodels = sd.d2tmodels_;
+	const int nrmdls = sd.d2tmodels_.size();
 
-	SeisTrcBufDataPack& tbpack 
-			    = dynamic_cast<SeisTrcBufDataPack&>( psd.pack_ );
-	SeisTrcBuf& tbuf = tbpack.trcBuf();
+	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,sd.getPack(false));
+	if ( !tbpack ) continue;
+
+	const SeisTrcBuf& tbuf = tbpack->trcBuf();
 	if ( tbuf.size() != nrmdls )
 	    { pErrMsg("DataPack nr of traces != nr of d2t models"); return 0; }
 
@@ -147,7 +128,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	const Strat::SeisEvent& ssev = evfld_->event();
 	for ( int imod=0; imod<nrmdls; imod++ )
 	{
-	    SeisTrc& trc = *tbuf.get( imod );
+	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
 	    const float dpth = lm_.sequence(imod).depthOf( lvl );
 	    trc.info().pick = d2tmodels[imod]->getTime( dpth );
 	    lvltms += ssev.snappedTime( trc );
@@ -169,32 +150,25 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		dps->addRow( dr );
 	    }
 	}
-    }
 
-    for ( int idx=0; idx<pssynthdatas_.size(); idx++ )
-    {
-	const PackSynthData& psd = *pssynthdatas_[idx];
-	PreStack::GatherSetDataPack& pspack 
-		    = dynamic_cast<PreStack::GatherSetDataPack&>( psd.pack_ );
+	mDynamicCastGet(const PreStack::GatherSetDataPack*,pspack,
+			sd.getPack(false));
+	if ( !pspack ) continue;
 
-	TypeSet<float> lvltms;
-	const Strat::SeisEvent& ssev = evfld_->event();
-	const ObjectSet<const TimeDepthModel>& d2tmodels = psd.sd_.d2tmodels_;
-	const int nrmdls = psd.sd_.d2tmodels_.size();
+	lvltms.erase();
 	for ( int imod=0; imod<nrmdls; imod++ )
 	{
-	    const PreStack::Gather& gather = *pspack.getGathers()[imod];
+	    const PreStack::Gather& gather = *pspack->getGathers()[imod];
 	    const float dpth = lm_.sequence(imod).depthOf( lvl );
 	    lvltms += d2tmodels[imod]->getTime( dpth );//TODO snapp
 	}
 
-	const int nrextr = extrwin.nrSteps() + 1;
 	for ( int iextr=0; iextr<nrextr; iextr++ )
 	{
 	    const float relz = extrwin.atIndex( iextr );
-	    for ( int itrc=0; itrc<pspack.getGathers().size(); itrc++ )
+	    for ( int itrc=0; itrc<pspack->getGathers().size(); itrc++ )
 	    {
-		const PreStack::Gather& gather = *pspack.getGathers()[itrc];
+		const PreStack::Gather& gather = *pspack->getGathers()[itrc];
 		DataPointSet::DataRow dr;
 		dr.pos_.nr_ = itrc+1;
 		dr.pos_.set( gather.getCoord() );

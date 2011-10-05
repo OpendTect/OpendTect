@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.36 2011-09-19 09:32:16 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.37 2011-10-05 12:25:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,14 @@ class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
+class RayParam;
 class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
 class uiRayTracer1D;
 class uiLabeledComboBox;
+class uiFlatViewMainWin;
 class uiOffsetSlicePos;
 class uiPushButton;
 class uiRayTrcParamsDlg;
@@ -37,58 +39,27 @@ class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
 
 
-mClass uiOffsetSlicePos : public uiSlicePos2DView
+mClass uiSynthSlicePos : public uiGroup
 {
 public:
-    			uiOffsetSlicePos(uiParent*);
+    			uiSynthSlicePos(uiParent*,const char* lbltxt);
 
-    uiGroup*		attachGrp() 	{ return attachgrp_; }
-    void		setStep(int);
+    Notifier<uiSynthSlicePos>	positionChg;
+    void		setLimitSampling(StepInterval<float>);
+    int			getValue() const;
+
 protected:
-    uiGroup*		attachgrp_;
-};
+    uiLabel* 		label_;
+    uiSpinBox*		sliceposbox_;
+    uiSpinBox*		slicestepbox_;
+    uiToolButton*	prevbut_;
+    uiToolButton*	nextbut_;
 
+    void		slicePosChg( CallBacker* );
+    void		prevCB(CallBacker*);
+    void		nextCB(CallBacker*);
 
-mClass uiRayTrcParamsGrp : public uiGroup
-{
-public:
-
-    mClass Setup
-    {
-	public:
-				Setup(RayParams& rpars)
-				    : raypars_(rpars) 
-				    , offsetdir_(false)
-				    , withraysettings_(true)
-				    {}
-
-	mDefSetupMemb(RayParams&,raypars)
-	mDefSetupMemb(bool,offsetdir)
-	mDefSetupMemb(bool,withraysettings)
-    };
-
-				uiRayTrcParamsGrp(uiParent*,const Setup&);
-
-    void			setLimitSampling(const CubeSampling&);
-    void			setOffSetDirection(bool yn) 
-    				{ isoffsetdir_=yn; updateCB(0); }
-
-    void			doUpdate() 	{ updateCB(0); }
-    
-protected:
-
-    RayParams& 			raypars_;
-
-    uiRayTracer1D*		raytrace1dgrp_;
-
-    uiCheckBox*			nmobox_;
-    uiGenInput*			stackfld_;
-    CubeSampling		limitcs_;
-
-    bool			isoffsetdir_;
-    bool			previsoffsetdir_;
-
-    void 			updateCB(CallBacker*);
+    StepInterval<float>	limitsampling_;
 };
 
 
@@ -96,17 +67,14 @@ mClass uiRayTrcParamsDlg : public uiDialog
 {
 public:
 				uiRayTrcParamsDlg(uiParent*,RayParams&);
-
-    void			setLimitSampling(const CubeSampling& cs);
-    uiRayTrcParamsGrp*		parsGrp() 	{ return raytrcpargrp_; }
-
 protected:
+    uiCheckBox*			nmobox_;
+    uiGenInput*			stackfld_;
+    uiRayTracer1D*		raytrace1dgrp_;
 
-    uiComboBox*			directionfld_;
-    uiRayTrcParamsGrp*		raytrcpargrp_;
+    RayParams&			raypars_;
 
-    void 			dirChg(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK( CallBacker* );
 };
 
 
@@ -117,10 +85,10 @@ public:
     			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
-    const Strat::LayerModel& layerModel() const	{ return lm_; }
+    const Strat::LayerModel& layerModel() const;	
     const char*		levelName() const	{ return levelname_; }
-    const ObjectSet<const SyntheticData>& getSynthetics();
     const MultiID&	waveletID() const;
+    const ObjectSet<SyntheticData>& getSynthetics() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
@@ -138,18 +106,11 @@ public:
 
 protected:
 
-    const Strat::LayerModel& lm_;
-    Wavelet*		wvlt_;
     BufferString	levelname_;
     int			longestaimdl_;
-
-    RayParams& 		raypars_;
-
+    StratSynth&		stratsynth_;
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-
-    const SyntheticData* tmpsynthetic_;
-    ObjectSet<const SyntheticData> synthetics_;
-    ObjectSet<const SyntheticData> tmpsynthetics_;
+    SyntheticData* 	currentsynthetic_;
 
     uiGroup*		topgrp_;
     uiGroup*		modelgrp_;
@@ -159,15 +120,17 @@ protected:
     uiToolButton*	lasttool_;
     uiLabeledComboBox*	modellist_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
-    uiOffsetSlicePos*	posfld_;
-    StratSynth&		stratsynth_;
+    uiSynthSlicePos*	offsetposfld_;
+    uiSynthSlicePos*	modelposfld_;
+    uiFlatViewMainWin*	prestackwin_;
 
     void		cleanSynthetics();
     void		doModelChange();
-    const CubeSampling& getLimitSampling() const;
     const SeisTrcBuf&	curTrcBuf() const;
 
-    void		displaySynthetics(const SyntheticData*);
+    void		displaySynthetic(const SyntheticData*);
+    void		displayPreStackSynthetic(const SyntheticData*);
+    void		displayPostStackSynthetic(const SyntheticData*);
     void		addSynthetic(const RayParams& rp,bool isps);
     BufferString	getSynthDefaultName(const RayParams&) const;
 
@@ -176,8 +139,10 @@ protected:
     void		layerPropsPush(CallBacker*);
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
-    void		rayTrcPosChged(CallBacker*);
+    void		offsetPosChged(CallBacker*);
+    void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
+    void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
 

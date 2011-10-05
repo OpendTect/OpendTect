@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.61 2011-09-19 09:32:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.62 2011-10-05 12:25:32 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
-#include "uistratsynthdisp2crossplot.h"
 #include "uiseiswvltsel.h"
 #include "uisynthtorealscale.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
+#include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -49,18 +49,16 @@ mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
-    , tmpsynthetic_(0)   
-    , wvlt_(0)
-    , lm_(lm)
     , d2tmodels_(0)	     
-    , stratsynth_(*new StratSynth(lm_))
-    , raypars_(*new RayParams)				    
+    , stratsynth_(*new StratSynth(lm))
     , wvltChanged(this)
     , zoomChanged(this)
     , layerPropSelNeeded(this)
     , longestaimdl_(0)
     , lasttool_(0)
     , raytrcpardlg_(0)
+    , prestackwin_(0)		      
+    , currentsynthetic_(0)		      
 {
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -70,8 +68,13 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				    "Specify synthetic layers properties", 
 				    mCB(this,uiStratSynthDisp,layerPropsPush) );
 
+    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace.png", 
+				    "Specify ray tracer parameters", 
+				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
+    rttb->attach( rightOf, layertb );
+
     uiSeparator* pp2wvltsep = new uiSeparator( topgrp_, "Prop2Wvlt Sep", false);
-    pp2wvltsep->attach( stretchedRightTo, layertb );
+    pp2wvltsep->attach( rightTo, rttb );
 
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
@@ -85,17 +88,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
     wvlt2raysep->attach( stretchedRightTo, scalebut_ );
 
-    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace.png", 
-				    "Specify ray tracer parameters", 
-				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
-    rttb->attach( rightOf, wvlt2raysep );
-
-    posfld_ = new uiOffsetSlicePos( topgrp_ );
-    posfld_->setLabels( "Model", "Offset", "Offset" );
-    posfld_->attachGrp()->attach( rightOf, rttb );
-    posfld_->attachGrp()->setSensitive( false );
-    posfld_->setCubeSampling( raypars_.cs_ );
-    posfld_->positionChg.notify( mCB(this,uiStratSynthDisp,rayTrcPosChged) );
+    uiPushButton* createssynthbut = 
+		new uiPushButton( topgrp_, "Add new synthetics", false );
+    createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
+    createssynthbut->attach( rightOf, wvlt2raysep );
 
     modelgrp_ = new uiGroup( this, "Model group" );
     modelgrp_->attach( ensureBelow, topgrp_ );
@@ -103,20 +99,26 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     modelgrp_->setStretch( 2, 0 );
 
     modellist_ = new uiLabeledComboBox( modelgrp_, "View ", "" );
-    modellist_->attach( hCentered );
     modellist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
     modellist_->setStretch( 0, 0 );
-    cleanSynthetics();
-    raypars_ = RayParams::genDefaultPostStack(lm_.size());
 
-    uiPushButton* createssynthbut 
-		= new uiPushButton( modelgrp_, "Add new synthetics", false );
-    createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    modellist_->attach( ensureRightOf, createssynthbut );
+    offsetposfld_ = new uiSynthSlicePos( modelgrp_, "Offset" );
+    offsetposfld_->setSensitive( false );
+    offsetposfld_->positionChg.notify( 
+	    		mCB(this,uiStratSynthDisp,offsetPosChged) );
+    offsetposfld_->attach( rightOf, modellist_ );
+    offsetposfld_->attach( hCentered );
+
+    uiToolButton* pstb = new uiToolButton( modelgrp_, "nonmocorr64.png", 
+				"View Offset Direction", 
+				mCB(this,uiStratSynthDisp,viewPreStackPush) );
+    pstb->attach( rightOf, offsetposfld_);
+
+    cleanSynthetics();
 
     vwr_ = new uiFlatViewer( this );
-    vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
+    vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, modelgrp_ );
     FlatView::Appearance& app = vwr_->appearance();
@@ -142,12 +144,13 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
-    delete &raypars_;
-    delete wvlt_; wvlt_ = 0;
     delete &stratsynth_;
-    deepErase( synthetics_ );
-    deepErase( tmpsynthetics_ );
-    delete tmpsynthetic_;
+}
+
+
+const Strat::LayerModel& uiStratSynthDisp::layerModel() const
+{
+    return stratsynth_.layerModel();
 }
 
 
@@ -165,14 +168,12 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     else
 	tb->attach( rightBorder );
 
-    modellist_->attach( ensureLeftOf, tb );
     lasttool_ = tb;
 }
 
 
 void uiStratSynthDisp::cleanSynthetics()
 {
-    deepErase( synthetics_ );
     modellist_->box()->setEmpty();
     modellist_->box()->addItem( "Free view" );
     modellist_->setSensitive( false );
@@ -291,44 +292,25 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 void uiStratSynthDisp::modelChanged()
 {
     cleanSynthetics();
-
-    NotifyStopper ns( posfld_->positionChg );
-    CubeSampling cs( raypars_.cs_ ); 
-    HorSampling& hs = cs.hrg;
-    hs.setInlRange( Interval<int>(1,lm_.size()) );
-    hs.setCrlRange( Interval<int>(0,0) );
-    raypars_.cs_ = cs;
-    posfld_->setCubeSampling( raypars_.cs_ );
-
-    hs.setCrlRange( Interval<int>(0,RayTracer1D::sKeyStdMaxOffset()) );
-    posfld_->setLimitSampling( cs );
-    posfld_->attachGrp()->setSensitive( true );
-
-    if ( raytrcpardlg_ )
-	raytrcpardlg_->setLimitSampling( raypars_.cs_ );
-
     doModelChange();
 }
 
 
-void uiStratSynthDisp::displaySynthetics( const SyntheticData* sd )
+void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
+{
+    displayPostStackSynthetic( sd );
+    displayPreStackSynthetic( sd );
+}
+
+
+void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 {
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
     deepErase( vwr_->appearance().annot_.auxdata_ );
 
     if ( !sd ) return;
-
-    DataPack::FullID dpid = sd->packid_;
-    DataPackMgr::ID pmgrid = DataPackMgr::getID( dpid );
-    DataPack* dp = DPM(pmgrid).obtain( DataPack::getID(dpid) );
-    mDynamicCastGet(PreStack::GatherSetDataPack*,gsetdp,dp)
-    if ( gsetdp ) 
-    {
-	FlatDataPack* gdp = new PreStack::Gather(*gsetdp->getGathers()[0]);
-	dp = gdp; 
-	DPM(DataPackMgr::FlatID()).add( dp );
-    }
+    const DataPack* dp = sd->getPack( false );
     if ( !dp ) return;
 
     d2tmodels_ = &sd->d2tmodels_;
@@ -339,106 +321,136 @@ void uiStratSynthDisp::displaySynthetics( const SyntheticData* sd )
 	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
 
-    deepErase( vwr_->appearance().annot_.auxdata_ );
     vwr_->setPack( true, dp->id(), false );
     vwr_->setPack( false, dp->id(), false );
+}
+
+
+void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
+{
+    if ( !prestackwin_ ) return;
+
+    uiFlatViewer& vwr = prestackwin_->viewer();
+    vwr.clearAllPacks(); vwr.setNoViewDone();
+    vwr.control()->zoomMgr().toStart();
+
+    if ( !sd ) return;
+    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,sd->getPack(true))
+    if ( !gsetdp ) return;
+
+    const int midx = modelposfld_->getValue();
+    PreStack::Gather* gdp = new PreStack::Gather( *gsetdp->getGathers()[midx] );
+    DPM(DataPackMgr::FlatID()).add( gdp );
+
+    vwr.appearance() = vwr_->appearance();
+    vwr.appearance().annot_.auxdata_.erase();
+    vwr.setPack( false, gdp->id(), false, false ); 
+    vwr.setPack( true, gdp->id(), false , false); 
+}
+
+
+void uiStratSynthDisp::viewPreStackPush( CallBacker* )
+{
+    if ( prestackwin_ )
+    {
+	delete prestackwin_; 
+	prestackwin_ = 0;
+    }
+
+    if ( currentsynthetic_ )
+    {
+	uiFlatViewMainWin::Setup su( "Pre-Stack view", false );
+	prestackwin_ = new uiFlatViewMainWin( 0, su );
+
+	uiFlatViewStdControl::Setup fvsu( prestackwin_ );
+	fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )
+		.tba( (int)uiToolBar::Top );
+	uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( 
+					prestackwin_->viewer(), fvsu );
+	uiToolBar* tb = ctrl->toolBar();
+	modelposfld_ = new uiSynthSlicePos( tb, "Model" );
+	tb->addObject( modelposfld_->mainObject() );
+	modelposfld_->positionChg.notify( 
+		mCB(this,uiStratSynthDisp,modelPosChged) );
+	StepInterval<float> ls(  1, layerModel().size(), 1 );
+	modelposfld_->setLimitSampling( ls );
+
+	prestackwin_->setInitialSize( 300, 500 );
+	prestackwin_->start();
+    }
+    displayPreStackSynthetic( currentsynthetic_ );
 }
 
 
 void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
-    delete wvlt_; wvlt_ = wvltfld_->getWavelet();
-    delete tmpsynthetic_; tmpsynthetic_ = 0; 
 
-    stratsynth_.setWavelet( *wvlt_ );
-    d2tmodels_ = 0;
-    BufferString errmsg;
+    stratsynth_.setWavelet( wvltfld_->getWavelet() );
 
-    const SyntheticData* sd = 0;
     const int seldataidx = modellist_->box()->currentItem(); 
     topgrp_->setSensitive( seldataidx == 0 );
-    if ( seldataidx > 0 )
-    {
-	 sd = synthetics_[seldataidx-1];
-    }
-    else
-    {
-	sd = stratsynth_.generate( raypars_, false, &errmsg );
-	tmpsynthetic_ = sd;
-    }
 
-    displaySynthetics( sd );
-    if ( !errmsg.isEmpty() )
-	mErrRet( errmsg.buf(), return )
-}
+    currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
+    if ( currentsynthetic_ )
+	offsetposfld_->setLimitSampling(currentsynthetic_->raypars_.offsetrg_);
+    offsetposfld_->setSensitive( currentsynthetic_ );
 
-BufferString uiStratSynthDisp::getSynthDefaultName( const RayParams& rp ) const
-{
-    BufferString nm = rp.cs_.hrg.crlRange().width() ? "Pre-Stack " 
-						    : "Post-Stack ";
-    nm += wvltfld_->getName();
-    return nm;
+    displaySynthetic( currentsynthetic_ );
+
+    if ( stratsynth_.errMsg() )
+	mErrRet( stratsynth_.errMsg(), return )
 }
 
 
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
-    raypars_.synthname_ = getSynthDefaultName( raypars_ );
-    uiStratSynthDisp2Crossplot dlg( this, raypars_, getLimitSampling() );
-    if ( dlg.go() )
-    {
-	if ( modellist_->box()->isPresent( dlg.rayParam().synthname_ ) )
-	    mErrRet( "Name is already present, please specify another name", 
-		    return );
-	addSynthetic( dlg.rayParam(),dlg.isPS() );
-    }
-}
+    if ( !currentsynthetic_ ) 
+	return;
 
+    if ( modellist_->box()->isPresent( currentsynthetic_->name() ) )
+	mErrRet("Name is already present, please specify another name",return);
 
-void uiStratSynthDisp::addSynthetic( const RayParams& rp, bool isps )
-{
-    const SyntheticData* sd = stratsynth_.generate( rp, isps );
-    if ( sd )
-    {
-	synthetics_ += sd;
-	modellist_->box()->addItem( sd->name() );
-    }
-    modellist_->setSensitive( !synthetics_.isEmpty() );
+    stratsynth_.addSynthetics( currentsynthetic_ );
+    
+    modellist_->box()->addItem( currentsynthetic_->name() );
+    modellist_->setSensitive( stratsynth_.synthetics().size() > 1 );
 }
 
 
 void uiStratSynthDisp::rayTrcParPush( CallBacker* )
 {
     if ( !raytrcpardlg_ )
-	raytrcpardlg_ = new uiRayTrcParamsDlg( this, raypars_ );
-    raytrcpardlg_->setLimitSampling( posfld_->getLimitSampling() );
+	raytrcpardlg_ = new uiRayTrcParamsDlg( this, stratsynth_.rayPars() );
+
     raytrcpardlg_->go();
     raytrcpardlg_->button( uiDialog::OK )->activated.notify(
 			mCB(this,uiStratSynthDisp,rayTrcParChged) );
 }
 
 
-const CubeSampling& uiStratSynthDisp::getLimitSampling() const
+
+void uiStratSynthDisp::offsetPosChged( CallBacker* )
 {
-    return posfld_->getLimitSampling();
+    if ( currentsynthetic_ )
+    {
+	const RayParams& rp = currentsynthetic_->raypars_;
+	const int offidx = rp.offsetrg_.getIndex( offsetposfld_->getValue() );
+	currentsynthetic_->setPostStack( offidx); 
+    }
+    displayPostStackSynthetic( currentsynthetic_ );
 }
 
 
-void uiStratSynthDisp::rayTrcPosChged( CallBacker* )
+void uiStratSynthDisp::modelPosChged( CallBacker* )
 {
-    raypars_.cs_ = posfld_->getCubeSampling();
-    doModelChange();
+    displayPreStackSynthetic( currentsynthetic_ );
 }
 
 
 void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 {
-    NotifyStopper ns( posfld_->positionChg );
-    posfld_->setCubeSampling( raypars_.cs_ );
-    if ( raypars_.cs_.hrg.crlRange().width() )
-	posfld_->setStep( 1 );
     doModelChange();
 }
 
@@ -449,25 +461,9 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 }
 
 
-const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() 
+const ObjectSet<SyntheticData>& uiStratSynthDisp::getSynthetics() const
 {
-    deepErase( tmpsynthetics_ );
-    if ( synthetics_.isEmpty() && tmpsynthetic_ )
-    {
-	RayParams rp( raypars_ );
-	const bool isps = rp.cs_.hrg.crlRange().width() > 0;
-	rp.synthname_ = getSynthDefaultName( rp );
-	const SyntheticData* sd = stratsynth_.generate( rp, isps );
-	if ( sd ) tmpsynthetics_ += sd;
-
-	rp = isps ? RayParams::genDefaultPostStack( lm_.size() ) 
-			: RayParams::genDefaultPreStack( lm_.size() ); 
-	rp.synthname_ = getSynthDefaultName( rp );
-	sd = stratsynth_.generate( rp, !isps );
-	if ( sd ) tmpsynthetics_ += sd;
-	return tmpsynthetics_;
-    }
-    return synthetics_;
+    return stratsynth_.synthetics();
 }
 
 
@@ -477,156 +473,102 @@ const MultiID& uiStratSynthDisp::waveletID() const
 }
 
 
+uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
+    : uiGroup( p, "Slice Pos" )
+    , positionChg(this)  
+{
+    label_ = new uiLabel( this, lbltxt );
+    sliceposbox_ = new uiSpinBox( this, 0, "Slice position" );
+    sliceposbox_->valueChanging.notify( mCB(this,uiSynthSlicePos,slicePosChg));
+    sliceposbox_->valueChanged.notify( mCB(this,uiSynthSlicePos,slicePosChg));
+    sliceposbox_->attach( rightOf, label_ );
+
+    uiLabel* steplabel = new uiLabel( this, "Step" );
+    steplabel->attach( rightOf, sliceposbox_ );
+
+    slicestepbox_ = new uiSpinBox( this, 0, "Slice step" );
+    slicestepbox_->attach( rightOf, steplabel );
+
+    prevbut_ = new uiToolButton( this, "prevpos.png", "Previous position",
+				mCB(this,uiSynthSlicePos,prevCB) );
+    prevbut_->attach( rightOf, slicestepbox_ );
+    nextbut_ = new uiToolButton( this, "nextpos.png", "Next position",
+				 mCB(this,uiSynthSlicePos,nextCB) );
+    nextbut_->attach( rightOf, prevbut_ );
+}
+
+
+void uiSynthSlicePos::slicePosChg( CallBacker* )
+{
+    positionChg.trigger();
+}
+
+
+void uiSynthSlicePos::prevCB( CallBacker* )
+{
+    uiSpinBox* posbox = sliceposbox_;
+    uiSpinBox* stepbox = slicestepbox_;
+    posbox->setValue( posbox->getValue()-stepbox->getValue() );
+}
+
+
+void uiSynthSlicePos::nextCB( CallBacker* )
+{
+    uiSpinBox* posbox = sliceposbox_;
+    uiSpinBox* stepbox = slicestepbox_;
+    posbox->setValue( posbox->getValue()+stepbox->getValue() );
+}
+
+
+void uiSynthSlicePos::setLimitSampling( StepInterval<float> lms )
+{
+    limitsampling_ = lms;
+    sliceposbox_->setInterval( lms.start, lms.stop );
+    slicestepbox_->setValue( lms.step );
+}
+
+
+int uiSynthSlicePos::getValue() const
+{
+    return sliceposbox_->getValue();
+}
+
+
+
 uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp ) 
     : uiDialog(p,uiDialog::Setup(
 		"Specify ray tracer parameters","",mTODOHelpID).modal(false))
+    , raypars_(rp)
 {
     setCtrlStyle( DoAndStay );
 
-    static const char* dir[] = { "Model", "Offset", 0 };
-    uiLabeledComboBox* lblb = new uiLabeledComboBox( this, "Direction" );
-    directionfld_ = lblb->box();
-    directionfld_->addItems( dir );
-    lblb->attach( hCentered );
-    CallBack dircb( mCB(this,uiRayTrcParamsDlg,dirChg ) );
-    directionfld_->selectionChanged.notify( dircb );
+    nmobox_ = new uiCheckBox( this, "NMO corrections" );
+    nmobox_->setChecked( raypars_.usenmotimes_ );
+    nmobox_->attach( hCentered );
 
-    raytrcpargrp_ = new uiRayTrcParamsGrp( this, uiRayTrcParamsGrp::Setup(rp) );
-    raytrcpargrp_->attach( ensureBelow, lblb );
-}
+    /*
+    stackfld_ = new uiGenInput( this, "",
+			    BoolInpSpec(true, "Stack", "Zero Offset" ) );
+    stackfld_->setValue( raypars_.dostack_ );
+    stackfld_->attach( hCentered );
+    */
 
+    uiRayTracer1D::Setup rsu( &raypars_.setup_ );
+    rsu.dooffsets_ = true;
 
-void uiRayTrcParamsDlg::setLimitSampling( const CubeSampling& cs )
-{
-    raytrcpargrp_->setLimitSampling( cs );
-    dirChg(0);
-}
-
-void uiRayTrcParamsDlg::dirChg( CallBacker* )
-{
-    const int idx = directionfld_->currentItem();
-    raytrcpargrp_->setOffSetDirection( idx > 0 );
+    raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
+    raytrace1dgrp_->attach( alignedBelow, nmobox_ );
 }
 
 
 bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
 {
-    raytrcpargrp_->doUpdate();
+
+    raypars_.usenmotimes_ = nmobox_->isChecked();
+    //const bool isstacked = stackfld_->getBoolValue();
+    //raypars_.dostack_ = isstacked;
+
     return false;
 }
 
 
-uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
-    : uiSlicePos2DView( p )
-{
-    mDynamicCastGet(uiMainWin*,mw,p)
-    if ( mw )
-	mw->removeToolBar( toolbar_ );
-    else
-    {
-	mDynamicCastGet(uiMainWin*,pmw,p->mainwin())
-	if ( pmw )
-	    pmw->removeToolBar( toolbar_ );
-    }
-
-    attachgrp_ = new uiGroup( p, "Attach group" );
-
-    label_ = new uiLabel( attachgrp_, "Crl" );
-    sliceposbox_ = new uiSpinBox( attachgrp_, 0, "Slice position" );
-    sliceposbox_->valueChanging.notify( mCB(this,uiOffsetSlicePos,slicePosChg));
-    sliceposbox_->valueChanged.notify( mCB(this,uiOffsetSlicePos,slicePosChg));
-    sliceposbox_->attach( rightOf, label_ );
-
-    uiLabel* steplabel = new uiLabel( attachgrp_, "Step" );
-    steplabel->attach( rightOf, sliceposbox_ );
-
-    slicestepbox_ = new uiSpinBox( attachgrp_, 0, "Slice step" );
-    slicestepbox_->valueChanging.notify(
-	    			mCB(this,uiOffsetSlicePos,sliceStepChg) );
-    slicestepbox_->attach( rightOf, steplabel );
-
-    prevbut_ = new uiToolButton( attachgrp_, "prevpos.png", "Previous position",
-				mCB(this,uiOffsetSlicePos,prevCB) );
-    prevbut_->attach( rightOf, slicestepbox_ );
-    nextbut_ = new uiToolButton( attachgrp_, "nextpos.png", "Next position",
-				 mCB(this,uiOffsetSlicePos,nextCB) );
-    nextbut_->attach( rightOf, prevbut_ );
-}
-
-
-void uiOffsetSlicePos::setStep( int step )
-{
-    slicestepbox_->setValue( step );
-}
-
-uiRayTrcParamsGrp::uiRayTrcParamsGrp( uiParent* p, const Setup& su )
-    : uiGroup(p,"Ray paramrs group" )
-    , raypars_(su.raypars_)
-    , isoffsetdir_(su.offsetdir_)		  
-    , previsoffsetdir_(su.offsetdir_)
-{
-    nmobox_ = new uiCheckBox( this, "NMO corrections" );
-    nmobox_->setChecked( raypars_.usenmotimes_ );
-    nmobox_->attach( hCentered );
-
-    stackfld_ = new uiGenInput( this, "",
-			    BoolInpSpec(true, "Stack", "Zero Offset" ) );
-    stackfld_->setValue( raypars_.dostack_ );
-    stackfld_->valuechanged.notify( mCB(this,uiRayTrcParamsGrp,updateCB) );
-    stackfld_->attach( hCentered );
-
-    uiRayTracer1D::Setup rsu( &raypars_.setup_ );
-    rsu.dooffsets_ = true;
-    const float step = raypars_.cs_.hrg.step.crl;
-    const Interval<int> offs = raypars_.cs_.hrg.crlRange();
-    if ( offs.width() )
-	rsu.offsetrg_ = StepInterval<float>( offs.start, offs.stop, step );
-    rsu.offsetrg_.step = raypars_.cs_.hrg.step.crl;
-    raytrace1dgrp_ = new uiRayTracer1D( this, rsu );
-    raytrace1dgrp_->attach( alignedBelow, stackfld_ );
-
-    updateCB( 0 );
-}
-
-
-void uiRayTrcParamsGrp::setLimitSampling( const CubeSampling& cs )
-{
-    limitcs_ = cs;
-    updateCB(0);
-}
-
-
-void uiRayTrcParamsGrp::updateCB( CallBacker* )
-{
-    if ( isoffsetdir_ != previsoffsetdir_ )
-    {	
-	NotifyStopper( stackfld_->valuechanged );
-	stackfld_->setValue( false );
-    }
-    raypars_.cs_ = limitcs_;
-    nmobox_->display( isoffsetdir_ );
-    stackfld_->display( !isoffsetdir_ );
-    const bool isstacked = stackfld_->getBoolValue();
-    raytrace1dgrp_->displayOffsetFlds( isoffsetdir_ || isstacked );
-
-    if ( isoffsetdir_ || isstacked )
-    {
-	StepInterval<float> offsetrg;
-	raytrace1dgrp_->fill( raypars_.setup_ );
-	raytrace1dgrp_->getOffsets( offsetrg );
-	raypars_.cs_.hrg.setCrlRange( 
-		Interval<int>( (int)offsetrg.start, (int)offsetrg.stop ) );
-	raypars_.cs_.hrg.step.crl = (int)offsetrg.step;
-	if ( !isstacked )
-	    raypars_.cs_.hrg.setInlRange( Interval<int>(1,1) ); //model idx to 1
-    }
-    else
-    {
-	raypars_.cs_.hrg.step.inl = 1;
-	raypars_.cs_.hrg.setCrlRange( Interval<int>( 0, 0 ) ); //offset to 0
-    }
-    raypars_.usenmotimes_ = !isoffsetdir_ ? true : nmobox_->isChecked();
-    raypars_.dostack_ = isstacked;
-
-    previsoffsetdir_ = isoffsetdir_;
-}
