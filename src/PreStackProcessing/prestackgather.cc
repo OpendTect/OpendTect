@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.36 2011-10-04 12:08:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.37 2011-10-05 12:21:09 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -375,13 +375,29 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 }
 
 
-void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx )
+void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
 {
     for ( int idx=0; idx<gathers_.size(); idx++ )
     {
-	Array2D<float>& data = gathers_[idx]->data();
+	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<data.info().getSize(0); idz++ )
 	    inp.set( idx, idz, data.get( offsetidx, idz ) );
     }
 }
+
+
+void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
+{
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+    {
+	const int gathersz = gathers_[idx]->size(false);
+	SeisTrc* trc = new SeisTrc( gathersz );
+	trc->info().binid = gathers_[idx]->getBinID();	
+	const Array2D<float>& data = gathers_[idx]->data();
+	for ( int idz=0; idz<gathersz; idz++ )
+	    trc->set( idz, data.get( offsetidx, idz ), 0 );
+	inp.add( trc );
+    }
+}
+
 
