@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.213 2011-09-02 13:13:36 cvskris Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.214 2011-10-05 07:45:24 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -1106,7 +1106,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
    
     NotifyStopper selstopper( EM::EMM().undo().changenotifier );
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    PtrMan<Executor> exec = engine().trackInVolume();
+    Executor* exec = engine().trackInVolume();
     if ( exec )
     {
 	const int currentevent = EM::EMM().undo().currentEventID();
@@ -1116,6 +1116,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );
 	}
+	delete exec;	// AutoTracker destructor adds the undo event!
 	setUndoLevel(currentevent);
     }
 
