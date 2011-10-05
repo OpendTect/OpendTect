@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.134 2011-10-03 08:07:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.135 2011-10-05 08:14:06 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -636,40 +636,46 @@ void EMObjectDisplay::lock( bool yn )
 }
 
 
-void EMObjectDisplay::updatePosAttrib(int attrib)
+void EMObjectDisplay::updatePosAttrib( int attrib )
 {
     const int attribindex = posattribs_.indexOf(attrib);
     if ( attribindex==-1 ) return;
 
-    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
-
-    //Remove everything but material
-    while ( posattribmarkers_[attribindex]->size()>1 )
-	posattribmarkers_[attribindex]->removeObject(1);
-    
     mDynamicCastGet(visBase::Material*, posattrmat,
 		    posattribmarkers_[attribindex]->getObject(0) );
     posattrmat->setColor( emobject_->getPosAttrMarkerStyle(attrib).color_ );
 
-    if ( !pids )
-	return;
+    int markeridx = 1;		// element 0 contains material, start at 1
 
-    for ( int idx=0; idx<pids->size(); idx++ )
+    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
+
+    for ( int idx=0; pids && idx<pids->size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos((*pids)[idx]);
 	if ( !pos.isDefined() ) continue;
 
-	visBase::Marker* marker = visBase::Marker::create();
-	posattribmarkers_[attribindex]->addObject(marker);
+	visBase::Marker* marker;
+	if ( markeridx < posattribmarkers_[attribindex]->size() )
+	{
+	    mDynamicCast( visBase::Marker*, marker,
+			  posattribmarkers_[attribindex]->getObject(markeridx));
+	}
+	else
+	{
+	    marker = visBase::Marker::create();
+	    posattribmarkers_[attribindex]->addObject(marker);
+	    marker->setMaterial(0);
+	}
 
 	marker->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
-	marker->setMaterial(0);
 	marker->setDisplayTransformation(transformation_);
 	marker->setCenterPos(pos);
+	markeridx++;
     }
+
+    while ( posattribmarkers_[attribindex]->size() > markeridx  )
+	posattribmarkers_[attribindex]->removeObject( markeridx );
 }
-
-
 
 
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
