@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.125 2011-09-19 12:24:56 cvskris Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.126 2011-10-05 11:52:53 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -388,6 +388,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	trackercurrentobject_ = -1;
 	setupbeingupdated_ = false;
 	sendEvent( uiMPEPartServer::evShowToolbar() );
+	sendEvent( ::uiMPEPartServer::evSetupClosed() );
 	return;
     }
     
