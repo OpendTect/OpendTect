@@ -5,12 +5,13 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.37 2011-09-30 09:22:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.38 2011-10-05 12:21:37 cvsbruno Exp $";
+
 
 #include "arrayndimpl.h"
 #include "fourier.h"
-#include "fourierinterpol.h"
 #include "genericnumer.h"
+#include "reflectivitysampler.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "reflectivitymodel.h"
@@ -206,21 +207,11 @@ bool SynthGenerator::computeTrace( float* res )
 
     if ( doresample_ )
     {
-	TypeSet<FourierInterpol1D::Point> pts;
-	for ( int idx=0; idx<refmodel_->size(); idx++ )
-	{
-	    const ReflectivitySpike& sp = (*refmodel_)[idx];
-	    FourierInterpol1D::Point pt( sp.reflectivity_, 
-			  usenmotimes_ ? sp.correctedtime_ : sp.time_ );
-	    pts += pt;
-	}
-	FourierInterpol1D sampler( pts, outputsampling_ );
+	ReflectivitySampler sampler( *refmodel_, outputsampling_, 
+				    cresamprefl_, usenmotimes_ );
 	sampler.setTargetDomain( (bool)fft_ );
 	sampler.execute( true );
 	progress_ = sampler.nrDone();
-	const Array1DImpl<float_complex>* outp = sampler.getOutput();
-	for ( int idx=0; idx<outp->info().getSize(0); idx++ )
-	    cresamprefl_ += outp ? outp->get( idx ) : 0;
     }
     else
     {
@@ -436,7 +427,8 @@ bool RaySynthGenerator::doRayTracing()
 	{
 	    const TimeDepthModel& d2t = usenmotimes_ ? *rm->t2dmodels_[0]
 						     : *rm->t2dmodels_[idoff];
-	    raysampling_.include( d2t.getLastTime() );
+	    if ( !mIsUdf( d2t.getLastTime() ) )
+		raysampling_.include( d2t.getLastTime() );
 	}
 	raymodels_.insertAt( rm, 0 );
     }
@@ -521,9 +513,9 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
     SeisTrcPropChg stckr( *trc );
     for ( int idx=1; idx<outtrcs_.size(); idx++ )
 	stckr.stack( *outtrcs_[idx], false, idx );
+
     return trc;
 }
-
 
 #define mGet( inpset, outpset, steal )\
 {\
