@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.62 2011-09-30 07:32:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.63 2011-10-05 12:26:08 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -649,7 +649,7 @@ int Well::SimpleTrackSampler::nextStep()
     if ( tracklimits_.includes(zval,true) || extrapolate_ ) 
     {
 	if ( isinsidesurvey_ && !SI().includes( bid, zval, true ) ) 
-	    return Executor::MoreToDo();
+	    { nrdone_++; return Executor::MoreToDo(); }
 	bidset_ += bid; coords_ += pos;
     }
 
