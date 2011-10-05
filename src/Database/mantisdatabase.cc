@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.19 2011-10-03 07:32:59 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.20 2011-10-05 21:53:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,9 +103,11 @@ SqlDB::MantisDBMgr::~MantisDBMgr()
 
 const char* SqlDB::MantisDBMgr::errMsg() const
 {
-    if ( !errmsg_.isEmpty() ) return errmsg_.buf();
-    if ( query_ ) return query_->errMsg();
-    return acc_.errMsg();
+    if ( !errmsg_.isEmpty() )
+	return errmsg_.buf();
+
+    errmsg_ = query_ ? query_->errMsg() : acc_.errMsg();
+    return errmsg_.buf();
 }
 
 
