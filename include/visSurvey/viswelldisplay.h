@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.66 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.67 2011-10-06 13:24:32 cvsnanne Exp $
 
 
 
@@ -50,8 +50,8 @@ class Scene;
 
 */
 
-mClass WellDisplay :	public visBase::VisualObjectImpl,
-			public visSurvey::SurveyObject
+mClass WellDisplay : public visBase::VisualObjectImpl
+		   , public visSurvey::SurveyObject
 {
 public:
     static WellDisplay*		create()
@@ -131,6 +131,9 @@ public:
     Well::Data*			getWD() const;
 
     bool			allowsPicks() const	{ return true; }
+
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
     
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -150,7 +153,8 @@ protected:
     void                        pickCB(CallBacker* cb=0);
     void                        welldataDelNotify(CallBacker* cb=0);
     void 			saveDispProp( const Well::Data* wd );
-    void			setLogInfo(BufferString&,BufferString&,float,bool) const;
+    void			setLogInfo(BufferString&,BufferString&,
+					   float,bool) const;
     
     Well::DisplayProperties* 	dispprop_;
 
@@ -162,6 +166,9 @@ protected:
     visBase::Well*		well_;
     Well::Track*		pseudotrack_;
     Well::Data*			wd_;
+
+    ZAxisTransform*		datatransform_;
+    void			dataTransformCB(CallBacker*);
 
     Notifier<WellDisplay>	changed_;
 

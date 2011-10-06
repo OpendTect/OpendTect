@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.148 2011-10-04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.149 2011-10-06 13:24:32 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -117,6 +117,7 @@ WellDisplay::WellDisplay()
     , pseudotrack_(0)
     , needsave_(false)
     , dispprop_(0)
+    , datatransform_(0)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -140,6 +141,10 @@ WellDisplay::~WellDisplay()
 
     setBaseMap( 0 );
 }
+
+
+BaseMapObject* WellDisplay::createBaseMapObject()
+{ return new WellDisplayBaseMapObject( this ); }
 
 
 void WellDisplay::welldataDelNotify( CallBacker* )
@@ -666,70 +671,6 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 }
 
 
-void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-
-    par.set( sKeyEarthModelID, wellid_ );
-
-    const int viswellid = well_->id();
-    par.set( sKeyWellID, viswellid );
-    if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
-
-    mGetWD(return);
-    wd->displayProperties().fillPar( par );
-
-    fillSOPar( par, saveids );
-}
-
-
-int WellDisplay::usePar( const IOPar& par )
-{
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    int viswellid;
-    if ( par.get(sKeyWellID,viswellid) )
-    {
-	DataObject* dataobj = visBase::DM().getObject( viswellid );
-	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::Well*,well,dataobj)
-	if ( !well ) return -1;
-	setWell( well );
-    }
-    else
-    {
-	setWell( visBase::Well::create() );
-	viswellid = well_->id();
-    }
-
-    MultiID newmid;
-    if ( !par.get(sKeyEarthModelID,newmid) )
-	return -1;
-
-    if ( !setMultiID(newmid) )
-    {
-	return 1;
-    }
-
-    mGetWD(return -1);
-    wd->displayProperties().usePar( par );
-    displayLeftLog();
-    displayRightLog();
-
-// Support for old sessions
-    BufferString linestyle;
-    if ( par.get(visBase::Well::linestylestr(),linestyle) )
-    {
-	LineStyle lst;
-	lst.fromString( linestyle );
-	setLineStyle( lst );
-    }
-
-    return useSOPar( par );
-}
-
-
 void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
     well_->setDisplayTransformation( nt );
@@ -956,8 +897,79 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 }
 
 
-BaseMapObject* WellDisplay::createBaseMapObject()
-{ return new WellDisplayBaseMapObject( this ); }
+bool WellDisplay::setZAxisTransform(ZAxisTransform*,TaskRunner*)
+{ return true; }
 
-}; // namespace visSurvey
+const ZAxisTransform* WellDisplay::getZAxisTransform() const
+{ return datatransform_; }
+
+void WellDisplay::dataTransformCB( CallBacker* )
+{
+}
+
+
+void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+
+    par.set( sKeyEarthModelID, wellid_ );
+
+    const int viswellid = well_->id();
+    par.set( sKeyWellID, viswellid );
+    if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
+
+    mGetWD(return);
+    wd->displayProperties().fillPar( par );
+
+    fillSOPar( par, saveids );
+}
+
+
+int WellDisplay::usePar( const IOPar& par )
+{
+    int res = visBase::VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    int viswellid;
+    if ( par.get(sKeyWellID,viswellid) )
+    {
+	DataObject* dataobj = visBase::DM().getObject( viswellid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(visBase::Well*,well,dataobj)
+	if ( !well ) return -1;
+	setWell( well );
+    }
+    else
+    {
+	setWell( visBase::Well::create() );
+	viswellid = well_->id();
+    }
+
+    MultiID newmid;
+    if ( !par.get(sKeyEarthModelID,newmid) )
+	return -1;
+
+    if ( !setMultiID(newmid) )
+    {
+	return 1;
+    }
+
+    mGetWD(return -1);
+    wd->displayProperties().usePar( par );
+    displayLeftLog();
+    displayRightLog();
+
+// Support for old sessions
+    BufferString linestyle;
+    if ( par.get(visBase::Well::linestylestr(),linestyle) )
+    {
+	LineStyle lst;
+	lst.fromString( linestyle );
+	setLineStyle( lst );
+    }
+
+    return useSOPar( par );
+}
+
+} // namespace visSurvey
 
