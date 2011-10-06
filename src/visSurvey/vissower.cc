@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.5 2011-10-05 14:59:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.6 2011-10-06 12:49:44 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -94,7 +94,8 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
     return yn; \
 }
 
-bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
+bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
+		      int underlyingobjid )
 {
     if ( mode_ != Idle )
 	mReturnHandled( false );
@@ -121,6 +122,7 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
+    underlyingobjid_ = underlyingobjid;
 
     mReturnHandled( true );
 }
@@ -177,7 +179,8 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( sz && eventinfo.mousepos==eventlist_[sz-1]->mousepos )
 	    mReturnHandled( true );
 
-	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids )
+	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids &&
+	     !eventinfo.pickedobjids.isPresent(underlyingobjid_) )
 	{
 	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
 		sowingline_->addPoint( eventinfo.worldpickedpos );

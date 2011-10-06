@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.4 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.5 2011-10-06 12:49:45 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,8 @@ public:
     Coord3		pivotPos() const;
 
     bool		accept(const visBase::EventInfo&);
-    bool		activate(const Color&,const visBase::EventInfo&);
+    bool		activate(const Color&,const visBase::EventInfo&,
+	    			 int underlyingobjid=-1);
 
 protected:
     bool		acceptMouse(const visBase::EventInfo&);
@@ -83,6 +84,7 @@ protected:
     bool				linelost_;
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
+    int					underlyingobjid_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 
