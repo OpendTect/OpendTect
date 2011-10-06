@@ -13,12 +13,13 @@
 #include "velocitycalc.h"
 #include "zoeppritzcoeff.h"
 
+mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
-    return par.getYN( sKeyPWave(), pdown_, pup_ ) &&
-	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_ ) &&
-	   par.get( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_ );
+    return par.getYN( sKeyPWave(), pdown_, pup_) &&
+	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_) &&
+	   par.get( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_);
 }
 
 
@@ -30,22 +31,53 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 }
 
 
-RayTracer1D::RayTracer1D( const RayTracer1D::Setup& s )
-    : setup_( s )
-    , receiverlayer_( 0 )
+RayTracer1D::RayTracer1D()
+    : receiverlayer_( 0 )
     , sourcelayer_( 0 )
     , sini_( 0 )
     , twt_(0)
     , reflectivity_( 0 )
-{}					       	
+{}					       
 
 
 RayTracer1D::~RayTracer1D()
 { delete sini_; delete twt_; delete reflectivity_; }
 
 
-void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
-{ setup_ = s; }
+RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
+{
+    BufferString type;
+    par.get( sKey::Type, type );
+
+    RayTracer1D* raytracer = factory().create( type );
+    if ( !raytracer )
+    {
+	errm = "Raytracer not found. Perhaps all plugins are not loaded";
+	return 0;
+    }
+
+    if ( !raytracer->usePar( par ) )
+    {
+	errm = raytracer->errMsg();
+	delete raytracer;
+	return 0;
+    }
+
+    return raytracer;
+}
+
+
+bool RayTracer1D::usePar( const IOPar& par )
+{
+    return setup().usePar( par );
+}
+
+
+void RayTracer1D::fillPar( IOPar& par ) const 
+{
+    par.set( sKey::Type, factoryKeyword() );
+    setup().fillPar( par );
+}
 
 
 void RayTracer1D::setModel( const ElasticModel& lys )
@@ -60,67 +92,7 @@ od_int64 RayTracer1D::nrIterations() const
 { return model_.size() -1; }
 
 
-int RayTracer1D::findLayer( const ElasticModel& model, float targetdepth ) const
-{
-    int res; float depth = setup_.sourcedepth_;
-    for ( res=0; res<model.size(); res++ )
-    {
-	if ( targetdepth <= depth  )
-	    break;
-	depth += model[res].thickness_;
-    }
-
-    return res ? res-1 : 0;
-}
-
-
 bool RayTracer1D::doPrepare( int nrthreads )
-{
-    if ( !init() )
-	return false;
-
-    const int layersize = nrIterations();
-
-    const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
-
-    TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
-    velmax_ +=0;
-    for ( int idx=firstlayer_; idx<layersize; idx++ )
-    {
-	const ElasticLayer& layer = model_[idx];
-	dnmotimes += 0; dvrmssum += 0;
-	unmotimes += 0; uvrmssum += 0;
-	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
-	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
-	const float dz = layer.thickness_;
-	if ( idx >= sourcelayer_)
-	{
-	    dnmotimes[idx] += dz / dvel;
-	    dvrmssum[idx] += dz * dvel; 
-	}
-
-	if ( idx >= receiverlayer_ )
-	{
-	    unmotimes[idx] += dz / uvel;
-	    uvrmssum[idx] += dz * uvel; 
-	}
-	if ( idx ) 
-	{
-	    dvrmssum[idx] += dvrmssum[idx-1];
-	    uvrmssum[idx] += uvrmssum[idx-1];
-	    dnmotimes[idx] += dnmotimes[idx-1];
-	    unmotimes[idx] += unmotimes[idx-1];
-	}
-	const float vrmssum = dvrmssum[idx] + uvrmssum[idx];
-	const float twt = unmotimes[idx] + dnmotimes[idx];
-	velmax_ += sqrt( vrmssum / twt );
-	twt_->set( idx, 0, twt );
-    }
-    return true;
-}
-
-
-bool RayTracer1D::init()
 {
     //See if we can find zero-offset
     bool found = false;
@@ -136,8 +108,8 @@ bool RayTracer1D::init()
 	offsets_ += 0;
 
     const int sz = model_.size();
-    const float p2safac = setup_.pvel2svelafac_;
-    const float p2sbfac = setup_.pvel2svelbfac_;
+    const float p2safac = setup().pvel2svelafac_;
+    const float p2sbfac = setup().pvel2svelbfac_;
 
     if ( sz < 1 )
     {
@@ -165,11 +137,22 @@ bool RayTracer1D::init()
 	    return false;
 	}
     }
-
-    sourcelayer_ = findLayer( model_, setup_.sourcedepth_ );
-    receiverlayer_ = findLayer( model_, setup_.receiverdepth_ );
-
     const int layersize = nrIterations();
+
+    for ( int idx=0; idx<layersize+1; idx++ )
+	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
+	               : setup().sourcedepth_ + model_[idx].thickness_;
+
+    sourcelayer_ = 0;
+    float targetdepth = setup().receiverdepth_; 
+    for ( int idx=0; idx<model_.size(); idx++ )
+    {
+	receiverlayer_ = idx;
+	const float depth = depths_[idx];
+	if ( targetdepth <= depth  )
+	  break;
+    }
+
     if ( sourcelayer_>=layersize || receiverlayer_>=layersize )
     {
 	errmsg_ = "Source or receiver is below lowest layer";
@@ -206,97 +189,6 @@ bool RayTracer1D::init()
 	reflectivity_->setSize( layersize, offsetsz );
 
     reflectivity_->setAll( mUdf( float_complex ) );
-
-    for ( int idx=0; idx<layersize+1; idx++ )
-	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
-	               : setup_.sourcedepth_ + model_[idx].thickness_;
-
-    return true;
-}
-
-
-
-bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
-{
-    const int offsz = offsets_.size();
-
-    for ( int layer=start; layer<=stop; layer++ )
-    {
-	const ElasticLayer& ellayer = model_[layer];
-	const float depth = depths_[layer];
-	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
-	for ( int osidx=0; osidx<offsz; osidx++ )
-	{
-	    const float offset = offsets_[osidx];
-	    const float angle = depth ? atan( offset / depth ) : 0;
-	    const float rayparam = sin(angle) / vel;
-
-	    if ( !compute( layer+1, osidx, rayparam ) )
-	    { 
-		BufferString msg( "Can not compute reflectivity " );
-		msg += toString( layer+1 ); 
-		msg += "\n most probably the velocity is negative or null";
-		errmsg_ = msg; return false; 
-	    }
-	}
-    }
-    return true;
-}
-
-
-bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
-{
-    const ElasticLayer& ellayer = model_[layer];
-    const float downvel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
-    const float upvel = setup_.pup_ ? ellayer.vel_ : ellayer.svel_;
-
-    const float sini = downvel * rayparam;
-    sini_->set( layer-1, offsetidx, sini );
-
-    const float off = offsets_[offsetidx];
-
-    float_complex reflectivity = 0;
-
-    if ( !mIsZero(off,mDefEps) ) 
-    {
-	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
-	for ( int idx=firstlayer_; idx<layer; idx++ )
-	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
-	int lidx = sourcelayer_;
-	reflectivity = coefs[lidx].getCoeff( true, 
-				lidx!=layer-1, setup_.pdown_,
-				lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
-	lidx++;
-
-	while ( lidx < layer )
-	{
-	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
-		    setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
-	    lidx++;
-	}
-
-	for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
-	{
-	    if ( lidx>receiverlayer_  )
-		reflectivity *=
-		    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
-	}
-    }
-    else
-    {
-	const ElasticLayer& ail0 = model_[ layer-1 ];
-	const ElasticLayer& ail1 = model_[ layer ];
-	const float ai0 = ail0.vel_ * ail0.den_;
-	const float ai1 = ail1.vel_ * ail1.den_;
-        reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
-    }
-
-    const float tnmo = twt_->get( layer-1, 0 );
-    const float vrms = velmax_[layer];
-    const float twt = sqrt( off*off/( vrms*vrms ) + tnmo*tnmo );
-
-    reflectivity_->set( layer-1, offsetidx, reflectivity );
-    twt_->set( layer-1, offsetidx, twt );
 
     return true;
 }
@@ -360,7 +252,7 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     const int nrlayers = model_.size();
 
     TypeSet<float> times, depths;
-    times += 0; depths += setup_.sourcedepth_;
+    times += 0; depths += setup().sourcedepth_;
     for ( int idx=0; idx<nrlayers; idx++ )
     {
 	depths += depths_[idx];
@@ -370,4 +262,138 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     sort_array( times.arr(), nrlayers+1 );
     return d2tm.setModel( depths.arr(), times.arr(), nrlayers+1 ); 
 }
+
+
+
+
+bool VrmsRayTracer1D::doPrepare( int nrthreads )
+{
+    if ( !RayTracer1D::doPrepare( nrthreads ) )
+	return false;
+
+    const int layersize = nrIterations();
+    const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
+
+    TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
+    velmax_ +=0;
+    for ( int idx=firstlayer_; idx<layersize; idx++ )
+    {
+	const ElasticLayer& layer = model_[idx];
+	dnmotimes += 0; dvrmssum += 0;
+	unmotimes += 0; uvrmssum += 0;
+	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
+	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
+	const float dz = layer.thickness_;
+	if ( idx >= sourcelayer_)
+	{
+	    dnmotimes[idx] += dz / dvel;
+	    dvrmssum[idx] += dz * dvel; 
+	}
+
+	if ( idx >= receiverlayer_ )
+	{
+	    unmotimes[idx] += dz / uvel;
+	    uvrmssum[idx] += dz * uvel; 
+	}
+	if ( idx ) 
+	{
+	    dvrmssum[idx] += dvrmssum[idx-1];
+	    uvrmssum[idx] += uvrmssum[idx-1];
+	    dnmotimes[idx] += dnmotimes[idx-1];
+	    unmotimes[idx] += unmotimes[idx-1];
+	}
+	const float vrmssum = dvrmssum[idx] + uvrmssum[idx];
+	const float twt = unmotimes[idx] + dnmotimes[idx];
+	velmax_ += sqrt( vrmssum / twt );
+	twt_->set( idx, 0, twt );
+    }
+    return true;
+}
+
+
+bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
+{
+    const int offsz = offsets_.size();
+
+    for ( int layer=start; layer<=stop; layer++ )
+    {
+	const ElasticLayer& ellayer = model_[layer];
+	const float depth = depths_[layer];
+	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
+	for ( int osidx=0; osidx<offsz; osidx++ )
+	{
+	    const float offset = offsets_[osidx];
+	    const float angle = depth ? atan( offset / depth ) : 0;
+	    const float rayparam = sin(angle) / vel;
+
+	    if ( !compute( layer+1, osidx, rayparam ) )
+	    { 
+		BufferString msg( "Can not compute reflectivity " );
+		msg += toString( layer+1 ); 
+		msg += "\n most probably the velocity is negative or null";
+		errmsg_ = msg; return false; 
+	    }
+	}
+    }
+    return true;
+}
+
+
+bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
+{
+    const ElasticLayer& ellayer = model_[layer];
+    const float downvel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
+    const float upvel = setup_.pup_ ? ellayer.vel_ : ellayer.svel_;
+
+    const float sini = downvel * rayparam;
+    sini_->set( layer-1, offsetidx, sini );
+
+    const float off = offsets_[offsetidx];
+
+    float_complex reflectivity = 0;
+
+    if ( !mIsZero(off,mDefEps) ) 
+    {
+	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
+	for ( int idx=firstlayer_; idx<layer; idx++ )
+	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
+	int lidx = sourcelayer_;
+	reflectivity = coefs[lidx].getCoeff( true, 
+				lidx!=layer-1, setup_.pdown_,
+				lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
+	lidx++;
+
+	while ( lidx < layer )
+	{
+	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
+		    setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
+	    lidx++;
+	}
+
+	for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
+	{
+	    if ( lidx>receiverlayer_  )
+		reflectivity *=
+		    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
+	}
+    }
+    else
+    {
+	const ElasticLayer& ail0 = model_[ layer-1 ];
+	const ElasticLayer& ail1 = model_[ layer ];
+	const float ai0 = ail0.vel_ * ail0.den_;
+	const float ai1 = ail1.vel_ * ail1.den_;
+        reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
+    }
+
+    const float tnmo = twt_->get( layer-1, 0 );
+    const float vrms = velmax_[layer];
+    const float twt = sqrt( off*off/( vrms*vrms ) + tnmo*tnmo );
+
+    reflectivity_->set( layer-1, offsetidx, reflectivity );
+    twt_->set( layer-1, offsetidx, twt );
+
+    return true;
+}
+
 

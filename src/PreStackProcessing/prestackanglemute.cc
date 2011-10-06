@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.14 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.15 2011-10-06 14:17:33 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: prestackanglemute.cc,v 1.14 2011-08-10 15:03:51
 using namespace PreStack;
 
 AngleMuteBase::AngleMuteBase()
-    : pars_(0)
+    : params_(0)
 {
     velsource_ = new Vel::VolumeFunctionSource();
     velsource_->ref();
@@ -34,33 +34,33 @@ AngleMuteBase::AngleMuteBase()
 
 AngleMuteBase::~AngleMuteBase()
 {
-    delete pars_;
+    delete params_;
     velsource_->unRef();
 }
 
 
 void AngleMuteBase::fillPar( IOPar& par ) const
 {
-    PtrMan <IOObj> ioobj = IOM().get( pars_->velvolmid_ );
-    if ( ioobj ) par.set( sKeyVelVolumeID(), pars_->velvolmid_ );
+    PtrMan <IOObj> ioobj = IOM().get( params_->velvolmid_ );
+    if ( ioobj ) par.set( sKeyVelVolumeID(), params_->velvolmid_ );
 
     IOPar rtracepar;
-    pars_->raysetup_.fillPar( rtracepar );
+    params_->raysetup_.fillPar( rtracepar );
     par.mergeComp( rtracepar, sKeyRayTracer() );
-    par.set( sKeyMuteCutoff(), pars_->mutecutoff_ );
-    par.setYN( sKeyVelBlock(), pars_->dovelblock_ );
+    par.set( sKeyMuteCutoff(), params_->mutecutoff_ );
+    par.setYN( sKeyVelBlock(), params_->dovelblock_ );
 }
 
 
 bool AngleMuteBase::usePar( const IOPar& par  ) 
 {
     PtrMan<IOPar> rtracepar = par.subselect( sKeyRayTracer() );
-    if ( !rtracepar || !pars_->raysetup_.usePar( *rtracepar ) )
+    if ( !rtracepar || !params_->raysetup_.usePar( *rtracepar ) )
 	return false;
 
-    par.get( sKeyVelVolumeID(), pars_->velvolmid_ );
-    par.get( sKeyMuteCutoff(), pars_->mutecutoff_ );
-    par.getYN( sKeyVelBlock(), pars_->dovelblock_ );
+    par.get( sKeyVelVolumeID(), params_->velvolmid_ );
+    par.get( sKeyMuteCutoff(), params_->mutecutoff_ );
+    par.getYN( sKeyVelBlock(), params_->dovelblock_ );
 
     return true;
 }
@@ -68,7 +68,7 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 
 bool AngleMuteBase::setVelocityFunction()
 {
-    const MultiID& mid = pars_->velvolmid_;
+    const MultiID& mid = params_->velvolmid_;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
@@ -110,7 +110,7 @@ bool AngleMuteBase::getLayers(const BinID& bid,
     if ( velsource_->zIsTime() )
     {
 	RefMan<Time2DepthStretcher> t2dstretcher= new Time2DepthStretcher();
-	if ( !t2dstretcher->setVelData(pars_->velvolmid_) )
+	if ( !t2dstretcher->setVelData(params_->velvolmid_) )
 	    return false;
 
 	CubeSampling cs;
@@ -126,7 +126,7 @@ bool AngleMuteBase::getLayers(const BinID& bid,
 	    depths[il] = zrg.atIndex( il );
     }
 
-    if ( pars_->dovelblock_ )
+    if ( params_->dovelblock_ )
     {
 	BendPointVelBlock( depths, vels );
 	nrlayers = vels.size();
@@ -144,7 +144,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 					    int ioff, bool tail ) const 
 {
     float mutelayer = mUdf(float);
-    const float cutoffsin = sin( pars_->mutecutoff_ * M_PI / 180 );
+    const float cutoffsin = sin( params_->mutecutoff_ * M_PI / 180 );
     if ( tail )
     {
 	float prevsin = mUdf(float);
@@ -207,7 +207,7 @@ AngleMute::AngleMute()
     : Processor( sFactoryKeyword() )
     , muter_( 0 )
 {
-    pars_ = new AngleMutePars();
+    params_ = new AngleMutePars();
 }
 
 
@@ -223,6 +223,9 @@ bool AngleMute::doPrepare( int nrthreads )
     if ( !setVelocityFunction() )
 	return false;
 
+    if ( RayTracer1D::factory().getNames(false).isEmpty() )
+	return false;
+
     raytraceparallel_ = nrthreads < Threads::getNrProcessors();
 
     if ( !muter_ ) 
@@ -230,8 +233,12 @@ bool AngleMute::doPrepare( int nrthreads )
 
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	rtracers_ += new RayTracer1D( RayTracer1D::Setup() );
-	rtracers_[idx]->setSetup( pars_->raysetup_ );
+	BufferString type = RayTracer1D::factory().getDefaultName();
+	if ( type.isEmpty() )
+	    type = *RayTracer1D::factory().getNames(false)[0];
+
+	rtracers_ += RayTracer1D::factory().create( type );
+	rtracers_[idx]->setup() = params_->raysetup_;
     }
     return true;
 }
@@ -246,7 +253,7 @@ bool AngleMute::usePar( const IOPar& par )
     par.getYN( Mute::sTailMute(), params().tail_ );
 
     for ( int idx=0; idx<rtracers_.size(); idx++ )
-	rtracers_[idx]->setSetup( pars_->raysetup_  );
+	rtracers_[idx]->setup() = params_->raysetup_; 
 
     return true;
 }
@@ -307,9 +314,9 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 
 AngleMute::AngleMutePars& AngleMute::params()
-{ return static_cast<AngleMute::AngleMutePars&>(*pars_); }
+{ return static_cast<AngleMute::AngleMutePars&>(*params_); }
 
 
 const AngleMute::AngleMutePars& AngleMute::params() const
-{ return static_cast<AngleMute::AngleMutePars&>(*pars_); }
+{ return static_cast<AngleMute::AngleMutePars&>(*params_); }
 

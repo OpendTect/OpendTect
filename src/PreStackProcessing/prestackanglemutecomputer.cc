@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.2 2011-08-10 15:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.3 2011-10-06 14:17:33 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -28,7 +28,7 @@ AngleMuteComputer::AngleMuteComputer()
     : outputmute_(*new MuteDef)
     , raytracer_(0)
 {
-    pars_ = new AngleMuteCompPars();
+    params_ = new AngleMuteCompPars();
 }
 
 
@@ -64,7 +64,15 @@ bool AngleMuteComputer::doPrepare( int )
 
     MuteDefTranslator::retrieve(outputmute_,muteioobj,errmsg_);
 
-    raytracer_ = new RayTracer1D( params().raysetup_ );
+    if ( RayTracer1D::factory().getNames(false).isEmpty() )
+	return false;
+
+    BufferString type = RayTracer1D::factory().getDefaultName();
+    if ( type.isEmpty() )
+	type = *RayTracer1D::factory().getNames(false)[0];
+
+    raytracer_ = RayTracer1D::factory().create( type );
+    raytracer_->setup() = params_->raysetup_;
 
     offsets_.erase();
     for ( int idx=0; idx<params().offsetrg_.nrSteps(); idx++ )
@@ -145,10 +153,10 @@ od_int64 AngleMuteComputer::nrIterations() const
 
 
 AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params()
-{ return static_cast<AngleMuteCompPars&>(*pars_); }
+{ return static_cast<AngleMuteCompPars&>(*params_); }
 
 
 const AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params() const
-{ return static_cast<AngleMuteComputer::AngleMuteCompPars&>(*pars_); }
+{ return static_cast<AngleMuteComputer::AngleMuteCompPars&>(*params_); }
 
 } //PreStack

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.8 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.9 2011-10-06 14:17:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ protected:
     			AngleMuteBase();
     			~AngleMuteBase();
 
-    Params*		pars_;
+    Params*		params_;
 
     Vel::VolumeFunctionSource*	velsource_;
 

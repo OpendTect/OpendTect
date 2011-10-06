@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.4 2011-09-08 14:16:05 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.5 2011-10-06 14:17:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -31,8 +31,7 @@ public:
 			    : convertedwaves_(false)
 			    , dosourcereceiverdepth_(true)
 			    , dooffsets_(false)
-			    , offsetrg_(0,RayTracer1D::sKeyStdMaxOffset(),
-					  RayTracer1D::sKeyStdStep())
+			    , offsetrg_(0,3000,100)
 			    , raysetup_(rsu)
 			    {}
 

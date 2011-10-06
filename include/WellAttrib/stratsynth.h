@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.8 2011-10-05 12:25:32 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.9 2011-10-06 14:17:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,7 @@ mStruct RayParams
 {				RayParams()
 				    : synthname_("Synthetics")
 				    , usenmotimes_(true)	
-				    , offsetrg_(0,
-					    RayTracer1D::sKeyStdMaxOffset(),
-					    RayTracer1D::sKeyStdStep())
+				    , offsetrg_(0,3000,100)
 				    {}
 
 				RayParams(const RayParams& rp)

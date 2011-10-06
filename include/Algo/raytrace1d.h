@@ -6,13 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.25 2011-09-08 14:16:05 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.26 2011-10-06 14:17:33 cvsbruno Exp $
 ________________________________________________________________________
 
 */
 
 #include "ailayer.h"
 #include "fixedstring.h"
+#include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
 #include "task.h"
@@ -21,10 +22,13 @@ template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
-
 mClass RayTracer1D : public ParallelTask
-{
+{ 
 public:
+    mDefineFactoryInClass( RayTracer1D, factory );
+
+    static RayTracer1D*	createInstance(const IOPar&,BufferString&);
+
     mClass Setup
     {
     public:
@@ -37,76 +41,85 @@ public:
 			    , pvel2svelbfac_(-0.959) 
 			{}
 
-				mDefSetupMemb(bool,pdown);
-				mDefSetupMemb(bool,pup);
-				mDefSetupMemb(float,sourcedepth);
-				mDefSetupMemb(float,receiverdepth);
-				mDefSetupMemb(float,pvel2svelafac);
-				mDefSetupMemb(float,pvel2svelbfac);
+	mDefSetupMemb(bool,pdown);
+	mDefSetupMemb(bool,pup);
+	mDefSetupMemb(float,sourcedepth);
+	mDefSetupMemb(float,receiverdepth);
+	mDefSetupMemb(float,pvel2svelafac);
+	mDefSetupMemb(float,pvel2svelbfac);
 
-	virtual void		fillPar(IOPar&) const;
-	virtual bool		usePar(const IOPar&);
-
-	static const char*	sKeyPWave()	{ return "Wavetypes"; }
-	static const char*	sKeySRDepth()	{ return "SR Depths"; }
-	static const char*	sKeyPSVelFac()	{ return "PWave/SWave factor"; }
+	virtual void	fillPar(IOPar&) const;
+	virtual bool	usePar(const IOPar&);
     };
 
+    virtual RayTracer1D::Setup&	setup() 		= 0;
+    virtual const RayTracer1D::Setup& setup() const 	= 0;
 
-				RayTracer1D(const Setup&);
-    virtual			~RayTracer1D();			
-    virtual const Setup&	setup() const		{ return setup_; }
-    virtual void		setSetup(const Setup&);
+    void		setModel(const ElasticModel&);
+			/*!<Note, if either p-wave or s-wave are undef, 
+			  will fill them with Castagna 
+			  to compute zoeppritz coeffs <!*/
 
-    void			setModel(const ElasticModel&);
-				/*!<Note, if either p-wave or s-wave are undef, 
-				  will fill them with Castagna 
-				  to compute zoeppritz coeffs <!*/
+    void		setOffsets(const TypeSet<float>& offsets);
 
-    void			setOffsets(const TypeSet<float>& offsets);
-
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*		errMsg() const { return errmsg_.str(); }
 
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
-    float*		getSinAngleData() const;
-
     bool                getReflectivity(int offset,ReflectivityModel&) const;
     bool		getTWT(int offset,TimeDepthModel&) const;
 
-    static int          sKeyStdMaxOffset()              { return 3000; }
-    static int          sKeyStdStep()                   { return 100; }
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
+    static const char*	sKeyPWave()	{ return "Wavetypes"; }
+    static const char*	sKeySRDepth()	{ return "SR Depths"; }
+    static const char*	sKeyPSVelFac()	{ return "PWave/SWave factor"; }
 
 protected:
+			RayTracer1D();
+			~RayTracer1D();
 
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
-    virtual bool	doWork(od_int64,od_int64,int);
-
-    virtual bool	init();
-    virtual bool	compute(int,int,float);
-
-    int			findLayer(const ElasticModel& model,
-	    			float targetdepth) const;
 
     			//Setup variables
     ElasticModel	model_;
     TypeSet<float>	offsets_;
-    Setup		setup_;
+    FixedString		errmsg_;
 
 			//Runtime variables
     int			sourcelayer_;
     int			receiverlayer_;
     int			firstlayer_;
     TypeSet<int>	offsetpermutation_;
-    FixedString		errmsg_;
     TypeSet<float>	velmax_;
     TypeSet<float>	depths_;
 
-			//Results
-    Array2DImpl<float>*	sini_;
-    Array2DImpl<float>* twt_;
+				//Results
+    Array2DImpl<float>*		sini_;
+    Array2DImpl<float>*		twt_;
     Array2DImpl<float_complex>* reflectivity_;
+};
+
+
+
+mClass VrmsRayTracer1D : public RayTracer1D
+{ 
+public:
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRaytracer",
+				"Simple Raytracer" );
+
+    RayTracer1D::Setup&		setup() 	{ return setup_; }
+    const RayTracer1D::Setup&	setup() const	{ return setup_; }
+
+protected:
+    bool			doPrepare(int);
+    bool			doWork(od_int64,od_int64,int);
+
+    bool			compute(int,int,float);
+
+    RayTracer1D::Setup		setup_;
 };
 
 

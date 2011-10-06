@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.22 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.23 2011-10-06 14:17:33 cvsbruno Exp $";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: initalgo.cc,v 1.22 2011-08-23 14:51:33 cvsbert 
 #include "posfilterstd.h"
 #include "windowfunction.h"
 #include "fourier.h"
+#include "raytrace1d.h"
 
 mDefModInitFn(Algo)
 {
@@ -39,4 +40,6 @@ mDefModInitFn(Algo)
     Array2DInterpolExtension::initClass();
 
     Fourier::CC::initClass();
+
+    VrmsRayTracer1D::initClass();
 }
