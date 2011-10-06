@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.16 2011-05-17 12:22:31 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.17 2011-10-06 15:15:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,10 @@ public:
     void			dump(std::ostream&,bool binary) const;
     bool			obtain(std::istream&,bool binary);
 
+    float			getAveragePos(int dim) const;
+    static float		findAveragePos(const float*,int,
+					       float grandtotal);
+
 protected:
 
     virtual const ArrayND<float>& getArrND() const	= 0;
@@ -70,6 +74,7 @@ protected:
     void			prepRndDrw() const;
     void			fillCumBins() const;
     od_uint64			getRandBin() const;
+    od_uint64			getBinPos(float) const;
 
 };
 
@@ -116,6 +121,7 @@ protected:
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
     virtual const SamplingData<float>&	getSampling(int) const	{ return sd_; }
 
+    virtual float	gtAvgPos() const;
     virtual float	gtVal(float) const;
     virtual void	drwRandPos(float&) const;
 
@@ -139,6 +145,8 @@ public:
     virtual bool	obtain(std::istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const	
     			{ return new Array2DImpl<float>(bins_); }
+    virtual float	averagePos( int dim ) const
+			{ return getAveragePos( dim ); }
 
     SamplingData<float>	sd0_;
     SamplingData<float>	sd1_;
@@ -178,6 +186,8 @@ public:
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
+    virtual float	averagePos( int dim ) const
+			{ return getAveragePos( dim ); }
     virtual float	value(const TypeSet<float>&) const;
     virtual void	drawRandomPos(TypeSet<float>&) const;
     virtual ArrayND<float>* getArrClone() const	

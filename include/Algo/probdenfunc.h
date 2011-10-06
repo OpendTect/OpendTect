@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.12 2011-05-17 08:51:58 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.13 2011-10-06 15:15:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     virtual int		nrDims() const				= 0;
     virtual const char*	dimName(int dim) const			= 0;
     virtual void	setDimName(int dim,const char*)		= 0;
+    virtual float	averagePos(int dim) const		= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual bool	canScale() const			{ return false;}
@@ -83,6 +84,7 @@ public:
 
     virtual const char*	varName() const		{ return varnm_; }
 
+    virtual float	averagePos(int) const	{ return gtAvgPos(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
     virtual float	value( const TypeSet<float>& v ) const
 						{ return gtVal( v[0] ); }
@@ -103,6 +105,7 @@ protected:
 			    , varnm_(pdf.varnm_)		{}
     ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
 
+    virtual float	gtAvgPos() const	= 0;
     virtual float	gtVal(float) const	= 0;
     virtual void	drwRandPos(float&) const = 0;
 

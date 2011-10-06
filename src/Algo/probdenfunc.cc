@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.27 2011-09-16 10:54:03 cvskris Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.28 2011-10-06 15:15:46 cvsbert Exp $";
 
 
 #include "sampledprobdenfunc.h"
@@ -247,15 +247,69 @@ void ArrayNDProbDenFunc::fillCumBins() const
 
 od_uint64 ArrayNDProbDenFunc::getRandBin() const
 {
+    if ( !cumbins_ ) fillCumBins();
+    return getBinPos( Stats::RandGen::get() );
+}
+
+
+od_uint64 ArrayNDProbDenFunc::getBinPos( float pos ) const
+{
     const od_int64 sz = (od_int64)totalSize();
     if ( sz < 2 ) return 0;
 
-    const float cumpos = Stats::RandGen::get() * cumbins_[sz-1];
+    const float cumpos = pos * cumbins_[sz-1];
     od_int64 ibin; static const od_int64 beforefirst = -1;
     IdxAble::findPos( cumbins_, sz, cumpos, beforefirst, ibin );
-    if ( ibin < sz-1 ) ibin++; // ibin == sz-1 is hugely unlikely, but still ...
+    if ( ibin < sz-1 ) // ibin == sz-1 is hugely unlikely, but still check ...
+	ibin++;
     return (od_uint64)ibin;
 }
+
+
+float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
+					  float grandtotal )
+{
+    float sum = 0, prevsum = 0;
+    const float halfway = grandtotal * .5;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	sum += arr[idx];
+	if ( sum >= halfway )
+	{
+	    const float frac = (sum-halfway) / (sum-prevsum);
+	    return idx - frac + 0.5;
+	}
+	prevsum = sum;
+    }
+    return sz-0.5; // not normal
+}
+
+
+float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
+{
+    const int tardimsz = size( tardim );
+    TypeSet<float> integrvals( tardimsz, 0 );
+    const ArrayND<float>& arrnd = getData();
+    const ArrayNDInfo& arrndinfo = arrnd.info();
+    const od_uint64 totsz = arrndinfo.getTotalSz();
+    const float* arr = arrnd.getData();
+    float grandtotal = 0;
+    TypeSet<int> dimidxsts( arrndinfo.getNDim(), 0 );
+    int* dimidxs = dimidxsts.arr();
+
+    for ( od_uint64 idx=0; idx<totsz; idx++ )
+    {
+	arrndinfo.getArrayPos( idx, dimidxs );
+	const int tardimidx = dimidxs[tardim];
+	integrvals[tardimidx] += arr[idx];
+	grandtotal += arr[idx];
+    }
+
+    const float avgpos = findAveragePos( integrvals.arr(), integrvals.size(),
+					 grandtotal );
+    return sampling(tardim).atIndex( avgpos );
+}
+
 
 
 // 1D
@@ -318,6 +372,16 @@ void Sampled1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 	*this = *spdf1d;
     else
 	ProbDenFunc1D::copyFrom( pdf );
+}
+
+
+float Sampled1DProbDenFunc::gtAvgPos() const
+{
+    if ( !cumbins_ ) fillCumBins();
+    const int sz = size( 0 );
+    const float avgpos = findAveragePos( getData().getData(), sz,
+	    				 cumbins_[sz-1] );
+    return sd_.atIndex( avgpos );
 }
 
 
