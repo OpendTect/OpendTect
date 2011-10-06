@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.95 2011-09-29 12:29:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.96 2011-10-06 14:18:52 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -176,7 +176,6 @@ void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
-    mAddButton( "z2t.png", editD2TDriftPushed, "Drift curve" );
     mAddButton( "save.png", saveDataPushed, "Save Data" );
 }    
 
@@ -369,12 +368,6 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
     if ( d2tmdlg.go() )
 	doWork( cb );
 }
-
-
-void uiTieWin::editD2TDriftPushed( CallBacker* cb )
-{
-}
-
 
 
 bool uiTieWin::saveDataPushed( CallBacker* cb )

@@ -109,7 +109,6 @@ protected:
     void 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
-    void 			editD2TDriftPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
     void 			infoPushed(CallBacker*);
     bool 			matchHorMrks(CallBacker*);
