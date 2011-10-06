@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: menuhandler.cc,v 1.10 2011-03-18 05:09:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: menuhandler.cc,v 1.11 2011-10-06 13:55:27 cvsnanne Exp $";
 
 
 #include "menuhandler.h"
@@ -182,6 +182,7 @@ void MenuItem::createItems( const BufferStringSet& names )
 
 MenuHandler::MenuHandler( int id )
     : id_(id)
+    , initnotifier(this)
     , createnotifier(this)
     , handlenotifier(this)
     , queueid_(

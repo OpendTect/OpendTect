@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.14 2011-03-18 05:09:36 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.15 2011-10-06 13:55:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,6 +170,7 @@ public:
 				   that identifies it. */
     void			setMenuID( int newid ) { id_=newid; }
 
+    Notifier<MenuHandler>	initnotifier;
     Notifier<MenuHandler>	createnotifier;
     CNotifier<MenuHandler,int>	handlenotifier;
     bool			isHandled() const;
