@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.40 2010-11-18 19:16:04 cvskarthika Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.41 2011-10-06 13:54:37 cvsnanne Exp $";
 
 #include "uisettings.h"
 
@@ -156,7 +156,7 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	    BoolInpSpec(lfsetts_.showinlprogress) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
-    setts_.getYN( mShowInlProgress, lfsetts_.showcrlprogress );
+    setts_.getYN( mShowCrlProgress, lfsetts_.showcrlprogress );
     showcrlprogressfld_ = new uiGenInput( this,
 	    "Show progress when loading stored data on crosslines",
 	    BoolInpSpec(lfsetts_.showcrlprogress) );
