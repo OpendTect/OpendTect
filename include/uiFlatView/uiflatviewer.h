@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.49 2011-05-19 09:55:54 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.50 2011-10-06 14:59:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
     static float	bufextendratio_;
     			//!< Must be > 0. default 0.4
     			//!< Controls how much extra bitmap is generated
+    void		setUseSelDataRanges(bool yn) { useseldataranges_ = yn; }
     void		setSelDataRanges(Interval<double>,Interval<double>);
     			//restrain the data ranges between the selected ranges
     const Interval<double>& getSelDataRange(bool forx) const
