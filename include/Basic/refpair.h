@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		July 2011
- RCS:		$Id: refpair.h,v 1.1 2011-07-22 15:07:25 cvsbert Exp $
+ RCS:		$Id: refpair.h,v 1.2 2011-10-06 15:15:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,11 @@ public: \
     inline clssnm&	operator =( T2& r ) \
 			{ r2_ = &r; return *this; } \
  \
-    inline operator	T1&()				{ return *r1_; } \
-    inline operator	T2&()				{ return *r2_; } \
+    inline operator	T1&() const			{ return *r1_; } \
+    inline operator	T2&() const			{ return *r2_; } \
  \
-    inline T1&		membnm1()			{ return *r1_; } \
-    inline T2&		membnm2()			{ return *r2_; } \
+    inline T1&		membnm1() const			{ return *r1_; } \
+    inline T2&		membnm2() const			{ return *r2_; } \
     void		set( T1& r )			{ r1_ = &r; } \
     void		set( T2& r )			{ r2_ = &r; } \
  \
@@ -61,8 +61,8 @@ public: \
     inline clssnm&	operator =( clssnm& oth ) \
 			{ r1_ = oth.r1_; r2_ = oth.r2_; return *this; } \
  \
-    inline T&		first()				{ return *r1_; } \
-    inline T&		second()			{ return *r2_; } \
+    inline T&		first() const			{ return *r1_; } \
+    inline T&		second() const			{ return *r2_; } \
     void		setFirst( T& r )		{ r1_ = &r; } \
     void		setSecond( T& r )		{ r2_ = &r; } \
  \
