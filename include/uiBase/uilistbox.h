@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
+ Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.62 2011-09-20 10:36:52 cvsraman Exp $
+ RCS:           $Id: uilistbox.h,v 1.63 2011-10-06 13:25:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,14 +75,17 @@ public:
 
     void		setEmpty();
     void		removeItem(int);
-    void		addItem(const char*,bool marked=false); 
-    void		addItem(const char*,const ioPixmap&);
-    void		addItem(const char*,const Color&);
-    void		addItems(const char**); 
+    void		addItem(const char*,bool marked=false,int id=-1);
+    void		addItem(const char*,const ioPixmap&,int id=-1);
+    void		addItem(const char*,const Color&,int id=-1);
+    void		addItems(const char**);
     void		addItems(const BufferStringSet&);
-    void		insertItem(const char*,int idx=-1,bool marked=false);
-    void		insertItem(const char*,const ioPixmap&,int idx=-1);
-    void		insertItem(const char*,const Color&,int);
+    void		insertItem(const char*,int idx=-1,
+				   bool marked=false,int id=-1);
+    void		insertItem(const char*,const ioPixmap&,
+				   int idx=-1,int id=-1);
+    void		insertItem(const char*,const Color&,
+				   int idx=-1,int id=-1);
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const ioPixmap&);
     ioPixmap		pixmap(int) const;
@@ -121,6 +124,11 @@ public:
     void		getSelectedItems(TypeSet<int>&) const;
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
+
+    void		setItemID(int idx,int id);
+    int			currentItemID() const;
+    int			getItemID(int idx) const;
+    int			getItemIdx(int id) const;	//!< First match
 
     Alignment::HPos	alignment() const		{ return alignment_; }
     void		setAlignment(Alignment::HPos);

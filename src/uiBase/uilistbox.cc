@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.120 2011-09-20 13:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.121 2011-10-06 13:25:12 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -42,10 +42,12 @@ uiListBoxItem( const QString& txt )
     : QListWidgetItem(txt)
     , ischeckable_(false)
     , ischecked_(false)
+    , id_(-1)
 {}
 
     bool		ischeckable_;
     bool		ischecked_;
+    int			id_;
 };
 
 
@@ -63,13 +65,17 @@ public:
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
 
-    void		insertItem(int idx,const char* txt,bool mark);
-    void		addItem(const char* txt,bool mark);
-    void		removeItem(int idx)
+    void		insertItem(int idx,const char* txt,bool mark,int id);
+    void		addItem(const char* txt,bool mark,int id);
+    void		removeItem( int idx )
 			{
 			    items_.remove( idx );
 			    delete takeItem(idx);
 			}
+
+    void		setItemID(int idx,int id);
+    int			getItemID(int idx) const;
+    int			getItemIdx(int id) const;
 
     void		setItemAlignment(int idx,Alignment::HPos);
 
@@ -132,23 +138,40 @@ static void createQString( QString& qs, const char* str, bool mark )
 }
 
 
-void uiListBoxBody::addItem( const char* txt, bool mark )
+void uiListBoxBody::addItem( const char* txt, bool mark, int id )
 {
     QString qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
+    itm->id_ = id;
     items_ += itm;
     QListWidget::addItem( itm );
 }
 
 
-void uiListBoxBody::insertItem( int idx, const char* txt, bool mark )
+void uiListBoxBody::insertItem( int idx, const char* txt, bool mark, int id )
 {
     QString qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
+    itm->id_ = id;
     items_.insertAt( itm, idx );
     QListWidget::insertItem( idx, itm );
+}
+
+
+void uiListBoxBody::setItemID( int idx, int id )
+{ if ( items_.validIdx(idx) ) items_[idx]->id_ = id; }
+
+int uiListBoxBody::getItemID( int idx ) const
+{ return items_.validIdx(idx) ? items_[idx]->id_ : -1; }
+
+int uiListBoxBody::getItemIdx( int id ) const
+{
+    for ( int idx=0; idx<items_.size(); idx++ )
+	if ( items_[idx]->id_ == id )
+	    return idx;
+    return -1;
 }
 
 
@@ -323,27 +346,27 @@ void uiListBox::selectAll( bool yn )
 }
 
 
-void uiListBox::addItem( const char* text, bool mark ) 
+void uiListBox::addItem( const char* text, bool mark, int id ) 
 {
     mBlockCmdRec;
-    body_->addItem( text, mark );
+    body_->addItem( text, mark, id );
     setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
     body_->setItemAlignment( size()-1, alignment_ );
 }
 
 
-void uiListBox::addItem( const char* text, const ioPixmap& pm )
+void uiListBox::addItem( const char* text, const ioPixmap& pm, int id )
 {
-    addItem( text, false );
+    addItem( text, false, id );
     setPixmap( size()-1, pm );
 }
 
 
-void uiListBox::addItem( const char* text, const Color& col )
+void uiListBox::addItem( const char* text, const Color& col, int id )
 {
     ioPixmap pm( 64, 64); pm.fill( col );
-    addItem( text, pm );
+    addItem( text, pm, id );
 }
 
 
@@ -366,36 +389,38 @@ void uiListBox::addItems( const BufferStringSet& strs )
 }
 
 
-void uiListBox::insertItem( const char* text, int index, bool mark )
+void uiListBox::insertItem( const char* text, int index, bool mark, int id )
 {
     mBlockCmdRec;
     if ( index<0 )
 	addItem( text, mark );
     else
     {
-	body_->insertItem( index, text, mark );
+	body_->insertItem( index, text, mark, id );
 	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 	body_->setItemAlignment( size()-1, alignment_ );
     }
 }
 
 
-void uiListBox::insertItem( const char* text, const ioPixmap& pm, int index )
+void uiListBox::insertItem( const char* text, const ioPixmap& pm,
+			    int index, int id )
 {
     if ( index < 0 )
-	addItem( text, pm );
+	addItem( text, pm, id );
     else
     {
-	insertItem( text, index, false );
+	insertItem( text, index, false, id );
 	setPixmap( index, pm );
     }
 }
 
 
-void uiListBox::insertItem( const char* text, const Color& col, int index )
+void uiListBox::insertItem( const char* text, const Color& col,
+			    int index, int id )
 {
     ioPixmap pm( 64, 64 ); pm.fill( col );
-    insertItem( text, pm, index );
+    insertItem( text, pm, index, id );
 }
 
 
@@ -758,6 +783,19 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isItemChecked(idx) ) items += idx;
 }
+
+
+void uiListBox::setItemID( int idx, int id )
+{ body_->setItemID( idx, id ); }
+
+int uiListBox::currentItemID() const
+{ return getItemID(currentItem()); }
+
+int uiListBox::getItemID( int idx ) const
+{ return body_->getItemID( idx ); }
+
+int uiListBox::getItemIdx( int id ) const
+{ return body_->getItemIdx( id ); }
 
 
 void uiListBox::setFieldWidth( int fw )
