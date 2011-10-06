@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.47 2011-05-02 20:33:35 cvskris Exp $
+ RCS:		$Id: seiscbvs.h,v 1.48 2011-10-06 21:38:53 cvsnanne Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -53,7 +53,6 @@ public:
     virtual bool	implSetReadOnly(const IOObj*,bool) const;
     const char*	defExtension() const	{ return sKeyDefExtension(); }
     static const char*	sKeyDefExtension();
-    static const char*	sKeyDataStorage();
 
     bool		is2D() const			{ return is2d_; }
     void		set2D(bool yn=true);

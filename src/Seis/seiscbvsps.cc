@@ -4,24 +4,26 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.53 2011-09-02 09:21:30 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.54 2011-10-06 21:38:53 cvsnanne Exp $";
 
 #include "seiscbvsps.h"
-#include "seispsioprov.h"
-#include "seiscbvs.h"
-#include "seistrc.h"
-#include "seisbuf.h"
+
 #include "cbvsreadmgr.h"
-#include "filepath.h"
+#include "dirlist.h"
+#include "errh.h"
 #include "file.h"
-#include "strmprov.h"
-#include "survinfo.h"
+#include "filepath.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
-#include "dirlist.h"
+#include "seisbuf.h"
+#include "seiscbvs.h"
+#include "seispsioprov.h"
+#include "seistrc.h"
 #include "strmoper.h"
-#include "iopar.h"
-#include "errh.h"
+#include "strmprov.h"
+#include "survinfo.h"
 
 static const char* cSampNmsFnm = "samplenames.txt";
 static const char* cPosDataFnm = "posdata.txt";
@@ -204,7 +206,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 
 void SeisCBVSPSIO::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage() );
+    const char* res = iopar.find( sKey::DataStorage );
     if ( res && *res )
 	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.28 2010-12-30 15:20:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.29 2011-10-06 21:39:41 cvsnanne Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"
@@ -228,7 +228,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
     setSteering( res && *res == 'S' );
     if ( !compfld_ ) return;
 
-    res = ioobj.pars().find( "Data storage" );
+    res = ioobj.pars().find( sKey::DataStorage );
     if ( res )
 	compfld_->data_.stor_ = (int)(*res - '0');
 
@@ -246,7 +246,7 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
     if ( !scalefld_ )
     {
 	const int tp = getFormat();
-	ioobj->pars().set( "Data storage",
+	ioobj->pars().set( sKey::DataStorage,
 		DataCharacteristics::UserTypeNames()[tp] );
 	if ( horOptim() )
 	    ioobj->pars().set( "Optimized direction", "Horizontal" );
