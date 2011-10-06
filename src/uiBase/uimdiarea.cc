@@ -7,19 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.10 2011-10-06 13:25:48 cvsnanne Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
 
+#include "uimsg.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QIcon>
 #include <QMdiSubWindow>
 
-
+static bool sNoCloseMessage = false;
 
 class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
 { 	
@@ -185,9 +187,13 @@ void uiMdiArea::grpClosed( CallBacker* cb )
 	break;
     }
 
-    grp->closed().remove( mCB(this,uiMdiArea,grpClosed) );
-    grp->changed.remove( mCB(this,uiMdiArea,grpChanged) );
-    grps_ -= grp;
+    if ( grp )
+    {
+	body_->removeSubWindow( grp->qWidget() );
+	grp->closed().remove( mCB(this,uiMdiArea,grpClosed) );
+	grp->changed.remove( mCB(this,uiMdiArea,grpChanged) );
+	grps_ -= grp;
+    }
     windowActivated.trigger();
 }
 
@@ -198,8 +204,10 @@ void uiMdiArea::grpChanged( CallBacker* )
 
 void uiMdiArea::closeAll()
 {
+    sNoCloseMessage = true;
     body_->closeAllSubWindows();
     windowActivated.trigger();
+    sNoCloseMessage = false;
 }
 
 
@@ -239,12 +247,35 @@ bool uiMdiArea::paralyse( bool yn )
 }
 
 
+class ODMdiSubWindow : public QMdiSubWindow
+{
+public:
+ODMdiSubWindow( QWidget* par=0, Qt::WindowFlags flgs=0 )
+    : QMdiSubWindow( par, flgs )
+{}
+
+protected:
+void closeEvent( QCloseEvent* ev )
+{
+    const BufferString msg( "Do you want to close ",\
+			    mQStringToConstChar(windowTitle()), "?" );
+    if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
+    {
+	ev->accept();
+	QMdiSubWindow::closeEvent( ev );
+    }
+    else
+	ev->ignore();
+}
+
+};
+
 // uiMdiAreaWindow
 uiMdiAreaWindow::uiMdiAreaWindow( const char* nm )
     : uiGroup(0,nm)
     , changed(this)
 {
-    qmdisubwindow_ = new QMdiSubWindow();
+    qmdisubwindow_ = new ODMdiSubWindow();
     qmdisubwindow_->setWidget( attachObj()->body()->qwidget() );
     setTitle( nm );
 }
