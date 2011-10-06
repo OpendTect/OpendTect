@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.26 2011-10-06 14:17:33 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.27 2011-10-06 14:20:55 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -28,6 +28,8 @@ public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
     static RayTracer1D*	createInstance(const IOPar&,BufferString&);
+
+			~RayTracer1D();
 
     mClass Setup
     {
@@ -78,7 +80,6 @@ public:
 
 protected:
 			RayTracer1D();
-			~RayTracer1D();
 
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
