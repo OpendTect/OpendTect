@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.10 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.11 2011-10-07 15:09:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+class uiLineItem;
 class uiSpinBox;
 class uiTextItem;
 class uiRectItem;
@@ -41,6 +42,7 @@ public:
     const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
     Color		levelColor() const		{ return lvlcol_; }
     void		setZoomBox(const uiWorldRect&);
+    void		selectSequence(int seqidx);
 
     bool&		fillLayerBoxes()		{ return fillmdls_; }
     bool&		useLithColors()			{ return uselithcols_; }
@@ -65,6 +67,7 @@ protected:
     uiComboBox*		lvlfld_;
     uiGraphicsItemSet&	logblckitms_;
     uiGraphicsItemSet&	lvlitms_;
+    uiLineItem*		selseqitm_;
 
     uiGraphicsScene&	scene();
     void		eraseAll();
@@ -79,6 +82,7 @@ protected:
     int			dispprop_;
     int			dispeach_;
     bool		fillmdls_;
+    int			selseqidx_;
     bool		uselithcols_;
     bool		showunzoomed_;
     Interval<float>	zrg_;
@@ -86,6 +90,7 @@ protected:
     void		getBounds();
     void		drawModel(TypeSet<uiPoint>&,int);
     void		drawLevels();
+    void		drawSelectedSequence();
     void		updZoomBox();
     int			getXPix(int,float) const;
     bool		haveAnyZoom() const;

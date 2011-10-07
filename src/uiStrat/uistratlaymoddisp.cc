@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.19 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.20 2011-10-07 15:09:34 cvsbruno Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -41,6 +41,8 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)
+    , selseqitm_(0)
+    , selseqidx_(-1)
     , dispEachChg(this)
     , levelChg(this)
 {
@@ -119,6 +121,7 @@ void uiStratLayerModelDisp::eraseAll()
     logblckitms_.erase();
     lvlitms_.erase();
     lvldpths_.erase();
+    delete selseqitm_; selseqitm_ = 0;
     delete emptyitm_; emptyitm_ = 0;
 }
 
@@ -200,6 +203,13 @@ void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
     updZoomBox();
     if ( !showunzoomed_ )
 	reDrawCB( 0 );
+}
+
+
+void uiStratLayerModelDisp::selectSequence( int selidx )
+{
+    selseqidx_ = selidx;
+    drawSelectedSequence();
 }
 
 
@@ -386,6 +396,7 @@ void uiStratLayerModelDisp::doDraw()
     mEndLayLoop()
 
     drawLevels();
+    drawSelectedSequence();
     updZoomBox();
 }
 
@@ -425,3 +436,25 @@ void uiStratLayerModelDisp::drawLevels()
 	lvlitms_ += it;
     }
 }
+
+
+void uiStratLayerModelDisp::drawSelectedSequence()
+{
+    delete selseqitm_; selseqitm_ = 0;
+    const int nrseqs = lm_.size();
+    if ( nrseqs < 1 || selseqidx_ > nrseqs || selseqidx_ < 0 ) return;
+
+    const int ypix1 = yax_->getPix( yax_->range().start );
+    const int ypix2 = yax_->getPix( yax_->range().stop );
+    const float xpix1 = (float)getXPix( selseqidx_, 0 );
+    const float xpix2 = (float)getXPix( selseqidx_, 1 );
+    const int midpix = (int)( xpix1 + ( xpix2 - xpix1 ) /2 );
+
+    uiLineItem* it = scene().addItem(
+		    new uiLineItem( midpix, ypix1, midpix, ypix2, true ) );
+    it->setPenStyle( LineStyle(LineStyle::Dot,2,Color::Black()) );
+    it->setZValue( 2 );
+    selseqitm_ = it;
+}
+
+
