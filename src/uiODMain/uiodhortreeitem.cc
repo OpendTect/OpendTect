@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.73 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.74 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -43,8 +43,8 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.73 2011-09-07 17:36:01 c
 #include "zaxistransform.h"
 
 
-#define mLoadIdx	0
-#define mLoadCBIdx	1
+#define mAddIdx		0
+#define mAddCBIdx	1
 #define mNewIdx		2
 #define mSectIdx	3
 #define mFullIdx	4
@@ -63,8 +63,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add ..."), mLoadIdx );
-    mnu.insertItem( new uiMenuItem("Add &color blended..."), mLoadCBIdx );
+    mnu.insertItem( new uiMenuItem("&Add ..."), mAddIdx );
+    mnu.insertItem( new uiMenuItem("Add &color blended..."), mAddCBIdx );
 
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
     mnu.insertItem( newmenu, mNewIdx );
@@ -85,7 +85,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == mLoadIdx || mnuid==mLoadCBIdx )
+    if ( mnuid == mAddIdx || mnuid==mAddCBIdx )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false ); 
@@ -97,7 +97,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		 applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
 	    uiODHorizonTreeItem* itm =
-		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mLoadCBIdx );
+		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx );
 	    addChld( itm, false, false );
 	}
 
@@ -547,7 +547,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Add ..."), 0 );
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
     mnu.insertItem( newmenu, 1 );
     mnu.insertItem( new uiMenuItem("&Create from 3D ..."), 2 );

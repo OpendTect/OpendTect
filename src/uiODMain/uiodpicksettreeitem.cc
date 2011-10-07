@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.72 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.73 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -304,7 +304,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &convertbodymnuitem_, hasbody, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true, !psd->allShown() );
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &dirmnuitem_, true, false );
 

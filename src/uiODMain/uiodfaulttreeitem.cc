@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.52 2011-05-27 11:53:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.53 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.52 2011-05-27 11:53:50
 
 #include "mousecursor.h"
 #include "randcolor.h"
-#include "selector.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -37,7 +36,7 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
    : uiODTreeItem( "Fault" )
 {}
 
-#define mLoadMnuID	0
+#define mAddMnuID	0
 #define mNewMnuID	1
 
 #define mDispInFull	2
@@ -67,7 +66,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
+    mnu.insertItem( new uiMenuItem("&Add ..."), mAddMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
 
     if ( children_.size() )
@@ -104,7 +103,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid==mLoadMnuID )
+    if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
@@ -165,13 +164,11 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 #define mCommonInit \
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save as ...") \
-    , displaymnuitem_( "&Display" ) \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
     , displayintersecthorizonmnuitem_( "Only at &horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
-    , removeselectedmnuitem_( "Re&move selection" )
 
 
 
@@ -299,9 +296,6 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
-    mAddMenuItem( menu, &singlecolmnuitem_,
-		  faultdisplay_->arePanelsDisplayedInFull(),
-		  !faultdisplay_->showingTexture() );
     mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
 		  faultdisplay_->canDisplayIntersections(),
 		  faultdisplay_->areIntersectionsDisplayed() );
@@ -314,8 +308,9 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 		  faultdisplay_->areSticksDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
-    const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-    mAddMenuItem( menu, &removeselectedmnuitem_, sel, true );
+    mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
+		  faultdisplay_->arePanelsDisplayedInFull(),
+		  !faultdisplay_->showingTexture() );
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -386,16 +381,6 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	faultdisplay_->useTexture( !faultdisplay_->showingTexture(), true );
 	visserv_->triggerTreeUpdate();
     }
-    else if ( mnuid==removeselectedmnuitem_.id )
-    {
-	//TODO: Should this code go as we have the trashcan?
-	menu->setIsHandled(true);
-	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-	if ( sel->isOK() )
-	    faultdisplay_->removeSelection( *sel, 0 );
-	else
-	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
-    }
 }
 
 
@@ -416,7 +401,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
+    mnu.insertItem( new uiMenuItem("&Add ..."), mAddMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
 
     if ( children_.size() )
@@ -431,7 +416,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid==mLoadMnuID )
+    if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
@@ -486,8 +471,7 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
     , faultsticksetdisplay_(0) \
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save &as ...") \
-    , removeselectedmnuitem_( "Re&move selection" ) \
-    , onlyatsectmnuitem_("&Display only at sections")
+    , onlyatsectmnuitem_("&Only at sections")
 
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
@@ -606,11 +590,9 @@ void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
-    mAddMenuItem( menu, &onlyatsectmnuitem_, true,
-					     fd->displayedOnlyAtSections() );
-
-    const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-    mAddMenuItem( menu, &removeselectedmnuitem_, sel, true );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
+		  true, fd->displayedOnlyAtSections() );
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -656,14 +638,5 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 	    faultsticksetdisplay_->setName( emname );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
-    }
-    else if ( mnuid==removeselectedmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-	if ( sel->isOK() )
-	    faultsticksetdisplay_->removeSelection( *sel, 0 );
-	else
-	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
     }
 }

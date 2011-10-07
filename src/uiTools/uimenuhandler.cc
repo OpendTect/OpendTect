@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.23 2011-03-25 06:59:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.24 2011-10-07 21:53:43 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
@@ -41,6 +41,7 @@ bool uiMenuHandler::executeMenuInternal()
     
     removeItems();
     MouseCursorManager::setOverride( MouseCursor::Wait );
+    initnotifier.trigger();
     createnotifier.trigger();
     MouseCursorManager::restoreOverride();
 

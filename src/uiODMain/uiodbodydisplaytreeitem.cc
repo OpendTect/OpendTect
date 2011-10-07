@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.32 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.33 2011-10-07 21:53:42 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.32 2011-09-07 17
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "randcolor.h"
-#include "selector.h"
 
 #include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
@@ -158,7 +157,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     , savemnuitem_("&Save")
     , saveasmnuitem_("Save &as ...")
-    , displaymnuitem_("&Display")
     , displaybodymnuitem_("&Body")
     , displaypolygonmnuitem_("&Picked polygons")			    
     , displayintersectionmnuitem_("&Intersections")
@@ -179,7 +177,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , emid_( -1 )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
-    , displaymnuitem_("Display")				   
     , displaybodymnuitem_("Body")
     , displaypolygonmnuitem_("Picked polygons")			    
     , displayintersectionmnuitem_("Intersections")
@@ -461,12 +458,4 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	plg_->display( false, false );
 	plg_->displayIntersections( true );
     }
-    else if ( mnuid==removeselectedmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	plg_->removeSelection( *visserv_->getCoordSelector(sceneID()), 0 );
-    }
 }
-
-
-

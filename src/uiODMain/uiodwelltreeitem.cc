@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.61 2011-07-04 11:04:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.62 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -39,7 +39,7 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 }
 
 
-static const int cLoadIdx	= 0;
+static const int cAddIdx	= 0;
 static const int cWellTieIdx	= 1;
 static const int cNewWellIdx	= 2;
 static const int cAttribIdx	= 3;
@@ -56,7 +56,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), cLoadIdx );
+    mnu.insertItem( new uiMenuItem("&Add ..."), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),cWellTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
@@ -107,7 +107,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( mnuid == cLoadIdx )
+    if ( mnuid == cAddIdx )
     {
 	ObjectSet<MultiID> emwellids;
 	applMgr()->selectWells( emwellids );
@@ -298,19 +298,14 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuItem( menu, &propertiesmnuitem_, true, false );
-    mAddMenuItem( menu, &logviewermnuitem_, true, false );
-    if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
-    mAddMenuItem( menu, &attrmnuitem_, true, false );
-    mAddMenuItem( menu, &logcubemnuitem_, true, false );
-    mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
-    mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
-    mAddMenuItem( menu, &showmnuitem_, true, false );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &propertiesmnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &logviewermnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,
 	    					wd->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,
 	    					wd->wellBotNameShown() );
-
     mAddMenuItem( &showmnuitem_, &markermnuitem_, wd->canShowMarkers(),
 		 wd->markersShown() );
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
@@ -318,6 +313,14 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &showmnuitem_, &showlogmnuitem_,
 		  applMgr()->wellServer()->hasLogs(wd->getMultiID()),
 		  wd->logsShown() );
+
+    if ( SI().zIsTime() )
+	mAddMenuItem( menu, &gend2tm_, true, false );
+
+    mAddMenuItem( menu, &attrmnuitem_, true, false );
+    mAddMenuItem( menu, &logcubemnuitem_, true, false );
+    mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
+    mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
 }
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.45 2011-09-16 11:00:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.46 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -119,16 +119,16 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiMenuItem("&Add ..."), 7 );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
     newmnu->insertItem( new uiMenuItem("Empty"), 0 );
-    newmnu->insertItem( new uiMenuItem("From &Existing ..."), 1 );
-    newmnu->insertItem( new uiMenuItem("Along &Contours ..."), 2 );
-    newmnu->insertItem( new uiMenuItem("From &Polygon ..."), 3 );
-    newmnu->insertItem( new uiMenuItem("From &Wells ..."), 4 );
-    newmnu->insertItem( new uiMenuItem("From &Table ..."), 5 );
     newmnu->insertItem( new uiMenuItem("&Interactive  ..."), 6 );
+    newmnu->insertItem( new uiMenuItem("Along &Contours ..."), 2 );
+    newmnu->insertItem( new uiMenuItem("From &Existing ..."), 1 );
+    newmnu->insertItem( new uiMenuItem("From &Polygon ..."), 3 );
+    newmnu->insertItem( new uiMenuItem("From &Table ..."), 5 );
+    newmnu->insertItem( new uiMenuItem("From &Wells ..."), 4 );
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 7 );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
@@ -318,9 +318,8 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     : editnodesmnuitem_("&Edit nodes ...")
     , insertnodemnuitem_("&Insert node")
-    , usewellsmnuitem_("&Create from wells ...")
-    , saveasmnuitem_("&Save ...")
-    , saveas2dmnuitem_("Save as &2D ...")
+    , saveasmnuitem_("&Save As ...")
+    , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
 { displayid_ = id; } 
 
@@ -361,6 +360,8 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
+    mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
+
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
     if (  rtd->nrKnots() <= 0 ) return;
@@ -386,10 +387,9 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
 			    rtd->canAddKnot(idx), false );
     }
-    mAddMenuItem( menu, &usewellsmnuitem_, !islocked, false );
+
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
     mAddMenuItem( menu, &saveas2dmnuitem_, true, false );
-    mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
 }
 
 
@@ -413,11 +413,6 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	rtd->addKnot(insertnodemnuitem_.itemIndex(mnuid));
-    }
-    else if ( mnuid==usewellsmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	applMgr()->wellServer()->selectWellCoordsForRdmLine();
     }
     else
     {

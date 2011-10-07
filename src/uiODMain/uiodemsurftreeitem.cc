@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.83 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.84 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -57,11 +57,11 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , emid_(nemid)
     , uivisemobj_(0)
     , createflatscenemnuitem_("&Create flattened scene")
-    , savemnuitem_("Save")
-    , saveasmnuitem_("Save as ...")
+    , savemnuitem_("Save",-800)
+    , saveasmnuitem_("Save as ...",-850)
     , enabletrackingmnuitem_("Enable tracking")
     , changesetupmnuitem_("Change setup ...")
-    , reloadmnuitem_("Reload")
+    , reloadmnuitem_("Reload",-750)
     , starttrackmnuitem_("Start tracking ...")
     , treeitemwasenabled_(true)
     , prevtrackstatus_(true)
@@ -421,6 +421,12 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &enabletrackingmnuitem_ );
     }
 
+#ifdef __debug__
+    mAddMenuItem( menu, &reloadmnuitem_, true, false );
+#else
+    mResetMenuItem( &reloadmnuitem_ );
+#endif
+
     const bool isshifted =
 		!mIsZero(visserv_->getTranslation(displayID()).z, 1e-5);
 
@@ -432,11 +438,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 		  !isshifted, false );
 
     mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
-#ifdef __debug__
-    mAddMenuItem( menu, &reloadmnuitem_, true, false );
-#else
-    mResetMenuItem( &reloadmnuitem_ );
-#endif
     mResetMenuItem( &createflatscenemnuitem_ );
 }
 

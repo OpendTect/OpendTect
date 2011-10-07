@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.93 2011-05-05 03:16:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.94 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -253,7 +253,6 @@ void uiVisEMObject::setUpConnections()
     makepermnodemnuitem_.text = "Make control &permanent";
     removecontrolnodemnuitem_.text = "Remove &control";
     changesectionnamemnuitem_.text = "Change section's &name";
-    displaymnuitem_.text = "&Display";
     showonlyatsectionsmnuitem_.text = "&Only at sections";
     showfullmnuitem_.text = "&In full";
     showbothmnuitem_.text = "&At sections and in full";
@@ -373,7 +372,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	return;
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
-
     const EM::ObjectID emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
@@ -381,10 +379,13 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
 
+    MenuItemHolder* displaymnuitem = menu->findItem( "&Display" );
+    if ( !displaymnuitem ) displaymnuitem = menu;
+
     if ( hor2ddisp )
 	mResetMenuItem( &singlecolmnuitem_ )
-    else
-	mAddMenuItem( menu, &singlecolmnuitem_,
+    else if ( displaymnuitem )
+	mAddMenuItem( displaymnuitem, &singlecolmnuitem_,
 		      !emod->getOnlyAtSectionsDisplay(),
 		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
 
@@ -400,24 +401,15 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 			hordisp->displaysIntersectionLines();
     }
 
-    mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &showonlyatsectionsmnuitem_, true,
+    mAddMenuItem( displaymnuitem, &showonlyatsectionsmnuitem_, true,
 	    	  atsect );
-    mAddMenuItem( &displaymnuitem_, &showfullmnuitem_, true, infull );
+    mAddMenuItem( displaymnuitem, &showfullmnuitem_, true, infull );
     if ( hordisp )
-    { mAddMenuItem( &displaymnuitem_, &showbothmnuitem_, true, both ); }
+    { mAddMenuItem( displaymnuitem, &showbothmnuitem_, true, both ); }
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
-#ifdef __debug__
-    mAddMenuItem( menu, &changesectionnamemnuitem_, 
-	          emobj->canSetSectionName() && sid!=-1, false );
-#else
-    mResetMenuItem( &changesectionnamemnuitem_ );
-#endif
-
     visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
-
     const bool hastransform = scene && scene->getZAxisTransform();
     const bool enabmenu =
 	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
@@ -454,11 +446,17 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const bool isshifted = hordisp ? hordisp->getTranslation().z : false;
     mAddMenuItem( menu, &trackmenuitem_,
 		  trackmenuitem_.nrItems() && !isshifted, false ); 
+
 #ifdef __debug__
-    mAddMenuItem( menu, &removesectionmnuitem_, false, false );
+    MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
+    if ( !toolsmnuitem ) toolsmnuitem = menu;
+    mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_, 
+	          emobj->canSetSectionName() && sid!=-1, false );
+    mAddMenuItem( toolsmnuitem, &removesectionmnuitem_, false, false );
     if ( emobj->nrSections()>1 && sid!=-1 )
 	removesectionmnuitem_.enabled = true;
 #else
+    mResetMenuItem( &changesectionnamemnuitem_ );
     mResetMenuItem( &removesectionmnuitem_ );
 #endif
 }

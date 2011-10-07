@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.52 2011-09-07 18:07:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.53 2011-10-07 21:53:43 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -72,7 +72,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , addvolprocmnuitem_("&Volume Processing attribute",cAttribIdx)
     , displaymnuitem_("&Display",cDisplayIdx)
     , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
-    , histogrammnuitem_("&Histogram ...",cHistogramIdx)		   
+    , histogrammnuitem_("&Histogram ...",cHistogramIdx)
     , lockmnuitem_("&Lock",cLockIdx)
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
@@ -88,7 +88,7 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
     MenuHandler* menu = visserv_->getMenuHandler();
     if ( menu )
     {
-	menu->createnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
+	menu->initnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
 
@@ -162,7 +162,7 @@ bool uiODDisplayTreeItem::init()
     name_ = createDisplayName();
 
     MenuHandler* menu = visserv_->getMenuHandler();
-    menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
+    menu->initnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     MenuHandler* tb = visserv_->getToolBarHandler();
@@ -299,6 +299,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
 	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	displaymnuitem_.removeItems();
 	mAddMenuItem( &displaymnuitem_, &histogrammnuitem_, true, false );
 	mAddMenuItem( &addmnuitem_, &addvolprocmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
