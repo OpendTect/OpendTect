@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.136 2011-09-22 14:38:17 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.137 2011-10-07 19:05:18 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -268,6 +268,7 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( trcdisplayinfo_.rg.stop<0 || trcdisplayinfo_.rg.start<0 )
 	mRetErrGeo;
 
+    trcdisplayinfo_.size = trcdisplayinfo_.rg.width(false) + 1;
     updateVizPath();
 }
 
