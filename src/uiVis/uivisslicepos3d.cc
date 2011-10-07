@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.19 2011-09-22 06:00:19 cvsraman Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.20 2011-10-07 15:03:02 cvsjaap Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -29,6 +29,19 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p )
     slicestepbox_->setSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
+    shortcutsChg( 0 );
+    SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos3DDisp,shortcutsChg) );
+}
+
+
+uiSlicePos3DDisp::~uiSlicePos3DDisp()
+{
+    SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos3DDisp,shortcutsChg) );
+}
+
+
+void uiSlicePos3DDisp::shortcutsChg( CallBacker* )
+{
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
     if ( keydesc )
@@ -55,7 +68,6 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p )
 	keyseq += keydesc->keyStr();
 	prevbut_->setShortcut( keyseq.buf() );
     }
-
 }
 
 

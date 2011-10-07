@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcuts.cc,v 1.15 2011-08-04 16:36:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uishortcuts.cc,v 1.16 2011-10-07 15:03:02 cvsjaap Exp $";
 
 
 #include "uishortcuts.h"
@@ -25,6 +25,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 				   "Select keys used as shortcuts", "0.2.4" ) )
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {
+    lblspinboxes_.allowNull();
     uiLabeledComboBox* prevlcbox = 0;
     for ( int idx=0; idx<scl_.names().size(); idx++ )
     {

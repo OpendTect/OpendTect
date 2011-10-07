@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uivisslicepos3d.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uivisslicepos3d.h,v 1.7 2011-10-07 15:03:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ mClass uiSlicePos3DDisp : public uiSlicePos
 {
 public:		
 			uiSlicePos3DDisp(uiParent*);
+			~uiSlicePos3DDisp();
 
     void		setDisplay(visSurvey::PlaneDataDisplay*);
     int			getDisplayID() const;
@@ -32,6 +33,7 @@ protected:
     visSurvey::PlaneDataDisplay* curpdd_;
     void			slicePosChg(CallBacker*);
     void			sliceStepChg(CallBacker*);
+    void			shortcutsChg(CallBacker*);
     void			setBoxRanges();
     void			setPosBoxValue();
     void			setStepBoxValue();

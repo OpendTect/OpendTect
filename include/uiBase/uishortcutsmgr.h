@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.10 2011-08-04 16:36:02 cvshelene Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.11 2011-10-07 15:03:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,13 +97,15 @@ protected:
 };
 
 
-mClass uiShortcutsMgr
+mClass uiShortcutsMgr : public CallBacker
 {
 public:
-			uiShortcutsMgr()			{};
+			uiShortcutsMgr();
     
     const uiShortcutsList& getList(const char* key) const;
     bool		setList(const uiShortcutsList&,bool usr=true);
+
+    Notifier<uiShortcutsMgr>	shortcutsChanged;
 
 protected:
 

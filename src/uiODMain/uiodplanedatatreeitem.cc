@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.49 2011-09-22 10:28:53 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.50 2011-10-07 15:03:02 cvsjaap Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -171,7 +171,8 @@ void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    visserv_->getUiSlicePos()->setDisplay( pdd->isSelected() ? pdd : 0 );
+    if ( pdd->isSelected() )
+	visserv_->getUiSlicePos()->setDisplay( pdd );
 }
 
 

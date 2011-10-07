@@ -4,10 +4,6 @@ Fri Feb 17 14:41:26 2006
 !
 Keyboard shortcuts
 ODScene.0.Name: Move slice forward
-ODScene.0.Keys: ControlButton`Plus
-ODScene.0.Property: Step
-ODScene.0.Value: 1
+ODScene.0.Keys: ----`X
 ODScene.1.Name: Move slice backward
-ODScene.1.Keys: ControlButton`Minus
-ODScene.1.Property: Step
-ODScene.1.Value: 1
+ODScene.1.Keys: ----`Z

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.16 2011-08-04 16:36:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.17 2011-10-07 15:03:02 cvsjaap Exp $";
 
 
 #include "uishortcutsmgr.h"
@@ -347,6 +347,11 @@ const uiShortcutsList& uiShortcutsMgr::getList( const char* key ) const
 }
 
 
+uiShortcutsMgr::uiShortcutsMgr()
+    : shortcutsChanged( this )
+{}
+
+
 bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
 {
     if ( !usr )
@@ -363,6 +368,7 @@ bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
 
     uiShortcutsList& myscl = const_cast<uiShortcutsList&>(getList(scl.selkey_));
     myscl = scl;
+    shortcutsChanged.trigger();
     return true;
 }
 
