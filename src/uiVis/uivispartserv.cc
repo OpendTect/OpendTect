@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.467 2011-10-04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.468 2011-10-07 21:54:38 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -95,7 +95,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
     , toolbar_(*new uiTreeItemTBHandler(appserv().parent()))
     , resetmanipmnuitem_("R&eset Manipulation",cResetManipIdx)
-    , changematerialmnuitem_("&Properties ...",cPropertiesIdx)
+    , changematerialmnuitem_("&Properties ...")
     , resmnuitem_("&Resolution",cResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
@@ -1923,13 +1923,13 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene() &&
-						!isSoloMode();
     mAddMenuItemCond( menu, &resetmanipmnuitem_, 
 	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
 
-    mAddMenuItemCond( menu, &changematerialmnuitem_, true, false, 
+    MenuItemHolder* baseitem = menu->findItem( "&Display" );
+    if ( !baseitem ) baseitem = menu;
+    mAddMenuItemCond( baseitem, &changematerialmnuitem_, true, false, 
 		      so->allowMaterialEdit() );
 
     resmnuitem_.id = -1;
@@ -1944,7 +1944,7 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<resmnuitem_.nrItems(); idx++ )
 	    resmnuitem_.getItem(idx)->checkable = true;
 	resmnuitem_.getItem(so->getResolution())->checked = true;
-	mAddMenuItem(menu, &resmnuitem_, true, false );
+	mAddMenuItem( baseitem, &resmnuitem_, true, false );
     }
     else
 	mResetMenuItem( &resmnuitem_ );
