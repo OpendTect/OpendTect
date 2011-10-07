@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.23 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.24 2011-10-07 12:27:39 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: uiseispsman.cc,v 1.23 2011-09-16 10:01:23 cvsbe
 #include "keystrs.h"
 #include "pixmap.h"
 #include "posinfo.h"
+#include "zdomain.h"
 #include "seispsioprov.h"
+#include "seisioobjinfo.h"
 
 #include "uibutton.h"
 #include "uiioobjmanip.h"
@@ -60,52 +62,66 @@ uiSeisPreStackMan::~uiSeisPreStackMan()
 void uiSeisPreStackMan::mkFileInfo()
 {
     BufferString txt;
-    if ( is2d_ )
+    SeisIOObjInfo objinf( curioobj_ );
+    if ( objinf.isOK() )
     {
-	BufferStringSet nms;
-	SPSIOPF().getLineNames( *curioobj_, nms );
-	if ( nms.size() > 0 )
+	if ( is2d_ )
 	{
-	    if ( nms.size() > 4 )
-		{ txt = "Number of lines: "; txt += nms.size(); }
-	    else
+	    BufferStringSet nms;
+	    SPSIOPF().getLineNames( *curioobj_, nms );
+	    if ( nms.size() > 0 )
 	    {
-		if ( nms.size() == 1 )
-		    { txt = "Line: "; txt += nms.get( 0 ); }
+		if ( nms.size() > 4 )
+		    { txt = "Number of lines: "; txt += nms.size(); }
 		else
 		{
-		    txt = "Lines: ";
-		    for ( int idx=0; idx<nms.size(); idx++ )
+		    if ( nms.size() == 1 )
+			{ txt = "Line: "; txt += nms.get( 0 ); }
+		    else
 		    {
-			if ( idx ) txt += ", ";
-			txt += nms.get( idx );
+			txt = "Lines: ";
+			for ( int idx=0; idx<nms.size(); idx++ )
+			{
+			    if ( idx ) txt += ", ";
+			    txt += nms.get( idx );
+			}
 		    }
 		}
+		txt += "\n\n";
 	    }
-	    txt += "\n\n";
 	}
-    }
-    else
-    {
-	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *curioobj_ );
-	const PosInfo::CubeData& cd = rdr->posData();
-	txt = "Total number of gathers: "; txt += cd.totalSize(); txt += "\n";
-	const bool haveinlstep = cd.haveInlStepInfo();
-	const bool havecrlstep = cd.haveCrlStepInfo();
-	const bool havebothsteps = haveinlstep && havecrlstep;
-	StepInterval<int> rg; cd.getInlRange( rg );
-	txt += "Inline range: ";
-	txt += rg.start; txt += " - "; txt += rg.stop;
-	if ( cd.haveInlStepInfo() )
-	{ txt += " step "; txt += rg.step; }
-	txt += "\n";
-	cd.getCrlRange( rg );
-	txt += "Crossline range: ";
-	txt += rg.start; txt += " - "; txt += rg.stop;
-	if ( cd.haveCrlStepInfo() )
-	{ txt += " step "; txt += rg.step; }
-	txt += "\n\n";
-	delete rdr;
+	else
+	{
+	    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *curioobj_ );
+	    const PosInfo::CubeData& cd = rdr->posData();
+	    txt.add( "Total number of gathers: " ).add( cd.totalSize() );
+	    const bool haveinlstep = cd.haveInlStepInfo();
+	    const bool havecrlstep = cd.haveCrlStepInfo();
+	    const bool havebothsteps = haveinlstep && havecrlstep;
+	    StepInterval<int> rg; cd.getInlRange( rg );
+	    txt.add( "\nInline range: " )
+			.add( rg.start ).add( " - " ).add( rg.stop );
+	    if ( cd.haveInlStepInfo() )
+		{ txt.add( " step " ).add( rg.step ); }
+	    cd.getCrlRange( rg );
+	    txt.add( "\nCrossline range: " )
+			.add( rg.start ).add( " - " ).add( rg.stop );
+	    if ( cd.haveCrlStepInfo() )
+		{ txt.add( " step " ).add( rg.step ); }
+	    delete rdr;
+	}
+	txt.add("\n");
+	CubeSampling cs;
+	if ( objinf.getRanges(cs) )
+	{
+	    const bool zistm = objinf.isTime();
+	    const ZDomain::Def& zddef = objinf.zDomainDef();
+#	    define mAddZValTxt(memb) .add(zistm ? mNINT(1000*memb) : memb)
+	    txt.add(zddef.userName()).add(" range ")
+		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
+		.add(" - ") mAddZValTxt(cs.zrg.stop) 
+		.add(" [") mAddZValTxt(cs.zrg.step) .add("]\n");
+	}
     }
 
     txt += getFileInfo();
