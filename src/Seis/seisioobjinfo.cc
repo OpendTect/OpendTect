@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.43 2011-09-14 22:46:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.44 2011-10-07 12:27:11 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -192,9 +192,33 @@ bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
 {
     mChk(false);
     mDynamicCastGet(IOStream*,iostrm,ioobj_)
-    if ( iostrm && iostrm->isMulti() )
-	{ cs.init( true ); return false; }
-    return SeisTrcTranslator::getRanges( *ioobj_, cs );
+    cs.init( true );
+    if ( is2D() || (iostrm && iostrm->isMulti()) )
+	return false;
+
+    if ( !isPS() )
+	return SeisTrcTranslator::getRanges( *ioobj_, cs );
+
+    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *ioobj_ );
+    if ( !rdr )
+	return false;
+
+    const PosInfo::CubeData& cd = rdr->posData();
+    StepInterval<int> rg;
+    cd.getInlRange( rg ); cs.hrg.setInlRange( rg );
+    cd.getCrlRange( rg ); cs.hrg.setCrlRange( rg );
+    for ( int icrl=rg.start; icrl<rg.stop; icrl += rg.step )
+    {
+	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl,icrl) );
+	if ( trc )
+	{
+	    cs.zrg.start = trc->info().sampling.start;
+	    cs.zrg.stop = trc->samplePos(trc->size()-1);
+	    cs.zrg.step = trc->info().sampling.step;
+	    break;
+	}
+    }
+    return true;
 }
 
 
