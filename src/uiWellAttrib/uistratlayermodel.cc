@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.38 2011-09-13 15:04:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.39 2011-10-07 15:10:10 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -194,6 +194,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
+    synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 				mCB(this,uiStratLayerModel,selElasticPropsCB) );
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
@@ -229,6 +230,13 @@ void uiStratLayerModel::levelChg( CallBacker* )
 {
     synthdisp_->setDispMrkrs( moddisp_->selectedLevel(),
 	    		      moddisp_->levelDepths(), moddisp_->levelColor() );
+}
+
+
+void uiStratLayerModel::modSelChg( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,modidx,cb);
+    moddisp_->selectSequence( modidx -1 );
 }
 
 

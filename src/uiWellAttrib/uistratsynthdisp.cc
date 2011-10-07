@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.63 2011-10-07 12:14:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.64 2011-10-07 15:10:10 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -53,6 +53,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , stratsynth_(*new StratSynth(lm))
     , wvltChanged(this)
     , zoomChanged(this)
+    , modSelChanged(this)		       
     , layerPropSelNeeded(this)
     , longestaimdl_(0)
     , lasttool_(0)
@@ -328,6 +329,10 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 
 void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 {
+    const int midx = prestackwin_ ? modelposfld_->getValue() : -1;
+    CBCapsule<int> caps( midx, this );
+    modSelChanged.trigger( &caps );
+
     if ( !prestackwin_ ) return;
 
     uiFlatViewer& vwr = prestackwin_->viewer();
@@ -338,7 +343,6 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,sd->getPack(true))
     if ( !gsetdp ) return;
 
-    const int midx = modelposfld_->getValue();
     PreStack::Gather* gdp = new PreStack::Gather( *gsetdp->getGathers()[midx] );
     DPM(DataPackMgr::FlatID()).add( gdp );
 
