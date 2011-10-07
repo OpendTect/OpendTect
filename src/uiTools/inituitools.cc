@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituitools.cc,v 1.7 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: inituitools.cc,v 1.8 2011-10-07 12:14:15 cvsbruno Exp $";
 
 #include "moddepmgr.h"
 #include "uigridder2d.h"
 #include "uiarray2dinterpol.h"
+#include "uiraytrace1d.h"
 
 mDefModInitFn(uiTools)
 {
@@ -21,4 +22,5 @@ mDefModInitFn(uiTools)
     uiInverseDistanceArray2DInterpol::initClass();
     uiTriangulationArray2DInterpol::initClass();
     uiArray2DInterpolExtension::initClass();
+    uiVrmsRayTracer1D::initClass();
 }
