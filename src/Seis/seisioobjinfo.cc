@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.44 2011-10-07 12:27:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.45 2011-10-07 12:32:29 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -215,9 +215,10 @@ bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
 	    cs.zrg.start = trc->info().sampling.start;
 	    cs.zrg.stop = trc->samplePos(trc->size()-1);
 	    cs.zrg.step = trc->info().sampling.step;
-	    break;
+	    delete trc; break;
 	}
     }
+    delete rdr;
     return true;
 }
 
