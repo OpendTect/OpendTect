@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.26 2011-10-06 21:39:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.27 2011-10-07 12:29:48 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -289,7 +289,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     inpfld_ = new uiIOObjSel( this, inctio_, "Input Data Store" );
     inpfld_->selectionDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
-    uiPosSubSel::Setup psssu( false, false );
+    uiPosSubSel::Setup psssu( false, true );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
 	 .withstep( true );
     subselfld_ = new uiPosSubSel( this, psssu );
@@ -352,7 +352,7 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     ObjectSet<IOObj> selobjs;
     selobjs += inctio_.ioobj;
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
-	    					  sd );
+	    					  true, sd );
     exec->setName( "Copy Pre-Stack Data Store" );
     uiTaskRunner dlg( this );
     return dlg.execute( *exec );

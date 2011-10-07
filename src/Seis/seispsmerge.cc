@@ -4,15 +4,16 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.13 2009-12-02 11:08:03 cvsraman Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.14 2011-10-07 12:29:48 cvsbert Exp $";
 
 #include "seispsmerge.h"
-#include "seisselection.h"
+#include "seisresampler.h"
+#include "seisselectionimpl.h"
 #include "posinfo.h"
 #include "seisbuf.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seispswrite.h"
+#include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "ioobj.h"
@@ -28,37 +29,51 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	, totnr_(-1)
 	, nrdone_(0)
 {
-    HorSampling hs;
+    CubeSampling cs; bool havecs = false;
+    if ( sd_ )
+    {
+	mDynamicCastGet(Seis::RangeSelData*,rsd,sd_)
+	if ( rsd )
+	{
+	    cs = rsd->cubeSampling();
+	    havecs = true;
+	}
+	else
+	{
+	    Interval<float> zrg = sd_->zRange();
+	    cs.zrg.start = zrg.start;
+	    cs.zrg.stop = zrg.stop;
+	}
+    }
+
     for ( int idx=0; idx<inobjs.size(); idx++ )
     {
 	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs[idx] );
 	if ( !rdr ) continue;
+	readers_ += rdr;
+	if ( havecs ) continue;
 
 	Interval<int> inlrg, crlrg; StepInterval<int> rg;
 	rdr->posData().getInlRange( rg ); assign( inlrg, rg );
 	rdr->posData().getCrlRange( rg ); assign( crlrg, rg );
 	if ( idx == 0 )
-	    hs.set( inlrg, crlrg );
+	    cs.hrg.set( inlrg, crlrg );
 	else
 	{
-    	    hs.include( BinID(inlrg.start,crlrg.start) );
-    	    hs.include( BinID(inlrg.stop,crlrg.stop) );
+	    cs.hrg.include( BinID(inlrg.start,crlrg.start) );
+	    cs.hrg.include( BinID(inlrg.stop,crlrg.stop) );
 	}
-
-	readers_ += rdr;
     }
     if ( readers_.isEmpty() )
 	{ msg_ = "No valid inputs specified"; return; }
 
-    totnr_ = sd_ ? sd_->expectedNrTraces() : hs.totalNr();
-    iter_ = new HorSamplingIterator( hs );
+    totnr_ = sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr();
+    iter_ = new HorSamplingIterator( cs.hrg );
+    resampler_ = new SeisResampler( cs );
 
-    PtrMan<IOObj> outobj = out.clone();
-    writer_ = SPSIOPF().get3DWriter( *outobj );
+    writer_ = new SeisTrcWriter( &out );
     if ( !writer_ )
 	{ deepErase(readers_); msg_ = "Cannot create output writer"; return; }
-
-    SPSIOPF().mk3DPostStackProxy( *outobj );
 }
 
 
@@ -67,6 +82,7 @@ SeisPSMerger::~SeisPSMerger()
     delete iter_;
     delete writer_;
     delete sd_;
+    delete resampler_;
     deepErase( readers_ );
 }
 
@@ -102,7 +118,7 @@ int SeisPSMerger::nextStep()
 		break;
 	}
 
-	if ( !gatherset.size() ) continue;
+	if ( gatherset.isEmpty() ) continue;
 	
 	gather = gatherset[0];
 	if ( dostack_ && gatherset.size() > 1 )
@@ -110,7 +126,8 @@ int SeisPSMerger::nextStep()
 
 	for ( int tdx=0; tdx<gather->size(); tdx++ )
 	{
-	    if ( !writer_->put(*gather->get(tdx)) )
+	    const SeisTrc* wrtrc = resampler_->get( *gather->get(tdx) );
+	    if ( wrtrc && !writer_->put(*wrtrc) )
 		return Executor::ErrorOccurred();
 	}
 

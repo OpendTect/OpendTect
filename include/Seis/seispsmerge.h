@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.8 2009-12-02 11:07:42 cvsraman Exp $
+ RCS:		$Id: seispsmerge.h,v 1.9 2011-10-07 12:29:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisPSReader;
-class SeisPSWriter;
+class SeisTrcWriter;
+class SeisResampler;
 namespace Seis { class SelData; }
 
 
@@ -47,10 +48,11 @@ protected:
 
     BinID		curbid_;
     Seis::SelData*	sd_;
+    SeisResampler*	resampler_;
 
     HorSamplingIterator*	iter_;
     ObjectSet<SeisPSReader>	readers_;
-    SeisPSWriter*		writer_;
+    SeisTrcWriter*		writer_;
 
     bool		dostack_;
     BufferString	msg_;
