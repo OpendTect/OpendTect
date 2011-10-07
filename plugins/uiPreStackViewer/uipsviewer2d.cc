@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.9 2011-05-16 09:27:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.10 2011-10-07 14:41:04 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
 #include "flatposdata.h"
+#include "flatviewzoommgr.h"
 #include "psviewer2dgatherpainter.h"
 #include "uiflatviewer.h"
+#include "uiflatviewcontrol.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uiobjectitemview.h"
@@ -120,15 +122,24 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
     fixedoffset_ = yn;
     offsetrange_ = rg;
 
-    uiWorldRect cur = viewer_->curView();
-    if ( !fixedoffset_ )
-    {
-	const uiWorldRect& bbox = viewer_->boundingBox();
-	cur.setLeft( bbox.left() );
-	cur.setRight( bbox.right() );
-    }
+    if ( viewer_->control() )
+	viewer_->control()->zoomMgr().toStart();
 
-    updateViewRange( cur );
+    Interval<double> offrg( rg.start, rg.stop );
+    const uiWorldRect& bbox = viewer_->boundingBox();
+    Interval<double> zrg( bbox.top(), bbox.bottom() );
+    viewer_->setSelDataRanges( offrg, zrg );
+    viewer_->setUseSelDataRanges( yn );
+
+    const uiWorldRect& newbbox = viewer_->boundingBox();
+    updateViewRange( newbbox );
+
+    if (  viewer_->control() )
+    {
+	Geom::Point2D<double> centre = newbbox.centre();
+	Geom::Size2D<double> newsz = newbbox.size();
+	viewer_->control()->setNewView( centre, newsz );
+    }
 }
 
 
