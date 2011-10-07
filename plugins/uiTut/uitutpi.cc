@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.22 2011-10-07 21:50:44 cvsnanne Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -65,7 +65,7 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
 		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
-			      mCB(this,uiTutMgr,doWells),cTutIdx)
+			      mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
     uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 

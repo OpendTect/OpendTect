@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.15 2011-10-06 13:55:27 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.16 2011-10-07 21:50:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,8 @@ mClass MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,
-					const CallBack&,int placement=-1);
+					const CallBack&,const char* parenttxt=0,
+					int placement=-1);
 			~MenuItemHandler();
     bool		doadd_;
     			/*!<Item is added if true AND shouldAddMenu() retuns
@@ -237,6 +238,7 @@ protected:
     MenuItem		menuitem_;
     MenuHandler&	menuhandler_;
     CallBack		cb_;
+    BufferString	parenttext_;
 };
 
 

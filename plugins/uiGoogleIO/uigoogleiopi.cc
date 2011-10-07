@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.20 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.21 2011-10-07 21:50:44 cvsnanne Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
@@ -71,10 +71,10 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
     , psmnuitmhandler_(visSurvey::PickSetDisplay::getStaticClassName(),
 	    		*a.applMgr().visServer(),"Export to &Google KML ...",
-    			mCB(this,uiGoogleIOMgr,exportPolygon),cPSMnuIdx)
+    			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::getStaticClassName(),
 	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
-    			mCB(this,uiGoogleIOMgr,exportRandLine),cRLMnuIdx)
+    			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
     psmnuitmhandler_.setIcon( "google.png" );
     rlmnuitmhandler_.setIcon( "google.png" );

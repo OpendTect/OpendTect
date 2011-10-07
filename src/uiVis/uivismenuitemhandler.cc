@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivismenuitemhandler.cc,v 1.3 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivismenuitemhandler.cc,v 1.4 2011-10-07 21:50:44 cvsnanne Exp $";
 
 #include "uivismenuitemhandler.h"
 
@@ -17,8 +17,8 @@ static const char* rcsID = "$Id: uivismenuitemhandler.cc,v 1.3 2009-07-22 16:01:
 
 uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
 	uiVisPartServer& vps, const char* nm, const CallBack& cb,
-	int placement )
-    : MenuItemHandler( *vps.getMenuHandler(), nm, cb, placement )
+	const char* parenttext, int placement )
+    : MenuItemHandler( *vps.getMenuHandler(), nm, cb, parenttext, placement )
     , visserv_( vps )
     , classnm_( classnm )
 {}

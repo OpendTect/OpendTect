@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: menuhandler.cc,v 1.11 2011-10-06 13:55:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: menuhandler.cc,v 1.12 2011-10-07 21:50:44 cvsnanne Exp $";
 
 
 #include "menuhandler.h"
 
 #include "bufstringset.h"
-#include "threadwork.h"
 #include "errh.h"
+#include "string2.h"
+#include "threadwork.h"
 
 
 MenuItemHolder::MenuItemHolder()
@@ -112,9 +113,13 @@ const MenuItem* MenuItemHolder::findItem( const char* txt ) const
 
 MenuItem* MenuItemHolder::findItem( const char* txt )
 {
+    BufferString tofindtxt = txt;
+    removeCharacter( tofindtxt.buf(), '&' );
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	if ( !strcmp(items_[idx]->text,txt) )
+	BufferString itmtxt = items_[idx]->text;
+	removeCharacter( itmtxt.buf(), '&' );
+	if ( itmtxt == tofindtxt )
 	    return items_[idx];
     }
 
@@ -221,13 +226,15 @@ void MenuHandler::assignItemID( MenuItem& itm )
 
 
 MenuItemHandler::MenuItemHandler( MenuHandler& mh, const char* nm,
-				  const CallBack& cb, int placement )
+				  const CallBack& cb, const char* parenttext,
+				  int placement )
     : menuitem_(nm,placement)
     , cb_(cb)
     , menuhandler_(mh)
     , doadd_(true)
     , isenabled_(true)
     , ischecked_(false)
+    , parenttext_(parenttext)
 {
     menuhandler_.createnotifier.notify( mCB(this,MenuItemHandler,createMenuCB));
     menuhandler_.handlenotifier.notify( mCB(this,MenuItemHandler,handleMenuCB));
@@ -245,7 +252,10 @@ void MenuItemHandler::createMenuCB(CallBacker*)
 {
     if ( doadd_ && shouldAddMenu() )
     {
-	mAddMenuItem( &menuhandler_, &menuitem_, isenabled_&&shouldBeEnabled(),
+	MenuItemHolder* parentitem = menuhandler_.findItem( parenttext_ );
+	if ( !parentitem ) parentitem = &menuhandler_;
+
+	mAddMenuItem( parentitem, &menuitem_, isenabled_&&shouldBeEnabled(),
 		      ischecked_ || shouldBeChecked() );
     }
     else

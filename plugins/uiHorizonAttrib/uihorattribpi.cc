@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.26 2011-07-07 11:52:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.27 2011-10-07 21:50:44 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -83,13 +83,17 @@ public:
 
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
-    	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
-    	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
-	, contourmnuitemhndlr_(mMkPars("Add &Contour Display..",doContours),995)
-    	, horvolmnuitemhndlr_(mMkPars("Calculate &Volume ...",calcHorVol))
+    	, flattenmnuitemhndlr_(
+		mMkPars("Write &Flattened cube ...",doFlattened),"Workflows")
+    	, isopachmnuitemhndlr_(
+		mMkPars("Calculate &Isopach ...",doIsopach),"Workflows")
+	, contourmnuitemhndlr_(
+		mMkPars("&Contour Display..",doContours),"Add",995)
+    	, horvolmnuitemhndlr_(
+		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
-		mCB(this,uiHorAttribPIMgr,calcPolyVol),996)
+		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));

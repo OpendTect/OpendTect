@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivismenuitemhandler.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivismenuitemhandler.h,v 1.4 2011-10-07 21:50:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ mClass uiVisMenuItemHandler : public MenuItemHandler
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
 				     const char* mnutext, const CallBack& cb,
-				     int placement = -1);
+				     const char* parenttext=0,int placement=-1);
 
     int		getDisplayID() const;
     		/*!<Does only give a valid answer if called from cb. */
