@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.126 2011-05-19 09:55:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.127 2011-10-07 14:40:17 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -71,6 +71,8 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , dataChanged(this)
     , dispParsChanged(this)
     , control_(0)
+    , xseldatarange_(mUdf(float),mUdf(float))		 
+    , yseldatarange_(mUdf(float),mUdf(float))
     , useseldataranges_(false)	 
 {
     canvas_.scene().setMouseEventActive( true );
@@ -200,13 +202,10 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) ); 
     StepInterval<double> rg1( pd.range(false) );
-    if ( useseldataranges_ ) 
+    if (useseldataranges_ && !xseldatarange_.isUdf() && !yseldatarange_.isUdf())
     { 
-	if ( rg0.overlaps( xseldatarange_ ) && rg1.overlaps( yseldatarange_ ) )
-	{
-	    rg0.start = xseldatarange_.start; rg0.stop = xseldatarange_.stop;
-	    rg1.start = yseldatarange_.start; rg1.stop = yseldatarange_.stop;
-	}
+	rg0.limitTo( xseldatarange_ ); 
+	rg1.limitTo( yseldatarange_ );
     }
     rg0.sort( true ); 
     rg1.sort( true );
