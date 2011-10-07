@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.14 2011-10-07 12:29:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.15 2011-10-07 13:15:04 cvsbert Exp $";
 
 #include "seispsmerge.h"
 #include "seisresampler.h"
@@ -25,6 +25,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	, writer_(0)
 	, dostack_(dostack)
 	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
+	, offsrg_(0,mUdf(float))
 	, msg_("Handling gathers")
 	, totnr_(-1)
 	, nrdone_(0)
@@ -92,6 +93,7 @@ int SeisPSMerger::nextStep()
     if ( readers_.isEmpty() )
 	return Executor::ErrorOccurred();
 
+    static const float offseps = 1e-6;
     SeisTrcBuf* gather = 0;
     while ( true )
     {
@@ -126,7 +128,13 @@ int SeisPSMerger::nextStep()
 
 	for ( int tdx=0; tdx<gather->size(); tdx++ )
 	{
-	    const SeisTrc* wrtrc = resampler_->get( *gather->get(tdx) );
+	    const SeisTrc& gathtrc = *gather->get( tdx );
+	    const float offs = gathtrc.info().offset;
+	    if ( offs < offsrg_.start - offseps
+	      || offs > offsrg_.stop + offseps )
+		continue;
+
+	    const SeisTrc* wrtrc = resampler_->get( gathtrc );
 	    if ( wrtrc && !writer_->put(*wrtrc) )
 		return Executor::ErrorOccurred();
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.9 2009-12-02 11:08:28 cvsraman Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.10 2011-10-07 13:15:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,7 @@ protected:
     uiIOObjSel*		inpfld_;
     uiIOObjSel*		outpfld_;
     uiPosSubSel*	subselfld_;
+    uiGenInput*		offsrgfld_;
     
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.27 2011-10-07 12:29:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.28 2011-10-07 13:15:04 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -295,9 +295,13 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     subselfld_ = new uiPosSubSel( this, psssu );
     subselfld_->attach( alignedBelow, inpfld_ );
 
+    offsrgfld_ = new uiGenInput( this, "Offset range",
+	    			 FloatInpSpec(0), FloatInpSpec() );
+    offsrgfld_->attach( alignedBelow, subselfld_ );
+
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
-    outpfld_->attach( alignedBelow, subselfld_ );
+    outpfld_->attach( alignedBelow, offsrgfld_ );
     finaliseDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 }
 
@@ -353,6 +357,7 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     selobjs += inctio_.ioobj;
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
 	    					  true, sd );
+    exec->setOffsetRange( offsrgfld_->getfValue(0), offsrgfld_->getfValue(1) );
     exec->setName( "Copy Pre-Stack Data Store" );
     uiTaskRunner dlg( this );
     return dlg.execute( *exec );

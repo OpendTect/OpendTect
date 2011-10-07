@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.9 2011-10-07 12:29:48 cvsbert Exp $
+ RCS:		$Id: seispsmerge.h,v 1.10 2011-10-07 13:15:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,9 @@ public:
 				     const Seis::SelData* sd=0);
     virtual		~SeisPSMerger();
 
+    void		setOffsetRange( float r0, float r1 )
+			{ offsrg_.start = r0; offsrg_.stop = r1; }
+
     virtual const char*	message() const		{ return msg_.buf(); }
     virtual const char*	nrDoneText() const	{ return "Gathers written"; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
@@ -49,6 +52,7 @@ protected:
     BinID		curbid_;
     Seis::SelData*	sd_;
     SeisResampler*	resampler_;
+    Interval<float>	offsrg_;
 
     HorSamplingIterator*	iter_;
     ObjectSet<SeisPSReader>	readers_;
