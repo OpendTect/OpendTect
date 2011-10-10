@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.31 2010-06-21 14:40:00 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.32 2011-10-10 11:52:31 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -135,24 +135,29 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
     const int crlidx = crlsampling_.nearestIndex( bidv.binid.crl );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
-    if ( cubes_.size() <= array ) return false;
-
-    const OffsetValueSeries<float> data(*cubes_[array]->getStorage(),
-		     cubes_[array]->info().getOffset( inlidx, crlidx, 0 ) );
+    if ( !cubes_.validIdx(array) || !cubes_[array] ) return false;
 
     const float zpos = bidv.value/zstep_-z0_;
 
     if ( !interpolate )
     {
 	const int zidx = mNINT( zpos );
-	if ( zidx < 0 || zidx >= zsz_ ) return false;
-	*res = data.value( zidx );
+	if ( zidx<0 || zidx>=zsz_ ) return false;
+	*res = cubes_[array]->get( inlidx, crlidx, zidx );
+
 	return true;
     }
 
+    if ( !cubes_[array]->getStorage() )
+	return false;
+
+    const od_int64 trcstart =
+	cubes_[array]->info().getOffset( inlidx, crlidx, 0 );
+
+    const OffsetValueSeries<float> data(*cubes_[array]->getStorage(),trcstart);
     float interpval;
     if ( !IdxAble::interpolateRegWithUdfWithOff( data, zsz_, 0, zpos,
-						 interpval, false ) )
+                                                 interpval, false ) )
 	return false;
 
     *res = interpval;
