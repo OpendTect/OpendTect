@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.83 2011-10-10 17:18:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.84 2011-10-10 18:46:43 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -556,6 +556,7 @@ void FaultDisplay::useTriangulatedFault( bool yn )
 
     explicitpanels_->useTriangulation( yn ); 
     paneldisplay_->touch( true );
+    updateIntersectionDisplay();
 }
 
 
