@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.45 2011-09-02 13:14:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.46 2011-10-10 09:20:27 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -464,7 +464,8 @@ class uiMarkersList : public uiDialog
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", "") )
+	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", 
+		    			mNoHelpID) )
 {
     list_ = new uiListBox( this, "Markers" );
     list_->setItemsCheckable( true );
