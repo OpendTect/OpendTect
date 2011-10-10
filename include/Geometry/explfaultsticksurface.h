@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.17 2011-03-04 15:59:43 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.18 2011-10-10 17:18:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     			~ExplFaultStickSurface();
 
     bool		needsUpdate() const 		{ return needsupdate_; }
+    bool		usesTriangulation() const	{ return usetri_; }
+    void		useTriangulation(bool yn);
 
     void		setSurface(FaultStickSurface*);
     FaultStickSurface*	getSurface()			{ return surface_; }
@@ -68,6 +70,7 @@ public:
     static const char*  sKeyTextureJ() { return "Fault texture j column"; }
 
 protected:
+    
     friend		class ExplFaultStickSurfaceUpdater;    
     friend		class ExplFaultStickTexturePositionExtracter;    
 
@@ -102,6 +105,7 @@ protected:
 	    			const TypeSet<int>& shift,int extra) const;
     void		shiftStick(int stickidx,int nrunits);
     void		updateStickShifting();
+    bool		reTriangulateSurface();
 
     bool		displaysticks_;
     bool		displaypanels_;
@@ -111,6 +115,7 @@ protected:
 
     bool					needsupdate_;
     bool					needsupdatetexture_;
+    bool					usetri_;
 
     ObjectSet<IndexedGeometry>			sticks_;
     ObjectSet<IndexedGeometry>			paneltriangles_;

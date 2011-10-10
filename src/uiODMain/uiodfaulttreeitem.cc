@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.53 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.54 2011-10-10 17:18:48 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -61,8 +61,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add Faults to this scene" );
-	return false;
+	//uiMSG().message( "Cannot add Faults to this scene" );
+	//return false;
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
@@ -166,6 +166,7 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
     , saveasmnuitem_("Save as ...") \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
+    , usetriangulatedmnuitem_( "Retriangulate based on projection" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
     , displayintersecthorizonmnuitem_( "Only at &horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
@@ -179,6 +180,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 {
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
+    usetriangulatedmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
     displayintersecthorizonmnuitem_.checkable = true;
     singlecolmnuitem_.checkable = true;
@@ -193,6 +195,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
 {
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
+    usetriangulatedmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
     displayintersecthorizonmnuitem_.checkable = true;
     singlecolmnuitem_.checkable = true;
@@ -306,6 +309,8 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 		  faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
 		  faultdisplay_->areSticksDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &usetriangulatedmnuitem_, true,
+		  faultdisplay_->usesTriangulatedFault() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
     mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
@@ -362,6 +367,24 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
+    }
+    else if ( mnuid==usetriangulatedmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	const bool usetri = usetriangulatedmnuitem_.checked;
+	if ( !usetri )
+	{
+	    static bool askusetri = false;
+	    if ( !askusetri )
+	    {
+		BufferString msg = "This algorithm works purely as an ";
+		msg += "alternative way for the fault display. It works ";
+		msg += "better if you have crossing or perpendicular sticks";
+		askusetri = uiMSG().askGoOn( msg );
+	    }
+	}
+
+	faultdisplay_->useTriangulatedFault( !usetri );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {

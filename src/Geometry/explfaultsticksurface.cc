@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.46 2011-07-21 08:11:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.47 2011-10-10 17:18:48 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.46 2011-07-21 08:1
 #include "cubesampling.h"
 #include "datapointset.h"
 #include "datacoldef.h"
+#include "delaunay.h"
 #include "faultsticksurface.h"
 #include "geometry.h"
 #include "positionlist.h"
@@ -306,6 +307,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 #undef mKnot
 
 
+
 class ExplFaultStickSurfaceUpdater : public ParallelTask
 {
 public:
@@ -367,6 +369,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturesize_( mUdf(int), mUdf(int) )
     , texturepot_( true )
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
+    , usetri_( false )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -441,6 +444,13 @@ void ExplFaultStickSurface::insertAll()
 }
 
 
+void ExplFaultStickSurface::useTriangulation( bool yn )
+{
+    usetri_ = yn;
+    update( true, 0 );
+}
+
+
 bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 {
     if ( forceall )
@@ -448,6 +458,9 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 	removeAll( true );
 	insertAll();
     }
+
+    if ( usetri_ )
+	return reTriangulateSurface();
 
     //First update the sticks since they are needed for the panels
     PtrMan<ExplFaultStickSurfaceUpdater> updater =
@@ -461,6 +474,65 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
     if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
 	return false;
+
+    needsupdate_ = false;
+    return true;
+}
+
+bool ExplFaultStickSurface::reTriangulateSurface()
+{
+    if ( !surface_ )
+	return false;
+    
+    const int nrsticks = sticks_.size();
+    for ( int idx=nrsticks-1; idx>=0; idx-- )
+	removePanel( idx );
+    
+    TypeSet<Coord> knots;
+    TypeSet<BinID> bids;
+    
+    for ( int idx=0; idx<nrsticks; idx++ )
+    {
+	const TypeSet<Coord3>& stick = *surface_->getStick(idx);
+	for ( int idy=0; idy<stick.size(); idy++ )
+	{
+	    if ( !stick[idy].isDefined() )
+		continue;
+	    
+	    const BinID bid = SI().transform( stick[idy] );
+	    if ( bids.indexOf(bid)==-1 )
+	    {
+		knots += stick[idy];
+		coordlist_->set( knots.size()-1, stick[idy] );
+		bids += bid;
+	    }
+	}
+    }
+
+    DAGTriangleTree tt;
+    tt.setCoordList( &knots, OD::UsePtr );
+    DelaunayTriangulator triangulator( tt );
+    triangulator.execute( false );
+    TypeSet<int> grid;
+    tt.getCoordIndices( grid );
+    IndexedGeometry* triangle = new IndexedGeometry(
+	    IndexedGeometry::TriangleStrip, IndexedGeometry::PerVertex,
+	    0, 0, texturecoordlist_ );
+    if ( !paneltriangles_.size() )
+	paneltriangles_ += triangle;
+    else
+	paneltriangles_.replace( 0, triangle );
+    
+    if ( displaypanels_ )
+	addToGeometries( triangle );
+    
+    for ( int idx=0; idx<grid.size(); )
+    {
+	triangle->coordindices_ += grid[idx++];
+	triangle->coordindices_ += grid[idx++];
+	triangle->coordindices_ += grid[idx++];
+	triangle->coordindices_ += -1;
+    }
 
     needsupdate_ = false;
     return true;
@@ -1249,7 +1321,6 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
     const int lsize = lknots.size(); 
     const int rsize = rknots.size();
-
     if ( !lsize || !rsize )
 	return;
 
@@ -1276,6 +1347,23 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 					 0, 0, texturecoordlist_ );
 	paneltriangles_.replace( panelidx, triangles );
 	if ( displaypanels_ ) addToGeometries( triangles );
+    }
+
+    if ( lsize==1 || rsize==1 )
+    {
+	if ( lsize==1 )
+	{
+    	    for ( int idx=1; idx<rsize; idx++ )
+    		mAddTriangle(lknots[0],rknots[idx],rknots[idx-1],
+    			lnormals[0],rnormals[idx],rnormals[idx-1]);
+	}
+	else 
+	{
+    	    for ( int idx=1; idx<lsize; idx++ )
+    		mAddTriangle(lknots[idx],lknots[idx-1],rknots[0],
+			lnormals[idx],lnormals[idx-1],rnormals[0]);
+	}
+	return;
     }
 
     mAllocVarLenArr( float, sqdists, lsize*rsize );
@@ -1362,13 +1450,18 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
 void ExplFaultStickSurface::removePanel( int panelidx )
 {
-    if ( !paneltriangles_.validIdx(panelidx) )
-	return;
+    if ( paneltriangles_.validIdx(panelidx) )
+    {
+	removeFromGeometries( paneltriangles_[panelidx] );
+	delete paneltriangles_.remove( panelidx );
+    }
 
-    removeFromGeometries( paneltriangles_[panelidx] );
-    removeFromGeometries(  panellines_[panelidx] );
-    delete paneltriangles_.remove( panelidx );
-    delete panellines_.remove( panelidx );
+    if ( panellines_.validIdx(panelidx) )
+    {
+	removeFromGeometries(  panellines_[panelidx] );
+	delete panellines_.remove( panelidx );
+    }
+
     needsupdate_ = true;
 }
 

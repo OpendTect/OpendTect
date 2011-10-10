@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.82 2011-09-26 08:12:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.83 2011-10-10 17:18:48 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -184,7 +184,6 @@ FaultDisplay::~FaultDisplay()
     {
 	dpman.release( datapackids_[idx] );
     }
-
 }
 
 
@@ -548,6 +547,20 @@ void FaultDisplay::updateDisplay()
     updatePanelDisplay();
     updateStickDisplay();
 }
+
+
+void FaultDisplay::useTriangulatedFault( bool yn )
+{
+    if ( !explicitpanels_ )
+	return;
+
+    explicitpanels_->useTriangulation( yn ); 
+    paneldisplay_->touch( true );
+}
+
+
+bool FaultDisplay::usesTriangulatedFault()
+{ return explicitpanels_ && explicitpanels_->usesTriangulation(); }
 
 
 void FaultDisplay::display( bool sticks, bool panels )
