@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.13 2011-10-10 08:45:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.14 2011-10-10 10:14:30 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -212,6 +212,15 @@ SyntheticData::~SyntheticData()
 }
 
 
+void SyntheticData::setName( const char* nm )
+{
+    NamedObject::setName( nm );
+    prestackpack_.setName( nm );
+    if ( poststackpack_ ) 
+	poststackpack_->setName( nm );
+}
+
+
 const DataPack* SyntheticData::getPack( bool isps ) const
 {
     if ( isps ) 
@@ -250,6 +259,8 @@ void SyntheticData::setPack( bool isps, DataPack* dp )
     if ( !dp ) return;
     DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() : DataPackMgr::FlatID();
     DPM( pmid ).add( dp );
+    DataPack::FullID& dpid = isps ? prestackpackid_ : poststackpackid_;
+    dpid = DataPack::FullID( pmid, dp->id());
 }
 
 

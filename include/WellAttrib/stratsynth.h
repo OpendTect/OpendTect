@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.9 2011-10-06 14:17:33 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.10 2011-10-10 10:14:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
 					    PreStack::GatherSetDataPack&);
 					~SyntheticData();
 
+    void				setName(const char*);
+
     const DataPack*			getPack(bool isps) const; 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
@@ -70,8 +72,8 @@ public:
     RayParams				raypars_;
 
 protected:
-    const PreStack::GatherSetDataPack&	prestackpack_;
-    const SeisTrcBufDataPack*		poststackpack_;
+    PreStack::GatherSetDataPack&	prestackpack_;
+    SeisTrcBufDataPack*			poststackpack_;
 
     void				setPack(bool isps,DataPack*);
     void				removePack(bool isps);

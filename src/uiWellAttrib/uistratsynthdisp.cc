@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.64 2011-10-07 15:10:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.65 2011-10-10 10:14:30 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -398,7 +398,10 @@ void uiStratSynthDisp::doModelChange()
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
     if ( currentsynthetic_ )
+    {
 	offsetposfld_->setLimitSampling(currentsynthetic_->raypars_.offsetrg_);
+	currentsynthetic_->setPostStack( 0 );
+    }
     offsetposfld_->setSensitive( currentsynthetic_ );
 
     displaySynthetic( currentsynthetic_ );
@@ -408,17 +411,59 @@ void uiStratSynthDisp::doModelChange()
 }
 
 
+mClass uiAddNewSynthDlg : public uiDialog
+{
+public:
+    uiAddNewSynthDlg( uiParent* p, const char* wvlt, const BufferStringSet& nms)
+	: uiDialog( this, uiDialog::Setup( "Synthetic Name", 
+		    mNoDlgTitle, mNoHelpID) )
+	, nms_(nms)					     
+    {
+	BufferString wvtbasedname( "Synthetic" );
+	wvtbasedname += "_"; 
+	wvtbasedname += wvlt; 
+	namefld_ = new uiGenInput( this, "Name" );
+	namefld_->setText( wvtbasedname );
+    }
+
+    bool acceptOK(CallBacker*)
+    {
+	const char* nm = getSynthName(); 
+	if ( !nm )
+	    mErrRet("Please specify a valid name",return false);
+	if ( nms_.isPresent( nm ) )
+	    mErrRet("Name is already present, please specify another name",
+		    return false);
+
+	return true;
+    }
+
+    const char* getSynthName()
+    { return namefld_->text(); }
+
+protected:
+    const BufferStringSet& nms_;
+    uiGenInput*	 namefld_;
+};
+
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
     if ( !currentsynthetic_ ) 
 	return;
 
-    if ( modellist_->box()->isPresent( currentsynthetic_->name() ) )
-	mErrRet("Name is already present, please specify another name",return);
+    BufferStringSet synthnms; 
+    for ( int idx=0; idx<modellist_->box()->size(); idx++ )
+	synthnms.add( modellist_->box()->textOfItem( idx ) );
 
+    uiAddNewSynthDlg dlg( this, wvltfld_->getName(), synthnms );
+    if ( !dlg.go() )
+	return;
+
+    const char* nm = dlg.getSynthName();
+    currentsynthetic_->setName( nm );
     stratsynth_.addSynthetics( currentsynthetic_ );
     
-    modellist_->box()->addItem( currentsynthetic_->name() );
+    modellist_->box()->addItem( nm );
     modellist_->setSensitive( stratsynth_.synthetics().size() > 1 );
 }
 
@@ -441,7 +486,7 @@ void uiStratSynthDisp::offsetPosChged( CallBacker* )
     {
 	const RayParams& rp = currentsynthetic_->raypars_;
 	const int offidx = rp.offsetrg_.getIndex( offsetposfld_->getValue() );
-	currentsynthetic_->setPostStack( offidx); 
+	currentsynthetic_->setPostStack( offidx ); 
     }
     displayPostStackSynthetic( currentsynthetic_ );
 }
@@ -550,13 +595,6 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp )
     nmobox_->setChecked( raypars_.usenmotimes_ );
     nmobox_->attach( hCentered );
 
-    /*
-    stackfld_ = new uiGenInput( this, "",
-			    BoolInpSpec(true, "Stack", "Zero Offset" ) );
-    stackfld_->setValue( raypars_.dostack_ );
-    stackfld_->attach( hCentered );
-    */
-
     uiRayTracer1D::Setup rsu( &raypars_.setup_ );
     rsu.dooffsets_ = true;
 
@@ -569,8 +607,6 @@ bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
 {
 
     raypars_.usenmotimes_ = nmobox_->isChecked();
-    //const bool isstacked = stackfld_->getBoolValue();
-    //raypars_.dostack_ = isstacked;
 
     return false;
 }
