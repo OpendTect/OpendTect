@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.257 2011-10-04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.258 2011-10-10 12:13:23 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1204,7 +1204,7 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& res ) const
 {
-    if ( attrib>=volumecache_.size() ||
+    if ( !volumecache_.validIdx(attrib) ||
 	 (!volumecache_[attrib] && !rposcache_[attrib]) )
 	return false;
 
