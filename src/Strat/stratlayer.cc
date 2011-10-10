@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.30 2011-08-11 13:47:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.31 2011-10-10 08:45:01 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -184,28 +184,6 @@ void Strat::LayerSequence::prepareUse() const
 }
 
 
-void Strat::LayerSequence::addElasticPropSel( const ElasticPropSelection& elp )
-{
-    ElasticPropGen elpgen( elp, props_ );
-    for ( int idx=0; idx<elp.getPropertyRefs().size(); idx++ )
-    {
-	const ElasticPropertyRef& epref = elp.getPropertyRefs()[idx]; 
-	if ( props_.isPresent( epref.name() ) )
-	    continue;
-
-	props_ += new PropertyRef( epref );
-
-	for ( int ilayer=0; ilayer<layers_.size(); ilayer++ )
-	{
-	    Layer& layer = *layers_[ilayer];
-	    const float val = elpgen.getVal(epref,layer.values(),props_.size());
-	    layer.setValue( layer.nrValues(), val ); 
-	}
-    }
-}
-
-
-
 Strat::LayerModel::LayerModel()
 {
     props_ += &Layer::thicknessRef();
@@ -339,12 +317,4 @@ bool Strat::LayerModel::write( std::ostream& strm, const IOPar& pars ) const
 void Strat::LayerModel::addElasticPropSel( const ElasticPropSelection& elp )
 {
     elasticpropsel_ = elp;
-    for ( int idx=0; idx<elp.getPropertyRefs().size(); idx++ )
-    {
-	const PropertyRef& prref = elp.getPropertyRefs()[idx]; 
-	if ( !props_.isPresent( prref.name() ) )
-	    props_ += new PropertyRef( prref );
-    }
-    for ( int idx=0; idx<seqs_.size(); idx++ )
-	seqs_[idx]->addElasticPropSel( elp );
 }

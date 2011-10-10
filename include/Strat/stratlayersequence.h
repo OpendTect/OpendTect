@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.11 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.12 2011-10-10 08:45:01 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -52,8 +52,6 @@ public:
 
     PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
-
-    void 		addElasticPropSel(const ElasticPropSelection&);
 
     void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}

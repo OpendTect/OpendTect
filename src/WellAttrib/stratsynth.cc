@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.12 2011-10-05 12:25:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.13 2011-10-10 08:45:01 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -168,18 +168,20 @@ bool StratSynth::fillElasticModel( ElasticModel& aimodel,
     if ( !eps.isValidInput( &errmsg_ ) )
 	return false; 
 
+    ElasticPropGen elpgen( eps, props );
+    const ElasticPropertyRef& denref = eps.getPropertyRef(ElasticFormula::Den); 
+    const ElasticPropertyRef& pvref = eps.getPropertyRef(ElasticFormula::PVel); 
+    const ElasticPropertyRef& svref = eps.getPropertyRef(ElasticFormula::SVel); 
+
     const Strat::Layer* lay = 0;
-    int didx = props.indexOf(eps.getPropertyRef(ElasticFormula::Den).name() );
-    int pvidx = props.indexOf(eps.getPropertyRef(ElasticFormula::PVel).name() );
-    int svidx = props.indexOf(eps.getPropertyRef(ElasticFormula::SVel).name() );
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
-	const float den  = didx  >= 0 ? lay->value( didx )  : mUdf( float );
-	const float pval = pvidx >= 0 ? lay->value( pvidx ) : mUdf( float );
-	const float sval = svidx >= 0 ? lay->value( svidx ) : mUdf( float );
+	const float dval  = elpgen.getVal(denref,lay->values(),props.size());
+	const float pval = elpgen.getVal(pvref,lay->values(),props.size());
+	const float sval = elpgen.getVal(svref,lay->values(),props.size());
 
-	ElasticLayer ail ( lay->thickness(), pval, sval, den );
+	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	aimodel += ail;
     }
     return true;
