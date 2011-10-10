@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.20 2011-10-07 15:03:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.21 2011-10-10 08:34:56 cvsjaap Exp $";
 
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
 #include "uitoolbutton.h"
-#include "uishortcutsmgr.h"
 #include "uispinbox.h"
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -29,45 +28,6 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p )
     slicestepbox_->setSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
-    shortcutsChg( 0 );
-    SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos3DDisp,shortcutsChg) );
-}
-
-
-uiSlicePos3DDisp::~uiSlicePos3DDisp()
-{
-    SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos3DDisp,shortcutsChg) );
-}
-
-
-void uiSlicePos3DDisp::shortcutsChg( CallBacker* )
-{
-    const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
-    const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
-    if ( keydesc )
-    {
-	BufferString keyseq;
-	if ( keydesc->state() == OD::ControlButton )
-	    keyseq += "Ctrl+";
-	else if ( keydesc->state() == OD::ShiftButton )
-	    keyseq += "Shift+";
-
-	keyseq += keydesc->keyStr();
-	nextbut_->setShortcut( keyseq.buf() );
-    }
-
-    keydesc = scl.keyDescOf( "Move slice backward" );
-    if ( keydesc )
-    {
-	BufferString keyseq;
-	if ( keydesc->state() == OD::ControlButton )
-	    keyseq += "Ctrl+";
-	else if ( keydesc->state() == OD::ShiftButton )
-	    keyseq += "Shift+";
-
-	keyseq += keydesc->keyStr();
-	prevbut_->setShortcut( keyseq.buf() );
-    }
 }
 
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.14 2011-09-07 16:10:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.15 2011-10-10 08:34:56 cvsjaap Exp $";
 
 #include "uislicepos.h"
 
 #include "uilabel.h"
+#include "uishortcutsmgr.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -20,6 +21,7 @@ static const char* rcsID = "$Id: uislicepos.cc,v 1.14 2011-09-07 16:10:06 cvsnan
 #include "ioman.h"
 #include "pixmap.h"
 #include "survinfo.h"
+
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
@@ -54,14 +56,48 @@ uiSlicePos::uiSlicePos( uiParent* p )
     toolbar_->addObject( nextbut_ );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
+    SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos,shortcutsChg) );
     initSteps();
+    shortcutsChg( 0 );
 }
 
 
 uiSlicePos::~uiSlicePos()
 {
     IOM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
+    SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos,shortcutsChg) );
     delete toolbar_;
+}
+
+
+void uiSlicePos::shortcutsChg( CallBacker* )
+{
+    const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
+    const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
+    if ( keydesc )
+    {
+	BufferString keyseq;
+	if ( keydesc->state() == OD::ControlButton )
+	    keyseq += "Ctrl+";
+	else if ( keydesc->state() == OD::ShiftButton )
+	    keyseq += "Shift+";
+
+	keyseq += keydesc->keyStr();
+	nextbut_->setShortcut( keyseq.buf() );
+    }
+
+    keydesc = scl.keyDescOf( "Move slice backward" );
+    if ( keydesc )
+    {
+	BufferString keyseq;
+	if ( keydesc->state() == OD::ControlButton )
+	    keyseq += "Ctrl+";
+	else if ( keydesc->state() == OD::ShiftButton )
+	    keyseq += "Shift+";
+
+	keyseq += keydesc->keyStr();
+	prevbut_->setShortcut( keyseq.buf() );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.9 2011-04-04 15:13:09 cvsbruno Exp $
+ RCS:           $Id: uislicepos.h,v 1.10 2011-10-10 08:34:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ protected:
     virtual void	setStepBoxValue()		=0;
     virtual void	slicePosChg(CallBacker*)	=0;
     virtual void	sliceStepChg(CallBacker*)	=0;
+    void		shortcutsChg(CallBacker*);
     void		updatePos(CallBacker*);
     void		initSteps(CallBacker* cb=0);
     void		slicePosChanged(Orientation,const CubeSampling&);
