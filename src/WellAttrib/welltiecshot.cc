@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.19 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.20 2011-10-11 14:51:34 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -70,6 +70,8 @@ void CheckShotCorr::calibrateLog2Log( const Well::Log& cs, Well::Log& log )
     }
     logsz = logvals.size();
 
+    sort_array( logvals.arr(), logsz ); 
+    sort_array( logdahs.arr(), logsz );
     for ( int idx=0; idx<cs.size(); idx++ )
     {
 	int dahidx = -1;
