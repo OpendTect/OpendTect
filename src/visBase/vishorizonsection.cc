@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.118 2011-09-02 13:17:11 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.119 2011-10-11 12:50:53 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2560,10 +2560,10 @@ void HorizonSectionTile::tesselateGlue()
     TypeSet<int> pointni, lineni, stripni;
 
     const short nrcoordspertile = section_.mNrCoordsPerTileSide;
-    const short spacing = section_.spacing_[res];
     
     if ( res!=-1 )
     {
+	const short spacing = section_.spacing_[res];
 	const short nrmyblocks = mNrBlocks( spacing );	
 
 	for ( int nb=5; nb<8; nb += 2 )
