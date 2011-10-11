@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.78 2011-09-02 13:06:59 cvskris Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.79 2011-10-11 22:18:46 cvsnanne Exp $";
 
 #include "uinlapartserv.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uinlapartserv.cc,v 1.78 2011-09-02 13:06:59 cvs
 #include "posvecdatasettr.h"
 #include "datapointset.h"
 #include "ptrman.h"
-#include "linekey.h"
+#include "seisioobjinfo.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "varlenarray.h"
@@ -111,7 +111,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	PosVecDataSet& vds = dpss[idx]->dataSet();
 	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
 	{
-	    BufferString psnm = LineKey::defKey2DispName(
+	    BufferString psnm = SeisIOObjInfo::defKey2DispName(
 		    			crdesc.design.inputs.get(iinp) );
 	    vds.add( new DataColDef(psnm) );
 	}
