@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.4 2011-08-26 07:03:06 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.5 2011-10-11 06:28:12 cvskris Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -40,8 +40,9 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
     : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
 {
-    const char* cutofftypes[] = { "Input less than", "Input more than", "Input outside", 0 };
-    cutofftypefld_ = new uiGenInput( this, "Clip",
+    const char* cutofftypes[] = { "Values more than", "Values less than",
+				  "Values between", 0 };
+    cutofftypefld_ = new uiGenInput( this, "Keep",
                               StringListInpSpec( cutofftypes ) );
     const Interval<float>& acceptrange = step->getAcceptRange();
 
@@ -78,29 +79,29 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     connectivityfld_->attach( alignedBelow, cutoffrangefld_ );
     connectivityfld_->attach( ensureBelow, sep );
 
-    minbodysizefld_ = new uiGenInput( this, "Minimum body size",
+    minbodysizefld_ = new uiGenInput( this, "Keep bodies larger than [voxels]",
 	    IntInpSpec( step->getMinimumBodySize() ) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
 
-    acceptoutputfld_ = new uiGenInput( this, "Inside",
+    acceptoutputfld_ = new uiGenInput( this, "Kept output",
 	    StringListInpSpec( VoxelConnectivityFilter::AcceptOutputNames() ) );
     acceptoutputfld_->setValue( (int) step->getAcceptOutput() );
     acceptoutputfld_->valuechanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
     acceptoutputfld_->attach( alignedBelow, minbodysizefld_ );
 
-    acceptvaluefld_ = new uiGenInput( this, "Inside value",
+    acceptvaluefld_ = new uiGenInput( this, "Kept value",
 	    FloatInpSpec( step->getAcceptValue() ) );
     acceptvaluefld_->attach( alignedBelow, acceptoutputfld_ );
 
-    rejectoutputudffld_ = new uiGenInput( this, "Outside",
+    rejectoutputudffld_ = new uiGenInput( this, "Rejected output",
 	    BoolInpSpec(mIsUdf(step->getRejectValue() ),
 			"Undefined value", "Value" ) );
     rejectoutputudffld_->attach( alignedBelow, acceptvaluefld_ );
     rejectoutputudffld_->valuechanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
 
-    rejectoutputvalfld_ = new uiGenInput( this, "Outside value",
+    rejectoutputvalfld_ = new uiGenInput( this, "Rejected value",
 	    FloatInpSpec(step->getRejectValue() ) );
     rejectoutputvalfld_->attach( alignedBelow, rejectoutputudffld_ );
 
