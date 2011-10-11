@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.9 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.10 2011-10-11 21:23:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class DataPointSet;
 
 namespace visBase
 {
+    class DrawStyle;
     class GeomIndexedShape;
     class Transformation;
     class PickStyle;
@@ -59,6 +60,9 @@ public:
     bool			hasColor() const	  { return true; }
     bool			allowMaterialEdit() const { return true; }
     NotifierAccess*		materialChange();
+
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -116,6 +120,7 @@ protected:
 				   plane. */
 
     Coord3			disp2world(const Coord3& displaypos) const;
+    void			setLineRadius(visBase::GeomIndexedShape*);
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
@@ -147,6 +152,7 @@ protected:
     Color				nontexturecol_;
 
     bool				displaypolygons_;
+    visBase::DrawStyle*			drawstyle_;
 };
 
 };

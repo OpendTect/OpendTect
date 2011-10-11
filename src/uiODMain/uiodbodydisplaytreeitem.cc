@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.33 2011-10-07 21:53:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.34 2011-10-11 21:23:43 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -438,24 +438,28 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displaybodymnuitem_.id )
     {
 	menu->setIsHandled(true);
-	plg_->display( true, true );
-	plg_->displayIntersections( false );
-    }
-    if ( mnuid==singlecolormnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	mcd_->useTexture( !mcd_->usesTexture() );
+	const bool polygdisplayed = displaypolygonmnuitem_.checked;
+	const bool bodydisplayed = displaybodymnuitem_.checked;
+	plg_->display( polygdisplayed, !bodydisplayed );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	plg_->display( true, false );
-	plg_->displayIntersections( false );
+	const bool polygdisplayed = displaypolygonmnuitem_.checked;
+	const bool bodydisplayed = displaybodymnuitem_.checked;
+	plg_->display( !polygdisplayed, bodydisplayed );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	plg_->display( false, false );
-	plg_->displayIntersections( true );
+	const bool polygdisplayed = displaypolygonmnuitem_.checked;
+	const bool intersectdisplayed = displayintersectionmnuitem_.checked;
+	plg_->display( polygdisplayed, intersectdisplayed );
+	plg_->displayIntersections( !intersectdisplayed );
+    }
+    else if ( mnuid==singlecolormnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	mcd_->useTexture( !mcd_->usesTexture() );
     }
 }

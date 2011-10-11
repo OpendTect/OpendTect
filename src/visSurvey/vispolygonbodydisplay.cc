@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.15 2011-09-02 13:24:35 cvskris Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.16 2011-10-11 21:23:43 cvsyuancheng Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.15 2011-09-02 13:2
 #include "survinfo.h"
 #include "undo.h"
 #include "viscoord.h"
+#include "visdrawstyle.h"
 #include "visevent.h"
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
@@ -53,6 +54,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     , shapehints_( visBase::ShapeHints::create() )
     , showmanipulator_( false )
     , displaypolygons_( false )
+    , drawstyle_( visBase::DrawStyle::create() )
 {
     nearestpolygonmarkerpickstyle_->ref();
     nearestpolygonmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -69,6 +71,10 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     shapehints_->ref();
     addChild( shapehints_->getInventorNode() );
     shapehints_->setVertexOrder( visBase::ShapeHints::CounterClockWise );
+
+    drawstyle_->ref();
+    //addChild( drawstyle_->getInventorNode() );
+    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,3) );
 }
 
 
@@ -110,6 +116,9 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
     shapehints_->unRef();
     nearestpolygonmarker_->unRef();
     nearestpolygonmarkerpickstyle_->unRef();
+
+    //removeChild( drawstyle_->getInventorNode() );
+    drawstyle_->unRef(); drawstyle_ = 0;
 }
 
 
@@ -138,6 +147,38 @@ void PolygonBodyDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 EM::ObjectID PolygonBodyDisplay::getEMID() const
 { 
     return empolygonsurf_ ? empolygonsurf_->id() : -1; 
+}
+
+
+const LineStyle* PolygonBodyDisplay::lineStyle() const
+{ return &drawstyle_->lineStyle(); }
+
+
+void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
+{
+    if ( lineStyle()->width_<0 || lst.width_<0 )
+    {
+	drawstyle_->setLineStyle( lst );
+	scene_->objectMoved( 0 );
+    }
+    else
+	drawstyle_->setLineStyle( lst );
+    
+    setLineRadius( intersectiondisplay_ );
+    if ( areIntersectionsDisplayed() )
+	intersectiondisplay_->touch( false );
+}
+
+
+void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
+{
+    const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
+    const int linewidth = islinesolid ? lineStyle()->width_ : -1;
+    const float inllen = SI().inlDistance() * SI().inlRange(true).width();
+    const float crllen = SI().crlDistance() * SI().crlRange(true).width();
+    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
+    if ( shape )
+	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );
 }
 
 
@@ -195,6 +236,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setRightHandSystem( righthandsystem_ );
 	addChild( intersectiondisplay_->getInventorNode() );
 	intersectiondisplay_->turnOn( false );
+
+	setLineRadius( intersectiondisplay_ );
     }
 
     if ( !polygondisplay_ )
