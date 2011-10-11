@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.4 2011-07-07 14:47:20 cvsbert Exp $
+ RCS:		$Id: stratlaygen.h,v 1.5 2011-10-11 11:23:01 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,8 @@ class LayerSequence;
 mClass LayerGenerator
 {
 public:	
+
+    virtual		~LayerGenerator()			{}
 
     virtual const char*	name() const				= 0;
     virtual float	dispThickness(bool max=false) const	= 0;
