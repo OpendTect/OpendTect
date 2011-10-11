@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.32 2011-09-26 07:44:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.33 2011-10-11 11:24:06 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -252,8 +252,8 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
     DispUnit& disp = *disps_[idx];
     const Property& prop = disp.gen_->properties().get(0);
-    const float th0 = prop.value( Property::EvalOpts(false,0) );
-    const float th1 = prop.value( Property::EvalOpts(false,1) );
+    const float th0 = prop.value( mPropertyEvalNew(0) );
+    const float th1 = prop.value( mPropertyEvalNew(1) );
     const bool growing = th1 > th0;
     const float& maxth = growing ? th1 : th0;
     const float& minth = growing ? th0 : th1;
@@ -416,7 +416,7 @@ void setFrom( const Property& prop )
     else
     {
 	typfld_->setCurrentItem( 0 );
-	float val = prop.value(Property::EvalOpts(true));
+	float val = prop.value( mPropertyEvalAvg );
 	setFldVal( rgfld_, val, un, 0 );
 	setFldVal( rgfld_, val, un, 1 );
 	setFldVal( valfld_, val, un, 0 );
@@ -531,8 +531,12 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 		{
 		    const int nidxof = nearun->properties().indexOf( pr );
 		    if ( nidxof >= 0 )
-			defval = nearun->properties().get(nidxof).value(
-				    Property::EvalOpts(true) );
+		    {
+			const float newdv = nearun->properties().get(nidxof)
+						.value( mPropertyEvalAvg );
+			if ( !mIsUdf(newdv) )
+			    defval = newdv;
+		    }
 		}
 		toadd = new ValueProperty( pr, defval );
 	    }

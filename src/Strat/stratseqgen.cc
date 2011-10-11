@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.31 2011-09-26 07:43:13 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.32 2011-10-11 11:24:06 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -202,7 +202,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 {
     errmsg_.setEmpty();
 
-    const Property::EvalOpts eo( false, modpos );
+    const Property::EvalOpts eo( Property::EvalOpts::New, modpos );
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
@@ -299,10 +299,10 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 	return 1;
 
     if ( !max )
-	return props_.get(0).value( Property::EvalOpts(true,0.5) );
+	return props_.get(0).value( mPropertyEvalAvg );
 
-    const float th0 = props_.get(0).value( Property::EvalOpts(false,0) );
-    const float th1 = props_.get(0).value( Property::EvalOpts(false,1) );
+    const float th0 = props_.get(0).value( mPropertyEvalNew(0) );
+    const float th1 = props_.get(0).value( mPropertyEvalNew(1) );
     if ( mIsUdf(th0) ) return th1; if ( mIsUdf(th1) ) return th0;
 
     return th0 < th1 ? th1 : th0;
@@ -406,15 +406,40 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
 
+#define mSetLayVal { haveset = true; newlay->setValue( ipr, prop.value(eo) ) ; }
     Layer* newlay = new Layer( unit() );
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];
+
+	// first non-Math
+	bool haveset = false;
 	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
 	    const Property& prop = props_.get( iprop );
 	    if ( pr == &prop.ref() )
-		{ newlay->setValue( ipr, prop.value(eo) ); break; }
+	    {
+		mDynamicCastGet(const MathProperty*,mp,&prop)
+		if ( !mp )
+		    mSetLayVal
+		break;
+	    }
+	    if ( haveset ) break;
+	}
+
+	// then Math
+	haveset = false;
+	for ( int iprop=0; iprop<props_.size(); iprop++ )
+	{
+	    const Property& prop = props_.get( iprop );
+	    if ( pr == &prop.ref() )
+	    {
+		mDynamicCastGet(const MathProperty*,mp,&prop)
+		if ( mp )
+		    mSetLayVal
+		break;
+	    }
+	    if ( haveset ) break;
 	}
     }
 
