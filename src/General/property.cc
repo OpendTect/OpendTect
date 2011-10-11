@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.51 2011-09-26 07:42:27 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.52 2011-10-11 11:23:50 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -528,7 +528,7 @@ bool ValueProperty::isUdf() const
 }
 
 
-float ValueProperty::value( Property::EvalOpts ) const
+float ValueProperty::gtVal( Property::EvalOpts ) const
 {
     return val_;
 }
@@ -565,11 +565,11 @@ bool RangeProperty::isUdf() const
 }
 
 
-float RangeProperty::value( Property::EvalOpts eo ) const
+float RangeProperty::gtVal( Property::EvalOpts eo ) const
 {
     if ( isUdf() )
 	return mUdf(float);
-    else if ( eo.average_ )
+    else if ( eo.isAvg() )
 	return 0.5 * (rg_.start + rg_.stop);
     return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);
 }
@@ -760,11 +760,13 @@ bool MathProperty::isUdf() const
 }
 
 
-float MathProperty::value( Property::EvalOpts eo ) const
+float MathProperty::gtVal( Property::EvalOpts eo ) const
 {
     if ( !expr_ )
 	return mUdf(float);
 
+    if ( eo.valopt_ == EvalOpts::New )
+	eo.valopt_ = EvalOpts::Prev;
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];

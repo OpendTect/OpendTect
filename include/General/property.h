@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.28 2011-10-06 10:16:00 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.29 2011-10-11 11:23:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class IOPar;
 /*!\brief A (usually petrophysical) property of some object.
 
   Its purpose is to provide a value when asked. Some Property's have a 'memory'.
-  These can be cleared using reset(). Some Properties do not return constant
+  These can be cleared using reset(). Most Properties do not return constant
   values. The parameters can be set in EvalOpts.
 
  */
@@ -62,22 +62,44 @@ public:
     mClass EvalOpts
     {
     public:
-			EvalOpts( bool avg=false, float relpos=0 )
-			    : average_(avg)
+
+	enum ValOpt	{ New, Prev, Avg };
+
+			EvalOpts( ValOpt vo=New, float relpos=0.5 )
+			    : valopt_(vo)
 			    , relpos_(relpos)		{}
-	bool		average_;
+	ValOpt		valopt_;
 	float		relpos_;
+
+	inline bool	isAvg() const			{ return valopt_==Avg; }
+	inline bool	isPrev() const			{ return valopt_==Prev;}
+#	define mPropertyEvalAvg Property::EvalOpts(Property::EvalOpts::Avg)
+#	define mPropertyEvalPrev Property::EvalOpts(Property::EvalOpts::Prev)
+#	define mPropertyEvalNew(pos) \
+				Property::EvalOpts(Property::EvalOpts::New,pos)
+
     };
-    virtual float	value(EvalOpts eo=EvalOpts()) const = 0;
+
+    float		value( EvalOpts eo=EvalOpts() ) const
+			{
+			    return eo.isPrev() ? lastval_
+				 : (lastval_ = gtVal(eo));
+			}
 
 protected:
 
     const PropertyRef&	ref_;
+    mutable float	lastval_;
+
+    virtual float	gtVal(EvalOpts) const		= 0;
 
 };
 
-// For impl of Property subclasses. The last four must be provided.
+// For impl of Property subclasses. gtVal and the last three must be provided.
 #define mDefPropertyFns(clss,typstr) \
+protected: \
+    virtual float	gtVal(EvalOpts) const; \
+public: \
     static const char*	typeStr()		{ return typstr; } \
     virtual const char* type() const		{ return typeStr(); } \
     virtual const char* factoryKeyword() const	{ return type(); } \
@@ -86,8 +108,7 @@ protected:
     virtual Property*	clone() const		{ return new clss( *this ); }\
     virtual const char*	def() const; \
     virtual void	setDef(const char*); \
-    virtual bool	isUdf() const; \
-    virtual float	value(EvalOpts eo=EvalOpts()) const
+    virtual bool	isUdf() const
 
 
 mClass PropertySet
