@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.67 2011-10-12 12:28:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.68 2011-10-12 15:24:37 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -88,7 +88,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
     wvlt2raysep->attach( stretchedRightTo, scalebut_ );
 
-    addasnewbut_ = new uiPushButton( topgrp_, "Add as New", false);
+    addasnewbut_ = new uiPushButton( topgrp_, "Add as new", false);
     addasnewbut_->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
     addasnewbut_->attach( rightBorder );
     addasnewbut_->attach( ensureRightOf, scalebut_ );
@@ -107,14 +107,13 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     stackbox_ = new uiCheckBox( modelgrp_, "Stack" );
     stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-    stackbox_->attach( ensureRightOf, modellist_ );
+    stackbox_->attach( rightOf, modellist_, 20 );
 
     stackfld_ = new uiStackGrp( modelgrp_ );
     stackfld_->attach( rightOf, stackbox_ );
     stackfld_->rangeChg.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
 
     offsetposfld_ = new uiSynthSlicePos( modelgrp_, "Offset" );
-    offsetposfld_->setSensitive( false );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
     offsetposfld_->attach( rightOf, stackbox_ );
 
@@ -146,6 +145,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
+    topgrp_->setSensitive( false );
+    modelgrp_->setSensitive( false );
     offsetChged(0);
 
     mTriggerInstanceCreatedNotifier();
