@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.27 2010-08-27 17:58:21 cvskris Exp $
+ RCS:		$Id: binidvalset.h,v 1.28 2011-10-12 07:24:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,6 +227,8 @@ protected:
     inline const TypeSet<float>& getValSet( int idx ) const
 			{ return *valsets_[idx]; }
 
+    friend class	DataPointSet;
+    friend class	PosVecDataSet;
 };
 
 
