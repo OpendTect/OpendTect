@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.35 2011-10-04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.36 2011-10-12 12:16:19 cvsumesh Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -458,7 +458,8 @@ void uiODApplMgrDispatcher::updateSoftware()
 
     FilePath instfp( GetSoftwareDir(0) );
     instfp.add( "bin" );
-    instfp.add( OD::Platform::local().shortName() ).add( "od_installer" );
+    //instfp.add( OD::Platform::local().shortName() )
+    instfp.add( "od_installer" );
 
     BufferString cmd("@");
     cmd.add( instfp.fullPath() );
