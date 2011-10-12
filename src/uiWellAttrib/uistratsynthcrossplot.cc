@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.34 2011-10-05 12:25:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.35 2011-10-12 15:24:56 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -151,8 +151,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    }
 	}
 
-	mDynamicCastGet(const PreStack::GatherSetDataPack*,pspack,
-			sd.getPack(false));
+	mDynamicCastGet(const PreStack::GatherSetDataPack*,
+				pspack,sd.getPack(true));
 	if ( !pspack ) continue;
 
 	lvltms.erase();
