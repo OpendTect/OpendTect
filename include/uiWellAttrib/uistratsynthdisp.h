@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.39 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.40 2011-10-12 12:28:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,7 @@ protected:
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
+    uiPushButton*	addasnewbut_;
     uiLabeledComboBox*	modellist_;
     uiCheckBox*		stackbox_;
     uiRayTrcParamsDlg*	raytrcpardlg_;

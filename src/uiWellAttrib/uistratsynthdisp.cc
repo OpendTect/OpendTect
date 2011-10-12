@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.66 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.67 2011-10-12 12:28:40 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -76,13 +76,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
     rttb->attach( rightOf, layertb );
 
-    uiSeparator* pp2wvltsep = new uiSeparator( topgrp_, "Prop2Wvlt Sep", false);
-    pp2wvltsep->attach( rightTo, rttb );
-
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
-    wvltfld_->attach( rightOf, pp2wvltsep );
+    wvltfld_->attach( rightOf, rttb, 20 );
 
     scalebut_ = new uiPushButton( topgrp_, "Scale", false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
@@ -91,9 +88,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
     wvlt2raysep->attach( stretchedRightTo, scalebut_ );
 
-    uiPushButton* addasnewbut = new uiPushButton( topgrp_, "Add as New", false);
-    addasnewbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    addasnewbut->attach( rightOf, wvlt2raysep );
+    addasnewbut_ = new uiPushButton( topgrp_, "Add as New", false);
+    addasnewbut_->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
+    addasnewbut_->attach( rightBorder );
+    addasnewbut_->attach( ensureRightOf, scalebut_ );
+    addasnewbut_->setSensitive( false );
 
     modelgrp_ = new uiGroup( this, "Model group" );
     modelgrp_->attach( ensureBelow, topgrp_ );
@@ -108,7 +107,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     stackbox_ = new uiCheckBox( modelgrp_, "Stack" );
     stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-    stackbox_->attach( hCentered ); 
     stackbox_->attach( ensureRightOf, modellist_ );
 
     stackfld_ = new uiStackGrp( modelgrp_ );
@@ -147,6 +145,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	    .tba( (int)uiToolBar::Right );
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
+
+    offsetChged(0);
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -407,6 +407,10 @@ void uiStratSynthDisp::doModelChange()
     const int seldataidx = modellist_->box()->currentItem(); 
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
+    topgrp_->setSensitive( seldataidx == 0 );
+    modelgrp_->setSensitive( currentsynthetic_ );
+    addasnewbut_->setSensitive( currentsynthetic_ );
+
     if ( currentsynthetic_ )
     {
 	Interval<float> limits( currentsynthetic_->offsetRange() );
@@ -414,10 +418,6 @@ void uiStratSynthDisp::doModelChange()
 	stackfld_->setLimitRange( limits );
 	currentsynthetic_->setPostStack( limits.start );
     }
-    offsetposfld_->setSensitive( currentsynthetic_ );
-    stackfld_->setSensitive( currentsynthetic_ );
-    topgrp_->setSensitive( seldataidx == 0 );
-
     if ( stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
 
