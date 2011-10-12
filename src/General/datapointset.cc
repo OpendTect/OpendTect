@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.41 2011-10-12 07:25:22 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.42 2011-10-12 08:38:34 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -645,20 +645,70 @@ void DataPointSet::randomSubselect( int maxsz )
 }
 
 
-DataPointSet* DataPointSet::getRandomSubselected( int maxsz ) const
+DataPointSet* DataPointSet::getSubselected( int maxsz,
+			const TypeSet<int>* outcols, bool allowudf ) const
 {
     const int mysz = size();
-    if ( maxsz <= mysz )
+    if ( maxsz <= mysz && !outcols && allowudf )
 	return new DataPointSet( *this );
 
-    DataPointSet* ret = new DataPointSet( TypeSet<DataRow>(),
-	    			dataSet().coldefs_, is2D(), isMinimal() );
-    mGetIdxArr(RowID,idxs,mysz);
-    if ( !idxs ) return ret;
+    const int mynrcols = nrCols();
+    TypeSet<int> colsbuf;
+    if ( !outcols )
+    {
+	for ( ColID icol=0; icol<mynrcols; icol++ )
+	    colsbuf += icol;
+	outcols = &colsbuf;
+    }
 
-    Stats::RandGen::subselect( idxs, mysz, maxsz );
+    ObjectSet<DataColDef> cds;
+    for ( ColID icol=0; icol<outcols->size(); icol++ )
+	cds += const_cast<DataColDef*>(
+			dataSet().coldefs_[ nrfixedcols_ + (*outcols)[icol] ] );
+    DataPointSet* ret = new DataPointSet( TypeSet<DataRow>(), cds, is2D(),
+	    				  isMinimal() );
+
+    mGetIdxArr(RowID,idxs,mysz);
+    if ( !idxs ) { delete ret; return 0; }
+
+    const int nrcols = outcols->size();
+    int activesz = mysz;
+
+    if ( !allowudf )
+    {
+	for ( RowID idx=0; idx<activesz; idx++ )
+	{
+	    RowID irow = idxs[ idx ];
+	    const float* vals = getValues( irow );
+	    bool canuse = true;
+	    for ( ColID icol=0; icol<nrcols; icol++ )
+	    {
+		const float val = vals[ (*outcols)[icol] ];
+		if ( mIsUdf(val) )
+		    { canuse = false; break; }
+	    }
+	    if ( !canuse )
+		{ activesz--; idxs[idx] = activesz; idx--; }
+	}
+    }
+
+    if ( activesz > maxsz )
+	Stats::RandGen::subselect( idxs, activesz, maxsz );
+    else
+	maxsz = activesz;
+
     for ( int idx=0; idx<maxsz; idx++ )
-	ret->addRow( dataRow( idxs[idx] ) );
+    {
+	const RowID irow = idxs[idx];
+	DataRow dr( dataRow(irow) );
+	const float* vals = getValues( irow );
+	dr.data_.erase();
+	for ( ColID icol=0; icol<nrcols; icol++ )
+	    dr.data_ += vals[ (*outcols)[icol] ];
+
+	ret->addRow( dr );
+    }
+    delete [] idxs;
 
     ret->dataChanged();
     return ret;
