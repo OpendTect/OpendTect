@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.59 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.60 2011-10-12 06:09:00 cvsranojay Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -461,7 +461,17 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
 	    	    visserv_->getObject(displayid_));
     if ( slice )
-	uilistviewitem_->setText( toString(vd->slicePosition(slice)), col );
+    {
+	float dispval = vd->slicePosition( slice );
+	if ( slice->getDim() == 0 )
+	{
+	    mDynamicCastGet(visSurvey::Scene*,scene,
+		ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+	    dispval *= scene->zDomainUserFactor();
+	}
+
+	uilistviewitem_->setText( toString(mNINT(dispval)), col );
+    }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 	    	    visserv_->getObject(displayid_));

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.128 2011-08-04 09:58:37 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.129 2011-10-12 06:09:00 cvsranojay Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -716,7 +716,7 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     else
     {
 	slicepos += voltrans_->getTranslation()[2];
-	pos = mNINT(slicepos*1000);
+	pos = slicepos;
     }
 
     return pos;
