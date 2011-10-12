@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.38 2011-09-08 05:00:38 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.39 2011-10-12 07:25:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,6 +196,7 @@ public:
     			//!< columns!
 
     void		randomSubselect(int maxsz);
+    DataPointSet*	getRandomSubselected(int maxsz) const;
     
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }

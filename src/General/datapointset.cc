@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.40 2011-09-08 15:12:25 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.41 2011-10-12 07:25:22 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: datapointset.cc,v 1.40 2011-09-08 15:12:25 cvsb
 #include "posprovider.h"
 #include "bufstringset.h"
 #include "survinfo.h"
+#include "statrand.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -641,6 +642,26 @@ void DataPointSet::randomSubselect( int maxsz )
 {
     bivSet().randomSubselect( maxsz );
     dataChanged();
+}
+
+
+DataPointSet* DataPointSet::getRandomSubselected( int maxsz ) const
+{
+    const int mysz = size();
+    if ( maxsz <= mysz )
+	return new DataPointSet( *this );
+
+    DataPointSet* ret = new DataPointSet( TypeSet<DataRow>(),
+	    			dataSet().coldefs_, is2D(), isMinimal() );
+    mGetIdxArr(RowID,idxs,mysz);
+    if ( !idxs ) return ret;
+
+    Stats::RandGen::subselect( idxs, mysz, maxsz );
+    for ( int idx=0; idx<maxsz; idx++ )
+	ret->addRow( dataRow( idxs[idx] ) );
+
+    ret->dataChanged();
+    return ret;
 }
 
 
