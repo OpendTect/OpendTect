@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.58 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.59 2011-10-12 15:24:27 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -323,6 +323,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld ) const
 
 Server::Server( const WellTie::Setup& wts )
     : is2d_(wts.is2d_)
+    , wellid_(wts.wellid_)  
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );

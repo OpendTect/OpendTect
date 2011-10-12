@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.96 2011-10-06 14:18:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.97 2011-10-12 15:24:27 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.96 2011-10-06 14:1
 #include "welllogset.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
+#include "wellman.h"
 #include "wellmarker.h"
 #include "welltiedata.h"
 #include "welltiepickset.h"
@@ -490,6 +491,8 @@ bool uiTieWin::acceptOK( CallBacker* )
        if ( !server_.commitD2TModel() )
 	    mErrRet("Cannot write new depth/time model")
 	close();
+	if ( Well::MGR().isLoaded( server_.wellID() ) )
+	    Well::MGR().reload( server_.wellID() ); 
     }
     return false;
 }

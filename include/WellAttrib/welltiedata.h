@@ -221,6 +221,8 @@ public :
     const Well::Data* 		wd() const	{ return data_->wd_; }
     Well::Data* 		wd()		{ return data_->wd_; }
 
+    const MultiID&		wellID() const	{ return wellid_; }
+
     PickSetMgr&			pickMgr() 	{ return *pickmgr_; }
     D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
     HorizonMgr&			horizonMgr() 	{ return *hormgr_; }
@@ -257,6 +259,7 @@ protected :
     D2TModelMgr*		d2tmgr_;
     DataWriter*			datawriter_;
     Data* 			data_;
+    const MultiID&		wellid_;
 
     bool			is2d_;
     BufferString		errmsg_;
