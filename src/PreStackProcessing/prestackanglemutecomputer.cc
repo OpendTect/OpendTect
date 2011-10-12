@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.3 2011-10-06 14:17:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.4 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -64,15 +64,8 @@ bool AngleMuteComputer::doPrepare( int )
 
     MuteDefTranslator::retrieve(outputmute_,muteioobj,errmsg_);
 
-    if ( RayTracer1D::factory().getNames(false).isEmpty() )
-	return false;
-
-    BufferString type = RayTracer1D::factory().getDefaultName();
-    if ( type.isEmpty() )
-	type = *RayTracer1D::factory().getNames(false)[0];
-
-    raytracer_ = RayTracer1D::factory().create( type );
-    raytracer_->setup() = params_->raysetup_;
+    raytracer_ = RayTracer1D::createInstance( params().raypar_, errmsg_ );
+    if ( !raytracer_ ) return false;
 
     offsets_.erase();
     for ( int idx=0; idx<params().offsetrg_.nrSteps(); idx++ )

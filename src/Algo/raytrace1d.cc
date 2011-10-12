@@ -18,8 +18,7 @@ mImplFactory(RayTracer1D,RayTracer1D::factory)
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     return par.getYN( sKeyPWave(), pdown_, pup_) &&
-	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_) &&
-	   par.get( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_);
+	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_);
 }
 
 
@@ -27,7 +26,6 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyPWave(), pdown_, pup_ );
     par.set( sKeySRDepth(), sourcedepth_, receiverdepth_ );
-    par.set( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_ );
 }
 
 
@@ -69,6 +67,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
 
 bool RayTracer1D::usePar( const IOPar& par )
 {
+    par.get( sKeyOffset(), offsets_ );
     return setup().usePar( par );
 }
 
@@ -76,6 +75,7 @@ bool RayTracer1D::usePar( const IOPar& par )
 void RayTracer1D::fillPar( IOPar& par ) const 
 {
     par.set( sKey::Type, factoryKeyword() );
+    par.set( sKeyOffset(), offsets_ );
     setup().fillPar( par );
 }
 
@@ -92,6 +92,8 @@ od_int64 RayTracer1D::nrIterations() const
 { return model_.size() -1; }
 
 
+#define mStdAVelReplacementFactor 0.348
+#define mStdBVelReplacementFactor -0.959
 bool RayTracer1D::doPrepare( int nrthreads )
 {
     //See if we can find zero-offset
@@ -108,8 +110,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	offsets_ += 0;
 
     const int sz = model_.size();
-    const float p2safac = setup().pvel2svelafac_;
-    const float p2sbfac = setup().pvel2svelbfac_;
 
     if ( sz < 1 )
     {
@@ -118,6 +118,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	return false;
     }
 
+    const float p2safac = mStdAVelReplacementFactor;
+    const float p2sbfac = mStdBVelReplacementFactor;
     for ( int idx=0; idx<sz; idx++ )
     {
 	ElasticLayer& layer = model_[idx];
@@ -359,8 +361,8 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
 	int lidx = sourcelayer_;
 	reflectivity = coefs[lidx].getCoeff( true, 
-				lidx!=layer-1, setup_.pdown_,
-				lidx==layer-1? setup_.pup_ : setup_.pdown_ ); 
+				lidx!=layer-1 , setup_.pdown_,
+				lidx==layer-1 ? setup_.pup_ : setup_.pdown_ ); 
 	lidx++;
 
 	while ( lidx < layer )

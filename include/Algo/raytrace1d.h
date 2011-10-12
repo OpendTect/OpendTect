@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.27 2011-10-06 14:20:55 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.28 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -39,16 +39,12 @@ public:
 			    , pup_( true )
 			    , sourcedepth_( 0 )
 			    , receiverdepth_( 0 )
-			    , pvel2svelafac_(0.348) 
-			    , pvel2svelbfac_(-0.959) 
 			{}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
 	mDefSetupMemb(float,sourcedepth);
 	mDefSetupMemb(float,receiverdepth);
-	mDefSetupMemb(float,pvel2svelafac);
-	mDefSetupMemb(float,pvel2svelbfac);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
@@ -77,6 +73,7 @@ public:
     static const char*	sKeyPWave()	{ return "Wavetypes"; }
     static const char*	sKeySRDepth()	{ return "SR Depths"; }
     static const char*	sKeyPSVelFac()	{ return "PWave/SWave factor"; }
+    static const char*	sKeyOffset()	{ return "Offset Range"; }
 
 protected:
 			RayTracer1D();
@@ -108,8 +105,11 @@ protected:
 mClass VrmsRayTracer1D : public RayTracer1D
 { 
 public:
-    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRaytracer",
-				"Simple Raytracer" );
+
+    static const char*		sKeyDesc() { return "Simple"; }
+
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, sKeyDesc(),
+	    			"Simple RayTracer" );
 
     RayTracer1D::Setup&		setup() 	{ return setup_; }
     const RayTracer1D::Setup&	setup() const	{ return setup_; }

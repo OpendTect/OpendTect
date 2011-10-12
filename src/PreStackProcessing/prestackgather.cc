@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.38 2011-10-11 11:06:26 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.39 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: prestackgather.cc,v 1.38 2011-10-11 11:06:26 cv
 #include "seispsread.h"
 #include "seisread.h"
 #include "seistrctr.h"
+#include "seistrcprop.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
@@ -400,3 +401,36 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 }
 
 
+void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
+{
+    const int gathersz = gathers_.size();
+    TypeSet<int> offidxs;
+    for ( int idx=0; idx<gathersz; idx++ )
+    {
+	const Gather& gather = *gathers_[idx];
+	const int offsz = gather.size( true );
+
+	for ( int idoff=0; idoff<offsz; idoff++ )
+	{
+	    if ( stackrg.includes( gather.getOffset( idoff ), true ) )
+		offidxs.addIfNew( idoff );
+	}
+    }
+    if ( offidxs.isEmpty() ) 
+	return;
+
+    for ( int idx=0; idx<offidxs.size(); idx++ )
+    {
+	if ( inp.isEmpty() )
+	    fill( inp, idx );
+	else
+	{
+	    SeisTrcBuf buf(false); fill( buf, idx );
+	    for ( int idgather=0; idgather<gathersz; idgather++ )
+	    {
+		SeisTrcPropChg stckr( *inp.get( idgather ) );
+		stckr.stack( *buf.get( idgather ) ); 
+	    }
+	}
+    }
+}

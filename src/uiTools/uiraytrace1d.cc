@@ -4,33 +4,101 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.8 2011-10-07 12:14:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.9 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
 #include "survinfo.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiseparator.h"
 
 
 mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&, 
 			uiRayTracer1D::factory );
 
 
-void uiRayTracer1D::fillPar( IOPar& par ) const
+uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
+    : uiGroup( p, "Ray Tracer Selector" )
+    , raytracerselfld_(0)  
 {
-    par.set( sKey::Type, factoryKeyword() );
+    const BufferStringSet& raytrcnms = uiRayTracer1D::factory().getNames();
+
+    uiSeparator* sep;
+    if ( raytrcnms.size() > 1 )
+    {
+	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
+	raytracerselfld_->box()->selectionChanged.notify( 
+				mCB( this, uiRayTracerSel, selRayTraceCB) );
+	raytracerselfld_->attach( hCentered );
+    }
+
+    for ( int idx=0; idx<raytrcnms.size(); idx++ )
+    {
+	const BufferString& nm( raytrcnms.get(idx) );
+	uiRayTracer1D* grp = uiRayTracer1D::factory().create(nm,this,s,true);
+	if ( grp )
+	{
+	    grps_ += grp;
+	    if ( raytracerselfld_ ) 
+	    {
+		raytracerselfld_->box()->addItem( nm );
+		grp->attach( alignedBelow, raytracerselfld_ );
+		grp->setName( nm );
+	    }
+	}
+    }
+    selRayTraceCB( 0 );
 }
+
+
+void uiRayTracerSel::selRayTraceCB( CallBacker* )
+{
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	grps_[idx]->display( idx == selidx );
+}
+
+
+void uiRayTracerSel::usePar( const IOPar& par )
+{
+    BufferString type; par.get( sKey::Type, type );
+    int igrp = 0;
+    for ( igrp; igrp<grps_.size(); igrp++ )
+    {
+	if ( grps_[igrp]->name() == type )
+	{
+	    grps_[igrp]->usePar( par );
+	    break;
+	}
+    }
+    if ( raytracerselfld_ )
+	raytracerselfld_->box()->setCurrentItem( igrp );
+}
+
+
+void uiRayTracerSel::fillPar( IOPar& par ) const
+{
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    if ( grps_.validIdx( selidx ) )
+    {
+	grps_[selidx]->fillPar( par );
+	par.set( sKey::Type, grps_[selidx]->name() );
+    }
+}
+
+
+
 
 
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
-    , setup_(s)  
     , srcdepthfld_( 0 )
     , downwavefld_( 0 )
     , upwavefld_( 0 )
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
+    , lastfld_( 0 )
 {
     if ( !s.dosourcereceiverdepth_ && !s.convertedwaves_ )
     {
@@ -39,31 +107,11 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     BufferString dptlbl( SI().zIsTime() ? "(ft)" : SI().getZUnitString(true) );
 
-    RayTracer1D::Setup rsu = setup_.raysetup_ ? *setup_.raysetup_ 
-					       : RayTracer1D::Setup();
-    if ( setup_.dosourcereceiverdepth_ )
+    if ( s.dosourcereceiverdepth_ )
     {
 	BufferString lb = "Source/Receiver depths"; lb += dptlbl;
 	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
-	Interval<float> depths;
-	depths.set( rsu.sourcedepth_, rsu.receiverdepth_);
-	srcdepthfld_->setValue( depths );
-    }
-
-    if ( setup_.dooffsets_ )
-    {
-	BufferString olb = "offset range "; olb += dptlbl; olb +="(start/stop)";
-	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
-	offsetfld_->setValue(
-	    Interval<float>(setup_.offsetrg_.start,setup_.offsetrg_.stop));
-	offsetfld_->setElemSzPol( uiObject::Small );
-	if ( srcdepthfld_ )
-	    offsetfld_->attach( alignedBelow, srcdepthfld_ );
-
-	offsetstepfld_ = new uiGenInput( this, "step" );
-	offsetstepfld_->attach( rightOf, offsetfld_ );
-	offsetstepfld_->setElemSzPol( uiObject::Small );
-	offsetstepfld_->setValue( setup_.offsetrg_.step );
+	lastfld_ = srcdepthfld_; 
     }
 
     if ( s.convertedwaves_ )
@@ -73,106 +121,112 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	if ( srcdepthfld_ )
 	    downwavefld_->attach( alignedBelow, srcdepthfld_ );
 	else if ( offsetfld_ )
-	    offsetstepfld_->attach( alignedBelow, offsetfld_ );
+	    downwavefld_->attach( alignedBelow, offsetfld_ );
 
 	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
 	upwavefld_->attach( alignedBelow, downwavefld_ );
 
-	downwavefld_->setValue( rsu.pdown_ );
-	upwavefld_->setValue( rsu.pup_ );
+	lastfld_ = upwavefld_; 
     }
 
-    if ( setup_.dosourcereceiverdepth_ )
-	setHAlignObj( srcdepthfld_ );
-    else
-	setHAlignObj( downwavefld_ );
+    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
+    usePar( par );
 
+    if ( s.dooffsets_ )
+    {
+	BufferString olb = "offset range "; olb += dptlbl; olb +="(start/stop)";
+	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
+	offsetfld_->setValue(
+			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
+	offsetfld_->setElemSzPol( uiObject::Small );
+	if ( srcdepthfld_ )
+	    offsetfld_->attach( alignedBelow, srcdepthfld_ );
+
+	offsetstepfld_ = new uiGenInput( this, "step" );
+	offsetstepfld_->attach( rightOf, offsetfld_ );
+	offsetstepfld_->setElemSzPol( uiObject::Small );
+	offsetstepfld_->setValue( s.offsetrg_.step );
+	lastfld_ = offsetfld_; 
+    }
+
+    setHAlignObj( lastfld_ );
 }
 
 
-bool uiRayTracer1D::fill( RayTracer1D::Setup& setup )
+bool uiRayTracer1D::usePar( const IOPar& par )
 {
-    if ( srcdepthfld_ )
-    {
-	setup.sourcedepth_ = srcdepthfld_->getfValue(0);
-	setup.receiverdepth_ = srcdepthfld_->getfValue(1);
-    }
-
+    RayTracer1D::Setup tmpsetup;
+    tmpsetup.usePar( par );
+    
     if ( downwavefld_ )
     {
-	setup.pdown_ = downwavefld_->getBoolValue();
-	setup.pup_ = upwavefld_->getBoolValue();
+	downwavefld_->setValue( tmpsetup.pdown_ );
+	upwavefld_->setValue( tmpsetup.pup_ );
     }
 
+    if ( srcdepthfld_ )
+    {
+	Interval<float> depths;
+	depths.set( tmpsetup.sourcedepth_, tmpsetup.receiverdepth_);
+	srcdepthfld_->setValue( depths );
+    }
+
+    TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
+    if ( !offsets.isEmpty() )
+    {
+	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
+	if ( offsetfld_ && offsetstepfld_  )
+	{
+	    offsetfld_->setValue( offsetrg );
+	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0] : 0;
+	    offsetstepfld_->setValue( step );
+	}
+    }
     return true;
 }
 
 
-void uiRayTracer1D::getOffsets( StepInterval<float>& offsetrg ) const
+void uiRayTracer1D::fillPar( IOPar& par ) const
 {
+    RayTracer1D::Setup tmpsetup;
+    if ( srcdepthfld_ )
+    {
+	tmpsetup.sourcedepth_ = srcdepthfld_->getfValue(0);
+	tmpsetup.receiverdepth_ = srcdepthfld_->getfValue(1);
+    }
+
+    if ( downwavefld_ )
+    {
+	tmpsetup.pdown_ = downwavefld_->getBoolValue();
+	tmpsetup.pup_ = upwavefld_->getBoolValue();
+    }
+    tmpsetup.fillPar( par );
+
+    StepInterval<float> offsetrg;
     if ( offsetfld_ && offsetstepfld_  )
     {
 	offsetrg.start = offsetfld_->getIInterval().start;
 	offsetrg.stop = offsetfld_->getIInterval().stop;
 	offsetrg.step = (int)offsetstepfld_->getfValue();
     }
+    TypeSet<float> offsets; 
+    for ( int idx=0; idx<offsetrg.nrSteps(); idx++ )
+	offsets += offsetrg.atIndex( idx );
+
+    par.set( RayTracer1D::sKeyOffset(), offsets );
 }
 
-
-void uiRayTracer1D::displayOffsetFlds( bool yn ) 
-{
-    if ( offsetfld_ && offsetstepfld_ )
-    {
-	offsetfld_->display( yn );
-	offsetstepfld_->display( yn );
-    }
-}
-
-
-
-
-uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
-    : uiGroup( p, "Ray Tracer Selector" )
-{
-    const BufferStringSet& raytrcnms = RayTracer1D::factory().getNames();
-
-    if ( raytrcnms.size() > 1 )
-    {
-	raytracerselbox_ = new uiLabeledComboBox( this, "Select RayTracer" );
-	raytracerselbox_->box()->selectionChanged.notify( 
-				mCB( this, uiRayTracerSel, selRayTraceCB) );
-    }
-
-    for ( int idx=0; idx<raytrcnms.size(); idx++ )
-    {
-	const BufferString& nm( raytrcnms.get(idx) );
-	uiRayTracer1D* grp = uiRayTracer1D::factory().create(nm,this,s,true);
-	if ( grp )
-	{
-	    raytracerselbox_->box()->addItem( nm );
-	    grps_ += grp;
-	}
-    }
-    selRayTraceCB( 0 );
-}
-
-
-void uiRayTracerSel::selRayTraceCB( CallBacker* )
-{
-    int selidx = raytracerselbox_ ? raytracerselbox_->box()->currentItem() : 0;
-    for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->display( idx == selidx );
-}
 
 
 
 uiVrmsRayTracer1D::uiVrmsRayTracer1D(uiParent* p,const uiRayTracer1D::Setup& s)
-: uiRayTracer1D( p, s ) {}
+    : uiRayTracer1D( p, s ) 
+{}
 
 
 void uiVrmsRayTracer1D::initClass()
 {
-    uiRayTracer1D::factory().addCreator( create, "Simple RayTracer" );
+    uiRayTracer1D::factory().addCreator(create, VrmsRayTracer1D::sKeyDesc() );
 }
 
 

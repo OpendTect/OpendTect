@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.6 2011-10-07 12:14:15 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.7 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -27,28 +27,23 @@ public:
     mClass Setup 		
     {
 	public:	
-			Setup(const RayTracer1D::Setup* rsu=0)
+			Setup()
 			    : convertedwaves_(false)
 			    , dosourcereceiverdepth_(true)
 			    , dooffsets_(false)
 			    , offsetrg_(0,3000,100)
-			    , raysetup_(rsu)
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
 	mDefSetupMemb(bool,dosourcereceiverdepth);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
-	mDefSetupMemb(const RayTracer1D::Setup*,raysetup);
     };
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
 
-    bool		fill(RayTracer1D::Setup&);
-    virtual void	fillPar(IOPar& par) const;
-
-    void 		getOffsets(StepInterval<float>&) const;
-    void		displayOffsetFlds(bool yn);
+    virtual bool 	usePar(const IOPar&);
+    virtual void  	fillPar(IOPar&) const;
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
@@ -60,21 +55,7 @@ protected:
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
 
-    uiRayTracer1D::Setup          setup_;
-};
-
-
-mClass uiRayTracerSel : public uiGroup
-{
-public:
-    			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
-protected:
-
-    uiLabeledComboBox*	raytracerselbox_;
-
-    ObjectSet<uiRayTracer1D> grps_;
-
-    void		selRayTraceCB(CallBacker*);
+    uiGenInput*		lastfld_;
 };
 
 
@@ -86,7 +67,26 @@ public:
 
     static uiRayTracer1D* create(uiParent* p,const uiRayTracer1D::Setup& s)
 			    { return new uiVrmsRayTracer1D(p,s); }
+
     static void         initClass();
+};
+
+
+mClass uiRayTracerSel : public uiGroup
+{
+public:
+    			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
+
+    void                usePar(const IOPar&);
+    void                fillPar(IOPar&) const;
+
+protected:
+
+    uiLabeledComboBox*	raytracerselfld_;
+
+    ObjectSet<uiRayTracer1D> grps_;
+
+    void		selRayTraceCB(CallBacker*);
 };
 
 

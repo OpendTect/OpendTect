@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.15 2011-10-06 14:17:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.16 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -13,7 +13,6 @@ static const char* rcsID = "$Id: prestackanglemute.cc,v 1.15 2011-10-06 14:17:33
 #include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "iopar.h"
 #include "math.h"
 #include "muter.h"
 #include "prestackgather.h"
@@ -45,8 +44,7 @@ void AngleMuteBase::fillPar( IOPar& par ) const
     if ( ioobj ) par.set( sKeyVelVolumeID(), params_->velvolmid_ );
 
     IOPar rtracepar;
-    params_->raysetup_.fillPar( rtracepar );
-    par.mergeComp( rtracepar, sKeyRayTracer() );
+    par.merge( params_->raypar_ );
     par.set( sKeyMuteCutoff(), params_->mutecutoff_ );
     par.setYN( sKeyVelBlock(), params_->dovelblock_ );
 }
@@ -54,10 +52,7 @@ void AngleMuteBase::fillPar( IOPar& par ) const
 
 bool AngleMuteBase::usePar( const IOPar& par  ) 
 {
-    PtrMan<IOPar> rtracepar = par.subselect( sKeyRayTracer() );
-    if ( !rtracepar || !params_->raysetup_.usePar( *rtracepar ) )
-	return false;
-
+    params_->raypar_.merge( par );
     par.get( sKeyVelVolumeID(), params_->velvolmid_ );
     par.get( sKeyMuteCutoff(), params_->mutecutoff_ );
     par.getYN( sKeyVelBlock(), params_->dovelblock_ );
@@ -231,15 +226,10 @@ bool AngleMute::doPrepare( int nrthreads )
     if ( !muter_ ) 
 	muter_ = new Muter( params().taperlen_, params().tail_ );
 
+    BufferString errmsg;
     for ( int idx=0; idx<nrthreads; idx++ )
-    {
-	BufferString type = RayTracer1D::factory().getDefaultName();
-	if ( type.isEmpty() )
-	    type = *RayTracer1D::factory().getNames(false)[0];
+	rtracers_ += RayTracer1D::createInstance( params().raypar_, errmsg );
 
-	rtracers_ += RayTracer1D::factory().create( type );
-	rtracers_[idx]->setup() = params_->raysetup_;
-    }
     return true;
 }
 
@@ -251,9 +241,6 @@ bool AngleMute::usePar( const IOPar& par )
 
     par.get( Mute::sTaperLength(), params().taperlen_ );
     par.getYN( Mute::sTailMute(), params().tail_ );
-
-    for ( int idx=0; idx<rtracers_.size(); idx++ )
-	rtracers_[idx]->setup() = params_->raysetup_; 
 
     return true;
 }

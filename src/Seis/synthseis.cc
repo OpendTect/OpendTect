@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.38 2011-10-05 12:21:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.39 2011-10-12 11:32:33 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -70,8 +70,8 @@ void SynthGenBase::fillPar( IOPar& par ) const
 
 bool SynthGenBase::usePar( const IOPar& par ) 
 {
-    return par.getYN( sKeyFourier(), isfourier_ ) && 
-	par.getYN( sKeyNMO(), usenmotimes_ );
+    return par.getYN( sKeyNMO(), usenmotimes_ )
+	&& par.getYN( sKeyFourier(), isfourier_ );
 }
 
 
@@ -391,25 +391,14 @@ void RaySynthGenerator::addModel( const ElasticModel& aim )
 }
 
 
-void RaySynthGenerator::setRayParams( const RayTracer1D::Setup& su, 
-				  const TypeSet<float>& offs, bool isnmo )
-{
-    raysetup_ = su;
-    offsets_ = offs;
-    usenmotimes_ = isnmo;
-}
-
-
 bool RaySynthGenerator::doRayTracing()
 {
     deepErase( raymodels_ );
-    if ( offsets_.isEmpty() )
-	offsets_ += 0;
 
     if ( aimodels_.isEmpty() )
 	mErrRet( "No AI model found" );
 
-    RayTracerRunner rtr( aimodels_, offsets_, raysetup_ );
+    RayTracerRunner rtr( aimodels_, raysetup_ );
     if ( tr_ && !tr_->execute( rtr ) )
 	mErrRet( rtr.errMsg(); )
     else if ( !rtr.execute() )
@@ -563,6 +552,25 @@ void RaySynthGenerator::RayModel::forceReflTimes( const StepInterval<float>& si)
 	    refmodel[iref].correctedtime_ = si.atIndex(iref);
 	}
     }
+}
+
+
+bool RaySynthGenerator::usePar( const IOPar& par )
+{
+    SynthGenBase::usePar( par );
+    raysetup_.merge( par ); 
+    raysetup_.get( RayTracer1D::sKeyOffset(), offsets_ );
+    if ( offsets_.isEmpty() )
+	offsets_ += 0;
+
+    return true;
+}
+
+
+void RaySynthGenerator::fillPar( IOPar& par ) const
+{
+    SynthGenBase::fillPar( par );
+    par.merge( raysetup_ );
 }
 
 }// namespace

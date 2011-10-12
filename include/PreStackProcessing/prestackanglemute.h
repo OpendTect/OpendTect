@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.9 2011-10-06 14:17:33 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.10 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "prestackprocessor.h"
 #include "raytrace1d.h"
+#include "iopar.h"
 #include "samplingdata.h"
 
 
@@ -40,7 +41,7 @@ public:
 	float 			mutecutoff_;
 	bool			dovelblock_;
 	MultiID			velvolmid_;   
-	RayTracer1D::Setup	raysetup_;
+	IOPar			raypar_;
     };
 
     virtual void	fillPar(IOPar&) const;

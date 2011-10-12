@@ -7,48 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.10 2011-10-10 10:14:30 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.11 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "cubesampling.h"
 #include "datapack.h"
 #include "elasticpropsel.h"
 #include "iopar.h"
 #include "samplingdata.h"
-#include "synthseis.h"
 
 class TimeDepthModel;
-class SeisTrcBuf;
 class SeisTrcBufDataPack;
 class Wavelet;
 namespace Strat { class LayerModel; class LayerSequence; }
 namespace PreStack { class GatherSetDataPack; }
-
-
-mStruct RayParams
-{				RayParams()
-				    : synthname_("Synthetics")
-				    , usenmotimes_(true)	
-				    , offsetrg_(0,3000,100)
-				    {}
-
-				RayParams(const RayParams& rp)
-				{
-				    usenmotimes_ 	= rp.usenmotimes_;
-				    synthname_ 		= rp.synthname_;
-				    offsetrg_ 		= rp.offsetrg_;
-				    IOPar spar; 
-				    rp.setup_.fillPar( spar );
-				    setup_.usePar( spar );
-				}
-
-    bool 			usenmotimes_;
-    BufferString		synthname_;
-    RayTracer1D::Setup		setup_;
-    StepInterval<float>		offsetrg_;
-};
 
 
 /*! brief the basic synthetic dataset. contains the data cube*/
@@ -62,15 +35,14 @@ public:
     void				setName(const char*);
 
     const DataPack*			getPack(bool isps) const; 
+    const Interval<float>		offsetRange() const; 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
     DataPack::FullID			prestackpackid_;
     DataPack::FullID 			poststackpackid_;
 
-    void				setPostStack(int offset);
-
-    RayParams				raypars_;
-
+    void				setPostStack(float offset,
+					     const Interval<float>* stackrg=0);
 protected:
     PreStack::GatherSetDataPack&	prestackpack_;
     SeisTrcBufDataPack*			poststackpack_;
@@ -84,35 +56,31 @@ protected:
 mClass StratSynth
 {
 public:
-    			StratSynth(const Strat::LayerModel&);
-    			~StratSynth();
+    				StratSynth(const Strat::LayerModel&);
+    				~StratSynth();
 
-    const Strat::LayerModel& layerModel() const 	{ return lm_; }
+    void			setWavelet(const Wavelet*);
 
-    void		addSynthetics(SyntheticData* sd); 
-    SyntheticData* 	getSynthetic( int selid ); 
+    void			clearSynthetics();
+    void			addSynthetics(SyntheticData* sd); 
+    SyntheticData* 		getSynthetic( int selid );
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
-    void		setWavelet(const Wavelet*);
-
-    RayParams&		rayPars() 	{ return raypars_; }
-
-    const char* 	errMsg() const 
-    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    IOPar&			rayPars() 		{ return raypars_; }
+    const char* 		errMsg() const;
 
 protected:
 
-    RayParams		raypars_;
-    const Strat::LayerModel& lm_;
-    const Wavelet*	wvlt_;
-    TypeSet<AIModel>	aimodels_;
+    const Strat::LayerModel& 	lm_;
+    const Wavelet*		wvlt_;
+    TypeSet<AIModel>		aimodels_;
+    BufferString		errmsg_;
+    IOPar			raypars_;
 
-    ObjectSet<SyntheticData> synthetics_;
+    ObjectSet<SyntheticData> 	synthetics_;
+    SyntheticData* 		generate();
 
-    BufferString	errmsg_;
-
-    SyntheticData* 	generate();
-    bool		fillElasticModel(ElasticModel&,
+    bool			fillElasticModel(ElasticModel&,
 				    	const Strat::LayerSequence&);
 };
 

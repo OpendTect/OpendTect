@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiprestackanglemute.h,v 1.4 2011-07-12 10:51:55 cvsbruno Exp $
+ RCS:		$Id: uiprestackanglemute.h,v 1.5 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
-class uiRayTracer1D;
+class uiRayTracerSel;
 class uiVelSel;
 
 namespace PreStack
@@ -36,12 +36,10 @@ public:
 
     bool		acceptOK();
 
-    const uiRayTracer1D* rayTracer() const	 { return raytracerfld_; }
-
 protected:
     AngleMuteBase::Params& params_;
 
-    uiRayTracer1D*	raytracerfld_;
+    uiRayTracerSel*	raytracerfld_;
     uiVelSel*		velfuncsel_;
     uiGenInput*		cutofffld_;
     uiCheckBox*		blockfld_;

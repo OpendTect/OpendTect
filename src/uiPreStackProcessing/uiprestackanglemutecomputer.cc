@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.3 2011-09-06 15:37:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.4 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -68,7 +68,6 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     subsel_->getSampling( hrg );
     processor_->params().hrg_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
-    anglemutegrp_->rayTracer()->getOffsets( processor_->params().offsetrg_ );
 
     uiTaskRunner tr(this);
     if ( !tr.execute( *processor_ ) )

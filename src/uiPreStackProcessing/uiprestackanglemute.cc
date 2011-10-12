@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.11 2011-10-07 12:14:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.12 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -33,15 +33,20 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     velfuncsel_->setLabelText( "Velocity input volume" );
     if ( !params_.velvolmid_.isUdf() )
        velfuncsel_->setInput( params_.velvolmid_ ); 
+
+    uiSeparator* sep = new uiSeparator( this, "sep" );
+    sep->attach( stretchedBelow, velfuncsel_ );
  
-    uiRayTracer1D::Setup rt1dsu( &params_.raysetup_ ); 
-    rt1dsu.dooffsets_ = dooffset;
-    raytracerfld_ = uiVrmsRayTracer1D::create( this, rt1dsu );
-    raytracerfld_->attach( alignedBelow, velfuncsel_ );
+    uiRayTracer1D::Setup rsu; rsu.dooffsets_ = dooffset;
+    raytracerfld_ = new uiRayTracerSel( this, rsu );
+    raytracerfld_->usePar( pars.raypar_ );
+    raytracerfld_->attach( ensureBelow, velfuncsel_ );
+    raytracerfld_->attach( ensureBelow, sep );
 
     cutofffld_ = new uiGenInput( this, "Mute cutoff angle (degree)", 
 	    FloatInpSpec(false) );
-    cutofffld_->attach( alignedBelow, raytracerfld_ );
+    cutofffld_->attach( ensureBelow, raytracerfld_ );
+    cutofffld_->attach( alignedBelow, velfuncsel_ );
     cutofffld_->setValue( params_.mutecutoff_ );
 
     blockfld_ = new uiCheckBox( this, "Block (bend points)" );
@@ -54,9 +59,7 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
 
 bool uiAngleMuteGrp::acceptOK()
 { 
-    if ( !raytracerfld_->fill( params_.raysetup_ ) )
-	return false;
-
+    raytracerfld_->fillPar( params_.raypar_ );
     params_.mutecutoff_ = cutofffld_->getfValue();
     params_.dovelblock_ = blockfld_->isChecked(); 
     params_.velvolmid_ = velfuncsel_->key(true);

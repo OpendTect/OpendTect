@@ -7,19 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.6 2011-10-06 14:17:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.7 2011-10-12 11:32:33 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
 
 RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims, 
-				    const TypeSet<float>& offs, 
-				    const RayTracer1D::Setup& su )
+				    const IOPar& raypars ) 
     : Executor("Ray tracer runner") 
     , aimodels_(aims)
-    , raysetup_(su)
-    , offsets_(offs)
     , nrdone_(0)
+    , raypar_(raypars)		
 {}
 
 
@@ -38,9 +36,6 @@ int RayTracerRunner::nextStep()
 	if ( aimodels_.isEmpty() )
 	    mErrRet( "No AI model set" );
 
-	if ( offsets_.isEmpty() )
-	    offsets_ += 0;
-
 	deepErase( raytracers_ );
     }
     if ( nrdone_ == totalNr() )
@@ -53,14 +48,17 @@ int RayTracerRunner::nextStep()
     if ( RayTracer1D::factory().getNames(false).isEmpty() )
 	return false;
 
-    BufferString type = RayTracer1D::factory().getDefaultName();
-    if ( type.isEmpty() )
-	type = *RayTracer1D::factory().getNames(false)[0];
+    BufferString errmsg;
+    RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
+    if ( !rt1d )
+    {
+	rt1d = RayTracer1D::factory().create( 
+		*RayTracer1D::factory().getNames(false)[0] );
+    }
+    if ( !rt1d && !errmsg.isEmpty() ) 
+	mErrRet( errmsg.buf() );
 
-    RayTracer1D* rt1d = RayTracer1D::factory().create( type );
-    rt1d->setup() = raysetup_;
     rt1d->setModel( aim );
-    rt1d->setOffsets( offsets_ );
     raytracers_ += rt1d;
 
     if ( !rt1d->execute() )

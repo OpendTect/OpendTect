@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.14 2011-10-10 10:14:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.15 2011-10-12 11:32:33 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.14 2011-10-10 10:14:30 cvsbru
 #include "seistrc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "synthseis.h"
 #include "velocitycalc.h"
 #include "wavelet.h"
 
@@ -42,6 +43,12 @@ void StratSynth::setWavelet( const Wavelet* wvlt )
 {
     delete wvlt_;
     wvlt_ = wvlt;
+}
+
+
+void StratSynth::clearSynthetics()
+{
+    deepErase( synthetics_ );
 }
 
 
@@ -81,14 +88,9 @@ SyntheticData* StratSynth::generate()
     if ( lm_.isEmpty() ) 
 	return false;
 
-    const RayParams& rp = raypars_;
-    TypeSet<float> offs;
-    for ( int idoff=0; idoff<rp.offsetrg_.nrSteps(); idoff++ )
-	offs += rp.offsetrg_.atIndex( idoff );
-
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.setRayParams( rp.setup_, offs, rp.usenmotimes_ );
+    synthgen.usePar( raypars_ );
 
     const int nraimdls = lm_.size();
     for ( int idm=0; idm<nraimdls; idm++ )
@@ -144,8 +146,7 @@ SyntheticData* StratSynth::generate()
 
     PreStack::GatherSetDataPack* gdp = 
 		    new PreStack::GatherSetDataPack( 0, gatherset );
-    SyntheticData* sd = new SyntheticData( rp.synthname_, *gdp );
-    sd->raypars_ = rp;
+    SyntheticData* sd = new SyntheticData( "Synthetic", *gdp );
 
     ObjectSet<const TimeDepthModel> tmpd2ts;
     for ( int imdl=0; imdl<nraimdls; imdl++ )
@@ -157,6 +158,12 @@ SyntheticData* StratSynth::generate()
 	deepErase( tmpd2ts );
     }
     return sd;
+}
+
+
+const char* StratSynth::errMsg() const
+{
+    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
 }
 
 
@@ -230,10 +237,11 @@ const DataPack* SyntheticData::getPack( bool isps ) const
 }
 
 
-void SyntheticData::setPostStack( int offset )
+void SyntheticData::setPostStack( float offset, const Interval<float>* stackrg )
 {
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    prestackpack_.fill( *tbuf, offset );
+    Interval<float> offrg = stackrg ? *stackrg : Interval<float>(offset,offset);
+    prestackpack_.fill( *tbuf, offrg );
     if ( tbuf->isEmpty() )
 	return;
 
@@ -274,3 +282,12 @@ void SyntheticData::removePack( bool isps )
 }
 
 
+const Interval<float> SyntheticData::offsetRange() const
+{
+    Interval<float> offrg( 0, 0 );
+    const ObjectSet<PreStack::Gather>& gathers = prestackpack_.getGathers();
+    if ( gathers.isEmpty() ) return offrg;
+    const PreStack::Gather& gather = *gathers[0];
+    offrg.set( gather.getOffset(0), gather.getOffset( gather.size(true)-1) );
+    return offrg;
+}

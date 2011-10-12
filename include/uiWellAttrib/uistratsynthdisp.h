@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.38 2011-10-07 15:10:10 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.39 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,55 +27,18 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
-class uiRayTracer1D;
+class uiRayTracerSel;
 class uiLabeledComboBox;
 class uiFlatViewMainWin;
 class uiOffsetSlicePos;
 class uiPushButton;
 class uiRayTrcParamsDlg;
 class uiSeisWaveletSel;
+class uiStackGrp;
+class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
-
-
-mClass uiSynthSlicePos : public uiGroup
-{
-public:
-    			uiSynthSlicePos(uiParent*,const char* lbltxt);
-
-    Notifier<uiSynthSlicePos>	positionChg;
-    void		setLimitSampling(StepInterval<float>);
-    int			getValue() const;
-
-protected:
-    uiLabel* 		label_;
-    uiSpinBox*		sliceposbox_;
-    uiSpinBox*		slicestepbox_;
-    uiToolButton*	prevbut_;
-    uiToolButton*	nextbut_;
-
-    void		slicePosChg( CallBacker* );
-    void		prevCB(CallBacker*);
-    void		nextCB(CallBacker*);
-
-    StepInterval<float>	limitsampling_;
-};
-
-
-mClass uiRayTrcParamsDlg : public uiDialog
-{
-public:
-				uiRayTrcParamsDlg(uiParent*,RayParams&);
-protected:
-    uiCheckBox*			nmobox_;
-    uiGenInput*			stackfld_;
-    uiRayTracer1D*		raytrace1dgrp_;
-
-    RayParams&			raypars_;
-
-    bool			acceptOK( CallBacker* );
-};
 
 
 mClass uiStratSynthDisp : public uiGroup
@@ -110,6 +73,8 @@ protected:
     BufferString	levelname_;
     int			longestaimdl_;
     StratSynth&		stratsynth_;
+    const Strat::LayerModel& lm_;
+
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentsynthetic_;
 
@@ -119,10 +84,13 @@ protected:
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
+    uiToolButton*	prestackbut_;
     uiLabeledComboBox*	modellist_;
+    uiCheckBox*		stackbox_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
     uiSynthSlicePos*	offsetposfld_;
     uiSynthSlicePos*	modelposfld_;
+    uiStackGrp*		stackfld_;
     uiFlatViewMainWin*	prestackwin_;
 
     void		cleanSynthetics();
@@ -132,15 +100,13 @@ protected:
     void		displaySynthetic(const SyntheticData*);
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*);
-    void		addSynthetic(const RayParams& rp,bool isps);
-    BufferString	getSynthDefaultName(const RayParams&) const;
 
     void		addSynth2List(CallBacker*);
     void		dataSetSel(CallBacker*);
     void		layerPropsPush(CallBacker*);
+    void		offsetChged(CallBacker*);
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
-    void		offsetPosChged(CallBacker*);
     void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
     void		viewPreStackPush(CallBacker*);
@@ -148,5 +114,63 @@ protected:
     void		zoomChg(CallBacker*);
 
 };
+
+
+mClass uiSynthSlicePos : public uiGroup
+{
+public:
+    			uiSynthSlicePos(uiParent*,const char* lbltxt);
+
+    Notifier<uiSynthSlicePos>	positionChg;
+    void		setLimitSampling(StepInterval<float>);
+    int			getValue() const;
+
+protected:
+    uiLabel* 		label_;
+    uiSpinBox*		sliceposbox_;
+    uiSpinBox*		slicestepbox_;
+    uiToolButton*	prevbut_;
+    uiToolButton*	nextbut_;
+
+    void		slicePosChg( CallBacker* );
+    void		prevCB(CallBacker*);
+    void		nextCB(CallBacker*);
+
+    StepInterval<float>	limitsampling_;
+};
+
+
+mClass uiStackGrp : public uiGroup
+{
+public:
+    			uiStackGrp(uiParent*);
+
+    Notifier<uiStackGrp> rangeChg;
+
+    void		setLimitRange(Interval<float>);
+    const Interval<float>& getRange() const;
+
+protected:
+    uiGenInput*		offsetfld_;
+    Interval<float>	limitrg_;
+    Interval<float>	offsetrg_;
+
+    void		valChgCB( CallBacker* );
+};
+
+
+mClass uiRayTrcParamsDlg : public uiDialog
+{
+public:
+				uiRayTrcParamsDlg(uiParent*,IOPar&);
+protected:
+    uiCheckBox*			nmobox_;
+    uiRayTracerSel*		rtsel_;
+    IOPar&			raypars_;
+
+    bool			acceptOK( CallBacker* );
+};
+
+
 
 #endif

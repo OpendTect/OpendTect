@@ -7,19 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.27 2011-09-21 14:47:27 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.28 2011-10-12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ailayer.h"
-#include "cubesampling.h"
-#include "factory.h"
+#include "reflectivitymodel.h"
+#include "iopar.h"
 #include "odmemory.h"
-#include "raytrace1d.h"
-#include "samplingdata.h"
 #include "task.h"
-#include "executor.h"
 
 #include "complex"
 
@@ -165,10 +162,10 @@ public:
 			~RaySynthGenerator();
 
     //input
-    virtual void	addModel(const ElasticModel&);
-    virtual void	setRayParams(const RayTracer1D::Setup&,
-				     const TypeSet<float>& offsets,
-				     bool isnmo);
+    void		addModel(const ElasticModel&);
+    void		fillPar(IOPar& raypars) const;
+    bool		usePar(const IOPar& raypars);
+
     //execute functions
     bool		doRayTracing();
     bool		doSynthetics(); 
@@ -207,9 +204,9 @@ public:
 protected:
 
     TypeSet<ElasticModel>	aimodels_;
-    RayTracer1D::Setup 		raysetup_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;
+    IOPar 			raysetup_;
 
     ObjectSet<RayModel>		raymodels_;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.65 2011-10-10 10:14:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.66 2011-10-12 11:32:33 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.65 2011-10-10 10:14:30 
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "synthseis.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "velocitycalc.h"
@@ -49,6 +50,7 @@ mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
+    , lm_(lm)  
     , d2tmodels_(0)	     
     , stratsynth_(*new StratSynth(lm))
     , wvltChanged(this)
@@ -59,7 +61,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , lasttool_(0)
     , raytrcpardlg_(0)
     , prestackwin_(0)		      
-    , currentsynthetic_(0)		      
+    , currentsynthetic_(0)
 {
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -89,10 +91,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
     wvlt2raysep->attach( stretchedRightTo, scalebut_ );
 
-    uiPushButton* createssynthbut = 
-		new uiPushButton( topgrp_, "Add new synthetics", false );
-    createssynthbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    createssynthbut->attach( rightOf, wvlt2raysep );
+    uiPushButton* addasnewbut = new uiPushButton( topgrp_, "Add as New", false);
+    addasnewbut->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
+    addasnewbut->attach( rightOf, wvlt2raysep );
 
     modelgrp_ = new uiGroup( this, "Model group" );
     modelgrp_->attach( ensureBelow, topgrp_ );
@@ -100,21 +101,29 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     modelgrp_->setStretch( 2, 0 );
 
     modellist_ = new uiLabeledComboBox( modelgrp_, "View ", "" );
+    modellist_->setStretch( 0, 0 );
+    modellist_->attach( leftBorder );
     modellist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
-    modellist_->setStretch( 0, 0 );
+
+    stackbox_ = new uiCheckBox( modelgrp_, "Stack" );
+    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
+    stackbox_->attach( hCentered ); 
+    stackbox_->attach( ensureRightOf, modellist_ );
+
+    stackfld_ = new uiStackGrp( modelgrp_ );
+    stackfld_->attach( rightOf, stackbox_ );
+    stackfld_->rangeChg.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
 
     offsetposfld_ = new uiSynthSlicePos( modelgrp_, "Offset" );
     offsetposfld_->setSensitive( false );
-    offsetposfld_->positionChg.notify( 
-	    		mCB(this,uiStratSynthDisp,offsetPosChged) );
-    offsetposfld_->attach( rightOf, modellist_ );
-    offsetposfld_->attach( hCentered );
+    offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
+    offsetposfld_->attach( rightOf, stackbox_ );
 
-    uiToolButton* pstb = new uiToolButton( modelgrp_, "nonmocorr64.png", 
+    prestackbut_ = new uiToolButton( modelgrp_, "nonmocorr64.png", 
 				"View Offset Direction", 
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
-    pstb->attach( rightOf, offsetposfld_);
+    prestackbut_->attach( rightOf, offsetposfld_);
 
     cleanSynthetics();
 
@@ -151,7 +160,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
 
 const Strat::LayerModel& uiStratSynthDisp::layerModel() const
 {
-    return stratsynth_.layerModel();
+    return lm_;
 }
 
 
@@ -169,12 +178,15 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     else
 	tb->attach( rightBorder );
 
+    tb->attach( ensureRightOf, prestackbut_ ); 
+
     lasttool_ = tb;
 }
 
 
 void uiStratSynthDisp::cleanSynthetics()
 {
+    stratsynth_.clearSynthetics();
     modellist_->box()->setEmpty();
     modellist_->box()->addItem( "Free view" );
     modellist_->setSensitive( false );
@@ -393,21 +405,23 @@ void uiStratSynthDisp::doModelChange()
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
 
     const int seldataidx = modellist_->box()->currentItem(); 
-    topgrp_->setSensitive( seldataidx == 0 );
-
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
     if ( currentsynthetic_ )
     {
-	offsetposfld_->setLimitSampling(currentsynthetic_->raypars_.offsetrg_);
-	currentsynthetic_->setPostStack( 0 );
+	Interval<float> limits( currentsynthetic_->offsetRange() );
+	offsetposfld_->setLimitSampling( limits );
+	stackfld_->setLimitRange( limits );
+	currentsynthetic_->setPostStack( limits.start );
     }
     offsetposfld_->setSensitive( currentsynthetic_ );
-
-    displaySynthetic( currentsynthetic_ );
+    stackfld_->setSensitive( currentsynthetic_ );
+    topgrp_->setSensitive( seldataidx == 0 );
 
     if ( stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
+
+    displaySynthetic( currentsynthetic_ );
 }
 
 
@@ -446,6 +460,7 @@ protected:
     uiGenInput*	 namefld_;
 };
 
+
 void uiStratSynthDisp::addSynth2List( CallBacker* )
 {
     if ( !currentsynthetic_ ) 
@@ -479,15 +494,17 @@ void uiStratSynthDisp::rayTrcParPush( CallBacker* )
 }
 
 
-
-void uiStratSynthDisp::offsetPosChged( CallBacker* )
+void uiStratSynthDisp::offsetChged( CallBacker* )
 {
-    if ( currentsynthetic_ )
-    {
-	const RayParams& rp = currentsynthetic_->raypars_;
-	const int offidx = rp.offsetrg_.getIndex( offsetposfld_->getValue() );
-	currentsynthetic_->setPostStack( offidx ); 
-    }
+    const bool dostack = stackbox_->isChecked();
+    offsetposfld_->display( !dostack );
+    stackfld_->display( dostack );
+
+    if ( !currentsynthetic_ ) return;
+
+    currentsynthetic_->setPostStack( offsetposfld_->getValue(), 
+			    dostack ? &stackfld_->getRange() : 0 );
+
     displayPostStackSynthetic( currentsynthetic_ );
 }
 
@@ -583,30 +600,66 @@ int uiSynthSlicePos::getValue() const
 }
 
 
+uiStackGrp::uiStackGrp( uiParent* p )
+    : uiGroup( p, "Stack group" )
+    , rangeChg(this)  
+{
+    BufferString olb = "offset range";
+    offsetfld_ = new uiGenInput( this, olb , IntInpIntervalSpec() );
+    offsetfld_->valuechanged.notify( mCB(this,uiStackGrp,valChgCB) );
+}
 
-uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp ) 
+
+void uiStackGrp::valChgCB( CallBacker* )
+{
+    offsetrg_.start = offsetfld_->getIInterval().start;
+    offsetrg_.stop = offsetfld_->getIInterval().stop;
+    offsetrg_.limitTo( limitrg_ );
+    rangeChg.trigger();
+}
+
+
+const Interval<float>& uiStackGrp::getRange() const
+{
+   return offsetrg_; 
+}
+
+
+void uiStackGrp::setLimitRange( Interval<float> rg )
+{ 
+    offsetfld_->setValue( rg );
+    limitrg_ = rg; 
+    offsetrg_ = rg;
+}
+
+
+
+
+uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par ) 
     : uiDialog(p,uiDialog::Setup(
-		"Specify ray tracer parameters","",mTODOHelpID).modal(false))
-    , raypars_(rp)
+		"Specify ray tracer parameters",mNoDlgTitle,
+		mTODOHelpID).modal(false))
+    , raypars_(par)
 {
     setCtrlStyle( DoAndStay );
 
+    uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
+    rtsel_ = new uiRayTracerSel( this, rsu );
+    rtsel_->usePar( raypars_ ); 
+
+    bool isnmo = true;
+    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
     nmobox_ = new uiCheckBox( this, "NMO corrections" );
-    nmobox_->setChecked( raypars_.usenmotimes_ );
-    nmobox_->attach( hCentered );
-
-    uiRayTracer1D::Setup rsu( &raypars_.setup_ );
-    rsu.dooffsets_ = true;
-
-    raytrace1dgrp_ = uiVrmsRayTracer1D::create( this, rsu );
-    raytrace1dgrp_->attach( alignedBelow, nmobox_ );
+    nmobox_->setChecked( isnmo );
+    nmobox_->attach( centeredBelow, rtsel_ );
 }
 
 
 bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
 {
-
-    raypars_.usenmotimes_ = nmobox_->isChecked();
+    raypars_.setEmpty();
+    rtsel_->fillPar( raypars_ );
+    raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), nmobox_->isChecked() );
 
     return false;
 }
