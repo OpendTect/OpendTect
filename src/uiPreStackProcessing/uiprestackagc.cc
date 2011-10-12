@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackagc.cc,v 1.7 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackagc.cc,v 1.8 2011-10-12 20:12:10 cvsnanne Exp $";
 
 #include "uiprestackagc.h"
 
@@ -62,22 +62,20 @@ bool uiAGC::acceptOK( CallBacker* )
     }
 
     processor_->setWindow( Interval<float>( -width/2, width/2 ) );
-    const float lowenerymute = lowenergymute_->getfValue();
-    if ( mIsUdf(lowenerymute) ) processor_->setLowEnergyMute( mUdf(float) );
+    const float lowenergymute = lowenergymute_->getfValue();
+    if ( mIsUdf(lowenergymute) ) processor_->setLowEnergyMute( mUdf(float) );
     else
     {
-	if ( lowenerymute<0 || lowenerymute>99 )
+	if ( lowenergymute<0 || lowenergymute>99 )
 	{
 	    uiMSG().error("Low energy mute must be between 0 and 99");
 	    return false;
 	}
 
-	processor_->setLowEnergyMute( lowenerymute*100 );
+	processor_->setLowEnergyMute( lowenergymute/100 );
     }
 
     return true;
 }
 
-
-
-}; //namespace
+} // namespace PreStack
