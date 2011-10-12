@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.42 2011-10-12 08:38:34 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.43 2011-10-12 09:17:20 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -649,9 +649,6 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 			const TypeSet<int>* outcols, bool allowudf ) const
 {
     const int mysz = size();
-    if ( maxsz <= mysz && !outcols && allowudf )
-	return new DataPointSet( *this );
-
     const int mynrcols = nrCols();
     TypeSet<int> colsbuf;
     if ( !outcols )
@@ -660,6 +657,8 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 	    colsbuf += icol;
 	outcols = &colsbuf;
     }
+    if ( maxsz <= mysz && allowudf && outcols->size() == mynrcols )
+	return new DataPointSet( *this );
 
     ObjectSet<DataColDef> cds;
     for ( ColID icol=0; icol<outcols->size(); icol++ )
