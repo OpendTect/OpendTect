@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.60 2011-08-03 20:15:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.61 2011-10-13 10:11:25 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -127,6 +127,7 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 
 void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 {
+    isdisppropopened_ = false;
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
     const Well::Data* edwd = dlg->wellData();
@@ -140,7 +141,6 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     }
     saveWellDispProps( allapplied_ ? 0 : edwd );
 
-    isdisppropopened_ = false;
     sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
 }
