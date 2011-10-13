@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.35 2011-10-12 15:24:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.36 2011-10-13 07:25:59 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -115,7 +115,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     {
 	const SyntheticData& sd = *synthdatas_[idx];
 	const ObjectSet<const TimeDepthModel>& d2tmodels = sd.d2tmodels_;
-	const int nrmdls = sd.d2tmodels_.size();
+	const int nrmdls = d2tmodels.size();
 
 	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,sd.getPack(false));
 	if ( !tbpack ) continue;
@@ -142,7 +142,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    {
 		const SeisTrc& trc = *tbuf.get( itrc );
 		DataPointSet::DataRow dr;
-		dr.pos_.nr_ = trc.info().nr;
+		dr.pos_.nr_ = itrc+1;
 		dr.pos_.set( trc.info().coord );
 		dr.pos_.z_ = lvltms[itrc] + relz;
 		dr.data_.setSize( dps->nrCols(), mUdf(float) );
