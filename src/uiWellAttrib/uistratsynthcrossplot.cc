@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.37 2011-10-13 10:30:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.38 2011-10-13 12:41:46 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -144,34 +144,6 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		DataPointSet::DataRow dr;
 		dr.pos_.nr_ = trc.info().nr;
 		dr.pos_.set( trc.info().coord );
-		dr.pos_.z_ = lvltms[itrc] + relz;
-		dr.data_.setSize( dps->nrCols(), mUdf(float) );
-		dr.data_[depthcol] = d2tmodels[itrc]->getDepth( dr.pos_.z_ );
-		dps->addRow( dr );
-	    }
-	}
-
-	mDynamicCastGet(const PreStack::GatherSetDataPack*,
-				pspack,sd.getPack(true));
-	if ( !pspack ) continue;
-
-	lvltms.erase();
-	for ( int imod=0; imod<nrmdls; imod++ )
-	{
-	    const PreStack::Gather& gather = *pspack->getGathers()[imod];
-	    const float dpth = lm_.sequence(imod).depthOf( lvl );
-	    lvltms += d2tmodels[imod]->getTime( dpth );//TODO snapp
-	}
-
-	for ( int iextr=0; iextr<nrextr; iextr++ )
-	{
-	    const float relz = extrwin.atIndex( iextr );
-	    for ( int itrc=0; itrc<pspack->getGathers().size(); itrc++ )
-	    {
-		const PreStack::Gather& gather = *pspack->getGathers()[itrc];
-		DataPointSet::DataRow dr;
-		dr.pos_.nr_ = itrc+1;
-		dr.pos_.set( gather.getCoord() );
 		dr.pos_.z_ = lvltms[itrc] + relz;
 		dr.data_.setSize( dps->nrCols(), mUdf(float) );
 		dr.data_[depthcol] = d2tmodels[itrc]->getDepth( dr.pos_.z_ );
