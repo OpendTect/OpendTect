@@ -44,8 +44,8 @@ mStruct DispParams
 			    , isvwrhordisp_(false)
 			    , iszinft_(false)
 			    , iszintime_(true)
-			    , dispmrkfullnames_(false)
-			    , disphorfullnames_(false)
+			    , dispmrkfullnames_(true)
+			    , disphorfullnames_(true)
 			    {}
 
     bool                    iscsavailable_;
