@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.16 2011-10-11 21:23:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.17 2011-10-13 14:22:58 cvsyuancheng Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -24,11 +24,14 @@ static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.16 2011-10-11 21:2
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
+#include "visnormals.h"
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visshapehints.h"
 #include "vistransform.h"
+#include "vistristripset.h"
+
 
 mCreateFactoryEntry( visSurvey::PolygonBodyDisplay );
 
@@ -55,6 +58,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     , showmanipulator_( false )
     , displaypolygons_( false )
     , drawstyle_( visBase::DrawStyle::create() )
+    , intsurf_( visBase::TriangleStripSet::create() )
 {
     nearestpolygonmarkerpickstyle_->ref();
     nearestpolygonmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -75,6 +79,10 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     drawstyle_->ref();
     //addChild( drawstyle_->getInventorNode() );
     drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,3) );
+
+    intsurf_->ref();
+    intsurf_->turnOn( false );
+    addChild( intsurf_->getInventorNode() );
 }
 
 
@@ -119,6 +127,9 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
 
     //removeChild( drawstyle_->getInventorNode() );
     drawstyle_->unRef(); drawstyle_ = 0;
+    
+    removeChild( intsurf_->getInventorNode() );
+    intsurf_->unRef();
 }
 
 
@@ -205,6 +216,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	if ( bodydisplay_ ) bodydisplay_->turnOn( false );
 	if ( intersectiondisplay_ ) intersectiondisplay_->turnOn( false );
 	if ( polygondisplay_ ) polygondisplay_->turnOn( false );
+	intsurf_->turnOn( false );
 	return false;
     }
 
@@ -319,7 +331,10 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
     	polygondisplay_->touch( yn );
 
     if ( intersectiondisplay_ )
+    {
 	intersectiondisplay_->touch( yn );
+	reMakeIntersectionSurface();
+    }
 
     if ( updatemarker )
 	updateNearestPolygonMarker();
@@ -455,6 +470,8 @@ void PolygonBodyDisplay::setDisplayTransformation(visBase::Transformation* nt)
     if ( intersectiondisplay_ )
 	intersectiondisplay_->setDisplayTransformation( nt );
 
+    intsurf_->setDisplayTransformation( nt );
+
     if ( viseditor_ ) 
 	viseditor_->setDisplayTransformation( nt );
 
@@ -472,6 +489,7 @@ void PolygonBodyDisplay::setRightHandSystem(bool yn)
     if ( bodydisplay_ ) bodydisplay_->setRightHandSystem( yn );
     if ( polygondisplay_ ) polygondisplay_->setRightHandSystem( yn );
     if ( intersectiondisplay_ ) intersectiondisplay_->setRightHandSystem( yn );
+    intsurf_->setRightHandSystem( yn );
 }
 
 
@@ -748,10 +766,57 @@ bool  PolygonBodyDisplay::isManipulatorShown() const
 
 void PolygonBodyDisplay::displayIntersections( bool yn )
 {
-    if ( intersectiondisplay_ )
+    if ( !intersectiondisplay_ )
+	return;
+
+    if ( yn ) 
     {
-	if ( yn ) intersectiondisplay_->touch( false );
-	intersectiondisplay_->turnOn( yn );
+	intersectiondisplay_->touch( false );
+	reMakeIntersectionSurface();
+    }
+
+    intersectiondisplay_->turnOn( yn );
+    intsurf_->turnOn( yn );
+}
+
+
+void PolygonBodyDisplay::reMakeIntersectionSurface()
+{
+    if ( !intersectiondisplay_ || !explicitintersections_ )
+	return;
+    
+    const TypeSet<Geometry::ExplPlaneIntersection::PlaneIntersection>& pi =
+	explicitintersections_->getPlaneIntersections();
+    
+    intsurf_->getCoordinates()->removeAfter( -1 );
+    intsurf_->removeCoordIndexAfter( -1 );
+    
+    int ci = 0;
+    int cii = 0;
+    for ( int idx=0; idx<pi.size(); idx++ )
+    {
+	const TypeSet<Coord3>& crds = pi[idx].knots_;
+	const TypeSet<int>& conns = pi[idx].conns_;
+	const int sz = crds.size();
+	if ( sz<3 ) continue;
+
+	const int startci = ci;
+	Coord3 center(0,0,0);
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    intsurf_->getCoordinates()->setPos( ci++, crds[idy] );
+	    center += crds[idy];
+	}
+	center /= sz;
+	intsurf_->getCoordinates()->setPos( ci, center );
+	for ( int idy=0; idy<conns.size()/3; idy++ )
+	{
+	    intsurf_->setCoordIndex( cii++, ci );
+	    intsurf_->setCoordIndex( cii++, conns[3*idy]+startci );
+	    intsurf_->setCoordIndex( cii++, conns[3*idy+1]+startci );
+	    intsurf_->setCoordIndex( cii++, -1 );
+    	}
+	ci++;
     }
 }
 
@@ -826,7 +891,10 @@ void PolygonBodyDisplay::otherObjectsMoved(
     planeids_ = planeids;
 
     if ( areIntersectionsDisplayed() ) 
+    {
 	intersectiondisplay_->touch( false );
+	reMakeIntersectionSurface();
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.10 2011-10-11 21:23:43 cvsyuancheng Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.11 2011-10-13 14:22:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -25,10 +25,11 @@ namespace visBase
 {
     class DrawStyle;
     class GeomIndexedShape;
-    class Transformation;
+    class IndexedPolyLine3D;
     class PickStyle;
     class ShapeHints;
-    class IndexedPolyLine3D;
+    class Transformation;
+    class TriangleStripSet;
 };
 
 namespace EM { class PolygonBody; }
@@ -121,6 +122,7 @@ protected:
 
     Coord3			disp2world(const Coord3& displaypos) const;
     void			setLineRadius(visBase::GeomIndexedShape*);
+    void			reMakeIntersectionSurface();
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
@@ -153,6 +155,7 @@ protected:
 
     bool				displaypolygons_;
     visBase::DrawStyle*			drawstyle_;
+    visBase::TriangleStripSet*		intsurf_;
 };
 
 };
