@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.40 2011-10-12 15:25:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.41 2011-10-13 10:30:41 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -394,6 +394,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	SeisTrc* trc = new SeisTrc( gathersz );
 	trc->info().binid = gathers_[idx]->getBinID();	
 	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
+	trc->info().nr = idx+1;
 	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );
