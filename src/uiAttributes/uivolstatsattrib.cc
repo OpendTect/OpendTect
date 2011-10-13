@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.29 2011-09-19 09:53:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.30 2011-10-13 14:09:05 cvsbruno Exp $";
 
 
 
@@ -65,7 +65,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    shapefld_ = new uiGenInput( this, "Shape", *shapestrs );
+    shapefld_ = new uiGenInput( this, "Shape", StringListInpSpec(shapestrs) );
     shapefld_->valuechanged.notify(
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
