@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.19 2011-08-01 20:30:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.20 2011-10-13 14:21:47 cvsyuancheng Exp $";
 
 
 #include "explplaneintersection.h"
@@ -94,6 +94,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
     , intersectioncoordids_( 3, 1 )
 {
     planes_.allowNull( true );
+    explsurf_.pis_.erase();
 
     for ( int idx=0; idx<efss.nrPlanes(); idx++ )
     {
@@ -108,6 +109,9 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
 	    planes_ += new ExplPlaneIntersectionExtractorPlane(
 		    explsurf_.planeNormal( planeid ), pointsonplane );
 	}
+
+	ExplPlaneIntersection::PlaneIntersection pi;
+	explsurf_.pis_ += pi;
     }
 
     intersectioncoordids_.allowDuplicates( false );
@@ -389,6 +393,26 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	output_->coordindices_ += ci0;
 	output_->coordindices_ += ci1;
 	output_->ischanged_ = true;
+
+	TypeSet<Coord3>& crds = explsurf_.pis_[planeidx].knots_;
+	TypeSet<int>& conns = explsurf_.pis_[planeidx].conns_;
+	
+	int id0 = crds.indexOf( startpt );
+	if ( id0==-1 )
+	{
+	    crds += startpt;
+	    id0 = crds.size()-1;
+	}
+	int id1 = crds.indexOf( stoppt );
+	if ( id1==-1 )
+	{
+	    crds += stoppt;
+	    id1 = crds.size()-1;
+	}
+
+        conns += id0;
+        conns += id1;
+        conns += -1;	
 
 	/*
 	const int ci0idx = output_->coordindices_.indexOf( ci0 );

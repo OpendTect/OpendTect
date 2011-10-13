@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.5 2011-02-14 22:23:17 cvsyuancheng Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.6 2011-10-13 14:21:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,18 @@ public:
     void			setZScale(float nz)	{ zscale_ = nz; }
     float			getZScale() const	{ return zscale_; }
 
+    struct PlaneIntersection	/*<based on per plane*/
+    {
+	bool			operator==(const PlaneIntersection& n) const
+	    			{ return conns_==n.conns_ && n.knots_==knots_; }
+	TypeSet<Coord3>		knots_;
+	TypeSet<int>		conns_; /*<based on knots_ only, -1 seperate*/
+    };
+    const TypeSet<PlaneIntersection>&	getPlaneIntersections() { return pis_; }
+
 protected:
+
+    friend			class ExplPlaneIntersectionExtractor;
     bool			update(bool forceall,TaskRunner*);
     
     const IndexedShape*				shape_;
@@ -67,6 +78,7 @@ protected:
     TypeSet<Coord3>				planenormals_;
 
     float					zscale_;
+    TypeSet<PlaneIntersection>			pis_;
 };
 
 };
