@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.16 2011-10-12 13:15:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.17 2011-10-13 13:21:19 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -129,14 +129,11 @@ SyntheticData* StratSynth::generate()
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	PreStack::Gather* gather = new PreStack::Gather();
-	ObjectSet<const SeisTrc> trcs; rm.getTraces( trcs, true );
+	ObjectSet<SeisTrc> trcs; rm.getTraces( trcs, true );
 	SeisTrcBuf tbuf( false );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
-	    SeisTrc* trc = const_cast<SeisTrc*>( trcs[idx] );
-	    const int trcnr = imdl + 1;
-	    trc->info().nr = trcnr;
-	    trc->info().offset = idx;
+	    SeisTrc* trc = trcs[idx];
 	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
 	    trc->info().coord = SI().transform( trc->info().binid );
 	    tbuf.add( trc );
@@ -151,7 +148,7 @@ SyntheticData* StratSynth::generate()
 		    new PreStack::GatherSetDataPack( 0, gatherset );
     SyntheticData* sd = new SyntheticData( "Synthetic", *gdp );
 
-    ObjectSet<const TimeDepthModel> tmpd2ts;
+    ObjectSet<TimeDepthModel> tmpd2ts;
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );

@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.39 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.40 2011-10-13 13:21:19 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -352,7 +352,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 }
 
 
-void MultiTraceSynthGenerator::getResult( ObjectSet<const SeisTrc>& trcs ) 
+void MultiTraceSynthGenerator::getResult( ObjectSet<SeisTrc>& trcs ) 
 {
     TypeSet<int> sortidxs; 
     for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
@@ -464,7 +464,14 @@ bool RaySynthGenerator::doSynthetics()
 
 	multitracegen.getResult( rm.outtrcs_ );
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
+	{
+	    if ( rm.outtrcs_.validIdx( idoff ) )
+	    {
+		rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
+		rm.outtrcs_[idoff]->info().nr = idx+1;
+	    }
 	    multitracegen.getSampledReflectivities( rm.sampledrefs_ );
+	}
     }
     return true;
 }
@@ -514,7 +521,7 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
 }
 
 void RaySynthGenerator::RayModel::getTraces( 
-			ObjectSet<const SeisTrc>& trcs, bool steal )
+		    ObjectSet<SeisTrc>& trcs, bool steal )
 {
     mGet( outtrcs_, trcs, steal );
 }
@@ -528,7 +535,7 @@ void RaySynthGenerator::RayModel::getRefs(
 
 
 void RaySynthGenerator::RayModel::getD2T( 
-			ObjectSet<const TimeDepthModel>& trcs, bool steal )
+			ObjectSet<TimeDepthModel>& trcs, bool steal )
 {
     mGet( t2dmodels_, trcs, steal );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.68 2011-10-12 15:24:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.69 2011-10-13 13:21:19 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -356,7 +356,7 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,sd->getPack(true))
     if ( !gsetdp ) return;
 
-    PreStack::Gather* gdp = new PreStack::Gather( *gsetdp->getGathers()[midx] );
+    PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
     DPM(DataPackMgr::FlatID()).add( gdp );
 
     vwr.appearance() = vwr_->appearance();
@@ -404,6 +404,7 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
+    d2tmodels_ = 0;
 
     const int seldataidx = modellist_->box()->currentItem(); 
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
@@ -414,7 +415,8 @@ void uiStratSynthDisp::doModelChange()
 
     if ( currentsynthetic_ )
     {
-	Interval<float> limits( currentsynthetic_->offsetRange() );
+	StepInterval<float> limits( currentsynthetic_->offsetRange() );
+	limits.step = 100;
 	offsetposfld_->setLimitSampling( limits );
 	stackfld_->setLimitRange( limits );
 	currentsynthetic_->setPostStack( limits.start );

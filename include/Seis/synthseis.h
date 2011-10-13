@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.28 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.29 2011-10-13 13:21:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
     bool                        doPrepare();
     bool			doWork();
     const SeisTrc&		result() const		{ return outtrc_; }
+    SeisTrc&			result() 		{ return outtrc_; }
 
     void 			getSampledReflectivities(TypeSet<float>&) const;
 
@@ -131,7 +132,7 @@ public:
     void 			setModels(
 				    const ObjectSet<const ReflectivityModel>&);
 
-    void 			getResult(ObjectSet<const SeisTrc>&); 
+    void 			getResult(ObjectSet<SeisTrc>&); 
     void 			getSampledReflectivities(TypeSet<float>&) const;
 
     const char*                 message() const 
@@ -147,7 +148,7 @@ protected:
 
     const ObjectSet<const ReflectivityModel>* models_;
     ObjectSet<SynthGenerator>	synthgens_;
-    ObjectSet<const SeisTrc>	trcs_;
+    ObjectSet<SeisTrc>		trcs_;
     TypeSet<int>		trcidxs_;
     od_int64                    totalnr_;
     Threads::Mutex              lock_;
@@ -176,16 +177,16 @@ public:
 			RayModel(const RayTracer1D& rt1d,int nroffsets);
 			~RayModel();	
 
-	void 		getTraces(ObjectSet<const SeisTrc>&,bool steal);
+	void 		getTraces(ObjectSet<SeisTrc>&,bool steal);
+	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
 	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal);
-	void		getD2T(ObjectSet<const TimeDepthModel>&,bool steal);
 	void		getSampledRefs(TypeSet<float>&) const;
 
 	const SeisTrc*	stackedTrc() const;
 
     protected:
-	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
-	ObjectSet<const TimeDepthModel> 	t2dmodels_;
+	ObjectSet<SeisTrc>			outtrcs_; //this is a gather
+	ObjectSet<TimeDepthModel> 		t2dmodels_;
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	TypeSet<float>  			sampledrefs_;
 
