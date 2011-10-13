@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.34 2011-10-11 21:23:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.35 2011-10-13 14:47:09 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -159,7 +159,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , saveasmnuitem_("Save &as ...")
     , displaybodymnuitem_("&Body")
     , displaypolygonmnuitem_("&Picked polygons")			    
-    , displayintersectionmnuitem_("&Intersections")
+    , displayintersectionmnuitem_("&Intersections plane surfaces")
     , singlecolormnuitem_("Use single &color")
     , mcd_(0)
     , plg_(0)
@@ -179,7 +179,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , saveasmnuitem_("Save as ...")
     , displaybodymnuitem_("Body")
     , displaypolygonmnuitem_("Picked polygons")			    
-    , displayintersectionmnuitem_("Intersections")
+    , displayintersectionmnuitem_("Intersection plane surfaces")
     , singlecolormnuitem_("Use single &color")
     , mcd_(0)
     , plg_(0)	       
@@ -372,7 +372,8 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
     if ( mcd )
     {
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, !mcd->usesTexture() );
+	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
+		!mcd->usesTexture() );
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
@@ -381,12 +382,12 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
     {
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		      plg_->isBodyDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
-		      plg_->areIntersectionsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
 		      plg_->arePolygonsDisplayed() );
-	mAddMenuItem( menu, &displaymnuitem_, true, true );
+	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
+		      plg_->areIntersectionsDisplayed() );
 	
+	mAddMenuItem( menu, &displaymnuitem_, true, true );
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
