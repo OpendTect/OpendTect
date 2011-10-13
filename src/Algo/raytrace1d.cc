@@ -196,6 +196,64 @@ bool RayTracer1D::doPrepare( int nrthreads )
 }
 
 
+bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
+{
+    const ElasticLayer& ellayer = model_[layer];
+    const float downvel = setup().pdown_ ? ellayer.vel_ : ellayer.svel_;
+    const float upvel = setup().pup_ ? ellayer.vel_ : ellayer.svel_;
+
+    const float sini = downvel * rayparam;
+    sini_->set( layer-1, offsetidx, sini );
+
+    const float off = offsets_[offsetidx];
+
+    float_complex reflectivity = 0;
+
+    if ( !mIsZero(off,mDefEps) ) 
+    {
+	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
+	for ( int idx=firstlayer_; idx<layer; idx++ )
+	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
+	int lidx = sourcelayer_;
+	reflectivity = coefs[lidx].getCoeff( true, 
+				lidx!=layer-1 , setup().pdown_,
+				lidx==layer-1 ? setup().pup_ : setup().pdown_ ); 
+	lidx++;
+
+	while ( lidx < layer )
+	{
+	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
+		    setup().pdown_, lidx==layer-1? setup().pup_ : setup().pdown_ );
+	    lidx++;
+	}
+
+	for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
+	{
+	    if ( lidx>receiverlayer_  )
+		reflectivity *= coefs[lidx-1].getCoeff( 
+				    false,false,setup().pup_,setup().pup_);
+	}
+    }
+    else
+    {
+	const ElasticLayer& ail0 = model_[ layer-1 ];
+	const ElasticLayer& ail1 = model_[ layer ];
+	const float ai0 = ail0.vel_ * ail0.den_;
+	const float ai1 = ail1.vel_ * ail1.den_;
+        reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
+    }
+
+    reflectivity_->set( layer-1, offsetidx, reflectivity );
+
+    return true;
+}
+
+
+
+
+
+
+
 float RayTracer1D::getSinAngle( int layer, int offset ) const
 {
     if ( !offsetpermutation_.validIdx( offset ) )
@@ -343,59 +401,14 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const ElasticLayer& ellayer = model_[layer];
-    const float downvel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
-    const float upvel = setup_.pup_ ? ellayer.vel_ : ellayer.svel_;
-
-    const float sini = downvel * rayparam;
-    sini_->set( layer-1, offsetidx, sini );
-
-    const float off = offsets_[offsetidx];
-
-    float_complex reflectivity = 0;
-
-    if ( !mIsZero(off,mDefEps) ) 
-    {
-	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
-	for ( int idx=firstlayer_; idx<layer; idx++ )
-	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
-	int lidx = sourcelayer_;
-	reflectivity = coefs[lidx].getCoeff( true, 
-				lidx!=layer-1 , setup_.pdown_,
-				lidx==layer-1 ? setup_.pup_ : setup_.pdown_ ); 
-	lidx++;
-
-	while ( lidx < layer )
-	{
-	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
-		    setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
-	    lidx++;
-	}
-
-	for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
-	{
-	    if ( lidx>receiverlayer_  )
-		reflectivity *=
-		    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
-	}
-    }
-    else
-    {
-	const ElasticLayer& ail0 = model_[ layer-1 ];
-	const ElasticLayer& ail1 = model_[ layer ];
-	const float ai0 = ail0.vel_ * ail0.den_;
-	const float ai1 = ail1.vel_ * ail1.den_;
-        reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
-    }
-
     const float tnmo = twt_->get( layer-1, 0 );
     const float vrms = velmax_[layer];
+    const float off = offsets_[offsetidx];
     const float twt = sqrt( off*off/( vrms*vrms ) + tnmo*tnmo );
 
-    reflectivity_->set( layer-1, offsetidx, reflectivity );
     twt_->set( layer-1, offsetidx, twt );
 
-    return true;
+    return RayTracer1D::compute( layer, offsetidx, rayparam );
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.28 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.29 2011-10-13 09:10:53 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -80,6 +80,7 @@ protected:
 
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
+    virtual bool	compute(int,int,float);
 
     			//Setup variables
     ElasticModel	model_;
