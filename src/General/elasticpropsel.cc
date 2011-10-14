@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.10 2011-08-11 13:47:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.11 2011-10-14 14:49:06 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -39,7 +39,7 @@ static const char* sKeyPropertyName 	= "Property name";
 mDefSimpleTranslators(ElasticPropSelection,mFileType,od,Seis);
 
 DefineEnumNames(ElasticFormula,Type,0,"Elastic Property")
-{ "Density", "P-Wave", "S-Wave", 0 };
+{ "Density", "PWave", "SWave", 0 };
 
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
