@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedef.cc,v 1.7 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmutedef.cc,v 1.8 2011-10-14 15:42:43 cvskris Exp $";
 
 #include "prestackmutedef.h"
 
@@ -34,6 +34,7 @@ MuteDef::~MuteDef()
 
 MuteDef& MuteDef::operator=(const MuteDef& b)
 {
+    refhor_ = b.refhor_;
     setName( b.name() );
     deepCopy( fns_, b.fns_ );
     pos_ = b.pos_;
@@ -117,3 +118,11 @@ float MuteDef::value( float offs, const BinID& pos ) const
 
     return calc.average();
 }
+
+
+void MuteDef::setReferenceHorizon( const MultiID& mid )
+{ refhor_ = mid; }
+
+
+const MultiID& MuteDef::getReferenceHorizon() const
+{ return refhor_; }

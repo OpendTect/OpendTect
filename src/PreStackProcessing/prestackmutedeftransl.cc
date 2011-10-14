@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.7 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.8 2011-10-14 15:42:43 cvskris Exp $";
 
 #include "prestackmutedeftransl.h"
 #include "prestackmutedef.h"
@@ -80,6 +80,12 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(MuteDef)) )
 	return "Input file is not a Mute Definition file";
+
+    IOPar pars( astrm );
+    MultiID hormid;
+    pars.get( sKeyRefHor(), hormid );
+    md.setReferenceHorizon( hormid );
+
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( atEndOfSection(astrm) )
 	return "Input file contains no Mute Definition locations";

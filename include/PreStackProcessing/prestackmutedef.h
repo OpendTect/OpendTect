@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.5 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.6 2011-10-14 15:42:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "position.h"
 #include "samplingdata.h"
+#include "multiid.h"
 
 class PointBasedMathFunction;
 
@@ -26,7 +27,6 @@ namespace PreStack
 mClass MuteDef : public NamedObject
 {
 public:
-
 					MuteDef(const char* nm=0);
 					MuteDef(const MuteDef&);
 					~MuteDef();
@@ -49,10 +49,16 @@ public:
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
+
+    void				setReferenceHorizon(const MultiID&);
+    const MultiID&			getReferenceHorizon() const;
+
 protected:
 
     ObjectSet<PointBasedMathFunction>	fns_;
     TypeSet<BinID>			pos_;
+    MultiID				refhor_;
+
     bool				ischanged_;
 };
 
