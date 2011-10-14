@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.8 2011-09-02 13:00:38 cvskris Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.9 2011-10-14 12:07:43 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -271,6 +271,8 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
     if ( vals.isEmpty() )
 	return mUdf(float);
     applyTransform( vals );
+    if ( vals.size() == 1 )
+	return vals[0];
 
     Stats::RunCalcSetup rcsu( !isthick );
     rcsu.require( stattype_ );
