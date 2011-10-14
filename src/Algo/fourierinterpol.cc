@@ -99,11 +99,10 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 	for ( int idx=0; idx<sz_; idx++ )
 	{
 	    const float angle = 2*M_PI *anglesampling*idx;
-	    const float freq = df * idx;
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cplxref = cexp*cplxval;
 	    float_complex outpval = interpvals.get( idx );
-	    outpval += ( freq>nyqfreq ) ? 0 : cplxref; 
+	    outpval += cplxref; 
 	    interpvals.set( idx, outpval );
 	}
 	addToNrDone( 1 );
@@ -192,18 +191,17 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    const float anglex = 2*M_PI *xanglesampling*idx;
-	    const float freqx = dfx * idx;
 	    const float_complex cxexp = float_complex(cos(anglex),sin(anglex));
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
 		const float angley = 2*M_PI *yanglesampling*idy;
-		const float freqy = dfy * idy;
-		const float_complex cyexp = float_complex( cos(angley), 
-							    sin(angley) );
-		const float_complex cplxref = cxexp*cyexp*cplxval;
+		const float angle = anglex + angley;
+		const float_complex cexp = float_complex( cos(angle), 
+							    sin(angle) );
+		const float_complex cplxref = cexp*cplxval;
 		float_complex outpval = interpvals.get( idx, idy );
-		outpval += ( freqx>nyqxfreq || freqy>nyqyfreq ) ? 0 : cplxref; 
+		outpval += cplxref; 
 		interpvals.set( idx, idy, outpval );
 	    }
 	}
@@ -303,26 +301,23 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    const float anglex = 2*M_PI *xanglesampling*idx;
-	    const float freqx = dfx * idx;
-	    const float_complex cxexp = float_complex(cos(anglex),sin(anglex));
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
 		const float angley = 2*M_PI *yanglesampling*idy;
-		const float freqy = dfy * idy;
-		const float_complex cyexp = float_complex( cos(angley), 
-							    sin(angley) );
+
 		for ( int idz=0; idz<szz_; idz++ )
 		{
 		    const float anglez = 2*M_PI *zanglesampling*idz;
-		    const float freqz = dfz * idz;
-		    const float_complex czexp = float_complex( cos(anglez), 
-			    					sin(anglez) );
 
-		    const float_complex cplxref = cxexp*cyexp*czexp*cplxval;
+		    const float angle = anglex+angley+anglez;
+
+		    const float_complex cexp =
+			float_complex( cos(angle), sin(angle) );
+
+		    const float_complex cplxref = cexp*cplxval;
 		    float_complex outpval = interpvals.get( idx, idy, idz );
-		    outpval += ( freqx>nyqxfreq || freqy>nyqyfreq 
-				|| freqz>nyqzfreq ) ? 0 : cplxref; 
+		    outpval += cplxref;
 		    interpvals.set( idx, idy, idz, outpval );
 		}
 	    }
