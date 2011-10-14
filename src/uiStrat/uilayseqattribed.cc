@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.4 2011-01-25 09:41:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.5 2011-10-14 12:09:42 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -16,8 +16,10 @@ static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.4 2011-01-25 09:41:24 c
 #include "propertyref.h"
 #include "stattype.h"
 #include "uilistbox.h"
+#include "uilabel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiseparator.h"
 #include "uimsg.h"
 
 
@@ -30,40 +32,42 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     , anychg_(false)
 {
     isslidingfld_ = new uiGenInput( this, "Type",
-	    		BoolInpSpec( true,"Sliding", "Whole model") );
+	    		BoolInpSpec( false, "Sliding", "Integrated") );
     isslidingfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
 
     slidegrp_ = new uiGroup( this, "Slide group" );
+    uiLabel* lbl = new uiLabel( slidegrp_, " " );
     uiLabeledComboBox* lupscfld = new uiLabeledComboBox( slidegrp_,
 						"From depth intervals" );
     upscaletypfld_ = lupscfld->box();
     upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
+    lupscfld->attach( alignedBelow, lbl );
     slidegrp_->setHAlignObj( lupscfld );
+    slidegrp_->attach( alignedBelow, isslidingfld_ );
 
     localgrp_ = new uiGroup( this, "Local group" );
-    uiLabeledListBox* llithfld = new uiLabeledListBox( localgrp_, "Lithologies",
-				     true, uiLabeledListBox::AboveMid );
-    lithofld_ = llithfld->box();
-    uiLabeledListBox* lunfld = new uiLabeledListBox( localgrp_,"Selected Units",
-				     true, uiLabeledListBox::AboveMid );
-    unfld_ = lunfld->box();
-    lunfld->attach( rightOf, llithfld );
-    localgrp_->setHAlignObj( lunfld );
 
-    uiLabeledComboBox* lstattypfld = new uiLabeledComboBox( localgrp_,
-						"Statistics on results" );
-    stattypfld_ = lstattypfld->box();
+    lithofld_ = new uiListBox( localgrp_, "Lithologies", false,
+	    			rt.lithologies().size() );
+    lithofld_->setItemsCheckable( true );
+    unfld_ = new uiListBox( localgrp_,"Units" );
+    unfld_->setItemsCheckable( true );
+    lithofld_->attach( centeredRightOf, unfld_ );
+    stattypfld_ = new uiComboBox( localgrp_, "Statistics on results" );
+    new uiLabel( localgrp_, "Statistics on results", stattypfld_ );
 #   define mAddStatItm(enm) \
-    stattypfld_-> addItem( Stats::TypeNames()[Stats::enm] );
+    stattypfld_->addItem( Stats::TypeNames()[Stats::enm] );
     if ( attr_.prop_.hasType(PropertyRef::Dist) )
 	mAddStatItm(Sum);
     mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);
     mAddStatItm(Min); mAddStatItm(Max);
-    lstattypfld->attach( alignedBelow, lunfld );
-    lstattypfld->attach( ensureBelow, llithfld );
-
+    stattypfld_->attach( alignedBelow, lithofld_ );
+    stattypfld_->attach( ensureBelow, unfld_ );
+    localgrp_->setHAlignObj( stattypfld_ );
     localgrp_->attach( alignedBelow, isslidingfld_ );
-    slidegrp_->attach( alignedBelow, isslidingfld_ );
+
+    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    sep->attach( stretchedBelow, localgrp_ );
 
     const CallBack transfcb( mCB(this,uiLaySeqAttribEd,transfSel) );
     uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
@@ -73,7 +77,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     transformfld_->addItems( BufferStringSet(transfs) );
     transformfld_->setHSzPol( uiObject::Small );
     transformfld_->selectionChanged.notify( transfcb );
-    ltransffld->attach( alignedBelow, localgrp_ );
+    ltransffld->attach( alignedWith, localgrp_ );
+    ltransffld->attach( ensureBelow, sep );
     valfld_ = new uiGenInput( this, "Value", FloatInpSpec(2) );
     valfld_->setElemSzPol( uiObject::Small );
     valfld_->attach( rightOf, ltransffld );
@@ -122,8 +127,8 @@ void uiLaySeqAttribEd::initWin( CallBacker* c )
 void uiLaySeqAttribEd::slSel( CallBacker* )
 {
     const bool isslide = isslidingfld_->getBoolValue();
-    localgrp_->display( !isslide );
     slidegrp_->display( isslide );
+    localgrp_->display( !isslide );
 }
 
 
@@ -148,10 +153,10 @@ void uiLaySeqAttribEd::putToScreen()
     {
 	stattypfld_->setText( attr_.stat_ );
 	for ( int idx=0; idx<unfld_->size(); idx++ )
-	    unfld_->setSelected( idx, attr_.units_.isPresent(
+	    unfld_->setItemChecked( idx, attr_.units_.isPresent(
 					    unfld_->textOfItem(idx)) );
 	for ( int idx=0; idx<lithofld_->size(); idx++ )
-	    lithofld_->setSelected( idx, attr_.liths_.isPresent(
+	    lithofld_->setItemChecked( idx, attr_.liths_.isPresent(
 					    lithofld_->textOfItem(idx)) );
     }
 
@@ -173,7 +178,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 
     if ( !islocal )
     {
-	unfld_->getSelectedItems( uns ); lithofld_->getSelectedItems( liths );
+	unfld_->getCheckedItems( uns ); lithofld_->getCheckedItems( liths );
 	if ( uns.isEmpty() || liths.isEmpty() )
 	{
 	    uiMSG().error("Please select at least one unit and one lithology");
