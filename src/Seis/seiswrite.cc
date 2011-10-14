@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.66 2011-05-11 14:17:35 cvshelene Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.67 2011-10-14 15:44:28 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -442,7 +442,26 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* inptrc, bool waitforbuffer )
 {
     Threads::MutexLocker lock( lock_ );
     outputs_ += inptrc;
+    return iterateBuffer( waitforbuffer );
+}
 
+
+bool SeisSequentialWriter::submitGather( ObjectSet<SeisTrc>& gather,
+					 bool waitforbuffer )
+{
+    pErrMsg("Not implemented yet. Talk to Bruno" );
+    return false;
+
+    Threads::MutexLocker lock( lock_ );
+    for ( int idx=0; idx<gather.size(); idx++ )
+	outputs_ += gather[idx];
+
+    return iterateBuffer( waitforbuffer );
+}
+
+
+bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
+{
     bool found = true;
     while ( found )
     {
@@ -453,25 +472,31 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* inptrc, bool waitforbuffer )
 	{
 	    const BinID& bid = announcedtraces_[idx];
 
-	    SeisTrc* trc = 0;
+	    ObjectSet<SeisTrc> trcs;
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
 		if ( outputs_[idy]->info().binid==bid )
 		{
-		    trc = outputs_.remove( idy );
-		    break;
+		    trcs += outputs_.remove( idy );
+		    idy--;
 		}
+		else if ( trcs.size() )
+		    break;
 	    }
 
-	    if ( !trc )
+	    if ( !trcs.size() )
 	    {
 		idx--;
 		break;
 	    }
 
-	    Task* task = new SeisSequentialWriterTask( *this, *writer_, trc );
-	    Threads::WorkManager::twm().addWork( Threads::Work(*task,true), 0,
-						 queueid_, false );
+	    for ( int idy=0; idy<trcs.size(); idy++ )
+	    {
+		Task* task =
+		    new SeisSequentialWriterTask( *this, *writer_, trcs[idy] );
+		Threads::WorkManager::twm().addWork( Threads::Work(*task,true), 0,
+						     queueid_, false );
+	    }
 
 	    found = true;
 

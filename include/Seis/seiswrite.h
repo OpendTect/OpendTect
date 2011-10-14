@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.32 2011-04-22 09:32:49 cvssatyaki Exp $
+ RCS:		$Id: seiswrite.h,v 1.33 2011-10-14 15:44:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,14 @@ public:
     			/*!<Trc becomes mine. If waitforbuffer is true and
 			    buffer is full, wait until buffer gets smaller. */
 
+    bool		submitGather( ObjectSet<SeisTrc>&,
+	    			      bool waitforbuffer=true );
+    			/*!<Trcs become mine. All traces are assumed to be from
+			    the same cdp. Traces will be written out in the same
+			    order as in the set.
+			    If waitforbuffer is true and buffer is full, wait
+			    until buffer gets smaller. */
+
     bool		finishWrite();
     			/*!<Wait for everything to be written. Should be
 			    after final submitTrace, before closure.*/
@@ -136,6 +144,7 @@ public:
 
 protected:
 
+    bool			iterateBuffer(bool waitforbuffer);
     void			reportWrite(const char*);
     friend class		SeisSequentialWriterTask;
 
