@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.26 2011-09-16 10:59:58 cvskris Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.27 2011-10-14 08:56:30 cvsjaap Exp $";
 
 #include "uiselsurvranges.h"
+
+#include "math.h"
 #include "survinfo.h"
 #include "zdomain.h"
 #include "uispinbox.h"
@@ -118,24 +120,56 @@ StepInterval<float> uiSelZRange::getRange() const
 }
 
 
+#define mAdaptRangeToLimits( rg, limit, newrg ) \
+{ \
+    const double realstartidx = (rg.start-limit.start) / double(limit.step); \
+    const double realstepfac = rg.step / double(limit.step); \
+    const double eps = 1e-4; \
+    const bool useoldstep = !mIsZero(realstartidx-mNINT(realstartidx),eps) || \
+			    !mIsZero(realstepfac-mNINT(realstepfac),eps); \
+    const int stepfac = useoldstep ? 1 : mNINT(realstepfac); \
+\
+    int startidx = ceil( realstartidx-eps ); \
+    if ( startidx < 0 ) \
+	startidx = (startidx*(1-stepfac)) % stepfac; \
+\
+    const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
+    const double realnrsteps = width / (stepfac*limit.step); \
+    const int stopidx = startidx + stepfac * floor(realnrsteps+eps); \
+\
+    if ( startidx <= stopidx ) \
+    { \
+	newrg.start = limit.atIndex( startidx ); \
+	newrg.stop = limit.atIndex( stopidx ); \
+	newrg.step = stepfac * limit.step; \
+    } \
+    else \
+    	newrg = limit; \
+}
+
+
 void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 {
     StepInterval<float> zrg( inpzrg );
     zrg.scale( zddef_.userFactor() );
 
+    const StepInterval<float> limitrg = startfld_->getFInterval();
+    StepInterval<float> newzrg;
+    mAdaptRangeToLimits( zrg, limitrg, newzrg );
+
     if ( cansnap_ )
     {
-	startfld_->setValue( mNINT(zrg.start) );
-	stopfld_->setValue( mNINT(zrg.stop) );
+	startfld_->setValue( mNINT(newzrg.start) );
+	stopfld_->setValue( mNINT(newzrg.stop) );
 	if ( stepfld_ )
-	    stepfld_->setValue( mNINT(zrg.step) );
+	    stepfld_->setValue( mNINT(newzrg.step) );
     }
     else
     {
-	startfld_->setValue( zrg.start );
-	stopfld_->setValue( zrg.stop );
+	startfld_->setValue( newzrg.start );
+	stopfld_->setValue( newzrg.stop );
 	if ( stepfld_ )
-	    stepfld_->setValue( zrg.step );
+	    stepfld_->setValue( newzrg.step );
     }
 }
 
@@ -160,6 +194,12 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
     zrg.scale( zddef_.userFactor() );
     startfld_->setInterval( zrg );
     stopfld_->setInterval( zrg );
+    if ( stepfld_ )
+    {
+	stepfld_->setMinValue( zrg.step );
+	stepfld_->setMaxValue( zrg.stop-zrg.start );
+	stepfld_->setStep( zrg.step );
+    }
 }
 
 
@@ -296,10 +336,14 @@ StepInterval<int> uiSelNrRange::getRange() const
 
 void uiSelNrRange::setRange( const StepInterval<int>& rg )
 {
-    startfld_->setValue( rg.start );
-    setStopVal( rg.stop );
+    const StepInterval<int> limitrg = startfld_->getInterval();
+    StepInterval<int> newrg;
+    mAdaptRangeToLimits( rg, limitrg, newrg );
+
+    startfld_->setValue( newrg.start );
+    setStopVal( newrg.stop );
     if ( stepfld_ )
-	stepfld_->setValue( rg.step );
+	stepfld_->setValue( newrg.step );
 }
 
 
@@ -308,6 +352,12 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
     startfld_->setInterval( limitrg );
     if ( icstopfld_ )
 	icstopfld_->setInterval( limitrg );
+    if ( stepfld_ )
+    {
+	stepfld_->setMinValue( limitrg.step );
+	stepfld_->setMaxValue( limitrg.stop-limitrg.start );
+	stepfld_->setStep( limitrg.step );
+    }
 }
 
 
