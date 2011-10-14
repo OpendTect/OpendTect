@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.5 2011-08-03 15:09:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.6 2011-10-14 12:09:02 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -260,13 +260,14 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 {
     uiLabeledListBox* llb = 0;
     if ( !lbl || !*lbl )
-	propfld_ = new uiListBox( this, "Available properties", true );
+	propfld_ = new uiListBox( this, "Available properties" );
     else
     {
 	llb = new uiLabeledListBox( this, lbl, true,
 				    uiLabeledListBox::AboveMid );
 	propfld_ = llb->box();
     }
+    propfld_->setItemsCheckable( true );
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props.png",
@@ -294,17 +295,16 @@ void uiSelectPropRefs::fillList()
     dispnms.sort();
     propfld_->addItems( dispnms );
 
-    int nrsel = 0;
+    int firstsel = -1;
     for ( int idx=0; idx<dispnms.size(); idx++ )
     {
 	const char* nm = dispnms.get( idx ).buf();
 	const bool issel = prsel_.isPresent( nm );
-	propfld_->setSelected( idx, issel );
-	if ( issel ) nrsel++;
+	propfld_->setItemChecked( idx, issel );
+	if ( issel && firstsel < 0 ) firstsel = idx;
     }
 
-    if ( nrsel == 0 )
-	propfld_->setCurrentItem( 0 );
+    propfld_->setCurrentItem( firstsel < 0 ? 0 : firstsel );
 }
 
 
@@ -339,7 +339,7 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<propfld_->size(); idx++ )
     {
-	if ( !propfld_->isSelected(idx) )
+	if ( !propfld_->isItemChecked(idx) )
 	    continue;
 
 	const char* pnm = propfld_->textOfItem( idx );
