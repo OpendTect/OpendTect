@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.10 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.11 2011-10-14 10:24:17 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ mClass AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,
-				AngleMute,"AngleMute",sFactoryKeyword());
+				AngleMute,"AngleMute", "Angle Mute" );
 
 			AngleMute();
 			~AngleMute();
