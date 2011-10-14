@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.70 2011-03-01 11:13:11 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.71 2011-10-14 12:40:04 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ public:
 				    //!< default row label: start counting at 1
 			, rightclickdisabled_(false)
 		       		   //!<default enables right click popup	
+			, enablecopytext_(false)
 				{}
 
 	mDefSetupMemb(RowCol,size)
@@ -106,6 +107,7 @@ public:
 	mDefSetupMemb(bool,manualresize)
 	mDefSetupMemb(int,defrowstartidx)
 	mDefSetupMemb(bool,rightclickdisabled)
+	mDefSetupMemb(bool,enablecopytext)
 
 	Setup& sizesFixed( bool yn )
 	{

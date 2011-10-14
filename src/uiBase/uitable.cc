@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.104 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.105 2011-10-14 12:40:04 cvsnageswara Exp $";
 
 
 #include "uitable.h"
@@ -27,6 +27,8 @@ static const char* rcsID = "$Id: uitable.cc,v 1.104 2011-04-21 13:09:13 cvsbert 
 #include <QHeaderView>
 #include <QMouseEvent>
 #include <QCursor>
+#include <QClipboard>
+#include <QApplication>
 
 
 class CellObject
@@ -998,7 +1000,8 @@ void uiTable::popupMenu( CallBacker* )
     if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
 	return;
 
-    if ( (!setup_.rowgrow_ && !setup_.colgrow_) || setup_.rightclickdisabled_ )
+    if ( (!setup_.rowgrow_ && !setup_.colgrow_ && !setup_.enablecopytext_) ||
+	 setup_.rightclickdisabled_ )
     {
 	popupVirtualKeyboard( xcursorpos, ycursorpos );
 	return;
@@ -1007,6 +1010,7 @@ void uiTable::popupMenu( CallBacker* )
     uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
     BufferString itmtxt;
 
+    const RowCol cur = notifiedCell();
     int inscolbef = 0;
     int delcol = 0;
     int inscolaft = 0;
@@ -1047,6 +1051,13 @@ void uiTable::popupMenu( CallBacker* )
 	}
     }
 
+    int cptxt = 0;
+    if ( isTableReadOnly() && setup_.enablecopytext_ )
+    {
+	itmtxt = "Copy text";
+	cptxt = mnu->insertItem( new uiMenuItem(itmtxt), 6 );
+    }
+
     int virkeyboardid = mUdf(int);
     if ( needOfVirtualKeyboard() )
     {
@@ -1058,7 +1069,6 @@ void uiTable::popupMenu( CallBacker* )
     int ret = mnu->exec();
     if ( ret<0 ) return;
 
-    const RowCol cur = notifiedCell();
     if ( ret == inscolbef || ret == inscolaft )
     {
 	const int offset = (ret == inscolbef) ? 0 : 1;
@@ -1095,6 +1105,14 @@ void uiTable::popupMenu( CallBacker* )
     {
 	popupVirtualKeyboard( xcursorpos, ycursorpos );
 	return;
+    }
+    else if ( ret == cptxt )
+    {
+	const char* str = text( cur );
+	if ( !str || !*str )
+	    return;
+
+	QApplication::clipboard()->setText( QString(str) );
     }
 
     setCurrentCell( newcell_ );
