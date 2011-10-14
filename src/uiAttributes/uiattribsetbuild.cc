@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.20 2011-09-08 15:18:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.21 2011-10-14 14:15:12 cvsbruno Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.20 2011-09-08 15:18:44 
 #include "attribstorprovider.h"
 #include "attribparambase.h"
 #include "attribfactory.h"
+#include "keystrs.h"
 #include "linekey.h"
 #include "survinfo.h"
 #include "ioobj.h"
@@ -242,10 +243,38 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
+    const bool is2d = attrsetup_.is2d_;
+
     BufferString emsg;
-    const bool res = forread
-	? AttribDescSetTranslator::retrieve(descset_,dlg.ioObj(),emsg)
+    Attrib::DescSet descset( is2d );
+    bool res = forread
+	? AttribDescSetTranslator::retrieve(descset,dlg.ioObj(),emsg)
 	: AttribDescSetTranslator::store(descset_,dlg.ioObj(),emsg);
+
+    const bool isdesc2d = descset.is2D();
+    const bool isdescanyd = descset.couldBeUsedInAnyDimension();
+
+    //TODO make a 2D/3D AttribSet converter
+    if ( res && ( !isdesc2d && is2d || isdesc2d && !is2d ) && !isdescanyd )
+    {
+        emsg = "Can not load Attribute Set:\n";
+	emsg += "Attribute Set is";
+	emsg += isdesc2d ? "2D" : "3D" ;
+	emsg += ". Current definition is ";
+	emsg += is2d ? "2D" : "3D"; 
+	res = false;
+    }
+    else if ( res ) 
+    {
+	if ( isdescanyd )
+	{
+	    IOPar par; descset.fillPar( par );
+	    par.set( sKey::Type, is2d ? "2D" : "3D" );
+	    descset.usePar( par );
+	}
+	descset_ = descset;
+    }
+
     if ( res )
 	usrchg_ = false;
     else
