@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.4 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.5 2011-10-14 15:47:22 cvskris Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -103,6 +103,19 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !dlg.go() || !dlg.nrSel() )
 	    return;
 
+	RefMan<VolProc::Chain> chain = new VolProc::Chain;
+	BufferString str;
+	if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
+	{
+	    if ( !chain->areSamplesIndependent() )
+	    {
+		if ( !uiMSG().askGoOn("The output of this setup is not "
+			    "sample-independent, and the output may not be "
+			    "the same as when computing the entire volume") )
+		    return;
+	    }
+	}
+
 	mid_ = dlg.selected( 0 );
 
 	const BufferString def =
@@ -113,17 +126,6 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setSelSpec( displayID(), attribNr(), spec );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 
-	RefMan<VolProc::Chain> chain = new VolProc::Chain;
-	BufferString str;
-	if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
-	{
-	    if ( !chain->areSamplesIndependent() )
-	    {
-		uiMSG().askGoOn("The output of this setup is not "
-				"sample-independent, and the output may not be "
-				"the same as when computing the entire volume");
-	    }
-	}
     }
 
     if ( mnuid==selmenuitem_.id || mnuid==reloadmenuitem_.id )
