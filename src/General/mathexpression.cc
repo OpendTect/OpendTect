@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.54 2011-09-01 12:16:24 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.55 2011-10-14 12:06:52 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -743,7 +743,6 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 	if ( str[idx]=='(' ) parenslevel++;
 	if ( str[idx]==')' ) parenslevel--;
     }
-    if ( parenslevel ) return 0;
     if ( parenslevel )
     {
 	if ( parenslevel > 0 )
