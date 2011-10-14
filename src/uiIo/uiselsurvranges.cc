@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.27 2011-10-14 08:56:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.28 2011-10-14 12:22:31 cvsjaap Exp $";
 
 #include "uiselsurvranges.h"
 
@@ -129,13 +129,13 @@ StepInterval<float> uiSelZRange::getRange() const
 			    !mIsZero(realstepfac-mNINT(realstepfac),eps); \
     const int stepfac = useoldstep ? 1 : mNINT(realstepfac); \
 \
-    int startidx = ceil( realstartidx-eps ); \
+    int startidx = mNINT( ceil(realstartidx-eps) ); \
     if ( startidx < 0 ) \
 	startidx = (startidx*(1-stepfac)) % stepfac; \
 \
     const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
     const double realnrsteps = width / (stepfac*limit.step); \
-    const int stopidx = startidx + stepfac * floor(realnrsteps+eps); \
+    const int stopidx = startidx + stepfac * mNINT( floor(realnrsteps+eps) ); \
 \
     if ( startidx <= stopidx ) \
     { \
@@ -197,7 +197,7 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
     if ( stepfld_ )
     {
 	stepfld_->setMinValue( zrg.step );
-	stepfld_->setMaxValue( zrg.stop-zrg.start );
+	stepfld_->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
 	stepfld_->setStep( zrg.step );
     }
 }
@@ -355,7 +355,7 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
     if ( stepfld_ )
     {
 	stepfld_->setMinValue( limitrg.step );
-	stepfld_->setMaxValue( limitrg.stop-limitrg.start );
+	stepfld_->setMaxValue( mMAX(limitrg.step, limitrg.stop-limitrg.start) );
 	stepfld_->setStep( limitrg.step );
     }
 }
