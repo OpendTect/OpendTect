@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.8 2011-06-16 15:07:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.9 2011-10-14 12:10:06 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -82,7 +82,7 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
     uiLaySeqAttribEd dlg( this, *attr, reftree_, isadd );
     if ( dlg.go() )
 	handleSuccessfullEdit( isadd, attr->name() );
-    else
+    else if ( isadd )
 	attrset_-= attr;
 }
 
