@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.42 2011-10-17 10:00:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.43 2011-10-17 13:17:57 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -472,6 +472,8 @@ bool RaySynthGenerator::doSynthetics()
 	    {
 		rm.outtrcs_ += new SeisTrc( outputsampling_.nrSteps() );
 		rm.outtrcs_[idoff]->info().sampling = outputsampling_;
+		for ( int idz=0; idz<rm.outtrcs_[idoff]->size(); idz++ )
+		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
 	    }
 	    rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
 	    rm.outtrcs_[idoff]->info().nr = idx+1;
