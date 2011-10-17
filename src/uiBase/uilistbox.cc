@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.121 2011-10-06 13:25:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.122 2011-10-17 16:27:51 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -73,6 +73,7 @@ public:
 			    delete takeItem(idx);
 			}
 
+    int			indexOf(uiListBoxItem*) const;
     void		setItemID(int idx,int id);
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;
@@ -173,6 +174,10 @@ int uiListBoxBody::getItemIdx( int id ) const
 	    return idx;
     return -1;
 }
+
+
+int uiListBoxBody::indexOf( uiListBoxItem* itm ) const
+{ return items_.indexOf( itm ); }
 
 
 void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
@@ -838,7 +843,8 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 	return;
 
     lbitm->ischecked_ = ischecked;
-    itemChecked.trigger();
+    const int itmidx = body_->indexOf( lbitm );
+    itemChecked.trigger( itmidx );
 }
 
 

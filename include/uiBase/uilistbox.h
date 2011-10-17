@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.63 2011-10-06 13:25:12 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.64 2011-10-17 16:27:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ public:
     static const int	cDefNrLines();		//!< == 7 (July 2011)
 
     Notifier<uiListBox> selectionChanged;
-    Notifier<uiListBox> itemChecked;		//!< or un-checked (of course)
+    CNotifier<uiListBox,int> itemChecked;	//!< or un-checked (of course)
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
