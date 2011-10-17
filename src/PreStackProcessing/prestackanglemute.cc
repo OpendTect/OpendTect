@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.16 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.17 2011-10-17 14:39:51 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -215,6 +215,8 @@ AngleMute::~AngleMute()
 
 bool AngleMute::doPrepare( int nrthreads )
 {
+    deepErase( rtracers_ );
+
     if ( !setVelocityFunction() )
 	return false;
 
