@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.10 2010-12-09 11:38:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.11 2011-10-17 10:19:58 cvsbert Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -56,7 +56,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     {
 	zstepfld_ = new uiSpinBox( this, 0, "Z step" );
 	zstepfld_->attach( alignedBelow, surf2fld_ );
-	float zstep = SI().zRange(true).step;
+	float zstep = SI().zRange(true).step * 10;
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->setValue( v );
 	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
