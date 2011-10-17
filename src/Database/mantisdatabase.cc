@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.20 2011-10-05 21:53:40 cvsnanne Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.21 2011-10-17 11:59:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,6 +321,18 @@ const BufferStringSet* SqlDB::MantisDBMgr::getVersions(const char* projnm) const
 	return 0;
 
     return versionsbyproject_[pidx];
+}
+
+
+const BufferStringSet* SqlDB::MantisDBMgr::getVersions( int projid ) const
+{
+    const TypeSet<int>& pids = projectIDs();
+    const int pidx = pids.indexOf( projid );
+    if ( !projects().validIdx( pidx ) )
+	return 0;
+
+    BufferString projnm( projects().get( pidx ) );
+    return getVersions( projnm );
 }
 
 
@@ -830,20 +842,46 @@ void SqlDB::MantisDBMgr::prepareForQuery( BufferString& str )
 }
 
 
-void SqlDB::MantisDBMgr::getMajorVersions( BufferStringSet& majorvers,
-       					   bool isalladd ) const
+void SqlDB::MantisDBMgr::parseVersion( const BufferString& fullver,
+				       BufferString& numver,
+				       BufferString& patchver )
 {
-    majorvers.erase();
-    if ( isalladd )
-	majorvers.add( sKeyAll() );
-
-    BufferStringSet vers;
-    getAllVersions( vers );
-    if ( vers.isEmpty() ) return;
-
-    for ( int idx=0; idx<vers.size(); idx++ )
+    const char* buf = fullver.buf();
+    char* numbuf = numver.buf();
+    char* patchbuf = patchver.buf();
+    bool ispatch = false;
+    while ( *buf )
     {
-	BufferString str( vers.get( idx ) );
+	char c = *buf;
+	if ( !ispatch && c != '.' && ( c < '0' || c > '9' ) )
+	    ispatch = true;
+
+	if ( ispatch )
+	    *patchbuf++ = c;
+	else
+	    *numbuf++ = c;
+
+	buf++;
+    }
+
+    *patchbuf = '\0';
+    *numbuf = '\0';
+}
+
+
+void SqlDB::MantisDBMgr::editVersions( const BufferStringSet& versions,
+				       BufferStringSet& editedvers,
+				       bool ismajor, bool isalladd )
+{
+    if ( versions.isEmpty() ) return;
+
+    editedvers.erase();
+    if ( isalladd )
+	editedvers.add( sKeyAll() );
+
+    for ( int idx=0; idx<versions.size(); idx++ )
+    {
+	BufferString str( versions.get( idx ) );
 	char* ver = str.buf();
 	if ( !ver || !*ver ) continue;
 
@@ -853,14 +891,17 @@ void SqlDB::MantisDBMgr::getMajorVersions( BufferStringSet& majorvers,
 	    if ( '.' == *ver )
 	    {
 		found++;
-		if ( found > 1 )
-		    *ver = '\0';
+		if ( found > 1 && ismajor )
+			*ver = '\0';
 	    }
+
+	    if ( *ver != '.' && found > 1 && (*ver < '0' || *ver > '9') )
+		    *ver = '\0';
 
 	    ver++;
 	}
 
 	if ( found > 1 )
-	    majorvers.addIfNew( str.buf() );
+	    editedvers.addIfNew( str.buf() );
     }
 }

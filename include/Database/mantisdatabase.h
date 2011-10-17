@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.11 2011-09-30 11:41:56 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.12 2011-10-17 11:59:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,13 @@ public:
     const BufferStringSet&	categories() const	{ return categories_; }
     const BufferStringSet&	projects() const	{ return projectnms_; }
     const BufferStringSet&	severities() const	{ return sevirities_; }
-    void			getMajorVersions(BufferStringSet&,
-	    					 bool isalladd=true) const;
+    static void			editVersions(const BufferStringSet&,
+	    				     BufferStringSet&,
+					     bool ismajor=true,
+					     bool isalladd=true);
+    static void			parseVersion(const BufferString& fullver,
+	    				     BufferString& numver,
+					     BufferString& patch);
     bool			addBug(BugTableEntry&,BugTextTableEntry&,
 	    			       const char* note);
     bool			editBug(BugTableEntry&,BugTextTableEntry&,
@@ -99,6 +104,8 @@ public:
     TypeSet<int>&		getBugsIndex();
     static void			prepareForQuery(BufferString&);
     const BufferStringSet*	getVersions(const char* projnm) const;
+    const BufferStringSet*	getVersions( int projid ) const;
+    void			getAllVersions(BufferStringSet&) const;
 
     static const char* 	sKeyAll();
     static const char* 	sKeyUnAssigned();
@@ -125,7 +132,6 @@ protected:
     bool		fillProjectsInfo();
     bool		fillUsersInfo();
     bool		fillVersionsByProject();
-    void		getAllVersions(BufferStringSet&) const;
     void		fillSeverity();
     void		addHistoryToSet(BugHistoryTableEntry&);
 
