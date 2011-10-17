@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.53 2011-06-06 10:24:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.54 2011-10-17 10:19:19 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -231,6 +231,20 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::restoreOverride();
     if ( filt && !filt->initialize(&tr) )
 	return false;
+
+    float estpos = prov->estNrPos();
+    estpos *= prov->estNrZPerPos();
+    if ( filt )
+	estpos *= filt->estRatio( *prov );
+    estpos *= 0.001;
+    if ( estpos > 1000 )
+    {
+	BufferString msg( "The estimated number of positions is:\n" );
+	od_int64 rounded = (od_int64)estpos;
+	msg.add( rounded * 1000 ).add( "\nDo you want to continue?" );
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
+    }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( *prov, dcds, filt );
