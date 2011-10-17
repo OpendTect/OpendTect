@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.21 2011-10-14 14:15:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.22 2011-10-17 07:44:10 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -255,7 +255,8 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
     const bool isdescanyd = descset.couldBeUsedInAnyDimension();
 
     //TODO make a 2D/3D AttribSet converter
-    if ( res && ( !isdesc2d && is2d || isdesc2d && !is2d ) && !isdescanyd )
+    const bool badmatch = (!isdesc2d && is2d) || (isdesc2d && !is2d);
+    if ( res && badmatch && !isdescanyd )
     {
         emsg = "Can not load Attribute Set:\n";
 	emsg += "Attribute Set is";
