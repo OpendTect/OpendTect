@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.39 2011-10-07 15:10:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.40 2011-10-17 10:20:17 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -147,7 +147,7 @@ void uiStratLayerModel::initClass()
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(p,"Layer modeling",0,false,true)
+    : uiMainWin(p,"",0,false,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , modl_(*new Strat::LayerModel)
     , elpropsel_(0)				   
@@ -209,6 +209,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     spl = new uiSplitter( rightgrp );
     spl = new uiSplitter( rightgrp, "Hor splitter", false );
     spl->addGroup( synthdisp_ ); spl->addGroup( moddisp_ );
+
+    setWinTitle();
 }
 
 
@@ -217,6 +219,15 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &modl_;
     delete descctio_.ioobj; delete &descctio_;
+}
+
+
+void uiStratLayerModel::setWinTitle()
+{
+    BufferString txt( "Layer modeling" );
+    if ( descctio_.ioobj )
+	txt.add( " [" ).add( descctio_.ioobj->name() ).add( "]" );
+    setCaption( txt );
 }
 
 
@@ -321,6 +332,7 @@ bool uiStratLayerModel::saveGenDesc() const
     {
 	rv = true;
 	seqdisp_->setNeedSave( false );
+	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
 
     sd.close();
@@ -358,6 +370,7 @@ bool uiStratLayerModel::openGenDesc()
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
+    setWinTitle();
     return true;
 }
 

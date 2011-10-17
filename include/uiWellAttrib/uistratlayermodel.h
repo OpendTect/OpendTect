@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.16 2011-10-07 15:10:10 cvsbruno Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.17 2011-10-17 10:20:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ protected:
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
 
+    void			setWinTitle();
     void			setElasticProps();
     void			selElasticPropsCB(CallBacker*);
     void			selElasticProps(ElasticPropSelection&);
