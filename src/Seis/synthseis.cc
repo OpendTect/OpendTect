@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.41 2011-10-14 14:14:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.42 2011-10-17 10:00:36 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -468,11 +468,13 @@ bool RaySynthGenerator::doSynthetics()
 	multitracegen.getResult( rm.outtrcs_ );
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
 	{
-	    if ( rm.outtrcs_.validIdx( idoff ) )
+	    if ( !rm.outtrcs_.validIdx( idoff ) )
 	    {
-		rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
-		rm.outtrcs_[idoff]->info().nr = idx+1;
+		rm.outtrcs_ += new SeisTrc( outputsampling_.nrSteps() );
+		rm.outtrcs_[idoff]->info().sampling = outputsampling_;
 	    }
+	    rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
+	    rm.outtrcs_[idoff]->info().nr = idx+1;
 	    multitracegen.getSampledReflectivities( rm.sampledrefs_ );
 	}
     }

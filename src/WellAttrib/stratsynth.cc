@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.17 2011-10-13 13:21:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.18 2011-10-17 10:00:36 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -106,11 +106,6 @@ SyntheticData* StratSynth::generate()
 	    BufferString msg( errmsg_ );
 	    mErrRet( msg.buf(), return false;) 
 	}
-	if ( aimod.isEmpty() )
-	    mErrRet( "Layer model is empty", return false;) 
-
-	else if ( aimod.size() == 1  )
-	    mErrRet("Please add at least 2 layers to the model", return false;)
 
 	synthgen.addModel( aimod );
     }
