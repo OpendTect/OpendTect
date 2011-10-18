@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.36 2011-09-21 11:29:09 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.37 2011-10-18 19:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,6 +219,7 @@ protected:
     void			removeSelPts(CallBacker*);
     void			addColumn(CallBacker*);
     void			removeColumn(CallBacker*);
+    void			compVertVariogram(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

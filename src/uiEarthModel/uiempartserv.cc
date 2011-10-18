@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.222 2011-09-09 05:56:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.223 2011-10-18 19:25:14 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -71,6 +71,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.222 2011-09-09 05:56:26 cvs
 #include "uiselsimple.h"
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
+#include "uivariogram.h"
 #include "uidlggroup.h"
 #include "uihorsavefieldgrp.h"
 
@@ -925,6 +926,22 @@ bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
 	const char* nm, DataPointSet& dpset )
 { return changeAuxData( oid, nm, false, dpset ); }
 
+bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
+					      const char* nm,
+					      DataPointSet& dpset )
+{
+    uiVariogramDlg varsettings( parent(), false );
+    if ( !varsettings.go() )
+	return false;
+
+    HorVariogramComputer hvc( dpset, varsettings.getStep(),
+	    		      varsettings.getMaxRg(), varsettings.getFold() );
+    uiVariogramDisplay uivv( parent(), hvc.getData(), varsettings.getMaxRg(),
+	   		     varsettings.getStep(), true );
+    uivv.draw();
+    uivv.go();
+    return true;
+}
 
 static int getColID( const DataPointSet& dps, const char* nm )
 {

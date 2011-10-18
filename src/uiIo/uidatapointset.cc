@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.78 2011-09-19 13:33:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.79 2011-10-18 19:25:14 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -51,6 +51,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.78 2011-09-19 13:33:08 cv
 #include "uistatusbar.h"
 #include "uiobjdisposer.h"
 #include "uimsg.h"
+#include "uivariogram.h"
 
 static const int cNrPosCols = 3;
 static const int cMinPtsForDensity = 20000;
@@ -216,6 +217,9 @@ void uiDataPointSet::mkToolBars()
 			     "Toggle show Z column", true );
     mAddButton( "statsinfo.png", showStatsWin,
 			     "Show histogram and stats for column", false );
+    if ( dps_.group(0) < mUdf(od_uint16) )
+	mAddButton( "variogram.png", compVertVariogram,
+		    "Compute variogram for column", false );
     xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
 	    		     "Show crossplot", false );
 
@@ -1576,4 +1580,23 @@ void uiDataPointSet::removeColumn( CallBacker* )
     dps_.dataSet().removeColumn( tColID(dcolid)+1 );
     dps_.dataChanged();
     reDoTable();
+}
+
+
+void uiDataPointSet::compVertVariogram( CallBacker* )
+{
+    const DColID dcid = dColID();
+    if ( dcid<1 )
+	return uiMSG().error( "Please select an attribute column" );
+
+    uiVariogramDlg varsettings( parent(), true );                              
+    if ( !varsettings.go() )                                                    
+	return;
+
+    VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
+			      varsettings.getMaxRg(), varsettings.getFold() );  
+    uiVariogramDisplay uivv( parent(), vvc.getData(), varsettings.getMaxRg(),
+	    		     varsettings.getStep(), true );
+    uivv.draw();                                                                
+    uivv.go();                                                                  
 }

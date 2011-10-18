@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.109 2011-09-09 05:56:26 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.110 2011-10-18 19:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,8 @@ public:
 	    				   DataPointSet& res);
     bool		filterAuxData(const EM::ObjectID&,const char* nm,
 	    			      DataPointSet& res);
+    bool		computeVariogramAuxData(const EM::ObjectID&,const char*,
+	    					DataPointSet&);
     bool		attr2Geom(const EM::ObjectID&,const char* nm,
 	    			  const DataPointSet&);
     bool		geom2Attr(const EM::ObjectID&);
