@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.83 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.84 2011-10-19 08:06:49 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -512,8 +512,8 @@ void uiWellMan::renameLogPush( CallBacker* )
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !curwds_.isEmpty() || curwds_.size() > 1 
-	    || !currdrs_.isEmpty() || currdrs_.size() > 1 || !curioobj_ )
+    if ( curwds_.isEmpty() || curwds_.size() > 1 
+	    || currdrs_.isEmpty() || currdrs_.size() > 1 || !curioobj_ )
     {
 	setInfo( "" );
 	return;
