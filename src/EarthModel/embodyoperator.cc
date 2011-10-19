@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.17 2011-09-19 12:54:15 cvskris Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.18 2011-10-19 20:59:54 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -27,8 +27,13 @@ static const char* rcsID = "$Id: embodyoperator.cc,v 1.17 2011-09-19 12:54:15 cv
 #include "ioobj.h"
 #include "executor.h"
 
+
 namespace EM
 {
+
+#define mInsideVal	-1    
+#define mOutsideVal	1    
+#define mOnBodyVal	0    
 
 class BodyOperatorArrayFiller: public ParallelTask
 {
@@ -47,118 +52,206 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 {}
 
 od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
+const char* message() const { return "Calculating implicit body operation"; }
 		       
 protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )    
 {
-    int p[3], id0[3], id1[3];
-    bool incube[2];
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-    {
+    { 
+ 	int p[3];	
 	arr_.info().getArrayPos( idx, p );
+    
+	const int inl = inlrg_.atIndex(p[0]);
+	const int crl = crlrg_.atIndex(p[1]);
+	const float z = zrg_.atIndex(p[2]);
 	
-	id0[0] = b0_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
-	id0[1] = b0_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
-	id0[2] = b0_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
-	id1[0] = b1_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
-	id1[1] = b1_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
-	id1[2] = b1_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
+	int id0[3], id1[3];
+	id0[0] = b0_.inlsampling_.nearestIndex( inl );
+	id0[1] = b0_.crlsampling_.nearestIndex( crl );
+	id0[2] = b0_.zsampling_.nearestIndex( z );
+	id1[0] = b1_.inlsampling_.nearestIndex( inl );
+	id1[1] = b1_.crlsampling_.nearestIndex( crl );
+	id1[2] = b1_.zsampling_.nearestIndex( z );
 	
-	incube[0] = b0_.arr_->info().validPos(id0[0], id0[1], id0[2]);
-	incube[1] = b1_.arr_->info().validPos(id1[0], id1[1], id1[2]);
-
-	char pos0 = cOutsde(), pos1 = cOutsde();
+	char pos0 = mOutsideVal, pos1 = mOutsideVal;
 	float v0 = mUdf(float), v1 = mUdf(float);
-	if ( incube[0] )
+	if ( b0_.arr_->info().validPos(id0[0],id0[1],id0[2]) )
 	{
 	    v0 = b0_.arr_->get( id0[0], id0[1], id0[2] );
-	    pos0 = (v0<b0_.threshold_) ? cInside() 
-		 : (v0>b0_.threshold_ ? cOutsde() : cOnbody());
+	    pos0 = (v0<b0_.threshold_) ? mInsideVal 
+		 : (v0>b0_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
 
-	if ( incube[1] )
+	if ( b1_.arr_->info().validPos(id1[0],id1[1],id1[2]) )
 	{
 	    v1 = b1_.arr_->get( id1[0], id1[1], id1[2] );
-	    pos1 = (v1<b1_.threshold_) ? cInside() 
-		 : (v1>b1_.threshold_ ? cOutsde() : cOnbody());
+	    pos1 = (v1<b1_.threshold_) ? mInsideVal 
+		 : (v1>b1_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
 		
-	const float val = getVal( incube[0], incube[1], pos0, pos1, v0, v1 );
+	const float val = getVal( pos0, pos1, v0, v1 );
 	arr_.set( p[0], p[1], p[2], val );
+	addToNrDone( 1 );
     }
 
     return true;
 }
 
 
-float getVal( bool incube0, bool incube1, char p0, char p1, float v0, 
-	      float v1 ) const
+float getVal( char p0, char p1, float v0, float v1 ) const
 {
-    if ( !incube0 || !incube1 )
+    float res = mOutsideVal;
+    const bool useval = mIsEqual(b0_.threshold_,b1_.threshold_,1e-5);
+
+    if ( p0==mInsideVal )
     {
-	if ( incube0 )
-	    return action_==BodyOperator::IntSect ? fabs(v0) : v0;
-	else if ( incube1 )
-	    return action_==BodyOperator::Union ? v1 : fabs(v1);
+	if ( p1==mInsideVal )
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = useval ? (mMAX(v0,v1)) : mInsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? (mMAX(v0,v1)) : mInsideVal;
+	    }
+	    else
+	    {
+		res = useval ? -v1 : mOutsideVal;
+	    }
+	}
+	else if ( p1==mOnBodyVal )
+	{
+	    if ( action_==BodyOperator::Union ) 
+	    {
+		res = useval ? v0 : mInsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = mOnBodyVal;;
+	    }
+	    else
+	    {
+		res = useval ? 0.01 : mOutsideVal;
+	    }
+	}
 	else
-	    return 1;
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = useval ? v0 : mInsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? v1 : mOutsideVal;
+	    }
+	    else
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	}
+    }
+    else if ( p0==mOnBodyVal )
+    {
+	if ( p1==mInsideVal )
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = useval ? v1 : mInsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = mOnBodyVal;
+	    }
+	    else
+	    {
+		res = useval ? -v1 : mOutsideVal;
+	    }
+	}
+	else if ( p1==mOnBodyVal )
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = mOnBodyVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = mOnBodyVal;
+	    }
+	    else
+	    {
+		res = useval ? 0.01 : mOutsideVal;
+	    }
+	}
+	else
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = mOnBodyVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? v1 : mOutsideVal;
+	    }
+	    else
+	    {
+		res = mOnBodyVal;
+	    }
+	}
+    }
+    else
+    {
+	if ( p1==mInsideVal )
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = useval ? v1 : mInsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	    else
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	}
+	else if ( p1==mOnBodyVal )
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = mOnBodyVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	    else
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	}
+	else
+	{
+	    if ( action_==BodyOperator::Union )
+	    {
+		res = useval ? (mMIN(v0,v1)) : mOutsideVal;
+	    }
+	    else if ( action_==BodyOperator::IntSect )
+	    {
+		res = useval ? (mMIN(v0,v1)) : mOutsideVal;
+	    }
+	    else
+	    {
+		res = useval ? v0 : mOutsideVal;
+	    }
+	}
     }
 
-    float v[2] = { fabs(v0), fabs(v1) };
-    if ( action_==BodyOperator::Union )
-    {
-	if ( p0==cInside() )
-	    return p1==cInside() ? -mMAX(v[0],v[1]) : -v[0];
-	else if ( p1==cInside() )
-	    return p0==cInside() ? -mMAX(v[0],v[1]) : -v[1];
-	else if ( p0==cOnbody() || p1==cOnbody() )
-	    return 0;
-	else
-	    return mMIN(v[0],v[1]);
-
-	/* Binary sign.
-	return (p0==cInside() || p1==cInside()) ? cInside() :
-	       ( (p0==cOnbody() || p1==cOnbody()) ? cOnbody() : cOutsde() );*/
-
-    }
-    else if ( action_==BodyOperator::IntSect )
-    {
-	if ( p0==cInside() && p1==cInside() )
-	    return -mMIN(v[0],v[1]);
-	else if ( (p0==cOnbody() && p1==cInside()) || 
-		  (p0==cInside() && p1==cOnbody()) || 
-		  (p0==cOnbody() && p1==cOnbody()) )
-	    return 0;
-	else
-	    return mMAX(v[0],v[1]);
-
-	/* Binary sign.
-	return (p0==cInside() && p1==cInside()) ? cInside() : 
-	    ( ((p0==cOnbody() && p1==cInside()) || 
-	       (p0==cInside() && p1==cOnbody()) || 
-	       (p0==cOnbody() && p1==cOnbody())) ? cOnbody() : cOutsde() );*/
-    }
-    else 
-    {
-	if ( p0==cOutsde() ) 
-	    return p1==cInside() ? mMAX(v[0],v[1]) : v[0];
-	else if ( p1==cInside() ) 
-	    return mMAX(v[0],v[1]);
-	else if ( p0==cInside() && p1==cOutsde() ) 
-	    return -mMIN(v[0],v[1]);
-	else
-    	    return 0;
-
-	/* Binary sign.
-	return (p0==cOutsde() || p1==cInside()) ? cOutsde() : 
-	    ( (p0==cInside() && p1==cOutsde()) ? cInside() : cOnbody() );*/
-    }
+    return res;
 }
-
-    static char cOnbody()	{ return 0; }
-    static char cOutsde()	{ return 1; }
-    static char cInside()	{ return -1; }
 
     const ImplicitBody&		b0_;
     const ImplicitBody&		b1_;
@@ -185,16 +278,22 @@ Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 
 bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 {
+    planes_.erase();
+    
     const TypeSet<Coord3>& crds = tree_.coordList();
     tree_.getSurfaceTriangles( tri_ );
-    for ( int idx=0; idx<tri_.size()/3; idx++ )
+
+    const int planesz = tri_.size()/3;
+
+    for ( int idx=0; idx<planesz; idx++ )
     {
 	const int startid = 3 * idx;
-	planes_ += Plane3( crds[tri_[startid]], crds[tri_[startid+1]], 
-			   crds[tri_[startid+2]] );
+	Coord3 nm = (crds[tri_[startid]]- crds[tri_[startid+1]]).cross(
+		crds[tri_[startid+1]]-crds[tri_[startid+2]]);
+	planes_ += Plane3(nm.normalize(),crds[tri_[startid]],false);
     }
 
-    return planes_.size();
+    return planesz;
 }
 
 
@@ -203,13 +302,11 @@ od_int64 Expl2ImplBodyExtracter::nrIterations() const
 
 
 #define mSetSegment() \
-if ( !found ) \
-{ \
+if ( !nrintersections ) \
     segment.start = segment.stop = pos.z; \
-    found = true; \
-} \
 else \
-    segment.include( pos.z )
+    segment.include( pos.z ); \
+nrintersections++
 
 
 bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
@@ -228,7 +325,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	Line3 vtln( pos, Coord3(0,0,1) );
 
 	Interval<float> segment;
-	bool found = false;
+	int nrintersections = 0;
 	for ( int pl=0; pl<planesize; pl++ )
 	{
 	    Coord3 v[3];
@@ -237,23 +334,22 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 
 	    const float fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
 		planes_[pl].D_;
-	    if ( mIsZero(planes_[pl].C_,1e-8) ) 
+	    if ( mIsZero(planes_[pl].C_,1e-3) ) 
 	    {
-		if ( mIsZero(fv,1e-8) )
+		if ( mIsZero(fv,1e-3) )
 		{ 
 		    for ( int pidx=0; pidx<3; pidx++ )
 		    {
 			const Coord3 dir = v[(pidx+1)%3]-v[pidx];
-			if ( mIsZero(dir.x,1e-8) && mIsZero(dir.y,1e-8) )
+			if ( mIsZero(dir.x,1e-3) && mIsZero(dir.y,1e-3) )
 			{
 			    Coord diff = pos - v[pidx];
-			    if ( mIsZero(diff.x,1e-8) && mIsZero(diff.y,1e-8) )
+			    if ( mIsZero(diff.x,1e-3)&& mIsZero(diff.y,1e-3) )
 			    {
 				pos.z = v[pidx].z;
 				mSetSegment();
 				pos.z = v[(pidx+1)%3].z;
 				mSetSegment();
-				break;
 			    }
 			}
 			else
@@ -273,7 +369,11 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		pos.z = -fv/planes_[pl].C_;
-		if ( !pointInTriangle3D(pos,v[0],v[1],v[2],0) )
+		if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) )
+		{
+		    mSetSegment();
+		}
+		else
 		{
 		    if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
 			 pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
@@ -282,28 +382,25 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 			mSetSegment();
 		    }
 		}
-		else
-		{
-		    mSetSegment();
-		}
 	    }
 	}
 	
-	if ( found )
+	if ( nrintersections )
 	{
     	    for ( int zidx=0; zidx<zsz; zidx++ )
     	    {
     		const float curz = zrg_.atIndex( zidx );
-		const float val = curz<segment.start ? curz-segment.start :
-		    ( curz>segment.stop ? segment.stop-curz : 
-		      mMIN(curz-segment.start, segment.stop-curz) );		
-		arr_.set( inlidx, crlidx, zidx, val );
+		const float val = curz<segment.start ? segment.start-curz :
+		    ( curz>segment.stop ? curz-segment.stop : 
+		      (nrintersections>2 ? 0 : 
+		      -mMIN(curz-segment.start, segment.stop-curz)) );		
+		arr_.set( inlidx, crlidx, zidx, val/SI().zScale() );
 	    }
 	}
 	else 
 	{
     	    for ( int zidx=0; zidx<zsz; zidx++ )
-		arr_.set( inlidx, crlidx, zidx, -1 );
+		arr_.set( inlidx, crlidx, zidx, mOutsideVal );
 	}
     }
 
@@ -311,68 +408,100 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+/*
+//Go by each point: too slow
+    //Move the folowing to doPrepare
+    Coord3 bodycenter(0,0,0);
+    TypeSet<int> vertices;
 
-/*//Go by each point: too slow
- * bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
+#define mSetVetex( idy ) \
+    if ( vertices.indexOf(tri_[idy])==-1 ) \
+    { \
+	vertices += tri_[idy]; \
+	bodycenter += crds[tri_[idy]]; \
+    }
+	mSetVetex( startid );
+	mSetVetex( startid+1 );
+	mSetVetex( startid+2 );
+    }
+
+    const int vsz = vertices.size();
+    if ( vsz<3 ) return false;
+    bodycenter /= vsz;
+    return true; //to doPrepare
+
+bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 {
-    int p[3]; BinID bid; Coord3 pos;
     const TypeSet<Coord3>& crds = tree_.coordList();
     const int planesize = planes_.size();
+    const int crlsz = arr_.info().getSize(1);
+    const int zsz = arr_.info().getSize(2);
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
-	arr_.info().getArrayPos( idx, p );
-	bid = BinID( inlrg_.atIndex(p[0]), crlrg_.atIndex(p[1]) );
-	pos = Coord3( SI().transform(bid), zrg_.atIndex(p[2]) );
-
-	bool isinside = planes_[0].onSameSide( pos, bodycenter_);;
-	float mindist = -1;
-	for ( int pl=0; pl<planesize; pl++ )
+	const int inlidx = idx / crlsz;
+	const int crlidx = idx % crlsz;
+	const BinID bid( inlrg_.atIndex(inlidx), crlrg_.atIndex(crlidx) );
+	Coord3 pos( SI().transform(bid), 0 );
+    	    
+	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
-	    const Coord3 proj = planes_[pl].getProjection( pos );
-	    const float dist = (proj-pos).abs();
+	    pos.z = zrg_.atIndex( zidx );
 
-	    if ( dist<1e-4 )
+	    char val = -1;
+	    for ( int pl=0; pl<planesize; pl++ )
 	    {
-		if ( !pointInTriangle3D( proj, crds[tri_[3*pl]],
-			    crds[tri_[3*pl+1]],	crds[tri_[3*pl+2]], 1e-8) )
-		    continue;
+		if ( val!=-1 )
+		    break;
 
-		if ( isinside )
-		{
-		    for ( int pidx=pl+1; pidx<planesize; pidx++ )
-		    {
-			if ( !isinside )
-			    break;
-			isinside = planes_[pidx].onSameSide(pos,bodycenter_);
-		    } 
+		const float pv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
+		    planes_[pl].C_*pos.z + planes_[pl].D_;
+    	
+		const float bpv= planes_[pl].A_*bodycenter.x + 
+		    planes_[pl].B_*bodycenter.y + 
+		    planes_[pl].C_*bodycenter.z + planes_[pl].D_;
+	   
+	       if ( pv*bpv>0 || mIsZero(bpv,1e-3) )
+		   continue;
+	       else if ( pv*bpv<0 )
+		   val = 1;
+	       else 
+	       {
+		   for ( int pi=0; pi<planesize; pi++ )
+		   {
+		       if ( pi==pl )
+			   continue;
+
+		       float piv = planes_[pi].A_*pos.x + planes_[pi].B_*pos.y 
+			   + planes_[pi].C_*pos.z + planes_[pi].D_;
+		       if ( !mIsZero(piv,1e-3) )
+			   continue;
+
+		       Coord3 v[3];
+    		       for ( int pidx=0; pidx<3; pidx++ )
+    			   v[pidx] = crds[tri_[3*pi+pidx]];
+   
+		       if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) || 
+   			       pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
+   			       pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
+   			       pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
+   		       {
+   			   val = 0;
+			   break;
+   		       }
+		   }
+
+		   if ( val!=0 )
+		       val = 1;
 		}
-
-		mindist = dist;
-		break;
 	    }
-
-	    if ( mindist<0 ) 
-	    {
-		if ( isinside )
-    		    isinside = planes_[pl].onSameSide(pos,bodycenter_); 
-		mindist = dist;
-	    }
-	    else
-	    {
-		if ( isinside )
-    		    isinside = planes_[pl].onSameSide(pos,bodycenter_); 
-
-		if ( mindist>dist )
-		    mindist = dist;
-	    }
+    
+	    arr_.set( inlidx, crlidx, zidx, val );
 	}
-
-	arr_.set( p[0], p[1], p[2], isinside ? mindist : -mindist );
     }
 
     return true;
-} */
+}*/ 
 
 
 BodyOperator::BodyOperator()
@@ -744,25 +873,27 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
     
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( (tr && !tr->execute( triangulator )) || !triangulator.execute(true) )
-	return 0;
-   
-    PtrMan<Expl2ImplBodyExtracter> extract = new
-	Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, zrg, *arr );
-    if ( (tr && !tr->execute( *extract )) || !extract->execute() )
-	return 0;
+    if ( (tr && tr->execute(triangulator)) || triangulator.execute(true) )
+    {
+	PtrMan<Expl2ImplBodyExtracter> extract = new
+    	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, zrg, *arr );
+    	if ( (tr && tr->execute( *extract )) || extract->execute() )
+	{
+	    res->arr_ = arr;
+	    res->threshold_ = 0;
+	    res->inlsampling_.start = inlrg.start;
+	    res->inlsampling_.step  = inlrg.step;
+	    res->crlsampling_.start = crlrg.start;
+	    res->crlsampling_.step  = crlrg.step;
+	    res->zsampling_.start   = zrg.start;
+	    res->zsampling_.step    = zrg.step;
+	
+	    cursorchanger.restore();
+    	    return res;
+	}
+    }
 
-    res->arr_ = arr;
-    res->threshold_ = 0;
-    res->inlsampling_.start = inlrg.start;
-    res->inlsampling_.step  = inlrg.step;
-    res->crlsampling_.start = crlrg.start;
-    res->crlsampling_.step  = crlrg.step;
-    res->zsampling_.start   = zrg.start;
-    res->zsampling_.step    = zrg.step;
-    
-    cursorchanger.restore();
-    return res;
+    return 0;
 }
 
 
