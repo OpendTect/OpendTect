@@ -202,11 +202,11 @@ void VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
     DataPointSet::ColID dpcolid(colid);
     Stats::RunCalcSetup rcsetuptot;
     rcsetuptot.require( Stats::Variance );
-    Stats::RunCalc<float> statstot( rcsetuptot );
+    Stats::RunCalc<double> statstot( rcsetuptot );
     for ( DataPointSet::RowID irow=0; irow<dpset.size(); irow++ )
 	statstot+=dpset.value( dpcolid, irow );
 
-    float totvar = statstot.variance();
+    float totvar = (float)statstot.variance();
 
     variogramvals_->set( 0, 0 );
     for( int lag=step; lag<=range; lag+=step )
