@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.3 2011-01-26 08:49:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.4 2011-10-19 14:11:26 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -50,8 +50,6 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p )
     belowfld_ = new uiGenInput( this, "", 
 	    			FloatInpSpec(0).setName("Distance below") );
     belowfld_->attach( rightOf, abovefld_ );
-
-    update();
 }
 
 

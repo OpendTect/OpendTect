@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.6 2011-02-09 04:21:43 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.7 2011-10-19 14:11:26 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -42,6 +42,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 {
     setCtrlStyle( DoAndStay );
     welllogselfld_ = new uiMultiWellLogSel( this );
+    welllogselfld_->update();
 }
 
 

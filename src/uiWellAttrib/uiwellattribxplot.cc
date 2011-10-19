@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.41 2011-06-06 10:24:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.42 2011-10-19 14:11:26 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -82,6 +82,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     logresamplfld_->attach( alignedBelow, attgrp );
 
     setDescSet( d );
+
+    finaliseDone.notify( mCB(this, uiWellAttribCrossPlot, initWin ) );
 }
 
 #define mDPM DPM(DataPackMgr::PointID())
@@ -89,6 +91,12 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
+}
+
+
+void uiWellAttribCrossPlot::initWin( CallBacker* )
+{
+    welllogselfld_->update();
 }
 
 
