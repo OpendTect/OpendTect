@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.16 2010-08-13 12:26:34 cvskris Exp $
+ RCS:           $Id: progressmeter.h,v 1.17 2011-10-19 06:33:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,21 +41,25 @@ public:
 mClass TextStreamProgressMeter : public ProgressMeter
 {
 public:
-		TextStreamProgressMeter(std::ostream&,unsigned short rowlen=50);
-    		~TextStreamProgressMeter();
-    void	setName(const char*);
-    void	setStarted();
-    void	setFinished();
-    void	setNrDone(od_int64);
-    void	setTotalNr(od_int64 t)		{ totalnr_ = t; }
-    void	setMessage(const char*);
+			TextStreamProgressMeter(std::ostream&,
+					unsigned short rowlen=cDefaultRowLen());
+			~TextStreamProgressMeter();
+    static const int	cDefaultRowLen() { return 50; }
+    static const int	cNrCharsPerRow() { return 80; }
 
-    void	operator++();
-    od_int64	nrDone() const			{ return nrdone_; }
+    void		setName(const char*);
+    void		setStarted();
+    void		setFinished();
+    void		setNrDone(od_int64);
+    void		setTotalNr(od_int64 t)		{ totalnr_ = t; }
+    void		setMessage(const char*);
+
+    void		operator++();
+    od_int64		nrDone() const			{ return nrdone_; }
 
 protected:
-    void	reset();
-    void	addProgress(int);
+    void		reset();
+    void		addProgress(int);
 
     std::ostream&	strm_;
     BufferString	message_;
