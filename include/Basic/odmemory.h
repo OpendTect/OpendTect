@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.6 2011-09-26 15:11:25 cvskris Exp $
+ RCS:		$Id: odmemory.h,v 1.7 2011-10-19 18:55:53 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -93,6 +93,40 @@ protected:
     T*			outptr_;
     ValueSeries<T>*	outvs_;
     od_int64		sz_;
+};
+
+
+/*!Goes through some mem or a valseries and replaces one value with another */
+
+template <class T>
+class MemValReplacer : public ParallelTask
+{
+public:
+		MemValReplacer();
+		MemValReplacer(T*,const T& fromval,const T& toval,od_int64 sz);
+		MemValReplacer(ValueSeries<T>&,const T& from,const T& to,
+			       od_int64 sz);
+
+    void        setFromValue(const T& val)	{ fromval_ = val; }
+    void        setToValue(const T& val)	{ toval_ = val; }
+    void        setPtr(T* ptr)			{ ptr_ = ptr; vs_ = 0; }
+    void        setPtr(ValueSeries<T>& vs)	{ ptr_ = vs.arr(); vs_ = &vs; }
+    void        setSize(od_int64 sz)		{ sz_ = sz; }
+
+    bool        doPrepare(int);
+    bool        doWork(od_int64,od_int64,int);
+    od_int64    nrIterations() const            { return sz_; }
+    int         minThreadSize() const           { return mMemMinThreadSize; }
+
+protected:
+
+    bool                setPtr(od_int64 start,od_int64 size);
+
+    ValueSeries<T>*     vs_;
+    T*                  ptr_;
+    od_int64            sz_;
+    T                   toval_;
+    T                   fromval_;
 };
 
 
@@ -269,5 +303,64 @@ bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
     return true;
 }
 
+
+template <class T> inline
+MemValReplacer<T>::MemValReplacer( T* ptr, const T& fromval, const T& toval,
+				   od_int64 sz )
+    : ptr_( ptr )
+    , vs_( 0 )
+    , fromval_( fromval )
+    , toval_( toval )
+    , sz_( sz )
+{}
+
+
+template <class T> inline
+MemValReplacer<T>::MemValReplacer(ValueSeries<T>& vs, const T& fromval,
+				  const T& toval,
+				  od_int64 sz)
+    : ptr_( vs.arr() )
+    , vs_( &vs )
+    , toval_( toval )
+    , fromval_( fromval )
+    , sz_( sz )
+{}
+
+
+template <class T> inline
+bool MemValReplacer<T>::doPrepare( int )
+{ return ptr_ || vs_; }
+
+
+template <class T> inline
+bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
+{
+    if ( ptr_ )
+	return setPtr( start, stop-start+1 );
+
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( vs_->value(idx)==fromval_ )
+	    vs_->setValue( idx, toval_ );
+    }
+
+    return true;
+}
+
+template <class T> inline
+bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
+{
+    T* ptr = ptr_ + start;
+    const T* stopptr = ptr + size;
+    while ( ptr != stopptr )
+    {
+	if ( *ptr==fromval_ )
+	    *ptr = toval_;
+
+	ptr++;
+    }
+
+    return true;
+}
 
 #endif
