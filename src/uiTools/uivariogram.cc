@@ -31,8 +31,8 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 				 mTODOHelpID ) )
 {
     int minrgval = isvert ? 40 : SI().xyInFeet() ? 300 : 100;
-    int maxrgval = isvert ? 100 : SI().xyInFeet() ? 5000 : 2000;
-    int defrgval = isvert ? 50 : SI().xyInFeet() ? 3000 : 1000;
+    int maxrgval = isvert ? 100 : SI().xyInFeet() ? 10000 : 5000;
+    int defrgval = isvert ? 50 : SI().xyInFeet() ? 5000 : 2000;
     int minstepval = isvert ? 1 : SI().xyInFeet() ? 50 : 25;
     int defstep = isvert ? 1 : SI().xyInFeet() ? 50 : 25;
     int minfldval = isvert ? 2000 : 1000;
@@ -112,11 +112,11 @@ void HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
 {
     Stats::RunCalcSetup rcsetuptot;
     rcsetuptot.require( Stats::Variance );
-    Stats::RunCalc<float> statstot( rcsetuptot );
+    Stats::RunCalc<double> statstot( rcsetuptot );
     for ( DataPointSet::RowID irow=0; irow<dpset.size(); irow++ )
 	statstot+=dpset.getValues( irow )[1];
 
-    float totvar = statstot.variance();
+    float totvar = (float)statstot.variance();
 
     variogramvals_->set( 0, 0 );
     StepInterval<int> inlrg = dpset.bivSet().inlRange();
@@ -303,7 +303,7 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array1D<float>* data,
     fdsu.useyscalefory2( true );
     disp_ = new uiFunctionDisplay( this, fdsu );
     BufferString xnmstr = "Lag distance ";
-    xnmstr += ishor ? "(ms)" : SI().getXYUnitString();
+    xnmstr += ishor ? SI().getXYUnitString() : "(ms)";
     disp_->xAxis()->setName( xnmstr.buf() );
     disp_->yAxis(false)->setName( "Normalized Variance" );
     disp_->attach( rightOf, sillfld_ );
