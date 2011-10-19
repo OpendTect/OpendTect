@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.21 2011-08-22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.22 2011-10-19 17:51:14 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -506,8 +506,14 @@ void uiContourTreeItem::createContours()
 	    for ( int vidx=0; vidx<ic.size(); vidx++ )
 	    {
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-		BinID vrtxbid( mNINT(vertex.x), mNINT(vertex.y) );
+		BinID vrtxbid( rowrg.snap(vertex.x), colrg.snap(vertex.y) );
 		const float zval = hor->getZ( vrtxbid );
+		if ( mIsUdf(zval) )
+		{
+		    lines_->setCoordIndex( cii++, -1 );
+		    continue;
+		}
+
 		Coord vrtxcoord = SI().binID2Coord().transform( vrtxbid );
 		const Coord3 pos( vrtxcoord, zval+zshift_ );
 		const int posidx = lines_->getCoordinates()->addPos( pos );

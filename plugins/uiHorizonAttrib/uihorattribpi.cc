@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.27 2011-10-07 21:50:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.28 2011-10-19 17:51:14 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -88,7 +88,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
     	, isopachmnuitemhndlr_(
 		mMkPars("Calculate &Isopach ...",doIsopach),"Workflows")
 	, contourmnuitemhndlr_(
-		mMkPars("&Contour Display..",doContours),"Add",995)
+		mMkPars("&Contour Display",doContours),"Add",995)
     	, horvolmnuitemhndlr_(
 		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
