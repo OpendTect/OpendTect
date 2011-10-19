@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.26 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.27 2011-10-19 07:46:02 cvskris Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.26 2010-11-16 09:49:11
 #include <signal.h>
 
 #include "filepath.h"
+#include "progressmeter.h"
+#include "varlenarray.h"
 #include "oddirs.h"
 #include "prog.h"
 #include "sighndl.h"
@@ -87,6 +89,21 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     uiFont& fnt = FontList().add( "Non-prop",
 	    FontData(FontData::defaultPointSize(),"Courier") );
     txtfld->setFont( fnt );
+
+    //Ensure we have space for 80 chars
+    const int nrchars = TextStreamProgressMeter::cNrCharsPerRow();
+    mAllocVarLenArr( char, str, nrchars+1 );
+    memset( str, ' ', nrchars );
+    str[nrchars] = 0;
+
+    int deswidth = fnt.width( str );
+
+    const int desktopwidth = uiMain::theMain().desktopSize().hNrPics();
+    if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
+	deswidth = desktopwidth;
+
+    if ( deswidth>txtfld->defaultWidth() )
+	txtfld->setPrefWidth( deswidth );
 
     tim = new Timer( "Progress" );
     tim->tick.notify( mCB(this,uiProgressViewer,doWork) );
