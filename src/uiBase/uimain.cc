@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.68 2011-09-29 15:59:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.69 2011-10-19 07:47:47 cvskris Exp $";
 
 #include "uimain.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.68 2011-09-29 15:59:37 cvsjaap Ex
 #include <QWindowsStyle>
 #include <QPlastiqueStyle>
 #include <QCleanlooksStyle>
+#include <QDesktopWidget>
 
 #include <QTreeWidget>
 #include <QMenu>
@@ -482,6 +483,15 @@ Color uiMain::windowColor() const
 {
     const QColor& qcol = QApplication::palette().color( QPalette::Window );
     return Color( qcol.red(), qcol.green(), qcol.blue() );
+}
+
+
+uiSize uiMain::desktopSize() const
+{
+    if ( !app_ || !app_->desktop() )
+	return uiSize( mUdf(int), mUdf(int) );
+
+    return uiSize( app_->desktop()->width(), app_->desktop()->height() );
 }
 
 
