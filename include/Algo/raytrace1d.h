@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.29 2011-10-13 09:10:53 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.30 2011-10-19 08:55:05 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -107,9 +107,7 @@ mClass VrmsRayTracer1D : public RayTracer1D
 { 
 public:
 
-    static const char*		sKeyDesc() { return "Simple"; }
-
-    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, sKeyDesc(),
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRayTracer",
 	    			"Simple RayTracer" );
 
     RayTracer1D::Setup&		setup() 	{ return setup_; }

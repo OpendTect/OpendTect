@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.9 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.10 2011-10-19 08:55:05 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -22,10 +22,10 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     : uiGroup( p, "Ray Tracer Selector" )
     , raytracerselfld_(0)  
 {
-    const BufferStringSet& raytrcnms = uiRayTracer1D::factory().getNames();
+    const BufferStringSet& usernms = uiRayTracer1D::factory().getNames( true );
+    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
 
-    uiSeparator* sep;
-    if ( raytrcnms.size() > 1 )
+    if ( facnms.size() > 1 )
     {
 	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
 	raytracerselfld_->box()->selectionChanged.notify( 
@@ -33,18 +33,21 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	raytracerselfld_->attach( hCentered );
     }
 
-    for ( int idx=0; idx<raytrcnms.size(); idx++ )
+    for ( int idx=0; idx<facnms.size(); idx++ )
     {
-	const BufferString& nm( raytrcnms.get(idx) );
-	uiRayTracer1D* grp = uiRayTracer1D::factory().create(nm,this,s,true);
+	const BufferString& facnm( facnms.get(idx) );
+	const BufferString& usernm( usernms.validIdx(idx) ?
+				usernms.get(idx ) : facnm );
+
+	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
 	if ( grp )
 	{
 	    grps_ += grp;
 	    if ( raytracerselfld_ ) 
 	    {
-		raytracerselfld_->box()->addItem( nm );
+		raytracerselfld_->box()->addItem( usernm );
 		grp->attach( alignedBelow, raytracerselfld_ );
-		grp->setName( nm );
+		grp->setName( facnm );
 	    }
 	}
     }
@@ -226,7 +229,9 @@ uiVrmsRayTracer1D::uiVrmsRayTracer1D(uiParent* p,const uiRayTracer1D::Setup& s)
 
 void uiVrmsRayTracer1D::initClass()
 {
-    uiRayTracer1D::factory().addCreator(create, VrmsRayTracer1D::sKeyDesc() );
+    uiRayTracer1D::factory().addCreator(create, 
+				VrmsRayTracer1D::sFactoryKeyword(),
+				VrmsRayTracer1D::sFactoryDisplayName() );
 }
 
 
