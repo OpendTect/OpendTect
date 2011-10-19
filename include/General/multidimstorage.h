@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.9 2011-07-09 23:59:05 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.10 2011-10-19 19:05:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,24 +185,22 @@ void MultiDimStorage<T>::empty()
 template <class T> inline
 bool MultiDimStorage<T>::append( const MultiDimStorage<T>& b )
 {
-    if ( b.nrdims_!=nrdims_ ||
-	 b.nrvals_!=nrvals_ )
+    if ( b.nrdims_!=nrdims_ || b.nrvals_!=nrvals_ )
 	return false;
 
-    for ( int idx=b.size()-1; idx>=0; idx++ )
+    for ( int idx=0; idx<b.size(); idx++ )
     {
 	const int pos = b.getPos( idx );
 	const int targetidx = indexOf( pos );
 	int index = findFirstPos( pos );
 
-	const bool match = index>=0 && index<positions_.size() &&
-			   positions_[index]==pos;
+	const bool match = positions_.validIdx(index) && positions_[index]==pos;
 	if ( nrdims_!=1 )
 	{
 	    if ( !match )
 	    {	
 		MultiDimStorage<T>* newstorage =
-				new MultiDimStorage<T>( *b[idx] );
+				    new MultiDimStorage<T>( *b[idx] );
 		if ( index==lowerdimstorage_.size() )
 		{
 		    lowerdimstorage_ += newstorage;
@@ -210,19 +208,23 @@ bool MultiDimStorage<T>::append( const MultiDimStorage<T>& b )
 		}
 		else
 		{
+		    if ( index==-1 )
+			index = 0;
+
 		    lowerdimstorage_.insertAt( newstorage, index );
 		    positions_.insert( index, pos );
 		}
 	    }
 	    else
 	    {
-		if ( lowerdimstorage_[index]->append( *b[idx] ) )
+		if ( !lowerdimstorage_[index]->append( *b[idx] ) )
 		    return false;
 	    }
 	}
 	else
 	{
-	    add( &b.onedimstorage_[idx], &pos );
+	    if ( !add( &b.onedimstorage_[idx], &pos ) )
+		return false;
 	}
     }
 
@@ -412,8 +414,7 @@ bool MultiDimStorage<T>::add( const V& vals, const POS& posarr,
     const int pos = posarr[dim];
     int index = findFirstPos( pos );
 
-    const bool match = index>=0 && index<positions_.size() &&
-		       positions_[index]==pos;
+    const bool match = positions.validIdx(index) && positions_[index]==pos;
     if ( !match ) index++;
 
     if ( indexarr ) (*indexarr)[dim] = index;
@@ -432,12 +433,16 @@ bool MultiDimStorage<T>::add( const V& vals, const POS& posarr,
 	    }
 	    else
 	    {
+		if ( index==-1 )
+		    index = 0;
+
 		lowerdimstorage_.insertAt( newstorage, index );
 		positions_.insert( index, pos );
 	    }
 	}
 	
-	lowerdimstorage_[index]->add( vals, posarr, indexarr );
+	if ( !lowerdimstorage_[index]->add( vals, posarr, indexarr ) )
+	    return false;
     }
     else
     {
