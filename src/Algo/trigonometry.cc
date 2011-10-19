@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.58 2011-09-16 10:54:03 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.59 2011-10-19 20:09:15 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -520,11 +520,11 @@ void Line3::closestPoint( const Line3& line, double& t_this,
 
 bool Line3::intersectWith( const Plane3& b, double& t ) const
 {
-    const double denominator = ( alpha_*b.A_ + beta_*b.B_ + gamma_*b.C_ );
+    const double denominator = alpha_*b.A_ + beta_*b.B_ + gamma_*b.C_;
     const double dist0 = b.A_*x0_ + b.B_*y0_ + b.C_*z0_ + b.D_;
     if ( mIsZero(denominator,mDefEps) )
     {
-	if ( mIsZero(dist0,mDefEps) )
+	if ( mIsZero(dist0/sqrt(b.A_*b.A_+b.B_*b.B_+b.C_*b.C_),mDefEps) )
 	{
 	    t = 0;
 	    return true;
