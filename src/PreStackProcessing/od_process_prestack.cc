@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.16 2011-09-02 09:20:28 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.17 2011-10-19 07:51:21 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -348,15 +348,8 @@ bool BatchProgram::go( std::ostream& strm )
 
 	delete sparegather;
 
-	if ( nrfound )
+	if ( nrfound && procman->process() )
 	{
-	    if ( !procman->process() )
-	    {
-		errorMsg("\nCannot process.");
-		delete procman;
-		return false;
-	    }
-
 	    const DataPack* dp =
 		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
 	    mDynamicCastGet( const PreStack::Gather*, gather, dp );
