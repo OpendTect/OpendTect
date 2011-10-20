@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.43 2011-10-17 13:17:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.44 2011-10-20 07:20:22 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -180,7 +180,7 @@ bool SynthGenerator::doWork()
     if ( needprepare_ )
 	doPrepare();
 
-    if ( !refmodel_ || refmodel_->isEmpty() ) 
+    if ( !refmodel_ ) 
 	mErrRet( "No reflectivity model found" );	
 
     if ( !wavelet_ ) 
