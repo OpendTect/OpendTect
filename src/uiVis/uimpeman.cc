@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.214 2011-10-05 07:45:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.215 2011-10-20 15:41:05 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -1179,6 +1179,7 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
     if ( sel && sel->isOK() ) 
     {
+	const int currentevent = EM::EMM().undo().currentEventID();
 	mGetDisplays(true);
 	uiTaskRunner taskrunner( toolbar );
 	for ( int idx=0; idx<displays.size(); idx++ )
@@ -1189,6 +1190,7 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
 	toolbar->turnOn( moveplaneidx, false );
 	movePlaneCB( cb );
+	setUndoLevel( currentevent );
     }
 }
 
