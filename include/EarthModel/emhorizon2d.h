@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.28 2010-11-15 09:35:45 cvssatyaki Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.29 2011-10-20 14:17:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,8 @@ public:
     const char*			lineSet(int id) const;
     PosInfo::GeomID		lineGeomID(int idx) const;
 
+    bool			includeLine(const PosInfo::GeomID&,int step=1);
     bool 			addLine(const PosInfo::GeomID&,int step=1);
-				/*!<\returns id of new line. */
     bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg);
     void			removeLine(const PosInfo::GeomID&);
@@ -75,6 +75,10 @@ public:
 
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
+
+    bool 			addLine(const PosInfo::GeomID&,
+					const StepInterval<int>& trcrg,
+					bool mergewithdouble=false);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

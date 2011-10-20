@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.21 2010-12-09 13:25:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.22 2011-10-20 14:17:39 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 
@@ -79,6 +79,18 @@ bool Horizon2DLine::addUdfRow( const PosInfo::GeomID& geomid, int start,
 	coords += Coord::udf();
 
     return addRow( geomid, coords, start, step );
+}
+
+
+bool Horizon2DLine::reassignRow( const PosInfo::GeomID& from,
+				 const PosInfo::GeomID& to )
+{
+    const int idx = geomids_.indexOf( from );
+    if ( idx < 0 )
+	return false;
+
+    geomids_[idx] = to;
+    return true;
 }
 
 

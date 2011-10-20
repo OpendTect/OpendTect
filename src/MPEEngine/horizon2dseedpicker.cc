@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.28 2011-10-03 08:07:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.29 2011-10-20 14:17:39 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -106,24 +106,34 @@ bool Horizon2DSeedPicker::startSeedPick()
     if ( !ioobj )
 	return false;
 
-    EM::Horizon2DGeometry& geom = hor->geometry();
-    for ( int idx=0; idx<geom.nrLines(); idx++ )
-    {
-	const PosInfo::GeomID& geomid =
-	    S2DPOS().getGeomID( ioobj->name(), linename_ );
-	if ( geomid == geom.lineGeomID(idx) )
-	{
-	    geomid_ = geomid;
-	    return true;
-	}
-    }
-
-    PosInfo::GeomID geomid = S2DPOS().getGeomID( ioobj->name(), linename_ );
+    const PosInfo::GeomID& geomid = S2DPOS().getGeomID(ioobj->name(),linename_);
     if ( !geomid.isOK() )
 	return false;
 
-    geom.addLine( geomid );
+    EM::Horizon2DGeometry& geom = hor->geometry();
     geomid_ = geomid;
+
+    for ( int idx=0; idx<geom.nrLines(); idx++ )
+    {
+	if ( geomid == geom.lineGeomID(idx) )
+	    return true;
+    }
+
+    const int oldnrlines = geom.nrLines();
+    if ( geom.includeLine(geomid) && oldnrlines==geom.nrLines() )
+    {
+	const TypeSet<EM::PosID>& pids =
+			    *hor->getPosAttribList(EM::EMObject::sSeedNode() );
+
+	for ( int idx=pids.size()-1; idx>=0; idx-- )
+	{
+	    if ( Coord( hor->getPos(pids[idx]) ).isDefined() )
+		continue;
+
+	    hor->setPosAttrib(pids[idx],EM::EMObject::sSeedNode(),false,false);
+	}
+    }
+
     return true;
 }
 
@@ -153,7 +163,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return false;
 
     float maxdist = mUdf(float);
-    int   closestcol;
+    int closestcol;
     int col = 0;
     for ( col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {

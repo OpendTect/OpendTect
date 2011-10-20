@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.46 2011-05-11 02:56:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.47 2011-10-20 14:17:39 cvsjaap Exp $";
 
 #include "emhorizon2d.h"
 
@@ -91,29 +91,76 @@ PosInfo::GeomID Horizon2DGeometry::lineGeomID( int idx ) const
 }
 
 
+bool Horizon2DGeometry::includeLine( const PosInfo::GeomID& geomid, int step )
+{ return addLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), true ); }
+
+
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
-{ return addLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step)  ); }
+{ return addLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), false); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 				 const StepInterval<int>& trg )
-{
-    if ( !geomid.isOK() || geomids_.isPresent(geomid) ) return false;
+{ return addLine( geomid, trg, false ); }
 
-    geomids_ += geomid;
+
+bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
+				 const StepInterval<int>& inptrg,
+				 bool mergewithdouble )
+{
+    if ( !geomid.isOK() || geomids_.isPresent(geomid) )
+	return false;
+
     S2DPOS().setCurLineSet( geomid.lsid_ );
     PosInfo::Line2DData linegeom( S2DPOS().getLineName(geomid.lineid_) );
     if ( !S2DPOS().getGeometry(linegeom) )
 	return false;
 
-    StepInterval<int> trcrg = trg.isUdf() ? linegeom.trcNrRange() : trg;
+    StepInterval<int> trcrg = inptrg.isUdf() ? linegeom.trcNrRange() : inptrg;
+    Geometry::Horizon2DLine* h2dl =
+		    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[0] );
+
+    int oldgeomidx = -1;
+    for ( int geomidx=0; mergewithdouble && geomidx<geomids_.size(); geomidx++ )
+    {
+	const int currow = h2dl->getRowIndex( geomids_[geomidx] );
+	StepInterval<int> trg = h2dl->colRange( currow );
+	trg.limitTo( trcrg );
+
+	const Coord cur0 = h2dl->getKnot( RowCol(currow,trg.start) );
+	const Coord cur1 = h2dl->getKnot( RowCol(currow,trg.stop) );
+	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
+	    continue;
+
+	PosInfo::Line2DPos new0; linegeom.getPos( trg.start, new0 );
+	PosInfo::Line2DPos new1; linegeom.getPos( trg.stop, new1 );
+	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
+	    continue;
+
+	const float maxdist = 0.1 * cur0.distTo(cur1) / trg.width();
+	if ( cur0.distTo(new0.coord_)>maxdist ||
+	     cur1.distTo(new1.coord_)>maxdist )
+	    continue;
+
+	oldgeomidx = geomidx;
+    }
+
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
-	Geometry::Horizon2DLine* section =
-		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
-	section->addUdfRow( geomid, trcrg.start, trcrg.stop, trcrg.step);
-	section->syncRow( geomid, linegeom );
+	h2dl = reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
+
+	if ( oldgeomidx < 0 )
+	    h2dl->addUdfRow( geomid, trcrg.start, trcrg.stop, trcrg.step );
+	else
+	    h2dl->reassignRow( geomids_[oldgeomidx], geomid );
+
+	h2dl->syncRow( geomid, linegeom );
     }
+
+    if ( oldgeomidx < 0 )
+	geomids_ += geomid;
+    else
+	geomids_[oldgeomidx] = geomid;
 
     return true;
 }

@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.12 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: horizon2dline.h,v 1.13 2011-10-20 14:17:39 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     			/*!<\returns id of new path. */
     void		setRow(const PosInfo::GeomID&,const TypeSet<Coord>&,
 	    		       int start,int step);
+    bool		reassignRow(const PosInfo::GeomID& from,
+	    			    const PosInfo::GeomID& to);
     void		syncRow(const PosInfo::GeomID&,
 	    			const PosInfo::Line2DData&);
     void		removeRow(const PosInfo::GeomID&);
