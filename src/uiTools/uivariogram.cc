@@ -280,11 +280,12 @@ static const char* typestrs[] =
 uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array1D<float>* data,
 					 int maxrg, int step, bool ishor )
     	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
-		    		     mTODOHelpID ))
+		    		     mTODOHelpID ).modal(false))
 	, data_(data)
 	, maxrg_(maxrg)
 	, step_(step)
 {
+    setCtrlStyle( LeaveOnly );
     const CallBack chgCB ( mCB(this,uiVariogramDisplay,fieldChangedCB) );
     sillfld_ = new uiSliderExtra( this,                              
 				  uiSliderExtra::Setup("sill").withedit(true).
@@ -312,7 +313,7 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array1D<float>* data,
 				   uiSliderExtra::Setup("range").withedit(true).
 						       nrdec(1).logscale(false),
 				   "range slider" ); 
-    rangefld_->attach( alignedBelow, disp_ );
+    rangefld_->attach( centeredBelow, disp_ );
     rangefld_->sldr()->setMinValue( 0 );
     rangefld_->display( true );
     rangefld_->sldr()->valueChanged.notify( chgCB );

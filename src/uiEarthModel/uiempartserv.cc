@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.223 2011-10-18 19:25:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.224 2011-10-20 16:44:15 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -116,6 +116,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 uiEMPartServer::~uiEMPartServer()
 {
     em_.empty();
+    deepErase( variodlgs_ );
 }
 
 
@@ -126,6 +127,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impfltdlg_; impfltdlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
+    deepErase( variodlgs_ );
 }
 
 
@@ -926,6 +928,7 @@ bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
 	const char* nm, DataPointSet& dpset )
 { return changeAuxData( oid, nm, false, dpset ); }
 
+
 bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 					      const char* nm,
 					      DataPointSet& dpset )
@@ -936,10 +939,13 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 
     HorVariogramComputer hvc( dpset, varsettings.getStep(),
 	    		      varsettings.getMaxRg(), varsettings.getFold() );
-    uiVariogramDisplay uivv( parent(), hvc.getData(), varsettings.getMaxRg(),
-	   		     varsettings.getStep(), true );
-    uivv.draw();
-    uivv.go();
+    uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
+	   					       varsettings.getMaxRg(),
+			  			       varsettings.getStep(),
+						       true );
+    variodlgs_ += uivv;
+    uivv->draw();
+    uivv->go();
     return true;
 }
 

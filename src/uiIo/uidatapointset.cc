@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.80 2011-10-19 15:21:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.81 2011-10-20 16:44:15 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -165,6 +165,7 @@ int uiDataPointSet::initVars()
 
 uiDataPointSet::~uiDataPointSet()
 {
+    deepErase( variodlgs_ );
 }
 
 
@@ -217,7 +218,7 @@ void uiDataPointSet::mkToolBars()
 			     "Toggle show Z column", true );
     mAddButton( "statsinfo.png", showStatsWin,
 			     "Show histogram and stats for column", false );
-    if ( dps_.group(0) < mUdf(od_uint16) )
+    if ( dps_.group(0) < mUdf(od_uint16) && SI().zIsTime() )
 	mAddButton( "variogram.png", compVertVariogram,
 		    "Compute variogram for column", false );
     xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
@@ -1595,8 +1596,11 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 
     VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold() );  
-    uiVariogramDisplay uivv( parent(), vvc.getData(), varsettings.getMaxRg(),
-	    		     varsettings.getStep(), false );
-    uivv.draw();                                                                
-    uivv.go();                                                                  
+    uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), vvc.getData(),
+	   					       varsettings.getMaxRg(),
+						       varsettings.getStep(),
+						       false );
+    variodlgs_ += uivv;
+    uivv->draw();                                                                
+    uivv->go();                                                                  
 }

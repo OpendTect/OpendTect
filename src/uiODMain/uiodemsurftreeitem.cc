@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.85 2011-10-18 19:25:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.86 2011-10-20 16:44:15 cvshelene Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -202,6 +202,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , emid_(objid)
     , uivisemobj_(uv)
 {
+    horvariogrammnuitem_.iconfnm = "variogram.png";
 }
 
 
