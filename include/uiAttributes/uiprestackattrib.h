@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.11 2011-06-27 08:41:16 cvsbruno Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.12 2011-10-20 07:12:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace Attrib { class Desc; };
 
 class uiLabel;
 class uiGenInput;
-class uiSeisSel;
+class uiPreStackSel;
 namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
@@ -38,8 +38,7 @@ public:
 
 protected:
 
-    uiSeisSel*				seisinpfld_;
-    uiAttrSel*				datapackinpfld_;
+    uiPreStackSel*			prestackinpfld_;
     uiGenInput*				dopreprocessfld_;
     PreStack::uiProcSel*		preprocsel_;
     uiGenInput*				offsrgfld_;
@@ -50,8 +49,6 @@ protected:
     uiGenInput*				valaxtypefld_;
     uiGenInput*				useazimfld_;
     uiLabel*				xlbl_;
-
-    CtxtIOObj&				ctio_;
 
     bool		usedatapackasinput_;
 
