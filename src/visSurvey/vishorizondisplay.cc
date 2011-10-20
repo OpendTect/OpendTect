@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.151 2011-09-02 13:21:57 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.152 2011-10-20 14:15:03 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -168,6 +168,10 @@ void HorizonDisplay::setDisplayTransformation( mVisTrans* nt )
 
     for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setDisplayTransformation(transformation_);
+
+    for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
+	intersectionpointsets_[idx]->setDisplayTransformation(transformation_);
+
 }
 
 
@@ -287,7 +291,10 @@ void HorizonDisplay::removeEMStuff()
     while ( intersectionlines_.size() )
     {
 	intersectionlines_[0]->unRef();
+	intersectionpointsets_[0]->unRef();
+
 	intersectionlines_.remove(0);
+	intersectionpointsets_.remove(0);
 	intersectionlineids_.remove(0);
 	if ( zaxistransform_ )
 	    zaxistransform_->removeVolumeOfInterest( intersectionlinevoi_[0] );
@@ -977,6 +984,16 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
     for ( int idx=0; yn && idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setMaterial( intersectionlinematerial_ );
+
+    for ( int idx=0; yn && idx<intersectionpointsets_.size(); idx++ )
+    {
+	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[idx];
+	mDynamicCastGet( visBase::Material*, material,
+		   pointgroup->getObject( 0 ) );
+	if ( material )
+	    pointgroup->removeObject( 0 );
+	pointgroup->insertObject( 0, intersectionlinematerial_ );
+    }
 }
 
 
@@ -994,6 +1011,7 @@ void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
     intersectionlinematerial_ = nm;
     if ( intersectionlinematerial_ )
 	intersectionlinematerial_->ref();
+
 }
 
 
@@ -1326,20 +1344,35 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 #define mEndLine \
 { \
-    if ( cii && line->getCoordIndex(cii-1)!=-1 ) \
+    if ( curline.size()==1 ) \
     { \
-	if ( cii==1 || line->getCoordIndex(cii-2)==-1 ) \
-	    line->getCoordinates()->removePos( line->getCoordIndex(--cii) ); \
-	else \
+	visBase::Marker* marker = visBase::Marker::create(); \
+	marker->setDisplayTransformation(transformation_); \
+	marker->setMaterial( 0 ); \
+	marker->setScreenSize( lineStyle()->width_ ); \
+	marker->setType( MarkerStyle3D::Sphere ); \
+	marker->setCenterPos( curline[0] ); \
+	points->addObject( marker ); \
+    } \
+    else \
+    { \
+	for ( int idx=0; idx<curline.size(); idx++ ) \
+	{ \
+	    line->setCoordIndex(cii++, \
+			line->getCoordinates()->addPos(curline[idx])); \
+	} \
+	if ( curline.size() ) \
 	    line->setCoordIndex(cii++,-1); \
     } \
+    curline.erase(); \
 } 
 
 
-static void traverseLine( bool oninline, ZAxisTransform* zat,
-	const CubeSampling& cs, const EM::Horizon3D* hor, EM::SectionID sid,
-	visBase::IndexedShape* line, int& cii )
+void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
+	EM::SectionID sid, visBase::IndexedShape* line, int& cii,
+	visBase::DataObjectGroup* points ) const
 {
+    mDynamicCastGet( EM::Horizon3D*, hor, emobject_ );
     const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
     const StepInterval<int> inlrg = geom->rowRange();
     const StepInterval<int> crlrg = geom->colRange();
@@ -1362,15 +1395,13 @@ static void traverseLine( bool oninline, ZAxisTransform* zat,
     }
 
     if ( !rg.includes(targetline,false) )
-    {
-	mEndLine;
 	return;
-    }
 
     const int rgindex = rg.getIndex(targetline);
     const int prevline = rg.atIndex(rgindex);
     const int nextline = prevline<targetline ? rg.atIndex(rgindex+1) : prevline;
 
+    TypeSet<Coord3> curline;
     for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep )
     {
 	if ( !cs.hrg.includes(bid) )
@@ -1382,12 +1413,14 @@ static void traverseLine( bool oninline, ZAxisTransform* zat,
 	BinID prevbid( bid ); prevbid[slowdim] = prevline;
 	BinID nextbid( bid ); nextbid[slowdim] = nextline;
 	Coord3 prevpos( hor->getPos(sid,prevbid.toInt64()) );
-	if ( zat ) prevpos.z = zat->transform( prevpos );
+	if ( zaxistransform_ )
+	    prevpos.z = zaxistransform_->transform( prevpos );
 	Coord3 pos = prevpos;
 	if ( nextbid!=prevbid && prevpos.isDefined() )
 	{
 	    Coord3 nextpos = hor->getPos(sid,nextbid.toInt64());
-	    if ( zat ) nextpos.z = zat->transform(nextpos);
+	    if ( zaxistransform_ )
+		nextpos.z = zaxistransform_->transform(nextpos);
 	    if ( nextpos.isDefined() )
 	    {
 		const float frac = float( targetline - prevline ) / rg.step;
@@ -1401,18 +1434,21 @@ static void traverseLine( bool oninline, ZAxisTransform* zat,
 	    continue;
 	}
 
-	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos));
+	curline += pos;
     }
-    mEndLine
+
+    mEndLine;
 }
 
 
-static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist, 
-			const StepInterval<float>& zrg, 
-			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
-			const ZAxisTransform* zaxistransform, 
-			visBase::IndexedShape* line, int& cii )
+void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
+	const StepInterval<float>& zrg,
+	const EM::SectionID&  sid,
+	visBase::IndexedShape* line, int& cii,
+	visBase::DataObjectGroup* points ) const
 {
+    mDynamicCastGet( EM::Horizon3D*, hor, emobject_ );
+
     const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
     const StepInterval<int> inlrg = geom->rowRange();
     const StepInterval<int> crlrg = geom->colRange();
@@ -1421,6 +1457,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int stopidx = 0; 
     int jumpstart = 0;
 
+    TypeSet<Coord3> curline;
     while ( true )
     {
 	startidx = stopidx;
@@ -1454,12 +1491,12 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	    Coord3 p10 = hor->getPos( sid, BinID(inl1,crl0).toInt64() );
 	    Coord3 p11 = hor->getPos( sid, BinID(inl1,crl1).toInt64() );
 
-	    if ( zaxistransform )
+	    if ( zaxistransform_ )
 	    {
-		p00.z = zaxistransform->transform( p00 );
-		p01.z = zaxistransform->transform( p01 );
-		p10.z = zaxistransform->transform( p10 );
-		p11.z = zaxistransform->transform( p11 );
+		p00.z = zaxistransform_->transform( p00 );
+		p01.z = zaxistransform_->transform( p01 );
+		p10.z = zaxistransform_->transform( p10 );
+		p11.z = zaxistransform_->transform( p11 );
 	    }
 
 	    if ( p00.isDefined() && p01.isDefined() && 
@@ -1486,6 +1523,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	
 	jumpstart = 1;
     }
+
     mEndLine; 
 }
 
@@ -1593,8 +1631,12 @@ void HorizonDisplay::updateIntersectionLines(
 	    removeChild( intersectionlines_[idx]->getInventorNode() );
 	    intersectionlines_[idx]->unRef();
 
+	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
+	    intersectionpointsets_[idx]->unRef();
+
 	    lineshouldexist.remove(idx);
 	    intersectionlines_.remove(idx);
+	    intersectionpointsets_.remove(idx);
 	    intersectionlineids_.remove(idx);
 	    if ( zaxistransform_ )
 	    {
@@ -1684,6 +1726,18 @@ void HorizonDisplay::updateIntersectionLines(
 		newline->setMaterial( intersectionlinematerial_ );
 	    intersectionlines_ += newline;
 	    addChild( newline->getInventorNode() );
+
+	    visBase::DataObjectGroup* pointgroup =
+				visBase::DataObjectGroup::create();
+	    pointgroup->setSeparate( false );
+	    if ( intersectionlinematerial_ )
+		pointgroup->addObject( intersectionlinematerial_ );
+	    pointgroup->setRightHandSystem( righthandsystem_ );
+	    pointgroup->setDisplayTransformation(transformation_);
+
+	    intersectionpointsets_ += pointgroup;
+	    pointgroup->ref();
+	    addChild( pointgroup->getInventorNode() );
 	}
 
 	if ( zaxistransform_ )
@@ -1707,7 +1761,10 @@ void HorizonDisplay::updateIntersectionLines(
 	}
 	    
 	visBase::IndexedShape* line = intersectionlines_[lineidx];
+	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[lineidx];
+
 	line->getCoordinates()->removeAfter(-1);
+	while ( pointgroup->size()>1 ) pointgroup->removeObject( 1 );
 	int cii = 0;
 
 	for ( int sectionidx=0; sectionidx<horizon->nrSections(); sectionidx++ )
@@ -1716,18 +1773,16 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    if ( rtdisplay || seis2ddisplay )
 	    {
-		drawHorizonOnRandomTrack( trclist, cs.zrg, horizon, sid, 
-					  zaxistransform_, line, cii );
+		drawHorizonOnRandomTrack( trclist, cs.zrg, sid, 
+					  line, cii, pointgroup );
 	    }
 	    else if ( cs.hrg.start.inl==cs.hrg.stop.inl )
 	    {
-		traverseLine( true, zaxistransform_, cs, horizon, sid,
-			      line, cii );
+		traverseLine( true, cs, sid, line, cii, pointgroup );
 	    }
 	    else if ( cs.hrg.start.crl==cs.hrg.stop.crl )
 	    {
-		traverseLine( false, zaxistransform_, cs, horizon, sid,
-			      line, cii );
+		traverseLine( false, cs, sid, line, cii, pointgroup );
 	    }
 	    else
 	    {
@@ -1750,6 +1805,8 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	(lst.type_==LineStyle::Solid) != (lineStyle()->type_==LineStyle::Solid);
 
     EMObjectDisplay::setLineStyle( lst );
+
+    const float radius = ((float) lineStyle()->width_) / 2;
 
     if ( removelines )
     {
@@ -1774,7 +1831,6 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 
 	    if ( lst.type_==LineStyle::Solid )
 	    {
-		const float radius = ((float) lineStyle()->width_) / 2;
 		((visBase::IndexedPolyLine3D* ) newline )->
 		    setRadius( radius, true, maxintersectionlinethickness_ );
 	    }
@@ -1784,10 +1840,20 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
-	    const float radius = ((float) lineStyle()->width_) / 2;
 	    visBase::IndexedPolyLine3D* pl =
 		(visBase::IndexedPolyLine3D*) intersectionlines_[idx];
 	    pl->setRadius( radius, true, maxintersectionlinethickness_ );
+	}
+    }
+
+    for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
+    {
+	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[idx];
+	for ( int idy=1; idy<pointgroup->size(); idy++ )
+	{
+	    mDynamicCastGet(visBase::Marker*,marker,pointgroup->getObject(idx));
+	    if ( marker )
+		marker->setScreenSize( radius*2 );
 	}
     }
 }

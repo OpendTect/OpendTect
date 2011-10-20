@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.65 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.66 2011-10-20 14:15:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -198,6 +198,19 @@ protected:
 				    int whichobj );
     void			updateSingleColor();
 
+    void			traverseLine(bool oninline,
+				    const CubeSampling& cs,
+				    EM::SectionID sid,
+				    visBase::IndexedShape*,
+				    int& cii,
+				    visBase::DataObjectGroup*) const;
+    void			drawHorizonOnRandomTrack(const TypeSet<Coord>&,
+				    const StepInterval<float>&,
+				    const EM::SectionID&,
+				    visBase::IndexedShape*, int&,
+				    visBase::DataObjectGroup*) const;
+
+
     bool				allowshading_;
     mVisTrans*				translation_;
 
@@ -207,6 +220,7 @@ protected:
     TypeSet<EM::SectionID>		sids_;
 
     ObjectSet<visBase::IndexedShape>	intersectionlines_;
+    ObjectSet<visBase::DataObjectGroup>	intersectionpointsets_;
     float				maxintersectionlinethickness_;
     TypeSet<int>			intersectionlineids_;
     TypeSet<int>			intersectionlinevoi_;
