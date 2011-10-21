@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.12 2011-10-17 11:59:36 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.13 2011-10-21 12:01:07 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ public:
     int				getBugTableIdx(int bugid);
     bool			getInfoFromTables();
     bool			fillBugsIdx(const char* projnm,
-	    				    const char* usernm,
+	    				    const char* usernm,bool onlyfixed,
 	    				    TypeSet<int>& bugsassigned );
     TypeSet<int>&		getBugsIndex();
     static void			prepareForQuery(BufferString&);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.21 2011-10-17 11:59:36 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.22 2011-10-21 12:01:07 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".summary," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".severity," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".status," )
+	    .add( BugTableEntry::sKeyBugTable() ).add( ".resolution," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".reporter_id," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".handler_id," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".platform," )
@@ -161,9 +162,13 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( "(" ).add( BugTableEntry::sKeyBugTable() ).add( ".status=" )
 	    .add( BugTableEntry::cStatusAssigned() ).add( " OR " )
 	    .add( BugTableEntry::sKeyBugTable() )
-	    .add( ".status=" ).add( BugTableEntry::cStatusNew() ).add( ") " )
-	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() ).add( ".id=" )
-	    .add( BugTextTableEntry::sKeyBugTextTable() )
+	    .add( ".status=" ).add( BugTableEntry::cStatusNew() ).add( " OR " )
+	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( BugTableEntry::cStatusResolved() )
+	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".resolution=" ).add( BugTableEntry::cResolutionFixed() )
+	    .add( "))  AND " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".id=" ).add( BugTextTableEntry::sKeyBugTextTable() )
 	    .add( ".id ) ORDER BY " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".id ASC" );
 
@@ -181,6 +186,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->summary_ = query().data( ++qidx );
 	bugtable->severity_ = query().iValue( ++qidx );
 	bugtable->status_ = query().iValue( ++qidx );
+	bugtable->resolution_ = query().iValue( ++qidx );
 	bugtable->reporterid_ = query().iValue( ++qidx );
 	bugtable->handlerid_ = query().iValue( ++qidx );
 	bugtable->platform_ = query().data( ++qidx );
@@ -365,7 +371,7 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 
 
 bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
-				      TypeSet<int>& bugstofix )
+				      bool onlyfixed, TypeSet<int>& bugstofix )
 {
     bugsindex_.erase();
     if ( !usernm ) return false;
@@ -398,6 +404,11 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
     {
 	BugTableEntry* bugtable = getBugTableEntry( idx );
 	if ( !bugtable )
+	    continue;
+
+	const int resolution = bugtable->resolution_;
+	const bool isbugfixed = resolution == BugTableEntry::cResolutionFixed();
+	if ( onlyfixed != isbugfixed )
 	    continue;
 
 	if ( isunassign )
