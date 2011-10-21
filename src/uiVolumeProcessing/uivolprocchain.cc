@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.25 2011-08-24 13:19:43 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.26 2011-10-21 10:41:33 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -177,6 +177,14 @@ const MultiID& uiChain::storageID() const
 
 bool uiChain::acceptOK(CallBacker*)
 {
+    if ( chain_.nrSteps() && chain_.getStep( 0 ) &&
+       chain_.getStep( 0 )->needsInput() )
+    {
+	if ( !uiMSG().askGoOn("The first step in the chain needs an input, "
+                  "and can thus not be first. Proceed anyway?", true ) )
+	    return false;
+    }
+
     const IOObj* ioobj = objfld_->ioobj( true );
     if ( !ioobj )
     {

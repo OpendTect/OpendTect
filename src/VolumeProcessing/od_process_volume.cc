@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.27 2011-08-26 08:24:52 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.28 2011-10-21 10:41:06 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -51,7 +51,15 @@ bool BatchProgram::go( std::ostream& strm )
     CubeSampling cs( true );
     if ( !cs.usePar( pars() ) )
 	strm << "Could not read ranges - Will process full survey\n";
-    
+
+    if ( chain->getStep( 0 ) && chain->getStep( 0 )->needsInput() )
+    {
+	strm << "First step in chain (";
+	strm << chain->getStep( 0 )->userName();
+	strm << ") requires an input and can thus not be first.";
+	return false;
+    }
+
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
 
 
