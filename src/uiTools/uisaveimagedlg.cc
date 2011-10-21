@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.17 2011-05-04 08:03:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.18 2011-10-21 22:11:37 cvsnanne Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -144,24 +144,30 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
  
     pixwidthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
-    pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
+    pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
     pixwidthfld_->box()->setNrDecimals( 0 );
+    pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
     pixwidthfld_->attach( alignedBelow, useparsfld_ );
 
     pixheightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
+    pixheightfld_->box()->setInterval( maximum_pixel_size_range );
+    pixheightfld_->box()->setNrDecimals( 0 );
     pixheightfld_->box()->valueChanging.notify(
 	    mCB(this,uiSaveImageDlg,sizeChg) );
-    pixheightfld_->box()->setNrDecimals( 0 );
     pixheightfld_->attach( rightTo, pixwidthfld_ );
 
     pixlable_ = new uiLabel( this, "pixels" );
     pixlable_->attach( rightTo, pixheightfld_ );
 
     widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
+    widthfld_->box()->setInterval( maximum_size_range );
+    widthfld_->box()->setNrDecimals( 2 );
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     widthfld_->attach( alignedBelow, pixwidthfld_ );
 
     heightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
+    heightfld_->box()->setInterval( maximum_size_range );
+    heightfld_->box()->setNrDecimals( 2 );
     heightfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     heightfld_->attach( rightTo, widthfld_ );
 
@@ -177,6 +183,8 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->attach( alignedBelow, unitfld_ );
 
     dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
+    dpifld_->box()->setInterval( maximum_dpi_range );
+    dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
     
@@ -244,7 +252,6 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
 		    pixheightfld_->box()->getFValue()*aspectratio_ );
     }
 
-
     if ( updatepixfld )
     {
 	sizepix_.setHeight( pixheightfld_->box()->getFValue() );
@@ -266,30 +273,16 @@ void uiSaveImageDlg::unitChg( CallBacker* )
 {
     setNotifiers( false );
  
-    Geom::Size2D<float> size;
-    int nrdec = 2;
-    StepInterval<float> range = maximum_size_range;
-
     const int sel = unitfld_->getIntValue();
-    size = !sel ? sizecm_ : sizeinch_;
+    Geom::Size2D<float> size = !sel ? sizecm_ : sizeinch_;
 
-    pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
-    pixheightfld_->box()->setInterval( maximum_pixel_size_range );
-    dpifld_->box()->setInterval( maximum_dpi_range );
-    dpifld_->box()->setNrDecimals( 0 );
-
-    widthfld_->box()->setNrDecimals( nrdec );
-    widthfld_->box()->setInterval( range );
     widthfld_->box()->setValue( size.width() );
     fldranges_.stop = size.width();
 
-    heightfld_->box()->setNrDecimals( nrdec );
-    heightfld_->box()->setInterval( range );
     heightfld_->box()->setValue( size.height() );
     fldranges_.start = size.height();
 
     updateSizes();
-    
     setNotifiers( true );
 }
 
