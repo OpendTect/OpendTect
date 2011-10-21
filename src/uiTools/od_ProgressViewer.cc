@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.27 2011-10-19 07:46:02 cvskris Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.28 2011-10-21 13:52:31 cvskris Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -91,7 +91,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     txtfld->setFont( fnt );
 
     //Ensure we have space for 80 chars
-    const int nrchars = TextStreamProgressMeter::cNrCharsPerRow();
+    const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
     mAllocVarLenArr( char, str, nrchars+1 );
     memset( str, ' ', nrchars );
     str[nrchars] = 0;
