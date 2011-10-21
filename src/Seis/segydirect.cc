@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.32 2011-03-30 11:47:16 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.33 2011-10-21 08:23:28 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -219,6 +219,11 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     IOPar iop1; iop1.getFrom( astrm );
     int version = 1;
     iop1.get( sKey::Version, version );
+    if ( version<1 || version>2 )
+    {
+	mErrRet(BufferString("Input file '",fnm,
+			"' is written by a later version of OpendTect" ) );
+    }
     if ( version==1 )
     {
 	delete myfds_;
