@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.122 2011-10-17 16:27:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.123 2011-10-21 09:30:36 cvsraman Exp $";
 
 #include "uilistbox.h"
 
@@ -67,6 +67,7 @@ public:
 
     void		insertItem(int idx,const char* txt,bool mark,int id);
     void		addItem(const char* txt,bool mark,int id);
+    void		removeAll();
     void		removeItem( int idx )
 			{
 			    items_.remove( idx );
@@ -158,6 +159,13 @@ void uiListBoxBody::insertItem( int idx, const char* txt, bool mark, int id )
     itm->id_ = id;
     items_.insertAt( itm, idx );
     QListWidget::insertItem( idx, itm );
+}
+
+
+void uiListBoxBody::removeAll()
+{
+    QListWidget::clear();
+    items_.erase();
 }
 
 
@@ -480,7 +488,7 @@ Color uiListBox::getColor( int index ) const
 void uiListBox::setEmpty()
 {
     mBlockCmdRec;
-    body_->QListWidget::clear();
+    body_->removeAll();
 }
 
 void uiListBox::clearSelection()
