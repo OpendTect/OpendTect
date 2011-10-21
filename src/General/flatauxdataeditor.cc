@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.44 2011-10-05 14:59:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.45 2011-10-21 14:10:27 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.44 2011-10-05 14:59:30
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "menuhandler.h"
+#include "settings.h"
 #include "polygon.h"
 #include "timefun.h"
 
@@ -913,12 +914,19 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	    eventlist_[idx]->setButtonState( (OD::ButtonState) butstate );
     }
 
-    BendPointFinder2D bpfinder ( mousecoords_, 2 );
+    const bool intersowing = intersow_ && eventlist_.size()>1;
+
+    float bendthreshold = 2.0;
+    mSettUse( get, "dTect.Seed dragging", "Bend threshold", bendthreshold );
+    if ( intersowing )
+	bendthreshold *= 2;
+    if ( bendthreshold < 0.1 )
+	bendthreshold = 0.1;
+
+    BendPointFinder2D bpfinder( mousecoords_, bendthreshold );
     bpfinder.execute( true );
 
     bendpoints_.erase();
-
-    const bool intersowing = intersow_ && eventlist_.size()>1;
 
     const int last = intersowing ? eventlist_.size()-1
 				 : bpfinder.bendPoints().size()-1;

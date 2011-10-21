@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.6 2011-10-06 12:49:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.7 2011-10-21 14:10:27 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vissower.cc,v 1.6 2011-10-06 12:49:44 cvsjaap E
 #include "bendpointfinder.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
+#include "settings.h"
 #include "timefun.h"
 #include "visevent.h"
 #include "vislocationdisplay.h"
@@ -235,12 +236,19 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	}
     }
 
-    BendPointFinder2D bpfinder ( mousecoords_, 2 );
+    const bool intersowing = intersow_ && eventlist_.size()>1;
+
+    float bendthreshold = 2.0;
+    mSettUse( get, "dTect.Seed dragging", "Bend threshold", bendthreshold );
+    if ( intersowing )
+	bendthreshold *= 2;
+    if ( bendthreshold < 0.1 )
+	bendthreshold = 0.1;
+
+    BendPointFinder2D bpfinder( mousecoords_, bendthreshold );
     bpfinder.execute( true );
 
     bendpoints_.erase();
-
-    const bool intersowing = intersow_ && eventlist_.size()>1;
 
     const int last = intersowing ? eventlist_.size()-1
 				 : bpfinder.bendPoints().size()-1;
