@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id: voxelconnectivityfilter.h,v 1.5 2011-08-26 08:24:52 cvskris Exp $
+ RCS:		$Id: voxelconnectivityfilter.h,v 1.6 2011-10-21 13:53:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,11 @@ public:
     od_int64		getMinimumBodySize() const	{ return minbodysize_; }
 
     void		setAcceptRange(const Interval<float>& v) { range_ = v; }
+    			/*!<If start is udf, kept range is less than stop.
+                          If stop is udf, kept range is more than start.
+                          If range is reversed, outside range is kept.
+                          Otherwise, inside range is kept. */
+
     const Interval<float>& getAcceptRange() const { return range_; }
 
     void		setRejectValue(float v)  { rejectvalue_ = v; }
