@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.14 2010-03-31 07:56:28 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.15 2011-10-21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,8 @@ protected:
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
-				  const BufferStringSet* annots=0);
+				  const BufferStringSet* annots=0, 
+				  bool dorevert=true);
 
 	void		putToScreen();
 	void		getFromScreen();

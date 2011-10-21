@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.14 2010-11-18 11:44:28 cvsbruno Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.15 2011-10-21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,7 @@ public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
-					  int selann=0, bool withwva=true,
-					  bool withannots=true);
+					  int selann=0 ); 
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
     void		putAllToScreen();

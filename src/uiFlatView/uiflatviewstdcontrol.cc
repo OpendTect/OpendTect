@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.38 2011-03-31 09:12:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.39 2011-10-21 12:29:33 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.38 2011-03-31 09:12
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
-    : uiFlatViewControl(vwr,setup.parent_,true,setup.withwva_)
+    : uiFlatViewControl(vwr,setup.parent_,true)
     , vwr_(vwr)
     , ctabed_(0)
     , manip_(false)

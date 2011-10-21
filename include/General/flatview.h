@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.54 2011-08-08 13:16:44 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.55 2011-10-21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ public:
     ObjectSet<AuxData>		auxdata_;
     bool			showaux_;
     bool			editable_;
+    bool			allowuserchange_;
+    bool			allowuserchangereversedaxis_;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
 			{ x1_.showAll(yn); x2_.showAll(yn); }
@@ -137,6 +139,7 @@ public:
     static const char*	sKeyShwGridLines();
     static const char*	sKeyIsRev();
     static const char*	sKeyShwAux();
+    static const char*	sKeyAllowUserChangeAxis();
 
 };
 
@@ -162,6 +165,7 @@ public:
 
 	bool			show_;	   // default=true
 	bool			blocky_;   // default=false
+	bool			allowuserchange_;
 	ColTab::MapperSetup	mappersetup_;
     };
 
@@ -354,6 +358,7 @@ protected:
 
 };
 
+    static const char*	sKeyAllowUserChange();
 
 } // namespace FlatView
 

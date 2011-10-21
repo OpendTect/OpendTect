@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.54 2011-09-09 13:51:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.55 2011-10-21 12:29:33 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -22,12 +22,11 @@ static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.54 2011-09-09 13:51:31
 #include "uiobjdisposer.h"
 
 
-uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
-				      bool wrubb, bool withwva )
+uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
+				    bool wrubb )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(wrubb)
-    , withwva_(withwva)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
@@ -265,8 +264,7 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
     if ( propdlg_ ) delete propdlg_;
     propdlg_ = new uiFlatViewPropDlg( 0, vwr,
 				  mCB(this,uiFlatViewControl,applyProperties),
-	   			  annots.size() ? &annots : 0, selannot,
-	   			  withwva_ && dowva );
+	   			  annots.size() ? &annots : 0, selannot );
     propdlg_->windowClosed.notify( mCB(this,uiFlatViewControl,propDlgClosed) );
     propdlg_->go();
 }

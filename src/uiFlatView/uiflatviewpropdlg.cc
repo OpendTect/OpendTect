@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.58 2011-07-19 16:52:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.59 2011-10-21 12:29:33 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -500,10 +500,12 @@ bool uiFVVDPropTab::acceptOK()
 
 uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 					FlatView::Annotation::AxisData& ad,
-       					const BufferStringSet* annotnms )
+       					const BufferStringSet* annotnms,
+       					bool dorevertaxis )
     : uiGroup(p,"Axis Data")
     , ad_(ad)
     , annotselfld_(0)
+    , reversedfld_(0)		     
 {
     BufferString lbltxt( "Axis '" ); lbltxt += ad_.name_; lbltxt += "'";
     uiLabel* lbl;
@@ -527,8 +529,12 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 
     showgridlinesfld_ = new uiCheckBox( this, "Grid lines" );
     showgridlinesfld_->attach( rightOf, showannotfld_ );
-    reversedfld_ = new uiCheckBox( this, "Reversed" );
-    reversedfld_->attach( rightOf, showgridlinesfld_ );
+
+    if ( dorevertaxis )
+    {
+	reversedfld_ = new uiCheckBox( this, "Reversed" );
+	reversedfld_->attach( rightOf, showgridlinesfld_ );
+    }
 
     setHAlignObj( showannotfld_ );
 }
@@ -536,7 +542,8 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 
 void uiFVAnnotPropTab::AxesGroup::putToScreen()
 {
-    reversedfld_->setChecked( ad_.reversed_ );
+    if ( reversedfld_ )
+	reversedfld_->setChecked( ad_.reversed_ );
     showannotfld_->setChecked( ad_.showannot_ );
     showgridlinesfld_->setChecked( ad_.showgridlines_ );
 }
@@ -544,7 +551,8 @@ void uiFVAnnotPropTab::AxesGroup::putToScreen()
 
 void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 {
-    ad_.reversed_ = reversedfld_->isChecked();
+    if ( reversedfld_ )
+	ad_.reversed_ = reversedfld_->isChecked();
     ad_.showannot_ = showannotfld_->isChecked();
     ad_.showgridlines_ = showgridlinesfld_->isChecked();
 }
@@ -579,9 +587,11 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     colfld_ = new uiColorInput( this, uiColorInput::Setup(annot_.color_).
 	    			lbltxt("Annotation color"), 
 				"Annotation color" );
-    x1_ = new AxesGroup( this, annot_.x1_, annots );
+    x1_ = new AxesGroup( this, annot_.x1_, annots, 
+				annot_.allowuserchangereversedaxis_ );
     x1_->attach( alignedBelow, colfld_ );
-    x2_ = new AxesGroup( this, annot_.x2_ );
+    x2_ = new AxesGroup( this, annot_.x2_, annots,
+				annot_.allowuserchangereversedaxis_ );
     x2_->attach( alignedBelow, x1_ );
 
     BufferStringSet auxnames;
@@ -762,8 +772,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
 				      const BufferStringSet* annots,
-       				      int selannot, bool withwva, 
-				      bool withannots )
+       				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.1"))
@@ -775,16 +784,23 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 {
     vwr_.fillAppearancePar( initialpar_ );
 
-    if ( withwva )
+    const bool wva = vwr_.appearance().ddpars_.wva_.allowuserchange_;
+    const bool vd = vwr_.appearance().ddpars_.wva_.allowuserchange_;
+    const bool annot = vwr_.appearance().annot_.allowuserchange_;
+
+    if ( wva )
     {
 	wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
 	addGroup( wvatab_ );
     }
 
-    vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
-    addGroup( vdtab_ );
+    if ( vd )
+    {
+	vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
+	addGroup( vdtab_ );
+    }
 
-    if ( withannots )
+    if ( annot )
     {
 	annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
 	addGroup( annottab_ );
@@ -800,8 +816,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
     putAllToScreen();
 
-    if ( withwva && vwr_.packID(true)==DataPack::cNoID() &&
-	 vwr_.packID(false)!=DataPack::cNoID() )
+    if ( wva && vwr_.packID(true)==DataPack::cNoID() &&
+		 vwr_.packID(false)!=DataPack::cNoID() )
     {
 	showGroup( 1 );
     }

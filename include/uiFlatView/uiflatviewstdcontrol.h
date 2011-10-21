@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.23 2011-03-31 09:12:40 cvsnanne Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.24 2011-10-21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ public:
 			Setup( uiParent* p=0 )
 			    : parent_(p)
 			    , helpid_("")
-			    , withwva_(true)
 			    , withcoltabed_(true)
 			    , withedit_(false)
 			    , withthumbnail_(true)		      
@@ -39,7 +38,6 @@ public:
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
-	mDefSetupMemb(bool,withwva)
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withthumbnail)

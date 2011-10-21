@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.69 2011-10-13 13:21:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.70 2011-10-21 12:29:33 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -140,8 +140,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	app.ddpars_.vd_.mappersetup_.symmidval_ = 0;
 
     uiFlatViewStdControl::Setup fvsu( this );
-    fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )
-	    .tba( (int)uiToolBar::Right );
+    fvsu.withthumbnail(false).withcoltabed(false).tba( (int)uiToolBar::Right );
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
@@ -380,7 +379,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	prestackwin_ = new uiFlatViewMainWin( 0, su );
 
 	uiFlatViewStdControl::Setup fvsu( prestackwin_ );
-	fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )
+	fvsu.withthumbnail( false ).withcoltabed( false )
 		.tba( (int)uiToolBar::Top );
 	uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( 
 					prestackwin_->viewer(), fvsu );

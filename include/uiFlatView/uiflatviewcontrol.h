@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.36 2011-05-11 14:10:07 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.37 2011-10-21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,15 +72,13 @@ public:
 
 protected:
 
-    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool,
-					  bool withwva=true);
+    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
 
     ObjectSet<uiFlatViewer> vwrs_;
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
     BufferString	category_;
     IOPar		infopars_;
-    bool		withwva_;
 
     uiFlatViewPropDlg*  propdlg_;
 
