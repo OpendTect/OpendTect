@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.7 2011-09-02 08:50:00 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.8 2011-10-21 08:52:57 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -31,7 +31,9 @@ DefineEnumNames( VoxelConnectivityFilter, AcceptOutput, 0, "AcceptOutput")
 { "Body-size rank", "Body size", "Value", "Transparent", 0 };
 
 DefineEnumNames( VoxelConnectivityFilter, Connectivity, 0, "Connectivity")
-{ "Faces", "Edges", "Corners", 0 };
+{ "Common Faces (6 neigbors)", "Common Edges (18 neighbors)",
+  "Full (26 neighbors)", 0 };
+
 
 
 class VoxelConnectivityFilterTask : public ParallelTask
@@ -520,17 +522,32 @@ void VoxelConnectivityFilter::fillPar( IOPar& par ) const
 }
 
 
+#define mTryParse( parcmd, errstr ) \
+    if ( !parcmd ) \
+    { \
+	errmsg_ = errstr; \
+	return false; \
+    }
+	
 bool VoxelConnectivityFilter::usePar( const IOPar& par )
 {
     if ( !Step::usePar( par ) )
 	return false;
 
-    return par.get( sKeyRange(), range_ ) &&
-	 parseEnum( par, sKeyConnectivity(), connectivity_ ) &&
-	 parseEnum( par, sKeyAcceptOutput(), acceptoutput_ ) &&
-	 (acceptoutput_!=Value || par.get( sKeyAcceptValue(), acceptvalue_) ) &&
-	 par.get( sKeyMinimumSize(), minbodysize_ ) &&
-	 par.get( sKeyRejectValue(), rejectvalue_ );
+    mTryParse( par.get( sKeyRange(), range_) , "Cannot parse value range" );
+    mTryParse( parseEnum( par, sKeyConnectivity(), connectivity_ ),
+	    "Cannot parse connectivity" );
+    mTryParse( parseEnum( par, sKeyAcceptOutput(), acceptoutput_ ),
+	    "Cannot parse kept output type" );
+    if ( acceptoutput_==Value )
+	mTryParse( par.get( sKeyAcceptValue(), acceptvalue_),
+		"Cannot parse kept value" );
+    mTryParse( par.get( sKeyMinimumSize(), minbodysize_ ),
+	    "Cannot parse minimum body size" );
+    mTryParse( par.get( sKeyRejectValue(), rejectvalue_ ),
+	    "Cannot parse rejected value" );
+
+    return true;
 }
 
 }; //Namespace
