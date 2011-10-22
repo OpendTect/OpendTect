@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dsip.cc,v 1.10 2010-03-10 16:18:11 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dsip.cc,v 1.11 2011-10-22 11:45:34 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"
@@ -78,10 +78,8 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
 	mErrRet("Trace distance should be > 0.1")
     const int nrinl = (int)(d.x / tdist + 1.5);
     const int nrcrl = (int)(d.y / tdist + 1.5);
-    if ( nrinl < 2 )
-	mErrRet("X distance is less than one trace distance")
-    if ( nrcrl < 2 )
-	mErrRet("Y distance is less than one trace distance")
+    if ( nrinl < 2 && nrcrl < 2 )
+	mErrRet("Coordinate ranges are less than one trace distance")
 
     cs.hrg.start.inl = cs.hrg.start.crl = 10000;
     cs.hrg.step.inl = cs.hrg.step.crl = 1;
