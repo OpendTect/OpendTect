@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.81 2011-10-20 16:44:15 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.82 2011-10-23 12:40:06 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -1595,12 +1595,14 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 	return;
 
     VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
-			      varsettings.getMaxRg(), varsettings.getFold() );  
+			      varsettings.getMaxRg(), varsettings.getFold() );
+    if ( !vvc.isOK() ) return;
+
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), vvc.getData(),
 	   					       varsettings.getMaxRg(),
 						       varsettings.getStep(),
 						       false );
     variodlgs_ += uivv;
-    uivv->draw();                                                                
-    uivv->go();                                                                  
+    uivv->draw();
+    uivv->go();
 }
