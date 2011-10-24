@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.28 2011-01-25 20:34:00 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.29 2011-10-24 14:59:21 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -371,8 +371,9 @@ bool ProcessManager::usePar( const IOPar& par )
     for ( int idx=0; idx<nrprocessors; idx++ )
     {
 	const BufferString idxstr( "", idx );
+	BufferString name;
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
-	if ( !steppar )
+	if ( !steppar || !steppar->get( sKey::Name, name ) )
 	{
 	    errmsg_ = "Could not find name for processing step ";
 	    errmsg_ += idx;
@@ -380,40 +381,22 @@ bool ProcessManager::usePar( const IOPar& par )
 	    return false;
 	}
 
-	BufferString name;
-	if ( !steppar->get( sKey::Name, name ) )
-	{
-	    errmsg_ = "Could not create processing step ";
-	    errmsg_ += name.buf();
-	    errmsg_ += ".";
-
-	    return false;
-	}
-
 	Processor* proc = Processor::factory().create( name.buf() );
-	if ( !proc )
+	if ( !proc || proc->errMsg() || !proc->usePar( *steppar ) )
 	{
 	    errmsg_ = "Could not parse processing step ";
 	    errmsg_ += name.buf();
 	    errmsg_ += ".";
+	    if ( proc->errMsg() )
+	    {
+		errmsg_ += FileMultiString::separatorStr();
+		errmsg_ += proc->errMsg();
+	    }
+	    else
+	    {
+		errmsg_ += " Perhaps all plugins are not loaded?";
+	    }
 
-	    return false;
-	}
-
-	const FixedString steperr = proc->errMsg();
-	if ( steperr )
-	{
-	    errmsg_ = "Could not parse processing step ";
-	    errmsg_ += name.buf();
-	    errmsg_ += ".";
-	    errmsg_ += FileMultiString::separatorStr();
-	    errmsg_ += steperr;
-
-	    return false;
-	}
-
-	if ( !proc->usePar( *steppar ) )
-	{
 	    delete proc;
 	    return false;
 	}

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.18 2011-10-24 14:05:27 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.19 2011-10-24 15:01:22 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -97,7 +97,14 @@ bool Mute::setMuteDefID( const MultiID& mid )
 	mErrRet("Cannot find MuteDef ID in Object Manager.")
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
-	mErrRet(errmsg_)
+    {
+	BufferString msg = "Mute definition \"";
+	msg += ioobj->name();
+	msg += "\" cannot be read.";
+	msg += FileMultiString::separatorStr();
+	msg += errmsg_;
+	mErrRet( msg.buf() );
+    }
     
     id_ = mid;
     
