@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.40 2011-07-23 22:26:29 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.41 2011-10-24 08:47:06 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 
 	for ( int idx=0; idx<sz; idx++ )
 	    outptr[idx] = onlyavg ? inpptr[idx] - avg
-				  : inpptr[idx] - avg - (aval*(T)idx+bval);
+				  : inpptr[idx] - (aval*(T)idx+bval);
     }
     else
     {
