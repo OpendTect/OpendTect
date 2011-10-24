@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.22 2011-10-21 12:01:07 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.23 2011-10-24 06:08:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".platform," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".version," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id," )
+	    .add( BugTableEntry::sKeyBugTable() ).add( ".last_updated," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description" )
 	    .add( " FROM " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( "," )
@@ -192,6 +193,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->platform_ = query().data( ++qidx );
 	bugtable->version_ = query().data( ++qidx );
 	bugtable->projectid_ = query().iValue( ++qidx );
+	bugtable->lastupddate_ = query().data( ++qidx );
 	texttable->description_ = query().data( ++qidx );
 
 	bugs_ += bugtable;
@@ -524,7 +526,7 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
     if ( userid < 0 )
 	return;
 
-    BufferString date = bugtable->date_;
+    BufferString date = bugtable->lastupddate_;
     for ( int ihist=0; ihist<history.size(); ihist++ )
     {
 	if ( isadded )
@@ -561,7 +563,7 @@ void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int bidx )
 	return;
 
     texttabhistory->userid_ = usrid;
-    texttabhistory->date_ = bugtable->date_;
+    texttabhistory->date_ = bugtable->lastupddate_;
 
     ObjectSet<BugHistoryTableEntry> history;
     history += texttabhistory;

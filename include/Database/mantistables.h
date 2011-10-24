@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.6 2011-10-05 11:03:35 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.7 2011-10-24 06:08:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ public:
     int			status_;
     int			resolution_;
     BufferString	category_;
-    BufferString	date_;
+    BufferString	lastupddate_;
     BufferString	platform_;
     BufferString	version_;
     BufferString	fixedinversion_;

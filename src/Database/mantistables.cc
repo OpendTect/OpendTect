@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.9 2011-10-05 11:03:35 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.10 2011-10-24 06:08:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ void SqlDB::BugTableEntry::init()
     status_ = cStatusNew();
     resolution_ = cResolutionOpen();
     category_ = "";
-    date_ = "";
+    lastupddate_ = "";
     platform_ = OD::Platform().longName();
     version_ = "";
     fixedinversion_ = "";
@@ -127,7 +127,7 @@ void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
 
 	values.add( toString(projectid_) );
 	values.add( toString(reporterid_) );
-	values.add( date_ ).add( summary_ ).add( category_ );
+	values.add( lastupddate_ ).add( summary_ ).add( category_ );
     }
 
     colnms.add( "handler_id" ).add( "severity" ).add ( "status" )
@@ -138,7 +138,8 @@ void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
     values.add( toString(severity_) );
     values.add( toString(status_) );
     values.add( toString(resolution_) );
-    values.add( date_ ).add( platform_ ).add( version_ ).add( fixedinversion_ );
+    values.add( lastupddate_ ).add( platform_ ).add( version_ )
+	  .add( fixedinversion_ );
 }
 
 
