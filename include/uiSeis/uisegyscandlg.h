@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.11 2011-03-16 12:10:40 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.12 2011-10-24 09:56:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,10 +35,11 @@ public :
 
 protected:
 
+    void		outputNameChangeCB(CallBacker*);
+
     SEGY::FileIndexer*	indexer_;
     SEGY::Scanner*	scanner_;
     bool		forsurvsetup_;
-    CtxtIOObj&		ctio_;
 
     uiSeisSel*		outfld_;
     uiGenInput*		parfilefld_;

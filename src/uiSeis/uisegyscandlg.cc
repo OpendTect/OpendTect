@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.32 2011-03-16 12:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.33 2011-10-24 09:56:31 cvskris Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -42,7 +42,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , scanner_(0)
     , indexer_(0)
     , forsurvsetup_(ss)
-    , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
     , outfld_(0)
     , parfilefld_(0)
     , lnmfld_(0)
@@ -65,15 +64,16 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     }
     else
     {
-	ctio_.setObj( 0 );
-	IOObjContext& ctxt = ctio_.ctxt;
+	IOObjContext ctxt = uiSeisSel::ioContext( su.geom_, false );
 	ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEGYDirect";
 	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
-	outfld_ = new uiSeisSel( this, ctio_, sssu );
+	outfld_ = new uiSeisSel( this, ctxt, sssu );
 	if ( optsgrp_ )
 	    outfld_->attach( alignedBelow, optsgrp_ );
 	else
 	    attobj = outfld_->attachObj();
+
+	outfld_->selectionDone.notify( mCB(this,uiSEGYScanDlg,outputNameChangeCB));
 
 	if ( Seis::is2D(setup_.geom_) )
 	{
@@ -95,15 +95,33 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
     }
+
+    outputNameChangeCB( 0 );
 }
 
 
 uiSEGYScanDlg::~uiSEGYScanDlg()
 {
-    delete ctio_.ioobj;
     delete scanner_;
     delete indexer_;
-    delete &ctio_;
+}
+
+
+void uiSEGYScanDlg::outputNameChangeCB( CallBacker* )
+{
+    if ( !outfld_ )
+	return;
+
+    BufferString parfilename = "scan_segy";
+    if ( outfld_->ioobj(true) )
+    {
+	parfilename += "_";
+	parfilename += outfld_->ioobj(true)->name();
+	cleanupString( parfilename.buf(), false, false, false );
+    }
+
+    parfilename += ".par";
+    parfilefld_->setText( GetProcFileName( parfilename ) );
 }
 
 
@@ -142,7 +160,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 		mErrRet("Please enter a name for the output cube scan",0)
 	}
 
-	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );
+	pathnm = outfld_->ioobj(true)->fullUserExpr( Conn::Write );
 	if ( lnmfld_ )
 	{
 	    if ( !File::isDirectory(pathnm) )
@@ -173,7 +191,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.set( SEGY::IO::sKeyTask(), isps ? SEGY::IO::sKeyIndexPS()
 					      : SEGY::IO::sKeyIndex3DVol() );
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
-	pars_.set( sKey::Output, ctio_.ioobj->key() );
+	pars_.set( sKey::Output, outfld_->key(true) );
 	pars_.set( sKey::LineName, lnm );
 	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
 	launcher.setParFileName( parfilefld_->text() );
@@ -195,7 +213,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     if ( !rv )
     {
 	if ( outfld_ )
-	    IOM().permRemove( ctio_.ioobj->key() );
+	    IOM().permRemove( outfld_->key(true) );
 	return false;
     }
 
@@ -205,7 +223,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	, outfld_) )
     {
 	if ( outfld_ )
-	    IOM().permRemove( ctio_.ioobj->key() );
+	    IOM().permRemove( outfld_->key(true) );
 
 	return false;
     }
