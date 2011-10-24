@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.5 2011-10-11 06:28:12 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.6 2011-10-24 05:59:39 cvskris Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -34,27 +34,34 @@ uiStepDialog* uiVoxelConnectivityFilter::createInstance( uiParent* p,
 #define mCutBelow 0
 #define mCutAbove 1
 #define mCutOutside 2
+#define mCutInside 3
 
 
 uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
     : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
 {
-    const char* cutofftypes[] = { "Values more than", "Values less than",
-				  "Values between", 0 };
+    const char* cutofftypes[] = { "Values larger than", "Values less than",
+				  "Values between", "Values outside", 0 };
     cutofftypefld_ = new uiGenInput( this, "Keep",
                               StringListInpSpec( cutofftypes ) );
     const Interval<float>& acceptrange = step->getAcceptRange();
+    Interval<float> displayacceptrange = acceptrange;
+    displayacceptrange.sort( true );
 
     cutoffvalfld_ = new uiGenInput( this, "Value", FloatInpSpec() );
     cutoffvalfld_->attach( alignedBelow, cutofftypefld_ );
-    cutoffrangefld_ = new uiGenInput( this, "Range", FloatInpIntervalSpec(false) );
+    cutoffrangefld_ = new uiGenInput( this, "Range",
+	    FloatInpIntervalSpec(false) );
     cutoffrangefld_->attach( alignedBelow, cutofftypefld_ );
-    cutoffrangefld_->setValue( acceptrange );
+    cutoffrangefld_->setValue( displayacceptrange );
 
     if ( !mIsUdf(acceptrange.start) && !mIsUdf(acceptrange.stop) )
     {
-	cutofftypefld_->setValue( mCutOutside );
+	if ( acceptrange.isRev() )
+	    cutofftypefld_->setValue( mCutInside );
+	else
+	    cutofftypefld_->setValue( mCutOutside );
     }
     else if ( !mIsUdf(acceptrange.start) )
     {
@@ -113,8 +120,10 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 
 void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
 {
-    cutoffvalfld_->display( cutofftypefld_->getIntValue()!=mCutOutside );
-    cutoffrangefld_->display( cutofftypefld_->getIntValue()==mCutOutside );
+    cutoffvalfld_->display( cutofftypefld_->getIntValue()!=mCutOutside &&
+                          cutofftypefld_->getIntValue()!=mCutInside );
+    cutoffrangefld_->display( cutofftypefld_->getIntValue()==mCutOutside ||
+                            cutofftypefld_->getIntValue()==mCutInside );
 
     VoxelConnectivityFilter::AcceptOutput output;
     VoxelConnectivityFilter::parseEnumAcceptOutput( acceptoutputfld_->text(),
@@ -130,7 +139,8 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	return false;
 
     Interval<float> range;
-    if ( cutofftypefld_->getIntValue()==mCutOutside )
+    if ( cutofftypefld_->getIntValue()==mCutOutside ||
+         cutofftypefld_->getIntValue()==mCutInside )
     {
 	range = cutoffrangefld_->getFInterval();
 	if ( mIsUdf(range.start) || mIsUdf(range.stop) )
@@ -138,6 +148,15 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	    uiMSG().error("Cut range not set");
 	    return false;
 	}
+
+	if ( range.isRev() )
+	{
+	    uiMSG().error("Cut range is reversed");
+	    return false;
+	}
+
+	if ( cutofftypefld_->getIntValue()==mCutInside )
+	    range.sort( false );
     }
     else 
     {
