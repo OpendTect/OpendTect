@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.9 2011-07-12 22:12:54 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.10 2011-10-24 05:24:50 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,9 @@ public:
 
     od_int64		bytesAvailable() const;
 
+    int			nrDone() const          { return nrdone_; }
+    int			totalNr() const         { return totalnr_; }
+
     const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
@@ -58,6 +61,7 @@ public:
     Notifier<ODHttp>	requestFinished;
     Notifier<ODHttp>	messageReady;
     Notifier<ODHttp>	readyRead;
+    Notifier<ODHttp>	dataReadProgress;
     Notifier<ODHttp>	done;
     Notifier<ODHttp>	connected;
     Notifier<ODHttp>	disconnected;
@@ -72,6 +76,8 @@ protected:
 
     bool		error_;
     BufferString	message_;
+    int			nrdone_;
+    int			totalnr_;
     int			requestid_;
 
     void		reqFinishedCB(CallBacker*);

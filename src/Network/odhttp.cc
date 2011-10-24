@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.12 2011-07-12 22:13:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.13 2011-10-24 05:24:55 cvsumesh Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -23,6 +23,7 @@ ODHttp::ODHttp()
     , requestStarted(this)
     , requestFinished(this)
     , messageReady(this)
+    , dataReadProgress(this)
     , readyRead(this)
     , done(this)
     , connected(this)

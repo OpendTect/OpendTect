@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qhttpconn.h,v 1.4 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: qhttpconn.h,v 1.5 2011-10-24 05:24:50 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,9 @@ QHttpConnector( QHttp* snder, ODHttp* receiver )
 
     connect( sender_, SIGNAL(requestFinished(int,bool)),
 	     this, SLOT(requestFinished(int,bool)) );
+
+    connect( sender_, SIGNAL(dataReadProgress(int,int)),
+	     this, SLOT(dataReadProgress(int,int)) );
 
     connect( sender_, SIGNAL(done(bool)),
 	     this, SLOT(done(bool)) );
@@ -69,6 +72,14 @@ void requestStarted( int id )
 {
     receiver_->requestid_ = id;
     receiver_->requestStarted.trigger( *receiver_ );
+}
+
+
+void dataReadProgress( int dne, int total )
+{
+    receiver_->nrdone_ = dne;
+    receiver_->totalnr_ = total;
+    receiver_->dataReadProgress.trigger( *receiver_ );
 }
 
 
