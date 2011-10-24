@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.8 2011-10-21 08:52:57 cvskris Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.9 2011-10-24 05:58:54 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -113,7 +113,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     return memsetter.execute();
 }
 
-#define mTestValue( val )  if ( !mIsUdf(val) && range.includes( val, false ) )
+#define mTestValue( val )  if ( !mIsUdf(val) && currange.includes( val, false ))
 
 #define mHandleNeighbor \
     if ( arrinfo_.validPos( neighbor ) ) \
@@ -138,14 +138,26 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
 	    { \
 		if ( neighborid!=mUnassignedValue ) \
 		{ \
-		    const od_int64 pos[] = { mMAX(neighborid,curbodyid), \
-					     mMIN(neighborid,curbodyid) }; \
-		    const bool val = true; \
-		    bodyaliases.add( &val, pos ); \
+		    bool addalias = true; \
+		    if ( doextremes ) \
+		    { \
+			const float neighborval = inputvs->value(neighboridx);\
+			mTestValue( neighborval ) \
+			    addalias = true; \
+			else \
+			    addalias = false; \
+		    } \
+\
+		    if ( addalias ) \
+		    { \
+			const od_int64 pos[] = { mMAX(neighborid,curbodyid), \
+						 mMIN(neighborid,curbodyid) }; \
+			const bool val = true; \
+			bodyaliases.add( &val, pos ); \
+		    } \
 		} \
 		else \
 		{ \
- \
 		    const float neighborval = inputvs->value( neighboridx ); \
 		    mTestValue( neighborval ) \
 		    { \
@@ -154,7 +166,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
 			queue += neighboridx; \
 			queuebodyids += curbodyid; \
 		    } \
-		    else \
+		    else if ( !doextremes ) \
 		    { \
 			statusarr_[neighboridx] = mRejectValue; \
 			nrdone++; \
@@ -180,7 +192,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     mHandleNeighbor
 
 #define mDoCorner( op0, op1, op2 ) \
-	    memcpy( neighbor, arrpos, 3*sizeof(int) );  \
+	    memcpy( neighbor, arrpos, 3*sizeof(int) ); \
 	    neighbor[0] op0; \
 	    neighbor[1] op1; \
 	    neighbor[2] op2; \
@@ -193,6 +205,8 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	range.start = -FLT_MAX;
     else if ( mIsUdf(range.stop) )
 	range.stop = FLT_MAX;
+
+    const bool doextremes = range.isRev();
 
     const ValueSeries<float>* inputvs = input_.getStorage();
     const VoxelConnectivityFilter::Connectivity connectivity =
@@ -219,7 +233,40 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	const float curval = inputvs->value( idx );
-	mTestValue( curval )
+	Interval<float> currange;
+	bool iskept = !mIsUdf(curval);
+	if ( iskept )
+	{
+	    currange = range;
+	    if ( doextremes )
+	    {
+		currange.sort( true );
+
+		//we are looking for things outside
+		if ( currange.includes( curval,false ) )
+		    iskept = false;
+		else
+		{
+		    iskept = true;
+		    if ( curval<currange.start )
+		    {
+			currange.start = -FLT_MAX;
+			currange.stop = range.stop;
+		    }
+		    else
+		    {
+			currange.start = range.start;
+			currange.stop = FLT_MAX;
+		    }
+		}
+	    }
+	    else
+	    {
+		iskept = currange.includes( curval, false );
+	    }
+	}
+
+	if ( iskept )
 	{
 	    barrier_.mutex().lock();
 	    const int curbodyid = bodysizes_.size();
@@ -327,74 +374,81 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
     const VoxelConnectivityFilter::AcceptOutput acceptoutput =
 	step_.getAcceptOutput();
 
+    MemValReplacer<int> replacer( outputbodies_, 0, 0, nrbodies );
+
     if ( barrier_.waitForAll( false ) )
     {
-	//Create outputbodies_ table. For each body, which id should it have
-	//on the output.
-	mTryAlloc( outputbodies_, int[nrbodies] );
+        //Create outputbodies_ table. For each body, which id should it have
+        //on the outputr?
+        mTryAlloc( outputbodies_, int[nrbodies] );
 
-	if ( !outputbodies_ )
-	{
-	    barrier_.mutex().unLock();
-	    return false;
-	}
+        if ( !outputbodies_ )
+        {
+            barrier_.mutex().unLock();
+            return false;
+        }
 
-	for ( int idx=nrbodies-1; idx>=0; idx-- )
-	    outputbodies_[idx] = idx;
+        for ( int idx=nrbodies-1; idx>=0; idx-- )
+            outputbodies_[idx] = idx;
 
-	for ( int idx=0; idx<bodyaliases_.size(); idx++ )
-	{
-	    const int pos = bodyaliases_.getPos( idx );
-	    const MultiDimStorage<char>& dim1 = *bodyaliases_[idx];
-	    int alias = dim1.getPos(0);
-	    alias = outputbodies_[alias];
+        for ( int idx=0; idx<bodyaliases_.size(); idx++ )
+        {
+            const int pos = bodyaliases_.getPos( idx );
 
-	    outputbodies_[pos] = alias;
-	    
-	    for ( int idy=1; idy<dim1.size(); idy++ )
-	    {
-		const int curpos = dim1.getPos(idy);
-		if ( curpos<pos )
-		    continue;
+            const MultiDimStorage<char>& dim1 = *bodyaliases_[idx];
 
-		outputbodies_[curpos] = alias;
-	    }
-	}
+            TypeSet<int> aliases( 1, pos );
+            for ( int idy=0; idy<dim1.size(); idy++ )
+                aliases += dim1.getPos(idy);
 
-	//Go through all bodies and compute their size
-	for ( int idx=nrbodies-1; idx>=1; idx-- )
-	{
-	    const int outputbody = outputbodies_[idx];
-	    if ( outputbody != idx )
-	    {
-		bodysizes_[outputbody] += bodysizes_[idx];
-		bodysizes_[idx] = 0;
-	    }
-	}
+            for ( int idy=0; idy<aliases.size(); idy++ )
+            {
+                const int alias = aliases[idy];
+                aliases.addIfNew( outputbodies_[alias] );
+            }
 
-	//Rank all bodies on size 0 is largest
-	if ( acceptoutput==VoxelConnectivityFilter::Ranking )
-	{
-	    TypeSet<od_int64> bodysizecopy( bodysizes_ );
-	    mAllocVarLenIdxArr( int, idxs, nrbodies );
-	    sort_coupled( bodysizecopy.arr(), mVarLenArr(idxs),
-		    	  bodysizecopy.size() );
+            for ( int idy=aliases.size()-1; idy>=1; idy-- )
+            {
+                replacer.setFromValue( aliases[idy] );
+                replacer.setToValue( pos );
+                replacer.execute();
+            }
+        }
 
-	    mTryAlloc( bodyranking_, int[nrbodies] );
+        //Go through all bodies and compute their size
+        for ( int idx=nrbodies-1; idx>=1; idx-- )
+        {
+            const int outputbody = outputbodies_[idx];
+            if ( outputbody != idx )
+            {
+                bodysizes_[outputbody] += bodysizes_[idx];
+                bodysizes_[idx] = 0;
+            }
+        }
 
-	    for ( int idx=nrbodies-1; idx>=0; idx-- )
-		bodyranking_[idxs[idx]] = nrbodies-idx-1;
-	}
+	//Rank all bodies on size. 0 is largest
+        if ( acceptoutput==VoxelConnectivityFilter::Ranking )
+        {
+            TypeSet<od_int64> bodysizecopy( bodysizes_ );
+            mAllocVarLenIdxArr( int, idxs, nrbodies );
+            sort_coupled( bodysizecopy.arr(), mVarLenArr(idxs),
+                          bodysizecopy.size() );
 
-	//Filter away all bodies that are too small
-	const od_int64 minbodysize = step_.getMinimumBodySize();
-	for ( int idx=nrbodies-1; idx>=0; idx-- )
-	{
-	    if ( bodysizes_[idx]<minbodysize )
-	    {
-		outputbodies_[idx] = -1;
-	    }
-	}
+            mTryAlloc( bodyranking_, int[nrbodies] );
+
+            for ( int idx=nrbodies-1; idx>=0; idx-- )
+                bodyranking_[idxs[idx]] = nrbodies-idx-1;
+        }
+
+        //Filter away all bodies that are too small
+        const od_int64 minbodysize = step_.getMinimumBodySize();
+        for ( int idx=nrbodies-1; idx>=0; idx-- )
+        {
+            if ( bodysizes_[idx]<minbodysize )
+            {
+                outputbodies_[idx] = -1;
+            }
+        }
     }
 
     barrier_.mutex().unLock();
@@ -420,7 +474,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	    nrdone++; \
 	} \
  \
-	if ( bodynr==-1 )  \
+	if ( bodynr==-1 ) \
 	{ \
 	    outputvs->setValue( idx, step_.getRejectValue() ); \
 	    continue; \
