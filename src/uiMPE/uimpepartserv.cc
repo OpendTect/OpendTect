@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.127 2011-10-20 13:54:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.128 2011-10-24 05:10:25 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -360,7 +360,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     cleanSetupDependents();
     seedswithoutattribsel_ = false;
 
-    setupgrp_ = 0;
+    //setupgrp_ = 0;
 
     if ( trackercurrentobject_ == -1 ) return;
 
@@ -417,12 +417,17 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	addrmseednotifier->remove(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
+    setupgrp_ = 0;
+
     if ( seedhasbeenpicked_ )
 	adjustSeedBox();
 
     // finishing time
     blockDataLoading( true );
     sendEvent( uiMPEPartServer::evEndSeedPick() );
+    blockDataLoading( false );
+
+    blockDataLoading( true );
 
     if ( seedpicker->doesModeUseVolume() && !trackerseedbox_.isEmpty() )
 	expandActiveVolume( trackerseedbox_ );
