@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.13 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: sorting.h,v 1.14 2011-10-25 14:44:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ mClass ParallelSorter : public ParallelTask
 {
 public:
 				ParallelSorter(T* vals, int sz);
+				ParallelSorter(T* vals, int* idxs, int sz);
 protected:
     od_int64			nrIterations() const { return nrvals_; }
 
@@ -93,6 +94,7 @@ protected:
     T*				vals_;
     ArrPtrMan<T>		tmpbuffer_;
 
+    int*			idxs_;
     T*				curvals_;
     T*				buf_;
 
@@ -377,6 +379,19 @@ ParallelSorter<T>::ParallelSorter(T* vals, int sz)
     , nrvals_( sz )
     , tmpbuffer_( 0 )
     , barrier_( -1, false )
+    , idxs_( 0 )
+{
+    mTryAlloc( tmpbuffer_, T[sz] );
+}
+
+
+template <class T> inline
+ParallelSorter<T>::ParallelSorter(T* vals, int* idxs, int sz)
+    : vals_( vals )
+    , nrvals_( sz )
+    , tmpbuffer_( 0 )
+    , barrier_( -1, false )
+    , idxs_( idxs )
 {
     mTryAlloc( tmpbuffer_, T[sz] );
 }
@@ -423,9 +438,16 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 {
     const int threadsize = stop-start+1;
     if ( threadsize<100 )
-	sort_array( vals_+start, threadsize );
+    {
+	if ( idxs_ )
+	    sort_coupled( vals_+start, idxs_+start, threadsize );
+	else
+	    sort_array( vals_+start, threadsize );
+    }
     else
+    {
 	quickSort( vals_+start, threadsize );
+    }
 
     if ( !shouldContinue() )
 	return false;
