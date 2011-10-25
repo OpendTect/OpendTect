@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.7 2010-10-07 06:32:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.8 2011-10-25 09:19:26 cvskris Exp $";
 
 #include "uibatchprestackproc.h"
 
@@ -24,7 +24,7 @@ namespace PreStack
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     : uiFullBatchDialog( p,
 	uiFullBatchDialog::Setup("Pre stack processing")
-	    .procprognm("od_process_prestack" ) )
+	.procprognm("od_process_prestack" ) )
     , outputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    false ) )
     , inputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
@@ -48,11 +48,12 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
 		       uiSeisSel::Setup( is2d ? Seis::LinePS : Seis::VolPS ));
     outputsel_->attach( alignedBelow, possubsel_ );
+    outputsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,outputNameChangeCB));
 
     uppgrp_->setHAlignObj( possubsel_ );
 
-    setParFileNmDef( "prestack_processing" );
     addStdFields( false, true );
+    outputNameChangeCB( 0 );
 }
 
 
@@ -60,6 +61,20 @@ uiBatchProcSetup::~uiBatchProcSetup()
 {
     delete inputctxt_.ioobj; delete &inputctxt_;
     delete outputctxt_.ioobj; delete &outputctxt_;
+}
+
+
+void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
+{
+    BufferString parfilename = "od_process_prestack";
+    if ( outputsel_->ioobj(true) )
+    {
+	parfilename += "_";
+	parfilename += outputsel_->ioobj(true)->name();
+	cleanupString( parfilename.buf(), false, false, false );
+    }
+
+    setParFileNmDef( parfilename );
 }
 
 
