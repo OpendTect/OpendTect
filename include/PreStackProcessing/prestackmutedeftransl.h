@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedeftransl.h,v 1.5 2011-10-14 15:42:43 cvskris Exp $
+ RCS:		$Id: prestackmutedeftransl.h,v 1.6 2011-10-25 09:17:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ public:
     const char*		write(const PreStack::MuteDef&,Conn&);
 
     static const char*	sKeyRefHor() { return "Reference Horizon";  }
+    static bool		hasIOPar(int majorversion,int minorversion);
 };
 
 

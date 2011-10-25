@@ -7,17 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.8 2011-10-14 15:42:43 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.9 2011-10-25 09:17:16 cvskris Exp $";
 
 #include "prestackmutedeftransl.h"
-#include "prestackmutedef.h"
-#include "mathfunc.h"
-#include "ctxtioobj.h"
+
 #include "ascstream.h"
+#include "ctxtioobj.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "streamconn.h"
 #include "keystrs.h"
+#include "mathfunc.h"
+#include "prestackmutedef.h"
+#include "ptrman.h"
+#include "odver.h"
+#include "streamconn.h"
 
 static const char* sKeyPBMFSetup = "PBMF setup";
 
@@ -81,10 +83,16 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( !astrm.isOfFileType(mTranslGroupName(MuteDef)) )
 	return "Input file is not a Mute Definition file";
 
-    IOPar pars( astrm );
-    MultiID hormid;
-    pars.get( sKeyRefHor(), hormid );
-    md.setReferenceHorizon( hormid );
+    const bool hasiopar = hasIOPar( astrm.majorVersion(),
+				    astrm.minorVersion() );
+
+    if ( hasiopar )
+    {
+	IOPar pars( astrm );
+	MultiID hormid;
+	pars.get( sKeyRefHor(), hormid );
+	md.setReferenceHorizon( hormid );
+    }
 
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( atEndOfSection(astrm) )
@@ -95,6 +103,13 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {
+	if ( !hasiopar && !ifn && astrm.hasKeyword(sKeyRefHor()) )
+	{
+	    MultiID hormid = astrm.value();
+	    md.setReferenceHorizon( hormid );
+	    astrm.next();
+	}
+
 	BinID bid;
 	bool extrapol = true;
 	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
@@ -156,6 +171,17 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 }
 
 
+bool dgbMuteDefTranslator::hasIOPar(int majorversion, int minorversion )
+{
+    if ( majorversion<3 )
+	return false;
+    if ( majorversion>4 )
+	return true;
+
+    return minorversion>3;
+}
+
+
 const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
@@ -163,13 +189,26 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(MuteDef) );
+
+    const bool hasiopar = hasIOPar( mODMajorVersion, mODMinorVersion );
+
+    if ( hasiopar )
+    {
+	IOPar pars;
+	pars.set( sKeyRefHor(), md.getReferenceHorizon() );
+	pars.putTo( astrm );
+	astrm.newParagraph();
+    }
+
     std::ostream& strm = astrm.stream();
     if ( !strm.good() )
 	return "Cannot write to output Mute Definition file";
 
-
     for ( int imd=0; imd<md.size(); imd++ )
     {
+	if ( !imd && !hasiopar )
+	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
+
 	char buf[80]; md.getPos(imd).fill( buf );
 	astrm.put( sKey::Position, buf );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
