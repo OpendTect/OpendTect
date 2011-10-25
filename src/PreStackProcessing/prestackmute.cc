@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.19 2011-10-24 15:01:22 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.20 2011-10-25 07:08:36 cvsranojay Exp $";
 
 #include "prestackmute.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: prestackmute.cc,v 1.19 2011-10-24 15:01:22 cvsk
 #include "prestackgather.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
-
+#include "separstr.h"
 
 using namespace PreStack;
 
