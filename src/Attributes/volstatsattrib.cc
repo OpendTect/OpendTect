@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.59 2011-09-16 10:55:12 cvskris Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.60 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "volstatsattrib.h"
 
@@ -392,7 +392,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
     const int gatesz = samplegate.width() + 1;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
-    Stats::RunCalcSetup rcsetup;
+    Stats::CalcSetup rcsetup;
     for ( int outidx=0; outidx<outputinterest_.size(); outidx++ )
     {
 	if ( outputinterest_[outidx] )

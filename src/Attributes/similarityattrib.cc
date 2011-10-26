@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.58 2011-09-16 10:55:12 cvskris Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.59 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "similarityattrib.h"
 
@@ -347,7 +347,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
-    Stats::RunCalcSetup rcsetup;
+    Stats::CalcSetup rcsetup;
     if ( outputinterest_[0] ) rcsetup.require( Stats::Average );
     if ( outputinterest_[1] ) rcsetup.require( Stats::Median );
     if ( outputinterest_[2] ) rcsetup.require( Stats::Variance );

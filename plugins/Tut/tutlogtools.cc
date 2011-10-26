@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: tutlogtools.cc,v 1.3 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tutlogtools.cc,v 1.4 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "tutlogtools.h"
 #include "welllog.h"
@@ -23,7 +23,7 @@ bool Tut::LogTools::runSmooth( const int inpgate )
     const int gate = inpgate % 2 ? inpgate : inpgate + 1;  
     const int rad = gate / 2;
     Stats::WindowedCalc<float> wcalc(
-	    		Stats::RunCalcSetup().require(Stats::Median), gate );
+	    		Stats::CalcSetup().require(Stats::Median), gate );
     const int sz = inplog_.size();
     for ( int idx=0; idx<sz+rad; idx++ )
     {

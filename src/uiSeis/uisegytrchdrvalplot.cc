@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.5 2011-03-16 12:10:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.6 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -65,7 +65,7 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
     (first ? tlbl1_ : tlbl2_)->setText(
 	    BufferString(he.name()," (",he.description()).add(")") );
 
-    Stats::RunCalcSetup rcsu( false );
+    Stats::CalcSetup rcsu( false );
     rcsu.require( Stats::Min ).require( Stats::Max );
     Stats::RunCalc<float> rc( rcsu );
     rc.addValues( sz, data );

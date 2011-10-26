@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.18 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.19 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -287,7 +287,7 @@ void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
     const int nrattribs = reflist_->size();
     for ( int idx=0; idx<nrattribs; idx++ )
 	statsset += new Stats::RunCalc<float>(
-			Stats::RunCalcSetup().require(styp) );
+			Stats::CalcSetup().require(styp) );
 
     BinIDValueSet::Pos pos;
     while ( bidvalset->next(pos) )

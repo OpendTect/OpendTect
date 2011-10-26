@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.8 2011-08-17 11:40:30 cvskris Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.9 2011-10-26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 
 template <class T> class Array2D;
-namespace Stats { class RunCalcSetup; }
+namespace Stats { class CalcSetup; }
 
 
 mClass Array2DInterpol : public ParallelTask
@@ -120,7 +120,7 @@ protected:
     const Array2D<bool>*	mask_;
     bool			maskismine_;
     bool			isclassification_;
-    Stats::RunCalcSetup*	statsetup_;
+    Stats::CalcSetup*		statsetup_;
 };
 
 

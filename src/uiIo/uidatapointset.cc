@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.82 2011-10-23 12:40:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.83 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -863,14 +863,14 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 				uiDataPointSet::DColID dcid ) const
 {
-    static Stats::RunCalc<float> empty( Stats::RunCalcSetup(false) );
+    static Stats::RunCalc<float> empty( Stats::CalcSetup(false) );
     if ( dcid < -cNrPosCols ) return empty;
 
     mGetRCIdx(dcid);
     Stats::RunCalc<float>* rc = runcalcs_[rcidx];
     if ( !rc )
     {
-	Stats::RunCalcSetup su( false );
+	Stats::CalcSetup su( false );
 #	define mReq(typ) require(Stats::typ)
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
@@ -916,7 +916,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_ = new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
-    statswin_->setData( rc );
+    //statswin_->setData( rc );
     statswin_->setDataName( txt );
     statswin_->show();
 }

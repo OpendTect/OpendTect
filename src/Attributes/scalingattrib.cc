@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.43 2011-09-16 10:55:12 cvskris Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.44 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "scalingattrib.h"
 
@@ -263,7 +263,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
     else if ( statstype_ == mStatsTypeMean )
 	statstype = Stats::Average;
 
-    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
+    Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
 
     for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
     {
@@ -289,8 +289,8 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 {
     trends_.erase();
     Stats::Type statstype = Stats::Sum;
-    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
-    Stats::RunCalc<float> statsidx( Stats::RunCalcSetup().require(statstype) );
+    Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
+    Stats::RunCalc<float> statsidx( Stats::CalcSetup().require(statstype) );
 
     for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
     {

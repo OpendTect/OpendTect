@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.55 2011-10-14 12:06:52 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.56 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -488,7 +488,7 @@ public: \
     float		getValue() const \
 			{ \
 			    Stats::RunCalc<float> stats( \
-				Stats::RunCalcSetup().require(Stats::statnm)); \
+				Stats::CalcSetup().require(Stats::statnm)); \
 			    for ( int idx=0; idx<inputs_.size(); idx++) \
 				stats += inputs_[idx]->getValue(); \
  \

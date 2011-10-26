@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.11 2011-09-13 14:14:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.12 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.11 2011-09-13 14:14:5
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "stratlevel.h"
-#include "statruncalc.h"
+#include "statparallelcalc.h"
 #include "picksettr.h"
 #include "wavelet.h"
 #include "ioman.h"
@@ -300,7 +300,7 @@ void uiSynthToRealScale::updSynthStats()
     
     synthstatsfld_->dispfld_->setData( vals.arr(), vals.size() );
     synthstatsfld_->avgfld_->setValue(
-    	    synthstatsfld_->dispfld_->getRunCalc().average() );
+    	    synthstatsfld_->dispfld_->getStatCalc().average() );
 }
 
 
@@ -441,7 +441,7 @@ void uiSynthToRealScale::updRealStats()
     uiHistogramDisplay* histfld = realstatsfld_->dispfld_;
     histfld->setData( vals.arr(), vals.size() );
     histfld->putN();
-    realstatsfld_->avgfld_->setValue( histfld->getRunCalc().average() );
+    realstatsfld_->avgfld_->setValue( histfld->getStatCalc().average() );
     setScaleFld( 0 );
 }
 

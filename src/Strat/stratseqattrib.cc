@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.9 2011-10-14 12:07:43 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.10 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -223,7 +223,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
     if ( nrvals == 1 || statupscl_ == Stats::TakeNearest )
 	return vals[0];
 
-    Stats::RunCalcSetup rcsu( true );
+    Stats::CalcSetup rcsu( true );
     rcsu.require( stattype_ );
     Stats::RunCalc<float> rc( rcsu );
     for ( int idx=0; idx<vals.size(); idx++ )
@@ -274,7 +274,7 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
     if ( vals.size() == 1 )
 	return vals[0];
 
-    Stats::RunCalcSetup rcsu( !isthick );
+    Stats::CalcSetup rcsu( !isthick );
     rcsu.require( stattype_ );
     Stats::RunCalc<float> rc( rcsu );
     for ( int idx=0; idx<vals.size(); idx++ )

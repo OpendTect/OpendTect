@@ -15,6 +15,7 @@ static const char* rcsID = "$Id Exp $";
 #include "arrayndutils.h"
 #include "datapointset.h"
 #include "interpol1d.h"
+#include "posvecdataset.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "survinfo.h"
@@ -114,7 +115,7 @@ HorVariogramComputer::~HorVariogramComputer()
 bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
 					     int step, int range, int fold )
 {
-    Stats::RunCalcSetup rcsetuptot;
+    Stats::CalcSetup rcsetuptot;
     rcsetuptot.require( Stats::Variance );
     Stats::RunCalc<double> statstot( rcsetuptot );
     for ( DataPointSet::RowID irow=0; irow<dpset.size(); irow++ )
@@ -133,7 +134,7 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
 	int maxcrl = crlrg.stop-int(lag/SI().crlDistance())-1;
 	Array2DImpl<float> data(fold,3);
 
-	Stats::RunCalcSetup rcsetup;
+	Stats::CalcSetup rcsetup;
 	rcsetup.require( Stats::Average );
 	Stats::RunCalc<float> stats( rcsetup );
 
@@ -206,7 +207,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 					      int step, int range, int fold )
 {
     DataPointSet::ColID dpcolid(colid);
-    Stats::RunCalcSetup rcsetuptot;
+    Stats::CalcSetup rcsetuptot;
     rcsetuptot.require( Stats::Variance );
     rcsetuptot.require( Stats::Count );
     Stats::RunCalc<double> statstot( rcsetuptot );
@@ -228,6 +229,10 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	tmpvariogramvals.set(lag/step-1,0);
 	tmpvariogramcount.set(lag/step-1,0);
     }
+
+    BufferStringSet grpnames;
+    dpset.dataSet().pars().get( "Groups", grpnames );
+
     for ( int igroup=1; igroup<=nrgroups; igroup++ )
     {
 	TypeSet<MDandRowID> disorder;
@@ -274,7 +279,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	{
 	    BufferString emsg ="Z interval too small for analysis.\n";
 	    emsg += "Well ";
-	    // get well name
+	    emsg += grpnames.get( igroup-1 );
 	    emsg += " is not used";
 	    uiMSG().error( emsg.buf() );
 	    continue;
@@ -295,7 +300,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    {
 		BufferString emsg ="Interpolation error.\n";
 		emsg += "Well ";
-		// get well name
+		emsg += grpnames.get( igroup-1 );
 		emsg += " is not used";
 		uiMSG().error( emsg.buf() );
 		continue;
@@ -322,6 +327,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    {
 		double val1 = interpolatedvals.get(idz);
 		double val2 = interpolatedvals.get(idz+lag/step);
+		idz++;
 		if ( mIsZero(val1-val2,1e-6) )
 		    continue;
 		double diffval = 0.5*(val2-val1)*(val2-val1);
@@ -329,7 +335,6 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 				     diffval+tmpvariogramvals.get(lag/step-1));
 		tmpvariogramcount.set((lag/step-1),(od_int64)1+
 				      tmpvariogramcount.get(lag/step-1));
-		idz++;
 	    }
 	}
     }

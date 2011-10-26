@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackprop.cc,v 1.5 2011-09-02 09:20:44 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprop.cc,v 1.6 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "prestackprop.h"
 
@@ -216,7 +216,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	if ( !vals.size() )
 	    return 0;
 
-	Stats::RunCalcSetup rcs; rcs.require( su.stattype_ );
+	Stats::CalcSetup rcs; rcs.require( su.stattype_ );
 	Stats::RunCalc<float> rc( rcs );
 	rc.addValues( vals.size(), vals.arr() );
 	return rc.getValue( su.stattype_ );

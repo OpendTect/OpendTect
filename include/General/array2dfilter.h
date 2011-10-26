@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.13 2011-09-16 10:52:43 cvskris Exp $
+ RCS:           $Id: array2dfilter.h,v 1.14 2011-10-26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -123,7 +123,7 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     outputrowrg_.start = 0; outputrowrg_.stop = inputrowsize_-1;
     outputcolrg_.start = 0; outputcolrg_.stop = inputcolsize_-1;
 
-    Stats::RunCalcSetup setup( !mIsUdf(pars_.rowdist_) );
+    Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );
     calc_ = new Stats::RunCalc<float>( setup );
 }
@@ -150,7 +150,7 @@ Array2DFilterer<T>::Array2DFilterer( const Array2D<T>& input, Array2D<T>& a,
     outputcolrg_.start = origin.col;
     outputcolrg_.stop = origin.col+a.info().getSize(1)-1;
 
-    Stats::RunCalcSetup setup( !mIsUdf(pars_.rowdist_) );
+    Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );
     calc_ = new Stats::RunCalc<float>( setup );
 }

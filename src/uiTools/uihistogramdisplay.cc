@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.24 2011-05-30 04:28:42 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.25 2011-10-26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,25 +14,26 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
+#include "uimsg.h"
 
 #include "arraynd.h"
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "datapointset.h"
-#include "statruncalc.h"
+#include "statparallelcalc.h"
 
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p, 
 					uiHistogramDisplay::Setup& su,
        					bool withheader	)
     : uiFunctionDisplay( p, su.fillbelow( true ).
 	    		       yrg(Interval<float>(0,mUdf(float))) )
-    , rc_( *new Stats::RunCalc<float>(Stats::RunCalcSetup()
-					.require(Stats::Min)
-					.require(Stats::Max)
-					.require(Stats::Average)
-					.require(Stats::Median)
-					.require(Stats::StdDev)
-					.require(Stats::RMS)) ) 
+    , rc_(*new Stats::ParallelCalc<float>(Stats::CalcSetup(false)
+					    .require(Stats::Min)
+					    .require(Stats::Max)
+					    .require(Stats::Average)
+					    .require(Stats::Median)
+					    .require(Stats::StdDev)
+					    .require(Stats::RMS)) ) 
     , nrinpvals_(0)
     , nrclasses_(0)		   
     , withheader_(withheader)
@@ -117,33 +118,32 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
 void uiHistogramDisplay::setData( const DataPointSet& dpset )
 {
+    TypeSet<float> valarr;
     for ( int idx=0; idx<dpset.size(); idx++ )
     {
 	const float val = dpset.value( 2, idx );
 	if ( mIsUdf(val) )
 	    continue;
 
-	rc_.addValue( val );
+	valarr += val;
     }
-
-    updateAndDraw();
+    setData( valarr.arr(), valarr.size() ); 
 }
 
 
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
-    rc_.clear();
     if ( !array ) return;
 
     if ( array->getData() )
     {
-	rc_.addValues( array->info().getTotalSz(), array->getData() );
-	updateAndDraw();
+	setData( array->getData(), array->info().getTotalSz() );
 	return;
     }
-    
+
     const int sz2d0 = array->info().getSize( 0 );
     const int sz2d1 = array->info().getSize( 1 );
+    TypeSet<float> valarr;
     for ( int idx0=0; idx0<sz2d0; idx0++ )
     {
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
@@ -151,25 +151,19 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	    const float val = array->get( idx0, idx1 );
 	    if ( mIsUdf(val) ) continue;
 
-	    rc_.addValue( array->get( idx0, idx1 ) );
+	    valarr += val;
 	}
     }
-
+    rc_.setValues( valarr.arr(), valarr.size() );
     updateAndDraw();
 }
 
 
 void uiHistogramDisplay::setData( const float* array, int sz )
 {
-    rc_.clear();
     if ( !array ) return;
 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float val = array[idx];
-	if ( mIsUdf(val) ) continue ;
-	rc_.addValue( array[idx] );
-    }
+    rc_.setValues( array, sz );
 
     updateAndDraw();
 }
@@ -184,6 +178,9 @@ void uiHistogramDisplay::updateAndDraw()
 
 void uiHistogramDisplay::updateHistogram()
 {
+    if ( !rc_.execute() )
+	{ uiMSG().error( rc_.errMsg() ); return; }
+
     const int nrpts = rc_.count();
     nrclasses_ = getNrIntervals( nrpts );
     TypeSet<float> histdata( nrclasses_, 0 );

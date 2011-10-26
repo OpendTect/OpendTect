@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.12 2011-01-25 09:40:06 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.13 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -38,7 +38,7 @@ int Stats::RandGen::seed_ = 0;
 #include <stdlib.h>
 
 
-Stats::RunCalcSetup& Stats::RunCalcSetup::require( Stats::Type t )
+Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 {
     if ( t == Stats::Median )
 	{ needmed_ = true; return *this; }
@@ -46,13 +46,16 @@ Stats::RunCalcSetup& Stats::RunCalcSetup::require( Stats::Type t )
 	{ needmostfreq_ = true; return *this; }
     else if ( t >= Stats::Min && t <= Stats::Extreme )
 	{ needextreme_ = true; return *this; }
+    else if ( t == Stats::Variance || t == Stats::StdDev 
+	    || t == Stats::NormVariance )
+	{ needvariance_ = true; return *this; }
 
     needsums_ = true;
     return *this;
 }
 
 
-int Stats::RunCalcSetup::medianEvenHandling()
+int Stats::CalcSetup::medianEvenHandling()
 {
     static int ret = -2;
     if ( ret != -2 ) return ret;

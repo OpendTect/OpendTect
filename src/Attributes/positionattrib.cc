@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.35 2011-09-16 10:55:12 cvskris Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.36 2011-10-26 14:20:13 cvsbruno Exp $";
 
 
 #include "positionattrib.h"
@@ -181,7 +181,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     const Stats::Type statstype =  oper_ == 2 ? Stats::Median
 				: (oper_ == 1 ? Stats::Max
 					      : Stats::Min );
-    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
+    Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
     for ( int idx=0; idx<nrsamples; idx++ )

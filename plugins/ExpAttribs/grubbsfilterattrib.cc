@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.5 2011-09-16 11:32:35 cvskris Exp $";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.6 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -172,7 +172,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
     const int nrtraces = inputdata_.size();
 
-    Stats::RunCalcSetup setup( true );
+    Stats::CalcSetup setup( true );
     setup.require( Stats::Average );
     setup.require( Stats::StdDev );
     setup.require( Stats::Median );

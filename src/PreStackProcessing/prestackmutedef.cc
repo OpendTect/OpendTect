@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedef.cc,v 1.8 2011-10-14 15:42:43 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmutedef.cc,v 1.9 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "prestackmutedef.h"
 
@@ -104,7 +104,7 @@ float MuteDef::value( float offs, const BinID& pos ) const
     const double normalweight = si00.sqDistTo( si11 );
 
     const Coord centercrd( SI().transform(pos) );
-    Stats::RunCalcSetup rcsetup( true ); //weighted
+    Stats::CalcSetup rcsetup( true ); //weighted
     Stats::RunCalc<float> calc( rcsetup.require(Stats::Average) );
 
     for ( int iloc=0; iloc<fns_.size(); iloc++ )

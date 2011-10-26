@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.31 2011-02-28 10:21:53 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.32 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.31 2011-02-28 10:21:53 cv
 #include "uihistogramdisplay.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uiseparator.h"
 
 #include "arraynd.h"
@@ -23,7 +24,7 @@ static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.31 2011-02-28 10:21:53 cv
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "datapointset.h"
-#include "statruncalc.h"
+#include "statparallelcalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
 
@@ -105,13 +106,14 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     if ( !histgramdisp_ || 
 	 (histgramdisp_ && !histgramdisp_->setDataPackID(dpid,dmid)) )
     {
-	Stats::RunCalc<float> rc( (Stats::RunCalcSetup()
-					    .require(Stats::Min)
-					    .require(Stats::Max)
-					    .require(Stats::Average)
-					    .require(Stats::Median)
-					    .require(Stats::StdDev)
-					    .require(Stats::RMS)) );
+	Stats::ParallelCalc<float> rc( (Stats::CalcSetup()
+						.require(Stats::Min)
+						.require(Stats::Max)
+						.require(Stats::Average)
+						.require(Stats::Median)
+						.require(Stats::StdDev)
+						.require(Stats::RMS)) );
+
 	DataPackMgr& dpman = DPM( dmid );
 	const DataPack* datapack = dpman.obtain( dpid );
 	if ( !datapack ) return false;
@@ -123,16 +125,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();
-	    if ( !array )
-		return false;
-
-	    for ( int idx=0; idx<arr3d->info().getTotalSz(); idx++ )
-	    {
-		const float val = array[idx];
-		if ( mIsUdf(val) ) continue ;
-
-		rc.addValue( array[idx] );
-	    }
+	    rc.setValues( array, arr3d->info().getTotalSz() );
 	}
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
@@ -144,25 +137,10 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    else if ( fdp )
 		array = &fdp->data();
 
-	    if ( !array ) return false;
+	    if ( !array ) 
+		return false;
 
-	    if ( array->getData() )
-		 rc.addValues( array->info().getTotalSz(), array->getData() );
-	    else
-	    {
-		const int sz2d0 = array->info().getSize( 0 );
-		const int sz2d1 = array->info().getSize( 1 );
-		for ( int idx0=0; idx0<sz2d0; idx0++ )
-		{
-		    for ( int idx1=0; idx1<sz2d1; idx1++ )
-		    {
-			const float val = array->get( idx0, idx1 );
-			if ( mIsUdf(val) ) continue;
-
-			rc.addValue( array->get( idx0, idx1 ) );
-		    }
-		}
-	    }
+	    rc.setValues( array->getData(), array->info().getTotalSz() );
 	}
 	else if ( dmid == DataPackMgr::SurfID() )
 	{
@@ -170,21 +148,20 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !dpset )
 		return false;
 
+	    TypeSet<float> valarr;
 	    for ( int idx=0; idx<dpset->size(); idx++ )
-	    {
-		const float val = dpset->value( 2, idx );
-		if ( mIsUdf(val) )
-		    continue;
+		valarr += dpset->value( 2, idx );
 
-		rc.addValue( val );
-	    }
+	    rc.setValues( valarr.arr(), valarr.size() );
 	}
+	if ( !rc.execute() )
+	    { uiMSG().error( rc.errMsg() ); return false; }
 
 	setData( rc );
 	return false;
     }
     
-    setData( histgramdisp_->getRunCalc() );
+    setData( histgramdisp_->getStatCalc() );
     return true;
 }
 
@@ -195,7 +172,7 @@ void uiStatsDisplay::setData( const float* array, int sz )
 	return;
 
     histgramdisp_->setData( array, sz );
-    setData( histgramdisp_->getRunCalc() );
+    setData( histgramdisp_->getStatCalc() );
 }
 
 
@@ -205,11 +182,11 @@ void uiStatsDisplay::setData( const Array2D<float>* array )
 	return;
 
     histgramdisp_->setData( array );
-    setData( histgramdisp_->getRunCalc() );
+    setData( histgramdisp_->getStatCalc() );
 }
 
 
-void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
+void uiStatsDisplay::setData( const Stats::ParallelCalc<float>& rc )
 {
     if ( mPutCountInPlot() )
 	putN();
@@ -223,7 +200,7 @@ void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
     minmaxfld_->setValue( rc.max(), 1 );
     avgstdfld_->setValue( rc.average(), 0 );
     avgstdfld_->setValue( rc.stdDev(), 1 );
-    medrmsfld_->setValue( rc.median(), 0 );
+    medrmsfld_->setValue( rc.median(), 0 ); 
     medrmsfld_->setValue( rc.rms(), 1 ); 
 }
 
@@ -290,7 +267,7 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 }
 
 
-void uiStatsDisplayWin::setData( const Stats::RunCalc<float>& rc, int idx )
+void uiStatsDisplayWin::setData( const Stats::ParallelCalc<float>& rc, int idx )
 {
     if ( disps_.validIdx(idx) )
 	disps_[idx]->setData( rc.medvals_.arr(), rc.medvals_.size() );

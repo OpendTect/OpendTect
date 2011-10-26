@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.10 2011-02-28 10:16:26 cvsnageswara Exp $
+ RCS:		$Id: uihistogramdisplay.h,v 1.11 2011-10-26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiTextItem;
 template <class T> class Array2D;
-namespace Stats { template <class T> class RunCalc; }
+namespace Stats { template <class T> class ParallelCalc; }
 
 class DataPointSet;
 
@@ -37,14 +37,14 @@ public:
     void			setHistogram(const TypeSet<float>&,
 	    				     Interval<float>,int N=-1);
 
-    const Stats::RunCalc<float>&	getRunCalc()	{ return rc_; }
+    const Stats::ParallelCalc<float>&	getStatCalc()	{ return rc_; }
     int                         nrInpVals() const       { return nrinpvals_; }
     int				nrClasses() const       { return nrclasses_; }
     void			putN(); 
 
 protected:
 
-    Stats::RunCalc<float>&	rc_;	
+    Stats::ParallelCalc<float>&	rc_;	
     int                         nrinpvals_;
     int                         nrclasses_;
     bool			withheader_;

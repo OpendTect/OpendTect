@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.13 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.14 2011-10-26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiHistogramDisplay;
 class uiGenInput;
 class uiLabel;
 template <class T> class Array2D;
-namespace Stats { template <class T> class RunCalc; }
+namespace Stats { template <class T> class ParallelCalc; }
 
 
 mClass uiStatsDisplay : public uiGroup
@@ -63,7 +63,7 @@ protected:
 
     const Setup			setup_;
 
-    void			setData(const Stats::RunCalc<float>&);
+    void			setData(const Stats::ParallelCalc<float>&);
 };
 
 

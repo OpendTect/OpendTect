@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.14 2011-07-08 11:42:29 cvsnageswara Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.15 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "stratamp.h"
 
@@ -205,7 +205,7 @@ int StratAmpCalc::nextStep()
     if ( sampintv.stop >= trc->size() )
 	sampintv.stop = trc->size()-1;
 
-    Stats::RunCalcSetup rcsetup;
+    Stats::CalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
     for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )

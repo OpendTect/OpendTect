@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonmerger.cc,v 1.4 2011-05-26 07:19:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonmerger.cc,v 1.5 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "horizonmerger.h"
 
@@ -75,7 +75,7 @@ od_int64 Horizon3DMerger::nrIterations() const
 
 bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    Stats::RunCalcSetup rcs; rcs.require( Stats::Extreme );
+    Stats::CalcSetup rcs; rcs.require( Stats::Extreme );
     Stats::RunCalc<float> rc( rcs );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {

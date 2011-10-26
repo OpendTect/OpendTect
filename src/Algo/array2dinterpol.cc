@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.34 2011-09-16 10:54:03 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.35 2011-10-26 14:20:13 cvsbruno Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -460,7 +460,7 @@ bool Array2DInterpol::doPrepare( int )
 	return true;
 
     delete statsetup_;
-    mTryAlloc( statsetup_, Stats::RunCalcSetup( true ) );
+    mTryAlloc( statsetup_, Stats::CalcSetup( true ) );
     if ( !statsetup_ )
 	return false;
 
