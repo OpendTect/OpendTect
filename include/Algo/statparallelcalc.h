@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.1 2011-10-26 14:20:13 cvsbruno Exp $
+RCS:           $Id: statparallelcalc.h,v 1.2 2011-10-26 15:04:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,9 +183,9 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     sum_wxx_ += sum_wxx;
     nrused_ += nrused;
 
-    if ( mIsUdf(minval_) || minval_ > tmin )
+    if ( ( mIsUdf(minval_) || minval_ > tmin ) &&  !mIsUdf(tmin ) )
 	{ minval_ = tmin; minidx_ = minidx; }
-    if ( mIsUdf(maxval_) || maxval_ < tmax )
+    if ( ( mIsUdf(maxval_) || maxval_ < tmax ) && !mIsUdf(tmax) )
 	{ maxval_ = tmax; maxidx_ = maxidx; }
 
     barrier_.mutex().unLock();
