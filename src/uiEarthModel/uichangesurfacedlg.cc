@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.34 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.35 2011-10-26 09:22:19 cvsjaap Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -183,7 +183,8 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
     : uiChangeHorizonDlg(p,hor,false,"Horizon filtering")
 {
-    parsgrp_ = new uiArr2DFilterPars( this );
+    Array2DFilterPars filterpars( Stats::Median );
+    parsgrp_ = new uiArr2DFilterPars( this, &filterpars );
     attachPars();
 }
 
