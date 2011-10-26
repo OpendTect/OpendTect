@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.14 2011-10-25 14:44:46 cvskris Exp $
+ RCS:		$Id: sorting.h,v 1.15 2011-10-26 14:20:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -446,7 +446,10 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
     }
     else
     {
-	quickSort( vals_+start, threadsize );
+	if ( idxs_ )
+	    quickSort( vals_+start, idxs_+start, threadsize );
+	else
+	    quickSort( vals_+start, threadsize );
     }
 
     if ( !shouldContinue() )
