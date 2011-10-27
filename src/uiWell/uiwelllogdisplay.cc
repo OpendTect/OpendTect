@@ -27,189 +27,61 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc";
 #include <iostream>
 
 
-#define mDefZPos(zpos) \
-    if ( zdata_.zistime_ && zdata_.d2tm_ )\
-	zpos = zdata_.d2tm_->getTime( zpos )*1000;
-
-#define mDefZPosInLoop(val) \
-    float zpos = val;\
-    mDefZPos(zpos)\
-    if ( !zdata_.zrg_.includes( zpos, true ) )\
-        continue;
-
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
-    : wl_(0)
+    : uiWellDahDisplay::DahObjData( scn, isfirst, s )  
     , unitmeas_(0)
-    , zoverlayval_(2)		  
-    , xax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
-				.border(s.border_)
-				.annotinside(s.annotinside_)
-				.noannot(s.noxannot_))
-    , yax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Left : uiRect::Right )
-				.border(s.border_)
-				.annotinside(s.annotinside_)
-				.noannot(s.noyannot_))
-    , xrev_(false)
-    , zrg_(mUdf(float),0)
-    , valrg_(mUdf(float),0)
-    , curvenmitm_(0)
-    , curveitm_(0)
+{}
+
+
+void uiWellLogDisplay::gatherDataInfo( bool first )
 {
-    if ( !isfirst )
-	yax_.setup().nogridline(true);
+    LogData& ld = logData( first );
+    ld.yax_.setup().islog( ld.disp_.islogarithmic_ );
+    ld.cliprate_ = ld.disp_.cliprate_; 
+    ld.valrg_ = ld.disp_.range_;
+
+    uiWellDahDisplay::gatherDataInfo( first );
+}
+
+
+const Well::Log* uiWellLogDisplay::LogData::log() const
+{
+    mDynamicCastGet(const Well::Log*,dahlog,dahobj_)
+    return dahlog;
+}
+
+
+void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
+{
+    dahobj_ = l;
 }
 
 
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
-    : uiWellDahDisplay(p,"Well Log display viewer")
+    : uiWellDahDisplay(p,su)
     , setup_(su)
-    , ld1_(scene(),true,su)
-    , ld2_(scene(),false,su)
 {
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-
+    delete ld1_; delete ld2_;
+    ld1_ = new LogData( scene(), true, su );
+    ld2_ = new LogData( scene(), false, su );
     finaliseDone.notify( mCB(this,uiWellLogDisplay,init) );
-}
-
-
-uiWellLogDisplay::~uiWellLogDisplay()
-{
-}
-
-
-void uiWellLogDisplay::gatherInfo()
-{
-    setAxisRelations();
-    gatherInfo( true );
-    gatherInfo( false );
-
-    if ( mIsUdf(zdata_.zrg_.start) && ld1_.wl_ )
-    {
-	zdata_.zrg_ = ld1_.zrg_;
-	if ( ld2_.wl_ )
-	    zdata_.zrg_.include( ld2_.zrg_ );
-    }
-    setAxisRanges( true );
-    setAxisRanges( false );
-
-    ld1_.yax_.setup().islog( ld1_.disp_.islogarithmic_ );
-    ld1_.xax_.setup().epsaroundzero_ = 1e-5;
-    ld1_.xax_.setup().maxnumberdigitsprecision_ = 3;
-    ld2_.yax_.setup().islog( ld2_.disp_.islogarithmic_ );
-    ld2_.xax_.setup().maxnumberdigitsprecision_ = 3;
-    ld2_.xax_.setup().epsaroundzero_ = 1e-5;
-
-    if ( ld1_.wl_ ) ld1_.xax_.setName( ld1_.wl_->name() );
-    if ( ld2_.wl_ ) ld2_.xax_.setName( ld2_.wl_->name() );
-}
-
-
-void uiWellLogDisplay::setAxisRelations()
-{
-    ld1_.xax_.setBegin( &ld1_.yax_ );
-    ld1_.yax_.setBegin( &ld2_.xax_ );
-    ld2_.xax_.setBegin( &ld1_.yax_ );
-    ld2_.yax_.setBegin( &ld2_.xax_ );
-    ld1_.xax_.setEnd( &ld2_.yax_ );
-    ld1_.yax_.setEnd( &ld1_.xax_ );
-    ld2_.xax_.setEnd( &ld2_.yax_ );
-    ld2_.yax_.setEnd( &ld1_.xax_ );
-
-    ld1_.xax_.setNewDevSize( width(), height() );
-    ld1_.yax_.setNewDevSize( height(), width() );
-    ld2_.xax_.setNewDevSize( width(), height() );
-    ld2_.yax_.setNewDevSize( height(), width() );
-}
-
-
-void uiWellLogDisplay::gatherInfo( bool first )
-{
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-
-    const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 )
-    {
-	if ( !first )
-	{
-	    ld2_.zrg_ = ld1_.zrg_;
-	    ld2_.valrg_ = ld1_.valrg_;
-	}
-	return;
-    }
-
-    if ( ld.disp_.cliprate_ || mIsUdf( ld.disp_.range_.start ) )
-    {
-	DataClipSampler dcs( sz );
-	dcs.add( ld.wl_->valArr(), sz );
-	ld.valrg_ = dcs.getRange( ld.disp_.cliprate_ );
-    }
-    else
-	ld.valrg_ = ld.disp_.range_;
-
-    if ( !ld1_.wl_ && !ld2_.wl_ ) 
-	ld.valrg_ = ld.disp_.range_ = Interval<float>(0,0);
-
-    float startpos = ld.zrg_.start = ld.wl_->dah( 0 );
-    float stoppos = ld.zrg_.stop = ld.wl_->dah( sz-1 );
-    if ( zdata_.zistime_ && zdata_.d2tm_ && zdata_.d2tm_->size() > 1  )
-    {
-	startpos = zdata_.d2tm_->getTime( startpos )*1000;
-	stoppos = zdata_.d2tm_->getTime( stoppos )*1000;
-    }
-    ld.zrg_.start = startpos;
-    ld.zrg_.stop = stoppos;
-    if ( zdata_.dispzinft_ && !zdata_.zistime_)
-	ld.zrg_.scale( mToFeetFactor );
-}
-
-
-void uiWellLogDisplay::setAxisRanges( bool first )
-{
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    if ( !first && setup_.sameaxisrange_ ) return;
-
-    Interval<float> dispvalrg( ld.valrg_ );
-    if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
-	ld.xax_.setBounds( dispvalrg );
-
-    Interval<float> dispzrg( zdata_.zrg_.stop, zdata_.zrg_.start );
-    ld.yax_.setBounds( dispzrg );
-
-    if ( first )
-    {
-    // Set default for 2nd
-	ld2_.xax_.setBounds( dispvalrg );
-	ld2_.yax_.setBounds( dispzrg );
-    }
 }
 
 
 void uiWellLogDisplay::draw()
 {
-    setAxisRelations();
-    if ( mIsUdf(zdata_.zrg_.start) ) return;
+    uiWellDahDisplay::draw();
 
-    ld1_.xax_.plotAxis(); ld1_.yax_.plotAxis();
-    ld2_.xax_.plotAxis(); ld2_.yax_.plotAxis();
-
-    drawMarkers();
-
-    drawCurve( true );
-    drawCurve( false );
-
-    if ( ld1_.disp_.iswelllog_ )
+    if ( logData().disp_.iswelllog_ )
 	drawFilledCurve( true );
     else
 	drawSeismicCurve( true );
 
-    if ( ld2_.disp_.iswelllog_ )
+    if ( logData(false).disp_.iswelllog_ )
 	drawFilledCurve( false );
     else
 	drawSeismicCurve( false );
-
-    drawZPicks();
 }
 
 
@@ -225,55 +97,20 @@ static const int cMaxNrLogSamples = 2000;
 
 void uiWellLogDisplay::drawCurve( bool first )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    delete ld.curvenmitm_; ld.curvenmitm_ = 0;
-    delete ld.curveitm_; ld.curveitm_ = 0;
-    const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 || ld.disp_.size_ <=0 ) return;
+    uiWellDahDisplay::drawCurve( first );
+    LogData& ld = logData( first );
+    if ( !ld.curveitm_ ) return;
 
-    TypeSet<uiPoint> pts; 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	mDefZPosInLoop( ld.wl_->dah( idx ) );
-	float val = ld.wl_->value( idx );
-	int xaxisval = mIsUdf(val) ? mUdf(int) : ld.xax_.getPix(val);
-	pts += uiPoint( xaxisval, ld.yax_.getPix(zpos) );
-    }
-    if ( pts.isEmpty() )
-	return;
-    if ( !ld.curveitm_ ) 
-	ld.curveitm_ = scene().addItem( new uiPolyLineItem() );
-    uiPolyLineItem* pli = ld.curveitm_;
-    pli->setPolyLine( pts );
     LineStyle ls(LineStyle::Solid);
     ls.width_ = ld.disp_.size_;
     ls.color_ = ld.disp_.color_;
-    pli->setPenStyle( ls );
-    pli->setZValue( ld.zoverlayval_ );
-
-    Alignment al( Alignment::HCenter,
-    first ? Alignment::Top : Alignment::Bottom );
-    ld.curvenmitm_ = scene().addItem( new uiTextItem(ld.wl_->name(),al) );
-    ld.curvenmitm_->setTextColor( ls.color_ );
-    uiPoint txtpt;
-    if ( first )
-	txtpt = uiPoint( pts[0] );
-    else
-	txtpt = pts[pts.size()-1];
-
-    ld.curvenmitm_->setPos( txtpt );
-
-    if ( first )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
-			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
-    if ( ld.unitmeas_ )
-	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
+    ld.curveitm_->setPenStyle( ls );
 }
 
 
 void uiWellLogDisplay::drawSeismicCurve( bool first )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = logData(first);
     deepErase( ld.curvepolyitms_ );
 
     if ( ld.disp_.iswelllog_ ) return;
@@ -282,7 +119,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     const float rgstart = ld.xax_.range().start;
     const bool isrev = rgstop < rgstart;
 
-    int sz = ld.wl_ ? ld.wl_->size() : 0;
+    int sz = ld.log() ? ld.log()->size() : 0;
     if ( sz < 2 ) return;
     float step = 1;
     mGetLoopSize( sz, step );
@@ -290,7 +127,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     ObjectSet< TypeSet<uiPoint> > pts;
     uiPoint closept;
 
-    float zfirst = ld.wl_->dah(0);
+    float zfirst = ld.log()->dah(0);
     mDefZPos( zfirst )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
@@ -303,15 +140,15 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = mNINT(idx*step);
-	float dah = ld.wl_->dah( index );
+	float dah = ld.log()->dah( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah >= ld.wl_->dah(index+1) || dah <= ld.wl_->dah(index-1) )
+	    if ( dah >= ld.log()->dah(index+1) || dah <= ld.log()->dah(index-1) )
 		continue;
 	}
 	mDefZPosInLoop( dah )
 
-	float val = ld.wl_->value( index );
+	float val = ld.log()->value( index );
 
 	pt.x = ld.xax_.getPix(val);
 	pt.y = closept.y = ld.yax_.getPix(zpos);
@@ -351,7 +188,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 
 void uiWellLogDisplay::drawFilledCurve( bool first )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = logData(first);
     deepErase( ld.curvepolyitms_ );
 
     if ( !ld.disp_.isleftfill_ && !ld.disp_.isrightfill_ ) return;
@@ -361,7 +198,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const bool isrev = rgstop < rgstart;
 
     float colstep = ( rgstop -rgstart ) / 255;
-    int sz = ld.wl_ ? ld.wl_->size() : 0;
+    int sz = ld.log() ? ld.log()->size() : 0;
     if ( sz < 2 ) return;
     float step = 1;
     mGetLoopSize( sz, step );
@@ -377,7 +214,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 		|| ( !first && ld.disp_.isrightfill_ && !isrev )
 		|| ( !first && ld.disp_.isleftfill_ && isrev ) );
 
-    float zfirst = ld.wl_->dah(0);
+    float zfirst = ld.log()->dah(0);
     mDefZPos( zfirst )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
@@ -392,15 +229,15 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = mNINT(idx*step);
-	float dah = ld.wl_->dah( index );
+	float dah = ld.log()->dah( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah >= ld.wl_->dah(index+1) || dah <= ld.wl_->dah(index-1) )
+	    if ( dah >= ld.log()->dah(index+1) || dah <= ld.log()->dah(index-1))
 		continue;
 	}
 	mDefZPosInLoop( dah )
 
-	float val = ld.wl_->value( index );
+	float val = ld.log()->value( index );
 	bool iscoltabrev = isrev; 
 	if ( ld.disp_.iscoltabflipped_ )
 	    iscoltabrev = !iscoltabrev;
@@ -463,97 +300,9 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 }
 
 
-#define mMrkrScale2DFac 1./(float)5
-#define mDefHorLineX1X2Y() \
-const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
-const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
-const int y = ld1_.yax_.getPix( zpos )
-
-void uiWellLogDisplay::drawMarkers()
-{
-    deepErase( markerdraws_ );
-
-    if ( !zdata_.markers_ ) return;
-
-    for ( int idx=0; idx<zdata_.markers_->size(); idx++ )
-    {
-	const Well::Marker& mrkr = *((*zdata_.markers_)[idx]);
-	if ( !mrkdisp_.selmarkernms_.isPresent( mrkr.name() ) )
-	    continue;
-
-	const Color& col= mrkdisp_.issinglecol_? mrkdisp_.color_ : mrkr.color();
-	const Color& nmcol = mrkdisp_.samenmcol_ ? col :  mrkdisp_.nmcol_;
-
-	if ( col == Color::NoColor() || col == Color::White() )
-	    continue;
-
-	mDefZPosInLoop( mrkr.dah() );
-	mDefHorLineX1X2Y();
-
-	MarkerDraw* mrkdraw = new MarkerDraw( mrkr );
-	markerdraws_ += mrkdraw;
-
-	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
-	const int shapeint = mrkdisp_.shapeint_;
-	const int drawsize = (int)(mrkdisp_.size_*mMrkrScale2DFac);
-	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
-	if ( shapeint == 1 )
-	    ls.type_ =  LineStyle::Solid;
-	if ( shapeint == 2 )
-	    ls.type_ = LineStyle::Dash;
-
-	li->setPenStyle( ls );
-	li->setZValue( 2 );
-	mrkdraw->lineitm_ = li;
-	mrkdraw->ls_ = ls;
-
-	BufferString mtxt( mrkr.name() );
-	if ( setup_.nrmarkerchars_ < mtxt.size() )
-	mtxt[setup_.nrmarkerchars_] = '\0';
-	uiTextItem* ti = scene().addItem(
-	new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
-	ti->setPos( uiPoint(x1-1,y) );
-	ti->setTextColor( nmcol );
-	mrkdraw->txtitm_ = ti;
-    }
-}
+const uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first ) const
+{ return static_cast<const LogData&>( first ? *ld1_ : *ld2_ ); }
 
 
-uiWellLogDisplay::MarkerDraw* uiWellLogDisplay::getMarkerDraw(
-						const Well::Marker& mrk )
-{
-    for ( int idx=0; idx<markerdraws_.size(); idx++)
-    {
-	if ( &(markerdraws_[idx]->mrk_) == &mrk )
-	    return markerdraws_[idx];
-    }
-    return 0;
-}
-
-
-void uiWellLogDisplay::drawZPicks()
-{
-    deepErase( zpickitms_ );
-
-    for ( int idx=0; idx<zpicks_.size(); idx++ )
-    {
-	const PickData& pd = zpicks_[idx];
-	mDefZPosInLoop( pd.dah_ );
-	mDefHorLineX1X2Y();
-
-	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
-	Color lcol( setup_.pickls_.color_ );
-	if ( pd.color_ != Color::NoColor() )
-	lcol = pd.color_;
-	li->setPenStyle( LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
-			lcol) );
-	li->setZValue( 2 );
-	zpickitms_ += li;
-    }
-}
-
-
-uiWellLogDisplay::MarkerDraw::~MarkerDraw()
-{
-    delete txtitm_; delete lineitm_; 
-}
+uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
+{ return static_cast<LogData&>( first ? *ld1_ : *ld2_ ); }

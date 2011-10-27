@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.20 2011-06-20 11:55:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.21 2011-10-27 08:54:11 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -103,14 +103,15 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	if ( zdata.zistime_ )
 	{
 	    time_ = pos;
-	    if ( zdata.d2tm_ && zdata.d2tm_->size() >= 1 )
-		depth_ = zdata.d2tm_->getDah( pos*0.001 );
+	    const Well::D2TModel* d2t = zdata.d2T();
+	    if ( d2t && d2t->size() >= 1 )
+		depth_ = d2t->getDah( pos*0.001 );
 	}
 	else
 	{
-	    depth_ = pos;
-	    if ( zdata.d2tm_ )
-		time_ = zdata.d2tm_->getTime( pos )*1000;
+	    const Well::Track* tr = zdata.track(); 
+	    depth_ = tr ? tr->getDahForTVD( pos ) : mUdf(float);
+	    time_ = pos;
 	}
     }
 
@@ -136,21 +137,21 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     bool zinft = seldisp_->zData().dispzinft_ && seldisp_->zData().zistime_;
     float dispdepth = zinft ? mToFeetFactor*depth_ : depth_;
     info += toString( mNINT(dispdepth) );
-    info += "  Time: ";
+    info += seldisp_->zData().zistime_ ? " Time: " : " Depth: ";
     info += toString( mNINT(time_) );
 
 #define mGetLogPar( ld )\
     info += "   ";\
-    info += ld.wl_->name();\
+    info += ld.log()->name();\
     info += ":";\
-    info += toString( ld.wl_->getValue( depth_ ) );\
-    info += ld.wl_->unitMeasLabel();\
+    info += toString( ld.log()->getValue( depth_ ) );\
+    info += ld.log()->unitMeasLabel();\
 
     const uiWellLogDisplay::LogData& ldata1 = seldisp_->logData(true);
     const uiWellLogDisplay::LogData& ldata2 = seldisp_->logData(false);
-    if ( ldata1.wl_ )
+    if ( ldata1.log() )
     { mGetLogPar( ldata1 ) }
-    if ( ldata2.wl_ )
+    if ( ldata2.log() )
     { mGetLogPar( ldata2 ) }
 }
 

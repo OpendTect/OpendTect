@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.7 2011-10-19 14:11:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.8 2011-10-27 08:54:11 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -412,12 +412,12 @@ void uiWellLogToolWin::displayLogs()
 	{
 	    uiWellLogDisplay* ld = logdisps_[nrdisp];
 	    uiWellLogDisplay::LogData* wld = &ld->logData( true );
-	    wld->wl_ = inplogs[idlog];
+	    wld->setLog( inplogs[idlog] );
 	    wld->disp_.color_ = Color::stdDrawColor( 1 );
 	    wld->zoverlayval_ = 1;
 
 	    wld = &ld->logData( false );
-	    wld->wl_ = outplogs.validIdx( idlog ) ? outplogs[idlog] : 0;
+	    wld->setLog( outplogs.validIdx( idlog ) ? outplogs[idlog] : 0 );
 	    wld->xrev_ = false;
 	    wld->zoverlayval_ = 2;
 	    wld->disp_.color_ = Color::stdDrawColor( 0 );

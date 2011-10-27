@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.33 2011-06-29 11:16:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.34 2011-10-27 08:54:11 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.33 2011-06-29 11:16:1
 #include "wellmarker.h"
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
-    : uiWellDahDisplay(p,"Well Strat Display")
+    : uiWellDahDisplay(p,uiWellDahDisplay::Setup())
     , data_(StratDispData())  
     , drawer_(uiStratDrawer(scene(),data_))
     , stratgen_(0)  
@@ -46,10 +46,10 @@ uiWellStratDisplay::~uiWellStratDisplay()
 
 void uiWellStratDisplay::gatherInfo()
 {
-    if ( zdata_.markers_ )
+    if ( zdata_.mrks() )
     {
 	delete stratgen_;
-	stratgen_ = new WellStratUnitGen(data_,*zdata_.markers_,zdata_.d2tm_);
+	stratgen_ = new WellStratUnitGen(data_,*zdata_.mrks(),zdata_.d2T());
     }
 }
 
@@ -139,6 +139,7 @@ void WellStratUnitGen::gatherLeavedUnits()
 	}
     }
 }
+
 
 
 const Well::Marker* WellStratUnitGen::getMarkerFromLvlID( int lvlid ) const

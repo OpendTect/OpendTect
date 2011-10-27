@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.17 2011-09-20 10:30:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.18 2011-10-27 08:54:10 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -27,7 +27,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , setup_(s)	    
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
-    , zistime_(w.haveD2TModel())
+    , zistime_(w.haveD2TModel() && SI().zIsTime())
     , is3ddisp_(s.takedisplayfrom3d_)				
     , control_(0)
     , stratdisp_(0) 
@@ -146,9 +146,7 @@ void uiWellDisplay::setDahData()
     uiWellDahDisplay::Data data;
     data.zrg_ = zrg_;
     data.dispzinft_ = dispzinft_;
-    data.zistime_ = zistime_;
-    data.d2tm_ = wd_.d2TModel();
-    data.markers_ = (ObjectSet<Well::Marker>*)&wd_.markers();
+    data.wd_ = &wd_;
 
     for ( int idx=0; idx<logdisps_.size(); idx++ )
 	logdisps_[idx]->setData( data );
@@ -174,7 +172,7 @@ void uiWellDisplay::setDisplayProperties()
 	const Well::Log* l1 = wd_.logs().getLog( lp1.name_ );
 	const Well::Log* l2 = wd_.logs().getLog( lp2.name_ );
 
-	ld1.wl_ = l1;				ld2.wl_ = l2;
+	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
 	ld1.disp_ = lp1;			ld2.disp_ = lp2;
 

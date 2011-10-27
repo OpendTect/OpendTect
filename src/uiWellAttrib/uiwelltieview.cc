@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.93 2011-09-28 10:36:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.94 2011-10-27 08:54:11 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -158,12 +158,10 @@ void uiTieView::setLogsParams()
     mGetWD(return)
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->logData(true).wl_ = 0;
-	logsdisp_[idx]->logData(false).wl_ = 0;
+	logsdisp_[idx]->logData(true).setLog( 0 );
+	logsdisp_[idx]->logData(false).setLog( 0 );
 	uiWellDahDisplay::Data data;
-	data.zrg_ = zrange_;
-	data.d2tm_ = wd->d2TModel();
-	data.markers_ = &wd->markers();
+	data.wd_ = wd;
 	data.dispzinft_ = params_.iszinft_;
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
@@ -176,7 +174,7 @@ void uiTieView::setLogsParams()
 void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
-    wldld.wl_ = data_.logset_.getLog( nm );
+    wldld.setLog( data_.logset_.getLog( nm ) );
     wldld.disp_.color_ = Color::stdDrawColor( first ? 0 : 1 );
     wldld.disp_.isleftfill_ = wldld.disp_.isrightfill_ = false;
     wldld.xrev_ = reversed;
@@ -262,7 +260,6 @@ void uiTieView::drawLogDispWellMarkers()
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_; 
-	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd->markers() : 0 );
     }
 }
 
