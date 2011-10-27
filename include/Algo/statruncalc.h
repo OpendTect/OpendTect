@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.23 2011-10-26 14:20:13 cvsbruno Exp $
+ RCS:           $Id: statruncalc.h,v 1.24 2011-10-27 08:18:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "sorting.h"
 #include "sets.h"
-
 
 #define mUndefReplacement 0
 
@@ -528,7 +527,7 @@ mGlobal T computeWeightedMedian( const T* data, const T* wts, int sz,
     T* valarr = const_cast<T*>( data );
     mGetIdxArr(int,idxs,sz)
     quickSort( valarr, idxs, sz );
-    T wtcopy[sz];
+    T* wtcopy = new T[sz];
     memcpy( wtcopy, wts, sz*sizeof(T) );
     float wsum = 0;
     for ( int idx=0; idx<sz; idx++ )

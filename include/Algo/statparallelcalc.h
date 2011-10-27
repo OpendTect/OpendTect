@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.2 2011-10-26 15:04:08 cvsbruno Exp $
+RCS:           $Id: statparallelcalc.h,v 1.3 2011-10-27 08:18:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,23 @@ public:
 
     virtual inline double variance() const;
 
+    using BaseCalc<T>::setup_;
+    using BaseCalc<T>::nradded_;
+    using BaseCalc<T>::nrused_;
+    using BaseCalc<T>::minidx_;
+    using BaseCalc<T>::maxidx_;
+    using BaseCalc<T>::maxval_;
+    using BaseCalc<T>::minval_;
+    using BaseCalc<T>::sum_x_;
+    using BaseCalc<T>::sum_xx_;
+    using BaseCalc<T>::sum_w_;
+    using BaseCalc<T>::sum_wx_;
+    using BaseCalc<T>::sum_wxx_;
+    using BaseCalc<T>::clss_;
+    using BaseCalc<T>::clsswt_;
+    using BaseCalc<T>::medwts_;
+    using BaseCalc<T>::medvals_;
+
 protected:
 
     od_int64 			nrIterations() const    { return nradded_;}
@@ -65,24 +82,6 @@ protected:
     T                           meanval_w_;
     T                           variance_;
     T                           variance_w_;
-
-    using BaseCalc<T>::setup_;
-    using BaseCalc<T>::nradded_;
-    using BaseCalc<T>::nrused_;
-    using BaseCalc<T>::minidx_;
-    using BaseCalc<T>::maxidx_;
-    using BaseCalc<T>::maxval_;
-    using BaseCalc<T>::minval_;
-    using BaseCalc<T>::sum_x_;
-    using BaseCalc<T>::sum_xx_;
-    using BaseCalc<T>::sum_w_;
-    using BaseCalc<T>::sum_wx_;
-    using BaseCalc<T>::sum_wxx_;
-    using BaseCalc<T>::clss_;
-    using BaseCalc<T>::clsswt_;
-    using BaseCalc<T>::medwts_;
-    using BaseCalc<T>::medvals_;
-
 };
 
 
