@@ -34,6 +34,12 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 {}
 
 
+uiWellLogDisplay::~uiWellLogDisplay()
+{
+    delete ld1_; ld1_ = 0;
+    delete ld2_; ld2_ = 0;
+}
+
 void uiWellLogDisplay::gatherDataInfo( bool first )
 {
     LogData& ld = logData( first );

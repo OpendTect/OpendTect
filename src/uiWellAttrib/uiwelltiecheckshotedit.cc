@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.1 2011-10-27 12:40:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.2 2011-10-27 15:08:12 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 #include "uimsg.h"
@@ -38,6 +38,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
 	mErrRet( "No checkshot provided" )
 
     orgcs_ = new Well::D2TModel( *cs_ );
+    cs_->setName( "CheckShot" );
 
     Well::Log* log = wd.logs().getLog( vellog );
     if ( !log ) 
@@ -57,6 +58,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     if ( !d2t_ )
 	mErrRet( "can not generate depth/time model" )
 
+    d2t_->setName( "Depth/Time Model");
     wd.setD2TModel( d2t_ );
     uiWellDahDisplay::Setup dsu; 
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
@@ -66,6 +68,8 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     data.wd_ = &wd;
     data.dispzinft_ = SI().zInFeet();
     data.zistime_ = true;
+    data.zrg_ = SI().zRange(false);
+    data.zrg_.scale( SI().zFactor() );
     d2tdisplay_->setData( data );
     driftdisplay_->setData( data );
     driftdisplay_->attach( rightOf, d2tdisplay_ );
@@ -114,10 +118,11 @@ void uiCheckShotEdit::drawDrift()
 	const float d2tval = d2t_->getTime( dah );
 	const float csval = cs_->getTime( dah );
 
-	driftcurve_.add( dah, csval - d2tval ); 
+	driftcurve_.add( dah, d2tval - csval ); 
     }
 
     drawDahObj( &driftcurve_, true, false );
 }
 
 }
+

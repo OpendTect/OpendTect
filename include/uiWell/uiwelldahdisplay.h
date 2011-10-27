@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.4 2011-10-27 12:40:51 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.5 2011-10-27 15:08:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ public:
 
     mStruct DahObjData
     {
+	virtual			~DahObjData() {}
+
 	//Set these	
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
 	bool                    xrev_;

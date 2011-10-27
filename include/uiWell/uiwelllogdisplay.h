@@ -33,6 +33,7 @@ mClass uiWellLogDisplay : public uiWellDahDisplay
 public:
 
 			    uiWellLogDisplay(uiParent*,const Setup&);
+			    ~uiWellLogDisplay();
 
     mStruct LogData : public uiWellDahDisplay::DahObjData
     {
@@ -45,6 +46,7 @@ public:
     protected:
 					LogData(uiGraphicsScene&,bool isfirst,
 					    const uiWellLogDisplay::Setup&);
+					~LogData() {}
 
 	virtual void            	copySetupFrom( const LogData& ld )
 					{

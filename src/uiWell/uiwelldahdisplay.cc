@@ -96,8 +96,12 @@ void uiWellDahDisplay::gatherInfo()
     ld2_->xax_.setup().maxnumberdigitsprecision_ = 3;
     ld2_->xax_.setup().epsaroundzero_ = 1e-5;
 
-    if ( ld1_->dahobj_ ) ld1_->xax_.setName( ld1_->dahobj_->name() );
-    if ( ld2_->dahobj_ ) ld2_->xax_.setName( ld2_->dahobj_->name() );
+    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name() 
+			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0; 
+    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name() 
+			 : ld1_->dahobj_ ? ld1_->dahobj_->name() : 0; 
+    ld1_->xax_.setName( axis1nm );
+    ld2_->xax_.setName( axis2nm );
 }
 
 
