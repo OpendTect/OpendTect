@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.224 2011-10-20 16:44:15 cvshelene Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.225 2011-10-27 21:43:35 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -511,7 +511,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     Executor* exec = object->loader();
 
     uiTaskRunner execdlg( parent() );
-    if ( !execdlg.execute(*exec) )
+    if ( !exec || !execdlg.execute(*exec) )
     {
 	deepUnRef( objs );
 	delete exec;
