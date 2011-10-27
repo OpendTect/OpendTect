@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.29 2011-07-24 13:03:48 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.30 2011-10-27 19:55:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,6 +277,13 @@ template <class T> inline
 bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
 			     bool inclborder, T eps ) const
 {
+    const T abseps = eps<0 ? -eps : eps;
+    if ( (!mIsUdf(xrg_.start) && !mIsUdf(xrg_.stop) &&
+	  (xrg_.start>point.x+abseps || xrg_.stop<point.x-abseps)) ||
+	 (!mIsUdf(yrg_.start) && !mIsUdf(yrg_.stop) &&
+	  (yrg_.start>point.y+abseps || yrg_.stop<point.y-abseps)) )
+	return false;
+
     const Geom::Point2D<T> arbitrarydir( 1, 0 );
 
     bool nrcrossingsodd = false;
