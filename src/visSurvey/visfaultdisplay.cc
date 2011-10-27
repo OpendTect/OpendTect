@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.84 2011-10-10 18:46:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.85 2011-10-27 19:37:29 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1647,7 +1647,7 @@ void FaultDisplay::updateStickHiding()
 	int sid = emfault_->sectionID( sidx );
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 			 emfault_->sectionGeometry( sid ) );
-	if ( fss->isEmpty() )
+	if ( !fss || fss->isEmpty() )
 	    continue;
 
 	RowCol rc;
