@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.45 2011-09-29 12:28:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.46 2011-10-27 12:40:57 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -39,6 +39,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.45 2011-09-29 12:28:57 c
 #include "uiseparator.h"
 #include "uiwaveletextraction.h"
 #include "uiwelltietoseismicdlg.h"
+#include "uiwelltiecheckshotedit.h"
 
 static const char* sKeyPlsSel = "Please select";
 
@@ -134,7 +135,13 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->setHAlignObj( llbl1 );
     
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
+    used2tmbox_->activated.notify( mCB(this,uiTieWinMGRDlg,d2TModeSel) );
     used2tmbox_->attach( alignedBelow, llbl2 );
+
+    editcsbut_ = new uiPushButton( logsgrp, "Edit CheckShot", 
+				mCB(this,uiTieWinMGRDlg,editCSModel), false );
+    editcsbut_->attach( alignedBelow, llbl2 );
+    editcsbut_->attach( ensureBelow, used2tmbox_ );
     
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
@@ -187,7 +194,7 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 
     delete wd_; wd_ = new Well::Data; 
     Well::Reader wr( nm, *wd_ );
-    wr.getLogs();
+    wr.get();
     BufferStringSet lognms; wr.getLogInfo( lognms ); lognms.sort();
     fillLogNms( vellogfld_, lognms ); 
     fillLogNms( denlogfld_, lognms );
@@ -197,8 +204,10 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
     denlogfld_->setCurrentItem( lognms.nearestMatch( "Den" )+1 );
     used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
     used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
+    editcsbut_->display( wr.getD2T() );
 
     getDefaults();
+    d2TModeSel(0);
 }
 
 
@@ -279,7 +288,6 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
     if ( !wtr.putWellTieSetup( wts ) )
 	uiMSG().error( "Could not write parameters" );
 }
-
 
 
 
@@ -367,6 +375,24 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 }
 
 
+bool uiTieWinMGRDlg::editCSModel( CallBacker* )
+{
+    BufferString vellog = vellogfld_->text();
+    if ( !strcmp ( vellog, sKeyPlsSel ) )
+	mErrRet("Please select a velocity log")
+
+    const bool issonic = !isvelbox_->isChecked();
+
+    if ( wd_ )
+    {
+	uiCheckShotEdit dlg( this, *wd_, vellog, issonic ); 
+	dlg.go();
+    }
+    return true;
+}
+
+
+
 void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(WellTie::uiTieWin*,win,cb)
@@ -382,6 +408,12 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 	    wtr.putIOPar( par, uiTieWin::sKeyWinPar() ); 
 	}
     }
+}
+
+
+void uiTieWinMGRDlg::d2TModeSel( CallBacker* )
+{
+    editcsbut_->display( !used2tmbox_->isChecked() );
 }
 
 }; //namespace

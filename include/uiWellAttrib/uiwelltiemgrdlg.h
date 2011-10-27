@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.15 2011-06-20 11:55:52 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.16 2011-10-27 12:40:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiIOObjSel;
 class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
+class uiPushButton;
 class uiSeisSel;
 class uiSeis2DLineNameSel;
 class uiSeisWaveletSel;
@@ -68,6 +69,7 @@ protected:
     uiComboBox*		denlogfld_;
     uiCheckBox*		isvelbox_;
     uiCheckBox*		used2tmbox_;
+    uiPushButton*	editcsbut_;
     uiWaveletExtraction* extractwvltdlg_;
 
     bool		getDefaults();
@@ -77,6 +79,8 @@ protected:
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void                extractWvltDone(CallBacker*);
+    bool		editCSModel(CallBacker*);
+    void		d2TModeSel(CallBacker*);
     void		isSonicSel(CallBacker*);
     void		selChg( CallBacker* );
     void		wellSel(CallBacker*);
