@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.3 2011-10-27 08:54:10 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.4 2011-10-27 12:40:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,9 +112,9 @@ public:
 	    dispzinft_ 	= d.dispzinft_;
 	    wd_ 	= d.wd_;
 	}
-	const Well::D2TModel*	d2T() const   { return wd_ ? wd_->d2TModel() : 0;}
-	const Well::Track*	track() const { return wd_ ? &wd_->track() : 0; }
-	const Well::MarkerSet*	mrks() const  { return wd_ ? &wd_->markers() : 0;}
+	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
+	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
+	const Well::MarkerSet*	mrks() const {return wd_ ? &wd_->markers() : 0;}
 
 	Interval<float>		zrg_;
 	bool			dispzinft_;
@@ -146,6 +146,8 @@ public:
 
     void			reDraw()	{ draw(); }
 
+    DahObjData&                 dahObjData( bool first ) 
+    				{ return first ? *ld1_ : *ld2_; }
 protected:
 
     DahObjData*			ld1_;

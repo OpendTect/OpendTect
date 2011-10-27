@@ -227,6 +227,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     uiPolyLineItem* pli = ld.curveitm_;
     pli->setPolyLine( pts );
     LineStyle ls(LineStyle::Solid);
+    ls.color_ = Color::stdDrawColor( first ? 0 : 1 ); 
     pli->setPenStyle( ls );
     pli->setZValue( ld.zoverlayval_ );
 
