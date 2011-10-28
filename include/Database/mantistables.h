@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.7 2011-10-24 06:08:01 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.8 2011-10-28 10:57:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
     void		setStatus(int);
     void		setPlatform(const char* plf);
     void		setVersion(const char* version);
+    void		setSummary(const BufferString&);
     void		setResolution(int resolution);
     void		addToHistory(const char* fldnm,const char* oldval,
 	    			     const char* newval);

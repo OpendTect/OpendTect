@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.13 2011-10-21 12:01:07 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.14 2011-10-28 10:57:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,8 +92,7 @@ public:
     void			removeBugTextTableEntryFromSet(int tableidx);
 
     void			eraseCurrentEntries(bool isfix);
-    void			updateBugTableEntryHistory(int idx,
-	    						   bool isadded,
+    bool			updateBugTableEntryHistory(int idx,bool isadded,
 							   bool isnoteempty);
     void			updateBugTextTableEntryHistory(int idx);
     int				getBugTableIdx(int bugid);

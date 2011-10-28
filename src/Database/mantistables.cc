@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.10 2011-10-24 06:08:01 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.11 2011-10-28 10:57:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ void SqlDB::BugTextTableEntry::deleteHistory()
 
 
 void SqlDB::BugTextTableEntry::getQueryInfo( BufferStringSet& colnms,
-				      BufferStringSet& values )
+					     BufferStringSet& values )
 {
     colnms.add( "description" );
     values.add( description_ );
@@ -118,22 +118,23 @@ void SqlDB::BugTableEntry::init()
 
 
 void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
-				  BufferStringSet& values, bool isedit )
+					 BufferStringSet& values, bool isedit )
 {
     if ( !isedit )
     {
 	colnms.add( "project_id" ).add( "reporter_id" ).add( "date_submitted" )
-	      .add( "summary" ).add( "category" );
+	      .add( "category" );
 
 	values.add( toString(projectid_) );
 	values.add( toString(reporterid_) );
-	values.add( lastupddate_ ).add( summary_ ).add( category_ );
+	values.add( lastupddate_ ).add( category_ );
     }
 
-    colnms.add( "handler_id" ).add( "severity" ).add ( "status" )
-	  .add( "resolution" ).add( "last_updated" )
+    colnms.add( "summary" ).add( "handler_id" ).add( "severity" )
+	  .add ( "status" ).add( "resolution" ).add( "last_updated" )
 	  .add( "platform" ).add( "version" ).add( "fixed_in_version" );
 
+    values.add( summary_ );
     values.add( toString(handlerid_) );
     values.add( toString(severity_) );
     values.add( toString(status_) );
@@ -144,7 +145,7 @@ void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
 
 
 void SqlDB::BugTableEntry::addToHistory( const char* fldnm, const char* oldval,
-				  const char* newval )
+					 const char* newval )
 {
     bool isexisted = false;
     for ( int idx=0; idx<historyset_.size(); idx++ )
@@ -229,6 +230,21 @@ void SqlDB::BugTableEntry::setPlatform( const char* plf )
 }
 
 
+void SqlDB::BugTableEntry::setSummary( const BufferString& summary )
+{
+    if ( summary_.isEqual( summary ) )
+	return;
+
+    BufferString oldsummary( summary_ );
+    BufferString newsummary( summary );
+    SqlDB::MantisDBMgr::prepareForQuery( summary_ );
+    SqlDB::MantisDBMgr::prepareForQuery( newsummary );
+    addToHistory( "summary", summary_, newsummary );
+    summary_ = oldsummary;
+    summary_ = summary;
+}
+
+
 void SqlDB::BugTableEntry::setVersion( const char* version )
 {
     if ( version_ == version )
@@ -271,7 +287,7 @@ void SqlDB::BugHistoryTableEntry::init()
 
 
 void SqlDB::BugHistoryTableEntry::getQueryInfo( BufferStringSet& colnms,
-					 BufferStringSet& values )
+						BufferStringSet& values )
 {
     colnms.add( "user_id" ).add( "bug_id" ).add( "date_modified" )
 	  .add( "field_name" ).add( "old_value" ).add( "new_value" )

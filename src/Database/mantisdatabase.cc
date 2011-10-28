@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.23 2011-10-24 06:08:01 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.24 2011-10-28 10:57:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -493,13 +493,17 @@ TypeSet<int>& SqlDB::MantisDBMgr::getBugsIndex()
 { return bugsindex_; }
 
 
-void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
+bool SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
 						     bool isnoteempty )
 {
+    errmsg_.setEmpty();
     BugTableEntry* bugtable = 0;
     bugtable = bidx < 0 ? bugtable_ : getBugTableEntry( bidx );
     if ( !bugtable )
-	return;
+    {
+	errmsg_ = "Bug not existed";
+	return false;
+    }
 
     ObjectSet<BugHistoryTableEntry>& history = bugtable->getHistory();
     if ( isadded )
@@ -519,12 +523,15 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
 	history.insertAt( notehistory, insert );
     }
 
-    if ( history.size() == 0 )
-	return;
+    if ( !history.size() )
+	return false;
 
     const int userid = getUserID( false );
     if ( userid < 0 )
-	return;
+    {
+	errmsg_ = "User not existed";
+	return false;
+    }
 
     BufferString date = bugtable->lastupddate_;
     for ( int ihist=0; ihist<history.size(); ihist++ )
@@ -536,8 +543,9 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
 	history[ihist]->date_ = date;
     }
 
-    updateBugHistoryTable( history, isadded );
+    const bool isok = updateBugHistoryTable( history, isadded );
     bugtable->deleteHistory();
+    return isok;
 }
 
 
@@ -589,9 +597,13 @@ bool SqlDB::MantisDBMgr::updateBugHistoryTable(
 	}
 
 	entry->getQueryInfo( colnms, values );
-	if ( !query().insert(colnms, values,
-		    		BugHistoryTableEntry::sKeyBugHistoryTable()) )
+	if ( !query().insert( colnms, values,
+		    	      BugHistoryTableEntry::sKeyBugHistoryTable() ) )
+	{
+	    errmsg_ = query().errMsg();
+	    colnms.erase(); values.erase();
 	    return false;
+	}
 
 	colnms.erase(); values.erase();
     }
