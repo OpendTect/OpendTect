@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.137 2011-10-07 19:05:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.138 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -1038,7 +1038,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
     {
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if (s2dd && lineset==s2dd->lineSetID() &&
+	if (s2dd && lineset==s2dd->lineSetID() && linenm &&
 	    !strcmp(linenm,s2dd->getLineName()) )
 	    return s2dd;
     }

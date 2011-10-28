@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.22 2010-12-23 18:30:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.23 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -332,7 +332,7 @@ struct FaultStick
     BufferString	lnm_;
 
 
-Coord3 getNormal() const
+Coord3 getNormal( bool is2d ) const
 {
     // TODO: Determine edit normal for sticks picked on 2D lines
 
@@ -358,7 +358,7 @@ Coord3 getNormal() const
 	}
     }
 
-    if ( ontms>oncrl && ontms>oninl )
+    if ( ontms>oncrl && ontms>oninl && !is2d )
 	return Coord3( 0, 0, 1 );
 
     return oncrl>oninl ? Coord3( SI().binID2Coord().colDir(), 0 )
@@ -468,13 +468,13 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
 	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
-					stick->crds_[0], stick->getNormal(),
+					stick->crds_[0], stick->getNormal(true),
 					linesetmid, stick->lnm_, false );
 	}
 	else
 	{
 	    bool res = flt.geometry().insertStick( sid, sticknr, 0,
-				stick->crds_[0], stick->getNormal(), false );
+			    stick->crds_[0], stick->getNormal(false), false );
 	    if ( !res ) continue;
 	}
 

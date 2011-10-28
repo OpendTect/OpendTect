@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.152 2011-10-20 14:15:03 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.153 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -2057,5 +2057,21 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 {
     return sections_.validIdx( horsecid ) ? sections_[horsecid] : 0;
 }
+
+HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
+{
+    TypeSet<int> ids;
+    visBase::DM().getIds( typeid(visSurvey::HorizonDisplay), ids );
+
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
+	mDynamicCastGet( HorizonDisplay*, hordisp, dataobj );
+	if ( hordisp && mid==hordisp->getMultiID() )
+	    return hordisp;
+    }
+    return 0;
+}
+
 
 }; // namespace visSurvey

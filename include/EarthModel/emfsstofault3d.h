@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		March 2009
- RCS:		$Id: emfsstofault3d.h,v 1.5 2010-06-29 07:45:58 cvsjaap Exp $
+ RCS:		$Id: emfsstofault3d.h,v 1.6 2011-10-28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,7 @@ protected:
 	bool			pickedOnInl() const;
 	bool			pickedOnCrl() const;
 	bool			pickedOnTimeSlice() const;
+	bool			pickedOnHorizon() const;
     };
 
     const FaultStickSet&	fss_;

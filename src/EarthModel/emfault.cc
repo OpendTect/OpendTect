@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault.cc,v 1.59 2010-07-22 07:29:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.60 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "emfault.h"
 
@@ -72,8 +72,9 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		{
 		    destfssg.insertStick( destsid, sticknr, knotnr, pos,
 					  getEditPlaneNormal(sid,rc.row),
-					  lineSet(sid,rc.row),
-					  lineName(sid,rc.row), addtohistory );
+					  pickedMultiID(sid,rc.row),
+					  pickedName(sid,rc.row),
+					  addtohistory );
 		}
 		else
 		{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.10 2010-08-05 14:20:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.11 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -93,6 +93,12 @@ bool FSStoFault3DConverter::FaultStick::pickedOnCrl() const
 bool FSStoFault3DConverter::FaultStick::pickedOnTimeSlice() const
 {
     return pickedonplane_ && normal_.isDefined() && fabs(normal_.z)>0.5;
+}
+
+
+bool FSStoFault3DConverter::FaultStick::pickedOnHorizon() const
+{
+    return !pickedonplane_ && normal_.isDefined() && fabs(normal_.z)>0.5;
 }
 
 
@@ -194,14 +200,15 @@ bool FSStoFault3DConverter::preferHorPicked() const
     if ( setup_.pickplanedir_ == Setup::Vertical )
 	return false;
 
-    int nrpickedontimeslice = 0;
+    int nrhorpicked = 0;
     for ( int idx=0; idx<sticks_.size(); idx++ )
     {
-	if ( sticks_[idx]->pickedOnTimeSlice() )
-	    nrpickedontimeslice++;
+	if ( sticks_[idx]->pickedOnTimeSlice() ||
+	     sticks_[idx]->pickedOnHorizon() )
+	    nrhorpicked++;
     }
 
-    return nrpickedontimeslice > sticks_.size()/2;
+    return nrhorpicked > sticks_.size()/2;
 }
 
 
@@ -225,7 +232,10 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 {
     for ( int idx=sticks_.size()-1; idx>=0; idx-- )
     {
-	if ( sticks_[idx]->pickedOnTimeSlice() != selhorpicked )
+	bool ishorpicked = sticks_[idx]->pickedOnTimeSlice() ||
+	    		   sticks_[idx]->pickedOnHorizon();
+
+	if ( ishorpicked != selhorpicked )
 	    delete sticks_.remove( idx );
     }
     if ( selhorpicked )

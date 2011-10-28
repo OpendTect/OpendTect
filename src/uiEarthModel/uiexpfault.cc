@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.20 2011-09-07 12:04:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.21 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "uiexpfault.h"
 
@@ -200,7 +200,7 @@ bool uiExportFault::writeAscii()
 		if ( pickedon2d && linenmfld_->isChecked() )
 		{
 		    const char* linenm =
-			fss->geometry().lineName( sectionid, stickidx );
+			fss->geometry().pickedName( sectionid, stickidx );
 		    *sdo.ostrm << '\t' << linenm;
 		}
 	    }

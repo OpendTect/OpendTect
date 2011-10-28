@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.11 2011-02-09 16:50:08 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.12 2011-10-28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,18 +39,18 @@ public:
     				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     void			getInteractionInfo( EM::PosID& insertpid,
-				    const MultiID* lineset,const char* linenm,
-				    const Coord3& pos,
+				    const MultiID* pickedmid,
+				    const char* pickednm,const Coord3& pos,
 				    const Coord3* posnorm=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
     float		distToStick(int sticknr,const EM::SectionID& sid,
-				const MultiID* lineset,const char* linenm,
+				const MultiID* pickedmid,const char* pickednm,
 				const Coord3& pos,const Coord3* posnorm) const;
     bool		getNearestStick(int& sticknr,EM::SectionID& sid,
-				const MultiID* lineset,const char* linenm,
+				const MultiID* pickedmid,const char* pickednm,
 				const Coord3& pos,const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
 				const EM::SectionID&,const Coord3& pos) const;

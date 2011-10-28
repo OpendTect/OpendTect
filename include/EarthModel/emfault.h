@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.43 2010-07-22 07:29:20 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.44 2011-10-28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -42,9 +42,9 @@ public:
 
     virtual const Coord3&	getEditPlaneNormal(const SectionID&,
 						   int sticknr) const;
-    virtual const MultiID*	lineSet(const SectionID&,int sticknr) const
+    virtual const MultiID*	pickedMultiID(const SectionID&,int stcknr) const
 							{ return 0; }
-    virtual const char*		lineName(const SectionID&,int sticknr) const
+    virtual const char*		pickedName(const SectionID&,int sticknr) const
 							{ return 0; }
 
     virtual void	copySelectedSticksTo(FaultStickSetGeometry& destfssg,

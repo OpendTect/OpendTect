@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.8 2010-09-23 04:46:25 cvsnanne Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.9 2011-10-28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -36,8 +36,8 @@ public:
 				    bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 	    			    const Coord3& pos,const Coord3& editnormal,
-				    const MultiID* lineset,const char* linenm,
-				    bool addtohistory);
+				    const MultiID* pickedmid,
+				    const char* pickednm,bool addtohistory);
     bool		removeStick(const SectionID&,int sticknr,
 	    			    bool addtohistory);
     bool		insertKnot(const SectionID&,const SubID&,
@@ -47,9 +47,10 @@ public:
     
     bool		pickedOnPlane(const SectionID&,int sticknr) const;
     bool		pickedOn2DLine(const SectionID&,int sticknr) const;
+    bool		pickedOnHorizon(const SectionID&,int sticknr) const;
 
-    const MultiID*	lineSet(const SectionID&,int sticknr) const;
-    const char*		lineName(const SectionID&,int sticknr) const;
+    const MultiID*	pickedMultiID(const SectionID&,int sticknr) const;
+    const char*		pickedName(const SectionID&,int sticknr) const;
 
     Geometry::FaultStickSet*
 			sectionGeometry(const SectionID&);
@@ -69,8 +70,8 @@ protected:
     {
 	int		sid;
 	int		sticknr;
-	MultiID		lineset;
-	BufferString	linenm;
+	MultiID		pickedmid;
+	BufferString	pickednm;
     };
 
     ObjectSet<StickInfo>	 stickinfo_;

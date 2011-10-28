@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.12 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.13 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "emfaultstickset.h"
 
@@ -148,8 +148,9 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 					 int firstcol, const Coord3& pos,
 					 const Coord3& editnormal,
-					 const MultiID* lineset,
-					 const char* linenm, bool addtohistory )
+					 const MultiID* pickedmid,
+					 const char* pickednm,
+					 bool addtohistory )
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
 
@@ -166,11 +167,12 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr>=sticknr )
 	    stickinfo_[idx]->sticknr++;
     }
+
     stickinfo_.insertAt( new StickInfo, 0 );
     stickinfo_[0]->sid = sid;
     stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->lineset = lineset ? *lineset : MultiID(-1);
-    stickinfo_[0]->linenm = linenm;
+    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID(-1);
+    stickinfo_[0]->pickednm = pickednm;
 
     if ( addtohistory )
     {
@@ -282,7 +284,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
 bool FaultStickSetGeometry::pickedOnPlane( const SectionID& sid,
 					   int sticknr ) const
 {
-    if ( pickedOn2DLine(sid,sticknr) )
+    if ( pickedMultiID(sid,sticknr) || pickedName(sid,sticknr) )
 	return false;
 
     const Coord3& editnorm = getEditPlaneNormal( sid, sticknr );
@@ -290,35 +292,46 @@ bool FaultStickSetGeometry::pickedOnPlane( const SectionID& sid,
 }
 
 
+bool FaultStickSetGeometry::pickedOnHorizon( const SectionID& sid,
+					     int sticknr ) const
+{
+    const Coord3& editnorm = getEditPlaneNormal( sid, sticknr );
+    return !pickedOnPlane(sid,sticknr) &&
+	   editnorm.isDefined() && fabs(editnorm.z)>0.5;
+}
+
+
 bool FaultStickSetGeometry::pickedOn2DLine( const SectionID& sid,
 					    int sticknr ) const
-{ return lineSet( sid, sticknr ); }
+{
+    return !pickedOnPlane(sid,sticknr) && !pickedOnHorizon(sid,sticknr);
+}
 
 
-const MultiID* FaultStickSetGeometry::lineSet( const SectionID& sid,
-					       int sticknr) const
+const MultiID* FaultStickSetGeometry::pickedMultiID( const SectionID& sid,
+						     int sticknr) const
 {
     for ( int idx=0; idx<stickinfo_.size(); idx++ )
     {
 	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr==sticknr )
 	{
-	    const MultiID& lset = stickinfo_[idx]->lineset;
-	    return lset==MultiID(-1) ? 0 : &lset;
+	    const MultiID& pickedmid = stickinfo_[idx]->pickedmid;
+	    return pickedmid==MultiID(-1) ? 0 : &pickedmid;
 	}
     }
     return 0;
 }
 
 
-const char* FaultStickSetGeometry::lineName( const SectionID& sid,
-					     int sticknr) const
-    {
+const char* FaultStickSetGeometry::pickedName( const SectionID& sid,
+					       int sticknr) const
+{
     for ( int idx=0; idx<stickinfo_.size(); idx++ )
     {
 	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr==sticknr )
 	{
-	    const MultiID& lset = stickinfo_[idx]->lineset;
-	    return lset==MultiID(-1) ? 0 : stickinfo_[idx]->linenm.buf();
+	    const char* pickednm = stickinfo_[idx]->pickednm.buf();
+	    return *pickednm ? pickednm : 0;
 	}
     }
     return 0;
@@ -335,6 +348,10 @@ const char* FaultStickSetGeometry::lineName( const SectionID& sid,
     mDefStickInfoStr( "Line set", linesetstr, sid, sticknr )
 #define mDefLineNameStr( linenamestr, sid, sticknr ) \
     mDefStickInfoStr( "Line name", linenamestr, sid, sticknr )
+#define mDefPickedMultiIDStr( pickedmidstr, sid, sticknr ) \
+    mDefStickInfoStr( "Picked MultiID", pickedmidstr, sid, sticknr )
+#define mDefPickedNameStr( pickednmstr, sid, sticknr ) \
+    mDefStickInfoStr( "Picked name", pickednmstr, sid, sticknr )
 
 
 
@@ -352,15 +369,19 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	    mDefEditNormalStr( editnormalstr, sid, sticknr );
 	    par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
 
-	    const MultiID* lineset = lineSet( sid, sticknr );
-	    if ( !lineset )
-		continue;
+	    const MultiID* pickedmid = pickedMultiID( sid, sticknr );
+	    if ( pickedmid )
+	    {
+		mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
+		par.set( pickedmidstr.buf(), *pickedmid );
+	    }
 
-	    mDefLineSetStr( linesetstr, sid, sticknr );
-	    par.set( linesetstr.buf(), *lineset );
-
-	    mDefLineNameStr( linenamestr, sid, sticknr );
-	    par.set( linenamestr.buf(), lineName(sid,sticknr) );
+	    const char* pickednm = pickedName( sid, sticknr );
+	    if ( pickednm )
+	    {
+		mDefPickedNameStr( pickednmstr, sid, sticknr );
+		par.set( pickednmstr.buf(), pickednm );
+	    }
 	}
     }
 }
@@ -386,12 +407,18 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    stickinfo_[0]->sid = sid;
 	    stickinfo_[0]->sticknr = sticknr;
 
+	    mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
 	    mDefLineSetStr( linesetstr, sid, sticknr );
-	    if ( !par.get(linesetstr.buf(), stickinfo_[0]->lineset) )
-		stickinfo_[0]->lineset = MultiID( -1 );
+	    if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) &&
+		 !par.get(linesetstr.buf(), stickinfo_[0]->pickedmid) )
+	    {
+		stickinfo_[0]->pickedmid = MultiID( -1 );
+	    }
 
+	    mDefPickedNameStr( pickednmstr, sid, sticknr );
 	    mDefLineNameStr( linenamestr, sid, sticknr );
-	    par.get( linenamestr.buf(), stickinfo_[0]->linenm );
+	    if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
+		par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
 	}
     }
 

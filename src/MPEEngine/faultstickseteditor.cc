@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.11 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.12 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -138,7 +138,7 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
-			const MultiID* lineset, const char* linenm,
+			const MultiID* pickedmid, const char* pickednm,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
@@ -152,10 +152,14 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 
     const EM::FaultStickSetGeometry& fssg = emfss->geometry();
 
-    if ( fssg.pickedOn2DLine(sid, sticknr) )
+    if ( !fssg.pickedOnPlane(sid,sticknr) )
     {
-	if ( !lineset || *lineset!=*fssg.lineSet(sid,sticknr) ||
-	     strcmp(linenm,fssg.lineName(sid,sticknr)) )
+	const MultiID* mid = fssg.pickedMultiID( sid, sticknr );
+	if ( !pickedmid || !mid || *pickedmid!=*mid )
+	    return mUdf(float);
+
+	const char* nm = fssg.pickedName( sid, sticknr );
+	if ( (pickednm || nm) && ( !pickednm || !nm || strcmp(pickednm,nm)) )
 	    return mUdf(float);
     }
 
@@ -208,7 +212,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
-			const MultiID* lineset, const char* linenm,
+			const MultiID* pickedmid, const char* pickednm,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     insertpid = EM::PosID::udf();
@@ -223,7 +227,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
     {
 	sid = lastclickedpid_.sectionID();
 
-	const float dist = distToStick( sticknr, sid, lineset, linenm,
+	const float dist = distToStick( sticknr, sid, pickedmid, pickednm,
 					pos, posnormal );
 	if ( !mIsUdf(dist) )
 	{
@@ -232,7 +236,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 	}
     }
 
-    if ( getNearestStick(sticknr, sid, lineset, linenm, pos, posnormal) )
+    if ( getNearestStick(sticknr, sid, pickedmid, pickednm, pos, posnormal) )
 	getPidsOnStick( insertpid, sticknr, sid, pos );
 }
 
@@ -291,7 +295,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
-			const MultiID* lineset, const char* linenm,
+			const MultiID* pickedmid, const char* pickednm,
 			const Coord3& mousepos, const Coord3* posnormal) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
@@ -318,8 +322,8 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 	{
 
 	    const int cursticknr = rowrange.atIndex(stickidx);
-	    const float disttoline = distToStick( cursticknr, cursid, lineset,
-						  linenm, mousepos, posnormal );
+	    const float disttoline = distToStick( cursticknr, cursid, pickedmid,
+					    pickednm, mousepos, posnormal );
 	    if ( !mIsUdf(disttoline) )
 	    {
 		if ( mIsUdf(minlinedist) || disttoline<minlinedist )
@@ -466,12 +470,11 @@ void FaultStickSetEditor::cloneMovingNode()
     const EM::SectionID& sid = movingnode.sectionID();
     const int sticknr = RowCol( movingnode.subID() ).row;
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
-
-    const MultiID* lset = fssg.lineSet( sid, sticknr );
-    const char* linenm = fssg.lineName( sid, sticknr );
+    const MultiID* pickedmid = fssg.pickedMultiID( sid, sticknr );
+    const char* pickednm = fssg.pickedName( sid, sticknr );
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
-    getInteractionInfo( insertpid, lset, linenm, startpos, &normal );
+    getInteractionInfo( insertpid, pickedmid, pickednm, startpos, &normal );
     if ( insertpid.isUdf() )
 	return;
 

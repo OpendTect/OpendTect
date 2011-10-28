@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.12 2011-09-26 11:31:42 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.13 2011-10-28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,10 +130,12 @@ bool FaultStickPainter::addPolyLine()
 
 	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row) )
 	    {
-		const MultiID& lset = *emfss->geometry().lineSet( sid, rc.row );
-		const char* lnm = emfss->geometry().lineName( sid, rc.row );
+		const MultiID* lset =
+			    emfss->geometry().pickedMultiID( sid, rc.row );
+		const char* lnm = emfss->geometry().pickedName( sid, rc.row );
 
-		if ( !is2d_ || (!matchString(lnm,linenm_)) || (lset != lsetid_))
+		if ( !is2d_ || !matchString(lnm,linenm_) ||
+		     !lset || *lset!=lsetid_ )
 		    continue;
 	    }
 	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.49 2011-09-02 09:10:25 cvskris Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.50 2011-10-28 11:29:35 cvsjaap Exp $";
 
 #include "flthortools.h"
 
@@ -674,13 +674,18 @@ bool FaultTraceExtractor::get2DFaultTrace()
 	if ( !fltgeom ) continue;
 
 	const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-	const MultiID* lsid = fss->geometry().lineSet( sid, sticknr );
+	if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
+	    continue;
+
+	const MultiID* lsid = fss->geometry().pickedMultiID( sid, sticknr );
 	if ( !lsid ) continue;
 
 	PtrMan<IOObj> lsobj = IOM().get( *lsid );
 	if ( !lsobj ) continue;
 
-	const char* linenm = fss->geometry().lineName( sid, sticknr );
+	const char* linenm = fss->geometry().pickedName( sid, sticknr );
+	if ( !linenm ) continue;
+
 	PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),linenm );
 	if ( !(geomid==geomid_) ) continue;
 
