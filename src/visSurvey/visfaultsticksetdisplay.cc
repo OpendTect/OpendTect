@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.44 2011-09-26 08:12:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.45 2011-10-28 11:30:03 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.44 2011-09-26 08
 #include "undo.h"
 #include "viscoord.h"
 #include "visevent.h"
+#include "vishorizondisplay.h"
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
@@ -337,11 +338,13 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		continue;
 
 	    Seis2DDisplay* s2dd = 0;
-	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row) )
+	    if ( emfss_->geometry().pickedOn2DLine(sid, rc.row) )
 	    { 
-		const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
-		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
-		s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
+		const char* lnm = emfss_->geometry().pickedName( sid, rc.row );
+		const MultiID* lset =
+			    emfss_->geometry().pickedMultiID( sid, rc.row );
+		if ( lset )
+		    s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
 	    }
 
 	    const StepInterval<int> colrg = fss->colRange( rc.row );
@@ -493,7 +496,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 }
 
 
-
+static float zdragoffset = 0;
 
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
@@ -525,17 +528,21 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     PlaneDataDisplay* plane = 0;
     Seis2DDisplay* s2dd = 0;
-    const MultiID* lineset = 0;
-    const char* linenm = 0;
+    HorizonDisplay* hordisp = 0;
+    const MultiID* pickedmid = 0;
+    const char* pickednm = 0;
     PtrMan<Coord3> normal = 0;
+    PtrMan<const MultiID> horid;
+    BufferString horshiftname;
     Coord3 pos;
 
     if ( !mousepid.isUdf() )
     {
 	const int sticknr = RowCol( mousepid.subID() ).row;
-	lineset = fssg.lineSet( mousepid.sectionID(), sticknr );
-	linenm = fssg.lineName( mousepid.sectionID(), sticknr );
 	pos = emfss_->getPos( mousepid );
+	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
+	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
+	zdragoffset = 0;
     }
     else
     {
@@ -544,18 +551,25 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    const int visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 
-	    mDynamicCastGet(Seis2DDisplay*,disp2d,dataobj);
-	    if ( disp2d )
+	    mDynamicCast(Seis2DDisplay*,s2dd,dataobj);
+	    if ( s2dd )
 	    {
-		s2dd = disp2d;
-		lineset = &s2dd->lineSetID();
-		linenm = s2dd->name();
+		pickedmid = &s2dd->lineSetID();
+		pickednm = s2dd->name();
 		break;
 	    }
-	    mDynamicCastGet(PlaneDataDisplay*,pdd,dataobj);
-	    if ( pdd )
+	    mDynamicCast(HorizonDisplay*,hordisp,dataobj);
+	    if ( hordisp )
 	    {
-		plane = pdd;
+		horid = new MultiID( hordisp->getMultiID() );
+		pickedmid = horid;
+		horshiftname = hordisp->getTranslation().z * SI().zFactor();
+		pickednm = horshiftname.buf();
+		break;
+	    }
+	    mDynamicCast(PlaneDataDisplay*,plane,dataobj);
+	    if ( plane )
+	    {
 		normal = new Coord3( plane->getNormal(Coord3::udf()) );
 		break;	
 	    }
@@ -564,7 +578,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		return;
 	}
 
-	if ( !s2dd && !plane )
+	if ( !s2dd && !plane && !hordisp )
 	{
 	    setActiveStick( EM::PosID::udf() );
 	    return;
@@ -575,7 +589,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
-    fsseditor_->getInteractionInfo( insertpid, lineset, linenm, pos, normal );
+    fsseditor_->getInteractionInfo(insertpid, pickedmid, pickednm, pos, normal);
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( insertpid );
@@ -627,7 +641,9 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) || insertpid.isUdf() )
     {
 	// Add stick
-	const Coord3 editnormal( plane ? plane->getNormal(Coord3()) :
+	const Coord3 editnormal(
+		    plane ? plane->getNormal(Coord3()) :
+		    hordisp ? Coord3(0,0,1) :
 		    Coord3(s2dd->getNormal(s2dd->getNearestTraceNr(pos)),0) );
 
 	const int sid = emfss_->sectionID(0);
@@ -638,7 +654,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	editpids_.erase();
 	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			  lineset, linenm, true );
+			  pickedmid, pickednm, true );
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
 	setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
@@ -760,22 +776,47 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	const int sid = cbdata.pid0.sectionID();
 	RowCol rc( cbdata.pid0.subID() );
 
-	if ( emfss_->geometry().pickedOn2DLine(sid, rc.row) )
+	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row );
+	if ( mid && !emfss_->geometry().pickedOnPlane(sid, rc.row) )
 	{
-	    const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
-	    const char* lnm = emfss_->geometry().lineName( sid, rc.row );
+	    const char* nm = emfss_->geometry().pickedName( sid, rc.row );
+	    const Coord3 dragpos = emfss_->getPos( cbdata.pid0 );
+	    Coord3 pos = dragpos;
 
-	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
+	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( *mid, nm );
 	    if ( s2dd ) 
-	    {
-		const Coord3 curpos = emfss_->getPos( cbdata.pid0 ); 
-		const Coord3 newpos = s2dd->getNearestSubPos( curpos, true );
+		pos = s2dd->getNearestSubPos( pos, true );
 
-		CallBack cb = mCB(this,FaultStickSetDisplay,emChangeCB);
-		emfss_->change.remove( cb );
-		emfss_->setPos( cbdata.pid0, newpos, false );
-		emfss_->change.notify( cb );
+	    HorizonDisplay* hordisp = HorizonDisplay::getHorizonDisplay( *mid );
+	    if ( hordisp )
+	    {
+		if ( displaytransform_ )
+		    pos = displaytransform_->transform( pos );
+
+		const float dist = hordisp->calcDist( pos );
+		if ( mIsUdf(dist) )
+		{
+		    pos = dragpos;
+		    pos.z += zdragoffset;
+		}
+		else
+		{
+		    pos.z += dist;
+		    pos.z -= hordisp->calcDist( pos );
+
+		    if ( displaytransform_ )
+			pos = displaytransform_->transformBack( pos );
+		    if ( nm )
+			pos.z += atof(nm) / SI().zFactor();
+
+		    zdragoffset = pos.z - dragpos.z;
+		}
 	    }
+
+	    CallBack cb = mCB(this,FaultStickSetDisplay,emChangeCB);
+	    emfss_->change.remove( cb );
+	    emfss_->setPos( cbdata.pid0, pos, false );
+	    emfss_->change.notify( cb );
 	}
     }
 
@@ -821,8 +862,8 @@ void FaultStickSetDisplay::otherObjectsMoved(
 
 
 bool FaultStickSetDisplay::coincidesWith2DLine(
-			    const Geometry::FaultStickSet& fss, int sticknr,
-			    const MultiID& lineset, const char* linenm ) const
+			const Geometry::FaultStickSet& fss, int sticknr,
+			const MultiID& pickedmid, const char* pickednm ) const
 {
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
@@ -834,8 +875,8 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
     {
 	visBase::DataObject* dataobj = scene_->getObject( idx );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if ( !s2dd || !s2dd->isOn() || lineset!=s2dd->lineSetID() ||
-	     strcmp(linenm,s2dd->getLineName())  )
+	if ( !s2dd || !s2dd->isOn() || pickedmid!=s2dd->lineSetID() ||
+	     !pickednm || strcmp(pickednm,s2dd->getLineName()) )
 	    continue;
 
 	const float onestepdist =
@@ -948,9 +989,10 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row) )
 	    { 
-		const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
-		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
-		if ( coincidesWith2DLine(*fss, rc.row, *lset, lnm) )
+		const char* lnm = emfss_->geometry().pickedName( sid, rc.row );
+		const MultiID* lset =
+			    emfss_->geometry().pickedMultiID( sid, rc.row );
+		if ( lset && coincidesWith2DLine(*fss, rc.row, *lset, lnm) )
 		{
 		    fss->hideStick( rc.row, false );
 		    continue;
@@ -1003,11 +1045,18 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     updateEditPids();
     updateKnotMarkers();
 
-    const CallBack cb = mCB( this, FaultStickSetDisplay, polygonFinishedCB );
-    if ( yn )
-	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
-    else
-	scene_->getPolySelection()->polygonFinished()->remove( cb );
+    if ( scene_ && scene_->getPolySelection() &&
+	 scene_->getPolySelection()->polygonFinished() )
+    {
+	const CallBack cb = mCB(this,FaultStickSetDisplay,polygonFinishedCB);
+	if ( yn )
+	{
+	    scene_->getPolySelection()->polygonFinished()->
+						    notifyIfNotNotified(cb);
+	}
+	else
+	    scene_->getPolySelection()->polygonFinished()->remove( cb );
+    }
 }
 
 
