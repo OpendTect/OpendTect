@@ -42,8 +42,9 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     , zrg_(mUdf(float),0)
     , cliprate_(0.05)
     , valrg_(mUdf(float),0)
-    , curvenmitm_(0)
-    , curveitm_(0)
+    , col_(Color::Black())
+    , drawascurve_(true)
+    , drawaspoints_(false)
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
@@ -93,8 +94,13 @@ void uiWellDahDisplay::gatherInfo()
 
     ld1_->xax_.setup().epsaroundzero_ = 1e-5;
     ld1_->xax_.setup().maxnumberdigitsprecision_ = 3;
-    ld2_->xax_.setup().maxnumberdigitsprecision_ = 3;
     ld2_->xax_.setup().epsaroundzero_ = 1e-5;
+    ld2_->xax_.setup().maxnumberdigitsprecision_ = 3;
+
+    ld1_->xax_.setup().nmcolor_ = ld1_->dahobj_ ? ld1_->col_
+				: ld2_->dahobj_ ? ld2_->col_ : Color::Black();
+    ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
+				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
 
     BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name() 
 			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0; 
@@ -211,8 +217,7 @@ static const int cMaxNrDahSamples = 2000;
 void uiWellDahDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    delete ld.curvenmitm_; ld.curvenmitm_ = 0;
-    delete ld.curveitm_; ld.curveitm_ = 0;
+    deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0; 
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
 
@@ -226,26 +231,39 @@ void uiWellDahDisplay::drawCurve( bool first )
     }
     if ( pts.isEmpty() )
 	return;
-    if ( !ld.curveitm_ ) 
-	ld.curveitm_ = scene().addItem( new uiPolyLineItem() );
-    uiPolyLineItem* pli = ld.curveitm_;
-    pli->setPolyLine( pts );
-    LineStyle ls(LineStyle::Solid);
-    ls.color_ = Color::stdDrawColor( first ? 0 : 1 ); 
-    pli->setPenStyle( ls );
-    pli->setZValue( ld.zoverlayval_ );
 
-    Alignment al( Alignment::HCenter,
-    first ? Alignment::Top : Alignment::Bottom );
-    ld.curvenmitm_ = scene().addItem( new uiTextItem(ld.dahobj_->name(),al) );
-    ld.curvenmitm_->setTextColor( ls.color_ );
-    uiPoint txtpt;
-    if ( first )
-	txtpt = uiPoint( pts[0] );
-    else
-	txtpt = pts[pts.size()-1];
+    LineStyle ls(LineStyle::Solid); ls.color_ = ld.col_; 
+    if ( ld.drawascurve_ )
+    {
+	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem() );
+	pli->setPolyLine( pts );
+	pli->setPenStyle( ls );
+	pli->setZValue( ld.zoverlayval_ );
+	ld.curveitms_.add( pli );
+	ld.curvepolyitm_ = pli;
+    }
+    if ( ld.drawaspoints_ )
+    {
+	for ( int idx=0; idx<pts.size(); idx++ )
+	{
+	    uiCircleItem* ci = scene().addItem(new uiCircleItem( pts[idx], 1) );
+	    ld.curveitms_.add( ci );
+	    ci->setPenStyle( ls );
+	    ci->setZValue( ld.zoverlayval_+1 );
+	}
+    }
 
-    ld.curvenmitm_->setPos( txtpt );
+    if ( setup_.drawcurvenames_ )
+    {
+	Alignment al( Alignment::HCenter, first ? Alignment::Top 
+						: Alignment::Bottom );
+	uiTextItem* ti = scene().addItem(new uiTextItem(ld.dahobj_->name(),al));
+	ti->setTextColor( ls.color_ );
+	uiPoint txtpt;
+	txtpt = first ? uiPoint( pts[0] ) : pts[pts.size()-1];
+	ti->setPos( txtpt );
+	ld.curveitms_.add( ti );
+    }
 
     if ( first )
 	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
@@ -324,21 +342,31 @@ uiWellDahDisplay::MarkerDraw* uiWellDahDisplay::getMarkerDraw(
 void uiWellDahDisplay::drawZPicks()
 {
     deepErase( zpickitms_ );
-
     for ( int idx=0; idx<zpicks_.size(); idx++ )
     {
 	const PickData& pd = zpicks_[idx];
 	mDefZPosInLoop( pd.dah_ );
-	mDefHorLineX1X2Y();
+	float* val = pd.val_;
+	uiGraphicsItem* li;
+	if ( !val )
+	{
+	    mDefHorLineX1X2Y();
+	    li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
+	}
+	else
+	{
+	    int xpos = ld1_->xax_.getPix(*val);
+	    int pos = ld1_->yax_.getPix(zpos);
+	    li = scene().addItem( new uiCircleItem( uiPoint(xpos,pos), 1 ) );
+	}
 
-	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	Color lcol( setup_.pickls_.color_ );
 	if ( pd.color_ != Color::NoColor() )
-	lcol = pd.color_;
+	    lcol = pd.color_;
 	li->setPenStyle( LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
 			lcol) );
 	li->setZValue( 2 );
-	zpickitms_ += li;
+	zpickitms_.add( li );
     }
 }
 

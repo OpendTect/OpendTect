@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.5 2011-10-27 15:08:12 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.6 2011-10-28 09:58:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsview.h"
+#include "uigraphicsitem.h"
 #include "uiaxishandler.h"
 #include "draw.h"
 #include "survinfo.h"
@@ -56,6 +57,7 @@ public:
 			    , noyannot_(false)
 			    , annotinside_(false)
 			    , sameaxisrange_(false)
+			    , drawcurvenames_(true) 		   
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -66,6 +68,7 @@ public:
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(bool,sameaxisrange)
+	mDefSetupMemb(bool,drawcurvenames)
     };
 
 				    uiWellDahDisplay(uiParent*,const Setup&);
@@ -80,6 +83,9 @@ public:
 	bool                    xrev_;
 	int                     zoverlayval_;
 	float			cliprate_;
+	Color			col_;
+	bool			drawascurve_;
+	bool			drawaspoints_;
 
 	//Get these
 	Interval<float>         zrg_;
@@ -92,8 +98,8 @@ public:
 					const uiWellDahDisplay::Setup&);
 
 	const Well::DahObj*	dahobj_;
-	uiPolyLineItem*         curveitm_;
-	uiTextItem*             curvenmitm_;
+	uiGraphicsItemSet       curveitms_;
+	uiPolyLineItem*         curvepolyitm_;
 
 	friend class            uiWellDahDisplay;
     };
@@ -127,7 +133,7 @@ public:
     mStruct PickData
     {
 				PickData( float dah, Color c=Color::NoColor() )
-				    : dah_(dah), color_(c)      {}
+				    : dah_(dah), color_(c), val_(0)      {}
 
 	bool                    operator ==( const PickData& pd ) const
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
@@ -135,6 +141,8 @@ public:
 	float                   dah_;
 	Color                   color_; //!< default will use the global 
 					//setup color
+	float*			val_; //this will be a point then, 
+				      //a line otherwise
     };
 
     void			setData(const Data& data)
@@ -157,7 +165,7 @@ protected:
     Data			zdata_;
     Setup                       setup_;
     TypeSet<PickData>           zpicks_;
-    ObjectSet<uiLineItem>       zpickitms_;
+    uiGraphicsItemSet       	zpickitms_;
 
     mStruct MarkerDraw
     {

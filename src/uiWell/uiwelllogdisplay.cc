@@ -105,12 +105,12 @@ void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::drawCurve( first );
     LogData& ld = logData( first );
-    if ( !ld.curveitm_ ) return;
 
+    if ( !ld.curvepolyitm_ ) return;
     LineStyle ls(LineStyle::Solid);
     ls.width_ = ld.disp_.size_;
     ls.color_ = ld.disp_.color_;
-    ld.curveitm_->setPenStyle( ls );
+    ld.curvepolyitm_->setPenStyle( ls );
 }
 
 

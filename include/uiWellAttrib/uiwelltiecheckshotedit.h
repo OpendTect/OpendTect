@@ -18,6 +18,8 @@ ________________________________________________________________________
 
 namespace Well { class D2TModel; class Data; class DahObj;}
 class uiWellDahDisplay;
+class uiCheckBox;
+class uiComboBox;
 
 namespace WellTie
 {
@@ -30,7 +32,7 @@ public:
 
     void			fillPar(IOPar&) const 	{}
     void			usePar(const IOPar&)	{}
-	
+
 protected:
 
     mClass DriftCurve : public Well::DahObj
@@ -53,12 +55,21 @@ protected:
     Well::D2TModel*		orgcs_;
     DriftCurve			driftcurve_;
 
+    uiCheckBox*			interpolbox_;
+    uiComboBox*			stylefld_;
+
+    bool			dointerpolatecs_;
+    bool			dodrawpoints_;
+    bool			dodrawcurves_;
+
     uiWellDahDisplay*		d2tdisplay_;
     uiWellDahDisplay*		driftdisplay_;
 
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
+
+    void			parChg(CallBacker*);
 };
 
 
