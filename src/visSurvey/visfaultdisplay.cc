@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.85 2011-10-27 19:37:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.86 2011-10-28 11:31:03 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -111,7 +111,7 @@ FaultDisplay::FaultDisplay()
 
     drawstyle_->ref();
     addChild( drawstyle_->getInventorNode() );
-    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,3) );
+    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,2) );
 }
 
 
@@ -1358,11 +1358,18 @@ void FaultDisplay::setStickSelectMode( bool yn )
     updateManipulator();
     updateKnotMarkers();
 
-    const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
-    if ( yn )
-	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
-    else
-	scene_->getPolySelection()->polygonFinished()->remove( cb );
+    if ( scene_ && scene_->getPolySelection() &&
+	 scene_->getPolySelection()->polygonFinished() )
+    {
+	const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
+	if ( yn )
+	{
+	    scene_->getPolySelection()->polygonFinished()->
+						    notifyIfNotNotified(cb);
+	}
+	else
+	    scene_->getPolySelection()->polygonFinished()->remove( cb );
+    }
 }
 
 
