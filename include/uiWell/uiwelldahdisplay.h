@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.6 2011-10-28 09:58:55 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.7 2011-10-28 14:53:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,9 @@ public:
 			    , noxannot_(false)
 			    , noyannot_(false)
 			    , annotinside_(false)
-			    , sameaxisrange_(false)
-			    , drawcurvenames_(true) 		   
+			    , samexaxisrange_(false)
+			    , symetricalxaxis_(false) 
+			    , drawcurvenames_(true) 
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -67,8 +68,9 @@ public:
 	mDefSetupMemb(bool,noxannot)
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(bool,annotinside)
-	mDefSetupMemb(bool,sameaxisrange)
 	mDefSetupMemb(bool,drawcurvenames)
+	mDefSetupMemb(bool,samexaxisrange)
+	mDefSetupMemb(bool,symetricalxaxis)
     };
 
 				    uiWellDahDisplay(uiParent*,const Setup&);

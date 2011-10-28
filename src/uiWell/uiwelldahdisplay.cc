@@ -14,9 +14,11 @@ static const char* rcsID = "$Id: uiwelldahdisplay.cc";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+
 #include "coltabsequence.h"
-#include "mouseevent.h"
 #include "dataclipper.h"
+#include "math.h"
+#include "mouseevent.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welllog.h"
@@ -170,9 +172,16 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 void uiWellDahDisplay::setAxisRanges( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    if ( !first && setup_.sameaxisrange_ ) return;
+    if ( !first && setup_.samexaxisrange_ ) return;
 
     Interval<float> dispvalrg( ld.valrg_ );
+    if ( setup_.symetricalxaxis_ )
+    {
+	const float max = mMAX(fabs(dispvalrg.start),fabs(dispvalrg.stop));
+	dispvalrg.start = -max;
+	dispvalrg.stop  =  max;
+    }
+
     if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
 	ld.xax_.setBounds( dispvalrg );
 
