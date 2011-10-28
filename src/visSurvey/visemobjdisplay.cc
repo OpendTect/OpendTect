@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.136 2011-10-20 13:49:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.137 2011-10-28 11:30:39 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -69,7 +69,7 @@ EMObjectDisplay::EMObjectDisplay()
     drawstyle_->ref();
     addChild( drawstyle_->getInventorNode() );
 
-    LineStyle defls; defls.width_ = 3;
+    LineStyle defls; defls.width_ = 2;
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.8 );
