@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.3 2011-10-28 09:58:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.4 2011-10-28 14:54:07 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -69,8 +69,9 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     d2t_->setName( "Depth/Time Model");
     wd.setD2TModel( d2t_ );
     uiWellDahDisplay::Setup dsu; 
-    dsu.sameaxisrange_ = true; dsu.drawcurvenames_ = false;
+    dsu.samexaxisrange_ = true; dsu.drawcurvenames_ = false;
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
+    dsu.symetricalxaxis_ = true;
     driftdisplay_ = new uiWellDahDisplay( this, dsu );
 
     uiWellDahDisplay::Data data;
@@ -97,13 +98,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     interpolbox_->attach( ensureBelow, d2tdisplay_ );
     interpolbox_->attach( alignedBelow, driftdisplay_ );
 
-    uiLabeledComboBox* lbl = new uiLabeledComboBox(this, "Select draw style: ");
-    stylefld_ = lbl->box();
-    lbl->attach( hCentered );
-    stylefld_->selectionChanged.notify( parcb );
-    stylefld_->addItems( styles ); 
-    lbl->attach( ensureBelow, interpolbox_ );
-
     draw();
 }
 
@@ -111,9 +105,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
 void uiCheckShotEdit::parChg( CallBacker* )
 {
     dointerpolatecs_ = interpolbox_->isChecked();
-    const int setp = stylefld_->currentItem();
-    dodrawpoints_ = setp == 1 || setp == 2;
-    dodrawcurves_ = setp == 0 || setp == 2;
     draw();
 }
 
@@ -133,7 +124,7 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     dahdata.setData( d );
     dahdata.xrev_ = false;
     dahdata.drawascurve_ = dodrawcurves_; 
-    dahdata.drawaspoints_ = dodrawpoints_; 
+    dahdata.drawaspoints_ = d == cs_;
 
     disp->reDraw();
 }
@@ -158,7 +149,7 @@ void uiCheckShotEdit::drawDrift()
 	const float dah = longermdl->dah( idx );
 	const float d2tval = d2t_->getTime( dah );
 	const float csval = cs_->getTime( dah );
-	driftcurve_.add( dah, d2tval - csval ); 
+	driftcurve_.add( dah, csval - d2tval); 
     }
 
     drawDahObj( &driftcurve_, true, false );

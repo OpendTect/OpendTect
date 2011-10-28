@@ -56,7 +56,6 @@ protected:
     DriftCurve			driftcurve_;
 
     uiCheckBox*			interpolbox_;
-    uiComboBox*			stylefld_;
 
     bool			dointerpolatecs_;
     bool			dodrawpoints_;
