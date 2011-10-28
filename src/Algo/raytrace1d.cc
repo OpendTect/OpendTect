@@ -94,6 +94,7 @@ od_int64 RayTracer1D::nrIterations() const
 
 #define mStdAVelReplacementFactor 0.348
 #define mStdBVelReplacementFactor -0.959
+#define mVelMin 100
 bool RayTracer1D::doPrepare( int nrthreads )
 {
     //See if we can find zero-offset
@@ -125,6 +126,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	ElasticLayer& layer = model_[idx];
 	float& pvel = layer.vel_;
 	float& svel = layer.svel_;
+
 	if ( mIsUdf( pvel ) && !mIsUdf( svel ) )
 	{
 	    pvel = p2safac ? sqrt( (svel*svel-p2sbfac)/p2safac ) : mUdf(float);
@@ -133,6 +135,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	{
 	    svel = sqrt( p2safac*pvel*pvel + p2sbfac );
 	}
+	if ( pvel < mVelMin )
+	    pvel = mVelMin;
 	if ( mIsUdf( pvel ) && mIsUdf( svel ) )
 	{
 	    errmsg_ = "P-Wave or S-Wave velocities are invalid";
