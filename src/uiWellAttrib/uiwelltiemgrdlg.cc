@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.46 2011-10-27 12:40:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.47 2011-10-28 14:54:47 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -138,7 +138,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     used2tmbox_->activated.notify( mCB(this,uiTieWinMGRDlg,d2TModeSel) );
     used2tmbox_->attach( alignedBelow, llbl2 );
 
-    editcsbut_ = new uiPushButton( logsgrp, "Edit CheckShot", 
+    editcsbut_ = new uiPushButton( logsgrp, "Prepare Depth/Time model", 
 				mCB(this,uiTieWinMGRDlg,editCSModel), false );
     editcsbut_->attach( alignedBelow, llbl2 );
     editcsbut_->attach( ensureBelow, used2tmbox_ );
