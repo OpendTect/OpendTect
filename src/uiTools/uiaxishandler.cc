@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.57 2011-10-21 12:29:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.58 2011-10-28 08:03:49 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -562,7 +562,9 @@ void uiAxisHandler::drawName()
     else
 	nameitm_->setText( name() );
     nameitm_->setZValue( setup_.zval_ );
-    nameitm_->setTextColor( setup_.style_.color_ );
+    Color& col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
+						     : setup_.nmcolor_;
+    nameitm_->setTextColor( col );
     const int fontheight = FontList().get().height();
     if ( isHor() )
     {

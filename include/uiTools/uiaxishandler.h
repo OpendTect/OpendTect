@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.30 2011-03-01 10:15:33 cvssatyaki Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.31 2011-10-28 08:03:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,8 @@ public:
 			    , maxnumberdigitsprecision_(0)	
 			    , epsaroundzero_(1e-100)	
 			    , islog_(false)	
-			    , zval_(4)	
+			    , zval_(4)
+			    , nmcolor_(Color::NoColor())  	      
 			    {}
 
 	mDefSetupMemb(uiRect::Side,side)
@@ -80,6 +81,7 @@ public:
 	mDefSetupMemb(int,maxnumberdigitsprecision)
 	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(int,zval)
+	mDefSetupMemb(Color,nmcolor)
 
 	Setup&		noannot( bool yn )
 			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
