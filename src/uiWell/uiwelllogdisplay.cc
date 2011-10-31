@@ -307,8 +307,8 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 
 const uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first ) const
-{ return static_cast<const LogData&>( first ? *ld1_ : *ld2_ ); }
+{ return const_cast<uiWellLogDisplay*>(this)->logData(first); }
 
 
 uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
-{ return static_cast<LogData&>( first ? *ld1_ : *ld2_ ); }
+{ return *static_cast<LogData*>( first ? ld1_ : ld2_ ); }
