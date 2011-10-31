@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.18 2011-10-19 20:59:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.19 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -689,7 +689,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 	else if ( action_==Union )
 	    res = b0 ? b0 : b1;
 	else
-	    res = !b1 ? b0 : 0;
+	    res = b0 ? b0 : 0;
 
 	return true;
     }

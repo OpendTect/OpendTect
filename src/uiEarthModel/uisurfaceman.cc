@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.87 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.88 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 
 #include "uisurfaceman.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.87 2011-09-16 10:01:23 cvsb
 #include "ascstream.h"
 #include "ctxtioobj.h"
 #include "file.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "oddirs.h"
@@ -24,9 +25,14 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.87 2011-09-16 10:01:23 cvsb
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
+#include "embodytr.h"
+#include "emmarchingcubessurface.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 
+#include "uibodyoperatordlg.h"
+#include "uibodyregiondlg.h"
+#include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
@@ -43,34 +49,36 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.87 2011-09-16 10:01:23 cvsb
 #include "uitextedit.h"
 
 
-#define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d ) \
-    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
+#define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d,  body ) \
+    !strcmp(typ,EMBodyTranslatorGroup::sKeyword()) ? body : \
+    (!strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
     (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
     (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword()) ? anyhor : \
-    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword()) ? emfss : flt3d) ) )
+    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword()) ? emfss : flt3d))))
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
 	       EMHorizon3DTranslatorGroup::ioContext(), \
 	       EMAnyHorizonTranslatorGroup::ioContext(), \
 	       EMFaultStickSetTranslatorGroup::ioContext(), \
-	       EMFault3DTranslatorGroup::ioContext() )
+	       EMFault3DTranslatorGroup::ioContext(), \
+	       EMBodyTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
     mGet( typ, "Manage 2D horizons", "Manage 3D horizons", "Manage horizons", \
-	       "Manage faultStickSets", "Manage faults" )
+	       "Manage faultStickSets", "Manage faults", "Manage bodies" )
 
 #define mGetCopyStr(typ) \
     mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
-	       "Copy faultStickSet", "Copy fault" )
+	       "Copy faultStickSet", "Copy fault","Copy body" )
 
 #define mGetHelpID(typ) \
-    mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5")
+    mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5", "104.2.6")
 
 #define mGetWinTittle(typ) \
     mGet( typ, "2D Horizons management", "3D Horizons management",\
 	  "Horizons management", "FaultStickSets management",\
-	  "Faults management")
+	  "Faults management", "Bodies management" )
 
 using namespace EM;
 
@@ -88,21 +96,22 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
-	    		 mCB(this,uiSurfaceMan,copyCB) );
+    if ( strcmp(typ,EMBodyTranslatorGroup::sKeyword()) )
+    	manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
+		mCB(this,uiSurfaceMan,copyCB) );
 
-    if ( mGet(typ,true,false,true,false,false) )
+    if ( mGet(typ,true,false,true,false,false,false) )
     {
 	man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
 
-    if ( mGet(typ,false,true,false,false,false) )
+    if ( mGet(typ,false,true,false,false,false,false) )
 	manipgrp->addButton( "mergehorizons.png", "Merge 3D Horizons",
 			     mCB(this,uiSurfaceMan,merge3dCB) );
 
-    if ( mGet(typ,false,true,true,false,false) )
+    if ( mGet(typ,false,true,true,false,false,false) )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
 		"Calculated attributes", true, uiLabeledListBox::AboveLeft );
@@ -128,6 +137,14 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	relbut->attach( ensureBelow, llb );
 
 	setPrefWidth( 50 );
+    }
+
+    if ( mGet(typ,false,false,false,false,false,true) )
+    {
+	manipgrp->addButton( "set_union.png", "Merge bodies",
+		mCB(this,uiSurfaceMan,mergeBodyCB) );
+	manipgrp->addButton( "set_implicit.png", "Create region body",
+		mCB(this,uiSurfaceMan,createBodyRegionCB) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -196,6 +213,65 @@ void uiSurfaceMan::merge3dCB( CallBacker* )
 {
     uiHorizonMergeDlg dlg( this, false );
     dlg.go();
+}
+
+
+#define mSaveMCSurface() \
+    EM::EMM().addObject( emcs ); \
+    PtrMan<Executor> exec = emcs->saver(); \
+    if ( !exec ) \
+    { \
+       uiMSG().error( "Cannot save body" ); \
+       emcs->unRef(); \
+       return; \
+    } \
+    MultiID key = emcs->multiID(); \
+    PtrMan<IOObj> ioobj = IOM().get( key ); \
+    if ( !ioobj->pars().find( sKey::Type ) ) \
+    { \
+	ioobj->pars().set( sKey::Type, emcs->getTypeStr() ); \
+	if ( !IOM().commitChanges( *ioobj ) ) \
+	{ \
+	    uiMSG().error( "Could not write body to database" ); \
+	    return; \
+	} \
+    } \
+    uiTaskRunner exdlg( parent() ); \
+    exdlg.execute( *exec ); \
+    emcs->unRefNoDelete()
+
+
+void uiSurfaceMan::mergeBodyCB( CallBacker* )
+{
+    EM::MarchingCubesSurface* emcs = new EM::MarchingCubesSurface(EM::EMM());
+    emcs->ref();
+    if ( !emcs->getBodyOperator() )
+	emcs->createBodyOperator();
+    
+    uiBodyOperatorDlg dlg( this, *emcs );
+    if ( !dlg.go() )
+    {
+	emcs->unRef();
+	return;
+    }
+    
+    mSaveMCSurface();
+}
+
+
+void uiSurfaceMan::createBodyRegionCB( CallBacker* )
+{
+    EM::MarchingCubesSurface* emcs = new EM::MarchingCubesSurface(EM::EMM());
+    emcs->ref();
+    
+    uiBodyRegionDlg dlg( this, *emcs );
+    if ( !dlg.go() )
+    {
+	emcs->unRef();
+	return;
+    }
+    
+    mSaveMCSurface();
 }
 
 

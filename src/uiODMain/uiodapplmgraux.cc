@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.36 2011-10-12 12:16:19 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.37 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.36 2011-10-12 12:16:19 cv
 #include "ctxtioobj.h"
 #include "datapointset.h"
 #include "datapackbase.h"
+#include "embodytr.h"
 #include "emsurfacetr.h"
 #include "filepath.h"
 #include "ioobj.h"
@@ -280,6 +281,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiDataPointSetMan mandlg( par_ );
 	    mandlg.go();
 	}
+    break;
+    mCase(Body):
+  	if ( at == uiODApplMgr::Man )
+	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::sKeyword() );
     break;
     }
 }

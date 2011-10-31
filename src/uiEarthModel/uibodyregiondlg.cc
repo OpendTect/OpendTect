@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.1 2011-10-27 21:48:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.2 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -76,103 +76,148 @@ bool doPrepare( int )
 	hors_ += newhor;
 	fltsurplgs_ += 0;
 	if ( newhor ) 
-	    newhor->ref();
-	else
 	{
-	    mDynamicCastGet( EM::Fault3D*, newflt, emobj.ptr() );
-	    if ( !newflt ) continue;
-	    
-	    const Geometry::FaultStickSurface* flt = 
-		newflt->geometry().sectionGeometry(0);
-	    if ( !flt ) continue;
+	    newhor->ref();
+	    continue;
+	}
+    
+	mDynamicCastGet( EM::Fault3D*, newflt, emobj.ptr() );
+	if ( !newflt ) continue;
+	
+	const Geometry::FaultStickSurface* flt = 
+	    newflt->geometry().sectionGeometry(0);
+	if ( !flt ) continue;
 
-	    fltsurplgs_.replace( idx, new ODPolygon<float>() );
-	    ODPolygon<float>& poly = *(fltsurplgs_[idx]);
-	    poly.setClosed( true );
-	    BinID firstbid(-1,-1), lastbid(-1,-1); 
-	    for ( int idy=0; idy<flt->nrSticks(); idy++ )
-	    {
-		const TypeSet<Coord3>* knots = flt->getStick(idy);
-		if ( !knots || !knots->size() )
-		    continue;
-		
-		BinID bid = SI().transform((*knots)[0]);
-		if ( firstbid.inl<0 )
-		    firstbid = bid;
-		lastbid = bid;
-		poly.add( Geom::Point2D<float>(bid.inl,bid.crl) );
-	    }
+	fltsurplgs_.replace( idx, new ODPolygon<float>() );
+	ODPolygon<float>& poly = *(fltsurplgs_[idx]);
+	poly.setClosed( true );
+	
+	TypeSet<int> useinls;
 
-	    if ( lastbid==firstbid || firstbid.inl<0 || lastbid.inl<0 )
-		continue;
+	for ( int idy=0; idy<flt->nrSticks(); idy++ )
+	{
+	    const TypeSet<Coord3>* knots = flt->getStick(idy);
+	    if ( !knots ) continue;
 
-	    if ( sides_[idx]==mToMinInline )
+	    for ( int idz=0; idz<knots->size(); idz++ )
 	    {
-		if ( lastbid.crl>firstbid.crl )
+	    	const BinID bid = SI().transform( (*knots)[idz] );
+		const Geom::Point2D<float> knot( bid.inl, bid.crl );
+		const int lastidx = useinls.size()-1;
+
+		if ( lastidx<0 || bid.inl>useinls[lastidx] )
 		{
-		    poly.add( Geom::Point2D<float>(lastbid.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(firstbid.inl,c0.crl) );
+		    useinls += bid.inl;
+		    poly.add( knot );
 		}
-		else
+		else if ( bid.inl<useinls[0] )
 		{
-		    poly.add( Geom::Point2D<float>(lastbid.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(firstbid.inl,c1.crl) );
+		    useinls.insert( 0, bid.inl );
+		    poly.insert( 0, knot );
+		}
+		else if ( bid.inl!=useinls[0] || bid.inl!=useinls[lastidx] )
+		{
+		    int i0=0, i1=lastidx, midx=(i0+i1+1)/2;
+		    for ( ; ; )
+		    {
+			if ( bid.inl==useinls[midx] )
+			    break;
+			
+			if ( bid.inl>useinls[midx] )
+			    i0 = midx;
+			else
+			    i1 = midx;
+			
+			if ( i1-i0 < 2 )
+			{
+			    if ( bid.inl<=useinls[i0] )
+				uiMSG().error("Something is wrong");
+			    else
+			    {
+				useinls.insert( i1, bid.inl );
+				poly.insert( i1, knot );
+			    }
+			    break;
+			}
+			
+			midx=(i0+i1+1)/2;
+		    }
 		}
 	    }
-	    else if ( sides_[idx]==mToMaxInline )
+	}
+
+	const int sz = poly.size();
+	if ( sz<2 ) continue;
+	
+	const Geom::Point2D<float> first = poly.data()[0];
+	const Geom::Point2D<float> last = poly.data()[sz-1];
+
+	if ( sides_[idx]==mToMinInline )
+	{
+	    if ( last.y>first.y )
 	    {
-		if ( lastbid.crl>firstbid.crl )
-		{
-		    poly.add( Geom::Point2D<float>(lastbid.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(firstbid.inl,c0.crl) );
-		}
-		else
-		{
-		    poly.add( Geom::Point2D<float>(lastbid.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(firstbid.inl,c1.crl) );
-		}
+		poly.add( Geom::Point2D<float>(last.x,c1.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(first.x,c0.crl) );
 	    }
-	    else if ( sides_[idx]==mToMinCrossline )
+	    else
 	    {
-		if ( lastbid.inl>firstbid.inl )
-		{
-		    poly.add( Geom::Point2D<float>(c1.inl,lastbid.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,firstbid.crl) );
-		}
-		else
-		{
-		    poly.add( Geom::Point2D<float>(c0.inl,lastbid.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,firstbid.crl) );
-		}
+		poly.add( Geom::Point2D<float>(last.x,c0.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(first.x,c1.crl) );
 	    }
-	    else if ( sides_[idx]==mToMaxCrossline )
+	}
+	else if ( sides_[idx]==mToMaxInline )
+	{
+	    if ( last.y>first.y )
 	    {
-		if ( lastbid.inl>firstbid.inl )
-		{
-		    poly.add( Geom::Point2D<float>(c1.inl,lastbid.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,firstbid.crl) );
-		}
-		else
-		{
-		    poly.add( Geom::Point2D<float>(c0.inl,lastbid.crl) );
-		    poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
-		    poly.add( Geom::Point2D<float>(c1.inl,firstbid.crl) );
-		}
+		poly.add( Geom::Point2D<float>(last.x,c1.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(first.x,c0.crl) );
+	    }
+	    else
+	    {
+		poly.add( Geom::Point2D<float>(last.x,c0.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(first.x,c1.crl) );
+	    }
+	}
+	else if ( sides_[idx]==mToMinCrossline )
+	{
+	    if ( last.x>first.x )
+	    {
+		poly.add( Geom::Point2D<float>(c1.inl,last.y) );
+		poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,first.y) );
+	    }
+	    else
+	    {
+		poly.add( Geom::Point2D<float>(c0.inl,last.y) );
+		poly.add( Geom::Point2D<float>(c0.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c0.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,first.y) );
+	    }
+	}
+	else if ( sides_[idx]==mToMaxCrossline )
+	{
+	    if ( last.x>first.x )
+	    {
+		poly.add( Geom::Point2D<float>(c1.inl,last.y) );
+		poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c0.inl,first.y) );
+	    }
+	    else
+	    {
+		poly.add( Geom::Point2D<float>(c0.inl,last.y) );
+		poly.add( Geom::Point2D<float>(c0.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,c1.crl) );
+		poly.add( Geom::Point2D<float>(c1.inl,first.y) );
 	    }
 	}
     }

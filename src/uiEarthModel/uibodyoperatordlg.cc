@@ -7,13 +7,14 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.4 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.5 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "uibodyoperatordlg.h"
 
 #include "ctxtioobj.h"
 #include "embodyoperator.h"
 #include "embodytr.h"
+#include "emmarchingcubessurface.h"
 #include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -21,10 +22,14 @@ static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.4 2010-11-16 09:49:10 
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uilistview.h"
+#include "uimsg.h"
+#include "uitaskrunner.h"
 
-uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::BodyOperator& op )
+
+uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::MarchingCubesSurface& m )
     : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mNoHelpID) )
-    , oprt_( op )
+    , emcs_( m ) 
+    , ctio_( EMBodyTranslatorGroup::ioContext() )		 
 {
     setOkText( "Compute" );  
 
@@ -93,6 +98,10 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::BodyOperator& op )
     intersectbut_->attach( rightOf, oprselfld_ );
     minusbut_ = new uiToolButton( this, "set_minus.png", "Minus", CallBack() );
     minusbut_->attach( rightOf, oprselfld_ );
+
+    ctio_.ctxt.forread = false;
+    outputfld_ = new uiIOObjSel( this, ctio_, "Output body" );
+    outputfld_->attach( alignedBelow, tree_ );
 
     typefld_->display( false );
     turnOffAll();    
@@ -179,8 +188,10 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 
 	    listinfo_[curidx].act = -1;
 	    listinfo_[curidx].defined = false;
-	    cur->setText( "", 1 );
-	    cur->setPixmap( 1, "" );
+
+	    delete cur;
+	    cur = new uiListViewItem( cur->parent(), uiListViewItem::Setup() );
+	    cur->setText( "input" );
 	}
 
 	itemClick( cb );
@@ -268,20 +279,51 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
 }
 
 
+#define mRetErr( msg ) \
+    uiMSG().error( msg ); return false
+
+
 bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 {
+    if ( !emcs_.getBodyOperator() )
+    {
+	mRetErr( "There is no operator been set" );
+    }
+    
     for ( int idx=0; idx<listinfo_.size(); idx++ )
     {
-	if ( !listinfo_[idx].defined )
-	    return false;
-
-	if ( (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf()) 
-	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()) )
-	    return false;
+	if ( !listinfo_[idx].defined ||
+	    (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf())
+	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()))
+	{
+	    mRetErr( "Do not forget to pick Action/Body" );
+	}
+    }
+    
+    if ( !outputfld_->commitInput() )
+    {
+	mRetErr( "Cannot create the output body" );
+    }
+    
+    setOprator( listsaved_[0], *emcs_.getBodyOperator() );
+    if ( !emcs_.getBodyOperator()->isOK() )
+    {
+	mRetErr( "Your operator is wrong" );
+    }
+    
+    MouseCursorChanger bodyopration( MouseCursor::Wait );
+    uiTaskRunner taskrunner( this );
+    if ( !emcs_.regenerateMCBody( &taskrunner ) )
+    {
+	mRetErr( "Generating body failed" );
     }
 
-    setOprator( listsaved_[0], oprt_ );
-    return oprt_.isOK();
+    emcs_.setMultiID( ctio_.ioobj->key() );
+    emcs_.setName( ctio_.ioobj->name() );
+    emcs_.setFullyLoaded( true );
+    emcs_.setChangedFlag();
+
+    return true;
 }
 
 

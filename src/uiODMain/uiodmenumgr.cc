@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.233 2011-09-26 15:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.234 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -357,6 +357,7 @@ void uiODMenuMgr::fillManMenu()
 
     mInsertPixmapItem( manmnu_, "&PickSets/Polygons ...", mManPickMnuItm,
 		       "man_picks.png" );
+    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body.png" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs.png" );
     mInsertPixmapItem( manmnu_, "2D Geometry ..",
@@ -719,6 +720,7 @@ void uiODMenuMgr::fillManTB()
 	mAddTB(mantb_,"man_flt.png","Manage Faults",false,manFlt);
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
     mAddTB(mantb_,"man_picks.png","Manage PickSets/Polygons",false,manPick);
+    //mAddTB(mantb_,"man_body.png","Manage body",false,manBody);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
  
@@ -971,6 +973,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
+    case mManBodyMnuItm:		mDoOp(Man,Body,0); break;		
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
@@ -1138,6 +1141,7 @@ void uiODMenuMgr::manSeis( CallBacker* )
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
+mDefManCBFn(Body)    
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
 mDefManCBFn(PDF)

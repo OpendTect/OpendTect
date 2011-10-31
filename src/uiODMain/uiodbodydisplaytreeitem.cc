@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.35 2011-10-13 14:47:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.36 2011-10-31 16:11:25 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -86,47 +86,21 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 2 )
     {
-	static bool ask = false;
-	static bool confirmed = true;
-	if ( !ask )
-	{
-	    confirmed = 
-		uiMSG().askContinue( "The body operation is still under testing.\n"
-		     "It may not be stable or may take long time to process.\n"
-		     "Do you want to continue?");
-	    ask = true;
-	}
-
-	if ( !confirmed ) return false;
-
-	RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( 
+	RefMan<EM::EMObject> emobj = EM::EMM().createTempObject(
 		EM::MarchingCubesSurface::typeStr() );
 	if ( !emobj ) return false;
 	
-	mDynamicCastGet( EM::MarchingCubesSurface*, mcs, emobj.ptr() );
-	if ( !mcs ) return false;
-
-	mcs->setPreferredColor( getRandomColor(false) );
+	mDynamicCastGet( EM::MarchingCubesSurface*, emcs, emobj.ptr() );
+	if ( !emcs ) return false;
 	
-	BufferString nm = "<New body "; 
-	static int surfnr = 1;
-	nm += surfnr++; 
-	nm += ">";
-	mcs->setName( nm.buf() );
-	mcs->setFullyLoaded( true );
-
-	if ( !mcs->getBodyOperator() )
-	    mcs->createBodyOperator();
+	if ( !emcs->getBodyOperator() )
+	    emcs->createBodyOperator();
 	
-	uiBodyOperatorDlg dlg( getUiParent(), *mcs->getBodyOperator() ); 
-	const int res = dlg.go();
-
-	MouseCursorChanger bodyopration( MouseCursor::Wait );
-	uiTaskRunner taskrunner( getUiParent() );
-	if ( !res || !mcs->regenerateMCBody( &taskrunner ) )
+	uiBodyOperatorDlg dlg( getUiParent(), *emcs );
+	if ( !dlg.go() )
 	    return false;
-
-	addChild( new uiODBodyDisplayTreeItem( mcs->id() ), false );
+	
+	addChild( new uiODBodyDisplayTreeItem( emcs->id() ), false );
     }
     else
 	handleStandardItems( mnuid );
