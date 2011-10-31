@@ -50,16 +50,16 @@ uiDataPointSetMan::~uiDataPointSetMan()
 
 
 #define mGetDPS(dps) \
-PosVecDataSet pvds; \
-DataPointSet* dps = 0; \
-Translator* tr = curioobj_->getTranslator(); \
-mDynamicCastGet(PosVecDataSetTranslator*,pvdstr,tr); \
-if ( pvdstr ) \
-{ \
-    pvdstr->read( *curioobj_, pvds ); \
-    dps = new DataPointSet( pvds, false ); \
-    dps->setName( curioobj_->name() ); \
-}
+    PosVecDataSet pvds; \
+    DataPointSet* dps = 0; \
+    Translator* tr = curioobj_ ? curioobj_->getTranslator() : 0; \
+    mDynamicCastGet(PosVecDataSetTranslator*,pvdstr,tr); \
+    if ( pvdstr ) \
+    { \
+	pvdstr->read( *curioobj_, pvds ); \
+	dps = new DataPointSet( pvds, false ); \
+	dps->setName( curioobj_->name() ); \
+    }
 
 
 void uiDataPointSetMan::mergePush( CallBacker* )
