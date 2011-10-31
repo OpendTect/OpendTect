@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.47 2011-10-10 17:18:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.48 2011-10-31 21:47:33 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1236,13 +1236,10 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 
 void ExplFaultStickSurface::emptyPanel( int panelidx )
 {
-    if ( !paneltriangles_.validIdx(panelidx) )
-	return;
-
-    if ( paneltriangles_[panelidx] ) 
+    if ( paneltriangles_.validIdx(panelidx) )
 	paneltriangles_[panelidx]->removeAll( true );
 
-    if ( panellines_[panelidx] ) 
+    if ( panellines_.validIdx(panelidx) )  
 	panellines_[panelidx]->removeAll( true );
 
     needsupdate_ = true;
