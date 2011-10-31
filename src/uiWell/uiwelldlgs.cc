@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.104 2011-09-23 15:08:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.105 2011-10-31 21:10:48 cvsyuancheng Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -110,13 +110,12 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
     float fac = 1;
     if ( SI().zIsTime() )
 	fac = zinft ? mToFeetFactor : 1;
-    else 
+    else
     {
-	fac = ((SI().zInFeet() && zinft) || 
-		(SI().zInMeter() && !zinft)) ? 1
-					     : ( SI().zInFeet() && !zinft )
-						? mFromFeetFactor
-						: mToFeetFactor;
+	if ( SI().zInFeet() && !zinft )
+	    fac = mFromFeetFactor;
+	else if ( SI().zInMeter() && zinft )
+	    fac = mToFeetFactor;
     }
 
     for ( int idx=0; idx<sz; idx++ )
@@ -206,6 +205,15 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     track_.erase();
     const int nrrows = tbl_->nrRows();
     const bool zinft = zinftfld_->isChecked();
+
+    float fac = 1;
+    if ( SI().zIsTime() && zinft )
+	fac = mFromFeetFactor;
+    else if ( SI().zInFeet() && !zinft )
+	fac = mToFeetFactor;
+    else if ( SI().zInMeter() && zinft )
+	fac = mFromFeetFactor;
+
     bool needfill = false;
     for ( int idx=0; idx<nrrows; idx++ )
     {
@@ -217,7 +225,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	const double yval = toDouble(sval);
 	sval = tbl_->text( RowCol(idx,2) );
 	if ( !*sval ) continue;
-	double zval = toDouble(sval); if ( zinft ) zval *= mFromFeetFactor;
+	const double zval = toDouble(sval) * fac; 
 
 	const Coord3 newc( xval, yval, zval );
 	if ( !SI().isReasonable( newc ) )
@@ -231,7 +239,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	sval = tbl_->text( RowCol(idx,3) );
 	float dahval = 0;
 	if ( *sval )
-	    { dahval = toFloat(sval); if ( zinft ) dahval *= mFromFeetFactor; }
+	    dahval = toFloat(sval) * fac; 
 	else if ( idx > 0 )
 	{
 	    dahval = track_.dah(idx-1) + track_.pos(idx-1).distTo( newc );
