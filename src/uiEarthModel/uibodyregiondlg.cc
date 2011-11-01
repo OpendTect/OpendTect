@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.2 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.3 2011-11-01 05:00:56 cvsraman Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -474,10 +474,10 @@ bool uiBodyRegionDlg::createImplicitBody()
     CubeSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step;
     cs.zrg.stop += cs.zrg.step;
-    cs.hrg.inlRange().start -= cs.hrg.inlRange().step;
-    cs.hrg.inlRange().stop += cs.hrg.inlRange().step;
-    cs.hrg.crlRange().start -= cs.hrg.crlRange().step;
-    cs.hrg.crlRange().stop += cs.hrg.crlRange().step;
+    cs.hrg.start.inl -= cs.hrg.step.inl;
+    cs.hrg.stop.inl += cs.hrg.step.inl;
+    cs.hrg.start.crl -= cs.hrg.step.crl;
+    cs.hrg.stop.crl += cs.hrg.step.crl;
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
