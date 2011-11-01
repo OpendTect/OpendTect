@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.138 2011-10-28 11:29:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.139 2011-11-01 10:19:26 cvsranojay Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -77,14 +77,15 @@ Seis2DDisplay::Seis2DDisplay()
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
     cache_.allowNull();
 
+    linename_ = visBase::Text2::create();
+    linename_->ref();
+    insertChild( childIndex(channels_->getInventorNode()),
+	linename_->getInventorNode() );
+    
     triangles_->ref();
     triangles_->removeSwitch();
     addChild( triangles_->getInventorNode() );
-
-    linename_ = visBase::Text2::create();
-    linename_->ref();
-    addChild( linename_->getInventorNode() );
-
+    
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
