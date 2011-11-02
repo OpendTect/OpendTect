@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.86 2011-05-27 07:33:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.87 2011-11-02 15:24:43 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -377,26 +377,30 @@ void Well::Log::ensureAscZ()
 }
 
 
+#define mInsertAtDah(dh,v,dahs,vals)\
+{\
+    if ( mIsUdf(v) ) return;\
+    if ( dh > dah_[dah_.size()-1] )\
+	{ dahs += dh; vals += val; }\
+    int insertidx = 0;\
+    if ( dh >= dah_[0] )\
+	insertidx = indexOf( dh );\
+    if ( insertidx<0 )\
+	return;\
+    dahs.insert( insertidx, dh );\
+    vals.insert( insertidx, v );\
+}
+void Well::D2TModel::insertAtDah( float dh, float val )
+{
+    mInsertAtDah( dh, val, dah_, t_ );
+}
+
+
 void Well::Log::insertAtDah( float dh, float val )
 {
-    if ( dh > dah_[dah_.size()-1] )
-    { addValue( dh, val ); return; }
-
-    int insertidx = 0;
-    if ( dh >= dah_[0] )
-	insertidx = indexOf( dh );
-
-    if ( insertidx<0 )
-	return;
-
-    dah_.insert( insertidx, dh );
-    val_.insert( insertidx, val );
-    
-    if ( !mIsUdf(val) ) 
-    {
-	if ( val < range_.start ) range_.start = val;
-	if ( val > range_.stop ) range_.stop = val;
-    }
+    mInsertAtDah( dh, val, dah_, val_ );
+    if ( val < range_.start ) range_.start = val;
+    if ( val > range_.stop ) range_.stop = val;
 }
 
 
