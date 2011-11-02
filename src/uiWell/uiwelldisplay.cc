@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.18 2011-10-27 08:54:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.19 2011-11-02 15:26:52 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -62,7 +62,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 	    if ( !control_ )
 		control_ = new uiWellDisplayControl( *wld );
 	    else
-		control_->addLogDisplay( *wld );
+		control_->addDahDisplay( *wld );
 	}
     }
     if ( disp.displaystrat_ )
@@ -135,7 +135,7 @@ void uiWellDisplay::setControl( uiWellDisplayControl& ctrl )
     if ( control_ ) delete control_;
     for ( int idx=0; idx<logdisps_.size(); idx++ )
     {
-	ctrl.addLogDisplay( *logdisps_[idx] );
+	ctrl.addDahDisplay( *logdisps_[idx] );
     }
     control_ = &ctrl;
 }

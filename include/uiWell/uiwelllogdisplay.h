@@ -43,6 +43,8 @@ public:
 	const UnitOfMeasure*    	unitmeas_;
 	Well::DisplayProperties::Log 	disp_;
 
+	void			getInfoForDah(float,BufferString&) const;
+
     protected:
 					LogData(uiGraphicsScene&,bool isfirst,
 					    const uiWellLogDisplay::Setup&);
@@ -73,9 +75,6 @@ protected:
     void                        drawCurve(bool);
     void                        drawSeismicCurve(bool);
     void                        drawFilledCurve(bool);
-
-    friend class                uiWellDisplay;
-    friend class                uiWellDisplayControl;
 };
 
 #endif

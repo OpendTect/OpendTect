@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.94 2011-10-27 08:54:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.95 2011-11-02 15:26:52 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -71,7 +71,7 @@ uiTieView::~uiTieView()
 void uiTieView::initWellControl()
 {
     wellcontrol_ = new uiWellDisplayControl( *logsdisp_[0] );
-    wellcontrol_->addLogDisplay( *logsdisp_[1] );
+    wellcontrol_->addDahDisplay( *logsdisp_[1] );
     wellcontrol_->posChanged.notify( mCB(this,uiTieView,setInfoMsg) );
 }
 

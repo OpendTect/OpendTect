@@ -53,6 +53,21 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 }
 
 
+void uiWellDahDisplay::DahObjData::getInfoForDah( float dah, 
+						BufferString& msg ) const
+{
+    if ( !dahobj_ )
+	return;
+
+    msg += dahobj_->name();
+
+    const int idx = dahobj_->indexOf( dah );
+    if ( idx < 0 ) return;
+    msg += ":";
+    msg += toString( dahobj_->value( idx ) );
+}
+
+
 uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Dah display viewer")
     , setup_(su)

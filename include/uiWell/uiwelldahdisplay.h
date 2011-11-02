@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.7 2011-10-28 14:53:54 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.8 2011-11-02 15:26:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,8 @@ public:
 	Interval<float>         valrg_;
 	uiAxisHandler           xax_;
 	uiAxisHandler           yax_;
+
+	virtual void		getInfoForDah(float dah,BufferString&) const;
 
     protected:
 				DahObjData(uiGraphicsScene&,bool,
@@ -202,6 +204,9 @@ protected:
     void			dataChanged();
     void			init(CallBacker*);
     void			reSized(CallBacker*);
+
+    friend class                uiWellDisplay;
+    friend class                uiWellDisplayControl;
 };
 
 

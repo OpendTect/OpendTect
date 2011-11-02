@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.13 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.14 2011-11-02 15:26:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,18 +16,18 @@ ________________________________________________________________________
 #include "callback.h"
 
 class MouseEventHandler;
-class uiWellLogDisplay;
+class uiWellDahDisplay;
 
 namespace Well { class Marker; }
 
 mClass uiWellDisplayControl : public CallBacker
 {
 public:
-				uiWellDisplayControl(uiWellLogDisplay&);
+				uiWellDisplayControl(uiWellDahDisplay&);
 				~uiWellDisplayControl();
 
-    void			addLogDisplay(uiWellLogDisplay&);
-    void			removeLogDisplay(uiWellLogDisplay&);
+    void			addDahDisplay(uiWellDahDisplay&);
+    void			removeDahDisplay(uiWellDahDisplay&);
     void			clear();
 
     bool			isMouseDown() const 	{ return ismousedown_;} 
@@ -35,14 +35,16 @@ public:
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed(bool);
 
-    const uiWellLogDisplay*	selLogDisp() const	{ return seldisp_; }
+    const uiWellDahDisplay*	selDahDisplay() const	{ return seldisp_; }
     const Well::Marker*		selMarker() const	{ return selmarker_; }
     const Well::Marker*		lastValidMarker() const {return lastselmarker_;}
 
     void			setSelMarker(const Well::Marker*);
 
-    float			time()  	{ return time_; }
-    float			depth()		{ return depth_; }
+    float			time() const 	{ return time_; }
+    float			depth() const	{ return depth_; }
+    float			xPos() const	{ return xpos_; }
+    float			yPos() const	{ return ypos_; }
 
     MouseEventHandler*		mouseEventHandler();
     
@@ -54,8 +56,8 @@ public:
 
 protected:
 
-    ObjectSet<uiWellLogDisplay> logdisps_;
-    uiWellLogDisplay* 		seldisp_;
+    ObjectSet<uiWellDahDisplay> logdisps_;
+    uiWellDahDisplay* 		seldisp_;
 
     BufferString                info_;
     bool			ismousedown_;
@@ -72,12 +74,14 @@ protected:
     
     float			time_;
     float			depth_;
+    float			xpos_;
+    float			ypos_;
 
     void 			mouseMovedCB(CallBacker*);
     void                        mousePressedCB(CallBacker*);
     void                        mouseReleasedCB(CallBacker*);
     void			setPosInfo(CallBacker*);
-    void			setSelLogDispCB(CallBacker*);
+    void			setSelDahDisplay(CallBacker*);
     void			setSelMarkerCB(CallBacker*);
 };
 

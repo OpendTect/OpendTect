@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.89 2011-10-31 17:00:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.90 2011-11-02 15:26:52 cvsbruno Exp $";
 
 
 
@@ -62,6 +62,18 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 {
     dahobj_ = l;
 }
+
+
+void uiWellLogDisplay::LogData::getInfoForDah( float dah, 
+						BufferString& msg ) const
+{
+    if ( !log() ) return;
+    msg += log()->name();
+    msg += ":";
+    msg += toString( log()->getValue( dah ) );
+    msg += log()->unitMeasLabel();
+}
+
 
 
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
