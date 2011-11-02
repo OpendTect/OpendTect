@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.26 2011-10-21 10:41:33 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.27 2011-11-02 14:46:05 cvsnanne Exp $";
 
 #include "uivolprocchain.h"
 
@@ -94,9 +94,10 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
-    factorylist_ = new uiListBox( flowgrp, uiStepDialog::factory().getNames(true) );
-    factorylist_->selectionChanged.notify(
-	    mCB(this,uiChain,factoryClickCB) );
+    factorylist_ = new uiListBox( flowgrp,
+				  uiStepDialog::factory().getNames(true) );
+    factorylist_->setHSzPol( uiObject::Wide );
+    factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
     factorylist_->doubleClicked.notify( addcb );
 
@@ -105,12 +106,11 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     addstepbutton_->attach( centeredRightOf, factorylist_ );
 
     steplist_ = new uiListBox( flowgrp );
+    steplist_->setHSzPol( uiObject::Wide );
     steplist_->attach( rightTo, factorylist_ );
     steplist_->attach( ensureRightOf, addstepbutton_ );
-    steplist_->selectionChanged.notify(
-	    mCB(this,uiChain,stepClickCB) );
-    steplist_->doubleClicked.notify(
-	    mCB(this,uiChain,stepDoubleClickCB) );
+    steplist_->selectionChanged.notify( mCB(this,uiChain,stepClickCB) );
+    steplist_->doubleClicked.notify( mCB(this,uiChain,stepDoubleClickCB) );
 
     uiLabel* label = new uiLabel( flowgrp, "Used steps" );
     label->attach( alignedAbove, steplist_ );
