@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.37 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.38 2011-11-02 11:40:51 cvsumesh Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.37 2011-10-31 16:11:25 cv
 #include "posvecdatasettr.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "string2.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "veldesc.h"
@@ -434,7 +435,7 @@ void uiODApplMgrDispatcher::updateSoftware()
     FilePath fp( GetSoftwareDir(0) );
 
     BufferString pathonly = fp.pathOnly();
-    BufferString reltypestr;
+    BufferString line;
 
     fp.add( "relinfo" );
     fp.add( "readme.txt" );
@@ -448,22 +449,35 @@ void uiODApplMgrDispatcher::updateSoftware()
 	char buf[1024];
 	sd.istrm->getline( buf, 1024 );
 
-	reltypestr = buf;
+	line = buf;
 	break;
     }
 
     sd.close();
+    
+    char* lineptr = line.buf();
 
-    SeparString ss( reltypestr, '-' );
+    char* reltypeptr = strchr( lineptr, '-' );
+    if ( reltypeptr ) *reltypeptr = '\0';
 
-    if ( ss.size() != 2 )
-	return;
+    if ( !reltypeptr ) return;
 
-    const char* reltype = ss[1];
+    if ( reltypeptr )
+    {
+	*reltypeptr++ = '\0';
+	mTrimBlanks( reltypeptr );
+    }
 
-    FilePath instfp( GetSoftwareDir(0) );
-    instfp.add( "bin" );
-    //instfp.add( OD::Platform::local().shortName() )
+    const char* reltype = reltypeptr;
+
+    FilePath instfp( GetBinPlfDir() );
+#ifndef __win__
+#ifdef __debug__
+    instfp.add("G");
+#else
+    instfp.add("O");
+#endif
+#endif
     instfp.add( "od_installer" );
 
     BufferString cmd("@");

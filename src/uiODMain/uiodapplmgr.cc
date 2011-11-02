@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.420 2011-08-03 19:30:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.421 2011-11-02 11:40:51 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -77,8 +77,10 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.420 2011-08-03 19:30:14 cvsn
 #include "posvecdataset.h"
 #include "ptrman.h"
 #include "seisbuf.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "updateinformer.h"
 #include "zaxistransform.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -1675,6 +1677,62 @@ void uiODApplMgr::storeEMObject()
 
     mpeserv_->saveSetup( mid );
     sceneMgr().updateTrees();
+}
+
+
+void uiODApplMgr::lookForUpdateAndNewRelease()
+{
+    BufferString key;
+    Settings::common().get( "AskForUpdate", key );
+
+    if ( !key.isEmpty() && (key=="NO") )
+	return;
+
+    updinformer_ = new UpdateInformer();
+    if ( updinformer_->updateAvalNotifier() )
+	updinformer_->updateAvalNotifier()->notify(
+			mCB(this,uiODApplMgr,updateOrNewReleaseAvalCB) );
+    updinformer_->lookForUpdateAndRelease();
+}
+
+
+void uiODApplMgr::updateOrNewReleaseAvalCB( CallBacker* cb )
+{
+    bool updateaval = updinformer_->isUpdateAval();
+    bool newrelaval = updinformer_->isNewReleaseAval();
+
+    delete updinformer_;
+
+    BufferString msg;
+    if ( newrelaval )
+	msg.add( "New release");
+    if ( newrelaval && updateaval )
+	msg.add( " and ");
+    if ( updateaval )
+	msg.add( "Update for already installed version(s) ");
+    if ( newrelaval || updateaval )
+	msg.add( " is Available");
+
+    if ( msg.isEmpty() )
+    {
+	//delete
+	return;
+    }
+
+    int verdict = uiMSG().askGoOnAfter( msg.buf(),
+	    				"Never ask me again at startup",
+	    				"Take me to Installer",
+					"Don't want to update now" );
+
+    if ( verdict == 0 )
+	updateSoftware();
+    else if ( verdict == 1 )
+	return;
+    else if ( verdict == 2 )
+    {
+	Settings::common().set( "AskForUpdate", "NO" );
+	Settings::common().write();
+    }
 }
 
 void uiODApplMgr::tieWellToSeismic( CallBacker* )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.145 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.146 2011-11-02 11:40:51 cvsumesh Exp $";
 
 #include "uiodmain.h"
 
@@ -146,6 +146,9 @@ uiODMain::uiODMain( uicMain& a )
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
 	failed_ = false;
+
+    if ( !failed_ )
+	applmgr_->lookForUpdateAndNewRelease();
 
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
