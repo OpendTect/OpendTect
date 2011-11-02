@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.31 2011-09-02 13:08:11 cvskris Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.32 2011-11-02 11:27:56 cvssatyaki Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -35,19 +35,22 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.31 2011-09-02 13:08:11 cv
 #define mDispVal(v)	20*Math::Log10(v)
 
 
-uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
+uiAmplSpectrum::uiAmplSpectrum( uiParent* p, bool wantceptrum )
     : uiMainWin( p,"Amplitude Spectrum", 0, false, false )
     , timedomain_(0)
     , freqdomain_(0)
+    , qfredomain_(0)
     , freqdomainsum_(0)
     , fft_(0)
+    , wantceptrum_(wantceptrum)
     , specvals_(0)
     , nyqvistspspace_( SI().zStep() ) 		  
 {
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
     disp_ = new uiFunctionDisplay( this, su );
-    disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
+    disp_->xAxis()->setName( SI().zIsTime() ? wantceptrum_ ? "Frequency (Hz)"
+	    						   : "Quefrency (ms)"
 	    				    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
     disp_->getMouseEventHandler().movement.notify( 
@@ -76,6 +79,13 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     uiPushButton* exportbut = new uiPushButton( this, "Export", false );
     exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
     exportbut->attach( rightAlignedBelow, disp_ );
+    
+    if ( wantceptrum_ )
+    {
+	uiPushButton* cepbut = new uiPushButton( this,"Display cepstrum",false);
+	cepbut->activated.notify( mCB(this,uiAmplSpectrum,ceptrumCB) );
+	cepbut->attach( rightAlignedBelow, exportbut );
+    }
 }
 
 
@@ -84,6 +94,7 @@ uiAmplSpectrum::~uiAmplSpectrum()
     delete fft_;
     delete timedomain_;
     delete freqdomain_;
+    delete qfredomain_;
     delete freqdomainsum_;
     delete specvals_;
 }
@@ -91,11 +102,14 @@ uiAmplSpectrum::~uiAmplSpectrum()
 
 void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
+    dpid_ = dpid;
+    dmid_ = dmid;
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( datapack )
 	setCaption( !datapack ? "No data" 
-	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
+	    : BufferString(wantceptrum_ ? "Amplitude" : "Quefrency",
+			   " Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::CubeID() )
     {
@@ -160,6 +174,7 @@ void uiAmplSpectrum::initFFT( int nrsamples )
 
     timedomain_ = new Array1DImpl<float_complex>( fftsz );
     freqdomain_ = new Array1DImpl<float_complex>( fftsz );
+    qfredomain_ = new Array1DImpl<float_complex>( fftsz );
     freqdomainsum_ = new Array1DImpl<float_complex>( fftsz );
 
     for ( int idx=0; idx<fftsz; idx++)
@@ -195,8 +210,17 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 	    fft_->setOutput( freqdomain_->getData() );
 	    fft_->run( true );
 	    
+	    if ( !wantceptrum_ )
+	    {
+		fft_->setInput( freqdomain_->getData() );
+		fft_->setOutput( qfredomain_->getData() );
+		fft_->run( true );
+	    }
+	    
 	    for ( int idz=0; idz<sz2; idz++ )
-		freqdomainsum_->arr()[idz] += abs(freqdomain_->get(idz));
+		freqdomainsum_->arr()[idz] +=
+		    abs( wantceptrum_ ? freqdomain_->get(idz)
+			    	      : qfredomain_->get(idz));
 	}
     }
 
@@ -300,3 +324,11 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     valfld_->setValue( rg );
 }
 
+
+void uiAmplSpectrum::ceptrumCB( CallBacker* )
+{
+    uiAmplSpectrum* ampl = new uiAmplSpectrum( this, false );
+    ampl->setDeleteOnClose( true );
+    ampl->setDataPackID( dpid_, dmid_ );
+    ampl->show();
+}

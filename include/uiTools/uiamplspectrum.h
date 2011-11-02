@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.13 2011-03-30 17:01:24 cvsyuancheng Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.14 2011-11-02 11:27:56 cvssatyaki Exp $
 ______________________________________________________________________
                        
 */   
@@ -30,7 +30,7 @@ template <class T> class Array1DImpl;
 mClass uiAmplSpectrum : public uiMainWin
 {
 public:
-    				uiAmplSpectrum(uiParent*);
+    				uiAmplSpectrum(uiParent*,bool wantcp=true);
 				~uiAmplSpectrum();
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
@@ -55,17 +55,22 @@ protected:
     
     Array1DImpl<float_complex>* timedomain_;
     Array1DImpl<float_complex>* freqdomain_;
+    Array1DImpl<float_complex>* qfredomain_;
     Array1DImpl<float_complex>* freqdomainsum_;
     Array1DImpl<float>* 	specvals_;
+    DataPack::ID		dpid_;
+    DataPackMgr::ID		dmid_;
 
     Interval<float>		posrange_;
     float			nyqvistspspace_;
 
     Fourier::CC*		fft_;
     int				nrtrcs_;
+    bool			wantceptrum_;
 
     void			dispRangeChgd(CallBacker*);
     void			exportCB(CallBacker*);
+    void			ceptrumCB(CallBacker*);
 };
 
 
