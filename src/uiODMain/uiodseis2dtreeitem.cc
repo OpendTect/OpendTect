@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.108 2011-09-22 14:39:48 cvskris Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.109 2011-11-02 21:52:05 cvsyuancheng Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -203,7 +203,7 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 
 int uiOD2DLineSetTreeItem::selectionKey() const
 {
-    if ( children_.size() < 2 )
+    if ( children_.size() < 1 )
 	return -1;
 
     mDynamicCastGet(const uiODDisplayTreeItem*,itm,children_[0])
