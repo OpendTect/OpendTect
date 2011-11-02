@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.33 2011-09-29 12:28:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.34 2011-11-02 15:27:52 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -69,25 +69,7 @@ Well::D2TModel* D2TModelMgr::d2T()
 
 void D2TModelMgr::computeD2TModel()
 {
-    if ( wd_ && wd_->haveCheckShotModel() && data_.dispparams_.iscscorr_ )
-    {
-	Well::Log* wl = wd_->logs().getLog( data_.sonic() );
-	if ( !wl ) return;
-
-	Well::Log* corrlog = new Well::Log( *wl );
-	CheckShotCorr cscorr( *corrlog, startdah_,
-			*wd_->checkShotModel(), data_.setup().issonic_ );
-	corrlog->setName( data_.corrsonic() );
-
-	const int oldlogidx = wd_->logs().indexOf( data_.corrsonic() ); 
-	if ( oldlogidx >= 0 ) delete wd_->logs().remove( oldlogidx );
-	wd_->logs().add( corrlog );
-
-	setFromVelLog( data_.corrsonic() );
-	applyCheckShotFirstPointShiftToModel(); 
-    }
-    else
-	setFromVelLog( data_.sonic() );
+    setFromVelLog( data_.sonic() );
 }
 
 

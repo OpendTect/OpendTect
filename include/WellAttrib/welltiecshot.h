@@ -15,18 +15,14 @@ ________________________________________________________________________
 
 #include "commondefs.h"
 
-namespace Well { class Log; class D2TModel; }
+namespace Well { class D2TModel; }
 namespace WellTie
 {
 
 mClass CheckShotCorr  
 {
 public:
-			CheckShotCorr( Well::Log&, float startdah,
-				const Well::D2TModel&,bool isvelocitylog);
-
-    static void		calibrateLog2Log( const Well::Log& calibrationlog,
-	    				 	Well::Log& calibratedlog );
+    static void		calibrate(const Well::D2TModel& cs,Well::D2TModel& d2t);
 };
 
 }; //namespace WellTie

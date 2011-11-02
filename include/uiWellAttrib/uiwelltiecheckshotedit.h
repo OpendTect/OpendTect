@@ -20,6 +20,10 @@ namespace Well { class D2TModel; class Data; class DahObj;}
 class uiWellDahDisplay;
 class uiCheckBox;
 class uiComboBox;
+class uiGraphicsView;
+class uiToolBar;
+class uiToolButton;
+class uiWellDisplayControl;
 
 namespace WellTie
 {
@@ -28,7 +32,8 @@ mClass uiCheckShotEdit : public uiDialog
 {
 public:
 				uiCheckShotEdit(uiParent*,Well::Data&,
-						const char* vellog,bool issonic);
+					    const char* vellog,bool issonic);
+				~uiCheckShotEdit();
 
     void			fillPar(IOPar&) const 	{}
     void			usePar(const IOPar&)	{}
@@ -50,24 +55,38 @@ protected:
 	void		eraseAux() 		    { val_.erase(); } 
     };
 
+    Well::Data&			wd_;
     Well::D2TModel*		d2t_;
     Well::D2TModel*		cs_;
     Well::D2TModel*		orgcs_;
+    Well::D2TModel*		orgd2t_;
     DriftCurve			driftcurve_;
+    DriftCurve			csdriftcurve_;
 
-    uiCheckBox*			interpolbox_;
+    uiToolBar*			toolbar_;
+    uiToolButton*		editbut_;
 
     bool			dointerpolatecs_;
     bool			dodrawpoints_;
     bool			dodrawcurves_;
+    bool			isedit_;
 
     uiWellDahDisplay*		d2tdisplay_;
     uiWellDahDisplay*		driftdisplay_;
+    uiWellDisplayControl*	control_;
 
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
 
+    bool			acceptOK(CallBacker*);
+    void			editCSPushed(CallBacker*);
+
+    void			setInfoMsg(CallBacker*);
+    void			mousePressedCB(CallBacker*);
+    void			mouseReleasedCB(CallBacker*);
+
+    void			editCB(CallBacker*);
     void			parChg(CallBacker*);
 };
 
