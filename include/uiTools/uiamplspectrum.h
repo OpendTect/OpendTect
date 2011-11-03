@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.14 2011-11-02 11:27:56 cvssatyaki Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.15 2011-11-03 09:22:16 cvsbruno Exp $
 ______________________________________________________________________
                        
 */   
@@ -22,6 +22,7 @@ class uiFunctionDisplay;
 class uiGenInput;
 class uiLabeledSpinBox;
 namespace Fourier { class CC; }
+template <class T> class Array1D;
 template <class T> class Array2D;
 template <class T> class Array3D;
 template <class T> class Array1DImpl;
@@ -34,6 +35,8 @@ public:
 				~uiAmplSpectrum();
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
+    void			setData(const float* array,int size);
+    void			setData(const Array1D<float>&);
     void			setData(const Array2D<float>&);
     void			setData(const Array3D<float>&);
 

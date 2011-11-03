@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.32 2011-11-02 11:27:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.33 2011-11-03 09:22:16 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -141,6 +141,23 @@ void uiAmplSpectrum::setData( const Array2D<float>& arr2d )
     arr3d.setDimMap( 1, 2 );
     arr3d.init();
     setData( arr3d );
+}
+
+
+void uiAmplSpectrum::setData( const Array1D<float>& arr1d )
+{
+    Array3DWrapper<float> arr3d( const_cast<Array1D<float>&>(arr1d) );
+    arr3d.setDimMap( 0, 2 );
+    arr3d.init();
+    setData( arr3d );
+}
+
+
+void uiAmplSpectrum::setData( const float* array, int size )
+{
+    Array1DImpl<float> arr1d( size );
+    memcpy( arr1d.getData(), array, sizeof(float)*size );
+    setData( arr1d );
 }
 
 
