@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.25 2011-10-27 08:31:14 cvsranojay Exp $
+ RCS:           $Id: statruncalc.h,v 1.26 2011-11-03 14:45:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,10 @@ public:
 
     inline RunCalc<T>&	operator +=( T t )	{ return addValue(t); }
 
+    using BaseCalc<T>::medvals_;
+
+protected:
+
     using BaseCalc<T>::setup_;
     using BaseCalc<T>::nradded_;
     using BaseCalc<T>::nrused_;
@@ -215,7 +219,6 @@ public:
     using BaseCalc<T>::clss_;
     using BaseCalc<T>::clsswt_;
     using BaseCalc<T>::medwts_;
-    using BaseCalc<T>::medvals_;
 };
 
 

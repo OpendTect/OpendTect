@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.3 2011-10-27 08:18:50 cvsranojay Exp $
+RCS:           $Id: statparallelcalc.h,v 1.4 2011-11-03 14:45:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 The difference with the running values (Stats::RunCalc) is that you have to 
 pass the entire data array prior to the execution. 
 
-It does also works with optional weights.
+It also works with optional weights.
 -!*/
 
 
@@ -44,23 +44,8 @@ public:
     const char*                 errMsg() const
 				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
-    virtual inline double variance() const;
+    virtual inline double 	variance() const;
 
-    using BaseCalc<T>::setup_;
-    using BaseCalc<T>::nradded_;
-    using BaseCalc<T>::nrused_;
-    using BaseCalc<T>::minidx_;
-    using BaseCalc<T>::maxidx_;
-    using BaseCalc<T>::maxval_;
-    using BaseCalc<T>::minval_;
-    using BaseCalc<T>::sum_x_;
-    using BaseCalc<T>::sum_xx_;
-    using BaseCalc<T>::sum_w_;
-    using BaseCalc<T>::sum_wx_;
-    using BaseCalc<T>::sum_wxx_;
-    using BaseCalc<T>::clss_;
-    using BaseCalc<T>::clsswt_;
-    using BaseCalc<T>::medwts_;
     using BaseCalc<T>::medvals_;
 
 protected:
@@ -82,6 +67,22 @@ protected:
     T                           meanval_w_;
     T                           variance_;
     T                           variance_w_;
+
+    using BaseCalc<T>::setup_;
+    using BaseCalc<T>::nradded_;
+    using BaseCalc<T>::nrused_;
+    using BaseCalc<T>::minidx_;
+    using BaseCalc<T>::maxidx_;
+    using BaseCalc<T>::maxval_;
+    using BaseCalc<T>::minval_;
+    using BaseCalc<T>::sum_x_;
+    using BaseCalc<T>::sum_xx_;
+    using BaseCalc<T>::sum_w_;
+    using BaseCalc<T>::sum_wx_;
+    using BaseCalc<T>::sum_wxx_;
+    using BaseCalc<T>::clss_;
+    using BaseCalc<T>::clsswt_;
+    using BaseCalc<T>::medwts_;
 };
 
 
