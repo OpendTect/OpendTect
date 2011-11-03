@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.15 2011-10-26 14:20:36 cvsbruno Exp $
+ RCS:		$Id: sorting.h,v 1.16 2011-11-03 14:38:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ protected:
     T*				buf_;
 
     const int			nrvals_;
-    const int			totalnr_;
+    int				totalnr_;
 
     Threads::ConditionVar	condvar_;
     TypeSet<int>		starts_;
@@ -379,6 +379,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int sz)
     , nrvals_( sz )
     , tmpbuffer_( 0 )
     , barrier_( -1, false )
+    , totalnr_(0)		     
     , idxs_( 0 )
 {
     mTryAlloc( tmpbuffer_, T[sz] );
@@ -390,6 +391,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int* idxs, int sz)
     : vals_( vals )
     , nrvals_( sz )
     , tmpbuffer_( 0 )
+    , totalnr_(0)		     
     , barrier_( -1, false )
     , idxs_( idxs )
 {
