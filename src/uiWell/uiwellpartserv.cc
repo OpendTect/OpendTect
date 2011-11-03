@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.62 2011-11-03 09:22:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.63 2011-11-03 10:51:21 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.62 2011-11-03 09:22:54 cv
 #include "uiwellimpasc.h"
 #include "uiwellman.h"
 
+#include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
 #include "errh.h"
@@ -335,9 +336,16 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
     if ( !log )
 	mErrRet( "Cannot find log in well data. Probably it has been deleted" )
 
+    StepInterval<float> resamprg( log->dahRange() );
+    resamprg.step = log->dahRange().width() / (float)log->size(); 
+    const int resampsz = resamprg.nrSteps();
+    Array1DImpl<float> resamplogarr( resampsz );
+    for ( int idx=0; idx<resampsz; idx++ )
+	resamplogarr.set( idx, log->getValue( resamprg.atIndex( idx ) ) );
+
     uiAmplSpectrum* asd = new uiAmplSpectrum( parent() );
-    asd->setData( log->valArr(), log->size()  );
-    asd->setName( lognm );
+    asd->setData( resamplogarr );
+    asd->setCaption( lognm );
     asd->show();
 
     return true;
