@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.18 2011-10-17 10:00:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.19 2011-11-03 15:20:37 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -93,6 +93,7 @@ SyntheticData* StratSynth::generate()
     synthgen.usePar( raypars_ );
 
     const int nraimdls = lm_.size();
+    int maxsz = 0;
     for ( int idm=0; idm<nraimdls; idm++ )
     {
 	ElasticModel aimod; 
@@ -106,9 +107,13 @@ SyntheticData* StratSynth::generate()
 	    BufferString msg( errmsg_ );
 	    mErrRet( msg.buf(), return false;) 
 	}
-
+	maxsz = mMAX( aimod.size(), maxsz );
 	synthgen.addModel( aimod );
     }
+    if ( maxsz <= 1 )
+	mErrRet( "AI model has only one layer, please add an other layer", 
+		return false; );
+
     if ( !synthgen.doWork() )
     {
 	const char* errmsg = synthgen.errMsg();
