@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.40 2011-10-17 10:20:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.41 2011-11-03 15:21:15 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -285,19 +285,24 @@ void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 {
     if ( !elpropsel_ )
 	elpropsel_ = new ElasticPropSelection;
-    selElasticProps( *elpropsel_ );
-    genModels(0);
+    if ( selElasticProps( *elpropsel_ ) )
+	genModels(0);
 }
 
 
-void uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
+bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 {
     uiElasticPropSelDlg dlg( this, desc_.propSelection(), elsel );
-    if ( dlg.go() && dlg.propSaved() )
+    if ( dlg.go() )
     {
-	desc_.setElasticPropSel( dlg.storedKey() );
-	seqdisp_->setNeedSave( true );
+	if ( dlg.propSaved() )
+	{
+	    desc_.setElasticPropSel( dlg.storedKey() );
+	    seqdisp_->setNeedSave( true );
+	}
+	return true;
     }
+    return false;
 }
 
 
@@ -414,7 +419,8 @@ void uiStratLayerModel::setElasticProps()
 	    errmsg += "\nPlease define a new value. ";
 	    uiMSG().message( errmsg.buf() );
 	}
-	selElasticProps( *elpropsel_ );
+	if ( !selElasticProps( *elpropsel_ ) )
+	    return;
     }
 
     modl_.addElasticPropSel( *elpropsel_ );
