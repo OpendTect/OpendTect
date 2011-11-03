@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.61 2011-10-13 10:11:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.62 2011-11-03 09:22:54 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.61 2011-10-13 10:11:25 cv
 #include "welllogset.h"
 #include "wellwriter.h"
 
+#include "uiamplspectrum.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
@@ -206,6 +207,16 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 }
 
 
+void uiWellPartServer::getLogNames( const MultiID& wellid, 
+					BufferStringSet& lognms ) const
+{
+    const Well::Data* wd = Well::MGR().get( wellid );
+    if ( !wd ||  wd->logs().isEmpty() ) return;
+    for ( int idx=0; idx<wd->logs().size(); idx++ )
+	lognms.add( wd->logs().getLog(idx).name() );
+}
+
+
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
@@ -312,3 +323,24 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     mid = ctio->ioobj->key();
     return true;
 }
+
+
+bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
+{
+    const Well::Data* wd = Well::MGR().get( mid );
+    if ( !wd || wd->logs().isEmpty()  ) 
+	return false;
+
+    const Well::Log* log = wd->logs().getLog( lognm );
+    if ( !log )
+	mErrRet( "Cannot find log in well data. Probably it has been deleted" )
+
+    uiAmplSpectrum* asd = new uiAmplSpectrum( parent() );
+    asd->setData( log->valArr(), log->size()  );
+    asd->setName( lognm );
+    asd->show();
+
+    return true;
+}
+
+

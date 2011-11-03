@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.62 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.63 2011-11-03 09:22:54 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -230,6 +230,7 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
+    deepErase( logmnuitems_ );
 }
 
 
@@ -237,17 +238,18 @@ void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
     logviewermnuitem_.text = "&2D Log Viewer ...";
-    gend2tm_.text = "&Tie Well to Seismic ...";
+    gend2tmmnuitem_.text = "&Tie Well to Seismic ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = "&Logs" ;
-    attrmnuitem_.text = "&Create attribute log...";
-    logcubemnuitem_.text = "&Create log cube...";
+    attrmnuitem_.text = "&Create attribute log ...";
+    logcubemnuitem_.text = "&Create log cube ...";
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
+    amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 
     nametopmnuitem_.checkable = true;
     namebotmnuitem_.checkable = true;
@@ -314,8 +316,18 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 		  applMgr()->wellServer()->hasLogs(wd->getMultiID()),
 		  wd->logsShown() );
 
+    deepErase( logmnuitems_ );
+    mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
+    BufferStringSet lognms; 
+    applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
+    for ( int logidx=0; logidx<lognms.size(); logidx++ )
+    {
+	logmnuitems_ += new MenuItem( lognms.get( logidx ) );
+	mAddMenuItem(&amplspectrummnuitem_,logmnuitems_[logidx],true,false);
+    }
+
     if ( SI().zIsTime() )
-	mAddMenuItem( menu, &gend2tm_, true, false );
+	mAddMenuItem( menu, &gend2tmmnuitem_, true, false );
 
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &logcubemnuitem_, true, false );
@@ -352,6 +364,13 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	wd->restoreDispProp();
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
+    }
+    else if ( amplspectrummnuitem_.findItem(mnuid) ) 
+    {
+	menu->setIsHandled( true );
+	ODMainWin()->applMgr().wellServer()->showAmplSpectrum( wellid, 
+				amplspectrummnuitem_.findItem(mnuid)->text );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == logviewermnuitem_.id )
@@ -407,7 +426,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	    wd->showKnownPositions();
 	}
     }
-    else if ( mnuid == gend2tm_.id )
+    else if ( mnuid == gend2tmmnuitem_.id )
     {
 	menu->setIsHandled( true );
 	ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wellid );
