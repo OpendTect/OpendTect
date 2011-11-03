@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.35 2011-08-22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.36 2011-11-03 16:18:22 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visannot.cc,v 1.35 2011-08-22 11:56:07 cvskris 
 #include "samplingdata.h"
 #include "axislayout.h"
 #include "iopar.h"
+#include "survinfo.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
@@ -413,8 +414,12 @@ void Annotation::updateTextPos( int dim )
 	scales_[dim]->addObject( text );
 	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
+	float displayval = val;
+	if ( dim==2 )
+	    displayval *= SI().zFactor();
+
 	text->setPosition( pos );
-	text->setText( toString(val) );
+	text->setText( toString(displayval) );
 	text->getMaterial()->setColor( annotcolor_ );
     }
 }
