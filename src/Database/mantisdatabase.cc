@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.24 2011-10-28 10:57:36 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.25 2011-11-03 09:37:44 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,18 @@ bool SqlDB::MantisQuery::updateTables( BugTableEntry& bugtable,
 SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
 {
     if ( cd ) acc_.connectionData() = *cd;
-    acc_.open();
+    const bool isopen = acc_.open();
+    if ( !isopen )
+    {
+	const char* username = 0;
+	username = GetEnvVar( "USER" );
+	BufferString errmsg( "Please check parameters in Settings_DB file.\n" );
+	errmsg.add( "If this file is not exested in '/users/" )
+	      .add( username ).add( "/.od/'" ).add( " copy from\n" )
+	      .add( "'/users/dev/bin/chkin/' to above mentioned directory" );
+	errmsg_ = errmsg;
+    }
+
     query_ = new MantisQuery( acc_ );
     query().isActive();
     bugtable_ = new BugTableEntry();
