@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.67 2011-10-14 15:44:28 cvskris Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.68 2011-11-03 14:27:39 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -186,7 +186,6 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
     if ( !strl()->initWrite(conn,trc) )
     {
 	errmsg_ = strl()->errMsg();
-	delete conn;
 	return false;
     }
 
