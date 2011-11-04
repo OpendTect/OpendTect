@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.27 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.28 2011-11-04 15:09:27 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -18,9 +18,11 @@ static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.27 2011-04-08 12:37:10 cvs
 #include "uitabstack.h"
 #include "uivisplanedatadisplaydragprop.h"
 #include "uivispolygonsurfbezierdlg.h"
+#include "uifltdispoptdlg.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "visfaultdisplay.h"
 #include "vishorizondisplay.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
@@ -85,6 +87,10 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
     if ( plg )
 	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
+
+    mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
+    if ( flt )
+	addGroup( new uiFaultDisplayOptDlg(tabstack_->tabGroup(),flt) );
 
     setCancelText( "" );
 }
