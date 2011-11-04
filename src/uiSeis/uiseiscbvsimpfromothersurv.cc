@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.12 2011-07-06 15:09:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.13 2011-11-04 12:42:41 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -193,9 +193,11 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 	mErrRet("The selected cube has no coordinate matching the current survey")
 
     int step = olddata_.cs_.hrg.step.inl;
-    padsz_.x_ = (int)( getInlXlnDist(b2c,true,step)/SI().inlDistance() )+1;
+    int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;
     step = olddata_.cs_.hrg.step.crl;
-    padsz_.y_ = (int)( getInlXlnDist(b2c,false,step)/SI().crlDistance() )+1;
+    int pady = (int)( getInlXlnDist(b2c,false,step) /SI().crlDistance() )+1;
+    padsz_.y_ = mMAX( padx, pady );
+    padsz_.x_ = mMAX( padx, pady ); 
     padsz_.z_ = mNINT( olddata_.cs_.zrg.step / data_.cs_.zrg.step );
 
     return true;
@@ -207,17 +209,19 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 {
     interpol_ = interp; 
     data_.cs_ = cs;
-    data_.hsit_->setSampling( cs.hrg ); 
+    data_.cs_.limitTo( SI().sampling(false) );
+    data_.cs_.hrg.snapToSurvey();
+    data_.hsit_->setSampling( data_.cs_.hrg ); 
     totnr_ = data_.cs_.hrg.totalNr();
     if ( !cellsz ) return; 
     fft_ = Fourier::CC::createDefault(); 
     sz_.x_ = sz_.y_ = fft_->getFastSize( cellsz );
-    StepInterval<float> zsi( cs.zrg ); zsi.step = olddata_.cs_.zrg.step;
+    StepInterval<float> zsi( data_.cs_.zrg ); 
+    zsi.step = olddata_.cs_.zrg.step;
     sz_.z_ = fft_->getFastSize( zsi.nrSteps() );
     arr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
     fftarr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
     newsz_.x_ = fft_->getFastSize( sz_.x_*padsz_.x_ );
-    newsz_.y_ = fft_->getFastSize( sz_.y_*padsz_.y_ );
     newsz_.z_ = fft_->getFastSize( sz_.z_*padsz_.z_ );
     taper_ = new ArrayNDWindow(Array1DInfoImpl(sz_.z_),false,"CosTaper",0.95);
 }
@@ -262,7 +266,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	outtrc = readTrc( oldbid ); 
 	if ( !outtrc )
 	    outtrc = new SeisTrc( data_.cs_.zrg.nrSteps() );
-	outtrc->info().sampling = data_.cs_.zrg;
+	outtrc->info().sampling = olddata_.cs_.zrg;
     }
     else
     {
@@ -335,7 +339,7 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
 	    BinID oldbid( olddata_.curbid_.inl + idinl, 
 		    	  olddata_.curbid_.crl + idcrl );
 	    SeisTrc* trc = readTrc( oldbid );
-	    if ( !trc )
+	    if ( !trc || trc->isEmpty() )
 		{ deepErase( trcs ); return false; }
 	    trcs += trc;
 	}
@@ -369,12 +373,12 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	return;
 
     int szx = sz_.x_; 	int newszx = newsz_.x_;	 int xpadsz = (int)(szx/2);
-    int szy = sz_.y_; 	int newszy = newsz_.y_;	 int ypadsz = (int)(szy/2);
+    int szy = sz_.y_; 	int newszy = newsz_.x_;	 int ypadsz = xpadsz;
     int szz = sz_.z_;	int newszz = newsz_.z_;  int zpadsz = (int)(szz/2);
 
     for ( int idx=0; idx<trcs.size(); idx++ )
     {
-	for ( int idz=trcs[idx]->size(); idz<szz; idz++ )
+	for ( int idz=szz; idz<trcs[idx]->size(); idz++ )
 	    trcs[idx]->set( idz, 0, 0 );
     }
 
@@ -385,7 +389,10 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	{
 	    const SeisTrc& trc = *trcs[cpt]; cpt ++;
 	    for ( int idz=0; idz<szz; idz++ )
-		arr_->set( idx, idy, idz, trc.get( idz, 0 ) );
+	    {
+		const float val = idz < trc.size() ? trc.get(idz,0) : 0;
+		arr_->set( idx, idy, idz, val );
+	    }
 	}
     }
     taper_->apply( arr_ );
@@ -427,14 +434,15 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	for ( int idy=0; idy<newszy; idy++ )
 	{
 	    SeisTrc* trc = new SeisTrc( newszz );
-	    trc->info().sampling = data_.cs_.zrg;
+	    trc->info().sampling = olddata_.cs_.zrg;
 	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
 	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
 	    trcs += trc;
 	    for ( int idz=0; idz<newszz; idz++ )
 	    {
 		float amplfac = padsz_.x_*padsz_.y_*padsz_.z_;
-		trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
+		if ( idz < trc->size() ) 
+		    trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
 	    }
 	}
     }
