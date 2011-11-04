@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.48 2011-10-31 21:47:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.49 2011-11-04 15:06:33 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -369,7 +369,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturesize_( mUdf(int), mUdf(int) )
     , texturepot_( true )
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
-    , usetri_( false )
+    , trialg_( 0 )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -444,10 +444,20 @@ void ExplFaultStickSurface::insertAll()
 }
 
 
-void ExplFaultStickSurface::useTriangulation( bool yn )
+void ExplFaultStickSurface::triangulateAlg( char ta )
 {
-    usetri_ = yn;
-    update( true, 0 );
+    if ( trialg_==ta )
+	return;
+
+    trialg_ = ta;
+    if ( ta )
+    {
+    	removeAll( true );
+    	insertAll();
+    	reTriangulateSurface();
+    }
+    else
+	update( true, 0 );
 }
 
 
@@ -458,9 +468,6 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 	removeAll( true );
 	insertAll();
     }
-
-    if ( usetri_ )
-	return reTriangulateSurface();
 
     //First update the sticks since they are needed for the panels
     PtrMan<ExplFaultStickSurfaceUpdater> updater =
@@ -481,6 +488,10 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
 bool ExplFaultStickSurface::reTriangulateSurface()
 {
+#define mInline 1
+#define mCrossline 2
+#define mZ 3
+
     if ( !surface_ )
 	return false;
     
@@ -488,9 +499,8 @@ bool ExplFaultStickSurface::reTriangulateSurface()
     for ( int idx=nrsticks-1; idx>=0; idx-- )
 	removePanel( idx );
     
+    const float zscale = SI().zScale();
     TypeSet<Coord> knots;
-    TypeSet<BinID> bids;
-    
     for ( int idx=0; idx<nrsticks; idx++ )
     {
 	const TypeSet<Coord3>& stick = *surface_->getStick(idx);
@@ -498,13 +508,17 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 	{
 	    if ( !stick[idy].isDefined() )
 		continue;
-	    
+	
 	    const BinID bid = SI().transform( stick[idy] );
-	    if ( bids.indexOf(bid)==-1 )
+	    Coord pos = trialg_==mInline ? 
+		Coord(bid.crl,stick[idy].z*zscale) :
+		(trialg_==mCrossline ? 
+		 Coord(bid.inl,zscale*stick[idy].z) :
+		 Coord(bid.inl,bid.crl));
+	    if ( knots.indexOf(pos)==-1 )
 	    {
-		knots += stick[idy];
+		knots += pos;
 		coordlist_->set( knots.size()-1, stick[idy] );
-		bids += bid;
 	    }
 	}
     }
@@ -1236,10 +1250,10 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 
 void ExplFaultStickSurface::emptyPanel( int panelidx )
 {
-    if ( paneltriangles_.validIdx(panelidx) )
+    if ( paneltriangles_.validIdx(panelidx) && paneltriangles_[panelidx] )
 	paneltriangles_[panelidx]->removeAll( true );
 
-    if ( panellines_.validIdx(panelidx) )  
+    if ( panellines_.validIdx(panelidx) && panellines_[panelidx] )  
 	panellines_[panelidx]->removeAll( true );
 
     needsupdate_ = true;

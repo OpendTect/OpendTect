@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.18 2011-10-10 17:18:48 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.19 2011-11-04 15:06:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,15 +29,17 @@ class ExplFaultStickTexturePositionExtracter;
 
 
 mClass ExplFaultStickSurface: public Geometry::IndexedShape,
-			     public CallBacker
+       			      public CallBacker
 {
 public:
 			ExplFaultStickSurface(FaultStickSurface*,float zscale);
     			~ExplFaultStickSurface();
 
     bool		needsUpdate() const 		{ return needsupdate_; }
-    bool		usesTriangulation() const	{ return usetri_; }
-    void		useTriangulation(bool yn);
+
+    char		triangulateAlg() const		{ return trialg_; }
+    void		triangulateAlg(char ta);
+    			//when ta=0 deault,ta=1(inline), 2(crossline), 3(z)
 
     void		setSurface(FaultStickSurface*);
     FaultStickSurface*	getSurface()			{ return surface_; }
@@ -115,7 +117,7 @@ protected:
 
     bool					needsupdate_;
     bool					needsupdatetexture_;
-    bool					usetri_;
+    char					trialg_;
 
     ObjectSet<IndexedGeometry>			sticks_;
     ObjectSet<IndexedGeometry>			paneltriangles_;
