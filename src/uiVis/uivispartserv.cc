@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.468 2011-10-07 21:54:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.469 2011-11-04 16:18:56 cvsyuancheng Exp $";
 
 #include "uivispartserv.h"
 
@@ -1698,11 +1698,10 @@ bool uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !hasMaterial(id) || !vo ) return false;
 
-    uiPropertiesDlg dlg( appserv().parent(),
+    uiPropertiesDlg* dlg = new uiPropertiesDlg( appserv().parent(),
 	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
-
-    dlg.go();
-
+    dlg->setDeleteOnClose( true );
+    dlg->go();
     return true;
 }
 
