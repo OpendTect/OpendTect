@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.88 2011-11-04 14:30:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.89 2011-11-04 16:14:03 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -377,38 +377,38 @@ void Well::Log::ensureAscZ()
 }
 
 
-#define mInsertAtDah(dh,v,dahs,vals,ascendingvalonly)\
+#define mInsertAtDah(dh,v,vals,ascendingvalonly)\
 {\
     if ( mIsUdf(v) ) return false;\
-    if ( dh > dah_[dah_.size()-1] )\
+    if ( dah_.isEmpty() || dh > dah_[dah_.size()-1] )\
     {\
 	if ( ascendingvalonly && v < vals[dah_.size()-1] )\
 	    return false;\
-	dahs += dh; vals += val;\
+	dah_ += dh; vals += val;\
     }\
     if ( dh < dah_[0] )\
     {\
 	if ( ascendingvalonly && v > vals[0] )\
 	    return false;\
-	dahs.insert( 0, dh ); vals.insert( 0, v );\
+	dah_.insert( 0, dh ); vals.insert( 0, v );\
     }\
     const int insertidx = indexOf( dh );\
     if ( insertidx<0 ) return false;\
     if ( ascendingvalonly && (v < vals[insertidx] || v > vals[insertidx+1]) )\
 	return false;\
-    dahs.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
+    dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
 }
 
 bool Well::D2TModel::insertAtDah( float dh, float val )
 {
-    mInsertAtDah( dh, val, dah_, t_, true );
+    mInsertAtDah( dh, val, t_, true );
     return true;
 }
 
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
-    mInsertAtDah( dh, val, dah_, val_, false );
+    mInsertAtDah( dh, val, val_, false );
     if ( val < range_.start ) range_.start = val;
     if ( val > range_.stop ) range_.stop = val;
     return true;
