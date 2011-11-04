@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.19 2011-11-03 15:20:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.20 2011-11-04 08:52:34 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -110,8 +110,11 @@ SyntheticData* StratSynth::generate()
 	maxsz = mMAX( aimod.size(), maxsz );
 	synthgen.addModel( aimod );
     }
-    if ( maxsz <= 1 )
-	mErrRet( "AI model has only one layer, please add an other layer", 
+    if ( maxsz == 0 )
+	mErrRet( "Model has no layer, please add some layers to the model.", 
+		return false; );
+    if ( maxsz == 1 )
+	mErrRet( "Model has only one layer, please add an other layer.", 
 		return false; );
 
     if ( !synthgen.doWork() )
