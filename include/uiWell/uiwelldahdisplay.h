@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.8 2011-11-02 15:26:52 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.9 2011-11-04 15:13:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,7 +158,7 @@ public:
     TypeSet<PickData>&          zPicks()           { return zpicks_; }
     Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
 
-    void			reDraw()	{ draw(); }
+    void			reDraw()	{ gatherInfo(); draw(); }
 
     DahObjData&                 dahObjData( bool first ) 
     				{ return first ? *ld1_ : *ld2_; }

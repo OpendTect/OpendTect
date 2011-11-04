@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.5 2011-11-02 15:27:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.6 2011-11-04 15:13:53 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -68,14 +68,13 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     const Well::Info& info = wd.info();
     float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
 
-    const float dah = rdelev - surfelev;
-
     GeoCalculator gc;
+    const float dah = rdelev - surfelev;
     d2t_ = gc.getModelFromVelLog( *log, dah, issonic );
     if ( !d2t_ )
 	mErrRet( "can not generate depth/time model" , return)
 
-    d2t_->setName( "Original Depth/Time Model");
+    d2t_->setName( "Integrated Depth/Time Model");
     orgd2t_ = new Well::D2TModel( *d2t_ );
     wd.setD2TModel( d2t_ );
     uiWellDahDisplay::Setup dsu; 
@@ -108,14 +107,14 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     editbut_ = new uiToolButton( toolbar_, "seedpickmode.png","Edit mode",
 				mCB(this,uiCheckShotEdit,editCB) );
     toolbar_->addButton( editbut_ );
-    editbut_->setToggleButton( isedit_ );
+    editbut_->setToggleButton( true );
 
     draw();
 
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
-    control_->mouseReleased.notify( mCB(this,uiCheckShotEdit,mouseReleasedCB));
+    control_->mousePressed.notify( mCB(this,uiCheckShotEdit,mousePressedCB));
 }
 
 
@@ -138,14 +137,21 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 }
 
 
-void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
+void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
     const uiWellDahDisplay* disp = control_->selDahDisplay();
     if ( disp == d2tdisplay_ && isedit_ ) 
     {
-	const float xval = control_->xPos(); 
-	const float yval = control_->yPos();
-	cs_->insertAtDah( xval, yval );
+	const float dah = control_->depth();
+	const float time = control_->xPos();
+
+	if ( control_->isCtrlPressed() )
+	{
+	    const int dahidx = cs_->indexOf( dah );
+	    if ( dahidx >= 0 ) cs_->remove( dahidx );
+	}
+	else
+	    cs_->insertAtDah( dah, time );
     }
     draw();
 }
@@ -170,8 +176,7 @@ void uiCheckShotEdit::parChg( CallBacker* )
 
 void uiCheckShotEdit::editCB( CallBacker* )
 {
-    isedit_ = !editbut_->isOn();
-    editbut_->setToggleButton( isedit_ );
+    isedit_ = editbut_->isOn();
 }
 
 
