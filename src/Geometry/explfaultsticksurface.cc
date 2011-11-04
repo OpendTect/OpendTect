@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.49 2011-11-04 15:06:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.50 2011-11-04 16:05:48 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -488,11 +488,7 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
 bool ExplFaultStickSurface::reTriangulateSurface()
 {
-#define mInline 1
-#define mCrossline 2
-#define mZ 3
-
-    if ( !surface_ )
+    if ( !surface_ || !trialg_ )
 	return false;
     
     const int nrsticks = sticks_.size();
@@ -510,11 +506,8 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 		continue;
 	
 	    const BinID bid = SI().transform( stick[idy] );
-	    Coord pos = trialg_==mInline ? 
-		Coord(bid.crl,stick[idy].z*zscale) :
-		(trialg_==mCrossline ? 
-		 Coord(bid.inl,zscale*stick[idy].z) :
-		 Coord(bid.inl,bid.crl));
+	    Coord pos( trialg_==1 ? bid.crl : bid.inl, 
+		       trialg_==3 ? bid.crl : stick[idy].z*zscale );
 	    if ( knots.indexOf(pos)==-1 )
 	    {
 		knots += pos;
