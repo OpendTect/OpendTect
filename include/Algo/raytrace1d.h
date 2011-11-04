@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.30 2011-10-19 08:55:05 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.31 2011-11-04 12:42:28 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -71,8 +71,7 @@ public:
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyPWave()	{ return "Wavetypes"; }
-    static const char*	sKeySRDepth()	{ return "SR Depths"; }
-    static const char*	sKeyPSVelFac()	{ return "PWave/SWave factor"; }
+    static const char*	sKeySRDepth()	{ return "Source/Receiver Depths"; }
     static const char*	sKeyOffset()	{ return "Offset Range"; }
 
 protected:
