@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.68 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.69 2011-11-04 20:26:10 cvsnanne Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -102,6 +102,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvltfld_->setStretch( 1, 2 );
     wvltfld_->setExtraBorders( uiRect(2,5,2,5) );
 
+    selChg( this );
     mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }
