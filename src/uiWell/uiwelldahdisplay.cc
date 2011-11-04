@@ -370,16 +370,16 @@ void uiWellDahDisplay::drawZPicks()
     {
 	const PickData& pd = zpicks_[idx];
 	mDefZPosInLoop( pd.dah_ );
-	float* val = pd.val_;
+	const float& val = pd.val_;
 	uiGraphicsItem* li;
-	if ( !val )
+	if ( mIsUdf(val) )
 	{
 	    mDefHorLineX1X2Y();
 	    li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	}
 	else
 	{
-	    int xpos = ld1_->xax_.getPix(*val);
+	    int xpos = ld1_->xax_.getPix(val);
 	    int pos = ld1_->yax_.getPix(zpos);
 	    li = scene().addItem( new uiCircleItem( uiPoint(xpos,pos), 1 ) );
 	}

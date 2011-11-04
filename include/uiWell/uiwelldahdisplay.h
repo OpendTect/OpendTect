@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.9 2011-11-04 15:13:53 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.10 2011-11-04 16:15:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,7 @@ public:
     mStruct PickData
     {
 				PickData( float dah, Color c=Color::NoColor() )
-				    : dah_(dah), color_(c), val_(0)      {}
+				    : dah_(dah), color_(c), val_(mUdf(float)) {}
 
 	bool                    operator ==( const PickData& pd ) const
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
@@ -145,7 +145,7 @@ public:
 	float                   dah_;
 	Color                   color_; //!< default will use the global 
 					//setup color
-	float*			val_; //this will be a point then, 
+	float			val_; //this will be a point if defined, 
 				      //a line otherwise
     };
 
