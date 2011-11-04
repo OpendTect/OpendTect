@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.25 2010-04-21 14:06:50 cvsbruno Exp $
+ RCS:		$Id: welllog.h,v 1.26 2011-11-04 14:30:17 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
     			//!< addition must always ascend or descend
     void		ensureAscZ();
     			// Do this after adding values when Z may be reversed
-    void		insertAtDah(float dh,float val);
+    bool		insertAtDah(float dh,float val);
 
     Interval<float>&	valueRange() 			{ return range_; }
     const Interval<float>& valueRange() const 		{ return range_; }
