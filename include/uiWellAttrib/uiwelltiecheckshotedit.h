@@ -47,6 +47,7 @@ protected:
 
 	void		add( float dh, float val )  { dah_ += dh; val_ += val; }
 	float  		value( int idx ) const      { return val_[idx]; }
+	bool		insertAtDah(float dh,float v);
 
     protected:
 	TypeSet<float>	val_;
@@ -56,12 +57,13 @@ protected:
     };
 
     Well::Data&			wd_;
+
     Well::D2TModel*		d2t_;
     Well::D2TModel*		cs_;
     Well::D2TModel*		orgcs_;
     Well::D2TModel*		orgd2t_;
     DriftCurve			driftcurve_;
-    DriftCurve			csdriftcurve_;
+    DriftCurve			newdriftcurve_;
 
     uiToolBar*			toolbar_;
     uiToolButton*		editbut_;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.6 2011-11-04 15:13:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.7 2011-11-04 16:15:13 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -52,14 +52,16 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     , isedit_(false)			 
 {
     if ( !cs_ ) 
-	mErrRet( "No checkshot provided", return )
+	mErrRet( "No checkshot provided", return );
 
     orgcs_ = new Well::D2TModel( *cs_ );
     cs_->setName( "CheckShot Curve" );
 
     Well::Log* log = wd.logs().getLog( vellog );
     if ( !log ) 
-	mErrRet( "Unvalid velocity log provided", return )
+	mErrRet( "Unvalid velocity log provided", return );
+
+    newdriftcurve_.setName( "User defined Drift Curve" );
 
     const Well::Track& track = wd.track();
     float rdelev = track.dah( 0 ) - track.value( 0 );
@@ -139,19 +141,26 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 
 void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
+
     const uiWellDahDisplay* disp = control_->selDahDisplay();
-    if ( disp == d2tdisplay_ && isedit_ ) 
+    const bool iscs = disp == d2tdisplay_;
+    Well::DahObj* curve = iscs ? (Well::DahObj*)(cs_)
+			       : (Well::DahObj*)(&newdriftcurve_);
+
+    if ( isedit_ ) 
     {
 	const float dah = control_->depth();
-	const float time = control_->xPos();
-
+	const float val = control_->xPos();
 	if ( control_->isCtrlPressed() )
 	{
-	    const int dahidx = cs_->indexOf( dah );
-	    if ( dahidx >= 0 ) cs_->remove( dahidx );
+	    const int dahidx = curve->indexOf( dah );
+	    if ( dahidx >= 0 ) curve->remove( dahidx );
 	}
 	else
-	    cs_->insertAtDah( dah, time );
+	{
+	    iscs ? cs_->insertAtDah( dah, val ) 
+		 : newdriftcurve_.insertAtDah( dah, val );
+	}
     }
     draw();
 }
@@ -192,11 +201,12 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
-    dahdata.col_ = Color::stdDrawColor( first ? 0 : 1 );
+    dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor() 
+					: Color::stdDrawColor(first ? 0 : 1); 
     dahdata.setData( d );
     dahdata.xrev_ = false;
-    dahdata.drawascurve_ = dodrawcurves_ && d != &csdriftcurve_; 
-    dahdata.drawaspoints_ = ( d == cs_ ) || ( d == &csdriftcurve_ );
+    dahdata.drawascurve_ = dodrawcurves_; 
+    dahdata.drawaspoints_ = d == cs_ || d == &newdriftcurve_;
 
     disp->reDraw();
 }
@@ -224,12 +234,15 @@ void uiCheckShotEdit::drawDrift()
 	const float d2tval = d2t_->getTime( dah );
 	const float csval = cs_->value( idx );
 	const float drift = SI().zFactor()*( csval - d2tval );
-	csdriftcurve_.add( dah, drift );
+	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
+	pd.val_ = drift;
+	driftdisplay_->zPicks() += pd;
     }
 
     drawDahObj( &driftcurve_, true, false );
-    drawDahObj( &csdriftcurve_, false, false );
+    drawDahObj( &newdriftcurve_, false, false );
 }
+
 
 
 bool uiCheckShotEdit::acceptOK( CallBacker* )
@@ -241,6 +254,20 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
     return true; 
 }
 
+
+bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
+{
+    if ( mIsUdf(v) ) return false;
+    if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
+	{ dah_ += dh; val_ += v; }
+    if ( dh < dah_[0] )
+	{ dah_.insert( 0, dh ); val_.insert( 0, v ); }
+
+    const int insertidx = indexOf( dh );
+    if ( insertidx>=0 )
+	{ dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
+    return true;
+}
 
 }
 
