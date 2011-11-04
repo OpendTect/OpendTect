@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.179 2011-09-22 14:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.180 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -51,6 +51,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.179 2011-09-22 14:38:59
 #include "survinfo.h"
 #include "settings.h"
 #include "volprocchain.h"
+#include "volproctrans.h"
 #include "zdomain.h"
 
 #include "uiattrdesced.h"
@@ -133,7 +134,7 @@ uiAttribPartServer::~uiAttribPartServer()
 }
 
 
-void uiAttribPartServer::doVolProc()
+void uiAttribPartServer::doVolProc( const MultiID* mid )
 {
     if ( !volprocchain_ )
     {
@@ -141,10 +142,28 @@ void uiAttribPartServer::doVolProc()
 	volprocchain_->ref();
     }
 
+    PtrMan<IOObj> ioobj = mid ? IOM().get( *mid ) : 0;
+    if ( ioobj )
+    {
+	BufferString errmsg;
+	if ( !VolProcessingTranslator::retrieve( *volprocchain_, ioobj,
+		errmsg ) )
+	{
+	    FileMultiString fms( "Cannot read volume builder setup" );
+	    if ( errmsg.buf() )
+		fms += errmsg;
+
+	    uiMSG().error( fms.buf() );
+	    volprocchain_->unRef();
+	    volprocchain_ = new VolProc::Chain;
+	    volprocchain_->ref();
+	}
+    }
+
     VolProc::uiChain dlg( parent(), *volprocchain_, true );
     if ( dlg.go() && dlg.saveButtonChecked() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
+	ioobj = IOM().get( volprocchain_->storageID() );
 	createVolProcOutput( ioobj );
     }
 }

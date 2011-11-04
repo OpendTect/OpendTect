@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.22 2011-09-07 17:36:01 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.23 2011-11-04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,8 +62,9 @@ protected:
     const char*			parentType() const	{ return parenttype_; }
     bool			showSubMenu();
 
-    virtual void		addToToolBarCB(CallBacker*);
-    virtual void		createMenuCB(CallBacker*);
+    virtual void		createMenu(MenuHandler*,bool istoolbar);
+    void			addToToolBarCB(CallBacker*);
+    void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
     void			updateColumnText(int col);
     virtual BufferString	createDisplayName() const		= 0;

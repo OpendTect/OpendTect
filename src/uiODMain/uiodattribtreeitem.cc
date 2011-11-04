@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.42 2011-05-05 08:53:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.43 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -132,7 +132,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 }
 
 
-void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
+void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     bool isonly2d = false;
     const uiVisPartServer* visserv = applMgr()->visServer();
@@ -142,17 +142,16 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
-    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( selattrmnuitem_.nrItems() || Only2D )
-	mAddMenuItem( menu, &selattrmnuitem_,
+	mAddMenuOrTBItem( istb, menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( as && attrserv->getIOObj(*as) )
-	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &colsettingsmnuitem_, true, false );
     
-    uiODDataTreeItem::createMenuCB( cb );
+    uiODDataTreeItem::createMenu( menu, istb );
 }
 
 

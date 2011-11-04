@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.421 2011-11-02 11:40:51 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.422 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1738,8 +1738,10 @@ void uiODApplMgr::updateOrNewReleaseAvalCB( CallBacker* cb )
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 
-void uiODApplMgr::doVolProc( CallBacker* )
-{ attrserv_->doVolProc(); }
+void uiODApplMgr::doVolProcCB( CallBacker* )
+{ attrserv_->doVolProc( 0 ); }
+void uiODApplMgr::doVolProc( const MultiID& mid )
+{ attrserv_->doVolProc( &mid ); }
 void uiODApplMgr::createVolProcOutput( CallBacker* )
 { attrserv_->createVolProcOutput(); }
 bool uiODApplMgr::editNLA( bool is2d )

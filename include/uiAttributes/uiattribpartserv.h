@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.73 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.74 2011-11-04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ public:
     			//!< For services that can work on 2D or 3D
     void		showXPlot(CallBacker*);
 
-    void		doVolProc();
+    void		doVolProc( const MultiID* = 0 );
     void		createVolProcOutput( const IOObj* setupsel = 0);
 
     void		setEvalBackupColTabMapper(const ColTab::MapperSetup*);

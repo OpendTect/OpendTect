@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.8 2011-06-15 07:18:37 cvssatyaki Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.9 2011-11-04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ protected:
     void			checkCB(CallBacker*);
     void			propChangeCB(CallBacker*);
     void			visClosingCB(CallBacker*);
-    void			createMenuCB(CallBacker*);
+    void			createMenu(MenuHandler*,bool istb);
     void			handleMenuCB(CallBacker*);
 
     void			createContours();

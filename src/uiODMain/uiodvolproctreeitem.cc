@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.5 2011-10-14 15:47:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.6 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.5 2011-10-14 15:47:2
 #include "vissurvobj.h"
 #include "volprocattrib.h"
 #include "volprocchain.h"
+#include "uivolprocchain.h"
 #include "volproctrans.h"
 
 
@@ -35,7 +36,10 @@ uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selmenuitem_( "Select setup ...", true )
     , reloadmenuitem_( "Reload", true )
-{}
+    , editmenuitem_( "Edit", true )
+{
+    editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
+}
 
 
 uiDataTreeItem::~uiDataTreeItem()
@@ -69,16 +73,17 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
     return new uiDataTreeItem( parenttype );
 }
 
+#define mCreateMenu( func ) \
+    mDynamicCastGet(MenuHandler*,menu,cb); \
 
-void uiDataTreeItem::createMenuCB( CallBacker* cb )
+void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istoolbar)
 {
-    uiODDataTreeItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
+    uiODDataTreeItem::createMenu( menu, istoolbar );
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-
-    mAddMenuItem( menu, &selmenuitem_, true, false );
-    mAddMenuItem( menu, &reloadmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istoolbar, menu, &selmenuitem_, true, false );
+    mAddMenuOrTBItem( istoolbar, menu, &reloadmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istoolbar, menu, &editmenuitem_, ioobj, false );
 }
 
 
@@ -132,6 +137,10 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	visserv->calculateAttrib( displayID(), attribNr(), false );
+    }
+    else if ( mnuid==editmenuitem_.id )
+    {
+	applMgr()->doVolProc( mid_ );
     }
 }
 

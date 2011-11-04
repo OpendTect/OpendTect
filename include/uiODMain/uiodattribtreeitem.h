@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.8 2009-07-30 13:30:04 cvshelene Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.9 2011-11-04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ protected:
 
     bool		anyButtonClick(uiListViewItem*);
 
-    void		createMenuCB( CallBacker* );
+    void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
     BufferString	createDisplayName() const;

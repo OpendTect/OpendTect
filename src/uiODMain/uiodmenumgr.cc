@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.234 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.235 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -465,7 +465,7 @@ void uiODMenuMgr::fillAnalMenu()
     if ( survtype!=SurveyInfo::Only2D )
     {
 	analmnu_->insertItem( new uiMenuItem( "Volume Builder ...",
-				mCB(&applMgr(),uiODApplMgr,doVolProc),
+				mCB(&applMgr(),uiODApplMgr,doVolProcCB),
 				VolProc::uiChain::pixmapFileName() ) );
     }
 

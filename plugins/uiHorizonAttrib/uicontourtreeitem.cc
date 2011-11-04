@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.22 2011-10-19 17:51:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.23 2011-11-04 08:22:04 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -299,12 +299,10 @@ void uiContourTreeItem::removeLabels()
 }
 
 
-void uiContourTreeItem::createMenuCB( CallBacker* cb )
+void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDataTreeItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
-
-    mAddMenuItem( menu, &optionsmenuitem_, lines_, false );
+    uiODDataTreeItem::createMenu( menu, istb );
+    mAddMenuOrTBItem( istb, menu, &optionsmenuitem_, lines_, false );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2007
- RCS:		$Id: uiodvolproctreeitem.h,v 1.2 2010-05-31 05:23:45 cvsranojay Exp $
+ RCS:		$Id: uiodvolproctreeitem.h,v 1.3 2011-11-04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,13 +32,14 @@ protected:
     bool			anyButtonClick(uiListViewItem*);
    
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
-    void			createMenuCB(CallBacker*);
+    void			createMenu(MenuHandler* menu ,bool istoolbar);
     void			handleMenuCB(CallBacker*);
     BufferString		createDisplayName() const;
     void			updateColumnText( int col );
 
     MenuItem			selmenuitem_;
     MenuItem			reloadmenuitem_;
+    MenuItem			editmenuitem_;
 
     MultiID			mid_;
 

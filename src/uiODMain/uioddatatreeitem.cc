@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.61 2011-09-07 17:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.62 2011-11-04 08:22:04 cvskris Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -172,6 +172,9 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
+    createMenu( tb, true );
+}
+/*
     uiVisPartServer* visserv = applMgr()->visServer();
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
@@ -216,6 +219,8 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
 }
 
+*/
+
 
 bool uiODDataTreeItem::showSubMenu()
 {
@@ -234,7 +239,12 @@ bool uiODDataTreeItem::showSubMenu()
 void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(MenuHandler*,menu,cb);
+    createMenu( menu, false );
+}
 
+
+void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
+{
     uiVisPartServer* visserv = applMgr()->visServer();
     const bool isfirst = !siblingIndex();
     const bool islast = siblingIndex()==visserv->getNrAttribs( displayID())-1;
@@ -243,16 +253,16 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     if ( !islocked && (!isfirst || !islast) )
     {
-	mAddMenuItem( &movemnuitem_, &movetotopmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movetotopmnuitem_,
 		      !islocked && !isfirst, false );
-	mAddMenuItem( &movemnuitem_, &moveupmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &moveupmnuitem_,
 		      !islocked && !isfirst, false );
-	mAddMenuItem( &movemnuitem_, &movedownmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movedownmnuitem_,
 		      !islocked && !islast, false );
-	mAddMenuItem( &movemnuitem_, &movetobottommnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movetobottommnuitem_,
 		      !islocked && !islast, false );
 
-	mAddMenuItem( menu, &movemnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &movemnuitem_, true, false );
     }
     else
     {
@@ -265,24 +275,25 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &movemnuitem_ );
     }
 
-    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
     const bool isvert = visserv->isVerticalDisp( displayID() );
     if ( hasdatapack )
-	mAddMenuItem( &displaymnuitem_, &statisticsitem_, true, false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &statisticsitem_, true, false )
     else
 	mResetMenuItem( &statisticsitem_ )
 
     if ( hasdatapack && isvert )
-	mAddMenuItem( &displaymnuitem_, &amplspectrumitem_, true, false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &amplspectrumitem_, true, false )
     else
 	mResetMenuItem( &amplspectrumitem_ )
 
-    mAddMenuItem( menu, &removemnuitem_,
+    mAddMenuOrTBItem( istb, menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
     if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
-	mAddMenuItem( &displaymnuitem_, &changetransparencyitem_, true, false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &changetransparencyitem_,
+				true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
@@ -299,12 +310,14 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	const bool hasattrib =
 	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 	if ( isvert )
-	    mAddMenuItem(&addto2dvieweritem_, &view2dwvaitem_, hasattrib, false)
+	    mAddMenuOrTBItem(istb, &addto2dvieweritem_, &view2dwvaitem_,
+		    		  hasattrib, false)
 	else
 	    mResetMenuItem( &view2dwvaitem_ );
 
-	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, hasattrib, false )
-	mAddMenuItem( &displaymnuitem_, &addto2dvieweritem_, hasattrib, false )
+	mAddMenuOrTBItem( istb, &addto2dvieweritem_, &view2dvditem_, hasattrib,
+			       false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &addto2dvieweritem_, hasattrib,			       false )
     }
     else
     {
