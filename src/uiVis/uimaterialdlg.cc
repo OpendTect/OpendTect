@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.28 2011-11-04 15:09:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.29 2011-11-04 16:17:59 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.28 2011-11-04 15:09:27 cvs
 #include "uitabstack.h"
 #include "uivisplanedatadisplaydragprop.h"
 #include "uivispolygonsurfbezierdlg.h"
-#include "uifltdispoptdlg.h"
+#include "uifltdispoptgrp.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -63,7 +63,8 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4") )
+    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4")
+		      .modal(false) )
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {
@@ -90,7 +91,7 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 
     mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
     if ( flt )
-	addGroup( new uiFaultDisplayOptDlg(tabstack_->tabGroup(),flt) );
+	addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
 
     setCancelText( "" );
 }
