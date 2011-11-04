@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.21 2011-10-10 17:18:48 cvsyuancheng Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.22 2011-11-04 15:04:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,6 @@ protected:
     MenuItem			displayintersectionmnuitem_;
     MenuItem			displayintersecthorizonmnuitem_;
     MenuItem			singlecolmnuitem_;
-    MenuItem			usetriangulatedmnuitem_;
     visSurvey::FaultDisplay*	faultdisplay_;
 };
 
