@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.7 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.8 2011-11-04 08:20:16 cvskris Exp $";
 
 #include "externalattribrandom.h"
 
@@ -96,7 +96,7 @@ DataPack::ID Random::createAttrib( const CubeSampling& cs,
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
     Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack( did, *output, 0 );
-    DPM( DataPackMgr::FlatID ).add( ndp );
+    DPM( DataPackMgr::FlatID() ).add( ndp );
     return ndp->id();
 }
 
@@ -266,9 +266,9 @@ void uiRandomTreeItem::updateColumnText( int col )
 }
 
 
-void uiRandomTreeItem::createMenuCB( CallBacker* cb )
+void uiRandomTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDataTreeItem::createMenuCB( cb );
+    uiODDataTreeItem::createMenu( menu, istb );
 }
 
 

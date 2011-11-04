@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2008
- RCS:		$Id: externalattribrandom.h,v 1.3 2009-07-22 16:01:26 cvsbert Exp $
+ RCS:		$Id: externalattribrandom.h,v 1.4 2011-11-04 08:20:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,7 @@ protected:
     BufferString	createDisplayName() const;
     void		updateColumnText( int );
 
-    void		createMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
 
     static uiODDataTreeItem*	create( const Attrib::SelSpec& as,
