@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.86 2011-10-28 11:31:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.87 2011-11-04 15:07:46 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -549,19 +549,19 @@ void FaultDisplay::updateDisplay()
 }
 
 
-void FaultDisplay::useTriangulatedFault( bool yn )
+void FaultDisplay::triangulateAlg( char projplane )
 {
-    if ( !explicitpanels_ )
+    if ( !explicitpanels_ || projplane==explicitpanels_->triangulateAlg() )
 	return;
 
-    explicitpanels_->useTriangulation( yn ); 
+    explicitpanels_->triangulateAlg( projplane ); 
     paneldisplay_->touch( true );
     updateIntersectionDisplay();
 }
 
 
-bool FaultDisplay::usesTriangulatedFault()
-{ return explicitpanels_ && explicitpanels_->usesTriangulation(); }
+char FaultDisplay::triangulateAlg() const
+{ return explicitpanels_ ? explicitpanels_->triangulateAlg() : 0; }
 
 
 void FaultDisplay::display( bool sticks, bool panels )

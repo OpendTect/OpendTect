@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.40 2011-10-10 17:18:48 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.41 2011-11-04 15:07:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -86,8 +86,9 @@ public:
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    void			useTriangulatedFault(bool);
-    bool			usesTriangulatedFault();
+    void			triangulateAlg(char);
+    char			triangulateAlg() const;
+
     void			display(bool sticks,bool panels);
     bool			areSticksDisplayed() const;
     bool			arePanelsDisplayed() const;
