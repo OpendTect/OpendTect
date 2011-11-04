@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.5 2010-09-15 04:41:27 cvsnanne Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.6 2011-11-04 07:41:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,13 +45,16 @@ public:
 
 SqlDB::ConnectionData::ConnectionData( const char* dbtype )
     : port_(3306)
+    , hostname_("dgbserver.dgbes.com")
+    , username_("dgbbugs_test")
+    , pwd_("dgbweb")
+    , dbname_("mantis_test")
 {
     if ( !dbtype || !*dbtype ) return;
 
     IOPar* iop = Settings::fetch("DB").subselect( dbtype );
-    if ( !iop || iop->isEmpty() ) return;
-
-    usePar( *iop );
+    if ( iop )
+	usePar( *iop );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.25 2011-11-03 09:37:44 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.26 2011-11-04 07:41:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,10 +84,8 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
     {
 	const char* username = 0;
 	username = GetEnvVar( "USER" );
-	BufferString errmsg( "Please check parameters in Settings_DB file.\n" );
-	errmsg.add( "If this file is not exested in '/users/" )
-	      .add( username ).add( "/.od/'" ).add( " copy from\n" )
-	      .add( "'/users/dev/bin/chkin/' to above mentioned directory" );
+	BufferString errmsg( "Please check parameters in 'settings_DB' file " );
+	errmsg.add( "in '/users/" ).add( username ).add( "/.od/'" );
 	errmsg_ = errmsg;
     }
 
