@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.64 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.65 2011-11-07 15:55:01 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -79,7 +79,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
 
-    d2t_->setName( "Integrated Depth/Time Model");
+    d2tnew->setName( "Integrated Depth/Time Model");
     return d2tnew;
 }
 
