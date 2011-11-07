@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.1 2011-11-07 06:40:38 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.2 2011-11-07 06:56:18 cvsraman Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -59,10 +59,11 @@ bool PSEventsParentTreeItem::showSubMenu()
     }
 
     handleStandardItems( mnusel );
+    return true;
 }
 
 
-bool PSEventsParentTreeItem::loadPSEvent( BufferString& name )
+bool PSEventsParentTreeItem::loadPSEvent( BufferString& eventname )
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
     context.ctxt.forread = true;
@@ -71,16 +72,18 @@ bool PSEventsParentTreeItem::loadPSEvent( BufferString& name )
     if ( !dlg.go() )
 	return false;
 
-    name = dlg.ioObj()->name();
+    eventname = dlg.ioObj()->name();
     const MultiID& key = dlg.selected( 0 );
     if ( !psem_->setStorageID(key,true) )
     {
 	 BufferString errmsg = "Failed to load prestack event \"";
-	 errmsg += name;
+	 errmsg += eventname;
 	 errmsg += "\"";
 	 uiMSG().error( errmsg ); 
 	return false;
     }
+
+    return true;
 }
 
 
@@ -109,9 +112,9 @@ const char* PSEventsParentTreeItem::parentType() const
 // Child Item
 
 PSEventsTreeItem::PSEventsTreeItem( const PreStack::EventManager& psem,
-					const char* name )
+					const char* eventname )
     : psem_(psem)
-    , eventname_(name)
+    , eventname_(eventname)
     , eventlinedisplay_(0)
 {}
 
@@ -194,3 +197,6 @@ void PSEventsTreeItem::addDisplay()
 
     eventlinedisplay_->updateCoords( cii, finalcoords );
 }
+
+
+
