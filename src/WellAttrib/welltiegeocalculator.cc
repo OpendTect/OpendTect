@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.63 2011-07-28 08:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.64 2011-11-07 15:50:48 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -21,6 +21,9 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.63 2011-07-28 08:11
 #include "genericnumer.h"
 #include "spectrogram.h"
 #include "welllog.h"
+#include "welllogset.h"
+#include "welldata.h"
+#include "welltrack.h"
 #include "welltieunitfactors.h"
 #include "welld2tmodel.h"
 
@@ -29,15 +32,33 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.63 2011-07-28 08:11
 namespace WellTie
 {
 
-Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log, 
-					    float startdah, bool issonic ) const
+float GeoCalculator::getSRDElevation( const Well::Data& wd ) const
 {
-    Well::Log proclog = Well::Log( log );
+    const Well::Track& track = wd.track();
+    float rdelev = track.dah( 0 ) - track.value( 0 );
+    if ( mIsUdf( rdelev ) ) rdelev = 0;
+
+    const Well::Info& info = wd.info();
+    float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
+
+    return fabs( rdelev - surfelev );
+}
+
+
+Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
+					    const char* sonlog, bool issonic, 
+					    float replacevel ) const
+{
+    const Well::Log* log = wd.logs().getLog( sonlog );
+    const float srdel = getSRDElevation( wd );
+    if ( !log || mIsUdf( srdel ) || srdel < 0 ) return 0; 
+
+    Well::Log proclog = Well::Log( *log );
     
     if ( issonic )
-	son2TWT( proclog, true, startdah );
+	son2TWT( proclog, true, srdel );
     else
-	vel2TWT( proclog, true, startdah );
+	vel2TWT( proclog, true, srdel );
 
     TypeSet<float> dpt, vals;
     for ( int idx=0; idx<proclog.size(); idx++ )
@@ -49,10 +70,16 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
     }
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add( startdah, 0 ); //set SRD Depth
+    {
+	const float kbtime = 2*srdel/replacevel;
+	d2tnew->add( 0, -kbtime ); //set KB 
+	d2tnew->add( srdel, 0 );  //set SRD 
+    }
+
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
 
+    d2t_->setName( "Integrated Depth/Time Model");
     return d2tnew;
 }
 

@@ -21,6 +21,7 @@ class uiWellDahDisplay;
 class uiCheckBox;
 class uiComboBox;
 class uiGraphicsView;
+class uiPolyLineItem;
 class uiToolBar;
 class uiToolButton;
 class uiWellDisplayControl;
@@ -31,8 +32,7 @@ namespace WellTie
 mClass uiCheckShotEdit : public uiDialog
 {
 public:
-				uiCheckShotEdit(uiParent*,Well::Data&,
-					    const char* vellog,bool issonic);
+				uiCheckShotEdit(uiParent*,Well::Data&);
 				~uiCheckShotEdit();
 
     void			fillPar(IOPar&) const 	{}
@@ -59,16 +59,16 @@ protected:
     Well::Data&			wd_;
 
     Well::D2TModel*		d2t_;
+    Well::D2TModel*		orgd2t_;
     Well::D2TModel*		cs_;
     Well::D2TModel*		orgcs_;
-    Well::D2TModel*		orgd2t_;
     DriftCurve			driftcurve_;
     DriftCurve			newdriftcurve_;
 
     uiToolBar*			toolbar_;
     uiToolButton*		editbut_;
+    uiComboBox*			driftchoicefld_;
 
-    bool			dointerpolatecs_;
     bool			dodrawpoints_;
     bool			dodrawcurves_;
     bool			isedit_;
@@ -76,6 +76,7 @@ protected:
     uiWellDahDisplay*		d2tdisplay_;
     uiWellDahDisplay*		driftdisplay_;
     uiWellDisplayControl*	control_;
+    uiPolyLineItem*		d2tlineitm_;
 
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
@@ -83,6 +84,7 @@ protected:
 
     bool			acceptOK(CallBacker*);
     void			editCSPushed(CallBacker*);
+    void			applyPushed(CallBacker*);
 
     void			setInfoMsg(CallBacker*);
     void			mousePressedCB(CallBacker*);

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.97 2011-10-12 15:24:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.98 2011-11-07 15:50:48 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -280,15 +280,8 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 {
     mGetWD(return);
     dispgrp->setHSpacing( 50 );
-    cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
-    cscorrfld_->display( wd->haveCheckShotModel() && !setup_.useexistingd2tm_);
-
-    csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
-    csdispfld_->display( wd->haveCheckShotModel() && !setup_.useexistingd2tm_);
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
-    zinftfld_ ->attach( rightOf, csdispfld_);
-
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
@@ -299,9 +292,6 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
-    cscorrfld_->activated.notify(mCB(this,uiTieWin,csCorrChanged));
-    cscorrfld_->activated.notify( pccb );
-    csdispfld_->activated.notify( pccb );
     markerfld_->activated.notify( pccb );
     zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
@@ -312,8 +302,6 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 
 void uiTieWin::getDispParams()
 {
-    params_.iscscorr_ = cscorrfld_->isChecked();
-    params_.iscsdisp_ = csdispfld_->isChecked();
     params_.iszinft_ = zinftfld_->isChecked();
     params_.iszintime_ = zintimefld_->isChecked();
     params_.ismarkerdisp_ = markerfld_->isChecked();
@@ -322,8 +310,6 @@ void uiTieWin::getDispParams()
 
 void uiTieWin::putDispParams()
 {
-    csdispfld_->setChecked( params_.iscsdisp_ );
-    cscorrfld_->setChecked( params_.iscscorr_ );
     markerfld_->setChecked( params_.ismarkerdisp_ );
     zinftfld_->setChecked( params_.iszinft_ );
     zintimefld_->setChecked( params_.iszintime_ );
@@ -335,16 +321,6 @@ void uiTieWin::dispPropChg( CallBacker* )
     getDispParams();
     zinftfld_->display( !params_.iszintime_ );
     reDrawAll(0);
-}
-
-
-void uiTieWin::csCorrChanged( CallBacker* cb )
-{
-    getDispParams();
-
-    server_.computeD2TModel();
-
-    doWork( cb );
 }
 
 
@@ -750,7 +726,7 @@ void uiInfoDlg::computeData()
 	memcpy( wvltshiftedarr, wvltvals.getData(), wvltsz*sizeof(float) );
 
 	server_.setEstimatedWvlt( wvltshiftedarr, wvltsz );
-	delete [] wvltarr; 	delete [] wvltshiftedarr;\
+	delete [] wvltarr; 	delete [] wvltshiftedarr;
     }
     mDelAndReturn()
 }

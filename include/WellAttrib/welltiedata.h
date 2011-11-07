@@ -38,8 +38,7 @@ namespace WellTie
 mStruct DispParams
 {
 			    DispParams()
-			    : iscsdisp_(false)
-			    , ismarkerdisp_(true)
+			    : ismarkerdisp_(true)
 			    , isvwrmarkerdisp_(true)
 			    , isvwrhordisp_(false)
 			    , iszinft_(false)
@@ -48,9 +47,6 @@ mStruct DispParams
 			    , disphorfullnames_(true)
 			    {}
 
-    bool                    iscsavailable_;
-    bool                    iscscorr_;
-    bool                    iscsdisp_;
     bool                    ismarkerdisp_;
     bool                    isvwrmarkerdisp_;
     bool                    isvwrhordisp_;
@@ -104,8 +100,6 @@ public :
     const Setup&		setup() const	{ return setup_; }
 
     const char*  		sonic() 	const;
-    const char*  		corrsonic() 	const;
-    const char*  		usedsonic() 	const;
     const char*  		density() 	const;
     const char*  		ai() 		const;
     const char*  		reflectivity() 	const;
@@ -240,8 +234,6 @@ public :
     				{ return d2tmgr_->cancel(); }
     bool                	commitD2TModel()
 				{ return d2tmgr_->commitToWD(); }
-    void			computeD2TModel()
-    				{ d2tmgr_->computeD2TModel(); }
 
     bool			computeAll();
     bool			computeSynthetics();

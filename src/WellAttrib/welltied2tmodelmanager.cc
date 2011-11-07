@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.34 2011-11-02 15:27:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.35 2011-11-07 15:50:48 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -31,26 +31,8 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
 	, data_(data)	    
 	, datawriter_(dwr)    
 	, wd_(&wd)
-	, emptyoninit_(false)
-	, startdah_(0)			     
 {
-    if ( mIsUnvalidD2TM( wd ) )
-	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
-
-    if ( emptyoninit_ || !data_.setup().useexistingd2tm_ )
-	computeD2TModel();
-
-    const Well::Track& track = wd.track();
-    float rdelev = track.dah( 0 ) - track.value( 0 );
-    if ( mIsUdf( rdelev ) ) rdelev = 0;
-
-    const Well::Info& info = wd_->info();
-    float surfelev = -info.surfaceelev;
-    if ( mIsUdf( fabs(surfelev) ) ) surfelev = 0;
-
-    startdah_ = rdelev - surfelev;
-
-    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
+    orgd2t_ = new Well::D2TModel( *wd.d2TModel() );
     ensureValid( *d2T() );
 }
 
@@ -64,47 +46,6 @@ D2TModelMgr::~D2TModelMgr()
 Well::D2TModel* D2TModelMgr::d2T()
 {
     return wd_ ? wd_->d2TModel() : 0;
-}
-
-
-void D2TModelMgr::computeD2TModel()
-{
-    setFromVelLog( data_.sonic() );
-}
-
-
-void D2TModelMgr::setFromVelLog( const char* lognm )
-{
-    Well::Log* log = wd_ ? wd_->logs().getLog( lognm ) : 0;
-    if ( !log ) return;
-
-    Well::D2TModel* d2tm = calc_.getModelFromVelLog( 
-				*log, startdah_, data_.setup().issonic_ );
-
-    if ( !d2tm ) return;
-
-    setAsCurrent( d2tm );
-}
-
-
-void D2TModelMgr::applyCheckShotFirstPointShiftToModel()
-{
-    Well::D2TModel* d2tm = d2T();
-    if ( !d2tm ) return;
-
-    const Well::D2TModel* cs = wd_ ? wd_->checkShotModel() : 0; 
-    if ( !cs ) return;
-
-    float csshift = 0;
-    for ( int idx=0; idx<cs->size(); idx++ )
-    {
-	if ( cs->dah(idx) >= d2tm->dah(1) )
-	{
-	    csshift = cs->value(idx) - d2tm->getTime( cs->dah(idx) ); 
-	    break;
-	}
-    }
-    shiftModel( csshift );
 }
 
 
@@ -154,11 +95,10 @@ bool D2TModelMgr::undo()
 bool D2TModelMgr::cancel()
 {
     if ( !wd_ ) return false;
-    if ( emptyoninit_ && d2T() )
-	d2T() ->erase();	
-    else
-	setAsCurrent( orgd2t_ );
+
+    setAsCurrent( orgd2t_ );
     wd_->d2tchanged.trigger();
+
     return true;
 }
 
@@ -178,7 +118,7 @@ bool D2TModelMgr::commitToWD()
 	return false;
 
     if ( wd_ ) wd_->d2tchanged.trigger();
-    if ( orgd2t_ && !emptyoninit_ )
+    if ( orgd2t_ )
 	delete orgd2t_;
 
     return true;

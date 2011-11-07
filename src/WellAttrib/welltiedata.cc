@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.59 2011-10-12 15:24:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.60 2011-11-07 15:50:48 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -55,7 +55,6 @@ namespace WellTie
 
 void DispParams::fillPar( IOPar& iop ) const 
 {
-    iop.setYN( sKeyIsCheckShotDisp, iscsdisp_ );
     iop.setYN( sKeyIsMarkerDisp, ismarkerdisp_ );
     iop.setYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
     iop.setYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
@@ -69,7 +68,6 @@ void DispParams::fillPar( IOPar& iop ) const
 
 void DispParams::usePar( const IOPar& iop ) 
 {
-    iop.getYN( sKeyIsCheckShotDisp, iscsdisp_ );
     iop.getYN( sKeyIsMarkerDisp, ismarkerdisp_ );
     iop.getYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
     iop.getYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
@@ -100,8 +98,6 @@ Data::Data( const Setup& wts, Well::Data& w)
 	dispparams_.allmarkernms_.add( w.markers()[idx]->name() );
 	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
     }
-    dispparams_.iscscorr_ = w.haveCheckShotModel() && !wts.useexistingd2tm_;
-    dispparams_.iscsdisp_ = dispparams_.iscscorr_;
 }
 
 
@@ -117,9 +113,6 @@ Data::~Data()
 
 const char* Data::sonic() const
 { return setup_.vellognm_; }
-
-const char* Data::corrsonic() const
-{ return setup_.corrvellognm_; }
 
 const char* Data::density() const
 { return setup_.denlognm_; }
@@ -138,9 +131,6 @@ const char* Data::seismic() const
 
 bool Data::isSonic() const
 { return setup_.issonic_; }
-
-const char* Data::usedsonic() const
-{ return dispparams_.iscscorr_ ? corrsonic() : sonic(); }
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 

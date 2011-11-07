@@ -46,16 +46,11 @@ public:
     void		setWD( Well::Data* wd ) 	{ wd_ = wd; }
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
-    void		setFromVelLog(const char*);
     void		setFromData(float* dah,float* time,int sz);
-    void		computeD2TModel();
 
 protected:
 
     Well::Data* 	wd_;
-
-    bool		emptyoninit_;
-    float		startdah_;
 
     Well::D2TModel* 	d2T();
     Well::D2TModel* 	prvd2t_;
@@ -65,7 +60,6 @@ protected:
     DataWriter&		datawriter_;
     const Data&		data_;
 
-    void 		applyCheckShotFirstPointShiftToModel();
     void		ensureValid(Well::D2TModel&);
 };
 

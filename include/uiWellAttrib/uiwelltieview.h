@@ -86,7 +86,6 @@ protected:
 					    bool,float);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();
-    void        		drawCShot();
     void        		initFlatViewer();
     void        		initLogViewers();
     void        		initWellControl();

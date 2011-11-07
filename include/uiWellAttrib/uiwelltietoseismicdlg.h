@@ -62,8 +62,6 @@ protected:
     EventStretch&		stretcher_;
     DispParams&			params_;
     
-    uiCheckBox* 		cscorrfld_;
-    uiCheckBox* 		csdispfld_;
     uiCheckBox* 		markerfld_;
     uiCheckBox* 		zinftfld_;
     uiCheckBox* 		zintimefld_;
@@ -99,7 +97,6 @@ protected:
     void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
-    void 			csCorrChanged(CallBacker*);
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
     void 			dispParPushed(CallBacker*);

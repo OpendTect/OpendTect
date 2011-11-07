@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.20 2011-09-29 12:28:57 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.21 2011-11-07 15:50:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ public:
 			    , issonic_(true)
 			    , isinitdlg_(true)
 			    , linekey_(0)	 
-			    , useexistingd2tm_(true)  	 
 			    , is2d_(false)				 
 			    {}
 
@@ -49,9 +48,7 @@ public:
 				    , seisnm_(setup.seisnm_)
 				    , vellognm_(setup.vellognm_)
 				    , denlognm_(setup.denlognm_)
-				    , corrvellognm_(setup.corrvellognm_)
 				    , linekey_(setup.linekey_)
-				    , useexistingd2tm_(setup.useexistingd2tm_) 
 				    , is2d_(setup.is2d_)
 				    {}	
 		
@@ -62,11 +59,9 @@ public:
     BufferString        	seisnm_;
     BufferString        	vellognm_;
     BufferString          	denlognm_;
-    BufferString          	corrvellognm_;
     bool                	issonic_;
     bool                	is2d_;
     bool 			isinitdlg_;
-    bool 			useexistingd2tm_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

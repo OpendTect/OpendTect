@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.71 2011-10-05 12:26:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.72 2011-11-07 15:50:48 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -93,11 +93,11 @@ bool DataPlayer::setAIModel()
 {
     aimodel_.erase();
 
-    const Well::Log* sonlog = wd_->logs().getLog( data_.usedsonic() );
+    const Well::Log* sonlog = wd_->logs().getLog( data_.sonic() );
     const Well::Log* denlog = wd_->logs().getLog( data_.density() );
 
     Well::Log pslog, pdlog;
-    if ( !processLog( sonlog, pslog, data_.usedsonic() ) 
+    if ( !processLog( sonlog, pslog, data_.sonic() ) 
 	    || !processLog( denlog, pdlog, data_.density() ) )
 	return false;
 
@@ -209,14 +209,14 @@ bool DataPlayer::copyDataToLogSet()
 	ai += layer.vel_*layer.den_;
 	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
     }
-    createLog( data_.usedsonic(), dah.arr(), son.arr(), son.size() ); 
+    createLog( data_.sonic(), dah.arr(), son.arr(), son.size() ); 
     createLog( data_.density(), dah.arr(), den.arr(), den.size() ); 
     createLog( data_.ai(), dah.arr(), ai.arr(), ai.size() );
     createLog( data_.reflectivity(), dah.arr(), refs.arr(), refs.size()  );
 
     if ( data_.isSonic() )
     {
-	Well::Log* vellog = data_.logset_.getLog( data_.usedsonic() );
+	Well::Log* vellog = data_.logset_.getLog( data_.sonic() );
 	if ( vellog )
 	{ 
 	    vellog->setUnitMeasLabel( UnitFactors::getStdVelLabel() );

@@ -8,17 +8,20 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.7 2011-11-04 16:15:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.8 2011-11-07 15:50:48 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigraphicsscene.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 #include "uiwelldlgs.h"
 #include "uiwelldahdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -37,16 +40,15 @@ static const char* styles[] = { "Curve", "Points", "Both", 0 };
 
 namespace WellTie
 {
-uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd, 
-				const char* vellog, bool issonic ) 
-    : uiDialog(p,uiDialog::Setup("Checkshot edtitor",
-		"Edit checkshot based on integrated velocities",
+uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd ) 
+    : uiDialog(p,uiDialog::Setup("Checkshot corrector",
+		"Edit integrated times based on checkshot",
 		mTODOHelpID).nrstatusflds(1))
-    , d2t_(0)
-    , orgd2t_(0)
-    , orgcs_(0)
     , wd_(wd)      
+    , d2tlineitm_(0)	     
+    , d2t_(wd.d2TModel())
     , cs_(wd.checkShotModel())
+    , orgcs_(0)
     , dodrawpoints_(false)			      
     , dodrawcurves_(true)
     , isedit_(false)			 
@@ -57,28 +59,11 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     orgcs_ = new Well::D2TModel( *cs_ );
     cs_->setName( "CheckShot Curve" );
 
-    Well::Log* log = wd.logs().getLog( vellog );
-    if ( !log ) 
-	mErrRet( "Unvalid velocity log provided", return );
-
     newdriftcurve_.setName( "User defined Drift Curve" );
 
-    const Well::Track& track = wd.track();
-    float rdelev = track.dah( 0 ) - track.value( 0 );
-    if ( mIsUdf( rdelev ) ) rdelev = 0;
-
-    const Well::Info& info = wd.info();
-    float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
-
     GeoCalculator gc;
-    const float dah = rdelev - surfelev;
-    d2t_ = gc.getModelFromVelLog( *log, dah, issonic );
-    if ( !d2t_ )
-	mErrRet( "can not generate depth/time model" , return)
 
-    d2t_->setName( "Integrated Depth/Time Model");
     orgd2t_ = new Well::D2TModel( *d2t_ );
-    wd.setD2TModel( d2t_ );
     uiWellDahDisplay::Setup dsu; 
     dsu.samexaxisrange_ = true; dsu.drawcurvenames_ = false;
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
@@ -117,6 +102,18 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd,
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
     control_->mousePressed.notify( mCB(this,uiCheckShotEdit,mousePressedCB));
+
+    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, 
+				    "Compute Depth/Time model from: " );
+    driftchoicefld_ = lbl->box();
+    lbl->attach( ensureBelow, d2tdisplay_ );
+    lbl->attach( ensureBelow, driftdisplay_ );
+    driftchoicefld_->addItem( "Original drift curve" );
+    driftchoicefld_->addItem( "User defined drift curve" );
+
+    uiPushButton* applybut = new uiPushButton( this, "&Apply", 
+		    mCB(this,uiCheckShotEdit,applyPushed), true );
+    applybut->attach( rightOf, lbl );
 }
 
 
@@ -191,7 +188,7 @@ void uiCheckShotEdit::editCB( CallBacker* )
 
 void uiCheckShotEdit::draw()
 {
-    drawDahObj( d2t_, true, true );
+    drawDahObj( orgd2t_, true, true );
     drawDahObj( cs_, false, true );
     drawDrift();
 }
@@ -214,16 +211,16 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 
 void uiCheckShotEdit::drawDrift()
 {
-    const int sz1 = d2t_->size();
+    const int sz1 = orgd2t_->size();
     const int sz2 = cs_->size();
     int maxsz = mMAX(sz1,sz2);
-    const Well::D2TModel* longermdl = sz1 > sz2 ? d2t_ : cs_;
+    const Well::D2TModel* longermdl = sz1 > sz2 ? orgd2t_ : cs_;
 
     driftcurve_.erase();
     for ( int idx=0; idx<maxsz; idx++ )
     {
 	const float dah = longermdl->dah( idx );
-	const float d2tval = d2t_->getTime( dah );
+	const float d2tval = orgd2t_->getTime( dah );
 	const float csval = cs_->getTime( dah );
 	const float drift = SI().zFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift ); 
@@ -231,7 +228,7 @@ void uiCheckShotEdit::drawDrift()
     for ( int idx=0; idx<sz2; idx++ )
     {
 	const float dah = cs_->dah( idx );
-	const float d2tval = d2t_->getTime( dah );
+	const float d2tval = orgd2t_->getTime( dah );
 	const float csval = cs_->value( idx );
 	const float drift = SI().zFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
@@ -267,6 +264,44 @@ bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
     if ( insertidx>=0 )
 	{ dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
     return true;
+}
+
+
+void uiCheckShotEdit::applyPushed( CallBacker* )
+{
+    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
+    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_; 
+    uiGraphicsScene& scene = d2tdisplay_->scene();
+    scene.removeItem( d2tlineitm_ );
+    delete d2tlineitm_; d2tlineitm_=0;
+
+    Well::D2TModel tmpcs;
+    for ( int idx=0; idx<driftcurve.size(); idx++ )
+    {
+	const float dah = driftcurve.dah( idx );
+	const float drift = driftcurve.value( idx );
+	const float d2tval = orgd2t_->getTime( dah );
+	const float csval = drift / SI().zFactor() + d2tval;
+	tmpcs.add( dah, csval ); 
+    }
+
+    *d2t_ = *orgd2t_;
+    CheckShotCorr::calibrate( tmpcs, *d2t_ );
+
+    TypeSet<uiPoint> pts;
+    uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
+    const Interval<float>& zrg = ld.zrg_;
+    for ( int idx=0; idx<d2t_->size(); idx++ )
+    {
+	float val = d2t_->value( idx );
+	float dah = wd_.track().getPos( d2t_->dah( idx ) ).z;
+	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+    }
+    if ( pts.isEmpty() ) return;
+
+    d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
+    LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
+    d2tlineitm_->setPenStyle( ls );
 }
 
 }
