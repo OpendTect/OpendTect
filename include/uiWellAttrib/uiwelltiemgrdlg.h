@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.17 2011-11-07 15:50:48 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.18 2011-11-07 16:08:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,6 @@ protected:
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void                extractWvltDone(CallBacker*);
-    void		isSonicSel(CallBacker*);
     void		selChg( CallBacker* );
     void		wellSel(CallBacker*);
     void 		wellTieDlgClosed(CallBacker*);

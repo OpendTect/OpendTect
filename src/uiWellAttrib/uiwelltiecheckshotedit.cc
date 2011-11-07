@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.8 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.9 2011-11-07 16:08:32 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -41,8 +41,8 @@ static const char* styles[] = { "Curve", "Points", "Both", 0 };
 namespace WellTie
 {
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd ) 
-    : uiDialog(p,uiDialog::Setup("Checkshot corrector",
-		"Edit integrated times based on checkshot",
+    : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
+		"Edit depth/time model based on checkshot",
 		mTODOHelpID).nrstatusflds(1))
     , wd_(wd)      
     , d2tlineitm_(0)	     
