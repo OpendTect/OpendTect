@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.7 2011-09-13 15:09:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.8 2011-11-07 08:17:27 cvsbruno Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -35,7 +35,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
     setHAlignObj( lcb );
 
     rebuildList();
-    finaliseDone.notify( mCB(this,uiSeisWaveletSel,initFlds) );
+    initFlds( this );
     setFrame( true );
 }
 
