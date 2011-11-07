@@ -4,10 +4,13 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.10 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.11 2011-11-07 06:05:57 cvsranojay Exp $";
 
 #include "odplugin.h"
+#include "pseventstreeitem.h"
 #include "uipsviewermanager.h"
+#include "uiodmain.h"
+#include "uiodscenemgr.h"
 #include "visprestackviewer.h"
 
 
@@ -29,6 +32,7 @@ mDefODInitPlugin(uiPreStackViewer)
     static PreStackView::uiViewer3DMgr* mgr=0;
     if ( mgr ) return 0;
     mgr = new PreStackView::uiViewer3DMgr();    
-    
+    ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
+	    			new PSEventsTreeItemFactory, 8500 );
     return 0; 
 }

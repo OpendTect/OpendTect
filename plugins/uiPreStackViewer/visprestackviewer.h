@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.32 2011-09-29 07:03:43 cvsranojay Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.33 2011-11-07 06:05:57 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,15 +19,13 @@ ________________________________________________________________________
 class IOObj;
 class SeisPSReader;
 
-namespace PreStack { class ProcessManager; class EventManager; }
+namespace PreStack { class ProcessManager; }
 namespace visBase 
 {
     class DepthTabPlaneDragger;
-    class EventCatcher;
     class FaceSet;
     class FlatViewer;
     class PickStyle;
-    class SeedPolyLine;
 };
 
 namespace visSurvey 
@@ -103,9 +101,6 @@ public:
     void			otherObjectsMoved( 
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
-    void			displayPSEvents(PreStack::EventManager*);
-    void			clearEventsDisplay();
-
      
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
@@ -136,7 +131,6 @@ protected:
     visBase::FlatViewer*		flatviewer_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			pickstyle_;
-    visBase::SeedPolyLine*		eventlinedisplay_;
     PreStack::ProcessManager*		preprocmgr_;
     
     MultiID				mid_;
@@ -156,7 +150,6 @@ protected:
 
     SeisPSReader*			reader_;
     IOObj*				ioobj_;
-    PreStack::EventManager*		pseventmgr_;
     Notifier<Viewer3D>			movefinished_;
 };
 
