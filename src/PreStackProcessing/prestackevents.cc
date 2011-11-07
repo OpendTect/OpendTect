@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.14 2011-11-07 06:11:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.15 2011-11-07 06:48:00 cvsraman Exp $";
 
 #include "prestackevents.h"
 
@@ -558,9 +558,9 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 
 
 const EventSet* EventManager::getEvents( const BinID& bid,
-					 bool load, bool create ) const
+					 bool doload, bool create ) const
 {
-    return const_cast<EventManager*>(this)->getEvents(bid,load,create);
+    return const_cast<EventManager*>(this)->getEvents(bid,doload,create);
 }
 
 
