@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.11 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackevents.h,v 1.12 2011-11-07 06:11:09 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -158,7 +158,8 @@ public:
     				//!<Triggers when the chang flags are reseted
 
     EventSet*			getEvents(const BinID&,bool load,bool create);
-    const EventSet*		getEvents(const BinID&) const;
+    const EventSet*		getEvents(const BinID&,
+				    bool load=false,bool create=false) const;
 
     void			cleanUp(bool keepchanged);
 
