@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.64 2011-11-04 12:04:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.65 2011-11-08 09:33:48 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -340,15 +340,30 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 	mErrRet( "Well log is empty" )
 
     StepInterval<float> resamprg( log->dahRange() );
-    resamprg.step = resamprg.width() / (float)log->size(); 
-    const int resampsz = resamprg.nrSteps();
-    Array1DImpl<float> resamplogarr( resampsz );
-    for ( int idx=0; idx<resampsz; idx++ )
-	resamplogarr.set( idx, log->getValue( resamprg.atIndex( idx ) ) );
+    TypeSet<float> resamplvals;	int resampsz = 0;
+    if ( SI().zIsTime() && wd->haveD2TModel() )
+    {
+	const Well::D2TModel& d2t = *wd->d2TModel();
+	resamprg.set(d2t.getTime(resamprg.start),d2t.getTime(resamprg.stop),1);
+	resamprg.step /= SI().zFactor();
+	resampsz = resamprg.nrSteps(); 
+	for ( int idx=0; idx<resampsz; idx++ )
+	{
+	    const float dah = d2t.getDah( resamprg.atIndex( idx ) );
+	    resamplvals += log->getValue( dah );
+	}
+    }
+    else
+    {
+	resampsz = resamprg.nrSteps();
+	resamprg.step = resamprg.width() / (float)log->size(); 
+	for ( int idx=0; idx<resampsz; idx++ )
+	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
+    }
 
     uiAmplSpectrum::Setup su( lognm, false,  resamprg.step ); 
     uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
-    asd->setData( resamplogarr );
+    asd->setData( resamplvals.arr(), resampsz );
     asd->show();
 
     return true;
