@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.17 2011-05-17 11:06:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.18 2011-11-08 15:15:14 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -329,7 +329,7 @@ bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
     tr->usePar( sgypars_ );
     SEGY::FileSpec fs; fs.usePar( sgypars_ );
     PtrMan<IOObj> ioobj = fs.getIOObj();
-    if ( !tr->initRead( ioobj->getConn(Conn::Read) ) )
+    if ( !tr->initRead( ioobj->getConn(Conn::Read), Seis::Scan ) )
 	mErrRet(tr->errMsg())
 
     if ( !tr->read(trc) )
