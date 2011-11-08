@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.9 2011-11-07 16:08:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.10 2011-11-08 07:53:20 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -36,10 +36,25 @@ static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.9 2011-11-07 16:0
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 
-static const char* styles[] = { "Curve", "Points", "Both", 0 };
-
 namespace WellTie
 {
+
+bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
+{
+    if ( mIsUdf(v) ) return false;
+    if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
+	{ dah_ += dh; val_ += v; }
+    if ( dh < dah_[0] )
+	{ dah_.insert( 0, dh ); val_.insert( 0, v ); }
+
+    const int insertidx = indexOf( dh );
+    if ( insertidx>=0 )
+	{ dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
+    return true;
+}
+
+
+
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd ) 
     : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
 		"Edit depth/time model based on checkshot",
@@ -49,8 +64,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd )
     , d2t_(wd.d2TModel())
     , cs_(wd.checkShotModel())
     , orgcs_(0)
-    , dodrawpoints_(false)			      
-    , dodrawcurves_(true)
     , isedit_(false)			 
 {
     if ( !cs_ ) 
@@ -96,8 +109,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd )
     toolbar_->addButton( editbut_ );
     editbut_->setToggleButton( true );
 
-    draw();
-
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
@@ -114,6 +125,8 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd )
     uiPushButton* applybut = new uiPushButton( this, "&Apply", 
 		    mCB(this,uiCheckShotEdit,applyPushed), true );
     applybut->attach( rightOf, lbl );
+
+    draw();
 }
 
 
@@ -174,12 +187,6 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
 }
 
 
-void uiCheckShotEdit::parChg( CallBacker* )
-{
-    draw();
-}
-
-
 void uiCheckShotEdit::editCB( CallBacker* )
 {
     isedit_ = editbut_->isOn();
@@ -202,7 +209,6 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 					: Color::stdDrawColor(first ? 0 : 1); 
     dahdata.setData( d );
     dahdata.xrev_ = false;
-    dahdata.drawascurve_ = dodrawcurves_; 
     dahdata.drawaspoints_ = d == cs_ || d == &newdriftcurve_;
 
     disp->reDraw();
@@ -241,32 +247,6 @@ void uiCheckShotEdit::drawDrift()
 }
 
 
-
-bool uiCheckShotEdit::acceptOK( CallBacker* )
-{
-    if ( !d2t_ || d2t_->size() < 2)
-	mErrRet("Depth/time model is too small and won't be saved",return false)
-
-    wd_.setD2TModel( d2t_ );
-    return true; 
-}
-
-
-bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
-{
-    if ( mIsUdf(v) ) return false;
-    if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
-	{ dah_ += dh; val_ += v; }
-    if ( dh < dah_[0] )
-	{ dah_.insert( 0, dh ); val_.insert( 0, v ); }
-
-    const int insertidx = indexOf( dh );
-    if ( insertidx>=0 )
-	{ dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
-    return true;
-}
-
-
 void uiCheckShotEdit::applyPushed( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
@@ -302,6 +282,23 @@ void uiCheckShotEdit::applyPushed( CallBacker* )
     d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     d2tlineitm_->setPenStyle( ls );
+}
+
+
+bool uiCheckShotEdit::acceptOK( CallBacker* )
+{
+    if ( !d2t_ || d2t_->size() < 2)
+	mErrRet("Depth/time model is too small and won't be saved",return false)
+
+    wd_.setD2TModel( d2t_ );
+    return true; 
+}
+
+
+bool uiCheckShotEdit::rejectOK( CallBacker* )
+{
+    wd_.setD2TModel( orgd2t_ );
+    return true; 
 }
 
 }

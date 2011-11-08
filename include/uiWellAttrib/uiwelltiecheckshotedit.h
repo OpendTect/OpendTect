@@ -20,7 +20,6 @@ namespace Well { class D2TModel; class Data; class DahObj;}
 class uiWellDahDisplay;
 class uiCheckBox;
 class uiComboBox;
-class uiGraphicsView;
 class uiPolyLineItem;
 class uiToolBar;
 class uiToolButton;
@@ -34,10 +33,6 @@ mClass uiCheckShotEdit : public uiDialog
 public:
 				uiCheckShotEdit(uiParent*,Well::Data&);
 				~uiCheckShotEdit();
-
-    void			fillPar(IOPar&) const 	{}
-    void			usePar(const IOPar&)	{}
-
 protected:
 
     mClass DriftCurve : public Well::DahObj
@@ -69,8 +64,6 @@ protected:
     uiToolButton*		editbut_;
     uiComboBox*			driftchoicefld_;
 
-    bool			dodrawpoints_;
-    bool			dodrawcurves_;
     bool			isedit_;
 
     uiWellDahDisplay*		d2tdisplay_;
@@ -82,16 +75,15 @@ protected:
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
 
-    bool			acceptOK(CallBacker*);
-    void			editCSPushed(CallBacker*);
     void			applyPushed(CallBacker*);
-
-    void			setInfoMsg(CallBacker*);
+    void			editCSPushed(CallBacker*);
+    void			editCB(CallBacker*);
     void			mousePressedCB(CallBacker*);
     void			mouseReleasedCB(CallBacker*);
+    void			setInfoMsg(CallBacker*);
 
-    void			editCB(CallBacker*);
-    void			parChg(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
 };
 
 
