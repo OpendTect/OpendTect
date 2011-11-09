@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiprestacktreeitemmgr.cc,v 1.1 2011-11-08 04:39:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprestacktreeitemmgr.cc,v 1.2 2011-11-09 04:42:23 cvsranojay Exp $";
 
 #include "uiprestacktreeitemmgr.h"
 
@@ -35,7 +35,7 @@ uiPreStackTreeItemManager::~uiPreStackTreeItemManager()
 
 void uiPreStackTreeItemManager::surveyChangedCB( CallBacker* cb )
 {
-    uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
+    uiSeisPartServer* seisserv = appl_.applMgr().seisServer();
     BufferStringSet gnms; seisserv->getStoredGathersList( true, gnms );
     uiTreeFactorySet* factoryset = appl_.sceneMgr().treeItemFactorySet();
     if ( gnms.size() )

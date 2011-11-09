@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.1 2011-11-07 06:40:38 cvsranojay Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.2 2011-11-09 04:42:23 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class PSEventsTreeItem;
 namespace PreStack{ class EventManager; }
-namespace visBase{ class SeedPolyLine; }
+namespace visSurvey{ class visSeedPolyLine; }
 
 class PSEventsParentTreeItem : public uiODTreeItem
 {
@@ -59,12 +59,17 @@ protected:
     virtual const char*	    parentType() const 
 			    { return typeid (PSEventsParentTreeItem).name(); }
     virtual const char*	    managerName() const { return "PreStackEvents"; }
+    virtual void	    createMenuCB(CallBacker*);
+    virtual void	    handleMenuCB(CallBacker*);
     bool		    init();
-    void		    addDisplay();
+    void		    updateDisplay();
 
     const PreStack::EventManager& psem_;
     const char*		    eventname_;
-    visBase::SeedPolyLine*  eventlinedisplay_;
+    visSurvey::visSeedPolyLine*  eventlinedisplay_;
+    MenuItem*		    sticksfromsection_;
+    MenuItem*		    zerooffset_;
+    MenuItem*		    properties_;
 };
 
 #endif

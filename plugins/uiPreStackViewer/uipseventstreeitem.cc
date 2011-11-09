@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.2 2011-11-07 06:56:18 cvsraman Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.3 2011-11-09 04:42:23 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
 #include "binidvalset.h"
 #include "ctxtioobj.h"
+#include "menuhandler.h"
 #include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
@@ -116,6 +117,9 @@ PSEventsTreeItem::PSEventsTreeItem( const PreStack::EventManager& psem,
     : psem_(psem)
     , eventname_(eventname)
     , eventlinedisplay_(0)
+    , sticksfromsection_(new MenuItem("Sticks from section"))
+    , zerooffset_(new MenuItem("Zero offset"))
+    , properties_(new MenuItem("Properties"))
 {}
 
 
@@ -133,17 +137,60 @@ PSEventsTreeItem::~PSEventsTreeItem()
 
 bool PSEventsTreeItem::init()
 {
-    addDisplay();
+    updateDisplay();
     return uiODDisplayTreeItem::init();
 }
 
+#define mADDDisplayMenuItems( name )\
+    mAddMenuItem( &displaymnuitem_, new MenuItem( name ), true, false ); \
 
-void PSEventsTreeItem::addDisplay()
+void PSEventsTreeItem::createMenuCB( CallBacker* cb )
+{
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( !eventlinedisplay_ || menu->menuID()!=displayID() )
+	return;
+
+   mAddMenuItem( menu, &displaymnuitem_, true, false );
+   mAddMenuItem( &displaymnuitem_, sticksfromsection_, true, false );
+   mAddMenuItem( &displaymnuitem_, zerooffset_, true, false );
+   mAddMenuItem( &displaymnuitem_, properties_, true, false );
+}
+
+
+void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
+{
+    uiODDisplayTreeItem::handleMenuCB(cb);
+    mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    if ( menu->isHandled() || menu->menuID()!=displayID() || menuid==-1 )
+	return;
+
+    if ( menuid == sticksfromsection_->id )
+    {
+	menu->setIsHandled(true);
+	uiMSG().message( "To be implemented" );
+    }
+    else if ( menuid == zerooffset_->id )
+    {
+	menu->setIsHandled(true);
+	uiMSG().message( "To be implemented" );
+    }
+    else if ( menuid == properties_->id )
+    {
+	menu->setIsHandled(true);
+	uiMSG().message( "To be implemented" );
+    }
+
+}
+
+
+void PSEventsTreeItem::updateDisplay()
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( !eventlinedisplay_ )
     {
-	eventlinedisplay_ = visBase::SeedPolyLine::create();
+	eventlinedisplay_ = visSurvey::visSeedPolyLine::create();
 	eventlinedisplay_->ref();
     }
 
@@ -163,24 +210,21 @@ void PSEventsTreeItem::addDisplay()
 	    return eventlinedisplay_->clearDisplay();
 
 	const int size = eventset->events_.size();
-	eventlinedisplay_->clearDisplay();
 	eventlinedisplay_->setLineColor( psem_.getColor() );
-	const Coord dir( 1, 0 );
-	TypeSet<Coord3> coords;
-	TypeSet<float> offsets;
-	
 	for ( int idx=0; idx<size; idx++ )
 	{
 	    const PreStack::Event* psevent = eventset->events_[idx];
 	    if ( !psevent->sz_ )
 		continue;
 	    const int sz = psevent->sz_;
-	    coords.erase(); offsets.erase();
+	    TypeSet<Coord3> coords;
+	    TypeSet<float> offsets;
 	    for ( int idy=0; idy<sz; idy++ )
 	    {
 		const float offset = psevent->offsetazimuth_[idy].offset();
 		offsets += offset;
 		Coord3 pos( bid.inl, bid.crl, psevent->pick_[idy] );
+		const Coord dir( 1, 0 );
 		const Coord offs = dir * offset;
 		pos.x += offs.x / SI().inlDistance();
 		pos.y += offs.y / SI().crlDistance();
