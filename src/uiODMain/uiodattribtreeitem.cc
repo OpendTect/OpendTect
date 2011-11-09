@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.43 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.44 2011-11-09 04:53:28 cvsraman Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -143,13 +143,17 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
     if ( selattrmnuitem_.nrItems() || Only2D )
+    {
 	mAddMenuOrTBItem( istb, menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
+    }
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( as && attrserv->getIOObj(*as) )
+    {
 	mAddMenuOrTBItem( istb, menu, &colsettingsmnuitem_, true, false );
+    }
     
     uiODDataTreeItem::createMenu( menu, istb );
 }
