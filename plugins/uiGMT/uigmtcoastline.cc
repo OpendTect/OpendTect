@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.9 2011-04-01 09:44:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.10 2011-11-09 06:21:57 cvsranojay Exp $";
 
 #include "uigmtcoastline.h"
 
@@ -60,7 +60,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     resolutionfld_ = lcb->box();
     lcb->attach( alignedBelow, lsb );
     for ( int idx=0; idx<5; idx++ )
-	resolutionfld_->insertItem( ODGMT::ResolutionNames()[idx] );
+	resolutionfld_->insertItem( ODGMT::ResolutionNames()[idx], idx );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, lcb );
