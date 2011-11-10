@@ -1,0 +1,652 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : K. Tingdahl
+ * DATE     : July 2010
+-*/
+
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.1 2011-11-10 12:46:44 cvskris Exp $";
+
+#include "vispseventdisplay.h"
+
+#include "prestackevents.h"
+#include "survinfo.h"
+#include "velocitycalc.h"
+#include "viscoord.h"
+#include "visdrawstyle.h"
+#include "vismarker.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
+#include "visplanedatadisplay.h"
+#include "vistransform.h"
+#include "visprestackviewer.h"
+#include "uiodapplmgr.h"
+#include "uiodmain.h"
+#include "uivispartserv.h"
+
+ 
+mCreateFactoryEntry( VMB::PSEventDisplay );
+
+namespace VMB
+{
+
+DefineEnumNames( PSEventDisplay, MarkerColor, 0, "Marker Color" )
+{ "Single", "Quality", "Velocity", "Velocity fit", 0 };
+
+DefineEnumNames( PSEventDisplay, DisplayMode, 0, "Display Mode" )
+{ "None", "Sticks from sections", "Sticks on gathers", "Zero offset on sections",
+  "Zero offset" , 0 };
+
+PSEventDisplay::PSEventDisplay()
+    : VisualObjectImpl( false )
+    , displaymode_( ZeroOffsetOnSections )
+    , eventman_( 0 )
+    , qualityrange_( 0, 1 )
+    , displaytransform_( 0 )
+    , linestyle_( visBase::DrawStyle::create() )
+    , horid_( -1 )
+    , offsetscale_( 1 )
+    , markercolor_( VelocityFit )
+{
+    setLockable();
+    removeSwitch();
+
+    linestyle_->ref();
+    addChild( linestyle_->getInventorNode() );
+}
+
+
+PSEventDisplay::~PSEventDisplay()
+{
+    clearAll();
+
+    setDisplayTransformation( 0 );
+    setEventManager( 0 );
+    linestyle_->unRef();
+}
+
+
+void PSEventDisplay::clearAll()
+{
+    for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
+    {
+	ParentAttachedObject* pao = parentattached_[idx];
+	removeChild( pao->separator_->getInventorNode() );
+    }
+
+    deepErase( parentattached_ );
+}
+
+
+void PSEventDisplay::setEventManager( PreStack::EventManager* em )
+{
+    if ( eventman_==em )
+	return;
+
+    clearAll();
+
+    if ( eventman_ )
+    {
+	eventman_->change.remove( mCB(this,PSEventDisplay,eventChangeCB) );
+	eventman_->forceReload.remove(
+		mCB(this,PSEventDisplay,eventForceReloadCB) );
+	eventman_->unRef();
+    }
+
+    eventman_ = em;
+
+    if ( eventman_ )
+    {
+	eventman_->ref();
+	eventman_->change.notify( mCB(this,PSEventDisplay,eventChangeCB) );
+	eventman_->forceReload.notify(
+		mCB(this,PSEventDisplay,eventForceReloadCB) );
+	getMaterial()->setColor( eventman_->getColor() );
+    }
+
+    updateDisplay();
+}
+
+
+void PSEventDisplay::setHorizonID( int horid )
+{
+    if ( horid_==horid )
+	return;
+
+    horid_ = horid;
+
+    updateDisplay();
+}
+
+
+void PSEventDisplay::setMarkerColor( MarkerColor n, bool update )
+{
+    if ( markercolor_==n )
+	return;
+
+    markercolor_ = n;
+
+    if ( update )
+	updateDisplay();
+}
+
+
+PSEventDisplay::MarkerColor PSEventDisplay::getMarkerColor() const
+{ return markercolor_; }
+
+
+void PSEventDisplay::setColTabMapper( const ColTab::MapperSetup& n,
+				      bool update )
+{
+    if ( ctabmapper_.setup_==n )
+	return;
+
+    ctabmapper_.setup_ = n;
+
+    if ( update )
+	updateDisplay();
+}
+
+
+const ColTab::MapperSetup& PSEventDisplay::getColTabMapper() const
+{ return ctabmapper_.setup_; }
+
+
+void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
+					TaskRunner* )
+{
+    setColTabSequence( n, true );
+}
+
+
+void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
+{
+    if ( ctabsequence_==n )
+	return;
+
+    ctabsequence_ = n;
+
+    if ( update )
+	updateDisplay();
+}
+
+
+const ColTab::Sequence* PSEventDisplay::getColTabSequence( int ) const
+{ return &ctabsequence_; }
+
+
+void PSEventDisplay::setDisplayMode( DisplayMode dm )
+{
+    if ( dm==displaymode_ )
+	return;
+
+    displaymode_ = dm;
+
+    updateDisplay();
+}
+
+
+PSEventDisplay::DisplayMode PSEventDisplay::getDisplayMode() const
+{ return displaymode_; }
+
+
+void PSEventDisplay::setLineStyle( const LineStyle& ls )
+{
+    linestyle_->setLineStyle( ls );
+}
+
+
+LineStyle PSEventDisplay::getLineStyle() const
+{ 
+    return linestyle_->lineStyle();
+} 
+
+
+void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st, bool update )
+{
+    if ( markerstyle_==st )
+	return;
+
+    markerstyle_ = st;
+
+    if ( update )
+    {
+	for ( int idx=0; idx<parentattached_.size(); idx++ )
+	{
+	    ParentAttachedObject* pao = parentattached_[idx];
+	    for ( int idy=0; idy<pao->markers_.size(); idy++ )
+		pao->markers_[idy]->setMarkerStyle( st );
+	}
+    }
+}
+
+
+//bool PSEventDisplay::filterBinID( const BinID& bid ) const
+//{
+    //for ( int idx=0; idx<sectionranges_.size(); idx++ )
+    //{
+	//if ( sectionranges_[idx].includes( bid ) )
+	    //return false;
+    //}
+//
+    //return true;
+//}
+
+
+void PSEventDisplay::updateDisplay()
+{
+    if ( !tryWriteLock() )
+	return;
+
+    if ( displaymode_==ZeroOffset )
+    {
+	//do the stuff
+	writeUnLock();
+	return;
+    }
+
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
+	updateDisplay( parentattached_[idx] );
+
+    writeUnLock();
+}
+
+
+#define mRemoveParAttached( obj ) \
+    removeChild( obj->separator_->getInventorNode() ); \
+    delete obj; \
+    parentattached_ -= obj
+
+
+void PSEventDisplay::otherObjectsMoved(
+	const ObjectSet<const SurveyObject>& objs, int whichid )
+{
+    TypeSet<int> newparentsid;
+    for ( int idx=objs.size()-1; idx>=0; idx-- )
+    {
+	int objid = -1;
+	    
+	mDynamicCastGet(const PreStackView::Viewer3D*,gather,objs[idx]);
+	if ( gather )
+	    objid = gather->id();
+	else
+	{
+	    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,objs[idx]);
+	    if ( pdd && pdd->getOrientation() != 
+		    visSurvey::PlaneDataDisplay::Zslice )
+		objid = pdd->id();
+	}
+
+	if ( objid==-1 )
+	    continue;
+
+	if ( whichid!=-1 )
+	{
+	    if ( objid==whichid )
+	    {
+		newparentsid += objid;
+		break;
+	    }
+	}
+	else
+	{
+	    newparentsid += objid;
+	}
+    }
+
+    ObjectSet<ParentAttachedObject> toremove;
+    if ( whichid==-1 )
+       toremove = parentattached_;
+
+    for ( int idx=0; idx<newparentsid.size(); idx++ )
+    {
+	ParentAttachedObject* pao = 0;
+	for ( int idy=0; idy<toremove.size(); idy++ )
+	{
+	    if ( toremove[idy]->parentid_!=newparentsid[idx] )
+		continue;
+
+	    pao = toremove[idy];
+
+	    toremove.remove( idy );
+	    break;
+	}
+
+	if ( !pao )
+	{
+	    for ( int idy=0; idy<parentattached_.size(); idy++ )
+	    {
+		if ( parentattached_[idy]->parentid_ != newparentsid[idx] )
+		    continue;
+	
+		mRemoveParAttached( parentattached_[idy] );
+	    }
+
+	    pao = new ParentAttachedObject( newparentsid[idx] );
+	    addChild( pao->separator_->getInventorNode() );
+	    parentattached_ += pao;
+	    pao->separator_->setDisplayTransformation( displaytransform_ );
+	}
+	
+	if ( displaymode_==FullOnSections || displaymode_==FullOnGathers ||
+       	     displaymode_==ZeroOffsetOnSections )
+	    updateDisplay( pao );
+    }
+
+    for ( int idx=0; idx<toremove.size(); idx++ )
+    {
+	mRemoveParAttached( toremove[idx] );
+    }
+}
+
+
+void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
+{
+    CubeSampling cs;
+    bool fullevent;
+    Coord dir;
+
+    if ( displaymode_==FullOnGathers )
+    {
+	fullevent = true;
+	mDynamicCastGet(const PreStackView::Viewer3D*,gather,
+		visBase::DM().getObject(pao->parentid_) );
+	if ( !gather )
+	{
+	    for ( int idx=pao->markers_.size()-1; idx>=0; idx-- )
+	    {
+		pao->separator_->removeObject(
+			pao->separator_->getFirstIdx( pao->markers_[idx] ) );
+		pao->markers_.remove( idx );
+	    }
+	    if ( pao->lines_ )
+		pao->lines_->removeCoordIndexAfter( -1 );
+	    
+	    return;
+	}
+
+	if ( gather->is3DSeis() )
+	{
+	    const BinID bid = gather->getPosition();
+	    cs.hrg.setInlRange( Interval<int>(bid.inl, bid.inl) );
+	    cs.hrg.setCrlRange( Interval<int>(bid.crl, bid.crl) );
+	}
+	else
+	{
+	}
+
+	const bool isinl = gather->isOrientationInline();
+	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
+	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
+    }
+    else
+    {
+	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,
+			visBase::DM().getObject( pao->parentid_ ) );
+	if ( !pdd )
+	    return;
+
+	cs = pdd->getCubeSampling();
+	const bool isinl =
+	    pdd->getOrientation()==visSurvey::PlaneDataDisplay::Inline;
+
+	fullevent = displaymode_==FullOnSections;
+
+	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
+	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
+    }
+
+    HorSamplingIterator iter( cs.hrg );
+
+    BinID bid = cs.hrg.start;
+    int cii = 0;
+    int ci = 0;
+    int lastmarker = 0;
+
+    PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
+
+    ObjectSet<PreStack::EventSet> eventsetstounref = pao->eventsets_;
+    pao->eventsets_.erase();
+    pao->hrg_ = cs.hrg;
+
+    if ( fullevent && !pao->lines_ )
+    {
+	pao->lines_ = visBase::IndexedPolyLine::create();
+	pao->separator_->addObject( pao->lines_ );
+    }
+
+    do
+    {
+	RefMan<PreStack::EventSet> eventset = eventman_ ?
+	    eventman_->getEvents( bid, true, false ) : 0;
+	if ( !eventset )
+	    continue;
+
+	Interval<int> eventrg( 0, eventset->events_.size()-1 );
+	if ( horid_!=-1 )
+	{
+	    const int eventidx = eventset->indexOf( horid_ );
+	    if ( eventidx==-1 )
+		continue;
+
+	    eventrg.start = eventrg.stop = eventidx;
+	}
+
+	pao->eventsets_ += eventset;
+	eventset->ref();
+
+	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
+	{
+	    const PreStack::Event* event = eventset->events_[idx];
+	    if ( !event->sz_ )
+		continue;
+
+	    float value = mUdf(float);
+	    TypeSet<float> offsets( event->sz_, 0 );
+	    TypeSet<float> picks( event->sz_, 0 );
+	    for ( int idy=0; idy<event->sz_; idy++ )
+	    {
+		offsets[idy] = event->offsetazimuth_[idy].offset();
+		picks[idy] = event->pick_[idy];
+	    }
+	    sort_coupled( offsets.arr(), picks.arr(), picks.size() );
+
+	    if ( markercolor_!=Single )
+	    {
+		if ( event->sz_>1 )
+		{
+		    float variables[] = { picks[0], 0, 3000 };
+		    //find better refoff
+		    const float error = moveoutcomp->findBestVariable(
+			    variables, 1, ctabmapper_.setup_.range_,
+			    offsets.size(), offsets.arr(), picks.arr() );
+		    value = mIsUdf(error) ? error
+			: (markercolor_!=Velocity ? error : variables[1]);
+		    //TODO: set the value when mc=Quality, use v[1] for now.
+		}
+	    }
+
+	    Interval<int> pickrg( 0, fullevent ? event->sz_-1 : 0 );
+	    const bool doline = pickrg.start!=pickrg.stop;
+	    for ( int idy=pickrg.start; idy<=pickrg.stop; idy++ )
+	    {
+		if ( lastmarker>=pao->markers_.size() )
+		{
+		    visBase::Marker* marker = visBase::Marker::create();
+		    pao->separator_->addObject( marker );
+		    marker->setMarkerStyle( markerstyle_ );
+		    pao->markers_ += marker;
+		}
+
+
+		Coord3 pos( bid.inl, bid.crl,  picks[idy] );
+		if ( fullevent )
+		{
+		    const Coord offset = dir*offsets[idy];
+		    pos.x += offset.x;
+		    pos.y += offset.y;
+		}
+
+		pao->markers_[lastmarker]->setCenterPos( pos );
+		if ( markercolor_==Single )
+		    pao->markers_[lastmarker]->setMaterial( 0 );
+		else
+		{
+		    if ( !pao->markers_[lastmarker]->getMaterial() )
+			pao->markers_[lastmarker]->setMaterial( 
+			       visBase::Material::create() );
+
+		    const Color col =
+			ctabsequence_.color( ctabmapper_.position(value) );
+		    pao->markers_[lastmarker]->getMaterial()->setColor( col );
+		}
+
+		lastmarker++;
+		if ( doline )
+		{
+		    pao->lines_->getCoordinates()->setPos( ci, pos );
+		    pao->lines_->setCoordIndex( cii++, ci++ );
+		}
+	    }
+
+	    if ( doline && cii && pao->lines_->getCoordIndex( cii-1 )!=-1 ) 
+		pao->lines_->setCoordIndex( cii++, -1 );
+	}
+
+    } while ( iter.next( bid ) );
+
+    for ( int idx=pao->markers_.size()-1; idx>=lastmarker; idx-- )
+    {
+	pao->separator_->removeObject(
+		pao->separator_->getFirstIdx( pao->markers_[idx] ) );
+	pao->markers_.remove( idx );
+    }
+
+    if ( pao->lines_ )
+	pao->lines_->removeCoordIndexAfter( cii-1 );
+
+    deepUnRef( eventsetstounref );
+}
+
+
+void PSEventDisplay::setDisplayTransformation(visBase::Transformation* nt)
+{ 
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
+    {
+	ParentAttachedObject* pao = parentattached_[idx];
+	pao->separator_->setDisplayTransformation( nt );
+    }
+
+    if ( displaytransform_ )
+	displaytransform_->unRef();
+
+    displaytransform_ = nt;
+
+    if ( displaytransform_ )
+	displaytransform_->ref();
+}
+
+
+visBase::Transformation* PSEventDisplay::getDisplayTransformation()
+{ return displaytransform_; }
+
+
+void PSEventDisplay::eventChangeCB(CallBacker*)
+{
+    const BinID bid = eventman_ ? eventman_->changeBid() : BinID(-1,-1);
+    if ( bid.inl<0 || bid.crl<0 )
+    {
+	if ( eventman_ )
+ 	    getMaterial()->setColor( eventman_->getColor() );
+
+	//TODO Handle later;
+	return;
+    }
+
+    if ( !parentattached_.size() )
+    {
+	retriveParents();
+	return;
+    }
+
+    for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
+    {
+	ParentAttachedObject* pao = parentattached_[idx];
+	if ( !pao->hrg_.includes(bid) )
+	    continue;
+
+	updateDisplay(pao);
+    }
+}
+
+
+void PSEventDisplay::eventForceReloadCB(CallBacker*)
+{
+    for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
+    {
+	ParentAttachedObject* pao = parentattached_[idx];
+	deepUnRef( pao->eventsets_ );
+	HorSamplingIterator iter( pao->hrg_ );
+
+	BinID bid = pao->hrg_.start;
+	do
+	{
+	    eventman_->addReloadPosition( bid );
+	}
+	while ( iter.next( bid ) );
+    }
+
+    deepErase( parentattached_ );
+
+}
+
+
+void PSEventDisplay::retriveParents()
+{
+    if ( !scene_ )
+	return;
+    
+    uiVisPartServer& visserv = *ODMainWin()->applMgr().visServer();
+    TypeSet<int> visids;
+    visserv.getChildIds( scene_->id(), visids );
+    
+    for ( int idx=0; idx<visids.size(); idx++ )
+    {
+	mDynamicCastGet( visSurvey::SurveyObject*, so,
+		visserv.getObject(visids[idx])  );
+	if ( !so ) continue;
+	
+	mDynamicCastGet(const PreStackView::Viewer3D*,gather,so);
+	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,so);
+	if ( gather || (pdd && pdd->isOn() &&
+	     pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) )
+	{
+	    ParentAttachedObject* pao = new ParentAttachedObject( visids[idx] );
+	    addChild( pao->separator_->getInventorNode() );
+	    parentattached_ += pao;
+	    pao->separator_->setDisplayTransformation( displaytransform_ );
+	    updateDisplay( pao );
+	}
+    }
+}
+
+
+PSEventDisplay::ParentAttachedObject::ParentAttachedObject( int parent )
+    : parentid_( parent )
+    , separator_( visBase::DataObjectGroup::create() )
+    , lines_( 0 )
+{
+    separator_->ref();
+    separator_->setSeparate();
+}
+
+
+
+PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
+{
+    separator_->unRef();
+    deepUnRef( eventsets_ );
+}
+
+
+
+};//namespace
