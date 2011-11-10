@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.2 2011-11-09 04:42:23 cvsranojay Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.3 2011-11-10 04:44:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,7 @@ protected:
     bool		init();
     const char*		parentType() const;
     virtual bool	showSubMenu();
-    bool		loadPSEvent(BufferString&);
-    RefMan<PreStack::EventManager> psem_;
+    bool		loadPSEvent(MultiID&,BufferString&);
     PSEventsTreeItem*		child_;
 };
 
@@ -52,9 +51,13 @@ public:
 class PSEventsTreeItem : public uiODDisplayTreeItem
 {
 public:
-			    PSEventsTreeItem(const PreStack::EventManager&,
+			    PSEventsTreeItem( MultiID key,
 					      const char*);
 			    ~PSEventsTreeItem();
+    void		    updateScaleFactor(float);
+    void		    switchViewSide(bool side);
+    float		    getFactor() const { return scalefactor_; }
+
 protected:
     virtual const char*	    parentType() const 
 			    { return typeid (PSEventsParentTreeItem).name(); }
@@ -64,12 +67,15 @@ protected:
     bool		    init();
     void		    updateDisplay();
 
-    const PreStack::EventManager& psem_;
+    PreStack::EventManager& psem_;
     const char*		    eventname_;
+    float		    scalefactor_;
+    Coord		    dir_;
     visSurvey::visSeedPolyLine*  eventlinedisplay_;
     MenuItem*		    sticksfromsection_;
     MenuItem*		    zerooffset_;
     MenuItem*		    properties_;
+    const MultiID&	    key_;
 };
 
 #endif

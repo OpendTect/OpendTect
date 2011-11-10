@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.3 2011-11-09 04:42:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.4 2011-11-10 04:44:03 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.3 2011-11-09 04:42:23
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
+#include "uipseventspropdlg.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 #include "visseedpolyline.h"
@@ -34,7 +35,6 @@ static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.3 2011-11-09 04:42:23
 PSEventsParentTreeItem::PSEventsParentTreeItem()
     : uiODTreeItem("PreStackEvents")
     , child_(0)
-    , psem_(new PreStack::EventManager)
 {}
 
 
@@ -52,10 +52,11 @@ bool PSEventsParentTreeItem::showSubMenu()
     if ( mnusel == 0 )
     {
 	BufferString eventname;
-	if ( !loadPSEvent(eventname) )
+	MultiID key;
+	if ( !loadPSEvent(key,eventname) )
 	    return false;
 
-	child_ = new PSEventsTreeItem( *psem_, eventname );
+	child_ = new PSEventsTreeItem( key, eventname );
 	addChild( child_, true ); 
     }
 
@@ -64,7 +65,7 @@ bool PSEventsParentTreeItem::showSubMenu()
 }
 
 
-bool PSEventsParentTreeItem::loadPSEvent( BufferString& eventname )
+bool PSEventsParentTreeItem::loadPSEvent( MultiID& key,BufferString& eventname )
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
     context.ctxt.forread = true;
@@ -74,13 +75,11 @@ bool PSEventsParentTreeItem::loadPSEvent( BufferString& eventname )
 	return false;
 
     eventname = dlg.ioObj()->name();
-    const MultiID& key = dlg.selected( 0 );
-    if ( !psem_->setStorageID(key,true) )
+    key = dlg.selected( 0 );
+    if ( key.isEmpty() || eventname.isEmpty() )
     {
-	 BufferString errmsg = "Failed to load prestack event \"";
-	 errmsg += eventname;
-	 errmsg += "\"";
-	 uiMSG().error( errmsg ); 
+	BufferString errmsg = "Failed to load prestack event";
+	uiMSG().error( errmsg ); 
 	return false;
     }
 
@@ -112,15 +111,19 @@ const char* PSEventsParentTreeItem::parentType() const
 
 // Child Item
 
-PSEventsTreeItem::PSEventsTreeItem( const PreStack::EventManager& psem,
-					const char* eventname )
-    : psem_(psem)
+PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
+    : key_(key)
+    , psem_(*new PreStack::EventManager) 
     , eventname_(eventname)
     , eventlinedisplay_(0)
+    , dir_(Coord(1,0))
+    , scalefactor_(1)
     , sticksfromsection_(new MenuItem("Sticks from section"))
     , zerooffset_(new MenuItem("Zero offset"))
     , properties_(new MenuItem("Properties"))
-{}
+{
+    psem_.setStorageID( key, true );
+}
 
 
 PSEventsTreeItem::~PSEventsTreeItem()
@@ -141,8 +144,6 @@ bool PSEventsTreeItem::init()
     return uiODDisplayTreeItem::init();
 }
 
-#define mADDDisplayMenuItems( name )\
-    mAddMenuItem( &displaymnuitem_, new MenuItem( name ), true, false ); \
 
 void PSEventsTreeItem::createMenuCB( CallBacker* cb )
 {
@@ -179,9 +180,24 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
     else if ( menuid == properties_->id )
     {
 	menu->setIsHandled(true);
-	uiMSG().message( "To be implemented" );
+	uiPSEventsPropertyDlg dlg( getUiParent(), this );
+	dlg.go();
     }
 
+}
+
+
+void PSEventsTreeItem::updateScaleFactor( float factor )
+{
+    scalefactor_ = factor;
+    updateDisplay();
+}
+
+
+void PSEventsTreeItem::switchViewSide( bool side )
+{
+    dir_ = side ? Coord( 1, 0 ) : Coord ( -1 , 0 );
+    updateDisplay();
 }
 
 
@@ -192,11 +208,12 @@ void PSEventsTreeItem::updateDisplay()
     {
 	eventlinedisplay_ = visSurvey::visSeedPolyLine::create();
 	eventlinedisplay_->ref();
+	visserv->addObject( eventlinedisplay_, sceneID(), false );
+	displayid_ = eventlinedisplay_->id();
+	eventlinedisplay_->setName( eventname_ );
     }
 
-    eventlinedisplay_->setName( eventname_ );
-    visserv->addObject( eventlinedisplay_, sceneID(), false );
-    displayid_ = eventlinedisplay_->id();
+    eventlinedisplay_->clearDisplay();
     BinIDValueSet locations( 0, false );
     psem_.getLocations( locations );
     TypeSet<Coord3> finalcoords;
@@ -224,8 +241,7 @@ void PSEventsTreeItem::updateDisplay()
 		const float offset = psevent->offsetazimuth_[idy].offset();
 		offsets += offset;
 		Coord3 pos( bid.inl, bid.crl, psevent->pick_[idy] );
-		const Coord dir( 1, 0 );
-		const Coord offs = dir * offset;
+		const Coord offs = dir_ * offset * scalefactor_;
 		pos.x += offs.x / SI().inlDistance();
 		pos.y += offs.y / SI().crlDistance();
 		coords += pos;
