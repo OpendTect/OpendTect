@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.34 2011-11-04 11:05:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.35 2011-11-10 04:44:33 cvssatyaki Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -182,10 +182,10 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
 }
 
 
-void uiAmplSpectrum::setData( Array2D<float_complex>& timedomain )
+void uiAmplSpectrum::setData( Array2D<float_complex>& timedomain, int nrsamples)
 {
     nrtrcs_ = timedomain.info().getSize( 0 );
-    initFFT( timedomain.info().getSize(1) );
+    initFFT( nrsamples );
     for ( int dim0pos=0; dim0pos<timedomain.info().getSize(0); dim0pos++ )
     {
 	Array1DSlice<float_complex> timedm( timedomain );
@@ -195,8 +195,14 @@ void uiAmplSpectrum::setData( Array2D<float_complex>& timedomain )
 	fft_->setInput( timedm.getData() );
 	fft_->setOutput( freqdomain_->getData() );
 	fft_->run( true );
+
 	for ( int dim1pos=0; dim1pos<timedomain.info().getSize(1); dim1pos++ )
+	{
+	    const float_complex freqval = freqdomain_->get( dim1pos );
+	    if ( mIsUdf(freqval) )
+		continue;
 	    freqdomainsum_->arr()[dim1pos] += abs( freqdomain_->get(dim1pos) );
+	}
     }
 
     putDispData();
@@ -267,7 +273,7 @@ void uiAmplSpectrum::putDispData()
     for ( int idx=0; idx<fftsz; idx++ )
     {
 	const float val = abs(freqdomainsum_->get(idx))/nrtrcs_;
-	specvals_->set( idx, val ); 
+	specvals_->set( idx, val );
 	dbspecvals.set( idx, mDispVal( val ) ); 
     }
 
@@ -357,17 +363,18 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 
 void uiAmplSpectrum::ceptrumCB( CallBacker* )
 {
-    uiAmplSpectrum* ampl =
-	new uiAmplSpectrum( this, uiAmplSpectrum::Setup("Amplitude Cepstrum",
-		    					true) );
+    uiAmplSpectrum* ampl = new uiAmplSpectrum(
+	    this, uiAmplSpectrum::Setup("Amplitude Cepstrum",
+					true,setup_.nyqvistspspace_) );
     ampl->setDeleteOnClose( true );
 
-    const int fftsz = timedomain_->info().getSize(0);
     const int sz0 = data_->info().getSize( 0 );
     const int sz1 = data_->info().getSize( 1 );
     const int sz2 = data_->info().getSize( 2 );
+    const int fftsz = fft_->getFastSize( sz2 );
 
     Array2DImpl<float_complex> freqdomain( sz0*sz1, fftsz );
+    freqdomain.setAll( 0 );
     Fourier::CC* fft = Fourier::CC::createDefault();
     if ( !fft ) return;
 
@@ -384,6 +391,12 @@ void uiAmplSpectrum::ceptrumCB( CallBacker* )
 	    freqslice.init();
 
 	    Array1DImpl<float_complex> timedomain( fftsz );
+	    for ( int arridx=0; arridx<fftsz; arridx++ )
+	    {
+		freqslice.set( arridx, 0 );
+		timedomain.set( arridx, 0 );
+	    }
+
 	    for ( int idz=0; idz<sz2; idz++ )
 	    {
 		const float val = data_->get( idx, idy, idz );
@@ -396,7 +409,7 @@ void uiAmplSpectrum::ceptrumCB( CallBacker* )
 	}
     }
 
-    ampl->setData( freqdomain );
+    ampl->setData( freqdomain, sz2 );
     delete fft;
 
     ampl->show();
