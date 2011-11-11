@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.4 2011-11-03 14:45:15 cvsbruno Exp $
+RCS:           $Id: statparallelcalc.h,v 1.5 2011-11-11 10:13:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ protected:
 template <class T>
 inline void ParallelCalc<T>::setValues( const T* data, int sz, const T* wght ) 
 {
+    this->clear();
     nradded_ = sz;
     data_ = data;
     weights_ = wght;
@@ -125,7 +126,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     int idx = start;
     int nrused = 0;
 
-    for ( ; start<stop && mIsUdf(data_[start] ); start++ )
+    for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
 	/* just skip undefs at start */;
 
     const T* dataptr = data_ + start;
