@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.50 2011-11-04 16:05:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.51 2011-11-11 22:00:09 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -458,6 +458,8 @@ void ExplFaultStickSurface::triangulateAlg( char ta )
     }
     else
 	update( true, 0 );
+
+    needsupdatetexture_ = true;
 }
 
 
@@ -649,7 +651,8 @@ void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 
 int ExplFaultStickSurface::textureColSz( const int panelidx )
 {
-    const IndexedGeometry* triangles = paneltriangles_[panelidx];
+    const IndexedGeometry* triangles = paneltriangles_.validIdx(panelidx) ? 
+	paneltriangles_[panelidx] : 0;
     if ( !triangles )
 	return 0;
 
@@ -1128,7 +1131,6 @@ const RowCol& ExplFaultStickSurface::getTextureSize() const
 bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
        TaskRunner* tr )
 {
-    updateTextureSize();
     const DataColDef texture_i( sKeyTextureI() );
     if ( dpset.dataSet().findColDef(texture_i,PosVecDataSet::NameExact)==-1 )
     {
@@ -1136,11 +1138,125 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 	dpset.dataSet().add( new DataColDef(sKeyTextureJ()) );
     }
 
-    PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
-	new ExplFaultStickTexturePositionExtracter( *this, dpset );
+    if ( !trialg_ )
+    {
+	if ( !updateTextureSize() )
+	    return false;
+	
+    	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
+    	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
+    	return tr ? tr->execute( *extractor ) : extractor->execute();
+    }
+    else
+    {
+	return setProjTexturePositions( dpset );
+    }
+}
 
-    return tr ? tr->execute( *extractor )
-	      : extractor->execute();
+
+bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
+{
+    //Refine needed for pos calculation
+
+    const float zscale = SI().zFactor();
+    
+    TypeSet<Coord> knots;
+    TypeSet<int> knotids;
+    Interval<float> zrg;
+    Interval<int> inlrg, crlrg;
+    bool found=false;
+    for ( int curid=-1; ; )
+    {
+	curid = coordlist_->nextID( curid );
+	if ( curid<0 )
+	    break;
+	
+	const Coord3& pos = coordlist_->get( curid );
+	const BinID bid = SI().transform( pos );
+	knots += Coord( trialg_==1 ? bid.crl : bid.inl,
+			trialg_==3 ? bid.crl : pos.z*zscale );
+	knotids += curid;
+	if ( !found )
+	{
+	    inlrg.start = inlrg.stop = bid.inl;
+	    crlrg.start = crlrg.stop = bid.crl;
+	    zrg.start = zrg.stop = pos.z;
+	    found = true;
+	}
+	else
+	{
+	    inlrg.include( bid.inl );
+	    crlrg.include( bid.crl );
+	    zrg.include( pos.z );
+	}
+    }
+    
+    if ( !found )
+	return false;
+    
+    DAGTriangleTree tt;
+    tt.setCoordList( &knots, OD::UsePtr );
+    DelaunayTriangulator triangulator( tt );
+    triangulator.execute( false );
+    
+    const int inlsamples = inlrg.width()/texturesampling_.binid.inl;
+    const int crlsamples = crlrg.width()/texturesampling_.binid.crl;
+    const float zsamples = zrg.width()/texturesampling_.value;
+    texturesize_ = RowCol( trialg_==1 ? crlsamples : inlsamples,
+	    		   trialg_==3 ? crlsamples : mNINT(zsamples) );
+
+    const int nrfc = dps.nrFixedCols();
+    const int nrcs = dps.nrCols();
+    const DataColDef ti( sKeyTextureI() );
+    const DataColDef tj( sKeyTextureJ() );
+    const int ic = dps.dataSet().findColDef(ti,PosVecDataSet::NameExact)-nrfc;
+    const int jc = dps.dataSet().findColDef(tj,PosVecDataSet::NameExact)-nrfc;
+    
+    for ( int row=0; row<texturesize_.row; row++ )
+    {
+	BinID bid( trialg_==1 ? -1:texturesampling_.binid.inl*row+inlrg.start,
+		   trialg_!=1 ? -1:texturesampling_.binid.crl*row+crlrg.start );
+	for ( int col=0; col<texturesize_.col; col++ )
+	{
+	    float z = -1;
+	    if ( trialg_==3 )
+		bid.crl = texturesampling_.binid.crl*col+crlrg.start;
+	    else
+		z = texturesampling_.value*col+zrg.start;
+	    const Coord pt( trialg_==1 ? bid.crl : bid.inl,
+			    trialg_==3 ? bid.crl : z*zscale );
+	    int dupid = -1;
+	    TypeSet<int> vs;
+	    if ( !tt.getTriangle(pt,dupid,vs) )
+		continue;
+	    
+	    Coord3 pos;
+	    if ( dupid!=-1 )
+		pos = coordlist_->get( knotids[dupid] );
+	    else
+	    {
+		if ( vs[0]<0 || vs[1]<0 || vs[2]<0 )
+		    continue;
+		
+		float w[3];
+		interpolateOnTriangle2D( pt, knots[vs[0]], knots[vs[1]],
+			knots[vs[2]], w[0], w[1], w[2] );
+		pos = w[0] * coordlist_->get(knotids[vs[0]]) +
+		      w[1] * coordlist_->get(knotids[vs[1]]) +
+		      w[2] * coordlist_->get(knotids[vs[2]]);
+	    }
+	    
+	    DataPointSet::Pos dpsetpos( pos );
+	    DataPointSet::DataRow datarow( dpsetpos, 1 );
+	    datarow.data_.setSize( nrcs, mUdf(float) );
+	    datarow.data_[ic] =  row;
+	    datarow.data_[jc] =  col;
+	    dps.addRow( datarow );
+	}
+    }
+    
+    dps.dataChanged();
+    return true;
 }
 
 
