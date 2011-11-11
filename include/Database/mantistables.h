@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.8 2011-10-28 10:57:36 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.9 2011-11-11 10:02:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ public:
     static const char*	sKeyMinor();
     static const int    cStatusNew();
     static const int    cStatusAssigned();
+    static const int    cStatusFeedback();
     static const int    cStatusResolved();
     static const int    cResolutionOpen();
     static const int    cResolutionFixed();
