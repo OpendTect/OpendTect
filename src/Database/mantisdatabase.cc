@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.26 2011-11-04 07:41:27 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.27 2011-11-11 11:24:44 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,13 @@ const char* SqlDB::MantisDBMgr::errMsg() const
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
+#define mErrMsgRet(s) \
+{ \
+    BufferString msg("Unable to retrieve data from ", s, "\n" ); \
+    msg.add( query_->errMsg() ); \
+    mErrRet( msg.buf() ); \
+}
+
 
 bool SqlDB::MantisDBMgr::fillCategories()
 {
@@ -131,8 +138,9 @@ bool SqlDB::MantisDBMgr::fillCategories()
     BufferString querystr ( "SELECT category FROM " );
     querystr.add( sKeyProjectCategoryTable() ).add( " WHERE project_id=" )
 	    .add( cOpenDtectProjectID() );
-    if ( !query().execute( querystr ) )
-	return false;
+
+    if ( !query().execute(querystr) )
+	mErrMsgRet( sKeyProjectCategoryTable() );
 
     while ( query().next() )
 	categories_.add( query().data(0) );
@@ -173,6 +181,9 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::cStatusAssigned() ).add( " OR " )
 	    .add( BugTableEntry::sKeyBugTable() )
 	    .add( ".status=" ).add( BugTableEntry::cStatusNew() ).add( " OR " )
+	    .add( BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( BugTableEntry::cStatusFeedback() )
+	    .add( " OR " )
 	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
 	    .add( ".status=" ).add( BugTableEntry::cStatusResolved() )
 	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
@@ -183,7 +194,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".id ASC" );
 
     if ( !query().execute(querystr) )
-	return false;
+	mErrMsgRet( BugTableEntry::sKeyBugTable() );
 
     while ( query().next() )
     {
@@ -236,7 +247,7 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
 		 .add( ".username ASC" );
 
     if ( !query().execute(querystrdvprs) )
-	return false;
+	mErrMsgRet( sKeyUserTable() );
 
     developers_.erase();
     while ( query().next() )
@@ -249,7 +260,7 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
 	    	 .add( " )) ORDER BY " ).add( sKeyUserTable() )
 		 .add( ".username ASC" );
     if ( !query().execute( querystrusers ) )
-	return false;
+	mErrMsgRet( sKeyProjectUserListTable() );
 
     usernames_.erase();
     userids_.erase();
@@ -269,7 +280,8 @@ bool SqlDB::MantisDBMgr::fillProjectsInfo()
     BufferString querystr( "SELECT id,name FROM " );
     querystr.add( sKeyProjectTable() ).add( " WHERE enabled=1" );
     if ( !query().execute( querystr ) )
-	return false;
+	mErrMsgRet( sKeyProjectTable() );
+
     projectids_.erase();
     projectnms_.erase();
     while ( query().next() )
@@ -297,7 +309,7 @@ bool SqlDB::MantisDBMgr::fillVersionsByProject()
 		.add( " AND project_id=" ).add( projectIDs()[pidx] )
 		.add( " ORDER BY version DESC " );
 	if ( !query().execute( querystr ) )
-	    return false;
+	    mErrMsgRet( sKeyProjectVersionTable() );
 
 	while ( query().next() )
 	    versbyproj->add( query().data(0) );
