@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.13 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.14 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -15,10 +15,10 @@ ________________________________________________________________________
 
 #include "position.h"
 #include "factory.h"
+#include "surv2dgeom.h"
 class IOPar;
 class Executor;
 class TaskRunner;
-namespace PosInfo { class Line2DData; }
 
 
 namespace Pos
@@ -93,26 +93,28 @@ public:
 mClass Filter2D : public virtual Filter
 {
 public:
-    			Filter2D() : ld_(0)			{}
+    			Filter2D()				{}
 			~Filter2D();
 
     virtual bool	is2D() const				{ return true; }
-    virtual bool	worksWithCoords() const			{ return ld_; }
+    virtual bool	worksWithCoords() const
+    			{ return geomids_.size(); }
 
-    virtual bool	includes(int,float z=mUdf(float)) const	= 0;
+    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const = 0;
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
 
     mDefineFactoryInClass(Filter2D,factory);
     static Filter2D*	make(const IOPar&);
 
-    virtual void	setLineData(PosInfo::Line2DData*);
-    virtual PosInfo::Line2DData*	lineData()		{ return ld_; }
-    virtual const PosInfo::Line2DData*	lineData() const	{ return ld_; }
+    void		addLineID(const PosInfo::GeomID&);
+    void		removeLineID(int lidx);
+    PosInfo::GeomID	lineID(int) const;
+    int			nrLines() const;
 
 protected:
 
-    PosInfo::Line2DData* ld_;
+    TypeSet<PosInfo::GeomID>	geomids_;
 
 };
 

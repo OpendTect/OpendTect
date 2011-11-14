@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.16 2011-09-02 09:12:13 cvskris Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.17 2011-11-14 07:39:14 cvssatyaki Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -154,9 +154,9 @@ void Pos::RangeProvider3D::initClass()
 
 
 Pos::RangeProvider2D::RangeProvider2D()
-    : rg_(1,mUdf(int),1)
-    , zrg_(SI().zRange(false))
+    : zrg_(SI().zRange(false))
 {
+    trcrgs_ += StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
     reset();
 }
 
@@ -172,11 +172,12 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 {
     if ( &p == this )
     {
-	rg_ = p.rg_;
 	zrg_ = p.zrg_;
 	curidx_ = p.curidx_;
+	curlineidx_ =  p.curlineidx_;
 	curz_ = p.curz_;
-	setLineData( p.ld_ ? new PosInfo::Line2DData(*p.ld_) : 0);
+	for ( int idx=0; idx<p.nrLines(); idx++ )
+	    addLineID( p.lineID(idx) );
     }
     return *this;
 }
@@ -190,38 +191,62 @@ const char* Pos::RangeProvider2D::type() const
 
 void Pos::RangeProvider2D::reset()
 {
-    curidx_ = ld_ ? -1 : rg_.start - rg_.step;
+    StepInterval<int> trcrg;
+    if ( geomids_.size() )
+    {
+	PosInfo::Line2DData l2d;
+	S2DPOS().getGeometry( geomids_[0], l2d );
+	trcrg = l2d.trcNrRange();
+    }
+
+    curidx_ =  !geomids_.size() ? -1 : trcrg.start - trcrg.step;
+    curlineidx_ = 0;
     curz_ = zrg_.stop;
 }
 
 
 bool Pos::RangeProvider2D::toNextPos()
 {
+    const bool hasgeom = geomids_.validIdx( curlineidx_ );
+    PosInfo::Line2DData l2d;
+    
     while ( true )
     {
-	if ( !ld_ )
-	    curidx_ += rg_.step;
+	StepInterval<int> trcrg;
+	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+	trcrg = l2d.trcNrRange();
+	if ( !hasgeom )
+	    curidx_ += trcrgs_[curlineidx_].step;
 	else
 	{
 	    curidx_++;
-	    if ( curidx_ >= ld_->positions().size() )
-		return false;
+	    if ( curidx_ >= l2d.positions().size() )
+	    {
+		curlineidx_++;
+		if ( !geomids_.validIdx(curlineidx_) )
+		    return false;
+		S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+		trcrg = l2d.trcNrRange();
+		curidx_ =  trcrg.start - trcrg.step;
+	    }
 	}
 
 	const int curnr = curNr();
-	if ( curnr < rg_.start )
+	if ( curnr < trcrg.start )
 	    continue;
-	if ( curnr > rg_.stop )
+	if ( curnr > trcrg.stop )
 	    return false;
-	if ( (curnr-rg_.start) % rg_.step == 0 )
+	if ( (curnr-trcrg.start)%trcrg.step == 0 )
 	    break;
     }
 
     curz_ = zrg_.start;
-    if ( ld_ )
+    if ( geomids_.validIdx(curlineidx_) )
     {
-	if ( curz_ < ld_->zRange().start ) curz_ = ld_->zRange().start;
-	if ( curz_ > ld_->zRange().stop ) return false;
+	if ( curz_ < l2d.zRange().start )
+	    curz_ = l2d.zRange().start;
+	if ( curz_ > l2d.zRange().stop )
+	    return false;
     }
 
     return true;
@@ -235,9 +260,16 @@ bool Pos::RangeProvider2D::toNextZ()
 {
     curz_ += zrg_.step;
     if ( curz_ > zrg_.stop+mZrgEps )
-	return toNextPos();
+    {
+	bool res = toNextPos();
+	return res;
+    }
 
-    if ( ld_ && curz_ > ld_->zRange().stop+mZrgEps )
+    const bool hasgeom = geomids_.validIdx( curlineidx_ );
+    PosInfo::Line2DData l2d;
+    if ( hasgeom )
+	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+    if ( hasgeom && curz_ > l2d.zRange().stop+mZrgEps )
 	return toNextPos();
 
     return true;
@@ -246,79 +278,166 @@ bool Pos::RangeProvider2D::toNextZ()
 
 int Pos::RangeProvider2D::curNr() const
 {
-    return ld_ ? ld_->positions()[curidx_].nr_ : curidx_;
+    const bool hasgeom = geomids_.validIdx( curlineidx_ );
+    PosInfo::Line2DData l2d;
+    if ( hasgeom )
+	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+    return hasgeom ? l2d.positions()[curidx_].nr_ : curidx_;
 }
 
 
 Coord Pos::RangeProvider2D::curCoord() const
 {
-    return ld_ ? ld_->positions()[curidx_].coord_ : Coord(0,0);
+    const bool hasgeom = geomids_.validIdx( curlineidx_ );
+    PosInfo::Line2DData l2d;
+    if ( hasgeom )
+	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+    return hasgeom ? l2d.positions()[curidx_].coord_ :Coord(0,0);
 }
 
 
-bool Pos::RangeProvider2D::includes( int nr, float z ) const
+bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 {
-    bool issel = rg_.includes( nr, true );
-    if ( !issel ) return false;
-    if ( mIsUdf(z) ) return true;
+    if ( !geomids_.validIdx(lidx) || mIsUdf(z) ) 
+	return false;
 
     return z < zrg_.stop+mZrgEps && z > zrg_.start - mZrgEps;
 }
 
 
 bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
-{
-    if ( !ld_ ) return false;
-
+{ 
     bool found = false;
-    for ( int idx=0; idx<ld_->positions().size(); idx++ )
+    int foundlidx = -1;
+    for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	if ( ld_->positions()[idx].coord_ == c )
-	    { found = true; break; }
+	PosInfo::Line2DData l2d;
+	S2DPOS().getGeometry( geomids_[lidx], l2d );
+	for ( int idx=0; idx<l2d.positions().size(); idx++ )
+	{
+	    if ( l2d.positions()[idx].coord_ == c )
+	    { found = true; foundlidx=lidx; break; }
+	}
     }
+
     if ( !found ) return false;
     if ( mIsUdf(z) ) return true;
+    PosInfo::Line2DData l2d;
+    S2DPOS().getGeometry( geomids_[foundlidx], l2d );
 
-    return z > zrg_.start - mZrgEps && z < zrg_.stop+mZrgEps
-	&& z > ld_->zRange().start-mZrgEps && z < ld_->zRange().stop+mZrgEps;
+    return z > zrg_.start-mZrgEps
+	&& z < zrg_.stop+mZrgEps
+	&& z > l2d.zRange().start-mZrgEps && z < l2d.zRange().stop+mZrgEps;
+}
+
+
+void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
+{
+    rg = Interval<int>( mUdf(int), -mUdf(int) );
+    if ( geomids_.validIdx(lidx) )
+    {
+	PosInfo::Line2DData l2d;
+	S2DPOS().getGeometry( geomids_[lidx], l2d );
+	rg = l2d.trcNrRange();
+    }
+    else
+	rg = trcrgs_[lidx];
+}
+
+
+void Pos::RangeProvider2D::getZRange( Interval<float>& zrg, int lidx ) const
+{
+    zrg = zrg_;
+    if ( geomids_.validIdx(lidx) )
+    {
+	PosInfo::Line2DData l2d;
+	S2DPOS().getGeometry( geomids_[lidx], l2d );
+	zrg = l2d.zRange();
+    }
 }
 
 
 void Pos::RangeProvider2D::usePar( const IOPar& iop )
 {
-    CubeSampling cs(false); cs.set2DDef();
-    if ( cs.usePar(iop) )
-	rg_ = cs.hrg.crlRange();
-    iop.get( sKey::ZRange, zrg_ );
+    if ( !iop.hasKey(sKey::TrcRange) )
+    {
+	CubeSampling cs(false); cs.set2DDef();
+	if ( cs.usePar(iop) )
+	    trcrgs_[0] = cs.hrg.crlRange();
+	zrg_ = cs.zrg;
+    }
+    else
+    {
+	int lineidx =0;
+	StepInterval<int> trcrg;
+	while( iop.get(IOPar::compKey(sKey::TrcRange,lineidx),trcrg) )
+	{
+	    trcrgs_ += trcrg;
+	    lineidx++;
+	}
+
+	iop.get( sKey::ZRange, zrg_);
+    }
 }
 
 
 void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
-    CubeSampling cs(false); cs.set2DDef();
-    cs.hrg.start.crl = rg_.start; cs.hrg.stop.crl = rg_.stop;
-    cs.hrg.step.crl = rg_.step; cs.hrg.fillPar( iop );
+    for ( int lidx=0; lidx<trcrgs_.size(); lidx++ )
+	iop.set( IOPar::compKey(sKey::TrcRange,lidx), trcrgs_[lidx] );
     iop.set( sKey::ZRange, zrg_ );
 }
 
 
+od_int64 Pos::RangeProvider2D::estNrPos() const
+{
+    od_int64 sz = 0;
+    if ( geomids_.size() )
+    {
+	for ( int idx=0; idx<geomids_.size(); idx++ )
+	{
+	    PosInfo::Line2DData l2d;
+	    S2DPOS().getGeometry( geomids_[idx], l2d );
+	    sz += l2d.trcNrRange().nrSteps() + 1;
+	}
+    }
+    else
+	sz = trcrgs_[0].nrSteps() + 1;
+    return sz;
+}
+
+
+int Pos::RangeProvider2D::estNrZPerPos() const
+{ return zrg_.nrSteps()+1; }
+
+
 void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 {
-    const bool noend = mIsUdf(rg_.stop);
-    if ( rg_.start == 1 && noend )
-	txt += "[all]";
-    else
+    for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	txt += rg_.start; txt += "-";
-	if ( noend )
-	    txt += "[last]";
+	PosInfo::Line2DData l2d;
+	if ( !S2DPOS().getGeometry(geomids_[idx],l2d) )
+	    continue;
+	txt += "Line "; txt += idx; txt += ":";
+	StepInterval<int> rg = l2d.trcNrRange();
+	StepInterval<float> zrg = zrg_;
+	const bool noend = mIsUdf(rg.stop);
+	if ( rg.start == 1 && noend )
+	    txt += "[all]";
 	else
-	    txt += rg_.stop;
-    }
-    if ( rg_.step != 1 )
-	{ txt += " step "; txt += rg_.step; }
+	{
+	    txt += rg.start; txt += "-";
+	    if ( noend )
+		txt += "[last]";
+	    else
+		txt += rg.stop;
+	}
+	if ( rg.step != 1 )
+	    { txt += " step "; txt += rg.step; }
 
-    txt += " ("; txt += zrg_.nrSteps() + 1; txt += " samples)";
+	txt += " ("; txt += zrg.nrSteps() + 1; txt += " samples)";
+	txt += "\n";
+    }
 }
 
 

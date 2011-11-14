@@ -4,18 +4,17 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.14 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.15 2011-11-14 07:39:14 cvssatyaki Exp $";
 
-#include "posfilterset.h"
-#include "posfilterstd.h"
-#include "posprovider.h"
-#include "posinfo2d.h"
-#include "survinfo.h"
+#include "cubesampling.h"
 #include "executor.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posfilterset.h"
+#include "posfilterstd.h"
+#include "posprovider.h"
+#include "survinfo.h"
 #include "statrand.h"
-#include "cubesampling.h"
 
 mImplFactory(Pos::Filter3D,Pos::Filter3D::factory);
 mImplFactory(Pos::Filter2D,Pos::Filter2D::factory);
@@ -58,8 +57,12 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D::~Filter2D()
 {
-    delete ld_;
+    geomids_.erase(); 
 }
+
+
+int Pos::Filter2D::nrLines() const
+{ return geomids_.size(); }
 
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
@@ -75,10 +78,19 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 }
 
 
-void Pos::Filter2D::setLineData( PosInfo::Line2DData* ld )
+void Pos::Filter2D::addLineID( const PosInfo::GeomID& geomid )
+{ geomids_ += geomid; }
+
+
+void Pos::Filter2D::removeLineID( int lidx )
 {
-    delete ld_; ld_ = ld;
+    if ( geomids_.validIdx(lidx) )
+	geomids_.remove( lidx );
 }
+
+
+PosInfo::GeomID Pos::Filter2D::lineID( int lidx ) const
+{ return geomids_.validIdx(lidx) ? geomids_[lidx] : PosInfo::GeomID(); }
 
 
 Pos::FilterSet::~FilterSet()
@@ -227,12 +239,12 @@ bool Pos::FilterSet3D::includes( const BinID& b, float z ) const
 }
 
 
-bool Pos::FilterSet2D::includes( int nr, float z ) const
+bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(const Pos::Filter2D*,f2d,filts_[idx])
-	if ( !f2d->includes(nr,z) )
+	if ( !f2d->includes(nr,z,lidx) )
 	    return false;
     }
     return true;
@@ -321,9 +333,17 @@ void Pos::SubsampFilter2D::initClass()
 
 float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 {
-    CubeSampling provcs( true ); prov.getCubeSampling( provcs );
-    float provnr = provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
-    return ( provnr / estNrPos() ) / estNrZPerPos();
+    if ( is2D() )
+	return ( prov.estNrPos()*prov.estNrZPerPos() )/
+	       ( estNrPos() * estNrZPerPos() );
+    else
+    {
+	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
+	if ( !prov3d ) return mUdf(float);
+	CubeSampling provcs( true ); prov3d->getCubeSampling( provcs );
+	float provnr = provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
+	return ( provnr / estNrPos() ) / estNrZPerPos();
+    }
 }
 
 
@@ -333,18 +353,19 @@ void Pos::Provider::getCubeSampling( CubeSampling& cs ) const
     {
 	cs.set2DDef();
 	mDynamicCastGet(const Pos::Provider2D*,prov2d,this)
-	StepInterval<int> ext; prov2d->getExtent( ext );
+	StepInterval<int> ext; prov2d->getExtent( ext, 0 );
 	cs.hrg.start.crl = ext.start; cs.hrg.stop.crl = ext.stop;
 	cs.hrg.step.crl = ext.step;
+	prov2d->getZRange( cs.zrg, 0 );
     }
     else
     {
 	cs = CubeSampling(true);
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,this)
 	prov3d->getExtent( cs.hrg.start, cs.hrg.stop );
+	prov3d->getZRange( cs.zrg );
     }
 
-    getZRange( cs.zrg );
 }
 
 

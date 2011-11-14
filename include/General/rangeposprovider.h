@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.9 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.10 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -95,31 +95,29 @@ public:
     virtual int		curNr() const;
     virtual float	curZ() const		{ return curz_; }
     virtual Coord	curCoord() const;
-    virtual bool	includes(int,float z=mUdf(float)) const;
+    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
 
-    virtual void	getExtent( Interval<int>& rg ) const
-			{ assign( rg, rg_ ); }
-    virtual void	getZRange( Interval<float>& rg ) const
-			{ assign( rg, zrg_ ); }
-    virtual od_int64	estNrPos() const
-			{ return rg_.nrSteps() + 1; }
-    virtual int		estNrZPerPos() const
-			{ return zrg_.nrSteps() + 1; }
+    virtual void	getExtent( Interval<int>& rg, int lidx=-1 ) const;
+    virtual void	getZRange( Interval<float>& rg, int lidx ) const;
+    virtual od_int64	estNrPos() const;
+    virtual int		estNrZPerPos() const;
 
-    StepInterval<int>&		nrRange()	{ return rg_; }
-    const StepInterval<int>&	nrRange() const	{ return rg_; }
-    StepInterval<float>&	zRange()	{ return zrg_; }
-    const StepInterval<float>&	zRange() const	{ return zrg_; }
+    StepInterval<int>&		trcRange(int lidx)	{ return trcrgs_[lidx];}
+    const StepInterval<int>&	trcRange(int lidx) const {return trcrgs_[lidx];}
+    
+    StepInterval<float>&	zRange() 		{ return zrg_; }
+    const StepInterval<float>&	zRange() const		{ return zrg_; };
 
 protected:
 
-    StepInterval<int>	rg_;
+    TypeSet< StepInterval<int> > trcrgs_;
     StepInterval<float>	zrg_;
     int			curidx_;
+    int			curlineidx_;
     float		curz_;
 
 public:

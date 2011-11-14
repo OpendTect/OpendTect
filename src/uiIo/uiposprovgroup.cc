@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.29 2011-10-14 08:56:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.30 2011-11-14 07:39:14 cvssatyaki Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -39,30 +39,26 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , hrgfld_(0)
-    , nrrgfld_(0)
     , zrgfld_(0)
     , setup_(su)
 {
     uiObject* attobj = 0;
-    if ( su.is2d_ )
-    {
-	nrrgfld_ = new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
-	nrrgfld_->setRange( su.cs_.hrg.crlRange() );
-	attobj = nrrgfld_->attachObj();
-    }
-    else
+    if ( !su.is2d_ )
     {
 	hrgfld_ = new uiSelHRange( this, su.cs_.hrg, su.withstep_ );
 	attobj = hrgfld_->attachObj();
     }
+
     if ( setup_.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, su.cs_.zrg, su.withstep_,
 				   0, su.zdomkey_ );
-	zrgfld_->attach( alignedBelow, attobj );
+	if ( attobj )
+	    zrgfld_->attach( alignedBelow, attobj );
+	attobj = zrgfld_->attachObj();
     }
 
-    setHAlignObj( attobj );
+    if ( attobj ) setHAlignObj( attobj );
 }
 
 
@@ -76,12 +72,6 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 	const HorSampling& curhrg = hrgfld_->getSampling();
 	hrgfld_->setLimits( cs.hrg );
 	hrgfld_->setSampling( curhrg );
-    }
-    if ( nrrgfld_ )
-    {
-	const StepInterval<int>& curnrrg = nrrgfld_->getRange();
-	nrrgfld_->setLimitRange( cs.hrg.crlRange() );
-	nrrgfld_->setRange( curnrrg );
     }
     if ( zrgfld_ )
     {
@@ -131,12 +121,6 @@ void uiRangePosProvGroup::setExtractionDefaults()
     CubeSampling cs( true ); getExtrDefCubeSampling( cs );
     if ( hrgfld_ )
 	hrgfld_->setSampling( cs.hrg );
-    if ( nrrgfld_ )
-    {
-	StepInterval<int> rg( nrrgfld_->getRange() );
-	rg.step = 10;
-	nrrgfld_->setRange( rg );
-    }
     zrgfld_->setRange( cs.zrg );
 }
 
@@ -146,8 +130,6 @@ void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
     cs = SI().sampling( false );
     if ( hrgfld_ )
 	cs.hrg = hrgfld_->getSampling();
-    if ( nrrgfld_ )
-	cs.hrg.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
     if ( zrgfld_ )
 	cs.zrg = zrgfld_->getRange();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.12 2010-08-06 10:44:32 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.13 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(CubeSampling,cs)
+	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
+	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
     };
 
 			uiPosProvGroup(uiParent*,const Setup&);

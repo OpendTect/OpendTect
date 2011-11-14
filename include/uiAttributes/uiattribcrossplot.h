@@ -7,21 +7,24 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.16 2009-12-01 09:45:55 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.17 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "bufstringset.h"
+#include "ioobj.h"
+
 #include "uidialog.h"
+
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class uiSeis2DLineNameSel;
 class uiListBox;
-namespace Attrib { class DescSet; }
-namespace PosInfo { class Line2DData; }
+namespace Attrib { class DescSet; class SelInfo; }
 
 
 mClass uiAttribCrossPlot : public uiDialog
@@ -41,19 +44,24 @@ public:
 protected:
 
     const Attrib::DescSet& 		ads_;
-    PosInfo::Line2DData* 		l2ddata_;
+    Attrib::SelInfo*			attrinfo_;
+    TypeSet<int>			selidxs_;
+    TypeSet<MultiID>			selids_;
+    TypeSet<BufferStringSet>		linenmsset_;
 
     uiListBox*				attrsfld_;
     uiPosProvider*			posprovfld_;
     uiPosFilterSetSel*			posfiltfld_;
-    uiSeis2DLineNameSel*		lnmfld_;
+    uiListBox*				lnmfld_;
     DataPointSet*			curdps_;
     DataPointSetDisplayMgr*		dpsdispmgr_;
 
     void				adsChg();
-    void				useLineName(bool);
+    MultiID				getSelectedID() const;
     void				initWin(CallBacker*);
-    void				lnmChg(CallBacker*);
+    void				lineChecked(CallBacker*);
+    void				attrChecked(CallBacker*);
+    void				attrChanged(CallBacker*);
 
     bool				acceptOK(CallBacker*);
 };

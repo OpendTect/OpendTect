@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.7 2010-11-09 20:22:52 cvskris Exp $
+ RCS:           $Id: posfilterstd.h,v 1.8 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ static Filter3D* create()	{ return new clssnm##Filter3D; } \
 mSimpPosFilterDefFnsBase
 
 #define mSimpPosFilterDefFns2D(clssnm) \
-virtual bool includes(int,float z=1e30) const { return drawRes(); } \
+virtual bool includes(int,float z=1e30,int nr=0) const { return drawRes(); } \
 virtual bool is2D() const	{ return false; } \
 virtual Filter*	clone() const	{ return new clssnm##Filter2D(*this); } \
 static Filter2D* create()	{ return new clssnm##Filter2D; } \

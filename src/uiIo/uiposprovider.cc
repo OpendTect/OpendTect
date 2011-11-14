@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.25 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.26 2011-11-14 07:39:14 cvssatyaki Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -224,7 +224,7 @@ void uiPosProvSel::setProvFromCS()
     if ( setup_.is2d_ )
     {
 	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
-	rp2d->nrRange() = cs_.hrg.crlRange();
+	rp2d->trcRange(0) = cs_.hrg.crlRange();
 	rp2d->zRange() = cs_.zrg;
 	prov_ = rp2d;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.54 2011-10-17 10:19:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.55 2011-11-14 07:39:14 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -49,33 +49,45 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 		     ,"111.1.0").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, lnmfld_(0)
-    	, l2ddata_(0)
     	, curdps_(0)
     	, dpsdispmgr_(0)
+    	, attrinfo_(0)
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this,
-	    					  "Attributes to calculate" );
+    uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
+    uiLabeledListBox* llb =
+	new uiLabeledListBox( attrgrp, "Attributes", true,
+			      uiLabeledListBox::AboveMid );
+    llb->attach( leftBorder, 20 );
     attrsfld_ = llb->box();
-    attrsfld_->setMultiSelect( true );
+    if ( !ads_.is2D() )
+	attrsfld_->setMultiSelect( true );
 
-    uiGroup* attgrp = llb;
     if ( ads_.is2D() )
     {
-	lnmfld_ = new uiSeis2DLineNameSel( this, true );
-	lnmfld_->attach( alignedBelow, llb );
-	attgrp = lnmfld_;
-	lnmfld_->nameChanged.notify( mCB(this,uiAttribCrossPlot,lnmChg) );
+	attrsfld_->setItemsCheckable( true );
+	attrsfld_->itemChecked.notify(
+		mCB(this,uiAttribCrossPlot,attrChecked) );
+	attrsfld_->selectionChanged.notify(
+		mCB(this,uiAttribCrossPlot,attrChanged) );
+	uiLabeledListBox* lnmlb =
+	    new uiLabeledListBox( attrgrp, "Line names", true,
+		    		  uiLabeledListBox::AboveMid ); 
+	lnmfld_ = lnmlb->box();
+	lnmfld_->setItemsCheckable( true );
+	lnmlb->attach( rightTo, llb );
+	lnmfld_->itemChecked.notify( mCB(this,uiAttribCrossPlot,lineChecked) );
     }
 
+    uiGroup* provgrp = new uiGroup( this, "Attribute group" );
+    provgrp->attach( leftAlignedBelow, attrgrp );
     uiPosProvider::Setup psu( ads_.is2D(), true, true );
     psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
-    posprovfld_ = new uiPosProvider( this, psu );
+    posprovfld_ = new uiPosProvider( provgrp, psu );
     posprovfld_->setExtractionDefaults();
-    posprovfld_->attach( alignedBelow, attgrp );
 
     uiPosFilterSet::Setup fsu( ads_.is2D() );
     fsu.seltxt( "Location filters" ).incprovs( true );
-    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+    posfiltfld_ = new uiPosFilterSetSel( provgrp, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 
     setDescSet( d );
@@ -94,20 +106,21 @@ void uiAttribCrossPlot::adsChg()
 {
     attrsfld_->setEmpty();
 
-    Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
-    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
-	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
+    delete attrinfo_;
+    attrinfo_ = new Attrib::SelInfo( &ads_, 0, ads_.is2D() );
+    for ( int idx=0; idx<attrinfo_->attrnms_.size(); idx++ )
+	attrsfld_->addItem( attrinfo_->attrnms_.get(idx), false );
     
-    for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
+    for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
-	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
+	SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
 	sii.getDefKeys( bss, true );
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{
 	    const char* defkey = bss.get(inm).buf();
-	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    attrsfld_->addItem( attrinf.is2D(defkey)
+	    const char* ioobjnm = attrinfo_->ioobjnms_.get(idx).buf();
+	    attrsfld_->addItem( attrinfo_->is2D(defkey)
 		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
 		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
 	}
@@ -116,41 +129,125 @@ void uiAttribCrossPlot::adsChg()
     if ( !attrsfld_->isEmpty() )
 	attrsfld_->setCurrentItem( int(0) );
 
-    if ( lnmfld_ )
-    {
-	const Attrib::Desc* desc = ads_.getFirstStored( false );
-	if ( !desc ) return;
-	const MultiID storedid( desc->getStoredID() );
-	if ( storedid.isEmpty() ) return;
-	lnmfld_->setLineSet( storedid );
-    }
+    attrChanged( 0 );
 }
 
 
 uiAttribCrossPlot::~uiAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
-    delete l2ddata_;
 }
 
 
 void uiAttribCrossPlot::initWin( CallBacker* )
 {
-    useLineName( false );
 }
 
-void uiAttribCrossPlot::lnmChg( CallBacker* )
+
+MultiID uiAttribCrossPlot::getSelectedID() const
 {
-    useLineName( true );
+    if ( !attrinfo_ )
+	return MultiID();
+
+    const int curitem = attrsfld_->currentItem();
+    const int attrsz = attrinfo_->attrnms_.size();
+    const bool isstored = curitem >= attrsz;
+    if ( isstored )
+    {
+	int storedidx = -1;
+	for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
+	{
+	    BufferStringSet bss;
+	    SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
+	    sii.getDefKeys( bss, true );
+	    storedidx += bss.size();
+	    if ( (curitem-attrsz) <= storedidx )
+	    {
+		BufferString ioobjid( attrinfo_->ioobjids_[idx]->buf() );
+		MultiID mid( ioobjid );
+		return mid;
+	    }
+	}
+
+	return MultiID();
+    }
+    else
+    {
+	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[curitem] );
+	MultiID mid( desc->getStoredID(true) );
+	return mid;
+    }
 }
 
+
+void uiAttribCrossPlot::lineChecked( CallBacker* )
+{
+    MultiID selid = getSelectedID();
+    const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
+    if ( selitem < 0 ) return;
+
+    const bool ischked = lnmfld_->isItemChecked( lnmfld_->currentItem() );
+    if ( ischked )
+	linenmsset_[selitem].add( lnmfld_->getText() );
+    else
+    {
+	const int idxof = linenmsset_[selitem].indexOf( lnmfld_->getText() );
+	if ( idxof >= 0 )
+	    linenmsset_[selitem].remove( idxof );
+    }
+}
+
+
+void uiAttribCrossPlot::attrChecked( CallBacker* )
+{
+    MultiID selid = getSelectedID();
+    const bool ischked = attrsfld_->isItemChecked( attrsfld_->currentItem() );
+    if ( ischked && selidxs_.addIfNew(attrsfld_->currentItem()) )
+    {
+	selids_ += selid;
+	linenmsset_ += BufferStringSet();
+    }
+    else if ( !ischked )
+    {
+	const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
+	if ( selitem >= 0 )
+	{
+	    selidxs_.remove( selitem );
+	    selids_.remove( selitem );
+	    linenmsset_.remove( selitem );
+	}
+    }
+}
+
+
+void uiAttribCrossPlot::attrChanged( CallBacker* )
+{
+    if ( !lnmfld_ ) return;
+
+    MultiID mid = getSelectedID();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const int idxof = selidxs_.indexOf( attrsfld_->currentItem() );
+
+    lnmfld_->setEmpty();
+    SeisIOObjInfo seisinfo( mid );
+    BufferStringSet linenames;
+    BufferString attrnm( attrsfld_->getText() );
+    removeCharacter( attrnm.buf(), '[' );
+    removeCharacter( attrnm.buf(), ']' );
+    LineKey lk( attrnm );
+    seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
+    for ( int lidx=0; lidx<linenames.size(); lidx++ )
+    {
+	lnmfld_->addItem( linenames.get(lidx) );
+	if ( idxof >= 0 && linenmsset_[idxof].isPresent(linenames.get(lidx)) )
+	    lnmfld_->setItemChecked( lidx, true );
+    }
+}
 
 
 #define mErrRet(s) { if ( emiterr ) uiMSG().error(s); return; }
 
-void uiAttribCrossPlot::useLineName( bool emiterr )
-{
-    delete l2ddata_; l2ddata_ = 0;
+/*void uiAttribCrossPlot::useLineName( bool emiterr )
     if ( !lnmfld_ ) return;
 
     const Attrib::Desc* desc = ads_.getFirstStored( false );
@@ -167,21 +264,13 @@ void uiAttribCrossPlot::useLineName( bool emiterr )
     Seis2DLineSet ls( ioobj->fullUserExpr(true) );
     if ( ls.nrLines() < 1 )
 	mErrRet("Line set is empty")
-    lk.setLineName( lnmfld_->getInput() );
+    //lk.setLineName( lnmfld_->getInput() );
     const int idxof = ls.indexOf( lk );
     if ( idxof < 0 )
 	mErrRet("Cannot find selected line in line set")
 
-    S2DPOS().setCurLineSet( ls.name() );
-    l2ddata_ = new PosInfo::Line2DData( lk.lineName() );
-    if ( !S2DPOS().getGeometry( *l2ddata_ ) )
-    {
-	delete l2ddata_; l2ddata_ = 0;
-	mErrRet("Cannot get geometry of selected line")
-    }
-
     //TODO: use l2ddata_ for something
-}
+}*/
 
 
 #define mDPM DPM(DataPackMgr::PointID())
@@ -203,9 +292,22 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     mDynamicCastGet(Pos::Provider2D*,p2d,prov.ptr())
     if ( lnmfld_ )
     {
-	if ( !l2ddata_ )
-	    mErrRet("Cannot work without line set position information")
-	p2d->setLineData( new PosInfo::Line2DData(*l2ddata_) );
+	for ( int lsidx=0; lsidx<selids_.size(); lsidx++ )
+	{
+	    PtrMan<IOObj> lsobj = IOM().get( selids_[lsidx] );
+	    if ( !lsobj ) continue;
+
+	    S2DPOS().setCurLineSet( lsobj->name() );
+
+	    BufferStringSet lnms = linenmsset_[lsidx];
+	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
+	    {
+		PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),
+							     lnms.get(lidx) );
+		if ( geomid.isOK() )
+		    p2d->addLineID( geomid );
+	    }
+	}
     }
 
     uiTaskRunner tr( this );
@@ -215,7 +317,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrsfld_->size(); idx++ )
     {
-	if ( attrsfld_->isSelected(idx) )
+	if ( attrsfld_->isItemChecked(idx) )
 	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
     }
     
@@ -225,26 +327,9 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
-    mDynamicCastGet(Pos::Filter2D*,f2d,filt.ptr())
-    if ( f2d )
-	f2d->setLineData( new PosInfo::Line2DData(*l2ddata_) );
     MouseCursorManager::restoreOverride();
     if ( filt && !filt->initialize(&tr) )
 	return false;
-
-    float estpos = prov->estNrPos();
-    estpos *= prov->estNrZPerPos();
-    if ( filt )
-	estpos *= filt->estRatio( *prov );
-    estpos *= 0.001;
-    if ( estpos > 1000 )
-    {
-	BufferString msg( "The estimated number of positions is:\n" );
-	od_int64 rounded = (od_int64)estpos;
-	msg.add( rounded * 1000 ).add( "\nDo you want to continue?" );
-	if ( !uiMSG().askGoOn(msg) )
-	    return false;
-    }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( *prov, dcds, filt );
@@ -265,8 +350,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     mDPM.addAndObtain( dps );
 
     BufferString errmsg; Attrib::EngineMan aem;
-    if ( lnmfld_ )
-	aem.setLineKey( lnmfld_->getInput() );
+    //if ( lnmfld_ )
+	//aem.setLineKey( lnmfld_->getInput() );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.14 2011-10-17 10:12:03 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.15 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -104,16 +104,12 @@ protected:
     virtual bool	isProvider() const { return true; } \
     virtual float	estRatio( const Provider& p ) const \
 			{ return Provider::estRatio(p); } \
-    virtual void	getCubeSampling( CubeSampling& cs ) const \
-			{ return Provider::getCubeSampling(cs); } \
     virtual bool	toNextPos() \
 			{ return EMSurfaceProvider::toNextPos(); } \
     virtual bool	toNextZ() \
 			{ return EMSurfaceProvider::toNextZ(); } \
     virtual float	curZ() const \
 			{ return EMSurfaceProvider::curZ(); } \
-    virtual void	getZRange(Interval<float>& rg ) const \
-			{ return EMSurfaceProvider::getZRange(rg); } \
     virtual int		estNrZPerPos() const \
 			{ return EMSurfaceProvider::estNrZPerPos(); } \
     virtual od_int64	estNrPos() const { return estnrpos_; } \
@@ -141,6 +137,10 @@ public:
 			{ return Provider3D::includes(c,z); }
     virtual void	getExtent(BinID&,BinID&) const;
     virtual Coord	curCoord() const { return Provider3D::curCoord(); }
+    virtual void	getCubeSampling( CubeSampling& cs ) const 
+			{ return Provider3D::getCubeSampling(cs); } 
+    virtual void	getZRange(Interval<float>& rg ) const 
+			{ return EMSurfaceProvider::getZRange(rg); } 
 
     static void		initClass();
     static Provider3D*	create()	{ return new EMSurfaceProvider3D; }
@@ -171,8 +171,13 @@ public:
     virtual int		curNr() const;
     virtual Coord	curCoord() const;
     virtual bool	includes(const Coord&,float) const;
-    virtual bool	includes(int,float) const;
-    virtual void	getExtent(Interval<int>&) const;
+    virtual bool	includes(int,float,int) const;
+    virtual void	getExtent(Interval<int>&,int nr = -1) const;
+    virtual void	getZRange(Interval<float>& rg, int lidx ) const 
+			{ return EMSurfaceProvider::getZRange(rg); }
+    virtual void	getZRange(Interval<float>& rg ) const 
+			{ return EMSurfaceProvider::getZRange(rg); }
+    int			nrLines() const			{ return 1; }
 
     static void		initClass();
     static Provider2D*	create()	{ return new EMSurfaceProvider2D; }
@@ -205,6 +210,8 @@ public:
     virtual bool		includes( const Coord& c, float z ) const
 				{ return Provider3D::includes(c,z); }
     virtual void		getExtent(BinID&,BinID&) const;
+    virtual void		getZRange(Interval<float>& rg ) const 
+				{ return EMSurfaceProvider::getZRange(rg); } 
     virtual Coord		curCoord() const 
     				{ return Provider3D::curCoord(); }
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.26 2011-09-02 09:08:24 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.27 2011-11-14 07:39:14 cvssatyaki Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -403,16 +403,29 @@ Coord Pos::EMSurfaceProvider2D::curCoord() const
 bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 {
     PosInfo::Line2DPos pos;
-    if ( lineData() && lineData()->getPos( c, pos, SI().inlDistance() ) )
-	return includes( pos.nr_, z );
+    for ( int lidx=0; lidx<nrLines(); lidx++ )
+    {
+	PosInfo::Line2DData l2d;
+	if ( !S2DPOS().getGeometry(lineID(lidx),l2d) )
+	    continue;
+
+	if ( l2d.getPos(c,pos,SI().inlDistance()))
+	{
+	    if ( includes(pos.nr_,z,lidx) )
+		return true;
+	}
+    }
 
     return false;
 }
 
 
-bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
+bool Pos::EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 {
-    if ( !lineData() || lineData()->lineName().isEmpty() )
+    PosInfo::Line2DData l2d;
+    if ( !S2DPOS().getGeometry(lineID(lidx),l2d) )
+	return false;
+    if ( l2d.lineName().isEmpty() || l2d.indexOf(nr)<0 )
 	return false;
 
     mDynamicCastGet(EM::Horizon2D*,hor2d1,surf1_);
@@ -422,7 +435,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     Interval<float> zrg;
     BinID bid;
     bid.crl = nr;
-    bid.inl = hor2d1->geometry().lineIndex( lineData()->lineName().buf() );
+    bid.inl = hor2d1->geometry().lineIndex( l2d.lineName().buf() );
     const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0), bid.toInt64() );
     if ( !crd1.isDefined() )
 	return false;
@@ -430,7 +443,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     mDynamicCastGet(EM::Horizon2D*,hor2d2,surf2_);
     if ( hor2d2 )
     {
-	bid.inl = hor2d2->geometry().lineIndex(lineData()->lineName().buf());
+	bid.inl =hor2d2->geometry().lineIndex(l2d.lineName().buf());
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
 					    bid.toInt64() );
 	if ( !crd2.isDefined() )
@@ -450,7 +463,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
 }
 
 
-void Pos::EMSurfaceProvider2D::getExtent( Interval<int>& intv ) const
+void Pos::EMSurfaceProvider2D::getExtent( Interval<int>& intv, int lidx ) const
 {
     intv.start = intv.stop = 0;
 }

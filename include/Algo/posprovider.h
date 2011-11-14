@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.19 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.20 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,6 @@ public:
     virtual Coord	curCoord() const			= 0;
     virtual float	curZ() const				= 0;
 
-    virtual void	getZRange(Interval<float>&) const	= 0;
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
@@ -69,6 +68,7 @@ public:
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
 
     virtual void	getExtent(BinID& start,BinID& stop) const	= 0;
+    virtual void	getZRange(Interval<float>&) const	= 0;
 
     mDefineFactoryInClass(Provider3D,factory);
     static Provider3D*	make(const IOPar&);
@@ -86,10 +86,11 @@ public:
     virtual bool	is2D() const				{ return true; }
 
     virtual int		curNr() const				= 0;
-    virtual bool	includes(int,float z=mUdf(float)) const	= 0;
+    virtual bool	includes(int,float z=mUdf(float), int nr=0) const= 0;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
 
-    virtual void	getExtent(Interval<int>&) const		= 0;
+    virtual void	getExtent(Interval<int>&,int lidx) const = 0;
+    virtual void	getZRange(Interval<float>&,int lidx) const = 0;
 
     mDefineFactoryInClass(Provider2D,factory);
     static Provider2D*	make(const IOPar&);

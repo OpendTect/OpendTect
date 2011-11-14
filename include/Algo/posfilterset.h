@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.9 2010-11-09 20:22:52 cvskris Exp $
+ RCS:           $Id: posfilterset.h,v 1.10 2011-11-14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,7 @@ mClass FilterSet2D : public FilterSet
 public:
 
     virtual bool	is2D() const	{ return true; }
-    virtual bool	includes(int,float z=mUdf(float)) const;
+    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
 
     mSimpPosFilterSetDefFns(2D)
 
