@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.14 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.15 2011-11-14 12:31:23 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -128,7 +128,8 @@ bool SeisImpBPSIF::readFileHeader()
 	    *attrstr++ = '\0';
 	    char* subnrstr = ln.buf() + 9;
 	    removeTrailingBlanks( subnrstr );
-	    if ( !strcmp(subnrstr,"0") || !strcmp(subnrstr,"1") )
+	    if ( !strcmp(subnrstr,"0") || !strcmp(subnrstr,"1")
+	      || !strcmp(subnrstr,"2") )
 		continue; // coordinates
 
 	    addAttr( *nrstr == '1' ? shotattrs_ : rcvattrs_, attrstr );
