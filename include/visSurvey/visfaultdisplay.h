@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.41 2011-11-04 15:07:46 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.42 2011-11-15 16:09:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "ranges.h"
-
+#include "explfaultsticksurface.h"
 
 class DataPointSet;
 
@@ -33,9 +33,11 @@ namespace visBase
 
 namespace EM { class Fault3D; }
 namespace MPE { class FaultEditor; }
-namespace Geometry { class ExplFaultStickSurface;
-		     class ExplPlaneIntersection;
-		     class FaultStickSurface; }
+namespace Geometry 
+{ 
+    class ExplPlaneIntersection;
+    class FaultStickSurface; 
+}
 
 
 namespace visSurvey
@@ -86,8 +88,8 @@ public:
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    void			triangulateAlg(char);
-    char			triangulateAlg() const;
+    void			triangulateAlg(mFltTriProj);
+    mFltTriProj			triangulateAlg() const;
 
     void			display(bool sticks,bool panels);
     bool			areSticksDisplayed() const;
@@ -142,6 +144,8 @@ public:
     DataPack::ID		getDataPackID(int attrib) const;
     DataPackMgr::ID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
+
+    static const char*		sKeyTriProjection() { return "TriangulateProj";}
 
 protected:
 

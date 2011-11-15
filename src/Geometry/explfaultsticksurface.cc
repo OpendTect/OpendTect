@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.51 2011-11-11 22:00:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.52 2011-11-15 16:09:37 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -369,7 +369,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturesize_( mUdf(int), mUdf(int) )
     , texturepot_( true )
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
-    , trialg_( 0 )
+    , trialg_( ExplFaultStickSurface::None )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -444,7 +444,7 @@ void ExplFaultStickSurface::insertAll()
 }
 
 
-void ExplFaultStickSurface::triangulateAlg( char ta )
+void ExplFaultStickSurface::triangulateAlg( TriProjection ta )
 {
     if ( trialg_==ta )
 	return;
@@ -490,7 +490,7 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
 bool ExplFaultStickSurface::reTriangulateSurface()
 {
-    if ( !surface_ || !trialg_ )
+    if ( !surface_ || trialg_==ExplFaultStickSurface::None )
 	return false;
     
     const int nrsticks = sticks_.size();
@@ -508,8 +508,10 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 		continue;
 	
 	    const BinID bid = SI().transform( stick[idy] );
-	    Coord pos( trialg_==1 ? bid.crl : bid.inl, 
-		       trialg_==3 ? bid.crl : stick[idy].z*zscale );
+	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
+		    		: bid.inl, 
+			     trialg_==ExplFaultStickSurface::Zslice ? bid.crl 
+			     	: stick[idy].z*zscale );
 	    if ( knots.indexOf(pos)==-1 )
 	    {
 		knots += pos;
@@ -1138,7 +1140,7 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 	dpset.dataSet().add( new DataColDef(sKeyTextureJ()) );
     }
 
-    if ( !trialg_ )
+    if ( trialg_==ExplFaultStickSurface::None )
     {
 	if ( !updateTextureSize() )
 	    return false;
@@ -1173,8 +1175,10 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	
 	const Coord3& pos = coordlist_->get( curid );
 	const BinID bid = SI().transform( pos );
-	knots += Coord( trialg_==1 ? bid.crl : bid.inl,
-			trialg_==3 ? bid.crl : pos.z*zscale );
+	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
+							       : bid.inl,
+			trialg_==ExplFaultStickSurface::Zslice ? bid.crl
+							       : pos.z*zscale );
 	knotids += curid;
 	if ( !found )
 	{
@@ -1202,8 +1206,10 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     const int inlsamples = inlrg.width()/texturesampling_.binid.inl;
     const int crlsamples = crlrg.width()/texturesampling_.binid.crl;
     const float zsamples = zrg.width()/texturesampling_.value;
-    texturesize_ = RowCol( trialg_==1 ? crlsamples : inlsamples,
-	    		   trialg_==3 ? crlsamples : mNINT(zsamples) );
+    texturesize_ = RowCol( trialg_==ExplFaultStickSurface::Inline ? crlsamples 
+	    						  : inlsamples,
+	    		   trialg_==ExplFaultStickSurface::Zslice ? crlsamples 
+			   				  : mNINT(zsamples) );
 
     const int nrfc = dps.nrFixedCols();
     const int nrcs = dps.nrCols();
@@ -1214,17 +1220,21 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     
     for ( int row=0; row<texturesize_.row; row++ )
     {
-	BinID bid( trialg_==1 ? -1:texturesampling_.binid.inl*row+inlrg.start,
-		   trialg_!=1 ? -1:texturesampling_.binid.crl*row+crlrg.start );
+	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 : 
+		texturesampling_.binid.inl*row+inlrg.start,
+		trialg_!=ExplFaultStickSurface::Inline ? -1 : 
+		texturesampling_.binid.crl*row+crlrg.start );
 	for ( int col=0; col<texturesize_.col; col++ )
 	{
 	    float z = -1;
-	    if ( trialg_==3 )
+	    if ( trialg_==ExplFaultStickSurface::Zslice )
 		bid.crl = texturesampling_.binid.crl*col+crlrg.start;
 	    else
 		z = texturesampling_.value*col+zrg.start;
-	    const Coord pt( trialg_==1 ? bid.crl : bid.inl,
-			    trialg_==3 ? bid.crl : z*zscale );
+	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
+		    						   : bid.inl,
+			    trialg_==ExplFaultStickSurface::Zslice ? bid.crl
+			    					   : z*zscale );
 	    int dupid = -1;
 	    TypeSet<int> vs;
 	    if ( !tt.getTriangle(pt,dupid,vs) )

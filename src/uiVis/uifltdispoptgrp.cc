@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifltdispoptgrp.cc,v 1.1 2011-11-04 15:41:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uifltdispoptgrp.cc,v 1.2 2011-11-15 16:09:37 cvsyuancheng Exp $";
 
 #include "uifltdispoptgrp.h"
 
@@ -49,7 +49,7 @@ bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
 	return false;
 
     const int tri = algfld_->getIntValue(); 
-    fltdisp_->triangulateAlg( tri );
+    fltdisp_->triangulateAlg( (mFltTriProj)tri );
     return true;
 }
 

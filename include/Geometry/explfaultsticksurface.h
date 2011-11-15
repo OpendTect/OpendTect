@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.20 2011-11-11 22:00:09 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.21 2011-11-15 16:09:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "indexedshape.h"
+#include "enums.h"
 #include "position.h"
 #include "rowcol.h"
 #include "datapack.h"
@@ -28,6 +29,9 @@ class ExplFaultStickTexturePositionExtracter;
 /*!A triangulated representation of a faultsticksurface */
 
 
+#define mFltTriProj Geometry::ExplFaultStickSurface::TriProjection
+
+
 mClass ExplFaultStickSurface: public Geometry::IndexedShape,
        			      public CallBacker
 {
@@ -37,9 +41,10 @@ public:
 
     bool		needsUpdate() const 		{ return needsupdate_; }
 
-    char		triangulateAlg() const		{ return trialg_; }
-    void		triangulateAlg(char ta);
-    			//when ta=0 deault,ta=1(inline), 2(crossline), 3(z)
+    enum TriProjection	{ None=0, Inline=1, Crossline=2, Zslice=3 };
+    			DeclareEnumUtils(TriProjection);
+    TriProjection	triangulateAlg() const		{ return trialg_; }
+    void		triangulateAlg(TriProjection);
 
     void		setSurface(FaultStickSurface*);
     FaultStickSurface*	getSurface()			{ return surface_; }
@@ -118,7 +123,7 @@ protected:
 
     bool					needsupdate_;
     bool					needsupdatetexture_;
-    char					trialg_;
+    TriProjection				trialg_;
 
     ObjectSet<IndexedGeometry>			sticks_;
     ObjectSet<IndexedGeometry>			paneltriangles_;

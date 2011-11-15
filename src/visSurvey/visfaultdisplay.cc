@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.87 2011-11-04 15:07:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.88 2011-11-15 16:09:37 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.87 2011-11-04 15:07:46 c
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "faultsticksurface.h"
 #include "faulteditor.h"
@@ -549,7 +548,7 @@ void FaultDisplay::updateDisplay()
 }
 
 
-void FaultDisplay::triangulateAlg( char projplane )
+void FaultDisplay::triangulateAlg( mFltTriProj projplane )
 {
     if ( !explicitpanels_ || projplane==explicitpanels_->triangulateAlg() )
 	return;
@@ -560,8 +559,11 @@ void FaultDisplay::triangulateAlg( char projplane )
 }
 
 
-char FaultDisplay::triangulateAlg() const
-{ return explicitpanels_ ? explicitpanels_->triangulateAlg() : 0; }
+mFltTriProj FaultDisplay::triangulateAlg() const
+{ 
+    return explicitpanels_ ? explicitpanels_->triangulateAlg() 
+	 		   : Geometry::ExplFaultStickSurface::None; 
+}
 
 
 void FaultDisplay::display( bool sticks, bool panels )
@@ -593,6 +595,7 @@ void FaultDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
     par.set( sKeyEarthModelID(), getMultiID() );
+    par.set( sKeyTriProjection(), triangulateAlg() );
 }
 
 
@@ -616,6 +619,11 @@ int FaultDisplay::usePar( const IOPar& par )
 
 	if ( emobject ) setEMID( emobject->id() );
     }
+
+    int tp;
+    par.get( sKeyTriProjection(), tp );
+    triangulateAlg( (Geometry::ExplFaultStickSurface::TriProjection)tp );
+
     return 1;
 }
 
