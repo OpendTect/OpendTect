@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.2 2011-11-16 04:55:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.3 2011-11-16 06:32:23 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -84,11 +84,15 @@ void PSEventDisplay::clearAll()
 
 
 Color PSEventDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+{ 
+    return getMaterial()->getColor();
+}
 
 
 const char** PSEventDisplay::markerColorNames() const
-{ return PSEventDisplay::MarkerColorNames(); }
+{
+    return PSEventDisplay::MarkerColorNames();
+}
 
 
 void PSEventDisplay::setEventManager( PreStack::EventManager* em )
@@ -669,6 +673,12 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
 
     deepErase( parentattached_ );
 
+}
+
+
+bool PSEventDisplay::hasParents() const
+{
+    return !parentattached_.isEmpty();
 }
 
 

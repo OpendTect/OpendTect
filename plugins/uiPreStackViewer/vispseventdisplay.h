@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.2 2011-11-16 04:55:51 cvsranojay Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.3 2011-11-16 06:32:23 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
     virtual Color		getColor() const;
     void			clearDisplay();
     const char**		markerColorNames()const;
+    bool			hasParents() const;
 
 protected:
     void			clearAll();

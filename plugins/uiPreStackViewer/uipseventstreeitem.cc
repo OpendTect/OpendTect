@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.5 2011-11-16 04:55:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.6 2011-11-16 06:32:23 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -153,12 +153,14 @@ void PSEventsTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,cb);
     if ( !eventdisplay_ || menu->menuID()!=displayID() )
 	return;
-
-   mAddMenuItem( menu, &displaymnuitem_, true, false );
-   mAddMenuItem( &displaymnuitem_, zerooffset_, true, false );
-   mAddMenuItem( &displaymnuitem_, sticksfromsection_, true, false );
-   mAddMenuItem( &displaymnuitem_, zerooffsetonsection_, true, false );
-   mAddMenuItem( &displaymnuitem_, properties_, true, false );
+    if ( eventdisplay_->hasParents() )
+    {
+       mAddMenuItem( menu, &displaymnuitem_, true, false );
+       mAddMenuItem( &displaymnuitem_, zerooffset_, true, false );
+       mAddMenuItem( &displaymnuitem_, sticksfromsection_, true, false );
+       mAddMenuItem( &displaymnuitem_, zerooffsetonsection_, true, false );
+       mAddMenuItem( &displaymnuitem_, properties_, true, false );
+    }
 }
 
 
@@ -208,15 +210,21 @@ void PSEventsTreeItem::updateColorMode( int mode )
 
 void PSEventsTreeItem::updateDisplay()
 {
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( !eventdisplay_ )
     {
 	eventdisplay_ = visSurvey::PSEventDisplay::create();
 	eventdisplay_->ref();
+        uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
 	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setEventManager( &psem_ );
+	const ColTab::MapperSetup ms;/*(
+		ColTab::MapperSetup().type(ColTab::MapperSetup::Fixed)
+				     .range(pscoltabrange_) );*/
+
+	eventdisplay_->setColTabMapper( ms, false );
+	eventdisplay_->setColTabSequence( ColTab::Sequence() );
     }
 }
 
