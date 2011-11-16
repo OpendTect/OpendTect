@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.3 2011-11-10 04:44:03 cvsranojay Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.4 2011-11-16 04:55:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class PSEventsTreeItem;
 namespace PreStack{ class EventManager; }
-namespace visSurvey{ class visSeedPolyLine; }
+namespace visSurvey{ class PSEventDisplay; }
 
 class PSEventsParentTreeItem : public uiODTreeItem
 {
@@ -55,8 +55,7 @@ public:
 					      const char*);
 			    ~PSEventsTreeItem();
     void		    updateScaleFactor(float);
-    void		    switchViewSide(bool side);
-    float		    getFactor() const { return scalefactor_; }
+    void		    updateColorMode(int mode);
 
 protected:
     virtual const char*	    parentType() const 
@@ -71,9 +70,10 @@ protected:
     const char*		    eventname_;
     float		    scalefactor_;
     Coord		    dir_;
-    visSurvey::visSeedPolyLine*  eventlinedisplay_;
-    MenuItem*		    sticksfromsection_;
+    visSurvey::PSEventDisplay* eventdisplay_;
     MenuItem*		    zerooffset_;
+    MenuItem*		    sticksfromsection_;
+    MenuItem*		    zerooffsetonsection_;
     MenuItem*		    properties_;
     const MultiID&	    key_;
 };

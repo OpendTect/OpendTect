@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.1 2011-11-10 12:46:44 cvskris Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.2 2011-11-16 04:55:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,15 +23,16 @@ namespace visBase
 { 
     class IndexedPolyLine; 
     class DrawStyle;
+    class DataObjectGroup;
 };
 
 namespace PreStack { class EventManager; class EventSet; }
-namespace VMB
+namespace visSurvey
 {
 
 
 class PSEventDisplay : public visBase::VisualObjectImpl,
-		       public visSurvey::SurveyObject
+		       public SurveyObject
 {
 public:
     static PSEventDisplay*	create()
@@ -65,6 +66,10 @@ public:
     LineStyle			getLineStyle() const;
 
     void			setMarkerStyle(const MarkerStyle3D&,bool updat);
+    virtual bool		hasColor() const { return true; }
+    virtual Color		getColor() const;
+    void			clearDisplay();
+    const char**		markerColorNames()const;
 
 protected:
     void			clearAll();
@@ -121,6 +126,7 @@ protected:
     ColTab::Mapper			ctabmapper_;
     ColTab::Sequence			ctabsequence_;
     MarkerStyle3D			markerstyle_;
+    visBase::DataObjectGroup*		eventseeds_;
 };
 
 

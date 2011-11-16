@@ -4,14 +4,16 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.1 2011-11-10 12:46:44 cvskris Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.2 2011-11-16 04:55:51 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
+#include "binidvalset.h"
 #include "prestackevents.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "viscoord.h"
+#include "visdatagroup.h"
 #include "visdrawstyle.h"
 #include "vismarker.h"
 #include "vismaterial.h"
@@ -24,9 +26,9 @@ static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.1 2011-11-10 12:46:44 
 #include "uivispartserv.h"
 
  
-mCreateFactoryEntry( VMB::PSEventDisplay );
+mCreateFactoryEntry( visSurvey::PSEventDisplay );
 
-namespace VMB
+namespace visSurvey
 {
 
 DefineEnumNames( PSEventDisplay, MarkerColor, 0, "Marker Color" )
@@ -46,12 +48,13 @@ PSEventDisplay::PSEventDisplay()
     , horid_( -1 )
     , offsetscale_( 1 )
     , markercolor_( VelocityFit )
+    , eventseeds_(visBase::DataObjectGroup::create())
 {
     setLockable();
-    removeSwitch();
-
     linestyle_->ref();
     addChild( linestyle_->getInventorNode() );
+    eventseeds_->ref();
+    addChild( eventseeds_->getInventorNode() );
 }
 
 
@@ -62,6 +65,9 @@ PSEventDisplay::~PSEventDisplay()
     setDisplayTransformation( 0 );
     setEventManager( 0 );
     linestyle_->unRef();
+
+    removeChild( eventseeds_->getInventorNode() );
+    eventseeds_->unRef();
 }
 
 
@@ -75,6 +81,14 @@ void PSEventDisplay::clearAll()
 
     deepErase( parentattached_ );
 }
+
+
+Color PSEventDisplay::getColor() const
+{ return getMaterial()->getColor(); }
+
+
+const char** PSEventDisplay::markerColorNames() const
+{ return PSEventDisplay::MarkerColorNames(); }
 
 
 void PSEventDisplay::setEventManager( PreStack::EventManager* em )
@@ -102,7 +116,7 @@ void PSEventDisplay::setEventManager( PreStack::EventManager* em )
 		mCB(this,PSEventDisplay,eventForceReloadCB) );
 	getMaterial()->setColor( eventman_->getColor() );
     }
-
+    
     updateDisplay();
 }
 
@@ -239,7 +253,7 @@ void PSEventDisplay::updateDisplay()
 
     if ( displaymode_==ZeroOffset )
     {
-	//do the stuff
+	updateDisplay( 0 );
 	writeUnLock();
 	return;
     }
@@ -341,10 +355,46 @@ void PSEventDisplay::otherObjectsMoved(
 
 void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 {
-    CubeSampling cs;
+    if ( !eventman_ )
+	return;
+
+    if ( displaymode_ == ZeroOffset )
+    {
+        clearDisplay();
+	BinIDValueSet locations( 0, false );
+	eventman_->getLocations( locations );
+	markercolor_ = Single;
+	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
+	{
+	    const BinID bid = locations.getBinID( locations.getPos(lidx) );
+	    RefMan<const PreStack::EventSet> eventset
+		    = eventman_->getEvents(bid, true );
+	    if ( !eventset )
+		return clearAll();
+
+	    const int size = eventset->events_.size();
+	    for ( int idx=0; idx<size; idx++ )
+	    {
+		const PreStack::Event* psevent = eventset->events_[idx];
+		if ( !psevent->sz_ )
+		    continue;
+
+		visBase::Marker* marker = visBase::Marker::create();
+		eventseeds_->addObject( marker );
+		marker->setMarkerStyle( markerstyle_ );
+		Coord3 pos( bid.inl, bid.crl, psevent->pick_[0] );
+		marker->setCenterPos( pos );
+		marker->setMaterial( getMaterial() );
+		getMaterial()->setColor( eventman_->getColor() );
+	    }
+	}
+	return;
+    }
+    
+    CubeSampling cs( false );
     bool fullevent;
     Coord dir;
-
+    clearDisplay();
     if ( displaymode_==FullOnGathers )
     {
 	fullevent = true;
@@ -414,6 +464,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	pao->separator_->addObject( pao->lines_ );
     }
 
+    BinIDValueSet locations( 0, false );
+    eventman_->getLocations( locations );
+ 
     do
     {
 	RefMan<PreStack::EventSet> eventset = eventman_ ?
@@ -525,6 +578,25 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	pao->lines_->removeCoordIndexAfter( cii-1 );
 
     deepUnRef( eventsetstounref );
+    
+}
+
+
+void PSEventDisplay::clearDisplay()
+{
+    if ( eventseeds_ )
+	eventseeds_->removeAll();
+
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
+    {
+	ParentAttachedObject* pao = parentattached_[idx];
+	if ( !pao || !pao->separator_ )
+	    continue;
+	
+	pao->separator_->removeAll();
+	pao->markers_.erase();
+	pao->lines_ = 0;
+    }
 }
 
 
