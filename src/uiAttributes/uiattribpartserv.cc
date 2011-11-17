@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.180 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.181 2011-11-17 20:16:20 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -357,6 +357,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     {
 	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
 	objref = ioobj ? ioobj->name() : "";
+	attrdata.attribid_.setStored( false );
     }
 
     selspec.set( 0, isnla ? DescID(attrdata.outputnr_,false)
