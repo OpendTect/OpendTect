@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.4 2011-09-22 13:49:51 cvsbert Exp $
+ RCS:           $Id: uichecklist.h,v 1.5 2011-11-17 15:55:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,10 @@ class BufferStringSet;
  Policies:
  - Unrel: all boxes can be on or off
  - NotAll: Not all boxes can be on
- - AtLeastOne: Not all boxes can be off - be sure to set one yourself initially
- - Chain: 2nd is only available if 1st is checked;
+ - AtLeastOne: Not all boxes can be off
+ - OneOnly: radio-behaviour (but the items still are check boxes)
+ - MaybeOne: also radio, but allowing no choice at all
+ - Chain: next is only available if previous is checked:
    -- Chain1st: 1st check determines availability of all others
    -- ChainAll: Nth check determines availability all > N
  
@@ -34,7 +36,8 @@ mClass uiCheckList : public uiGroup
 {
 public:
 
-    enum Pol		{ Unrel, NotAll, AtLeastOne, Chain1st, ChainAll };
+    enum Pol		{ Unrel, NotAll, AtLeastOne, OneOnly, MaybeOne,
+			  Chain1st, ChainAll };
 
 			uiCheckList(uiParent*,const BufferStringSet&,Pol=Unrel,
 				    bool force_hor=false);
@@ -45,6 +48,8 @@ public:
     int			size() const		{ return boxs_.size(); }
     bool		isChecked(int) const;
     void		setChecked(int,bool);
+    int			firstChecked() const;
+    int			lastChecked() const;
 
     Notifier<uiCheckList> changed;
     uiCheckBox*		clicked()		{ return clicked_; }
@@ -62,7 +67,14 @@ protected:
     void		boxChk(CallBacker*);
 
     void		ensureOne(bool);
+    void		handleRadio(bool);
     void		handleChain();
+
+public:
+
+    			// use this to set tooltips etc.
+    uiCheckBox*		box( int idx )		{ return boxs_[idx]; }
+    const uiCheckBox*	box( int idx ) const	{ return boxs_[idx]; }
 
 };
 
