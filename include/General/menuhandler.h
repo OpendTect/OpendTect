@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.17 2011-11-04 08:10:32 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.18 2011-11-18 13:36:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,11 +270,11 @@ mAddMenuItemWithManageFlag( parent, item, false, enab, check )
 mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 
 
-#define mAddMenuItemCond( menu, item, enab, check, cond ) \
+#define mAddMenuItemCond( menu, item, enab, check, cond ) { \
     if ( cond ) \
 	mAddMenuItem( menu, item, enab, check ) \
     else \
-	mResetMenuItem( item ) \
+	mResetMenuItem( item ) } \
 
 //Macro that can poplulate both a toolbar and a menu. Only
 //items with an icon is put in a toolbar.
