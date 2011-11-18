@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.9 2011-11-11 10:02:55 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.10 2011-11-18 06:39:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,18 +54,20 @@ public:
 
     void		init();
     void		setDescription(BufferString& desc);
+    void		setStepsReproduce(BufferString& desc);
     void		getQueryInfo(BufferStringSet& colnms,
 	    			     BufferStringSet& values);
     void		addToHistory(const char* fieldnm);
     void		deleteHistory();
-    BugHistoryTableEntry* getHistory()		{ return history_; }
+    ObjectSet<BugHistoryTableEntry>&	getHistory()
+    					{ return btthistoryset_; }
 
     BufferString	description_;
+    BufferString	stepsreproduce_;
 
 protected:
 
-    BugHistoryTableEntry* history_;
-
+    ObjectSet<BugHistoryTableEntry> btthistoryset_;
 };
 
 
@@ -128,9 +130,7 @@ public:
 protected:
 
     ObjectSet<BugHistoryTableEntry> historyset_;
-
 };
-
 
 } // namespace
 

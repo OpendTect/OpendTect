@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.12 2011-11-11 10:02:55 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.13 2011-11-18 06:39:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ const char* SqlDB::BugTextTableEntry::sKeyBugTextTable()
 
 
 SqlDB::BugTextTableEntry::BugTextTableEntry()
-    : history_(0)
 {
     init();
 }
@@ -30,21 +29,22 @@ SqlDB::BugTextTableEntry::BugTextTableEntry()
 
 void SqlDB::BugTextTableEntry::deleteHistory()
 {
-    history_ = 0;
+    deepErase( btthistoryset_ );
 }
 
 
 void SqlDB::BugTextTableEntry::getQueryInfo( BufferStringSet& colnms,
 					     BufferStringSet& values )
 {
-    colnms.add( "description" );
-    values.add( description_ );
+    colnms.add( "description" ).add( "steps_to_reproduce" );
+    values.add( description_ ).add( stepsreproduce_ );
 }
 
 
 void SqlDB::BugTextTableEntry::init()
 {
     description_ = "";
+    stepsreproduce_ = "";
 }
 
 
@@ -58,14 +58,41 @@ void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 }
 
 
-void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
+void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 {
-    if ( history_ )
+    if ( stepsreproduce_ == reproduce )
 	return;
 
-    history_ = new BugHistoryTableEntry();
-    history_->fieldnm_ = fldnm;
-    history_->type_ = 6;
+    addToHistory( "steps_to_reproduce" );
+    stepsreproduce_ = reproduce;
+}
+
+
+void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
+{
+    for ( int idx=0; idx<btthistoryset_.size(); idx++ )
+    {
+	BufferString fieldnm = btthistoryset_[idx]->fieldnm_;
+	if ( fieldnm.isEqual( fldnm ) )
+	    return;
+    }
+
+    BugHistoryTableEntry* history = new BugHistoryTableEntry();
+    if ( strcmp(fldnm, "description") == 0 )
+	history->type_ = 6;
+    else if ( strcmp(fldnm, "steps_to_reproduce" ) == 0 )
+	history->type_ = 8;
+    else 
+    {
+	history=0;
+	delete history;
+    }
+
+    if ( !history )
+	return;
+
+    history->fieldnm_ = fldnm;
+    btthistoryset_ += history;
 }
 
 

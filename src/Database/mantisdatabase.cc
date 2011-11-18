@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.27 2011-11-11 11:24:44 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.28 2011-11-18 06:39:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "errh.h"
 #include "mantistables.h"
+#include "oddirs.h"
 #include "odver.h"
 #include "ptrman.h"
 
@@ -83,7 +84,7 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
     if ( !isopen )
     {
 	const char* username = 0;
-	username = GetEnvVar( "USER" );
+	username = GetUserNm();
 	BufferString errmsg( "Please check parameters in 'settings_DB' file " );
 	errmsg.add( "in '/users/" ).add( username ).add( "/.od/'" );
 	errmsg_ = errmsg;
@@ -165,7 +166,9 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".version," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".last_updated," )
-	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description" )
+	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description," )
+	    .add( BugTextTableEntry::sKeyBugTextTable() )
+	    .add( ".steps_to_reproduce" )
 	    .add( " FROM " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( "," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( "," )
@@ -215,6 +218,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->projectid_ = query().iValue( ++qidx );
 	bugtable->lastupddate_ = query().data( ++qidx );
 	texttable->description_ = query().data( ++qidx );
+	texttable->stepsreproduce_ = query().data( ++qidx );
 
 	bugs_ += bugtable;
 	texttables_ += texttable;
@@ -545,7 +549,7 @@ bool SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
     }
 
     if ( !history.size() )
-	return false;
+	return true;
 
     const int userid = getUserID( false );
     if ( userid < 0 )
@@ -582,20 +586,22 @@ void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int bidx )
     if ( !texttable || !bugtable )
 	return;
 
-    BugHistoryTableEntry* texttabhistory = texttable->getHistory();
-    if ( !texttabhistory )
-	return;
+    ObjectSet<BugHistoryTableEntry>& history = texttable->getHistory();
+    for ( int idx=0; idx<history.size(); idx++ )
+    {
+	BugHistoryTableEntry* bhte = history[idx];
+	if ( !bhte )
+	    continue;
 
-    texttabhistory->bugid_ = bugtable->id_;
-    const int usrid = getUserID( false );
-    if ( usrid < 0 )
-	return;
+	bhte->bugid_ = bugtable->id_;
+	const int usrid = getUserID( false );
+	if ( usrid < 0 )
+	    return;
 
-    texttabhistory->userid_ = usrid;
-    texttabhistory->date_ = bugtable->lastupddate_;
+	bhte->userid_ = usrid;
+	bhte->date_ = bugtable->lastupddate_;
+    }
 
-    ObjectSet<BugHistoryTableEntry> history;
-    history += texttabhistory;
     updateBugHistoryTable( history, false );
     texttable->deleteHistory();
 }
@@ -815,7 +821,7 @@ bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
 int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
 {
     const char* username = 0;
-    username = GetEnvVar( "USER" );
+    username = GetUserNm();
     if ( !username || !*username )
 	return -1;
 
