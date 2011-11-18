@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichecklist.cc,v 1.5 2011-11-17 15:55:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uichecklist.cc,v 1.6 2011-11-18 21:48:42 cvsnanne Exp $";
 
 #include "uichecklist.h"
 #include "uibutton.h"
@@ -22,7 +22,7 @@ uiCheckList::uiCheckList( uiParent* p, const char* t1, const char* t2,
 {
     addBox( t1 );
     addBox( t2 );
-    finaliseDone.notify( mCB(this,uiCheckList,initGrp) );
+    mainObject()->finaliseDone.notify( mCB(this,uiCheckList,initGrp) );
 }
 
 
@@ -35,7 +35,7 @@ uiCheckList::uiCheckList( uiParent* p, const BufferStringSet& bss,
     for ( int idx=0; idx<bss.size(); idx++ )
 	addBox( bss.get(idx), forcehor );
 
-    finaliseDone.notify( mCB(this,uiCheckList,initGrp) );
+    mainObject()->finaliseDone.notify( mCB(this,uiCheckList,initGrp) );
 }
 
 
