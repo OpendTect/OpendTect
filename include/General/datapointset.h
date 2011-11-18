@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.40 2011-10-12 08:38:34 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.41 2011-11-18 13:37:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,8 +196,10 @@ public:
     			//!< columns!
 
     DataPointSet*	getSubselected(int maxsz,
-	    				const TypeSet<int>* selected_cols=0,
-					bool allow_udf_values=true) const;
+			    const TypeSet<int>* selected_cols=0,
+			    bool allow_udf_values=true,
+			    const ObjectSet<Interval<float> >* value_ranges=0)
+							const;
     void		randomSubselect(int maxsz);
     
     int			bivSetIdx( ColID idx ) const

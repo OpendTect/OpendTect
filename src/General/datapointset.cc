@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.43 2011-10-12 09:17:20 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.44 2011-11-18 13:37:34 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -646,7 +646,8 @@ void DataPointSet::randomSubselect( int maxsz )
 
 
 DataPointSet* DataPointSet::getSubselected( int maxsz,
-			const TypeSet<int>* outcols, bool allowudf ) const
+			const TypeSet<int>* outcols, bool allowudf,
+       			const ObjectSet<Interval<float> >* rgs ) const
 {
     const int mysz = size();
     const int mynrcols = nrCols();
@@ -673,7 +674,7 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
     const int nrcols = outcols->size();
     int activesz = mysz;
 
-    if ( !allowudf )
+    if ( !allowudf || rgs )
     {
 	for ( RowID idx=0; idx<activesz; idx++ )
 	{
@@ -683,8 +684,18 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 	    for ( ColID icol=0; icol<nrcols; icol++ )
 	    {
 		const float val = vals[ (*outcols)[icol] ];
-		if ( mIsUdf(val) )
+		if ( !allowudf && mIsUdf(val) )
 		    { canuse = false; break; }
+		if ( rgs )
+		{
+		    const Interval<float>* rg = (*rgs)[icol];
+		    if ( rg )
+		    {
+			if ( (!mIsUdf(rg->start) && val < rg->start)
+			   || (!mIsUdf(rg->stop) && val > rg->stop) )
+			    { canuse = false; break; }
+		    }
+		}
 	    }
 	    if ( !canuse )
 		{ activesz--; idxs[idx] = activesz; idx--; }
