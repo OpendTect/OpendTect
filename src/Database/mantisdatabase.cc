@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.28 2011-11-18 06:39:46 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.29 2011-11-18 08:55:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -820,8 +820,7 @@ bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
 
 int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
 {
-    const char* username = 0;
-    username = GetUserNm();
+    const char* username = GetUserNm();
     if ( !username || !*username )
 	return -1;
 
