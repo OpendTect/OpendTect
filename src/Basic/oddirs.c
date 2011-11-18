@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.26 2011-01-11 05:47:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.27 2011-11-18 07:55:52 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -507,7 +507,8 @@ const char* GetUserNm()
 {
 #ifdef __win__
     static char usernm[256];
-    GetUserName( usernm, sizeof(usernm) );
+    const int len = 256;
+    GetUserName( usernm, &len );
     return usernm;
 #else
     const char* ret = GetEnvVar( "USER" );
