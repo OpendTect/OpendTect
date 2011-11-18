@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.83 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.84 2011-11-18 14:31:39 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -204,10 +204,11 @@ void uiDataPointSet::mkToolBars()
 
     uiGroup* grp = new uiGroup( disptb_, "Each grp" );
     percfld_ = new uiSpinBox( grp, 1, "Each" );
+    percfld_->setSuffix( "%" );
     percfld_->setValue( percentage_ );
     percfld_->setInterval( (float)0.1, mUdf(float),(float)0.1 );
     percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    new uiLabel( grp, "% Data Displayed", percfld_ );
+    new uiLabel( grp, "Show", percfld_ );
     disptb_->addObject( grp->attachObj() );
 
 #define mAddButton(fnm,func,tip,istogg) \
