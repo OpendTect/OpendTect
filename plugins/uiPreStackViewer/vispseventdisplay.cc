@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.3 2011-11-16 06:32:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.4 2011-11-18 04:35:53 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -120,6 +120,7 @@ void PSEventDisplay::setEventManager( PreStack::EventManager* em )
 		mCB(this,PSEventDisplay,eventForceReloadCB) );
 	getMaterial()->setColor( eventman_->getColor() );
     }
+    
     
     updateDisplay();
 }
@@ -257,6 +258,7 @@ void PSEventDisplay::updateDisplay()
 
     if ( displaymode_==ZeroOffset )
     {
+	eventChangeCB( 0 );
 	updateDisplay( 0 );
 	writeUnLock();
 	return;
@@ -633,9 +635,6 @@ void PSEventDisplay::eventChangeCB(CallBacker*)
     {
 	if ( eventman_ )
  	    getMaterial()->setColor( eventman_->getColor() );
-
-	//TODO Handle later;
-	return;
     }
 
     if ( !parentattached_.size() )

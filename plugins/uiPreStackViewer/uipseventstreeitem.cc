@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.6 2011-11-16 06:32:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.7 2011-11-18 04:35:53 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -169,7 +169,8 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( !eventdisplay_ || menu->isHandled() || menu->menuID()!=displayID() || menuid==-1 )
+    if ( !eventdisplay_ || menu->isHandled()
+	|| menu->menuID()!=displayID() || menuid==-1 )
 	return;
 
     if ( menuid == zerooffset_->id  )
@@ -219,12 +220,12 @@ void PSEventsTreeItem::updateDisplay()
 	displayid_ = eventdisplay_->id();
 	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setEventManager( &psem_ );
-	const ColTab::MapperSetup ms;/*(
-		ColTab::MapperSetup().type(ColTab::MapperSetup::Fixed)
-				     .range(pscoltabrange_) );*/
-
-	eventdisplay_->setColTabMapper( ms, false );
-	eventdisplay_->setColTabSequence( ColTab::Sequence() );
+	Interval<float> rg( 0, 2000 );
+	const ColTab::MapperSetup ms(
+	    ColTab::MapperSetup().type(ColTab::MapperSetup::Fixed)
+				 .range(rg) );
+	eventdisplay_->setColTabMapper( ms, true );
+	eventdisplay_->setColTabSequence( 0, visserv->getColTabSequence(0,0) );
     }
 }
 
