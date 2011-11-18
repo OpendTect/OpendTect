@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.68 2011-06-29 10:29:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.69 2011-11-18 23:14:16 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -42,8 +42,8 @@ static const char* nHelpID = "107.0.4";
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Import Well Track",sHelpID))
-    , ctio_( *mMkCtxtIOObj(Well) )
-    , fd_( *Well::TrackAscIO::getDesc() )			       
+    , ctio_(*mMkCtxtIOObj(Well))
+    , fd_(*Well::TrackAscIO::getDesc())
     , trckinpfld_(0)
 {
     setCtrlStyle( DoAndStay );
