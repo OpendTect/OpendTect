@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.49 2011-09-16 10:54:03 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.50 2011-11-18 16:02:14 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -201,8 +201,7 @@ bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
     }
 
     mMultiThread( coordlock_.writeUnLock() );
-    setBBox( xrg, yrg );
-    return true;
+    return setBBox( xrg, yrg );
 }
 
 
