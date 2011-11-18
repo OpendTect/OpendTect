@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.13 2011-08-29 12:57:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.14 2011-11-18 11:11:05 cvsbruno Exp $";
 
 
 #include "uiinstantattrib.h"
@@ -68,9 +68,13 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )
 {
+    if ( strcmp(desc.attribName(),Instantaneous::attribName()) )
+	return false;
+
     mIfGetFloat( Instantaneous::rotateAngle(), rotangle_, 
 	    	 phaserotfld->box()->setValue( rotangle_ ) );
-    return !strcmp(desc.attribName(),Instantaneous::attribName());
+
+    return true;
 }
 
 
@@ -91,8 +95,12 @@ bool uiInstantaneousAttrib::setOutput( const Desc& desc )
 
 bool uiInstantaneousAttrib::getParameters( Desc& desc )
 {
+    if ( strcmp(desc.attribName(),Instantaneous::attribName()) )
+	return false;
+
     mSetFloat( Instantaneous::rotateAngle(), phaserotfld->box()->getValue() );
-    return !strcmp(desc.attribName(),Instantaneous::attribName());
+
+    return true;
 }
 
 
