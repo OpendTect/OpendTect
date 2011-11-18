@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.23 2011-08-29 12:57:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.24 2011-11-18 11:11:22 cvsbruno Exp $";
 
 #include "instantattrib.h"
 
@@ -30,14 +30,16 @@ void Instantaneous::initClass()
 {
     mAttrStartInitClass
 
+    desc->addInput( InputSpec("Imag Data",true) );
+    desc->setNrOutputs( Seis::UnknowData, 14 );
+
     FloatParam* rotangle_ = new FloatParam( rotateAngle() );
     rotangle_->setLimits( Interval<float>(-180,180) );
     rotangle_->setDefaultValue(90);
+    rotangle_->setRequired( false );
     desc->addParam( rotangle_ );
 
     desc->addInput( InputSpec("Real Data",true) );
-    desc->addInput( InputSpec("Imag Data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 14 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -290,5 +292,6 @@ const Interval<int>* Instantaneous::reqZSampMargin( int inp, int out ) const
     else
 	return 0;
 }
+
 
 }; // namespace Attrib
