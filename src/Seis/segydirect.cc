@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.33 2011-10-21 08:23:28 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.34 2011-11-21 13:49:52 cvsbert Exp $";
 
 #include "segydirectdef.h"
 
@@ -138,7 +138,11 @@ SEGY::DirectDef::~DirectDef()
     delete myfds_;
     delete keylist_;
     delete indexer_;
-    delete outstreamdata_;
+    if ( outstreamdata_ )
+    {
+	outstreamdata_->close();
+	delete outstreamdata_;
+    }
 }
 
 
