@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.18 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.19 2011-11-21 23:03:55 cvsnanne Exp $";
 
 #include "gmt2dlines.h"
 
@@ -135,8 +135,9 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	    
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	PosInfo::Line2DData geom( linenms[idx]->buf() );
-	const int lidx = lset.indexOf( linenms.get(idx) );
+	LineKey lk( linenms.get(idx), attribnm );
+	PosInfo::Line2DData geom( lk.lineName() );
+	const int lidx = lset.indexOf( lk );
 	if ( lidx<0  || !S2DPOS().getGeometry(geom)
 		     || geom.isEmpty() )
 	    continue;
