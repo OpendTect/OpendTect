@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.3 2010-04-15 15:41:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.4 2011-11-21 13:37:09 cvsbert Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -78,13 +78,17 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	mErrRet( "Cannot open input file" )
 
     if ( !wvltfld_->commitInput() )
+    {
+	sd.close();
 	mErrRet( !wvltfld_->isEmpty() ? 0
 		: "Please enter a name for the new wavelet" )
+    }
     if ( !dataselfld_->commit() )
-	return false;
+	{ sd.close(); return false; }
 
     WaveletAscIO aio( fd_ );
     PtrMan<Wavelet> wvlt = aio.get( *sd.istrm );
+    sd.close();
     if ( !wvlt )
 	mErrRet(aio.errMsg())
 
