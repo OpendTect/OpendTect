@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.31 2011-01-18 10:05:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.32 2011-11-21 13:49:35 cvsbert Exp $";
 
 #include "segyscanner.h"
 
@@ -224,11 +224,7 @@ int SEGY::Scanner::openNext()
     StreamData sd = StreamProvider( abspath ).makeIStream();
     
     if ( !sd.usable() )
-    {
-	sd.close();
-	addFailed( "Cannot open this file" );
-	return Executor::MoreToDo();
-    }
+	{ addFailed( "Cannot open this file" ); return Executor::MoreToDo(); }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     tr_->usePar( pars_ );
