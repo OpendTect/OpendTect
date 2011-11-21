@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.1 2011-11-21 12:58:36 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.2 2011-11-21 13:25:04 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -86,6 +86,8 @@ bool ODDLSite::reConnect()
 
 bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 {
+    delete databuf_; databuf_ = 0;
+
     //TODO
     // if outfnm non-null and not empty, open it for write
     // otherwise, fill the buffer
