@@ -7,15 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.2 2011-11-21 13:25:04 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.3 2011-11-21 23:06:28 cvsnanne Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
-#include "timefun.h"
 #include "databuf.h"
+#include "file.h"
 #include "filepath.h"
-#include "thread.h"
+#include "httptask.h"
 #include "settings.h"
+#include "thread.h"
+#include "timefun.h"
 
 static const char* sKeyTimeOut = "Download.Timout";
 
@@ -88,12 +90,28 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 {
     delete databuf_; databuf_ = 0;
 
-    //TODO
-    // if outfnm non-null and not empty, open it for write
-    // otherwise, fill the buffer
+    HttpTask task( odhttp_ );
+    const int reqid = odhttp_.get( getFileName(relfnm), outfnm );
+    // TODO reqid can be used in reqFinish.
+    if ( !task.execute() )
+	return false;
 
-    errmsg_ = "TODO: getFile not implemented yet";
-    return false;
+    if ( outfnm && *outfnm )
+    {
+	if ( !File::exists(outfnm) )
+	{
+	    errmsg_ = BufferString( "No output file: ", outfnm );
+	    return false;
+	}
+
+	return true;
+    }
+
+    const od_int64 nrbytes = odhttp_.bytesAvailable();
+    databuf_ = new DataBuffer( nrbytes, 1, true );
+    const char* buffer = odhttp_.readCharBuffer();
+    memcpy( databuf_->data(), buffer, nrbytes );
+    return true;
 }
 
 
@@ -108,8 +126,16 @@ DataBuffer* ODDLSite::obtainResultBuf()
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 			 TaskRunner& tr )
 {
-    errmsg_ = "TODO: getFiles not implemented yet";
-    return false;
+    HttpTask task( odhttp_ );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	FilePath outputfp( outputdir );
+	outputfp.add( fnms.get(idx) );
+	odhttp_.get( getFileName(fnms.get(idx)), outputfp.fullPath() );
+	// TODO get() returns requestid. Can be used in reqFinish.
+    }
+
+    return tr.execute( task );
 }
 
 
@@ -121,10 +147,10 @@ void ODDLSite::reqFinish( CallBacker* )
 
 BufferString ODDLSite::getFileName( const char* relfnm ) const
 {
-    BufferString ret;
+    BufferString ret( "/" );
     if ( subdir_.isEmpty() )
-	ret = relfnm;
+	ret.add( relfnm );
     else
-	ret = FilePath( subdir_ ).add( relfnm ).fullPath();
+	ret.add( FilePath( subdir_ ).add( relfnm ).fullPath(FilePath::Unix) );
     return ret;
 }
