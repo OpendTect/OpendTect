@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.9 2011-10-28 14:53:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.10 2011-11-21 09:47:22 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -213,13 +213,14 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
 
-    uiPushButton* okbut = new uiPushButton( this, "&Ok",
+    okbut_ = new uiPushButton( this, "&Ok",
 				mCB(this,uiWellLogToolWin,acceptOK), true );
-    okbut->attach( leftBorder, 20 );
-    okbut->attach( ensureBelow, horSepar );
+    okbut_->attach( leftBorder, 20 );
+    okbut_->attach( ensureBelow, horSepar );
+    okbut_->setSensitive( false );
 
     uiLabel* savelbl = new uiLabel( this, "On OK save logs:" );
-    savelbl->attach( rightOf, okbut );
+    savelbl->attach( rightOf, okbut_ );
     savefld_ = new uiGenInput( this, "with extension" );
     savefld_->setElemSzPol( uiObject::Small );
     savefld_->setText( "_edited" );
@@ -291,8 +292,9 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 	    Well::Log* outplog = ld.outplogs_.remove( idl );
 	    if ( overwrite )
 	    {
-		Well::Log* log = ls.getLog( outplog->name() );
-		delete log; log = outplog;
+		const int logidx = ls.indexOf( outplog->name() );
+		if ( ls.validIdx( logidx ) )
+		    delete ls.remove( logidx );
 	    }
 	    else
 	    {
@@ -304,8 +306,8 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 		    mErrRet( "One or more logs with this name already exists."
 		    "\nPlease select a different extension for the new logs");
 		}
-		ls.add( outplog );
 	    }
+	    ls.add( outplog );
 	    needsave_ = true; 
 	}
     }
@@ -397,6 +399,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    }
 	}
     }
+    okbut_->setSensitive( true );
     displayLogs();
 }
 
