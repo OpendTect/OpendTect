@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.40 2011-04-15 12:02:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.41 2011-11-21 13:42:58 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -97,6 +97,7 @@ void readPush( CallBacker* )
 
     SEGY::TxtHeader txthdr;
     sd.istrm->read( (char*)txthdr.txt_, SegyTxtHeaderLength );
+    sd.close();
     txthdr.setAscii();
     BufferString txt; txthdr.getText( txt );
     edfld_->setText( txt );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.4 2011-11-21 13:37:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.5 2011-11-21 13:42:58 cvsbert Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -182,7 +182,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     }
 
     if ( !sd.ostrm->good() )
-	mErrRet( "Possible error during write" )
+	{ sd.close(); mErrRet( "Possible error during write" ) }
 
     sd.close();
     return true;
