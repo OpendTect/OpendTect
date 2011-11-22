@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.5 2011-08-03 14:07:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.6 2011-11-22 10:27:29 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -106,7 +106,7 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     {
 	float z = trc.info().sampling.atIndex( idx );
 	z = d2t_ ? d2t_->getDah( z ) : track_.getDahForTVD( z );
-	trc.set( idx, lcd.log_.getValue( z, true ),0 );
+	trc.set( idx, lcd.log_.getValue( z, false ),0 );
     }
     HorSamplingIterator hsit( hrg_ );
     bool succeeded = true;
