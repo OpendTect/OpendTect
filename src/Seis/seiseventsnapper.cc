@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.11 2011-05-13 09:16:56 cvsraman Exp $";
+static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.12 2011-11-22 23:30:11 cvsnanne Exp $";
 
 #include "seiseventsnapper.h"
 #include "seistrc.h"
@@ -42,7 +42,12 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
     Interval<float> gatebelow( tarz, tarz+searchgate_.stop );
     const float eventposabove = evfinder.find( eventtype_, gateabove ).pos;
     const float eventposbelow = evfinder.find( eventtype_, gatebelow ).pos;
-    if ( mIsUdf(eventposabove) )
+    if ( mIsUdf(eventposabove) && mIsUdf(eventposbelow) )
+    {
+	Interval<float> gate( tarz+searchgate_.start, tarz+searchgate_.stop );
+	return evfinder.find( eventtype_, gate ).pos;
+    }
+    else if ( mIsUdf(eventposabove) )
 	return eventposbelow;
     else if ( mIsUdf(eventposbelow) )
 	return eventposabove;
