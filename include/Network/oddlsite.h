@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.1 2011-11-21 12:58:36 cvsbert Exp $
+ RCS:           $Id: oddlsite.h,v 1.2 2011-11-22 12:57:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     const char*		host() const			{ return host_; }
     const char*		subDir() const			{ return subdir_; }
     void		setSubDir( const char* s )	{ subdir_ = s; }
+    float		timeout() const			{ return timeout_; }
     void		setTimeOut(float,bool storeinsettings);
 
     const char*		errMsg() const			{ return errmsg_; }
@@ -60,6 +61,8 @@ public:
     bool		getFiles(const BufferStringSet& fnms,
 				  const char* outputdir,TaskRunner&);
 
+    BufferString	fullURL(const char*) const;
+
 protected:
 
     BufferString	host_;
@@ -68,7 +71,7 @@ protected:
 
     ODHttp&		odhttp_;
     mutable BufferString errmsg_;
-    mutable bool	isfailed_;
+    bool		isfailed_;
     DataBuffer*		databuf_;
 
     void		reqFinish(CallBacker*);

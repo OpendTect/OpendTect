@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.3 2011-11-21 23:06:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.4 2011-11-22 12:57:56 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -79,9 +79,11 @@ bool ODDLSite::reConnect()
 		errmsg_.add ( ":\nHost doesn't respond" );
 	    else
 		errmsg_.add ( ":\nInternet connection not available" );
+	    isfailed_ = true;
 	    return false;
 	}
     }
+    isfailed_ = false;
     return true;
 }
 
@@ -152,5 +154,13 @@ BufferString ODDLSite::getFileName( const char* relfnm ) const
 	ret.add( relfnm );
     else
 	ret.add( FilePath( subdir_ ).add( relfnm ).fullPath(FilePath::Unix) );
+    return ret;
+}
+
+
+BufferString ODDLSite::fullURL( const char* relfnm ) const
+{
+    BufferString ret( "http://" );
+    ret.add( host_ ).add( "/" ).add( getFileName(relfnm) );
     return ret;
 }
