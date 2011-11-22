@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.7 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.8 2011-11-22 10:27:45 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
@@ -54,6 +54,7 @@ int RayTracerRunner::nextStep()
     {
 	rt1d = RayTracer1D::factory().create( 
 		*RayTracer1D::factory().getNames(false)[0] );
+	rt1d->usePar( raypar_ );
     }
     if ( !rt1d && !errmsg.isEmpty() ) 
 	mErrRet( errmsg.buf() );
