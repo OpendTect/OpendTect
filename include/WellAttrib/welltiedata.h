@@ -97,6 +97,7 @@ public :
     const Well::Log*		cslog_;
     bool			isinitwvltactive_;
     const StepInterval<float>& 	timeintv_;
+    Interval<float>		dahrg_;
     const Setup&		setup() const	{ return setup_; }
 
     const char*  		sonic() 	const;
@@ -111,6 +112,16 @@ public :
     PickData			pickdata_;
     DispParams			dispparams_;
     TaskRunner*			trunner_;
+
+    mStruct CorrelData
+    {
+				CorrelData() : lag_(200), coeff_(0) {}
+
+	TypeSet<float>		vals_;
+	int			lag_;
+	double			coeff_;
+    };
+    CorrelData			correl_;
 
 protected:
 
@@ -237,8 +248,8 @@ public :
 
     bool			computeAll();
     bool			computeSynthetics();
+    bool			computeAdditionalInfo(const Interval<float>&);
 
-    void			setEstimatedWvlt(float*,int);
     void			setInitWvltActive(bool yn)
 				{ data_->isinitwvltactive_ = yn; }
     void			setTaskRunner( TaskRunner* tr )

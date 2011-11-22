@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "uiflatviewer.h"
+#include "welltiedata.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -34,11 +35,7 @@ namespace Well
 
 namespace WellTie
 {
-    class Marker;
-    class Server;
     class Setup; 
-    class Data; 
-    class DispParams;
 
 mClass uiTieView : public CallBacker
 {
@@ -107,7 +104,7 @@ public:
 
 				uiCrossCorrView(uiParent*,const Data&);
 
-    void                	set(float*,int,float,float);
+    void                	set(const Data::CorrelData&);
     void                	draw();
 
 protected:

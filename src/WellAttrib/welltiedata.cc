@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.60 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.61 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.60 2011-11-07 15:50:48 cvsbr
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 #include "wellwriter.h"
 #include "wavelet.h"
 
@@ -39,7 +40,6 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.60 2011-11-07 15:50:48 cvsbr
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
-static const char* sKeyIsCheckShotDisp = "Display Check-Shot";
 static const char* sKeyIsMarkerDisp = "Display Markers on Well Display";
 static const char* sKeyVwrMarkerDisp = "Display Markers on 2D Viewer";
 static const char* sKeyVwrHorizonDisp = "Display Horizon on 2D Viewer";
@@ -97,6 +97,18 @@ Data::Data( const Setup& wts, Well::Data& w)
     {
 	dispparams_.allmarkernms_.add( w.markers()[idx]->name() );
 	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
+    }
+
+    const Well::Track& track = w.track();
+    if ( !track.isEmpty() )
+	dahrg_ = track.dahRange();
+
+    const Well::Log* vlog = w.logs().getLog( wts.vellognm_ );
+    const Well::Log* dlog = w.logs().getLog( wts.denlognm_ );
+    if ( vlog && dlog )
+    {
+	dahrg_.start = mMIN( vlog->dahRange().start, dlog->dahRange().start );
+	dahrg_.stop  = mMAX( vlog->dahRange().stop,  dlog->dahRange().stop );
     }
 }
 
@@ -303,7 +315,8 @@ bool DataWriter::writeLogs2Cube( LogData& ld ) const
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
 	const Well::Log& wl = ld.logset_.getLog( idx );
-	logdatas += new LogCubeCreator::LogCubeData( wl, *ld.seisctioset_[idx]);
+	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[idx] );
+	logdatas += new LogCubeCreator::LogCubeData( wl, *ctx );
     }
     lcr.setInput( logdatas, ld.nrtraces_ );
     return lcr.execute();
@@ -371,10 +384,11 @@ bool Server::computeSynthetics()
 }
 
 
-void Server::setEstimatedWvlt( float* vals, int sz )
+bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 {
-    Wavelet& wvlt = data_->estimatedwvlt_;
-    memcpy( wvlt.samples(), vals, sz*sizeof(float) );
+    if ( !dataplayer_->computeAdditionalInfo( zrg ) )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+    return true;
 }
 
 }; //namespace WellTie

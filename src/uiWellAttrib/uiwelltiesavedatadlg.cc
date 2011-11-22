@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.18 2011-05-03 06:59:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.19 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -43,13 +43,16 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     setCtrlStyle( DoAndStay );
     BufferStringSet lognms; 	BufferStringSet wvltnms;
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
+    wvltctioset_[0]->ctxt.forread = false;
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
+    wvltctioset_[1]->ctxt.forread = false;
     wvltnms.add( data_.initwvlt_.name() );
     wvltnms.add( data_.estimatedwvlt_.name() );
 
     for ( int idx=2; idx<data_.logset_.size(); idx++)
     {
 	seisctioset_ += mMkCtxtIOObj(SeisTrc);
+	seisctioset_[idx-2]->ctxt.forread = false;
 	lognms.add( data_.logset_.getLog(idx).name() );
     }
 
@@ -126,8 +129,8 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	    success = false; 
 	    continue;
 	}
-	Wavelet* wvlt = idx ? &data_.initwvlt_ : &data_.estimatedwvlt_;
-	if ( wvlt->put( wvltctioset_[wvltidx]->ioobj ) )
+	Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_ ;
+	if ( !wvlt.put( wvltctioset_[wvltidx]->ioobj ) )
 	{
 	    errmsg += wvltnms.get(idx);
 	    errmsg += " ";

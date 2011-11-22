@@ -34,6 +34,7 @@ public:
     bool 		computeAll();
     bool		doFullSynthetics();
     bool		doFastSynthetics();
+    bool		computeAdditionalInfo(const Interval<float>&);
 
     const char*		errMSG() const		{ return errmsg_.buf(); } 
    

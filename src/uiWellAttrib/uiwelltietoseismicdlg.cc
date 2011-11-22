@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.98 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.99 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -30,8 +30,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.98 2011-11-07 15:5
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
-#include "arrayndimpl.h"
-#include "arrayndutils.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
@@ -523,7 +521,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     horSepar->attach( stretchedAbove, viewersgrp );
     
     uiGroup* markergrp =  new uiGroup( this, "User Z Range Group" );
-    markergrp->attach( centeredAbove, horSepar );
+    markergrp->attach( centeredAbove, viewersgrp );
+    horSepar->attach( ensureBelow, markergrp );
 
     const char* choice[] = { "Markers", "Times", "Depths", 0 };
     choicefld_ = new uiGenInput( markergrp, "Compute Data between", 
@@ -559,8 +558,11 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	zlabelflds_ += new uiLabel( markergrp, units[idx] );
 	zlabelflds_[idx]->attach( rightOf, zrangeflds_[idx] );
     }
+    setPrefWidth( 400 );
+    setPrefHeight( 200 );
+
     putToScreen();
-    finaliseDone.notify( mCB(this,uiInfoDlg,propChanged) );
+    propChanged( this );
 }
 
 
@@ -576,7 +578,7 @@ void uiInfoDlg::putToScreen()
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
 						 : data_.estimatedwvlt_;
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
-    estwvltlengthfld_->setValue( wvlt.samplePositions().width()*1000 );
+    estwvltlengthfld_->setValue( wvlt.samplePositions().width()*SI().zFactor());
     zrangeflds_[selidx_]->setValue( zrg_ );
     if ( !selidx_ )
     {
@@ -589,8 +591,8 @@ void uiInfoDlg::putToScreen()
 bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
-    zrg.start = wd->d2TModel()->getDah( 0 );
-    zrg.stop = wd->track().dah( wd->track().size()-1 );
+    zrg.start = data_.dahrg_.start;
+    zrg.stop = data_.dahrg_.stop;
 
     const Interval<int> mintv = zrangeflds_[0]->getIInterval();
     const bool zinft = SI().depthsInFeetByDefault();
@@ -632,11 +634,16 @@ void uiInfoDlg::usePar( const IOPar& par )
 }
 
 
-#define d2T( zval, time ) time ? d2t->getTime( zval ) : d2t->getDah( zval ); 
-#define d2TI( zrg, time )\
-    { zrg.start = d2T( zrg.start, time ); zrg.stop = d2T( zrg.stop, time ) }
+#define md2T( zval, time )\
+    time ? d2t->getTime( zval ) : d2t->getDah( zval ); 
+#define md2TI( zrg, time )\
+    { zrg.start = md2T( zrg.start, time ); zrg.stop = md2T( zrg.stop, time ) }
 void uiInfoDlg::propChanged( CallBacker* )
 {
+    NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valuechanged );
+    NotifyStopper ns1 = NotifyStopper( zrangeflds_[1]->valuechanged );
+    NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valuechanged );
+
     mGetWD(return)
     selidx_ = choicefld_->getIntValue();
     zrg_ = zrangeflds_[selidx_]->getFInterval();
@@ -648,12 +655,17 @@ void uiInfoDlg::propChanged( CallBacker* )
 	zlabelflds_[idx]->display( idx == selidx_ );
     }
     const Well::D2TModel* d2t = wd->d2TModel();
-    if ( !selidx_ )
-	zrangeflds_[2]->setValue( zrg_ );
-    else if ( selidx_ == 1 )
-    	{ d2TI( zrg_, false ); zrangeflds_[2]->setValue( zrg_ ); }
     if ( !selidx_ || selidx_ == 2 )
-    	{ d2TI( zrg_, true ); zrangeflds_[1]->setValue( zrg_ );  }
+    {
+	zrangeflds_[2]->setValue( zrg_ );
+	md2TI( zrg_, true ); zrangeflds_[1]->setValue( zrg_ );
+    }
+    else 
+    { 
+	Interval<float> depthzrg = zrg_;
+	md2TI( depthzrg, false ); 
+	zrangeflds_[2]->setValue( depthzrg ); 
+    }
 
     const double wvltlgth = (double)estwvltlengthfld_->getIntValue()/1000;
     if ( wvltlgth >= zrg_.width() )
@@ -661,74 +673,17 @@ void uiInfoDlg::propChanged( CallBacker* )
 	uiMSG().error("the wavelet must be shorter than the computation time");
 	return;
     }
-    estwvltsz_ =  mNINT( wvltlgth/SI().zStep() ); 
+    data_.estimatedwvlt_.reSize( mNINT( wvltlgth/SI().zStep() ) );
     wvltChanged(0);
 }
 
 
-#define mLag 200
-#define mDelAndReturn() { delete [] seisarr;  delete [] syntharr; return; }
 void uiInfoDlg::computeData()
 {
     zrg_.limitTo( data_.timeintv_ );
-    const float step = data_.timeintv_.step;
-    const int nrsamps = (int)( zrg_.width()/step );
-
-    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, corrarr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
-
-#define mGetIdx data_.timeintv_.getIndex( zrg_.atIndex( idx, step ) ) 
-    for ( int idx=0; idx<nrsamps; idx++ )
-    {
-	syntharr[idx] = data_.seistrc_.get( mGetIdx, 0 );
-	seisarr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
-    }
-    GeoCalculator gc;
-    double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
-    const float normalfactor = coeff / corrarr[nrsamps/2];
-    crosscorr_->set( corrarr, nrsamps, mLag, coeff );
-    delete [] corrarr; 
-
-    if ( data_.isinitwvltactive_ )
-    {
-	int wvltsz = estwvltsz_;
-	wvltsz += wvltsz%2 ? 0 : 1;
-	data_.estimatedwvlt_.reSize( wvltsz );
-	if ( data_.timeintv_.nrSteps() < wvltsz )
-	{ 
-	    uiMSG().error( "Seismic trace shorter than wavelet" ); 
-	    mDelAndReturn()
-	}
-
-	const Well::Log* log = data_.logset_.getLog( data_.reflectivity() );
-	if ( !log )
-	{ 
-	    uiMSG().error( "No reflectivity to estimate wavelet" ); 
-	    mDelAndReturn(); 
-	}
-
-	mDeclareAndTryAlloc( float*, refarr, float[nrsamps] );
-	mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
-	mDeclareAndTryAlloc( float*, wvltshiftedarr, float[wvltsz] );
-
-	for ( int idx=0; idx<nrsamps; idx++ )
-	    refarr[idx] = log->valArr()[mGetIdx];
-
-	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
-	for ( int idx=0; idx<wvltsz; idx++ )
-	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
-
-	Array1DImpl<float> wvltvals( wvltsz );
-	memcpy( wvltvals.getData(), wvltshiftedarr, wvltsz*sizeof(float) );
-	ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
-	window.apply( &wvltvals );
-	memcpy( wvltshiftedarr, wvltvals.getData(), wvltsz*sizeof(float) );
-
-	server_.setEstimatedWvlt( wvltshiftedarr, wvltsz );
-	delete [] wvltarr; 	delete [] wvltshiftedarr;
-    }
-    mDelAndReturn()
+    if ( !server_.computeAdditionalInfo( zrg_ ) )
+	{ uiMSG().error( server_.errMSG() ); return; }
+    crosscorr_->set( data_.correl_ );
 }
 
 

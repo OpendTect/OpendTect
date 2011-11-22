@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.49 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.50 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -356,7 +356,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	return false;
 
     WellTie::GeoCalculator gc;
-    if ( !used2tmbox_->isChecked() || !wd_->haveD2TModel() )
+    const bool useexistingmdl = used2tmbox_->isChecked();
+    if ( !useexistingmdl || !wd_->haveD2TModel() )
     {
 	Well::D2TModel* d2t = gc.getModelFromVelLog( *wd_, wtsetup_.vellognm_, 
 					    wtsetup_.issonic_, replacevel_ );
@@ -365,7 +366,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	wd_->setD2TModel( d2t );
     }
 
-    if ( wd_->haveCheckShotModel() )
+    if ( !useexistingmdl && wd_->haveCheckShotModel() )
     {
 	uiCheckShotEdit dlg( this, *wd_ ); 
 	if ( !dlg.go() ) 

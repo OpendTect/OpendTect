@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.38 2011-09-30 07:32:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.39 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -112,10 +112,8 @@ int SeismicExtractor::nextStep()
 	    || nrdone_ >= bidset_.size() )
 	return Executor::Finished();
 
-    const int datasz = extrintv_.nrSteps();
-
     const BinID curbid = bidset_[nrdone_];
-    float val = 0; int nrtracesinradius = 0;
+    float val = 0; float nearestval = 0; int nrtracesinradius = 0;
     int prevradius = mUdf(int);
 
     for ( int idx=0; idx<trcbuf_->size(); idx++ )
@@ -126,23 +124,21 @@ int SeismicExtractor::nextStep()
 	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
 	const float trcval = trc->get( nrdone_, 0 );
 
-	if ( rdr_->is2D() )
+	if ( ( xx0 + yy0 )  < radius_*radius_ )
 	{
-	    if ( ( xx0 + yy0  ) < prevradius || mIsUdf(prevradius) )
-	    {
-		prevradius = xx0 + yy0;
-		val += mIsUdf(trcval) ? 0 : trcval;
-		nrtracesinradius = 1;
-	    }
+	    val += mIsUdf(trcval) ? 0 : trcval;
+	    nrtracesinradius ++;
 	}
-	else
+	if ( ( xx0 + yy0  ) < prevradius || mIsUdf(prevradius) )
 	{
-	    if ( xx0 + yy0 < radius_*radius_ )
-	    {
-		val += mIsUdf(trcval) ? 0 : trcval;
-		nrtracesinradius ++;
-	    }
+	    prevradius = xx0 + yy0;
+	    nearestval = mIsUdf(trcval) ? 0 : trcval;
 	}
+    }
+    if ( !nrtracesinradius )
+    {
+	val = nearestval;
+	nrtracesinradius = 1;
     }
     outtrc_->set( nrdone_, val/nrtracesinradius, 0 );
 

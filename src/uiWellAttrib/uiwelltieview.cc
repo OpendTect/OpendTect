@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.96 2011-11-07 15:50:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.97 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -191,7 +191,7 @@ void uiTieView::drawTraces()
 	const bool issynth = idx < midtrc;
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
-	trc->info().sampling = data_.synthtrc_.info().sampling;
+	trc->info().sampling = data_.seistrc_.info().sampling;
 	trc->info().sampling.scale( 1000 );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
@@ -431,19 +431,22 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
 }
 
 
-void uiCrossCorrView::set( float* arr, int sz, float lag, float coeff )
+void uiCrossCorrView::set( const Data::CorrelData& cd )
 {
     vals_.erase();
-    for ( int idx=0; idx<sz; idx++ )
-	vals_ += arr[idx];
-    lag_ = lag;
-    coeff_ = coeff;
+    for ( int idx=0; idx<cd.vals_.size(); idx++ )
+	vals_ += cd.vals_[idx];
+    lag_ = cd.lag_;
+    coeff_ = cd.coeff_;
 }
 
 
 void uiCrossCorrView::draw()
 {
     const int halfsz = vals_.size()/2;
+    if ( !vals_.validIdx( halfsz ) )
+	return;
+
     const float normalfactor = coeff_ / vals_[halfsz];
     TypeSet<float> xvals, yvals;
     for ( int idx=-halfsz; idx<halfsz; idx++)

@@ -152,7 +152,6 @@ protected:
     BufferStringSet             markernames_;
 
     Interval<float>		zrg_;
-    int				estwvltsz_;
     int				selidx_;
     BufferString		startmrknm_;
     BufferString		stopmrknm_;

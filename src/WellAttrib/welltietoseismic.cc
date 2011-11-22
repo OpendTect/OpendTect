@@ -7,11 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.72 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.73 2011-11-22 10:27:02 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
 #include "ioman.h"
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
+#include "raytrace1d.h"
 #include "synthseis.h"
 #include "seistrc.h"
 #include "wavelet.h"
@@ -52,6 +55,8 @@ bool DataPlayer::computeAll()
 
     copyDataToLogSet();
 
+    computeAdditionalInfo( disprg_ );
+
     return true;
 }
 
@@ -79,6 +84,9 @@ bool DataPlayer::processLog( const Well::Log* log,
 	const float prvval = log->value( idx-1 );
 	const float curval = log->value( idx );
 	const float nxtval = log->value( idx+1 );
+	if ( mIsUdf(prvval) || mIsUdf(curval) || mIsUdf(nxtval) )
+	    continue;
+
 	outplog.addValue( log->dah(idx), (prvval + curval + nxtval )/3 );
     }
 
@@ -111,8 +119,9 @@ bool DataPlayer::setAIModel()
     {
 	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
 	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
-	const float vel = pslog.getValue( dah1, true ); 
-	const float den = pdlog.getValue( dah1, true ); 
+	const bool inside = data_.dahrg_.includes( dah1, true );
+	const float vel = inside ? pslog.getValue( dah1, true ) : mUdf(float);
+	const float den = inside ? pdlog.getValue( dah1, true ) : mUdf(float);
 	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
     }
     return true;
@@ -128,19 +137,25 @@ bool DataPlayer::doFullSynthetics()
     gen.addModel( aimodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
-
+    IOPar par; 
+    par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
+    gen.usePar( par ); 
     gen.setTaskRunner( data_.trunner_ );
     if ( !gen.doRayTracing() )
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    rm.forceReflTimes( workrg_ );
+    StepInterval<float> reflrg = disprg_;
+    reflrg.step  = workrg_.step;
+    reflrg.start = wd_->d2TModel()->getTime( data_.dahrg_.start );
+    reflrg.stop  = wd_->d2TModel()->getTime( data_.dahrg_.stop );
+    rm.forceReflTimes( reflrg );
 
     if ( !gen.doSynthetics() )
 	mErrRet( gen.errMsg() )
 
-    rm.getSampledRefs( reflvals_ );
     data_.synthtrc_ = *rm.stackedTrc();
+    rm.getSampledRefs( reflvals_ );
     for ( int idx=0; idx<reflvals_.size(); idx++ )
     {
 	refmodel_ += ReflectivitySpike(); 
@@ -197,22 +212,31 @@ bool DataPlayer::copyDataToLogSet()
     if ( aimodel_.isEmpty() ) 
 	mErrRet( "No data found" )
 
-    TypeSet<float> dah, son, den, ai, synth, refs;
-    StepInterval<float> workintv = data_.timeintv_; 
+    TypeSet<float> dahlog, dahseis, son, den, ai, synth, refs;
+    int refid = 0;
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
+	const float dh = wd_->d2TModel()->getDah( workrg_.atIndex(workidx) );
+
+	dahseis += dh;
+	refs += reflvals_[idx];
+	synth += data_.seistrc_.get( idx, 0 ); 
+
+	if ( !data_.dahrg_.includes( dh, true ) )
+	    continue;
+
 	const AILayer& layer = aimodel_[workidx];
-	dah += wd_->d2TModel()->getDah( workrg_.atIndex(workidx) );
+	dahlog += dh;
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.vel_*layer.den_;
-	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
     }
-    createLog( data_.sonic(), dah.arr(), son.arr(), son.size() ); 
-    createLog( data_.density(), dah.arr(), den.arr(), den.size() ); 
-    createLog( data_.ai(), dah.arr(), ai.arr(), ai.size() );
-    createLog( data_.reflectivity(), dah.arr(), refs.arr(), refs.size()  );
+    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
+    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
+    createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
+    createLog( data_.reflectivity(), dahseis.arr(), refs.arr(), refs.size()  );
+    createLog( data_.synthetic(), dahseis.arr(), synth.arr(), synth.size()  );
 
     if ( data_.isSonic() )
     {
@@ -246,5 +270,71 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 	log->addValue( dah[idx], vals[idx] );
 }
 
+
+#define mDelAndReturn(yn) { delete [] seisarr;  delete [] syntharr; return yn;}
+bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
+{
+    const float step = disprg_.step;
+    const int nrsamps = (int)( zrg.width()/step )+1;
+
+    if ( nrsamps <= 1 )
+	errmsg_ = "Invalid time or depth range specified";
+
+    Data::CorrelData& cd = data_.correl_;
+    cd.vals_.setSize( nrsamps, 0 ); 
+
+    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
+
+#define mGetIdx data_.timeintv_.getIndex( zrg.atIndex( idx, step ) ) 
+    for ( int idx=0; idx<nrsamps; idx++ )
+    {
+	syntharr[idx] = data_.seistrc_.get( mGetIdx, 0 );
+	seisarr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
+    }
+    GeoCalculator gc;
+    cd.coeff_ = gc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
+    if ( data_.isinitwvltactive_ )
+    {
+	int wvltsz = data_.estimatedwvlt_.size();
+	wvltsz += wvltsz%2 ? 0 : 1;
+	data_.estimatedwvlt_.reSize( wvltsz );
+	if ( data_.timeintv_.nrSteps() < wvltsz )
+	{
+	    errmsg_ = "Seismic trace shorter than wavelet";
+	    mDelAndReturn(false)
+	}
+
+	const Well::Log* log = data_.logset_.getLog( data_.reflectivity() );
+	if ( !log )
+	{
+	    errmsg_ = "No reflectivity to estimate wavelet";
+	    mDelAndReturn(false);
+	}
+
+	mDeclareAndTryAlloc( float*, refarr, float[nrsamps] );
+	mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
+	mDeclareAndTryAlloc( float*, wvltshiftedarr, float[wvltsz] );
+
+	mGetWD()
+
+	const Well::D2TModel* d2t = wd_->d2TModel();
+	for ( int idx=0; idx<nrsamps; idx++ )
+	    refarr[idx]= log->getValue(d2t->getDah(zrg.atIndex(idx,step)),true);
+
+	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
+	for ( int idx=0; idx<wvltsz; idx++ )
+	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
+
+	Array1DImpl<float> wvltvals( wvltsz );
+	memcpy( wvltvals.getData(), wvltshiftedarr, wvltsz*sizeof(float) );
+	ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
+	window.apply( &wvltvals );
+	memcpy( data_.estimatedwvlt_.samples(),
+	wvltvals.getData(), wvltsz*sizeof(float) );
+	delete [] wvltarr;      delete [] wvltshiftedarr;  delete [] refarr;
+    }
+    mDelAndReturn(true)
+}
 
 }; //namespace WellTie
