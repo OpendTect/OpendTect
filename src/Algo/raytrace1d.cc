@@ -1,8 +1,15 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : May 1999
+________________________________________________________________________
+
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+Author:        Kris / Bruno
+Date:          2011
+________________________________________________________________________
+
 -*/
+
+
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.35 2011-11-22 10:28:08 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -17,8 +24,9 @@ mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
-    return par.getYN( sKeyPWave(), pdown_, pup_) &&
-	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_);
+    par.getYN( sKeyPWave(), pdown_, pup_);
+    par.get( sKeySRDepth(), sourcedepth_, receiverdepth_);
+    return true;
 }
 
 
@@ -81,7 +89,15 @@ void RayTracer1D::fillPar( IOPar& par ) const
 
 
 void RayTracer1D::setModel( const ElasticModel& lys )
-{ model_ = lys; }
+{ 
+    model_ = lys; 
+    for ( int idx=model_.size()-1; idx>=0; idx-- )
+    {
+	ElasticLayer& lay = model_[idx];
+	if ( mIsUdf( lay.vel_ ) && mIsUdf( lay.svel_ ) || mIsUdf( lay.den_ ) )
+	    model_.remove( idx );
+    }
+}
 
 
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
@@ -97,6 +113,8 @@ od_int64 RayTracer1D::nrIterations() const
 #define mVelMin 100
 bool RayTracer1D::doPrepare( int nrthreads )
 {
+    const int sz = model_.size();
+
     //See if we can find zero-offset
     bool found = false;
     for ( int idx=0; idx<offsets_.size(); idx++ )
@@ -109,8 +127,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
     }
     if ( !found )
 	offsets_ += 0;
-
-    const int sz = model_.size();
 
     if ( sz < 1 )
     {
@@ -137,11 +153,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	}
 	if ( pvel < mVelMin )
 	    pvel = mVelMin;
-	if ( mIsUdf( pvel ) && mIsUdf( svel ) )
-	{
-	    errmsg_ = "P-Wave or S-Wave velocities are invalid";
-	    return false;
-	}
     }
     const int layersize = nrIterations();
 
