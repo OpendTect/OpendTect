@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: raytrace1d.cc,v 1.35 2011-11-22 10:28:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.36 2011-11-22 18:30:07 cvsnanne Exp $";
 
 
 #include "raytrace1d.h"
@@ -94,7 +94,7 @@ void RayTracer1D::setModel( const ElasticModel& lys )
     for ( int idx=model_.size()-1; idx>=0; idx-- )
     {
 	ElasticLayer& lay = model_[idx];
-	if ( mIsUdf( lay.vel_ ) && mIsUdf( lay.svel_ ) || mIsUdf( lay.den_ ) )
+	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_)) || mIsUdf(lay.den_) )
 	    model_.remove( idx );
     }
 }
