@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embody.cc,v 1.6 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: embody.cc,v 1.7 2011-11-23 17:42:31 cvsyuancheng Exp $";
 
 #include "embody.h"
 #include "embodytr.h"
+#include "arrayndimpl.h"
 
 namespace EM
 {
@@ -30,7 +31,18 @@ ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
     inlsampling_ = ib.inlsampling_;
     crlsampling_ = ib.crlsampling_;
     zsampling_ = ib.zsampling_;
-    arr_ = ib.arr_;
+
+    delete arr_; arr_ = 0;
+    if ( ib.arr_ )
+    {
+	mDeclareAndTryAlloc( Array3DImpl<float>*, newarr,
+		Array3DImpl<float>(ib.arr_->info()) );
+	if ( newarr ) 
+	{
+	    newarr->copyFrom( *ib.arr_ );
+	    arr_ = newarr;
+	}
+    }
 
     return *this;
 }
