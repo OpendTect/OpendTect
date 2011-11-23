@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.35 2011-03-08 14:21:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.36 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -339,7 +339,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     appl_.applMgr().visServer()->objectaddedremoved.notify(
 				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
 
-    appl_.finaliseDone.notify( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
+    appl_.postFinalise().notify( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
     deseltimer_.tick.notify( mCB(this,uiODFaultToolMan,deselTimerCB) );
     editreadytimer_.tick.notify( mCB(this,uiODFaultToolMan,editReadyTimerCB) );
     flashtimer_.tick.notify( mCB(this,uiODFaultToolMan,flashOutputTimerCB) );
@@ -363,7 +363,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
     appl_.applMgr().visServer()->objectaddedremoved.remove(
 				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
 
-    appl_.finaliseDone.remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
+    appl_.postFinalise().remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
     IOM().surveyChanged.remove( mCB(this,uiODFaultToolMan,surveyChg) );
     EM::EMM().undo().undoredochange.remove(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );

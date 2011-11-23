@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.69 2011-11-18 23:14:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.70 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -96,7 +96,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     outfld_ = new uiIOObjSel( this, ctio_, "Output Well" );
     outfld_->attach( alignedBelow, but );
 
-    finaliseDone.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
+    postFinalise().notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 }
 
 

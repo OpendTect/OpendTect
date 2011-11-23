@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.35 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.36 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -270,7 +270,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
 
     fnmfld_->setDefaultSelectionDir( FilePath(data().fname_).pathOnly() );
-    finaliseDone.notify( mCB(this,uiSeisIOSimple,initFlds) );
+    postFinalise().notify( mCB(this,uiSeisIOSimple,initFlds) );
 }
 
 

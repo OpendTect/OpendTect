@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.12 2010-02-18 12:10:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.13 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -58,7 +58,7 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 	lbl->attach( rightOf, savesetupfld_ );
     }
 
-    finaliseDone.notify( mCB(this,uiSEGYReadDlg,initWin) );
+    postFinalise().notify( mCB(this,uiSEGYReadDlg,initWin) );
 }
 
 

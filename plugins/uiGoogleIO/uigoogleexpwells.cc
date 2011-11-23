@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleexpwells.cc,v 1.8 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleexpwells.cc,v 1.9 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uigoogleexpwells.h"
 #include "googlexmlwriter.h"
@@ -35,7 +35,7 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     mImplFileNameFld("wells");
     fnmfld_->attach( alignedBelow, llb );
 
-    finaliseStart.notify( mCB(this,uiGoogleExportWells,initWin) );
+    preFinalise().notify( mCB(this,uiGoogleExportWells,initWin) );
 }
 
 

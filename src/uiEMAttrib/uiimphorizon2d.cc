@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.32 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.33 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -248,7 +248,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	    			 mCB(this,uiImportHorizon2D,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_);
 
-    finaliseDone.notify( mCB(this,uiImportHorizon2D,formatSel) );
+    postFinalise().notify( mCB(this,uiImportHorizon2D,formatSel) );
 }
 
 

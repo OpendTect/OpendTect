@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.28 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.29 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -73,10 +73,10 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 		.modal(false)))
 {
     if ( mShowLightIcons )
-    finaliseDone.notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
+    postFinalise().notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
     pddlg_->setCtrlStyle( LeaveOnly );
-    pddlg_->finaliseDone.notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
+    pddlg_->postFinalise().notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
     scenefld_->attach( hCentered );

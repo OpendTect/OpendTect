@@ -81,7 +81,7 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
-    finaliseDone.notify( mCB(this,uiWellDahDisplay,init) );
+    postFinalise().notify( mCB(this,uiWellDahDisplay,init) );
 }
 
 

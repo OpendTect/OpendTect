@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.156 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.157 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -167,7 +167,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     if ( (nmfld_ && !*nmfld_->text()) || !nmfld_ )
 	selChg( this );
     setHAlignObj( topgrp_ );
-    finaliseDone.notify( mCB(this,uiIOObjSelGrp,setInitial) );
+    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
 
 

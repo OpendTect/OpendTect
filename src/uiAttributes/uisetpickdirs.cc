@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.25 2011-03-29 11:02:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.26 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -88,7 +88,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	    		      asd );
     thetafld_->attach( alignedBelow, phifld_ );
 
-    finaliseDone.notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    postFinalise().notify( mCB(this,uiSetPickDirs,dirinpSel) );
 }
 
 

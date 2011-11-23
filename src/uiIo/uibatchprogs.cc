@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.48 2011-05-26 05:32:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.49 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -240,7 +240,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     }
 
 
-    finaliseDone.notify( mCB(this,uiBatchProgLaunch,progSel) );
+    postFinalise().notify( mCB(this,uiBatchProgLaunch,progSel) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.57 2011-02-09 12:58:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.58 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -81,7 +81,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 	selmode_ = uiFileDialog::DirectoryOnly;
     }
 
-    mainObject()->finaliseDone.notify( mCB(this,uiFileInput,isFinalised) );
+    postFinalise().notify( mCB(this,uiFileInput,isFinalised) );
 }
 
 

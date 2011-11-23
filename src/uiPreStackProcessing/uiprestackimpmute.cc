@@ -8,7 +8,7 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.13 2009-08-21 12:41:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"
@@ -69,7 +69,7 @@ uiImportMute::uiImportMute( uiParent* p )
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
 
-    finaliseDone.notify( mCB(this,uiImportMute,formatSel) );
+    postFinalise().notify( mCB(this,uiImportMute,formatSel) );
 }
 
 

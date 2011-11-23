@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.73 2011-11-02 22:33:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.74 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -280,12 +280,12 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
-	handle_.finaliseStart.trigger( handle_ );
+	handle_.preFinalise().trigger( handle_ );
 
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
-	handle_.finaliseDone.trigger( handle_ );
+	handle_.postFinalise().trigger( handle_ );
 }
 
 

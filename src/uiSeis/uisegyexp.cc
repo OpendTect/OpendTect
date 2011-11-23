@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.41 2011-11-21 13:42:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.42 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -77,7 +77,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     }
     edfld_->setText( hdr_ );
     edfld_->attach( ensureBelow, autogenfld_ );
-    finaliseDone.notify( cb );
+    postFinalise().notify( cb );
 }
 
 void agSel( CallBacker* )
@@ -212,7 +212,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	manipbox_->attach( alignedBelow, fsfld_ );
     }
 
-    finaliseDone.notify( inpselcb );
+    postFinalise().notify( inpselcb );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.35 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.36 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiconvpos.h"
 #include "survinfo.h"
@@ -86,7 +86,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     filegrp->attach( alignedBelow, ismanfld );
 
     setCtrlStyle( LeaveOnly );
-    finaliseDone.notify( mCB(this,uiConvertPos,selChg) );
+    postFinalise().notify( mCB(this,uiConvertPos,selChg) );
 }
 
 

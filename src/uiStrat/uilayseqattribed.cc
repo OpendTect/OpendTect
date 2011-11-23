@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.5 2011-10-14 12:09:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.6 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -88,7 +88,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 
     fillFlds( rt );
     putToScreen();
-    finaliseDone.notify( mCB(this,uiLaySeqAttribEd,initWin) );
+    postFinalise().notify( mCB(this,uiLaySeqAttribEd,initWin) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.22 2010-12-14 03:57:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.23 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -54,7 +54,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     }
 
     setHAlignObj( filefld_ );
-    finaliseDone.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
+    postFinalise().notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
 
 

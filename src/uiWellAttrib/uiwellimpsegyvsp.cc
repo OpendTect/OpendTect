@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.18 2011-11-08 15:15:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.19 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -54,7 +54,7 @@ uiSEGYVSPBasicPars( uiWellImportSEGYVSP* p )
     , timr_(0)
 {
     butPush.notify( mCB(this,uiSEGYVSPBasicPars,selPush) );
-    finaliseDone.notify( mCB(this,uiSEGYVSPBasicPars,initWin) );
+    postFinalise().notify( mCB(this,uiSEGYVSPBasicPars,initWin) );
 }
 
 ~uiSEGYVSPBasicPars()
@@ -205,7 +205,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outistvdfld_ = new uiCheckBox( this, "TVDSS" );
     outistvdfld_->attach( rightOf, outinftfld_ );
 
-    finaliseDone.notify( mCB(this,uiWellImportSEGYVSP,isTimeChg) );
+    postFinalise().notify( mCB(this,uiWellImportSEGYVSP,isTimeChg) );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.9 2011-08-24 13:19:43 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.10 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -38,7 +38,7 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );
 
     addNameFld( seissel_ );
-    finaliseDone.notify( mCB(this,uiVolumeReader,volSel) );
+    postFinalise().notify( mCB(this,uiVolumeReader,volSel) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.97 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.98 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -72,7 +72,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 	, hostname_(hn)
 	, progname_(pn)
 {
-    finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
+    postFinalise().notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
     rshcomm_ = hdl.rshComm();
     if ( rshcomm_.isEmpty() ) rshcomm_ = "rsh";

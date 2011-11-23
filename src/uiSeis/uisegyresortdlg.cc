@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.7 2011-04-19 11:28:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.8 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -51,7 +51,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
 	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
 	geomfld_->valuechanged.notify( geomcb );
-	finaliseDone.notify( geomcb );
+	postFinalise().notify( geomcb );
     }
 
 

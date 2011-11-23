@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.53 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.54 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -103,7 +103,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	    unitfld_->setUnit( "Feet" );
     }
 
-    mainObject()->finaliseDone.notify( boxcb );
+    postFinalise().notify( boxcb );
 }
 
 
@@ -432,7 +432,7 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     if ( hdrinpgrp_ && bodyinpgrp_ )
 	bodyinpgrp_->attach( alignedBelow, hdrinpgrp_ );
 
-    finaliseDone.notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
+    postFinalise().notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
 }
 
 
@@ -640,7 +640,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     fmtdeffld_->descCommitted.notify( mCB(this,uiTableImpDataSel,descChg) );
 
     setHAlignObj( hdrtypefld_ );
-    mainObject()->finaliseDone.notify( typchgcb );
+    postFinalise().notify( typchgcb );
 }
 
 

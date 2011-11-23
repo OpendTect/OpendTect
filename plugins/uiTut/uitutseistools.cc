@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.22 2011-09-16 11:33:24 cvskris Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.23 2011-11-23 11:35:55 cvsbert Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -78,7 +78,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     outfld_->attach( alignedBelow, scalegrp_ );
     
     // Make sure only relevant stuff is displayed on startup
-    finaliseDone.notify( choicecb );
+    postFinalise().notify( choicecb );
 }
 
 

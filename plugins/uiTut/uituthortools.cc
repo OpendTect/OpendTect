@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.14 2010-02-09 05:15:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.15 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uituthortools.h"
 #include "tuthortools.h"
@@ -59,7 +59,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 	    		BoolInpSpec(true, "Low", "High") );
     strengthfld_->attach( alignedBelow, outfld_ );
 
-    finaliseDone.notify( mCB(this,uiTutHorTools,choiceSel) );
+    postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
 }
 
 

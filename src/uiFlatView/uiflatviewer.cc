@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.127 2011-10-07 14:40:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.128 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 
@@ -84,7 +84,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDrawCB) );
     reportedchanges_ += All;
 
-    mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
+    postFinalise().notify( mCB(this,uiFlatViewer,onFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.81 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.82 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -57,7 +57,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
     else
 	ctio_ = new CtxtIOObj( polygonEMBodyTranslator::getIOObjContext() );
 
-    finaliseDone.notify( mCB(this,uiIOSurface,objSel) );
+    postFinalise().notify( mCB(this,uiIOSurface,objSel) );
 }
 
 

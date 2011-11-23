@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.9 2011-08-22 11:56:07 cvskris Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.10 2011-11-23 11:35:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -477,7 +477,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     addStdFields( false, true );
     uppgrp_->setHAlignObj( horgrp );
 
-    finaliseDone.notify( mCB(this,uiCreate2DGrid,finaliseCB) );
+    postFinalise().notify( mCB(this,uiCreate2DGrid,finaliseCB) );
 }
 
 

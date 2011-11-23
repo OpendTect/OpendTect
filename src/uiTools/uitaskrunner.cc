@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.25 2011-07-09 23:58:14 cvskris Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.26 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 
@@ -60,7 +60,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     progbar_->setPrefWidthInChar( 50 );
 
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
-    finaliseStart.notify( mCB( this, uiTaskRunner, onFinalise ) );
+    preFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
 
     statusBar()->addMsgFld( "Current activity", Alignment::Left, 2 );
     statusBar()->addMsgFld( "Counted items", Alignment::Right, 2 );

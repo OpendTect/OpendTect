@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.21 2011-07-05 09:44:30 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.22 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -74,7 +74,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
 
-    p->finaliseDone.notify( axselcb );
+    p->postFinalise().notify( axselcb );
 }
 
 void axSel( CallBacker* )
@@ -185,7 +185,7 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
     d1fld_->setReadOnly( true );
     ccfld_->setReadOnly( true );
 
-    p->finaliseDone.notify( mCB(this,uiDPSCPStatsTab,initFlds) );
+    p->postFinalise().notify( mCB(this,uiDPSCPStatsTab,initFlds) );
 }
 
 void initFlds( CallBacker* )
@@ -286,7 +286,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     ckeckedCB( 0 );
     plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
-    p->finaliseDone.notify( mCB(this,uiDPSUserDefTab,initFlds) );
+    p->postFinalise().notify( mCB(this,uiDPSUserDefTab,initFlds) );
     p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setLines) );
 }
 

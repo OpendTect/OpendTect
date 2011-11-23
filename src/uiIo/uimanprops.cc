@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimanprops.cc,v 1.6 2011-10-14 12:09:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uimanprops.cc,v 1.7 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -55,7 +55,7 @@ uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     for ( int idx=0; idx<pnms.size(); idx++ )
 	addItem( pnms.get(idx) );
 
-    finaliseDone.notify( mCB(this,uiBuildPROPS,initGrp) );
+    postFinalise().notify( mCB(this,uiBuildPROPS,initGrp) );
 }
 
 void uiBuildPROPS::initGrp( CallBacker* )

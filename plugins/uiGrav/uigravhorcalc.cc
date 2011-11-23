@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.6 2011-05-04 14:39:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.7 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -79,7 +79,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 	    		BufferString("(on '",horioobj_->name(),"')") );
     lbl->attach( rightOf, attrnmfld_ );
 
-    finaliseDone.notify( mCB(this,uiGravHorCalc,initFlds) );
+    postFinalise().notify( mCB(this,uiGravHorCalc,initFlds) );
 }
 
 

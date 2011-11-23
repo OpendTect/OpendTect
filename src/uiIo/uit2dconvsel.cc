@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.4 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.5 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uit2dconvsel.h"
 
@@ -51,12 +51,12 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     {
 	const CallBack cb( mCB(this,uiT2DConvSel,inpSel) );
 	setup_.tiedto_->selectionDone.notify( cb );
-	finaliseDone.notify( cb );
+	postFinalise().notify( cb );
     }
 
     const CallBack cb( mCB(this,uiT2DConvSel,choiceSel) );
     choicefld_->selectionChanged.notify( cb );
-    finaliseDone.notify( cb );
+    postFinalise().notify( cb );
 }
 
 

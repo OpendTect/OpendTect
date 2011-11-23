@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.43 2011-05-26 10:27:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.44 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
@@ -131,7 +131,7 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     if ( !forread_ ) fld_->addItem( "" );
     setHAlignObj( lcb );
     if ( !forread_ )
-	finaliseDone.notify( mCB(this,uiSeis2DLineNameSel,fillAll) );
+	postFinalise().notify( mCB(this,uiSeis2DLineNameSel,fillAll) );
     fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
 }
 
@@ -250,7 +250,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
     }
 
-    finaliseDone.notify( mCB(this,uiSeis2DMultiLineSelDlg,finalised) );
+    postFinalise().notify( mCB(this,uiSeis2DMultiLineSelDlg,finalised) );
 }
 
 

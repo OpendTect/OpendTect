@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uigmtclip.cc,v 1.1 2011-05-10 03:53:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtclip.cc,v 1.2 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uigmtclip.h"
 
@@ -52,7 +52,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
 						       "Clip Inside",true) );
     optionfld_->attach( alignedBelow, polygonfld_ );
     actionfld_->valuechanged.notify( mCB(this,uiGMTClipGrp,actionSel) );
-    finaliseDone.notify( mCB(this,uiGMTClipGrp,actionSel) );
+    postFinalise().notify( mCB(this,uiGMTClipGrp,actionSel) );
 }
 
 

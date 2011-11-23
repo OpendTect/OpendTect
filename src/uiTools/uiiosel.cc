@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.66 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.67 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -72,8 +72,8 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 
     setHAlignObj( alobj );
     setHCentreObj( alobj );
-    mainObject()->finaliseStart.notify( mCB(this,uiIOSelect,doFinalise) );
-    mainObject()->finaliseDone.notify( mCB(this,uiIOSelect,optCheck) );
+    preFinalise().notify( mCB(this,uiIOSelect,doFinalise) );
+    postFinalise().notify( mCB(this,uiIOSelect,optCheck) );
 }
 
 

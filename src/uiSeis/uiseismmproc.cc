@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.140 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.141 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -249,7 +249,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     progbar->attach( widthSameAs, progrfld );
     progbar->attach( alignedBelow, progrfld );
 
-    finaliseDone.notify( mCB(this,uiSeisMMProc,initWin) );
+    postFinalise().notify( mCB(this,uiSeisMMProc,initWin) );
 }
 
 

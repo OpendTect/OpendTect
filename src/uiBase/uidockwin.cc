@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidockwin.cc,v 1.35 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uidockwin.cc,v 1.36 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uidockwin.h"
 #include "uigroup.h"
@@ -76,10 +76,10 @@ uiDockWinBody::~uiDockWinBody( )
 
 void uiDockWinBody::finalise()
 {
-    handle_.finaliseStart.trigger( handle_ );
+    handle_.preFinalise().trigger( handle_ );
     centralWidget_->finalise();
     finaliseChildren();
-    handle_.finaliseDone.trigger( handle_ );
+    handle_.postFinalise().trigger( handle_ );
 }
 
 

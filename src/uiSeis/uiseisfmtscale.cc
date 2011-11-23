@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.29 2011-10-06 21:39:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.30 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"
@@ -172,7 +172,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 	scalefld_ = new uiScaler( this, 0, true );
 
     setHAlignObj( compfld_ ? (uiGroup*)compfld_ : (uiGroup*)scalefld_ );
-    mainwin()->finaliseDone.notify( mCB(this,uiSeisFmtScale,updSteer) );
+    postFinalise().notify( mCB(this,uiSeisFmtScale,updSteer) );
 }
 
 

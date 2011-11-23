@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.146 2011-11-02 11:40:51 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.147 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -395,7 +395,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	    			  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, selgrp_ );
 
-    finaliseDone.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    postFinalise().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
 }
 
 ~uiODMainAutoSessionDlg()

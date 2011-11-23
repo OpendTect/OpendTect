@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadm.cc,v 1.6 2011-04-25 03:49:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodsysadm.cc,v 1.7 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
@@ -120,7 +120,7 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     mAddTask(3,"Attribute sets",doAttribSets,
      "Add/Remove attribute sets to/from the standard default attribute sets" );
 
-    finaliseStart.notify( mCB(this,uiODSysAdm,setInitial) );
+    preFinalise().notify( mCB(this,uiODSysAdm,setInitial) );
 }
 
 

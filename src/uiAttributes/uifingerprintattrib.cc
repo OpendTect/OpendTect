@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.70 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.71 2011-11-23 11:35:55 cvsbert Exp $";
 
 -*/
 
@@ -654,7 +654,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 	new uiPushButton( this, "Calculate &parameters", cbcalc, true);
     calcbut->attach( alignedBelow, (uiParent*)attrvalsgrp );
     
-    finaliseDone.notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
+    postFinalise().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
 }
 
 

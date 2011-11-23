@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.55 2011-11-14 07:39:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.56 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -91,7 +91,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 
     setDescSet( d );
-    finaliseDone.notify( mCB(this,uiAttribCrossPlot,initWin) );
+    postFinalise().notify( mCB(this,uiAttribCrossPlot,initWin) );
 }
 
 

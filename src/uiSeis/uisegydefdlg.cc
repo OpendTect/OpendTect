@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.20 2011-05-18 13:21:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.21 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -91,7 +91,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
 
-    finaliseDone.notify( mCB(this,uiSEGYDefDlg,initFlds) );
+    postFinalise().notify( mCB(this,uiSEGYDefDlg,initFlds) );
     	// Need this to get zero padding right
 }
 

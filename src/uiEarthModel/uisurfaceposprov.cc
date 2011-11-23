@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.11 2011-10-17 10:19:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.12 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -75,7 +75,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     }
 
     setHAlignObj( surf1fld_ );
-    mainwin()->finaliseDone.notify( selcb );
+    postFinalise().notify( selcb );
 }
 
 

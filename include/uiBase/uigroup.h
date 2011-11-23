@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.41 2011-06-08 14:58:23 cvsbruno Exp $
+ RCS:           $Id: uigroup.h,v 1.42 2011-11-23 11:35:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,11 @@ public:
     static uiGroup*	gtDynamicCastToGrp( QWidget* );
 
     void		setChildrenSensitive(bool);
+
+    virtual Notifier<uiBaseObject>& preFinalise()
+				{ return mainObject()->preFinalise(); }
+    virtual Notifier<uiBaseObject>& postFinalise()
+				{ return mainObject()->postFinalise(); }
 
 protected:
 

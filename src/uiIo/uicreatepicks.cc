@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.24 2011-09-16 10:59:58 cvskris Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.25 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -218,7 +218,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
 
-    finaliseStart.notify( mCB(this,uiGenRandPicks2D,geomSel) );
+    preFinalise().notify( mCB(this,uiGenRandPicks2D,geomSel) );
 }
 
 

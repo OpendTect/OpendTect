@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwizard.cc,v 1.14 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwizard.cc,v 1.15 2011-11-23 11:35:56 cvsbert Exp $";
 
 
 #include "uiwizard.h"
@@ -21,7 +21,7 @@ uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
     , pageidx(0)
     , rotatemode(false)
 {
-    finaliseDone.notify( mCB(this,uiWizard,doFinalise) );
+    postFinalise().notify( mCB(this,uiWizard,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.130 2011-05-26 05:34:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.131 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -244,7 +244,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     zinftfld_->attach( leftTo, applybut );
     zinftfld_->attach( leftBorder );
 
-    finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+    postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.6 2011-03-08 14:29:47 cvsjaap Exp $
+ RCS:           $Id: uibaseobject.h,v 1.7 2011-11-23 11:35:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,16 +41,22 @@ public:
     void			endCmdRecEvent(od_uint64 id,int refnr,
 					       const char* msg=0);
 
-    Notifier<uiBaseObject>	finaliseStart;
-				//!< triggered when about to start finalising
-    Notifier<uiBaseObject>	finaliseDone;
-    				//!< triggered when finalising finished
     Notifier<uiBaseObject>	tobeDeleted;
 				//!< triggered in destructor
+
+    virtual Notifier<uiBaseObject>& preFinalise()
+				{ return finaliseStart; }
+    virtual Notifier<uiBaseObject>& postFinalise()
+				{ return finaliseDone; }
 
 protected:
 
     void			setBody( uiBody* b )	{ body_ = b; }
+
+    Notifier<uiBaseObject>	finaliseStart;
+				//!< triggered when about to start finalising
+    Notifier<uiBaseObject>	finaliseDone;
+    				//!< triggered when finalising finished
 
 private:
     static CallBack*		cmdrecorder_;

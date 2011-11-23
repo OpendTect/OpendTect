@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiviszstretchdlg.cc,v 1.2 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiviszstretchdlg.cc,v 1.3 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiviszstretchdlg.h"
 
@@ -63,7 +63,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     if ( scenefld )
 	sliderfld->attach( alignedBelow, scenefld );
 
-    finaliseStart.notify( mCB(this,uiZStretchDlg,doFinalise) );
+    preFinalise().notify( mCB(this,uiZStretchDlg,doFinalise) );
 }
 
 

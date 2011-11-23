@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.10 2011-09-16 11:01:15 cvskris Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.11 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -64,7 +64,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
 
     sep->attach( stretchedBelow, tapergrp_  );
 
-    finaliseDone.notify( mCB(tapergrp_, uiFreqTaperGrp, taperChged ) );
+    postFinalise().notify( mCB(tapergrp_, uiFreqTaperGrp, taperChged ) );
 }
 
 
@@ -258,7 +258,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     }
     
     setPercentsFromFreq();
-    finaliseDone.notify( mCB( this, uiFreqTaperGrp, putToScreen ) );
+    postFinalise().notify( mCB( this, uiFreqTaperGrp, putToScreen ) );
 }
 
 

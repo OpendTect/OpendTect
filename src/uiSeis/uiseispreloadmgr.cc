@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.28 2011-08-03 15:09:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.29 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -89,7 +89,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 
-    finaliseDone.notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
+    postFinalise().notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
 }
 
 

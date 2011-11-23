@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.7 2011-05-12 06:40:39 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.8 2011-11-23 11:35:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     usecolorbut_ = new uiCheckBox( this, "Use fault color",
 	    			   mCB(this,uiGMTFaultsGrp,useColorCB) );
     usecolorbut_->attach( rightOf, colorfld_ );
-    finaliseDone.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
+    postFinalise().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
 }
 
 

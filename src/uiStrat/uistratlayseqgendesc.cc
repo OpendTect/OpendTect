@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.33 2011-10-11 11:24:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.34 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -373,7 +373,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     unfld_->attach( rightOf, rgfld_ );
 
     setFrom( prop );
-    finaliseDone.notify( mCB(this,uiSimpPropertyEd,updDisp) );
+    postFinalise().notify( mCB(this,uiSimpPropertyEd,updDisp) );
     setHAlignObj( valfld_ );
 }
 

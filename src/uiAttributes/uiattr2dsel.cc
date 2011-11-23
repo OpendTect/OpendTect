@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.12 2010-06-21 14:16:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.13 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -74,7 +74,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     }
 
     selgrp_->selectButton( seltype_ );
-    finaliseStart.notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
+    preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.30 2011-04-18 10:58:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.31 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -307,7 +307,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 
-    finaliseDone.notify( mCB(this,uiEvaluateDlg,doFinalise) );
+    postFinalise().notify( mCB(this,uiEvaluateDlg,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.25 2011-09-16 11:01:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.26 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -81,7 +81,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
 
     createCommonUIFlds();
-    finaliseDone.notify( mCB(this,uiWaveletExtraction,choiceSelCB) );
+    postFinalise().notify( mCB(this,uiWaveletExtraction,choiceSelCB) );
 }
 
 

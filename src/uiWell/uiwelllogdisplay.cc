@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.90 2011-11-02 15:26:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.91 2011-11-23 11:35:56 cvsbert Exp $";
 
 
 
@@ -83,7 +83,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     delete ld1_; delete ld2_;
     ld1_ = new LogData( scene(), true, su );
     ld2_ = new LogData( scene(), false, su );
-    finaliseDone.notify( mCB(this,uiWellLogDisplay,init) );
+    postFinalise().notify( mCB(this,uiWellLogDisplay,init) );
 }
 
 

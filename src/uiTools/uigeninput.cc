@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.95 2011-09-06 12:02:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.96 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uigeninput.h"
 #include "uigeninput_impl.h"
@@ -513,7 +513,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     inputs += new StringInpSpec( inputStr );
     if ( disptxt && *disptxt )
 	inputs[0]->setName( disptxt );
-    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -525,7 +525,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
     const bool inputhasnm = inputs[0]->name() && *inputs[0]->name();
     if ( disptxt && *disptxt && !inputhasnm )
 	inputs[0]->setName( disptxt );
-    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -535,7 +535,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
-    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -547,7 +547,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     inputs += inp1.clone();
     inputs += inp2.clone();
     inputs += inp3.clone();
-    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -562,7 +562,7 @@ uiGenInput::~uiGenInput()
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs += inp.clone();
-    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 

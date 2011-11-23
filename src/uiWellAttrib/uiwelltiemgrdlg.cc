@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.50 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.51 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -150,7 +150,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     crwvltbut->attach( rightOf, wvltfld_ );
 
     selChg(0);
-    finaliseDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
+    postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 }
 
 

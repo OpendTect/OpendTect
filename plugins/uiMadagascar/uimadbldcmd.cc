@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.23 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.24 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uitoolbutton.h"
@@ -202,7 +202,7 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
     uiGroup* lowgrp = createLowGroup();
     lowgrp->attach( ensureBelow, proggrp );
 
-    mainwin()->finaliseDone.notify( mCB(this,uiMadagascarBldCmd,onPopup) );
+    postFinalise().notify( mCB(this,uiMadagascarBldCmd,onPopup) );
 }
 
 

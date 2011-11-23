@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscaler.cc,v 1.23 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscaler.cc,v 1.24 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiscaler.h"
 #include "scaler.h"
@@ -52,7 +52,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 	basefld->attach( alignedBelow, typefld );
     }
 
-    mainObject()->finaliseStart.notify( mCB(this,uiScaler,doFinalise) );
+    preFinalise().notify( mCB(this,uiScaler,doFinalise) );
     setHAlignObj( linearfld );
 }
 

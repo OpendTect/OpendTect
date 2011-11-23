@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.37 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.38 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -99,7 +99,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     winflds[1]->attach( alignedBelow, freqwinselfld );
     winflds[1]->setSensitive( false );
     
-    mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
+    postFinalise().notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
     setHAlignObj( inpfld );
 }
 

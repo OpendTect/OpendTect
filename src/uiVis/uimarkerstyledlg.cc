@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.12 2010-07-21 07:55:31 cvskris Exp $";
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.13 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uimarkerstyledlg.h"
 
@@ -29,7 +29,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
     stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleDlg,sliderMove));
     stylefld_->colSel()->notify( mCB(this,uiMarkerStyleDlg,colSel) );
 
-    finaliseStart.notify( mCB(this,uiMarkerStyleDlg,doFinalise) );
+    preFinalise().notify( mCB(this,uiMarkerStyleDlg,doFinalise) );
 }
 
 

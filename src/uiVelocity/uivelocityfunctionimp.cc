@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.15 2010-11-19 17:00:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.16 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -68,7 +68,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
 
-    finaliseDone.notify( mCB(this,uiImportVelFunc,formatSel) );
+    postFinalise().notify( mCB(this,uiImportVelFunc,formatSel) );
     velTypeChangeCB( 0 );
 }	
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.10 2010-10-07 07:15:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.11 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -196,7 +196,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 	   		      StringInpSpec("srun") );
     cmdfld_->attach( alignedBelow, masterscriptfld_ );
 
-    finaliseDone.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
+    postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 }
 
 

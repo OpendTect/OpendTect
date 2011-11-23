@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.9 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.10 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiautoattrdescset.h"
 
@@ -64,7 +64,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     loadbutton_ = new uiCheckBox( this, "Load Now" );
     loadbutton_->attach( alignedBelow, selgrp_ ); 
 
-    finaliseDone.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
+    postFinalise().notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 }
 
 
@@ -155,7 +155,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     lbl_ = new uiLabel( this, "Survey-defined sets" );
     lbl_->attach( leftTo, selgrp_ );
 
-    finaliseDone.notify( mCB(this,uiAutoAttrSetOpen,setChg) );
+    postFinalise().notify( mCB(this,uiAutoAttrSetOpen,setChg) );
 }
 
 

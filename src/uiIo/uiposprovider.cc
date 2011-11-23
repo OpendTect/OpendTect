@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.26 2011-11-14 07:39:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.27 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -84,7 +84,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     }
 
     setHAlignObj( grps_[0] );
-    mainwin()->finaliseDone.notify( selcb );
+    postFinalise().notify( selcb );
 }
 
 

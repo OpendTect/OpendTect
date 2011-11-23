@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.46 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.47 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -152,7 +152,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 					     uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
-    finaliseDone.notify( mCB(this,uiColorTableMan,doFinalise) );
+    postFinalise().notify( mCB(this,uiColorTableMan,doFinalise) );
 }
 
 

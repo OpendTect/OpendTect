@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidlggroup.cc,v 1.10 2009-11-24 09:23:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidlggroup.cc,v 1.11 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uidlggroup.h"
 
@@ -21,7 +21,7 @@ uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& dlgsetup )
     tabstack_ = new uiTabStack( this, "TabStack" );
     tabstack_->selChange().notify( mCB(this,uiTabStackDlg,selChange));
 
-    finaliseDone.notify( mCB( this,uiTabStackDlg,selChange));
+    postFinalise().notify( mCB( this,uiTabStackDlg,selChange));
 }
 
 

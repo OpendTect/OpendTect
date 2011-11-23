@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.18 2011-05-18 09:26:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.19 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -216,7 +216,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     fnmfld_->attach( ensureBelow, sep );
     fnmfld_->attach( hCentered );
 
-    finaliseDone.notify( mCB(this,uiSEGYFileManip,initWin) );
+    postFinalise().notify( mCB(this,uiSEGYFileManip,initWin) );
 }
 
 

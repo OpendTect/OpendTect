@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.22 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.23 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -144,7 +144,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	flds_ += fld;
     }
 
-    finaliseDone.notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
+    postFinalise().notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
 }
 
 void butPush( CallBacker* cb )
@@ -307,7 +307,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 
     useglobfld_->valuechanged.notify( dispcb );
-    finaliseDone.notify( dispcb );
+    postFinalise().notify( dispcb );
 }
 
 

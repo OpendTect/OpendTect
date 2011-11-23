@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.19 2011-07-08 05:41:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.20 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uistratamp.h"
 
@@ -88,7 +88,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     uppgrp_->setHAlignObj( inpfld_ );
     setParFileName();
 
-    finaliseDone.notify( mCB(this,uiStratAmpCalc,choiceSel) );
+    postFinalise().notify( mCB(this,uiStratAmpCalc,choiceSel) );
 }
 
 

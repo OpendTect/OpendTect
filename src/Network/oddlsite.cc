@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.4 2011-11-22 12:57:56 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.5 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -74,11 +74,11 @@ bool ODDLSite::reConnect()
 	    errmsg_ = "Cannot open connection to ";
 	    errmsg_.add( host_ ).add ( ":\n" );
 	    if ( odhttp_.state() == ODHttp::HostLookup )
-		errmsg_.add ( ":\nHost name lookup timeout" );
+		errmsg_.add ( "Host name lookup timeout" );
 	    if ( odhttp_.state() == ODHttp::Connecting )
-		errmsg_.add ( ":\nHost doesn't respond" );
+		errmsg_.add ( "Host doesn't respond" );
 	    else
-		errmsg_.add ( ":\nInternet connection not available" );
+		errmsg_.add ( "Internet connection not available" );
 	    isfailed_ = true;
 	    return false;
 	}

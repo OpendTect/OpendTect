@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.27 2010-12-02 16:31:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.28 2011-11-23 11:35:56 cvsbert Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -161,8 +161,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typeChoice(0);
 
     sliderfld_->attach( ensureBelow, freqdrawer_ );
-    finaliseDone.notify( mCB( this, uiSeisWvltTaperDlg, act ) );
-
+    postFinalise().notify( mCB( this, uiSeisWvltTaperDlg, act ) );
 }     
 
 

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.33 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.34 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -108,7 +108,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	    			mCB(this,uiMadIOSelDlg,sconsCB) );
     sconsfld_->attach( rightTo, madfld_ );
 
-    finaliseDone.notify( mCB(this,uiMadIOSelDlg,initWin) );
+    postFinalise().notify( mCB(this,uiMadIOSelDlg,initWin) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistereodlg.cc,v 1.11 2011-03-04 11:35:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistereodlg.cc,v 1.12 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uistereodlg.h"
 
@@ -27,7 +27,7 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
 	   		"Offset slider" );
     sliderfld->sldr()->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
 
-    finaliseStart.notify( mCB(this,uiStereoDlg,doFinalise) );
+    preFinalise().notify( mCB(this,uiStereoDlg,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.54 2011-06-16 10:30:10 cvsumesh Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.55 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -91,7 +91,7 @@ void uiSteeringSel::createFields()
     dipfld_->attach( alignedBelow, dirfld_ );
 
     setHAlignObj( inpfld_ );
-    mainObject()->finaliseStart.notify( mCB(this,uiSteeringSel,doFinalise) );
+    preFinalise().notify( mCB(this,uiSteeringSel,doFinalise) );
 }
 
 
@@ -277,7 +277,7 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 	, attrdata_( is2d )
 {
     attrdata_.setAttrSet( ads );
-    attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
+    preFinalise().notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
 
 

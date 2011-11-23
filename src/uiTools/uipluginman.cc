@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.29 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.30 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -50,7 +50,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
     infofld->setPrefWidthInChar( 70 );
     infofld->setPrefHeightInChar( 20 );
 
-    finaliseDone.notify( mCB(this,uiPluginMan,selChg) );
+    postFinalise().notify( mCB(this,uiPluginMan,selChg) );
 }
 
 

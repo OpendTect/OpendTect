@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.12 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.13 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -101,7 +101,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	grps_[idx]->attach( alignedBelow, attobj );
 
     setHAlignObj( grps_[0] );
-    mainwin()->finaliseDone.notify( selcb );
+    postFinalise().notify( selcb );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.61 2010-12-02 04:10:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.62 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -104,7 +104,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
 					    	    "Select extra options",
 						    "104.4.1" ) );
-    xparsdlg_->finaliseDone.notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
+    xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
     
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top surface:");

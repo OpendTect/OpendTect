@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.13 2011-08-24 05:57:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -50,7 +50,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 	setFldVals( 0 );
     }
 
-    finaliseDone.notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
+    postFinalise().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
     unitChg(0);
 }

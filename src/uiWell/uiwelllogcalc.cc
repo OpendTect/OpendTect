@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.13 2011-09-01 12:16:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -179,7 +179,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
 	unfld_->addItem( uns[idx]->name() );
     lcb->attach( alignedBelow, nmfld_ );
 
-    finaliseDone.notify( formsetcb );
+    postFinalise().notify( formsetcb );
 }
 
 

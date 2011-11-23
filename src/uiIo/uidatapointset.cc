@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.84 2011-11-18 14:31:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.85 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -133,7 +133,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
 
-    finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
+    postFinalise().notify( mCB(this,uiDataPointSet,initWin) );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -1176,7 +1176,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, tabfld_ );
 
-    finaliseDone.notify( tccb );
+    postFinalise().notify( tccb );
 }
 
 ~uiDataPointSetSave()

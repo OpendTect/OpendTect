@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.34 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.35 2011-11-23 11:35:55 cvsbert Exp $";
 
 
 #include "uiobjbody.h"
@@ -160,10 +160,10 @@ void uiObjectBody::finalise()
 {
     if ( finalised_ ) return;
 
-    uiObjHandle().finaliseStart.trigger( uiObjHandle() );
+    uiObjHandle().preFinalise().trigger( uiObjHandle() );
     finalise_();
     finalised_ = true;
-    uiObjHandle().finaliseDone.trigger( uiObjHandle() );
+    uiObjHandle().postFinalise().trigger( uiObjHandle() );
     if ( !display_ ) 
 	display( display_ );
 }

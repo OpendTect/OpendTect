@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.51 2011-08-03 15:09:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.52 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -280,7 +280,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 				    mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->attach( alignedBelow, renamebut );
 
-    finaliseDone.notify( selchgcb );
+    postFinalise().notify( selchgcb );
 }
 
 

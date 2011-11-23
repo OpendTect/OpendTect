@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.224 2011-05-27 12:04:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.225 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -384,13 +384,13 @@ void uiMainWinBody::popTimTick( CallBacker* )
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
-	handle_.finaliseStart.trigger( handle_ );
+	handle_.preFinalise().trigger( handle_ );
 
     centralWidget_->finalise();
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
-	handle_.finaliseDone.trigger( handle_ );
+	handle_.postFinalise().trigger( handle_ );
 }
 
 
@@ -1508,7 +1508,7 @@ void uiDialogBody::finalise( bool )
 {
     uiMainWinBody::finalise( false ); 
 
-    handle_.finaliseStart.trigger( handle_ );
+    handle_.preFinalise().trigger( handle_ );
 
     dlgGroup->finalise();
 
@@ -1517,7 +1517,7 @@ void uiDialogBody::finalise( bool )
 
     finaliseChildren();
 
-    handle_.finaliseDone.trigger( handle_ );
+    handle_.postFinalise().trigger( handle_ );
 }
 
 

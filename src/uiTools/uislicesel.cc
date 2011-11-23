@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.61 2011-09-02 13:11:50 cvskris Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.62 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uislicesel.h"
 
@@ -179,7 +179,7 @@ uiSliceScroll( uiSliceSel* ss )
     dtfld_ = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(2));
     dtfld_->attach( alignedBelow, ctrlbut );
 
-    finaliseDone.notify( mCB(this,uiSliceScroll,typSel) );
+    postFinalise().notify( mCB(this,uiSliceScroll,typSel) );
 }
 
 

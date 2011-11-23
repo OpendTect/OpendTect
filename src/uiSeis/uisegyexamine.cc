@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.30 2011-05-05 13:06:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.31 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -118,7 +118,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     str += su.nrtrcs_; str += " traces ...";
     outInfo( str );
 
-    finaliseDone.notify( mCB(this,uiSEGYExamine,onStartUp) );
+    postFinalise().notify( mCB(this,uiSEGYExamine,onStartUp) );
 }
 
 

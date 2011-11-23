@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.132 2011-11-17 20:21:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.133 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -265,7 +265,7 @@ uiSurvey::uiSurvey( uiParent* p )
     mkInfo();
     setOkText( "&Ok (Select)" );
 
-    finaliseDone.notify( mCB(this,uiSurvey,selChange) );
+    postFinalise().notify( mCB(this,uiSurvey,selChange) );
 }
 
 

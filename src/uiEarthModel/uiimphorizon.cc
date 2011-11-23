@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.138 2011-05-09 05:42:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.139 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -144,7 +144,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     else
 	outputfld_->attach( alignedBelow, subselfld_ );
 
-    finaliseDone.notify( mCB(this,uiImportHorizon,formatSel) );
+    postFinalise().notify( mCB(this,uiImportHorizon,formatSel) );
 }
 
 

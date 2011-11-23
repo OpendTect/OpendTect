@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.55 2011-10-21 12:29:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.56 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -35,7 +35,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     setBorder( 0 );
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
-	vwr.attachObj()->parent()->finaliseDone.notify(
+	vwr.attachObj()->parent()->postFinalise().notify(
 				    mCB(this,uiFlatViewControl,onFinalise) );
     viewerAdded.notify( mCB(this,uiFlatViewControl,vwrAdded) );
 }

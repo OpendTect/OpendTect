@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.219 2011-03-25 07:08:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.220 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -157,7 +157,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
     leftgrp->attach( leftOf, mdiarea_ );
-    appl_.finaliseDone.notify( mCB(this,uiODSceneMgr,afterFinalise) );
+    appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
 }
 
 

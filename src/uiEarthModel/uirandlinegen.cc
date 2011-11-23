@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.22 2011-09-16 10:59:42 cvskris Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.23 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -96,7 +96,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 
-    finaliseDone.notify( cb );
+    postFinalise().notify( cb );
 }
 
 

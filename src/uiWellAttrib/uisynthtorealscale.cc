@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.12 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.13 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -197,7 +197,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     wvltfld_ = new uiIOObjSel( this, wvltctxt, "Save scaled Wavelet as" );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 
-    finaliseDone.notify( mCB(this,uiSynthToRealScale,initWin) );
+    postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
 }
 
 

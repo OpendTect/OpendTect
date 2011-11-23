@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.74 2011-05-27 11:52:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.75 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -198,7 +198,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     else if ( nlafld_ )
 	nlafld_->setChecked(true);
 
-    finaliseStart.notify( mCB( this,uiAttrSelDlg,doFinalise) );
+    preFinalise().notify( mCB( this,uiAttrSelDlg,doFinalise) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicompparsel.cc,v 1.7 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicompparsel.cc,v 1.8 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uicompoundparsel.h"
 #include "uigeninput.h"
@@ -31,7 +31,7 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
     setHAlignObj( txtfld_ );
     setHCentreObj( txtfld_ );
 
-    mainObject()->finaliseDone.notify( mCB(this,uiCompoundParSel,updSummary) );
+    postFinalise().notify( mCB(this,uiCompoundParSel,updSummary) );
 }
 
 

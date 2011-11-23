@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.41 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.42 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -69,7 +69,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     setParFileNmDef( "Mad_Proc" );
     parfnamefld_->setDefaultSelectionDir( ODMad::FileSpec::defPath() );
     updateCaption();
-    finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
+    postFinalise().notify( mCB(this,uiMadagascarMain,setButStates) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.20 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.21 2011-11-23 11:35:56 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -391,7 +391,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     outfld_ = new uiGenInput( this, "New line name", StringInpSpec() );
     outfld_->attach( alignedBelow, snapdistfld_ );
 
-    finaliseDone.notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
+    postFinalise().notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
 }
 
 void initWin( CallBacker* )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilatlong.cc,v 1.7 2009-10-29 12:44:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uilatlong.cc,v 1.8 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uilatlong2coord.h"
 #include "uilatlonginp.h"
@@ -125,7 +125,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     lblgrp->attach( rightOf, bgrp );
     inpgrp->attach( rightOf, lblgrp );
     setHAlignObj( inpgrp );
-    finaliseDone.notify( tscb );
+    postFinalise().notify( tscb );
 }
 
 

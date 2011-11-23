@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.44 2011-08-04 14:04:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.45 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -639,7 +639,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     else if ( coordgrp_ )
 	mDefObjs( coordgrp_ )
 
-    mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,initFlds) );
+    preFinalise().notify( mCB(this,uiSEGYFileOpts,initFlds) );
 }
 
 

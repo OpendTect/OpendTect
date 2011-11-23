@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninputdlg.cc,v 1.13 2010-10-28 11:09:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninputdlg.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
 
 #include "uigeninputdlg.h"
 #include "uigeninput.h"
@@ -106,7 +106,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
 {
     group = new uiGenInputGrp( this, dlgtitle, fldtxt, spec );
-    finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );
+    postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 
@@ -115,7 +115,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
 {
     group = new uiGenInputGrp( this, dlgtitle, e );
-    finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );
+    postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 

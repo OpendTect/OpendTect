@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.20 2011-09-06 13:13:37 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.21 2011-11-23 11:35:55 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -58,7 +58,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     applybut_->attach( rightBorder );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
-    finaliseDone.notify( mCB(this,uiViewer3DPositionDlg,atStart) );
+    postFinalise().notify( mCB(this,uiViewer3DPositionDlg,atStart) );
     viewer_.draggermoving.notify( mCB(this,uiViewer3DPositionDlg,renewFld) );
 }
 
