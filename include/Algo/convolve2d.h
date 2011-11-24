@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.15 2010-09-10 06:28:19 cvsranojay Exp $
+ RCS:           $Id: convolve2d.h,v 1.16 2011-11-24 14:39:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,9 @@ protected:
     float_complex*	yf_;
     float_complex*	zf_;
 
+    bool		updatexf_;
+    bool		updateyf_;
+
     Fourier::CC*	fft_;
 };
 
@@ -87,27 +90,6 @@ bool Convolver2D<T>::shouldFFT() const
 { return false; }
 
 
-class FFTConvolve2D : public Convolver2D<float>
-{
-    typedef 		Convolver2D<float> inherited;
-public:
-    			FFTConvolve2D();
-    od_int64		nrIterations() const;
-    void		setX(const Array2D<float>&);
-    void		setY(const Array2D<float>&);
-
-protected:
-    bool		doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
-    od_int64		totalNr() const;
-
-    char			dofft_; //1 - yes, -1 no, 0 no idea
-    Array2D<float_complex>*	xf_;
-    Array2D<float_complex>*	yf_;
-    Array2D<float_complex>*	zf_;
-};
-
-
 template <class T> inline
 Convolver2D<T>::Convolver2D()
     : x_( 0 )
@@ -117,6 +99,8 @@ Convolver2D<T>::Convolver2D()
     , correlate_( false )
     , xhasudfs_( false )
     , yhasudfs_( false )
+    , updatexf_( true )
+    , updateyf_( true )
     , xf_( 0 )
     , yf_( 0 )
     , zf_( 0 )
@@ -136,6 +120,7 @@ template <class T> inline
 void Convolver2D<T>::setX( const Array2D<T>& x, bool hasudfs )
 {
     x_ = &x;
+    updatexf_ = true;
     xhasudfs_ = hasudfs;
 }
 
@@ -144,6 +129,7 @@ template <class T> inline
 void Convolver2D<T>::setY( const Array2D<T>& y, bool hasudfs )
 {
     y_ = &y;
+    updateyf_ = true;
     yhasudfs_ = hasudfs;
 }
 
