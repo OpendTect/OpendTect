@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.113 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.114 2011-11-24 12:53:02 cvsbruno Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1002,7 +1002,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
     IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
-    if ( objdlg.go() )
+    if ( objdlg.go() && setctio_.ioobj )
     {
 	if ( !doSetIO( true ) )
 	    setctio_.setObj( oldioobj );
