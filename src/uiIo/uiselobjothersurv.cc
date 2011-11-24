@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.2 2010-12-17 10:15:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.3 2011-11-24 12:52:23 cvsbruno Exp $";
 
 #include "uiselobjothersurv.h"
 
@@ -52,13 +52,16 @@ static BufferStringSet getSurvList()
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
     : uiSelectFromList(p,uiSelectFromList::Setup("Select Survey",getSurvList()))
-    , ctio_(ctio)
-{}
+    , ctio_(ctio)		 
+{
+    othersurveyrootdir_.setEmpty();
+}
 
 
 uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 {
     ctio_.setObj( 0 );
+    setDirToCurrentSurvey();
 }
 
 
@@ -67,12 +70,15 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     const char* basedir = GetBaseDataDir();
     if ( !basedir ) return false;
     FilePath fp( basedir ); fp.add( selFld()->getText() );
-    const BufferString tmprootdir( fp.fullPath() );
-    if ( !File::exists(tmprootdir) ) 
-	{ uiMSG().error( "Survey doesn't seem to exist" ); return false; }
-    const BufferString realrootdir( GetDataDir() );
+    othersurveyrootdir_ = fp.fullPath();
+    if ( !File::exists( othersurveyrootdir_ ) ) 
+    { 
+	othersurveyrootdir_.setEmpty();
+	uiMSG().error( "Survey doesn't seem to exist" ); 
+	return false; 
+    }
 
-    IOM().setRootDir( tmprootdir );
+    setDirToOtherSurvey();
     bool prevctiostate = ctio_.ctxt.forread;
     ctio_.ctxt.forread = true;
     uiIOObjSelDlg objdlg( this, ctio_ );
@@ -84,8 +90,19 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 	fulluserexpression_ = ctio_.ioobj->fullUserExpr();
 	success = true;
     }
-    IOM().setRootDir( realrootdir );
     ctio_.ctxt.forread = prevctiostate;
     return success;
 }
 
+
+void uiSelObjFromOtherSurvey::setDirToCurrentSurvey()
+{
+    IOM().setRootDir( GetDataDir() );
+}
+
+
+void uiSelObjFromOtherSurvey::setDirToOtherSurvey()
+{
+    if ( !othersurveyrootdir_.isEmpty() )
+	IOM().setRootDir( othersurveyrootdir_ );
+}

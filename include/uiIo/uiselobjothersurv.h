@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2010
- RCS:           $Id: uiselobjothersurv.h,v 1.2 2010-12-17 10:15:10 cvsbruno Exp $
+ RCS:           $Id: uiselobjothersurv.h,v 1.3 2011-11-24 12:52:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,17 @@ public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
     			~uiSelObjFromOtherSurvey();
 
-    void		getIOObjFullUserExpression(BufferString& exp)
+    void		setDirToCurrentSurvey();
+    void		setDirToOtherSurvey();
+
+    void		getIOObjFullUserExpression(BufferString& exp) const
 			{ exp = fulluserexpression_; }
 
 protected:
 
     CtxtIOObj&		ctio_;
     BufferString	fulluserexpression_;
+    BufferString	othersurveyrootdir_;
 
     bool		acceptOK(CallBacker*);
 };
