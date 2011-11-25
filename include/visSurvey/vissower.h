@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.5 2011-10-06 12:49:45 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.6 2011-11-25 11:54:02 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class Color;
 class Coord;
+class CubeSampling;
 
 namespace visBase { class PolyLine; };
 
@@ -65,10 +66,18 @@ public:
     Coord3		pivotPos() const;
 
     bool		accept(const visBase::EventInfo&);
+
     bool		activate(const Color&,const visBase::EventInfo&,
 	    			 int underlyingobjid=-1);
+    bool		activate(const Color&,const visBase::EventInfo&,
+	    			 const CubeSampling* underlyingcs);
 
 protected:
+
+    bool		activate(const Color&,const visBase::EventInfo&,
+	    			 int underlyingobjid,
+	    			 const CubeSampling* underlyingcs);
+
     bool		acceptMouse(const visBase::EventInfo&);
     bool		acceptTablet(const visBase::EventInfo&);
     bool		acceptLaser(const visBase::EventInfo&);
@@ -85,6 +94,7 @@ protected:
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
     int					underlyingobjid_;
+    const CubeSampling*			underlyingcs_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 

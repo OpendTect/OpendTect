@@ -4,15 +4,17 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.7 2011-10-21 14:10:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.8 2011-11-25 11:54:02 cvsjaap Exp $";
 
 
 #include "vissower.h"
 
 #include "bendpointfinder.h"
+#include "cubesampling.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "settings.h"
+#include "survinfo.h"
 #include "timefun.h"
 #include "visevent.h"
 #include "vislocationdisplay.h"
@@ -40,6 +42,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , singleseeded_( true )
     , curpid_( EM::PosID::udf() )
     , curpidstamp_( mUdf(int) )
+    , underlyingcs_( 0 )
 {
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
@@ -53,6 +56,12 @@ Sower::~Sower()
     removeChild( sowingline_->getInventorNode() );
     sowingline_->unRef();
     deepErase( eventlist_ );
+
+    if ( underlyingcs_ )
+    {
+	delete underlyingcs_;
+	underlyingcs_ = 0;
+    }
 }
 
 
@@ -95,8 +104,19 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
     return yn; \
 }
 
+
 bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
 		      int underlyingobjid )
+{ return activate( color, eventinfo, underlyingobjid, 0 ); }
+
+
+bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
+		      const CubeSampling* underlyingcs )
+{ return activate( color, eventinfo, -1, underlyingcs ); }
+
+
+bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
+		      int underlyingobjid, const CubeSampling* underlyingcs )
 {
     if ( mode_ != Idle )
 	mReturnHandled( false );
@@ -124,6 +144,9 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
     underlyingobjid_ = underlyingobjid;
+
+    if ( underlyingcs_ ) delete underlyingcs_;
+    underlyingcs_ = underlyingcs ? new CubeSampling(*underlyingcs) : 0;
 
     mReturnHandled( true );
 }
@@ -157,12 +180,25 @@ bool Sower::accept( const visBase::EventInfo& eventinfo )
 }
 
 
+static bool isEventPosInCS( const visBase::EventInfo& eventinfo,
+			    const CubeSampling* underlyingcs )
+{
+    if ( !underlyingcs || !underlyingcs->isDefined() )
+	return false;
+
+    const BinID eventbid = SI().transform( eventinfo.worldpickedpos );
+
+    return underlyingcs->hrg.includes(eventbid) &&
+	   eventinfo.worldpickedpos.z>=underlyingcs->zrg.start &&
+	   eventinfo.worldpickedpos.z<=underlyingcs->zrg.stop;
+}
+
+
 bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 {
     if ( mode_==Idle &&
 	 eventinfo.type==visBase::MouseClick && !eventinfo.pressed )
     {
-
 	const EM::PosID pid = getMarkerID( eventinfo );
 	if ( pid.isUdf() )
 	    mReturnHandled( true );
@@ -180,8 +216,14 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( sz && eventinfo.mousepos==eventlist_[sz-1]->mousepos )
 	    mReturnHandled( true );
 
-	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids &&
-	     !eventinfo.pickedobjids.isPresent(underlyingobjid_) )
+	bool isvalidpos = !sz ||
+			eventinfo.pickedobjids==eventlist_[0]->pickedobjids ||
+			eventinfo.pickedobjids.isPresent(underlyingobjid_);
+
+	if ( underlyingcs_ )
+	    isvalidpos = isEventPosInCS( eventinfo, underlyingcs_ );
+
+	if ( !isvalidpos )
 	{
 	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
 		sowingline_->addPoint( eventinfo.worldpickedpos );
