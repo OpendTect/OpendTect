@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.15 2011-11-14 07:39:14 cvssatyaki Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.16 2011-11-25 17:53:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -18,10 +18,12 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
+#include "embody.h"
+#include "keystrs.h"
 
 class DataPointSet;
 
-namespace EM { class RowColIterator; class Surface; }
+namespace EM { class RowColIterator; class Surface; class MarchingCubesSurface;}
 
 namespace Pos
 {
@@ -227,6 +229,64 @@ protected:
 
     void			mkDPS(const EM::Surface&,DataPointSet&);
 
+};
+
+
+mClass EMImplicitBodyProvider : public Provider3D
+{
+public:
+
+				EMImplicitBodyProvider();
+				EMImplicitBodyProvider(
+					const EMImplicitBodyProvider&);
+				~EMImplicitBodyProvider();
+    
+    static void			initClass();
+    static Provider3D*		create() { return new EMImplicitBodyProvider; }
+    EMImplicitBodyProvider*	clone() const
+				{ return new EMImplicitBodyProvider(*this); }
+
+    EMImplicitBodyProvider&	operator =(const EMImplicitBodyProvider&);
+    const char*			type() const		{ return sKey::Body; }
+    const char*			factoryKeyword() const	{ return type(); }
+
+    virtual bool		initialize(TaskRunner* tr=0);
+    virtual void		reset()			{ initialize(); }
+
+    virtual BinID		curBinID() const	{ return curbid_; }
+    virtual float		curZ() const		{ return curz_; }
+
+    virtual bool		toNextPos();
+    virtual bool		toNextZ();
+    virtual int			estNrZPerPos() const; 
+    virtual od_int64		estNrPos() const;
+    virtual void		getExtent(BinID&,BinID&) const; 
+    virtual void		getZRange(Interval<float>&) const;
+    virtual bool		includes(const Coord& c,float z) const;
+    virtual bool		includes(const BinID&,float) const;
+
+    virtual void		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual void		getSummary(BufferString&) const;
+
+    bool			isInside(const BinID&,float z,bool incldborder);
+    virtual void		getCubeSampling(CubeSampling& cs) const
+    				{ cs=cs_; }
+    Array3D<float>*		getData() const { return imparr_; }
+    float                       getThreshold() const { return threshold_; }
+
+    static const char*		sKeyUseInside()	{ return "Use InsideBody"; }
+
+protected:
+
+    CubeSampling		cs_;
+    Array3D<float>*		imparr_;
+    float			threshold_;
+    bool			useinside_;
+
+    EM::MarchingCubesSurface*	surf_;
+    BinID			curbid_;
+    float			curz_;
 };
 
 

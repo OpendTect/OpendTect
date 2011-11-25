@@ -4,14 +4,17 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.27 2011-11-14 07:39:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.28 2011-11-25 17:53:53 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
+#include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "datapointset.h"
 #include "emioobjinfo.h"
+#include "embody.h"
 #include "emmanager.h"
+#include "emmarchingcubessurface.h"
 #include "emrowcoliterator.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
@@ -577,3 +580,224 @@ void Pos::EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
     start = hs_.start; stop = hs_.stop;
 }
+
+
+Pos::EMImplicitBodyProvider::EMImplicitBodyProvider()
+    : cs_( true )
+    , imparr_( 0 )     
+    , threshold_( 0 )		      
+    , surf_( 0 )
+    , useinside_( true )
+{}
+
+
+Pos::EMImplicitBodyProvider::EMImplicitBodyProvider( 
+	const EMImplicitBodyProvider& ep )
+    : cs_( ep.cs_ )
+    , imparr_( ep.imparr_ )      
+    , threshold_( ep.threshold_ )		       
+    , surf_( ep.surf_ )						       
+    , useinside_( true )
+{}
+
+
+Pos::EMImplicitBodyProvider::~EMImplicitBodyProvider()
+{ 
+    delete imparr_; 
+    if ( surf_ ) surf_->unRef();
+}
+
+
+#define mCopeImpArr( sourcearr ) \
+    delete imparr_; imparr_ = 0; \
+    if ( sourcearr ) \
+    { \
+	mDeclareAndTryAlloc( Array3DImpl<float>*, newarr, \
+		Array3DImpl<float>(sourcearr->info()) ); \
+	if ( newarr ) \
+	{ \
+	    newarr->copyFrom( *sourcearr ); \
+	    imparr_ = newarr; \
+	} \
+    }
+
+
+Pos::EMImplicitBodyProvider& Pos::EMImplicitBodyProvider::operator = (
+	const EMImplicitBodyProvider& ep )
+{
+    if ( &ep !=this )
+    {
+	surf_ = ep.surf_;
+	cs_ = ep.cs_;
+	threshold_ = ep.threshold_;
+	mCopeImpArr( ep.imparr_ );
+    }
+
+    return *this;
+}
+
+
+bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* )
+{
+    if ( !imparr_ || !surf_ ) 
+	return false;
+
+    curbid_ = cs_.hrg.start;
+    curz_ = cs_.zrg.start;
+
+    return true;
+}
+
+
+bool Pos::EMImplicitBodyProvider::toNextPos()
+{
+    return true;
+}
+
+
+bool Pos::EMImplicitBodyProvider::toNextZ()
+{ 
+    return true; 
+}
+
+
+bool Pos::EMImplicitBodyProvider::isInside( const BinID& bid, float z,
+	bool includesborder )
+{
+    if ( !imparr_ )
+	return false;
+
+    if ( !cs_.hrg.includes(bid) || cs_.zrg.getIndex(z)==-1 )
+	return false;
+
+    const int idx = cs_.hrg.inlIdx( bid.inl );
+    const int idy = cs_.hrg.crlIdx( bid.crl );
+    const int idz = cs_.zrg.nearestIndex( z );
+    const float val = imparr_->get(idx,idy,idz);
+    if ( mIsUdf(val) )
+	return false;
+
+    return includesborder ? val>=threshold_ : val>threshold_;
+}
+
+#define mGetBodyKey(k) IOPar::compKey(sKey::Body,k)
+
+void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
+{
+    MultiID mid;
+    if ( !iop.get( mGetBodyKey("ID"), mid ) )
+	return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
+    if ( !emobj ) 
+	emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+    mDynamicCastGet(EM::MarchingCubesSurface*,emc,emobj);
+    if ( !emc )
+	return;
+
+    if ( surf_ ) surf_->unRef();
+    surf_ = emc;
+    surf_->ref();
+
+    EM::ImplicitBody* body = emc->createImplicitBody(0,false);
+    if ( !body || !body->arr_ )
+    {
+	delete imparr_; imparr_ = 0;
+	return;
+    }
+
+    mCopeImpArr( body->arr_ );
+    cs_.hrg.start.inl = body->inlsampling_.start;
+    cs_.hrg.step.inl = body->inlsampling_.step;
+    cs_.hrg.stop.inl = body->inlsampling_.start + body->inlsampling_.step *
+	(body->arr_->info().getSize(0)-1);
+    cs_.hrg.start.crl = body->crlsampling_.start;
+    cs_.hrg.step.crl = body->crlsampling_.step;
+    cs_.hrg.stop.crl = body->crlsampling_.start + body->crlsampling_.step *
+	(body->arr_->info().getSize(1)-1);
+    cs_.zrg.start = body->zsampling_.start;
+    cs_.zrg.step = body->zsampling_.step;
+    cs_.zrg.stop = body->zsampling_.start + body->zsampling_.step *
+	(body->arr_->info().getSize(2)-1);
+    threshold_ = body->threshold_;
+
+    iop.getYN( sKeyUseInside(), useinside_ );
+}
+
+
+void Pos::EMImplicitBodyProvider::fillPar( IOPar& iop ) const
+{
+    iop.set( mGetBodyKey("ID"), surf_->multiID() );
+    iop.setYN( sKeyUseInside(), useinside_ );
+}
+
+
+void Pos::EMImplicitBodyProvider::getSummary( BufferString& txt ) const
+{
+    if ( !imparr_ || !surf_ ) 
+    {
+	txt += "Empty body";
+	return;
+    }
+
+    txt += useinside_ ? "Inside of " : "Outside of ";
+    txt += surf_->name();
+    if ( !useinside_ )
+    {
+	txt += "  Within cube range: Inline( ";
+	txt += cs_.hrg.start.inl; txt += ", ";
+	txt += cs_.hrg.stop.inl; txt += " ), Crossline( ";
+	txt += cs_.hrg.start.crl; txt += ", ";
+	txt += cs_.hrg.stop.crl; txt += " ), Z( ";
+	txt += cs_.zrg.start; txt += ", ";
+	txt += cs_.zrg.stop; txt += " ).";
+    }
+}
+
+
+void Pos::EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
+{
+    if ( !imparr_ )
+    {
+	start = stop = BinID(0,0);
+	return;
+    }
+
+    start = cs_.hrg.start;
+    stop = cs_.hrg.stop;
+}
+
+
+void Pos::EMImplicitBodyProvider::getZRange( Interval<float>& zrg ) const
+{
+    zrg = cs_.zrg;
+}
+
+
+bool Pos::EMImplicitBodyProvider::includes( const Coord& c, float z ) const
+{ return includes( SI().transform(c), z ); }
+
+
+bool Pos::EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
+{
+   if ( !imparr_ ) 
+       return false;
+
+   return cs_.hrg.includes(bid) && cs_.zrg.getIndex(z)!=-1; 
+}
+
+
+od_int64 Pos::EMImplicitBodyProvider::estNrPos() const
+{ return imparr_ ? imparr_->info().getTotalSz() : 0; }
+
+
+int Pos::EMImplicitBodyProvider::estNrZPerPos() const
+{ return  imparr_ ?  imparr_->info().getSize(2) : 0; }
+
+
+void Pos::EMImplicitBodyProvider::initClass()
+{ Pos::Provider3D::factory().addCreator( create, sKey::Body ); }
+
+
+
+
