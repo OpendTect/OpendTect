@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.98 2011-03-21 11:09:07 cvsraman Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.99 2011-11-25 13:27:27 cvsbert Exp $";
 
 #include "emmanager.h"
 
@@ -34,13 +34,9 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.98 2011-03-21 11:09:07 cvsrama
 
 EM::EMManager& EM::EMM()
 {
-    static PtrMan<EMManager> emm = 0;
-
+    static EMManager* emm = 0;
     if ( !emm )
-    {
 	emm = new EM::EMManager;
-    }
-
     return *emm;
 }
 
