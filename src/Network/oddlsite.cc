@@ -7,15 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.5 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.6 2011-11-25 12:09:45 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
+#include "httptask.h"
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
-#include "httptask.h"
+#include "strmoper.h"
+#include "strmprov.h"
 #include "settings.h"
+#include "executor.h"
 #include "thread.h"
 #include "timefun.h"
 
@@ -25,9 +28,12 @@ static const char* sKeyTimeOut = "Download.Timout";
 ODDLSite::ODDLSite( const char* h, float t )
     : odhttp_(*new ODHttp)
     , timeout_(t)
-    , host_(h)
     , databuf_(0)
+    , islocal_(matchString("FILE=",h))
+    , isfailed_(false)
 {
+    host_ = h + (islocal_ ? 5 : (matchString("http://",h) ? 7 : 0));
+
     if ( timeout_ <= 0 )
     {
 	Settings::common().get( sKeyTimeOut, timeout_ );
@@ -37,7 +43,9 @@ ODDLSite::ODDLSite( const char* h, float t )
 
     if ( host_.isEmpty() )
 	host_ = "opendtect.org";
-    odhttp_.requestFinished.notify( mCB(this,ODDLSite,reqFinish) );
+    if ( !islocal_ )
+	odhttp_.requestFinished.notify( mCB(this,ODDLSite,reqFinish) );
+
     reConnect();
 }
 
@@ -62,6 +70,9 @@ void ODDLSite::setTimeOut( float t, bool sett )
 
 bool ODDLSite::reConnect()
 {
+    if ( islocal_ )
+	return !(isfailed_ = !File::isDirectory(host_));
+
     if ( odhttp_.state() == ODHttp::Unconnected )
 	odhttp_.setHost( host_ );
 
@@ -83,7 +94,6 @@ bool ODDLSite::reConnect()
 	    return false;
 	}
     }
-    isfailed_ = false;
     return true;
 }
 
@@ -92,9 +102,11 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 {
     delete databuf_; databuf_ = 0;
 
+    if ( islocal_ )
+	return getLocalFile( relfnm, outfnm );
+
     HttpTask task( odhttp_ );
-    const int reqid = odhttp_.get( getFileName(relfnm), outfnm );
-    // TODO reqid can be used in reqFinish.
+    odhttp_.get( getFileName(relfnm), outfnm );
     if ( !task.execute() )
 	return false;
 
@@ -117,6 +129,28 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 }
 
 
+bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
+{
+    const BufferString inpfnm( getFileName(relfnm) );
+
+    if ( outfnm && *outfnm )
+	return File::copy( inpfnm, outfnm );
+
+    StreamData sd( StreamProvider(inpfnm).makeIStream() );
+    if ( !sd.usable() )
+	{ errmsg_ = "Cannot open "; errmsg_ += inpfnm; return false; }
+    BufferString bs;
+    const bool isok = StrmOper::readFile( *sd.istrm, bs );
+    sd.close();
+    if ( isok )
+    {
+	databuf_ = new DataBuffer( bs.size(), 1 );
+	memcpy( (char*)databuf_->data(), bs.buf(), databuf_->size() );
+    }
+    return isok;
+}
+
+
 DataBuffer* ODDLSite::obtainResultBuf()
 {
     DataBuffer* ret = databuf_;
@@ -125,19 +159,94 @@ DataBuffer* ODDLSite::obtainResultBuf()
 }
 
 
+class ODDLSiteMultiFileGetter : public Executor
+{
+public:
+
+ODDLSiteMultiFileGetter( ODDLSite& dls,
+		const BufferStringSet& fnms, const char* outputdir )
+    : Executor("File download")
+    , dlsite_(dls)
+    , fnms_(fnms)
+    , curidx_(-1)
+    , outdir_(outputdir)
+    , httptask_(0)
+{
+    if ( !dlsite_.isOK() )
+	{ msg_ = dlsite_.errMsg(); return; }
+    if ( !File::isDirectory(outputdir) )
+	{ msg_ = "Output directory does not exist"; return; }
+
+    curidx_ = 0;
+    if ( fnms_.isEmpty() )
+	msg_ = "No files to get";
+    else
+	msg_.add( "Getting '" ).add( fnms_.get(curidx_) );
+
+    if ( !dlsite_.islocal_ )
+	httptask_ = new HttpTask( dlsite_.odhttp_ );
+}
+
+~ODDLSiteMultiFileGetter()
+{
+    delete httptask_;
+}
+
+const char* message() const	{ return msg_; }
+const char* nrDoneText() const	{ return "Files downloaded"; }
+od_int64 nrDone() const		{ return curidx_ + 1; }
+od_int64 totalNr() const	{ return fnms_.size(); }
+
+    int				nextStep();
+
+    ODDLSite&			dlsite_;
+    HttpTask*			httptask_;
+    const BufferStringSet&	fnms_;
+    int				curidx_;
+    BufferString		outdir_;
+    BufferString		msg_;
+
+};
+
+
+int ODDLSiteMultiFileGetter::nextStep()
+{
+    if ( curidx_ < 0 )
+	return ErrorOccurred();
+    else if ( curidx_ >= fnms_.size() )
+	return Finished();
+
+    const BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
+    BufferString outfnm( FilePath(outdir_).add(inpfnm).fullPath() );
+    bool isok = true;
+    if ( dlsite_.islocal_ )
+	isok = dlsite_.getFile( inpfnm, outfnm );
+    else
+    {
+	dlsite_.odhttp_.get( inpfnm, outfnm );
+	isok = dlsite_.odhttp_.state() > ODHttp::Connecting;
+    }
+
+    if ( isok )
+	curidx_++;
+    else
+    {
+	msg_ = dlsite_.errMsg();
+	curidx_ = -1;
+    }
+
+    return MoreToDo();
+}
+
+
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 			 TaskRunner& tr )
 {
-    HttpTask task( odhttp_ );
-    for ( int idx=0; idx<fnms.size(); idx++ )
-    {
-	FilePath outputfp( outputdir );
-	outputfp.add( fnms.get(idx) );
-	odhttp_.get( getFileName(fnms.get(idx)), outputfp.fullPath() );
-	// TODO get() returns requestid. Can be used in reqFinish.
-    }
+    ODDLSiteMultiFileGetter mfg( *this, fnms, outputdir );
+    if ( !tr.execute(mfg) )
+	return false;
 
-    return tr.execute( task );
+    return mfg.httptask_ ? tr.execute( *mfg.httptask_ ) : true;
 }
 
 
@@ -149,6 +258,14 @@ void ODDLSite::reqFinish( CallBacker* )
 
 BufferString ODDLSite::getFileName( const char* relfnm ) const
 {
+    if ( islocal_ )
+    {
+	FilePath fp( host_ );
+	if ( !subdir_.isEmpty() )
+	    fp.add( subdir_ );
+	return fp.add(relfnm).fullPath();
+    }
+
     BufferString ret( "/" );
     if ( subdir_.isEmpty() )
 	ret.add( relfnm );
@@ -160,6 +277,9 @@ BufferString ODDLSite::getFileName( const char* relfnm ) const
 
 BufferString ODDLSite::fullURL( const char* relfnm ) const
 {
+    if ( islocal_ )
+	return getFileName( relfnm );
+
     BufferString ret( "http://" );
     ret.add( host_ ).add( "/" ).add( getFileName(relfnm) );
     return ret;

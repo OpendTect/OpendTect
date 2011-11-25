@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.2 2011-11-22 12:57:56 cvsbert Exp $
+ RCS:           $Id: oddlsite.h,v 1.3 2011-11-25 12:09:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,9 @@ class ODHttp;
 
   If you need bigger files and/or you want users to be able to interrupt, then
   you need the version with the TaskRunner.
+
+  You can ask for a plain file on a local disk; pass 'file://the_file_name'.
+  Then, no HTTP connection is made.
 
  */
 
@@ -68,6 +71,7 @@ protected:
     BufferString	host_;
     BufferString	subdir_;
     float		timeout_;
+    bool		islocal_;
 
     ODHttp&		odhttp_;
     mutable BufferString errmsg_;
@@ -76,6 +80,9 @@ protected:
 
     void		reqFinish(CallBacker*);
     BufferString	getFileName(const char*) const;
+    bool		getLocalFile(const char*,const char*);
+
+    friend class	ODDLSiteMultiFileGetter;
 
 };
 
