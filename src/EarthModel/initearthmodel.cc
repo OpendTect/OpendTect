@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initearthmodel.cc,v 1.11 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initearthmodel.cc,v 1.12 2011-11-25 17:58:06 cvsyuancheng Exp $";
 
 
 #include "moddepmgr.h"
@@ -39,4 +39,5 @@ mDefModInitFn(EarthModel)
     EM::PolygonBody::initClass();
     Pos::EMSurfaceProvider3D::initClass();
     Pos::EMSurfaceProvider2D::initClass();
+    Pos::EMImplicitBodyProvider::initClass();
 }
