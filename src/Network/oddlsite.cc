@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.6 2011-11-25 12:09:45 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.7 2011-11-25 14:52:57 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -29,10 +29,10 @@ ODDLSite::ODDLSite( const char* h, float t )
     : odhttp_(*new ODHttp)
     , timeout_(t)
     , databuf_(0)
-    , islocal_(matchString("FILE=",h))
+    , islocal_(matchString("DIR=",h))
     , isfailed_(false)
 {
-    host_ = h + (islocal_ ? 5 : (matchString("http://",h) ? 7 : 0));
+    host_ = h + (islocal_ ? 4 : (matchString("http://",h) ? 7 : 0));
 
     if ( timeout_ <= 0 )
     {
