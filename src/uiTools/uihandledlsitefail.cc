@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihandledlsitefail.cc,v 1.1 2011-11-22 12:58:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uihandledlsitefail.cc,v 1.2 2011-11-28 14:11:01 cvsbert Exp $";
 
 #include "uihandledlsitefail.h"
 #include "uilabel.h"
@@ -16,10 +16,31 @@ static const char* rcsID = "$Id: uihandledlsitefail.cc,v 1.1 2011-11-22 12:58:17
 #include "oddlsite.h"
 
 
+static BufferString gtWinTitle( const ODDLSite& dlsite )
+{
+    const char* errmsg = dlsite.errMsg();
+    const bool iserr = errmsg && *errmsg;
+    BufferString ret( iserr ? "Failure accessing " : "Stopped accessing " );
+    ret.add( dlsite.host() );
+    return ret;
+}
+
+
+static BufferString gtCaption( const ODDLSite& dlsite, bool isfatal )
+{
+    const char* errmsg = dlsite.errMsg();
+    const bool iserr = errmsg && *errmsg;
+    BufferString ret;
+    if ( iserr )
+	ret.add( "Error: " ).add( errmsg ).add( "\n" );
+    ret.add( isfatal ? "This access is mandatory" : "You can try again" );
+    return ret;
+}
+
 uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 				    bool isfatal, const BufferStringSet* sites )
-	: uiDialog(p,Setup(BufferString("Failure accessing ",dlsite.host()),
-		BufferString("Error: ",dlsite.errMsg()),mTODOHelpID))
+	: uiDialog(p,Setup(gtWinTitle(dlsite),gtCaption(dlsite,isfatal),
+						mTODOHelpID))
 	, isfatal_(isfatal)
 	, site_(dlsite.host())
 	, dlsitefld_(0)
