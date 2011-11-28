@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.16 2011-11-25 17:53:53 cvsyuancheng Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.17 2011-11-28 18:49:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -276,6 +276,9 @@ public:
     float                       getThreshold() const { return threshold_; }
 
     static const char*		sKeyUseInside()	{ return "Use InsideBody"; }
+    static const char*		sKeyBBInlrg() { return "BB-Inl range"; }
+    static const char*		sKeyBBCrlrg() { return "BB-Crl range"; }
+    static const char*		sKeyBBZrg() { return "BB-Z range"; }
 
 protected:
 
