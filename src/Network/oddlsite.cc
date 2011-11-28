@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.7 2011-11-25 14:52:57 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.8 2011-11-28 14:10:23 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -242,11 +242,20 @@ int ODDLSiteMultiFileGetter::nextStep()
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 			 TaskRunner& tr )
 {
+    errmsg_.setEmpty();
+
     ODDLSiteMultiFileGetter mfg( *this, fnms, outputdir );
     if ( !tr.execute(mfg) )
+    {
+	errmsg_ = mfg.curidx_ < 0 ? mfg.msg_.buf() : "";
 	return false;
+    }
 
-    return mfg.httptask_ ? tr.execute( *mfg.httptask_ ) : true;
+    const bool res = mfg.httptask_ ? tr.execute( *mfg.httptask_ ) : true;
+    if ( !res && !mfg.httptask_->userStop() )
+	errmsg_ = mfg.httptask_->message();
+
+    return res;
 }
 
 
