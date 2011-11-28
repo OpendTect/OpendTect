@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.89 2011-11-04 16:14:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.90 2011-11-28 16:03:13 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -399,9 +399,9 @@ void Well::Log::ensureAscZ()
     dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
 }
 
-bool Well::D2TModel::insertAtDah( float dh, float val )
+bool Well::D2TModel::insertAtDah( float dh, float val, bool ascendingonly  )
 {
-    mInsertAtDah( dh, val, t_, true );
+    mInsertAtDah( dh, val, t_, ascendingonly  );
     return true;
 }
 
