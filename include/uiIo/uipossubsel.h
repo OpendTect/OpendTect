@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.7 2010-08-09 10:46:58 cvsbert Exp $
+ RCS:           $Id: uipossubsel.h,v 1.8 2011-11-28 18:45:59 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
 
     struct Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges };
+	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, SeisTypeswithBody };
 			Setup( bool is_2d, bool with_z )
 			    : seltxt_( is_2d	? "Trace subselection"
 				   : ( with_z	? "Volume subselection"
