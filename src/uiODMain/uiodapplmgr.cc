@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.422 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.423 2011-11-28 17:15:10 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1682,10 +1682,9 @@ void uiODApplMgr::storeEMObject()
 
 void uiODApplMgr::lookForUpdateAndNewRelease()
 {
-    BufferString key;
-    Settings::common().get( "AskForUpdate", key );
-
-    if ( !key.isEmpty() && (key=="NO") )
+    bool askforupdate = false;
+    Settings::common().getYN( "dTect.AskForUpdate", askforupdate );
+    if ( !askforupdate )
 	return;
 
     updinformer_ = new UpdateInformer();
