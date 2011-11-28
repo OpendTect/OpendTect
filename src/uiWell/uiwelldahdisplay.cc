@@ -41,9 +41,9 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				.annotinside(s.annotinside_)
 				.noannot(s.noyannot_))
     , xrev_(false)
-    , zrg_(mUdf(float),0)
-    , cliprate_(0.05)
-    , valrg_(mUdf(float),0)
+    , zrg_(mUdf(float),mUdf(float))
+    , cliprate_(0)
+    , valrg_(mUdf(float),mUdf(float))
     , col_(Color::Black())
     , drawascurve_(true)
     , drawaspoints_(false)
@@ -98,14 +98,8 @@ void uiWellDahDisplay::gatherInfo()
     gatherDataInfo( false );
 
     if ( !ld1_->dahobj_ && !ld2_->dahobj_ ) 
-	ld1_->valrg_ = ld2_->valrg_ = Interval<float>(0,0);
+	ld1_->valrg_ = ld2_->valrg_ = Interval<float>(mUdf(float),mUdf(float));
 
-    if ( mIsUdf(zdata_.zrg_.start) && ld1_->dahobj_ )
-    {
-	zdata_.zrg_ = ld1_->zrg_;
-	if ( ld2_->dahobj_ )
-	    zdata_.zrg_.include( ld2_->zrg_ );
-    }
     setAxisRanges( true );
     setAxisRanges( false );
 
@@ -149,19 +143,10 @@ void uiWellDahDisplay::setAxisRelations()
 void uiWellDahDisplay::gatherDataInfo( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
-    if ( sz < 2 )
-    {
-	if ( !first )
-	{
-	    ld2_->zrg_ = ld1_->zrg_;
-	    ld2_->valrg_ = ld1_->valrg_;
-	}
-	return;
-    }
+    if ( sz < 2 ) return;
 
-    if ( ld.cliprate_ || mIsUdf( ld.valrg_.start ) )
+    if ( mIsUdf( ld.valrg_.start ) )
     {
 	DataClipSampler dcs( sz );
 	for ( int idx=0; idx<sz; idx++ )
@@ -172,7 +157,7 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 
     float startpos = ld.zrg_.start = ld.dahobj_->dah( 0 );
     float stoppos = ld.zrg_.stop = ld.dahobj_->dah( sz-1 );
-    if ( zdata_.zistime_ && d2T() && d2T()->size() > 1  )
+    if ( zdata_.zistime_ && d2T() && d2T()->size() > 1 )
     {
 	startpos = d2T()->getTime( startpos )*1000;
 	stoppos = d2T()->getTime( stoppos )*1000;
@@ -187,9 +172,15 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 void uiWellDahDisplay::setAxisRanges( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    if ( !first && setup_.samexaxisrange_ ) return;
+    uiWellDahDisplay::DahObjData& otherld = first ? *ld2_ : *ld1_;
 
     Interval<float> dispvalrg( ld.valrg_ );
+    if ( mIsUdf( dispvalrg.start ) )
+	dispvalrg = otherld.valrg_ ;
+
+    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) ) 
+	dispvalrg.include( otherld.valrg_ );
+
     if ( setup_.symetricalxaxis_ )
     {
 	const float max = mMAX(fabs(dispvalrg.start),fabs(dispvalrg.stop));
@@ -197,25 +188,30 @@ void uiWellDahDisplay::setAxisRanges( bool first )
 	dispvalrg.stop  =  max;
     }
 
-    if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
-	ld.xax_.setBounds( dispvalrg );
+    if ( ld.xrev_ ) 
+	Swap( dispvalrg.start, dispvalrg.stop );
+
+    ld.xax_.setBounds( dispvalrg );
 
     Interval<float> dispzrg( zdata_.zrg_.stop, zdata_.zrg_.start );
-    ld.yax_.setBounds( dispzrg );
-
-    if ( first )
+    if ( mIsUdf(zdata_.zrg_.start) )
     {
-    // Set default for 2nd
-	ld2_->xax_.setBounds( dispvalrg );
-	ld2_->yax_.setBounds( dispzrg );
+	dispzrg = ld1_->zrg_;
+	if ( mIsUdf( dispzrg.start ) )
+	    dispzrg = ld2_->zrg_;
+	if ( !mIsUdf( ld2_->zrg_.start ) )
+	    dispzrg.include( ld2_->zrg_ );
     }
+    if ( dispzrg.start < dispzrg.stop )
+	dispzrg.sort( false );
+
+    ld.yax_.setBounds( dispzrg );
 }
 
 
 void uiWellDahDisplay::draw()
 {
     setAxisRelations();
-    if ( mIsUdf(zdata_.zrg_.start) ) return;
 
     ld1_->xax_.plotAxis(); ld1_->yax_.plotAxis();
     ld2_->xax_.plotAxis(); ld2_->yax_.plotAxis();

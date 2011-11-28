@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.51 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.52 2011-11-28 16:03:42 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -357,20 +357,24 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     WellTie::GeoCalculator gc;
     const bool useexistingmdl = used2tmbox_->isChecked();
-    if ( !useexistingmdl || !wd_->haveD2TModel() )
+    const bool hadmodel = wd_->haveD2TModel();
+    if ( !useexistingmdl || !hadmodel )
     {
 	Well::D2TModel* d2t = gc.getModelFromVelLog( *wd_, wtsetup_.vellognm_, 
 					    wtsetup_.issonic_, replacevel_ );
 	if ( !d2t )
-	    mErrRet("Cannot generate depth/time model. Is the velocity log empty?");
+	    mErrRet("Cannot generate depth/time model. Check your velocity log")
 	wd_->setD2TModel( d2t );
     }
 
     if ( !useexistingmdl && wd_->haveCheckShotModel() )
     {
 	uiCheckShotEdit dlg( this, *wd_ ); 
-	if ( !dlg.go() ) 
-	    return false;
+	if ( !dlg.go() )
+	{ 
+	    if ( !hadmodel ) wd_->setD2TModel( 0 ) ; 
+	    return false; 
+	}
     }
 
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );

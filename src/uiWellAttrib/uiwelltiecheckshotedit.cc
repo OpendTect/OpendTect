@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.10 2011-11-08 07:53:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.11 2011-11-28 16:03:42 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -87,8 +87,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd )
     data.wd_ = &wd;
     data.dispzinft_ = SI().zInFeet();
     data.zistime_ = false;
-    data.zrg_ = SI().zRange(false);
-    data.zrg_.scale( SI().zFactor() );
     d2tdisplay_->setData( data );
     driftdisplay_->setData( data );
     driftdisplay_->attach( rightOf, d2tdisplay_ );
@@ -239,6 +237,7 @@ void uiCheckShotEdit::drawDrift()
 	const float drift = SI().zFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;
+	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
 
@@ -290,14 +289,14 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
     if ( !d2t_ || d2t_->size() < 2)
 	mErrRet("Depth/time model is too small and won't be saved",return false)
 
-    wd_.setD2TModel( d2t_ );
+    wd_.setD2TModel( new Well::D2TModel( *d2t_ ) );
     return true; 
 }
 
 
 bool uiCheckShotEdit::rejectOK( CallBacker* )
 {
-    wd_.setD2TModel( orgd2t_ );
+    wd_.setD2TModel( new Well::D2TModel( *orgd2t_ ) );
     return true; 
 }
 

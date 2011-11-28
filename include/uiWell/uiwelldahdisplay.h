@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.10 2011-11-04 16:15:03 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.11 2011-11-28 16:03:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ else if ( !zdata_.zistime_ && track() )\
 #define mDefZPosInLoop(val) \
     float zpos = val;\
     mDefZPos(zpos)\
-    if ( !zdata_.zrg_.includes( zpos, true ) )\
+    if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
 mClass uiWellDahDisplay : public uiGraphicsView
@@ -111,7 +111,7 @@ public:
     mStruct Data
     {
 				    Data()
-				    : zrg_(mUdf(float),0)
+				    : zrg_(mUdf(float),mUdf(float))
 				    , zistime_(false)
 				    , dispzinft_(SI().depthsInFeetByDefault())
 				    , wd_(0)
@@ -197,7 +197,7 @@ protected:
     void                        drawZPicks();
 
     void			setAxisRelations();
-    void			gatherInfo();
+    virtual void		gatherInfo();
     virtual void		gatherDataInfo(bool);
     void			setAxisRanges(bool);
 
