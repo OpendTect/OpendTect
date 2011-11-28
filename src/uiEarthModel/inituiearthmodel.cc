@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiearthmodel.cc,v 1.5 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiearthmodel.cc,v 1.6 2011-11-28 18:48:46 cvsyuancheng Exp $";
 
 #include "moddepmgr.h"
+#include "uibodyposprovgroup.h"
 #include "uisurfaceposprov.h"
 
 mDefModInitFn(uiEarthModel)
 {
     mIfNotFirstTime( return );
 
+    uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();
 }
