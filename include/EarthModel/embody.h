@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.9 2009-11-18 19:53:34 cvskris Exp $
+ RCS:		$Id: embody.h,v 1.10 2011-11-28 21:50:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,8 @@ namespace EM
 mStruct ImplicitBody
 {
     				ImplicitBody();
+    				ImplicitBody(const ImplicitBody& nb)
+				{ *this = nb; }
     virtual			~ImplicitBody();
 
     Array3D<float>*		arr_;
