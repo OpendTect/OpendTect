@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.3 2011-11-25 12:09:45 cvsbert Exp $
+ RCS:           $Id: oddlsite.h,v 1.4 2011-11-28 14:09:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,9 @@ public:
 
     bool		getFiles(const BufferStringSet& fnms,
 				  const char* outputdir,TaskRunner&);
+    bool		haveErrMsg() const
+    			{ return !errmsg_.isEmpty(); }
+    			//!< if haveErrMsg(), then failure - otherwise user stop
 
     BufferString	fullURL(const char*) const;
 
