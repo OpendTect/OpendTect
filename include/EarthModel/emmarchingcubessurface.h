@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.10 2009-11-18 19:53:34 cvskris Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.11 2011-11-28 21:51:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ public:
     void			setInlSampling(const SamplingData<int>&);
     void			setCrlSampling(const SamplingData<int>&);
     void			setZSampling(const SamplingData<float>&);
+    bool			getBodyRange(CubeSampling& cs);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
 

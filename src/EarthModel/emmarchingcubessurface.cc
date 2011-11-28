@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.25 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.26 2011-11-28 21:51:02 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -376,6 +376,27 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
     setZSampling( body->zsampling_ );
 
     return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
+}
+
+
+bool MarchingCubesSurface::getBodyRange( CubeSampling& cs )
+{
+    Interval<int> inlrg, crlrg, zrg;
+    if ( !mcsurface_->models_.getRange( 0, inlrg ) ||
+	 !mcsurface_->models_.getRange( 1, crlrg ) ||
+	 !mcsurface_->models_.getRange( 2, zrg ) )
+	return false;
+
+    cs.hrg.start = BinID( inlsampling_.atIndex(inlrg.start), 
+	    	           crlsampling_.atIndex(crlrg.start) );
+    cs.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
+	    		 crlsampling_.atIndex(crlrg.stop) );
+    cs.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
+    cs.zrg.start = zsampling_.atIndex( zrg.start );
+    cs.zrg.step = zsampling_.step;
+    cs.zrg.stop = zsampling_.atIndex( zrg.stop );
+
+    return true;
 }
 
 
