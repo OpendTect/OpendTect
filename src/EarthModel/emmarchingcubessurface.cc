@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.26 2011-11-28 21:51:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.27 2011-11-29 15:34:54 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -371,9 +371,9 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
     if ( !operator_->createImplicitBody( body, tr ) || !body )
 	return false;
 
-    setInlSampling( body->inlsampling_ );
-    setCrlSampling( body->crlsampling_ );
-    setZSampling( body->zsampling_ );
+    setInlSampling( SamplingData<int>(body->cs_.hrg.inlRange()) );
+    setCrlSampling( SamplingData<int>(body->cs_.hrg.crlRange()) );
+    setZSampling( SamplingData<float>(body->cs_.zrg) );
 
     return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
 }
@@ -455,14 +455,14 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     }
 
     res->arr_ = arr;
-    res->inlsampling_.start = inlsampling_.atIndex( inlrg.start );
-    res->inlsampling_.step = inlsampling_.step;
-
-    res->crlsampling_.start = crlsampling_.atIndex( crlrg.start );
-    res->crlsampling_.step = crlsampling_.step;
-
-    res->zsampling_.start = zsampling_.atIndex( zrg.start );
-    res->zsampling_.step = zsampling_.step;
+    res->cs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
+	    			crlsampling_.atIndex(crlrg.start) );
+    res->cs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
+    res->cs_.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
+	    			crlsampling_.atIndex(crlrg.stop) );
+    res->cs_.zrg.start = zsampling_.atIndex( zrg.start );
+    res->cs_.zrg.stop = zsampling_.atIndex( zrg.stop );
+    res->cs_.zrg.step = zsampling_.step;
 
     MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 				inlrg.start, crlrg.start, zrg.start, !smooth );

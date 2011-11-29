@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.19 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.20 2011-11-29 15:34:54 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -68,12 +68,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const float z = zrg_.atIndex(p[2]);
 	
 	int id0[3], id1[3];
-	id0[0] = b0_.inlsampling_.nearestIndex( inl );
-	id0[1] = b0_.crlsampling_.nearestIndex( crl );
-	id0[2] = b0_.zsampling_.nearestIndex( z );
-	id1[0] = b1_.inlsampling_.nearestIndex( inl );
-	id1[1] = b1_.crlsampling_.nearestIndex( crl );
-	id1[2] = b1_.zsampling_.nearestIndex( z );
+	id0[0] = b0_.cs_.hrg.inlRange().nearestIndex( inl );
+	id0[1] = b0_.cs_.hrg.crlRange().nearestIndex( crl );
+	id0[2] = b0_.cs_.zrg.nearestIndex( z );
+	id1[0] = b1_.cs_.hrg.inlRange().nearestIndex( inl );
+	id1[1] = b1_.cs_.hrg.crlRange().nearestIndex( crl );
+	id1[2] = b1_.cs_.zrg.nearestIndex( z );
 	
 	char pos0 = mOutsideVal, pos1 = mOutsideVal;
 	float v0 = mUdf(float), v1 = mUdf(float);
@@ -702,58 +702,40 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     }
 
     //Set new body ranges.
-    const SamplingData<int>& inlsmp0 = b0->inlsampling_;
-    const int inlstop0 = 
-	inlsmp0.start+inlsmp0.step*(b0->arr_->info().getSize(0)-1);
-
-    const SamplingData<int>& inlsmp1 = b1->inlsampling_;
-    const int inlstop1 = 
-	inlsmp1.start+inlsmp1.step*(b1->arr_->info().getSize(0)-1);
-
-    const SamplingData<int>& crlsmp0 = b0->crlsampling_;
-    const int crlstop0 = 
-	crlsmp0.start+crlsmp0.step*(b0->arr_->info().getSize(1)-1);
-
-    const SamplingData<int>& crlsmp1 = b1->crlsampling_;
-    const int crlstop1 = 
-	crlsmp1.start+crlsmp1.step*(b1->arr_->info().getSize(1)-1);
-    
-    const SamplingData<float>& zsmp0 = b0->zsampling_;
-    const float zstop0 = 
-	zsmp0.start+zsmp0.step*(b0->arr_->info().getSize(2)-1);
-
-    const SamplingData<float>& zsmp1 = b1->zsampling_;
-    const float zstop1 =
-	zsmp1.start+zsmp1.step*(b1->arr_->info().getSize(2)-1);
+    const StepInterval<int>& inlrg0 = b0->cs_.hrg.inlRange();
+    const StepInterval<int>& crlrg0 = b0->cs_.hrg.crlRange();
+    const StepInterval<float>& zrg0 = b0->cs_.zrg;
+    const StepInterval<int>& inlrg1 = b1->cs_.hrg.inlRange();
+    const StepInterval<int>& crlrg1 = b1->cs_.hrg.crlRange();
+    const StepInterval<float>& zrg1 = b1->cs_.zrg;
 
     //If action is Minus, make the new cube the same size as body0.
-    StepInterval<int> newinlrg( inlsmp0.start, inlstop0, 
-	    			mMIN( inlsmp0.step, inlsmp1.step ) );
-    StepInterval<int> newcrlrg( crlsmp0.start, crlstop0, 
-	    			mMIN( crlsmp0.step, crlsmp1.step ) );
-    StepInterval<float> newzrg( zsmp0.start, zstop0,
-	    			mMIN( zsmp0.step, zsmp1.step ) );
+    StepInterval<int> newinlrg( inlrg0.start, inlrg0.stop, 
+	    			mMIN( inlrg0.step, inlrg1.step ) );
+    StepInterval<int> newcrlrg( crlrg0.start, crlrg0.stop, 
+	    			mMIN( crlrg0.step, crlrg1.step ) );
+    StepInterval<float> newzrg(zrg0.start,zrg0.stop,mMIN(zrg0.step,zrg1.step));
     if ( action_==Union )
     {
-	newinlrg.start = mMIN( inlsmp0.start, inlsmp1.start );
-	newinlrg.stop = mMAX( inlstop0, inlstop1 );
+	newinlrg.start = mMIN( inlrg0.start, inlrg1.start );
+	newinlrg.stop = mMAX( inlrg0.stop, inlrg1.stop );
 	
-	newcrlrg.start = mMIN( crlsmp0.start, crlsmp1.start );
-	newcrlrg.stop = mMAX( crlstop0, crlstop1 );
+	newcrlrg.start = mMIN( crlrg0.start, crlrg1.start );
+	newcrlrg.stop = mMAX( crlrg0.stop, crlrg1.stop );
 	
-	newzrg.start = mMIN( zsmp0.start, zsmp1.start );
-	newzrg.stop = mMAX( zstop0, zstop1 );
+	newzrg.start = mMIN( zrg0.start, zrg1.start );
+	newzrg.stop = mMAX( zrg0.stop, zrg1.stop );
     }
     else if ( action_==IntSect )
     {
-	newinlrg.start = mMAX( inlsmp0.start, inlsmp1.start );
-	newinlrg.stop = mMIN( inlstop0, inlstop1 );
+	newinlrg.start = mMAX( inlrg0.start, inlrg1.start );
+	newinlrg.stop = mMIN( inlrg0.stop, inlrg1.stop );
 	
-	newcrlrg.start = mMAX( crlsmp0.start, crlsmp1.start );
-	newcrlrg.stop = mMIN( crlstop0, crlstop1 );
+	newcrlrg.start = mMAX( crlrg0.start, crlrg1.start );
+	newcrlrg.stop = mMIN( crlrg0.stop, crlrg1.stop );
 	
-	newzrg.start = mMAX( zsmp0.start, zsmp1.start );
-	newzrg.stop = mMIN( zstop0, zstop1 );
+	newzrg.start = mMAX( zrg0.start, zrg1.start );
+	newzrg.stop = mMIN( zrg0.stop, zrg1.stop );
     }
 
     if ( newinlrg.start>newinlrg.stop || newcrlrg.start>newcrlrg.stop || 
@@ -796,12 +778,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = 0;
-    res->inlsampling_.start = newinlrg.start;
-    res->inlsampling_.step  = newinlrg.step;
-    res->crlsampling_.start = newcrlrg.start;
-    res->crlsampling_.step  = newcrlrg.step;
-    res->zsampling_.start   = newzrg.start;
-    res->zsampling_.step    = newzrg.step;
+    res->cs_.hrg.inlRange() = newinlrg;
+    res->cs_.hrg.crlRange() = newcrlrg;
+    res->cs_.zrg = newzrg;
 
     return true;    
 }
@@ -881,12 +860,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->inlsampling_.start = inlrg.start;
-	    res->inlsampling_.step  = inlrg.step;
-	    res->crlsampling_.start = crlrg.start;
-	    res->crlsampling_.step  = crlrg.step;
-	    res->zsampling_.start   = zrg.start;
-	    res->zsampling_.step    = zrg.step;
+	    res->cs_.hrg.inlRange() = inlrg;
+	    res->cs_.hrg.crlRange() = crlrg;
+	    res->cs_.zrg = zrg;
 	
 	    cursorchanger.restore();
     	    return res;

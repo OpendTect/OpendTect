@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.11 2011-09-02 13:01:12 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.12 2011-11-29 15:34:54 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -152,8 +152,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = implicitbody_->inlsampling_.nearestIndex( bid.inl );
-	bodycrlidx = implicitbody_->crlsampling_.nearestIndex( bid.crl );
+	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl );
+	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl );
 	
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -173,7 +173,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 							   : outsideval_;
 	    else
 	    {
-    		const int bodyzidx = implicitbody_->zsampling_.nearestIndex(z);
+    		const int bodyzidx = implicitbody_->cs_.zrg.nearestIndex(z);
     		if ( bodyzidx<0 || 
 			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
     		    val = outsideval_;

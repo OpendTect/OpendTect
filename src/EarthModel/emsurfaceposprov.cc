@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.28 2011-11-25 17:53:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.29 2011-11-29 15:34:54 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -608,7 +608,7 @@ Pos::EMImplicitBodyProvider::~EMImplicitBodyProvider()
 }
 
 
-#define mCopeImpArr( sourcearr ) \
+#define mCopyImpArr( sourcearr ) \
     delete imparr_; imparr_ = 0; \
     if ( sourcearr ) \
     { \
@@ -630,7 +630,7 @@ Pos::EMImplicitBodyProvider& Pos::EMImplicitBodyProvider::operator = (
 	surf_ = ep.surf_;
 	cs_ = ep.cs_;
 	threshold_ = ep.threshold_;
-	mCopeImpArr( ep.imparr_ );
+	mCopyImpArr( ep.imparr_ );
     }
 
     return *this;
@@ -639,13 +639,24 @@ Pos::EMImplicitBodyProvider& Pos::EMImplicitBodyProvider::operator = (
 
 bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* )
 {
-    if ( !imparr_ || !surf_ ) 
+    if ( !surf_ ) 
 	return false;
 
+    EM::ImplicitBody* body = surf_->createImplicitBody(0,false);
+    if ( !body || !body->arr_ )
+    {
+	delete imparr_; imparr_ = 0;
+	return false;
+    }
+
+    mCopyImpArr( body->arr_ );
+    cs_ = body->cs_;
+    threshold_ = body->threshold_;
+    
     curbid_ = cs_.hrg.start;
     curz_ = cs_.zrg.start;
 
-    return true;
+    return imparr_;
 }
 
 
@@ -698,28 +709,7 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
     if ( surf_ ) surf_->unRef();
     surf_ = emc;
     surf_->ref();
-
-    EM::ImplicitBody* body = emc->createImplicitBody(0,false);
-    if ( !body || !body->arr_ )
-    {
-	delete imparr_; imparr_ = 0;
-	return;
-    }
-
-    mCopeImpArr( body->arr_ );
-    cs_.hrg.start.inl = body->inlsampling_.start;
-    cs_.hrg.step.inl = body->inlsampling_.step;
-    cs_.hrg.stop.inl = body->inlsampling_.start + body->inlsampling_.step *
-	(body->arr_->info().getSize(0)-1);
-    cs_.hrg.start.crl = body->crlsampling_.start;
-    cs_.hrg.step.crl = body->crlsampling_.step;
-    cs_.hrg.stop.crl = body->crlsampling_.start + body->crlsampling_.step *
-	(body->arr_->info().getSize(1)-1);
-    cs_.zrg.start = body->zsampling_.start;
-    cs_.zrg.step = body->zsampling_.step;
-    cs_.zrg.stop = body->zsampling_.start + body->zsampling_.step *
-	(body->arr_->info().getSize(2)-1);
-    threshold_ = body->threshold_;
+    surf_->getBodyRange( cs_ );
 
     iop.getYN( sKeyUseInside(), useinside_ );
 }
@@ -734,7 +724,7 @@ void Pos::EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 
 void Pos::EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 {
-    if ( !imparr_ || !surf_ ) 
+    if ( !surf_ ) 
     {
 	txt += "Empty body";
 	return;
@@ -796,7 +786,9 @@ int Pos::EMImplicitBodyProvider::estNrZPerPos() const
 
 
 void Pos::EMImplicitBodyProvider::initClass()
-{ Pos::Provider3D::factory().addCreator( create, sKey::Body ); }
+{ 
+    Pos::Provider3D::factory().addCreator( create, sKey::Body ); 
+}
 
 
 

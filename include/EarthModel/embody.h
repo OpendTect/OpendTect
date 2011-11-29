@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.10 2011-11-28 21:50:06 cvsyuancheng Exp $
+ RCS:		$Id: embody.h,v 1.11 2011-11-29 15:34:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -27,18 +27,13 @@ namespace EM
 mStruct ImplicitBody
 {
     				ImplicitBody();
-    				ImplicitBody(const ImplicitBody& nb)
-				{ *this = nb; }
+    				ImplicitBody(const ImplicitBody& nb);
     virtual			~ImplicitBody();
+    ImplicitBody		operator =(const ImplicitBody&);
 
     Array3D<float>*		arr_;
-    float 			threshold_;
-    				//Any value above threshold is inside
-    SamplingData<int>		inlsampling_;
-    SamplingData<int>		crlsampling_;
-    SamplingData<float>		zsampling_;
-
-    ImplicitBody		operator =(const ImplicitBody&);
+    float 			threshold_;//Any value above threshold is inside
+    CubeSampling		cs_; //has same size as arr_
 };
 
 
