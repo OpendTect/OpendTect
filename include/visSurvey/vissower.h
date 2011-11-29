@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.6 2011-11-25 11:54:02 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.7 2011-11-29 16:10:50 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 class Color;
 class Coord;
-class CubeSampling;
+class HorSampling;
 
 namespace visBase { class PolyLine; };
 
@@ -70,13 +70,15 @@ public:
     bool		activate(const Color&,const visBase::EventInfo&,
 	    			 int underlyingobjid=-1);
     bool		activate(const Color&,const visBase::EventInfo&,
-	    			 const CubeSampling* underlyingcs);
+	    			 const HorSampling* workrange);
 
 protected:
 
     bool		activate(const Color&,const visBase::EventInfo&,
 	    			 int underlyingobjid,
-	    			 const CubeSampling* underlyingcs);
+	    			 const HorSampling* workrange);
+    bool		isInWorkRange(const visBase::EventInfo&) const ;
+    void		tieToWorkRange( const visBase::EventInfo& );
 
     bool		acceptMouse(const visBase::EventInfo&);
     bool		acceptTablet(const visBase::EventInfo&);
@@ -94,7 +96,7 @@ protected:
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
     int					underlyingobjid_;
-    const CubeSampling*			underlyingcs_;
+    const HorSampling*			workrange_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 
@@ -102,6 +104,7 @@ protected:
     bool				alternatesowingorder_;
     bool				intersow_;
 
+    OD::ButtonState			pressedbutstate_;
     OD::ButtonState			sequentsowmask_;
     OD::ButtonState			ifdraginvertmask_;
     OD::ButtonState			lasermask_;
