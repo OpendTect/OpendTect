@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.181 2011-11-17 20:16:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.182 2011-11-29 04:44:12 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -876,14 +876,15 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 }
 
 
-bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
+bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
+					 float velocity )
 {
     //TODO: force 3D to avoid crash for 2D, need workaround for 2D later
     const Attrib::DescSet* ds = DSHolder().getDescSet( false, false );
     if ( !ds )
 	return false;
 
-    uiSetPickDirs dlg( parent(), ps, ds, nlamod );
+    uiSetPickDirs dlg( parent(), ps, ds, nlamod, velocity );
     return dlg.go();
 }
 

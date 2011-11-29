@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.26 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.27 2011-11-29 04:44:12 cvsranojay Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -45,7 +45,7 @@ static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.26 2011-11-23 11:35:55 cvs
 using namespace Attrib;
 
 uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
-			      const DescSet* a, const NLAModel* n )
+			      const DescSet* a, const NLAModel* n, float vel )
 	: uiDialog(p,uiDialog::Setup("Add direction to Pick Set",
 				     "Specify directions for picks",
 				     "105.1.1"))
@@ -58,6 +58,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, steerctio_( 0 )
 	, usesteering_( true )
 	, createdset_( 0 )
+	, velocity_(vel)
 {
     SelInfo attrselinfo( ads_, nlamdl_ );
     if ( attrselinfo.ioobjids_.size() == 0 )
@@ -164,16 +165,17 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	DataPointSet::RowID rid = dps.find( positions[idx] );
 	if ( usesteering_ )
 	{
-	    const float inldip = dps.value( 0, rid )/2;
-	    const float crldip = dps.value( 1, rid )/2;
+	    float inldip = dps.value( 0, rid )/2;
+	    float crldip = dps.value( 1, rid )/2;
 	    SeparString dipvaluetext;
-	    if ( !mIsUdf(inldip) && !mIsUdf(crldip) )
-	    {
-		dipvaluetext += toString( inldip );
-		dipvaluetext += toString( crldip );
-		phi = calcPhi( inldip, crldip );
-		theta = calcTheta( inldip, crldip );
-	    }
+
+	    if ( mIsUdf(inldip) || mIsUdf(crldip) )
+	    	inldip = crldip = 0;
+		
+	    dipvaluetext += toString( inldip );
+	    dipvaluetext += toString( crldip );
+	    phi = calcPhi( inldip, crldip );
+	    theta = calcTheta( inldip, crldip );
 	
 	    const char* key = "Dip";
 	    ps_[idx].setText( key, dipvaluetext.buf() );
@@ -351,10 +353,9 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
 
 float uiSetPickDirs::calcTheta( float inldip, float crldip )
 {
-    const float velocity = 2000;
     const float poldip = Math::Sqrt( inldip*inldip + crldip*crldip );
     
-    float theta = atan( poldip * velocity * 1e-6 );
+    float theta = atan( poldip * velocity_ * 1e-6 );
     return theta;
 }
 

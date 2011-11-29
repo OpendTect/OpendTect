@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.423 2011-11-28 17:15:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.424 2011-11-29 04:44:12 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -374,7 +374,12 @@ bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 { return pickserv_->storeSetAs( ps ); }
 
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
-{ return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0);}
+{
+    const int sceneid = sceneMgr().askSelectScene();
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
+    const float velocity = scene->getZStretch() * scene->getZScale();
+    return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0,velocity);
+}
 
 bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }

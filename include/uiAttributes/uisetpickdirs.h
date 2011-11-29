@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uisetpickdirs.h,v 1.8 2011-11-29 04:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ mClass uiSetPickDirs : public uiDialog
 public:
     				uiSetPickDirs(uiParent*,Pick::Set&,
 					      const Attrib::DescSet* a=0,
-					      const NLAModel* n=0);
+					      const NLAModel* n=0,
+					      float vel=0);
 				~uiSetPickDirs();
 
 protected:
@@ -50,6 +51,7 @@ protected:
     uiAttrSel*			thetafld_;
     uiGenInput*			dirinpfld_;
     uiSteerCubeSel*		steerfld_;
+    float			velocity_;
 
     void			dirinpSel(CallBacker*);
 

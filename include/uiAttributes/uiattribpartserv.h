@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.74 2011-11-04 08:22:04 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.75 2011-11-29 04:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ public:
 
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
 	    			     bool is2d);
-    bool		setPickSetDirs(Pick::Set&,const NLAModel*);
+    bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(MultiID&,bool);
     bool		replaceSet(const IOPar&,bool,float);
     bool		addToDescSet(const char*,bool);
