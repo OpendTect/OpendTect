@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.86 2011-10-20 16:44:15 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.87 2011-11-30 23:32:58 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -62,6 +62,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , enabletrackingmnuitem_("Enable tracking")
     , changesetupmnuitem_("Change setup ...")
     , reloadmnuitem_("Reload",-750)
+    , trackmenuitem_(uiVisEMObject::trackingmenutxt())
     , starttrackmnuitem_("Start tracking ...")
     , treeitemwasenabled_(true)
     , prevtrackstatus_(true)
@@ -396,38 +397,28 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
-    MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt());
 
-    if ( isChecked() && trackmnu )
+    EM::SectionID sectionid = -1;
+    if ( uivisemobj_->nrSections()==1 )
+	sectionid = uivisemobj_->getSectionID(0);
+    else if ( menu->getPath() )
+	sectionid = uivisemobj_->getSectionID( menu->getPath() );
+
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    const bool hastracker = mps->getTrackerID(emid_)>=0;
+    if ( !hastracker && !visserv_->isLocked(displayid_) && !hastransform )
     {
-	EM::SectionID section = -1;
-	if ( uivisemobj_->nrSections()==1 )
-	    section = uivisemobj_->getSectionID(0);
-	else if ( menu->getPath() )
-	    section = uivisemobj_->getSectionID( menu->getPath() );
-
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	const bool hastracker = mps->getTrackerID(emid_)>=0;
-	if ( !hastracker && !visserv_->isLocked(displayid_) && !hastransform )
-	{
-	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
-	    mResetMenuItem( &changesetupmnuitem_ );
-	    mResetMenuItem( &enabletrackingmnuitem_ );
-	}
-	else if ( hastracker && section!=-1 && !visserv_->isLocked(displayid_)&&
-		  !hastransform )
-	{
-	    mAddMenuItem( trackmnu, &starttrackmnuitem_, false, false );
-	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
-	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
-			  mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
-	}
-	else
-	{
-	    mResetMenuItem( &starttrackmnuitem_ );
-	    mResetMenuItem( &changesetupmnuitem_ );
-	    mResetMenuItem( &enabletrackingmnuitem_ );
-	}
+	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, true, false );
+	mResetMenuItem( &changesetupmnuitem_ );
+	mResetMenuItem( &enabletrackingmnuitem_ );
+    }
+    else if ( hastracker && sectionid!=-1 && !visserv_->isLocked(displayid_) &&
+	      !hastransform )
+    {
+	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, false, false );
+	mAddMenuItem( &trackmenuitem_, &changesetupmnuitem_, true, false );
+	mAddMenuItem( &trackmenuitem_, &enabletrackingmnuitem_, true,
+		      mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
     }
     else
     {
@@ -436,22 +427,23 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &enabletrackingmnuitem_ );
     }
 
+    const bool isshifted =
+		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
+    const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked();
+    mAddMenuItem( menu, &trackmenuitem_, enab, false );
+
 #ifdef __debug__
     mAddMenuItem( menu, &reloadmnuitem_, true, false );
 #else
     mResetMenuItem( &reloadmnuitem_ );
 #endif
 
-    const bool isshifted =
-		!mIsZero(visserv_->getTranslation(displayID()).z, 1e-5);
-
-    const bool istransformedandshifted = hastransform && isshifted;
-
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
 		  !isshifted, false );
 
+    const bool istransformedandshifted = hastransform && isshifted;
     mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
     mResetMenuItem( &createflatscenemnuitem_ );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.94 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.95 2011-11-30 23:32:58 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -239,7 +239,6 @@ void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem_.text = "Use single &color";
     singlecolmnuitem_.checkable = true;
-    trackmenuitem_.text = uiVisEMObject::trackingmenutxt();
     seedsmenuitem_.text = "S&eeds";
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = "&Show";
@@ -415,37 +414,37 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
 	&& !visserv_->isLocked(displayid_) && !hastransform;
 
-    trackmenuitem_.removeItems();
     seedsmenuitem_.removeItems();
 
-    mAddMenuItem( &trackmenuitem_, &editmnuitem_, enabmenu,
-	    	  emod->isEditingEnabled() );
+    MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
+    if ( trackmnu )
+    {
+	mAddMenuItem( trackmnu, &editmnuitem_, enabmenu,
+		      emod->isEditingEnabled() );
 
-    const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
-    const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
-    if ( hordisp )
-	mAddMenuItem( &trackmenuitem_, &wireframemnuitem_, true, haswireframe );
-    wireframemnuitem_.enabled = canhavewireframe;
-    if ( !wireframemnuitem_.enabled ) wireframemnuitem_.checked = false;
-   
-    const TypeSet<EM::PosID>* seeds =
-	emobj->getPosAttribList(EM::EMObject::sSeedNode());
-    showseedsmnuitem_.text = emod->showsPosAttrib(EM::EMObject::sSeedNode()) ?
-			    "&Hide" : "S&how" ;	
-    mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_, seeds && seeds->size(),
-	    	  false );
-    mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
-		  !visserv_->isTrackingSetupActive(), false );
-    lockseedsmnuitem_.text = 
-	emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ? 
-	"Un&lock" : "&Lock" ;	
-    mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
-    mAddMenuItem( &trackmenuitem_, &seedsmenuitem_, seedsmenuitem_.nrItems(),
-		  false );
-
-    const bool isshifted = hordisp ? hordisp->getTranslation().z : false;
-    mAddMenuItem( menu, &trackmenuitem_,
-		  trackmenuitem_.nrItems() && !isshifted, false ); 
+	const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
+	const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
+	if ( hordisp )
+	    mAddMenuItem( trackmnu, &wireframemnuitem_,
+			  true, haswireframe );
+	wireframemnuitem_.enabled = canhavewireframe;
+	if ( !wireframemnuitem_.enabled ) wireframemnuitem_.checked = false;
+       
+	const TypeSet<EM::PosID>* seeds =
+	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
+	showseedsmnuitem_.text =
+	    emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? "&Hide" : "S&how";
+	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
+		      seeds && seeds->size(), false );
+	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
+		      !visserv_->isTrackingSetupActive(), false );
+	lockseedsmnuitem_.text = 
+	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ? 
+	    "Un&lock" : "&Lock" ;	
+	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
+	mAddMenuItem( trackmnu, &seedsmenuitem_,
+		      seedsmenuitem_.nrItems(), false );
+    }
 
 #ifdef __debug__
     MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
