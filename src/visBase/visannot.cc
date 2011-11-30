@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.36 2011-11-03 16:18:22 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.37 2011-11-30 09:25:57 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -47,6 +47,8 @@ Annotation::Annotation()
     , pickstyle_(PickStyle::create())
     , texts_(0)
 {
+    annotscale_[0] = annotscale_[1] = annotscale_[3] = 1;
+
     annotcolor_ = Color::White();
     pickstyle_->ref();
     addChild( pickstyle_->getInventorNode() );
@@ -415,13 +417,19 @@ void Annotation::updateTextPos( int dim )
 	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
 	float displayval = val;
-	if ( dim==2 )
-	    displayval *= SI().zFactor();
+	displayval *= annotscale_[dim];
 
 	text->setPosition( pos );
 	text->setText( toString(displayval) );
 	text->getMaterial()->setColor( annotcolor_ );
     }
+}
+
+
+void visBase::Annotation::setAnnotScale( int dim, int nv )
+{
+    annotscale_[dim] = nv;
+    updateTextPos( dim );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.22 2011-02-16 21:57:59 cvskris Exp $
+ RCS:		$Id: visannot.h,v 1.23 2011-11-30 09:25:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,8 @@ public:
 
     void			setCubeSampling(const CubeSampling&);
 
+    void			setAnnotScale(int dim,int scale);
+
     void			setText( int dim, const char * );
     void			setTextColor(int dim,const Color&);
     const Color&		getColor()		{return annotcolor_;}
@@ -80,6 +82,7 @@ protected:
     Coord3			getCorner(int) const;
 
     SoCoordinate3*		coords_;
+    int				annotscale_[3];
 
     ObjectSet<DataObjectGroup>	scales_;
     PickStyle*			pickstyle_;
