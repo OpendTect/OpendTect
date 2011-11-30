@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: arrayndslice.cc,v 1.6 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: arrayndslice.cc,v 1.7 2011-11-30 08:42:37 cvskris Exp $";
 
 
 #include "arrayndslice.h"
@@ -28,16 +28,35 @@ ArrayNDSliceBase::~ArrayNDSliceBase()
 { delete &info_; }
 
 
-void ArrayNDSliceBase::setPos( int dim, int pos )
+bool ArrayNDSliceBase::setPos( int dim, int pos )
 {
     const int ndim = position_.size();
-    if ( dim>=ndim ) return;
+    if ( dim<0 || dim>=ndim || pos<0 || pos>=getDimSize(dim) )
+	return false;
+
     position_[dim] = pos;
+
+    return true;
+}
+
+
+int ArrayNDSliceBase::getPos( int dim ) const
+{
+    return position_[dim];
+}
+
+
+int ArrayNDSliceBase::getDimSize( int dim ) const
+{
+    return sourceinfo_.getSize( dim );
 }
 
 
 void ArrayNDSliceBase::setDimMap( int localdim, int remotedim )
-{ vardim_[localdim] = remotedim; }
+{
+    vardim_[localdim] = remotedim;
+    position_[remotedim] = -1;
+}
 
 
 bool ArrayNDSliceBase::init()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.9 2011-09-21 14:23:12 cvskris Exp $
+ RCS:           $Id: arrayndslice.h,v 1.10 2011-11-30 08:42:37 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -19,7 +19,9 @@ mClass ArrayNDSliceBase
 {
 public:				
     virtual			~ArrayNDSliceBase();
-    void			setPos( int dim, int pos );
+    int				getDimSize(int dim) const;
+    int				getPos(int dim) const;
+    bool			setPos(int dim,int pos);
     bool			init();
     void			setDimMap(int localdim, int remotedim );
 protected:
