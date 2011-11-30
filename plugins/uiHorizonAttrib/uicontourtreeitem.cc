@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.23 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.24 2011-11-30 22:45:12 cvsyuancheng Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -60,20 +60,28 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     , propertyChanged(this)
 {
     BufferString zvalstr( "ZValue" );
+    iszval_ = zvalstr == attrnm;
+    if ( iszval_ )
+    {
+	const float zfac = SI().zFactor();
+	rg_.scale( zfac );
+	contourintv_.scale( zfac );
+    }
+
     BufferString lbltxt = "Total ";
     lbltxt += attrnm;
     lbltxt += " Range ";
-    if ( zvalstr == attrnm )
+    if ( iszval_ )
 	lbltxt += SI().getZUnitString();
-    lbltxt += ": "; lbltxt += rg.start;
-    lbltxt += " - "; lbltxt += rg.stop;
+    lbltxt += ": "; lbltxt += rg_.start;
+    lbltxt += " - "; lbltxt += rg_.stop;
     uiLabel* lbl = new uiLabel( this, lbltxt.buf() );
 
     lbltxt = "Contour range ";
-    if ( zvalstr == attrnm )
+    if ( iszval_ )
 	lbltxt += SI().getZUnitString();
 
-    intvfld_ = new uiGenInput( this, lbltxt, FloatInpIntervalSpec(intv) );
+    intvfld_ = new uiGenInput(this,lbltxt,FloatInpIntervalSpec(contourintv_));
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
 
@@ -89,7 +97,13 @@ const LineStyle& getLineStyle() const
 { return lsfld_->getStyle(); }
 
 StepInterval<float> getContourInterval() const
-{ return intvfld_->getFStepInterval(); }
+{
+    StepInterval<float> res = intvfld_->getFStepInterval();
+    if ( iszval_ )
+	res.scale( 1.0/SI().zFactor() );
+    
+    return res;
+}
 
     Notifier<uiContourParsDlg>	propertyChanged;
 
@@ -128,6 +142,7 @@ void intvChanged( CallBacker* cb )
     StepInterval<float>	contourintv_;
     uiGenInput*		intvfld_;
     uiSelLineStyle*	lsfld_;
+    bool		iszval_;
 };
 
 
@@ -318,7 +333,6 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     menu->setIsHandled( true );
-    const float zfac = SI().zFactor();
     Interval<float> range( rg_.start, rg_.stop );
     range += Interval<float>( zshift_, zshift_ );
     StepInterval<float> oldintv( contourintv_ );
@@ -333,7 +347,6 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
     StepInterval<float> newintv = dlg.getContourInterval();
     if ( newintv != oldintv )
     {
-	//newintv.scale( 1/fac );
 	newintv += Interval<float>( -zshift_, -zshift_ );
 	contourintv_ = newintv;
 	createContours();
