@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.46 2011-09-21 08:54:47 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.47 2011-11-30 09:07:08 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -92,13 +92,13 @@ Flat3DDataPack::~Flat3DDataPack()
 void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
 {
     int unuseddim, dim0, dim1;
-    if ( cube_.getInlSz() < 2 )
+    if ( dir_==CubeSampling::Inl )
     {
 	unuseddim = DataCubes::cInlDim();
 	dim0 = DataCubes::cCrlDim();
 	dim1 = DataCubes::cZDim();
     }
-    else if ( cube_.getCrlSz() < 2 )
+    else if ( dir_==CubeSampling::Crl )
     {
 	unuseddim = DataCubes::cCrlDim();
 	dim0 = DataCubes::cInlDim();
@@ -106,13 +106,16 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
     }
     else
     {
+	dir_ = CubeSampling::Z;
 	unuseddim = DataCubes::cZDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cCrlDim();
 	setCategory( categoryStr(false) );
     }
 
-    arr2dsl_ = new Array2DSlice<float>( cube_.getCube(cubeidx) );
+    if ( !arr2dsl_ )
+	arr2dsl_ = new Array2DSlice<float>( cube_.getCube(cubeidx) );
+
     arr2dsl_->setPos( unuseddim, 0 );
     arr2dsl_->setDimMap( 0, dim0 );
     arr2dsl_->setDimMap( 1, dim1 );
@@ -130,6 +133,7 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 
     arr2dsource_ = new Array2DImpl<float>( dim0sz, dim1sz );
     for ( int id0=0; id0<dim0sz; id0++ )
+    {
 	for ( int id1=0; id1<dim1sz; id1++ )
 	{
 	    float val = isvert ? cube_.getCube(id0).get( 0, 0, id1 )
@@ -138,10 +142,73 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 			       		: cube_.getCube(id1).get( id0, 0, 0 );
 	    arr2dsource_->set( id0, id1, val );
 	}
+    }
     
     arr2dsl_ = new Array2DSlice<float>( *arr2dsource_ );
     arr2dsl_->setDimMap( 0, 0 );
     arr2dsl_->setDimMap( 1, 1 );
+}
+
+
+bool Flat3DDataPack::setDataDir( CubeSampling::Dir dir )
+{
+    if ( arr2dsource_ )
+    {
+	pErrMsg("Not supported");
+	return false;
+    }
+
+    dir_ = dir;
+    createA2DSFromSingCube( cubeidx_ );
+    return arr2dsl_->init();
+}
+
+#define mGetDim( unuseddim ) \
+    if ( dir_==CubeSampling::Inl ) \
+	unuseddim = DataCubes::cInlDim(); \
+    else if ( dir_==CubeSampling::Crl ) \
+	unuseddim = DataCubes::cCrlDim(); \
+    else \
+	unuseddim = DataCubes::cZDim()
+
+int Flat3DDataPack::nrSlices() const
+{
+    if ( arr2dsource_ ) return 1;
+
+    int unuseddim;
+    mGetDim( unuseddim );
+
+    return arr2dsl_->getDimSize( unuseddim );
+}
+
+
+int Flat3DDataPack::getDataSlice() const
+{
+    if ( arr2dsource_ ) return 0;
+
+    int unuseddim;
+    mGetDim( unuseddim );
+
+    return arr2dsl_->getPos( unuseddim );
+}
+
+
+bool Flat3DDataPack::setDataSlice( int pos )
+{
+    if ( arr2dsource_ )
+    {
+	pErrMsg("Not supported");
+	return false;
+    }
+
+    int unuseddim;
+    mGetDim( unuseddim );
+
+    if ( pos<0 || pos>=arr2dsl_->getDimSize( unuseddim ) )
+	return false;
+
+    arr2dsl_->setPos( unuseddim, pos );
+    return true;
 }
 
 

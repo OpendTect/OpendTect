@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.33 2011-09-21 08:54:47 cvskris Exp $
+ RCS:		$Id: attribdatapack.h,v 1.34 2011-11-30 09:07:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,11 @@ public:
     int			getCubeIdx() const	{ return cubeidx_; }
     const DataCubes&	cube() const		{ return cube_; }
     Array2D<float>&	data();
+    bool		setDataDir(CubeSampling::Dir);
     CubeSampling::Dir	dataDir() const		{ return dir_; }
+    int			nrSlices() const;
+    bool		setDataSlice(int);
+    int			getDataSlice() const;
     const char*		dimName(bool) const;
 
     Coord3		getCoord(int,int) const;
