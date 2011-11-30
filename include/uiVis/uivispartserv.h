@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.267 2011-09-20 06:44:08 cvssatyaki Exp $
+ RCS:           $Id: uivispartserv.h,v 1.268 2011-11-30 09:27:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,7 +234,7 @@ public:
     static const int	evMouseMove();
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
-    float		zFactor() const			{ return zfactor_; }
+    int			zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
     void		getObjectInfo(int id,BufferString&) const;
@@ -420,7 +420,7 @@ protected:
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
-    float			zfactor_;
+    int				zfactor_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.6 2011-11-04 07:41:27 cvsnageswara Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.7 2011-11-30 09:27:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,9 @@ bool SqlDB::Access::isOpen() const
 
 BufferString SqlDB::Access::errMsg() const
 {
-    return BufferString( qdb_->lastError().text().toAscii().data() );
+    BufferString err( qdb_->lastError().text().toAscii().data() );
+    removeTrailingBlanks( err.buf() );
+    return err;
 }
 
 

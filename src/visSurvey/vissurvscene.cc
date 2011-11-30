@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.149 2011-10-04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.150 2011-11-30 09:27:32 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -105,6 +105,9 @@ void Scene::updateAnnotationText()
 
     if ( SI().zRange(true).width() )
     	annot_->setText( 2, zDomainUserName() );
+
+    annot_->setAnnotScale( 2,
+	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
 }
 
 
@@ -253,7 +256,7 @@ const char* Scene::zDomainUserName() const
 const char* Scene::zDomainUnitStr( bool withparens ) const
 { return zdomaininfo_->unitStr( withparens ); }
 
-float Scene::zDomainUserFactor() const
+int Scene::zDomainUserFactor() const
 { return zdomaininfo_->userFactor(); }
 
 const char* Scene::zDomainID() const

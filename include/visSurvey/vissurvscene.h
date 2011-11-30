@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.75 2011-10-04 13:44:59 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.76 2011-11-30 09:27:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -153,7 +153,7 @@ public:
     const char*			zDomainKey() const;
     const char*			zDomainUserName() const;
     const char*			zDomainUnitStr(bool withparens=false) const;
-    float			zDomainUserFactor() const;
+    int				zDomainUserFactor() const;
     const char*			zDomainID() const;
 
     void			setAnnotColor(const Color&);

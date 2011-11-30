@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.15 2011-10-10 08:34:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.16 2011-11-30 09:27:32 cvskris Exp $";
 
 #include "uislicepos.h"
 
@@ -184,7 +184,7 @@ void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
     }
     else
     {
-	const float zfac = zfactor_;
+	const int zfac = zfactor_;
 	posbox->setInterval( survcs.zrg.start*zfac, survcs.zrg.stop*zfac);
 	stepbox->setInterval( survcs.zrg.step*zfac,
 			      (survcs.zrg.stop-survcs.zrg.start)*zfac,

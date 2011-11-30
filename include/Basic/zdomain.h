@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
  Date:		April 2009 / Aug 2010
- RCS:		$Id: zdomain.h,v 1.9 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:		$Id: zdomain.h,v 1.10 2011-11-30 09:27:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
     const char*		key() const		{ return key_; }
     const char*		userName() const	{ return usrnm_; }
     const char*		unitStr(bool withparens=false) const;
-    float		userFactor() const	{ return usrfac_; }
+    int			userFactor() const	{ return usrfac_; }
 
     bool		isSI() const;
     bool		isTime() const;
@@ -55,7 +55,7 @@ public:
 
     // For plugins:
     			Def( const char* ky, const char* usrnm,
-				const char* defun, float usrfac=1 )
+				const char* defun, int usrfac=1 )
 			    : key_(ky), usrnm_(usrnm)
 			    , defunit_(defun), usrfac_(usrfac)	{}
     static bool		add(Def*);
@@ -65,8 +65,7 @@ protected:
     BufferString	key_;
     BufferString	usrnm_;
     BufferString	defunit_;
-    float		usrfac_; // usually 1 or 1000, not FeetFac
-
+    int			usrfac_; // usually 1 or 1000, not FeetFac
 };
 
 
@@ -92,7 +91,7 @@ public:
     const char*		userName() const	{ return def_.userName(); }
     const char*		unitStr(bool wp=false) const
     						{ return def_.unitStr(wp); }
-    float		userFactor() const	{ return def_.userFactor(); }
+    int			userFactor() const	{ return def_.userFactor(); }
 
 };
 
