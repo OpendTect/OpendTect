@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.13 2011-11-04 12:42:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.14 2011-11-30 07:49:36 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -142,8 +142,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
-    , wrr_(0)
     , inioobj_(inp)	
+    , wrr_(0)
     , outioobj_(0)
     , nrdone_(0)
     , tr_(0)
@@ -196,9 +196,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;
     step = olddata_.cs_.hrg.step.crl;
     int pady = (int)( getInlXlnDist(b2c,false,step) /SI().crlDistance() )+1;
-    padsz_.y_ = mMAX( padx, pady );
-    padsz_.x_ = mMAX( padx, pady ); 
-    padsz_.z_ = mNINT( olddata_.cs_.zrg.step / data_.cs_.zrg.step );
+    padfac_ = mMAX( padx, pady );
 
     return true;
 }
@@ -215,15 +213,14 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     totnr_ = data_.cs_.hrg.totalNr();
     if ( !cellsz ) return; 
     fft_ = Fourier::CC::createDefault(); 
-    sz_.x_ = sz_.y_ = fft_->getFastSize( cellsz );
+    sz_ = fft_->getFastSize( cellsz );
     StepInterval<float> zsi( data_.cs_.zrg ); 
     zsi.step = olddata_.cs_.zrg.step;
-    sz_.z_ = fft_->getFastSize( zsi.nrSteps() );
-    arr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
-    fftarr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
-    newsz_.x_ = fft_->getFastSize( sz_.x_*padsz_.x_ );
-    newsz_.z_ = fft_->getFastSize( sz_.z_*padsz_.z_ );
-    taper_ = new ArrayNDWindow(Array1DInfoImpl(sz_.z_),false,"CosTaper",0.95);
+    szz_ = fft_->getFastSize( zsi.nrSteps() );
+    arr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
+    fftarr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
+    newsz_ = fft_->getFastSize( sz_*padfac_ );
+    taper_ = new ArrayNDWindow(Array1DInfoImpl(szz_),false,"CosTaper",0.95);
 }
 
 
@@ -261,7 +258,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     const RCol2Coord& b2c = tr_->getTransform();
     const BinID& oldbid = b2c.transformBack( curcoord, &rowrg, &colrg );
     SeisTrc* outtrc = 0; 
-    if ( interpol_ == Nearest )
+    if ( interpol_ == Nearest || padfac_ <= 1 )
     {
 	outtrc = readTrc( oldbid ); 
 	if ( !outtrc )
@@ -276,8 +273,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	{
 	    if ( !findSquareTracesAroundCurbid( trcsset_ ) )
 		{ nrdone_++; return Executor::MoreToDo(); }
-	    if ( padsz_.x_ > 1 && padsz_.y_ > 1 )
-		sincInterpol( trcsset_ );
+	    sincInterpol( trcsset_ );
 	}
 	float mindist = mUdf( float );
 	int outtrcidx = 0;
@@ -330,8 +326,8 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
     deepErase( trcs );
     const int inlstep = olddata_.cs_.hrg.step.inl;
     const int crlstep = olddata_.cs_.hrg.step.crl;
-    const int nrinltrcs = sz_.x_*inlstep/2;
-    const int nrcrltrcs = sz_.y_*crlstep/2;
+    const int nrinltrcs = sz_*inlstep/2;
+    const int nrcrltrcs = sz_*crlstep/2;
     for ( int idinl=-nrinltrcs; idinl<nrinltrcs; idinl+=inlstep)
     {
 	for ( int idcrl=-nrcrltrcs; idcrl<nrcrltrcs; idcrl+=crlstep)
@@ -372,13 +368,12 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     if ( trcs.size() < 2 ) 
 	return;
 
-    int szx = sz_.x_; 	int newszx = newsz_.x_;	 int xpadsz = (int)(szx/2);
-    int szy = sz_.y_; 	int newszy = newsz_.x_;	 int ypadsz = xpadsz;
-    int szz = sz_.z_;	int newszz = newsz_.z_;  int zpadsz = (int)(szz/2);
+    int szx = sz_; 	int newszx = newsz_;	 int xpadsz = (int)(szx/2);
+    int szy = sz_; 	int newszy = newsz_;	 int ypadsz = (int)(szy/2);
 
     for ( int idx=0; idx<trcs.size(); idx++ )
     {
-	for ( int idz=szz; idz<trcs[idx]->size(); idz++ )
+	for ( int idz=szz_; idz<trcs[idx]->size(); idz++ )
 	    trcs[idx]->set( idz, 0, 0 );
     }
 
@@ -388,7 +383,7 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	for ( int idy=0; idy<szy; idy++ )
 	{
 	    const SeisTrc& trc = *trcs[cpt]; cpt ++;
-	    for ( int idz=0; idz<szz; idz++ )
+	    for ( int idz=0; idz<szz_; idz++ )
 	    {
 		const float val = idz < trc.size() ? trc.get(idz,0) : 0;
 		arr_->set( idx, idy, idz, val );
@@ -396,8 +391,8 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	}
     }
     taper_->apply( arr_ );
-    mDoFFT( true, (*arr_), (*fftarr_), szx, szy, szz )
-    Array3DImpl<float_complex> padfftarr( newszx, newszy, newszz );
+    mDoFFT( true, (*arr_), (*fftarr_), szx, szy, szz_ )
+    Array3DImpl<float_complex> padfftarr( newszx, newszy, szz_ );
 
 #define mSetArrVal(xstart,ystart,xstop,ystop,xshift,yshift,z)\
     for ( int idx=xstart; idx<xstop; idx++)\
@@ -414,33 +409,33 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	mSetArrVal( xpadsz, 0, szx, ypadsz, newszx-szx, 0, newidz )\
 	mSetArrVal( 0, ypadsz, xpadsz, szy, 0, newszy-szy, newidz )\
     }
-    mSetVals( 0, zpadsz, 0 )
-    mSetVals( zpadsz, szz, newszz-szz )
+    mSetVals( 0, szz_, 0 )
+    mSetVals( szz_, szz_, 0 )
 
-    Array3DImpl<float_complex> padarr( newszx, newszy, newszz );
-    mDoFFT( false, padfftarr, padarr, newszx, newszy, newszz )
+    Array3DImpl<float_complex> padarr( newszx, newszy, szz_ );
+    mDoFFT( false, padfftarr, padarr, newszx, newszy, szz_ )
 
     const Coord startcrd = trcs[0]->info().coord;
     const Coord nextcrlcrd = trcs[1]->info().coord;
-    const Coord nextinlcrd = trcs[sz_.x_]->info().coord;
-    const float xcrldist = (nextcrlcrd.x-startcrd.x)/padsz_.x_;
-    const float ycrldist = (nextcrlcrd.y-startcrd.y)/padsz_.y_;
-    const float xinldist = (nextinlcrd.x-startcrd.x)/padsz_.x_;
-    const float yinldist = (nextinlcrd.y-startcrd.y)/padsz_.y_;
+    const Coord nextinlcrd = trcs[sz_]->info().coord;
+    const float xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
+    const float ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
+    const float xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
+    const float yinldist = (nextinlcrd.y-startcrd.y)/padfac_;
 
     deepErase( trcs );
     for ( int idx=0; idx<newszx; idx ++ )
     {
 	for ( int idy=0; idy<newszy; idy++ )
 	{
-	    SeisTrc* trc = new SeisTrc( newszz );
+	    SeisTrc* trc = new SeisTrc( szz_ );
 	    trc->info().sampling = olddata_.cs_.zrg;
 	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
 	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
 	    trcs += trc;
-	    for ( int idz=0; idz<newszz; idz++ )
+	    for ( int idz=0; idz<szz_; idz++ )
 	    {
-		float amplfac = padsz_.x_*padsz_.y_*padsz_.z_;
+		float amplfac = padfac_*padfac_;
 		if ( idz < trc->size() ) 
 		    trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
 	    }

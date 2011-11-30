@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.5 2011-01-04 13:49:35 cvsbruno Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.6 2011-11-30 07:49:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,8 +81,10 @@ protected:
     };
     PosData		data_, olddata_;
 
-    mStruct Dim3	{ int x_, y_, z_; };
-    Dim3		sz_, newsz_, padsz_;
+    int			padfac_;
+    int			sz_;
+    int			newsz_;
+    int			szz_;
 
     Fourier::CC*	fft_;
     ObjectSet<SeisTrc>	trcsset_;
