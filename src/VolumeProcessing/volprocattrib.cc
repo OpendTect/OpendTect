@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.10 2010-05-10 16:10:45 cvskris Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.11 2011-11-30 09:10:11 cvskris Exp $";
 
 #include "volprocattrib.h"
 
@@ -19,90 +19,6 @@ static const char* rcsID = "$Id: volprocattrib.cc,v 1.10 2010-05-10 16:10:45 cvs
 
 namespace VolProc
 {
-/*
-mAttrDefCreateInstance( AttributeAdapter );
-
-void AttributeAdapter::initClass()
-{
-    mAttrStartInitClass;
-
-    Attrib::StringParam* renderparam = 
-	new Attrib::StringParam( sKeyRenderSetup() );
-    desc->addParam( renderparam );
-
-    desc->addOutputDataType( Seis::UnknowData );
-
-    mAttrEndInitClass;
-}
-
-
-AttributeAdapter::AttributeAdapter( Attrib::Desc& d )
-    : Attrib::Provider( d )
-    , chain_( 0 )
-    , firstlocation_( true )
-    , executor_( 0 )
-{
-    BufferString rendersetup;
-    mGetString( rendersetup, sKeyRenderSetup() );
-    rendermid_ = rendersetup;
-
-    PtrMan<IOObj> ioobj = IOM().get( rendermid_ );
-    chain_ = new Chain();
-    chain_->ref();
-    if ( !VolProcessingTranslator::retrieve( *chain_, ioobj, errmsg ) )
-    {
-	chain_->unRef();
-	chain_ = 0;
-    }
-} 
-
-
-AttributeAdapter::~AttributeAdapter()
-{
-    delete executor_;
-}
-
-
-bool AttributeAdapter::isOK() const
-{
-    return chain_ && Attrib::Provider::isOK();
-}
-
-
-bool AttributeAdapter::computeData( const Attrib::DataHolder& output,
-				    const BinID& relpos, int t0,
-				    int nrsamples, int threadid ) const
-{
-    if ( !executor_->setCalculationScope( getCurrentPosition() +
-			     relpos * getStepoutStep(),
-			     StepInterval<int>( t0, t0+nrsamples-1, 1 ),
-	   		     *output.series(0) ) )
-	return false;
-
-
-    return executor_->execute();
-}
-
-
-void AttributeAdapter::prepareForComputeData()
-{
-    Provider::prepareForComputeData();
-    if ( firstlocation_ )
-    {
-	firstlocation_ = false;
-	prepareChain();
-    }
-}
-
-
-bool AttributeAdapter::prepareChain()
-{
-    chain_->setZSampling( SamplingData<float>( 0, getRefStep() ),zIsTime() );
-    if ( !executor_ ) executor_ = new ChainExecutor( *chain_ );
-    return true;
-}
-
-*/
 
 
 void ExternalAttribCalculator::initClass()
@@ -223,6 +139,33 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
     Attrib::Flat3DDataPack* ndp =
 	new Attrib::Flat3DDataPack( did, *datacubes, 0 );
+
+
+    CubeSampling::Dir dir;
+    int slice;
+
+    if ( cs.nrInl()<2 )
+    {
+	dir = CubeSampling::Inl;
+	slice = datacubes->inlsampling_.nearestIndex( cs.hrg.start.inl );
+    }
+    else if ( cs.nrCrl()<2 )
+    {
+	dir = CubeSampling::Crl;
+	slice = datacubes->crlsampling_.nearestIndex( cs.hrg.start.crl );
+    }
+    else
+    {
+	dir = CubeSampling::Z;
+	slice = mNINT( cs.zrg.start/datacubes->zstep_ )-datacubes->z0_;
+    }
+
+    if ( !ndp->setDataDir( dir ) || !ndp->setDataSlice( slice ) )
+    {
+	delete ndp;
+	return DataPack::cNoID();
+    }
+
     DPM( DataPackMgr::FlatID() ).add( ndp );
 
     PtrMan<IOObj> ioobj = IOM().get( chain_->storageID() );
