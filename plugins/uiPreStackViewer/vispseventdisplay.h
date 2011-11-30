@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.3 2011-11-16 06:32:23 cvsranojay Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.4 2011-11-30 11:53:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ namespace PreStack { class EventManager; class EventSet; }
 namespace visSurvey
 {
 
-
-class PSEventDisplay : public visBase::VisualObjectImpl,
+    
+mClass PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
 {
 public:

@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.72 2011-11-07 06:05:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.73 2011-11-30 11:53:17 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -37,7 +37,6 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.72 2011-11-07 06:05:57
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
-#include "visseedpolyline.h"
 #include <math.h>
 
 

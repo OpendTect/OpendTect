@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.7 2011-11-18 04:35:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.8 2011-11-30 11:53:17 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -121,7 +121,11 @@ PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
     , zerooffset_(new MenuItem("Zero offset"))
     , sticksfromsection_(new MenuItem("Sticks from section"))
     , zerooffsetonsection_(new MenuItem("Zero offset on section"))
-    , properties_(new MenuItem("Properties"))
+    , colors_(new MenuItem("Colors"))
+    , single_(new MenuItem("Single"))
+    , quality_(new MenuItem("Quality"))
+    , velocity_(new MenuItem("Velocity"))
+    , velocityfit_(new MenuItem("Velocity fit"))
 {
     psem_.setStorageID( key, true );
 }
@@ -159,7 +163,18 @@ void PSEventsTreeItem::createMenuCB( CallBacker* cb )
        mAddMenuItem( &displaymnuitem_, zerooffset_, true, false );
        mAddMenuItem( &displaymnuitem_, sticksfromsection_, true, false );
        mAddMenuItem( &displaymnuitem_, zerooffsetonsection_, true, false );
-       mAddMenuItem( &displaymnuitem_, properties_, true, false );
+       
+       if (  eventdisplay_->getDisplayMode()
+	   != visSurvey::PSEventDisplay::ZeroOffset )
+       {
+	   mAddMenuItem( &displaymnuitem_, colors_, true, false );
+	   mAddMenuItem( colors_, single_, true, false );
+	   mAddMenuItem( colors_, quality_, true, false );
+	   mAddMenuItem( colors_, velocity_, true, false );
+	   mAddMenuItem( colors_, velocityfit_, true, false );
+       }
+       else
+	   mAddMenuItem( &displaymnuitem_, colors_, false, false );
     }
 }
 
@@ -191,12 +206,25 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
 	eventdisplay_->setDisplayMode(
 	    visSurvey::PSEventDisplay::ZeroOffsetOnSections );
     }
-    else if ( menuid == properties_->id )
+    else if ( menuid == single_->id )
     {
 	menu->setIsHandled(true);
-	uiPSEventsPropertyDlg dlg( getUiParent(), this,
-	    eventdisplay_->markerColorNames() );
-	dlg.go();
+	updateColorMode( visSurvey::PSEventDisplay::Single );
+    }
+    else if ( menuid == quality_->id )
+    {
+	menu->setIsHandled(true);
+	updateColorMode( visSurvey::PSEventDisplay::Quality );
+    }
+    else if ( menuid == velocity_->id )
+    {
+	menu->setIsHandled(true);
+	updateColorMode( visSurvey::PSEventDisplay::Velocity );
+    }
+    else if ( menuid == velocityfit_->id )
+    {
+	menu->setIsHandled(true);
+	updateColorMode( visSurvey::PSEventDisplay::VelocityFit );
     }
 
 }
@@ -220,10 +248,7 @@ void PSEventsTreeItem::updateDisplay()
 	displayid_ = eventdisplay_->id();
 	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setEventManager( &psem_ );
-	Interval<float> rg( 0, 2000 );
-	const ColTab::MapperSetup ms(
-	    ColTab::MapperSetup().type(ColTab::MapperSetup::Fixed)
-				 .range(rg) );
+	const ColTab::MapperSetup ms;
 	eventdisplay_->setColTabMapper( ms, true );
 	eventdisplay_->setColTabSequence( 0, visserv->getColTabSequence(0,0) );
     }

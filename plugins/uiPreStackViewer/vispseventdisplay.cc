@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.4 2011-11-18 04:35:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.5 2011-11-30 11:53:17 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -470,9 +470,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	pao->separator_->addObject( pao->lines_ );
     }
 
-    BinIDValueSet locations( 0, false );
-    eventman_->getLocations( locations );
- 
     do
     {
 	RefMan<PreStack::EventSet> eventset = eventman_ ?
@@ -492,7 +489,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	pao->eventsets_ += eventset;
 	eventset->ref();
-
+	Interval<float> velrg;
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
 	{
 	    const PreStack::Event* event = eventset->events_[idx];
@@ -506,9 +503,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    {
 		offsets[idy] = event->offsetazimuth_[idy].offset();
 		picks[idy] = event->pick_[idy];
+		velrg.include( picks[idy] );
 	    }
 	    sort_coupled( offsets.arr(), picks.arr(), picks.size() );
-
+	    ctabmapper_.setup_.range_.include( velrg );
 	    if ( markercolor_!=Single )
 	    {
 		if ( event->sz_>1 )
@@ -719,7 +717,6 @@ PSEventDisplay::ParentAttachedObject::ParentAttachedObject( int parent )
     separator_->ref();
     separator_->setSeparate();
 }
-
 
 
 PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()

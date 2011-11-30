@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.4 2011-11-16 04:55:51 cvsranojay Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.5 2011-11-30 11:53:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,11 @@ protected:
     MenuItem*		    zerooffset_;
     MenuItem*		    sticksfromsection_;
     MenuItem*		    zerooffsetonsection_;
-    MenuItem*		    properties_;
+    MenuItem*		    colors_;
+    MenuItem*		    single_;
+    MenuItem*		    quality_;
+    MenuItem*		    velocity_;
+    MenuItem*		    velocityfit_;
     const MultiID&	    key_;
 };
 
