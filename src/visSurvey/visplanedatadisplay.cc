@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.258 2011-10-10 12:13:23 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.259 2011-12-01 14:46:09 cvsbruno Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1286,7 +1286,7 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 	}
     }
 
-    if ( !isSelected() || !isOn() || isLocked() )
+    if ( !isManipulatorShown() || !isOn() || isLocked() )
 	newstatus = 0;
 
     if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
