@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.8 2011-11-28 14:10:23 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.9 2011-12-01 10:32:49 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -26,13 +26,21 @@ static const char* sKeyTimeOut = "Download.Timout";
 
 
 ODDLSite::ODDLSite( const char* h, float t )
-    : odhttp_(*new ODHttp)
-    , timeout_(t)
+    : timeout_(t)
     , databuf_(0)
-    , islocal_(matchString("DIR=",h))
+    , islocal_(h && matchString("DIR=",h))
     , isfailed_(false)
 {
-    host_ = h + (islocal_ ? 4 : (matchString("http://",h) ? 7 : 0));
+    odhttp_ = islocal_ ? 0 : new ODHttp;
+    if ( !h ) h = "opendtect.org";
+    int stroffs = 0;
+    if ( islocal_ )
+	stroffs = 4;
+    else if ( matchString("http://",h) )
+	stroffs = 7;
+    else if ( matchString("https://",h) )
+	{ stroffs = 8; issecure_ = true; }
+    host_ = h + stroffs;
 
     if ( timeout_ <= 0 )
     {
@@ -44,7 +52,7 @@ ODDLSite::ODDLSite( const char* h, float t )
     if ( host_.isEmpty() )
 	host_ = "opendtect.org";
     if ( !islocal_ )
-	odhttp_.requestFinished.notify( mCB(this,ODDLSite,reqFinish) );
+	odhttp_->requestFinished.notify( mCB(this,ODDLSite,reqFinish) );
 
     reConnect();
 }
@@ -53,7 +61,7 @@ ODDLSite::ODDLSite( const char* h, float t )
 ODDLSite::~ODDLSite()
 {
     delete databuf_;
-    delete &odhttp_;
+    delete odhttp_;
 }
 
 
@@ -72,21 +80,23 @@ bool ODDLSite::reConnect()
 {
     if ( islocal_ )
 	return !(isfailed_ = !File::isDirectory(host_));
+    else if ( issecure_ )
+	{ errmsg_ = "TODO secure access not implemented."; return false; }
 
-    if ( odhttp_.state() == ODHttp::Unconnected )
-	odhttp_.setHost( host_ );
+    if ( odhttp_->state() == ODHttp::Unconnected )
+	odhttp_->setHost( host_ );
 
     Time::Counter tc; tc.start();
-    while ( odhttp_.state() < ODHttp::Sending )
+    while ( odhttp_->state() < ODHttp::Sending )
     {
 	Threads::sleep( 0.1 );
 	if ( tc.elapsed() > 1000 * timeout_ )
 	{
 	    errmsg_ = "Cannot open connection to ";
 	    errmsg_.add( host_ ).add ( ":\n" );
-	    if ( odhttp_.state() == ODHttp::HostLookup )
+	    if ( odhttp_->state() == ODHttp::HostLookup )
 		errmsg_.add ( "Host name lookup timeout" );
-	    if ( odhttp_.state() == ODHttp::Connecting )
+	    if ( odhttp_->state() == ODHttp::Connecting )
 		errmsg_.add ( "Host doesn't respond" );
 	    else
 		errmsg_.add ( "Internet connection not available" );
@@ -105,8 +115,8 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
 
-    HttpTask task( odhttp_ );
-    odhttp_.get( getFileName(relfnm), outfnm );
+    HttpTask task( *odhttp_ );
+    odhttp_->get( getFileName(relfnm), outfnm );
     if ( !task.execute() )
 	return false;
 
@@ -121,9 +131,9 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 	return true;
     }
 
-    const od_int64 nrbytes = odhttp_.bytesAvailable();
+    const od_int64 nrbytes = odhttp_->bytesAvailable();
     databuf_ = new DataBuffer( nrbytes, 1, true );
-    const char* buffer = odhttp_.readCharBuffer();
+    const char* buffer = odhttp_->readCharBuffer();
     memcpy( databuf_->data(), buffer, nrbytes );
     return true;
 }
@@ -184,7 +194,7 @@ ODDLSiteMultiFileGetter( ODDLSite& dls,
 	msg_.add( "Getting '" ).add( fnms_.get(curidx_) );
 
     if ( !dlsite_.islocal_ )
-	httptask_ = new HttpTask( dlsite_.odhttp_ );
+	httptask_ = new HttpTask( *dlsite_.odhttp_ );
 }
 
 ~ODDLSiteMultiFileGetter()
@@ -223,8 +233,8 @@ int ODDLSiteMultiFileGetter::nextStep()
 	isok = dlsite_.getFile( inpfnm, outfnm );
     else
     {
-	dlsite_.odhttp_.get( inpfnm, outfnm );
-	isok = dlsite_.odhttp_.state() > ODHttp::Connecting;
+	dlsite_.odhttp_->get( inpfnm, outfnm );
+	isok = dlsite_.odhttp_->state() > ODHttp::Connecting;
     }
 
     if ( isok )

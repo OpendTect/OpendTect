@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.4 2011-11-28 14:09:23 cvsbert Exp $
+ RCS:           $Id: oddlsite.h,v 1.5 2011-12-01 10:32:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,11 @@ class ODHttp;
   If you need bigger files and/or you want users to be able to interrupt, then
   you need the version with the TaskRunner.
 
-  You can ask for a plain file on a local disk; pass 'file://the_file_name'.
-  Then, no HTTP connection is made.
+  You can ask for a plain file on a local disk; pass 'DIR=the_file_name'.
+  Then, no HTTP connection is made. If the site needs secure access, pass the
+  full URL (i.e. https://xx.yy). At the time I'm making this comment, it is
+  not implemented. For normal HTTP access, you can pass the host name or
+  http://hostname .
 
  */
 
@@ -75,8 +78,9 @@ protected:
     BufferString	subdir_;
     float		timeout_;
     bool		islocal_;
+    bool		issecure_;
 
-    ODHttp&		odhttp_;
+    ODHttp*		odhttp_;
     mutable BufferString errmsg_;
     bool		isfailed_;
     DataBuffer*		databuf_;
