@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.128 2011-10-24 05:10:25 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.129 2011-12-01 09:44:23 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -438,7 +438,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     blockDataLoading( false );
 
     postponeLoadingCurVol();
-    sendEvent( uiMPEPartServer::evMPEDispIntro() );
+    //sendEvent( uiMPEPartServer::evMPEDispIntro() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     if ( seedpicker->doesModeUseSetup() )
 	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );

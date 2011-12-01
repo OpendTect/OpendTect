@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.87 2011-11-30 23:32:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.88 2011-12-01 09:44:23 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -508,8 +508,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();
 	    applMgr()->visServer()->triggerTreeUpdate();
-	    applMgr()->visServer()->introduceMPEDisplay();
 	    applMgr()->visServer()->showMPEToolbar();
+	    applMgr()->visServer()->turnSeedPickingOn( true );
 	}
 
 	applMgr()->enableMenusAndToolBars( true );
