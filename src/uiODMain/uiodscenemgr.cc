@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.220 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.221 2011-12-01 14:31:08 cvsbruno Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -732,6 +732,13 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 
 
 const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
+{
+    const Scene* scene = getScene( sceneid );
+    return scene ? scene->sovwr_ : 0;
+}
+
+
+uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) 
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->sovwr_ : 0;

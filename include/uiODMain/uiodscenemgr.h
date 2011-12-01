@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.83 2011-03-25 07:08:33 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.84 2011-12-01 14:31:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
 
     int				askSelectScene() const; // returns sceneid
     const uiSoViewer*		getSoViewer(int sceneid) const;
+    uiSoViewer*			getSoViewer(int sceneid);
     void			getSoViewers(ObjectSet<uiSoViewer>&);
     void			getSceneNames(BufferStringSet&,int& act) const;
     void			setActiveScene(const char* scenenm);
