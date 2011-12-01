@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.8 2011-11-30 11:53:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.9 2011-12-01 04:46:54 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.8 2011-11-30 11:53:17
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
-#include "uipseventspropdlg.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 #include "vispseventdisplay.h"
