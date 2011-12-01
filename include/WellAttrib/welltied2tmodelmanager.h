@@ -48,6 +48,8 @@ public:
     void 		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
 
+    const Data& 	getData() const { return data_; }
+
 protected:
 
     Well::Data* 	wd_;

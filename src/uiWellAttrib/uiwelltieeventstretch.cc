@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.22 2011-06-20 11:55:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.23 2011-12-01 10:48:38 cvsbruno Exp $";
 
 #include "uiwelltieeventstretch.h"
 
@@ -81,6 +81,19 @@ void EventStretch::doStretchSqueeze()
 	    }
 	}
     }
+
+    d2tarr += d2t_->value( d2tsz-1 );
+    daharr += d2t_->dah( d2tsz-1 );
+
+    const float lasttime = d2tmgr_.getData().timeintv_.stop;
+    float lastd2ttime = d2t_->value( d2tsz-1 );
+    while ( lastd2ttime < lasttime  )
+    {
+	lastd2ttime += mGapSize;
+	d2tarr += lastd2ttime;
+	daharr += d2t_->getDah( lastd2ttime );
+    }
+
     d2tsz = d2tarr.size();
 
     Array1DImpl<float> calibratedarr( d2tsz );
