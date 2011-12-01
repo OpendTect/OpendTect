@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.5 2011-11-30 11:53:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.6 2011-12-01 07:27:31 cvskris Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -470,6 +470,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	pao->separator_->addObject( pao->lines_ );
     }
 
+    TypeSet<float> values;
+    ObjectSet<visBase::Marker> markers;
+
     do
     {
 	RefMan<PreStack::EventSet> eventset = eventman_ ?
@@ -487,9 +490,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    eventrg.start = eventrg.stop = eventidx;
 	}
 
+	TypeSet<
 	pao->eventsets_ += eventset;
 	eventset->ref();
-	Interval<float> velrg;
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
 	{
 	    const PreStack::Event* event = eventset->events_[idx];
@@ -503,10 +506,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    {
 		offsets[idy] = event->offsetazimuth_[idy].offset();
 		picks[idy] = event->pick_[idy];
-		velrg.include( picks[idy] );
 	    }
 	    sort_coupled( offsets.arr(), picks.arr(), picks.size() );
-	    ctabmapper_.setup_.range_.include( velrg );
 	    if ( markercolor_!=Single )
 	    {
 		if ( event->sz_>1 )
@@ -552,9 +553,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 			pao->markers_[lastmarker]->setMaterial( 
 			       visBase::Material::create() );
 
-		    const Color col =
-			ctabsequence_.color( ctabmapper_.position(value) );
-		    pao->markers_[lastmarker]->getMaterial()->setColor( col );
+		    values += value;
+		    markers += pao->markers_[lastmarker];
 		}
 
 		lastmarker++;
@@ -570,6 +570,18 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 
     } while ( iter.next( bid ) );
+
+    if ( coltabmapper_.setup_.type_!=MapperSetup::Fixed )
+    {
+	const ArrayValueSeries vs( values.ptr(), false, values.size() );
+	coltabmapper_.setData( &vs, values.size() );
+    }
+
+    for ( int idx=0; idx<markers.size(); idx++ )
+    {
+	const Color col = ctabsequence_.color( ctabmapper_.position(values[idx]) );
+	markers_[idx]->getMaterial()->setColor( col );
+    }
 
     for ( int idx=pao->markers_.size()-1; idx>=lastmarker; idx-- )
     {
