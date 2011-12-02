@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.35 2011-12-02 13:46:25 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.36 2011-12-02 14:33:43 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -610,9 +610,9 @@ BufferString BufferStringSet::cat( char sepchar ) const
     char sepstr[2]; sepstr[0] = sepchar; sepstr[1] = '\0';
     for ( int idx=0; idx<size(); idx++ )
     {
-	ret.add( get(idx) );
 	if ( idx )
 	    ret.add( sepstr );
+	ret.add( get(idx) );
     }
     return ret;
 }
