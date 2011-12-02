@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.51 2011-11-03 13:16:18 cvskris Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.52 2011-12-02 21:46:24 cvsyuancheng Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -249,11 +249,12 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
 	{
-	    const Interval<float> zintv =
+	    maxcs = scene->getCubeSampling();
+	    /*const Interval<float> zintv =
 		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zrg.start = zintv.start;
 	    maxcs.zrg.stop = zintv.stop;
-	    maxcs.zrg.step = scene->getZAxisTransform()->getGoodZStep();
+	    maxcs.zrg.step = scene->getZAxisTransform()->getGoodZStep();*/
 	}
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
