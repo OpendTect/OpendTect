@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.21 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.22 2011-12-02 13:46:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,9 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
+
+    BufferString	cat(char sepchar='\n') const;
+    void		unCat(const char*,char sepchar='\n');
 
 };
 

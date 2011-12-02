@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.34 2011-08-12 10:16:32 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.35 2011-12-02 13:46:25 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -584,8 +584,8 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 void BufferStringSet::fillPar( IOPar& iopar ) const
 {
     BufferString key;
-    for( int idx=0; idx<size(); idx++ )
-    { 
+    for ( int idx=0; idx<size(); idx++ )
+    {
 	key = idx;
 	iopar.set( key, *(*this)[idx] );
     }
@@ -595,12 +595,45 @@ void BufferStringSet::fillPar( IOPar& iopar ) const
 void BufferStringSet::usePar( const IOPar& iopar )
 {
     BufferString key;
-    for( int idx=0; ;idx++ )
+    for ( int idx=0; ; idx++ )
     { 
 	key = idx;
 	if ( !iopar.find(key) ) return;
 	add( iopar[key] );
     }
+}
+
+
+BufferString BufferStringSet::cat( char sepchar ) const
+{
+    BufferString ret;
+    char sepstr[2]; sepstr[0] = sepchar; sepstr[1] = '\0';
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	ret.add( get(idx) );
+	if ( idx )
+	    ret.add( sepstr );
+    }
+    return ret;
+}
+
+
+void BufferStringSet::unCat( const char* inpstr, char sepchar )
+{
+    BufferString str( inpstr );
+    char* ptr = str.buf();
+
+    while ( *ptr )
+    {
+	char* nlptr = strchr( ptr, sepchar );
+	if ( nlptr )
+	    *nlptr++ = '\0';
+	add( ptr );
+	ptr = nlptr;
+    }
+
+    if ( *ptr )
+	add( ptr );
 }
 
 
