@@ -4,13 +4,14 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.6 2011-12-01 07:27:31 cvskris Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.7 2011-12-02 04:31:51 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
 #include "binidvalset.h"
 #include "prestackevents.h"
 #include "survinfo.h"
+#include "valseries.h"
 #include "velocitycalc.h"
 #include "viscoord.h"
 #include "visdatagroup.h"
@@ -35,8 +36,7 @@ DefineEnumNames( PSEventDisplay, MarkerColor, 0, "Marker Color" )
 { "Single", "Quality", "Velocity", "Velocity fit", 0 };
 
 DefineEnumNames( PSEventDisplay, DisplayMode, 0, "Display Mode" )
-{ "None", "Sticks from sections", "Sticks on gathers", "Zero offset on sections",
-  "Zero offset" , 0 };
+{ "Zero offset", "Sticks from sections", "Zero offset on sections", 0 };
 
 PSEventDisplay::PSEventDisplay()
     : VisualObjectImpl( false )
@@ -92,6 +92,12 @@ Color PSEventDisplay::getColor() const
 const char** PSEventDisplay::markerColorNames() const
 {
     return PSEventDisplay::MarkerColorNames();
+}
+
+
+const char** PSEventDisplay::displayModeNames() const
+{
+    return PSEventDisplay::DisplayModeNames();
 }
 
 
@@ -490,7 +496,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    eventrg.start = eventrg.stop = eventidx;
 	}
 
-	TypeSet<
 	pao->eventsets_ += eventset;
 	eventset->ref();
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
@@ -571,16 +576,16 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     } while ( iter.next( bid ) );
 
-    if ( coltabmapper_.setup_.type_!=MapperSetup::Fixed )
+    if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
     {
-	const ArrayValueSeries vs( values.ptr(), false, values.size() );
-	coltabmapper_.setData( &vs, values.size() );
+	const ArrayValueSeries<float,float> vs( values.arr(), false, values.size() );
+	ctabmapper_.setData( &vs, values.size() );
     }
 
     for ( int idx=0; idx<markers.size(); idx++ )
     {
 	const Color col = ctabsequence_.color( ctabmapper_.position(values[idx]) );
-	markers_[idx]->getMaterial()->setColor( col );
+	markers[idx]->getMaterial()->setColor( col );
     }
 
     for ( int idx=pao->markers_.size()-1; idx>=lastmarker; idx-- )

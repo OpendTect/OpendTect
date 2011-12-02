@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.9 2011-12-01 04:46:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.10 2011-12-02 04:31:51 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -117,14 +117,9 @@ PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
     , eventdisplay_(0)
     , dir_(Coord(1,0))
     , scalefactor_(1)
-    , zerooffset_(new MenuItem("Zero offset"))
-    , sticksfromsection_(new MenuItem("Sticks from section"))
-    , zerooffsetonsection_(new MenuItem("Zero offset on section"))
-    , colors_(new MenuItem("Colors"))
-    , single_(new MenuItem("Single"))
-    , quality_(new MenuItem("Quality"))
-    , velocity_(new MenuItem("Velocity"))
-    , velocityfit_(new MenuItem("Velocity fit"))
+    , coloritem_(new MenuItem("Colors"))
+    , clridx_(0)
+    , dispidx_(0)
 {
     psem_.setStorageID( key, true );
 }
@@ -150,30 +145,30 @@ bool PSEventsTreeItem::init()
 }
 
 
+#define mAddPSMenuItems( mnu, items, midx ) \
+    mnu->removeItems(); \
+    mnu->createItems( items ); \
+    for ( int idx=0; idx<items.size(); idx++ ) \
+    {  mnu->getItem(idx)->checkable = true; } \
+    mnu->getItem(midx)->checked = true; \
+
 void PSEventsTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(MenuHandler*,menu,cb);
     if ( !eventdisplay_ || menu->menuID()!=displayID() )
 	return;
+
+    mAddMenuItem( menu, coloritem_, true, false );
+    BufferStringSet menuitems = eventdisplay_->markerColorNames();
+    mAddPSMenuItems( coloritem_, menuitems, clridx_ )
+    
     if ( eventdisplay_->hasParents() )
     {
        mAddMenuItem( menu, &displaymnuitem_, true, false );
-       mAddMenuItem( &displaymnuitem_, zerooffset_, true, false );
-       mAddMenuItem( &displaymnuitem_, sticksfromsection_, true, false );
-       mAddMenuItem( &displaymnuitem_, zerooffsetonsection_, true, false );
-       
-       if (  eventdisplay_->getDisplayMode()
-	   != visSurvey::PSEventDisplay::ZeroOffset )
-       {
-	   mAddMenuItem( &displaymnuitem_, colors_, true, false );
-	   mAddMenuItem( colors_, single_, true, false );
-	   mAddMenuItem( colors_, quality_, true, false );
-	   mAddMenuItem( colors_, velocity_, true, false );
-	   mAddMenuItem( colors_, velocityfit_, true, false );
-       }
-       else
-	   mAddMenuItem( &displaymnuitem_, colors_, false, false );
+       MenuItem* item = &displaymnuitem_;
+       menuitems = eventdisplay_->displayModeNames();
+       mAddPSMenuItems( item, menuitems, dispidx_ )
     }
 }
 
@@ -187,43 +182,18 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
 	|| menu->menuID()!=displayID() || menuid==-1 )
 	return;
 
-    if ( menuid == zerooffset_->id  )
+   
+    if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
-	menu->setIsHandled(true);
+	dispidx_ = displaymnuitem_.itemIndex( menuid );
 	eventdisplay_->setDisplayMode(
-	    visSurvey::PSEventDisplay::ZeroOffset );
+	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
     }
-    else if ( menuid == sticksfromsection_->id )
+    else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
-	menu->setIsHandled(true);
-	eventdisplay_->setDisplayMode(
-	    visSurvey::PSEventDisplay::FullOnSections );
-    }
-    else if ( menuid == zerooffsetonsection_->id )
-    {
-	menu->setIsHandled(true);
-	eventdisplay_->setDisplayMode(
-	    visSurvey::PSEventDisplay::ZeroOffsetOnSections );
-    }
-    else if ( menuid == single_->id )
-    {
-	menu->setIsHandled(true);
-	updateColorMode( visSurvey::PSEventDisplay::Single );
-    }
-    else if ( menuid == quality_->id )
-    {
-	menu->setIsHandled(true);
-	updateColorMode( visSurvey::PSEventDisplay::Quality );
-    }
-    else if ( menuid == velocity_->id )
-    {
-	menu->setIsHandled(true);
-	updateColorMode( visSurvey::PSEventDisplay::Velocity );
-    }
-    else if ( menuid == velocityfit_->id )
-    {
-	menu->setIsHandled(true);
-	updateColorMode( visSurvey::PSEventDisplay::VelocityFit );
+	clridx_ = coloritem_->itemIndex( menuid );
+	updateColorMode( (visSurvey::PSEventDisplay::MarkerColor) clridx_ );
+	menu->setIsHandled( true );
     }
 
 }

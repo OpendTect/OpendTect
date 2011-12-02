@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.4 2011-11-30 11:53:17 cvsranojay Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.5 2011-12-02 04:31:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,8 @@ public:
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
 
-    enum DisplayMode		{ None, FullOnSections, FullOnGathers,
-				  ZeroOffsetOnSections, ZeroOffset };
+    enum DisplayMode		{ ZeroOffset, FullOnSections, 
+				  ZeroOffsetOnSections, FullOnGathers };
     				DeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
@@ -70,6 +70,7 @@ public:
     virtual Color		getColor() const;
     void			clearDisplay();
     const char**		markerColorNames()const;
+    const char**		displayModeNames()const;
     bool			hasParents() const;
 
 protected:

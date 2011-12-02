@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.5 2011-11-30 11:53:17 cvsranojay Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.6 2011-12-02 04:31:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,15 +71,10 @@ protected:
     float		    scalefactor_;
     Coord		    dir_;
     visSurvey::PSEventDisplay* eventdisplay_;
-    MenuItem*		    zerooffset_;
-    MenuItem*		    sticksfromsection_;
-    MenuItem*		    zerooffsetonsection_;
-    MenuItem*		    colors_;
-    MenuItem*		    single_;
-    MenuItem*		    quality_;
-    MenuItem*		    velocity_;
-    MenuItem*		    velocityfit_;
+    MenuItem*		    coloritem_;
     const MultiID&	    key_;
+    int			    clridx_;
+    int			    dispidx_;
 };
 
 #endif
