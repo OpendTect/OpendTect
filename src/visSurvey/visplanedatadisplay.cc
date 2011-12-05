@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.260 2011-12-01 21:25:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.261 2011-12-05 21:10:46 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -781,6 +781,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	    res.zrg.step = datatransform_->getGoodZStep();
 	else if ( scene_ )
 	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	return res;
     }
 
     if ( datatransform_ )
@@ -899,7 +900,14 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
 	    
 	    CubeSampling outputcs = getCubeSampling( true, true );
-	    outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
+	    if ( !scene_ )
+    		outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
+	    else
+	    {
+		outputcs.hrg.step = scene_->getCubeSampling().hrg.step;
+ 		outputcs.zrg.step = scene_->getCubeSampling().zrg.step;
+	    }
+
 	    ztransformdp->setOutputCS( outputcs );
 	    if ( !ztransformdp->transform() )
 		return;
@@ -909,7 +917,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    dpman.release( displaypacks[idx] );
 	}
     }
-    else if ( nrAttribs()>1 && !attshavesamestep )
+    
+    if ( nrAttribs()>1 && !attshavesamestep )
     {
 	const int oldchannelsz0 = channels_->getSize(1) / (resolution_+1);
 	const int oldchannelsz1 = channels_->getSize(2) / (resolution_+1);
