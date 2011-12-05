@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.58 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visdata.h,v 1.59 2011-12-05 11:54:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,8 @@ class IOPar;
 class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
+
+namespace osg { class Node; }
 
 
 #define mVisTrans visBase::Transformation
@@ -49,6 +51,9 @@ public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
+    static void			setOsg()		{ doosg_ = true; }
+    static bool			doOsg()			{ return doosg_; }
+
     virtual bool		isOK() const		{ return true; }
 
     int				id() const		{ return id_; }
@@ -57,6 +62,10 @@ public:
     const char*			name() const;
     virtual void		setName(const char*);
 
+    osg::Node*			osgNode()		{return gtOsgNode();}
+    const osg::Node*		osgNode() const
+				    { return const_cast<DataObject*>(this)->
+							gtOsgNode(); }
     inline SoNode*		getInventorNode()	{return gtInvntrNode();}
     inline const SoNode*	getInventorNode() const
 				{ return const_cast<DataObject*>(this)->
@@ -138,11 +147,13 @@ protected:
     bool			saveinsessions_;
 
     virtual SoNode*		gtInvntrNode()		{ return 0; }
+    virtual osg::Node*		gtOsgNode()		{ return 0; }
 
 private:
     int				id_;
     BufferString*		name_;
 
+    static bool			doosg_;
 };
 
 };

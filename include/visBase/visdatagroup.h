@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.11 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visdatagroup.h,v 1.12 2011-12-05 11:54:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 class SoGroup;
 class SoSeparator;
+
+namespace osg { class Group; }
 
 namespace visBase
 {
@@ -79,10 +81,12 @@ protected:
     virtual SoGroup*		createGroup();
     void			ensureGroup();
     SoGroup*			group_;
+    osg::Group*			osggroup_;
 
     bool			righthandsystem_;
 
     virtual SoNode*		gtInvntrNode();
+    osg::Node*			gtOsgNode();
 
 private:
 
