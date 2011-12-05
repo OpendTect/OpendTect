@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.424 2011-11-29 04:44:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.425 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -194,6 +194,7 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 
 void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
+    visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
 
     bool anythingasked = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.56 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.57 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -317,7 +317,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrsfld_->size(); idx++ )
     {
-	if ( attrsfld_->isItemChecked(idx) )
+	if ( ads_.is2D() ? attrsfld_->isItemChecked(idx)
+			 : attrsfld_->isSelected(idx) )
 	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
     }
     

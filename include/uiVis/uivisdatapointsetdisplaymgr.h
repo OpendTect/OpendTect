@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.9 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.10 2011-12-05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 	    		      const DataPointSet&);
     void	updateDisplay(DispID id, const DataPointSet&);
     void	removeDisplay(DispID);
+    void	clearDisplays();
 
     void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
 

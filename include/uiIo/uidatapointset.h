@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.38 2011-10-20 16:44:15 cvshelene Exp $
+ RCS:           $Id: uidatapointset.h,v 1.39 2011-12-05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,6 @@ public:
     Notifier<uiDataPointSet>	valueChanged;
 
     Notifier<uiDataPointSet>	selPtsToBeShown;	// to show in 3D
-    Notifier<uiDataPointSet>	selPtsToBeRemoved; // to remove from 3D
 
     Notifier<uiDataPointSet>	rowAdded; 
     CNotifier<uiDataPointSet,int> rowToBeRemoved;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.29 2011-07-04 11:04:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.30 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -45,6 +45,8 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , welltiedlg_(0)
     , welltiedlgopened_(false)
 {
+    IOM().surveyChanged.notify(
+	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
 }
 
 
@@ -53,6 +55,14 @@ uiWellAttribPartServer::~uiWellAttribPartServer()
     delete attrset;
     delete xplotwin2d_;
     delete xplotwin3d_;
+}
+
+
+
+void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
+{
+    delete xplotwin2d_; xplotwin2d_=0;
+    delete xplotwin3d_; xplotwin3d_=0;
 }
 
 

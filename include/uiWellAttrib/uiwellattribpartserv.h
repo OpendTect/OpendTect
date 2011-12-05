@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.19 2011-07-04 11:04:36 cvsbruno Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.20 2011-12-05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     DataPointSetDisplayMgr*	dpsdispmgr_;
     
     void                        closeWellTieDlg(CallBacker*);
+    void                        surveyChangedCB(CallBacker*);
 };
 
 /*!\mainpage WellAttrib User Interface

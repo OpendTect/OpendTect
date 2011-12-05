@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.85 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.86 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -88,7 +88,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, fillingtable_(true)
     	, valueChanged(this)
     	, selPtsToBeShown(this)
-    	, selPtsToBeRemoved(this)
     	, rowAdded(this)
     	, rowToBeRemoved(this)
     	, rowRemoved(this)
@@ -130,7 +129,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->setLabelAlignment( Alignment::Left, true );
 
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
-    selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
 
     postFinalise().notify( mCB(this,uiDataPointSet,initWin) );
@@ -166,6 +164,7 @@ int uiDataPointSet::initVars()
 uiDataPointSet::~uiDataPointSet()
 {
     deepErase( variodlgs_ );
+    removeSelPts( 0 );
 }
 
 
@@ -1099,7 +1098,7 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    selPtsToBeRemoved.trigger();
+    removeSelPts( 0 );
     mDPM.release( dps_.id() );
     delete xplotwin_; delete statswin_;
     return true;
@@ -1135,7 +1134,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     { delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
     setCaption( seldlg.ioObj()->name() );
-    selPtsToBeRemoved.trigger();
+    removeSelPts( 0 );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     tbl_->clearTable();
     dps_ = *newdps;
@@ -1348,7 +1347,8 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 void uiDataPointSet::showSelPts( CallBacker* )
 {
-    uiDPSDispPropDlg dlg( xplotwin_, xplotwin_->plotter(), dpsdispmgr_->dispProp() );
+    uiDPSDispPropDlg dlg( xplotwin_, xplotwin_->plotter(),
+	    		  dpsdispmgr_->dispProp() );
     if ( !dlg.go() )
 	return;
 

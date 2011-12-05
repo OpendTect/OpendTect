@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.182 2011-11-29 04:44:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.183 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -110,6 +110,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
+    IOM().surveyChanged.notify( 
+			mCB(this,uiAttribPartServer,surveyChangedCB) );
 
     stored2dmnuitem_.checkable = true;
     stored3dmnuitem_.checkable = true;
@@ -127,9 +129,12 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 uiAttribPartServer::~uiAttribPartServer()
 {
     delete attrsetdlg_;
+    IOM().surveyChanged.remove( 
+			mCB(this,uiAttribPartServer,surveyChangedCB) );
     if ( volprocchain_ ) volprocchain_->unRef();
     deepErase( linesets2dstoredmnuitem_ );
     deepErase( linesets2dsteeringmnuitem_ );
+    deepErase( attrxplotset_ );
     delete &eDSHolder();
 }
 
@@ -291,11 +296,35 @@ void uiAttribPartServer::showXPlot( CallBacker* cb )
 	is2d = is2DEvent();
     else if ( attrsetdlg_ )
 	is2d = attrsetdlg_->getSet()->is2D();
-    uiattrxplot_ = new uiAttribCrossPlot( 0,
+    uiAttribCrossPlot* uiattrxplot = new uiAttribCrossPlot( 0,
 	    	 *(attrsetdlg_ ? attrsetdlg_->getSet() : curDescSet(is2d)) );
-    uiattrxplot_->setDisplayMgr( dpsdispmgr_ );
-    uiattrxplot_->setDeleteOnClose( true );
-    uiattrxplot_->show();
+    uiattrxplot->windowClosed.notify(
+	    mCB(this,uiAttribPartServer,xplotClosedCB) );
+    uiattrxplot->setDisplayMgr( dpsdispmgr_ );
+    uiattrxplot->setDeleteOnClose( false );
+    uiattrxplot->show();
+    attrxplotset_ += uiattrxplot;
+}
+
+
+void uiAttribPartServer::xplotClosedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAttribCrossPlot*,crossplot,cb);
+    if ( !crossplot ) return;
+    if ( attrxplotset_.isPresent(crossplot) )
+    {
+	uiAttribCrossPlot* xplot =
+	    attrxplotset_.remove( attrxplotset_.indexOf(crossplot) );
+	xplot->windowClosed.remove(
+		mCB(this,uiAttribPartServer,xplotClosedCB) );
+	xplot->setDeleteOnClose( true );
+    }
+}
+
+
+void uiAttribPartServer::surveyChangedCB( CallBacker* )
+{
+    deepErase( attrxplotset_ );
 }
 
 

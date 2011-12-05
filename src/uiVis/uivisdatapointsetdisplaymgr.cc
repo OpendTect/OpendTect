@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.16 2011-09-02 13:13:45 cvskris Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.17 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -487,6 +487,20 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
 	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
+    }
+}
+
+
+void uiVisDataPointSetDisplayMgr::clearDisplays()
+{
+    DataPackMgr& dpm = DPM( DataPackMgr::PointID() );
+    for ( int dpidx=0; dpidx<dpm.packs().size(); dpidx++ )
+    {
+	const DataPack* datapack = dpm.packs()[dpidx];
+	mDynamicCastGet(const DataPointSet*,dps,datapack);
+	if ( !dps ) continue;
+	DispID id = getDisplayID( *dps );
+	removeDisplay( id );
     }
 }
 

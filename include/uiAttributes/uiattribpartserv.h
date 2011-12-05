@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.75 2011-11-29 04:44:12 cvsranojay Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.76 2011-12-05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,7 +206,7 @@ protected:
     ObjectSet<MenuItem> linesets2dstoredmnuitem_;
     ObjectSet<MenuItem> linesets2dsteeringmnuitem_;
 
-    uiAttribCrossPlot*	uiattrxplot_;
+    ObjectSet<uiAttribCrossPlot> attrxplotset_;
     const Attrib::Desc*	dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
@@ -222,6 +222,8 @@ protected:
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
     void		evalDlgClosed(CallBacker*);
+    void		surveyChangedCB(CallBacker*);
+    void		xplotClosedCB(CallBacker*);
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);

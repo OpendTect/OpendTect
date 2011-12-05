@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.16 2011-07-12 10:51:55 cvsbruno Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.17 2011-12-05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class DataPointSet;
 class uiConvertPos;
+class uiDataPointSet;
 class uiDialog;
 class uiODApplMgr;
 class uiSurveyMap;
@@ -76,6 +77,7 @@ mClass uiODApplMgrDispatcher : public CallBacker
     uiConvertPos*	convposdlg_;
     uiODApplMgr&	am_;
     uiParent*		par_;
+    ObjectSet<uiDataPointSet> uidpsset_;
 };
 
 

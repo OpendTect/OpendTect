@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.38 2011-11-02 11:40:51 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.39 2011-12-05 09:05:44 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -104,6 +104,8 @@ void uiODApplMgrDispatcher::survChg( bool before )
 	basemapdlg_ = 0;
 	basemap_ = 0;
     }
+
+    deepErase( uidpsset_ );
 }
 
 
@@ -415,6 +417,7 @@ void uiODApplMgrDispatcher::openXPlot()
 			    uiDataPointSet::Setup("CrossPlot from saved data"),
 			    ODMainWin()->applMgr().visDPSDispMgr() );
     uidps->go();
+    uidpsset_ += uidps;
 }
 
 
