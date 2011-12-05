@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.225 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.226 2011-12-05 11:41:25 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1228,6 +1228,7 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 
 */
 
+bool uiDialog::centertitles_ = true;
 #define mHandle static_cast<uiDialog&>(handle_)
 
 class uiDialogBody : public uiMainWinBody
@@ -1598,7 +1599,8 @@ uiObject* uiDialogBody::createChildren()
 
 	if ( obj != title )
 	{
-	    title->attach( centeredAbove, obj );
+	    if ( uiDialog::centertitles_ )
+		title->attach( centeredAbove, obj );
 	    obj->attach( stretchedBelow, title, -2 );
 	}
 	if ( setup.mainwidgcentered_ )
