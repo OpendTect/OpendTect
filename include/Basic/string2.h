@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.46 2011-04-28 16:54:57 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.47 2011-12-05 07:03:07 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -82,6 +82,9 @@ mGlobal void prettyNumber(char*,bool is_float);
 
 /*!> returns ptr to static buffer with "yes" or "No". */
 mGlobal const char* getYesNoString(bool);
+/*!> returns ptr to static buffer with "m" or "ft" */
+mGlobal const char* getDistUnitString(bool isfeet,bool withparentheses);
+
 /*!> returns 1 or 0 by inspecting string */
 mGlobal int yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */

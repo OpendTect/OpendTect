@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.10 2011-09-23 14:10:20 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.11 2011-12-05 07:03:07 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -215,6 +215,15 @@ const char* getYesNoString( bool yn )
 {
     static const char* strs[] = { "Yes", "No" };
     return yn ? strs[0] : strs[1];
+}
+
+
+const char* getDistUnitString( bool isfeet, bool wb )
+{
+    if ( feet )
+	return wb ? "(ft)" : "ft";
+
+    return wb ? "(m)" : "m";
 }
 
 
