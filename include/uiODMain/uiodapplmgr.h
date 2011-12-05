@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.116 2011-11-04 08:22:04 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.117 2011-12-05 14:14:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ class Coord;
 class DataPointSet;
 class MultiID;
 class ODSession;
-class UpdateInformer;
 namespace Attrib { class SelSpec; }
 namespace Pick { class Set; }
 
@@ -121,7 +120,7 @@ public:
     void			crDevEnv();
     void			setFonts();
     void			manageShortcuts();
-    void			updateSoftware();
+    void			startInstMgr();
 
     // Tree menu services
     // Selections
@@ -141,9 +140,6 @@ public:
 
     // Tool to exhange mouse-cursor information between windows
     MouseCursorExchange&	mouseCursorExchange();
-
-    //for update and new release checking
-    void			lookForUpdateAndNewRelease();			
 
     // Work. Don't use unless expert.
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
@@ -220,7 +216,6 @@ protected:
     uiODApplMgrDispatcher&	dispatcher_;
     uiODApplMgrAttrVisHandler&	attrvishandler_;
     MouseCursorExchange&	mousecursorexchange_;
-    UpdateInformer*		updinformer_;
 
     struct MiscSurvInfo
     {
@@ -258,7 +253,6 @@ protected:
     void			colMapperChg(CallBacker*);
     void			setHistogram(int visid,int attrib);
     void			storeEMObject();
-    void			updateOrNewReleaseAvalCB(CallBacker*);
 
     void			manStrat();
 

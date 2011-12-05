@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.425 2011-12-05 09:05:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.426 2011-12-05 14:14:24 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -80,7 +80,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.425 2011-12-05 09:05:44 cvss
 #include "settings.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "updateinformer.h"
 #include "zaxistransform.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -1686,60 +1685,6 @@ void uiODApplMgr::storeEMObject()
 }
 
 
-void uiODApplMgr::lookForUpdateAndNewRelease()
-{
-    bool askforupdate = false;
-    Settings::common().getYN( "dTect.AskForUpdate", askforupdate );
-    if ( !askforupdate )
-	return;
-
-    updinformer_ = new UpdateInformer();
-    if ( updinformer_->updateAvalNotifier() )
-	updinformer_->updateAvalNotifier()->notify(
-			mCB(this,uiODApplMgr,updateOrNewReleaseAvalCB) );
-    updinformer_->lookForUpdateAndRelease();
-}
-
-
-void uiODApplMgr::updateOrNewReleaseAvalCB( CallBacker* cb )
-{
-    bool updateaval = updinformer_->isUpdateAval();
-    bool newrelaval = updinformer_->isNewReleaseAval();
-
-    delete updinformer_;
-
-    BufferString msg;
-    if ( newrelaval )
-	msg.add( "New release");
-    if ( newrelaval && updateaval )
-	msg.add( " and ");
-    if ( updateaval )
-	msg.add( "Update for already installed version(s) ");
-    if ( newrelaval || updateaval )
-	msg.add( " is Available");
-
-    if ( msg.isEmpty() )
-    {
-	//delete
-	return;
-    }
-
-    int verdict = uiMSG().askGoOnAfter( msg.buf(),
-	    				"Never ask me again at startup",
-	    				"Take me to Installer",
-					"Don't want to update now" );
-
-    if ( verdict == 0 )
-	updateSoftware();
-    else if ( verdict == 1 )
-	return;
-    else if ( verdict == 2 )
-    {
-	Settings::common().set( "AskForUpdate", "NO" );
-	Settings::common().write();
-    }
-}
-
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 
@@ -1801,8 +1746,6 @@ void uiODApplMgr::batchProgs()
 { dispatcher_.batchProgs(); }
 void uiODApplMgr::pluginMan()
 { dispatcher_.pluginMan(); }
-void uiODApplMgr::updateSoftware()
-{ dispatcher_.updateSoftware(); }
 void uiODApplMgr::posConversion()
 { dispatcher_.posConversion(); }
 void uiODApplMgr::manageShortcuts()
@@ -1811,6 +1754,8 @@ void uiODApplMgr::setFonts()
 { dispatcher_.setFonts(); }
 int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
 { return dispatcher_.createMapDataPack( data, colnr ); }
+void uiODApplMgr::startInstMgr()
+{ return dispatcher_.startInstMgr(); }
 
 
 void uiODApplMgr::MiscSurvInfo::refresh()

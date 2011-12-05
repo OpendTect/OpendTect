@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.39 2011-12-05 09:05:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.40 2011-12-05 14:14:24 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -421,6 +421,17 @@ void uiODApplMgrDispatcher::openXPlot()
 }
 
 
+void uiODApplMgrDispatcher::startInstMgr()
+{
+    FilePath fp( GetSoftwareDir(1) );
+    BufferString cmd( "@od_instmgr --basedir ", fp.pathOnly() );
+    cmd.add( " --reldir " ).add( fp.fileName() );
+    uiMSG().message( "If you make changes to the application,"
+	    "\nplease restart OpendTect for the changes to take effect." );
+    StreamProvider( cmd ).executeCommand( true );
+}
+
+
 void uiODApplMgrDispatcher::processPreStack()
 { PreStack::uiBatchProcSetup dlg( par_, false ); dlg.go(); }
 void uiODApplMgrDispatcher::genAngleMuteFunction()
@@ -433,65 +444,6 @@ void uiODApplMgrDispatcher::batchProgs()
 { uiBatchProgLaunch dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::pluginMan()
 { uiPluginMan dlg( par_ ); dlg.go(); }
-void uiODApplMgrDispatcher::updateSoftware()
-{
-    FilePath fp( GetSoftwareDir(0) );
-
-    BufferString pathonly = fp.pathOnly();
-    BufferString line;
-
-    fp.add( "relinfo" );
-    fp.add( "readme.txt" );
-
-    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
-    if ( !sd.usable() )
-    { sd.close(); return; }
-
-    while ( !sd.istrm->eof() )
-    {
-	char buf[1024];
-	sd.istrm->getline( buf, 1024 );
-
-	line = buf;
-	break;
-    }
-
-    sd.close();
-    
-    char* lineptr = line.buf();
-
-    char* reltypeptr = strchr( lineptr, '-' );
-    if ( reltypeptr ) *reltypeptr = '\0';
-
-    if ( !reltypeptr ) return;
-
-    if ( reltypeptr )
-    {
-	*reltypeptr++ = '\0';
-	mTrimBlanks( reltypeptr );
-    }
-
-    const char* reltype = reltypeptr;
-
-    FilePath instfp( GetBinPlfDir() );
-#ifndef __win__
-#ifdef __debug__
-    instfp.add("G");
-#else
-    instfp.add("O");
-#endif
-#endif
-    instfp.add( "od_installer" );
-
-    BufferString cmd("@");
-    cmd.add( instfp.fullPath() );
-    cmd.add(" --instdir ").add("\"").add( pathonly ).add("\"");
-    cmd.add( " --reltype ").add( "\"").add( reltype ).add("\"");
-
-    StreamProvider strmprovinst( cmd );
-    if ( !strmprovinst.executeCommand(false) )
-	return;
-}
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::setFonts()

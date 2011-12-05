@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.235 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.236 2011-12-05 14:14:24 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -632,10 +632,13 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
+
+    if ( File::isWritable(GetSoftwareDir(1)) )
+	mInsertItem( utilmnu_, "&Installation Manager ...", mInstMgrMnuItem );
+
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
 	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
-    mInsertItem( utilmnu_, "&Update ...", mUpdateMnuItem );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -1016,8 +1019,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mZScaleMnuItm: 	applMgr().setZStretch(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
-    case mUpdateMnuItem:	applMgr().updateSoftware(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;	
+    case mInstMgrMnuItem:	applMgr().startInstMgr(); break;	
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm: 	showLogFile(); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
