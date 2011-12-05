@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.18 2011-05-18 10:31:01 cvsnanne Exp $
+ RCS:		$Id: odver.h,v 1.19 2011-12-05 13:17:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #define mODDetailVersion	0
 
 #define mODVersion		430
+#define mIsODDevelRelease()	(mODMinorVersion%2 == 1)
 
 
 #include "gendefs.h"
@@ -28,6 +29,7 @@ extern "C" {
     mGlobal const char* GetFullODVersion();
 
 #ifdef __cpp__
+
 }
 
 class BufferString;
