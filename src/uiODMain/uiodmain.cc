@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.148 2011-12-05 14:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.149 2011-12-06 07:38:07 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -54,6 +54,8 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.148 2011-12-05 14:14:24 cvsbert
 #include "survinfo.h"
 #include "timer.h"
 
+#include "visdata.h"
+
 
 extern "C" const char* GetSettingsDataDir();
 extern void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
@@ -77,6 +79,17 @@ uiODMain* ODMainWin()
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
+
+    char** myargv = argv;
+    int myargc = argc;
+    for ( int iarg=1; iarg<myargc; iarg++ )
+    {
+	if ( !strcmp(myargv[iarg],"--osg") )
+	{
+	    visBase::DataObject::setOsg();
+	    break;
+	}
+    }
 
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
