@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.29 2011-11-29 15:34:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.30 2011-12-06 18:45:22 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -588,6 +588,7 @@ Pos::EMImplicitBodyProvider::EMImplicitBodyProvider()
     , threshold_( 0 )		      
     , surf_( 0 )
     , useinside_( true )
+    , bbox_( false )			
 {}
 
 
@@ -597,7 +598,8 @@ Pos::EMImplicitBodyProvider::EMImplicitBodyProvider(
     , imparr_( ep.imparr_ )      
     , threshold_( ep.threshold_ )		       
     , surf_( ep.surf_ )						       
-    , useinside_( true )
+    , useinside_( ep.useinside_ )
+    , bbox_( ep.bbox_ )			
 {}
 
 
@@ -627,14 +629,20 @@ Pos::EMImplicitBodyProvider& Pos::EMImplicitBodyProvider::operator = (
 {
     if ( &ep !=this )
     {
+	useinside_ = ep.useinside_;
 	surf_ = ep.surf_;
 	cs_ = ep.cs_;
+	bbox_ = ep.bbox_;
 	threshold_ = ep.threshold_;
 	mCopyImpArr( ep.imparr_ );
     }
 
     return *this;
 }
+
+
+void Pos::EMImplicitBodyProvider::getCubeSampling( CubeSampling& cs ) const
+{ cs = useinside_ ? cs_ : bbox_; }
 
 
 bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* )
@@ -672,25 +680,6 @@ bool Pos::EMImplicitBodyProvider::toNextZ()
 }
 
 
-bool Pos::EMImplicitBodyProvider::isInside( const BinID& bid, float z,
-	bool includesborder )
-{
-    if ( !imparr_ )
-	return false;
-
-    if ( !cs_.hrg.includes(bid) || cs_.zrg.getIndex(z)==-1 )
-	return false;
-
-    const int idx = cs_.hrg.inlIdx( bid.inl );
-    const int idy = cs_.hrg.crlIdx( bid.crl );
-    const int idz = cs_.zrg.nearestIndex( z );
-    const float val = imparr_->get(idx,idy,idz);
-    if ( mIsUdf(val) )
-	return false;
-
-    return includesborder ? val>=threshold_ : val>threshold_;
-}
-
 #define mGetBodyKey(k) IOPar::compKey(sKey::Body,k)
 
 void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
@@ -712,6 +701,14 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
     surf_->getBodyRange( cs_ );
 
     iop.getYN( sKeyUseInside(), useinside_ );
+
+    Interval<int> inlrg, crlrg; 
+    Interval<float> zrg; 
+    iop.get( sKeyBBInlrg(), inlrg ); 
+    iop.get( sKeyBBCrlrg(), crlrg ); 
+    iop.get( sKeyBBZrg(), zrg ); 
+    bbox_.hrg.set( inlrg, crlrg ); 
+    bbox_.zrg.setFrom( zrg );
 }
 
 
@@ -719,6 +716,12 @@ void Pos::EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 {
     iop.set( mGetBodyKey("ID"), surf_->multiID() );
     iop.setYN( sKeyUseInside(), useinside_ );
+    if ( !useinside_ )
+    {
+	iop.set( sKeyBBInlrg(), bbox_.hrg.inlRange() ); 
+	iop.set( sKeyBBCrlrg(), bbox_.hrg.crlRange() ); 
+	iop.set( sKeyBBZrg(), bbox_.zrg ); 
+    }
 }
 
 
@@ -735,12 +738,12 @@ void Pos::EMImplicitBodyProvider::getSummary( BufferString& txt ) const
     if ( !useinside_ )
     {
 	txt += "  Within cube range: Inline( ";
-	txt += cs_.hrg.start.inl; txt += ", ";
-	txt += cs_.hrg.stop.inl; txt += " ), Crossline( ";
-	txt += cs_.hrg.start.crl; txt += ", ";
-	txt += cs_.hrg.stop.crl; txt += " ), Z( ";
-	txt += cs_.zrg.start; txt += ", ";
-	txt += cs_.zrg.stop; txt += " ).";
+	txt += bbox_.hrg.start.inl; txt += ", ";
+	txt += bbox_.hrg.stop.inl; txt += " ), Crossline( ";
+	txt += bbox_.hrg.start.crl; txt += ", ";
+	txt += bbox_.hrg.stop.crl; txt += " ), Z( ";
+	txt += bbox_.zrg.start; txt += ", ";
+	txt += bbox_.zrg.stop; txt += " ).";
     }
 }
 
@@ -753,14 +756,16 @@ void Pos::EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
 	return;
     }
 
-    start = cs_.hrg.start;
-    stop = cs_.hrg.stop;
+    const CubeSampling& cs = useinside_ ? cs_ : bbox_;
+    start = cs.hrg.start;
+    stop = cs.hrg.stop;
 }
 
 
 void Pos::EMImplicitBodyProvider::getZRange( Interval<float>& zrg ) const
 {
-    zrg = cs_.zrg;
+    const CubeSampling& cs = useinside_ ? cs_ : bbox_;
+    zrg = cs.zrg;
 }
 
 
@@ -770,10 +775,11 @@ bool Pos::EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 
 bool Pos::EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
-   if ( !imparr_ ) 
-       return false;
-
-   return cs_.hrg.includes(bid) && cs_.zrg.getIndex(z)!=-1; 
+    const CubeSampling& cs = useinside_ ? cs_ : bbox_;
+    if ( useinside_ && !imparr_ ) 
+	return false;
+    
+    return cs.hrg.includes(bid); // && cs.zrg.includes(z,false); 
 }
 
 
