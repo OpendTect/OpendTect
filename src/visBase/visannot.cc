@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.37 2011-11-30 09:25:57 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.38 2011-12-06 07:58:48 cvsranojay Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -47,7 +47,7 @@ Annotation::Annotation()
     , pickstyle_(PickStyle::create())
     , texts_(0)
 {
-    annotscale_[0] = annotscale_[1] = annotscale_[3] = 1;
+    annotscale_[0] = annotscale_[1] = annotscale_[2] = 1;
 
     annotcolor_ = Color::White();
     pickstyle_->ref();
