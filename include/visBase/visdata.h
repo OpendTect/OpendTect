@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.59 2011-12-05 11:54:32 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.60 2011-12-06 07:57:17 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -51,9 +51,9 @@ public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
-    static void			setOsg()		{ doosg_ = true; }
-    static bool			doOsg()			{ return doosg_; }
-
+    static void			setOsg();
+    static bool			doOsg();
+    
     virtual bool		isOK() const		{ return true; }
 
     int				id() const		{ return id_; }

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.32 2011-12-05 20:04:34 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.33 2011-12-06 07:57:17 cvsranojay Exp $";
 
 #include "visdata.h"
 
@@ -23,6 +23,12 @@ namespace visBase
 
 
 bool DataObject::doosg_ = false;
+
+void DataObject::setOsg()
+{ doosg_ = true; }
+
+bool DataObject::doOsg()
+{ return doosg_; }
 
 const char* DataObject::name() const
 {
