@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.40 2011-12-05 14:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.41 2011-12-06 16:13:19 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -423,11 +423,9 @@ void uiODApplMgrDispatcher::openXPlot()
 
 void uiODApplMgrDispatcher::startInstMgr()
 {
-    FilePath fp( GetSoftwareDir(1) );
-    BufferString cmd( "@od_instmgr --basedir ", fp.pathOnly() );
-    cmd.add( " --reldir " ).add( fp.fileName() );
     uiMSG().message( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
+    const BufferString cmd( "@od_instmgr --instdir ", GetSoftwareDir(1) );
     StreamProvider( cmd ).executeCommand( true );
 }
 
