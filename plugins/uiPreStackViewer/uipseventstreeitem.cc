@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.10 2011-12-02 04:31:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.11 2011-12-06 08:00:03 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -145,12 +145,15 @@ bool PSEventsTreeItem::init()
 }
 
 
-#define mAddPSMenuItems( mnu, items, midx ) \
+#define mAddPSMenuItems( mnu, func, midx ) \
     mnu->removeItems(); \
+    items = eventdisplay_->func(); \
+    if ( items.isEmpty() ) return; \
     mnu->createItems( items ); \
     for ( int idx=0; idx<items.size(); idx++ ) \
     {  mnu->getItem(idx)->checkable = true; } \
     mnu->getItem(midx)->checked = true; \
+    items.erase(); \
 
 void PSEventsTreeItem::createMenuCB( CallBacker* cb )
 {
@@ -160,15 +163,13 @@ void PSEventsTreeItem::createMenuCB( CallBacker* cb )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
-    BufferStringSet menuitems = eventdisplay_->markerColorNames();
-    mAddPSMenuItems( coloritem_, menuitems, clridx_ )
-    
+    BufferStringSet items;
+    mAddPSMenuItems( coloritem_, markerColorNames, clridx_ )
     if ( eventdisplay_->hasParents() )
     {
-       mAddMenuItem( menu, &displaymnuitem_, true, false );
-       MenuItem* item = &displaymnuitem_;
-       menuitems = eventdisplay_->displayModeNames();
-       mAddPSMenuItems( item, menuitems, dispidx_ )
+	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	MenuItem* item = &displaymnuitem_;
+	mAddPSMenuItems( item, displayModeNames, dispidx_ )
     }
 }
 
@@ -188,11 +189,12 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
 	eventdisplay_->setDisplayMode(
 	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
+	menu->setIsHandled( true );
     }
     else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
 	clridx_ = coloritem_->itemIndex( menuid );
-	updateColorMode( (visSurvey::PSEventDisplay::MarkerColor) clridx_ );
+	updateColorMode( clridx_ );
 	menu->setIsHandled( true );
     }
 
