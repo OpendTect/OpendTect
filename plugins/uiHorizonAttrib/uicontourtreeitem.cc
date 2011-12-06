@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.24 2011-11-30 22:45:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.25 2011-12-06 06:53:34 cvsranojay Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -44,6 +44,7 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.24 2011-11-30 22:45:12
 #include "vispolyline.h"
 #include "vistext.h"
 #include "vistransform.h"
+#include "zaxistransform.h"
 
 
 static const int cMinNrNodesForLbl = 25;
@@ -518,7 +519,14 @@ void uiContourTreeItem::createContours()
 	    {
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		BinID vrtxbid( rowrg.snap(vertex.x), colrg.snap(vertex.y) );
-		const float zval = hor->getZ( vrtxbid );
+		float zval = hor->getZ( vrtxbid );
+		uiVisPartServer* visserv = applMgr()->visServer();
+		mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
+		const ZAxisTransform* transform = scene ? 
+					    scene->getZAxisTransform() : 0;
+		if ( transform )
+		    transform->transform( vrtxbid,
+			SamplingData<float>(zval,1), 1, &zval );
 		if ( mIsUdf(zval) )
 		{
 		    lines_->setCoordIndex( cii++, -1 );
