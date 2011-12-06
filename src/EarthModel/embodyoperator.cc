@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.20 2011-11-29 15:34:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.21 2011-12-06 18:47:44 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -778,8 +778,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = 0;
-    res->cs_.hrg.inlRange() = newinlrg;
-    res->cs_.hrg.crlRange() = newcrlrg;
+    res->cs_.hrg.start = BinID(newinlrg.start, newcrlrg.start);
+    res->cs_.hrg.stop = BinID(newinlrg.stop, newcrlrg.stop);
+    res->cs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
     res->cs_.zrg = newzrg;
 
     return true;    
@@ -860,8 +861,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->cs_.hrg.inlRange() = inlrg;
-	    res->cs_.hrg.crlRange() = crlrg;
+	    res->cs_.hrg.start = BinID(inlrg.start, crlrg.start);
+	    res->cs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
+	    res->cs_.hrg.step = BinID(inlrg.step, crlrg.step);
 	    res->cs_.zrg = zrg;
 	
 	    cursorchanger.restore();
