@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.17 2011-11-28 18:49:32 cvsyuancheng Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.18 2011-12-06 18:46:20 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -269,16 +269,15 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual void		getSummary(BufferString&) const;
 
-    bool			isInside(const BinID&,float z,bool incldborder);
-    virtual void		getCubeSampling(CubeSampling& cs) const
-    				{ cs=cs_; }
-    Array3D<float>*		getData() const { return imparr_; }
-    float                       getThreshold() const { return threshold_; }
+    virtual void		getCubeSampling(CubeSampling& cs) const;
+    const CubeSampling&		getImpBodyRange() const	{ return cs_; }
+    Array3D<float>*		getImpBodyData() const	{ return imparr_; }
+    float                       getThreshold() const	{ return threshold_; }
 
     static const char*		sKeyUseInside()	{ return "Use InsideBody"; }
-    static const char*		sKeyBBInlrg() { return "BB-Inl range"; }
-    static const char*		sKeyBBCrlrg() { return "BB-Crl range"; }
-    static const char*		sKeyBBZrg() { return "BB-Z range"; }
+    static const char*		sKeyBBInlrg()	{ return "BB-Inl range"; }
+    static const char*		sKeyBBCrlrg()	{ return "BB-Crl range"; }
+    static const char*		sKeyBBZrg()	{ return "BB-Z range"; }
 
 protected:
 
@@ -286,6 +285,7 @@ protected:
     Array3D<float>*		imparr_;
     float			threshold_;
     bool			useinside_;
+    CubeSampling		bbox_;
 
     EM::MarchingCubesSurface*	surf_;
     BinID			curbid_;
