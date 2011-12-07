@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.25 2011-12-06 06:53:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.26 2011-12-07 14:49:33 cvsjaap Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -520,7 +520,6 @@ void uiContourTreeItem::createContours()
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		BinID vrtxbid( rowrg.snap(vertex.x), colrg.snap(vertex.y) );
 		float zval = hor->getZ( vrtxbid );
-		uiVisPartServer* visserv = applMgr()->visServer();
 		mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
 		const ZAxisTransform* transform = scene ? 
 					    scene->getZAxisTransform() : 0;
