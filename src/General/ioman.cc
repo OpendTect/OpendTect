@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.110 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.111 2011-12-07 16:15:25 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -815,7 +815,9 @@ const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
 
     cdds += dd;
     int idx = cdds.size() - 1;
-    setupCustomDataDirs( idx );
+    const char* survnm = IOM().surveyName();
+    if ( survnm && *survnm )
+	setupCustomDataDirs( idx );
     return cdds[idx].selkey_;
 }
 
