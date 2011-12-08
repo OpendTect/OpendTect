@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.48 2011-12-08 14:01:08 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.49 2011-12-08 14:10:08 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -55,7 +55,9 @@ VisualObjectImpl::VisualObjectImpl( bool issel )
     , material_( 0 )
     , righthandsystem_( true )
 {
+#if __have_osg__
     if ( osgroot_ ) osgroot_->ref();
+#endif
 
     setMaterial( Material::create() );
     onoff_->ref();
