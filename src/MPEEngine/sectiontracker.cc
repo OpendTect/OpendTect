@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.24 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.25 2011-12-08 09:56:18 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -355,12 +355,16 @@ bool SectionTracker::usePar( const IOPar& par )
     if ( trackpar ) trackpar->getYN( useadjusterstr, dummy );
     useAdjuster( dummy );
     if ( trackpar ) trackpar->getYN( seedonlypropstr, seedonlypropagation );
-	
-    if ( selector_ && !selector_->usePar(par) ) return false;
-    if ( extender_ && !extender_->usePar(par) ) return false;
-    if ( adjuster_ && !adjuster_->usePar(par) ) return false;
 
-    return true;
+    bool res = true;
+    if ( selector_ && !selector_->usePar(par) )
+	res = false;
+    if ( extender_ && !extender_->usePar(par) )
+	res = false;
+    if ( adjuster_ && !adjuster_->usePar(par) )
+	res = false;
+
+    return res;
 }
 
 }; // namespace MPE
