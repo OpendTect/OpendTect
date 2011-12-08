@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.1 2011-12-08 16:26:24 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.2 2011-12-08 16:39:45 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -1233,7 +1233,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, const char* nm )
     : uiObject(parnt,nm,visBase::DataObject::doOsg()
 	    ? mkosgbody(parnt,nm) : mksobody(parnt,nm ) ) 
 #else
-    : uiObject( mksobody(parnt,nm ) ) 
+    : uiObject( parnt,nm,mksobody(parnt,nm ) ) 
 #endif
     , destroyed(this)
     , viewmodechanged(this)
