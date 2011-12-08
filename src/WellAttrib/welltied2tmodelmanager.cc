@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.35 2011-11-07 15:50:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.36 2011-12-08 11:58:21 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -28,12 +28,28 @@ namespace WellTie
 D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
 	: orgd2t_(0)					    
 	, prvd2t_(0)
-	, data_(data)	    
-	, datawriter_(dwr)    
+	, data_(data)	 
+	, datawriter_(dwr)  
 	, wd_(&wd)
+	, emptyoninit_(false) 
 {
-    orgd2t_ = new Well::D2TModel( *wd.d2TModel() );
-    ensureValid( *d2T() );
+    const WellTie::Setup& wts = data.setup();
+    if ( mIsUnvalidD2TM( wd ) )
+	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
+
+    Well::D2TModel* d2t = 0;
+    WellTie::GeoCalculator gc;
+    if ( !wts.useexistingd2tm_ )
+	 d2t = gc.getModelFromVelLog( wd, wts.vellognm_, 
+		 		wts.issonic_, wts.replacevel_);
+    if ( !d2t )
+	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
+
+    if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
+	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );
+
+    setAsCurrent( d2t );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
 }
 
 

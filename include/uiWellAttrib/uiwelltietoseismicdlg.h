@@ -45,10 +45,10 @@ mClass uiTieWin : public uiFlatViewMainWin
 {
 public:
 
-				uiTieWin(uiParent*,const WellTie::Setup&);
+				uiTieWin(uiParent*,WellTie::Server&);
 				~uiTieWin();
 
-    const WellTie::Setup&	Setup()		{ return setup_; }
+    const WellTie::Setup&	Setup() const;	
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -57,7 +57,6 @@ public:
 	
 protected:
 
-    const WellTie::Setup& 	setup_;
     Server&			server_;
     EventStretch&		stretcher_;
     DispParams&			params_;

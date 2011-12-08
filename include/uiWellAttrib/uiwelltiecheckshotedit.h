@@ -27,11 +27,12 @@ class uiWellDisplayControl;
 
 namespace WellTie
 {
+    class Server;
 
 mClass uiCheckShotEdit : public uiDialog
 {
 public:
-				uiCheckShotEdit(uiParent*,Well::Data&);
+				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();
 protected:
 
@@ -51,6 +52,7 @@ protected:
 	void		eraseAux() 		    { val_.erase(); } 
     };
 
+    Server&			server_;
     Well::Data&			wd_;
 
     Well::D2TModel*		d2t_;

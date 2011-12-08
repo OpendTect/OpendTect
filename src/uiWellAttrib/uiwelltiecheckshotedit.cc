@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.11 2011-11-28 16:03:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.12 2011-12-08 11:58:21 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.11 2011-11-28 16:
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "welltiecshot.h"
+#include "welltiedata.h"
 #include "welltiegeocalculator.h"
 
 
@@ -55,14 +56,15 @@ bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
 
 
 
-uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd ) 
+uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
     : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
 		"Edit depth/time model based on checkshot",
 		mTODOHelpID).nrstatusflds(1))
-    , wd_(wd)      
+    , server_(server)					     
+    , wd_(*server.wd())   
     , d2tlineitm_(0)	     
-    , d2t_(wd.d2TModel())
-    , cs_(wd.checkShotModel())
+    , d2t_(wd_.d2TModel())
+    , cs_(wd_.checkShotModel())
     , orgcs_(0)
     , isedit_(false)			 
 {
@@ -84,7 +86,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Well::Data& wd )
     driftdisplay_ = new uiWellDahDisplay( this, dsu );
 
     uiWellDahDisplay::Data data;
-    data.wd_ = &wd;
+    data.wd_ = &wd_;
     data.dispzinft_ = SI().zInFeet();
     data.zistime_ = false;
     d2tdisplay_->setData( data );
@@ -289,14 +291,15 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
     if ( !d2t_ || d2t_->size() < 2)
 	mErrRet("Depth/time model is too small and won't be saved",return false)
 
-    wd_.setD2TModel( new Well::D2TModel( *d2t_ ) );
+    server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
+
     return true; 
 }
 
 
 bool uiCheckShotEdit::rejectOK( CallBacker* )
 {
-    wd_.setD2TModel( new Well::D2TModel( *orgd2t_ ) );
+    server_.d2TModelMgr().cancel();
     return true; 
 }
 

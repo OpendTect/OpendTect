@@ -235,16 +235,10 @@ public :
     DataWriter&			dataWriter()	{ return *datawriter_; } 
     const Data&			data() const 	{ return *data_; }
 
-    const char* 		errMSG() const	{ return errmsg_.buf(); }
+    const char* 		errMSG() const	
+    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
     bool			is2D() const	{ return is2d_; }
-
-    bool                	undoD2TModel()
-				{ return d2tmgr_->undo(); }
-    bool                	cancelD2TModel()
-    				{ return d2tmgr_->cancel(); }
-    bool                	commitD2TModel()
-				{ return d2tmgr_->commitToWD(); }
 
     bool			computeAll();
     bool			computeSynthetics();

@@ -49,6 +49,8 @@ public:
     void		setFromData(float* dah,float* time,int sz);
 
     const Data& 	getData() const { return data_; }
+    const char* 	errMsg() const 
+    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 protected:
 
@@ -58,9 +60,12 @@ protected:
     Well::D2TModel* 	prvd2t_;
     Well::D2TModel* 	orgd2t_;
 
+    BufferString 	errmsg_;
+
     GeoCalculator	calc_;
     DataWriter&		datawriter_;
     const Data&		data_;
+    bool		emptyoninit_;
 
     void		ensureValid(Well::D2TModel&);
 };

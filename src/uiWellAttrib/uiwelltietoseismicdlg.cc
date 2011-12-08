@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.99 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.100 2011-12-08 11:58:21 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -55,12 +55,16 @@ static const char*  eventtypes[] = { "None","Extrema","Maxima",
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
 
-uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts ) 
+const WellTie::Setup& uiTieWin::Setup() const 
+{
+    return server_.data().setup();
+}
+
+uiTieWin::uiTieWin( uiParent* p, Server& wts ) 
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 			    .withhanddrag(true)
 			    .deleteonclose(false))
-    	, setup_(*new WellTie::Setup(wts))
-	, server_(*new Server(setup_))
+	, server_(wts)
 	, stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
 	, controlview_(0)
 	, infodlg_(0)
@@ -73,7 +77,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
     
     mGetWD(return) 
     BufferString title( "Tie ");
-    title += wd->name(); title += " to "; title += wts.seisnm_;
+    title += wd->name(); title += " to "; title += Setup().seisnm_;
     setCaption( title );
 
     initAll();
@@ -84,7 +88,6 @@ uiTieWin::~uiTieWin()
 {
     delete &stretcher_;
     delete infodlg_;
-    delete &setup_;
     delete drawer_;
     delete &server_;
 }
@@ -401,7 +404,7 @@ void uiTieWin::checkIfPick( CallBacker* )
 
 bool uiTieWin::undoPushed( CallBacker* cb )
 {
-    if ( !server_.undoD2TModel() )
+    if ( !server_.d2TModelMgr().undo() )
     	mErrRet( "Cannot go back to previous model" );
     doWork( cb );
     clearPicks( cb );
@@ -451,7 +454,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 
 bool uiTieWin::rejectOK( CallBacker* )
 {
-    server_.cancelD2TModel();
+    server_.d2TModelMgr().cancel();
     close();
     return true;
 }
@@ -462,7 +465,7 @@ bool uiTieWin::acceptOK( CallBacker* )
     BufferString msg("This will overwrite your depth/time model, do you want to continue?");
     if ( uiMSG().askOverwrite(msg) )
     {
-       if ( !server_.commitD2TModel() )
+	if ( !server_.d2TModelMgr().commitToWD() )
 	    mErrRet("Cannot write new depth/time model")
 	close();
 	if ( Well::MGR().isLoaded( server_.wellID() ) )

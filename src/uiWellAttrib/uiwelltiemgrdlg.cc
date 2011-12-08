@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.52 2011-11-28 16:03:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.53 2011-12-08 11:58:21 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.52 2011-11-28 16:03:42 c
 #include "welllogset.h"
 #include "wellman.h"
 #include "welltransl.h"
+#include "welltiedata.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
@@ -73,7 +74,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( !wtsetup_.wellid_.isEmpty() )
 	wllctio_.setObj( wtsetup_.wellid_ );
     wellfld_ = new uiIOObjSel( this, wllctio_ );
-    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
+    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 
     uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
@@ -93,7 +94,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	seistypes.add( Seis::nameOf(Seis::Vol) );
 	typefld_ = new uiGenInput( seisgrp, "Seismic", 
 					StringListInpSpec( seistypes ) );
-	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,selChg) );
+	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
 	typefld_->setValue( 1 );
     }
 
@@ -103,7 +104,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 						uiSeisSel::Setup(Seis::Line));
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
-	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,selChg) );
+	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
 	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
     }
@@ -137,7 +138,13 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->setHAlignObj( llbl1 );
     
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
+    used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
     used2tmbox_->attach( alignedBelow, llbl2 );
+
+    const char** corrs = WellTie::Setup::CorrTypeNames();
+    cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs, 
+	    				WellTie::Setup::sKeyCSCorrType());
+    cscorrfld_->attach( alignedBelow, used2tmbox_ );
 
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
@@ -149,8 +156,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    selChg(0);
-    postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSel) );
+    seisSelChg(0);
+    postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 }
 
 
@@ -180,7 +187,7 @@ static void fillLogNms( uiComboBox* fld, const BufferStringSet& nms )
 }
 
 
-void uiTieWinMGRDlg::wellSel( CallBacker* )
+void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 {
     if ( !wellfld_->commitInput() )
 	return;
@@ -205,7 +212,7 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 }
 
 
-void uiTieWinMGRDlg::selChg( CallBacker* )
+void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 {
     if ( typefld_ )
 	is2d_ = !typefld_->getIntValue();
@@ -227,6 +234,13 @@ void uiTieWinMGRDlg::selChg( CallBacker* )
 	if ( seisctio2d_.ioobj )
 	    seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
     }
+}
+
+void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
+{
+    const bool useexistingmdl = used2tmbox_->isChecked();
+    const bool havecs = wd_->haveCheckShotModel();
+    cscorrfld_->display( !useexistingmdl && havecs );
 }
 
 
@@ -269,7 +283,8 @@ bool uiTieWinMGRDlg::getDefaults()
     if ( !wtsetup_.wvltid_.isEmpty() )
 	wvltfld_->setInput( wtsetup_.wvltid_ );
 
-    selChg(0); 
+    seisSelChg(0); 
+    d2TSelChg(0);
 
     return true;	
 }
@@ -341,6 +356,10 @@ bool uiTieWinMGRDlg::initSetup()
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->getID();
 
+    wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
+    WellTie::Setup::parseEnumCorrType( cscorrfld_->box()->text(), 
+	    				wtsetup_.corrtype_); 
+
     saveWellTieSetup( wtsetup_.wellid_, wtsetup_ );
 
     if ( saveButtonChecked() )
@@ -355,29 +374,18 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !initSetup() )
 	return false;
 
-    WellTie::GeoCalculator gc;
-    const bool useexistingmdl = used2tmbox_->isChecked();
-    const bool hadmodel = wd_->haveD2TModel();
-    if ( !useexistingmdl || !hadmodel )
-    {
-	Well::D2TModel* d2t = gc.getModelFromVelLog( *wd_, wtsetup_.vellognm_, 
-					    wtsetup_.issonic_, replacevel_ );
-	if ( !d2t )
-	    mErrRet("Cannot generate depth/time model. Check your velocity log")
-	wd_->setD2TModel( d2t );
-    }
+    Server* server = new Server( wtsetup_ );
+    if ( server->errMSG() ) 
+	{ mErrRet( server->errMSG() ); delete server; return false; }
 
-    if ( !useexistingmdl && wd_->haveCheckShotModel() )
+    if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
     {
-	uiCheckShotEdit dlg( this, *wd_ ); 
+	uiCheckShotEdit dlg( this, *server );
 	if ( !dlg.go() )
-	{ 
-	    if ( !hadmodel ) wd_->setD2TModel( 0 ) ; 
-	    return false; 
-	}
+	    { delete server; return false; }
     }
 
-    WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );
+    WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, *server );
     welltiedlgset_ += wtdlg;
     welltiedlgsetcpy_ += wtdlg;
     //windows are stored in a an ObjectSet to be deleted in the destructor
