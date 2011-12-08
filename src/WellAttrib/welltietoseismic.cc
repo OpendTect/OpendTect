@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.73 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.74 2011-12-08 14:38:01 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -69,16 +69,9 @@ bool DataPlayer::processLog( const Well::Log* log,
     if ( !log ) 
 	{ msg += "Can not find "; msg += nm; mErrRet( msg ); }
 
-    const int sz = log->size();
-    if ( sz <= 2 )
-    {
-	msg += nm;
-	msg +="log size too small, please check your input log";
-	mErrRet(msg)
-    }
-
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 
+    int sz = log->size();
     for ( int idx=1; idx<sz-1; idx++ )
     {
 	const float prvval = log->value( idx-1 );
@@ -88,6 +81,13 @@ bool DataPlayer::processLog( const Well::Log* log,
 	    continue;
 
 	outplog.addValue( log->dah(idx), (prvval + curval + nxtval )/3 );
+    }
+    sz = outplog.size();
+    if ( sz <= 2 )
+    {
+	msg += nm;
+	msg +="log size too small, please check your input log";
+	mErrRet(msg)
     }
 
     GeoCalculator gc; 
