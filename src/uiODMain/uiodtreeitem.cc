@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.215 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.216 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.215 2011-04-28 11:30:53 cvs
 #include "uilistview.h"
 #include "uimsg.h"
 #include "uiodscenemgr.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
 #include "vissurvscene.h"
 
@@ -31,7 +31,7 @@ const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
 const char* uiODTreeTop::scenestr()		{ return "Scene"; }
 
 
-uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
+uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiListView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
@@ -133,11 +133,11 @@ uiODApplMgr* uiODTreeItem::applMgr()
 }
 
 
-uiSoViewer* uiODTreeItem::viewer()
+ui3DViewer* uiODTreeItem::viewer()
 {
     void* res = 0;
     getPropertyPtr( uiODTreeTop::viewerptr(), res );
-    return reinterpret_cast<uiSoViewer*>( res );
+    return reinterpret_cast<ui3DViewer*>( res );
 }
 
 
@@ -270,7 +270,7 @@ bool uiODSceneTreeItem::showSubMenu()
     const int mnuid=mnu.exec();
     if ( mnuid==mProperties )
     {
-	ObjectSet<uiSoViewer> viewers;
+	ObjectSet<ui3DViewer> viewers;
 	ODMainWin()->sceneMgr().getSoViewers( viewers );
 
 	uiScenePropertyDlg dlg( getUiParent(), viewers, 

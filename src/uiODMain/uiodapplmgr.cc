@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.426 2011-12-05 14:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.427 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -303,7 +303,7 @@ void uiODApplMgr::processVelConv( CallBacker* )
 
 void uiODApplMgr::setStereoOffset()
 {
-    ObjectSet<uiSoViewer> vwrs;
+    ObjectSet<ui3DViewer> vwrs;
     sceneMgr().getSoViewers( vwrs );
     uiStereoDlg dlg( &appl_, vwrs );
     dlg.go();

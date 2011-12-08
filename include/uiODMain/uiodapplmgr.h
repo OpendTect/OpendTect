@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.117 2011-12-05 14:14:24 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.118 2011-12-08 16:29:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ class uiODApplService;
 class uiPopupMenu;
 class uiPickPartServer;
 class uiSeisPartServer;
-class uiSoViewer;
 class uiStratTreeWin;
 class uiTreeItem;
 class uiVisPartServer;

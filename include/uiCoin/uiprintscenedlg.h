@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.19 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.20 2011-12-08 16:29:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,12 @@ ________________________________________________________________________
 class IOPar;
 class uiGenInput;
 class uiLabeledComboBox;
-class uiSoViewer;
+class ui3DViewer;
 
 mClass uiPrintSceneDlg : public uiSaveImageDlg
 {
 public:
-			uiPrintSceneDlg(uiParent*,const ObjectSet<uiSoViewer>&);
+			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
 protected:
 
     uiLabeledComboBox*	scenefld_;
@@ -39,7 +39,7 @@ protected:
     void		sceneSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    const ObjectSet<uiSoViewer>& viewers_;
+    const ObjectSet<ui3DViewer>& viewers_;
 };
 
 #endif

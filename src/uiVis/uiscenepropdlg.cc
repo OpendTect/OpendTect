@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.19 2011-02-23 06:24:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.20 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -20,14 +20,14 @@ static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.19 2011-02-23 06:24:02 cv
 #include "uigeninput.h"
 #include "uicolor.h"
 #include "uislider.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uimsg.h"
 
 bool uiScenePropertyDlg::savestatus = true;
 
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p, 
-		const ObjectSet<uiSoViewer>& viewers, int curvwridx )
+		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
     : uiDialog( p, uiDialog::Setup("Scene properties","","50.0.5") )
     , hadsurveybox_( true )
     , hadannot_( true )
@@ -134,7 +134,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
     if ( scene_ )
         updateScene( scene_ );
 
-    uiSoViewer* vwr = const_cast<uiSoViewer*> (viewers_[curvwridx_]);
+    ui3DViewer* vwr = const_cast<ui3DViewer*> (viewers_[curvwridx_]);
     if ( vwr )
     {
 	vwr->setBackgroundColor( bgcolfld_->color() );
@@ -185,7 +185,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     }
     
     if ( viewers_[curvwridx_] )
-	const_cast<uiSoViewer*>(viewers_[curvwridx_])->setBackgroundColor( 
+	const_cast<ui3DViewer*>(viewers_[curvwridx_])->setBackgroundColor( 
 		    oldbgcolor_ );
     return true;
 }
@@ -245,9 +245,9 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
         mDynamicCastGet(visSurvey::Scene*, scene, const_cast <visBase::Scene*> 
 			(viewers_[idx]->getScene()));
 	updateScene( scene );
-	const_cast<uiSoViewer*>(viewers_[idx])->setBackgroundColor(
+	const_cast<ui3DViewer*>(viewers_[idx])->setBackgroundColor(
 		bgcolfld_->color() );
-	const_cast<uiSoViewer*>(viewers_[idx])->setAxisAnnotColor(
+	const_cast<ui3DViewer*>(viewers_[idx])->setAxisAnnotColor(
 		annotcolfld_->color() );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.36 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.37 2011-12-08 16:29:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiListView;
 class uiODApplMgr;
 class uiPopupMenu;
-class uiSoViewer;
+class ui3DViewer;
 
 
 mClass uiODTreeItem : public uiTreeItem
@@ -32,7 +32,7 @@ public:
 protected:
 
     uiODApplMgr*	applMgr();
-    uiSoViewer*		viewer();
+    ui3DViewer*		viewer();
 
     void		addStandardItems(uiPopupMenu&);
     void		handleStandardItems(int mnuid);
@@ -42,7 +42,7 @@ protected:
 mClass uiODTreeTop : public uiTreeTopItem
 {
 public:
-			uiODTreeTop(uiSoViewer*,uiListView*,
+			uiODTreeTop(ui3DViewer*,uiListView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 

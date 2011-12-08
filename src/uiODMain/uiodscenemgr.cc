@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.222 2011-12-02 20:35:01 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.223 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.222 2011-12-02 20:35:01 cvs
 #include "uiodviewer2dmgr.h"
 #include "uiprintscenedlg.h"
 #include "uislider.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uistatusbar.h"
 #include "uithumbwheel.h"
 #include "uitoolbar.h"
@@ -93,6 +93,12 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
+    , zoomslider_( 0 )
+    , dollywheel( 0 )
+    , dummylbl( 0 )
+    , vwheel( 0 )
+    , rotlbl( 0 )
+    , hwheel( 0 )
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 	    	       SurveyInfo::No2D );
@@ -122,42 +128,45 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
-    uiGroup* leftgrp = new uiGroup( &appl_, "Left group" );
+    if ( !visBase::DataObject::doOsg() )
+    {
+	uiGroup* leftgrp = new uiGroup( &appl_, "Left group" );
 
-    dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
-    dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
-    dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-    dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    dollylbl = new uiLabel( leftgrp, "Mov" );
-    dollylbl->attach( centeredBelow, dollywheel );
+	dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
+	dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
+	dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+	dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+	dollylbl = new uiLabel( leftgrp, "Mov" );
+	dollylbl->attach( centeredBelow, dollywheel );
 
-    dummylbl = new uiLabel( leftgrp, "" );
-    dummylbl->attach( centeredBelow, dollylbl );
-    dummylbl->setStretch( 0, 2 );
-    vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
-    vwheel->wheelMoved.notify( mWSMCB(vWheelMoved) );
-    vwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-    vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    vwheel->attach( centeredBelow, dummylbl );
+	dummylbl = new uiLabel( leftgrp, "" );
+	dummylbl->attach( centeredBelow, dollylbl );
+	dummylbl->setStretch( 0, 2 );
+	vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
+	vwheel->wheelMoved.notify( mWSMCB(vWheelMoved) );
+	vwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+	vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+	vwheel->attach( centeredBelow, dummylbl );
 
-    rotlbl = new uiLabel( &appl_, "Rot" );
-    rotlbl->attach( centeredBelow, leftgrp );
+	rotlbl = new uiLabel( &appl_, "Rot" );
+	rotlbl->attach( centeredBelow, leftgrp );
 
-    hwheel = new uiThumbWheel( &appl_, "hRotate", true );
-    hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
-    hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-    hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    hwheel->attach( leftAlignedBelow, mdiarea_ );
+	hwheel = new uiThumbWheel( &appl_, "hRotate", true );
+	hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
+	hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+	hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+	hwheel->attach( leftAlignedBelow, mdiarea_ );
 
-    zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
-    zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
-    zoomslider_->sldr()->setMinValue( cMinZoom );
-    zoomslider_->sldr()->setMaxValue( cMaxZoom );
-    zoomslider_->setStretch( 0, 0 );
-    zoomslider_->attach( rightAlignedBelow, mdiarea_ );
+	zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
+	zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
+	zoomslider_->sldr()->setMinValue( cMinZoom );
+	zoomslider_->sldr()->setMaxValue( cMaxZoom );
+	zoomslider_->setStretch( 0, 0 );
+	zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
-    leftgrp->attach( leftOf, mdiarea_ );
-    appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
+	leftgrp->attach( leftOf, mdiarea_ );
+	appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
+    }
 }
 
 
@@ -213,7 +222,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display( true );
     scn.sovwr_->viewAll();
-    scn.sovwr_->setHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.mdiwin_->display( true, false, maximized );
@@ -236,7 +244,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     {
 	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
-	zoomslider_->setSensitive( isperspective );
+	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 	scn.sovwr_->showRotAxis( true );
 	menuMgr().updateAxisMode( true );
     }
@@ -352,13 +360,13 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	initTree( scn, vwridx_ );
     }
 
-    ObjectSet<uiSoViewer> vwrs;
+    ObjectSet<ui3DViewer> vwrs;
     getSoViewers( vwrs );
     if ( !vwrs.isEmpty() && vwrs[0] )
     {
 	const bool isperspective = vwrs[0]->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
-	zoomslider_->setSensitive( isperspective );
+	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
     }
     rebuildTrees();
 }
@@ -368,7 +376,7 @@ void uiODSceneMgr::viewModeChg( CallBacker* cb )
 {
     if ( scenes_.isEmpty() ) return;
 
-    mDynamicCastGet(uiSoViewer*,sovwr_,cb)
+    mDynamicCastGet(ui3DViewer*,sovwr_,cb)
     if ( sovwr_ ) setToViewMode( sovwr_->isViewing() );
 }
 
@@ -497,11 +505,11 @@ void uiODSceneMgr::setStereoType( int type )
 {
     if ( scenes_.isEmpty() ) return;
 
-    uiSoViewer::StereoType stereotype = (uiSoViewer::StereoType)type;
+    ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
     const float stereooffset = scenes_[0]->sovwr_->getStereoOffset();
     for ( int ids=0; ids<scenes_.size(); ids++ )
     {
-	uiSoViewer& sovwr_ = *scenes_[ids]->sovwr_;
+	ui3DViewer& sovwr_ = *scenes_[ids]->sovwr_;
 	if ( !sovwr_.setStereoType(stereotype) )
 	{
 	    uiMSG().error( "No support for this type of stereo rendering" );
@@ -542,19 +550,19 @@ void uiODSceneMgr::align( CallBacker* )
 { mDoAllScenes(sovwr_,align,); }
 
 void uiODSceneMgr::viewX( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,uiSoViewer::X); }
+{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::X); }
 void uiODSceneMgr::viewY( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Y); }
+{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Y); }
 void uiODSceneMgr::viewZ( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Z); }
+{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Z); }
 void uiODSceneMgr::viewInl( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Inl); }
+{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Inl); }
 void uiODSceneMgr::viewCrl( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Crl); }
+{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Crl); }
 
 void uiODSceneMgr::setViewSelectMode( int md )
 {
-    mDoAllScenes(sovwr_,viewPlane,(uiSoViewer::PlaneType)md);
+    mDoAllScenes(sovwr_,viewPlane,(ui3DViewer::PlaneType)md);
 }
 
 
@@ -608,7 +616,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
     if ( snapdlg.getSnapshotType() == uiSnapshotDlg::Scene )
     {
-	ObjectSet<uiSoViewer> viewers;
+	ObjectSet<ui3DViewer> viewers;
 	getSoViewers( viewers );
 	if ( viewers.size() == 0 ) return;
 
@@ -641,7 +649,8 @@ void uiODSceneMgr::soloMode( CallBacker* )
 
 void uiODSceneMgr::setZoomValue( float val )
 {
-    zoomslider_->sldr()->setValue( val );
+    if ( zoomslider_ )
+	zoomslider_->sldr()->setValue( val );
 }
 
 
@@ -693,7 +702,7 @@ void uiODSceneMgr::dWheelMoved( CallBacker* cb )
 
 void uiODSceneMgr::switchCameraType( CallBacker* )
 {
-    ObjectSet<uiSoViewer> vwrs;
+    ObjectSet<ui3DViewer> vwrs;
     getSoViewers( vwrs );
     if ( vwrs.isEmpty() ) return;
     mDoAllScenes(sovwr_,toggleCameraType,);
@@ -723,7 +732,7 @@ int uiODSceneMgr::askSelectScene() const
 }
 
 
-void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
+void uiODSceneMgr::getSoViewers( ObjectSet<ui3DViewer>& vwrs )
 {
     vwrs.erase();
     for ( int idx=0; idx<scenes_.size(); idx++ )
@@ -731,14 +740,14 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
-const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
+const ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->sovwr_ : 0;
 }
 
 
-uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) 
+ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) 
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->sovwr_ : 0;
@@ -1143,7 +1152,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 
     mdiwin_ = new uiMdiAreaWindow();
     mdiwin_->setIcon( scene_xpm_data );
-    sovwr_ = new uiSoViewer( mdiwin_ );
+    sovwr_ = new ui3DViewer( mdiwin_ );
     sovwr_->setPrefWidth( 400 );
     sovwr_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );

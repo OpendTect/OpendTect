@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.52 2011-05-04 08:03:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.53 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.52 2011-05-04 08:03:42 c
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiobj.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uispinbox.h"
 
 #include "filepath.h"
@@ -42,7 +42,7 @@ static StepInterval<float> pixelsize_range(1,9999,1);
 	fldabove = fld
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
-				  const ObjectSet<uiSoViewer>& vwrs )
+				  const ObjectSet<ui3DViewer>& vwrs )
     : uiSaveImageDlg(p,false)
     , viewers_(vwrs)
     , scenefld_(0)
@@ -188,13 +188,14 @@ void uiPrintSceneDlg::typeSel( CallBacker* )
 void uiPrintSceneDlg::sceneSel( CallBacker* )
 {
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const uiSoViewer* vwr = viewers_[vwridx];
-    const SbVec2s& winsz = vwr->getViewportSizePixels();
-    aspectratio_ = (float)winsz[0] / winsz[1];
+    const ui3DViewer* vwr = viewers_[vwridx];
+    const Geom::Size2D<int> winsz = vwr->getViewportSizePixels();
+    aspectratio_ = (float)winsz.width() / winsz.height();
     
     if ( useparsfld_->getBoolValue() )
 	return;
-    setSizeInPix( (int)winsz[0], (int)winsz[1] );
+
+    setSizeInPix( winsz.width(), winsz.height() );
 }
 
 
@@ -203,7 +204,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !filenameOK() ) return false;
 
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const uiSoViewer* vwr = viewers_[vwridx];
+    const ui3DViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
     dirname_ = filepath.pathOnly();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.236 2011-12-05 14:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.237 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.236 2011-12-05 14:14:24 cvsb
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uisettings.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uitextfile.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -121,12 +121,12 @@ uiPopupMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 
 void uiODMenuMgr::updateStereoMenu()
 {
-    uiSoViewer::StereoType type = 
-			(uiSoViewer::StereoType)sceneMgr().getStereoType();
-    stereooffitm_->setChecked( type == uiSoViewer::None );
-    stereoredcyanitm_->setChecked( type == uiSoViewer::RedCyan );
-    stereoquadbufitm_->setChecked( type == uiSoViewer::QuadBuffer );
-    stereooffsetitm_->setEnabled( type != uiSoViewer::None );
+    ui3DViewer::StereoType type = 
+			(ui3DViewer::StereoType)sceneMgr().getStereoType();
+    stereooffitm_->setChecked( type == ui3DViewer::None );
+    stereoredcyanitm_->setChecked( type == ui3DViewer::RedCyan );
+    stereoquadbufitm_->setChecked( type == ui3DViewer::QuadBuffer );
+    stereooffsetitm_->setEnabled( type != ui3DViewer::None );
 }
 
 
@@ -760,7 +760,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     cameraid_ = mAddTB(cointb_,"perspective.png",
 	    	       "Switch to orthographic camera",false,switchCameraType);
     
-    curviewmode_ = uiSoViewer::Inl;
+    curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
     Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
     if ( !separateviewbuttons )
@@ -821,11 +821,11 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
     {
 	if ( !tb ) return;
 	const int clickid = tb->id();
-	if ( clickid == viewinlid_ ) curviewmode_ = uiSoViewer::Inl;
-	if ( clickid == viewcrlid_ ) curviewmode_ = uiSoViewer::Crl;
-	if ( clickid == viewzid_ ) curviewmode_ = uiSoViewer::Z;
-	if ( clickid == viewnid_ ) curviewmode_ = uiSoViewer::Y;
-	if ( clickid == viewnzid_ ) curviewmode_ = uiSoViewer::YZ;
+	if ( clickid == viewinlid_ ) curviewmode_ = ui3DViewer::Inl;
+	if ( clickid == viewcrlid_ ) curviewmode_ = ui3DViewer::Crl;
+	if ( clickid == viewzid_ ) curviewmode_ = ui3DViewer::Z;
+	if ( clickid == viewnid_ ) curviewmode_ = ui3DViewer::Y;
+	if ( clickid == viewnzid_ ) curviewmode_ = ui3DViewer::YZ;
     }
 
     if ( tb )
@@ -839,17 +839,17 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
     int itmid = itm->id();
     BufferString pm( "cube_inl.png" );
     BufferString tt( "View Inline" );
-    curviewmode_ = uiSoViewer::Inl;
+    curviewmode_ = ui3DViewer::Inl;
     switch( itmid )
     {
 	case 1: pm = "cube_crl.png"; tt = "View Crossline";
-		curviewmode_ = uiSoViewer::Crl; break;
+		curviewmode_ = ui3DViewer::Crl; break;
 	case 2: pm = "cube_z.png"; tt = "View Z";
-		curviewmode_ = uiSoViewer::Z; break;
+		curviewmode_ = ui3DViewer::Z; break;
 	case 3: pm = "view_N.png"; tt = "View North"; 
-		curviewmode_ = uiSoViewer::Y; break;
+		curviewmode_ = ui3DViewer::Y; break;
 	case 4: pm = "view_NZ.png"; tt = "View North Z"; 
-		curviewmode_ = uiSoViewer::YZ; break; 
+		curviewmode_ = ui3DViewer::YZ; break; 
     }
 
     cointb_->setPixmap( viewselectid_, pm );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.84 2011-12-01 14:31:08 cvsbruno Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.85 2011-12-08 16:29:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
 class uiSliderExtra;
-class uiSoViewer;
+class ui3DViewer;
 class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
@@ -101,9 +101,9 @@ public:
     void			dWheelMoved(CallBacker*);
 
     int				askSelectScene() const; // returns sceneid
-    const uiSoViewer*		getSoViewer(int sceneid) const;
-    uiSoViewer*			getSoViewer(int sceneid);
-    void			getSoViewers(ObjectSet<uiSoViewer>&);
+    const ui3DViewer*		getSoViewer(int sceneid) const;
+    ui3DViewer*			getSoViewer(int sceneid);
+    void			getSoViewers(ObjectSet<ui3DViewer>&);
     void			getSceneNames(BufferStringSet&,int& act) const;
     void			setActiveScene(const char* scenenm);
     void			getActiveSceneName(BufferString&) const;
@@ -183,7 +183,7 @@ protected:
 	uiDockWin*		dw_;
 	uiListView*		lv_;
 	uiMdiAreaWindow* 	mdiwin_;
-	uiSoViewer*		sovwr_;
+	ui3DViewer*		sovwr_;
 	uiODTreeTop*		itemmanager_;
     };
 

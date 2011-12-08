@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistereodlg.cc,v 1.12 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistereodlg.cc,v 1.13 2011-12-08 16:29:28 cvskris Exp $";
 
 #include "uistereodlg.h"
 
 #include "uimsg.h"
 #include "uislider.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 
 
-uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
+uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs_ )
 	: uiDialog(p, uiDialog::Setup("Stereo viewing",
 		    		      "Set stereo offset","50.0.2")
 		      .canceltext(""))
