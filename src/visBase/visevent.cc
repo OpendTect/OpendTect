@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.37 2011-09-29 15:59:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.38 2011-12-08 15:12:41 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -380,8 +380,9 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	 eventcatcher->eventType()==eventinfo.type )
     {
 	eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
-	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
     }
+    if ( !eventcatcher->isHandled() )
+	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
 }
 
 }; // namespace visBase
