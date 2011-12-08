@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.66 2011-05-24 08:24:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.67 2011-12-08 23:39:02 cvsdgb Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.66 2011-05-24 08:24:18
 #include "uipsviewersettingdlg.h"
 #include "uipsviewer2dmainwin.h"
 #include "uiseispartserv.h"
-#include "uisoviewer.h"
+#include "ui3dviewer.h"
 #include "uivispartserv.h"
 #include "visflatviewer.h"
 #include "visplanedatadisplay.h"
@@ -371,7 +371,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
    	viewer->flatViewer()->setResolution( res );
 
     //set viewer angle.
-    const uiSoViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
+    const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
     const Coord3 campos = sovwr->getCameraPosition();
     const Coord3 displaycampos = 
 	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
