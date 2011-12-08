@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.129 2011-12-01 09:44:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.130 2011-12-08 09:40:10 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -424,7 +424,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     // finishing time
     blockDataLoading( true );
-    sendEvent( uiMPEPartServer::evEndSeedPick() );
+    //sendEvent( uiMPEPartServer::evEndSeedPick() );
     blockDataLoading( false );
 
     blockDataLoading( true );
