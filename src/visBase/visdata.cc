@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.33 2011-12-06 07:57:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.34 2011-12-08 14:01:08 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -17,6 +17,10 @@ static const char* rcsID = "$Id: visdata.cc,v 1.33 2011-12-06 07:57:17 cvsranoja
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/SoOutput.h>
+
+#ifdef __have_osg__
+#include <osg/Node>
+#endif
 
 namespace visBase
 {
@@ -41,6 +45,11 @@ void DataObject::setName( const char* nm )
     SoNode* node = getInventorNode();
     if ( node )
 	node->setName( nm );
+#ifdef __have_osg__
+    osg::ref_ptr<osg::Node> osgnode = osgNode();
+    if ( osgnode )
+	osgnode->setName( nm );
+#endif
 
     if ( !name_ ) name_ = new BufferString;
     (*name_) = nm;

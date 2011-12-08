@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.38 2011-12-06 07:58:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.39 2011-12-08 14:01:08 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -27,6 +27,10 @@ static const char* rcsID = "$Id: visannot.cc,v 1.38 2011-12-06 07:58:48 cvsranoj
 #include "SoOD.h"
 #include "SoOneSideRender.h"
 
+#ifdef __have_osg__
+#include <osg/Geode>
+#include <osg/Geometry>
+#endif
 
 mCreateFactoryEntry( visBase::Annotation );
 
@@ -46,6 +50,9 @@ Annotation::Annotation()
     , gridlineswitch_(new SoSwitch)
     , pickstyle_(PickStyle::create())
     , texts_(0)
+#ifdef __have_osg__
+    , geode_( doOsg() ? new osg::Geode : 0 )
+#endif
 {
     annotscale_[0] = annotscale_[1] = annotscale_[2] = 1;
 
@@ -61,7 +68,21 @@ Annotation::Annotation()
 	{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },
 	{ 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }
     };
+#ifdef __have_osg__
+    if ( doOsg() )
+    {
+	const osg::Vec3* ptr = (osg::Vec3*) pos;
+	osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
+	osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
 
+	geometry->setVertexArray( coords );
+	geometry->addPrimitiveSet( new osg::DrawArrays( GL_POLYGON, 0, 4 ) );
+	geometry->addPrimitiveSet( new osg::DrawArrays( GL_POLYGON, 4, 4 ) );
+
+	geode_->addDrawable( geometry );
+	addChild( geode_ );
+    }
+#endif
     coords_->point.setValues( 0, 8, pos );
 
     SoIndexedLineSet* line = new SoIndexedLineSet;

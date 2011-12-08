@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscamera.cc,v 1.24 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.25 2011-12-08 14:01:08 cvskris Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -15,6 +15,11 @@ static const char* rcsID = "$Id: viscamera.cc,v 1.24 2011-04-28 07:00:12 cvsbert
 
 #include "UTMCamera.h"
 #include "Inventor/nodes/SoGroup.h"
+
+#ifdef __have_osg__
+#include <osg/Camera>
+#endif
+
 
 mCreateFactoryEntry( visBase::Camera );
 
@@ -32,6 +37,11 @@ const char* Camera::sKeyFocalDistance()	{ return "Focal Distance"; }
 Camera::Camera()
     : group( new SoGroup )
 {
+#ifdef __have_osg__
+    camera_ = doOsg() ? new osg::Camera : 0;
+    if ( camera_ ) camera_->ref();
+#endif
+
     group->ref();
     group->addChild( new UTMCamera );
 }
@@ -40,11 +50,24 @@ Camera::Camera()
 Camera::~Camera()
 {
     group->unref();
+#ifdef __have_osg__
+    if ( camera_ ) camera_->unref();
+#endif
 }
 
 
 SoNode* Camera::gtInvntrNode()
 { return group; }
+
+
+osg::Node* Camera::gtOsgNode()
+{
+#ifdef __have_osg__
+    return camera_;
+#else
+    return 0;
+#endif
+}
 
 
 void Camera::setPosition(const Coord3& pos)

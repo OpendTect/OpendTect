@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.47 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visobject.h,v 1.48 2011-12-08 14:01:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ class SoLockableSeparator;
 class SoNode;
 class SoSwitch;
 class Coord3;
+
+namespace osg { class Switch; }
 
 namespace visBase
 {
@@ -114,6 +116,11 @@ protected:
     int			childIndex(const SoNode*) const;
     SoNode*		getChild(int);
 
+    void		addChild(osg::Node*);
+    void		insertChild(int pos,osg::Node*);
+    void		removeChild(osg::Node*);
+    int			childIndex(const osg::Node*) const;
+
 
 			VisualObjectImpl(bool selectable);
     virtual		~VisualObjectImpl();
@@ -122,12 +129,13 @@ protected:
     Material*		material_;
     bool		righthandsystem_;
 
-    virtual SoNode*	gtInvntrNode();
+    SoNode*		gtInvntrNode();
+    osg::Node*		gtOsgNode();
 
 private:
     SoSeparator*	root_;
     SoLockableSeparator* lockableroot_;
-
+    osg::Switch*	osgroot_;
 };
 
 };

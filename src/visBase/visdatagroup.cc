@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.16 2011-12-05 10:44:50 cvskris Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.17 2011-12-08 14:01:08 cvskris Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -50,7 +50,7 @@ DataObjectGroup::~DataObjectGroup()
 void DataObjectGroup::ensureGroup()
 {
 #ifdef __have_osg__
-    if ( !osggroup_ )
+    if ( doOsg() && !osggroup_ )
     {
 	osggroup_ = new osg::Group;
 	osggroup_->ref();
@@ -81,7 +81,7 @@ void DataObjectGroup::addObject( DataObject* no )
     nodes_ += no->getInventorNode();
 
 #ifdef __have_osg__
-    if ( no->osgNode() ) osggroup_->addChild( no->osgNode() );
+    if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
 #endif
 
     no->ref();
@@ -141,7 +141,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     ensureGroup();
     group_->insertChild( no->getInventorNode(), insertpos );
 #ifdef __have_osg__
-    if ( no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
+    if ( osggroup_ && no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
 #endif
     no->ref();
     no->setRightHandSystem( isRightHandSystem() );
@@ -170,7 +170,7 @@ void DataObjectGroup::removeObject( int idx )
     SoNode* node = nodes_[idx];
     group_->removeChild( node );
 #ifdef __have_osg__
-    osggroup_->removeChild( sceneobject->osgNode() );
+    if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
 #endif
 
     nodes_.remove( idx );

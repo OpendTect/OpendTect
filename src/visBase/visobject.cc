@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.47 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.48 2011-12-08 14:01:08 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -19,6 +19,10 @@ static const char* rcsID = "$Id: visobject.cc,v 1.47 2011-04-28 07:00:12 cvsbert
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include "SoLockableSeparator.h"
+
+#ifdef __have_osg__
+#include <osg/Switch>
+#endif
 
 namespace visBase
 {
@@ -42,12 +46,17 @@ VisualObject::~VisualObject()
 
 VisualObjectImpl::VisualObjectImpl( bool issel )
     : VisualObject( issel )
+#if __have_osg__
+    , osgroot_( doOsg() ? new osg::Switch : 0 )
+#endif
     , root_( new SoSeparator )
     , lockableroot_( 0 )
     , onoff_( new SoSwitch )
     , material_( 0 )
     , righthandsystem_( true )
 {
+    if ( osgroot_ ) osgroot_->ref();
+
     setMaterial( Material::create() );
     onoff_->ref();
     onoff_->addChild( root_ );
@@ -57,6 +66,10 @@ VisualObjectImpl::VisualObjectImpl( bool issel )
 
 VisualObjectImpl::~VisualObjectImpl()
 {
+#if __have_osg__
+    if ( osgroot_ ) osgroot_->unref();
+#endif
+
     getInventorNode()->unref();
     if ( material_ ) material_->unRef();
 }
@@ -144,11 +157,27 @@ void VisualObjectImpl::turnOn( bool yn )
     {
 	pErrMsg( "Turning off object without switch");
     }
+#ifdef __have_osg__
+    if ( osgroot_ )
+    {
+	if ( yn )
+	    osgroot_->setAllChildrenOn();
+	else
+	    osgroot_->setAllChildrenOff();
+    }
+#endif
 }
 
 
 bool VisualObjectImpl::isOn() const
 {
+#ifdef __have_osg__
+    if ( osgroot_ && osgroot_->getNumChildren() )
+    {
+	return osgroot_->getValue( 0 );
+    }
+#endif
+
     return !onoff_ || onoff_->whichChild.getValue()==SO_SWITCH_ALL;
 }
 
@@ -183,6 +212,16 @@ SoNode* VisualObjectImpl::gtInvntrNode()
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 
+osg::Node* VisualObjectImpl::gtOsgNode()
+{
+#ifdef __have_osg__
+    return osgroot_;
+#else
+    return 0;
+#endif
+}
+
+
 void VisualObjectImpl::addChild( SoNode* nn )
 { root_->addChild( nn ); }
 
@@ -197,6 +236,43 @@ void VisualObjectImpl::removeChild( SoNode* nn )
 
 int VisualObjectImpl::childIndex( const SoNode* nn ) const
 { return root_->findChild(nn); }
+
+
+void VisualObjectImpl::addChild( osg::Node* nn )
+{
+#ifdef __have_osg__
+    osgroot_->addChild( nn );
+#endif
+}
+
+
+void VisualObjectImpl::insertChild( int pos, osg::Node* nn )
+{
+#ifdef __have_osg__
+    osgroot_->insertChild( pos, nn );
+#endif
+}
+
+
+void VisualObjectImpl::removeChild( osg::Node* nn )
+{
+#ifdef __have_osg__
+    osgroot_->removeChild( nn );
+#endif
+}
+
+
+int VisualObjectImpl::childIndex( const osg::Node* nn ) const
+{
+#ifdef __have_osg__
+    const int idx = osgroot_->getChildIndex(nn);
+    if ( idx==osgroot_->getNumChildren() )
+	return -1;
+    return idx;
+#else
+    return -1;
+#endif
+}
 
 
 SoNode* VisualObjectImpl::getChild(int idx)

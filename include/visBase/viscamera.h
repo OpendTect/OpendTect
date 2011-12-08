@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.20 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: viscamera.h,v 1.21 2011-12-08 14:01:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,8 @@ ________________________________________________________________________
 class SoCamera;
 class SoGroup;
 class UTMCamera;
+
+namespace osg { class Camera; }
 
 namespace visBase
 {
@@ -46,6 +48,10 @@ public:
 					float angle );
     void		getOrientation( Coord3& dirvector,
 					float& angle );
+
+    void		setOrthogonal(bool yn)		{ }
+    bool		isOrthogonal() const		{ return false; }
+
 
     void		setAspectRatio( float );
     float		aspectRatio() const;
@@ -82,6 +88,8 @@ protected:
     SoCamera*		getCamera();
     const SoCamera*	getCamera() const;
 
+    osg::Camera*	camera_;
+
     static const char*	sKeyPosition();
     static const char*	sKeyOrientation();
     static const char*	sKeyAspectRatio();
@@ -89,8 +97,8 @@ protected:
     static const char*	sKeyFarDistance();
     static const char*	sKeyFocalDistance();
 
-    virtual SoNode*	gtInvntrNode();
-
+    SoNode*		gtInvntrNode();
+    osg::Node*		gtOsgNode();
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.23 2011-11-30 09:25:57 cvskris Exp $
+ RCS:		$Id: visannot.h,v 1.24 2011-12-08 14:01:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,8 @@ class SoIndexedLineSet;
 class AxisInfo;
 class Color;
 class SoOneSideRender;
+
+namespace osg { class Geode; }
 
 namespace visBase
 {
@@ -95,6 +97,7 @@ protected:
 
     SoSwitch*			textswitch_;
     SoSwitch*			scaleswitch_;
+    osg::Geode*			geode_;
     Color			annotcolor_;
 
     static const char*		textprefixstr();
