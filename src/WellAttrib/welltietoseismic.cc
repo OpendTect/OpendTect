@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.74 2011-12-08 14:38:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.75 2011-12-08 16:12:55 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -50,14 +50,12 @@ bool DataPlayer::computeAll()
 {
     mGetWD()
 
-    if ( !setAIModel() || !doFullSynthetics()  || !extractSeismics() )
-	return false;
-
+    bool success = setAIModel() && doFullSynthetics() && extractSeismics(); 
     copyDataToLogSet();
 
     computeAdditionalInfo( disprg_ );
 
-    return true;
+    return success;
 }
 
 
@@ -201,9 +199,17 @@ bool DataPlayer::extractSeismics()
     TypeSet<BinID> bids;  wtextr.getBIDs( bids );
     seisextr.setBIDValues( bids );
     seisextr.setInterval( disprg_ );
-    data_.trunner_->execute( seisextr );
+
+    const bool success = data_.trunner_->execute( seisextr );
     data_.seistrc_ = SeisTrc( seisextr.result() );
-    return true;
+    BufferString msg;
+    if ( !success )
+    { 
+	msg += "Can not extract seismic: "; 
+	msg += seisextr.errMsg(); 
+	mErrRet( msg ); 
+    }
+    return success;
 }
 
 

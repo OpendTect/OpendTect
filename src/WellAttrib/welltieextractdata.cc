@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.39 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.40 2011-12-08 16:12:55 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -58,10 +58,11 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
     outtrc_->zero();
 }
 
-
-void SeismicExtractor::collectTracesAroundPath() 
+#define mErrRet(msg) { errmsg_ = msg; return false; }
+bool SeismicExtractor::collectTracesAroundPath() 
 {
-    if ( bidset_.isEmpty() ) return;
+    if ( bidset_.isEmpty() ) 
+	mErrRet( "No position extracted from well track" ); 
 
     if ( rdr_->is2D() )
     {
@@ -86,7 +87,9 @@ void SeismicExtractor::collectTracesAroundPath()
     rdr_->prepareWork();
 
     SeisBufReader sbfr( *rdr_, *trcbuf_ );
-    sbfr.execute();
+    if ( !sbfr.execute() )
+	mErrRet( sbfr.message() ); 
+    return true;
 }
 
 
@@ -100,12 +103,14 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
 	else if ( idx )
 	    bidset_ += bids[idx-1];
     }
-    collectTracesAroundPath();
 }
 
 
 int SeismicExtractor::nextStep()
 {
+    if ( !nrdone_ && !collectTracesAroundPath() )
+	return Executor::ErrorOccurred();
+
     double zval = extrintv_.atIndex( nrdone_ );
 
     if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps() 
