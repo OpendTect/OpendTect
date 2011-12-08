@@ -1,5 +1,5 @@
-#ifndef uisoviewer_h
-#define uisoviewer_h
+#ifndef ui3dviewer_h
+#define ui3dviewer_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: ui3dviewer.h,v 1.1 2011-12-08 16:26:24 cvskris Exp $
+ RCS:           $Id: ui3dviewer.h,v 1.2 2011-12-08 16:47:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
