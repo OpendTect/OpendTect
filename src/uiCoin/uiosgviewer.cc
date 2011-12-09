@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiosgviewer.cc,v 1.1 2011-12-08 16:26:24 cvskris Exp $";
+static const char* rcsID = "$Id: uiosgviewer.cc,v 1.2 2011-12-09 16:03:53 cvskris Exp $";
 
 #include "uiosgviewer.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiosgviewer.cc,v 1.1 2011-12-08 16:26:24 cvskri
 #ifdef __have_osg__
 #include <osgViewer/View>
 #include <osgViewer/CompositeViewer>
+#include <osgQt/GraphicsWindowQt>
 #endif
 
 class uiOsgViewer
@@ -91,6 +92,7 @@ uiOsgViewer::uiOsgViewer()
 {
 #ifdef __have_osg__
     osgviewer_->ref();
+    osgQt::setViewer( osgviewer_.get() );
 #endif
 }
 
