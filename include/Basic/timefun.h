@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.14 2010-09-02 06:37:01 cvsraman Exp $
+ RCS:		$Id: timefun.h,v 1.15 2011-12-09 06:04:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QTime;
 namespace Time
 {
 
-class Counter
+mClass Counter
 {
 public:
     		Counter();

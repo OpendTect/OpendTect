@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.5 2011-12-01 10:32:49 cvsbert Exp $
+ RCS:           $Id: oddlsite.h,v 1.6 2011-12-09 06:04:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ class ODHttp;
 
  */
 
-class ODDLSite : public CallBacker
+mClass ODDLSite : public CallBacker
 {
 public:
 
