@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.8 2011-12-09 16:05:54 cvskris Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.9 2011-12-09 16:12:58 cvskris Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -140,7 +140,7 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
     if ( !isDepth() )
 	return defunit_;
 
-    return getDistUnitString( ::SI().depthsInFeet(), false );
+    return getDistUnitString( ::SI().zInFeet(), false );
 }
 
 
