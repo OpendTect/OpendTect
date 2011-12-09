@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.39 2011-12-08 14:01:08 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.40 2011-12-09 15:58:47 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -63,26 +63,36 @@ Annotation::Annotation()
 
     addChild( coords_ );
 
-    static float pos[8][3] =
-    {
-	{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },
-	{ 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }
-    };
 #ifdef __have_osg__
     if ( doOsg() )
     {
-	const osg::Vec3* ptr = (osg::Vec3*) pos;
-	osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
-	osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+	 float pos[8][3] =
+	 {
+	     { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 1 }, { 0, 1, 0 },
+	     { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 1 }, { 1, 1, 0 }
+	 };
 
-	geometry->setVertexArray( coords );
-	geometry->addPrimitiveSet( new osg::DrawArrays( GL_POLYGON, 0, 4 ) );
-	geometry->addPrimitiveSet( new osg::DrawArrays( GL_POLYGON, 4, 4 ) );
+	 const osg::Vec3* ptr = (osg::Vec3*) pos;
+	 osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
+	 osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+
+	 geometry->setVertexArray( coords );
+
+	 GLubyte indices[] = { 0, 1, 1, 2, 2, 3, 3, 0,
+	     		       4, 5, 5, 6, 6, 7, 7, 4,
+			       0, 4, 1, 5, 2, 6, 3, 7 };
+	 geometry->addPrimitiveSet( new osg::DrawElementsUByte( GL_LINES, 24, indices  ) );
 
 	geode_->addDrawable( geometry );
 	addChild( geode_ );
     }
 #endif
+    float pos[8][3] =
+    {
+	{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },
+	{ 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }
+    };
+
     coords_->point.setValues( 0, 8, pos );
 
     SoIndexedLineSet* line = new SoIndexedLineSet;
@@ -318,6 +328,20 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {
+#ifdef __have_osg__
+    if ( geode_ && geode_->getNumDrawables() )
+    {
+	 osg::ref_ptr<osg::Geometry> geometry =
+	     (osg::Geometry*) geode_->getDrawable( 0 );
+
+	 osg::Vec3& coord =
+	     ((osg::Vec3*) geometry->getVertexArray()->getDataPointer())[idx];
+
+	 coord = osg::Vec3f( x, y, z );
+    }
+
+#endif
+
     float c[3] = { x, y, z };
     coords_->point.setValues( idx, 1, &c );
 }
