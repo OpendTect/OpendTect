@@ -7,65 +7,70 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.8 2011-11-22 10:27:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.9 2011-12-12 14:45:50 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
 
 RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims, 
 				    const IOPar& raypars ) 
-    : Executor("Ray tracer runner") 
-    , aimodels_(aims)
-    , nrdone_(0)
+    : aimodels_(aims)
     , raypar_(raypars)		
 {}
 
 
 RayTracerRunner::~RayTracerRunner() 
+{ deepErase( raytracers_ );}
+
+
+od_int64 RayTracerRunner::nrIterations() const
+{ return aimodels_.size(); }
+
+
+#define mErrRet(msg) { errmsg_ = msg; return false; }
+bool RayTracerRunner::doPrepare( int nrthreads )
 {
     deepErase( raytracers_ );
-}
 
-
-#define mErrRet(msg) { errmsg_ = msg; return ErrorOccurred(); }
-
-int RayTracerRunner::nextStep() 
-{
-    if ( nrdone_ == 0 )
-    {
-	if ( aimodels_.isEmpty() )
-	    mErrRet( "No AI model set" );
-
-	deepErase( raytracers_ );
-    }
-    if ( nrdone_ == totalNr() )
-	return Finished();
-
-    const ElasticModel& aim = aimodels_[nrdone_];
-    if ( aim.isEmpty() )
-	{ nrdone_ ++; return Executor::MoreToDo(); }
+    if ( aimodels_.isEmpty() )
+	mErrRet( "No AI model set" );
 
     if ( RayTracer1D::factory().getNames(false).isEmpty() )
 	return false;
 
     BufferString errmsg;
-    RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
-    if ( !rt1d )
+    for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
-	rt1d = RayTracer1D::factory().create( 
-		*RayTracer1D::factory().getNames(false)[0] );
-	rt1d->usePar( raypar_ );
+	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
+	if ( !rt1d )
+	{
+	    rt1d = RayTracer1D::factory().create( 
+		    *RayTracer1D::factory().getNames(false)[0] );
+	    rt1d->usePar( raypar_ );
+	}
+	raytracers_ += rt1d;
     }
-    if ( !rt1d && !errmsg.isEmpty() ) 
+
+    if ( raytracers_.isEmpty() && !errmsg.isEmpty() )
 	mErrRet( errmsg.buf() );
 
-    rt1d->setModel( aim );
-    raytracers_ += rt1d;
+    return true;
+}
 
-    if ( !rt1d->execute() )
-	mErrRet( rt1d->errMsg() );
 
-    nrdone_ ++;
-    return MoreToDo();
+bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    {
+	const ElasticModel& aim = aimodels_[idx];
+	if ( aim.isEmpty() ) 
+	    continue;
+
+	RayTracer1D* rt1d = raytracers_[idx];
+	rt1d->setModel( aim );
+	if ( !rt1d->execute() )
+	    mErrRet( rt1d->errMsg() );
+    }
+    return true;
 }
 

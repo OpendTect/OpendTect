@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 23-3-1996
- * FUNCTION : Wavelet
+ * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.44 2011-10-20 07:20:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.45 2011-12-12 14:45:50 cvsbruno Exp $";
 
 
 #include "arrayndimpl.h"
@@ -402,13 +402,10 @@ bool RaySynthGenerator::doRayTracing()
 	offsets_ += 0;
 
     RayTracerRunner rtr( aimodels_, raysetup_ );
-    if ( tr_ && !tr_->execute( rtr ) )
-	mErrRet( rtr.errMsg(); )
-    else if ( !rtr.execute() )
+    if ( ( tr_ && !tr_->execute( rtr ) ) || !rtr.execute() )
 	mErrRet( rtr.errMsg(); )
 
     ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
-
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
 	const RayTracer1D* rt1d = rt1ds.remove(idx);
