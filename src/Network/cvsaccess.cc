@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.1 2011-12-12 11:00:14 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.2 2011-12-12 13:22:22 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -19,10 +19,20 @@ static const char* rcsID = "$Id: cvsaccess.cc,v 1.1 2011-12-12 11:00:14 cvsbert 
 static BufferString getHost( const char* dir )
 {
     BufferString ret;
-    if ( !dir || !*dir ) return ret;
 
-    const char* atptr = strchr( dir, '@' );
-    if ( !atptr ) return ret;
+    FilePath fp( dir ); fp.add( "CVS" ).add( "Root" );
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() )
+	return ret;
+
+    BufferString line;
+    StrmOper::readLine( *sd.istrm, &line );
+    sd.close();
+    if ( line.isEmpty() )
+	return ret;
+    const char* atptr = strchr( line.buf(), '@' );
+    if ( !atptr )
+	return ret;
 
     ret = atptr + 1;
     char* cptr = strchr( ret.buf(), ':' );
