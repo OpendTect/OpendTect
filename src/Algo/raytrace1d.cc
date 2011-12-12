@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: raytrace1d.cc,v 1.36 2011-11-22 18:30:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.37 2011-12-12 14:43:41 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -26,6 +26,7 @@ bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     par.getYN( sKeyPWave(), pdown_, pup_);
     par.get( sKeySRDepth(), sourcedepth_, receiverdepth_);
+    par.getYN( sKeyReflectivity(), doreflectivity_);
     return true;
 }
 
@@ -34,6 +35,7 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyPWave(), pdown_, pup_ );
     par.set( sKeySRDepth(), sourcedepth_, receiverdepth_ );
+    par.setYN( sKeyReflectivity(), doreflectivity_);
 }
 
 
@@ -200,12 +202,15 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	twt_->setSize( layersize, offsetsz );
     twt_->setAll( mUdf(float) );
 
-    if ( !reflectivity_ )
-	reflectivity_ = new Array2DImpl<float_complex>( layersize, offsetsz );
-    else
-	reflectivity_->setSize( layersize, offsetsz );
+    if ( setup().doreflectivity_ ) 
+    {
+	if ( !reflectivity_ )
+	    reflectivity_ = new Array2DImpl<float_complex>(layersize,offsetsz);
+	else
+	    reflectivity_->setSize( layersize, offsetsz );
 
-    reflectivity_->setAll( mUdf( float_complex ) );
+	reflectivity_->setAll( mUdf( float_complex ) );
+    }
 
     return true;
 }
@@ -222,8 +227,10 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     const float off = offsets_[offsetidx];
 
-    float_complex reflectivity = 0;
+    if ( !setup().doreflectivity_ ) 
+	return true;
 
+    float_complex reflectivity = 0;
     if ( !mIsZero(off,mDefEps) ) 
     {
 	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
@@ -287,7 +294,7 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 
 bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 {
-    if ( !offsetpermutation_.validIdx( offset ) )
+    if ( !setup().doreflectivity_ || !offsetpermutation_.validIdx( offset ) )
 	return false;
 
     const int offsetidx = offsetpermutation_[offset];
@@ -403,9 +410,9 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 	    if ( !compute( layer+1, osidx, rayparam ) )
 	    { 
-		BufferString msg( "Can not compute reflectivity " );
+		BufferString msg( "Can not compute layer " );
 		msg += toString( layer+1 ); 
-		msg += "\n most probably the velocity is negative or null";
+		msg += "\n most probably the velocity is not correct";
 		errmsg_ = msg; return false; 
 	    }
 	}
