@@ -4,36 +4,25 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.30 2011-01-07 21:23:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.31 2011-12-13 22:11:19 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
-#include "arrayndimpl.h"
 #include "datapointset.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "executor.h"
-#include "iopar.h"
+#include "indexedshape.h"
+#include "impbodyplaneintersect.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
-#include "marchingcubeseditor.h"
 #include "randcolor.h"
-#include "position.h"
 #include "survinfo.h"
-#include "visboxdragger.h"
-#include "viscoord.h"
-#include "visdragger.h"
-#include "visellipsoid.h"
-#include "visevent.h"
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
-#include "visinvisiblelinedragger.h"
+#include "visplanedatadisplay.h"
 #include "vismaterial.h"
-#include "vispickstyle.h"
-#include "vispolyline.h"
-#include "visshape.h"
 
-#define mKernelSize 11
 
 mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
 
@@ -45,6 +34,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , emsurface_( 0 )
     , displaysurface_( 0 )
     , cache_( 0 )
+    , impbody_( 0 )
+    , displayintersections_( false )		   
 {
     setColor( getRandomColor( false ) );
     getMaterial()->setAmbience( 0.4 );
@@ -56,11 +47,18 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 MarchingCubesDisplay::~MarchingCubesDisplay()
 {
     if ( emsurface_ ) emsurface_->unRef();
-    
-    if ( displaysurface_ )
+   
+    delete impbody_;
+    while ( intersections_.size() )
     {
-	displaysurface_->unRef();
+	intersections_[0]->unRef();
+	intersections_.remove(0);
     }
+
+    deepErase( shapes_ );
+
+    if ( displaysurface_ )
+	displaysurface_->unRef();
 
     getMaterial()->change.remove(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
@@ -97,13 +95,19 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     if ( emsurface_ ) emsurface_->unRef();
     emsurface_ = 0;
 
+    delete impbody_; impbody_ = 0;
+
     if ( !surface || !surface->getSurface() )
 	return false;
 
     mTryAlloc( emsurface_, EM::MarchingCubesSurface( EM::EMM() ) );
 
     if ( !emsurface_ )
+    {
+	for ( int idx=0; idx<intersections_.size(); idx++ )
+	    intersections_[idx]->turnOn( false );
 	return false;
+    }
 
     emsurface_->ref();
 
@@ -139,7 +143,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     displaysurface_->setMaterial( 0 );
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
-    emsurface_->setPreferredColor( getMaterial()->getColor() );
+    emsurface_->setPreferredColor( getColor() );
     emsurface_->setName( name() );
     
     materialChangeCB( 0 );
@@ -250,6 +254,11 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 }
 
 
+void MarchingCubesDisplay::getMousePosInfo( const visBase::EventInfo& ei,
+					    IOPar& iop ) const
+{ SurveyObject::getMousePosInfo(ei,iop); }
+
+
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
  			    Coord3& xyzpos, BufferString& val,
  			    BufferString& info) const
@@ -304,6 +313,7 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
 	emsurface_->unRef();
 
     emsurface_ = 0;
+    delete impbody_; impbody_ = 0;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::MarchingCubesSurface*, emmcsurf, emobject.ptr() );
@@ -334,7 +344,6 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 	{
 	    displaysurface_ = visBase::MarchingCubesSurface::create();
 	    displaysurface_->ref();
-	    displaysurface_->removeSwitch();
 	    displaysurface_->setMaterial( 0 );
 	    displaysurface_->setSelectable( false );
 	    displaysurface_->setRightHandSystem( righthandsystem_ );
@@ -463,6 +472,9 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
+
+    for ( int idx=0; idx<intersections_.size(); idx++ )
+	intersections_[idx]->setDisplayTransformation( nt );
 }
 
 
@@ -470,17 +482,131 @@ void MarchingCubesDisplay::setRightHandSystem( bool yn )
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
     if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
+
+    for ( int idx=0; idx<intersections_.size(); idx++ )
+	intersections_[idx]->setRightHandSystem( yn );
 }
 
 
 visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
-{ return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; }
+{
+    return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; 
+}
 
 
 void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 {
     if ( displaysurface_ )
 	displaysurface_->getShape()->updateMaterialFrom( getMaterial() );
+}
+
+
+void MarchingCubesDisplay::otherObjectsMoved( 
+	const ObjectSet<const SurveyObject>& objs, int whichobj )
+{
+    if ( !emsurface_ || !displaysurface_ )
+	return;
+    
+    ObjectSet<const PlaneDataDisplay> activeplanes;
+    TypeSet<int> activepids;
+    
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	if ( !plane || !plane->isOn() )
+	    continue;
+
+	activeplanes += plane;
+	activepids += plane->id();
+    }
+
+    for ( int idx=intersections_.size()-1; idx>=0; idx-- )
+    {
+	if ( (whichobj>=0 && intersectionids_[idx]!=whichobj) || 
+	     (whichobj<0 && activepids.isPresent(intersectionids_[idx])) )
+	    continue;
+
+	removeChild( intersections_[idx]->getInventorNode() );	
+	intersections_[idx]->unRef();
+	intersections_.remove( idx );
+	shapes_[idx]->removeFromGeometries( 0 );
+	delete shapes_.remove( idx );
+	intersectionids_.remove( idx );
+    }
+
+    if ( !impbody_ )
+	impbody_ = emsurface_->createImplicitBody(0,false);
+
+    for ( int idx=0; idx<activeplanes.size(); idx++ )
+    {
+	if ( intersectionids_.isPresent(activepids[idx]) )
+	    continue;
+
+	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
+	line->ref();
+	if ( !line->getMaterial() )
+	    line->setMaterial(visBase::Material::create());
+	line->getMaterial()->setColor( displaysurface_->getMaterial() ? 
+		displaysurface_->getMaterial()->getColor() : getColor() );
+	line->setDisplayTransformation( getDisplayTransformation() );
+	line->setSelectable( false );
+	line->renderOneSide( 0 );
+	line->setRightHandSystem( righthandsystem_ );
+	line->turnOn( displayintersections_ );
+	addChild( line->getInventorNode() );
+
+	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
+	PlaneDataDisplay::Orientation ori = activeplanes[idx]->getOrientation();
+	const float pos = ori==PlaneDataDisplay::Zslice ? cs.zrg.start :
+	    ori==PlaneDataDisplay::Inline ? cs.hrg.start.inl : cs.hrg.start.crl;
+
+	Geometry::ExplicitIndexedShape* shape = 0;
+	mTryAlloc( shape, Geometry::ExplicitIndexedShape() );
+	if ( !shape ) continue;
+	line->setSurface( shape );
+	shape->addGeometry( new Geometry::IndexedGeometry(
+    		    Geometry::IndexedGeometry::TriangleStrip,
+    		    Geometry::IndexedGeometry::PerVertex, shape->coordList(),
+		    shape->normalCoordList(),shape->textureCoordList()) );
+	Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_, 
+		impbody_->cs_, impbody_->threshold_, (char)ori, pos, *shape );
+	gii.compute();
+
+	intersections_ += line;
+	intersectionids_ += activepids[idx];
+	shapes_ += shape;
+    }
+
+    updateIntersectionDisplay();
+}
+
+
+bool MarchingCubesDisplay::areIntersectionsDisplayed() const
+{ return displayintersections_; }
+
+
+void MarchingCubesDisplay::displayIntersections( bool yn )
+{
+    if ( displayintersections_==yn )
+	return;
+
+    displayintersections_ = yn;
+    updateIntersectionDisplay();
+}
+
+
+void MarchingCubesDisplay::updateIntersectionDisplay()
+{
+    for ( int idx=0; idx<intersections_.size(); idx++ )
+    {
+	if ( displayintersections_ )
+	    intersections_[idx]->touch( false );
+	
+	intersections_[idx]->turnOn( displayintersections_ );
+    }
+	
+    if ( displaysurface_ ) 
+	displaysurface_->turnOn( !displayintersections_ );
 }
 
 
