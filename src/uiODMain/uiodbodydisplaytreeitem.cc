@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.37 2011-11-28 18:52:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.38 2011-12-13 22:13:59 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -347,7 +347,8 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
     {
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true, true );
-	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true, 0 );
+	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true, 
+	       mcd_->areIntersectionsDisplayed()	);
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
 		!mcd->usesTexture() );
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
@@ -421,9 +422,6 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
     	    plg_->display( polygdisplayed, !bodydisplayed );
 	}
-	else if ( mcd_ )
-	{
-	}
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
@@ -443,8 +441,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     	    plg_->displayIntersections( !intersectdisplayed );
 	}
 	else if ( mcd_ )
-	{
-	}
+	    mcd_->displayIntersections( !intersectdisplayed );
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
