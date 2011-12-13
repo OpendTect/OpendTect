@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.114 2011-09-07 11:00:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.115 2011-12-13 05:14:45 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,7 +102,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-bool ExecOSCmd( const char* comm, bool inbg )
+bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 {
     if ( !comm || !*comm ) return false;
 
@@ -117,15 +117,14 @@ bool ExecOSCmd( const char* comm, bool inbg )
     return !res;
 
 #else
-
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
     ZeroMemory(&si, sizeof(STARTUPINFO));
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
-    
-    if(  inbg )
+
+    if ( !inconsole )
     {
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
@@ -145,6 +144,7 @@ bool ExecOSCmd( const char* comm, bool inbg )
 	
     if ( res )
     {
+	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
     }
@@ -914,9 +914,8 @@ bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
 #ifdef __msvc__
     if ( inconsole )
 	mkBatchCmd( cmd );
-    return ExecWinCmd( cmd, inbg, inconsole );
 #endif
-    return ExecOSCmd( cmd, inbg );
+    return ExecOSCmd( cmd, inconsole, inbg );
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.37 2011-08-12 12:10:20 cvskris Exp $
+ RCS:		$Id: strmprov.h,v 1.38 2011-12-13 05:14:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ protected:
 };
 
 //! Execute command in OS
-mGlobal bool ExecOSCmd(const char*,bool inbg=false);
+mGlobal bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
 
 //! Create Execute command
 mGlobal const char* GetExecCommand(const char* prognm,const char* filenm);
