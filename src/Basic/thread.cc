@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.56 2011-09-20 13:03:15 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.57 2011-12-13 14:13:47 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -71,6 +71,62 @@ bool Threads::Mutex::tryLock()
     return true;
 #endif
 }
+
+#ifdef mHasAtomic
+Threads::SpinLock::SpinLock()
+    : spinlock_( 0 )
+{}
+
+Threads::SpinLock::~SpinLock()
+{}
+
+void Threads::SpinLock::lock()
+{
+    while ( !spinlock_.setIfEqual( 1, 0 ) )
+	;
+}
+
+
+void Threads::SpinLock::unLock()
+{
+#ifdef __debug__
+    if ( !spinlock_.setIfEqual( 0, 1 ) )
+	pErrMsg( "Unlocking unlocked spinlock" );
+#else
+    spinlock_ = 0;
+#endif
+}
+
+
+bool Threads::SpinLock::tryLock()
+{
+    return spinlock_.setIfEqual( 1, 0 );
+}
+#else
+Threads::SpinLock::SpinLock()
+{}
+
+Threads::SpinLock::~SpinLock()
+{}
+
+void Threads::SpinLock::lock()
+{
+    spinlock_.lock();
+}
+
+
+void Threads::SpinLock::unLock()
+{
+    spinlock_.unLock();
+}
+
+
+bool Threads::SpinLock::tryLock()
+{
+    return spinlock_.tryLock();
+}
+#endif
+
 
 
 Threads::MutexLocker::MutexLocker( Mutex& mutex, bool wait )
