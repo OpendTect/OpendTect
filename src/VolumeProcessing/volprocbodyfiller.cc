@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.12 2011-11-29 15:34:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.13 2011-12-13 22:15:11 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -126,6 +126,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     const int outputinlidx = output_->inlsampling_.nearestIndex( bid.inl );
     const int outputcrlidx = output_->crlsampling_.nearestIndex( bid.crl );
     const int outputzsz = output_->getZSz();
+    if ( outputinlidx<0 || outputcrlidx<0 )
+	return true;
 
     const int inputinlidx = input_ 
 	? input_->inlsampling_.nearestIndex(bid.inl) : 0;
