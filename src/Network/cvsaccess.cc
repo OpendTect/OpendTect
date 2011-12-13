@@ -7,13 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.6 2011-12-13 13:54:50 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.7 2011-12-13 16:45:37 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
 #include "file.h"
 #include "strmprov.h"
 #include "strmoper.h"
+
+#define mGetTmpFnm(op,fnm) \
+    FilePath fptmp( File::getTempPath() ); \
+    fptmp.add( BufferString(fnm,GetPID(),op) ); \
+    const BufferString tmpfnm( fptmp.fullPath() )
+
+#define mRetRmTempFile() \
+{ if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
 
 
 static BufferString getHost( const char* dir )
@@ -44,8 +52,15 @@ static BufferString getHost( const char* dir )
 CVSAccess::CVSAccess( const char* dir )
     : dir_(dir)
     , host_(getHost(dir))
-    , serverdir_("/cvsroot")
 {
+    if ( isOK() )
+    {
+	FilePath fp( dir_ ); fp.add( "CVS" ).add( "Repository" );
+	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+	if ( sd.usable() )
+	    StrmOper::readLine(*sd.istrm,&reposdir_);
+	sd.close();
+    }
 }
 
 
@@ -69,6 +84,16 @@ bool CVSAccess::hostOK() const
     const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
     return StreamProvider(cmd).executeCommand();
 #endif
+}
+
+
+bool CVSAccess::isInCVS( const char* fnm ) const
+{
+    if ( !fnm || !*fnm ) return false;
+    FilePath fp( fnm );
+    BufferString dirnm( fp.pathOnly() );
+    BufferStringSet entries; getEntries( dirnm, entries );
+    return entries.isPresent( fp.fileName() );
 }
 
 
@@ -150,6 +175,9 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
 
 bool CVSAccess::remove( const char* fnm )
 {
+    if ( !isInCVS(fnm) )
+	return File::remove(fnm);
+
     BufferStringSet bss; bss.add( fnm );
     return remove( bss );
 }
@@ -177,12 +205,6 @@ bool CVSAccess::commit( const char* msg )
     BufferStringSet bss; bss.add( "" );
     return commit( bss, msg );
 }
-
-
-#define mGetTmpFnm(op,fnm) \
-    FilePath fptmp( File::getTempPath() ); \
-    fptmp.add( BufferString(fnm,GetPID(),op) ); \
-    const BufferString tmpfnm( fptmp.fullPath() )
 
 
 bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
@@ -226,20 +248,51 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 
 bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
 {
-    BufferString cmd( "@ssh ", host_, "mv " );
-    BufferString servdir( serverdir_, subdir && *subdir ? "/" : "", subdir );
-    servdir.add( "/" );
-    cmd.add( BufferString(servdir,from," ") ).add( BufferString(servdir,to) ); 
-    cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    FilePath sdfp( dir_ ); if ( subdir && *subdir ) sdfp.add( subdir );
+    FilePath fromfp( sdfp ); fromfp.add( from );
+    FilePath tofp( sdfp ); tofp.add( to );
+    const BufferString fromfullfnm( fromfp.fullPath() );
+    const BufferString tofullfnm( tofp.fullPath() );
+    fromfp.set( subdir ); fromfp.add( from );
+    tofp.set( subdir ); tofp.add( to );
+    const BufferString fromfnm( fromfp.fullPath() );
+    const BufferString tofnm( tofp.fullPath() );
+    return doRename( fromfullfnm, tofullfnm, fromfnm, tofnm );
 }
 
 
-#define mRetRmTempFile() \
-{ if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
+bool CVSAccess::changeFolder( const char* fnm, const char* fromsubdir,
+			      const char* tosubdir )
+{
+    FilePath tofp( dir_ ); tofp.add( tosubdir ).add( fnm );
+    FilePath fromfp( dir_ ); fromfp.add( fromsubdir ).add( fnm );
+    const BufferString fromfullfnm( fromfp.fullPath() );
+    const BufferString tofullfnm( tofp.fullPath() );
+    fromfp.set( fromsubdir ); fromfp.add( fnm );
+    tofp.set( tosubdir ); tofp.add( fnm );
+    const BufferString fromfnm( fromfp.fullPath() );
+    const BufferString tofnm( tofp.fullPath() );
+
+    return doRename( fromfullfnm, tofullfnm, fromfnm, tofnm );
+}
 
 
-void CVSAccess::checkEdited( const char* fnm, BufferStringSet& edtxts )
+bool CVSAccess::doRename( const char* fromfullfnm, const char* tofullfnm,
+			  const char* fromfnm, const char* tofnm )
+{
+    if ( !File::exists(fromfullfnm) )
+	return false;
+    if ( File::exists(tofullfnm) && !File::remove(tofullfnm) )
+	return false;
+    if ( !File::rename(fromfullfnm,tofullfnm) )
+	return false;
+    if ( !remove(fromfnm) )
+	return false;
+    return isInCVS(tofnm) ? true : add( tofnm );
+}
+
+
+void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
 {
     mGetReqFnm();
     edtxts.erase();
@@ -268,7 +321,7 @@ void CVSAccess::checkEdited( const char* fnm, BufferStringSet& edtxts )
 }
 
 
-void CVSAccess::diff( const char* fnm, BufferString& res )
+void CVSAccess::diff( const char* fnm, BufferString& res ) const
 {
     mGetReqFnm();
     res.setEmpty();
