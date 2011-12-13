@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.15 2011-04-22 20:07:31 cvsyuancheng Exp $
+RCS:           $Id: indexedshape.h,v 1.16 2011-12-13 22:07:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,25 @@ private:
 
     int				version_;
 };
+
+
+mClass ExplicitIndexedShape : public IndexedShape, public CallBacker
+{
+public:
+    			ExplicitIndexedShape()	{}
+			~ExplicitIndexedShape()	{}
+
+    const Coord3List*	normalCoordList() const	{ return normallist_; }
+    Coord3List*		normalCoordList()	{ return normallist_; }
+
+    const Coord3List*	textureCoordList() const{ return texturecoordlist_; }
+    Coord3List*		textureCoordList()	{ return texturecoordlist_; }
+
+    int			addGeometry(IndexedGeometry* ig);		
+    void		removeFromGeometries(const IndexedGeometry* ig);
+    void		removeFromGeometries(int geoidx);
+};
+
 
 }; //namespace
 

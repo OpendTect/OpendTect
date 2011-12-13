@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.11 2011-02-14 22:23:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.12 2011-12-13 22:07:47 cvsyuancheng Exp $";
 
 #include "indexedshape.h"
 
@@ -165,6 +165,42 @@ void IndexedShape::addVersion()
 {
     version_++;
     if ( version_<0 ) version_ = 0;  //If it goes beyond INT_MAX
+}
+
+int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
+{
+    if ( !ig ) return -1;
+    
+    geometrieslock_.writeLock();
+    int res = geometries_.indexOf( ig );
+    if ( res==-1 ) 
+    {
+    	geometries_ += ig;
+	res = geometries_.size()-1;
+    }
+
+    geometrieslock_.writeUnLock();
+    return res;
+}
+
+void ExplicitIndexedShape::removeFromGeometries( const IndexedGeometry* ig )
+{
+    if ( !ig ) return;
+    
+    geometrieslock_.writeLock();
+    const int idx = geometries_.indexOf( ig );
+    if ( idx!=-1 )
+	geometries_.remove( idx, false );
+    geometrieslock_.writeUnLock();
+}
+
+
+void ExplicitIndexedShape::removeFromGeometries( int idx )
+{
+    if ( idx<0 || idx>=geometries_.size() )
+	return;
+ 
+    removeFromGeometries( geometries_[idx] );
 }
 
 
