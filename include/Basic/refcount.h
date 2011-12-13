@@ -8,31 +8,15 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.17 2010-08-20 02:19:08 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.18 2011-12-13 14:11:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ptrman.h"
+#include "thread.h"
 
 template <class T> class ObjectSet;
-namespace Threads { class Mutex; }
-
-/*!The refcount itself. Used internally by refcounted objects. */
-mClass RefCount
-{
-public:
-    			RefCount();
-    			RefCount(const RefCount&);
-			~RefCount();
-
-    void		lock();
-    int			refcount_;
-    void		unLock();
-
-protected:
-    Threads::Mutex*	lock_;
-};
 
 /*!
 Macros to set up reference counting in a class. A refcount class is set up
@@ -83,52 +67,41 @@ PtrMan.
 public: \
     void	ref() const \
 		{ \
-		    __refcount.lock(); \
-		    __refcount.refcount_++; \
-		    __refcount.unLock(); \
+		    refcount_++; \
 		    refNotify(); \
 		} \
     bool	refIfReffed() const \
 		{ \
-		    __refcount.lock(); \
-		    if ( !__refcount.refcount_ )  \
+		    if ( !refcount_ )  \
 		    { \
-			__refcount.unLock(); \
 			return false; \
 		    } \
 \
-		    __refcount.refcount_++; \
-		    __refcount.unLock(); \
+		    refcount_++; \
 		    refNotify(); \
 		    return true; \
 		} \
     void	unRef() const \
 		{ \
 		    unRefNotify(); \
-		    __refcount.lock(); \
-		    if ( !--__refcount.refcount_ ) \
+		    if ( !--refcount_ ) \
 		    { \
-			__refcount.unLock(); \
 			delfunc \
 			return; \
 		    } \
-		    else \
-			__refcount.unLock(); \
 		} \
  \
     void	unRefNoDelete() const \
 		{ \
     		    unRefNoDeleteNotify(); \
-		    __refcount.lock(); \
-		    __refcount.refcount_--; \
-		    __refcount.unLock(); \
+		    refcount_--; \
 		} \
-    int		nrRefs() const { return this ? __refcount.refcount_ : 0 ; } \
+    int		nrRefs() const { return this ? (int) refcount_ : 0 ; } \
 private: \
-    virtual void	refNotify() const {} \
-    virtual void	unRefNotify() const {} \
-    virtual void	unRefNoDeleteNotify() const {} \
-    mutable RefCount	__refcount;	\
+    virtual void		    refNotify() const {} \
+    virtual void		    unRefNotify() const {} \
+    virtual void		    unRefNoDeleteNotify() const {} \
+    mutable Threads::Atomic<long>   refcount_;	\
 protected: \
     		DestructorImpl; \
 private:
