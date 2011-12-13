@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.46 2011-09-20 13:03:15 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.47 2011-12-13 12:38:08 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -20,6 +20,20 @@ class QMutex;
 class QWaitCondition;
 #endif
 
+#ifdef __win__
+#include "windows.h"
+#define mHasAtomic
+#define mAtomicWithMutex
+#else
+#if __GNUC__<4 
+#define mAtomicWithMutex
+#elif __GNUC__==4
+#if __GNUC_MINOR__==0
+#define mAtomicWithMutex
+#endif
+#endif //Gcc<4
+#endif
+
 /*!\brief interface to threads that should be portable.
 
 As usual, other thread systems are available but they are as far as we know
@@ -29,6 +43,42 @@ simply too big and dependent.
 
 namespace Threads
 {
+class Mutex;
+
+/*! Atomic variable where an operation (add, subtract) can
+    be done without locking in a multithreaded environment. Only
+    available for long, unsigned long */
+
+template <class T>
+class Atomic 
+{
+public:
+    		Atomic(T val=0);
+#ifdef mAtomicWithMutex
+		~Atomic();
+#endif
+
+    		operator T() const	{ return val_; }
+
+    T		operator=(T v)		{ val_=v; return val_; }
+    inline T	operator+=(T);
+    inline T	operator-=(T);
+    inline T	operator++();
+    inline T	operator--();
+    inline T	operator++(int);
+    inline T	operator--(int);
+
+    inline bool	setIfEqual(T newval, T oldval );
+		/*!<Sets the val_ only if value is previously set
+		    to oldval */
+
+protected:
+#ifdef mAtomicWithMutex
+    Mutex*	lock_;
+#endif
+
+    volatile T	val_;
+};
 
 /*!\brief Is a lock that allows a thread to have exlusive rights to something.
 
@@ -58,6 +108,26 @@ protected:
 
 #ifndef OD_NO_QT
     QMutex*		qmutex_;
+#endif
+};
+
+
+mClass SpinLock
+{
+public:
+			SpinLock();
+			SpinLock(const SpinLock&);
+			~SpinLock();
+
+    void		lock();
+    void		unLock();
+    bool		tryLock();
+
+protected:
+#ifdef mHasAtomic
+    Atomic<long>	spinlock_;
+#else
+    Mutex		spinlock_;
 #endif
 };
 
@@ -302,6 +372,249 @@ mGlobal void sleep(double time); /*!< Time in seconds */
     T retvar = var; \
     var##mutex.unLock()
 
-};
+
+
+// Atomic implementations
+#ifdef __win__
+
+#define mAtomicSpecialization( type, postfix ) \
+template <> inline \
+Atomic<type>::Atomic( type val ) \
+    : val_( val ) \
+    , lock_( 0 ) \
+{} \
+\
+\
+template <> inline \
+type Atomic<type>::operator += (type b) \
+{  \
+    return InterlockedExchangeAdd##postfix( &val_, b );  \
+}  \
+\
+template <> inline \
+type Atomic<type>::operator -= (type b) \
+{ \
+    return InterlockedExchangeAdd##postfix( &val_, -b ); \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator ++() \
+{ \
+    return InterlockedIncrement##postfix( &val_); \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator -- () \
+{ \
+    return InterlockedDecrement##postfix( &val_ ); \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator ++(int) \
+{ \
+    return InterlockedIncrement##postfix( &val_ )-1; \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator -- (int) \
+{ \
+    return InterlockedDecrement##postfix( &val_ )+1; \
+} \
+\
+\
+\
+template <> inline \
+bool Atomic<type>::setIfEqual(type newval, type oldval ) \
+{ \
+    if ( newval==oldval ) \
+	return true; \
+\
+    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
+}
+
+mAtomicSpecialization( long, )
+mAtomicSpecialization( unsigned long, )
+
+#undef mAtomicSpecialization
+
+template <class T> inline
+Atomic<T>::Atomic( T val )
+    : val_( val )
+    , lock_( new Threads::Mutex )
+{}
+
+
+template <class T> inline
+T Atomic<T>::operator += (T b)
+{
+    Threads::MutexLocker lock( *lock_ );
+    return val_ += b;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -= (T b)
+{
+    Threads::MutexLocker lock( *lock_ );
+    return val_ -= b;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator ++()
+{
+    Threads::MutexLocker lock( *lock_ );
+    return ++val_;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- ()
+{
+    Threads::MutexLocker lock( *lock_ );
+    return --val_;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator ++(int)
+{
+    Threads::MutexLocker lock( *lock_ );
+    return val_++;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- (int)
+{
+    Threads::MutexLocker lock( *lock_ );
+    return val_--;
+}
+
+
+template <class T> inline
+bool Atomic<T>::setIfEqual(T newval, T oldval )
+{
+    Threads::MutexLocker lock( *lock_ );
+    const bool res = val_==oldval;
+    if ( res )
+	val_ = newval;
+    return res;
+}
+
+#else
+
+
+template <class T> inline
+Atomic<T>::Atomic( T val )
+    : val_( val )
+#ifdef mAtomicWithMutex
+    , lock_( new Threads::Mutex )
+#endif
+{}
+
+
+template <class T> inline
+T Atomic<T>::operator += (T b)
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return val_ += b;
+#else
+    return __sync_add_and_fetch(&val_, b);
+#endif
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -= (T b)
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return val_ -= b;
+#else
+    return __sync_sub_and_fetch(&val_, b);
+#endif
+}
+
+
+template <class T> inline
+T Atomic<T>::operator ++()
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return ++val_;
+#else
+    return __sync_add_and_fetch(&val_, 1);
+#endif
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- ()
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return --val_;
+#else
+    return __sync_sub_and_fetch(&val_, 1);
+#endif
+}
+
+
+template <class T> inline
+T Atomic<T>::operator ++(int)
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return val_++;
+#else
+    return __sync_fetch_and_add(&val_, 1);
+#endif
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- (int)
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    return val_--;
+#else
+    return __sync_fetch_and_sub(&val_, 1);
+#endif
+}
+
+
+template <class T> inline
+bool Atomic<T>::setIfEqual(T newval, T oldval )
+{
+#ifdef mAtomicWithMutex
+    Threads::MutexLocker lock( *lock_ );
+    const bool res = val_==oldval;
+    if ( res )
+	val_ = newval;
+    return res;
+#else
+    return __sync_bool_compare_and_swap( &val_, oldval, newval );
+#endif
+}
+
+#endif // not win
+
+#ifdef mAtomicWithMutex
+template <class T> inline
+Atomic<T>::~Atomic()
+{
+    delete lock_;
+}
+
+#undef mAtomicWithMutex
+#endif
+} //namespace
 
 #endif
