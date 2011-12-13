@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.3 2011-12-13 09:17:26 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.4 2011-12-13 09:26:15 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -155,6 +155,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 #define mRetRmTempFile() \
 { if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
 
+
 void CVSAccess::checkEdited( const char* fnm, BufferStringSet& edtxts )
 {
     mGetReqFnm();
@@ -176,12 +177,44 @@ void CVSAccess::checkEdited( const char* fnm, BufferStringSet& edtxts )
 
     BufferString line;
     while ( StrmOper::readLine(*sd.istrm,&line) )
+	if ( !line.isEmpty() )
+	    edtxts.add( line );
+
+    mRetRmTempFile()
+#endif
+}
+
+
+void CVSAccess::diff( const char* fnm, BufferString& res )
+{
+    mGetReqFnm();
+    res.setEmpty();
+
+#ifdef __win__
+    return; //TODO
+#else
+
+    BufferString cmd( "@cvs diff ", reqfnm, " > " );
+    mGetTmpFnm("cvsdiff",fnm);
+    cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
+    if ( !StreamProvider(cmd).executeCommand() )
+	mRetRmTempFile()
+
+    StreamData sd( StreamProvider(tmpfnm).makeIStream() );
+    if ( !sd.usable() )
+	mRetRmTempFile()
+
+    BufferString line;
+    while ( StrmOper::readLine(*sd.istrm,&line) )
     {
 	if ( line.isEmpty() )
 	    continue;
-	edtxts.add( line );
+	if ( !res.isEmpty() )
+	    res.add( "\n" );
+	res.add( line );
     }
 
     mRetRmTempFile()
 #endif
 }
+
