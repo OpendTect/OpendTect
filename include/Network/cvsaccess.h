@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Dec 2011
- RCS:           $Id: cvsaccess.h,v 1.1 2011-12-12 11:00:14 cvsbert Exp $
+ RCS:           $Id: cvsaccess.h,v 1.2 2011-12-13 09:17:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
 
     bool		update(const char* fnm=0);
     bool		edit(const char* fnm=0);
+    bool		add(const BufferStringSet&,bool binary=false);
     bool		commit(const char* msg=0);
     bool		commit(const BufferStringSet&,const char* msg=0);
 

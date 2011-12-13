@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.2 2011-12-12 13:22:22 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.3 2011-12-13 09:17:26 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -87,6 +87,24 @@ bool CVSAccess::edit( const char* fnm )
 }
 
 
+bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
+{
+    if ( fnms.isEmpty() )
+	return true;
+
+
+    BufferString cmd( "cvs add" );
+    if ( bin ) cmd.add( " -kb" );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const char* fnm = fnms.get(idx).buf();
+	mGetReqFnm();
+	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+    }
+    return StreamProvider(cmd).executeCommand();
+}
+
+
 bool CVSAccess::commit( const char* msg )
 {
     BufferStringSet bss; bss.add( "" );
@@ -105,7 +123,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
     if ( fnms.isEmpty() )
 	return true;
 
-    BufferString cmd( "cvs commit" );
+    BufferString cmd( "@cvs commit" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
