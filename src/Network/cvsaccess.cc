@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.5 2011-12-13 12:28:35 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.6 2011-12-13 13:54:50 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -191,16 +191,11 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 	return true;
 
     BufferString cmd( "@cvs commit" );
-    for ( int idx=0; idx<fnms.size(); idx++ )
-    {
-	const char* fnm = fnms.get(idx).buf();
-	mGetReqFnm();
-	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
-    }
-
     mGetTmpFnm("cvscommit",fnms.get(0));
     bool havetmpfile = false;
-    if ( msg && *msg )
+    if ( !msg || !*msg )
+	cmd.add( " -m \".\"" );
+    else
     {
 	StreamData sd( StreamProvider(tmpfnm).makeOStream() );
 	if ( sd.usable() )
@@ -210,8 +205,18 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 	    cmd.add( " -F \"" ).add( tmpfnm ).add( "\"" );
 	}
     }
-    cmd.add( sRedirect );
 
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const char* fnm = fnms.get(idx).buf();
+	if ( fnm && *fnm )
+	{
+	    mGetReqFnm();
+	    cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	}
+    }
+
+    cmd.add( sRedirect );
     const bool res = StreamProvider(cmd).executeCommand();
     if ( havetmpfile )
 	File::remove( tmpfnm );
