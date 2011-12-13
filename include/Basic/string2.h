@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.47 2011-12-05 07:03:07 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.48 2011-12-13 06:14:46 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -94,6 +94,10 @@ mGlobal const char* getBytesString(od_uint64);
 /*!> returns a string for display, never larger than specified nr of chars */
 mGlobal const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);
+
+mGlobal const char* quoteString(const char* str, char qt='"' );
+mGlobal inline const char* backQuoteString(const char* str, char qt='"' )
+{ return quoteString( str, '`' ); }
 
 /*!> Finds a string in string array, case insensitive */
 mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,

@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.12 2011-12-05 07:04:12 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.13 2011-12-13 06:14:46 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -54,6 +54,28 @@ const char* getStringFromInt( od_int32 val, char* str )
     char* ret = str ? str : stm.getString().buf();
     sprintf( ret, "%d", val );
     return ret;
+}
+
+
+const char* quoteString( const char* initial, char quote )
+{
+    static StaticStringManager stm;
+    BufferString& str = stm.getString();
+
+    str = initial;
+
+    if ( !str.size() )
+	return str.str();
+
+    char insertstr[] = { quote, 0 };
+
+    if ( str[0]!=quote )
+	str.insertAt( 0, insertstr );
+
+    if ( str[str.size()-1]!='`' )
+	str += insertstr;
+
+    return str.str();
 }
 
 
