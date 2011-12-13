@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.13 2009-11-17 21:58:15 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.14 2011-12-13 22:06:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ public:
 			    with an isosurface from the array and its
 			    threshold. */
 
+    Array3D<float>* 	impvoldata_;
     void		removeAll();
     bool		isEmpty() const;
 

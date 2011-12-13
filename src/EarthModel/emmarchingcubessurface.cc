@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.27 2011-11-29 15:34:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.28 2011-12-13 22:06:36 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -446,6 +446,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     }
 
     Array3D<float>* arr = new Array3DConv<float,int>(intarr);
+    const Array3D<float>* vd = mcsurface_->impvoldata_;
     if ( !arr )
     {
 	mcsurface_->modelslock_.readUnLock();
@@ -454,7 +455,31 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 	return 0;
     }
 
-    res->arr_ = arr;
+    if ( !vd )
+    { 
+    	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
+		inlrg.start, crlrg.start, zrg.start, !smooth );
+    	if ( (t && !t->execute( m2i ) ) || (!t && !m2i.execute() ) )
+    	{
+    	    delete res;
+    	    mcsurface_->modelslock_.readUnLock();
+    	    return 0;
+    	}
+    
+    
+	res->arr_ = arr;
+	res->threshold_ = m2i.threshold();
+    }
+    else
+    {
+	delete arr; 
+	Array3DImpl<float>* arrimpl = new Array3DImpl<float>( vd->info() );
+	arrimpl->copyFrom( *vd );
+	res->arr_ = arrimpl;
+	res->threshold_ = 0;
+    }
+
+
     res->cs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
 	    			crlsampling_.atIndex(crlrg.start) );
     res->cs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
@@ -464,16 +489,6 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     res->cs_.zrg.stop = zsampling_.atIndex( zrg.stop );
     res->cs_.zrg.step = zsampling_.step;
 
-    MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
-				inlrg.start, crlrg.start, zrg.start, !smooth );
-    if ( (t && !t->execute( m2i ) ) || (!t && !m2i.execute() ) )
-    {
-	delete res;
-	mcsurface_->modelslock_.readUnLock();
-	return 0;
-    }
-
-    res->threshold_ = m2i.threshold();
     mcsurface_->modelslock_.readUnLock();
 
     return res;
