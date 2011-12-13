@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.4 2011-12-13 09:26:15 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.5 2011-12-13 12:28:35 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -44,6 +44,7 @@ static BufferString getHost( const char* dir )
 CVSAccess::CVSAccess( const char* dir )
     : dir_(dir)
     , host_(getHost(dir))
+    , serverdir_("/cvsroot")
 {
 }
 
@@ -71,6 +72,28 @@ bool CVSAccess::hostOK() const
 }
 
 
+void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
+{
+    entries.erase();
+    FilePath fp( dir_ ); if ( dir && *dir ) fp.add( dir );
+    fp.add( "CVS" ).add( "Entries" );
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() )
+	return;
+
+    BufferString line;
+    while ( StrmOper::readLine(*sd.istrm,&line) )
+    {
+	char* nmptr = strchr( line.buf(), '/' );
+	if ( !nmptr ) continue;
+	nmptr++; char* endptr = strchr( nmptr, '/' );
+	if ( endptr ) *endptr = '\0';
+	if ( *nmptr )
+	    entries.add( nmptr );
+    }
+}
+
+
 bool CVSAccess::update( const char* fnm )
 {
     mGetReqFnm();
@@ -81,9 +104,29 @@ bool CVSAccess::update( const char* fnm )
 
 bool CVSAccess::edit( const char* fnm )
 {
-    mGetReqFnm();
-    const BufferString cmd( "@cvs edit ", reqfnm, sRedirect );
+    BufferStringSet bss; bss.add( fnm );
+    return edit( bss );
+}
+
+
+bool CVSAccess::edit( const BufferStringSet& fnms )
+{
+    BufferString cmd( "@cvs edit " );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const char* fnm = fnms.get(idx).buf();
+	mGetReqFnm();
+	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+    }
+    cmd.add( sRedirect );
     return StreamProvider(cmd).executeCommand();
+}
+
+
+bool CVSAccess::add( const char* fnm, bool bin )
+{
+    BufferStringSet bss; bss.add( fnm );
+    return add( bss, bin );
 }
 
 
@@ -92,8 +135,7 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
     if ( fnms.isEmpty() )
 	return true;
 
-
-    BufferString cmd( "cvs add" );
+    BufferString cmd( "@cvs add" );
     if ( bin ) cmd.add( " -kb" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
@@ -101,6 +143,31 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
 	mGetReqFnm();
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
+    cmd.add( sRedirect );
+    return StreamProvider(cmd).executeCommand();
+}
+
+
+bool CVSAccess::remove( const char* fnm )
+{
+    BufferStringSet bss; bss.add( fnm );
+    return remove( bss );
+}
+
+
+bool CVSAccess::remove( const BufferStringSet& fnms )
+{
+    if ( fnms.isEmpty() )
+	return true;
+
+    BufferString cmd( "@cvs delete -f" );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const char* fnm = fnms.get(idx).buf();
+	mGetReqFnm();
+	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+    }
+    cmd.add( sRedirect );
     return StreamProvider(cmd).executeCommand();
 }
 
@@ -143,12 +210,23 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 	    cmd.add( " -F \"" ).add( tmpfnm ).add( "\"" );
 	}
     }
-
     cmd.add( sRedirect );
+
     const bool res = StreamProvider(cmd).executeCommand();
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
+}
+
+
+bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
+{
+    BufferString cmd( "@ssh ", host_, "mv " );
+    BufferString servdir( serverdir_, subdir && *subdir ? "/" : "", subdir );
+    servdir.add( "/" );
+    cmd.add( BufferString(servdir,from," ") ).add( BufferString(servdir,to) ); 
+    cmd.add( sRedirect );
+    return StreamProvider(cmd).executeCommand();
 }
 
 
