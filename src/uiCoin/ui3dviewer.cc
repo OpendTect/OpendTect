@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.3 2011-12-14 15:27:41 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.4 2011-12-14 16:03:19 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -1239,11 +1239,7 @@ bool SoTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
 
 ui3DViewer::ui3DViewer( uiParent* parnt, const char* nm )
-#ifdef __have_osg__
     : uiObject(parnt,nm,mkBody(parnt,nm) )
-#else
-    : uiObject( parnt,nm,mksobody(parnt,nm ) ) 
-#endif
     , destroyed(this)
     , viewmodechanged(this)
     , pageupdown(this)
