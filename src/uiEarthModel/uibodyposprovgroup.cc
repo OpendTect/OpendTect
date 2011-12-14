@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibodyposprovgroup.cc,v 1.2 2011-11-28 23:03:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyposprovgroup.cc,v 1.3 2011-12-14 22:09:21 cvsyuancheng Exp $";
 
 #include "uibodyposprovgroup.h"
 #include "uigeninput.h"
@@ -53,8 +53,6 @@ uiBodyPosProvGroup::~uiBodyPosProvGroup()
 void uiBodyPosProvGroup::ioChg( CallBacker* )
 { 
     outsidergfld_->display( !inoutbut_->getBoolValue() ); 
-    if ( !inoutbut_->getBoolValue() )
-	uiMSG().warning("Not done yet, use Inside only right now.");
 }
 
 
