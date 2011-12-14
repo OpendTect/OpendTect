@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.30 2011-12-14 10:32:15 cvskris Exp $
+ RCS:		$Id: task.h,v 1.31 2011-12-14 10:36:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "thread.h"
-#include "atomic.h"
 
 
 namespace Threads { class ThreadWorkManager; }
