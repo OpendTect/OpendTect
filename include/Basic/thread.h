@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.47 2011-12-13 12:38:08 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.48 2011-12-14 08:49:49 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -438,6 +438,9 @@ bool Atomic<type>::setIfEqual(type newval, type oldval ) \
 
 mAtomicSpecialization( long, )
 mAtomicSpecialization( unsigned long, )
+#ifdef _WIN64
+mAtomicSpecialization( long long, 64 )
+#endif
 
 #undef mAtomicSpecialization
 
