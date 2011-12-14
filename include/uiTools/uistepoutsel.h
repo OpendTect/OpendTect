@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.12 2010-06-17 21:59:48 cvskris Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.13 2011-12-14 15:04:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     Notifier<uiStepOutSel> valueChanged;
     Notifier<uiStepOutSel> valueChanging;
 
-    void		setVals(int); //!< similar to 2x setVal
+    virtual void	setVals(int); //!< similar to 2x setVal
     bool		dir2Active() const;
     void		setRowCol( const RowCol& rc )
     			{ setVal(true,rc.row); setVal(false,rc.col); }
@@ -72,9 +72,8 @@ public:
 
 protected:
 
-    uiSpinBox*		fld1;
-    uiSpinBox*		fld2;
-    bool		is2d;
+    uiSpinBox*		fld1_;
+    uiSpinBox*		fld2_;
 
     void		valChanged(CallBacker*);
     void		valChanging(CallBacker*);
@@ -82,6 +81,33 @@ protected:
 private:
 
     void		init(const Setup&);
+
+};
+
+
+/*! \brief allows selection of stepouts, extension to third direction (Z). */
+
+class uiStepout3DSel : public uiStepOutSel                                      
+{                                                                               
+public:                                                                         
+
+			uiStepout3DSel(uiParent*,const uiStepOutSel::Setup&);   
+			uiStepout3DSel(uiParent*,bool single=false,             
+				       const char* seltxt="Stepout");           
+			~uiStepout3DSel() {}                                    
+
+    int                 val(int dir) const;                                     
+    void                setVals(int,int,int);                                   
+    virtual void	setVals(int); //!< similar to 3x setVal
+
+    int                 getZVal() const; //nr samples                           
+    void                setZInterval(StepInterval<int> zrg); //nr samples
+
+    void		setZFieldName(const char*);
+
+protected:
+
+    uiSpinBox*          fld3_;                                                  
 
 };
 
