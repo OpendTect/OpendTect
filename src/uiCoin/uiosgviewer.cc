@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiosgviewer.cc,v 1.2 2011-12-09 16:03:53 cvskris Exp $";
+static const char* rcsID = "$Id: uiosgviewer.cc,v 1.3 2011-12-14 15:27:41 cvskris Exp $";
 
 #include "uiosgviewer.h"
 
@@ -31,8 +31,8 @@ public:
 			uiOsgViewer();
 			~uiOsgViewer();
 
-    void                addView(uiOsgViewBase*); //Make sure it's kept alive
-    void                removeView(uiOsgViewBase*);
+    void                addView(uiOsgViewHandle*); //Make sure it's kept alive
+    void                removeView(uiOsgViewHandle*);
 
     static uiOsgViewer& getCommonViewer();
 
@@ -40,16 +40,16 @@ protected:
 #ifdef __have_osg__
     osg::ref_ptr<osgViewer::CompositeViewer>	osgviewer_;
 #endif
-    ObjectSet<uiOsgViewBase>     		views_;
+    ObjectSet<uiOsgViewHandle>     		views_;
 };
 
 
-uiOsgViewBase::uiOsgViewBase()
+uiOsgViewHandle::uiOsgViewHandle()
     : osgview_( 0 )
 {}
 
 
-void uiOsgViewBase::detachView()
+void uiOsgViewHandle::detachView()
 {
     if ( viewer_ )
 	viewer_->removeView( this );
@@ -62,7 +62,7 @@ void uiOsgViewBase::detachView()
 }
 
 
-void uiOsgViewBase::setOsgView( osgViewer::View* view )
+void uiOsgViewHandle::setOsgView( osgViewer::View* view )
 {
     if ( osgview_ )
     {
@@ -111,7 +111,7 @@ uiOsgViewer::~uiOsgViewer()
 }
 
 
-void uiOsgViewer::addView(uiOsgViewBase* view )
+void uiOsgViewer::addView(uiOsgViewHandle* view )
 {
 #ifdef __have_osg__
     osgviewer_->addView( view->getOsgView() );
@@ -121,7 +121,7 @@ void uiOsgViewer::addView(uiOsgViewBase* view )
 }
 
 
-void uiOsgViewer::removeView( uiOsgViewBase* view )
+void uiOsgViewer::removeView( uiOsgViewHandle* view )
 {
 #ifdef __have_osg__
     osgviewer_->removeView( view->getOsgView() );

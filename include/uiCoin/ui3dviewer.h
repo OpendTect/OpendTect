@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: ui3dviewer.h,v 1.2 2011-12-08 16:47:58 cvskris Exp $
+ RCS:           $Id: ui3dviewer.h,v 1.3 2011-12-14 15:27:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "enums.h"
 
 class uiSoViewerBody;
-class uiOsgViewBody;
+class ui3DViewerBody;
 class BufferStringSet;
 class SbVec2s;
 class SoNode;
@@ -29,7 +29,7 @@ namespace visBase { class Scene; };
 mClass ui3DViewer : public uiObject
 {
 friend class		uiSoViewerBody;
-friend class		uiOsgViewBody;
+friend class		ui3DViewerBody;
 
 public:
 
@@ -107,10 +107,9 @@ private:
     static const char* sKeyPersCamera() { return "Perspective camera"; }
 
     uiSoViewerBody*	sobody_;
-    uiObjectBody&	mksobody(uiParent*,const char*);
+    ui3DViewerBody*	osgbody_;
 
-    uiOsgViewBody*	osgbody_;
-    uiObjectBody&	mkosgbody(uiParent*,const char*);
+    uiObjectBody&	mkBody(uiParent*,const char*);
 
     IOPar		homepos_;
 };

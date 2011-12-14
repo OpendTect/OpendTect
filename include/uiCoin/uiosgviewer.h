@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: uiosgviewer.h,v 1.1 2011-12-08 16:26:24 cvskris Exp $
+ RCS:           $Id: uiosgviewer.h,v 1.2 2011-12-14 15:27:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,15 +23,14 @@ class uiOsgViewer;
     arranged by storing the osgViewer::View in this class, which
     takes care of the rest. */
 
-mClass uiOsgViewBase
+mClass uiOsgViewHandle
 {
 public:
-				uiOsgViewBase();
-    virtual			~uiOsgViewBase()
-				{ detachView(); }
+				uiOsgViewHandle();
+    virtual			~uiOsgViewHandle()	{ detachView(); }
 
     void			detachView();
-    void			setViewer(uiOsgViewer* v) { viewer_ = v; }
+    void			setViewer(uiOsgViewer* v){ viewer_ = v; }
     osgViewer::View*		getOsgView()		{ return osgview_; }
     void			setOsgView(osgViewer::View*);
 
