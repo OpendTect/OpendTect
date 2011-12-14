@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.229 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.230 2011-12-14 19:07:45 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -166,7 +166,7 @@ private:
     Timer		poptimer;
     bool		popped_up;
     uiSize		prefsz_;
-    uiSize		prefpos_;
+    uiPoint		prefpos_;
     bool		moved_;
 
     bool		deletefrombody_;
@@ -190,7 +190,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, popped_up(false)
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
-	, prefpos_(0,0)
+	, prefpos_(uiPoint::udf())
 	, nractivated_(0)
 	, moved_(false)
 {
@@ -378,9 +378,12 @@ void uiMainWinBody::popTimTick( CallBacker* )
 {
     if ( popped_up ) { pErrMsg( "huh?" );  return; }
 	popped_up = true;
+
+// TODO: Remove when we can get rid of the popTimTick
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
-    move( prefpos_.width(), prefpos_.height() );
+    if ( prefpos_ != uiPoint::udf() )
+	move( prefpos_.x, prefpos_.y );
 }
 
 
@@ -554,8 +557,8 @@ void uiMainWinBody::readSettings()
     settings.beginGroup( NamedObject::name().buf() );
     QSize qsz( settings.value("size",QSize(200,200)).toSize() );
     prefsz_ = uiSize( qsz.width(), qsz.height() );
-    QPoint qps( settings.value("pos",QPoint(200,200)).toPoint() );
-    prefpos_ = uiSize( qps.x(), qps.y() );
+    QPoint qpt( settings.value("pos",QPoint(200,200)).toPoint() );
+    prefpos_.setXY( qpt.x(), qpt.y() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
 
