@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.15 2011-03-01 11:36:38 cvsbert Exp $
+ RCS:		$Id: filepath.h,v 1.16 2011-12-14 08:15:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,9 @@ public:
     enum Style		{ Local, Unix, Windows };
 
     			FilePath(const char* fullinp=0);
-			FilePath(const FilePath&);
+    			FilePath(const char* p1,const char* p2,const char* p3=0,
+				 const char* p4=0,const char* p5=0);
+			FilePath( const FilePath& fp )	{ *this = fp; }
 
     FilePath&		operator =(const FilePath&);
     FilePath&		operator =(const char* fullinp);
@@ -48,7 +50,7 @@ public:
 
     FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
-    FilePath&		insert(const char*);	//!< after prefix at begin
+    FilePath&		insert(const char*);	//!< after prefix at start
     void		setFileName(const char*); //!< pass null to remove level
     void		setPath(const char*);	//!< including prefix
     void		setExtension(const char*,bool replace=true);
@@ -60,7 +62,6 @@ public:
 			    relative path. */
     bool		makeRelativeTo(const FilePath&);
     bool		makeCanonical();
-
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;

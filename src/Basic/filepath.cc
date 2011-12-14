@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.34 2011-02-02 15:01:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.35 2011-12-14 08:15:50 cvsbert Exp $";
 
 #include "filepath.h"
 
@@ -19,11 +19,17 @@ static const char* rcsID = "$Id: filepath.cc,v 1.34 2011-02-02 15:01:50 cvsbruno
 const char* FilePath::sPrefSep = ":";
 
 FilePath::FilePath( const char* fnm )
-{ set( fnm ); }
+{
+    set( fnm );
+}
 
 
-FilePath::FilePath( const FilePath& fp )
-{ *this = fp; }
+FilePath::FilePath( const char* p1, const char* p2, const char* p3,
+		    const char* p4, const char* p5 )
+{
+    set( p1 );
+    if (p2){add(p2);if(p3){add(p3);if(p4){add(p4);if(p5)add(p5);}}}
+}
 
 
 FilePath& FilePath::operator =( const FilePath& fp )
@@ -41,7 +47,7 @@ FilePath& FilePath::operator =( const char* fnm )
 
 bool FilePath::operator ==( const FilePath& fp ) const
 {
-    return   lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_; 
+    return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_; 
 }
 
 
