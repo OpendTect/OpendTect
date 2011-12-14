@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.227 2011-12-09 06:06:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.228 2011-12-14 10:20:31 cvsranojay Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -166,6 +166,7 @@ private:
     Timer		poptimer;
     bool		popped_up;
     uiSize		prefsz_;
+    uiSize		prefpos_;
     bool		moved_;
 
     bool		deletefrombody_;
@@ -189,6 +190,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, popped_up(false)
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
+	, prefpos_(0,0)
 	, nractivated_(0)
 	, moved_(false)
 {
@@ -378,6 +380,7 @@ void uiMainWinBody::popTimTick( CallBacker* )
 	popped_up = true;
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
+    move( prefpos_.width(), prefpos_.height() );
 }
 
 
@@ -552,6 +555,8 @@ void uiMainWinBody::readSettings()
     settings.beginGroup( NamedObject::name().buf() );
     QSize qsz( settings.value("size",QSize(200,200)).toSize() );
     prefsz_ = uiSize( qsz.width(), qsz.height() );
+    QPoint qps( settings.value("pos",QPoint(200,200)).toPoint() );
+    prefpos_ = uiSize( qps.x(), qps.y() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
 
