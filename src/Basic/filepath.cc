@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.35 2011-12-14 08:15:50 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.36 2011-12-14 09:59:02 cvsbert Exp $";
 
 #include "filepath.h"
 
@@ -28,7 +28,17 @@ FilePath::FilePath( const char* p1, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
     set( p1 );
-    if (p2){add(p2);if(p3){add(p3);if(p4){add(p4);if(p5)add(p5);}}}
+    addPart( p2 ); addPart( p3 ); addPart( p4 ); addPart( p5 );
+    compress();
+}
+
+
+FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
+		    const char* p4, const char* p5 )
+{
+    *this = fp;
+    addPart( p2 ); addPart( p3 ); addPart( p4 ); addPart( p5 );
+    compress();
 }
 
 
@@ -96,10 +106,13 @@ FilePath& FilePath::set( const char* _fnm )
 
 FilePath& FilePath::add( const char* fnm )
 {
-    if ( !fnm ) return *this;
+    if ( !fnm || !*fnm )
+	return *this;
+
     int sl = lvls_.size();
     addPart( fnm );
     compress( sl );
+
     return *this;
 }
 
@@ -367,7 +380,7 @@ const char* FilePath::dirSep( Style stl )
 
 void FilePath::addPart( const char* fnm )
 {
-    if ( !fnm ) return;
+    if ( !fnm || !*fnm ) return;
 
     mSkipBlanks( fnm );
     char prev = ' ';

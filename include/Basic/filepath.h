@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.16 2011-12-14 08:15:50 cvsbert Exp $
+ RCS:		$Id: filepath.h,v 1.17 2011-12-14 09:59:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ public:
     			FilePath(const char* p1,const char* p2,const char* p3=0,
 				 const char* p4=0,const char* p5=0);
 			FilePath( const FilePath& fp )	{ *this = fp; }
+			FilePath(const FilePath&,const char* p2,
+				 const char* p3=0,const char* p4=0,
+				 const char* p5=0);
 
     FilePath&		operator =(const FilePath&);
     FilePath&		operator =(const char* fullinp);
