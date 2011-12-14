@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Dec 2011
- RCS:           $Id: cvsaccess.h,v 1.5 2011-12-13 16:45:37 cvsbert Exp $
+ RCS:           $Id: cvsaccess.h,v 1.6 2011-12-14 08:17:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
 				     const char* tosubdir);
 
     			// changes repository
-    bool		commit(const char* msg=0);
+    bool		commit(const char* fnm,const char* msg=0);
     bool		commit(const BufferStringSet&,const char* msg=0);
 
 

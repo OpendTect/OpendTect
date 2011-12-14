@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.7 2011-12-13 16:45:37 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.8 2011-12-14 08:17:27 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -15,9 +15,15 @@ static const char* rcsID = "$Id: cvsaccess.cc,v 1.7 2011-12-13 16:45:37 cvsbert 
 #include "strmprov.h"
 #include "strmoper.h"
 
+static const char* sRedirect = " > /dev/null 2>&1";
+
+#define mGetReqFnm() \
+    FilePath inpfp( dir_ ); \
+    if ( fnm && *fnm ) inpfp.add( fnm ); \
+    const BufferString reqfnm( inpfp.fullPath() )
+
 #define mGetTmpFnm(op,fnm) \
-    FilePath fptmp( File::getTempPath() ); \
-    fptmp.add( BufferString(fnm,GetPID(),op) ); \
+    FilePath fptmp( File::getTempPath(), BufferString(fnm,GetPID(),op) ); \
     const BufferString tmpfnm( fptmp.fullPath() )
 
 #define mRetRmTempFile() \
@@ -28,7 +34,7 @@ static BufferString getHost( const char* dir )
 {
     BufferString ret;
 
-    FilePath fp( dir ); fp.add( "CVS" ).add( "Root" );
+    FilePath fp( dir, "CVS", "Root" );
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
     if ( !sd.usable() )
 	return ret;
@@ -55,7 +61,7 @@ CVSAccess::CVSAccess( const char* dir )
 {
     if ( isOK() )
     {
-	FilePath fp( dir_ ); fp.add( "CVS" ).add( "Repository" );
+	FilePath fp( dir_, "CVS", "Repository" );
 	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
 	if ( sd.usable() )
 	    StrmOper::readLine(*sd.istrm,&reposdir_);
@@ -67,13 +73,6 @@ CVSAccess::CVSAccess( const char* dir )
 CVSAccess::~CVSAccess()
 {
 }
-
-
-static const char* sRedirect = " > /dev/null 2>&1";
-#define mGetReqFnm() \
-    FilePath inpfp( dir_ ); \
-    if ( fnm && *fnm ) inpfp.add( fnm ); \
-    const BufferString reqfnm( inpfp.fullPath() )
 
 
 bool CVSAccess::hostOK() const
@@ -200,9 +199,9 @@ bool CVSAccess::remove( const BufferStringSet& fnms )
 }
 
 
-bool CVSAccess::commit( const char* msg )
+bool CVSAccess::commit( const char* fnm, const char* msg )
 {
-    BufferStringSet bss; bss.add( "" );
+    BufferStringSet bss; bss.add( fnm );
     return commit( bss, msg );
 }
 
@@ -264,8 +263,8 @@ bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
 bool CVSAccess::changeFolder( const char* fnm, const char* fromsubdir,
 			      const char* tosubdir )
 {
-    FilePath tofp( dir_ ); tofp.add( tosubdir ).add( fnm );
-    FilePath fromfp( dir_ ); fromfp.add( fromsubdir ).add( fnm );
+    FilePath tofp( dir_, tosubdir, fnm );
+    FilePath fromfp( dir_, fromsubdir, fnm );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( fromsubdir ); fromfp.add( fnm );
