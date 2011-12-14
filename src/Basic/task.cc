@@ -1,10 +1,10 @@
-/*+
+/*/+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.28 2011-09-22 08:58:49 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.29 2011-12-14 10:32:15 cvskris Exp $";
 
 #include "task.h"
 
@@ -276,34 +276,13 @@ protected:
 ParallelTask::ParallelTask( const char* nm )
     : Task( nm )
     , progressmeter_( 0 )
-    , nrdonemutex_( 0 )
     , nrdone_( -1 )
     , totalnrcache_( -1 )
 { }
 
 
 ParallelTask::~ParallelTask()
-{ delete nrdonemutex_; }
-
-
-void ParallelTask::enableNrDoneCounting( bool yn )
-{
-    const bool isenabled = nrdonemutex_;
-    if ( isenabled==yn )
-	return;
-
-    if ( !yn )
-    {
-	nrdonemutex_->lock();
-	Threads::Mutex* tmp = nrdonemutex_;
-	nrdonemutex_ = 0;
-	tmp->unLock();
-    }
-    else
-    {
-	nrdonemutex_ = new Threads::Mutex;
-    }
-}
+{}
 
 
 void ParallelTask::setProgressMeter( ProgressMeter* pm )
@@ -315,7 +294,6 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 	progressmeter_->setMessage( message() );
 	enableNrDoneCounting( true );
     }
-
 }
 
 
@@ -325,14 +303,8 @@ void ParallelTask::reportNrDone( int nr )
 
 void ParallelTask::addToNrDone( int nr )
 {
-    if ( nrdonemutex_ )
-    {
-	Threads::MutexLocker lock( *nrdonemutex_ );
-	if ( nrdone_==-1 )
-	    nrdone_ = nr;
-	else
-	    nrdone_ += nr;
-    }
+    if ( !nrdone_.setIfEqual( nr, -1 ) )
+	nrdone_ += nr;
 
     if ( progressmeter_ )
     {
@@ -341,24 +313,12 @@ void ParallelTask::addToNrDone( int nr )
 	progressmeter_->setMessage( message() );
 	progressmeter_->setNrDone( nrDone() );
     }
-
 }
 
 
 od_int64 ParallelTask::nrDone() const
 {
-    if ( nrdonemutex_ )
-    {
-	 nrdonemutex_->lock();
-	 const od_int64 res = nrdone_;
-	 nrdonemutex_->unLock();
-	 return res;
-    }
-
-    if ( !progressmeter_ )
-	return -1;
-
-    return progressmeter_->nrDone();
+    return nrdone_;
 }
 
 
@@ -381,10 +341,8 @@ bool ParallelTask::execute( bool parallel )
 	progressmeter_->setStarted();
     }
 
-    if ( nrdonemutex_ ) nrdonemutex_->lock();
     nrdone_ = -1;
     control_ = Task::Run;
-    if ( nrdonemutex_ ) nrdonemutex_->unLock();
 
     const int minthreadsize = minThreadSize();
     int maxnrthreads = parallel

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.29 2011-02-14 22:23:30 cvskris Exp $
+ RCS:		$Id: task.h,v 1.30 2011-12-14 10:32:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "thread.h"
+#include "atomic.h"
 
 
 namespace Threads { class ThreadWorkManager; }
@@ -203,10 +204,6 @@ public:
 			    instances of ParallelTask::execute. */
 
     void		setProgressMeter(ProgressMeter*);
-    void		enableNrDoneCounting(bool yn);
-    			/*<!It is not guaranteed that it's implemented by
-			    the class. If not, nrDone() will return -1. */
-
     od_int64		nrDone() const;
     			//!<May be -1, i.e. class does not report nrdone.
     
@@ -258,8 +255,7 @@ private:
 
     friend class			ParallelTaskRunner;
     ProgressMeter*			progressmeter_;
-    Threads::Mutex*			nrdonemutex_;
-    od_int64				nrdone_;
+    Threads::Atomic<od_int64>		nrdone_;
 
 private:
     od_int64				totalnrcache_;
