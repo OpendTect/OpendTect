@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.261 2011-12-05 21:10:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.262 2011-12-14 20:10:10 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -777,10 +777,10 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
     {
-	if ( datatransform_ )
-	    res.zrg.step = datatransform_->getGoodZStep();
-	else if ( scene_ )
+	if ( scene_ )
 	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	else if ( datatransform_ )
+	    res.zrg.step = datatransform_->getGoodZStep();
 	return res;
     }
 
@@ -855,35 +855,15 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	} \
     }
 
-    const float dstep0 = f3ddp->posData().range(true).step;
-    const float dstep1 = f3ddp->posData().range(false).step;
-    bool attshavesamestep = true;
     if ( minx0step_<0 || minx1step_<0 )
     {
-	minx0step_ = dstep0;
-	minx1step_ = dstep1;
-    }
-    else
-    {
-	if ( !mIsEqual(minx0step_,dstep0,(minx0step_+dstep0)*5e-4) )
-	{
-	    if ( minx0step_ > dstep0 )
-		minx0step_ = dstep0;
-
-	    attshavesamestep = false;
-	}
-
-	if ( !mIsEqual(minx1step_,dstep1,(minx1step_+dstep1)*5e-4) )
-	{
-	    if ( minx1step_ > dstep1 )
-		minx1step_ = dstep1;
-
-	    attshavesamestep = false;
-	}
+	minx0step_ = f3ddp->posData().range(true).step;
+	minx1step_ = f3ddp->posData().range(false).step;
     }
 
     TypeSet<DataPack::ID> attridpids;
     ObjectSet<const FlatDataPack> displaypacks;
+    ObjectSet<const FlatDataPack> tfpacks;
     mLoadFDPs( f3ddp, attridpids, displaypacks );
 
     //transform data if necessary.
@@ -900,13 +880,9 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
 	    
 	    CubeSampling outputcs = getCubeSampling( true, true );
-	    if ( !scene_ )
-    		outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
-	    else
-	    {
-		outputcs.hrg.step = scene_->getCubeSampling().hrg.step;
+	    outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
+	    if ( scene_ )
  		outputcs.zrg.step = scene_->getCubeSampling().zrg.step;
-	    }
 
 	    ztransformdp->setOutputCS( outputcs );
 	    if ( !ztransformdp->transform() )
@@ -914,11 +890,13 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 
 	    dpman.addAndObtain( ztransformdp );
 	    attridpids += ztransformdp->id();
+	    tfpacks += ztransformdp;
 	    dpman.release( displaypacks[idx] );
 	}
     }
     
-    if ( nrAttribs()>1 && !attshavesamestep )
+    const bool usetf = tfpacks.size();
+    if ( nrAttribs()>1 )
     {
 	const int oldchannelsz0 = channels_->getSize(1) / (resolution_+1);
 	const int oldchannelsz1 = channels_->getSize(2) / (resolution_+1);
@@ -930,8 +908,10 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	{
 	    for ( int idx=0; idx<attridpids.size(); idx++ )
 	    {
-		const int sz0 = displaypacks[idx]->data().info().getSize(0);
-		const int sz1 = displaypacks[idx]->data().info().getSize(1);
+		const int sz0 = usetf ? tfpacks[idx]->data().info().getSize(0) 
+		    : displaypacks[idx]->data().info().getSize(0);
+		const int sz1 = usetf ? tfpacks[idx]->data().info().getSize(1)
+		    : displaypacks[idx]->data().info().getSize(1);
 
 		if ( idx && (sz0!=newsz0 || sz1!=newsz1) )
 		    hassamesz = false;
@@ -962,8 +942,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    const int idsz = idx==attrib ? attridpids.size() : pids.size();
 	    for ( int idy=0; idy<idsz; idy++ )
 	    {
-		const FlatDataPack* dp = idx==attrib ? displaypacks[idy]
-						     : packs[idy];
+		const FlatDataPack* dp = idx!=attrib ? packs[idy] :
+		    ( usetf ? tfpacks[idy] : displaypacks[idy] );
 		StepInterval<double> rg0 = dp->posData().range(true);
 		StepInterval<double> rg1 = dp->posData().range(false);
 		const int sz0 = dp->data().info().getSize(0);
@@ -978,8 +958,11 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 		mDeclareAndTryAlloc( FlatDataPack*, fdp,
 			FlatDataPack( dp->category(), arr ) );
 
-		rg0.step = minx0step_;
-		rg1.step = minx1step_;
+		rg0.step = newsz0!=1 ? rg0.width()/(newsz0-1) : rg0.width();
+		rg1.step = newsz1!=1 ? rg1.width()/(newsz1-1) : rg1.width(); 
+		if ( rg0.step < minx0step_ ) minx0step_ = rg0.step;
+		if ( rg1.step < minx1step_ ) minx1step_ = rg1.step;
+
 		fdp->posData().setRange( true, rg0 );
 		fdp->posData().setRange( false, rg1 );
 
