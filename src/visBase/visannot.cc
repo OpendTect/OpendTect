@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.40 2011-12-09 15:58:47 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.41 2011-12-14 15:30:37 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -81,7 +81,8 @@ Annotation::Annotation()
 	 GLubyte indices[] = { 0, 1, 1, 2, 2, 3, 3, 0,
 	     		       4, 5, 5, 6, 6, 7, 7, 4,
 			       0, 4, 1, 5, 2, 6, 3, 7 };
-	 geometry->addPrimitiveSet( new osg::DrawElementsUByte( GL_LINES, 24, indices  ) );
+	 geometry->addPrimitiveSet(
+		new osg::DrawElementsUByte( GL_LINES, 24, indices  ) );
 
 	geode_->addDrawable( geometry );
 	addChild( geode_ );
