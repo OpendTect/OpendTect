@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.3 2011-11-24 12:52:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.4 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uiselobjothersurv.h"
 
@@ -37,10 +37,8 @@ static BufferStringSet getSurvList()
 	    if ( matchString("_New_Survey_",dirnm) )
 		continue;
 
-	    FilePath fp( basedir );
-	    fp.add( dirnm ).add( ".survey" );
-	    BufferString survfnm = fp.fullPath();
-	    if ( File::exists(survfnm) )
+	    const FilePath fp( basedir, dirnm, ".survey" );
+	    if ( File::exists(fp.fullPath()) )
 		bss.add( dirnm );
 	}
 	bss.sort();
@@ -69,8 +67,7 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 {
     const char* basedir = GetBaseDataDir();
     if ( !basedir ) return false;
-    FilePath fp( basedir ); fp.add( selFld()->getText() );
-    othersurveyrootdir_ = fp.fullPath();
+    othersurveyrootdir_ = FilePath(basedir,selFld()->getText()).fullPath();
     if ( !File::exists( othersurveyrootdir_ ) ) 
     { 
 	othersurveyrootdir_.setEmpty();

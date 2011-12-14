@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.11 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.12 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -43,16 +43,14 @@ const char* uiClusterJobProv::sKeyOutputID()
 
 static BufferString getDefTempStorDir()
 {
-    FilePath fp( GetDataDir() );
-    fp.add( "Seismics" );
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
     Stats::RandGen::init();
     stordir += Stats::RandGen::getIndex(100000);
-    fp.add( stordir );
+    const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
-	return 0;
+	return BufferString(File::getTempPath());
 
     return fp.fullPath();
 }

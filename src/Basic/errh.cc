@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID = "$Id: errh.cc,v 1.1 2011-09-16 09:47:35 cvsbert Exp $";
+static const char* rcsID = "$Id: errh.cc,v 1.2 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -60,8 +60,7 @@ mBasicGlobal std::ostream& logMsgStrm()
     if ( !File::isDirectory(basedd) )
 	mErrRet( "Directory for data storage is invalid" )
 
-    FilePath fp( basedd );
-    fp.add( "LogFiles" );
+    FilePath fp( basedd, "LogFiles" );
     const BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
 	File::createDir( dirnm );

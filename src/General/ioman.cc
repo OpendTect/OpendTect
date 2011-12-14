@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.111 2011-12-07 16:15:25 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.112 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -76,9 +76,8 @@ void IOMan::init()
     const IOObjContext::StdDirData* prevdd = 0;
     const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
     bool needwrite = false;
-    FilePath basicfp = FilePath( mGetSetupFileName("BasicSurvey") );
-    FilePath rootfp = FilePath( rootdir );
-    basicfp.add( "X" ); rootfp.add( "X" );
+    FilePath basicfp( mGetSetupFileName("BasicSurvey"), "X" );
+    FilePath rootfp( rootdir, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
@@ -132,7 +131,7 @@ void IOMan::init()
 	{
 	    // This directory should have been in the survey.
 	    // It is not. If it is the seismic directory, we do not want to
-	    // continue. Otherwise, we want to copy the directory.
+	    // continue. Otherwise, we want to copy the BasicSurvey directory.
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );

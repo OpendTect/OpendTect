@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.44 2010-11-24 16:35:41 cvskris Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.45 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seiscbvs.h"
@@ -296,9 +296,9 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
     int lastgood = todoinls_.start - todoinls_.step;
     for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
     {
-	FilePath fp( basefp );
 	BufferString fnm( "i." ); fnm += inl;
-	fp.add( fnm ); fnm = fp.fullPath();
+	FilePath fp( basefp, fnm );
+	fnm = fp.fullPath();
 	StreamData sd = StreamProvider( fnm ).makeIStream();
 	bool isok = sd.usable();
 	if ( isok )

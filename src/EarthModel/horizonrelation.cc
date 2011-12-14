@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.6 2010-10-13 06:09:14 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.7 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
@@ -204,8 +204,8 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
 bool RelationTree::write() const
 {
     IOPar par;
-    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
-    fp.add( "horizonrelations.txt" );
+    const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
+		       "horizonrelations.txt" );
     if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	par.removeWithKey( is2d_ ? "Horizon2D" : "Horizon3D" );
 
@@ -240,8 +240,8 @@ bool RelationTree::read()
 {
     deepErase( nodes_ );
     IOPar par;
-    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
-    fp.add( "horizonrelations.txt" );
+    const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
+		       "horizonrelations.txt" );
     if ( !par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	return false;
 

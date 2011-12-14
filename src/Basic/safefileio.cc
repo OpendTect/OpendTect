@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.11 2010-08-19 13:05:58 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.12 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "safefileio.h"
 
@@ -31,21 +31,15 @@ SafeFileIO::SafeFileIO( const char* fnm, bool l )
 {
     FilePath fp( filenm_ );
     const_cast<BufferString&>(filenm_) = fp.fullPath();
-
     const BufferString filenmonly( fp.fileName() );
+
     fp.setFileName( 0 );
-
     BufferString curfnm( ".lock." ); curfnm += filenmonly;
-    FilePath lockfp( fp ); lockfp.add( curfnm );
-    const_cast<BufferString&>(lockfnm_) = lockfp.fullPath();
-
+    const_cast<BufferString&>(lockfnm_) = FilePath(fp,curfnm).fullPath();
     curfnm = filenmonly; curfnm += ".bak";
-    FilePath bakfp( fp ); bakfp.add( curfnm );
-    const_cast<BufferString&>(bakfnm_) = bakfp.fullPath();
-
+    const_cast<BufferString&>(bakfnm_) = FilePath(fp,curfnm).fullPath();
     curfnm = filenmonly; curfnm += ".new";
-    FilePath newfp( fp ); newfp.add( curfnm );
-    const_cast<BufferString&>(newfnm_) = newfp.fullPath();
+    const_cast<BufferString&>(newfnm_) = FilePath(fp,curfnm).fullPath();
 }
 
 

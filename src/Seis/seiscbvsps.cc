@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.54 2011-10-06 21:38:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.55 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 
@@ -107,8 +107,8 @@ BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
     BufferString fnm( lnm );
     cleanupString( fnm.buf(), false, false, false );
 
-    FilePath fp( dirnm_ );
-    fp.add( fnm ).setExtension( "cbvs" );
+    FilePath fp( dirnm_, fnm );
+    fp.setExtension( "cbvs" );
 
     fnm = fp.fullPath();
     return fnm;
@@ -165,10 +165,8 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 
 bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 {
-    FilePath fp( dirnm_ ); fp.add( cSampNmsFnm );
-    const BufferString fnm( fp.fullPath() );
-
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    const BufferString fnm( FilePath(dirnm_,cSampNmsFnm).fullPath() );
+    StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() ) return false;
 
     nms.erase();
@@ -183,8 +181,7 @@ bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 
 bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 {
-    FilePath fp( dirnm_ ); fp.add( cSampNmsFnm );
-    const BufferString fnm( fp.fullPath() );
+    const BufferString fnm( FilePath(dirnm_,cSampNmsFnm).fullPath() );
     if ( nms.isEmpty() )
     {
 	if ( File::exists(fnm) )
@@ -192,7 +189,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 	return true;
     }
 
-    StreamData sd( StreamProvider(fp.fullPath()).makeOStream() );
+    StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() ) return false;
 
     *sd.ostrm << nms.get(0);
@@ -299,10 +296,8 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 
 static const char* posdataFileName( const char* dirnm )
 {
-    FilePath fp( dirnm );
-    fp.add( cPosDataFnm );
     static BufferString ret;
-    ret = fp.fullPath();
+    ret = FilePath( dirnm, cPosDataFnm ).fullPath();
     return ret.buf();
 }
 
@@ -422,20 +417,16 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     delete tr; tr = 0;
     curinl_ = inl;
 
-    FilePath fp( dirnm_ );
-    fp.add( BufferString("",inl,ext()) );
-
-    BufferString filep = fp.fullPath();
-
-    if( !File::exists( (const char*)filep ) )
+    const FilePath fp( dirnm_, BufferString("",inl,ext()) );
+    const BufferString filenm = fp.fullPath();
+    if( !File::exists(filenm) )
     {
 	errmsg_ = "No Pre Stack data available for inline "; errmsg_ += inl;
 	return false;
     }
 
     errmsg_ = "";
-    tr = CBVSSeisTrcTranslator::make( fp.fullPath(), false, false,
-					  &errmsg_ );
+    tr = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
     return tr_;
 }
 
@@ -509,7 +500,7 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
     const BinID& trcbid = trc.info().binid;
     BufferString fnm( "", trcbid.inl, ext() );
-    FilePath fp( dirnm_ ); fp.add( fnm );
+    FilePath fp( dirnm_, fnm );
     fnm = fp.fullPath();
 
     if ( tr_ ) delete tr_;

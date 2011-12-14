@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.8 2011-12-14 08:17:27 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.9 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -17,14 +17,11 @@ static const char* rcsID = "$Id: cvsaccess.cc,v 1.8 2011-12-14 08:17:27 cvsbert 
 
 static const char* sRedirect = " > /dev/null 2>&1";
 
-#define mGetReqFnm() \
-    FilePath inpfp( dir_ ); \
-    if ( fnm && *fnm ) inpfp.add( fnm ); \
-    const BufferString reqfnm( inpfp.fullPath() )
+#define mGetReqFnm() const BufferString reqfnm( FilePath(dir_,fnm).fullPath() )
 
 #define mGetTmpFnm(op,fnm) \
-    FilePath fptmp( File::getTempPath(), BufferString(fnm,GetPID(),op) ); \
-    const BufferString tmpfnm( fptmp.fullPath() )
+    const BufferString tmpfnm( \
+	FilePath(File::getTempPath(),BufferString(fnm,GetPID(),op)).fullPath() )
 
 #define mRetRmTempFile() \
 { if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
@@ -99,8 +96,7 @@ bool CVSAccess::isInCVS( const char* fnm ) const
 void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
-    FilePath fp( dir_ ); if ( dir && *dir ) fp.add( dir );
-    fp.add( "CVS" ).add( "Entries" );
+    const FilePath fp( dir_, dir, "CVS", "Entries" );
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
     if ( !sd.usable() )
 	return;
@@ -247,9 +243,8 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 
 bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
 {
-    FilePath sdfp( dir_ ); if ( subdir && *subdir ) sdfp.add( subdir );
-    FilePath fromfp( sdfp ); fromfp.add( from );
-    FilePath tofp( sdfp ); tofp.add( to );
+    const FilePath sdfp( dir_, subdir );
+    FilePath fromfp( sdfp, from ), tofp( sdfp, to );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( subdir ); fromfp.add( from );

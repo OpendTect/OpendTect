@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.49 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.50 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -104,8 +104,8 @@ BatchProgInfoList::BatchProgInfoList()
 	BufferString dirnm = mGetApplSetupDataDir();
 	if ( !dirnm.isEmpty() )
 	{
-	    FilePath fp( dirnm ); fp.add( "data" );
-	    DirList dlsite( fp.fullPath(), DirList::FilesOnly,"BatchPrograms*");
+	    DirList dlsite( FilePath(dirnm,"data").fullPath(),
+		    	    DirList::FilesOnly,"BatchPrograms*");
 	    for ( int idx=0; idx<dlsite.size(); idx++ )
 		getEntries( dlsite.fullPath(idx) );
 	}

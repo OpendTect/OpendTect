@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.158 2011-09-16 11:33:48 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.159 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
+#include "file.h"
 #include "filepath.h"
 #include "cubesampling.h"
 #include "latlong.h"
@@ -157,7 +158,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 SurveyInfo* SurveyInfo::read( const char* survdir )
 {
     FilePath fpsurvdir( survdir );
-    FilePath fp( fpsurvdir ); fp.add( ".survey" );
+    FilePath fp( fpsurvdir, ".survey" );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
 	return new SurveyInfo;
@@ -777,7 +778,7 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !valid_ ) return false;
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    FilePath fp( basedir ); fp.add( dirname_ ).add( ".survey" );
+    FilePath fp( basedir, dirname_, ".survey" );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
@@ -879,10 +880,8 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 }
 
 
-#define uiErrMsg(s) \
-{   FilePath msgfp( GetBinPlfDir() ); \
-    msgfp.add( "od_DispMsg" ); \
-    BufferString cmd = msgfp.fullPath(); \
+#define uiErrMsg(s) { \
+    BufferString cmd( FilePath(GetBinPlfDir(),"od_DispMsg").fullPath() ); \
     cmd += " --err "; \
     cmd += " Could not write to "; \
     cmd += s; \
@@ -891,14 +890,17 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
-    if ( pars_.isEmpty() ) return;
-
     if ( !basedir || !*basedir )
 	basedir = GetDataDir();
+    const BufferString defsfnm( FilePath(basedir,sKeyDefsFile).fullPath() );
 
-    FilePath fp( basedir ); fp.add( sKeyDefsFile );
-    if ( !pars_.write( fp.fullPath(), sKeySurvDefs ) )
-	uiErrMsg( fp.fullPath() );
+    if ( pars_.isEmpty() )
+    {
+	if ( File::exists(defsfnm) )
+	    File::remove( defsfnm );
+    }
+    else if ( !pars_.write( defsfnm, sKeySurvDefs ) )
+	uiErrMsg( defsfnm );
 }
 
 

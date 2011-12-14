@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.52 2010-12-13 12:33:50 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.53 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -230,7 +230,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 BufferString IOObjContext::getDataDirName( StdSelType sst )
 {
     const IOObjContext::StdDirData* sdd = getStdDirData( sst );
-    FilePath fp( GetDataDir() ); fp.add( sdd->dirnm );
+    FilePath fp( GetDataDir(), sdd->dirnm );
     BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
     {	// Try legacy names

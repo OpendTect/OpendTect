@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.9 2011-12-01 10:32:49 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.10 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -278,18 +278,13 @@ void ODDLSite::reqFinish( CallBacker* )
 BufferString ODDLSite::getFileName( const char* relfnm ) const
 {
     if ( islocal_ )
-    {
-	FilePath fp( host_ );
-	if ( !subdir_.isEmpty() )
-	    fp.add( subdir_ );
-	return fp.add(relfnm).fullPath();
-    }
+	return FilePath( host_, subdir_, relfnm ).fullPath();
 
     BufferString ret( "/" );
     if ( subdir_.isEmpty() )
 	ret.add( relfnm );
     else
-	ret.add( FilePath( subdir_ ).add( relfnm ).fullPath(FilePath::Unix) );
+	ret.add( FilePath( subdir_, relfnm ).fullPath(FilePath::Unix) );
     return ret;
 }
 

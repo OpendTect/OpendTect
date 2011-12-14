@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.31 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.32 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -146,8 +146,8 @@ void uiSEGYExamine::rowClck( CallBacker* )
 void uiSEGYExamine::saveHdr( CallBacker* )
 {
     if ( !rdr_ ) return;
-    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
-    uiFileDialog dlg( this, false, fp.fullPath() );
+    uiFileDialog dlg( this, false,
+	    		FilePath(GetDataDir(),"Seismics").fullPath() );
     if ( !dlg.go() ) return;
 
     StreamData sd = StreamProvider(dlg.fileName()).makeOStream();

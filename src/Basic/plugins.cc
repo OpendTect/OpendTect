@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.73 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.74 2011-12-14 13:16:41 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -269,13 +269,9 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else
-    {
-	FilePath fp( data.autosource_ == Data::AppDir ?
-		     applibdir_ : userlibdir_ );
-	fp.add( "libs" );
-	fp.add( data.name_ );
-	ret = fp.fullPath();
-    }
+	ret = FilePath(
+		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
+		"libs", data.name_ ).fullPath();
     return ret.buf();
 }
 

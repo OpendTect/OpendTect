@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.42 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.43 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -87,8 +87,7 @@ void agSel( CallBacker* )
 
 void readPush( CallBacker* )
 {
-    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
-    uiFileDialog dlg( this, true, fp.fullPath() );
+    uiFileDialog dlg( this, true, FilePath(GetDataDir(),"Seismics").fullPath());
     if ( !dlg.go() ) return;
 
     StreamData sd( StreamProvider(dlg.fileName()).makeIStream() );
@@ -105,8 +104,8 @@ void readPush( CallBacker* )
 
 void writePush( CallBacker* )
 {
-    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
-    uiFileDialog dlg( this, false, fp.fullPath() );
+    FilePath fp( GetDataDir(), "Seismics" );
+    uiFileDialog dlg( this,false, fp.fullPath());
     if ( !dlg.go() ) return;
 
     fp.set( dlg.fileName() );

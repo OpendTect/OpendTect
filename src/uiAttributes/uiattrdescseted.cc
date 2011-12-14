@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.114 2011-11-24 12:53:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.115 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -948,8 +948,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     DirList attrdl( dirnm, DirList::DirsOnly, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
-	FilePath fp( dirnm );
-	fp.add( attrdl[idx]->buf() ).add( "index" );
+	FilePath fp( dirnm, attrdl.get(idx), "index" );
 	IOPar iopar("AttributeSet Table");
 	iopar.read( fp.fullPath(), sKey::Pars, false );
 	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );

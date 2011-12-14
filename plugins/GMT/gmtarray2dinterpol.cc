@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.4 2011-01-10 10:20:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.5 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "gmtarray2dinterpol.h"
 
@@ -57,9 +57,7 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     mTryAlloc( nodes_, bool[nrcells_] );
     getNodesToFill( 0, nodes_, 0 );
-    defundefpath_ = FilePath( GetDataDir() ).add("Misc")
-					    .add( "defundefinfo.grd" )
-					    .fullPath();
+    defundefpath_ = FilePath(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
     BufferString gmtcmd( "@xyz2grd" );
     gmtcmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
 			 .add( " -G").add( defundefpath_ ).add( " -I1" );

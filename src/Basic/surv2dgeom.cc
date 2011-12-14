@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.24 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.25 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "surv2dgeom.h"
 
@@ -125,9 +125,7 @@ void PosInfo::Survey2D::readIdxFiles()
 {
     if ( lsnm_.isEmpty() )
     {
-	FilePath fp( basefp_ );
-	fp.add( sIdxFilename );
-	readIdxFile( fp.fullPath(), lsindex_ );
+	readIdxFile( FilePath(basefp_,sIdxFilename).fullPath(), lsindex_ );
 	if ( lsindex_.size() <= 1 )
 	    return;
 	lsnm_ = lsindex_.getKey(0);
@@ -145,8 +143,7 @@ void PosInfo::Survey2D::readIdxFiles()
     lsfp_ = basefp_;
     FileMultiString fms( lsindex_.getValue(idxky) );
     lsfp_.add( fms[0] );
-    FilePath fp( lsfp_ ); fp.add( sIdxFilename );
-    readIdxFile( fp.fullPath(), lineindex_ );
+    readIdxFile( FilePath(lsfp_,sIdxFilename).fullPath(), lineindex_ );
 }
 
 
@@ -163,7 +160,7 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 
 void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 {
-    FilePath fp( lines ? lsfp_ : basefp_ ); fp.add( sIdxFilename );
+    FilePath fp( lines ? lsfp_ : basefp_ , sIdxFilename );
     SafeFileIO sfio( fp.fullPath(), true );
     if ( !sfio.open(false) )
 	mErrRet( "Cannot open 2D Geometry index file", fp.fullPath(),
@@ -419,8 +416,8 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
     while ( true )
     {
 	cleanupString( clnnm.buf(), false, false, false );
-	FilePath fp( inpfp ); fp.add( clnnm );
-	if ( !File::exists(clnnm) )
+	FilePath fp( inpfp, clnnm );
+	if ( !File::exists(fp.fullPath()) )
 	    break;
 
 	itry++;
@@ -527,8 +524,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
 	return false;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    FilePath fp( lsfp_ ); fp.add( fms[0] );
-    SafeFileIO sfio( fp.fullPath() );
+    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
     if ( !sfio.open(true) )
 	return false;
 
@@ -567,8 +563,7 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 	fms.add( getNewID(lineindex_) );
     }
 
-    FilePath fp( lsfp_ ); fp.add( fms[0] );
-    SafeFileIO sfio( fp.fullPath(), true );
+    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath(), true );
     if ( !sfio.open(false) )
 	return false;
 
@@ -619,8 +614,8 @@ void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
     if ( lidx < 0 ) return;
 
     FileMultiString oldfms( lineindex_.getValue(lidx) );
-    FilePath oldfp( lsfp_ ); oldfp.add( oldfms[0] );
-    FilePath newfp( lsfp_ ); newfp.add( cleannm.buf() );
+    const FilePath oldfp( lsfp_ , oldfms[0] );
+    const FilePath newfp( lsfp_ , cleannm.buf() );
     if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
 	return;
 
@@ -638,8 +633,7 @@ void PosInfo::Survey2D::removeLine( const char* lnm )
     if ( lidx < 0 ) return;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    FilePath fp( lsfp_ ); fp.add( fms[0] );
-    SafeFileIO sfio( fp.fullPath() );
+    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
     writeIdxFile( true );
@@ -652,8 +646,7 @@ void PosInfo::Survey2D::removeLine( int lineid )
     if ( lidx < 0 ) return;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    FilePath fp( lsfp_ ); fp.add( fms[0] );
-    SafeFileIO sfio( fp.fullPath() );
+    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
     writeIdxFile( true );
@@ -669,7 +662,7 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
 	const char* curlinesetnm = curLineSet();
 	const bool iscurls = linesetnm == curlinesetnm;
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_ ); fp.add( fms[0] );
+    FilePath fp( basefp_ , fms[0] );
     if ( basefp_ == fp )
 	return ErrMsg( "Cannot delete 2DGeom folder" );
 
@@ -694,10 +687,10 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     if ( lsidx < 0 ) return;
 
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_ ); fp.add( fms[0] );
-    const BufferString dirnm( fp.fullPath() );
+    FilePath fp( basefp_ , fms[0] );
     if ( basefp_ == fp )
 	return ErrMsg( "Cannot delete 2DGeom folder" );
+    const BufferString dirnm( fp.fullPath() );
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );
@@ -717,15 +710,14 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
     if ( lsidx < 0 ) return;
 
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_ ); fp.add( fms[0] );
+    FilePath fp( basefp_, fms[0] );
     const BufferString dirnm( fp.fullPath() );
     if ( File::exists(dirnm) )
     {
 	lsindex_.setKey( lsidx, newlsnm );
 	BufferString cleannm( newlsnm );
 	cleanupString( cleannm.buf(), false, false, false );
-	FilePath newfp( basefp_ );
-	newfp.add( cleannm.buf() );
+	FilePath newfp( basefp_, cleannm.buf() );
 	File::rename( dirnm, newfp.fullPath() );
 	FileMultiString lspar( cleannm.buf() );
 	lspar.add( fms.getIValue(1) );
@@ -752,11 +744,7 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
     BufferString& fnm = stm.getString();
     BufferString cleannm( lsnm );
     cleanupString( cleannm.buf(), false, false, false );
-    
-    FilePath fp( basefp_ );
-    fp.add( cleannm );
-    fp.add( sIdxFilename );
-    fnm = fp.fullPath();
+    fnm = FilePath(basefp_,cleannm,sIdxFilename).fullPath();
     return fnm.buf();
 }
 
@@ -774,8 +762,5 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
     if ( !geomid.isOK() )
 	return 0;
-    FilePath fp( basefp_ );
-    fp.add( cllsnm );
-    fp.add( cllnm );
-    return fp.fullPath();
+    return FilePath(basefp_,cllsnm,cllnm).fullPath();
 }

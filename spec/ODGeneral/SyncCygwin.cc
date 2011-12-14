@@ -4,11 +4,11 @@
  * FUNCTION : Synchronize OpendTect sys tools with cygwin, if installed.
 -*/
 
-static const char* rcsID = "$Id: SyncCygwin.cc,v 1.3 2004-04-07 22:09:19 bert Exp $";
+static const char* rcsID = "$Id: SyncCygwin.cc,v 1.4 2011-12-14 13:16:41 cvsbert Exp $";
 
 
 #include "prog.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 
 #include <windows.h>
@@ -53,29 +53,29 @@ int main( int argc, char** argv )
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;
 
-    FilePath fp( cygdir ); fp.add( "bin" );
-    if ( !File_isDirectory(fp.fullPath()) ) return 2;
+    FilePath fp( cygdir, "bin" );
+    if ( !File::isDirectory(fp.fullPath()) ) return 2;
 
     static const char* cygdllnm = "cygwin1.dll";
     fp.add( cygdllnm );
     BufferString cygdllpath = fp.fullPath();
-    if ( !File_exists(cygdllpath) ) return 3;
+    if ( !File::exists(cygdllpath) ) return 3;
 
-    fp.set( File_getCurrentDir() ); fp.add( "sys" );
-    if ( !File_isDirectory(fp.fullPath()) ) return 4;
+    fp.set( File::getCurrentDir() ); fp.add( "sys" );
+    if ( !File::isDirectory(fp.fullPath()) ) return 4;
 
     fp.add( cygdllnm );
     BufferString tofile = fp.fullPath();
     fp.setFileName( "cygwin1_old.dll" );
     BufferString oldfile = fp.fullPath();
-    if ( File_exists(oldfile) && !File_remove(oldfile, false) )
+    if ( File::exists(oldfile) && !File::remove(oldfile, false) )
 	return 5;
-    else if ( !File_rename( tofile, oldfile ) )
+    else if ( !File::rename( tofile, oldfile ) )
 	return 6;
 
-    if ( !File_copy(cygdllpath,tofile,false) ) 
+    if ( !File::copy(cygdllpath,tofile,false) ) 
     {
-	if ( !File_rename( oldfile, tofile ) )
+	if ( !File::rename( oldfile, tofile ) )
 	    return 7;
 	else
 	    return 8;

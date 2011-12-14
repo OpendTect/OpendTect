@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.9 2010-09-23 09:14:10 cvsbert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.10 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -53,9 +53,7 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 
 #define mSetRet(fn,yn) \
 	getFname( ret, yn ); \
-	FilePath fp( fn() ); \
-	fp.add( ret ); \
-	ret = fp.fullPath()
+	ret = FilePath( fn(), ret ).fullPath()
 
     switch ( src )
     {

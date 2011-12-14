@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.41 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.42 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "ioman.h"
@@ -328,8 +328,7 @@ bool IOStream::putTo( ascostream& stream ) const
 	int offs = 0;
 	if ( fp.isAbsolute() )
 	{
-	    FilePath fpdir( IOM().rootDir() );
-	    fpdir.add( dirName() );
+	    FilePath fpdir( IOM().rootDir(), dirName() );
 	    BufferString head( fp.dirUpTo( fpdir.nrLevels() - 1 ) );
 	    if ( head == fpdir.fullPath() )
 		offs = head.size()+1;

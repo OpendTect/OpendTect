@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.16 2011-05-04 05:56:01 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.17 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "gmtlocations.h"
 
@@ -87,9 +87,7 @@ void GMTWellSymbolRepository::init()
     if ( !gmtsharedir || !*gmtsharedir )
 	return;
 
-    FilePath fp( gmtsharedir );
-    fp.add( "custom" );
-    fp.add( "indexfile" );
+    const FilePath fp( gmtsharedir, "custom", "indexfile" );
     IOPar par;
     if ( !par.read(fp.fullPath(),0) || !par.size() )
 	return;

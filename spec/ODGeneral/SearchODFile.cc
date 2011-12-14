@@ -4,7 +4,7 @@
  * FUNCTION : get special folder location
 -*/
 
-static const char* rcsID = "$Id: SearchODFile.cc,v 1.8 2010-09-29 11:50:57 cvsbert Exp $";
+static const char* rcsID = "$Id: SearchODFile.cc,v 1.9 2011-12-14 13:16:41 cvsbert Exp $";
 
 
 #include "prog.h"
@@ -14,18 +14,17 @@ static const char* rcsID = "$Id: SearchODFile.cc,v 1.8 2010-09-29 11:50:57 cvsbe
 
 #include <iostream>
 
-static const char* checkFile( const char* path, const char* subdir, const char* fname )
+static const char* checkFile( const char* path, const char* subdir,
+				const char* fname )
 {
     if ( !path || !subdir || !fname ) return 0;
 
-    FilePath fp( path ); fp.add( subdir );
-    if ( fname && *fname )
-	fp.add( fname );
+    FilePath fp( path, subdir, fname );
 
-    static FileNameString filenamebuf;
-    strcpy( filenamebuf.buf(), fp.fullPath() );
-    if ( File::exists(filenamebuf) )
-	return filenamebuf;
+    static BufferString ret;
+    ret = fp.fullPath();
+    if ( File::exists(ret) )
+	return ret.buf();
 
     return 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.19 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.20 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -108,7 +108,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	if ( dirnm == "Programmer" || dirnm == "Credits" ) continue;
 
 	uiODHelpDocInfo* di = new uiODHelpDocInfo;
-	FilePath fp( dl.dirName() ); fp.add( dirnm );
+	FilePath fp( dl.dirName(), dirnm );
 	const BufferString fulldirnm = fp.fullPath();
 	fp.add( ".mnuinfo" );
 	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
@@ -122,8 +122,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 		    { delete di; sd.close(); continue; }
 	    }
 	    di->starturl = fp.fullPath();
-	    FilePath iconfp( docdir );
-	    di->iconfnm = iconfp.add( "defhelpicon.png" ).fullPath();
+	    di->iconfnm = FilePath(docdir,"defhelpicon.png").fullPath();
 	    di->nm = dirnm;
 	}
 	sd.close();
@@ -179,7 +178,7 @@ void uiODHelpMenuMgr::mkCreditsMenu()
     DirList dl( GetDocFileDir("Credits"), DirList::DirsOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	FilePath fp( dl.fullPath(idx) ); fp.add( "index.txt" ); IOPar iop;
+	FilePath fp( dl.fullPath(idx), "index.txt" ); IOPar iop;
 	if ( !HelpViewer::getCreditsData(fp.fullPath(),iop) )
 	    continue;
 

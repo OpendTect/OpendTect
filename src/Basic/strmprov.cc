@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.115 2011-12-13 05:14:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.116 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -921,17 +921,14 @@ bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
 
 void StreamProvider::mkBatchCmd( BufferString& comm ) const
 {
-    FilePath batfp( FilePath::getTempDir() );
-    batfp.add( "odtmp.bat" );
-   
-    FILE *fp;
-    fp = fopen( batfp.fullPath(), "wt" );
-    fprintf( fp, "@echo off\n" );
-    fprintf( fp,"%s\n", comm.buf() );
-    fprintf( fp, "pause\n" );
+    const BufferString fnm(
+	    	FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
+
+    FILE *fp = fopen( fnm, "wt" );
+    fprintf( fp, "@echo off\n%s\npause\n", comm.buf() );
     fclose( fp );
 
-    comm = batfp.fullPath();
+    comm = fnm;
 }
 
 
@@ -1012,7 +1009,6 @@ static const char* getCmd( const char* fnm )
 	BufferString& fullexec = stm.getString();
 
 	fullexec = "\"";
-	 
 	FilePath interpfp;
 
 	if ( getCygDir() )
@@ -1024,22 +1020,13 @@ static const char* getCmd( const char* fnm )
 	if ( !File::exists( interpfp.fullPath() ) )
 	{
 	    interpfp.set( GetSoftwareDir(0) );
-	    interpfp.add("bin").add("win").add("sys")
-		    .add(interp).fullPath();
+	    interpfp.add("bin").add("win").add("sys").add(interp);
 	}
 
-	fullexec += interpfp.fullPath();
-
-	fullexec += "\" '";
-	FilePath execfp( execnm );
-	fullexec += execfp.fullPath( FilePath::Unix );
-	fullexec += "'";
-
+	fullexec.add( interpfp.fullPath() ).add( "\" '" );
+	    .add( FilePath(execnm).fullPath(FilePath::Unix) ).add( "'" );
 	if ( args && *args )
-	{
-	    fullexec += " ";
-	    fullexec += args;
-	}
+	    fullexec.add( " " ).add( args );
 
 	return fullexec;
     }

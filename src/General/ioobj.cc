@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.38 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.39 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iosubdir.h"
@@ -327,10 +327,9 @@ IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 
 const char* IOSubDir::fullUserExpr( bool ) const
 {
-    FilePath fp( dirnm_ ); fp.add( name() );
     static StaticStringManager stm;
     BufferString& ret = stm.getString();
-    ret = fp.fullPath();
+    ret = FilePath(dirnm_,name()).fullPath();
     return ret;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.11 2011-05-18 11:34:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.12 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "remcommhandler.h"
 
@@ -98,20 +98,15 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 
 void RemCommHandler::uiErrorMsg( const char* msg )
 {
-    FilePath fp( GetBinPlfDir() );
-    fp.add( "od_DispMsg" );
-
-    BufferString cmd = fp.fullPath();
-    cmd += " --err ";
-    cmd += msg;
+    BufferString cmd = FilePath( GetBinPlfDir(), "od_DispMsg" ).fullPath();
+    cmd.add( " --err ").add( msg );
     ExecOSCmd( cmd.buf() );
 }
 
 
 std::ostream& RemCommHandler::createLogFile()
 {
-    FilePath logfp( GetBaseDataDir() );
-    logfp.add( "LogFiles" );
+    FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
     replaceCharacter( lhname.buf(), '.',  '_' );
     logfp.add( lhname );

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.38 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.39 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -76,8 +76,7 @@ const IOObj* IODir::main() const
 
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 {
-    FilePath fp( dirnm ); fp.add( ".omf" );
-    SafeFileIO sfio( fp.fullPath(), false );
+    SafeFileIO sfio( FilePath(dirnm,".omf").fullPath(), false );
     if ( !sfio.open(true) )
     {
 	BufferString msg( "\nError during read of Object Management info!" );
@@ -387,8 +386,7 @@ bool IODir::wrOmf( std::ostream& strm ) const
 
 bool IODir::doWrite() const
 {
-    FilePath fp( dirname_ ); fp.add( ".omf" );
-    SafeFileIO sfio( fp.fullPath(), false );
+    SafeFileIO sfio( FilePath(dirname_,".omf").fullPath(), false );
     if ( !sfio.open(false) )
 	mErrRet(true)
 

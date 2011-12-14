@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgadm.cc,v 1.7 2010-01-06 12:57:29 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgadm.cc,v 1.8 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
@@ -74,7 +74,7 @@ void Usage::Administrator::readPars()
 
 void Usage::Administrator::addPars( const char* dir, const char* fnm )
 {
-    FilePath fp( dir ); fp.add( fnm );
+    const FilePath fp( dir, fnm );
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
     if ( !sd.usable() ) return;
 

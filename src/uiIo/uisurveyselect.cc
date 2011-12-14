@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.14 2011-12-14 13:16:41 cvsbert Exp $";
 
 
 #include "uisurveyselect.h"
@@ -26,9 +26,7 @@ extern "C" const char* GetSurveyName();
 
 static bool checkIfDataDir( const char* path )
 {
-    FilePath fpo( path ), fps( path );
-    fpo.add( ".omf" );
-    fps.add( ".survey" );
+    FilePath fpo( path, ".omf" ), fps( path, ".survey" );
     return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
 }
 
@@ -82,9 +80,7 @@ const char* uiSurveySelectDlg::getSurveyName() const
 
 const BufferString uiSurveySelectDlg::getSurveyPath() const
 {
-    FilePath fp( getDataRoot() );
-    fp.add( getSurveyName() );
-    return fp.fullPath();
+    return FilePath(getDataRoot(),getSurveyName()).fullPath();
 }
 
 
@@ -150,11 +146,9 @@ void uiSurveySelect::selectCB( CallBacker* )
 static BufferString makeFullSurveyPath( const char* survnm,
 					const char* dataroot )
 {
-    FilePath fp( dataroot );
     BufferString surveyname( survnm );
     cleanupString( surveyname.buf(), false, false, true );
-    fp.add( surveyname );
-    return fp.fullPath();
+    return FilePath(dataroot,surveyname).fullPath();
 }
 
 
@@ -185,13 +179,8 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 		 "Please specify the full path" );
     if ( !File::isDirectory(fullpath) )
 	mErrRet( "Please select a valid directory" );
-
-    FilePath fp( fullpath );
-    fp.add( ".survey" );
-    if ( !File::exists( fp.fullPath() ) )
+    if ( !File::exists( FilePath(fullpath,".survey").fullPath() ) )
 	mErrRet( "This is not an OpendTect survey directory" );
 
     setInputText( fullpath );
 }
-
-

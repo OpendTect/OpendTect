@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.45 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.46 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "helpview.h"
 
@@ -232,9 +232,8 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 
 BufferString HelpViewer::getCreditsFileName( const char* winid )
 {
-    FilePath fp( GetDocFileDir("Credits") );
-    fp.add( getScope(winid) ).add( "index.txt" );
-    return BufferString( fp.fullPath() );
+    return FilePath( GetDocFileDir("Credits"), getScope(winid), "index.txt" )
+		.fullPath();
 }
 
 

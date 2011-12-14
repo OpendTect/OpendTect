@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.133 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.134 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -101,7 +101,6 @@ static BufferString getTrueDir( const char* dn )
 
 static bool copySurv( const char* from, const char* todirnm, int mb )
 {
-   /* FilePath fp( todirnm ); //fp.add( todirnm );*/
     const BufferString todir( todirnm );
     if ( File::exists(todir) )
     {
@@ -281,9 +280,8 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !survmap_ ) return;
     BufferString oldnm = listbox_->getText();
   
-    FilePath fp( GetSoftwareDir(0) );
-    fp.add( "data" ).add( "BasicSurvey" );
     delete survinfo_;
+    FilePath fp( GetSoftwareDir(0), "data", "BasicSurvey" );
     survinfo_ = SurveyInfo::read( fp.fullPath() );
     survinfo_->dirname_ = "";
     mkInfo();
@@ -314,10 +312,7 @@ uiSurveyGetCopyDir( uiParent* p, const char* cursurv )
 {
     BufferString curfnm;
     if ( cursurv && *cursurv )
-    {
-	FilePath fp( GetBaseDataDir() ); fp.add( cursurv );
-	curfnm = fp.fullPath();
-    }
+	curfnm = FilePath( GetBaseDataDir(), cursurv ).fullPath();
     else
 	curfnm = GetBaseDataDir();
 
@@ -704,10 +699,8 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot )
 	if ( matchString("_New_Survey_",dirnm) )
 	    continue;
 
-	FilePath fp( basedir );
-	fp.add( dirnm ).add( ".survey" );
-	BufferString survfnm = fp.fullPath();
-	if ( File::exists(survfnm) )
+	const FilePath fp( basedir, dirnm, ".survey" );
+	if ( File::exists(fp.fullPath()) )
 	    list.add( dirnm );
     }
 

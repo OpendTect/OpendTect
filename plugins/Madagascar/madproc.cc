@@ -2,7 +2,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.8 2010-03-25 03:58:45 cvsranojay Exp $
+ * ID       : $Id: madproc.cc,v 1.9 2011-12-14 13:16:41 cvsbert Exp $
 -*/
 
 
@@ -20,14 +20,10 @@ bool ODMad::Proc::progExists( const char* prog )
     const char* rsfroot = GetEnvVar( "RSFROOT" );
     if ( !rsfroot || !*rsfroot ) return false;
 
-    FilePath fp( rsfroot );
-    fp.add ( "bin" );
-    fp.add( prog );
-
+    FilePath fp( rsfroot, "bin", prog );
 #if __win__
     fp.setExtension( "exe" );
 #endif
-
     return File::exists( fp.fullPath() );
 }
 

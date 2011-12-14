@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.46 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.47 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -118,9 +118,8 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     if ( !File::exists(fname) )
     {
 	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
-	FilePath fp2( mGetSetupFileName("icons.Default") );
-	fp2.add( "iconnotfound.png" );
-	fname = fp2.fullPath();
+	fname = FilePath(mGetSetupFileName("icons.Default"),
+			"iconnotfound.png").fullPath();
     }
 
     qpixmap_ = new QPixmap( fname.buf(), fmt );

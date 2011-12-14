@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.59 2011-09-08 10:33:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.60 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uifiledlg.h"
 
@@ -350,10 +350,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	BufferString fname( externalfilenames_[idx] );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
-	{
-	    fp = dir;
-	    fp.add( fname );
-	}
+	    fp = FilePath( dir, fname );
 	fname = fp.fullPath();
 
 	if ( !idx && externalfilenames_->size()>1 && mode_!=ExistingFiles )

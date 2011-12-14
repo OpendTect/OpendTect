@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.47 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.48 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "settings.h"
 
@@ -34,8 +34,7 @@ static ObjectSet<Settings>& getSetts()
 static BufferString getFileName( const char* key, const char* dtectusr,
 				 const char* dirnm )
 {
-    FilePath fp( dirnm ? dirnm : GetSettingsDir() );
-    fp.add( "settings" );
+    FilePath fp( dirnm ? dirnm : GetSettingsDir(), "settings" );
     BufferString fname = fp.fullPath();
     if ( !mIsCommon(key) )
 	{ fname += "_"; fname += key; }

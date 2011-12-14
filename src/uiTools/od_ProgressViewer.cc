@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.28 2011-10-21 13:52:31 cvskris Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.29 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -208,7 +208,7 @@ void uiProgressViewer::quitFn( CallBacker* )
 
 void uiProgressViewer::helpFn( CallBacker* )
 {
-    FilePath fp( mGetUserDocDir() ); fp.add( "base" ).add( "index.html" );
+    const FilePath fp( mGetUserDocDir(), "base", "index.html" );
     uiDesktopServices::openUrl( fp.fullPath() );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.32 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.33 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uisetdatadir.h"
 
@@ -167,7 +167,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
 	else
 	{
-	    FilePath fp( datadir ); fp.add( "Seismics" );
+	    FilePath fp( datadir, "Seismics" );
 	    if ( File::exists(fp.fullPath()) )
 	    {
 		fp.setFileName( 0 );
@@ -193,8 +193,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
 	if ( File::isDirectory(demosurvnm.fullPath()) )
 	{
-	    FilePath fp( datadir );
-	    fp.add( FilePath(demosurvnm).fileName() );
+	    FilePath fp( datadir, FilePath(demosurvnm).fileName() );
 	    const BufferString todir( fp.fullPath() );
 	    if ( !File::exists(todir) )
 	    {

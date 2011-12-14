@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.4 2011-08-29 07:16:05 cvsraman Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.5 2011-12-14 13:16:41 cvsbert Exp $";
 
 
 #include "moddepmgr.h"
@@ -41,11 +41,9 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 {
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
-    FilePath relfp( GetSoftwareDir(0) );
-    relfp.add( "data" ).add( mdfnm );
+    FilePath relfp( GetSoftwareDir(0), "data", mdfnm );
     BufferString fnm( relfp.fullPath() );
-    FilePath devfp( GetEnvVar("WORK") );
-    devfp.add( "Pmake" ).add( mdfnm );
+    FilePath devfp( GetEnvVar("WORK"), "Pmake", mdfnm );
     if ( !File::exists(fnm) )
     {
 	isrel_ = false;
@@ -87,8 +85,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     relfp.add( "so" );
     relbindir_ = relfp.fullPath();
     devfp.setFileName( 0 );
-    devfp.setFileName( "lib" ); devfp.add( GetPlfSubDir() );
-    devfp.add( "G" );
+    devfp.setFileName( "lib" ); devfp.add( GetPlfSubDir() ).add( "G" );
     devbindir_ = devfp.fullPath();
     if ( !File::exists(devbindir_) )
     {
@@ -207,9 +204,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	char libnm[256];
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
-	FilePath fp( isrel_ ? relbindir_ : devbindir_ );
-	fp.add( libnm );
-
+	FilePath fp( isrel_ ? relbindir_ : devbindir_, libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { delete sla; continue; }

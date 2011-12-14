@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.89 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.90 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -580,12 +580,9 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
 	pars_[idx]->get( sKey::FileName, filenm );
 	oldfilenm = filenm;
 	replaceString( filenm.buf(), oldlsnm.buf(), cleannm.buf() );
-	FilePath newfp( fp.pathOnly() );
-	FilePath oldfp( fp.pathOnly() );
-	newfp.add( filenm.buf() );
-	oldfp.add( oldfilenm.buf() );
-	if ( oldfp.fullPath().isEmpty() || newfp.fullPath().isEmpty() ||
-	     !strcmp(oldfp.fullPath().buf(),newfp.fullPath().buf()) )
+	const FilePath newfp( fp.pathOnly(), filenm );
+	const FilePath oldfp( fp.pathOnly(), oldfilenm );
+	if ( oldfp.isEmpty() || newfp.isEmpty() || oldfp == newfp )
 	    continue;
 
 	if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )

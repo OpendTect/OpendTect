@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.36 2011-07-25 04:09:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.37 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uicrdevenv.h"
 
@@ -30,8 +30,8 @@ static const char* rcsID = "$Id: uicrdevenv.cc,v 1.36 2011-07-25 04:09:23 cvsran
 
 static void showProgrDoc()
 {
-    FilePath fp( mGetProgrammerDocDir() );
-    fp.add( __iswin__ ? "windows.html" : "unix.html" );
+    const FilePath fp( mGetProgrammerDocDir(),
+			__iswin__ ? "windows.html" : "unix.html" );
     uiDesktopServices::openUrl( fp.fullPath() );
 }
 
@@ -181,8 +181,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
-    FilePath fp( swdir );
-    fp.add( "bin" );
+    FilePath fp( swdir, "bin" );
 #ifdef __win__
     BufferString cmd( "@" );
     fp.add( "od_cr_dev_env.bat" );

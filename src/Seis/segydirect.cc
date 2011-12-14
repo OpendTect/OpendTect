@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.34 2011-11-21 13:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.35 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "segydirectdef.h"
 
@@ -490,10 +490,9 @@ std::ostream* SEGY::DirectDef::getOutputStream()
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
     static BufferString ret;
-    FilePath fp( dirnm );
     BufferString nm( unm ); cleanupString( nm.buf(), 1, 1, 1 );
-    fp.add( nm ); fp.setExtension( "sgydef" );
-
+    FilePath fp( dirnm, nm );
+    fp.setExtension( "sgydef" );
     ret = fp.fullPath();
     return ret.buf();
 }

@@ -69,11 +69,8 @@ bool renameSelGrpSet( const char* oldnm, const char* newnm )
     BufferString newclnnm( oldnm );
     cleanupString( newclnnm.buf(), false, false, false );
 
-    FilePath newfp( basefp_.fullPath() );
-    newfp.add( newclnnm );
-    FilePath oldfp( basefp_.fullPath() );
-    oldfp.add( oldclnnm );
-
+    FilePath newfp( basefp_.fullPath(), newclnnm );
+    FilePath oldfp( basefp_.fullPath(), oldclnnm );
     nms.get( sgidx ) = newnm;
     setSelGrpSetNames( nms );
     File::rename( oldfp.fullPath(), newfp.fullPath() );
@@ -106,10 +103,7 @@ bool deleteSelGrpSet( const char* nm )
 
     nms.remove( sgidx );
     setSelGrpSetNames( nms );
-    FilePath sgfp( basefp_ );
-    sgfp.add( nm );
-    return File::remove( sgfp.fullPath() );
-    return true;
+    return File::remove( FilePath(basefp_,nm).fullPath() );
 }
 
 
@@ -119,10 +113,7 @@ BufferString basePath() const
 
 bool hasIdxFile()
 {
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-
-    return File::exists( fp.fullPath() );
+    return File::exists( FilePath(basefp_,sKeyIdxFileName()).fullPath() );
 }
 
 
@@ -149,10 +140,7 @@ bool createBaseDir()
 
 bool setSelGrpSetNames( const BufferStringSet& nms )
 {
-    BufferString fnm;
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-    SafeFileIO sfio( fp.fullPath(), true );
+    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
     {
 	uiMSG().error("Cannot open Crossplot Selection index.txt "
@@ -182,9 +170,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 
 bool getSelGrpSetNames( BufferStringSet& nms )
 {
-    FilePath fp( basefp_ );
-    fp.add( sKeyIdxFileName() );
-    SafeFileIO sfio( fp.fullPath(), true );
+    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(true) )
     {
 	uiMSG().error( "Index file for Crossplot Selection group not present" );
@@ -379,12 +365,9 @@ const char* uiSGSelGrp::selGrpSetNm() const
 
 BufferString uiSGSelGrp::getCurFileNm() const
 {
-    FilePath fp( SGM().basePath() );
     BufferString cleannm( forread_ ? listfld_->getText() : nmfld_->text() );
     cleanupString( cleannm.buf(), false, false, false ); 
-    fp.add( cleannm );
-
-    return fp.fullPath();
+    return FilePath(SGM().basePath(),cleannm).fullPath();
 }
 
 
@@ -601,11 +584,10 @@ const char* uiSGSel::selGrpFileNm()
 
     if ( selgrpfilenm_.isEmpty() )
     {
-	FilePath fp( SGM().basePath() );
 	BufferString cleannm( inpfld_->text() );
 	cleanupString( cleannm.buf(), false, false, false );
-	fp.add( cleannm );
-	selgrpfilenm_ = fp.fullPath();
+	return FilePath(SGM().basePath(),cleannm).fullPath();
+	selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }
 
     return selgrpfilenm_.buf();

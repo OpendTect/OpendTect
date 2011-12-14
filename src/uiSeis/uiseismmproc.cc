@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.141 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.142 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -667,9 +667,8 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
     // Makes sure 2D changes are only done on master
     if ( !lsfileemitted )
     {
-	FilePath fp( jobrunner->procDir() );
-	fp.add( outlsfilename );
-	const BufferString lsfnm( fp.fullPath() );
+	const BufferString lsfnm =
+		FilePath(jobrunner->procDir(),outlsfilename).fullPath();
 	lsfileemitted = jobprov->emitLSFile( lsfnm );
     }
     if ( lsfileemitted )

@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.17 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -88,9 +88,7 @@ bool ODMad::ProcExec::init()
 	    if ( inptyp == ODMad::ProcFlow::SU )
 	    {
 		const char* rsfroot = GetEnvVar( "RSFROOT" );
-		FilePath fp( rsfroot ); fp.add( "bin" );
-		fp.add( "sfsu2rsf" );
-		cmd = fp.fullPath();
+		cmd = FilePath( rsfroot, "bin", "sfsu2rsf" ).fullPath();
 		cmd += " "; cmd += "tape=";
 		cmd += inpar->find( sKey::FileName );
 		cmd += " | "; cmd += comm + 1;
@@ -198,8 +196,7 @@ const char* ODMad::ProcExec::getProcString()
 	    ret += procflow[pidx]->getCommand();
 	else
 	{
-	    FilePath fp( rsfroot ); fp.add( "bin" );
-	    fp.add( procflow[pidx]->getCommand() );
+	    const FilePath fp( rsfroot, "bin", procflow[pidx]->getCommand() );
 	    ret += fp.fullPath();
 	}
 
@@ -264,7 +261,7 @@ const char* ODMad::ProcExec::getPlotString() const
     if ( plotcmd.isEmpty() )
 	return 0;
 
-    FilePath fp( rsfroot ); fp.add( "bin" );
+    FilePath fp( rsfroot, "bin" );
     char* pipechar = strchr( plotcmd.buf(), '|' );
     if ( pipechar )
     {

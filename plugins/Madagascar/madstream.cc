@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.39 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.40 2011-12-14 13:16:41 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -113,8 +113,7 @@ static bool getScriptForScons( BufferString& str )
 	return false;
 
     const char* rsfroot = GetEnvVar("RSFROOT");
-    FilePath sconsfp(rsfroot);
-    sconsfp.add( "bin" ).add( "scons" );
+    const FilePath sconsfp( rsfroot, "bin", "scons" );
     if ( !File::exists(sconsfp.fullPath()) )
 	return false;
 
