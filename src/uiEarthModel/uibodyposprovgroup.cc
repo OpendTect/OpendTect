@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibodyposprovgroup.cc,v 1.3 2011-12-14 22:09:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyposprovgroup.cc,v 1.4 2011-12-15 21:46:19 cvsyuancheng Exp $";
 
 #include "uibodyposprovgroup.h"
 #include "uigeninput.h"
@@ -22,14 +22,13 @@ static const char* rcsID = "$Id: uibodyposprovgroup.cc,v 1.3 2011-12-14 22:09:21
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-#define mBodyKey mcEMBodyTranslator::sKeyUserName()
+#define mBodyKey EMBodyTranslatorGroup::sKeyword()
 
 uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type, mBodyKey );
     inoutbut_ = new uiGenInput(this, "", BoolInpSpec(true,"Inside","Outside") );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
     bodyfld_ = new uiIOObjSel( this, ctio_, mBodyKey );
