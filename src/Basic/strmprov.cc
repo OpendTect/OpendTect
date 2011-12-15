@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.116 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.117 2011-12-15 05:14:02 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1023,7 +1023,7 @@ static const char* getCmd( const char* fnm )
 	    interpfp.add("bin").add("win").add("sys").add(interp);
 	}
 
-	fullexec.add( interpfp.fullPath() ).add( "\" '" );
+	fullexec.add( interpfp.fullPath() ).add( "\" '" )
 	    .add( FilePath(execnm).fullPath(FilePath::Unix) ).add( "'" );
 	if ( args && *args )
 	    fullexec.add( " " ).add( args );
