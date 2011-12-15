@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.16 2011-12-15 21:45:41 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -189,6 +189,28 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 }
 
 
+bool PolygonBody::getBodyRange( CubeSampling& cs )
+{
+    const Geometry::PolygonSurface* surf = 
+	geometry().sectionGeometry( sectionID(0) );
+    if ( !surf ) 
+	return false;
+
+     TypeSet<Coord3> pts;
+     surf->getAllKnots( pts );
+     for ( int idx=0; idx<pts.size(); idx++ )
+     {
+	 cs.hrg.include( SI().transform(pts[idx]) );
+	 if ( idx )
+	     cs.zrg.include( pts[idx].z );
+	 else
+	     cs.zrg.start = cs.zrg.stop = pts[idx].z;
+     }
+
+     return pts.size();
+}
+
+
 PolygonBodyGeometry& PolygonBody::geometry()
 { return geometry_; }
 
@@ -199,6 +221,14 @@ const PolygonBodyGeometry& PolygonBody::geometry() const
 
 const IOObjContext& PolygonBody::getIOObjContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
+
+
+MultiID PolygonBody::storageID() const
+{ return EMObject::multiID(); }
+
+
+BufferString PolygonBody::storageName() const
+{ return EMObject::name(); }
 
 
 void EM::PolygonBody::refBody()

@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.15 2011-09-02 09:05:02 cvskris Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.16 2011-12-15 21:45:41 cvsyuancheng Exp $";
 
 #include "emrandomposbody.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: emrandomposbody.cc,v 1.15 2011-09-02 09:05:02 c
 #include "iopar.h"
 #include "pickset.h"
 #include "streamconn.h"
+#include "survinfo.h"
 
 namespace EM 
 {
@@ -189,6 +190,14 @@ RandomPosBody::RandomPosBody( EMManager& man )
 
 RandomPosBody::~RandomPosBody()
 {}
+
+
+MultiID RandomPosBody::storageID() const
+{ return EMObject::multiID(); }
+
+
+BufferString RandomPosBody::storageName() const
+{ return EMObject::name(); }
 
 
 void RandomPosBody::refBody()
@@ -373,6 +382,23 @@ ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr,
     BodyOperator bodyopt;
     return bodyopt.createImplicitBody( locations_, tr ); 
 }
+
+
+bool RandomPosBody::getBodyRange( CubeSampling& cs )
+{
+    for ( int idx=0; idx<locations_.size(); idx++ )
+    {
+	cs.hrg.include( SI().transform(locations_[idx]) );
+
+	if ( idx )
+    	    cs.zrg.include( locations_[idx].z );
+	else
+	    cs.zrg.start = cs.zrg.stop = locations_[idx].z;
+    }
+    
+    return locations_.size();
+}
+
 
 
 bool RandomPosBody::useBodyPar( const IOPar& par )

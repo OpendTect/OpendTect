@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.30 2011-12-06 18:45:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.31 2011-12-15 21:45:41 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -14,7 +14,6 @@ static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.30 2011-12-06 18:45:22 
 #include "emioobjinfo.h"
 #include "embody.h"
 #include "emmanager.h"
-#include "emmarchingcubessurface.h"
 #include "emrowcoliterator.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
@@ -586,7 +585,7 @@ Pos::EMImplicitBodyProvider::EMImplicitBodyProvider()
     : cs_( true )
     , imparr_( 0 )     
     , threshold_( 0 )		      
-    , surf_( 0 )
+    , embody_( 0 )
     , useinside_( true )
     , bbox_( false )			
 {}
@@ -597,7 +596,7 @@ Pos::EMImplicitBodyProvider::EMImplicitBodyProvider(
     : cs_( ep.cs_ )
     , imparr_( ep.imparr_ )      
     , threshold_( ep.threshold_ )		       
-    , surf_( ep.surf_ )						       
+    , embody_( ep.embody_ )						       
     , useinside_( ep.useinside_ )
     , bbox_( ep.bbox_ )			
 {}
@@ -606,7 +605,7 @@ Pos::EMImplicitBodyProvider::EMImplicitBodyProvider(
 Pos::EMImplicitBodyProvider::~EMImplicitBodyProvider()
 { 
     delete imparr_; 
-    if ( surf_ ) surf_->unRef();
+    if ( embody_ ) embody_->unRefBody();
 }
 
 
@@ -630,7 +629,7 @@ Pos::EMImplicitBodyProvider& Pos::EMImplicitBodyProvider::operator = (
     if ( &ep !=this )
     {
 	useinside_ = ep.useinside_;
-	surf_ = ep.surf_;
+	embody_ = ep.embody_;
 	cs_ = ep.cs_;
 	bbox_ = ep.bbox_;
 	threshold_ = ep.threshold_;
@@ -647,10 +646,10 @@ void Pos::EMImplicitBodyProvider::getCubeSampling( CubeSampling& cs ) const
 
 bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* )
 {
-    if ( !surf_ ) 
+    if ( !embody_ ) 
 	return false;
 
-    EM::ImplicitBody* body = surf_->createImplicitBody(0,false);
+    EM::ImplicitBody* body = embody_->createImplicitBody(0,false);
     if ( !body || !body->arr_ )
     {
 	delete imparr_; imparr_ = 0;
@@ -691,14 +690,14 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
     EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
     if ( !emobj ) 
 	emobj = EM::EMM().loadIfNotFullyLoaded( mid );
-    mDynamicCastGet(EM::MarchingCubesSurface*,emc,emobj);
-    if ( !emc )
+    mDynamicCastGet(EM::Body*,emb,emobj);
+    if ( !emb )
 	return;
 
-    if ( surf_ ) surf_->unRef();
-    surf_ = emc;
-    surf_->ref();
-    surf_->getBodyRange( cs_ );
+    if ( embody_ ) embody_->unRefBody();
+    embody_ = emb;
+    embody_->refBody();
+    embody_->getBodyRange( cs_ );
 
     iop.getYN( sKeyUseInside(), useinside_ );
 
@@ -714,7 +713,7 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
 
 void Pos::EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetBodyKey("ID"), surf_->multiID() );
+    iop.set( mGetBodyKey("ID"), embody_->storageID() );
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
@@ -727,14 +726,14 @@ void Pos::EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 
 void Pos::EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 {
-    if ( !surf_ ) 
+    if ( !embody_ ) 
     {
 	txt += "Empty body";
 	return;
     }
 
     txt += useinside_ ? "Inside of " : "Outside of ";
-    txt += surf_->name();
+    txt += embody_->storageName();
     if ( !useinside_ )
     {
 	txt += "  Within cube range: Inline( ";

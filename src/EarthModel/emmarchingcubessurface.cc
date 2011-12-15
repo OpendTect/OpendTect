@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.28 2011-12-13 22:06:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.29 2011-12-15 21:45:41 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -277,6 +277,14 @@ void MarchingCubesSurface::unRefBody()
 {
     EMObject::unRef();
 }
+
+
+MultiID MarchingCubesSurface::storageID() const
+{ return EMObject::multiID(); }
+
+
+BufferString MarchingCubesSurface::storageName() const
+{ return EMObject::name(); }
 
 
 Executor* MarchingCubesSurface::loader()

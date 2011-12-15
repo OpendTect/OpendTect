@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.8 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:		$Id: emrandomposbody.h,v 1.9 2011-12-15 21:45:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,11 @@ public:
     virtual Executor*		loader();
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
+    bool			getBodyRange(CubeSampling&);
+
+    MultiID			storageID() const;
+    BufferString		storageName() const;
+
     void			refBody();
     void			unRefBody();
 

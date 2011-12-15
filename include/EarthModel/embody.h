@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.11 2011-11-29 15:34:54 cvsyuancheng Exp $
+ RCS:		$Id: embody.h,v 1.12 2011-12-15 21:45:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,10 @@ public:
     virtual ImplicitBody*	createImplicitBody(TaskRunner*,
 	    					   bool smooth) const;
     const IOObjContext&		getBodyContext() const;
+    virtual bool		getBodyRange(CubeSampling&) = 0;
+
+    virtual MultiID		storageID() const	= 0;
+    virtual BufferString	storageName()const	= 0;
 
     virtual void		refBody()	= 0;
     				//!<Should be mapped to EMObject::ref()
