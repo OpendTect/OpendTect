@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.20 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.21 2011-12-15 08:46:07 cvsraman Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -55,14 +55,18 @@ void ODMad::ProgInfo::doPreScanCheck()
 	return;
     }
 
-    FilePath fp( rsfroot_, "doc", "txt" );
+    FilePath fp( rsfroot_, "doc", "txt" );	// very old versions
     defdir_ = fp.fullPath();
 
-    if ( !File::isDirectory(defdir_) )
+    if ( !File::isDirectory(defdir_) )		// vesrion 1.0
     {
-	fp.setFileName( 0 );
-	fp.setFileName( "share" );
-	fp.add( "txt" );
+	fp = FilePath( rsfroot_, "share", "txt" );
+	defdir_ = fp.fullPath();
+    }
+
+    if ( !File::isDirectory(defdir_) )		// version 1.2
+    {
+	fp = FilePath( rsfroot_, "share", "doc", "madagascar", "txt" );
 	defdir_ = fp.fullPath();
     }
 
