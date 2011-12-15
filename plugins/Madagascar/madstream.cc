@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.40 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.41 2011-12-15 08:46:49 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -479,6 +479,10 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     }
 
     nroffsets_ = trcbuf.size();
+    if ( nroffsets_ < 2 )
+	mErrRet("First position has only one trace in the gather. \
+		Please ensure regular offset throught the data")
+
     SeisTrc* firsttrc = trcbuf.get(0);
     SeisTrc* nexttrc = trcbuf.get(1);
     if ( !firsttrc || !nexttrc || !firsttrc->size() || !nexttrc->size() )
@@ -586,7 +590,7 @@ bool MadStream::getNextPos( BinID& bid )
     if ( !is2d_ )
 	return iter_ && iter_->next( bid );
 
-    if ( !l2ddata_ || !l2ddata_->isEmpty() ) return false;
+    if ( !l2ddata_ || l2ddata_->isEmpty() ) return false;
 
     const TypeSet<PosInfo::Line2DPos>& posns = l2ddata_->positions();
     if ( !bid.crl )
@@ -795,6 +799,7 @@ bool MadStream::write2DTraces( bool writetofile )
     if ( !haspos ) mErrBoolRet( "Position data not available" );
 
     int nrtrcs=0, nrsamps=0, nroffsets=1;
+    SamplingData<float> offsetsd( 0, 1 );
     SamplingData<float> sd;
 
     headerpars_->get( "o1", sd.start );
@@ -806,6 +811,8 @@ bool MadStream::write2DTraces( bool writetofile )
     else
     {
 	headerpars_->get( "n2", nroffsets );
+	headerpars_->get( "o2", offsetsd.start );
+	headerpars_->get( "d2", offsetsd.step );
 	headerpars_->get( "n3", nrtrcs );
     }
 
@@ -817,7 +824,7 @@ bool MadStream::write2DTraces( bool writetofile )
     for ( int idx=0; idx<posns.size(); idx++ )
     {
 	const int trcnr = posns[idx].nr_;
-	for ( int offidx=1; offidx<=nroffsets; offidx++ )
+	for ( int offidx=0; offidx<nroffsets; offidx++ )
 	{
 	    readRSFTrace( buf, nrsamps );
 	    SeisTrc* trc = new SeisTrc( nrsamps );
@@ -825,6 +832,8 @@ bool MadStream::write2DTraces( bool writetofile )
 	    trc->info().coord = posns[idx].coord_;
 	    trc->info().binid.crl = trcnr;
 	    trc->info().nr = trcnr;
+	    if ( isps_ )
+		trc->info().offset = offsetsd.atIndex( offidx );
 
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 		trc->set( isamp, buf[isamp], 0 );
