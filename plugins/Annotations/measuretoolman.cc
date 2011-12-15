@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.15 2010-12-23 05:50:28 cvsnageswara Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.16 2011-12-15 22:54:52 cvsnanne Exp $";
 
 
 #include "measuretoolman.h"
@@ -109,7 +109,7 @@ void MeasureToolMan::manageDlg( bool show )
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	if ( sceneids_[idx] == appl_.sceneMgr().getActiveSceneID() )
+	if ( sceneids_[idx] == getActiveSceneID() )
 	{
 	    if ( show )
 		visBase::DM().selMan().select( displayobjs_[idx]->id() );
@@ -176,6 +176,20 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
 }
 
 
+int MeasureToolMan::getActiveSceneID() const
+{
+    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const int sceneidx = sceneids_.indexOf( sceneid );
+    if ( sceneidx>=0 )
+	return sceneid;
+
+    if ( sceneids_.size() == 1 )
+	return sceneids_[0];
+
+    return -1;
+}
+
+
 static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
@@ -188,7 +202,7 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 
 void MeasureToolMan::update()
 {
-    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const int sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( !displayobjs_.validIdx(sceneidx) ) return;
 
@@ -202,7 +216,7 @@ void MeasureToolMan::sceneChanged( CallBacker* )
     const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
     if ( !ison ) return;
 
-    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const int sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( !displayobjs_.validIdx(sceneidx) ) return;
 
