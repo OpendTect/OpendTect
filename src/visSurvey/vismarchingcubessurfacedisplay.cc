@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.31 2011-12-13 22:11:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.32 2011-12-15 16:06:02 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -49,13 +49,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     if ( emsurface_ ) emsurface_->unRef();
    
     delete impbody_;
-    while ( intersections_.size() )
-    {
-	intersections_[0]->unRef();
-	intersections_.remove(0);
-    }
-
-    deepErase( shapes_ );
+    deepErase( intsinfo_ );
 
     if ( displaysurface_ )
 	displaysurface_->unRef();
@@ -104,8 +98,8 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
     if ( !emsurface_ )
     {
-	for ( int idx=0; idx<intersections_.size(); idx++ )
-	    intersections_[idx]->turnOn( false );
+	for ( int idx=0; idx<intsinfo_.size(); idx++ )
+	    intsinfo_[idx]->visshape_->turnOn( false );
 	return false;
     }
 
@@ -473,8 +467,8 @@ void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
 
-    for ( int idx=0; idx<intersections_.size(); idx++ )
-	intersections_[idx]->setDisplayTransformation( nt );
+    for ( int idx=0; idx<intsinfo_.size(); idx++ )
+	intsinfo_[idx]->visshape_->setDisplayTransformation( nt );
 }
 
 
@@ -483,8 +477,8 @@ void MarchingCubesDisplay::setRightHandSystem( bool yn )
     visBase::VisualObjectImpl::setRightHandSystem( yn );
     if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
 
-    for ( int idx=0; idx<intersections_.size(); idx++ )
-	intersections_[idx]->setRightHandSystem( yn );
+    for ( int idx=0; idx<intsinfo_.size(); idx++ )
+	intsinfo_[idx]->visshape_->setRightHandSystem( yn );
 }
 
 
@@ -520,61 +514,48 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	activepids += plane->id();
     }
 
-    for ( int idx=intersections_.size()-1; idx>=0; idx-- )
+    for ( int idx=intsinfo_.size()-1; idx>=0; idx-- )
     {
-	if ( (whichobj>=0 && intersectionids_[idx]!=whichobj) || 
-	     (whichobj<0 && activepids.isPresent(intersectionids_[idx])) )
+	const int ipid = intsinfo_[idx]->planeid_;
+	if ( (whichobj>=0 && ipid!=whichobj) || 
+	     (whichobj<0 && activepids.isPresent(ipid)) )
 	    continue;
 
-	removeChild( intersections_[idx]->getInventorNode() );	
-	intersections_[idx]->unRef();
-	intersections_.remove( idx );
-	shapes_[idx]->removeFromGeometries( 0 );
-	delete shapes_.remove( idx );
-	intersectionids_.remove( idx );
+	removeChild( intsinfo_[idx]->visshape_->getInventorNode() );	
+	delete intsinfo_.remove( idx );
     }
-
-    if ( !impbody_ )
-	impbody_ = emsurface_->createImplicitBody(0,false);
 
     for ( int idx=0; idx<activeplanes.size(); idx++ )
     {
-	if ( intersectionids_.isPresent(activepids[idx]) )
-	    continue;
+	bool presented = false;
+	for ( int idy=0; idy<intsinfo_.size(); idy++ )
+	{
+    	    if ( intsinfo_[idy]->planeid_ == activepids[idx] )
+	    {
+		presented = true;
+		break;
+	    }
+	}
 
-	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
-	line->ref();
-	if ( !line->getMaterial() )
-	    line->setMaterial(visBase::Material::create());
-	line->getMaterial()->setColor( displaysurface_->getMaterial() ? 
-		displaysurface_->getMaterial()->getColor() : getColor() );
-	line->setDisplayTransformation( getDisplayTransformation() );
-	line->setSelectable( false );
-	line->renderOneSide( 0 );
-	line->setRightHandSystem( righthandsystem_ );
-	line->turnOn( displayintersections_ );
-	addChild( line->getInventorNode() );
+	if ( presented ) continue;
+
+	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
+	pi->visshape_->getMaterial()->setColor( getColor() );
+	pi->visshape_->setDisplayTransformation( getDisplayTransformation() );
+	pi->visshape_->setRightHandSystem( righthandsystem_ );
+	pi->visshape_->turnOn( displayintersections_ );
+	addChild( pi->visshape_->getInventorNode() );
 
 	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
 	PlaneDataDisplay::Orientation ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==PlaneDataDisplay::Zslice ? cs.zrg.start :
 	    ori==PlaneDataDisplay::Inline ? cs.hrg.start.inl : cs.hrg.start.crl;
 
-	Geometry::ExplicitIndexedShape* shape = 0;
-	mTryAlloc( shape, Geometry::ExplicitIndexedShape() );
-	if ( !shape ) continue;
-	line->setSurface( shape );
-	shape->addGeometry( new Geometry::IndexedGeometry(
-    		    Geometry::IndexedGeometry::TriangleStrip,
-    		    Geometry::IndexedGeometry::PerVertex, shape->coordList(),
-		    shape->normalCoordList(),shape->textureCoordList()) );
-	Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_, 
-		impbody_->cs_, impbody_->threshold_, (char)ori, pos, *shape );
-	gii.compute();
+	pi->planeorientation_ = (char)ori;
+	pi->planepos_ = pos;
+	pi->planeid_ = activepids[idx];
 
-	intersections_ += line;
-	intersectionids_ += activepids[idx];
-	shapes_ += shape;
+	intsinfo_ += pi;
     }
 
     updateIntersectionDisplay();
@@ -597,16 +578,65 @@ void MarchingCubesDisplay::displayIntersections( bool yn )
 
 void MarchingCubesDisplay::updateIntersectionDisplay()
 {
-    for ( int idx=0; idx<intersections_.size(); idx++ )
+    if ( displayintersections_ )
+    {
+    	if ( !impbody_ )
+    	    impbody_ = emsurface_->createImplicitBody(0,false);
+	
+    	for ( int idx=0; idx<intsinfo_.size(); idx++ )
+    	{
+    	    if ( intsinfo_[idx]->computed_ )
+    		continue;
+	    
+    	    intsinfo_[idx]->computed_ = true;
+    	    Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_, 
+    		    impbody_->cs_, impbody_->threshold_, 
+    		    intsinfo_[idx]->planeorientation_, 
+		    intsinfo_[idx]->planepos_, *intsinfo_[idx]->shape_ );
+    	    gii.compute();
+    	}
+    }
+
+    for ( int idx=0; idx<intsinfo_.size(); idx++ )
     {
 	if ( displayintersections_ )
-	    intersections_[idx]->touch( false );
+	    intsinfo_[idx]->visshape_->touch( false );
 	
-	intersections_[idx]->turnOn( displayintersections_ );
+	intsinfo_[idx]->visshape_->turnOn( displayintersections_ );
     }
 	
     if ( displaysurface_ ) 
 	displaysurface_->turnOn( !displayintersections_ );
+}
+
+
+MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
+{
+    planeid_ = -1;
+    planeorientation_ = -1;
+    planepos_ = mUdf(float);
+    computed_ = false;
+
+    visshape_ = visBase::GeomIndexedShape::create();
+    visshape_->ref();
+    if ( !visshape_->getMaterial() )
+	visshape_->setMaterial(visBase::Material::create());
+    visshape_->setSelectable( false );
+    visshape_->renderOneSide( 0 );
+    
+    shape_ = new Geometry::ExplicitIndexedShape();
+    visshape_->setSurface( shape_ );
+    shape_->addGeometry( new Geometry::IndexedGeometry(
+		Geometry::IndexedGeometry::TriangleStrip,
+		Geometry::IndexedGeometry::PerVertex, shape_->coordList(),
+		shape_->normalCoordList(),shape_->textureCoordList()) );
+}
+
+
+MarchingCubesDisplay::PlaneIntersectInfo::~PlaneIntersectInfo()
+{
+    visshape_->unRef();
+    delete shape_;
 }
 
 

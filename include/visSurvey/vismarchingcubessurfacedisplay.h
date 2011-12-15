@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.27 2011-12-13 22:11:19 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.28 2011-12-15 16:06:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -112,9 +112,22 @@ protected:
 
     EM::ImplicitBody*				impbody_;
     bool					displayintersections_;
-    TypeSet<int>				intersectionids_;
-    ObjectSet<visBase::GeomIndexedShape> 	intersections_;
-    ObjectSet<Geometry::ExplicitIndexedShape>	shapes_;
+
+    struct PlaneIntersectInfo
+    {
+						PlaneIntersectInfo();
+						~PlaneIntersectInfo();
+	visBase::GeomIndexedShape*		visshape_;
+	Geometry::ExplicitIndexedShape*		shape_;
+	
+	int					planeid_;
+	char					planeorientation_;
+	float					planepos_;
+
+	bool					computed_;
+    };
+
+    ObjectSet<PlaneIntersectInfo>		intsinfo_;
 };
 
 };
