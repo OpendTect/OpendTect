@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.111 2011-04-07 12:41:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.112 2011-12-15 14:35:55 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -136,7 +136,13 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     if ( !outpar || !cs_.usePar( *outpar ) )
     {
 	if ( attribset.is2D() )
-	    cs_.set2DDef();
+	{                                                                       
+	    cs_.set2DDef();                                                     
+
+	    //trick to avoid survey boundaries and compute full line z range    
+	    cs_.zrg.start = mMIN (0, SI().zRange(false).start);                 
+	    cs_.zrg.stop = 600000; //10 min, very unlikely! (udf(float) fails)  
+	} 
 	else
 	    cs_.init();
     }
