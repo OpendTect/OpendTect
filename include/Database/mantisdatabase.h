@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.16 2011-12-15 06:02:53 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.17 2011-12-16 11:18:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ public:
     void			getProjnm(int projid,
 	    				  BufferString& projnm) const;
     const BufferStringSet&	severities() const	{ return sevirities_; }
+    const BufferStringSet&	atchfiles() const  { return attachfilenms_; }
     static void			editVersions(const BufferStringSet&,
 	    				     BufferStringSet&,
 					     bool ismajor=true,
@@ -116,6 +117,7 @@ public:
     static const char*	sKeyUserTable();
     static const char*	sKeyProjectUserListTable();
     static const char*	sKeyProjectVersionTable();
+    static const char*	sKeyBugFileTable();
     static const char*	sKeyProjectTable();
     static const int 	cOpenDtectProjectID();
     static const int 	cAccessLevelDeveloper();
@@ -134,6 +136,7 @@ protected:
     bool		fillUsersInfo();
     bool		fillVersionsByProject();
     void		fillSeverity();
+    bool		fillAttachedFilesInfo();
     void		addHistoryToSet(BugHistoryTableEntry&);
 
     bool		updateBugHistoryTable(ObjectSet<BugHistoryTableEntry>&,
@@ -159,6 +162,8 @@ protected:
     ObjectSet<BugTextTableEntry> texttables_;
     TypeSet<int>	bugsindex_;
     TypeSet<int>	severityvals_;
+    TypeSet<int>	attachids_;
+    BufferStringSet	attachfilenms_;
 
     mutable BufferString errmsg_;
     ObjectSet<BufferStringSet>	versionsbyproject_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.31 2011-12-15 06:02:53 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.32 2011-12-16 11:18:36 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ const char* SqlDB::MantisDBMgr::sKeyProjectVersionTable()
 { return "mantis_project_version_table"; }
 const char* SqlDB::MantisDBMgr::sKeyProjectUserListTable()
 { return "mantis_project_user_list_table"; }
+const char* SqlDB::MantisDBMgr::sKeyBugFileTable()
+{ return "mantis_bug_file_table"; }
 const int SqlDB::MantisDBMgr::cOpenDtectProjectID() { return 1; }
 const int SqlDB::MantisDBMgr::cAccessLevelDeveloper() { return 50; }
 const int SqlDB::MantisDBMgr::cAccessLevelCaseStudy() { return 25; }
@@ -336,6 +338,53 @@ bool SqlDB::MantisDBMgr::fillVersionsByProject()
     }
 
     return true;
+}
+
+
+bool SqlDB::MantisDBMgr::fillAttachedFilesInfo()
+{
+    attachids_.erase();
+    attachfilenms_.erase();
+    errmsg_.setEmpty();
+    BufferString querystr( "SELECT " );
+    querystr.add( sKeyBugFileTable() ).add ( ".bug_id, " )
+	    .add( sKeyBugFileTable() ).add( ".filename " )
+	    .add(" FROM " ).add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ", " ).add( sKeyBugFileTable() ).add( " WHERE ( (" )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( SqlDB::BugTableEntry::cStatusNew() )
+	    .add( " OR " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( SqlDB::BugTableEntry::cStatusAssigned() )
+	    .add( " OR " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( SqlDB::BugTableEntry::cStatusFeedback() )
+	    .add( " OR " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( SqlDB::BugTableEntry::cStatusResolved() )
+	    .add( " ) AND ( " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".resolution=" ).add(SqlDB::BugTableEntry::cResolutionOpen())
+	    .add( " OR " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".resolution=" )
+	    .add( SqlDB::BugTableEntry::cResolutionFixed() ).add( " )" )
+	    .add( " AND " ).add( SqlDB::BugTableEntry::sKeyBugTable() )
+	    .add( ".id" ).add( "=" )
+	    .add( sKeyBugFileTable() ).add( ".bug_id )" )
+	    .add( " ORDER BY " )
+	    .add( SqlDB::BugTableEntry::sKeyBugTable() ).add( ".id" );
+
+	if ( !query().execute( querystr ) )
+	    mErrMsgRet( sKeyBugFileTable() );
+
+	while ( query().next() )
+	{
+	    attachids_.add( toInt(query().data(0).buf()) );
+	    attachfilenms_.add( query().data(1) );
+	}
+	
+	return true;
 }
 
 
