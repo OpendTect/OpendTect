@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.112 2011-09-22 13:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.113 2011-12-16 23:16:33 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -330,6 +330,7 @@ void DescSet::fillPar( IOPar& par ) const
 	apar.set( userRefStr(), userref );
 
 	apar.setYN( hiddenStr(), dsc.isHidden() );
+	apar.set( sKey::DataType, Seis::nameOf(dsc.dataType()) );
 
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
@@ -509,11 +510,11 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	const char* type = descpar.find( "Datatype" ); 
+	const char* type = descpar.find( sKey::DataType );
 	if ( type && !strcmp( type, "Dip" ) )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
-	    dsc->changeOutputDataType( selout, Seis::dataTypeOf( type ) );
+	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
     }
 
     if ( selectout )
