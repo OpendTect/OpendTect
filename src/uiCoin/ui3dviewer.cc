@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.5 2011-12-16 10:32:25 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.6 2011-12-16 13:28:38 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -84,8 +84,8 @@ DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 class ui3DViewerBody : public uiObjectBody
 {
 public:
-    				ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
-    virtual			~ui3DViewerBody();
+    			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
+    virtual		~ui3DViewerBody();
 
     void			viewAll();
 
@@ -122,6 +122,8 @@ public:
     Coord3			getCameraPosition() const;
     visBase::Camera*		getVisCamera() { return camera_; }
 
+    virtual void		reSizeEvent(CallBacker*);
+
 protected:
     virtual osgGA::GUIActionAdapter&	getActionAdapter()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
@@ -139,6 +141,7 @@ protected:
 
     RefMan<visBase::Camera>		camera_;
     RefMan<visBase::Scene>		scene_;
+    osg::ref_ptr<osg::Viewport>		viewport_;
 };
 
 
@@ -197,6 +200,50 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
 }
 
 
+void ui3DViewerBody::reSizeEvent(CallBacker*)
+{
+    const QWidget* widget = qwidget_();
+    if ( !widget )
+	return;
+
+    if ( !camera_ )
+	return;
+
+    osg::ref_ptr<osg::Camera> osgcamera = getOsgCamera();
+
+    if ( !osgcamera )
+	return;
+
+    const double aspectratio = static_cast<double>(widget->width())/
+	static_cast<double>(widget->height());
+
+    osgcamera->setProjectionMatrixAsPerspective( 30.0f, aspectratio,
+						  1.0f, 10000.0f );
+}
+
+
+class ODOsgWidget : public osgQt::GLWidget, public CallBacker
+{
+public:
+    			ODOsgWidget(QWidget* p)
+			    : osgQt::GLWidget(p)
+			    , resize( this )
+			{}
+
+    bool		event(QEvent* ev)
+			{
+			    if ( ev->type()==QEvent::Resize )
+			    {
+				resize.trigger();
+			    }
+
+			    return osgQt::GLWidget::event( ev );
+			}
+
+    Notifier<ODOsgWidget>	resize;
+};
+
+
 
 
 uiOsgViewBody::uiOsgViewBody( ui3DViewer& hndl, uiParent* parnt )
@@ -205,7 +252,8 @@ uiOsgViewBody::uiOsgViewBody( ui3DViewer& hndl, uiParent* parnt )
     , zoomfactor_( 1 )
 {
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
-    osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
+    ODOsgWidget* glw = new ODOsgWidget( parnt->pbody()->managewidg() );
+    glw->resize.notify( mCB( this, ui3DViewerBody, reSizeEvent ) );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
     setStretch(2,2);
@@ -280,16 +328,21 @@ void ui3DViewerBody::setSceneID( int sceneid )
 	mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
 	osgcamera->setGraphicsContext( getGraphicsContext() );
 	osgcamera->setClearColor( osg::Vec4(0.2, 0.2, 0.6, 1.0) );
-	osgcamera->setViewport( new osg::Viewport(0, 0, 600, 400 ) );
-	const double aspectratio = 1.4;
-	osgcamera->setProjectionMatrixAsPerspective( 30.0f, aspectratio,
-						  1.0f, 10000.0f );
+	viewport_ = new osg::Viewport(0, 0, 600, 400 );
+	osgcamera->setViewport( viewport_ );
 
 	osg::ref_ptr<osgViewer::View> view = new osgViewer::View;
 	view->setCamera( osgcamera );
 	view->setSceneData( newscene->osgNode() );
 	view->addEventHandler( new osgViewer::StatsHandler );
-	view->setCameraManipulator( new osgGA::TrackballManipulator );
+	osg::ref_ptr<osgGA::CameraManipulator> manip =
+	    new osgGA::TrackballManipulator( 
+		osgGA::StandardManipulator::DEFAULT_SETTINGS |
+		osgGA::StandardManipulator::SET_CENTER_ON_WHEEL_FORWARD_MOVEMENT
+	    );
+
+	manip->setAutoComputeHomePosition( false );
+	view->setCameraManipulator( manip.get() );
 
 	view_.setOsgView( view );
     }
@@ -360,9 +413,15 @@ void ui3DViewerBody::viewAll()
 {
     if ( !view_.getOsgView() )
 	return;
+    osg::ref_ptr<osg::Node> node = scene_->osgNode();
+    if ( !node )
+	return;
+
+    osg::BoundingSphere sphere = node ->getBound();
 
     osg::ref_ptr<osgGA::CameraManipulator> manip =
-	view_.getOsgView()->getCameraManipulator();
+	static_cast<osgGA::CameraManipulator*>(
+	    view_.getOsgView()->getCameraManipulator() );
 
     if ( !manip )
 	return;
@@ -372,7 +431,7 @@ void ui3DViewerBody::viewAll()
     if ( !ea )
 	return;
 
-    manip->computeHomePosition();
+    manip->computeHomePosition( getOsgCamera(), true );
     manip->home( *ea, getActionAdapter() );
 }
 
