@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.36 2011-09-27 05:32:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.37 2011-12-16 12:49:15 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -124,12 +124,12 @@ bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
 
 bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 {
-    static char bsbuf[1024+1];
-
+    if ( bs ) bs->setEmpty();
     int bsidx = 0; char ch;
     bool getres = getNextChar(strm,ch);
     if ( !getres ) return false;
 
+    char bsbuf[1024+1];
     while ( ch != '\n' )
     {
 	if ( bs )
@@ -155,10 +155,10 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 
 bool StrmOper::readFile( std::istream& strm, BufferString& bs )
 {
+    bs.setEmpty();
     BufferString curln;
     while ( true )
     {
-	curln.setEmpty();
 	if ( !readLine(strm,&curln) )
 	    break;
 	curln += "\n";
