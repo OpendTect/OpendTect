@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.109 2011-11-02 21:52:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.110 2011-12-16 15:19:08 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -658,7 +658,17 @@ bool uiOD2DLineSetSubItem::init()
 
 	if ( !oldzrg.isUdf() )
 	    s2d->setZRange( oldzrg );
-    }    
+    }
+    else
+    {
+	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
+	if ( hasworkzrg )
+	{
+	    StepInterval<float> newzrg = geometry->zRange();
+	    newzrg.limitTo( SI().zRange(true) );
+	    s2d->setZRange( newzrg );
+	}
+    }
 
     if ( applMgr() )
 	applMgr()->getOtherFormatData.notify(
