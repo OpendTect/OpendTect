@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.19 2011-12-16 15:51:27 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.20 2011-12-16 16:04:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,8 +100,8 @@ public:
 mClass SeparatorItem : public MenuItem
 {
 public:
-				SeparatorItem(int placement=-1)
-				    : MenuItem("Separator",placement)	{}
+				SeparatorItem(int plmnt=-1)
+				    : MenuItem("Separator",plmnt)	{}
 };
 
 
