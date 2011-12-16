@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.10 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: vishingeline.h,v 1.11 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
           
@@ -52,9 +52,8 @@ public:
     void			setEdgeLineSet(const EM::EdgeLineSet*);
     bool			setEdgeLineSet(int);
     const EM::EdgeLineSet*	getEdgeLineSet() const { return edgelineset; }
-    void			setDisplayTransformation(
-	    					visBase::Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
 
     int				getRightClickedLine() const
@@ -72,7 +71,7 @@ protected:
     ObjectSet<visBase::IndexedPolyLine3D>	polylines;
     ObjectSet<TypeSet<int> >			polylinesegments;
     ObjectSet<TypeSet<int> >			polylinesegmentpos;
-    visBase::Transformation*	transformation;
+    const mVisTrans*				transformation;
     bool			connect;
     bool			showdefault;
 

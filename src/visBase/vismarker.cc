@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarker.cc,v 1.33 2011-05-18 11:37:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismarker.cc,v 1.34 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vismarker.h"
 
@@ -304,7 +304,7 @@ void Marker::setDip( float inldip, float crldip )
 }
 
 
-void Marker::setDisplayTransformation( Transformation* nt )
+void Marker::setDisplayTransformation( const mVisTrans* nt )
 {
     const Coord3 pos = centerPos();
     if ( transformation ) transformation->unRef();
@@ -314,7 +314,7 @@ void Marker::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* Marker::getDisplayTransformation()
+const mVisTrans* Marker::getDisplayTransformation() const
 { return transformation; }
 
 

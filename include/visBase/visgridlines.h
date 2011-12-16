@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.10 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visgridlines.h,v 1.11 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
     				mCreateDataObj(GridLines);
     				~GridLines();
 
-    void			setDisplayTransformation(Transformation*);
+    void			setDisplayTransformation(const mVisTrans*);
 
     void			setLineStyle(const LineStyle&);
     void			getLineStyle(LineStyle&) const;
@@ -72,7 +72,7 @@ protected:
 
     ObjectSet<IndexedPolyLine>	polylineset_;
     DrawStyle*			drawstyle_;
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
 
     void			emptyLineSet(IndexedPolyLine*);
     IndexedPolyLine*		addLineSet();

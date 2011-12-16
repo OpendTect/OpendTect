@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdragger.cc,v 1.21 2011-08-02 09:09:22 cvskris Exp $";
+static const char* rcsID = "$Id: visdragger.cc,v 1.22 2011-12-16 15:57:21 cvskris Exp $";
 
 
 #include "visdragger.h"
@@ -102,7 +102,7 @@ void Dragger::setDraggerType( Type tp )
 }
 
 
-void Dragger::setDisplayTransformation( Transformation* nt )
+void Dragger::setDisplayTransformation( const mVisTrans* nt )
 {
     Coord3 pos = getPos();
     if ( displaytrans_ )
@@ -121,7 +121,7 @@ void Dragger::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* Dragger::getDisplayTransformation()
+const mVisTrans* Dragger::getDisplayTransformation() const
 {
     return displaytrans_;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.12 2009-07-22 16:01:26 cvsbert Exp $
+ RCS:		$Id: viscallout.h,v 1.13 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
     void			setBoxColor(const Color&);
     const Color&		getBoxColor() const;
 
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
 
     static const char*		sKeyText() 		{ return "T"; }
     static const char*		sKeyURL() 		{ return "U"; }
@@ -101,7 +101,7 @@ public:
     void			displayMarker(bool);
     				//!<Aslo controls the draggers. */
     bool			isMarkerDisplayed() const;
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
     int				getMarkerID() const;
 
 protected:
@@ -114,7 +114,7 @@ protected:
     void			dragStop(CallBacker*);
     void			setupRotFeedback();
 
-    visBase::Transformation*	displaytrans_;
+    const mVisTrans*		displaytrans_;
 
     visBase::Marker*		marker_; //In normal space
 

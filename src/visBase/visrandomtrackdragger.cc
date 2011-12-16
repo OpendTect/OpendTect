@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdragger.cc,v 1.5 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandomtrackdragger.cc,v 1.6 2011-12-16 15:57:21 cvskris Exp $";
 
 
 #include "visrandomtrackdragger.h"
@@ -46,7 +46,7 @@ RandomTrackDragger::~RandomTrackDragger()
 }
 
 
-void RandomTrackDragger::setDisplayTransformation( Transformation* nt )
+void RandomTrackDragger::setDisplayTransformation( const mVisTrans* nt )
 {
     TypeSet<Coord> pos( nrKnots(), Coord3() );
     for ( int idx=nrKnots()-1; idx>=0; idx-- )
@@ -71,7 +71,7 @@ void RandomTrackDragger::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* RandomTrackDragger::getDisplayTransformation()
+const mVisTrans* RandomTrackDragger::getDisplayTransformation() const
 { return displaytrans_; }
 
 

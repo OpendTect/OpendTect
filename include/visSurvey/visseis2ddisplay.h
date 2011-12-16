@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.55 2011-09-21 09:01:01 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.56 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,9 +85,8 @@ public:
     bool			canDuplicate() const		{ return true; }
     SurveyObject*		duplicate(TaskRunner*) const;
 
-    void			setDisplayTransformation(
-	    					visBase::Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     float			calcDist(const Coord3&) const;
 
@@ -180,7 +179,7 @@ protected:
     TraceDisplayInfo				trcdisplayinfo_;
     StepInterval<int>				maxtrcnrrg_;
 
-    visBase::Transformation*			transformation_;
+    const mVisTrans*				transformation_;
     visBase::Text2*				linename_;
     Notifier<Seis2DDisplay>			geomchanged_;
 

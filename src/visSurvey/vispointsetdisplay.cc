@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.15 2011-07-11 11:48:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.16 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -146,7 +146,7 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
 }
 
 
-void PointSetDisplay::setDisplayTransformation( visBase::Transformation* nt )
+void PointSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ == nt )
 	return;
@@ -162,7 +162,7 @@ void PointSetDisplay::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* PointSetDisplay::getDisplayTransformation()
+const mVisTrans* PointSetDisplay::getDisplayTransformation() const
 { return transformation_; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.68 2011-09-02 13:19:06 cvskris Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.69 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -651,7 +651,7 @@ bool Well::logNameShown() const
 { return false; }
 
 
-void Well::setDisplayTransformation( Transformation* nt )
+void Well::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ )
 	transformation_->unRef();
@@ -661,7 +661,7 @@ void Well::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* Well::getDisplayTransformation()
+const mVisTrans* Well::getDisplayTransformation() const
 { return transformation_; }
 
 

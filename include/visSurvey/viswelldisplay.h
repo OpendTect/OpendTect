@@ -7,8 +7,8 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.67 2011-10-06 13:24:32 cvsnanne Exp $
-
+ RCS:		$Id: viswelldisplay.h,v 1.68 2011-12-16 15:57:20 cvskris Exp $
+________________________________________________________________________
 
 
 -*/
@@ -107,9 +107,9 @@ public:
     bool                        logConstantSize() const;
 
 
-    mVisTrans*			getDisplayTransformation();
-    void			setDisplayTransformation(mVisTrans*);
-    void 			setDisplayTransformForPicks(mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(const mVisTrans*);
+    void 			setDisplayTransformForPicks(const mVisTrans*);
     
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(Coord3);
@@ -159,7 +159,7 @@ protected:
     Well::DisplayProperties* 	dispprop_;
 
     Coord3                      mousepressposition_;
-    mVisTrans*			transformation_;
+    const mVisTrans*		transformation_;
     MultiID			wellid_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::DataObjectGroup*	group_;

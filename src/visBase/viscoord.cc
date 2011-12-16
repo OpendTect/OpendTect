@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.43 2011-05-03 19:55:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.44 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "viscoord.h"
 
@@ -64,7 +64,7 @@ void Coordinates::copyFrom( const Coordinates& nc )
 }
 
 
-void Coordinates::setDisplayTransformation( Transformation* nt )
+void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( nt==transformation_ ) return;
 
@@ -84,7 +84,7 @@ void Coordinates::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation*  Coordinates::getDisplayTransformation()
+const mVisTrans*  Coordinates::getDisplayTransformation() const
 {
     return transformation_;
 }

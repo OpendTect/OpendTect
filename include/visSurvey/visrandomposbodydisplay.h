@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandomposbodydisplay.h,v 1.6 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: visrandomposbodydisplay.h,v 1.7 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,8 @@ public:
     bool			allowMaterialEdit() const { return true; }
     NotifierAccess*		materialChange();
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
 
     bool			setVisBody(visBase::RandomPos2Body*);
@@ -64,7 +64,7 @@ protected:
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
 
-    visBase::Transformation*	transform_;
+    const mVisTrans*		transform_;
     visBase::RandomPos2Body*	displaybody_;
     EM::RandomPosBody*		embody_;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.12 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.13 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,8 +75,8 @@ public:
 	    					Interval<float>& y,
 						Interval<float>& z ) const;
 
-    void			setDisplayTransformation( Transformation* );
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			setOwnShape( SoNode* );
 
@@ -114,7 +114,7 @@ protected:
     TypeSet<Coord3>		centers_;
     TypeSet<Coord3>		sizes_;
 
-    Transformation*		transform_;
+    const mVisTrans*		transform_;
 
 private:
     static void			startCB( void*, SoDragger* );

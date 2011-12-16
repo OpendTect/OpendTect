@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.48 2011-10-06 12:49:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.49 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -74,7 +74,7 @@ void MPEClickCatcher::setSceneEventCatcher( visBase::EventCatcher* nev )
 }
 
 
-void MPEClickCatcher::setDisplayTransformation( visBase::Transformation* nt )
+void MPEClickCatcher::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ )
 	transformation_->unRef();
@@ -85,7 +85,7 @@ void MPEClickCatcher::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
+const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 { return transformation_; }
 
 

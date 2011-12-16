@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.23 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.24 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ mClass Horizon2DDisplay : public EMObjectDisplay
 public:
     static Horizon2DDisplay*	create()
 				mCreateDataObj(Horizon2DDisplay);
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
 
     void			getMousePosInfo(const visBase::EventInfo& e,
 	    					IOPar& i ) const

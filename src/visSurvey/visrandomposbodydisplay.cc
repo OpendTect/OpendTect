@@ -4,7 +4,7 @@
  * DATE     : January 2009
 -*/
 
-static const char* rcsID = "$Id: visrandomposbodydisplay.cc,v 1.3 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandomposbodydisplay.cc,v 1.4 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visrandomposbodydisplay.h"
 
@@ -199,7 +199,7 @@ int RandomPosBodyDisplay::usePar( const IOPar& par )
 }
 
 
-void RandomPosBodyDisplay::setDisplayTransformation(visBase::Transformation* nt)
+void RandomPosBodyDisplay::setDisplayTransformation(const mVisTrans* nt)
 {
     if ( transform_ ) transform_->unRef();
     transform_ = nt;
@@ -216,7 +216,7 @@ void RandomPosBodyDisplay::setRightHandSystem( bool yn )
 }
 
 
-visBase::Transformation* RandomPosBodyDisplay::getDisplayTransformation()
+const mVisTrans* RandomPosBodyDisplay::getDisplayTransformation() const
 { return transform_; }
 
 

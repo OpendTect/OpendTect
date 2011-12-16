@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.11 2011-10-13 14:22:58 cvsyuancheng Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.12 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,8 +68,8 @@ public:
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
@@ -125,7 +125,7 @@ protected:
     void			reMakeIntersectionSurface();
 
     visBase::EventCatcher*		eventcatcher_;
-    visBase::Transformation*		displaytransform_;
+    const mVisTrans*			displaytransform_;
     visBase::ShapeHints*		shapehints_;
 
     visBase::GeomIndexedShape*		bodydisplay_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishingeline.cc,v 1.21 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: vishingeline.cc,v 1.22 2011-12-16 15:57:21 cvskris Exp $";
 
 
 #include "vishingeline.h"
@@ -132,7 +132,7 @@ bool EdgeLineSetDisplay::setEdgeLineSet( int emobjid )
 }
 
 
-void EdgeLineSetDisplay::setDisplayTransformation( visBase::Transformation* nt)
+void EdgeLineSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation ) transformation->unRef();
     transformation = nt;
@@ -143,7 +143,7 @@ void EdgeLineSetDisplay::setDisplayTransformation( visBase::Transformation* nt)
 }
 
 
-visBase::Transformation* EdgeLineSetDisplay::getDisplayTransformation()
+const mVisTrans* EdgeLineSetDisplay::getDisplayTransformation() const
 { return transformation; }
 
 

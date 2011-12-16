@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.13 2009-09-16 14:28:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.14 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -93,13 +93,13 @@ BeachBall::~BeachBall()
 }
 
 
-Transformation* BeachBall::getDisplayTransformation()
+const mVisTrans* BeachBall::getDisplayTransformation() const
 { 
     return transformation_; 
 }
 
 
-void BeachBall::setDisplayTransformation( Transformation* nt )
+void BeachBall::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ == nt )
 	return;

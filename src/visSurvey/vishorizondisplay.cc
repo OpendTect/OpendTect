@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.155 2011-12-16 15:55:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.156 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -157,7 +157,7 @@ bool HorizonDisplay::displaysIntersectionLines() const
 }
 
 
-void HorizonDisplay::setDisplayTransformation( mVisTrans* nt )
+void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     EMObjectDisplay::setDisplayTransformation( nt );
 

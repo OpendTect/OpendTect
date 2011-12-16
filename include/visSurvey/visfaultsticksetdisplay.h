@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.18 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.19 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,8 @@ public:
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -129,7 +129,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints) const;
 
     visBase::EventCatcher*	eventcatcher_;
-    visBase::Transformation*	displaytransform_;
+    const mVisTrans*		displaytransform_;
 
     EM::FaultStickSet*		emfss_;
     MPE::FaultStickSetEditor*	fsseditor_;

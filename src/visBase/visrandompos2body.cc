@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandompos2body.cc,v 1.4 2011-10-03 17:24:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandompos2body.cc,v 1.5 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visrandompos2body.h"
 
@@ -116,7 +116,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 }
 
 
-void RandomPos2Body::setDisplayTransformation( Transformation*  nt )
+void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
 {
     if ( transformation_ ) transformation_->unRef();
 
@@ -130,7 +130,7 @@ void RandomPos2Body::setDisplayTransformation( Transformation*  nt )
 }
 
 
-Transformation* RandomPos2Body::getDisplayTransformation()
+const mVisTrans* RandomPos2Body::getDisplayTransformation() const
 { return transformation_; }
 
 

@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.9 2011-11-29 16:10:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.10 2011-12-16 15:57:21 cvskris Exp $";
 
 
 #include "vissower.h"
@@ -90,7 +90,7 @@ void Sower::intersow( bool yn )
 { intersow_ = yn; }
 
 
-void Sower::setDisplayTransformation( visBase::Transformation* transformation )
+void Sower::setDisplayTransformation( const mVisTrans* transformation )
 { sowingline_->setDisplayTransformation( transformation ); }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.14 2011-01-07 21:22:38 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.15 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,8 @@ public:
     static GeomIndexedShape*	create()
 				mCreateDataObj(GeomIndexedShape);
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			setSurface(Geometry::IndexedShape*,
 	    				   TaskRunner* = 0);

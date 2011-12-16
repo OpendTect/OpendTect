@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.73 2011-11-30 11:53:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.74 2011-12-16 15:57:20 cvskris Exp $";
 
 #include "visprestackviewer.h"
 
@@ -590,7 +590,7 @@ const visSurvey::PlaneDataDisplay* Viewer3D::getSectionDisplay() const
 { return section_;}
 
 
-void Viewer3D::setDisplayTransformation( visBase::Transformation* nt )
+void Viewer3D::setDisplayTransformation( const visBase::Transformation* nt )
 { 
     flatviewer_->setDisplayTransformation( nt ); 
     if ( planedragger_ )

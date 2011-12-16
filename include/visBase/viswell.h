@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.40 2011-03-25 09:46:55 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.41 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,8 +173,8 @@ public:
     void 			setTrackProperties(Color&,int);
     void			setLogFillColorTab(const LogParams&,int);
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);
@@ -203,7 +203,7 @@ protected:
     SoSwitch*			lognmswitch_;
     Text2*			lognmleft_;
     Text2*			lognmright_;
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
 
     bool			showmarkers_;
     bool			showlogs_;

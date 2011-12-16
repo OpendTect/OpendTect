@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.7 2011-12-02 04:31:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.8 2011-12-16 15:57:20 cvskris Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -621,7 +621,7 @@ void PSEventDisplay::clearDisplay()
 }
 
 
-void PSEventDisplay::setDisplayTransformation(visBase::Transformation* nt)
+void PSEventDisplay::setDisplayTransformation(const mVisTrans* nt)
 { 
     for ( int idx=0; idx<parentattached_.size(); idx++ )
     {
@@ -639,7 +639,7 @@ void PSEventDisplay::setDisplayTransformation(visBase::Transformation* nt)
 }
 
 
-visBase::Transformation* PSEventDisplay::getDisplayTransformation()
+const mVisTrans* PSEventDisplay::getDisplayTransformation() const
 { return displaytransform_; }
 
 

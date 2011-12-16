@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistopbotimage.cc,v 1.4 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistopbotimage.cc,v 1.5 2011-12-16 15:57:21 cvskris Exp $";
 
 
 #include "vistopbotimage.h"
@@ -90,7 +90,7 @@ void TopBotImage::updateCoords()
 }
 
 
-void TopBotImage::setDisplayTransformation( mVisTrans* trans )
+void TopBotImage::setDisplayTransformation( const mVisTrans* trans )
 {
     if ( trans_ ) trans_->unRef();
     trans_ = trans;

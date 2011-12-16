@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.29 2011-04-29 16:05:07 cvsyuancheng Exp $
+ RCS:		$Id: viscoord.h,v 1.30 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,13 +46,13 @@ public:
     friend		class CoordinatesBuilder;
     friend		class CoordListAdapter;
 
-    void		setDisplayTransformation(Transformation*);
+    void		setDisplayTransformation(const mVisTrans*);
     			/*!<\note All existing
 			     coords will be recalculated back from the old
 			     transformation and transformed by the new one.
 			*/
 
-    Transformation*	getDisplayTransformation();
+    const mVisTrans*	getDisplayTransformation() const;
 
     void		copyFrom(const Coordinates&);
 
@@ -98,7 +98,7 @@ protected:
     UTMPosition*		utmposition_;
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
 
     virtual SoNode*		gtInvntrNode();
 

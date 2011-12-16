@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.61 2011-12-16 09:27:36 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.62 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,7 @@ public:
     virtual NotifierAccess*	rightClicked()		{ return 0; }
     virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
 
-    virtual void		setDisplayTransformation(Transformation*);
+    virtual void		setDisplayTransformation(const mVisTrans*);
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     witht this transform. This enables us
@@ -95,7 +95,7 @@ public:
 				     outside the vis without loosing precision
 				     in the vis.
 				 */
-    virtual Transformation*	getDisplayTransformation() { return 0; }
+    virtual const mVisTrans*	getDisplayTransformation() const { return 0; }
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     witht this transform. This enables us

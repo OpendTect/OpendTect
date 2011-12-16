@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visannotimage.h,v 1.6 2009-07-22 16:01:26 cvsbert Exp $
+ RCS:		$Id: visannotimage.h,v 1.7 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,12 +66,12 @@ public:
     void			setShape(visBase::FaceSet*);
 
     void			setPick(const Pick::Location&);
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
     				~Image();
 
-    visBase::Transformation*	transform_;
+    const mVisTrans*		transform_;
 
     visBase::Transformation*	position_;
     visBase::ForegroundLifter*	lifter_;

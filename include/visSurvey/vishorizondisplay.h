@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.68 2011-12-16 11:47:18 cvsbruno Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.69 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ mClass HorizonDisplay : public EMObjectDisplay
 public:
     static HorizonDisplay*	create()
 				mCreateDataObj( HorizonDisplay );
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
     void			enableTextureInterpolation(bool);

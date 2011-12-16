@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.40 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.41 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visrandomtrack.h"
 
@@ -68,7 +68,7 @@ RandomTrack::~RandomTrack()
 }
 
 
-void RandomTrack::setDisplayTransformation( Transformation* tf )
+void RandomTrack::setDisplayTransformation( const mVisTrans* tf )
 {
     if ( transformation ) transformation->unRef();
     transformation = tf;
@@ -77,7 +77,7 @@ void RandomTrack::setDisplayTransformation( Transformation* tf )
 }
 
 
-Transformation* RandomTrack::getDisplayTransformation()
+const mVisTrans* RandomTrack::getDisplayTransformation() const
 {
     return transformation;
 }

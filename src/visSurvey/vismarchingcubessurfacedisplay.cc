@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.32 2011-12-15 16:06:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.33 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -463,7 +463,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 }
 
 
-void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
+void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
 
@@ -482,7 +482,7 @@ void MarchingCubesDisplay::setRightHandSystem( bool yn )
 }
 
 
-visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
+const mVisTrans* MarchingCubesDisplay::getDisplayTransformation() const
 {
     return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; 
 }

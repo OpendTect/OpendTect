@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.50 2011-02-14 22:23:30 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.51 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,8 +52,8 @@ mClass HorizonSection : public VisualObjectImpl
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     void			setRightHandSystem(bool);
@@ -156,7 +156,7 @@ protected:
     Array2DImpl<HorizonSectionTile*> tiles_;
     bool			usewireframe_;
 
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
     ZAxisTransform*		zaxistransform_;
     int				zaxistransformvoi_; 
     				//-1 not needed by zaxistransform, -2 not set

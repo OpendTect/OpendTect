@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.33 2011-11-07 06:05:57 cvsranojay Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.34 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ public:
 
 protected:
     					~Viewer3D();
-    void				setDisplayTransformation(mVisTrans*);
+    void				setDisplayTransformation(const mVisTrans*);
     void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);
     void				seis2DMovedCB(CallBacker*);

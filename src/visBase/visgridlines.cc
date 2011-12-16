@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgridlines.cc,v 1.15 2010-12-15 06:13:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: visgridlines.cc,v 1.16 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visgridlines.h"
 
@@ -305,7 +305,7 @@ bool GridLines::areZlinesShown() const
 }
 
 
-void GridLines::setDisplayTransformation( Transformation* tf )
+void GridLines::setDisplayTransformation( const mVisTrans* tf )
 {
     if ( transformation_ )
 	transformation_->unRef();

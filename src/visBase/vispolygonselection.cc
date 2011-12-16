@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.15 2011-07-08 14:20:10 cvshelene Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.16 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vispolygonselection.h"
 
@@ -294,7 +294,7 @@ void PolygonSelection::paintStopCB( void*, SoPolygonSelect* )
 { polygonFinished()->trigger(); }
 
 
-void PolygonSelection::setDisplayTransformation( Transformation* nt )
+void PolygonSelection::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ ) transformation_->unRef();
     transformation_ = nt;
@@ -302,7 +302,7 @@ void PolygonSelection::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* PolygonSelection::getDisplayTransformation()
+const mVisTrans* PolygonSelection::getDisplayTransformation() const
 { return transformation_; }
 
 

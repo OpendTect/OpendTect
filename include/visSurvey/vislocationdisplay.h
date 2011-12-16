@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.34 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.35 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,8 +82,8 @@ public:
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
     virtual NotifierAccess*	getManipulationNotifier() { return &manip_; }
-    virtual void		setDisplayTransformation(mVisTrans*);
-    virtual mVisTrans*		getDisplayTransformation();
+    virtual void		setDisplayTransformation(const mVisTrans*);
+    virtual const mVisTrans*	getDisplayTransformation() const;
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
@@ -146,7 +146,7 @@ protected:
     visBase::DataObjectGroup*	group_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::PolyLine*          polyline_;
-    visBase::Transformation*	transformation_;
+    const mVisTrans*		transformation_;
     SoSeparator*                linesep_;
     ZAxisTransform*		datatransform_;
 

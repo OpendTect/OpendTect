@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.45 2011-10-28 11:30:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.46 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -253,8 +253,7 @@ Color FaultStickSetDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
 
-void FaultStickSetDisplay::setDisplayTransformation(
-						visBase::Transformation* nt )
+void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
 
@@ -270,7 +269,7 @@ void FaultStickSetDisplay::setDisplayTransformation(
 }
 
 
-visBase::Transformation* FaultStickSetDisplay::getDisplayTransformation()
+const mVisTrans* FaultStickSetDisplay::getDisplayTransformation() const
 { return displaytransform_; }
 
 

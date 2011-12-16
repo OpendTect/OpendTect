@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistext.cc,v 1.22 2011-02-21 14:25:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.23 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vistext.h"
 
@@ -94,7 +94,7 @@ void Text::setFontData( const FontData& fd )
 }
 
 
-void Text::setDisplayTransformation( Transformation* nt )
+void Text::setDisplayTransformation( const mVisTrans* nt )
 {
     const Coord3 pos = position();
 
@@ -105,7 +105,7 @@ void Text::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* Text::getDisplayTransformation()
+const mVisTrans* Text::getDisplayTransformation() const
 {
     return transformation_;
 }

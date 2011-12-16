@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.13 2011-12-16 10:34:44 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.14 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,8 @@ public:
 				{ return const_cast<DataObjectGroup*>(this)->
 				    getObject( idx ); }
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     				/*!\returns the trans of the first child
 					    with a trans, or null if none of
 					    the childrens has a trans */

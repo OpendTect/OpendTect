@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visellipsoid.cc,v 1.4 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visellipsoid.cc,v 1.5 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visellipsoid.h"
 
@@ -40,7 +40,7 @@ Ellipsoid::~Ellipsoid()
 { setDisplayTransformation(0); }
 
 
-void Ellipsoid::setDisplayTransformation( Transformation* tf )
+void Ellipsoid::setDisplayTransformation( const mVisTrans* tf )
 {
     if ( transformation_==tf ) return;
 

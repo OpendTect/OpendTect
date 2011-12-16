@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.69 2011-09-20 06:44:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.70 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -780,7 +780,7 @@ void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
 }
 
 
-void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
+void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 {
     if ( transformation_==newtr )
 	return;
@@ -803,7 +803,7 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 }
 
 
-visBase::Transformation* LocationDisplay::getDisplayTransformation()
+const mVisTrans* LocationDisplay::getDisplayTransformation() const
 {
     return transformation_;
 }

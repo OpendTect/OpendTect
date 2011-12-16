@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.26 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visshape.h,v 1.27 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -116,11 +116,11 @@ public:
     mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
 
 
-    void		setDisplayTransformation( Transformation* );
+    void		setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
 			     you will have to setTransformation again.  */
-    Transformation*	getDisplayTransformation();
+    const mVisTrans*	getDisplayTransformation() const;
     			/*!<\note Direcly relayed to the coordinates */
 
     void		setNormalPerFaceBinding( bool yn );

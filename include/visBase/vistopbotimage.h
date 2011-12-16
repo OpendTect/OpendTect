@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		June 2009
- RCS:		$Id: vistopbotimage.h,v 1.3 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistopbotimage.h,v 1.4 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     static TopBotImage*		create()
 				mCreateDataObj(TopBotImage);
 
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
     void			setPos(const Coord& tl,const Coord& br,
 				       float z);
     const Coord&		topLeft() const	    { return pos0_.coord(); }
@@ -49,7 +49,7 @@ protected:
 
     FaceSet*			imgshape_;
     Image*			image_;
-    Transformation*		trans_;
+    const mVisTrans*		trans_;
     Coord3			pos0_;
     Coord3			pos1_;
     Coord3			pos2_;

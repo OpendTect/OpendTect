@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.45 2011-09-28 20:10:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.46 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -51,7 +51,7 @@ Horizon2DDisplay::~Horizon2DDisplay()
 }
 
 
-void Horizon2DDisplay::setDisplayTransformation( mVisTrans* nt )
+void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     EMObjectDisplay::setDisplayTransformation( nt );
 

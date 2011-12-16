@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.139 2011-11-01 10:19:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.140 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -619,7 +619,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 }
 
 
-void Seis2DDisplay::setDisplayTransformation( visBase::Transformation* tf )
+void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 {
     if ( transformation_ ) 
 	transformation_->unRef();
@@ -633,7 +633,7 @@ void Seis2DDisplay::setDisplayTransformation( visBase::Transformation* tf )
 }
 
 
-visBase::Transformation* Seis2DDisplay::getDisplayTransformation()
+const mVisTrans* Seis2DDisplay::getDisplayTransformation() const
 {
     return transformation_;
 }

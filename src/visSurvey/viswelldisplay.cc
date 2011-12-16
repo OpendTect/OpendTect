@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.149 2011-10-06 13:24:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.150 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -671,7 +671,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 }
 
 
-void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
+void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     well_->setDisplayTransformation( nt );
     setDisplayTransformForPicks( nt );
@@ -679,7 +679,7 @@ void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* WellDisplay::getDisplayTransformation()
+const mVisTrans* WellDisplay::getDisplayTransformation() const
 { return well_->getDisplayTransformation(); }
 
 
@@ -811,7 +811,7 @@ void WellDisplay::addPick( Coord3 pos )
 }
 
 
-void WellDisplay::setDisplayTransformForPicks( visBase::Transformation* newtr )
+void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
     if ( transformation_==newtr )
 	return;

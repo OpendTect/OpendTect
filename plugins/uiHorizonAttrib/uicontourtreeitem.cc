@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.26 2011-12-07 14:49:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.27 2011-12-16 15:57:20 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -168,14 +168,14 @@ void addLabel( visBase::Text2* label )
     addChild( label->getInventorNode() );
 }
 
-void setDisplayTransformation( visBase::Transformation* nt )
+void setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ ) transformation_->unRef();
     transformation_ = nt;
     if ( transformation_ ) transformation_->ref();
 }
 
-    visBase::Transformation*	transformation_;
+    const mVisTrans*	transformation_;
 };
 
 

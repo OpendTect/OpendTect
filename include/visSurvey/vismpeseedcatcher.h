@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.20 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.21 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -108,9 +108,9 @@ public:
 				mCreateDataObj(MPEClickCatcher);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
-    void			setDisplayTransformation(mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
 
-    mVisTrans*			getDisplayTransformation();
+    const mVisTrans*		getDisplayTransformation() const;
 
     Notifier<MPEClickCatcher>	click;
 
@@ -138,7 +138,7 @@ protected:
 					const visBase::EventInfo&);
 
     visBase::EventCatcher*	eventcatcher_;
-    visBase::Transformation*	transformation_;
+    const mVisTrans*		transformation_;
     MPEEditor*			editor_;
     const visBase::EventInfo*	cureventinfo_;
 

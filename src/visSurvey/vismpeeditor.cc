@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.46 2011-09-20 06:44:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.47 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -130,7 +130,7 @@ void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 }
 
 
-void MPEEditor::setDisplayTransformation( visBase::Transformation* nt )
+void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation )
 	transformation->unRef();

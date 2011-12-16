@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.9 2009-09-16 14:27:09 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.10 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,8 @@ public:
 	    				visBeachBall::BallProperties&);
     visBeachBall::BallProperties getBallProperties() const;
 
-    void             		setDisplayTransformation(Transformation*);
-    Transformation*             getDisplayTransformation();
+    void             		setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setZScale(float zScale);
     float			getZScale() const;
     void			setCenterPosition(const Coord3&);
@@ -78,7 +78,7 @@ protected:
     SoTranslation*      	translation_;
     UTMPosition*        	xyTranslation_;
     SoScale*			scale_;
-    Transformation*             transformation_;
+    const mVisTrans*		transformation_;
 
     float			radius_;
     float			zScale_;

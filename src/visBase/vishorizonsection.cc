@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.119 2011-10-11 12:50:53 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.120 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -597,7 +597,7 @@ void HorizonSection::selectActiveVersion( int channel, int version )
 { channels_->setCurrentVersion( channel, version ); }
 
 
-void HorizonSection::setDisplayTransformation( Transformation* nt )
+void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ )
 	transformation_->unRef();
@@ -609,7 +609,7 @@ void HorizonSection::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* HorizonSection::getDisplayTransformation()
+const mVisTrans* HorizonSection::getDisplayTransformation() const
 { return transformation_; }
 
 

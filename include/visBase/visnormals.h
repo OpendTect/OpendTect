@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.17 2011-07-25 13:32:02 cvsnanne Exp $
+ RCS:		$Id: visnormals.h,v 1.18 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,8 +50,8 @@ public:
     void		setAll(const float* vals,int nmsz);
     			//!<vals are transformed, ordered in x,y,z.
 
-    void		setDisplayTransformation( Transformation* nt );
-    Transformation*	getDisplayTransformation() { return transformation_; }
+    void		setDisplayTransformation( const mVisTrans* nt );
+    const mVisTrans*	getDisplayTransformation() const { return transformation_; }
 
 protected:
     void		transformNormal(const Transformation*,Coord3&,
@@ -66,7 +66,7 @@ protected:
     TypeSet<int>		unusednormals_;
     Threads::Mutex&		mutex_;
 
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
 
     virtual SoNode*		gtInvntrNode();
     			

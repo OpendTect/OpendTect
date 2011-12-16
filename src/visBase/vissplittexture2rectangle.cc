@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.13 2010-03-25 15:20:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.14 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vissplittexture2rectangle.h"
 
@@ -284,13 +284,13 @@ const Coord3& SplitTexture2Rectangle::getPosition( bool dim0, bool dim1 ) const
 }
 
 
-mVisTrans* SplitTexture2Rectangle::getDisplayTransformation()
+const mVisTrans* SplitTexture2Rectangle::getDisplayTransformation() const
 { 
     return coords_->getDisplayTransformation();
 }
 
 
-void SplitTexture2Rectangle::setDisplayTransformation( mVisTrans* nt )
+void SplitTexture2Rectangle::setDisplayTransformation( const mVisTrans* nt )
 { 
     coords_->setDisplayTransformation( nt );
 }

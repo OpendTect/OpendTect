@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visnormals.cc,v 1.20 2011-04-28 18:42:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.21 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visnormals.h"
 
@@ -230,7 +230,7 @@ int  Normals::getFreeIdx()
 }
 
 
-void Normals::setDisplayTransformation( Transformation* nt )
+void Normals::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( nt==transformation_ ) return;
 

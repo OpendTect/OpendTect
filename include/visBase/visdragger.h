@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.17 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:           $Id: visdragger.h,v 1.18 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setDisplayTransformation( Transformation* );
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			setOwnShape(DataObject*,
 	    				    const char* partname );
@@ -86,7 +86,7 @@ protected:
     SoSeparator*		root_;
     Transformation*		positiontransform_;
     SoDragger*			dragger_;
-    Transformation*		displaytrans_;
+    const mVisTrans*		displaytrans_;
 
     virtual SoNode*		gtInvntrNode();
 

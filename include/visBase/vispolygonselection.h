@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.12 2011-07-08 14:20:10 cvshelene Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.13 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,8 +62,8 @@ public:
 				     4: some box points behind projection plane
 				*/
 
-    void			setDisplayTransformation( Transformation* );
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*		getDisplayTransformation() const;
 
     static Notifier<PolygonSelection>* polygonFinished();
 
@@ -80,7 +80,7 @@ protected:
 
 					~PolygonSelection();
 
-    Transformation*			transformation_;
+    const mVisTrans*			transformation_;
 
     DrawStyle*				drawstyle_;
     mutable ODPolygon<double>*		polygon_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		10-10-2007
- RCS:		$Id: visellipsoid.h,v 1.4 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visellipsoid.h,v 1.5 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,15 +45,15 @@ public:
     void		setWidth( const Coord3& );
     Coord3		getWidth() const; 
     
-    void		setDisplayTransformation( Transformation* );
-    Transformation*	getDisplayTransformation() { return transformation_; }
+    void		setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*	getDisplayTransformation() const { return transformation_; }
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
     			~Ellipsoid();
-    Transformation*	transformation_;
+    const mVisTrans*	transformation_;
     SoMatrixTransform*	position_;
     
     static const char*	centerposstr();

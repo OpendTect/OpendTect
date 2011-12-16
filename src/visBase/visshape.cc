@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.31 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.32 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -291,11 +291,11 @@ VertexShape::~VertexShape()
 }
 
 
-void VertexShape::setDisplayTransformation( Transformation* tr )
+void VertexShape::setDisplayTransformation( const mVisTrans* tr )
 { coords_->setDisplayTransformation( tr ); }
 
 
-Transformation* VertexShape::getDisplayTransformation()
+const mVisTrans* VertexShape::getDisplayTransformation() const
 { return  coords_->getDisplayTransformation(); }
 
 

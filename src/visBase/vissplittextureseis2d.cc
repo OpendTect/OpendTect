@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.16 2011-09-22 14:37:41 cvskris Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.17 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -128,13 +128,13 @@ void SplitTextureSeis2D::setTextureZPixelsAndPathScale( int zsz, int scale )
 }
 
 
-mVisTrans* SplitTextureSeis2D::getDisplayTransformation()
+const mVisTrans* SplitTextureSeis2D::getDisplayTransformation() const
 {
     return coords_->getDisplayTransformation(); 
 }
 
 
-void SplitTextureSeis2D::setDisplayTransformation( mVisTrans* nt )
+void SplitTextureSeis2D::setDisplayTransformation( const mVisTrans* nt )
 {
     coords_->setDisplayTransformation( nt );
 }

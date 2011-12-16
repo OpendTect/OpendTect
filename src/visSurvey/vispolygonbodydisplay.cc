@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.17 2011-10-13 14:22:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.18 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -459,7 +459,7 @@ int PolygonBodyDisplay::usePar( const IOPar& par )
 }
 
 
-void PolygonBodyDisplay::setDisplayTransformation(visBase::Transformation* nt)
+void PolygonBodyDisplay::setDisplayTransformation(const mVisTrans* nt)
 {
     if ( bodydisplay_ ) 
 	bodydisplay_->setDisplayTransformation( nt );
@@ -493,7 +493,7 @@ void PolygonBodyDisplay::setRightHandSystem(bool yn)
 }
 
 
-visBase::Transformation* PolygonBodyDisplay::getDisplayTransformation()
+const mVisTrans* PolygonBodyDisplay::getDisplayTransformation() const
 { return displaytransform_; }
 
 

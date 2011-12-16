@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.5 2011-12-02 04:31:51 cvsranojay Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.6 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,8 @@ protected:
     void			otherObjectsMoved( const ObjectSet<
 	    				const SurveyObject>&, int whichobj );
 
-    void			setDisplayTransformation(
-	    				visBase::Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     //bool			filterBinID(const BinID&) const;
     				/*!<\returns true if the binid should not be
@@ -114,7 +113,7 @@ protected:
     void				retriveParents();
 
     visBase::DrawStyle*			linestyle_;
-    visBase::Transformation*		displaytransform_;
+    const mVisTrans*			displaytransform_;
     ObjectSet<ParentAttachedObject>	parentattached_;
     
     DisplayMode				displaymode_;

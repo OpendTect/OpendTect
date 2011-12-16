@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.30 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.31 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,8 @@ public:
     static const char*		textureidstr;
     static const char*		draggersizestr;
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
@@ -120,7 +120,7 @@ protected:
     int				sectionidx;
 
     ObjectSet<TriangleStripSet>	sections;
-    Transformation*		transformation;
+    const mVisTrans*		transformation;
     SoRandomTrackLineDragger*	dragger;
     SoSwitch*			draggerswitch;
 };

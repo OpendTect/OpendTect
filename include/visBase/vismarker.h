@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.23 2011-05-18 06:59:31 cvsranojay Exp $
+ RCS:		$Id: vismarker.h,v 1.24 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -80,8 +80,8 @@ public:
     void		setDirection(const ::Sphere&);
     const ::Sphere&	getDirection() const		{ return direction; }
 
-    void		setDisplayTransformation( Transformation* );
-    Transformation*	getDisplayTransformation();
+    void		setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*	getDisplayTransformation() const;
     
     void		setDip(float inldip, float crldip);
     void		setZStretch(float);
@@ -91,7 +91,7 @@ public:
 
 protected:
 			~Marker();
-    Transformation*	transformation;
+    const mVisTrans*	transformation;
 
     SoShapeScale*	markerscale;
     UTMPosition*	xytranslation;

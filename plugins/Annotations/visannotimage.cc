@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visannotimage.cc,v 1.12 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: visannotimage.cc,v 1.13 2011-12-16 15:57:20 cvskris Exp $";
 
 #include "visannotimage.h"
 
@@ -70,7 +70,7 @@ void Image::setShape( visBase::FaceSet* fs )
 }
 
 
-void Image::setDisplayTransformation( mVisTrans* trans )
+void Image::setDisplayTransformation( const mVisTrans* trans )
 {
     Coord3 pos = position_->getTranslation();
     if ( transform_ )

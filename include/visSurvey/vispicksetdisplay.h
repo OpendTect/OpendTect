@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.65 2011-02-22 08:18:22 cvsranojay Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.66 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,9 +43,8 @@ public:
     bool			setBodyDisplay();
     visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
 
-    void			setDisplayTransformation(
-	    				visBase::Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.15 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: viscube.h,v 1.16 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,15 +43,15 @@ public:
     void		setWidth( const Coord3& );
     Coord3		width() const;
 
-    void		setDisplayTransformation( Transformation* );
-    Transformation*	getDisplayTransformation() { return transformation; }
+    void		setDisplayTransformation( const mVisTrans* );
+    const mVisTrans*	getDisplayTransformation() const { return transformation; }
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
     			~Cube();
-    Transformation*	transformation;
+    const mVisTrans*	transformation;
     SoTranslation*	position;
     static const char*	centerposstr;
     static const char*	widthstr;

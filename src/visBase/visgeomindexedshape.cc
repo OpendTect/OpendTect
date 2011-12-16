@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.29 2011-08-02 09:09:22 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.30 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -239,14 +239,14 @@ const ColTab::Sequence* GeomIndexedShape::getDataSequence() const
 { return ctab_ ? &ctab_->sequence_ : 0; }
 
 
-void GeomIndexedShape::setDisplayTransformation( mVisTrans* nt )
+void GeomIndexedShape::setDisplayTransformation( const mVisTrans* nt )
 {
     coords_->setDisplayTransformation( nt );
     normals_->setDisplayTransformation( nt );
 }
 
 
-mVisTrans* GeomIndexedShape::getDisplayTransformation()
+const mVisTrans* GeomIndexedShape::getDisplayTransformation() const
 { return coords_->getDisplayTransformation(); }
 
 

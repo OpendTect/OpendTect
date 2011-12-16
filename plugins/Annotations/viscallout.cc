@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.31 2011-09-06 13:13:09 cvskris Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.32 2011-12-16 15:57:20 cvskris Exp $";
 
 #include "viscallout.h"
 
@@ -363,7 +363,7 @@ bool Callout::isMarkerDisplayed() const
 }
 
 
-void Callout::setDisplayTransformation( visBase::Transformation* nt )
+void Callout::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( displaytrans_ )
     {
@@ -664,7 +664,7 @@ CalloutDisplay::~CalloutDisplay()
 }
 
 
-void CalloutDisplay::setDisplayTransformation( mVisTrans* tr )
+void CalloutDisplay::setDisplayTransformation( const mVisTrans* tr )
 {
     visSurvey::LocationDisplay::setDisplayTransformation( tr );
     fullRedraw();

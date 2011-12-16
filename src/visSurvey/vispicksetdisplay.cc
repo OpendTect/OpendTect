@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.105 2011-05-18 06:59:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.106 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -84,7 +84,7 @@ void PickSetDisplay::setColor( Color nc )
 }
 
 
-void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
+void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 {
     visSurvey::LocationDisplay::setDisplayTransformation( newtr );
     if ( bodydisplay_ )
@@ -92,7 +92,7 @@ void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 }
 
 
-visBase::Transformation* PickSetDisplay::getDisplayTransformation()
+const mVisTrans* PickSetDisplay::getDisplayTransformation() const
 {
     return transformation_;
 }

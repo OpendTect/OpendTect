@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.17 2011-02-08 10:42:35 cvskris Exp $
+ RCS:		$Id: vistext.h,v 1.18 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,8 +43,8 @@ public:
     virtual Justification	justification() const		=0;
     virtual void		setJustification(Justification)	=0;
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
@@ -56,7 +56,7 @@ protected:
     FontData			fontdata_;
     SoTranslation*		textpos_;
     SoFont*			font_;
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
     PickStyle*			pickstyle_;
 
     static const char*		sKeyString();

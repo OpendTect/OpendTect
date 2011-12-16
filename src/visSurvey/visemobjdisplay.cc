@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.137 2011-10-28 11:30:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.138 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -113,11 +113,11 @@ bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
 { return channel2rgba_; }
 
-mVisTrans* EMObjectDisplay::getDisplayTransformation()
+const mVisTrans* EMObjectDisplay::getDisplayTransformation() const
 { return transformation_; }
 
 
-void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
+void EMObjectDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transformation_ ) transformation_->unRef();
     transformation_ = nt;

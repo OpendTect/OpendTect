@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandompos2body.h,v 1.3 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visrandompos2body.h,v 1.4 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,8 @@ public:
     bool			setPoints(const TypeSet<Coord3>& pts);
     const TypeSet<Coord3>&	getPoints() const { return picks_; }
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			renderOneSide(int side);
     				/*!< 0 = visisble from both sides.
@@ -55,7 +55,7 @@ protected:
 
     TypeSet<Coord3>		picks_;			
     TriangleStripSet*		triset_;
-    Transformation*		transformation_;
+    const mVisTrans*		transformation_;
     SoShapeHints*		hints_;
 };
 

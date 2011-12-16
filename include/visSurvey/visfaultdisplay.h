@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.42 2011-11-15 16:09:37 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.43 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,8 +82,8 @@ public:
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
@@ -202,7 +202,7 @@ protected:
     void			setLineRadius(visBase::GeomIndexedShape*);
 
     visBase::EventCatcher*		eventcatcher_;
-    visBase::Transformation*		displaytransform_;
+    const mVisTrans*			displaytransform_;
     visBase::ShapeHints*		shapehints_;
 
     visBase::GeomIndexedShape*		paneldisplay_;

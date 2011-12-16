@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.28 2011-12-15 16:06:02 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.29 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,8 @@ public:
     void			useTexture(bool yn);
     bool			usesTexture() const;
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
 
 

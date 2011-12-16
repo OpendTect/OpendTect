@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.25 2011-09-29 15:59:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.26 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -244,7 +244,7 @@ void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 }
 
 
-void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
+void DepthTabPlaneDragger::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transform_==nt ) return;
 
@@ -259,7 +259,7 @@ void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 
     if ( transform_ )
     {
-	removeChild( transform_->getInventorNode() );
+	removeChild( const_cast<mVisTrans*>(transform_)->getInventorNode() );
 	transform_->unRef();
     }
 
@@ -267,7 +267,7 @@ void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 
     if ( transform_ )
     {
-	insertChild(0, transform_->getInventorNode() );
+	insertChild(0, const_cast<mVisTrans*>(transform_)->getInventorNode() );
 	transform_->ref();
     }
 
@@ -278,7 +278,7 @@ void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* DepthTabPlaneDragger::getDisplayTransformation()
+const mVisTrans* DepthTabPlaneDragger::getDisplayTransformation() const
 {
     return transform_;
 }

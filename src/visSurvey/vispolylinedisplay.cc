@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: vispolylinedisplay.cc,v 1.3 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolylinedisplay.cc,v 1.4 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "vispolylinedisplay.h"
 #include "survinfo.h"
@@ -46,13 +46,13 @@ void PolyLineDisplay::fillPolyLine( const Coord3& pos )
 }
 
 
-void PolyLineDisplay::setDisplayTransformation( visBase::Transformation* nt )
+void PolyLineDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     polyline_->setDisplayTransformation( nt );
 }
 
 
-visBase::Transformation* PolyLineDisplay::getDisplayTransformation()
+const mVisTrans* PolyLineDisplay::getDisplayTransformation() const
 { return polyline_->getDisplayTransformation(); }
 
 }//namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.7 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.8 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,8 @@ public:
 				    const Coord3& c10,const Coord3& c11);
     const Coord3&	getPosition(bool dim0,bool dim1) const;
     
-    mVisTrans* 		getDisplayTransformation();
-    void		setDisplayTransformation(mVisTrans*);
+    const mVisTrans* 	getDisplayTransformation() const;
+    void		setDisplayTransformation(const mVisTrans*);
 
 protected:
     			~SplitTexture2Rectangle();

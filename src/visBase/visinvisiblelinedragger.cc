@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visinvisiblelinedragger.cc,v 1.3 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visinvisiblelinedragger.cc,v 1.4 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visinvisiblelinedragger.h"
 
@@ -77,7 +77,7 @@ Coord3 InvisibleLineDragger::getStartPos() const
 }
 
 
-void InvisibleLineDragger::setDisplayTransformation( Transformation* nt )
+void InvisibleLineDragger::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( transform_ )
 	transform_->unRef();
@@ -91,7 +91,7 @@ void InvisibleLineDragger::setDisplayTransformation( Transformation* nt )
 }
 
 
-Transformation* InvisibleLineDragger::getDisplayTransformation()
+const mVisTrans* InvisibleLineDragger::getDisplayTransformation() const
 { return transform_; }
 
 

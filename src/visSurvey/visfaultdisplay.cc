@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.88 2011-11-15 16:09:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.89 2011-12-16 15:57:21 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -628,7 +628,7 @@ int FaultDisplay::usePar( const IOPar& par )
 }
 
 
-void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
+void FaultDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( paneldisplay_ ) paneldisplay_->setDisplayTransformation( nt );
     if ( stickdisplay_ ) stickdisplay_->setDisplayTransformation( nt );
@@ -660,7 +660,7 @@ void FaultDisplay::setRightHandSystem(bool yn)
 }
 
 
-visBase::Transformation* FaultDisplay::getDisplayTransformation()
+const mVisTrans* FaultDisplay::getDisplayTransformation() const
 { return displaytransform_; }
 
 

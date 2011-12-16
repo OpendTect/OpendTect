@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Feb 2006
- RCS:           $Id: visrandomtrackdragger.h,v 1.4 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdragger.h,v 1.5 2011-12-16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ public:
     Interval<float>		getDepthRange() const;
     void			setDepthRange(const Interval<float>&);
 
-    void			setDisplayTransformation(Transformation*);
-    Transformation*		getDisplayTransformation();
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     void			setLimits(const Coord3& start,
 	    				  const Coord3& stop,
@@ -73,7 +73,7 @@ protected:
     const EventInfo*		rightclickeventinfo_;
 
     SoRandomTrackLineDragger*	dragger_;
-    Transformation*		displaytrans_;
+    const mVisTrans*		displaytrans_;
 
     static const char*		sKeyDraggerScale() { return "subDraggerScale"; }
 };
