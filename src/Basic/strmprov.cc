@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.117 2011-12-15 05:14:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.118 2011-12-16 11:14:03 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,7 +187,7 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
     cmd += " \"";
     cmd += filenm;
     cmd += "\"";
-    return ExecOSCmd( cmd, false );
+    return ExecOSCmd( cmd, true );
 #endif
     
     cmd = GetExecCommand( prognm, filenm );
@@ -853,58 +853,6 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 
     return sd;
 }
-
-
-#ifdef __msvc__
-bool ExecWinCmd( const char* comm, bool inbg, bool inconsole )
-{
-    if ( !comm || !*comm ) return false;
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof(STARTUPINFO);
-
-    if ( !inconsole )
-    {
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
-	si.wShowWindow = SW_HIDE;
-    }
-    
-   //Start the child process. 
-    int res = CreateProcess( NULL,	// No module name (use command line). 
-        const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable. 
-        NULL,				// Thread handle not inheritable. 
-        FALSE,				// Set handle inheritance to FALSE. 
-        0,				// Creation flags. 
-        NULL,				// Use parent's environment block. 
-        NULL,       			// Use parent's starting directory. 
-        &si, &pi );
-	
-    if ( res )
-    {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-    }
-    else
-    {
-	char *ptr = NULL;
-	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM,
-	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
-
-	fprintf(stderr, "\nError: %s\n", ptr);
-	LocalFree(ptr);
-    }
-
-    return res;
-}
-#endif
 
 
 bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
