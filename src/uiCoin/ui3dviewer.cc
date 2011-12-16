@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.4 2011-12-14 16:03:19 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.5 2011-12-16 10:32:25 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -163,7 +163,6 @@ protected:
     //visBase::CameraInfo*	camerainfo_;
     MouseCursor			actmodecursor_;
 
-    osg::ref_ptr<osg::GraphicsContext::Traits>	traits_;
     osg::ref_ptr<osgQt::GraphicsWindowQt>	graphicswin_;
 };
 
@@ -207,7 +206,6 @@ uiOsgViewBody::uiOsgViewBody( ui3DViewer& hndl, uiParent* parnt )
 {
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
     osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
-    traits_ = osgQt::GraphicsWindowQt::createTraits( glw );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
     setStretch(2,2);
@@ -322,13 +320,6 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
     osg::ref_ptr<const osg::Viewport> vp = camera->getViewport();
 
     return Geom::Size2D<int>( vp->width(), vp->height() );
-}
-
-
-bool ui3DViewerBody::serializeScene( const char* filename ) const
-{
-    //TODO
-    return false;
 }
 
 
@@ -563,8 +554,6 @@ public:
 
     virtual uiSize		minimumSize() const 
     				{ return uiSize(200,200); }
-
-    bool			dumpOIFile( const char* filename ) const;
 
     SoNode*			getTotalSceneGraph();
 
@@ -1096,10 +1085,6 @@ bool uiSoViewerBody::isCameraOrthographic() const
     const SoType t = getCameraType();
     return t.isDerivedFrom( SoOrthographicCamera::getClassTypeId() ); 
 }
-
-
-bool uiSoViewerBody::dumpOIFile( const char* filename ) const
-{ return displayroot_ ? displayroot_->dumpOIgraph( filename ) : false; }
 
 
 void uiSoViewerBody::setCameraZoom( float val )
@@ -1673,19 +1658,6 @@ Geom::Size2D<int> ui3DViewer::getViewportSizePixels() const
 SoNode* ui3DViewer::getSceneGraph() const
 {
     return sobody_->getTotalSceneGraph();
-}
-
-
-bool ui3DViewer::dumpOIFile( const char* filename ) const
-{
-#ifdef __have_osg__
-    if ( sobody_ )
-#endif
-	return sobody_->dumpOIFile( filename );
-#ifdef __have_osg__
-
-    return osgbody_->serializeScene( filename );
-#endif
 }
 
 

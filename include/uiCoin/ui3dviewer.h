@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: ui3dviewer.h,v 1.3 2011-12-14 15:27:41 cvskris Exp $
+ RCS:           $Id: ui3dviewer.h,v 1.4 2011-12-16 10:32:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,8 +86,6 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-
-    bool		dumpOIFile(const char*) const;
 
     void		setKeyBindings(const char* keybindname);
     void		getAllKeyBindings(BufferStringSet&);
