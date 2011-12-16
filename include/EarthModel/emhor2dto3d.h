@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.11 2009-11-13 17:32:10 cvsyuancheng Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.12 2011-12-16 15:51:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -29,9 +29,8 @@ class Hor2DTo3DSectionData;
 mClass Hor2DTo3D : public Executor
 {
 public:
-
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
-					  Horizon3D&, TaskRunner* = 0);  
+					  Horizon3D&,TaskRunner* =0);  
 				// current 3d-hor content is removed
 				// Interpol is taken over, if is 0, only copy 
 				// grid 2D to 3D.
