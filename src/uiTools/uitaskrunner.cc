@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.26 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.27 2011-12-16 10:37:15 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -264,8 +264,6 @@ BufferString uiTaskRunner::finalizeTask()
 
     if ( task_ ) message = task_->message();
     task_ = 0;
-
-    uitaskrunnerthreadmutex_.unLock();
 
     return message;
 }
