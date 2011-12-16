@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.12 2011-12-05 11:54:32 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.13 2011-12-16 10:34:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,12 +53,12 @@ public:
 				*/
 
     virtual void		removeObject( int idx );
-
     virtual void		removeAll();
     virtual DataObject*		getObject( int idx )
     				{return objects_.size()>idx ? objects_[idx] :0;}
-    virtual const DataObject*	getObject( int idx ) const
-				{return objects_.size()>idx ? objects_[idx] :0;}
+    const DataObject*		getObject( int idx ) const
+				{ return const_cast<DataObjectGroup*>(this)->
+				    getObject( idx ); }
 
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
@@ -79,7 +79,7 @@ protected:
     static const char*		nokidsstr();
     static const char*		kidprefix();
     virtual SoGroup*		createGroup();
-    void			ensureGroup();
+    virtual void		ensureGroup();
     SoGroup*			group_;
     osg::Group*			osggroup_;
 
@@ -88,7 +88,7 @@ protected:
     virtual SoNode*		gtInvntrNode();
     osg::Node*			gtOsgNode();
 
-private:
+protected:
 
     ObjectSet<DataObject>	objects_;
     ObjectSet<SoNode>		nodes_;
