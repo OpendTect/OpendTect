@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.154 2011-12-16 11:47:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.155 2011-12-16 15:55:52 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.154 2011-12-16 11:47:1
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
 #include "isocontourtracer.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
@@ -711,6 +712,11 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     }
 
     createAndDispDataPack( channel, &positions, 0 );
+
+    BufferString seqnm;
+    Settings::common().get( "dTect.Color table.Horizon", seqnm );
+    ColTab::Sequence seq( seqnm );
+    setColTabSequence( channel, seq, 0 );
 }
 
 
