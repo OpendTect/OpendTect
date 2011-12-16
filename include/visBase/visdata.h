@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.60 2011-12-06 07:57:17 cvsranojay Exp $
+ RCS:		$Id: visdata.h,v 1.61 2011-12-16 09:27:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -129,8 +129,8 @@ public:
     bool			saveInSessions() const
     				{ return saveinsessions_; }
 			
-    bool			dumpOIgraph(const char* filename,
-	    				    bool binary=false);
+    bool			serialize(const char* filename,
+	    				  bool binary=false);
 
 protected:
     friend class		SelectionManager;

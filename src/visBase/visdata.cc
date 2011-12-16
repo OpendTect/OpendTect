@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.34 2011-12-08 14:01:08 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.35 2011-12-16 09:27:36 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: visdata.cc,v 1.34 2011-12-08 14:01:08 cvskris E
 
 #ifdef __have_osg__
 #include <osg/Node>
+#include <osgDB/WriteFile>
 #endif
 
 namespace visBase
@@ -99,8 +100,15 @@ void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 }
 
 
-bool DataObject::dumpOIgraph( const char* filename, bool binary )
+bool DataObject::serialize( const char* filename, bool binary )
 {
+#ifdef __have_osg__
+    if ( doOsg() && osgNode() )
+    {
+	return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
+    }
+#endif
+
     SoNode* node = getInventorNode();
     if ( !node ) return false;
 

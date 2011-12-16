@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.216 2011-12-08 16:29:28 cvskris Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.217 2011-12-16 09:27:36 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -282,7 +282,7 @@ bool uiODSceneTreeItem::showSubMenu()
     else if ( mnuid== mScnColBar )
 	visserv->manageSceneColorbar( displayid_ );
     else if( mnuid==mDumpIV )
-	visserv->dumpOI( displayid_, "Export scene as ..." );
+	visserv->writeSceneToFile( displayid_, "Export scene as ..." );
 
     return true;
 }

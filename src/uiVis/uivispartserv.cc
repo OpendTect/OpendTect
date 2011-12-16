@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.469 2011-11-04 16:18:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.470 2011-12-16 09:27:36 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -1706,15 +1706,18 @@ bool uiVisPartServer::setMaterial( int id )
 }
 
 
-bool uiVisPartServer::dumpOI( int id, const char* dlgtitle ) const
+bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
 {
-    uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(), "*.iv",
-			  dlgtitle );
+    const char* extension = visBase::DataObject::doOsg()
+	? "*.osg"
+	: "*.iv";
+    uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
+	    		extension, dlgtitle );
     if ( filedlg.go() )
     {
 	visBase::DataObject* obj = visBase::DM().getObject( id );
 	if ( !obj ) return false;
-	return obj->dumpOIgraph( filedlg.fileName() );
+	return obj->serialize( filedlg.fileName() );
     }
 
     return false;
