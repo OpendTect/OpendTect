@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.18 2011-11-18 13:36:59 cvsbert Exp $
+ RCS:           $Id: menuhandler.h,v 1.19 2011-12-16 15:51:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,14 @@ public:
     				//*!< Filename of icon
     BufferString		tooltip;
     				//*!< Tooltip if item is used in toolbar
+};
+
+
+mClass SeparatorItem : public MenuItem
+{
+public:
+				SeparatorItem(int placement=-1)
+				    : MenuItem("Separator",placement)	{}
 };
 
 
