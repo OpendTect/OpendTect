@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.67 2011-10-28 11:29:35 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.68 2011-12-16 11:47:18 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -175,7 +175,10 @@ public:
     const visBase::HorizonSection*	getSection(int id) const;
 
     static HorizonDisplay*	getHorizonDisplay(const MultiID&);
-        
+
+    void			doOtherObjectsMoved(
+	    				const ObjectSet<const SurveyObject>&,
+					int whichobj );
 protected:
     				~HorizonDisplay();
     void			removeEMStuff();

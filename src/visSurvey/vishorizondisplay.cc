@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.153 2011-10-28 11:29:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.154 2011-12-16 11:47:18 cvsbruno Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1915,6 +1915,12 @@ void HorizonDisplay::updateSectionSeeds(
 	    }
 	}
     }
+}
+
+void HorizonDisplay::doOtherObjectsMoved(
+	            const ObjectSet<const SurveyObject>& objs, int whichobj )
+{
+    otherObjectsMoved( objs, whichobj );
 }
 
 
