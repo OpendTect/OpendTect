@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.21 2011-07-08 14:20:10 cvshelene Exp $
+ RCS:		$Id: vistransform.h,v 1.22 2011-12-19 14:35:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visdata.h"
+#include "visdatagroup.h"
 #include "position.h"
+
+namespace osg { class MatrixTransform; class Vec3d; }
 
 class SoMatrixTransform;
 class SbMatrix;
@@ -40,13 +42,13 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-mClass Transformation : public DataObject
+mClass Transformation : public DataObjectGroup
 {
 public:
     static Transformation*	create()
 				mCreateDataObj(Transformation);
 
-    void		setRotation(const Coord3& vec,float angle);
+    void		setRotation(const Coord3& vec,double angle);
     void		setTranslation( const Coord3& );
     Coord3		getTranslation() const;
 
@@ -55,16 +57,17 @@ public:
 
     void		reset();
 
-    void		setA( float a11, float a12, float a13, float a14,
-	    		      float a21, float a22, float a23, float a24,
-			      float a31, float a32, float a33, float a34,
-			      float a41, float a42, float a43, float a44 );
-    void		setA( const SbMatrix& );
+    void		setA( double a11, double a12, double a13, double a14,
+	    		      double a21, double a22, double a23, double a24,
+			      double a31, double a32, double a33, double a34,
+			      double a41, double a42, double a43, double a44 );
 
     Coord3		transform( const Coord3& ) const;
     Coord3		transformBack(  const Coord3& ) const;
     void		transform( SbVec3f& ) const;
     void		transformBack( SbVec3f& ) const;
+    void		transform(osg::Vec3d&) const;
+    void		transformBack(osg::Vec3d&) const;
 
     Coord3		transformDir(const Coord3&) const;
     Coord3		transformDirBack(const Coord3&) const;
@@ -75,13 +78,16 @@ public:
 private:
 
     virtual		~Transformation();
+    void		ensureGroup();
 
+    SoGroup*		transformgroup_;
     SoMatrixTransform*	transform_;
+
+    osg::MatrixTransform* node_;
 
     static const char*	matrixstr();
 
     virtual SoNode*	gtInvntrNode();
-
 };
 
 
@@ -95,7 +101,7 @@ public:
     static Rotation*	create()
 			mCreateDataObj(Rotation);
 
-    void		set(const Coord3& vec,float angle);
+    void		set(const Coord3& vec,double angle);
     void		set(const Quaternion&);
     void		get(Quaternion&) const;
 
