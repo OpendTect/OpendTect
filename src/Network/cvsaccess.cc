@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cvsaccess.cc,v 1.9 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: cvsaccess.cc,v 1.10 2011-12-19 13:59:58 cvsbert Exp $";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -85,7 +85,7 @@ bool CVSAccess::hostOK() const
 
 bool CVSAccess::isInCVS( const char* fnm ) const
 {
-    if ( !fnm || !*fnm ) return false;
+    if ( !fnm || !*fnm || !isOK() ) return false;
     FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     BufferStringSet entries; getEntries( dirnm, entries );
@@ -96,6 +96,7 @@ bool CVSAccess::isInCVS( const char* fnm ) const
 void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
+
     const FilePath fp( dir_, dir, "CVS", "Entries" );
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
     if ( !sd.usable() )
@@ -116,6 +117,9 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 
 bool CVSAccess::update( const char* fnm )
 {
+    if ( !isOK() )
+	return true;
+
     mGetReqFnm();
     const BufferString cmd( "@cvs update ", reqfnm, sRedirect );
     return StreamProvider(cmd).executeCommand();
@@ -131,6 +135,9 @@ bool CVSAccess::edit( const char* fnm )
 
 bool CVSAccess::edit( const BufferStringSet& fnms )
 {
+    if ( !isOK() )
+	return true;
+
     BufferString cmd( "@cvs edit " );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
@@ -154,6 +161,8 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
 {
     if ( fnms.isEmpty() )
 	return true;
+    else if ( !isOK() )
+	return false;
 
     BufferString cmd( "@cvs add" );
     if ( bin ) cmd.add( " -kb" );
@@ -182,14 +191,23 @@ bool CVSAccess::remove( const BufferStringSet& fnms )
 {
     if ( fnms.isEmpty() )
 	return true;
+    const bool isok = isOK();
 
     BufferString cmd( "@cvs delete -f" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
-	mGetReqFnm();
-	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	if ( !isok )
+	    File::remove( fnm );
+	else
+	{
+	    mGetReqFnm();
+	    cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	}
     }
+    if ( !isok )
+	return true;
+
     cmd.add( sRedirect );
     return StreamProvider(cmd).executeCommand();
 }
@@ -204,7 +222,7 @@ bool CVSAccess::commit( const char* fnm, const char* msg )
 
 bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 {
-    if ( fnms.isEmpty() )
+    if ( fnms.isEmpty() || !isOK() )
 	return true;
 
     BufferString cmd( "@cvs commit" );
@@ -288,8 +306,11 @@ bool CVSAccess::doRename( const char* fromfullfnm, const char* tofullfnm,
 
 void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
 {
-    mGetReqFnm();
     edtxts.erase();
+    if ( !isOK() )
+	return;
+
+    mGetReqFnm();
 
 #ifdef __win__
     return; //TODO
@@ -317,8 +338,11 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
 
 void CVSAccess::diff( const char* fnm, BufferString& res ) const
 {
-    mGetReqFnm();
     res.setEmpty();
+    if ( !isOK() )
+	return;
+
+    mGetReqFnm();
 
 #ifdef __win__
     return; //TODO
@@ -347,4 +371,3 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
     mRetRmTempFile()
 #endif
 }
-
