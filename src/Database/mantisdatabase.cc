@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.32 2011-12-16 11:18:36 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.33 2011-12-19 11:53:52 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -452,7 +452,8 @@ void SqlDB::MantisDBMgr::fillSeverity()
 bool SqlDB::MantisDBMgr::getInfoFromTables()
 {
     if ( !fillCategories() || !fillProjectsInfo() || !fillBugTableEntries()
-	 || !fillUsersInfo() || !fillVersionsByProject() )
+	 || !fillUsersInfo() || !fillVersionsByProject() ||
+	 !fillAttachedFilesInfo() )
 	return false;
 
     fillSeverity();
