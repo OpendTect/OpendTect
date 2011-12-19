@@ -4,12 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.60 2011-04-28 07:00:13 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.61 2011-12-19 15:32:57 cvskris Exp $";
 
 #include "vissurvobj.h"
 
 #include "attribsel.h"
 #include "basemap.h"
+#include "survinfo.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "vistexturechannel2rgba.h"
@@ -106,8 +107,21 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
+void SurveyObject::setSurveyInfo(const SurveyInfo& si)
+{ survinfo_ = &si; }
+
+
+const char* SurveyObject::getSurveyName() const
+{
+    return survinfo_ ? survinfo_->name().str() : survname_.str();
+}
+
+
 void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 {
+    if ( survinfo_ )
+	par.set( sKeySurvey(), survinfo_->name() );
+
     par.setYN( sKeyLocked(), locked_ );
     const int nrattribs = nrAttribs();
     for ( int attrib=nrattribs-1; attrib>=0; attrib-- )
@@ -162,6 +176,8 @@ int SurveyObject::useSOPar( const IOPar& par )
 {
     locked_ = false;
     par.getYN( sKeyLocked(), locked_ );
+
+    par.get( sKeySurvey(), survname_ );
 
     int tc2rgbaid;
     if ( par.get( sKeyTC2RGBA(), tc2rgbaid ) )

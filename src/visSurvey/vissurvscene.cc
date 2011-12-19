@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.151 2011-12-19 14:38:34 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.152 2011-12-19 15:32:57 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -312,6 +312,12 @@ void Scene::addUTMObject( visBase::VisualObject* obj )
 
 void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
+    mDynamicCastGet(SurveyObject*,so,obj);
+    if ( so )
+    {
+	so->setSurveyInfo( SI() );
+    }
+
     inlcrl2disptransform_->addObject( obj );
 }
 

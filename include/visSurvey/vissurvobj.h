@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.125 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vissurvobj.h,v 1.126 2011-12-19 15:32:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "vissurvscene.h"
 
+class SurveyInfo;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
@@ -52,6 +53,9 @@ namespace visSurvey
 mClass SurveyObject
 {
 public:
+    virtual void		setSurveyInfo(const SurveyInfo& si);
+    virtual const char*		getSurveyName() const;
+
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
@@ -301,6 +305,7 @@ public:
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
     static const char*          sKeyLocked()    { return "Locked"; }
+    static const char*		sKeySurvey()	{ return "Survey"; }
 
     void			setUserRefs( int attrib, BufferStringSet* nms )
 				{ userrefs_.replace( attrib, nms ); }
@@ -308,6 +313,7 @@ public:
 protected:
     				SurveyObject() 
 				: scene_(0)
+				, survinfo_( 0 )
 				, basemapobj_(0)
 				, locked_(false)	{};
 
@@ -322,6 +328,9 @@ protected:
 
     virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
+
+    const SurveyInfo*		survinfo_;
+    BufferString		survname_; //Only from IOPar
 };
 
 
