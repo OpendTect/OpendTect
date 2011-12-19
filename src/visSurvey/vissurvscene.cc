@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.152 2011-12-19 15:32:57 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.153 2011-12-19 15:49:04 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -329,6 +329,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
+	so->setSurveyInfo( SI() );
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 
