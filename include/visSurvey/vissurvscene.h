@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.76 2011-11-30 09:27:32 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.77 2011-12-19 14:38:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,11 @@ public:
 				     visSurvey::SurveyObject, it will be put in
 				     displaydomain
 				*/
+
+    virtual int			size() const;
+    visBase::DataObject*	getObject(int);
+    const visBase::DataObject*	getObject(int) const;
+
     void			addUTMObject(visBase::VisualObject*);
     void			addInlCrlZObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
@@ -134,9 +139,9 @@ public:
     				/*!<Returns an anproximate figure how to scale Z
 				    relates to XY coordinates in this scene. */
 
-    mVisTrans*			getZScaleTransform() const;
-    mVisTrans*			getInlCrl2DisplayTransform() const;
-    mVisTrans*			getUTM2DisplayTransform() const;
+    const mVisTrans*		getZScaleTransform() const;
+    const mVisTrans*		getInlCrl2DisplayTransform() const;
+    const mVisTrans*		getUTM2DisplayTransform() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     ZAxisTransform*		getZAxisTransform();
 
@@ -188,10 +193,10 @@ protected:
     void			updateBaseMapCursor(const Coord&);
     static const Color&		cDefaultMarkerColor();
     
-    visBase::Transformation*	zscaletransform_;
-    visBase::Transformation*	inlcrl2disptransform_;
-    visBase::Transformation*	utm2disptransform_;
-    ZAxisTransform*		datatransform_;
+    RefMan<visBase::Transformation>	zscaletransform_;
+    RefMan<visBase::Transformation>	inlcrl2disptransform_;
+    RefMan<visBase::Transformation>	utm2disptransform_;
+    ZAxisTransform*			datatransform_;
 
     BaseMap*			basemap_;
     BaseMapMarkers*		basemapcursor_;

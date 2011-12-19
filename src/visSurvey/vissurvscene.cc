@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.150 2011-11-30 09:27:32 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.151 2011-12-19 14:38:34 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -205,16 +205,16 @@ void Scene::createTransforms( const HorSampling& hs )
 {
     if ( !zscaletransform_ )
     {
-	zscaletransform_ = STM().createZScaleTransform();
-	visBase::DataObjectGroup::addObject(
-		const_cast<visBase::Transformation*>(zscaletransform_) );
+	mVisTrans* trans = STM().createZScaleTransform();
+	zscaletransform_ = trans;
+	visBase::DataObjectGroup::addObject( trans );
     }
 
     if ( !inlcrl2disptransform_ )
     {
-	inlcrl2disptransform_ = STM().createIC2DisplayTransform( hs );
-	visBase::DataObjectGroup::addObject(
-		const_cast<visBase::Transformation*>(inlcrl2disptransform_) );
+	mVisTrans* trans = STM().createIC2DisplayTransform( hs );
+	inlcrl2disptransform_ = trans;
+	zscaletransform_->addObject(  trans );
     }
 
     if ( !utm2disptransform_ )
@@ -281,17 +281,38 @@ void Scene::setCubeSampling( const CubeSampling& cs )
 }
 
 
+int Scene::size() const
+{
+    return zscaletransform_->size()+inlcrl2disptransform_->size();
+}
+
+
+visBase::DataObject* Scene::getObject( int idx )
+{
+    if ( idx<zscaletransform_->size() )
+	return zscaletransform_->getObject( idx );
+
+    return inlcrl2disptransform_->getObject( idx-zscaletransform_->size() );
+}
+
+
+const visBase::DataObject* Scene::getObject( int idx ) const
+{
+    return const_cast<Scene*>( this )->getObject( idx );
+}
+
+
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
     obj->setDisplayTransformation( utm2disptransform_ );
-    const int insertpos = getFirstIdx( inlcrl2disptransform_ );
-    insertObject( insertpos, obj );
+    const int idx = zscaletransform_->getFirstIdx( inlcrl2disptransform_ );
+    zscaletransform_->insertObject( idx, obj );
 }
 
 
 void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
-    visBase::Scene::addObject( obj );
+    inlcrl2disptransform_->addObject( obj );
 }
 
 
@@ -331,7 +352,10 @@ void Scene::removeObject( int idx )
     if ( so && so->getMovementNotifier() )
 	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 
-    visBase::DataObjectGroup::removeObject( idx );
+    if ( idx<zscaletransform_->size() )
+	zscaletransform_->removeObject( idx );
+    else
+	inlcrl2disptransform_->removeObject( idx-zscaletransform_->size() );
 
     if ( so )
 	objectMoved(0);
@@ -366,15 +390,15 @@ float Scene::getZScale() const
 { return zscale_; }
 
 
-mVisTrans* Scene::getZScaleTransform() const
+const mVisTrans* Scene::getZScaleTransform() const
 { return zscaletransform_; }
 
 
-mVisTrans* Scene::getInlCrl2DisplayTransform() const
+const mVisTrans* Scene::getInlCrl2DisplayTransform() const
 { return inlcrl2disptransform_; }
 
 
-mVisTrans* Scene::getUTM2DisplayTransform() const
+const mVisTrans* Scene::getUTM2DisplayTransform() const
 { return utm2disptransform_; }
 
 
@@ -759,9 +783,6 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::Scene::fillOffsetPar( par );
 
     int kid = 0;
-    while ( getObject(kid++) != zscaletransform_ )
-	;
-
     int nrkids = 0;    
     for ( ; kid<size(); kid++ )
     {
@@ -816,6 +837,10 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
+    const int idx = visBase::DataObjectGroup::getFirstIdx( zscaletransform_ );
+    if ( idx!=-1 )
+	visBase::DataObjectGroup::removeObject( idx );
+
     zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
     polyselector_= 0;
     delete coordselector_; coordselector_ = 0;
