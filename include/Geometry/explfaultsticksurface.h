@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.21 2011-11-15 16:09:37 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.22 2011-12-20 18:06:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,9 @@ public:
 
     bool		update(bool forceall,TaskRunner*);
 
+    void		addToGeometries(IndexedGeometry*);
+    void		removeFromGeometries(const IndexedGeometry*);
+
     bool		getTexturePositions(DataPointSet&,
 	    				    TaskRunner*);
     const BinIDValue	getBinIDValue() { return texturesampling_; }
@@ -84,9 +87,6 @@ protected:
     void		removeAll(bool);
     void		insertAll();
     
-    void		addToGeometries(IndexedGeometry*);
-    void		removeFromGeometries(const IndexedGeometry*);
-
     void		emptyStick(int stickidx);
     void		fillStick(int stickidx);
     void		removeStick(int stickidx);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.6 2011-10-13 14:21:47 cvsyuancheng Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.7 2011-12-20 18:06:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Geometry
 
 
 mClass ExplPlaneIntersection: public Geometry::IndexedShape,
-			     public CallBacker
+			      public CallBacker
 {
 public:
 				ExplPlaneIntersection();
@@ -48,6 +48,7 @@ public:
     				
 
     bool			needsUpdate() const;
+    bool			update(bool forceall,TaskRunner*);
     void			removeAll(bool);
 
     void			setZScale(float nz)	{ zscale_ = nz; }
@@ -65,7 +66,6 @@ public:
 protected:
 
     friend			class ExplPlaneIntersectionExtractor;
-    bool			update(bool forceall,TaskRunner*);
     
     const IndexedShape*				shape_;
     int						shapeversion_;
