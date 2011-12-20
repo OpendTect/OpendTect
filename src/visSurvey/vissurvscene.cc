@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.154 2011-12-20 08:13:59 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.155 2011-12-20 11:58:58 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -337,6 +337,9 @@ void Scene::addObject( visBase::DataObject* obj )
 	STM().setCurrentScene( this );
 	so->allowShading( userwantsshading_ && appallowshad_ );
     }
+
+    if ( vo )
+	vo->setSceneEventCatcher( &events_ );
 
     if ( so && so->isInlCrl() )
 	addInlCrlZObject( obj );
