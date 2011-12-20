@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiosgviewer.cc,v 1.3 2011-12-14 15:27:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiosgviewer.cc,v 1.4 2011-12-20 14:44:14 cvsjaap Exp $";
 
 #include "uiosgviewer.h"
 
@@ -92,6 +92,7 @@ uiOsgViewer::uiOsgViewer()
 {
 #ifdef __have_osg__
     osgviewer_->ref();
+    osgviewer_->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
     osgQt::setViewer( osgviewer_.get() );
 #endif
 }
