@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.11 2011-12-06 08:00:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.12 2011-12-20 05:38:20 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
 #include "ctxtioobj.h"
 #include "enums.h"
 #include "menuhandler.h"
+#include "pixmap.h"
 #include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
@@ -26,7 +27,9 @@ static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.11 2011-12-06 08:00:0
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uitaskrunner.h"
+#include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vispseventdisplay.h"
 
@@ -127,6 +130,14 @@ PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
 
 PSEventsTreeItem::~PSEventsTreeItem()
 {
+    ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 
+	   &ODMainWin()->colTabEd().getColTabSequence() );
+    if ( cseq )
+    {
+	cseq->colorChanged.remove(
+			mCB(this,PSEventsTreeItem,coltabChangeCB) );
+    }
+
     if ( eventdisplay_ )
     {
 	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -183,7 +194,6 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
 	|| menu->menuID()!=displayID() || menuid==-1 )
 	return;
 
-   
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
@@ -205,6 +215,7 @@ void PSEventsTreeItem::updateColorMode( int mode )
 {
     eventdisplay_->setMarkerColor(
 	(visSurvey::PSEventDisplay::MarkerColor) mode );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -219,11 +230,50 @@ void PSEventsTreeItem::updateDisplay()
 	displayid_ = eventdisplay_->id();
 	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setEventManager( &psem_ );
-	const ColTab::MapperSetup ms;
-	eventdisplay_->setColTabMapper( ms, true );
-	eventdisplay_->setColTabSequence( 0, visserv->getColTabSequence(0,0) );
+	
+	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 
+	   &ODMainWin()->colTabEd().getColTabSequence() );
+   	if ( cseq )
+	{
+	    cseq->colorChanged.notify(
+			    mCB(this,PSEventsTreeItem,coltabChangeCB) );
+	    eventdisplay_->setColTabSequence( *cseq );
+	}
     }
 }
 
+
+bool PSEventsTreeItem::anyButtonClick( uiListViewItem* lvm )
+{
+    applMgr()->updateColorTable( displayid_, 0 );
+    displayMiniColTab();
+    return true;
+}
+
+
+void PSEventsTreeItem::coltabChangeCB( CallBacker* cb )
+{
+    displayMiniColTab();
+}
+
+
+void PSEventsTreeItem::updateColumnText( int col )
+{
+    uiODDisplayTreeItem::updateColumnText( col );
+    displayMiniColTab();
+}
+
+
+void PSEventsTreeItem::displayMiniColTab()
+{
+    if ( eventdisplay_->getMarkerColor() == visSurvey::PSEventDisplay::Single )
+	return;
+
+    const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
+    if ( !seq )
+	return;
+    ioPixmap pixmap( *seq, cPixmapWidth(), cPixmapHeight(), true );
+    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
+}
 
 

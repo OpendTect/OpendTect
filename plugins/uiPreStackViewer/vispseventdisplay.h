@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.6 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.7 2011-12-20 05:38:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,10 @@ public:
     virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
-
+    virtual bool		canSetColTabSequence() const { return true; }
+    virtual int			nrAttribs() const { return 1; }
+    virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
+    
     enum DisplayMode		{ ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };
     				DeclareEnumUtils(DisplayMode);
@@ -111,6 +114,8 @@ protected:
     void				updateDisplay();
     void				updateDisplay(ParentAttachedObject*);
     void				retriveParents();
+    float				getMoveoutComp(const TypeSet<float>&,
+					const TypeSet<float>&) const;
 
     visBase::DrawStyle*			linestyle_;
     const mVisTrans*			displaytransform_;

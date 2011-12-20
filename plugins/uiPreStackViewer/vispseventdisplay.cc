@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.8 2011-12-16 15:57:20 cvskris Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.9 2011-12-20 05:38:20 cvsranojay Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -47,7 +47,7 @@ PSEventDisplay::PSEventDisplay()
     , linestyle_( visBase::DrawStyle::create() )
     , horid_( -1 )
     , offsetscale_( 1 )
-    , markercolor_( VelocityFit )
+    , markercolor_( Single )
     , eventseeds_(visBase::DataObjectGroup::create())
 {
     setLockable();
@@ -55,6 +55,7 @@ PSEventDisplay::PSEventDisplay()
     addChild( linestyle_->getInventorNode() );
     eventseeds_->ref();
     addChild( eventseeds_->getInventorNode() );
+    ctabmapper_.setup_.type( ColTab::MapperSetup::Auto );
 }
 
 
@@ -174,6 +175,12 @@ void PSEventDisplay::setColTabMapper( const ColTab::MapperSetup& n,
 
 const ColTab::MapperSetup& PSEventDisplay::getColTabMapper() const
 { return ctabmapper_.setup_; }
+
+
+const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup( int id, int attr ) const
+{
+    return &ctabmapper_.setup_;
+}
 
 
 void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
@@ -365,6 +372,23 @@ void PSEventDisplay::otherObjectsMoved(
 }
 
 
+float PSEventDisplay::getMoveoutComp( const TypeSet<float>& offsets,
+				    const TypeSet<float>& picks ) const
+{
+    float value = mUdf(float);
+    float variables[] = { picks[0], 0, 3000 };
+	    //find better refoff
+    PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
+    const float error = moveoutcomp->findBestVariable(
+		    variables, 1, ctabmapper_.setup_.range_,
+		    offsets.size(), offsets.arr(), picks.arr() );
+    value = mIsUdf(error) ? error
+		: (markercolor_!=Velocity ? error : variables[1]);
+		    //TODO: set the value when mc=Quality, use v[1] for now.
+    return value;
+}
+
+
 void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 {
     if ( !eventman_ )
@@ -375,7 +399,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
         clearDisplay();
 	BinIDValueSet locations( 0, false );
 	eventman_->getLocations( locations );
-	markercolor_ = Single;
+	TypeSet<float> vals;
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
 	{
 	    const BinID bid = locations.getBinID( locations.getPos(lidx) );
@@ -385,6 +409,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		return clearAll();
 
 	    const int size = eventset->events_.size();
+	    
 	    for ( int idx=0; idx<size; idx++ )
 	    {
 		const PreStack::Event* psevent = eventset->events_[idx];
@@ -396,8 +421,35 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		marker->setMarkerStyle( markerstyle_ );
 		Coord3 pos( bid.inl, bid.crl, psevent->pick_[0] );
 		marker->setCenterPos( pos );
-		marker->setMaterial( getMaterial() );
-		getMaterial()->setColor( eventman_->getColor() );
+	    	marker->setMaterial( getMaterial() );
+		TypeSet<float> offsets;
+		TypeSet<float> picks;
+		for ( int idy=0; idy<psevent->sz_; idy++ )
+		{
+		    offsets += psevent->offsetazimuth_[idy].offset();
+		    picks += psevent->pick_[idy];
+		}
+		sort_coupled( offsets.arr(), picks.arr(), picks.size() );
+		const float val = getMoveoutComp( offsets, picks );  
+		vals += val;
+	    }
+	}
+
+	if (  markercolor_ == Single )
+	    getMaterial()->setColor( eventman_->getColor() );
+	else
+	{
+	    const ArrayValueSeries<float,float> vs( vals.arr(), false, vals.size() );
+	    ctabmapper_.setData( &vs, vals.size() );
+	    for ( int idx=0; idx<eventseeds_->size(); idx++ )
+	    {
+		const Color col = ctabsequence_.color(
+		    ctabmapper_.position( vals[idx]) );
+		RefMan<visBase::Material> mat = visBase::Material::create();
+		mDynamicCastGet(
+		    visBase::Marker*,marker,eventseeds_->getObject(idx))
+		mat->setColor( col );
+		marker->setMaterial( mat );
 	    }
 	}
 	return;
@@ -516,16 +568,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    if ( markercolor_!=Single )
 	    {
 		if ( event->sz_>1 )
-		{
-		    float variables[] = { picks[0], 0, 3000 };
-		    //find better refoff
-		    const float error = moveoutcomp->findBestVariable(
-			    variables, 1, ctabmapper_.setup_.range_,
-			    offsets.size(), offsets.arr(), picks.arr() );
-		    value = mIsUdf(error) ? error
-			: (markercolor_!=Velocity ? error : variables[1]);
-		    //TODO: set the value when mc=Quality, use v[1] for now.
-		}
+		    value = getMoveoutComp( offsets, picks );  
 	    }
 
 	    Interval<int> pickrg( 0, fullevent ? event->sz_-1 : 0 );
