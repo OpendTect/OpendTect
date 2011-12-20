@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.33 2011-12-19 11:53:52 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.34 2011-12-20 08:58:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,6 +168,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".version," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".project_id," )
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".last_updated," )
+	    .add( BugTableEntry::sKeyBugTable() ).add( ".fixed_in_version," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() )
 	    .add( ".steps_to_reproduce" )
@@ -219,6 +220,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->version_ = query().data( ++qidx );
 	bugtable->projectid_ = query().iValue( ++qidx );
 	bugtable->lastupddate_ = query().data( ++qidx );
+	bugtable->fixedinversion_ = query().data( ++qidx );
 	texttable->description_ = query().data( ++qidx );
 	texttable->stepsreproduce_ = query().data( ++qidx );
 
