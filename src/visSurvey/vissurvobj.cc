@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.61 2011-12-19 15:32:57 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.62 2011-12-20 08:09:26 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -107,11 +107,11 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
-void SurveyObject::setSurveyInfo(const SurveyInfo& si)
+void SurveyObject::setInlCrlSystem(const SurveyInfo& si)
 { survinfo_ = &si; }
 
 
-const char* SurveyObject::getSurveyName() const
+const char* SurveyObject::getInlCrlSystemName() const
 {
     return survinfo_ ? survinfo_->name().str() : survname_.str();
 }
