@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.6 2011-12-16 13:28:38 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.7 2011-12-20 14:49:28 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -372,7 +372,7 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
     osg::ref_ptr<const osg::Camera> camera = getOsgCamera();
     osg::ref_ptr<const osg::Viewport> vp = camera->getViewport();
 
-    return Geom::Size2D<int>( vp->width(), vp->height() );
+    return Geom::Size2D<int>( mNINT(vp->width()), mNINT(vp->height()) );
 }
 
 
