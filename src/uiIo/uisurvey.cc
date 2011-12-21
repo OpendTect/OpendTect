@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.134 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.135 2011-12-21 10:42:57 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -358,6 +358,17 @@ void uiSurvey::copyButPushed( CallBacker* )
 
     if ( !copySurv( dlg.fname_, dlg.newdirnm_, -1 ) )
 	return;
+
+    SurveyInfo* si = SurveyInfo::read( dlg.fname_ );
+    if ( si && si->isValid() )
+    {
+	BufferString newnm( FilePath(dlg.newdirnm_).fileName() );
+	si->dirname_ = newnm;
+	replaceCharacter( newnm.buf(), '_', ' ' );
+	si->setName( newnm );
+	si->write();
+    }
+    delete si;
 
     updateSvyList();
     listbox_->setCurrentItem( dlg.newdirnm_ );
