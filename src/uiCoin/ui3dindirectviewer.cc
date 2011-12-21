@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dindirectviewer.cc,v 1.1 2011-12-21 12:03:35 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dindirectviewer.cc,v 1.2 2011-12-21 12:36:20 cvsjaap Exp $";
 
 
 #include "ui3dindirectviewer.h"
@@ -166,7 +166,7 @@ void GraphicsWindowQt::setCursor( MouseCursor cursor )
 
 */
 
-class OsgIndirectGraphicsWin;
+class GraphicsWindowIndirect;
 
 class OsgIndirectViewWidget : public QWidget
 {
@@ -178,7 +178,7 @@ public:
 		{}
 
 		~OsgIndirectViewWidget();
-    void	setGraphicsWindow(OsgIndirectGraphicsWin* w) { gw_=w; }
+    void	setGraphicsWindow(GraphicsWindowIndirect* w) { gw_=w; }
 
     int		getNumDeferredEvents();
     void	enqueueDeferredEvent(QEvent::Type eventType,
@@ -200,22 +200,21 @@ public:
 
 protected:
     bool			forwardKeyEvents_;
-    OsgIndirectGraphicsWin*	gw_;
+    GraphicsWindowIndirect*	gw_;
     QMutex			deferredEventQueueMutex_;
     QQueue<QEvent::Type>	deferredEventQueue_;
     QSet<QEvent::Type>		eventCompressor_;
 };
 
 
-class OsgIndirectGraphicsWin : public osgViewer::GraphicsWindow
+class GraphicsWindowIndirect : public osgViewer::GraphicsWindow
 {
 public:
-		OsgIndirectGraphicsWin( OsgIndirectViewWidget* widget );
-		~OsgIndirectGraphicsWin();
+		GraphicsWindowIndirect( OsgIndirectViewWidget* widget );
+		~GraphicsWindowIndirect();
 
     bool	init();
     void	getWindowRectangle(int&,int&,int&,int&);
-
 
     void	grabFocus();
     void	grabFocusIfPointerInWindow();
@@ -438,7 +437,7 @@ void OsgIndirectViewWidget::paintEvent(QPaintEvent *)
     painter.drawPixmap( 0, 0, pixmap );
 }
 
-OsgIndirectGraphicsWin::OsgIndirectGraphicsWin( OsgIndirectViewWidget* widget )
+GraphicsWindowIndirect::GraphicsWindowIndirect( OsgIndirectViewWidget* widget )
     : qwidget_( widget )
     , realized_( false )
 {
@@ -446,14 +445,14 @@ OsgIndirectGraphicsWin::OsgIndirectGraphicsWin( OsgIndirectViewWidget* widget )
 }
 
 		
-OsgIndirectGraphicsWin::~OsgIndirectGraphicsWin()
+GraphicsWindowIndirect::~GraphicsWindowIndirect()
 {
     close();
     qwidget_->setGraphicsWindow( 0 );
 }
 
 
-bool OsgIndirectGraphicsWin::init()
+bool GraphicsWindowIndirect::init()
 {
     // initialize widget properties
     //qwidget_->setAutoBufferSwap( false );
@@ -470,7 +469,7 @@ bool OsgIndirectGraphicsWin::init()
 }
 
 
-void OsgIndirectGraphicsWin::runOperations()
+void GraphicsWindowIndirect::runOperations()
 { 
     // While in graphics thread this is last chance to do something useful
     // before graphics thread will execute its operations. 
@@ -486,7 +485,7 @@ void OsgIndirectGraphicsWin::runOperations()
 }
 
 
-void OsgIndirectGraphicsWin::getWindowRectangle( int& x, int& y,
+void GraphicsWindowIndirect::getWindowRectangle( int& x, int& y,
 						 int& width, int& height )
 {
     if ( qwidget_ )
@@ -500,34 +499,34 @@ void OsgIndirectGraphicsWin::getWindowRectangle( int& x, int& y,
 }
 
 
-void OsgIndirectGraphicsWin::grabFocus()
+void GraphicsWindowIndirect::grabFocus()
 {
     if ( qwidget_ )
         qwidget_->setFocus( Qt::ActiveWindowFocusReason );
 }
 
-void OsgIndirectGraphicsWin::grabFocusIfPointerInWindow()
+void GraphicsWindowIndirect::grabFocusIfPointerInWindow()
 {
     if ( qwidget_->underMouse() )
         qwidget_->setFocus( Qt::ActiveWindowFocusReason );
 }
 
 
-void OsgIndirectGraphicsWin::raiseWindow()
+void GraphicsWindowIndirect::raiseWindow()
 {
     if ( qwidget_ )
         qwidget_->raise();
 }
 
 
-bool OsgIndirectGraphicsWin::valid() const
+bool GraphicsWindowIndirect::valid() const
 {
     //TODO check context is created
     return qwidget_; // && qwidget_->isValid();
 }
 
 
-bool OsgIndirectGraphicsWin::makeCurrentImplementation()
+bool GraphicsWindowIndirect::makeCurrentImplementation()
 {
     if (qwidget_->getNumDeferredEvents() > 0)
         qwidget_->processDeferredEvents();
@@ -539,7 +538,7 @@ bool OsgIndirectGraphicsWin::makeCurrentImplementation()
 }
 
 
-bool OsgIndirectGraphicsWin::releaseContextImplementation()
+bool GraphicsWindowIndirect::releaseContextImplementation()
 {
     /* TODO No clue what to do */
     //qwidget_->doneCurrent();
@@ -547,7 +546,7 @@ bool OsgIndirectGraphicsWin::releaseContextImplementation()
 }
 
 
-void OsgIndirectGraphicsWin::swapBuffersImplementation()
+void GraphicsWindowIndirect::swapBuffersImplementation()
 {
     //TODO: What does swap buffers do?
     //qwidget_->swapBuffers();
@@ -571,14 +570,14 @@ void OsgIndirectGraphicsWin::swapBuffersImplementation()
 }
 
 
-void OsgIndirectGraphicsWin::requestWarpPointer( float x, float y )
+void GraphicsWindowIndirect::requestWarpPointer( float x, float y )
 {
     if ( qwidget_ )
         QCursor::setPos( qwidget_->mapToGlobal(QPoint((int)x,(int)y)) );
 }
 
 
-bool OsgIndirectGraphicsWin::realizeImplementation()
+bool GraphicsWindowIndirect::realizeImplementation()
 {
     return true;
     /* TODO No clue what to do here.
@@ -623,12 +622,13 @@ bool OsgIndirectGraphicsWin::realizeImplementation()
 }
 
 
-void OsgIndirectGraphicsWin::closeImplementation()
+void GraphicsWindowIndirect::closeImplementation()
 {
     if ( qwidget_ )
         qwidget_->close();
     realized_ = false;
 }
+
 
 ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
 	uiParent* parnt )
@@ -636,7 +636,7 @@ ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
 {
     OsgIndirectViewWidget* widget =
 	new OsgIndirectViewWidget( parnt->pbody()->managewidg() );
-    graphicswin_ = new OsgIndirectGraphicsWin( widget );
+    graphicswin_ = new GraphicsWindowIndirect( widget );
     graphicswin_->ref();
     setStretch(2,2);
 }

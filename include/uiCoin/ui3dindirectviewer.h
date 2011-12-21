@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: ui3dindirectviewer.h,v 1.1 2011-12-21 12:03:35 cvskris Exp $
+ RCS:           $Id: ui3dindirectviewer.h,v 1.2 2011-12-21 12:36:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ui3dviewerbody.h"
 
 
-class OsgIndirectGraphicsWin;
+class GraphicsWindowIndirect;
 
 //Class used by ui3DViewer to render things indirectly
 
@@ -33,7 +33,7 @@ protected:
     osg::GraphicsContext*       getGraphicsContext();
 
 						
-    OsgIndirectGraphicsWin*	graphicswin_;    
+    GraphicsWindowIndirect*	graphicswin_;    
 };
 
 #endif
