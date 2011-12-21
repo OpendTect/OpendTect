@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: ui3dviewer.h,v 1.4 2011-12-16 10:32:25 cvskris Exp $
+ RCS:           $Id: ui3dviewer.h,v 1.5 2011-12-21 12:03:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,9 @@ friend class		ui3DViewerBody;
 
 public:
 
-                        ui3DViewer(uiParent*, const char* nm="ui3DViewer");
+                        ui3DViewer(uiParent*,
+				bool direct,
+				const char* nm="ui3DViewer");
 			~ui3DViewer();
 
     SoNode*		getSceneGraph() const;
@@ -107,7 +109,7 @@ private:
     uiSoViewerBody*	sobody_;
     ui3DViewerBody*	osgbody_;
 
-    uiObjectBody&	mkBody(uiParent*,const char*);
+    uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
     IOPar		homepos_;
 };

@@ -7,9 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.8 2011-12-21 08:53:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.9 2011-12-21 12:03:35 cvskris Exp $";
 
 #include "ui3dviewer.h"
+
+#include "ui3dviewerbody.h"
+#include "ui3dindirectviewer.h"
 
 #include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
@@ -59,6 +62,7 @@ static const char* rcsID = "$Id: ui3dviewer.cc,v 1.8 2011-12-21 08:53:00 cvsbrun
 #include "i_layoutitem.h"
 
 #include <QTabletEvent>
+#include <QPainter>
 #include "SoPolygonSelect.h"
 
  
@@ -78,75 +82,10 @@ DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None.str(), "RedCyan", "QuadBuffer", 0 };
 
 
-#ifdef __have_osg__
-class ui3DViewerBody : public uiObjectBody
+class uiDirectViewBody : public ui3DViewerBody
 {
 public:
-    			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
-    virtual		~ui3DViewerBody();
-
-    void			viewAll();
-
-    void			setSceneID(int);
-    visBase::Scene*		getScene()		{ return scene_; }
-    const visBase::Scene*	getScene() const 	{ return scene_; }
-
-    bool			serializeScene(const char*) const;
-
-    void			setBackgroundColor(const Color&);
-    Color			getBackgroundColor() const;
-    Geom::Size2D<int>		getViewportSizePixels() const;
-
-    void			setHomePos();
-    void			resetToHomePosition();
-
-    void			toggleCameraType();
-    bool			isCameraPerspective() const;
-    bool			isCameraOrthographic() const;
-
-    void			align();
-    void			viewPlaneX();
-    void			viewPlaneY();
-    void			viewPlaneZ();
-    void			viewPlaneInl();
-    void			viewPlaneCrl();
-    void			viewPlaneN();
-
-    				//Not sure were to put these
-    bool			isViewing() const;
-    virtual void		setViewing(bool);
-    void			uisetViewing(bool);
-
-    Coord3			getCameraPosition() const;
-    visBase::Camera*		getVisCamera() { return camera_; }
-
-    virtual void		reSizeEvent(CallBacker*);
-
-protected:
-    virtual osgGA::GUIActionAdapter&	getActionAdapter()	= 0;
-    virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
-
-    uiObject&				uiObjHandle()	{ return handle_; }
-
-    osg::Camera*			getOsgCamera();
-    const osg::Camera*			getOsgCamera() const;
-    void				setCameraPos(const osg::Vec3f&,
-						     const osg::Vec3f&, bool);
-
-    uiOsgViewHandle			view_;
-    ui3DViewer&				handle_;
-    IOPar&				printpar_;
-
-    RefMan<visBase::Camera>		camera_;
-    RefMan<visBase::Scene>		scene_;
-    osg::ref_ptr<osg::Viewport>		viewport_;
-};
-
-
-class uiOsgViewBody : public ui3DViewerBody
-{
-public:
-				uiOsgViewBody(ui3DViewer&,uiParent*);
+				uiDirectViewBody(ui3DViewer&,uiParent*);
 
     const QWidget* 		qwidget_() const;
 
@@ -172,6 +111,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody( parnt, 0 )
     , handle_( h )
     , printpar_(*new IOPar)
+    , viewport_( 0 )
 {}
 
 
@@ -180,7 +120,12 @@ ui3DViewerBody::~ui3DViewerBody()
     handle_.destroyed.trigger(handle_);
     delete &printpar_;
     view_.detachView();
+    viewport_->unref();
 }
+
+
+uiObject& ui3DViewerBody::uiObjHandle()
+{ return handle_; }
 
 
 osg::Camera* ui3DViewerBody::getOsgCamera()
@@ -220,10 +165,10 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
 }
 
 
-class ODOsgWidget : public osgQt::GLWidget, public CallBacker
+class ODDirectWidget : public osgQt::GLWidget, public CallBacker
 {
 public:
-    			ODOsgWidget(QWidget* p)
+    			ODDirectWidget(QWidget* p)
 			    : osgQt::GLWidget(p)
 			    , resize( this )
 			{}
@@ -238,19 +183,19 @@ public:
 			    return osgQt::GLWidget::event( ev );
 			}
 
-    Notifier<ODOsgWidget>	resize;
+    Notifier<ODDirectWidget>	resize;
 };
 
 
 
 
-uiOsgViewBody::uiOsgViewBody( ui3DViewer& hndl, uiParent* parnt )
+uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
     , mousebutdown_(false)
     , zoomfactor_( 1 )
 {
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
-    ODOsgWidget* glw = new ODOsgWidget( parnt->pbody()->managewidg() );
+    ODDirectWidget* glw = new ODDirectWidget( parnt->pbody()->managewidg() );
     glw->resize.notify( mCB( this, ui3DViewerBody, reSizeEvent ) );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
@@ -258,11 +203,11 @@ uiOsgViewBody::uiOsgViewBody( ui3DViewer& hndl, uiParent* parnt )
 }
 
 
-const QWidget* uiOsgViewBody::qwidget_() const
+const QWidget* uiDirectViewBody::qwidget_() const
 { return graphicswin_->getGLWidget(); }
 
 
-void uiOsgViewBody::updateActModeCursor()
+void uiDirectViewBody::updateActModeCursor()
 {
     /*
     if ( isViewing() )
@@ -326,7 +271,9 @@ void ui3DViewerBody::setSceneID( int sceneid )
 	mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
 	osgcamera->setGraphicsContext( getGraphicsContext() );
 	osgcamera->setClearColor( osg::Vec4(0.2, 0.2, 0.6, 1.0) );
+	if ( viewport_ ) viewport_->unref();
 	viewport_ = new osg::Viewport(0, 0, 600, 400 );
+	viewport_->ref();
 	osgcamera->setViewport( viewport_ );
 
 	osg::ref_ptr<osgViewer::View> view = new osgViewer::View;
@@ -534,8 +481,6 @@ void ui3DViewerBody::setHomePos()
 void ui3DViewerBody::resetToHomePosition()
 {
 }
-
-#endif
 
 // Start of SO stuff
 
@@ -1280,8 +1225,8 @@ bool SoTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 //------------------------------------------------------------------------------
 
 
-ui3DViewer::ui3DViewer( uiParent* parnt, const char* nm )
-    : uiObject(parnt,nm,mkBody(parnt,nm) )
+ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
+    : uiObject(parnt,nm,mkBody(parnt, direct, nm) )
     , destroyed(this)
     , viewmodechanged(this)
     , pageupdown(this)
@@ -1298,25 +1243,22 @@ ui3DViewer::ui3DViewer( uiParent* parnt, const char* nm )
 ui3DViewer::~ui3DViewer()
 {
     delete sobody_;
-#ifdef __have_osg__
     delete osgbody_;
-#endif
 }
 
 
-uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, const char* nm )
+uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 {
     if ( visBase::DataObject::doOsg() )
     {
-#ifdef __have_osg__
 	osgQt::initQtWindowingSystem();
 
-	osgbody_ = new uiOsgViewBody( *this, parnt );
+	osgbody_ = direct 
+	    ? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )
+	    : (ui3DViewerBody*) new ui3DIndirectViewBody( *this, parnt );
 	sobody_ = 0;
 
 	return *osgbody_; 
-#endif
-	pErrMsg("You're stupid");
     }
 
     osgbody_ = 0;
@@ -1330,9 +1272,7 @@ void ui3DViewer::viewAll()
     if ( !survscene )
     {
 	if ( sobody_ ) sobody_->viewAll();
-#ifdef __have_osg__
 	else osgbody_->viewAll();
-#endif
     }
     else
     {
@@ -1341,18 +1281,14 @@ void ui3DViewer::viewAll()
 	if ( !showtext && !showscale )
 	{
 	    if ( sobody_ ) sobody_->viewAll();
-#ifdef __have_osg__
 	    else osgbody_->viewAll();
-#endif
 	}
 	else
 	{
 	    survscene->showAnnotText( false );
 	    survscene->showAnnotScale( false );
 	    if ( sobody_ ) sobody_->viewAll();
-#ifdef __have_osg__
 	    else osgbody_->viewAll();
-#endif
 	    survscene->showAnnotText( showtext );
 	    survscene->showAnnotScale( showscale );
 	}
@@ -1364,10 +1300,8 @@ void ui3DViewer::setBackgroundColor( const Color& col )
 {
     if ( sobody_ )
 	sobody_->setBackgroundColor( SbColor(col2f(r),col2f(g),col2f(b)) );
-#ifdef __have_osg__
     else
 	osgbody_->setBackgroundColor( col );
-#endif
 }
 
 
@@ -1379,18 +1313,14 @@ void ui3DViewer::setAxisAnnotColor( const Color& col )
 
 Color ui3DViewer::getBackgroundColor() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
     {
-#endif
 	float r, g, b;
 	sobody_->getBackgroundColor().getValue( r, g, b );
 	return Color( mNINT(r*255), mNINT(g*255), mNINT(b*255) );
-#ifdef __have_osg__
     }
 
     return osgbody_->getBackgroundColor();
-#endif
 }
 
 
@@ -1419,10 +1349,8 @@ const char* ui3DViewer::getCurrentKeyBindings() const
 
 void ui3DViewer::viewPlane( PlaneType type )
 {
-#ifdef __have_osg__
     if ( sobody_ )
     {
-#endif
 	switch ( type )
 	{
 	    case X: sobody_->viewPlaneX(); break;
@@ -1432,7 +1360,6 @@ void ui3DViewer::viewPlane( PlaneType type )
 	    case Crl: sobody_->viewPlaneCrl(); break;
 	    case YZ: sobody_->viewPlaneN(); sobody_->viewPlaneZ(); break;
 	}
-#ifdef __have_osg__
     }
     else
     {
@@ -1446,7 +1373,6 @@ void ui3DViewer::viewPlane( PlaneType type )
 	    case YZ: osgbody_->viewPlaneN(); osgbody_->viewPlaneZ(); break;
 	}
     }
-#endif
 
     viewAll();
 }
@@ -1454,14 +1380,10 @@ void ui3DViewer::viewPlane( PlaneType type )
 
 bool ui3DViewer::isCameraPerspective() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
-#endif
 	return sobody_->isCameraPerspective();
     
-#ifdef __have_osg__
     return osgbody_->isCameraPerspective();
-#endif
 }
 
 
@@ -1524,44 +1446,32 @@ void ui3DViewer::setSceneID( int sceneid )
 {
     if ( sobody_ )
 	sobody_->setSceneID( sceneid );
-#ifdef __have_osg__
     else
 	osgbody_->setSceneID( sceneid );
-#endif
 }
 
 int ui3DViewer::sceneID() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
-#endif
 	return sobody_->getScene() ? sobody_->getScene()->id() : -1;
-#ifdef __have_osg__
 
     return osgbody_->getScene() ? osgbody_->getScene()->id() : -1;
-#endif
 }
 
 void ui3DViewer::setViewing( bool yn )
 {
     if ( sobody_ )
 	sobody_->uisetViewing(yn);
-#ifdef __have_osg__
     else
 	osgbody_->uisetViewing( yn );
-#endif
 }
 
 bool ui3DViewer::isViewing() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
-#endif
 	return sobody_->isViewing();
 
-#ifdef __have_osg__
     return osgbody_->isViewing();
-#endif
 }
 
 void ui3DViewer::rotateH( float angle )
@@ -1583,10 +1493,8 @@ float ui3DViewer::getCameraZoom()
 
 const Coord3 ui3DViewer::getCameraPosition() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
     {
-#endif
 	SoCamera* cam = sobody_->getCamera();
 	if ( !cam )
 	    return Coord3::udf();
@@ -1594,11 +1502,9 @@ const Coord3 ui3DViewer::getCameraPosition() const
 	float x, y, z;
 	cam->position.getValue().getValue( x, y, z );
 	return Coord3( x, y, z );
-#ifdef __have_osg__
     }
 
     return osgbody_->getCameraPosition();
-#endif
 }
 
 
@@ -1622,10 +1528,8 @@ void ui3DViewer::align()
 {
     if ( sobody_ )
 	sobody_->align();
-#ifdef __have_osg__
     else
 	osgbody_->align();
-#endif
 }
 
 
@@ -1633,11 +1537,7 @@ void ui3DViewer::toHomePos()
 {
     RefMan<visBase::Camera> camera = sobody_
 	? sobody_->getVisCamera()
-#ifdef __have_osg__
 	: osgbody_->getVisCamera();
-#else
-    	: 0;
-#endif
 
     if ( !camera ) return;
 
@@ -1649,11 +1549,7 @@ void ui3DViewer::saveHomePos()
 {
     RefMan<visBase::Camera> camera = sobody_
 	? sobody_->getVisCamera()
-#ifdef __have_osg__
 	: osgbody_->getVisCamera();
-#else
-    	: 0;
-#endif
 
     if ( !camera ) return;
 
@@ -1689,26 +1585,20 @@ void ui3DViewer::toggleCameraType()
 {
     if ( sobody_ )
 	sobody_->toggleCameraType();
-#ifdef __have_osg__
     else
 	osgbody_->toggleCameraType();
-#endif
 }
 
 
 Geom::Size2D<int> ui3DViewer::getViewportSizePixels() const
 {
-#ifdef __have_osg__
     if ( sobody_ )
     {
-#endif
 	SbVec2s size = sobody_->getViewportRegion().getViewportSizePixels();
 	return Geom::Size2D<int>( size[0], size[1] );
-#ifdef __have_osg__
     }
 
     return osgbody_->getViewportSizePixels();
-#endif
 }
 
 
@@ -1733,11 +1623,7 @@ void ui3DViewer::fillPar( IOPar& par ) const
     TypeSet<int> dummy;
     RefMan<visBase::Camera> camera = sobody_
 	? sobody_->getVisCamera()
-#ifdef __have_osg__
 	: osgbody_->getVisCamera();
-#else
-        : 0;
-#endif
 
     camera->fillPar( par, dummy );
 
@@ -1780,11 +1666,7 @@ bool ui3DViewer::usePar( const IOPar& par )
 
     RefMan<visBase::Camera> camera = sobody_
 	? sobody_->getVisCamera()
-#ifdef __have_osg__
 	: osgbody_->getVisCamera();
-#else
-        : 0;
-#endif
 
     bool res = camera->usePar( par ) == 1;
     
@@ -1812,9 +1694,7 @@ void ui3DViewer::setHeadOnLightIntensity( float value )
 visBase::Scene* ui3DViewer::getScene()
 {
     if ( sobody_ ) return sobody_->getScene();
-#ifdef __have_osg__
     else if ( osgbody_ ) return osgbody_->getScene();
-#endif
     return 0;
 }
 

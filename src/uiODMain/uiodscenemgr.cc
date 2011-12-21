@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.223 2011-12-08 16:29:28 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.224 2011-12-21 12:03:35 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1152,7 +1152,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 
     mdiwin_ = new uiMdiAreaWindow();
     mdiwin_->setIcon( scene_xpm_data );
-    sovwr_ = new ui3DViewer( mdiwin_ );
+    sovwr_ = new ui3DViewer( mdiwin_, true );
     sovwr_->setPrefWidth( 400 );
     sovwr_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );
