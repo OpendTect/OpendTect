@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.128 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.129 2011-12-21 04:19:04 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 
@@ -425,11 +425,12 @@ bool uiFlatViewer::drawBitMaps()
 	}
 	if ( vdbmpmgr_->bitMapGen() )
 	{
-	    appearance().ddpars_.vd_.mappersetup_.range_ =
-		vdbmpmgr_->bitMapGen()->getScaleRange();
+	    if ( datachgd )
+		appearance().ddpars_.vd_.mappersetup_.range_ =
+		    vdbmpmgr_->bitMapGen()->getScaleRange();
 	    dispParsChanged.trigger();
 	}
-	if ( wvabmpmgr_->bitMapGen() )
+	if ( wvabmpmgr_->bitMapGen() && datachgd )
 	    appearance().ddpars_.wva_.mappersetup_.range_ =
 		wvabmpmgr_->bitMapGen()->getScaleRange();
     }
@@ -949,7 +950,9 @@ void uiFlatViewer::reGenerate( FlatView::Annotation::AuxData& ad )
 Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
 {
     Interval<float> rg( mUdf(float), mUdf(float) );
-    const ColTab::MapperSetup mapper = appearance().ddpars_.vd_.mappersetup_;
+    const ColTab::MapperSetup mapper =
+	iswva ? appearance().ddpars_.wva_.mappersetup_
+	      : appearance().ddpars_.vd_.mappersetup_;
     Interval<float> mapperrange = mapper.range_;
     if ( mapper.type_ == ColTab::MapperSetup::Fixed )
 	return mapperrange;
