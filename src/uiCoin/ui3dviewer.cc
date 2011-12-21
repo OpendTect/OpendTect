@@ -7,9 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.7 2011-12-20 14:49:28 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.8 2011-12-21 08:53:00 cvsbruno Exp $";
 
 #include "ui3dviewer.h"
+
+#include <osgQt/GraphicsWindowQt>
+#include <osgViewer/View>
+#include <osgViewer/CompositeViewer>
+#include <osgViewer/ViewerEventHandlers>
+#include <osgGA/TrackballManipulator>
 
 #include "envvars.h"
 #include "iopar.h"
@@ -67,14 +73,6 @@ static const char* rcsID = "$Id: ui3dviewer.cc,v 1.7 2011-12-20 14:49:28 cvskris
 #include "viscamera.h"
 #include "vissurvscene.h"
 #include "visdatagroup.h"
-
-#ifdef __have_osg__
-#include <osgQt/GraphicsWindowQt>
-#include <osgViewer/View>
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/ViewerEventHandlers>
-#include <osgGA/TrackballManipulator>
-#endif
 
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None.str(), "RedCyan", "QuadBuffer", 0 };
