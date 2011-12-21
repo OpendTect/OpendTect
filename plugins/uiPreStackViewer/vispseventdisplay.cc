@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.9 2011-12-20 05:38:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.10 2011-12-21 04:17:14 cvsraman Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -176,19 +176,13 @@ void PSEventDisplay::setColTabMapper( const ColTab::MapperSetup& n,
 const ColTab::MapperSetup& PSEventDisplay::getColTabMapper() const
 { return ctabmapper_.setup_; }
 
-
-const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup( int id, int attr ) const
-{
-    return &ctabmapper_.setup_;
-}
-
+const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup(
+						int visid, int attr ) const
+{ return &ctabmapper_.setup_; }
 
 void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
-					TaskRunner* )
-{
-    setColTabSequence( n, true );
-}
-
+					TaskRunner* tr )
+{ setColTabSequence( n, true ); }
 
 void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
 {
