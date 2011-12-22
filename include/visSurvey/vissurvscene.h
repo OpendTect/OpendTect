@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.77 2011-12-19 14:38:34 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.78 2011-12-22 11:49:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
 				*/
 
     virtual int			size() const;
+    virtual int                 getFirstIdx(const DataObject*) const;
     visBase::DataObject*	getObject(int);
     const visBase::DataObject*	getObject(int) const;
 

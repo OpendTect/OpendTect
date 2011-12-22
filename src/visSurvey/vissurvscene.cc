@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.155 2011-12-20 11:58:58 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.156 2011-12-22 11:49:10 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -284,6 +284,18 @@ void Scene::setCubeSampling( const CubeSampling& cs )
 int Scene::size() const
 {
     return zscaletransform_->size()+inlcrl2disptransform_->size();
+}
+
+
+int Scene::getFirstIdx( const visBase::DataObject* dobj ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( getObject( idx )==dobj )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
