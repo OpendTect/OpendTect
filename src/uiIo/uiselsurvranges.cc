@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.28 2011-10-14 12:22:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.29 2011-12-22 17:38:22 cvsjaap Exp $";
 
 #include "uiselsurvranges.h"
 
@@ -122,8 +122,9 @@ StepInterval<float> uiSelZRange::getRange() const
 
 #define mAdaptRangeToLimits( rg, limit, newrg ) \
 { \
-    const double realstartidx = (rg.start-limit.start) / double(limit.step); \
-    const double realstepfac = rg.step / double(limit.step); \
+    const double realstartdif = double(rg.start) - double(limit.start); \
+    const double realstartidx = realstartdif / double(limit.step); \
+    const double realstepfac = double(rg.step) / double(limit.step); \
     const double eps = 1e-4; \
     const bool useoldstep = !mIsZero(realstartidx-mNINT(realstartidx),eps) || \
 			    !mIsZero(realstepfac-mNINT(realstepfac),eps); \
