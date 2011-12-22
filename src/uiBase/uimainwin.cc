@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.230 2011-12-14 19:07:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.231 2011-12-22 13:32:04 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1235,13 +1235,8 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 
 */
 
-bool uiDialog::centertitles_ = true;
+int uiDialog::titlepos_ = 0; // default is centered.
 
-bool uiDialog::isCenterTiltles()
-{ return centertitles_; }
-
-void uiDialog::setCenterTitles( bool yn )
-{ centertitles_ = yn; }
 
 #define mHandle static_cast<uiDialog&>(handle_)
 
@@ -1605,7 +1600,12 @@ uiObject* uiDialogBody::createChildren()
 
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
-	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
+	BufferString titl;
+	if ( uiDialog::titlePos() == -1 )
+	    titl = setup.dlgtitle_;
+	else
+	    titl.add( "- " ).add( setup.dlgtitle_ );
+	title = new uiLabel( centralWidget_, titl );
 
 	uiObject* obj = setup.separator_ 
 			    ? (uiObject*) new uiSeparator(centralWidget_)
@@ -1613,8 +1613,10 @@ uiObject* uiDialogBody::createChildren()
 
 	if ( obj != title )
 	{
-	    if ( uiDialog::isCenterTiltles() )
+	    if ( uiDialog::titlePos() == 0 )
 		title->attach( centeredAbove, obj );
+	    else if ( uiDialog::titlePos() > 0 )
+		title->attach( rightBorder );
 	    obj->attach( stretchedBelow, title, -2 );
 	}
 	if ( setup.mainwidgcentered_ )

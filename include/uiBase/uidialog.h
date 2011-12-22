@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.58 2011-12-09 06:06:34 cvsranojay Exp $
+ RCS:           $Id: uidialog.h,v 1.59 2011-12-22 13:32:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,9 +151,9 @@ public:
     bool		haveCredits() const;
 
     void		showMinMaxButtons();
-    static bool		isCenterTiltles();
-    static void		setCenterTitles(bool);
-    static bool		centertitles_;
+    static int		titlePos()			{ return titlepos_; }
+    static void		setTitlesPos( int p )		{ titlepos_ = p; }
+    			// -1 = left, 0 = center, 1 = right
 
 protected:
 
@@ -163,6 +163,7 @@ protected:
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
+    static int		titlepos_;
 
 };
 
