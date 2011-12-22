@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.41 2011-10-13 10:30:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.42 2011-12-22 08:20:07 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -424,10 +424,10 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
     for ( int idx=0; idx<offidxs.size(); idx++ )
     {
 	if ( inp.isEmpty() )
-	    fill( inp, idx );
+	    fill( inp, offidxs[idx] );
 	else
 	{
-	    SeisTrcBuf buf(false); fill( buf, idx );
+	    SeisTrcBuf buf(false); fill( buf, offidxs[idx] );
 	    for ( int idgather=0; idgather<gathersz; idgather++ )
 	    {
 		SeisTrcPropChg stckr( *inp.get( idgather ) );
