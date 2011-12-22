@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uilayseqattribed.h,v 1.3 2011-01-25 09:41:24 cvsbert Exp $
+ RCS:           $Id: uilayseqattribed.h,v 1.4 2011-12-22 12:40:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiListBox;
 class uiComboBox;
 class uiGenInput;
+class uiStratSelUnits;
 namespace Strat { class LaySeqAttrib; class RefTree; };
 
 
@@ -35,6 +36,7 @@ public:
 protected:
 
     Strat::LaySeqAttrib& attr_;
+    const Strat::RefTree& reftree_;
     bool		nmchgd_;
     bool		anychg_;
 
@@ -43,13 +45,12 @@ protected:
     uiGenInput*		isslidingfld_;
     uiGenInput*		namefld_;
     uiGenInput*		valfld_;
-    uiListBox*		unfld_;
+    uiStratSelUnits*	unfld_;
     uiListBox*		lithofld_;
     uiComboBox*		stattypfld_;
     uiComboBox*		upscaletypfld_;
     uiComboBox*		transformfld_;
 
-    void		fillFlds(const Strat::RefTree&);
     const char*		gtDlgTitle(const Strat::LaySeqAttrib&,bool) const;
     void		putToScreen();
     bool		getFromScreen();

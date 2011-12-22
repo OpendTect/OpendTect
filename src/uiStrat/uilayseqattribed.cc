@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.6 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.7 2011-12-22 12:40:08 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.6 2011-11-23 11:35:56 c
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
+#include "uistratselunits.h"
 #include "uimsg.h"
 
 
@@ -28,6 +29,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     : uiDialog(p,Setup(isnew ? "Add attribute" : "Edit attribute",
 		    gtDlgTitle(lsa,isnew),mTODOHelpID))
     , attr_(lsa)
+    , reftree_(rt)
     , nmchgd_(false)
     , anychg_(false)
 {
@@ -48,11 +50,16 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     localgrp_ = new uiGroup( this, "Local group" );
 
     lithofld_ = new uiListBox( localgrp_, "Lithologies", false,
-	    			rt.lithologies().size() );
+	    			reftree_.lithologies().size() );
     lithofld_->setItemsCheckable( true );
-    unfld_ = new uiListBox( localgrp_,"Units" );
-    unfld_->setItemsCheckable( true );
-    lithofld_->attach( centeredRightOf, unfld_ );
+    for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
+	lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
+
+    uiStratSelUnits::Setup ssusu( uiStratSelUnits::Multi,
+	    			  Strat::UnitRefIter::AllNodes );
+    unfld_ = new uiStratSelUnits( localgrp_, reftree_, ssusu );
+    unfld_->setExpanded( 1 );
+
     stattypfld_ = new uiComboBox( localgrp_, "Statistics on results" );
     new uiLabel( localgrp_, "Statistics on results", stattypfld_ );
 #   define mAddStatItm(enm) \
@@ -61,6 +68,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	mAddStatItm(Sum);
     mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);
     mAddStatItm(Min); mAddStatItm(Max);
+
+    lithofld_->attach( centeredRightOf, unfld_ );
     stattypfld_->attach( alignedBelow, lithofld_ );
     stattypfld_->attach( ensureBelow, unfld_ );
     localgrp_->setHAlignObj( stattypfld_ );
@@ -86,7 +95,6 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     namefld_ = new uiGenInput( this, "Name", attr_.name() );
     namefld_->attach( alignedBelow, ltransffld );
 
-    fillFlds( rt );
     putToScreen();
     postFinalise().notify( mCB(this,uiLaySeqAttribEd,initWin) );
 }
@@ -103,17 +111,6 @@ const char* uiLaySeqAttribEd::gtDlgTitle( const Strat::LaySeqAttrib& lsa,
     static BufferString ret; ret = isnew ? "Define" : "Edit";
     ret.add( " parameters for " ).add( lsa.prop_.name() ).add( " attribute" );
     return ret;
-}
-
-
-void uiLaySeqAttribEd::fillFlds( const Strat::RefTree& reftree )
-{
-    for ( int idx=0; idx<reftree.lithologies().size(); idx++ )
-	lithofld_->addItem( reftree.lithologies().getLith(idx).name() );
-
-    Strat::UnitRefIter it( reftree, Strat::UnitRefIter::LeavedNodes );
-    while ( it.next() )
-	unfld_->addItem( it.unit()->fullCode() );
 }
 
 
@@ -152,9 +149,12 @@ void uiLaySeqAttribEd::putToScreen()
     else
     {
 	stattypfld_->setText( attr_.stat_ );
-	for ( int idx=0; idx<unfld_->size(); idx++ )
-	    unfld_->setItemChecked( idx, attr_.units_.isPresent(
-					    unfld_->textOfItem(idx)) );
+
+	Strat::UnitRefIter it( reftree_ );
+	while ( it.next() )
+	    unfld_->setSelected( *(Strat::NodeUnitRef*)it.unit(),
+			    attr_.units_.isPresent( it.unit()->fullCode() ) );
+
 	for ( int idx=0; idx<lithofld_->size(); idx++ )
 	    lithofld_->setItemChecked( idx, attr_.liths_.isPresent(
 					    lithofld_->textOfItem(idx)) );
@@ -178,13 +178,21 @@ bool uiLaySeqAttribEd::getFromScreen()
 
     if ( !islocal )
     {
-	unfld_->getCheckedItems( uns ); lithofld_->getCheckedItems( liths );
+	Strat::UnitRefIter it( reftree_, Strat::UnitRefIter::LeavedNodes );
+	while ( it.next() )
+	{
+	    if ( unfld_->isSelected(*it.unit()) )
+		uns.add( it.unit()->fullCode() );
+	}
+	lithofld_->getCheckedItems( liths );
+
 	if ( uns.isEmpty() || liths.isEmpty() )
 	{
 	    uiMSG().error("Please select at least one unit and one lithology");
 	    return false;
 	}
     }
+
     const int trfldidx = transformfld_->currentItem();
     const bool havetr = trfldidx > 0;
     const int tridx = havetr ? trfldidx - 1 : 0;
