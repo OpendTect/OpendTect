@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.4 2011-07-13 13:33:43 cvsbert Exp $
+ RCS:           $Id: uistratselunits.h,v 1.5 2011-12-22 12:38:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,12 @@ public:
 			    , maxnrlines_(12)
 			    , autoselchildparent_(true)
 			    , selectallinitial_(false)
-			    , fldtxt_("Unit")		{}
+			    , fldtxt_(t==Multi?"Units":"Unit")	{}
 
 	mDefSetupMemb(Type,type)
 	mDefSetupMemb(Strat::UnitRefIter::Pol,pol)
 	mDefSetupMemb(int,maxnrlines)		//!< only used for tree
-	mDefSetupMemb(BufferString,fldtxt)	//!< text next to combo
+	mDefSetupMemb(BufferString,fldtxt)	//!< text next to Simple combo
 	mDefSetupMemb(bool,selectallinitial)	//!< only for Multi
 	mDefSetupMemb(bool,autoselchildparent)	//!< only for Multi:
 			//!< one child -> parent, parent -> all children
@@ -58,7 +58,7 @@ public:
     void		getSelected(ObjectSet<const Strat::UnitRef>&) const;
     void		setCurrent(const Strat::UnitRef&);
     void		setSelected(const Strat::UnitRef&,bool yn=true);
-    void		presentAllUnits(bool yn=true);
+    void		setExpanded(int dpth=mUdf(int)); // not for Simple
 
     Notifier<uiStratSelUnits>	currentChanged;
     Notifier<uiStratSelUnits>	selectionChanged; //!< Only issued for Multi
