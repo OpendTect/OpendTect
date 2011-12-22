@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratselunits.cc,v 1.6 2011-07-21 09:54:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratselunits.cc,v 1.7 2011-12-22 12:38:41 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -280,14 +280,14 @@ void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
 }
 
 
-void uiStratSelUnits::presentAllUnits( bool yn )
+void uiStratSelUnits::setExpanded( int lvl )
 {
     if ( combo_ ) return;
 
-    if ( yn )
+    if ( mIsUdf(lvl) )
 	tree_->expandAll();
     else
-	tree_->collapseAll();
+	tree_->expandTo( lvl );
 }
 
 
