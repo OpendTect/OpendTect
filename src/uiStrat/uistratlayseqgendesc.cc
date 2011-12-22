@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.34 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.35 2011-12-22 12:40:37 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uimanprops.h"
@@ -503,7 +503,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     {
 	if ( nearun )
 	    unfld_->setCurrent( nearun->unit() );
-	unfld_->presentAllUnits();
+	unfld_->setExpanded();
     }
 
     uiGroup* propgrp = new uiGroup( this, "Property edit" );
