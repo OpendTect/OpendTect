@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.70 2011-07-29 22:47:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.71 2011-12-22 12:36:49 cvsbert Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -531,6 +531,12 @@ void uiListView::expandAll()
 {
     mBlockCmdRec;
     body_->expandAll();
+}
+
+void uiListView::expandTo( int dpth )
+{
+    mBlockCmdRec;
+    body_->expandToDepth( dpth );
 }
 
 

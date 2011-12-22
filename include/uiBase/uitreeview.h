@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.45 2011-07-18 08:41:23 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.46 2011-12-22 12:36:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,7 @@ public:
     void		selectAll();
     void		expandAll();
     void		collapseAll();
+    void		expandTo(int treedepth);
 
     void		translate();
     bool		handleLongTabletPress();
