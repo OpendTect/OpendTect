@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.18 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.19 2011-12-22 11:59:32 cvskris Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -156,7 +156,7 @@ int DataObjectGroup::getFirstIdx( int nid ) const
 
     if ( !sceneobj ) return -1;
 
-    return objects_.indexOf(sceneobj);
+    return getFirstIdx( sceneobj );
 }
 
 
