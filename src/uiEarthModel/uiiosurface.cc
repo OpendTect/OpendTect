@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.82 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.83 2011-12-22 17:37:24 cvsjaap Exp $";
 
 #include "uiiosurface.h"
 
@@ -198,7 +198,12 @@ void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 {
     if ( !rgfld_ ) return;
     CubeSampling cs( rgfld_->envelope() );
-    cs.hrg = hrg; rgfld_->setInput( cs );
+    cs.hrg = hrg;
+    rgfld_->setInputLimit( cs );	// Set spinbox limits
+
+    rgfld_->setInput( cs, SI().sampling(false) );
+    // Bounds initial input values (!=limits) by survey range
+    // when unedited subsel window is popped up.
 }
 
 

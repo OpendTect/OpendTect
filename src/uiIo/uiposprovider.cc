@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.28 2011-11-28 18:50:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.29 2011-12-22 17:37:24 cvsjaap Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -292,6 +292,14 @@ void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
 }
 
 
+void uiPosProvSel::setInput( const CubeSampling& initcs,
+			     const CubeSampling& ioparcs )
+{
+    setInput( initcs );
+    ioparcs.fillPar( iop_ );
+}
+
+
 void uiPosProvSel::setInputLimit( const CubeSampling& cs )
 {
     setup_.cs_ = cs;
@@ -393,3 +401,4 @@ mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
 mDefFn(void,setInputLimit,const CubeSampling&,cs,,)
 mDefFn2(void,setInput,const CubeSampling&,cs,bool,ct,)
+mDefFn2(void,setInput,const CubeSampling&,initcs,const CubeSampling&,ioparcs,)
