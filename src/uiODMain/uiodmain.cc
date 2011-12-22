@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.149 2011-12-06 07:38:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.150 2011-12-22 14:01:48 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -93,6 +93,8 @@ int ODMain( int argc, char** argv )
 
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
+
+    uiDialog::setTitlePos( -1 );
 
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
     ioPixmap pm( mGetSetupFileName("splash.png") );
