@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.231 2011-12-22 13:32:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.232 2011-12-22 13:58:40 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1601,7 +1601,7 @@ uiObject* uiDialogBody::createChildren()
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
 	BufferString titl;
-	if ( uiDialog::titlePos() == -1 )
+	if ( uiDialog::titlePos() >= 0 )
 	    titl = setup.dlgtitle_;
 	else
 	    titl.add( "- " ).add( setup.dlgtitle_ );
