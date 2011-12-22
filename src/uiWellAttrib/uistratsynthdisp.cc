@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.70 2011-10-21 12:29:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.71 2011-12-22 08:05:19 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -323,8 +323,11 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
     deepErase( vwr_->appearance().annot_.auxdata_ );
 
     if ( !sd ) return;
-    const DataPack* dp = sd->getPack( false );
+    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,sd->getPack( false ));
+    SeisTrcBufDataPack* dp = stbp ? new SeisTrcBufDataPack( *stbp ) : 0;
     if ( !dp ) return;
+    dp->posData() = stbp->posData();
+    DPM( DataPackMgr::FlatID() ).add( dp );
 
     d2tmodels_ = &sd->d2tmodels_;
     for ( int idx=0; idx<d2tmodels_->size(); idx++ )
