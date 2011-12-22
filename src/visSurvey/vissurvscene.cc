@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.156 2011-12-22 11:49:10 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.157 2011-12-22 12:57:25 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -167,33 +167,21 @@ Scene::~Scene()
 
     events_.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
-    int objidx = getFirstIdx( inlcrl2disptransform_ );
-    if ( objidx >= 0 ) removeObject( objidx );
-
-    objidx = getFirstIdx( zscaletransform_ );
-    if ( objidx >= 0 ) removeObject( objidx );
-
-    objidx = getFirstIdx( annot_ );
-    if ( objidx >= 0 ) removeObject( objidx );
-
     if ( utm2disptransform_ ) utm2disptransform_->unRef();
     if ( datatransform_ ) datatransform_->unRef();
 
     for ( int idx=0; idx<size(); idx++ )
     {
+	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx));
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
+	if ( vo ) vo->setSceneEventCatcher( 0 );
+
 	if ( !so ) continue;
 
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 	so->setScene( 0 );
-    }
-
-    objidx = getFirstIdx( topimg_ );
-    if ( objidx >= 0 ) removeObject( objidx );
-
-    objidx = getFirstIdx( botimg_ );
-    if ( objidx >= 0 ) removeObject( objidx );
+   }
 
     delete coordselector_;
     delete &infopar_;
