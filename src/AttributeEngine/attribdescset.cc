@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.113 2011-12-16 23:16:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.114 2011-12-23 15:00:44 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -1150,6 +1150,32 @@ void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
 
 	Attrib::SelSpec sp( 0, tmpdsc->id() );
 	specs += sp;
+    }
+}
+
+
+void DescSet::cleanUpDescsMissingInputs()
+{
+    bool cleaning = true;
+
+    while ( cleaning )
+    {
+	cleaning = false;
+	for ( int idx=size()-1; idx>0; idx-- )
+	{
+	    Desc& dsc = *descs_[idx];
+	    for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
+	    {
+		DescID checkid = dsc.inputId(inpidx);
+		if ( ( !checkid.isValid() || !getDesc(checkid) )
+			&& dsc.inputSpec(inpidx).enabled_ )
+		{
+		    cleaning = true;
+		    removeDesc( dsc.id() );
+		    break;
+		}
+	    }
+	}
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.52 2011-09-22 13:01:36 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.53 2011-12-23 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     			//!< if not available or if removestored flag is true.
 			//!< Returns total removed.
     bool 		isAttribUsed(const DescID&) const;
+    void		cleanUpDescsMissingInputs();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&,float version=mUdf(float),

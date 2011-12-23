@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.28 2010-09-27 12:10:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.29 2011-12-23 15:00:44 cvshelene Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -28,7 +28,7 @@ static const char* seislbl[] = { "Select Seismics", 0 };
 static const char* steerlbl[] = { "Select Steering cube", 0 };
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
-			    bool issteer, bool is2d )
+			    bool issteer, bool is2d, const char* prevrefnm )
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
 		       issteer ? "Select Steering input"
 			       : "Select Seismic input",
@@ -54,7 +54,14 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->attach( alignedBelow, infolbl );
 
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.seltxt( issteer ? "Input Steering cube" : "Input Seismics" );
+    BufferString seltext = issteer ? "Input Steering cube" : "Input Seismics";
+    if ( prevrefnm )
+    {
+	seltext += "\n (replacing '";
+	seltext += prevrefnm;
+	seltext += "')";
+    }
+    sssu.seltxt( seltext.buf() );
     sssu.steerpol( issteer ? uiSeisSel::Setup::OnlySteering
 			   : uiSeisSel::Setup::NoSteering );
     if ( issteer )
@@ -119,10 +126,10 @@ CtxtIOObj& uiAttrInpDlg::getCtxtIO( bool is2d )
 
 bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
-    if ( steerinpfld_ && !steerinpfld_->commitInput() )
+    if ( steerinpfld_ && !steerinpfld_->commitInput() && !multiinpcube_ )
 	mErrRetSelInp();
 
-    if ( seisinpfld_ && !seisinpfld_->commitInput() )
+    if ( seisinpfld_ && !seisinpfld_->commitInput() && !multiinpcube_ )
 	mErrRetSelInp();
 
     return true;

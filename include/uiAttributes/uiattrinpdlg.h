@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.13 2010-02-09 07:26:46 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.14 2011-12-23 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,8 @@ mClass uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
-				     bool issteer,bool is2d);
+				     bool issteer,bool is2d,
+				     const char* prevrefnm =0);
 			//!<Use for multi input case
 			uiAttrInpDlg(uiParent*,bool hasseis,
 				     bool hassteer,bool is2d);

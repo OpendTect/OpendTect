@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.19 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.20 2011-12-23 15:00:44 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -339,7 +339,22 @@ void uiStoredAttribReplacer::handleMultiInput()
 	if ( usrrefs.isEmpty() )
 	    continue;
 
-	uiAttrInpDlg dlg( parent_, usrrefs, issteer, is2d_ );
+	const Desc* tmpdesc = attrset_ ? attrset_->getDesc(storedid) : 0;
+	BufferString prevref = tmpdesc ? tmpdesc->userRef() : 0;
+	if ( stringEndsWith( "_inline_dip", prevref.buf() ) )
+	{
+	    int newsz = prevref.size() - strlen("_inline_dip");
+	    mDeclareAndTryAlloc( char*, tmpbuf, char[newsz+1] );
+	    if ( tmpbuf )
+	    {
+		memcpy( tmpbuf, prevref.buf(), newsz );
+		tmpbuf[newsz]='\0';
+		prevref.setEmpty();
+		prevref = tmpbuf;
+	    }
+	}
+
+	uiAttrInpDlg dlg( parent_, usrrefs, issteer, is2d_, prevref.buf() );
 	if ( !dlg.go() )
 	{
 	    if ( attrset_ ) attrset_->removeAll( true );
@@ -351,8 +366,14 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ )
 	    {
 		Desc* ad = attrset_->getDesc( storedid );
-		ad->changeStoredID( dlg.getSeisKey() );
-		ad->setUserRef( dlg.getSeisRef() );
+		BufferString seisref = dlg.getSeisRef();
+		if ( seisref.isEmpty() )
+		    removeDescsWithBlankInp( storedid );
+		else
+		{
+		    ad->changeStoredID( dlg.getSeisKey() );
+		    ad->setUserRef( seisref );
+		}
 	    }
 	    else
 	    {
@@ -368,6 +389,13 @@ void uiStoredAttribReplacer::handleMultiInput()
 	{
 	    if ( attrset_ )
 	    {
+		BufferString steerref = dlg.getSteerRef();
+		if ( steerref.isEmpty() )
+		{
+		    removeDescsWithBlankInp( storedid );
+		    continue;
+		}
+
 		const int ouputidx = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false))->
 			    selectedOutput();
@@ -402,6 +430,9 @@ void uiStoredAttribReplacer::handleMultiInput()
 		setSteerPar( storeentry, dlg.getSteerKey(), dlg.getSteerRef() );
 	}
     }
+
+    if ( attrset_ )
+	attrset_->cleanUpDescsMissingInputs();
 }
 
 
@@ -485,4 +516,19 @@ bool uiStoredAttribReplacer::hasInput( const Desc& desc,
 	return hasInput( *inp, id );
     }
     return false;
+}
+
+
+void uiStoredAttribReplacer::removeDescsWithBlankInp(
+						const Attrib::DescID& storedid )
+{
+    for ( int idx=attrset_->size()-1; idx>=0; idx-- )
+    {
+	const DescID descid = attrset_->getID( idx );
+	Desc* ad = attrset_->getDesc( descid );
+	if ( !ad || ad->isStored() ) continue;
+
+	if ( hasInput(*ad,storedid) )
+	    attrset_->removeDesc( descid );
+    }
 }
