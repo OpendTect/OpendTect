@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.129 2011-10-12 06:09:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.130 2011-12-23 22:51:27 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -857,8 +857,17 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 {
     info = "";
     val = "undef";
+    Coord3 attribpos = pos;
+    RefMan<const ZAxisTransform> datatrans = getZAxisTransform();
+    if ( datatrans ) //TODO check for allready transformed data.
+    {
+	attribpos.z = datatrans->transformBack( pos );
+	if ( !attribpos.isDefined() )
+	    return;
+    }
+
     if ( !isManipulatorShown() )
-	val = getValue( pos );
+	val = getValue( attribpos );
 }
 
 
