@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.232 2011-12-22 13:58:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.233 2011-12-23 09:50:02 cvsranojay Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1236,7 +1236,11 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 */
 
 int uiDialog::titlepos_ = 0; // default is centered.
+int uiDialog::titlePos()
+{ return titlepos_; }
 
+void uiDialog::setTitlePos( int p )
+{ titlepos_ = p; }
 
 #define mHandle static_cast<uiDialog&>(handle_)
 
