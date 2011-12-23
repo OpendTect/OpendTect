@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.3 2011-09-30 11:41:56 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.h,v 1.4 2011-12-23 15:26:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 class mQSqlQuery;
 class BufferStringSet;
+class IOPar;
 
 
 namespace SqlDB
@@ -42,6 +43,8 @@ public:
     void		finish() const;
     BufferString        getCurrentDateTime();
 
+    bool		getAllRows(IOPar&) const;
+
     BufferString	data(int) const;
     int			iValue(int) const;
     unsigned int	uiValue(int) const;
@@ -51,15 +54,20 @@ public:
     double		dValue(int) const;
     bool		isTrue(int) const;
 
-    BufferString	getInsertString(const BufferStringSet& colnms,
+    static BufferString	getInsertString(const BufferStringSet& colnms,
 	    				const BufferStringSet& values,
-					const BufferString& tablenm) const;
+					const BufferString& tablenm);
     bool		insert(const BufferStringSet& colnms,
 	    		       const BufferStringSet& values,
 	    		       const BufferString& tablenm);
-    BufferString	select(const BufferStringSet& colnms,
+    static int		addToColList(BufferStringSet& columns,const char*);
+    			//!<Returns the column index in the list
+    static BufferString	select(const BufferStringSet& colnms,
 				const BufferString& tablenm,
-				int id);
+				int id, const char* idkey=0);
+
+    int			getLastAutoID();
+
     BufferString	getUpdateString(const BufferStringSet& colnms,
 	    				const BufferStringSet& values,
 					const BufferString& tablenm,

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.4 2011-09-30 11:41:56 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.cc,v 1.5 2011-12-23 15:26:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ bool SqlDB::Query::insert( const BufferStringSet& colnms,
 
 BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 					    const BufferStringSet& values,
-					    const BufferString& tablenm ) const
+					    const BufferString& tablenm )
 {
     BufferString querystr;
     if ( colnms.size() != values.size() )
@@ -160,19 +160,33 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
     querystr = "INSERT INTO "; querystr.add( tablenm ).add( " (" );
     for ( int idx=0; idx<nrvals; idx++ )
     {
-	querystr.add( colnms[idx]->buf() )
-		.add( idx != nrvals-1 ? "," : ")" );
+	querystr.add( colnms[idx]->buf() );
+	if ( idx != nrvals-1 )
+	    querystr.add( "," );
     }
+
+    querystr.add( ")" );
 
     querystr.add( " VALUES (" );
 
     for ( int idx=0; idx<nrvals; idx++ )
     {
-	querystr.add( "'" ).add( values[idx]->buf() )
-	    	.add( idx != nrvals-1 ? "'," : "' )" );
+	querystr.add( quoteString( values[idx]->buf(), '\'' ) );
+	if ( idx != nrvals-1 )
+	    querystr.add( "," );
     }
 
+    querystr.add( ")" );
+
     return querystr;
+}
+
+
+int SqlDB::Query::addToColList(BufferStringSet& columns,const char* newcol)
+{
+    const int res = columns.size();
+    columns.add( newcol );
+    return res;
 }
 
 
@@ -200,8 +214,12 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 
 
 BufferString SqlDB::Query::select( const BufferStringSet& colnms,
-				   const BufferString& tablenm, int id )
+				   const BufferString& tablenm, int id,
+       				   const char* idkey )
 {
+    if ( !idkey )
+	idkey = "`id`";
+
     BufferString querystr;
     if ( id < 0 )
 	return querystr;
@@ -214,7 +232,7 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
 	querystr.add( idx != nrvals-1 ? "," : " " );
     }
 
-    querystr.add( "FROM " ).add( tablenm ).add( " WHERE id=" ).add( id );
+    querystr.add( "FROM " ).add( tablenm ).add( " WHERE " ).add( idkey ).add( "=" ).add( id );
     return querystr;
 }
 
