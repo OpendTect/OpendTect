@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.41 2011-10-03 08:07:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.42 2011-12-23 15:28:20 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -38,6 +38,7 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , sowermode_( false )
     , lastseedpid_( EM::PosID::udf() )
     , lastseedkey_( Coord3::udf() )
+    , seedpickarea_(false)
 {
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
     if ( hor && hor->nrSections()>0 )

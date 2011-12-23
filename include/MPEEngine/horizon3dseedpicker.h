@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.25 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.26 2011-12-23 15:28:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,10 @@ public:
 
     void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 
+    void		setSeedPickArea(const HorSampling& hs)
+    							{ seedpickarea_ = hs; }
+    const HorSampling*	getSeedPickArea() const 	{return &seedpickarea_;}
+
 protected:
     bool		retrackOnActiveLine( const BinID& startbid, 
 					     bool startwasdefined,
@@ -92,6 +96,7 @@ protected:
     EM::PosID		lastseedpid_;
     Coord3		lastseedkey_;
     bool		sowermode_;
+    HorSampling		seedpickarea_;
 
     bool		didchecksupport_;
     EM::SectionID	sectionid_;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.28 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.29 2011-12-23 15:28:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,9 @@ public:
 			DrawBetweenSeeds   };
 
     virtual void	setSowerMode(bool)			{};
+    virtual void	setSeedPickArea(const HorSampling& hs)	{};
+
+    virtual const HorSampling* getSeedPickArea() const		{ return 0; }
 };
 
 

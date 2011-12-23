@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.8 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vissower.h,v 1.9 2011-12-23 15:28:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -91,6 +91,7 @@ protected:
 
     const visBase::VisualObjectImpl*	editobject_;
     visBase::EventCatcher*		eventcatcher_;
+    const mVisTrans*			transformation_;
     visBase::PolyLine*			sowingline_;
     bool				linelost_;
     SowingMode				mode_;

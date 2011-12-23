@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.21 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.22 2011-12-23 15:28:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -121,7 +121,8 @@ public:
     static bool			isClickable(const char* trackertype,int visid);
 
     void			setEditor(MPEEditor*);
-    bool			activateSower(const Color&);
+    bool			activateSower(const Color&,
+					      const HorSampling* =0);
     bool			sequentSowing() const;
     bool			moreToSow() const;
     void			stopSowing();

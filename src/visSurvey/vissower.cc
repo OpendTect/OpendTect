@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.10 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.11 2011-12-23 15:28:20 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -36,6 +36,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     : visBase::VisualObjectImpl( false )
     , editobject_( editobj )
     , eventcatcher_( 0 )
+    , transformation_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
     , linelost_( false )
@@ -91,7 +92,10 @@ void Sower::intersow( bool yn )
 
 
 void Sower::setDisplayTransformation( const mVisTrans* transformation )
-{ sowingline_->setDisplayTransformation( transformation ); }
+{
+    transformation_ = transformation;
+    sowingline_->setDisplayTransformation( transformation );
+}
 
 
 void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
@@ -206,8 +210,8 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     else if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed )
 	return; 
 
-    Coord3& lastpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
-    const BinID lastbid = SI().transform( lastpos );
+    Coord3& lastworldpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
+    const BinID lastbid = SI().transform( lastworldpos );
     const BinID start = workrange_->start;
     const BinID stop = workrange_->stop;
 
@@ -217,8 +221,16 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     if ( min2 > 100*step*step )
 	return;
 
-    lastpos.coord() = lastbid.sqDistTo(start) < lastbid.sqDistTo(stop) ?
-		      SI().transform(start) : SI().transform(stop);
+    lastworldpos.coord() = lastbid.sqDistTo(start) < lastbid.sqDistTo(stop) ?
+			   SI().transform(start) : SI().transform(stop);
+
+    Scene* scene = STM().currentScene();
+    if ( !transformation_ || !scene )
+	return;
+
+    Coord3& lastdisplaypos = eventlist_[eventlist_.size()-1]->displaypickedpos;
+    lastdisplaypos = transformation_->transform( lastworldpos );
+    lastdisplaypos = scene->getZScaleTransform()->transform( lastdisplaypos );
 }
 
 
