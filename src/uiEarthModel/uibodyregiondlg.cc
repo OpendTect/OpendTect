@@ -4,34 +4,32 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.5 2011-12-23 21:28:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.6 2011-12-23 21:50:05 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
 #include "arrayndimpl.h"
-#include "emsurfacetr.h"
 #include "embodytr.h"
+#include "emfault3d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
-#include "emhorizon3d.h"
-#include "emfault3d.h"
+#include "emsurfacetr.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "ioman.h"
 #include "marchingcubes.h"
-#include "mousecursor.h"
 #include "polygon.h"
 #include "positionlist.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "trigonometry.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
-#include "uitaskrunner.h"
 #include "uitable.h"
+#include "uitaskrunner.h"
 
 
 #define mBelow 0
@@ -113,12 +111,9 @@ const char* message() const		{ return "Extracting implicit body"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const int lastiidx = cs_.hrg.nrInl()-1;
-    const int lastcidx = cs_.hrg.nrCrl()-1;
-    const int lastzidx = cs_.nrZ()-1;
-
     const int horsz = hors_.size();
     const int fltsz = fsides_.size();
+    
     ObjectSet<Geometry::ExplPlaneIntersection> intersects;
     for ( int idx=0; idx<fltsz; idx++ )
     {
@@ -138,9 +133,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
     for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
     {
-	//if ( !idz || idz==lastzidx )
-	  //  continue;
-	
 	const double curz = cs_.zrg.atIndex( idz );
 	if ( fltsz )
 	{
@@ -164,16 +156,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	{
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
 	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
-	    //if ( !inlidx || inlidx==lastiidx || !crlidx || crlidx==lastcidx )
-	//	continue;
 	    
-	    if ( !horsz )
-	    {
-		res_.set( inlidx, crlidx, idz, -1 );
-		continue;
-	    }
-
-
 	    bool infltrg = true;
 	    for ( int idy=0; idy<fltsz; idy++ )
 	    {
@@ -182,6 +165,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	    if ( !infltrg )
 		continue;
+	    
+	    if ( !horsz )
+	    {
+		res_.set( inlidx, crlidx, idz, -1 );
+		continue;
+	    }
 
 	    float minz = mUdf(float);
 	    float maxz = mUdf(float);
@@ -217,7 +206,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-bool inFaultRange( const BinID& pos, int curidx, 	
+bool inFaultRange( const BinID& pos, int curidx, 
 	Geometry::ExplPlaneIntersection* epi )
 {
     const char side = fsides_[curidx];
