@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidate.cc,v 1.1 2011-12-22 20:16:47 cvskris Exp $";
+static const char* rcsID = "$Id: uidate.cc,v 1.2 2011-12-23 10:34:14 cvskris Exp $";
 
 
 #include "uidate.h"
@@ -59,15 +59,18 @@ DateInfo uiCalendar::getDate() const
 
 uiDateSel::uiDateSel( uiParent* p,const char* label, const DateInfo* di )
     : uiGroup( p )
-    , label_( label_ ? new uiLabel( this, label) : 0 )
+    , label_( label ? new uiLabel( this, label) : 0 )
 {
     dayfld_ = new uiComboBox( this, DateInfo::sAllDaysInMonth(), 0 );
-    if ( label_ ) dayfld_->attach( rightOf, label_ );
+    dayfld_->setHSzPol( uiObject::SmallVar );
+    if ( label_ ) label_->attach( leftOf, dayfld_ );
 
     monthfld_ = new uiComboBox( this, DateInfo::sFullMonths(), 0 );
+    monthfld_->setHSzPol( uiObject::SmallVar );
     monthfld_->attach( rightOf, dayfld_ );
 
     yearfld_ = new uiLineEdit( this, 0 );
+    yearfld_->setHSzPol( uiObject::SmallVar );
     yearfld_->setMaxLength( 4 );
     yearfld_->attach( rightOf, monthfld_ );
 
@@ -75,10 +78,12 @@ uiDateSel::uiDateSel( uiParent* p,const char* label, const DateInfo* di )
 	    mCB(this,uiDateSel,showCalendarCB), true );
     showcalendarbut_->attach( rightOf, yearfld_ );
 
-    setHAlignObj( monthfld_ );
+    setHAlignObj( dayfld_ );
 
     if ( di )
 	setDate( *di );
+    else
+	setDate( DateInfo() );
 }
 
 
@@ -115,7 +120,8 @@ void uiDateSel::setDate( const DateInfo& di )
 
 void uiDateSel::showCalendarCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup( 0, 0, mNoHelpID ) );
+    uiDialog dlg( this, uiDialog::Setup( "Calendar", "Select date",
+					 mNoHelpID ) );
     uiCalendar* cal = new uiCalendar( &dlg );
     DateInfo di;
     if ( getDate(di,false) )
