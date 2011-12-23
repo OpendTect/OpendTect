@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-3-1996
- RCS:		$Id: dateinfo.h,v 1.13 2010-12-07 21:57:08 cvskris Exp $
+ RCS:		$Id: dateinfo.h,v 1.14 2011-12-23 15:24:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,12 +33,13 @@ The class has some kewl 'relative' printouts.
 mClass DateInfo
 {
 public:
-    enum Day		{ Su=0, Mo, Tu, We, Th, Fr, Sa };
-			DeclareEnumUtils(Day)
+    enum DayOfWeek	{ Su=0, Mo, Tu, We, Th, Fr, Sa };
+			DeclareEnumUtils(DayOfWeek)
     enum Month		{ Jan=0, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep,
 			  Oct, Nov, Dec };
 			DeclareEnumUtils(Month)	//!< Uses "jan", "feb" etc.
     static const char**	sFullMonths();		//!< str = sFullMonths()[Month]
+    static const char**	sAllDaysInMonth();	//!< 0 to 31
 
 			DateInfo();		//!< Today
 			DateInfo(int usryr,int usrmnth,int usrdy);

@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.20 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.21 2011-12-23 15:24:14 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -21,7 +21,7 @@ static const int leapdaycount[]
 	= { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
 
-DefineEnumNames(DateInfo,Day,2,"Week day") {
+DefineEnumNames(DateInfo,DayOfWeek,2,"Week day") {
 	"Sunday",
 	"Monday",
 	"Tuesday",
@@ -53,6 +53,16 @@ static const char* fullmonths[] = {
 	0
 };
 const char** DateInfo::sFullMonths()	{ return fullmonths; }
+
+
+
+static const char* alldays[] =
+{        "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",
+  "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+  "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+  "30", "31", 0 };
+
+const char** DateInfo::sAllDaysInMonth() { return alldays; }
 
 
 DateInfo::DateInfo()
@@ -198,7 +208,7 @@ int DateInfo::weekDay() const
 const char* DateInfo::weekDayName() const
 {
     const int nr = weekDay() - 1;
-    return getDayString((Day) nr);
+    return getDayOfWeekString((DayOfWeek) nr);
 }
 
 
