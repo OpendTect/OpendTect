@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.29 2011-12-15 21:45:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.30 2011-12-23 21:27:40 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -376,7 +376,7 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
 	return false;
 
     ImplicitBody* body = 0;
-    if ( !operator_->createImplicitBody( body, tr ) || !body )
+    if ( !operator_->createImplicitBody(body,tr) || !body )
 	return false;
 
     setInlSampling( SamplingData<int>(body->cs_.hrg.inlRange()) );
@@ -416,7 +416,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 	if ( operator_ )
     	{
     	    ImplicitBody* body = 0;
-    	    if ( operator_->createImplicitBody(body, t) && body )
+    	    if ( operator_->createImplicitBody(body,t) && body )
     		return body;
     	}
 
@@ -454,7 +454,6 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     }
 
     Array3D<float>* arr = new Array3DConv<float,int>(intarr);
-    const Array3D<float>* vd = mcsurface_->impvoldata_;
     if ( !arr )
     {
 	mcsurface_->modelslock_.readUnLock();
@@ -463,17 +462,18 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 	return 0;
     }
 
+    const Array3D<float>* vd = mcsurface_->impvoldata_;
     if ( !vd )
     { 
     	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 		inlrg.start, crlrg.start, zrg.start, !smooth );
-    	if ( (t && !t->execute( m2i ) ) || (!t && !m2i.execute() ) )
+	const bool execres = t ? t->execute(m2i) : m2i.execute();
+    	if ( !execres )
     	{
     	    delete res;
     	    mcsurface_->modelslock_.readUnLock();
     	    return 0;
     	}
-    
     
 	res->arr_ = arr;
 	res->threshold_ = m2i.threshold();
@@ -527,5 +527,4 @@ void MarchingCubesSurface::setCrlSampling( const SamplingData<int>& s )
 void MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
 { zsampling_ = s; }
 
-
-}; // namespace
+} // namespace EM
