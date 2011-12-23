@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.4 2011-12-20 18:15:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.5 2011-12-23 21:28:21 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -22,7 +22,9 @@ static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.4 2011-12-20 18:15:28 cv
 #include "mousecursor.h"
 #include "polygon.h"
 #include "positionlist.h"
+#include "sorting.h"
 #include "survinfo.h"
+#include "trigonometry.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uiioobjsel.h"
@@ -44,7 +46,6 @@ static const char* collbls[] = { "Name", "Side", 0 };
 #define cNameCol 0
 #define cSideCol 1
 
-
 class OptImplicitBodyRegionExtractor : public ParallelTask
 {
 public:
@@ -54,8 +55,12 @@ OptImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     , cs_( cs )
     {
 	res_.setAll( 1 );
+    
+	c_[0] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.start.crl);
+	c_[1] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.start.crl);
+	c_[2] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.stop.crl);
+	c_[3] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.stop.crl);
 
-	const float zscale = SI().zScale();
 	for ( int idx=0; idx<surflist.size(); idx++ )
 	{
 	    RefMan<EM::EMObject> emobj = 
@@ -73,25 +78,22 @@ OptImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 		Geometry::FaultStickSurface* flt = 
 		emflt ? emflt->geometry().sectionGeometry(0) : 0;
 		if ( !flt ) continue;
+		emflt->ref();
 		
-		const int curidx = intersects_.size();
-		expflts_ += new Geometry::ExplFaultStickSurface( 0, zscale );
-		expflts_[curidx]->setCoordList( new Coord3ListImpl, 
-						new Coord3ListImpl );
-		expflts_[curidx]->addToGeometries( 
-			new Geometry::IndexedGeometry( 
+		Geometry::ExplFaultStickSurface* efs = 
+		    new Geometry::ExplFaultStickSurface(0,SI().zScale());
+		efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
+		efs->addToGeometries( new Geometry::IndexedGeometry( 
 			    Geometry::IndexedGeometry::Triangles, 
   			    Geometry::IndexedGeometry::PerFace,
-  			    expflts_[curidx]->coordList() ) );
-		expflts_[curidx]->setSurface( flt );
-		expflts_[curidx]->update( true, 0 );
-
-		intersects_ += new Geometry::ExplPlaneIntersection();
-		intersects_[curidx]->setCoordList( new Coord3ListImpl, 
-						   new Coord3ListImpl );
-		intersects_[curidx]->setShape( *expflts_[curidx] );
-
+  			    efs->coordList() ) );
+		efs->setSurface( flt );
+		efs->update( true, 0 );
+		expflts_ += efs;
 		fsides_ += sides[idx];
+		flts_ += emflt;
+
+		computeFltOuterRange( *flt, sides[idx] );
 	    }
 	}
     }
@@ -99,9 +101,9 @@ OptImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 
 ~OptImplicitBodyRegionExtractor()
 {
-    deepErase( expflts_ );
-    deepErase( intersects_ );
     deepUnRef( hors_ );
+    deepUnRef( flts_ );
+    deepErase( expflts_ );
 }
 
 
@@ -115,43 +117,44 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int lastcidx = cs_.hrg.nrCrl()-1;
     const int lastzidx = cs_.nrZ()-1;
 
-    const int fltsz = expflts_.size();
     const int horsz = hors_.size();
+    const int fltsz = fsides_.size();
+    ObjectSet<Geometry::ExplPlaneIntersection> intersects;
+    for ( int idx=0; idx<fltsz; idx++ )
+    {
+	intersects += new Geometry::ExplPlaneIntersection();
+	intersects[idx]->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
+	intersects[idx]->setShape( *expflts_[idx] );
+    }
 
     TypeSet<Coord3> corners;
-    const Coord3 normal( 0, 0, 1 );
     if ( fltsz )
     {
-	const int mininl = cs_.hrg.start.inl;
-	const int mincrl = cs_.hrg.start.crl;
-	const int maxinl = cs_.hrg.stop.inl;
-	const int maxcrl = cs_.hrg.stop.crl;
-
 	corners += Coord3( SI().transform(cs_.hrg.start), 0 );
+	const BinID cbid( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+	corners += Coord3( SI().transform(cbid), 0 );
 	corners += Coord3( SI().transform(cs_.hrg.stop), 0 );
-	corners += Coord3( SI().transform(BinID(mininl,maxcrl)), 0 );
-	corners += Coord3( SI().transform(BinID(maxinl,mincrl)), 0 );
     }
 
     for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
     {
-	if ( !idz || idz==lastzidx )
-	    continue;
+	//if ( !idz || idz==lastzidx )
+	  //  continue;
 	
 	const double curz = cs_.zrg.atIndex( idz );
 	if ( fltsz )
 	{
-	    for ( int cidx=0; cidx<4; cidx++ )
+	    for ( int cidx=0; cidx<3; cidx++ )
     		corners[cidx].z = curz;
 
 	    for ( int fidx=0; fidx<fltsz; fidx++ )
 	    {
-		if ( intersects_[fidx]->nrPlanes() )
-		    intersects_[fidx]->setPlane( 0, normal, corners );
+		if ( intersects[fidx]->nrPlanes() )
+		    intersects[fidx]->setPlane( 0, Coord3(0,0,1), corners );
 		else
-		    intersects_[fidx]->addPlane( normal, corners );
+		    intersects[fidx]->addPlane( Coord3(0,0,1), corners );
 		
-		intersects_[fidx]->update( false, 0 );
+		intersects[fidx]->update( false, 0 );
 	    }
 	}
 
@@ -161,63 +164,48 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	{
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
 	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
-	    if ( !inlidx || inlidx==lastiidx || !crlidx || crlidx==lastcidx )
-		continue;
-
-	    bool infltrg = true;
-	    if ( fltsz )
-	    {
-    		const Coord pos = SI().transform( bid );
-    		for ( int idy=0; idy<fltsz; idy++ )
-		{
-    		    infltrg = inFaultRange( idy, pos );
-		    if ( !infltrg ) break;
-    		}
-	    }
-
-	    if ( !infltrg )
-		continue;
-
+	    //if ( !inlidx || inlidx==lastiidx || !crlidx || crlidx==lastcidx )
+	//	continue;
+	    
 	    if ( !horsz )
 	    {
 		res_.set( inlidx, crlidx, idz, -1 );
 		continue;
 	    }
 
-	    float minz, maxz;
-    	    bool foundhorminz = false, foundhormaxz = false;
-    	    for ( int idy=0; idy<horsz; idy++ )
-    	    {
+
+	    bool infltrg = true;
+	    for ( int idy=0; idy<fltsz; idy++ )
+	    {
+		infltrg = inFaultRange(bid,idy,intersects[idy]);
+		if ( !infltrg ) break;
+	    }
+	    if ( !infltrg )
+		continue;
+
+	    float minz = mUdf(float);
+	    float maxz = mUdf(float);
+	    for ( int idy=0; idy<horsz; idy++ )
+	    {
 		const float hz = hors_[idy]->getZ(bid);
 		if ( mIsUdf(hz) ) continue;
 	    
 		if ( hsides_[idy]==mBelow )
-    		{
-    		    if ( !foundhorminz )
-    		    {
-    			minz = hz;
-    			foundhorminz = true;
-    		    }
-    		    else if ( minz<hz )
-   			minz = hz;
-    		}
-    		else
-    		{
-    		    if ( !foundhormaxz )
-    		    {
-    			maxz = hz;
-    			foundhormaxz = true;
-    		    }
-    		    else if ( maxz>hz )
-    			maxz = hz;
-    		}
+		{
+		    if ( mIsUdf(minz) || minz<hz )
+			minz = hz;
+		}
+		else if ( mIsUdf(maxz) || maxz>hz )
+		    maxz = hz;
 	    }
-	
-	    if ( !foundhorminz && !foundhormaxz )
+
+	    if ( mIsUdf(minz) && mIsUdf(maxz) )
 		continue;
 	    
-	    if ( !foundhorminz ) minz = cs_.zrg.start;
-	    if ( !foundhormaxz ) maxz = cs_.zrg.stop;
+	    if ( mIsUdf(minz) ) minz = cs_.zrg.start;
+	    if ( mIsUdf(maxz) ) maxz = cs_.zrg.stop;
+	    if ( minz>=maxz )
+		continue;
 	    
 	    const double val = curz<minz ? minz-curz : 
 		(curz>maxz ? curz-maxz : -mMIN(curz-minz,maxz-curz) );
@@ -225,107 +213,124 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	}
     }
 
+    deepErase( intersects );
     return true;
 }
 
-bool inFaultRange( int fltidx, const Coord& pos )
+bool inFaultRange( const BinID& pos, int curidx, 	
+	Geometry::ExplPlaneIntersection* epi )
 {
-    if ( !intersects_[fltidx]->getPlaneIntersections().size() )
+    const char side = fsides_[curidx];
+    const int ic = side==mToMinInline || side==mToMaxInline ? pos.inl : pos.crl;
+    if ( outsidergs_[curidx].includes(ic,false) )
+	    return false;
+
+    if ( insidergs_[curidx].includes(ic,false) )
+	    return true;
+
+    if ( !epi || !epi->getPlaneIntersections().size() )
 	return false;
 
-    const TypeSet<Coord3>& crds = 
-	(intersects_[fltidx]->getPlaneIntersections()[0]).knots_;
+    const TypeSet<Coord3>& crds = epi->getPlaneIntersections()[0].knots_;
     const int sz = crds.size();
     if ( sz<2 )
 	return false;
 
+    int ids[sz];
+    int inls[sz];
+    TypeSet< Geom::Point2D<float> > bidpos;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	ids[idx] = idx;
+	BinID bid = SI().transform( crds[idx] );
+	inls[idx] = bid.inl;
+	bidpos += Geom::Point2D<float>(bid.inl,bid.crl);
+    }
+
+    sort_coupled( inls, ids, sz );
+
     ODPolygon<float> poly;
     poly.setClosed( true );
     for ( int idx=0; idx<sz; idx++ )
-	poly.add( Geom::Point2D<float>(crds[idx].x,crds[idx].y) );
+	poly.add( bidpos[ids[idx]] );
 	
-    const Geom::Point2D<float> first = poly.data()[0];
-    const Geom::Point2D<float> last = poly.data()[sz-1];
+    const bool ascending = poly.data()[sz-1].y > poly.data()[0].y;
 
-    const Coord corner0 = SI().transform( cs_.hrg.start );
-    const Coord corner1 = SI().transform( cs_.hrg.stop );
-    const Geom::Point2D<float> c0( corner0.x, corner0.y );
-    const Geom::Point2D<float> c1( corner1.x, corner1.y );
-
-    if ( fsides_[fltidx]==mToMinInline )
+    if ( (side==mToMinInline && ascending) ||
+	 (side==mToMaxCrossline && ascending) )
     {
-	if ( last.y>first.y )
-	{
-	    poly.add( Geom::Point2D<float>(last.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(first.x,c0.y) );
-	}
-	else
-	{
-	    poly.add( Geom::Point2D<float>(last.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(first.x,c1.y) );
-	}
+	poly.add( c_[2] );
+	poly.add( c_[3] );
+	poly.add( c_[0] );
     }
-    else if ( fsides_[fltidx]==mToMaxInline )
+    else if ( (side==mToMinInline && !ascending) || 
+	      (side==mToMinCrossline && !ascending) )
     {
-	if ( last.y>first.y )
-	{
-	    poly.add( Geom::Point2D<float>(last.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(first.x,c0.y) );
-	}
-	else
-	{
-	    poly.add( Geom::Point2D<float>(last.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(first.x,c1.y) );
-	}
+	poly.add( c_[1] );
+	poly.add( c_[0] );
+	poly.add( c_[3] );
     }
-    else if ( fsides_[fltidx]==mToMinCrossline )
+    else if ( (side==mToMaxInline && ascending) || 
+	      (side==mToMinCrossline && ascending) )
     {
-	if ( last.x>first.x )
-	{
-	    poly.add( Geom::Point2D<float>(c1.x,last.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,first.y) );
-	}
-	else
-	{
-	    poly.add( Geom::Point2D<float>(c0.x,last.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c0.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,first.y) );
-	}
+	poly.add( c_[2] );
+	poly.add( c_[1] );
+	poly.add( c_[0] );
     }
-    else if ( fsides_[fltidx]==mToMaxCrossline )
+    else 
     {
-	if ( last.x>first.x )
-	{
-	    poly.add( Geom::Point2D<float>(c1.x,last.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,first.y) );
-	}
-	else
-	{
-	    poly.add( Geom::Point2D<float>(c0.x,last.y) );
-	    poly.add( Geom::Point2D<float>(c0.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,c1.y) );
-	    poly.add( Geom::Point2D<float>(c1.x,first.y) );
-	}
+	poly.add( c_[1] );
+	poly.add( c_[2] );
+	poly.add( c_[3] );
     }
 
-    return poly.isInside( Geom::Point2D<float>(pos.x,pos.y), true, 0 );
+    return poly.isInside( Geom::Point2D<float>(pos.inl,pos.crl), true, 0 );
+}
+
+
+void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
+{
+    HorSampling hrg(false);
+    for ( int idx=0; idx<flt.nrSticks(); idx++ )
+    {
+	const TypeSet<Coord3>* stick = flt.getStick(idx);
+	if ( !stick ) continue;
+
+	for ( int idy=0; idy<stick->size(); idy++ )
+	    hrg.include( SI().transform((*stick)[idy]) );
+    }
+
+    Interval<int> insiderg;
+    Interval<int> outsiderg;
+    
+    if ( side==mToMinInline )
+    {
+	insiderg.set( cs_.hrg.start.inl, hrg.start.inl );
+	outsiderg.set( hrg.stop.inl, cs_.hrg.stop.inl );
+    }
+    else if ( side==mToMaxInline )
+    {
+	insiderg.set( hrg.stop.inl, cs_.hrg.stop.inl );
+	outsiderg.set( cs_.hrg.start.inl, hrg.start.inl );
+    }
+    else if ( side==mToMinCrossline )
+    {
+	insiderg.set( cs_.hrg.start.crl, hrg.start.crl );
+	outsiderg.set( hrg.stop.crl, cs_.hrg.stop.crl );
+    }
+    else 
+    {
+	insiderg.set( hrg.stop.crl, cs_.hrg.stop.crl );
+	outsiderg.set( cs_.hrg.start.crl, hrg.start.crl );
+    }
+
+    insidergs_ += insiderg;
+    outsidergs_ += outsiderg;
 }
 
 Array3D<float>&					res_;
 const CubeSampling&				cs_;
+Geom::Point2D<float>				c_[4];
 
 ObjectSet<EM::Horizon3D>			hors_;
 TypeSet<char>					hsides_;
@@ -334,7 +339,8 @@ ObjectSet<EM::Fault3D>				flts_;
 TypeSet<char>					fsides_;
 
 ObjectSet<Geometry::ExplFaultStickSurface>	expflts_;
-ObjectSet<Geometry::ExplPlaneIntersection>	intersects_;
+TypeSet< Interval<int> >			insidergs_;
+TypeSet< Interval<int> >			outsidergs_;
 };
 
 
@@ -630,6 +636,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p, EM::MarchingCubesSurface& emcs )
     , emcs_( emcs )		  
     , ctio_( EMBodyTranslatorGroup::ioContext() )		  
 {
+    setCtrlStyle( DoAndStay );
     //setHelpID( "dgb:104.0.4" );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
@@ -754,7 +761,8 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    return createImplicitBody();
+    createImplicitBody();
+    return false;
 }
 
 
@@ -783,8 +791,8 @@ bool uiBodyRegionDlg::createImplicitBody()
     if ( !arr )
 	return false;
     
-    //OptImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr );
-    ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr );
+    OptImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr );
+    //ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr );
     if ( !ext.execute() )
     {
 	uiMSG().error("Extracting body region failed.");
