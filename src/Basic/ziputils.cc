@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.1 2011-12-23 09:55:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.2 2011-12-23 09:59:53 cvsraman Exp $";
 
 #include "ziputils.h"
 
@@ -29,11 +29,11 @@ bool ZipUtils::Zip( const char* src, const char* dest )
    mDirCheck(src);
    mDirCheck(dest);
 
-
 #ifdef __win__
     return doZip( src, dest );
 #else
     // TODO on Linux
+    return false;
 #endif
 }
 
@@ -42,10 +42,12 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
 {
     mDirCheck(src);
     mDirCheck(dest);
+
 #ifdef __win__
     return doUnZip( src, dest );
 #else
     // TODO on Linux
+    return false;
 #endif
 }
 
