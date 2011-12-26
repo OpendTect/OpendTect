@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.59 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.60 2011-12-26 14:12:48 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -231,8 +231,8 @@ void uiSeisBrowser::createMenuAndToolBar()
 				     "Switch to Crossline",true );
     mAddButton( "leftarrow.png",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
-    showwgglbutidx_ = mAddButton( "viewflat.png",showWigglePush,
-	    			  "Show Wiggles",false );
+    showwgglbutidx_ = mAddButton( "viewflat.png",dispTracesPush,
+	    			  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
     {
@@ -733,7 +733,7 @@ bool uiSeisBrowser::storeChgdData()
 }
 
 
-void uiSeisBrowser::showWigglePush( CallBacker* )
+void uiSeisBrowser::dispTracesPush( CallBacker* )
 {
     if ( trcbufvwr_ )
 	trcbufvwr_->start();

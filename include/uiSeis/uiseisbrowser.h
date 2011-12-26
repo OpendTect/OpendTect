@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.22 2011-02-18 12:23:39 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.23 2011-12-26 14:12:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ protected:
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);
     bool		acceptOK(CallBacker*);
-    void		showWigglePush(CallBacker*);
+    void		dispTracesPush(CallBacker*);
     void		trcbufViewerClosed(CallBacker*);
     void		trcselectionChanged(CallBacker*);
     void		valChgReDraw(CallBacker*);
