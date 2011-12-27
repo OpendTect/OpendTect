@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiprestackimpevent.cc,v 1.1 2011-05-25 04:54:24 cvsraman Exp $";
+static const char* rcsID = "$Id: uiprestackimpevent.cc,v 1.2 2011-12-27 12:01:05 cvsraman Exp $";
 
 #include "uiprestackimpevent.h"
 
@@ -31,7 +31,7 @@ namespace PreStack
 {
 
 uiEventImport::uiEventImport( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Prestack event export",0,"dgb:104.0.3") )
+    : uiDialog( p, uiDialog::Setup("Prestack event import",0,"dgb:104.0.3") )
     , fd_(*EventAscIO::getDesc())
 {
     filefld_ = new uiFileInput( this, "Input ASCII file",
