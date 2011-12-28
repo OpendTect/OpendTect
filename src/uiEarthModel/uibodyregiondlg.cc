@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.6 2011-12-23 21:50:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.7 2011-12-28 04:33:32 cvsranojay Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -30,6 +30,8 @@ static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.6 2011-12-23 21:50:05 cv
 #include "uipossubsel.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
+#include "varlenarray.h"
+
 
 
 #define mBelow 0
@@ -225,8 +227,8 @@ bool inFaultRange( const BinID& pos, int curidx,
     if ( sz<2 )
 	return false;
 
-    int ids[sz];
-    int inls[sz];
+    mAllocVarLenArr(int,ids,sz);
+    mAllocVarLenArr(int,inls,sz);
     TypeSet< Geom::Point2D<float> > bidpos;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -236,7 +238,7 @@ bool inFaultRange( const BinID& pos, int curidx,
 	bidpos += Geom::Point2D<float>(bid.inl,bid.crl);
     }
 
-    sort_coupled( inls, ids, sz );
+    sort_coupled( mVarLenArr(inls), mVarLenArr(ids), sz );
 
     ODPolygon<float> poly;
     poly.setClosed( true );
