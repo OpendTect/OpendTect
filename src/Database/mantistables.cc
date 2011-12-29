@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.13 2011-11-18 06:39:46 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.14 2011-12-29 08:43:15 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ void SqlDB::BugTableEntry::setResolution( int resolution )
 
 void SqlDB::BugTableEntry::setPlatform( const char* plf )
 {
-    if ( platform_ == plf )
+    if ( platform_.isEqual( plf, true ) )
 	return;
 
     addToHistory( "platform", platform_, plf );
