@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.5 2011-12-23 15:26:46 cvskris Exp $
+ RCS:           $Id: sqlquery.cc,v 1.6 2011-12-29 09:12:17 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,9 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 
     for ( int idx=0; idx<nrvals; idx++ )
     {
-	querystr.add( quoteString( values[idx]->buf(), '\'' ) );
+	BufferString str( values.get( idx ) );
+	str.isEmpty() ? querystr.add( "''" )
+	    	      : querystr.add( quoteString( str.buf(), '\'' ) );
 	if ( idx != nrvals-1 )
 	    querystr.add( "," );
     }
@@ -232,7 +234,8 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
 	querystr.add( idx != nrvals-1 ? "," : " " );
     }
 
-    querystr.add( "FROM " ).add( tablenm ).add( " WHERE " ).add( idkey ).add( "=" ).add( id );
+    querystr.add( "FROM " ).add( tablenm ).add( " WHERE " )
+	    .add( idkey ).add( "=" ).add( id );
     return querystr;
 }
 
