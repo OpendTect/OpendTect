@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.136 2011-09-16 10:51:28 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.137 2011-12-29 15:13:50 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -126,14 +126,16 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    else
 		errstr = desc.errMsg();
 
-	    errstr +=" for ";
+	    errstr +=" for '";
+	    errstr += desc.userRef();
+	    errstr += "'";
 	}
 	else
 	{
 	    errstr = "error in definition";
 	    errstr +=" of ";
+	    errstr += desc.attribName(); 
 	}
-        errstr += desc.attribName(); 
 	errstr += " "; errstr += "attribute.";
 	return 0;
     }
