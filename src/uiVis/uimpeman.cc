@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.216 2011-12-23 15:28:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.217 2012-01-02 13:32:02 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -371,9 +371,6 @@ void uiMPEMan::seedClick( CallBacker* )
     {
 	 mSeedClickReturn();
     }
-
-    if ( true, false )
-	return;
 
     if ( tracker->is2D() )
     {
