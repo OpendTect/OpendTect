@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.29 2011-08-31 13:08:35 cvskris Exp $
+ RCS:		$Id: file.cc,v 1.30 2012-01-02 07:49:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -443,6 +443,9 @@ const char* getTempPath()
     BufferString& pathstr = stm.getString();
 #ifndef OD_NO_QT
     pathstr = QDir::tempPath().toAscii().constData();
+#ifdef __win__
+    replaceCharacter( pathstr.buf(), '/', '\\' );
+#endif
 #else
     pFreeFnErrMsg(not_implemented_str,"getTmpPath");
 #endif
