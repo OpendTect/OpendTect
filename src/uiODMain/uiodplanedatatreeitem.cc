@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.52 2011-12-02 21:46:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.53 2012-01-02 14:04:14 cvsbruno Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -88,7 +88,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
     visserv_->getUiSlicePos()->positionChg.remove(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
-    visserv_->getUiSlicePos()->setDisplay( 0 );
+    visserv_->getUiSlicePos()->setDisplay( -1 );
     delete positiondlg_;
 }
 
@@ -169,10 +169,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
 
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-
-    visserv_->getUiSlicePos()->setDisplay( pdd && pdd->isSelected() ? pdd : 0 );
+    visserv_->getUiSlicePos()->setDisplay( displayid_ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.79 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.80 2012-01-02 14:04:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -116,6 +116,11 @@ public:
     void			setSelSpec(int attrib,const Attrib::SelSpec&);
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
+    void			setSlicePosition(visBase::OrthogonalSlice*,
+						    const CubeSampling&);
+    CubeSampling 		sliceSampling(visBase::OrthogonalSlice*) const;
+    visBase::OrthogonalSlice* 	getSelectedSlice() const;
+
     float			getValue(const Coord3&) const;
 
     CubeSampling		getCubeSampling(int attrib) const;

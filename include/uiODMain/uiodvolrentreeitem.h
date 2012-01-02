@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.12 2011-05-05 08:53:01 cvssatyaki Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.13 2012-01-02 14:04:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,8 @@ protected:
 
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
+    void		posChangeCB(CallBacker*);
+    void		selChgCB(CallBacker*);
 
     bool		anyButtonClick( uiListViewItem* item );
     bool		init();

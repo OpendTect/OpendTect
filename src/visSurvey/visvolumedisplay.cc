@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.130 2011-12-23 22:51:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.131 2012-01-02 14:04:14 cvsbruno Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -723,6 +723,40 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 }
 
 
+void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice, 
+					const CubeSampling& cs ) 
+{
+    if ( !slice ) return;
+
+    const int dim = slice->getDim();
+    float pos = 0;
+    Coord3 center(0,0,0);
+    if ( dim == 2 )
+    {
+	pos = cs.hrg.inlRange().start;
+	pos -= voltrans_->getTranslation()[0];
+	pos /= -voltrans_->getScale()[dim];
+	center.z = pos;
+    }
+    else if ( dim == 1 )
+    {
+	pos = cs.hrg.crlRange().start;
+	pos -= voltrans_->getTranslation()[1];
+	pos /= -voltrans_->getScale()[dim];
+	center.y = pos;
+    }
+    else
+    {
+	pos = cs.zrg.start;
+	pos -= voltrans_->getTranslation()[2];
+	pos /= -voltrans_->getScale()[dim];
+	center.x = pos;
+    }
+    slice->setCenter( center, false );
+    slice->motion.trigger();
+}
+
+
 const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
 { return attrib ? 0 : &scalarfield_->getHistogram(); }
 
@@ -1312,5 +1346,30 @@ bool VolumeDisplay::writeVolume( const char* filename ) const
 }
 
 
+visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
+{
+    for ( int idx=0; idx<slices_.size(); idx++ )
+    {
+	if ( slices_[idx]->isSelected() )
+	    return const_cast<visBase::OrthogonalSlice*>( slices_[idx] );
+    }
+    return 0;
+}
+
+
+CubeSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
+{
+    CubeSampling cs(false); 
+    if ( !slice ) return cs; 
+    cs = getCubeSampling(false,true,0);
+    float pos = slicePosition( slice ); 
+    if ( slice->getDim() == cTimeSlice() )
+	cs.zrg.limitTo( Interval<float>( pos, pos ) );
+    else if ( slice->getDim() == cCrossLine() )
+	cs.hrg.setCrlRange( Interval<int>( mNINT(pos), mNINT(pos) ) );
+    else if ( slice->getDim() == cInLine() )
+	cs.hrg.setInlRange( Interval<int>( mNINT(pos), mNINT(pos) ) );
+    return cs;
+}
 
 } // namespace visSurvey

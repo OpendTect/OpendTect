@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.470 2011-12-16 09:27:36 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.471 2012-01-02 14:04:14 cvsbruno Exp $";
 
 #include "uivispartserv.h"
 
@@ -279,7 +279,7 @@ void uiVisPartServer::createToolBars()
 {
     mpetools_ = new uiMPEMan( appserv().parent(), this );
     getTrackTB()->display( false );
-    slicepostools_ = new uiSlicePos3DDisp( appserv().parent() );
+    slicepostools_ = new uiSlicePos3DDisp( appserv().parent(), this );
 }
 
 

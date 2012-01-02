@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.60 2011-10-12 06:09:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.61 2012-01-02 14:04:14 cvsbruno Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.60 2011-10-12 06:09:0
 #include "vismarchingcubessurfacedisplay.h"
 #include "uiviscoltabed.h"
 #include "uivisisosurface.h"
+#include "uivisslicepos3d.h"
 #include "uivispartserv.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
@@ -392,6 +393,17 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 	vd->showVolRen(false);
     else
 	vd->removeChild( displayid_ );
+
+    mDynamicCastGet(visBase::OrthogonalSlice*,slice,
+	    	    visserv_->getObject(displayid_));
+    if ( slice )
+    {
+	slice->selection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
+	slice->deSelection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB));
+	visserv_->getUiSlicePos()->positionChg.notify( 
+	    		mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
+    }
+    visserv_->getUiSlicePos()->setDisplay( -1 );
 }
 
 
@@ -426,6 +438,16 @@ bool uiODVolrenSubTreeItem::init()
 	    	    visserv_->getObject(displayid_));
     if ( !volren && !slice && !isosurface )
 	return false;
+
+    if ( slice )
+    {
+	slice->setSelectable( true );
+	slice->selection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
+	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
+	visserv_->getUiSlicePos()->setDisplay( parent_->selectionKey() );
+	visserv_->getUiSlicePos()->positionChg.notify( 
+	    		mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
+    }
 
     return uiODDisplayTreeItem::init();
 }
@@ -558,4 +580,27 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 
 	parent_->removeChild( this );
     }
+}
+
+
+void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
+		    visserv_->getObject(parent_->selectionKey()));
+    mDynamicCastGet(visBase::OrthogonalSlice*,slice,
+	    	    visserv_->getObject(displayid_));
+    if ( !slice || !vd || !vd->getSelectedSlice() ) return;
+
+    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
+    if ( slicepos->getDisplayID() != parent_->selectionKey() ||
+	    vd->getSelectedSlice()->id() != displayid_ )
+	return;
+
+    vd->setSlicePosition( slice, slicepos->getCubeSampling() );
+}
+
+
+void uiODVolrenSubTreeItem::selChgCB( CallBacker* cb )
+{
+    visserv_->getUiSlicePos()->setDisplay( parent_->selectionKey() );
 }
