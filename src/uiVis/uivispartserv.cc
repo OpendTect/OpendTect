@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.471 2012-01-02 14:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.472 2012-01-03 23:31:39 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -55,6 +55,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.471 2012-01-02 14:04:14 cv
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
+#include "zdomain.h"
 
 
 const int uiVisPartServer::evUpdateTree()	    { return 0; }
@@ -1293,7 +1294,8 @@ bool uiVisPartServer::setWorkingArea()
 	int sceneid = sceneids[ids];
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
-	if ( scene ) scene->setCubeSampling( SI().sampling(true) );
+	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
+	    scene->setCubeSampling( SI().sampling(true) );
     }
 
     return true;
