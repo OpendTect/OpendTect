@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.22 2012-01-02 14:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.23 2012-01-03 09:12:39 cvshelene Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -56,8 +56,8 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
     mDynamicCastGet(Object*,so,vispartserv_->getObject(dispid));
     mDynamicCastGet(Plane*,pdd,so);
     mDynamicCastGet(Volume*,vol,so);
-    const bool isvalidso = pdd && pdd->isSelected() 
-			    || vol && vol->getSelectedSlice();
+    const bool isvalidso = ( pdd && pdd->isSelected() )
+			    || ( vol && vol->getSelectedSlice() );
 
     sliceposbox_->setSensitive( isvalidso );
     slicestepbox_->setSensitive( isvalidso );
