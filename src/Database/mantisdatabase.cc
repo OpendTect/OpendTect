@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.34 2011-12-20 08:58:34 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.35 2012-01-03 10:23:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -823,6 +823,40 @@ bool SqlDB::MantisDBMgr::deleteBugHistory( int id )
 
     if ( !isok )
 	mErrRet( "Unable to delete history");
+
+    return true;
+}
+
+
+bool SqlDB::MantisDBMgr::getNotesInfo( int bugid, TypeSet<int>& noteids,
+				       BufferStringSet& notes )
+{
+    const char* bntt = sKeyBugNoteTextTable();
+    const char* bnt = sKeyBugNoteTable();
+    BufferString qstr( "SELECT " );
+    qstr.add( bnt ).add( ".id, " ).add( bntt ).add( ".note" ).add( " FROM " )
+	.add( bnt ).add( "," ).add( bntt ).add( " WHERE " ).add( bnt )
+	.add( ".id=" ).add( bntt ).add( ".id" ).add( " AND " ).add( bnt )
+	.add( ".bug_id=" ).add( bugid );
+    const bool isok = query().execute( qstr );
+    if ( !isok )
+	mErrMsgRet( sKeyBugNoteTable() );
+
+    while ( query().next() )
+    {
+	noteids.add( query().iValue(0) );
+	notes.add( query().data(1) );
+    }
+
+    if ( noteids.size() != notes.size() )
+	return false;
+
+    if ( !noteids.size() )
+    {
+	BufferString msg( "There are no notes attached to selected Bug:",
+			  bugid );
+	mErrRet( msg );
+    }
 
     return true;
 }

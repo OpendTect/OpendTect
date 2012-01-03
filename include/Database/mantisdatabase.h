@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.18 2011-12-19 11:53:52 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.19 2012-01-03 10:23:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,9 @@ public:
     const BufferStringSet*	getVersions(const char* projnm) const;
     const BufferStringSet*	getVersions( int projid ) const;
     void			getAllVersions(BufferStringSet&) const;
+
+    bool			getNotesInfo(int bugid,TypeSet<int>& noteids,
+	    				     BufferStringSet& notes);
 
     static const char* 	sKeyAll();
     static const char* 	sKeyUnAssigned();
