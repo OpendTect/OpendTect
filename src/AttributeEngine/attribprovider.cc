@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.137 2011-12-29 15:13:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.138 2012-01-03 15:49:19 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -122,21 +122,29 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    if ( !strcmp( desc.errMsg(), "Parameter 'id' is not correct") &&
 		 desc.isStored() )
-		errstr = "Impossible to find stored data";
+	    {
+		errstr = "Impossible to find stored data '";          
+		errstr += desc.userRef();                                       
+		errstr += "' \nused as input for other attribute(s). \n";
+		errstr += "Data might have been deleted or corrupted.\n";
+		errstr += "Please check your attribute set \n";
+		errstr += "Please select valid stored data.";
+	    }
 	    else
+	    {
 		errstr = desc.errMsg();
-
-	    errstr +=" for '";
-	    errstr += desc.userRef();
-	    errstr += "'";
+		errstr +=" for '";
+		errstr += desc.userRef();
+		errstr += "' attribute.";
+	    }
 	}
 	else
 	{
 	    errstr = "error in definition";
 	    errstr +=" of ";
 	    errstr += desc.attribName(); 
+	    errstr += " "; errstr += "attribute.";
 	}
-	errstr += " "; errstr += "attribute.";
 	return 0;
     }
 

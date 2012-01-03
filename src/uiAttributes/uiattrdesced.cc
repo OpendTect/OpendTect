@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.39 2011-01-17 16:09:40 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.40 2012-01-03 15:49:19 cvshelene Exp $";
 
 
 
@@ -271,7 +271,19 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     getOutput( *editdesc );
     editdesc->updateParams();	//needed after getInput to update inputs' params
     if ( editdesc->isSatisfied() == Desc::Error )
-	errmsg_ = editdesc->errMsg();
+    {
+	if ( !strcmp( editdesc->errMsg(), "Parameter 'id' is not correct") &&   
+		editdesc->isStored() )                                          
+	{                                                                       
+	    errmsg_ = "Impossible to find stored data '"; 
+	    errmsg_ += editdesc->userRef();
+	    errmsg_ += "'. \n";
+	    errmsg_ += "Data might have been deleted or corrupted.\n";
+	    errmsg_ += "Please select valid stored data as input.";
+	}                                                                       
+	else
+	    errmsg_ = editdesc->errMsg();
+    }
 
     const bool isuiok = areUIParsOK();
     if ( !isuiok && errmsg_.isEmpty() )

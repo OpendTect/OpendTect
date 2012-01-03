@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.114 2011-12-23 15:00:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.115 2012-01-03 15:49:19 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -576,8 +576,23 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
-	    BufferString err = dsc.errMsg(); err += " for ";
-	    err += dsc.userRef(); err += " attribute ";
+	    BufferString err;                                                   
+	    if ( !strcmp( dsc.errMsg(), "Parameter 'id' is not correct") &&    
+		 dsc.isStored() )                                              
+	    {                                                                   
+		err = "Impossible to find stored data '";             
+		err += dsc.userRef();                                          
+		err += "' \nused as input for other attribute(s). \n";
+		err += "Data might have been deleted or corrupted.\n";
+		err += "Please check your attribute set \n";
+		err += "and select valid stored data as input.";                      
+	    }                                                                   
+	    else                                                                
+	    {
+		err = dsc.errMsg(); err += " for ";
+		err += dsc.userRef(); err += " attribute ";
+	    }
+
 	    mHandleParseErr(err);
 	}
     }
