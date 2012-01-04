@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.61 2012-01-02 14:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.62 2012-01-04 19:56:10 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -246,12 +246,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	CubeSampling maxcs = SI().sampling( true );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 	if ( scene && scene->getZAxisTransform() )
-	{
-	    const Interval<float> zintv =
-		scene->getZAxisTransform()->getZInterval( false );
-	    maxcs.zrg.start = zintv.start;
-	    maxcs.zrg.stop = zintv.stop;
-	}
+	    maxcs = scene->getCubeSampling();
 
 	CallBack dummycb;
 	uiSliceSelDlg dlg( getUiParent(), vd->getCubeSampling(true,true,-1),
