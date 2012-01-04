@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.88 2011-12-01 09:44:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.89 2012-01-04 19:57:27 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -564,7 +564,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	ODMainWin()->sceneMgr().tile();
 	const int sceneid = ODMainWin()->sceneMgr().addScene( true, transform,
 							      scenenm.buf() );
-	ODMainWin()->sceneMgr().viewAll( 0 );
     }
 }
 
