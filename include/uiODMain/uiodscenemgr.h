@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.85 2011-12-08 16:29:28 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.86 2012-01-04 19:56:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class MultiID;
+class Timer;
 class uiDockWin;
 class uiFlatViewWin;
 class uiLabel;
@@ -192,6 +193,8 @@ protected:
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;
+    Timer*			scenetimer_;
+    void			sceneTimerCB(CallBacker*);
 
     friend class		uiODMain;
 };

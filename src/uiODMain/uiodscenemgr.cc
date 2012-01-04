@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.224 2011-12-21 12:03:35 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.225 2012-01-04 19:56:53 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -47,6 +47,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.224 2011-12-21 12:03:35 cvs
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "timer.h"
 #include "visdata.h"
 #include "welltransl.h"
 
@@ -99,6 +100,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , vwheel( 0 )
     , rotlbl( 0 )
     , hwheel( 0 )
+    , scenetimer_(new Timer)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 	    	       SurveyInfo::No2D );
@@ -167,6 +169,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	leftgrp->attach( leftOf, mdiarea_ );
 	appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
     }
+
+    scenetimer_->tick.notify( mCB(this,uiODSceneMgr,sceneTimerCB) );
 }
 
 
@@ -252,7 +256,16 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
+
+    scenetimer_->start( 50, true );
     return sceneid;
+}
+
+
+void uiODSceneMgr::sceneTimerCB( CallBacker* )
+{
+    if ( scenes_.size() > 1 )
+	tile();
 }
 
 
