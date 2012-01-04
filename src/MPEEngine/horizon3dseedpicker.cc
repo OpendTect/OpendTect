@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.42 2011-12-23 15:28:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.43 2012-01-04 14:07:46 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -172,15 +172,16 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	propagatelist_.erase(); seedlist_.erase(); seedpos_.erase(); 
 
 	res = retrackOnActiveLine( seedbid, true, !retrack );
-
+/*
 	if ( repairbridge && nrLateralNeighbors(pid) )
 	{
 	    if ( !emobj->isDefined( pid ) )
 		emobj->setPos( pid, oldpos, true );
 
-//	    if  ( attribwasdef )
-//		emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
+	    if  ( attribwasdef )
+	    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 	}
+*/
     }
 
     surfchange_.trigger();
