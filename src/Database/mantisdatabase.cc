@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.35 2012-01-03 10:23:22 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.36 2012-01-04 04:54:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -607,6 +607,7 @@ bool SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
     if ( !isnoteempty )
     {
 	BugHistoryTableEntry* notehistory = new BugHistoryTableEntry;
+	notehistory->bugid_ = bugtable->id_;
 	notehistory->type_ = 2;
 	const int maxnote = getMaxNoteIDFromBugNoteTable();
 	notehistory->oldvalue_ = maxnote;
