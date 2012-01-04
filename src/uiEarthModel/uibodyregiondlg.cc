@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.8 2012-01-04 18:19:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.9 2012-01-04 22:47:46 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -83,10 +83,6 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 		Geometry::ExplFaultStickSurface* efs = 
 		    new Geometry::ExplFaultStickSurface(0,SI().zScale());
 		efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
-		efs->addToGeometries( new Geometry::IndexedGeometry( 
-			    Geometry::IndexedGeometry::Triangles, 
-  			    Geometry::IndexedGeometry::PerFace,
-  			    efs->coordList() ) );
 		efs->setSurface( flt );
 		efs->update( true, 0 );
 		expflts_ += efs;
@@ -131,10 +127,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     if ( fltsz )
     {
 	corners += Coord3( SI().transform(cs_.hrg.start), 0 );
-	const BinID cbid( cs_.hrg.start.inl, cs_.hrg.stop.crl );
-	corners += Coord3( SI().transform(cbid), 0 );
+	const BinID cbid0( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+	corners += Coord3( SI().transform(cbid0), 0 );
 	corners += Coord3( SI().transform(cs_.hrg.stop), 0 );
+	const BinID cbid1( cs_.hrg.stop.inl, cs_.hrg.start.crl );
+	corners += Coord3( SI().transform(cbid1), 0 );
     }
+    const int cornersz = corners.size();
 
     for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
     {
@@ -157,7 +156,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	if ( fltsz )
 	{
-	    for ( int cidx=0; cidx<3; cidx++ )
+	    for ( int cidx=0; cidx<cornersz; cidx++ )
     		corners[cidx].z = curz;
 
 	    for ( int fidx=0; fidx<fltsz; fidx++ )
