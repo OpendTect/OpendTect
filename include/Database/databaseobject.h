@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.2 2012-01-05 10:25:40 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.3 2012-01-05 10:28:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,13 +77,13 @@ public:
 };
 
 
-mClass CreatedTimeStampDatabaseColumn : public DatabaseColumn<time_t>
+mClass CreatedTimeStampDatabaseColumn : public DatabaseColumn<od_int64>
 {
 public:
     		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
     const char*	selectString() const;
-    bool	parse(const Query&,int column,time_t&) const;
-    const char*	dataString(const time_t&) const { return 0; }
+    bool	parse(const Query&,int column,od_int64&) const;
+    const char*	dataString(const od_int64&) const { return 0; }
 };
 
 

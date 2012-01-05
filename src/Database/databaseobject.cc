@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.1 2011-12-23 15:26:46 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.2 2012-01-05 10:28:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,15 +88,16 @@ StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
 }
 
 
-CreatedTimeStampDatabaseColumn::CreatedTimeStampDatabaseColumn( DatabaseTable& dobj )
-    : DatabaseColumn<time_t>( dobj, "created", "timestamp" )
+CreatedTimeStampDatabaseColumn::CreatedTimeStampDatabaseColumn(
+	DatabaseTable& dobj )
+    : DatabaseColumn<od_int64>( dobj, "created", "timestamp" )
 {
     columnoptions_ = "DEFAULT CURRENT_TIMESTAMP";
 }
 
 
 bool CreatedTimeStampDatabaseColumn::parse( const Query& query,
-					    int column, time_t& time ) const
+					    int column, od_int64& time ) const
 {
     time = query.i64Value( column );
     return true;
