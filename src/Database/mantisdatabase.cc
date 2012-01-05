@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.36 2012-01-04 04:54:34 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.37 2012-01-05 06:56:59 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odver.h"
 #include "ptrman.h"
-
 
 const char* SqlDB::MantisDBMgr::sKeyAll()
 { return "All"; }
@@ -763,17 +762,27 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     BufferStringSet colnms,values;
     colnms.add( "id" ).add( "bug_id" ).add( "reporter_id" )
 	  .add( "date_submitted" ).add( "last_modified" );
-    values.add( "" ).add( toString(bugid ) );
+    values.add( "" ).add( toString( bugid ) );
     values.add( toString(reporterid ) ).add( datetime )
 	  .add( datetime );
     if ( !query().insert( colnms, values, sKeyBugNoteTable() ) )
 	return false;
 
-//Update bugnote_text_id
+/*    
+      //This will delete in next commit
     BufferString querystr( "UPDATE " );
     querystr.add( sKeyBugNoteTable() )
 	    .add( " SET bugnote_text_id=id WHERE id= (SELECT MAX(id) FROM " )
 	    .add( sKeyBugNoteTextTable() ).add( ")" );
+*/ 
+
+//Update bugnote_text_id
+    const int maxntid = getMaxNoteIDFromBugNoteTextTable();
+    const int maxnid = getMaxNoteIDFromBugNoteTable();
+    BufferString querystr( "UPDATE " );
+    querystr.add( sKeyBugNoteTable() )
+	    .add( " SET bugnote_text_id=" ).add( maxntid )
+	    .add (" WHERE id=" ).add( maxnid );
     return query().execute( querystr );
 }
 
@@ -835,10 +844,11 @@ bool SqlDB::MantisDBMgr::getNotesInfo( int bugid, TypeSet<int>& noteids,
     const char* bntt = sKeyBugNoteTextTable();
     const char* bnt = sKeyBugNoteTable();
     BufferString qstr( "SELECT " );
-    qstr.add( bnt ).add( ".id, " ).add( bntt ).add( ".note" ).add( " FROM " )
-	.add( bnt ).add( "," ).add( bntt ).add( " WHERE " ).add( bnt )
-	.add( ".id=" ).add( bntt ).add( ".id" ).add( " AND " ).add( bnt )
-	.add( ".bug_id=" ).add( bugid );
+    qstr.add( bnt ).add( ".id, " ).add( bntt ).add( ".note" )
+	.add( " FROM " ).add( bnt ).add( "," ).add( bntt )
+	.add( " WHERE " ).add( bnt ).add( ".bugnote_text_id=" )
+	.add( bntt ).add( ".id" ).add( " AND " )
+	.add( bnt ).add( ".bug_id=" ).add( bugid );
     const bool isok = query().execute( qstr );
     if ( !isok )
 	mErrMsgRet( sKeyBugNoteTable() );
@@ -948,6 +958,21 @@ int SqlDB::MantisDBMgr::getMaxBugIDFromBugTable() const
     BufferString querystr( "SELECT  MAX(id) FROM " );
     querystr.add( BugTableEntry::sKeyBugTable() );
     if ( !query_->execute(querystr) )
+	return -1;
+
+    while ( query().next() )
+	querystr = query().data(0);
+
+    return toInt( querystr );
+}
+
+
+int SqlDB::MantisDBMgr::getMaxNoteIDFromBugNoteTextTable() const
+{
+    errmsg_.setEmpty();
+    BufferString querystr( "SELECT  MAX(id) FROM " );
+    querystr.add( sKeyBugNoteTextTable() );
+    if ( !query_->execute( querystr ) )
 	return -1;
 
     while ( query().next() )
