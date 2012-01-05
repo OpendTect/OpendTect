@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.57 2011-12-05 09:05:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.58 2012-01-05 06:28:17 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -136,6 +136,7 @@ void uiAttribCrossPlot::adsChg()
 uiAttribCrossPlot::~uiAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
+    deepErase( dpsset_ );
 }
 
 
@@ -359,10 +360,15 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 	    
     if ( !tr.execute(*tabextr) )
+    {
+	mDPM.release( dps->id() );
 	return false;
+    }
 
     uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
 		uiDataPointSet::Setup("Attribute data",false),dpsdispmgr_ );
+    dpsset_ += uidps;
+    mDPM.release( dps->id() );
     return uidps->go() ? true : false;
 }
 

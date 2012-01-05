@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.39 2011-09-12 09:28:57 cvsbruno Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.40 2012-01-05 06:28:17 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.39 2011-09-12 09:28:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.40 2012-01-05 06:28:17 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -611,8 +611,9 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    if ( !propdlg_ )
-	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
+    if ( propdlg_ ) delete propdlg_;
+    
+    propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
 
     propdlg_->go();
 }

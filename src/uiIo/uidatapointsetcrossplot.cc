@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.85 2011-09-02 13:05:09 cvskris Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.86 2012-01-05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.85 2011-09-02 13:05:09 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.86 2012-01-05 06:28:17 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1098,6 +1098,9 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     if ( x < mincolid_ )
 	y = y2 = mincolid_ - 1;
 
+    const bool isprevx = x_.colid_ == x;
+    const bool isprevy = y_.colid_ == y;
+    const bool isprevy2 = y2_.colid_ == y2;
     x_.setCol( x ); y_.setCol( y ); y2_.setCol( y2 );
     if ( y_.axis_ )
     {
@@ -1115,9 +1118,12 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     else if ( x_.axis_ )
 	x_.axis_->setEnd( 0 );
 
-    x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
-    y_.needautoscale_ = y_.autoscalepars_.doautoscale_ = true;
-    y2_.needautoscale_ = y2_.autoscalepars_.doautoscale_ = true;
+    if ( !isprevx )
+	x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
+    if ( !isprevy )
+	y_.needautoscale_ = y_.autoscalepars_.doautoscale_ = true;
+    if ( !isprevy2 )
+	y2_.needautoscale_ = y2_.autoscalepars_.doautoscale_ = true;
 
     mHandleAxisAutoScale(x_);
     mHandleAxisAutoScale(y_);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.76 2011-12-05 09:05:44 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.77 2012-01-05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,6 @@ protected:
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
     void		evalDlgClosed(CallBacker*);
-    void		surveyChangedCB(CallBacker*);
     void		xplotClosedCB(CallBacker*);
 
     void		attrsetDlgClosed(CallBacker*);

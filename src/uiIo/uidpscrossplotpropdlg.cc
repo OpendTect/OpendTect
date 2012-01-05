@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.22 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.23 2012-01-05 06:28:17 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -605,6 +605,7 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 	, plotter_(*p)
     	, bdroptab_(0)
 {
+    setDeleteOnClose( true );
     scaletab_ = new uiDPSCPScalingTab( this );
     addGroup( scaletab_ );
     statstab_ = new uiDPSCPStatsTab( this );

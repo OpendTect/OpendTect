@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.17 2011-11-14 07:39:14 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.18 2012-01-05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 class DataPointSetDisplayMgr;
+class uiDataPointSet;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class uiSeis2DLineNameSel;
@@ -55,6 +56,7 @@ protected:
     uiListBox*				lnmfld_;
     DataPointSet*			curdps_;
     DataPointSetDisplayMgr*		dpsdispmgr_;
+    ObjectSet<uiDataPointSet>		dpsset_;
 
     void				adsChg();
     MultiID				getSelectedID() const;

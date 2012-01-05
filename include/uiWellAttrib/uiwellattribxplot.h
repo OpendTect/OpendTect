@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.12 2011-10-19 14:11:26 cvsbruno Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.13 2012-01-05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiGenInput;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class BufferStringSet;
+class uiDataPointSet;
 class uiMultiWellLogSel;
 class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
@@ -43,6 +44,7 @@ protected:
 
     const Attrib::DescSet& ads_;
     ObjectSet<IOObj>	wellobjs_;
+    ObjectSet<uiDataPointSet>	dpsset_;
 
     uiListBox*		attrsfld_;
     uiGenInput*		radiusfld_;
