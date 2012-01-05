@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.54 2012-01-05 06:51:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.55 2012-01-05 14:50:48 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -266,14 +266,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	CubeSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
-	{
 	    maxcs = scene->getCubeSampling();
-	    /*const Interval<float> zintv =
-		scene->getZAxisTransform()->getZInterval( false );
-	    maxcs.zrg.start = zintv.start;
-	    maxcs.zrg.stop = zintv.stop;
-	    maxcs.zrg.step = scene->getZAxisTransform()->getGoodZStep();*/
-	}
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
 				pdd->getCubeSampling(true,true), maxcs,
