@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.16 2011-11-30 09:27:32 cvskris Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.17 2012-01-05 10:40:25 cvsbruno Exp $";
 
 #include "uislicepos.h"
 
@@ -144,7 +144,7 @@ void uiSlicePos::slicePosChanged( Orientation orientation,
     else if ( orientation == uiSlicePos::Crossline )
 	curcs_.hrg.start.crl = curcs_.hrg.stop.crl = posbox->getValue();
     else
-	curcs_.zrg.start = curcs_.zrg.stop = posbox->getValue()/zfactor_;
+	curcs_.zrg.start = curcs_.zrg.stop = (float)posbox->getValue()/zfactor_;
 
     if ( oldcs == curcs_ )
 	return;
