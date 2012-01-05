@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.131 2012-01-02 14:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.132 2012-01-05 10:47:58 cvsbruno Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -730,28 +730,23 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
 
     const int dim = slice->getDim();
     float pos = 0;
-    Coord3 center(0,0,0);
+    Interval<float> rg; 
+    int nrslices = 0;
+    slice->getSliceInfo( nrslices, rg );
     if ( dim == 2 )
-    {
-	pos = cs.hrg.inlRange().start;
-	pos -= voltrans_->getTranslation()[0];
-	pos /= -voltrans_->getScale()[dim];
-	center.z = pos;
-    }
+	pos = (float)cs.hrg.inlRange().start;
     else if ( dim == 1 )
-    {
-	pos = cs.hrg.crlRange().start;
-	pos -= voltrans_->getTranslation()[1];
-	pos /= -voltrans_->getScale()[dim];
-	center.y = pos;
-    }
+	pos = (float)cs.hrg.crlRange().start;
     else
-    {
-	pos = cs.zrg.start;
-	pos -= voltrans_->getTranslation()[2];
-	pos /= -voltrans_->getScale()[dim];
-	center.x = pos;
-    }
+	pos = (float)cs.zrg.start;
+
+    pos -= voltrans_->getTranslation()[2-dim];
+    pos /= -voltrans_->getScale()[dim];
+
+    float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
+    float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
+    Coord3 center(0,0,0);
+    center[dim] = draggerpos;
     slice->setCenter( center, false );
     slice->motion.trigger();
 }

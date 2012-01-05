@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.13 2011-03-18 08:52:08 cvskarthika Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.14 2012-01-05 10:47:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     int				getDim() const;
     void			setDim(int);
 
+    void			getSliceInfo(int&,Interval<float>&) const;
     int				getSliceNr() const;
     void			setSliceNr( int );
 
@@ -61,7 +62,6 @@ protected:
 				~OrthogonalSlice();
 
     void			draggerMovementCB(CallBacker*);
-    void			getSliceInfo(int&,Interval<float>&) const;
     
     visBase::DepthTabPlaneDragger* dragger_;
     visBase::PickStyle*		pickstyle_;
