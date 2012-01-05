@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.53 2012-01-02 14:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.54 2012-01-05 06:51:54 cvssatyaki Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.53 2012-01-02 14:0
 #include "attribsel.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seisioobjinfo.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -122,8 +123,28 @@ bool uiODPlaneDataTreeItem::init()
 	if ( type_ == Default )
 	{
 	    uiAttribPartServer* attrserv = applMgr()->attrServer();
-	    const char* keystr = SI().pars().find( sKey::DefCube );
-	    Attrib::DescID descid = attrserv->getStoredID( keystr, false );
+	    BufferString keystr( SI().pars().find(sKey::DefCube) );
+	    if ( keystr.isEmpty() )
+	    {
+		const IODir* iodir = IOM().dirPtr();
+		ObjectSet<IOObj> ioobjs = iodir->getObjs();
+		int nrod3d = 0;
+		int def3didx = 0;
+		for ( int idx=0; idx<ioobjs.size(); idx++ )
+		{
+		    SeisIOObjInfo seisinfo( ioobjs[idx] );
+		    if ( seisinfo.isOK() && !seisinfo.is2D() )
+		    {
+			nrod3d++;
+			def3didx = idx;
+		    }
+		}
+
+		if ( nrod3d == 1 )
+		    keystr = ioobjs[def3didx]->key();
+	    }
+
+	    Attrib::DescID descid = attrserv->getStoredID( keystr.buf(),false );
 	    const Attrib::DescSet* ads =
 		Attrib::DSHolder().getDescSet( false, true );
 	    if ( descid.isValid() && ads )
