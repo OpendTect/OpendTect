@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          June 2011
- RCS:           $Id: prestackanglemutecomputer.h,v 1.1 2011-07-12 10:51:55 cvsbruno Exp $
+ RCS:           $Id: prestackanglemutecomputer.h,v 1.2 2012-01-06 09:09:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ public:
     {
 	MultiID			outputmutemid_;
 	HorSampling 		hrg_;
-	StepInterval<float>	offsetrg_;
     };
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
@@ -57,8 +56,6 @@ public:
     const AngleMuteCompPars&  	params() const;
 
 protected:
-
-    RayTracer1D*		raytracer_;
 
     BufferString		errmsg_;
     TypeSet<float>		offsets_;

@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.4 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.5 2012-01-06 09:09:18 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -26,7 +26,6 @@ namespace PreStack
 
 AngleMuteComputer::AngleMuteComputer()
     : outputmute_(*new MuteDef)
-    , raytracer_(0)
 {
     params_ = new AngleMuteCompPars();
 }
@@ -48,13 +47,13 @@ bool AngleMuteComputer::usePar( const IOPar& par )
 
 AngleMuteComputer::~AngleMuteComputer()
 {
-    delete raytracer_;
     delete &outputmute_;
 }
 
 
 bool AngleMuteComputer::doPrepare( int )
 {
+    errmsg_.setEmpty();
     if ( !setVelocityFunction() )
 	return false;
 
@@ -62,14 +61,12 @@ bool AngleMuteComputer::doPrepare( int )
     if ( !muteioobj )
 	{ errmsg_ = "Cannot find MuteDef ID in Object Manager"; return false; }
 
-    MuteDefTranslator::retrieve(outputmute_,muteioobj,errmsg_);
-
-    raytracer_ = RayTracer1D::createInstance( params().raypar_, errmsg_ );
-    if ( !raytracer_ ) return false;
+    MuteDefTranslator::store(outputmute_,muteioobj,errmsg_);
 
     offsets_.erase();
-    for ( int idx=0; idx<params().offsetrg_.nrSteps(); idx++ )
-	offsets_ += params().offsetrg_.atIndex( idx );
+    params().raypar_.get( RayTracer1D::sKeyOffset(), offsets_ );
+    if ( offsets_.isEmpty() )
+	offsets_ += 0;
 
     return errmsg_.isEmpty();
 }
@@ -77,21 +74,30 @@ bool AngleMuteComputer::doPrepare( int )
 
 bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
 {
-    HorSamplingIterator iterator( params().hrg_ );
-    BinID curbid = params().hrg_.atIndex( start );
+    BinID startbid = params().hrg_.atIndex( start );
+    BinID stopbid = params().hrg_.atIndex( stop );
+    HorSampling hs(false);
+    hs.set( Interval<int>(startbid.inl,stopbid.inl), 
+	    Interval<int>(startbid.crl,stopbid.crl) );
+    HorSamplingIterator iterator( hs );
 
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
+    RayTracer1D* raytracer = 
+			RayTracer1D::createInstance(params().raypar_,errmsg_);
+    if ( !raytracer ) return false;
+
+    BinID curbid;
     while( iterator.next( curbid ) )
     {
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
 	if ( !getLayers( curbid, layers, sd ) )
 	    continue;
 
-	raytracer_->setModel( layers );
-	raytracer_->setOffsets( offsets_ );
-	if ( !raytracer_->execute( false ) )
+	raytracer->setModel( layers );
+	raytracer->setOffsets( offsets_ );
+	if ( !raytracer->execute( false ) )
 	    continue;
 
 	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
@@ -99,7 +105,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
 	const int nrlayers = layers.size();
 	for ( int ioff=0; ioff<offsets_.size(); ioff++ )
 	{
-	    const float mutelayer = getOffsetMuteLayer( *raytracer_, nrlayers, 
+	    const float mutelayer = getOffsetMuteLayer( *raytracer, nrlayers, 
 		    					ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
@@ -107,11 +113,11 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
 		mutefunc->add( offsets_[ioff], zpos );
 	    }
 	}
-
 	mutefuncs += mutefunc;
 	bids += curbid;
 	addToNrDone( 1 );
     }
+    delete raytracer;
 
     //add the mutes
     lock_.lock();
