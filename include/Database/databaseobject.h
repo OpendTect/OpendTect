@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.3 2012-01-05 10:28:47 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.4 2012-01-06 15:58:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,6 @@ bool DatabaseColumn<type>::parse( const Query& query, int column, \
 
 mImplColumnSpecialization( BufferString, data )
 mImplColumnSpecialization( int, iValue )
-mImplColumnSpecialization( long, iValue )
 mImplColumnSpecialization( unsigned int, uiValue )
 mImplColumnSpecialization( od_int64, i64Value )
 mImplColumnSpecialization( od_uint64, ui64Value )
