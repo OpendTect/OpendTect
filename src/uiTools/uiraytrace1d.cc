@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.10 2011-10-19 08:55:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.11 2012-01-06 09:08:03 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -108,11 +108,12 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	pErrMsg("Nothing to do"); return;
     }
 
-    BufferString dptlbl( SI().zIsTime() ? "(ft)" : SI().getZUnitString(true) );
+    BufferString zlbl( SI().depthsInFeetByDefault() ? " (ft) " : " (m) " );
+    BufferString xylbl( SI().getXYUnitString(true) );
 
     if ( s.dosourcereceiverdepth_ )
     {
-	BufferString lb = "Source/Receiver depths"; lb += dptlbl;
+	BufferString lb = "Source/Receiver depths"; lb += zlbl;
 	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
 	lastfld_ = srcdepthfld_; 
     }
@@ -137,7 +138,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     if ( s.dooffsets_ )
     {
-	BufferString olb = "offset range "; olb += dptlbl; olb +="(start/stop)";
+	BufferString olb = "offset range "; olb += xylbl; olb +="(start/stop)";
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
