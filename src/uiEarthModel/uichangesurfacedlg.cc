@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.35 2011-10-26 09:22:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.36 2012-01-06 15:19:17 cvsnanne Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -37,6 +37,8 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,bool is2d,
     , inputfld_( 0 )
     , parsgrp_( 0 )
 {
+    setCtrlStyle( DoAndStay );
+
     if ( horizon_ )
 	horizon_->ref();
     else
@@ -50,6 +52,7 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,bool is2d,
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
 }
+
 
 void uiChangeHorizonDlg::attachPars()
 {
@@ -174,7 +177,11 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
     if ( !doProcessing() )
 	return false;
 
-    return savefldgrp_->saveHorizon();
+    const bool res = savefldgrp_->saveHorizon();
+    if ( res )
+	uiMSG().message( "Horizon sucessfully changed" );
+
+    return false;
 }
 
 
