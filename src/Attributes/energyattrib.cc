@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.37 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.38 2012-01-06 15:14:45 cvsnanne Exp $";
 
 #include "energyattrib.h"
 
@@ -128,7 +128,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		const float curval = output.series(ido)->value(isamp);
 		float nextval = isamp < output.nrsamples_-1
-		    		? output.series(ido)->value(isamp+1): mUdf(float);
+				? output.series(ido)->value(isamp+1)
+				: mUdf(float);
 		float gradval;
 		if ( mIsUdf(prevval) && mIsUdf(nextval) )
 		{
