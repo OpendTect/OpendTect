@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.18 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.19 2012-01-06 15:16:10 cvsnanne Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -37,16 +37,9 @@ Hor2DTo3DSectionData( EM::SectionID sid,
 {
     inlsz_ = count_.info().getSize( 0 );
     crlsz_ = count_.info().getSize( 1 );
-    if ( !arr_.getData() ) { inlsz_ = crlsz_ = 0; }
 
-    for ( int iinl=0; iinl<inlsz_; iinl++ )
-    {
-	for ( int icrl=0; icrl<crlsz_; icrl++ )
-	{
-	    count_.set( iinl, icrl, 0 );
-	    arr_.set( iinl, icrl, mUdf(float) );
-	}
-    }
+    count_.setAll( 0 );
+    arr_.setAll( mUdf(float) );
 
     hs_.start = minbid;
     hs_.step = step;
