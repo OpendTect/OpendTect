@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.89 2012-01-04 19:57:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.90 2012-01-06 15:27:56 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -285,6 +285,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		const Attrib::SelSpec newas( auxdatanm,
 			Attrib::SelSpec::cOtherAttrib() );
 		visserv->setSelSpec( visid, attribnr, newas );
+		BufferStringSet* userrefs = new BufferStringSet;
+		userrefs->add( auxdatanm );
+		visserv->setUserRefs( visid, attribnr, userrefs );
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	    changed_ = !saved;
