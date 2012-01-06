@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.69 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.70 2012-01-06 11:17:10 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -132,7 +132,7 @@ Well::~Well()
 void Well::setTrack( const TypeSet<Coord3>& pts )
 {
     while ( track_->size()>pts.size() )
-	track_->removePoint( 0 );
+	track_->removePoint( track_->size()-1 );
 
     track_->setDisplayTransformation( transformation_ );
     for ( int idx=0; idx<pts.size(); idx++ )
