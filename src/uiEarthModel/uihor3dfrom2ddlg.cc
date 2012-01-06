@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.22 2010-01-12 12:11:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.23 2012-01-06 15:21:06 cvsnanne Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -113,11 +113,10 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !interpolator )
 	mErrRet( "Cannot create interpolator" );
 
+    uiTaskRunner tr( this );
     //Takes over interpolator
-    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_ );
-
-    uiTaskRunner taskrunner( this );
-    bool rv = taskrunner.execute( converter );
+    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, &tr );
+    bool rv = tr.execute( converter );
 
 #undef mErrRet
     if ( !rv ) return false;
@@ -126,7 +125,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !exec )
 	return false;
 
-    rv = taskrunner.execute( *exec );
+    rv = tr.execute( *exec );
     if ( rv )
 	selid_ = ioobj->key();
     return rv;
