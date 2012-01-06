@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.138 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.139 2012-01-06 13:43:26 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -698,7 +698,9 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 	    continue;
 
 	const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
-	res = (*pids)[index];
+	if ( index < pids->size() )
+	    res = (*pids)[index];
+
 	break;
     }
 
