@@ -1,0 +1,93 @@
+#ifndef qnetworkaccessconn_h
+#define qnetworkaccessconn_h
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		January 2012
+ RCS:		$Id: qnetworkaccessconn.h,v 1.1 2012-01-06 23:25:30 cvsnanne Exp $
+________________________________________________________________________
+
+-*/
+
+
+#include "odnetworkaccess.h"
+#include <QNetworkAccessManager>
+
+
+class QNAMConnector : public QObject
+{
+    Q_OBJECT
+    friend class ODNetworkAccess;
+
+protected:
+
+QNAMConnector( QNetworkAccessManager* sndr, ODNetworkAccess* receiver )
+    : sender_(sndr), receiver_(receiver)
+{
+    connect( sender_, SIGNAL(finished(QNetworkReply*)),
+	     this, SLOT(finished(QNetworkReply*)) );
+}
+
+private slots:
+
+void finished( QNetworkReply* reply )
+{
+}
+
+
+private:
+
+    QNetworkAccessManager*	sender_;
+    ODNetworkAccess*		receiver_;
+};
+
+
+class QNetworkReplyConn : public QObject
+{
+    Q_OBJECT
+
+protected:
+
+QNetworkReplyConn( QNetworkReply* sndr, ODNetworkReply* rec )
+    : sender_(sndr), receiver_(rec)
+{
+    connect( sender_, SIGNAL(downloadProgress(qint64,qint64)),
+	     this, SLOT(downloadProgress(qint64,qint64)) );
+    connect( sender_, SIGNAL(error(QNetworkReply::NetworkError)),
+	     this, SLOT(error(QNetworkReply::NetworkError)) );
+    connect( sender_, SIGNAL(finished()),
+	     this, SLOT(finished()) );
+    connect( sender_, SIGNAL(metaDataChanged()),
+	     this, SLOT(metaDataChanged()) );
+    connect( sender_, SIGNAL(uploadProgress(qint64,qint64)),
+	     this, SLOT(uploadProgress(qint64,qint64)) );
+}
+
+private slots:
+
+void downloadProgress(qint64,qint64)
+{}
+
+void error(QNetworkReply::NetworkError)
+{}
+
+void finished()
+{}
+
+void metaDataChanged()
+{}
+
+void uploadProgress(qint64,qint64)
+{}
+
+private:
+
+    QNetworkReply*	sender_;
+    ODNetworkReply*	receiver_;
+
+};
+
+#endif
