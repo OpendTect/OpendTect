@@ -7,15 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		October 2011
- RCS:		$Id: uibodyregiondlg.h,v 1.1 2011-10-27 21:48:06 cvsyuancheng Exp $
+ RCS:		$Id: uibodyregiondlg.h,v 1.2 2012-01-06 19:50:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uidialog.h"
-#include "cubesampling.h"
-#include "arraynd.h"
 #include "ctxtioobj.h"
 
 class MultiID;
@@ -25,14 +23,11 @@ class uiTable;
 class uiPosSubSel;
 class uiPushButton;
 
-namespace EM { class MarchingCubesSurface; }
-
 
 mClass uiBodyRegionDlg : public uiDialog
 {
 public: 
-    				uiBodyRegionDlg(uiParent*,
-					EM::MarchingCubesSurface&);
+    				uiBodyRegionDlg(uiParent*);
 				~uiBodyRegionDlg();
 protected:
     bool			acceptOK(CallBacker*);
@@ -42,7 +37,6 @@ protected:
 						     bool isfault,char side);
     bool			createImplicitBody();
 
-    EM::MarchingCubesSurface&	emcs_;
     TypeSet<MultiID>		surfacelist_;
 
     uiIOObjSel*			outputfld_;

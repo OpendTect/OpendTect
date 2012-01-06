@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.88 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.89 2012-01-06 19:50:34 cvsyuancheng Exp $";
 
 
 #include "uisurfaceman.h"
@@ -261,17 +261,8 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 
 void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
-    EM::MarchingCubesSurface* emcs = new EM::MarchingCubesSurface(EM::EMM());
-    emcs->ref();
-    
-    uiBodyRegionDlg dlg( this, *emcs );
-    if ( !dlg.go() )
-    {
-	emcs->unRef();
-	return;
-    }
-    
-    mSaveMCSurface();
+    uiBodyRegionDlg dlg( this );
+    dlg.go();
 }
 
 
