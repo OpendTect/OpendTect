@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.148 2011-11-10 20:55:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.149 2012-01-06 13:25:18 cvsbruno Exp $";
 
 #include "emsurfaceio.h"
 
@@ -80,34 +80,53 @@ BufferString dgbSurfaceReader::sColStepKey( int idx )
 dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 				    const char* filetype )
     : ExecutorGroup( "Surface Reader" )
-    , conn_( dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read)) )
-    , cube_( 0 )
-    , surface_( 0 )
-    , par_( 0 )
-    , setsurfacepar_( false )
-    , readrowrange_( 0 )
-    , readcolrange_( 0 )
-    , zrange_(mUdf(float),mUdf(float))
-    , int16interpreter_( 0 )
-    , int32interpreter_( 0 )
-    , int64interpreter_( 0 )
-    , floatinterpreter_( 0 )
-    , nrdone_( 0 )
-    , readonlyz_( true )
-    , sectionindex_( 0 )
-    , sectionsread_( 0 )
-    , oldsectionindex_( -1 )
-    , isinited_( false )
-    , fullyread_( true )
-    , version_( 1 )
-    , readlinenames_( 0 )
-    , linestrcrgs_( 0 )		       
-    , nrrows_( 0 )
 {
+    init( ioobj.fullUserExpr(true), ioobj.name() );
+    error_ = !readHeaders( filetype );
+}
+
+
+dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
+				    const char* objname,
+				    const char* filetype )
+    : ExecutorGroup( "Surface Reader" )
+{
+    init( fulluserexp, objname );
+    error_ = !readHeaders( filetype );
+}
+
+
+
+void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
+{
+    conn_ = new StreamConn( fullexpr, Conn::Read );
+    cube_ = 0;
+    surface_ = 0;
+    par_ = 0;
+    setsurfacepar_ = false;
+    readrowrange_ = 0;
+    readcolrange_ = 0;
+    zrange_ = Interval<float>(mUdf(float),mUdf(float));
+    int16interpreter_ = 0;
+    int32interpreter_ = 0;
+    int64interpreter_ = 0;
+    floatinterpreter_ = 0;
+    nrdone_ = 0;
+    readonlyz_ =true;
+    sectionindex_ = 0;
+    sectionsread_ = 0;
+    oldsectionindex_ = -1; 
+    isinited_ = false;
+    fullyread_ = true;
+    version_ = 1;
+    readlinenames_ = 0;
+    linestrcrgs_ = 0;		       
+    nrrows_ = 0;
+
     sectionnames_.allowNull();
     linenames_.allowNull();
 
-    BufferString exnm( "Reading surface '", ioobj.name().buf(), "'" );
+    BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
     setNrDoneText( "Nr done" );
     auxdataexecs_.allowNull(true);
@@ -119,8 +138,6 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     }
 
     createAuxDataReader();
-    error_ = !readHeaders( filetype );
-
 }
 
 
@@ -1312,34 +1329,54 @@ bool dgbSurfaceReader::parseVersion1( const IOPar& par )
 
 
 dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
-					const char* filetype,
-					const Surface& surface,
-					bool binary )
+				    const char* filetype,
+				    const Surface& surface,
+				    bool binary )
     : ExecutorGroup( "Surface Writer" )
-    , conn_( 0 )
-    , ioobj_( ioobj ? ioobj->clone() : 0 )
-    , surface_( surface )
-    , par_( *new IOPar("Surface parameters" ))
-    , writerowrange_( 0 )
-    , writecolrange_( 0 )
-    , writtenrowrange_( INT_MAX, INT_MIN )
-    , writtencolrange_( INT_MAX, INT_MIN )
-    , zrange_(SI().zRange(false).stop,SI().zRange(false).start)
-    , nrdone_( 0 )
-    , sectionindex_( 0 )
-    , oldsectionindex_( -1 )
-    , writeonlyz_( false )
-    , filetype_( filetype )
-    , nrrows_( 0 )
-    , binary_( binary )
-    , shift_( 0 )
-    , writingfinished_( false )
-    , geometry_(
-	reinterpret_cast<const EM::RowColSurfaceGeometry&>( surface.geometry()))
+    , surface_(surface)
+    , filetype_(filetype)
+    , binary_(binary)
+    , objectmid_(ioobj ? ioobj->key() : MultiID::udf() )
+{ 
+    init( ioobj ? ioobj->fullUserExpr(false) : 0 );
+}
+
+
+dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
+				    const char* filetype,
+				    const Surface& surface,
+				    bool binary )
+    : ExecutorGroup( "Surface Writer" )
+    , surface_(surface)
+    , filetype_(filetype)
+    , binary_(binary)
+    , objectmid_(MultiID::udf())
+{ 
+    init( fulluserexpr );
+}
+
+
+void dgbSurfaceWriter::init( const char* fulluserexpr )
 {
-    surface.ref();
+    conn_ = fulluserexpr ? new StreamConn( fulluserexpr, Conn::Write ) : 0;
+    par_ = new IOPar("Surface parameters" );
+    writerowrange_ = 0;
+    writecolrange_ = 0;
+    writtenrowrange_ = Interval<int>( INT_MAX, INT_MIN );
+    writtencolrange_ = Interval<int>( INT_MAX, INT_MIN );
+    zrange_ = Interval<float>(SI().zRange(false).stop,SI().zRange(false).start);
+    nrdone_ = 0;
+    sectionindex_ = 0;
+    oldsectionindex_= -1;
+    writeonlyz_ = false;
+    nrrows_ = 0;
+    shift_ = 0;
+    writingfinished_ = false;
+    geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
+	     						&surface_.geometry() );
+    surface_.ref();
     setNrDoneText( "Nr done" );
-    par_.set( dgbSurfaceReader::sKeyDBInfo(), surface.dbInfo() );
+    par_->set( dgbSurfaceReader::sKeyDBInfo(), surface_.dbInfo() );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID( idx );
@@ -1350,10 +1387,10 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 	    auxdatasel_ += idx;
     }
 
-    rowrange_ = geometry_.rowRange();
-    colrange_ = geometry_.colRange();
+    rowrange_ = geometry_->rowRange();
+    colrange_ = geometry_->colRange();
 
-    surface.fillPar( par_ );
+    surface_.fillPar( *par_ );
 }
 
 
@@ -1363,11 +1400,10 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	finishWriting();
 
     surface_.unRef();
-    delete &par_;
+    delete par_;
     delete conn_;
     delete writerowrange_;
     delete writecolrange_;
-    delete ioobj_;
 }
 
 
@@ -1391,30 +1427,30 @@ void dgbSurfaceWriter::finishWriting()
 	writeInt64( strm, nrsectionsoffset, sEOL() );
 	strm.seekp( secondparoffset, std::ios::beg );
 
-	par_.setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
+	par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
 
 	const int rowrgstep = writerowrange_ ? 
 			      writerowrange_->step : rowrange_.step;
-	par_.set( dgbSurfaceReader::sKeyRowRange(),
+	par_->set( dgbSurfaceReader::sKeyRowRange(),
 		  writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
 
 	const int colrgstep = writecolrange_ ? 
 			      writecolrange_->step : colrange_.step;
-	par_.set( dgbSurfaceReader::sKeyColRange(),
+	par_->set( dgbSurfaceReader::sKeyColRange(),
 		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
 	
-	par_.set( dgbSurfaceReader::sKeyZRange(), zrange_ );
+	par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
 			      
 	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
 	{
-	    const int idxcolstep = geometry_.colRange(idx).step;
+	    const int idxcolstep = geometry_->colRange(idx).step;
 	    if ( idxcolstep && idxcolstep!=colrange_.step )
-		par_.set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep );
+		par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
 	}
 
 	ascostream astream( strm );
 	astream.newParagraph();
-	par_.putTo( astream );
+	par_->putTo( astream );
     }
 
     writingfinished_ = true;
@@ -1516,7 +1552,7 @@ void dgbSurfaceWriter::setWriteOnlyZ(bool yn)
 
 IOPar* dgbSurfaceWriter::pars()
 {
-    return &par_;
+    return par_;
 }
 
 
@@ -1549,11 +1585,8 @@ od_int64 dgbSurfaceWriter::totalNr() const
 
 int dgbSurfaceWriter::nextStep()
 {
-    if ( !ioobj_ ) { msg_ = "No object info"; return ErrorOccurred(); }
-
     if ( !nrdone_ )
     {
-	conn_ = dynamic_cast<StreamConn*>(ioobj_->getConn(Conn::Write));
 	if ( !conn_ )
 	{
 	    msg_ = "Cannot open output surface file";
@@ -1586,7 +1619,7 @@ int dgbSurfaceWriter::nextStep()
 	    if ( dataidx<0 || dataidx>=hor->auxdata.nrAuxData() )
 		continue;
 
-	    BufferString fnm = hor->auxdata.getFileName( *ioobj_,
+	    BufferString fnm = hor->auxdata.getFileName( fulluserexpr_,
 		    					auxDataName(dataidx) );
 	    if ( fnm.isEmpty() )
 	    {
@@ -1607,7 +1640,7 @@ int dgbSurfaceWriter::nextStep()
     if ( sectionindex_>=sectionsel_.size() )
     {
 	const int res = ExecutorGroup::nextStep();
-	if ( !res && ioobj_->key()==surface_.multiID() ) 
+	if ( !res && objectmid_==surface_.multiID() ) 
 	    const_cast<Surface*>(&surface_)->resetChangedFlag();
 	if ( res == Finished() )
 	    finishWriting();
@@ -1796,7 +1829,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 
     if ( sectionname.size() )
     {
-	par_.set( dgbSurfaceReader::sSectionNameKey(sectionindex_).buf(),
+	par_->set( dgbSurfaceReader::sSectionNameKey(sectionindex_).buf(),
 		  sectionname );
     }
 
@@ -1817,7 +1850,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int row = firstrow_ + rowindex_ *
 		    (writerowrange_ ? writerowrange_->step : rowrange_.step);
 
-    const StepInterval<int> colrange = geometry_.colRange( row );
+    const StepInterval<int> colrange = geometry_->colRange( row );
 
     const SectionID sectionid = sectionsel_[sectionindex_];
     TypeSet<Coord3> colcoords;

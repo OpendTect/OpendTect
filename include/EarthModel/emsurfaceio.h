@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.37 2010-12-28 22:22:21 cvsyuancheng Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.38 2012-01-06 13:25:17 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,8 @@ mClass dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
+					 const char* filetype);
+			dgbSurfaceReader(const char* fullexp, const char* name,
 					 const char* filetype);
 			/*!< Sets up object and reads header.
 			\param ioobj	The IOObj with info about where to
@@ -223,6 +225,7 @@ protected:
    const BufferStringSet*	readlinenames_;
    const TypeSet< StepInterval<int> >* linestrcrgs_; 
    static const char*         	linenamesstr_;  
+   void 			init(const char* fulluserexp,const char* name);
 };
 
 
@@ -242,6 +245,10 @@ public:
 					  const char* filetype,
 					  const EM::Surface& surface,
 			       		  bool binary );
+			dgbSurfaceWriter( const char* fulluserexpr,
+					  const char* filetype,
+					  const EM::Surface& surface,
+			       		  bool binary ); 
 			/*!< Sets up object, but does not touch file (that's 
 			     done in nextStep() )
 			\param ioobj	The IOObj with info about where to
@@ -309,7 +316,6 @@ protected:
     bool			writingfinished_;
 
     StreamConn*			conn_;
-    const IOObj*		ioobj_;
 
     TypeSet<EM::SectionID>	sectionsel_;
     TypeSet<od_int64>		sectionoffsets_;
@@ -317,9 +323,11 @@ protected:
     TypeSet<int>		auxdatasel_;
     BufferString		dbinfo_;
 
-    IOPar&			par_;
+    IOPar*			par_;
 
     BufferString		msg_;
+    BufferString		fulluserexpr_;
+    MultiID			objectmid_;
     int				nrdone_;
 
     int				sectionindex_;
@@ -331,7 +339,7 @@ protected:
     int				rowindex_;
 
     const EM::Surface&		surface_;
-    const EM::RowColSurfaceGeometry& geometry_;
+    const EM::RowColSurfaceGeometry* geometry_;
 
     StepInterval<int>		rowrange_;
     StepInterval<int>		colrange_;
@@ -350,6 +358,8 @@ protected:
     static const char*		sEOL()		{ return "\n"; }
     static const char*		sEOLTab()	{ return "\n\t\t"; }
     static const char*		sMsgWriteError(){return "Cannot write surface";}
+
+   void 			init(const char* fulluserexp);
 };
 
 };
