@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.15 2011-09-07 12:04:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.16 2012-01-06 15:20:43 cvsnanne Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -182,7 +182,7 @@ bool uiExport2DHorizon::doExport()
 		pos.z *= zfac;
 		if ( wrlnms )
 		{
-		    controlstr += "%16.2lf%16.2lf%8d%16.2lf";
+		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
 		    sprintf( buf, controlstr.buf(),
 			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
 		}
