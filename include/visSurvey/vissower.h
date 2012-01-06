@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.9 2011-12-23 15:28:20 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.10 2012-01-06 13:33:04 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class Color;
 class Coord;
 class HorSampling;
 
-namespace visBase { class PolyLine; };
+namespace visBase { class PolyLine; class PickStyle; };
 
 namespace visSurvey
 {
@@ -68,17 +68,14 @@ public:
     bool		accept(const visBase::EventInfo&);
 
     bool		activate(const Color&,const visBase::EventInfo&,
-	    			 int underlyingobjid=-1);
-    bool		activate(const Color&,const visBase::EventInfo&,
-	    			 const HorSampling* workrange);
+	    			 int underlyingobjid=-1,
+	    			 const HorSampling* workrange=0);
 
 protected:
 
-    bool		activate(const Color&,const visBase::EventInfo&,
-	    			 int underlyingobjid,
-	    			 const HorSampling* workrange);
     bool		isInWorkRange(const visBase::EventInfo&) const ;
-    void		tieToWorkRange( const visBase::EventInfo& );
+    void		tieToWorkRange(const visBase::EventInfo&);
+    void		calibrateEventInfo(visBase::EventInfo&);
 
     bool		acceptMouse(const visBase::EventInfo&);
     bool		acceptTablet(const visBase::EventInfo&);
@@ -93,11 +90,12 @@ protected:
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			transformation_;
     visBase::PolyLine*			sowingline_;
+    visBase::PickStyle*			pickstyle_;
     bool				linelost_;
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
     int					underlyingobjid_;
-    const HorSampling*			workrange_;
+    HorSampling*			workrange_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 

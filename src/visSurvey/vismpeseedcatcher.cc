@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.50 2011-12-23 15:28:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.51 2012-01-06 13:33:04 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -508,11 +508,8 @@ bool MPEClickCatcher::activateSower( const Color& color,
 {
     if ( editor_ && cureventinfo_ )
     {
-	if ( workrange && workrange->isDefined() && !workrange->isEmpty() )
-	    return editor_->sower().activate( color, *cureventinfo_, workrange);
-
 	return editor_->sower().activate( color, *cureventinfo_,
-					  info_.getObjID() );
+					  info_.getObjID(), workrange );
     }
     return false;
 }

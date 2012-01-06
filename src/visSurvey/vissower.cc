@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.11 2011-12-23 15:28:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.12 2012-01-06 13:33:04 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: vissower.cc,v 1.11 2011-12-23 15:28:20 cvsjaap 
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
+#include "vispickstyle.h"
+#include "visplanedatadisplay.h"
 #include "vispolygonselection.h"
 #include "vispolyline.h"
 #include "vissurvscene.h"
@@ -39,15 +41,20 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , transformation_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
+    , pickstyle_( visBase::PickStyle::create() )
     , linelost_( false )
     , singleseeded_( true )
     , curpid_( EM::PosID::udf() )
     , curpidstamp_( mUdf(int) )
     , workrange_( 0 )
 {
+    pickstyle_->ref();
+    pickstyle_->setStyle( visBase::PickStyle::Unpickable );
+
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
     sowingline_->setMaterial( visBase::Material::create() );
+    sowingline_->insertNode( pickstyle_->getInventorNode() );
     reInitSettings();
 }
 
@@ -56,6 +63,7 @@ Sower::~Sower()
 {
     removeChild( sowingline_->getInventorNode() );
     sowingline_->unRef();
+    pickstyle_->unRef();
     deepErase( eventlist_ );
 
     if ( workrange_ )
@@ -110,16 +118,6 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 
 
 bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
-		      int underlyingobjid )
-{ return activate( color, eventinfo, underlyingobjid, 0 ); }
-
-
-bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
-		      const HorSampling* workrange )
-{ return activate( color, eventinfo, -1, workrange ); }
-
-
-bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
 		      int underlyingobjid, const HorSampling* workrg )
 {
     if ( mode_ != Idle )
@@ -141,7 +139,20 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
 
     underlyingobjid_ = underlyingobjid;
     if ( workrange_ ) delete workrange_;
-    workrange_ = workrg ? new HorSampling(*workrg) : 0;
+    workrange_ = 0;
+
+    visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
+    mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
+    if ( pdd )
+	workrange_ = new HorSampling( pdd->getCubeSampling().hrg );
+
+    if ( workrg && workrg->isDefined() && !workrg->isEmpty() )
+    {
+	if ( workrange_ )
+	    workrange_->limitTo( *workrg );
+	else
+	    workrange_ = new HorSampling( *workrg );
+    }
 
     if ( !accept(eventinfo) )
     {
@@ -175,12 +186,44 @@ void Sower::stopSowing()
 { bendpoints_.erase(); }
 
 
-bool Sower::accept( const visBase::EventInfo& eventinfo )
+void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 {
-    if ( eventinfo.tabletinfo )
-	return acceptTablet( eventinfo );
+    visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
+    mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
+    Scene* scene = STM().currentScene();
+    if ( !pdd || !scene || !transformation_ )
+	return;
 
-    return acceptMouse( eventinfo );
+    CubeSampling cs = pdd->getCubeSampling( false, false );
+    Coord3 p0( SI().transform(cs.hrg.start), cs.zrg.start );
+    p0 = transformation_->transform( p0 );
+    p0 = scene->getZScaleTransform()->transform( p0 );
+    Coord3 p1( SI().transform( cs.hrg.stop), cs.zrg.start );
+    p1 = transformation_->transform( p1 );
+    p1 = scene->getZScaleTransform()->transform( p1 );
+    Coord3 p2( SI().transform(cs.hrg.start), cs.zrg.stop );
+    p2 = transformation_->transform( p2 );
+    p2 = scene->getZScaleTransform()->transform( p2 );
+
+    Coord3 pos;
+    if ( !Plane3(p0,p1,p2).intersectWith(eventinfo.mouseline, pos) )
+	return;
+
+    eventinfo.displaypickedpos = pos;
+    pos = scene->getZScaleTransform()->transformBack( pos );
+    eventinfo.worldpickedpos = transformation_->transformBack( pos );
+}
+
+
+bool Sower::accept( const visBase::EventInfo& ei )
+{
+    PtrMan<visBase::EventInfo> eventinfo = new visBase::EventInfo( ei );
+    calibrateEventInfo( *eventinfo );
+
+    if ( eventinfo->tabletinfo )
+	return acceptTablet( *eventinfo );
+
+    return acceptMouse( *eventinfo );
 }
 
 
@@ -208,7 +251,7 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
 	    return;
     }
     else if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed )
-	return; 
+	return;
 
     Coord3& lastworldpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
     const BinID lastbid = SI().transform( lastworldpos );
@@ -225,12 +268,12 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
 			   SI().transform(start) : SI().transform(stop);
 
     Scene* scene = STM().currentScene();
-    if ( !transformation_ || !scene )
-	return;
-
-    Coord3& lastdisplaypos = eventlist_[eventlist_.size()-1]->displaypickedpos;
-    lastdisplaypos = transformation_->transform( lastworldpos );
-    lastdisplaypos = scene->getZScaleTransform()->transform( lastdisplaypos );
+    if ( transformation_ && scene )
+    {
+	Coord3& displaypos = eventlist_[eventlist_.size()-1]->displaypickedpos;
+	displaypos = transformation_->transform( lastworldpos );
+	displaypos = scene->getZScaleTransform()->transform( displaypos );
+    }
 }
 
 
@@ -259,20 +302,27 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( sz && eventinfo.mousepos==eventlist_[sz-1]->mousepos )
 	    mReturnHandled( true );
 
-	bool isvalidpos = !sz ||
-			eventinfo.pickedobjids==eventlist_[0]->pickedobjids ||
-			eventinfo.pickedobjids.isPresent(underlyingobjid_);
-
-	if ( workrange_ )
+	Coord3 furrowpos = eventinfo.worldpickedpos;
+	Scene* scene = STM().currentScene();
+	if ( scene && transformation_ && eventinfo.displaypickedpos.isDefined())
 	{
-	    isvalidpos = isInWorkRange( eventinfo ) &&
-			 !eventinfo.pickedobjids.isPresent(sowingline_->id());
+	    const double t = eventinfo.mouseline.closestPoint(
+						eventinfo.displaypickedpos );
+	    furrowpos = eventinfo.mouseline.getPoint( t-0.01 );
+	    furrowpos = scene->getZScaleTransform()->transformBack( furrowpos );
+	    furrowpos = transformation_->transformBack( furrowpos );
 	}
+
+	bool isvalidpos = !sz ||
+			  eventinfo.pickedobjids==eventlist_[0]->pickedobjids ||
+			  eventinfo.pickedobjids.isPresent(underlyingobjid_);
+	if ( workrange_ )
+	    isvalidpos = isInWorkRange( eventinfo );
 
 	if ( !isvalidpos )
 	{
 	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
-		sowingline_->addPoint( eventinfo.worldpickedpos );
+		sowingline_->addPoint( furrowpos );
 	    else
 		linelost_ = true;
 
@@ -280,7 +330,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	}
 
 	linelost_ = false;
-	sowingline_->addPoint( eventinfo.worldpickedpos );
+	sowingline_->addPoint( furrowpos );
 
 	if ( !sz )
 	    singleseeded_ = true;
@@ -296,7 +346,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     else
 	tieToWorkRange( eventinfo );
 
-    if ( !sz || !sowingline_->isOn() )
+    if ( !eventlist_.size() || !sowingline_->isOn() )
     {
 	reset();
 	mReturnHandled( true );
@@ -315,11 +365,11 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     eventlist_[0]->buttonstate_ = (OD::ButtonState) butstate;
     butstate &= sequentsowmask_;
 
-    for ( int idx=sz-1; idx>0; idx--)
+    for ( int idx=eventlist_.size()-1; idx>0; idx--)
     {
 	if ( singleseeded_ )
 	{
-	    eventlist_.remove( idx );
+	    delete eventlist_.remove( idx );
 	    mousecoords_.remove( idx );
 	}
 	else
