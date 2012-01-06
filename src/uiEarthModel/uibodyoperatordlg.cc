@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.5 2011-10-31 16:11:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.6 2012-01-06 20:39:06 cvsyuancheng Exp $";
 
 #include "uibodyoperatordlg.h"
 
@@ -15,6 +15,9 @@ static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.5 2011-10-31 16:11:25 
 #include "embodyoperator.h"
 #include "embodytr.h"
 #include "emmarchingcubessurface.h"
+#include "emmanager.h"
+#include "executor.h"
+#include "ioman.h"
 #include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -26,12 +29,11 @@ static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.5 2011-10-31 16:11:25 
 #include "uitaskrunner.h"
 
 
-uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::MarchingCubesSurface& m )
+uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mNoHelpID) )
-    , emcs_( m ) 
     , ctio_( EMBodyTranslatorGroup::ioContext() )		 
 {
-    setOkText( "Compute" );  
+    setCtrlStyle( DoAndStay );
 
     tree_ = new uiListView( this, "Operation tree", 9 );
     uiLabel* label0 = new uiLabel( this, "Operation tree" );
@@ -104,7 +106,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::MarchingCubesSurface& m )
     outputfld_->attach( alignedBelow, tree_ );
 
     typefld_->display( false );
-    turnOffAll();    
+    turnOffAll();
 }
 
 
@@ -280,50 +282,57 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
 
 
 #define mRetErr( msg ) \
-    uiMSG().error( msg ); return false
+{ uiMSG().error( msg ); return false; }
 
 
 bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 {
-    if ( !emcs_.getBodyOperator() )
-    {
-	mRetErr( "There is no operator been set" );
-    }
-    
     for ( int idx=0; idx<listinfo_.size(); idx++ )
     {
 	if ( !listinfo_[idx].defined ||
 	    (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf())
 	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()))
-	{
-	    mRetErr( "Do not forget to pick Action/Body" );
-	}
+	    mRetErr( "Do not forget to pick Action/Body" )
     }
     
     if ( !outputfld_->commitInput() )
-    {
-	mRetErr( "Cannot create the output body" );
-    }
+	mRetErr( "Cannot create the output body, write permission?" )
     
-    setOprator( listsaved_[0], *emcs_.getBodyOperator() );
-    if ( !emcs_.getBodyOperator()->isOK() )
-    {
-	mRetErr( "Your operator is wrong" );
-    }
+    RefMan<EM::MarchingCubesSurface> emcs = 
+	new EM::MarchingCubesSurface(EM::EMM());
+    if ( !emcs->getBodyOperator() )
+	emcs->createBodyOperator();
+
+    setOprator( listsaved_[0], *emcs->getBodyOperator() );
+    if ( !emcs->getBodyOperator()->isOK() )
+	mRetErr( "Your operator is wrong" )
     
     MouseCursorChanger bodyopration( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
-    if ( !emcs_.regenerateMCBody( &taskrunner ) )
+    if ( !emcs->regenerateMCBody( &taskrunner ) )
+	mRetErr( "Generating body failed" )
+
+    emcs->setMultiID( ctio_.ioobj->key() );
+    emcs->setName( ctio_.ioobj->name() );
+    emcs->setFullyLoaded( true );
+    emcs->setChangedFlag();
+
+    EM::EMM().addObject( emcs );
+    PtrMan<Executor> exec = emcs->saver();
+    if ( !exec )
+	mRetErr( "Body saving failed" )
+	    
+    MultiID key = emcs->multiID();
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj->pars().find( sKey::Type ) )
     {
-	mRetErr( "Generating body failed" );
+	ioobj->pars().set( sKey::Type, emcs->getTypeStr() );
+	if ( !IOM().commitChanges( *ioobj ) )
+	    mRetErr( "Writing body to disk failed, no permision?" )
     }
 
-    emcs_.setMultiID( ctio_.ioobj->key() );
-    emcs_.setName( ctio_.ioobj->name() );
-    emcs_.setFullyLoaded( true );
-    emcs_.setChangedFlag();
-
-    return true;
+    taskrunner.execute( *exec );
+    return false;
 }
 
 

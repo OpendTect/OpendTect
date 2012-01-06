@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.38 2011-12-13 22:13:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.39 2012-01-06 20:39:06 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -22,7 +22,6 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.38 2011-12-13 22
 #include "mousecursor.h"
 #include "randcolor.h"
 
-#include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -55,7 +54,6 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add ..."), 0 );
     mnu.insertItem( new uiMenuItem("&New polygon body..."), 1 );
-    //mnu.insertItem( new uiMenuItem("&New body combination..."), 2 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -83,24 +81,6 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
 	visserv->turnSeedPickingOn( false );
-    }
-    else if ( mnuid == 2 )
-    {
-	RefMan<EM::EMObject> emobj = EM::EMM().createTempObject(
-		EM::MarchingCubesSurface::typeStr() );
-	if ( !emobj ) return false;
-	
-	mDynamicCastGet( EM::MarchingCubesSurface*, emcs, emobj.ptr() );
-	if ( !emcs ) return false;
-	
-	if ( !emcs->getBodyOperator() )
-	    emcs->createBodyOperator();
-	
-	uiBodyOperatorDlg dlg( getUiParent(), *emcs );
-	if ( !dlg.go() )
-	    return false;
-	
-	addChild( new uiODBodyDisplayTreeItem( emcs->id() ), false );
     }
     else
 	handleStandardItems( mnuid );

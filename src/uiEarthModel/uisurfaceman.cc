@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.89 2012-01-06 19:50:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.90 2012-01-06 20:39:06 cvsyuancheng Exp $";
 
 
 #include "uisurfaceman.h"
@@ -216,46 +216,10 @@ void uiSurfaceMan::merge3dCB( CallBacker* )
 }
 
 
-#define mSaveMCSurface() \
-    EM::EMM().addObject( emcs ); \
-    PtrMan<Executor> exec = emcs->saver(); \
-    if ( !exec ) \
-    { \
-       uiMSG().error( "Cannot save body" ); \
-       emcs->unRef(); \
-       return; \
-    } \
-    MultiID key = emcs->multiID(); \
-    PtrMan<IOObj> ioobj = IOM().get( key ); \
-    if ( !ioobj->pars().find( sKey::Type ) ) \
-    { \
-	ioobj->pars().set( sKey::Type, emcs->getTypeStr() ); \
-	if ( !IOM().commitChanges( *ioobj ) ) \
-	{ \
-	    uiMSG().error( "Could not write body to database" ); \
-	    return; \
-	} \
-    } \
-    uiTaskRunner exdlg( parent() ); \
-    exdlg.execute( *exec ); \
-    emcs->unRefNoDelete()
-
-
 void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
-    EM::MarchingCubesSurface* emcs = new EM::MarchingCubesSurface(EM::EMM());
-    emcs->ref();
-    if ( !emcs->getBodyOperator() )
-	emcs->createBodyOperator();
-    
-    uiBodyOperatorDlg dlg( this, *emcs );
-    if ( !dlg.go() )
-    {
-	emcs->unRef();
-	return;
-    }
-    
-    mSaveMCSurface();
+    uiBodyOperatorDlg dlg( this );
+    dlg.go();
 }
 
 

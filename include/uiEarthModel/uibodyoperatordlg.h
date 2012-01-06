@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uibodyoperatordlg.h,v 1.3 2011-10-31 16:11:25 cvsyuancheng Exp $
+ RCS:		$Id: uibodyoperatordlg.h,v 1.4 2012-01-06 20:39:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -25,13 +25,13 @@ class uiListViewItem;
 class uiPushButton;
 class uiToolButton;
 
-namespace EM { class BodyOperator; class MarchingCubesSurface; }
+namespace EM { class BodyOperator; }
 
 
 mClass uiBodyOperatorDlg : public uiDialog
 {
 public:
-    			uiBodyOperatorDlg(uiParent*,EM::MarchingCubesSurface&);
+    			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();   
 
 protected:
@@ -74,7 +74,6 @@ protected:
 
     uiIOObjSel*			outputfld_;
     CtxtIOObj			ctio_;
-    EM::MarchingCubesSurface&	emcs_;
 };
 
 
