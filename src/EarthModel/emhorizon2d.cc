@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.47 2011-10-20 14:17:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.48 2012-01-06 15:17:03 cvsnanne Exp $";
 
 #include "emhorizon2d.h"
 
@@ -57,10 +57,11 @@ int Horizon2DGeometry::lineIndex( const PosInfo::GeomID& geomid ) const
 
 int Horizon2DGeometry::lineIndex( const char* linenm ) const
 {
-    const int lineid = S2DPOS().getLineID( linenm );
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	if ( geomids_[idx].lineid_ == lineid )
+	S2DPOS().setCurLineSet( geomids_[idx].lsid_ );
+	BufferString lnm = S2DPOS().getLineName( geomids_[idx].lineid_ );
+	if ( lnm == linenm )
 	    return idx;
     }
 
