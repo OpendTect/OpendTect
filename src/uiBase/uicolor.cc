@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.38 2012-01-09 12:40:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.39 2012-01-09 14:42:47 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -66,7 +66,6 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( !nm || !*nm ) nm = "Color selector";
 
-    QColor usecol( col.r(), col.g(), col.b(), col.t() );
     QColorDialog qdlg( QColor(col.r(),col.g(),col.b(),col.t()), qparent );
     qdlg.setWindowTitle( QString(nm) );
     if ( withtransp )
@@ -84,6 +83,8 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 			    "selectColor" );
     }
 
+    const bool ok = qdlg.exec() == QDialog::Accepted;
+
     if ( externalcolor )		// Command driver interference
     {
 	col = *externalcolor;
@@ -93,7 +94,6 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	return true;
     }
 
-    const bool ok = qdlg.exec() == QDialog::Accepted;
     if ( ok )
     {
 	QColor newcol = qdlg.selectedColor();
@@ -110,7 +110,6 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 void setExternalColor( const Color& col )
 {
-    
     if ( !externalcolor )
 	externalcolor = new Color( col );
     else
