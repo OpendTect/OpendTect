@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.37 2011-05-10 10:14:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.38 2012-01-09 12:40:44 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -57,45 +57,53 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 }
 
 
+#include <QLabel>
+
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
     const int refnr = beginCmdRecEvent();
 
-    QColor oldcol( col.r(), col.g(), col.b(), 255-col.t() );
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
-#if QT_VERSION >= 0x040500
-    QColorDialog::ColorDialogOptions options = 0;
-    if ( withtransp ) options = QColorDialog::ShowAlphaChannel;
-    QColor newcol = QColorDialog::getColor( oldcol, qparent, nm, options );
-#else
-    QColor newcol;
+    if ( !nm || !*nm ) nm = "Color selector";
+
+    QColor usecol( col.r(), col.g(), col.b(), col.t() );
+    QColorDialog qdlg( QColor(col.r(),col.g(),col.b(),col.t()), qparent );
+    qdlg.setWindowTitle( QString(nm) );
     if ( withtransp )
     {
-	//note that equal operator does not work
-	newcol.setRgba( QColorDialog::getRgba(oldcol.rgba(),0,qparent) );
+	qdlg.setOption( QColorDialog::ShowAlphaChannel );
+	QList<QLabel*> lbllst = qdlg.findChildren<QLabel*>("");
+	bool found = false;
+	foreach(QLabel* qlbl,lbllst)
+	{
+	    if ( qlbl->text() == "A&lpha channel:" )
+		{ qlbl->setText( "&Transparency:" ); found = true; break; }
+	}
+	if ( !found )
+	    pFreeFnErrMsg("Implement support for label change in this Qt ver",
+			    "selectColor" );
     }
-    else
-	newcol = QColorDialog::getColor( oldcol, qparent );
-#endif
 
     if ( externalcolor )		// Command driver interference
     {
 	col = *externalcolor;
 	if ( !withtransp )
 	    col.setTransparency( 0 );
-
-	delete externalcolor;
-	externalcolor = 0;
+	delete externalcolor; externalcolor = 0;
 	return true;
     }
 
-    const bool ok = newcol.isValid();
+    const bool ok = qdlg.exec() == QDialog::Accepted;
     if ( ok )
+    {
+	QColor newcol = qdlg.selectedColor();
+	if ( withtransp )
+	    newcol.setAlpha( 255-newcol.alpha() );
 	col.set( newcol.red(), newcol.green(), newcol.blue(),
 		 withtransp ? 255-newcol.alpha() : 0 );
+    }
 
     endCmdRecEvent( refnr, ok, col, withtransp );
-
     return ok;
 }
 
