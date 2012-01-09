@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.233 2011-12-23 09:50:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.234 2012-01-09 17:28:10 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1022,31 +1022,13 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 	return buttext;
     }
 
-    if ( typ==Colour || typ==Font )
+    if ( typ==Colour || typ==Font || typ==File )
     {
 	if ( buttonnr == 0 ) return "Cancel";
-	if ( buttonnr == 1 ) return "OK";
+	if ( buttonnr == 1 ) return typ==File ? "Ok" : "OK";
 	return "";
     }
 
-    if ( typ == File )
-    {
-	if ( buttonnr == 0 ) return "Cancel";
-	if ( buttonnr == 1 )
-	{
-	    const QFileDialog* qfd = dynamic_cast<QFileDialog*>( amw );
-
-	    if ( qfd->acceptMode() == QFileDialog::AcceptOpen )
-	    {
-		return qfd->fileMode()==QFileDialog::Directory ||
-		       qfd->fileMode()==QFileDialog::DirectoryOnly
-		       ? "Choose" : "Open";
-	    }
-	    if ( qfd->acceptMode() == QFileDialog::AcceptSave ) return "Save";
-	}
-	return "";
-    }
-    
     return 0;
 }
 
