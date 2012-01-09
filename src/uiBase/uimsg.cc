@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.55 2010-01-15 08:13:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.56 2012-01-09 12:41:20 cvsbert Exp $";
 
 
 #include "uimsg.h"
@@ -353,7 +353,8 @@ bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
 
     const char* wintitle = mCapt("Information");
     const int refnr = beginCmdRecEvent( wintitle );
-    const int res = QMessageBox::warning( popParnt(),
+
+    const int res = QMessageBox::information( popParnt(),
 				QString(wintitle), QString(text),
 				QString(oktxt),
 				QString(ntmsg),
