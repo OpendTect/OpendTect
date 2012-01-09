@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.60 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.61 2012-01-09 12:51:00 cvsbert Exp $";
 
 #include "uifiledlg.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uifiledlg.cc,v 1.60 2011-12-14 13:16:41 cvsbert
 #include "uimainwin.h"
 
 #include <QFileDialog>
+#include <QPushButton>
 
 
 const char* uiFileDialog::filesep_ = ";";
@@ -184,6 +185,13 @@ int uiFileDialog::go()
 #ifdef __win__
     fd->setViewMode( QFileDialog::Detail );
 #endif
+
+    QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
+    foreach(QPushButton* qpb,qpblst)
+    {
+	if ( qpb->text() == "&Save" || qpb->text() == "&Open" )
+	    qpb->setText( "&Ok" );
+    }
 
     if ( fd->exec() != QDialog::Accepted )
     {
