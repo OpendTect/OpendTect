@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.39 2012-01-09 14:42:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.40 2012-01-09 17:20:07 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -25,13 +25,12 @@ static const char* rcsID = "$Id: uicolor.cc,v 1.39 2012-01-09 14:42:47 cvsjaap E
 
 #define mGlobalQColorDlgCmdRecId 1
 
-static int beginCmdRecEvent()
+static int beginCmdRecEvent( const char* windowtitle )
 {
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( !carrier )
 	return -1;
 
-    const char* windowtitle = "Select color";
     BufferString msg( "QColorDlg " );
     msg += windowtitle;
 
@@ -61,13 +60,14 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-    const int refnr = beginCmdRecEvent();
-
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
-    if ( !nm || !*nm ) nm = "Color selector";
+    if ( !nm || !*nm ) nm = "Select color";
+
+    const char* wintitle = uiMainWin::uniqueWinTitle( nm );
+    const int refnr = beginCmdRecEvent( wintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(),col.b(),col.t()), qparent );
-    qdlg.setWindowTitle( QString(nm) );
+    qdlg.setWindowTitle( QString(wintitle) );
     if ( withtransp )
     {
 	qdlg.setOption( QColorDialog::ShowAlphaChannel );
