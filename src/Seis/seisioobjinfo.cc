@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.45 2011-10-07 12:32:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.46 2012-01-09 13:29:42 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -299,7 +299,9 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
    if ( o2d.steerpol_ != 2 ) \
     { \
 	const char* lndt = lset->datatype(idx); \
-	const bool issteer = lndt && !strcmp( lndt, sKey::Steering ); \
+	const char* attrnm = lset->attribute(idx); \
+	const bool issteer = (lndt && !strcmp(lndt,sKey::Steering)) || \
+				(!lndt && !strcmp(attrnm,sKey::Steering)); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
