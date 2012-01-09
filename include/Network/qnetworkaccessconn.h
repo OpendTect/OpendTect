@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2012
- RCS:		$Id: qnetworkaccessconn.h,v 1.1 2012-01-06 23:25:30 cvsnanne Exp $
+ RCS:		$Id: qnetworkaccessconn.h,v 1.2 2012-01-09 23:40:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,14 @@ QNetworkReplyConn( QNetworkReply* sndr, ODNetworkReply* rec )
 	     this, SLOT(metaDataChanged()) );
     connect( sender_, SIGNAL(uploadProgress(qint64,qint64)),
 	     this, SLOT(uploadProgress(qint64,qint64)) );
+
+    // From QIODevice
+    connect( sender_, SIGNAL(aboutToClose()),
+	     this, SLOT(aboutToClose()) );
+    connect( sender_, SIGNAL(bytesWritten(qint64)),
+	     this, SLOT(bytesWritten(qint64)) );
+    connect( sender_, SIGNAL(readyRead()),
+	     this, SLOT(readyRead()) );
 }
 
 private slots:
@@ -81,6 +89,18 @@ void metaDataChanged()
 {}
 
 void uploadProgress(qint64,qint64)
+{}
+
+void aboutToClose()
+{}
+
+void bytesWritten(qint64)
+{}
+
+void readChannelFinished()
+{}
+
+void readyRead()
 {}
 
 private:
