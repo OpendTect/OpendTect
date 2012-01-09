@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.61 2012-01-09 12:51:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.62 2012-01-09 17:25:20 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -61,10 +61,17 @@ static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
 }
 
 #define mCommon \
-    , fname_( fname ) \
-    , caption_(caption) \
-    , parnt_(parnt) \
-    , confirmoverwrite_(true)
+    fname_ = fname; \
+    caption_ = caption; \
+    parnt_ = parnt; \
+    confirmoverwrite_ = true; \
+\
+    if ( !caption || !*caption ) \
+    { \
+	caption_ = (mode_==Directory || mode_==DirectoryOnly) ? \
+		   "Directory selection" : "File selection"; \
+    }
+
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* fltr,
@@ -73,11 +80,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
         , forread_( forread )
 	, filter_( fltr )
 	, addallexts_(false)
-        mCommon
-{
-    if ( !caption || !*caption )
-	caption_ = forread ? "Open" : "Save As";
-}
+{  mCommon }
 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
@@ -87,8 +90,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
         , forread_(true)
 	, filter_(fltr)
 	, addallexts_(false)
-	mCommon
-{}
+{ mCommon }
 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
@@ -96,8 +98,9 @@ uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 	: mode_(AnyFile)
         , forread_(true)
 	, addallexts_(true)
-	mCommon
 {
+    mCommon
+
     switch ( typ )
     {
 	case Img: filter_ = "JPEG (*.jpg *.jpeg);;PNG (*.png)"; break;
@@ -189,7 +192,8 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == "&Save" || qpb->text() == "&Open" )
+	if ( qpb->text() == "&Save" || qpb->text() == "&Open"
+				    || qpb->text() == "&Choose" )
 	    qpb->setText( "&Ok" );
     }
 
