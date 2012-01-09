@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.70 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.71 2012-01-09 10:44:18 cvsbruno Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -62,13 +62,19 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
-    coordfld_ = new uiGenInput( this, "Coordinate",
-	    			PositionInpSpec(PositionInpSpec::Setup(true)) );
+    BufferString coordunitslbl( "Coordinate " );
+    coordunitslbl += SI().getXYUnitString();
+    coordfld_ = new uiGenInput( this, coordunitslbl,
+			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    kbelevfld_ = new uiGenInput( this, "KB Elevation", FloatInpSpec(0) );
+    BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft) " : " (m) ";
+    BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
+    kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );
-    tdfld_ = new uiGenInput( this, "TD", FloatInpSpec() );
+
+    BufferString tdlbl( "TD" ); tdlbl += zlbl;
+    tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->attach( alignedBelow, kbelevfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );

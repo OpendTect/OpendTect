@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.23 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.24 2012-01-09 10:44:18 cvsbruno Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -16,11 +16,12 @@ static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.23 2011-11-23 11:35:56 cvs
 #include "uigeninput.h"
 
 #include "ctxtioobj.h"
+#include "strmprov.h"
+#include "survinfo.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
-#include "strmprov.h"
 
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
@@ -35,10 +36,13 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
+	BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft" : " (m";
+		     zlbl += "/s)";
+	BufferString velllbl( "Temporary model velocity"); velllbl += zlbl;
+	const float vel = SI().depthsInFeetByDefault() ? 8000 : 2000;
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
-	velfld_ = new uiGenInput( this, "Temporary model velocity (m/s)",
-				  FloatInpSpec(2000) );
+	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
 	velfld_->attach( alignedBelow, filefld_ );
     }
 

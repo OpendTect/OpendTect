@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.8 2011-09-16 11:02:24 cvskris Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.9 2012-01-09 10:44:18 cvsbruno Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -62,8 +62,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 	    		.colgrow(false).removecolallowed(false)
 			.manualresize( true ), "Data Table" );
     tbl_->setColumnLabel( 0, "Well name" );
-    tbl_->setColumnLabel( 1, "X" );
-    tbl_->setColumnLabel( 2, "Y" );
+    const char* xunstr = SI().getXYUnitString();
+    tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );
+    tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
     const char* zunstr = zinft_ ? " (ft" : " (m";
     tbl_->setColumnLabel( 3, BufferString("[KB Elevation",zunstr,")]") );
     tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
