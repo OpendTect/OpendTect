@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.149 2012-01-06 13:25:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.150 2012-01-09 11:22:05 cvsbruno Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1358,7 +1358,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
 
 void dgbSurfaceWriter::init( const char* fulluserexpr )
 {
-    conn_ = fulluserexpr ? new StreamConn( fulluserexpr, Conn::Write ) : 0;
+    fulluserexpr_ = fulluserexpr;
     par_ = new IOPar("Surface parameters" );
     writerowrange_ = 0;
     writecolrange_ = 0;
@@ -1587,6 +1587,7 @@ int dgbSurfaceWriter::nextStep()
 {
     if ( !nrdone_ )
     {
+	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
 	{
 	    msg_ = "Cannot open output surface file";
