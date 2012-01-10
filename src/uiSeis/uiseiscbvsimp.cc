@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.80 2011-04-01 15:13:51 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.81 2012-01-10 21:33:49 cvsnanne Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -276,9 +276,6 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
 
 #define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
 
-#define mErrRet(s) \
-	{ uiMSG().error(s); return false; }
-
 bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
     if ( !outfld->commitInput() )
@@ -313,21 +310,14 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    FilePath inputfile( fname );
 	    inputfile.makeCanonical();
 
-	    FilePath survdir( GetBaseDataDir() );
-	    survdir.add( SI().getDirName() );
-	    survdir.makeCanonical();
-	    
-	    if ( inputfile.isSubDirOf( survdir ) )
+	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj)
+	    if ( iostrm )
 	    {
-		mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj)
-		if ( iostrm )
-		{
-		    FilePath seismicsdir( iostrm->fullDirName() );
-		    seismicsdir.makeCanonical();
+		FilePath seismicsdir( iostrm->fullDirName() );
+		seismicsdir.makeCanonical();
 
-		    if ( inputfile.makeRelativeTo( seismicsdir ) )
-			fname = inputfile.fullPath();
-		}
+		if ( inputfile.makeRelativeTo( seismicsdir ) )
+		    fname = inputfile.fullPath();
 	    }
 	}
 
@@ -350,7 +340,10 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     IOM().commitChanges( *outctio_.ioobj );
     if ( dolink )
-	return true;
+    {
+	uiMSG().message( "Import successful" );
+	return false;
+    }
 
     uiSeisIOObjInfo ioobjinfo( *outctio_.ioobj, true );
     if ( !ioobjinfo.checkSpaceLeft(transffld->spaceInfo()) )
@@ -369,7 +362,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     sstp_ = sstp;
 
     if ( inctio_.ioobj->pars().isTrue( VelocityDesc::sKeyIsVelocity() ) )
-	sstp_->proctobedone_.notify(mCB(this, uiSeisImpCBVS, procToBeDoneCB ));
+	sstp_->proctobedone_.notify( mCB(this,uiSeisImpCBVS,procToBeDoneCB) );
 
     if ( ismc_ )
     {
@@ -380,9 +373,11 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
 		    ioobjinfo.provideUserInfo();
+    if ( rv )
+	uiMSG().message( "Import successful" );
 
     rmTmpIOObj();
-    return rv;
+    return false;
 }
 
 
@@ -390,12 +385,12 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 {
     SeisTrc& trc = sstp_->getTrace();
     const SeisTrc intrc = sstp_->getInputTrace();
-    const char* typestr = outctio_.ioobj->pars().find ( 
-					    VelocityDesc::sKeyVelocityType() );
+    const char* typestr =
+	outctio_.ioobj->pars().find( VelocityDesc::sKeyVelocityType() );
     if ( !typestr ) return;
 
     const int compnr = compfld_ && compfld_->box()->visible() ? 
-			compfld_->box()->currentItem() - 1 : 0;
+		compfld_->box()->currentItem() - 1 : 0;
     TypeSet<float> trcvals;
     TypeSet<float> timevals;
     const int sizein = intrc.data().size(compnr);
