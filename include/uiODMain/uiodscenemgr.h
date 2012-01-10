@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.86 2012-01-04 19:56:53 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.87 2012-01-10 22:46:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     void			viewModeChg(CallBacker* cb=0);
     void			actMode(CallBacker* cb=0);
     void			viewMode(CallBacker* cb=0);
+    Notifier<uiODSceneMgr>	viewModeChanged;
 
     void			pageUpDownPressed(CallBacker*);
 

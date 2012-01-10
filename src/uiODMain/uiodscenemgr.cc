@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.225 2012-01-04 19:56:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.226 2012-01-10 22:46:10 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -94,6 +94,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
+    , viewModeChanged(this)
     , zoomslider_( 0 )
     , dollywheel( 0 )
     , dummylbl( 0 )
@@ -400,6 +401,7 @@ void uiODSceneMgr::setToViewMode( bool yn )
     visServ().setViewMode( yn , false );
     menuMgr().updateViewMode( yn );
     updateStatusBar();
+    viewModeChanged.trigger();
 }
 
 
