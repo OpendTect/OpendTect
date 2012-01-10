@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.23 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.24 2012-01-10 17:44:39 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -57,6 +57,7 @@ public:
 			uiMadagascarLink(uiODMain&);
 			~uiMadagascarLink();
 
+    uiODMain&		appl_;
     uiODMenuMgr&	mnumgr;
     uiMadagascarMain*	madwin_;
     bool		ishidden_;
@@ -71,10 +72,11 @@ public:
 
 
 uiMadagascarLink::uiMadagascarLink( uiODMain& a )
-    	: Usage::Client("Madagascar")
-    	, mnumgr(a.menuMgr())
-        , madwin_(0)
-        , ishidden_(false)
+    : Usage::Client("Madagascar")
+    , mnumgr(a.menuMgr())
+    , madwin_(0)
+    , ishidden_(false)
+    , appl_(a)
 {
     mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
     mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
@@ -134,7 +136,7 @@ void uiMadagascarLink::doMain( CallBacker* )
     bool needreportstart = !madwin_ || ishidden_;
     if ( !madwin_ )
     {
-	madwin_ = new uiMadagascarMain( 0 );
+	madwin_ = new uiMadagascarMain( &appl_ );
 	madwin_->windowHide.notify( mCB(this,uiMadagascarLink,winHide) );
     }
 
