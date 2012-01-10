@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.16 2011-11-30 23:32:58 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.17 2012-01-10 14:41:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -78,7 +78,7 @@ public:
     void		setDataPointSet(const DataPointSet&);
 
 protected:
-    void		createMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     BufferString	createDisplayName() const;
 
