@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.18 2011-10-21 22:11:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.19 2012-01-10 17:45:28 cvsnanne Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -311,6 +311,9 @@ void uiSaveImageDlg::updateSizes()
 {
     const float width = fldranges_.stop;
     const float height = fldranges_.start;
+    if ( mIsZero(width,mDefEps) || mIsZero(height,mDefEps) )
+	return;
+
     const int sel = unitfld_->getIntValue();
     if ( !sel )
     {
