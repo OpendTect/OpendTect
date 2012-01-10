@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.14 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.15 2012-01-10 22:33:14 cvsnanne Exp $";
 
 
 #include "uisurveyselect.h"
@@ -86,9 +86,9 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 
 void uiSurveySelectDlg::fillSurveyList()
 {
-    if( !checkIfDataDir( getDataRoot() ) )
+    if( !checkIfDataDir(getDataRoot()) )
     {
-	uiMSG().error( "Not a valid Survey folder" );
+	uiMSG().error( "Selected directory is not a valid Data Root" );
 	return;
     }
     
