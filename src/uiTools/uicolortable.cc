@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.44 2011-07-22 20:19:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.45 2012-01-10 16:44:59 cvsbert Exp $";
 
 #include "uicolortable.h"
 
@@ -93,14 +93,14 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     , enabletrans_( true )
 {
     mDynamicCastGet(uiToolBar*,tb,p);
-    uiParent* parent = tb ? p : this;
+    uiParent* parnt = tb ? p : this;
 
-    minfld_ = new uiLineEdit( parent, "Min" );
+    minfld_ = new uiLineEdit( parnt, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     minfld_->setHSzPol( uiObject::Small );
     minfld_->setStretch( 0, 0 );
 
-    canvas_ = new uiColorTableCanvas( parent, coltabseq_, true, vert );
+    canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->setPrefHeight( vert ? 160 : 25 );
@@ -109,12 +109,12 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
 
-    maxfld_ = new uiLineEdit( parent, "Max" );
+    maxfld_ = new uiLineEdit( parnt, "Max" );
     maxfld_->setHSzPol( uiObject::Small );
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     maxfld_->setStretch( 0, 0 );
 
-    selfld_ = new uiColorTableSel( parent, "Table selection" );
+    selfld_ = new uiColorTableSel( parnt, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
     selfld_->setCurrent( colseq );

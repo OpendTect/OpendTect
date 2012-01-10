@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.39 2011-04-27 10:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.40 2012-01-10 16:44:59 cvsbert Exp $";
 
 #include "uisurvmap.h"
 
@@ -199,8 +199,8 @@ void uiNorthArrowObject::update()
 }
 
 
-uiSurveyMap::uiSurveyMap( uiParent* parent, bool withtitle )
-    : uiBaseMap(parent)
+uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
+    : uiBaseMap(p)
     , survbox_(0),northarrow_(0)
     , survinfo_(0)
     , title_(0)
