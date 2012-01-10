@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.5 2012-01-06 09:09:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.6 2012-01-10 14:06:38 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -89,7 +89,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
     if ( !raytracer ) return false;
 
     BinID curbid;
-    while( iterator.next( curbid ) )
+    while( iterator.next( curbid ) && shouldContinue() )
     {
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
 	if ( !getLayers( curbid, layers, sd ) )
