@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.90 2012-01-06 15:27:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.91 2012-01-10 14:41:15 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -207,10 +207,11 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 }
 
 
-void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
+void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
+						    bool istb )
 {
-    uiODAttribTreeItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
+    uiODAttribTreeItem::createMenu( menu, istb );
+    if ( istb ) return;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
@@ -286,6 +287,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 			Attrib::SelSpec::cOtherAttrib() );
 		visserv->setSelSpec( visid, attribnr, newas );
 		BufferStringSet* userrefs = new BufferStringSet;
+		userrefs->add( "Section ID" );
 		userrefs->add( auxdatanm );
 		visserv->setUserRefs( visid, attribnr, userrefs );
 		updateColumnText( uiODSceneMgr::cNameColumn() );
