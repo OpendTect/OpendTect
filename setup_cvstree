@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.18 2010-11-25 09:33:48 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.19 2012-01-10 17:45:04 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -92,6 +92,7 @@ if ( $binsubdir == mac ) then
 endif
 
 set qtdir=$WORK/qt
+set osgdir=$WORK/osg
 set coindir=$WORK/coin
 set dosimvollib=0
 if ( $?OD_QTDIR ) then
@@ -99,6 +100,9 @@ if ( $?OD_QTDIR ) then
 endif
 if ( $?OD_COINDIR ) then
     set coindir=$OD_COINDIR
+endif
+if ( $?OD_OSGDIR ) then
+    set osgdir=$OD_OSGDIR
 endif
 
 set missingpkgnms=
@@ -137,13 +141,11 @@ if ( $binsubdir == mac ) then
     endif
 else
     if ( $qtdir != "" ) then
-	ln -s $qtdir/lib/libQtCore.so.4 .
-	ln -s $qtdir/lib/libQtGui.so.4 .
-	ln -s $qtdir/lib/libQtNetwork.so.4 .
-	ln -s $qtdir/lib/libQtOpenGL.so.4 .
-	ln -s $qtdir/lib/libQtSql.so.4 .
-	ln -s $qtdir/lib/libQtXml.so.4 .
-	ln -s $qtdir/lib/libQt3Support.so.4 .
+	ln -s $qtdir/lib/libQt{Core,Gui,Network,OpenGL,Sql,Xml,3Support}.so.4 .
+    endif
+    if ( $osgdir != "" ) then
+	ln -s $osgdir/lib/libosg{,DB,GA,Qt,Text,Util,Viewer,Widget}.so.80 .
+	ln -s $osgdir/lib/libOpenThreads.so.12 .
     endif
     if ( $coindir != "" ) then
 	ln -s $coindir/lib/libCoin.so.60 .
