@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.27 2011-12-16 15:57:20 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.28 2012-01-10 22:41:17 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.27 2011-12-16 15:57:20
 #include "polygon.h"
 #include "survinfo.h"
 
+#include "uibutton.h"
 #include "uidialog.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
@@ -89,7 +90,11 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     uiSelLineStyle::Setup lssu; lssu.drawstyle(false);
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, intvfld_ );
-    lsfld_->changed.notify( mCB(this,uiContourParsDlg,lsChanged) );
+    lsfld_->changed.notify( mCB(this,uiContourParsDlg,dispChanged) );
+
+    showlblsfld_ = new uiCheckBox( this, "Show labels" );
+    showlblsfld_->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
+    showlblsfld_->attach( alignedBelow, lsfld_ );
 
     intvChanged( 0 );
 }
@@ -106,11 +111,17 @@ StepInterval<float> getContourInterval() const
     return res;
 }
 
+void setShowLabels( bool yn )
+{ showlblsfld_->setChecked( yn ); }
+
+bool showLabels() const
+{ return showlblsfld_->isChecked(); }
+
     Notifier<uiContourParsDlg>	propertyChanged;
 
 protected:
 
-void lsChanged( CallBacker* )
+void dispChanged( CallBacker* )
 {
     propertyChanged.trigger();
 }
@@ -143,6 +154,7 @@ void intvChanged( CallBacker* cb )
     StepInterval<float>	contourintv_;
     uiGenInput*		intvfld_;
     uiSelLineStyle*	lsfld_;
+    uiCheckBox*		showlblsfld_;
     bool		iszval_;
 };
 
@@ -197,6 +209,8 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , arr_(0)
     , rg_(mUdf(float),-mUdf(float))
     , zshift_(mUdf(float))
+    , color_(0,0,0)
+    , showlabels_(true)
 {
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
@@ -262,7 +276,7 @@ void uiContourTreeItem::checkCB(CallBacker*)
     const bool display = newstatus && hd && !hd->getOnlyAtSectionsDisplay();
     
     if ( lines_ ) lines_->turnOn( display );
-    if ( labelgrp_ ) labelgrp_->turnOn( display );
+    if ( labelgrp_ ) labelgrp_->turnOn( display && showlabels_ );
 
     updateZShift();
 }
@@ -340,6 +354,8 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
     oldintv += Interval<float>( zshift_, zshift_ );
     uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
 	    		  LineStyle(LineStyle::Solid,linewidth_,color_) );
+    if ( labelgrp_ )
+	dlg.setShowLabels( labelgrp_->isOn() );
     dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
     const bool res = dlg.go();
     dlg.propertyChanged.remove( mCB(this,uiContourTreeItem,propChangeCB) );
@@ -365,6 +381,12 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
     material_->setColor( ls.color_ );
     color_ = ls.color_;
     linewidth_ = ls.width_;
+
+    if ( labelgrp_ && lines_ )
+    {
+	showlabels_ = dlg->showLabels();
+	labelgrp_->turnOn( lines_->isOn() && showlabels_ );
+    }
 }
 
 
@@ -501,6 +523,7 @@ void uiContourTreeItem::createContours()
     float contourval = contourintv_.start;
     lines_->getCoordinates()->removeAfter( -1 );
     lines_->removeCoordIndexAfter( -1 );
+
     removeLabels();
     const float maxcontourval = mMIN(contourintv_.stop,rg_.stop);
    
@@ -520,9 +543,10 @@ void uiContourTreeItem::createContours()
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		BinID vrtxbid( rowrg.snap(vertex.x), colrg.snap(vertex.y) );
 		float zval = hor->getZ( vrtxbid );
-		mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
-		const ZAxisTransform* transform = scene ? 
-					    scene->getZAxisTransform() : 0;
+		mDynamicCastGet(visSurvey::Scene*,scene,
+				visserv->getObject(sceneID()));
+		const ZAxisTransform* transform =
+		    scene ? scene->getZAxisTransform() : 0;
 		if ( transform )
 		    transform->transform( vrtxbid,
 			SamplingData<float>(zval,1), 1, &zval );
@@ -561,6 +585,9 @@ void uiContourTreeItem::createContours()
     lines_->removeCoordIndexAfter( cii-1 );
     if ( hd->getZAxisTransform() )
 	delete field;
+
+    if ( labelgrp_ ) 
+	labelgrp_->turnOn( showlabels_ );
 }
 
 
@@ -582,6 +609,7 @@ void uiContourTreeItem::createLines()
     if ( !material_ )
     {
 	material_ = visBase::Material::create();
+	material_->setColor( color_ );
 	material_->ref();
 	if ( lines_ ) lines_->insertNode( material_->getInventorNode() );
     }
@@ -623,7 +651,7 @@ void uiContourTreeItem::updateColumnText( int col )
     const bool turnon = !hd->getOnlyAtSectionsDisplay() &&
        ( (solomode && hd->isOn()) || (!solomode && hd->isOn() && isChecked()) );
     lines_->turnOn( turnon );
-    labelgrp_->turnOn( turnon );
+    labelgrp_->turnOn( turnon && showlabels_ );
 }
 
 

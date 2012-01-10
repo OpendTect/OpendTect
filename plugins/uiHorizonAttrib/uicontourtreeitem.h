@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.9 2011-11-04 08:22:04 cvskris Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.10 2012-01-10 22:41:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ protected:
     MenuItem			optionsmenuitem_;
     float			zshift_;
     BufferString		attrnm_;
+    bool			showlabels_;
 
     BufferString		createDisplayName() const;
 };
