@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.40 2012-01-09 17:20:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.41 2012-01-10 09:07:04 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uicolor.cc,v 1.40 2012-01-09 17:20:07 cvsjaap E
 #include "uiparentbody.h"
 
 #include <QColorDialog>
+#include <QLabel>
+#include <QApplication>
 
 
 #define mGlobalQColorDlgCmdRecId 1
@@ -56,8 +58,6 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 }
 
 
-#include <QLabel>
-
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
@@ -85,22 +85,11 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
     const bool ok = qdlg.exec() == QDialog::Accepted;
 
-    if ( externalcolor )		// Command driver interference
-    {
-	col = *externalcolor;
-	if ( !withtransp )
-	    col.setTransparency( 0 );
-	delete externalcolor; externalcolor = 0;
-	return true;
-    }
-
     if ( ok )
     {
 	QColor newcol = qdlg.selectedColor();
-	if ( withtransp )
-	    newcol.setAlpha( 255-newcol.alpha() );
 	col.set( newcol.red(), newcol.green(), newcol.blue(),
-		 withtransp ? 255-newcol.alpha() : 0 );
+		 withtransp ? newcol.alpha() : col.t() );
     }
 
     endCmdRecEvent( refnr, ok, col, withtransp );
@@ -110,10 +99,10 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 void setExternalColor( const Color& col )
 {
-    if ( !externalcolor )
-	externalcolor = new Color( col );
-    else
-	*externalcolor = col;
+     QWidget* amw = qApp->activeModalWidget();
+     QColorDialog* qcd = dynamic_cast<QColorDialog*>( amw );
+     if ( qcd )
+	 qcd->setCurrentColor( QColor(col.r(),col.g(),col.b(),col.t()) );
 }
 
 
