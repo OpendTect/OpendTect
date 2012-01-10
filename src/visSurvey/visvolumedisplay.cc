@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.132 2012-01-05 10:47:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.133 2012-01-10 19:59:08 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -67,6 +67,23 @@ const char* VolumeDisplay::sKeySeedsMid()	{ return "Surf Seeds Mid"; }
 const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 
 
+static CubeSampling getInitCubeSampling( const CubeSampling& csin )
+{
+    CubeSampling cs(false);
+    cs.hrg.start.inl = (5*csin.hrg.start.inl+3*csin.hrg.stop.inl)/8;
+    cs.hrg.start.crl = (5*csin.hrg.start.crl+3*csin.hrg.stop.crl)/8;
+    cs.hrg.stop.inl = (3*csin.hrg.start.inl+5*csin.hrg.stop.inl)/8;
+    cs.hrg.stop.crl = (3*csin.hrg.start.crl+5*csin.hrg.stop.crl)/8;
+    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8;
+    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = csin.zrg.snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = csin.zrg.snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    return cs;
+}
+
+
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
@@ -100,18 +117,8 @@ VolumeDisplay::VolumeDisplay()
     scalarfield_ = visBase::VolumeRenderScalarField::create();
     scalarfield_->ref(); //Don't add it here, do that in getInventorNode
 
-    CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
-    cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
-    cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
-    cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
-    cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
-    cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
-    cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
-    
+    CubeSampling sics = SI().sampling( true );
+    CubeSampling cs = getInitCubeSampling( sics );
     setCubeSampling( cs );
 }
 
@@ -249,9 +256,9 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 	setCubeSampling( csfromsession_ );
     else
     {
-	Interval<float> zrg = datatransform_->getZInterval( false );
-	CubeSampling cs = getCubeSampling( 0 );
-	assign( cs.zrg, zrg );
+	CubeSampling csin = scene_ ? scene_->getCubeSampling()
+				   : getCubeSampling( 0 );
+	CubeSampling cs = getInitCubeSampling( csin );
 	setCubeSampling( cs );
     }
 }
@@ -939,10 +946,10 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
     {
-	if ( datatransform_ )
-	    res.zrg.step = datatransform_->getGoodZStep();
-	else if ( scene_ )
+	if ( scene_ )
 	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	else if ( datatransform_ )
+	    res.zrg.step = datatransform_->getGoodZStep();
 	return res;
     }
 
@@ -954,8 +961,15 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 	    res.zrg.step = SI().zRange(true).step;
 	}
 	else
-	    res.zrg.step = datatransform_->getGoodZStep();
+	{
+	    if ( scene_ )
+		res.zrg.step = scene_->getCubeSampling().zrg.step;
+	    else
+		res.zrg.step = datatransform_->getGoodZStep();
+	}
     }
+    else
+	res.zrg.step = SI().zRange(true).step;
 
     return res;
 }
