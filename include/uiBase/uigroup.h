@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.42 2011-11-23 11:35:55 cvsbert Exp $
+ RCS:           $Id: uigroup.h,v 1.43 2012-01-10 16:44:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,12 +63,14 @@ public:
 				 bool manage=true );
     virtual		~uiGroup();
 
-    inline		operator const uiGroupObj*() const  { return grpobj_; }
-    inline		operator uiGroupObj*() 		    { return grpobj_; }
-    inline		operator const uiObject&() const    { return *grpobj_; }
-    inline		operator uiObject&() 		    { return *grpobj_; }
-    inline uiObject*	attachObj()			    { return grpobj_; }
-    inline const uiObject* attachObj() const		    { return grpobj_; }
+    inline operator	const uiGroupObj*() const { return grpobj_; }
+    inline operator	uiGroupObj*() 		{ return grpobj_; }
+    inline operator	const uiObject&() const	{ return *grpobj_; }
+    inline operator	uiObject&()		{ return *grpobj_; }
+    inline uiObject*	attachObj()		{ return grpobj_; }
+    inline const uiObject* attachObj() const	{ return grpobj_; }
+    inline uiParent*	parent()		{ return grpobj_->parent(); }
+    inline const uiParent* parent() const	{ return grpobj_->parent(); }
 
     void		setHSpacing( int ); 
     void		setVSpacing( int ); 
