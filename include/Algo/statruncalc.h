@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.26 2011-11-03 14:45:15 cvsbruno Exp $
+ RCS:           $Id: statruncalc.h,v 1.27 2012-01-11 11:41:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -359,7 +359,7 @@ inline double BaseCalc<T>::average() const
     if ( !setup_.weighted_ )
 	return ((double)sum_x_) / nrused_;
 
-    return isZero(sum_w_) ? mUdf(double) : ((double)sum_wx_) / sum_w_;
+    return this->isZero(sum_w_) ? mUdf(double) : ((double)sum_wx_) / sum_w_;
 }
 
 
@@ -387,7 +387,7 @@ inline double BaseCalc<T>::rms() const
     if ( !setup_.weighted_ )
 	return Math::Sqrt( ((double)sum_xx_) / nrused_ );
 
-    return isZero(sum_w_) ? mUdf(double) : Math::Sqrt( ((double)sum_wxx_)/sum_w_ );
+    return this->isZero(sum_w_) ? mUdf(double) : Math::Sqrt( ((double)sum_wxx_)/sum_w_ );
 }
 
 
@@ -571,7 +571,7 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
     nradded_++;
     if ( mIsUdf(val) )
 	return *this;
-    if ( setup_.weighted_ && (mIsUdf(wt) || isZero(wt)) )
+    if ( setup_.weighted_ && (mIsUdf(wt) || this->isZero(wt)) )
 	return *this;
 
     if ( setup_.needmed_ )
@@ -626,7 +626,7 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
     nradded_--;
     if ( mIsUdf(val) )
 	return *this;
-    if ( setup_.weighted_ && (mIsUdf(wt) || isZero(wt)) )
+    if ( setup_.weighted_ && (mIsUdf(wt) || this->isZero(wt)) )
 	return *this;
 
     if ( setup_.needmed_ )
