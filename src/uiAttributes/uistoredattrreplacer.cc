@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.21 2012-01-10 13:27:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.22 2012-01-11 12:25:41 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -136,7 +136,12 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		    LineKey lk( storagestr );
 		    if ( lk == storedids_[idy].lk_ )
 		    {
-			storedids_[idy].secondid_ = DescID( idx, false );
+			int outprevlisted =
+				getOutPut(storedids_[idy].firstid_.asInt());
+			int outnowlisted = getOutPut(idx);
+			if ( outnowlisted != outprevlisted )
+			    storedids_[idy].secondid_ = DescID( idx, false );
+
 			break;
 		    }
 		}
@@ -482,7 +487,12 @@ void uiStoredAttribReplacer::getStoredIds()
 	    {
 		if ( lk == storedids_[idy].lk_ )
 		{
-		    storedids_[idy].secondid_ = descid;
+		    int outprevlisted = attrset_->getDesc(
+				storedids_[idy].firstid_)->selectedOutput();
+		    int outnowlisted = ad->selectedOutput();
+		    if ( outnowlisted != outprevlisted )
+			storedids_[idy].secondid_ = descid;
+
 		    break;
 		}
 	    }
