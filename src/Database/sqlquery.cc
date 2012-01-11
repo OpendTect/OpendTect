@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.6 2011-12-29 09:12:17 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.cc,v 1.7 2012-01-11 10:59:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,24 @@ BufferString SqlDB::Query::getCurrentDateTime()
 	datetime = data(0);
 
     return datetime;
+}
+
+
+bool SqlDB::Query::starttratsaction()
+{
+    return execute( "START TRANSACTION" );
+}
+
+
+bool SqlDB::Query::commit()
+{
+    return execute( "COMMIT" );
+}
+
+
+bool SqlDB::Query::rollback()
+{
+    return execute( "ROLLBACK" );
 }
 
 

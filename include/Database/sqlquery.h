@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.4 2011-12-23 15:26:46 cvskris Exp $
+ RCS:           $Id: sqlquery.h,v 1.5 2012-01-11 10:59:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,6 @@ public:
     static BufferString	select(const BufferStringSet& colnms,
 				const BufferString& tablenm,
 				int id, const char* idkey=0);
-
-    int			getLastAutoID();
-
     BufferString	getUpdateString(const BufferStringSet& colnms,
 	    				const BufferStringSet& values,
 					const BufferString& tablenm,
@@ -77,6 +74,9 @@ public:
 			       const BufferString& tablenm,int bugid);
     bool		deleteInfo(const char* tablenm,const char* fldnm,
 	    			   int id);
+    bool		starttratsaction();
+    bool		commit();
+    bool		rollback();
 protected:
 
     mQSqlQuery*		qsqlquery_;
