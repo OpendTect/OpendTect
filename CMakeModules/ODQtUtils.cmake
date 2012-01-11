@@ -2,14 +2,14 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.1 2012-01-11 11:43:19 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.2 2012-01-11 11:51:23 cvskris Exp $
 #_______________________________________________________________________________
 
-IF(ENV{OD_QTDIR})
+IF($ENV{OD_QTDIR})
     SET(QTDIR ENV{OD_QTDIR})
     SET(ENV{QTDIR} ${QTDIR} )
 ELSE()
-    IF(ENV{QTDIR})
+    IF($ENV{QTDIR})
         SET(QTDIR ENV{OD_QTDIR})
         SET(ENV{OD_QTDIR} ${QTDIR})
     ELSE()
