@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.2 2012-01-11 12:48:32 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.3 2012-01-11 13:53:49 cvskris Exp $
 #_______________________________________________________________________________
 
 MACRO( OD_INIT_MODULE )
@@ -22,7 +22,8 @@ IF(OD_USEQT)
 	LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
 	    ${QT_QTNETWORK_INCLUDE_DIR}
 	    ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
-	SET(OWN_QTLIBS ${QT_QTCORE_LIBRARY})
+	SET(OWN_QTLIBS ${QT_QTCORE_LIBRARY}
+		       ${QT_QTNETWORK_LIBRARY})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Sql" )
@@ -52,9 +53,6 @@ ENDIF(OD_USEQT)
 #Add current module to include-path
 LIST(APPEND ${LIB_NAME}_INCLUDEPATH ${OpendTect_SOURCE_DIR}/include/${LIB_NAME} )
 
-#Set current include_path
-INCLUDE_DIRECTORIES( ${${LIB_NAME}_INCLUDEPATH} )
-
 #Export dependencies
 SET( ${LIB_NAME}_DEPS ${${LIB_NAME}_DEPS} PARENT_SCOPE )
 
@@ -76,7 +74,14 @@ IF(EXEC_SOURCES)
 	    ${${LIB_NAME}_DEPS}
 	    )
     ENDFOREACH()
+
+    LIST(APPEND ${LIB_NAME}_INCLUDEPATH
+		${OpendTect_SOURCE_DIR}/include/Prog)
+
 ENDIF(EXEC_SOURCES)
+
+#Set current include_path
+INCLUDE_DIRECTORIES( ${${LIB_NAME}_INCLUDEPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
