@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.24 2011-09-09 13:52:42 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.25 2012-01-11 23:19:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,6 @@ void uiMapperRangeEditor::setData( const Array2D<float>* data )
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
-    histogramdisp_->setup().xrg( datarg_ );
     drawAgain();
 }
 
@@ -223,10 +222,11 @@ void uiMapperRangeEditor::histogramResized( CallBacker* cb )
 
 bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 {
-    if ( histogramdisp_->getMouseEventHandler().isHandled() )
+    MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
+    if ( meh.isHandled() )
 	return false;
 
-    const MouseEvent& ev = histogramdisp_->getMouseEventHandler().event();
+    const MouseEvent& ev = meh.event();
     if ( !(ev.buttonState() & OD::LeftButton ) ||
 	  (ev.buttonState() & OD::MidButton ) ||
 	  (ev.buttonState() & OD::RightButton ) )
@@ -243,9 +243,10 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	   histogramdisp_->setup().xrg_.includes(mouseposval,true)) )
 	return false;
 
+#define clickrg 5
     if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )
     {
-	if ( (mousepix > startpix_+10) || (mousepix < startpix_-10) )
+	if ( (mousepix > startpix_+clickrg) || (mousepix < startpix_-clickrg) )
 	    return false;
 
 	cliprg_.start = mouseposval;
@@ -255,7 +256,7 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     }
     else
     {
-	if ( (mousepix > stoppix_+10) || (mousepix < stoppix_-10) )
+	if ( (mousepix > stoppix_+clickrg) || (mousepix < stoppix_-clickrg) )
 	    return false;
 
 	cliprg_.stop = mouseposval;
@@ -270,27 +271,36 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 
 void uiMapperRangeEditor::mousePressed( CallBacker* cb )
 {
-    if ( mousedown_ ) return;
-    
+    MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
+    if ( meh.isHandled() || mousedown_ ) return;
+
     mousedown_ = true;
     if ( changeLinePos(true) )
+    {
 	drawAgain();
+	meh.setHandled( true );
+    }
+    else
+	mousedown_ = false;
 }
 
 
 void uiMapperRangeEditor::mouseMoved( CallBacker* )
 {
-    if ( !mousedown_ ) return;
+    MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
+    if ( meh.isHandled() || !mousedown_ ) return;
 
     if ( changeLinePos() )
 	drawAgain();
+    meh.setHandled( true );
 }
 
 
 void uiMapperRangeEditor::mouseReleased( CallBacker* )
 {
-    if ( !mousedown_ ) return;
-    
+    MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
+    if ( meh.isHandled() || !mousedown_ ) return;
+
     mousedown_ = false;
     ctmapper_->range_.start = ctmapper_->range_.isRev() ? cliprg_.stop
 						       : cliprg_.start;
@@ -298,4 +308,5 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
 						      : cliprg_.stop;
     drawAgain();
     rangeChanged.trigger();
+    meh.setHandled( true );
 }
