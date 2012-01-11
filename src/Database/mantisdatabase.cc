@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.37 2012-01-05 06:56:59 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.38 2012-01-11 11:03:37 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
 	username = GetUserNm();
 	BufferString errmsg( "Please check parameters in 'settings_DB' file " );
 	errmsg.add( "in '/users/" ).add( username ).add( "/.od/'" );
+	errmsg.add( "\nOR \nPlease check network connection" );
 	errmsg_ = errmsg;
     }
 
@@ -730,10 +731,15 @@ bool SqlDB::MantisDBMgr::addToBugTable( BugTableEntry& bugtable )
 	return false;
 
 //Update bug_text_id
+    const int btid = getMaxBugIDFromBugTextTable();
+    const int bid = getMaxBugIDFromBugTable();
+    if ( btid < 0 || bid < 0 )
+	return false;
+
     BufferString querystr = "UPDATE ";
     querystr.add( BugTableEntry::sKeyBugTable() )
-	    .add( " SET bug_text_id=id WHERE id= (SELECT MAX(id) FROM " )
-	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ")" );
+	    .add( " SET bug_text_id=").add( btid )
+	    .add( " WHERE id=").add( bid );
     return query().execute( querystr );
 }
 
@@ -752,7 +758,7 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
 {
     errmsg_.setEmpty();
     if ( !addToBugNoteTextTable( note ) )
-	return false;
+	mErrRet( "Problem while updating bug note text table");
 
     int reporterid = getUserID( false );
     if ( reporterid < 0 )
@@ -766,15 +772,7 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     values.add( toString(reporterid ) ).add( datetime )
 	  .add( datetime );
     if ( !query().insert( colnms, values, sKeyBugNoteTable() ) )
-	return false;
-
-/*    
-      //This will delete in next commit
-    BufferString querystr( "UPDATE " );
-    querystr.add( sKeyBugNoteTable() )
-	    .add( " SET bugnote_text_id=id WHERE id= (SELECT MAX(id) FROM " )
-	    .add( sKeyBugNoteTextTable() ).add( ")" );
-*/ 
+	mErrRet( "Problem while updating bug note table");
 
 //Update bugnote_text_id
     const int maxntid = getMaxNoteIDFromBugNoteTextTable();
@@ -783,7 +781,12 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     querystr.add( sKeyBugNoteTable() )
 	    .add( " SET bugnote_text_id=" ).add( maxntid )
 	    .add (" WHERE id=" ).add( maxnid );
-    return query().execute( querystr );
+    bool isupd = query().execute( querystr );
+    if ( !isupd )
+	mErrRet( "Problem while updating bug note textid table");
+
+    return true;
+
 }
 
 
@@ -877,25 +880,39 @@ bool SqlDB::MantisDBMgr::deleteBugNoteInfo( int id )
 {
     const char* bntt = sKeyBugNoteTextTable();
     const char* bnt = sKeyBugNoteTable();
-    BufferString qstr( "SELECT id FROM " );
+    BufferString qstr( "SELECT id,bugnote_text_id FROM " );
     qstr.add( bnt ).add ( " WHERE " ).add( " bug_id=" ).add( id );
     bool isok = false;
-    isok = query().execute(qstr);
+    isok = query().execute( qstr );
     if ( !isok )
 	mErrRet( "Unable to get bug note ids" );
 
     TypeSet<int> notesid;
+    TypeSet<int> notetextids;
     while ( query().next() )
-	notesid.add( query().iValue(0) );
+    {
+	notesid.add( query().iValue( 0 ) );
+	notetextids.add( query().iValue( 1 ) );
+    }
 
     if ( notesid.isEmpty() )
 	return true;
 
+    if ( notetextids.size() != notesid.size() )
+	return false;
+
     for ( int nidx=0; nidx<notesid.size(); nidx++ )
     {
-	isok = query().deleteInfo( bntt, "id", notesid[nidx] );
-	if ( !isok )
-	    mErrRet( "Unable to delete note info from BugNoteTextTable" );
+	if ( !notetextids[nidx] )
+	    continue;
+
+	bool isnttdel = query().deleteInfo( bntt, "id", notetextids[nidx] );
+	if ( !isnttdel )
+	{
+	    BufferString msg( "Unable to delete notes from" );
+	    msg.add( sKeyBugNoteTextTable() );
+	    mErrRet( msg.buf() );
+	}
     }
 
     isok = query().deleteInfo( bnt, "bug_id", id );
@@ -910,12 +927,29 @@ bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
 {
     const char* btt = SqlDB::BugTextTableEntry::sKeyBugTextTable();
     const char* bt = SqlDB::BugTableEntry::sKeyBugTable();
-    bool isok = query().deleteInfo( btt, "id", id );
-    if ( !isok )
+
+    BufferString qstr( "SELECT bug_text_id FROM " );
+    qstr.add( bt ).add ( " WHERE " ).add( " id=" ).add( id );
+    bool isexec = query().execute( qstr );
+    if ( !isexec )
+	mErrRet( "Unable to delete bug" );
+
+    TypeSet<int> textids;
+    while ( query().next() )
+	textids.add( query().iValue( 0 ) );
+
+    if ( textids.isEmpty() )
+	mErrRet( "Unable to delete bug" );
+
+    if ( !textids.validIdx(0) && textids.size() > 1 )
+	mErrRet( "Unable to delete bug" );
+
+    bool isbtisdel = query().deleteInfo( btt, "id", textids[0] );
+    if ( !isbtisdel )
 	mErrRet( "Unable to delete bug info from BugTextTable" );
 
-    bool isexec = query().deleteInfo( bt, "id", id );
-    if ( !isexec )
+    bool isbdel = query().deleteInfo( bt, "id", id );
+    if ( !isbdel )
 	mErrRet( "Unable to delete bug info from BugTable" );
 
     return true;
@@ -957,6 +991,21 @@ int SqlDB::MantisDBMgr::getMaxBugIDFromBugTable() const
     errmsg_.setEmpty();
     BufferString querystr( "SELECT  MAX(id) FROM " );
     querystr.add( BugTableEntry::sKeyBugTable() );
+    if ( !query_->execute(querystr) )
+	return -1;
+
+    while ( query().next() )
+	querystr = query().data(0);
+
+    return toInt( querystr );
+}
+
+
+int SqlDB::MantisDBMgr::getMaxBugIDFromBugTextTable() const
+{
+    errmsg_.setEmpty();
+    BufferString querystr( "SELECT  MAX(id) FROM " );
+    querystr.add( BugTextTableEntry::sKeyBugTextTable() );
     if ( !query_->execute(querystr) )
 	return -1;
 

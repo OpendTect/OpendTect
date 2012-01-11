@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.20 2012-01-05 06:56:59 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.21 2012-01-11 11:03:37 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 
     int				getUserID(bool isdeveloper) const;
     int				getMaxBugIDFromBugTable() const;
+    int				getMaxBugIDFromBugTextTable() const;
     int				getMaxNoteIDFromBugNoteTable() const;
     int				getMaxNoteIDFromBugNoteTextTable() const;
     BugTableEntry*		getBugTableEntry(int tableidx);
