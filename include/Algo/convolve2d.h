@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.16 2011-11-24 14:39:51 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.17 2012-01-11 11:38:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,12 +47,12 @@ public:
     void			setCorrelate( bool yn )	{ correlate_ = yn; }
 				/*!<If true, the convolution will be replaced
 				    by a correllation. */
+    od_int64             	nrIterations() const;
 
 protected:
     bool		doWork(od_int64,od_int64,int);
     bool		doNonFFTWork(od_int64,od_int64,int);
     bool		doPrepare(int);
-    od_int64		nrIterations() const;
     bool		shouldFFT() const;
 
     const Array2D<T>*	x_;
@@ -74,6 +74,8 @@ protected:
 };
 
 
+
+
 template <> inline
 bool Convolver2D<float>::shouldFFT() const
 {
@@ -82,6 +84,15 @@ bool Convolver2D<float>::shouldFFT() const
 	return false;
 
     return true;
+}
+
+
+template <> inline
+od_int64 Convolver2D<float>::nrIterations() const
+{
+    return shouldFFT()
+        ? 1 
+        : z_->info().getSize( 0 );
 }
 
 
