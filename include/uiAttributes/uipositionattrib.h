@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.h,v 1.9 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uipositionattrib.h,v 1.10 2012-01-11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+
+    void                steerTypeSel(CallBacker*);
 
     			mDeclReqAttribUIFns
 };

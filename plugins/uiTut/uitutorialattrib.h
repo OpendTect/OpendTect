@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.h,v 1.3 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:           $Id: uitutorialattrib.h,v 1.4 2012-01-11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ protected:
 
 
     void		actionSel(CallBacker*);
+    void                steerTypeSel(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

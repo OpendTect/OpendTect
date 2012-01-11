@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.35 2011-07-07 14:17:13 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.36 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
 #include "similarityattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -321,6 +322,18 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
     maxdipfld_->display( wantbdip );
     deltadipfld_->display( wantbdip );
     dooutpstatsfld_->display( wantbdip );
+
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
+    {
+	const char* steertxt = steerfld_->text();
+	if ( steertxt )
+	{
+	    LineKey inp( inpfld_->getInput() );
+	    LineKey steer( steertxt );
+	    if ( strcmp( inp.lineName(), steer.lineName() ) )
+		steerfld_->clearInpField();
+	}
+    }
 
     outSel(0);
 }

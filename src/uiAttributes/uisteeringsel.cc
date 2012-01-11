@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.55 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.56 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -49,6 +49,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     , notypechange_(false)
     , is2d_(is2d)
     , withconstdir_(withconstdir)
+    , steertypeSelected_(this)
 {
     if ( !doinit ) return;
 
@@ -109,6 +110,8 @@ void uiSteeringSel::typeSel( CallBacker* )
     inpfld_->display( typ > 0 && typ < 3 );
     dirfld_->display( typ == 3 && !is2d_ );
     dipfld_->display( typ == 3 );
+
+    steertypeSelected_.trigger();
 }
 
 
@@ -260,6 +263,18 @@ void uiSteeringSel::setType( int nr, bool nochg )
     typfld_->setSensitive( !nochg );
     notypechange_ = nochg;
     typeSel(0);
+}
+
+
+void uiSteeringSel::clearInpField()
+{
+    inpfld_->setEmpty();
+}
+
+
+const char* uiSteeringSel::text() const
+{
+    return inpfld_->getInput();
 }
 
 

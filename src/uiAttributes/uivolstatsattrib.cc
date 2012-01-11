@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.30 2011-10-13 14:09:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.31 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 
@@ -86,6 +86,8 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     outpfld_->attach( alignedBelow, nrtrcsfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d );
+    steerfld_->steertypeSelected_.notify(
+	    		mCB(this,uiVolumeStatisticsAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, outpfld_ );
 
     edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
@@ -217,5 +219,18 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-
+void uiVolumeStatisticsAttrib::steerTypeSel( CallBacker* )
+{
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
+    {                                                                           
+	const char* steertxt = steerfld_->text();                               
+	if ( steertxt )                                                         
+	{                                                                       
+	    LineKey inp( inpfld_->getInput() );                                 
+	    LineKey steer( steertxt );                                          
+	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+		steerfld_->clearInpField();                                     
+	}                                                                       
+    }
+}
 

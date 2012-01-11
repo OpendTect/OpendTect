@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipositionattrib.cc,v 1.17 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uipositionattrib.cc,v 1.18 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 #include "uipositionattrib.h"
@@ -51,6 +51,8 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
     gatefld->attach( alignedBelow, stepoutfld );
 
     steerfld = new uiSteeringSel( this, 0, is2d );
+    steerfld->steertypeSelected_.notify(
+	    			mCB(this,uiPositionAttrib,steerTypeSel) );
     steerfld->attach( alignedBelow, gatefld );
 
     operfld = new uiGenInput( this, "Operator", StringListInpSpec(opstrs) );
@@ -115,4 +117,20 @@ void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Position::gateStr() );
     params += EvalParam( stepoutstr(), Position::stepoutStr() );
+}
+
+
+void uiPositionAttrib::steerTypeSel( CallBacker* )                      
+{
+    if ( is2D() && steerfld->willSteer() && !inpfld->isEmpty() )              
+    {
+	const char* steertxt = steerfld->text();
+	if ( steertxt )
+	{
+	    LineKey inp( inpfld->getInput() );
+	    LineKey steer( steertxt );
+	    if ( strcmp( inp.lineName(), steer.lineName() ) )
+		steerfld->clearInpField();
+	}	    
+    }
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uishiftattrib.cc,v 1.23 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uishiftattrib.cc,v 1.24 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 #include "uishiftattrib.h"
@@ -50,6 +50,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     dosteerfld_->setElemSzPol( uiObject::SmallVar );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d );
+    steerfld_->steertypeSelected_.notify( mCB(this,uiShiftAttrib,steerTypeSel));
     steerfld_->attach( alignedBelow, dosteerfld_ );
 
     steerSel(0);
@@ -112,4 +113,20 @@ void uiShiftAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     BufferString str = zIsTime() ? "Time" : "Depth"; str += " shift";
     params += EvalParam( str, Shift::timeStr() );
     params += EvalParam( stepoutstr(), Shift::posStr() );
+}
+
+
+void uiShiftAttrib::steerTypeSel( CallBacker* )
+{
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
+    {                                                                           
+	const char* steertxt = steerfld_->text();                               
+	if ( steertxt )                                                         
+	{                                                                       
+	    LineKey inp( inpfld_->getInput() );                                 
+	    LineKey steer( steertxt );                                          
+	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+		steerfld_->clearInpField();
+	}
+    }
 }

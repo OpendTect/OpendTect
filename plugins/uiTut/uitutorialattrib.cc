@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.12 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.13 2012-01-11 08:20:25 cvshelene Exp $";
 
 
 #include "uitutorialattrib.h"
@@ -59,6 +59,8 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
+    steerfld_->steertypeSelected_.notify(
+	    			mCB(this,uiTutorialAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, smoothdirfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
@@ -161,5 +163,21 @@ bool uiTutorialAttrib::getInput( Desc& desc )
     fillInp( inpfld_, desc, 0 );
     fillInp( steerfld_, desc, 1 );
     return true;
+}
+
+
+void uiTutorialAttrib::steerTypeSel( CallBacker* )                              
+{                                                                               
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
+    {                                                                           
+	const char* steertxt = steerfld_->text();                               
+	if ( steertxt )                                                         
+	{                                                                       
+	    LineKey inp( inpfld_->getInput() );                                 
+	    LineKey steer( steertxt );                                          
+	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+		steerfld_->clearInpField();
+	}
+    }
 }
 

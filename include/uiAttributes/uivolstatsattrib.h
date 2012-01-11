@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.14 2011-09-19 09:53:19 cvsbruno Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.15 2012-01-11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
     void		stackstepChg(CallBacker*);
      void		stepoutChg(CallBacker*);
     void		shapeChg(CallBacker*);
+    void		steerTypeSel(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.17 2010-10-20 06:01:04 cvsnageswara Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.18 2012-01-11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,11 @@ public:
     void			setDesc(const Attrib::Desc*);
     void			setDescSet(const Attrib::DescSet*);
     void			setType(int,bool fixed=false);
+
+    void			clearInpField();
+    const char*			text() const;
+
+    Notifier<uiSteeringSel>	steertypeSelected_;
 
     static IOPar&		inpselhist;
 
