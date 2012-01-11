@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.27 2011-05-10 03:56:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.28 2012-01-11 22:14:42 cvsnanne Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -140,7 +140,6 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
 uiGMTMainWin::~uiGMTMainWin()
 {
-    tabstack_->selChange().remove( mCB(this,uiGMTMainWin,tabSel) );
     deepErase( pars_ );
     delete tim_;
 }
