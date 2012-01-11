@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.29 2011-12-14 10:32:15 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.30 2012-01-11 11:42:09 cvskris Exp $";
 
 #include "task.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: task.cc,v 1.29 2011-12-14 10:32:15 cvskris Exp 
 #include "thread.h"
 #include "varlenarray.h"
 #include "progressmeter.h"
+#include "ptrman.h"
 
 
 Task::Task( const char* nm )
@@ -365,7 +366,7 @@ bool ParallelTask::execute( bool parallel )
     const od_int64 size = nriterations;
     if ( !size ) return true;
 
-    mAllocVarLenArr( ParallelTaskRunner, runners, nrthreads );
+    ArrPtrMan<ParallelTaskRunner> runners = new ParallelTaskRunner[nrthreads];
 
     od_int64 start = 0;
     TypeSet<Threads::Work> tasks;
