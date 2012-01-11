@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.97 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.98 2012-01-11 16:07:36 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -82,7 +82,7 @@ void uiTieView::fullRedraw()
     drawLog( data_.sonic(), true, 0, !data_.isSonic() );
     drawLog( data_.density(), false, 0, false );
     drawLog( data_.ai(), true, 1, false );
-    drawLog( data_.reflectivity(), false, 1, true );
+    drawLog( data_.reflectivity(), false, 1, false );
     drawLogDispWellMarkers();
     
     redrawViewer();
