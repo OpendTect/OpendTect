@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.2 2012-01-11 11:51:23 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.3 2012-01-11 12:48:00 cvskris Exp $
 #_______________________________________________________________________________
 
 IF($ENV{OD_QTDIR})
@@ -19,4 +19,4 @@ ELSE()
     ENDIF()
 ENDIF()
 
-FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql )
+FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
