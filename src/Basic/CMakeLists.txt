@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 11:43:19 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-11 11:51:49 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(LIB_NAME Basic)
@@ -62,7 +62,6 @@ SET(LIB_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    surv2dgeom.cc
 	    task.cc
 	    thread.cc
-	    threadwork.cc
 	    threadwork.cc
 	    timefun.cc
 	    timer.cc
