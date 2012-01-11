@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.13 2011-12-14 15:04:18 cvshelene Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.14 2012-01-11 06:53:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ private:
 
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
-class uiStepout3DSel : public uiStepOutSel                                      
+mClass uiStepout3DSel : public uiStepOutSel                                      
 {                                                                               
 public:                                                                         
 
