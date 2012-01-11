@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.1 2012-01-10 12:38:17 cvsbert Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.2 2012-01-11 10:56:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,9 +73,12 @@ public:
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
 
+    int		selPropIdx() const;	//!< May return -1
+    int		selLevelIdx() const;	//!< May return -1
+
 protected:
 
-    uiGenInput*	propfld_;
+    uiComboBox*	propfld_;
     uiComboBox*	lvlfld_;
     uiSpinBox*	eachfld_;
     uiToolButton* zoomtb_;

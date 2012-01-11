@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.41 2011-11-03 15:21:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.42 2012-01-11 10:56:25 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.41 2011-11-03 15:21:15
 #include "uistratlaymoddisp.h"
 #include "uistratsynthdisp.h"
 #include "uistratsynthcrossplot.h"
+#include "uistratlaymodtools.h"
 #include "uistrattreewin.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
@@ -155,6 +156,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 {
     uiGroup* gengrp = new uiGroup( this, "SeqGen disp" );
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    uiGroup* botgrp = new uiGroup( rightgrp, "Bottom group" );
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
@@ -162,34 +164,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
-    uiGroup* leftgengrp = new uiGroup( gengrp, "Left buttons" );
-    uiToolButton* opentb = new uiToolButton( leftgengrp, "open.png",
-				"Open stored generation description",
-				mCB(this,uiStratLayerModel,openGenDescCB) );
-    leftgengrp->attach( ensureBelow, seqdisp_ );
-    uiToolButton* stb = new uiToolButton( leftgengrp, "save.png",
-	    			"Save generation description",
-				mCB(this,uiStratLayerModel,saveGenDescCB) );
-    stb->attach( rightOf, opentb );
-    uiToolButton* proptb = new uiToolButton( leftgengrp, "defprops.png",
-	    			"Manage layer properties",
-				mCB(this,uiStratLayerModel,manPropsCB) );
-    proptb->attach( rightOf, stb );
-
-    uiGroup* rightgengrp = new uiGroup( gengrp, "Right buttons" );
-    const CallBack gocb( mCB(this,uiStratLayerModel,genModels) );
-    nrmodlsfld_ = new uiGenInput( rightgengrp, "", IntInpSpec(25) );
-    nrmodlsfld_->setElemSzPol( uiObject::Small );
-    nrmodlsfld_->setStretch( 0, 0 );
-    nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
-    nrmodlsfld_->updateRequested.notify( gocb );
-    uiToolButton* gotb = new uiToolButton( rightgengrp, "go.png",
-	    			"Generate this amount of models", gocb );
-    nrmodlsfld_->attach( leftOf, gotb );
-    rightgengrp->attach( rightBorder );
-    rightgengrp->attach( ensureBelow, seqdisp_ );
-    rightgengrp->attach( ensureRightOf, leftgengrp );
-    rightgengrp->setFrame( true );
+    gentools_ = new uiStratGenDescTools( gengrp );
+    gentools_->attach( ensureBelow, seqdisp_ );
+    gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
+    gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
+    gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
+    gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
 
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
@@ -200,15 +180,18 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->addTool( tbsu );
-    moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
-    moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
-    moddisp_->levelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
+
+    modtools_ = new uiStratLayModEditTools( botgrp );
+    moddisp_ = new uiStratLayerModelDisp( *modtools_, modl_ );
+    modtools_->attach( ensureBelow, moddisp_ );
+    modtools_->attach( rightBorder );
+    modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
+    modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
-    spl = new uiSplitter( rightgrp );
     spl = new uiSplitter( rightgrp, "Hor splitter", false );
-    spl->addGroup( synthdisp_ ); spl->addGroup( moddisp_ );
+    spl->addGroup( synthdisp_ ); spl->addGroup( botgrp );
 
     setWinTitle();
 }
@@ -239,8 +222,8 @@ void uiStratLayerModel::dispEachChg( CallBacker* cb )
 
 void uiStratLayerModel::levelChg( CallBacker* )
 {
-    synthdisp_->setDispMrkrs( moddisp_->selectedLevel(),
-	    		      moddisp_->levelDepths(), moddisp_->levelColor() );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+	    			moddisp_->levelColor() );
 }
 
 
@@ -262,7 +245,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     uiStratSynthCrossplot dlg( this, modl_, synthdisp_->getSynthetics() );
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 
-    const char* lvlnm = moddisp_->selectedLevel();
+    const char* lvlnm = modtools_->selLevel();
     if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
     dlg.go();
 }
@@ -382,7 +365,7 @@ bool uiStratLayerModel::openGenDesc()
 
 void uiStratLayerModel::genModels( CallBacker* cb )
 {
-    const int nrmods = nrmodlsfld_->getIntValue();
+    const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
@@ -392,11 +375,25 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
 
+    setModelProps();
     setElasticProps();
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     levelChg( cb );
+}
+
+
+void uiStratLayerModel::setModelProps()
+{
+    BufferStringSet nms;
+    for ( int idx=1; idx<modl_.propertyRefs().size(); idx++ )
+	nms.add( modl_.propertyRefs()[idx]->name() );
+    modtools_->setProps( nms );
+    nms.erase(); const Strat::LevelSet& lvls = Strat::LVLS();
+    for ( int idx=0; idx<lvls.size(); idx++ )
+	nms.add( lvls.levels()[idx]->name() );
+    modtools_->setLevelNames( nms );
 }
 
 

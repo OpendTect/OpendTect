@@ -7,23 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.11 2011-10-07 15:09:34 cvsbruno Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.12 2012-01-11 10:56:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 class uiLineItem;
-class uiSpinBox;
 class uiTextItem;
 class uiRectItem;
-class uiGenInput;
-class uiComboBox;
 class uiAxisHandler;
 class uiGraphicsView;
 class uiGraphicsScene;
 class BufferStringSet;
 class uiGraphicsItemSet;
+class uiStratLayModEditTools;
 namespace Strat { class LayerModel; }
 
 
@@ -31,14 +29,11 @@ mClass uiStratLayerModelDisp : public uiGroup
 {
 public:
 
-    			uiStratLayerModelDisp(uiParent*,
+    			uiStratLayerModelDisp(uiStratLayModEditTools&,
 					    const Strat::LayerModel&);
     			~uiStratLayerModelDisp();
 
     void		modelChanged();
-    void		getDispProperties(BufferStringSet&) const;
-    int			getEachDisp() const;
-    const char*		selectedLevel() const;		//!< null for none
     const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
     Color		levelColor() const		{ return lvlcol_; }
     void		setZoomBox(const uiWorldRect&);
@@ -47,12 +42,12 @@ public:
     bool&		fillLayerBoxes()		{ return fillmdls_; }
     bool&		useLithColors()			{ return uselithcols_; }
 
-    Notifier<uiStratLayerModelDisp>	dispEachChg;
-    Notifier<uiStratLayerModelDisp>	levelChg;
+    Notifier<uiStratLayerModelDisp>	sequenceSelected;
 
 protected:
 
     const Strat::LayerModel& lm_;
+    uiStratLayModEditTools& tools_;
     TypeSet<float>	lvldpths_;
     Color		lvlcol_;
     uiWorldRect		zoomwr_;
@@ -62,17 +57,12 @@ protected:
     uiAxisHandler*	yax_;
     uiTextItem*		emptyitm_;
     uiRectItem*		zoomboxitm_;
-    uiGenInput*		qtyfld_;
-    uiSpinBox*		eachfld_;
-    uiComboBox*		lvlfld_;
     uiGraphicsItemSet&	logblckitms_;
     uiGraphicsItemSet&	lvlitms_;
     uiLineItem*		selseqitm_;
 
     uiGraphicsScene&	scene();
     void		eraseAll();
-    void		dispEachChgd(CallBacker*);
-    void		lvlChgd(CallBacker*);
     void		reDrawCB(CallBacker*);
     void		usrClicked(CallBacker*);
     void		colsToggled(CallBacker*);
@@ -83,8 +73,9 @@ protected:
     int			dispeach_;
     bool		fillmdls_;
     int			selseqidx_;
+    int			selectedlevel_;
     bool		uselithcols_;
-    bool		showunzoomed_;
+    bool		showzoomed_;
     Interval<float>	zrg_;
     Interval<float>	vrg_;
     void		getBounds();

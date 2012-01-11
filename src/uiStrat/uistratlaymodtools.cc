@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.1 2012-01-10 12:38:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.2 2012-01-11 10:56:25 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -72,8 +72,9 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispZoomedChg(this)
     , dispLithChg(this)
 {
-    propfld_ = new uiGenInput( this, "Display", StringListInpSpec() );
-    propfld_->valuechanged.notify( mCB(this,uiStratLayModEditTools,selPropCB) );
+    propfld_ = new uiComboBox( this, "Display property" );
+    propfld_->selectionChanged.notify(
+	    			mCB(this,uiStratLayModEditTools,selPropCB) );
     uiLabel* eachlbl = new uiLabel( this, "each" );
     eachlbl->attach( rightOf, propfld_ );
     eachfld_ = new uiSpinBox( this, 0, "DispEach" );
@@ -106,17 +107,16 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
 {
     const BufferString selnm( propfld_->text() );
-    propfld_->newSpec( StringListInpSpec(nms), 0 );
+    propfld_->setEmpty(); propfld_->addItems( nms );
     int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
-    if ( idxof >= 0 ) propfld_->setValue( idxof );
+    if ( idxof >= 0 ) propfld_->setCurrentItem( idxof );
 }
 
 
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
 {
     const BufferString selnm( lvlfld_->text() );
-    lvlfld_->setEmpty(); lvlfld_->addItem( "---" );
-    lvlfld_->addItems( nms );
+    lvlfld_->setEmpty(); lvlfld_->addItem( "---" ); lvlfld_->addItems( nms );
     int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
     if ( idxof >= 0 ) lvlfld_->setCurrentItem( idxof );
 }
@@ -124,13 +124,25 @@ void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
 
 const char* uiStratLayModEditTools::selProp() const
 {
-    return propfld_->text();
+    return propfld_->isEmpty() ? 0 : propfld_->text();
+}
+
+
+int uiStratLayModEditTools::selPropIdx() const
+{
+    return propfld_->isEmpty() ? 0 : propfld_->getIntValue() + 1;
 }
 
 
 const char* uiStratLayModEditTools::selLevel() const
 {
-    return lvlfld_->text();
+    return lvlfld_->isEmpty() ? 0 : lvlfld_->text();
+}
+
+
+int uiStratLayModEditTools::selLevelIdx() const
+{
+    return lvlfld_->isEmpty() ? -1 : lvlfld_->currentItem() - 1;
 }
 
 
