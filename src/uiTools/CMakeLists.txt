@@ -1,0 +1,86 @@
+#_______________________Pmake___________________________________________________
+#
+#	Makefile : 	Algorithms
+# 	July 1995	A.H. Bril
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 13:55:38 cvskris Exp $
+#_______________________________________________________________________________
+
+SET(LIB_NAME uiTools)
+SET(DEPS uiBase Network )
+SET(LIB_SOURCES
+		inituitools.cc	
+		annotbuffill.cc	
+		drawaxis2d.cc	
+		uiamplspectrum.cc
+		uiarray2dchg.cc	
+		uiarray1dinterpol.cc
+		uiarray2dinterpol.cc
+		uiaxisdata.cc	
+		uiaxishandler.cc
+		uibasemap.cc	
+		uibinidtable.cc	
+		uibuildlistfromlist.cc
+		uibuttonstateedit.cc
+		uichecklist.cc	
+		uicolortable.cc	
+		uicoltabimport.cc
+		uicoltabman.cc	
+		uicoltabmarker.cc
+		uicoltabtools.cc
+		uicompparsel.cc	
+		uidirectionalplot.cc
+		uidlggroup.cc	
+		uifileinput.cc	
+		uifunctiondisplay.cc
+		uigeninput.cc	
+		uigeninput_impl.cc
+		uigeninputdlg.cc
+		uigraphicssaveimagedlg.cc 
+		uigraphicsview.cc	 
+		uigridder2d.cc	
+		uihandledlsitefail.cc
+		uihelpwin.cc	
+		uihistogramdisplay.cc   
+		uiiosel.cc	
+		uimapperrangeeditor.cc  
+		uimenuhandler.cc
+		uimapperrangeeditordlg.cc 
+		uimarkerstyle.cc
+		uimathexpression.cc
+		uinotsaveddlg.cc
+		uiobjdisposer.cc
+		uiobjectitemview.cc
+		uiobjectitemviewwin.cc
+		uiprice.cc	
+		uipluginman.cc	
+		uipluginsel.cc	
+		uipositiontable.cc
+		uiraytrace1d.cc	
+		uirgbarraycanvas.cc
+		uisaveimagedlg.cc
+		uiscaler.cc	
+		uisellinest.cc	
+		uiselsimple.cc	
+		uisettings.cc	
+		uishortcuts.cc	
+		uislicepos.cc	
+		uislicesel.cc	
+		uistatsdisplay.cc
+		uistepoutsel.cc	
+		uitblimpexpdatasel.cc
+		uitaskrunner.cc	
+		uitextfile.cc	
+		uitreeitemmanager.cc
+		uiunitsel.cc	
+		uivalseriestracker.cc
+		uivariogram.cc	
+		uivarwizard.cc	
+		uiwindowfunctionsel.cc
+		uiwindowfuncseldlg.cc
+		uiwindowgrabber.cc
+		uiwizard.cc	
+		uiworld2ui.cc	
+		uizaxistransform.cc
+                uipolardiagram.cc)
+SET(EXEC_SOURCES od_HtmlViewer od_FileBrowser od_ProgressViewer)
+OD_INIT_MODULE()

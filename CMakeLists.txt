@@ -8,6 +8,8 @@
 cmake_minimum_required (VERSION 2.6)
 PROJECT(OpendTect)
 
+SET(CMAKE_BUILD_TYPE "Debug") #Can be "Release"
+
 SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 3)
 
@@ -15,7 +17,14 @@ INCLUDE ( CMakeModules/ODQtUtils.cmake REQUIRED )
 INCLUDE ( CMakeModules/ODPlatformUtils.cmake REQUIRED )
 INCLUDE ( CMakeModules/ODMacroUtils.cmake REQUIRED )
 
-SET(MODULES Basic Algo Database General uiBase)
+SET(MODULES
+	Basic
+	Algo
+	Database
+	General
+	Network
+	uiBase
+	uiTools)
 
 FOREACH( MODULE ${MODULES} )
     add_subdirectory( src/${MODULE} )
