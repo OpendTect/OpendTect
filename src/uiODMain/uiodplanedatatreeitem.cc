@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.55 2012-01-05 14:50:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.56 2012-01-11 22:12:43 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.55 2012-01-05 14:5
 #include "uislicesel.h"
 #include "uivispartserv.h"
 #include "uivisslicepos3d.h"
+#include "uiwellpartserv.h"
 #include "visplanedatadisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "vissurvscene.h"
@@ -35,6 +36,8 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.55 2012-01-05 14:5
 #include "seisioobjinfo.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "welldata.h"
+#include "wellman.h"
 #include "zaxistransform.h"
 
 
@@ -43,20 +46,27 @@ static const int cGridLinesIdx = 980;
 
 static uiODPlaneDataTreeItem::Type getType( int mnuid )
 {
-    return mnuid == 0 ? uiODPlaneDataTreeItem::Empty
-		      : (mnuid==1 ? uiODPlaneDataTreeItem::Default
-			          : uiODPlaneDataTreeItem::RGBA);
+    switch ( mnuid )
+    {
+	case 0: return uiODPlaneDataTreeItem::Empty; break;
+	case 1: return uiODPlaneDataTreeItem::Default; break;
+	case 2: return uiODPlaneDataTreeItem::RGBA; break;
+	case 3: return uiODPlaneDataTreeItem::FromWell; break;
+	default: return uiODPlaneDataTreeItem::Empty;
+    }
 }
 
 
-#define mParentShowSubMenu( treeitm ) \
+#define mParentShowSubMenu( treeitm, fromwell ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
     mnu.insertItem( new uiMenuItem("&Add"), 0 ); \
     mnu.insertItem( new uiMenuItem("Add &default data"), 1 ); \
     mnu.insertItem( new uiMenuItem("Add &color blended"), 2 ); \
+    if ( fromwell ) \
+	mnu.insertItem( new uiMenuItem("Add at Well location..."), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
+    if ( mnuid==0 || mnuid==1 || mnuid==2 || mnuid==3 ) \
         addChild( new treeitm(-1,getType(mnuid)), false ); \
     handleStandardItems( mnuid ); \
     return true
@@ -120,46 +130,32 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx, 0 );
 	}
 
-	if ( type_ == Default )
+	if ( type_ == FromWell )
 	{
-	    uiAttribPartServer* attrserv = applMgr()->attrServer();
-	    BufferString keystr( SI().pars().find(sKey::DefCube) );
-	    if ( keystr.isEmpty() )
+	    ObjectSet<MultiID> wellids;
+	    if ( applMgr()->wellServer()->selectWells(wellids) )
 	    {
-		const IODir* iodir = IOM().dirPtr();
-		ObjectSet<IOObj> ioobjs = iodir->getObjs();
-		int nrod3d = 0;
-		int def3didx = 0;
-		for ( int idx=0; idx<ioobjs.size(); idx++ )
+		Well::Data* wd = Well::MGR().get( *wellids[0] );
+		if ( wd )
 		{
-		    SeisIOObjInfo seisinfo( ioobjs[idx] );
-		    if ( seisinfo.isOK() && !seisinfo.is2D() )
-		    {
-			nrod3d++;
-			def3didx = idx;
-		    }
+		    const Coord surfacecoord = wd->info().surfacecoord;
+		    const BinID bid = SI().transform( surfacecoord );
+		    CubeSampling cs = pdd->getCubeSampling();
+		    if ( orient_ == Inline )
+			cs.hrg.setInlRange( Interval<int>(bid.inl,bid.inl) );
+		    else
+			cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
+
+		    pdd->setCubeSampling( cs );
+		    const bool ddd = uiMSG().askGoOn( "Display default data?" );
+		    if ( ddd )
+			displayDefaultData();
 		}
-
-		if ( nrod3d == 1 )
-		    keystr = ioobjs[def3didx]->key();
-	    }
-
-	    Attrib::DescID descid = attrserv->getStoredID( keystr.buf(),false );
-	    const Attrib::DescSet* ads =
-		Attrib::DSHolder().getDescSet( false, true );
-	    if ( descid.isValid() && ads )
-	    {
-		Attrib::SelSpec as( 0, descid, false, "" );
-		as.setRefFromID( *ads );
-		visserv_->setSelSpec( displayid_, 0, as );
-		visserv_->calculateAttrib( displayid_, 0, false );
-	    }
-	    else
-	    {
-		uiMSG().error( "No or no valid default volume found\n"
-				"An empty plane will be added" );
 	    }
 	}
+
+	if ( type_ == Default )
+	    displayDefaultData();
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -175,6 +171,66 @@ bool uiODPlaneDataTreeItem::init()
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
+}
+
+
+bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
+{
+    BufferString keystr( SI().pars().find(sKey::DefCube) );
+    if ( keystr.isEmpty() )
+    {
+	const IODir* iodir = IOM().dirPtr();
+	ObjectSet<IOObj> ioobjs = iodir->getObjs();
+	int nrod3d = 0;
+	int def3didx = 0;
+	for ( int idx=0; idx<ioobjs.size(); idx++ )
+	{
+	    SeisIOObjInfo seisinfo( ioobjs[idx] );
+	    if ( seisinfo.isOK() && !seisinfo.is2D() )
+	    {
+		nrod3d++;
+		def3didx = idx;
+	    }
+	}
+
+	if ( nrod3d == 1 )
+	    keystr = ioobjs[def3didx]->key();
+    }
+
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
+    descid = attrserv->getStoredID( keystr.buf(),false );
+    const Attrib::DescSet* ads =
+	Attrib::DSHolder().getDescSet( false, true );
+    if ( descid.isValid() && ads )
+	return true;
+
+    BufferString msg( "No or no valid default volume found."
+	"You can set a default volume in the 'Manage Seismics' "
+	"window. Do you want to go there now? "
+	"On 'No' an empty plane will be added" );
+    const bool tomanage = uiMSG().askGoOn( msg );
+    if ( tomanage )
+    {
+	applMgr()->seisServer()->manageSeismics( false );
+	return getDefaultDescID( descid );
+    }
+
+    return false;
+}
+
+
+bool uiODPlaneDataTreeItem::displayDefaultData()
+{
+    Attrib::DescID descid;
+    if ( !getDefaultDescID(descid) )
+	return false;
+
+    const Attrib::DescSet* ads =
+	Attrib::DSHolder().getDescSet( false, true );
+    Attrib::SelSpec as( 0, descid, false, "" );
+    as.setRefFromID( *ads );
+    visserv_->setSelSpec( displayid_, 0, as );
+    return visserv_->calculateAttrib( displayid_, 0, false );
 }
 
 
@@ -241,8 +297,8 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, !visserv_->isLocked(displayid_),
-	          false );
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_,
+		  !visserv_->isLocked(displayid_), false );
     mAddMenuItem( &displaymnuitem_, &gridlinesmnuitem_, true, false );
 }
 
@@ -419,7 +475,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
 	return false;
     }
     
-    mParentShowSubMenu( uiODInlineTreeItem );
+    mParentShowSubMenu( uiODInlineTreeItem, true );
 }
 
 
@@ -458,7 +514,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 	return false;
     }
     
-    mParentShowSubMenu( uiODCrosslineTreeItem );
+    mParentShowSubMenu( uiODCrosslineTreeItem, true );
 }
 
 
@@ -497,7 +553,7 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 	 return false;
      }
      
-    mParentShowSubMenu( uiODZsliceTreeItem );
+    mParentShowSubMenu( uiODZsliceTreeItem, false );
 }
 
 

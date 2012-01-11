@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.15 2011-08-04 16:36:02 cvshelene Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.16 2012-01-11 22:12:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,12 +17,13 @@ ________________________________________________________________________
 
 class uiSliceSelDlg;
 class CubeSampling;
+namespace Attrib { class DescID; }
 
 
 mClass uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
-    enum Type		{ Default, Empty, RGBA };
+    enum Type		{ Default, Empty, RGBA, FromWell };
     enum Orientation	{ Inline, Crossline, ZSlice };
 
     			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
@@ -31,6 +32,8 @@ public:
 
 protected:
     BufferString	createDisplayName() const;
+    bool		getDefaultDescID(Attrib::DescID&);
+    bool		displayDefaultData();
 
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
