@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.30 2011-10-27 19:55:06 cvsyuancheng Exp $
+ RCS:		$Id: polygon.h,v 1.31 2012-01-11 23:25:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,11 +24,13 @@ class ODPolygon
 {
 public:
 		ODPolygon()
-		    : closed_(true), udf_(Geom::Point2D<T>::udf())	{} 
+		    : closed_(true), udf_(Geom::Point2D<T>::udf())
+		    , xrg_(mUdf(T),mUdf(T)), yrg_(mUdf(T),mUdf(T))	{} 
 		
 		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg)
 		    : poly_(plg), closed_(true)
-		    , udf_(Geom::Point2D<T>::udf())			{}
+		    , udf_(Geom::Point2D<T>::udf())
+		    , xrg_(mUdf(T),mUdf(T)), yrg_(mUdf(T),mUdf(T))	{}
 
     void	erase();
     bool	isEmpty() const			{ return poly_.isEmpty(); }
