@@ -1,0 +1,86 @@
+#_______________________Pmake___________________________________________________
+#
+#	Makefile : 	Basic UI-classes
+# 	July 1995	A.H. Bril
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 11:43:19 cvskris Exp $
+#_______________________________________________________________________________
+
+SET(LIB_NAME uiBase)
+SET(DEPS General)
+SET(OD_USEQT Gui)
+SET(MOC_HEADERS i_qaction.h
+		i_qbutton.h
+		i_qcombobox.h
+		i_qdial.h
+		i_qlineedit.h
+		i_qlistbox.h
+		i_qlistview.h
+		i_qmdiarea.h
+		i_qmenu.h
+		i_qslider.h
+		i_qspinbox.h
+		i_qsystemtrayicon.h
+		i_qtabbar.h
+		i_qtable.h
+		i_qtextedit.h
+		i_qtoolbar.h
+		i_qtoolbut.h
+		i_qtxtbrowser.h)
+SET(LIB_SOURCES     i_layout.cc
+		i_layoutitem.cc
+		iodraw.cc
+		inituibase.cc
+		pixmap.cc
+		uiaction.cc
+		uibutton.cc
+		uibuttongroup.cc
+		uicanvas.cc
+		uicolor.cc
+		uicombobox.cc
+		uicursor.cc
+		uidesktopservices.cc
+		uidate.cc
+		uidial.cc
+		uidockwin.cc
+		uidrawable.cc
+		uifiledlg.cc
+		uifont.cc
+		uigroup.cc
+		uigraphicscoltab.cc
+		uigraphicsitem.cc
+		uigraphicsitemimpl.cc
+		uigraphicsscene.cc
+		uigraphicsviewbase.cc
+		uilabel.cc
+		uilayout.cc
+		uilineedit.cc
+		uilistbox.cc
+		uilistview.cc
+		uimain.cc
+		uimainwin.cc
+		uimdiarea.cc
+		uimenu.cc
+		uimsg.cc
+		uiobj.cc
+		uiobjectstack.cc
+		uiobjbody.cc
+		odgraphicsitem.cc
+		uiprogressbar.cc
+		uirgbarray.cc
+		uirubberband.cc
+		uiseparator.cc
+		uishortcutsmgr.cc
+		uislider.cc
+		uispinbox.cc
+		uisplashscreen.cc
+		uisplitter.cc
+		uistatusbar.cc
+		uisystemtrayicon.cc
+		uitabbar.cc
+		uitable.cc
+		uitabstack.cc
+		uitextedit.cc
+		uitoolbar.cc
+		uivirtualkeyboard.cc)
+SET(EXEC_SOURCES od_DispMsg )
+OD_INIT_MODULE()
