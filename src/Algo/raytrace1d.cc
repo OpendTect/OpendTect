@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: raytrace1d.cc,v 1.37 2011-12-12 14:43:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.38 2012-01-11 11:42:59 cvskris Exp $";
 
 
 #include "raytrace1d.h"
@@ -233,8 +233,8 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     float_complex reflectivity = 0;
     if ( !mIsZero(off,mDefEps) ) 
     {
-	mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
-	for ( int idx=firstlayer_; idx<layer; idx++ )
+        ArrPtrMan<ZoeppritzCoeff> coefs = new ZoeppritzCoeff[layer];
+        for ( int idx=firstlayer_; idx<layer; idx++ )
 	    coefs[idx].setInterface( rayparam, model_[idx], model_[idx+1] );
 	int lidx = sourcelayer_;
 	reflectivity = coefs[lidx].getCoeff( true, 
