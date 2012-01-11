@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.25 2012-01-11 08:20:25 cvshelene Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.26 2012-01-11 08:22:59 cvshelene Exp $";
 
 #include "instantattrib.h"
 
@@ -91,13 +91,7 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 	if ( isOutputEnabled(1) )
 	    setOutputValue( output, 1, idx, z0, calcPhase(idx,z0) );
 	if ( isOutputEnabled(2) )
-	{
-	    float instfreq = calcFrequency(idx,z0);
-	    float twonyqf = 1/refstep_;
-	    if ( fabs( instfreq ) > twonyqf )
-		{ instfreq = instfreq>0 ? twonyqf : -twonyqf; }
-	    setOutputValue( output, 2, idx, z0, instfreq );
-	}
+	    setOutputValue( output, 2, idx, z0, calcFrequency(idx,z0) );
 	if ( isOutputEnabled(3) )
 	    setOutputValue( output, 3, idx, z0, mGetIVal(idx) );
 	if ( isOutputEnabled(4) )
