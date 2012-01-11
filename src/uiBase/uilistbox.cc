@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.123 2011-10-21 09:30:36 cvsraman Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.124 2012-01-11 22:14:22 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -24,8 +24,10 @@ static const char* rcsID = "$Id: uilistbox.cc,v 1.123 2011-10-21 09:30:36 cvsram
 #include <QMouseEvent>
 
 #define mNoSelection QAbstractItemView::NoSelection
-#define mExtended QAbstractItemView::ExtendedSelection
 #define mSingle QAbstractItemView::SingleSelection
+#define mMulti QAbstractItemView::MultiSelection
+#define mExtended QAbstractItemView::ExtendedSelection
+#define mContiguous QAbstractItemView::ContiguousSelection
 
 static const int cIconSz = 16;
 static const char* startmark = ":"; static const char* endmark = ":";
@@ -350,8 +352,6 @@ void uiListBox::setSelected( int idx, bool yn )
 void uiListBox::selectAll( bool yn )
 {
     mBlockCmdRec;
-    if ( yn && body_->selectionMode()!=mExtended ) return;
-
     if ( yn )
 	body_->selectAll();
     else
