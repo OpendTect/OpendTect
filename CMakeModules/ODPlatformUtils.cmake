@@ -2,8 +2,12 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.1 2012-01-11 11:43:19 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.2 2012-01-11 13:54:12 cvskris Exp $
 #_______________________________________________________________________________
+
+IF( ${CMAKE_BUILD_TYPE} MATCHES Debug)
+    ADD_DEFINITIONS("-D__debug__")
+ENDIF()
 
 IF(APPLE)
     ADD_DEFINITIONS("-D__mac__ -Dmac")
