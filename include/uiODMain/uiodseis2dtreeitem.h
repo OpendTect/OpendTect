@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.24 2011-05-05 08:53:01 cvssatyaki Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.25 2012-01-11 22:14:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,38 +46,38 @@ public:
 
 protected:
     			~uiOD2DLineSetTreeItem();
-    bool                init();
+    bool		init();
     int			uiListViewItemType() const;
 
     void		checkCB(CallBacker*);
-    void                createMenuCB(CallBacker*);
-    void                handleMenuCB(CallBacker*);
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
 
     void		createAttrMenu(MenuHandler*);
     void		selectNewAttribute(const char*);
-    bool                isExpandable() const            { return true; }
-    const char*         parentType() const;
+    bool		isExpandable() const		{ return true; }
+    const char*		parentType() const;
 
     Interval<float>	curzrg_;
-    MultiID             setid_;
+    MultiID		setid_;
     RefMan<uiMenuHandler> menuhandler_;
 
-    MenuItem            addlinesitm_;
-    MenuItem            zrgitm_;
-    MenuItem            addattritm_;
-    MenuItem            removeattritm_;
+    MenuItem		addlinesitm_;
+    MenuItem		zrgitm_;
+    MenuItem		addattritm_;
+    MenuItem		removeattritm_;
     MenuItem		editcoltabitm_;
-    MenuItem            editattritm_;
-    MenuItem            showitm_;
-    MenuItem            hideitm_;
-    MenuItem            showlineitm_;
-    MenuItem            hidelineitm_;
-    MenuItem            showlblitm_;
-    MenuItem            hidelblitm_;
-    MenuItem            removeitm_;
-    MenuItem            steeringitm_;
-    MenuItem            storeditm_;
-    MenuItem            coltabselitm_;
+    MenuItem		editattritm_;
+    MenuItem		showitm_;
+    MenuItem		hideitm_;
+    MenuItem		showlineitm_;
+    MenuItem		hidelineitm_;
+    MenuItem		showlblitm_;
+    MenuItem		hidelblitm_;
+    MenuItem		removeitm_;
+    MenuItem		steeringitm_;
+    MenuItem		storeditm_;
+    MenuItem		coltabselitm_;
     MenuItem		showattritm_;
     MenuItem		hideattritm_;
     MenuItem		expanditm_;
@@ -119,13 +119,13 @@ mClass uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
     bool			displayStoredData(const char*,int component,
-	    					  uiTaskRunner&);
+						  uiTaskRunner&);
     void			setAttrib(const Attrib::SelSpec&,
 					  uiTaskRunner&);
     void			clearAttrib();
 
 protected:
-    void			createMenuCB(CallBacker*);
+    void			createMenu(MenuHandler*,bool istb);
     void			handleMenuCB(CallBacker*);
 
     MenuItem			storeditm_;

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.110 2011-12-16 15:19:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.111 2012-01-11 22:14:00 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -924,12 +924,10 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
 {}
 
 
-void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
+void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODAttribTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
+    uiODAttribTreeItem::createMenu( menu, istb );
     const uiVisPartServer* visserv_ = applMgr()->visServer();
-
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
     if ( !menu || !s2d ) return;
