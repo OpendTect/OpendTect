@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.18 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visselman.h,v 1.19 2012-01-12 17:32:16 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,9 @@ public:
 
     CNotifier<SelectionManager,int>	selnotifier;
     CNotifier<SelectionManager,int>	deselnotifier;
+
+    				// for implementing pick-based reselection
+    CNotifier<SelectionManager,int>	reselnotifier;
 
     void			fillPar( IOPar&, TypeSet<int>& ) const {};
     void			usePar( const IOPar& ) {};

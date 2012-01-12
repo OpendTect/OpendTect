@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.22 2011-12-23 15:28:20 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.23 2012-01-12 17:32:16 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -137,6 +137,8 @@ protected:
     void 			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
+
+    void			allowPickBasedReselection();
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;

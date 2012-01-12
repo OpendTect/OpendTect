@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.18 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.19 2012-01-12 17:32:16 cvsjaap Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -17,6 +17,7 @@ namespace visBase
 SelectionManager::SelectionManager()
     : selnotifier( this )
     , deselnotifier( this )
+    , reselnotifier( this )
     , allowmultiple( false )
     , mutex( *new Threads::Mutex )
 {}

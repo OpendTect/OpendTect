@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.51 2012-01-06 13:33:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.52 2012-01-12 17:32:16 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.51 2012-01-06 13:33:04
 #include "vismpeeditor.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
+#include "visselman.h"
 #include "vismpe.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -237,6 +238,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
+
+	    allowPickBasedReselection();
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
@@ -484,6 +487,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
+	    allowPickBasedReselection();
 	    click.trigger();
 	}
     }
@@ -515,6 +519,7 @@ bool MPEClickCatcher::activateSower( const Color& color,
 }
 
 
+
 bool MPEClickCatcher::sequentSowing() const
 { return editor_ && editor_->sower().mode()==Sower::SequentSowing; }
 
@@ -527,6 +532,13 @@ void MPEClickCatcher::stopSowing()
 { 
     if ( editor_ )
 	editor_->sower().stopSowing();
+}
+
+
+void MPEClickCatcher::allowPickBasedReselection()
+{
+    if ( editor_ && editor_->sower().mode()==Sower::Idle )
+	visBase::DM().selMan().reselnotifier.trigger( info_.getObjID() );
 }
 
 
