@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.6 2011-10-24 05:59:39 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.7 2012-01-12 09:02:59 cvsbruno Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -41,6 +41,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
     : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
 {
+    setHelpID( "103.6.10" );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
 				  "Values between", "Values outside", 0 };
     cutofftypefld_ = new uiGenInput( this, "Keep",
