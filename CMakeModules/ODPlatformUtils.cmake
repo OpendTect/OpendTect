@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.4 2012-01-12 06:35:02 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.5 2012-01-12 12:23:54 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -20,7 +20,7 @@ IF(UNIX)
 ENDIF(UNIX)
 
 IF(WIN32)
-    ADD_DEFINITIONS("-D_CRT_SECURE_NO_WARNINGS")
+    ADD_DEFINITIONS("/W1 /Ob1 /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
 ENDIF()
 
