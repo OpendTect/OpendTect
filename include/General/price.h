@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: price.h,v 1.1 2011-12-23 15:22:15 cvskris Exp $
+ RCS:           $Id: price.h,v 1.2 2012-01-12 14:24:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class BufferStringSet;
 
 /* Class to hande currencies */
-struct Currency
+mStruct Currency
 {
 				Currency(const char* abrevation, short devisor)
 				    : devisor_( devisor )
@@ -35,7 +35,7 @@ struct Currency
 };
 
 
-struct Price
+mStruct Price
 {
                         Price( float userprice = 0 )
 			    : currency_( Currency::getCurrency("EUR") )
