@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.12 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.13 2012-01-12 09:24:44 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -85,7 +85,7 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
-    : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,"103.2.2") )
+    : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,"103.2.20") )
     , processor_( rt )		      
 {
     anglemutegrp_ = new uiAngleMuteGrp( this, processor_->params() );

@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.4 2011-10-12 11:32:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.5 2012-01-12 09:24:44 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -28,7 +28,7 @@ namespace PreStack
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Angle Mute Computer",
-				    mNoDlgTitle,mTODOHelpID) )
+				    mNoDlgTitle,"103.2.19") )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer) 
 {
