@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.5 2012-01-12 12:28:56 cvsranojay Exp $";
 
 #include "uiobjdisposer.h"
 #include "timer.h"
@@ -37,7 +37,7 @@ void uiObjDisposer::go( CallBacker* obj )
     Timer* newtimer = new Timer;
     newtimer->tick.notify( mCB(this,uiObjDisposer,doDel) );
     timers_ += newtimer;
-    newtimer->start( 50, true );
+    newtimer->start( 250, true );
 }
 
 
