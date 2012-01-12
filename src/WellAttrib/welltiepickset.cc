@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.36 2011-05-13 06:20:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.37 2012-01-12 09:22:14 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
@@ -111,6 +111,7 @@ void PickSetMgr::clearLastPicks()
 	seispickset_.remove( seispickset_.size()-1 );
     else if ( seispickset_.size() < synthpickset_.size() )
 	synthpickset_.remove( synthpickset_.size()-1 );
+    lastpicksynth_ = !lastpicksynth_;
 }
 
 
