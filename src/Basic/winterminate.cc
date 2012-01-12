@@ -4,8 +4,9 @@
  * SOURCE   : http://support.microsoft.com/kb/178893
 -*/
 
-static const char* rcsID = "$Id: winterminate.cc,v 1.4 2010-09-07 04:58:58 cvsranojay Exp $";
+static const char* rcsID = "$Id: winterminate.cc,v 1.5 2012-01-12 06:47:22 cvskris Exp $";
 
+#ifdef __win__
 #include "winterminate.h"
 
 
@@ -69,3 +70,4 @@ BOOL CALLBACK TerminateAppEnum( HWND hwnd, LPARAM lParam )
 
     return TRUE;
 }
+#endif // __win__
