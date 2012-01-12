@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.34 2011-08-22 14:54:05 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.35 2012-01-12 14:23:35 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -103,24 +103,39 @@ ________________________________________________________________________
 #define mExtern		extern dll_export
 #define mExternC	extern "C" dll_export
 
-#ifdef BASIC_EXPORTS
+#ifdef Basic_EXPORTS
 # define mBasicClass	class dll_export
 # define mBasicGlobal	dll_export
 # define mBasicExtern	extern dll_export
 #else
-# define mBasicClass	class dll_import
-# define mBasicGlobal	dll_import
-# define mBasicExtern	extern dll_import
+    #ifdef BASIC_EXPORTS
+	# define mBasicClass	class dll_export
+	# define mBasicGlobal	dll_export
+	# define mBasicExtern	extern dll_export
+    #else
+	# define mBasicClass	class dll_import
+	# define mBasicGlobal	dll_import
+	# define mBasicExtern	extern dll_import
+    #endif
 #endif
 
-#ifdef GENERAL_EXPORTS
+
+
+
+#ifdef General_EXPORTS
 # define mGeneralClass	class dll_export
 # define mGeneralGlobal	dll_export
 # define mGeneralExtern	extern dll_export
 #else
-# define mGeneralClass	class dll_import
-# define mGeneralGlobal	dll_import
-# define mGeneralExtern	extern dll_import
+    #ifdef GENERAL_EXPORTS
+	# define mGeneralClass	class dll_export
+	# define mGeneralGlobal	dll_export
+	# define mGeneralExtern	extern dll_export
+    #else
+	# define mGeneralClass	class dll_import
+	# define mGeneralGlobal	dll_import
+	# define mGeneralExtern	extern dll_import
+    #endif
 #endif
 
 #define mIfNotFirstTime(act) \
