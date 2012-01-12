@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.41 2012-01-12 14:42:21 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.42 2012-01-12 16:18:38 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -141,9 +141,6 @@ public:
     virtual int		nrLeaves() const;
     virtual int		level() const { return upnode_?upnode_->level()+1:0; }
 
-    virtual const LeafUnitRef*	firstLeaf() const
-			{ return refs_.isEmpty() ? 0 : refs_[0]->firstLeaf(); }
-
 protected:
 
     ObjectSet<UnitRef>	refs_;
@@ -182,6 +179,7 @@ public:
 
     virtual bool	hasLeaves() const	{ return false; }
     virtual Type	type() const		{ return NodeOnly; }
+    virtual const LeafUnitRef*	firstLeaf() const;
 
 };
 
@@ -203,6 +201,8 @@ public:
     void		setLevelID(Level::ID);
 
     virtual int		nrLeaves() const	{ return refs_.size(); }
+    virtual const LeafUnitRef*	firstLeaf() const
+			{ return refs_.isEmpty() ? 0 : refs_[0]->firstLeaf(); }
 
 protected:
 

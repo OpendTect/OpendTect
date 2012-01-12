@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.38 2011-07-05 08:32:34 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.39 2012-01-12 16:18:38 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -322,6 +322,20 @@ bool Strat::NodeUnitRef::isParentOf( const UnitRef& ur ) const
     const UnitRef* upnd = ur.upNode();
     if ( !upnd ) return false;
     return upnd == this ? true : isParentOf( *upnd );
+}
+
+
+//class NodeOnlyUnitRef
+
+const Strat::LeafUnitRef* Strat::NodeOnlyUnitRef::firstLeaf() const
+{
+    for ( int idx=0; idx<refs_.size(); idx++ )
+    {
+	const LeafUnitRef* ur = refs_[idx]->firstLeaf();
+	if ( ur )
+	    return ur;
+    }
+    return 0;
 }
 
 
