@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.118 2011-12-16 11:14:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.119 2012-01-12 14:20:35 cvskris Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -648,7 +648,7 @@ void StreamProvider::set( const char* inp )
     if ( *ptr == '\\' && *(ptr+1) == '\\' )
     {
 	char* endptr = strchr( ptr+2, '\\' );
-	if ( endptr ) *endptr++ == '\0';
+	if ( endptr ) *endptr++ = '\0';
 	hostname_ = ptr+2;
 	if ( !endptr )
 	    { fname_ = sStdIO(); return; }
