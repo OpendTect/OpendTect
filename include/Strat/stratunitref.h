@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.40 2011-07-11 13:30:11 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.41 2012-01-12 14:42:21 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace Strat
 class RefTree;
 class Lithology;
 class NodeUnitRef;
+class LeafUnitRef;
 
 /*!\brief Reference data for a stratigraphic unit
 
@@ -72,6 +73,8 @@ public:
 
     Notifier<UnitRef>	changed;
     Notifier<UnitRef>	toBeDeleted;
+
+    virtual const LeafUnitRef*	firstLeaf() const	= 0;
 
 protected:
 
@@ -137,6 +140,9 @@ public:
 
     virtual int		nrLeaves() const;
     virtual int		level() const { return upnode_?upnode_->level()+1:0; }
+
+    virtual const LeafUnitRef*	firstLeaf() const
+			{ return refs_.isEmpty() ? 0 : refs_[0]->firstLeaf(); }
 
 protected:
 
@@ -226,6 +232,7 @@ public:
     const Lithology&	getLithology() const;
     Color		dispColor(bool lith_else_upnode) const;
     virtual int		level() const { return upnode_?upnode_->level()+1:0; }
+    virtual const LeafUnitRef*	firstLeaf() const { return this; }
 
 protected:
 
