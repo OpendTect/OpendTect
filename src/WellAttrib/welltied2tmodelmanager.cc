@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.37 2011-12-08 16:13:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.38 2012-01-12 08:52:04 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -143,7 +143,8 @@ bool D2TModelMgr::commitToWD()
 
 void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
 {
-    calc_.ensureValidD2TModel( d2t );
+    if ( wd_ )
+	calc_.ensureValidD2TModel( d2t, *wd_ );
 }
 
 

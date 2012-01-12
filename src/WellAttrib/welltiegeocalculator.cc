@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.65 2011-11-07 15:55:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.66 2012-01-12 08:52:04 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -70,11 +70,9 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     }
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    {
-	const float kbtime = 2*srdel/replacevel;
-	d2tnew->add( 0, -kbtime ); //set KB 
-	d2tnew->add( srdel, 0 );  //set SRD 
-    }
+    const float kbtime = 2*srdel/replacevel;
+    d2tnew->add( 0, -kbtime ); //set KB 
+    d2tnew->add( srdel, 0 );  //set SRD 
 
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
@@ -84,7 +82,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 }
 
 
-void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
+					const Well::Data& wd ) const
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
@@ -97,14 +96,19 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
     }
     sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
     d2t.erase();
-    d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
+
+    const float srdel = getSRDElevation( wd );
+    d2t.add( srdel, 0 );
+    if ( dahs[zidxs[0]] > srdel && times[zidxs[0]] > 0 )
+	d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
+
     for ( int idx=1; idx<sz; idx++ )
     {
 	int idx0 = zidxs[idx-1]; 
 	int idx1 = zidxs[idx];
-	if ( dahs[idx1] >= dahs[idx0] && dahs[idx1] > dahs[0] 
+	if ( dahs[idx1] > dahs[idx0] && dahs[idx1] > dahs[0] 
 		&& times[idx1] > times[idx0] && times[idx1] > times[0]
-		&& times[idx1]>0 )
+		&& times[idx1]>0 && dahs[idx0] > srdel )
 	    d2t.add( dahs[idx1], times[idx1] );
     }
 }
