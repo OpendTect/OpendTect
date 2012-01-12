@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.23 2011-12-01 10:48:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.24 2012-01-12 09:08:05 cvsbruno Exp $";
 
 #include "uiwelltieeventstretch.h"
 
@@ -58,7 +58,7 @@ void EventStretch::doStaticShift()
 }
 
 
-#define mGapSize SI().zStep()*2 
+#define mGapSize SI().zStep()
 void EventStretch::doStretchSqueeze()
 {
     int d2tsz = d2t_->size();
