@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-11 14:04:03 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-01-12 06:34:34 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(LIB_NAME Basic)
@@ -29,6 +29,7 @@ SET(LIB_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    factory.cc
 	    fontdata.cc
 	    file.cc
+	    filesystemwatcher.cc
 	    filepath.cc
 	    globexpr.cc
 	    hostdata.cc
@@ -69,6 +70,7 @@ SET(LIB_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    undo.cc
 	    veldesc.cc
 	    winutils.cc
+	    winterminate.cc
 	    zdomain.cc
 	    ziputils.cc )
 OD_INIT_MODULE()
