@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.14 2011-12-29 08:43:15 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.15 2012-01-12 10:28:25 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,8 @@ void SqlDB::BugTextTableEntry::deleteHistory()
 void SqlDB::BugTextTableEntry::getQueryInfo( BufferStringSet& colnms,
 					     BufferStringSet& values )
 {
-    colnms.add( "description" ).add( "steps_to_reproduce" );
-    values.add( description_ ).add( stepsreproduce_ );
+    colnms.add( "description" ).add( "steps_to_reproduce" ).add( "reporter" );
+    values.add( description_ ).add( stepsreproduce_ ).add( reporter_ );
 }
 
 
@@ -45,12 +45,13 @@ void SqlDB::BugTextTableEntry::init()
 {
     description_ = "";
     stepsreproduce_ = "";
+    reporter_ = "";
 }
 
 
 void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 {
-    if ( desc == description_ )
+    if ( description_.isEqual( desc, true ) )
 	return;
 
     addToHistory( "description" );
@@ -60,11 +61,22 @@ void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 
 void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 {
-    if ( stepsreproduce_ == reproduce )
+    if ( stepsreproduce_.isEqual( reproduce, true ) )
 	return;
 
     addToHistory( "steps_to_reproduce" );
     stepsreproduce_ = reproduce;
+}
+
+
+void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
+{
+    if ( reporter_.isEqual( reporter, true ) )
+	return;
+
+    //TODO
+//    addToHistory( "reporter" );
+    reporter_ = reporter;
 }
 
 

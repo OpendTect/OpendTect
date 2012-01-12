@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.10 2011-11-18 06:39:46 cvsnageswara Exp $
+ RCS:           $Id: mantistables.h,v 1.11 2012-01-12 10:28:25 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,8 @@ public:
 
     void		init();
     void		setDescription(BufferString& desc);
-    void		setStepsReproduce(BufferString& desc);
+    void		setStepsReproduce(BufferString& reproduce);
+    void		setReporter(BufferString& reporter);
     void		getQueryInfo(BufferStringSet& colnms,
 	    			     BufferStringSet& values);
     void		addToHistory(const char* fieldnm);
@@ -64,6 +65,7 @@ public:
 
     BufferString	description_;
     BufferString	stepsreproduce_;
+    BufferString	reporter_;
 
 protected:
 

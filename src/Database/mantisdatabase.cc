@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.38 2012-01-11 11:03:37 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.39 2012-01-12 10:28:25 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,8 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() ).add( ".fixed_in_version," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".description," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() )
-	    .add( ".steps_to_reproduce" )
+	    .add( ".steps_to_reproduce," )
+	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( ".reporter" )
 	    .add( " FROM " )
 	    .add( BugTableEntry::sKeyBugTable() ).add( "," )
 	    .add( BugTextTableEntry::sKeyBugTextTable() ).add( "," )
@@ -223,6 +224,7 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	bugtable->fixedinversion_ = query().data( ++qidx );
 	texttable->description_ = query().data( ++qidx );
 	texttable->stepsreproduce_ = query().data( ++qidx );
+	texttable->reporter_ = query().data( ++qidx );
 
 	bugs_ += bugtable;
 	texttables_ += texttable;
