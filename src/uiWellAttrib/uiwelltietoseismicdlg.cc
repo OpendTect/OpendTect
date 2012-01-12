@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.100 2011-12-08 11:58:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.101 2012-01-12 09:07:49 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -456,6 +456,8 @@ bool uiTieWin::rejectOK( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
     close();
+    if ( Well::MGR().isLoaded( server_.wellID() ) )
+	Well::MGR().reload( server_.wellID() ); 
     return true;
 }
 
