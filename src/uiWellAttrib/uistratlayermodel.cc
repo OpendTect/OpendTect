@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.42 2012-01-11 10:56:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.43 2012-01-13 10:26:22 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -163,6 +163,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
+    descctio_.ctxt.toselect.require_.set( sKey::Type, edtyp );
 
     gentools_ = new uiStratGenDescTools( gengrp );
     gentools_->attach( ensureBelow, seqdisp_ );
