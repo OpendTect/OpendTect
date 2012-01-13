@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.10 2012-01-12 09:04:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.11 2012-01-13 07:58:38 cvsbruno Exp $";
 
 #include "voxelconnectivityfilter.h"
 
@@ -31,8 +31,8 @@ DefineEnumNames( VoxelConnectivityFilter, AcceptOutput, 0, "AcceptOutput")
 { "Body-size rank", "Body size", "Value", "Transparent", 0 };
 
 DefineEnumNames( VoxelConnectivityFilter, Connectivity, 0, "Connectivity")
-{ "Common Faces (6 neighbours)", "Common Edges (18 neighbours)",
-  "Full (26 neighbours)", 0 };
+{ "Common Faces (6 neighbors)", "Common Edges (18 neighbors)",
+  "Full (26 neighbors)", 0 };
 
 
 
