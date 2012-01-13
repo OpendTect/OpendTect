@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.11 2011-10-07 15:03:02 cvsjaap Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.12 2012-01-13 20:17:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ public:
 			uiExtraIntKeyDesc(const uiExtraIntKeyDesc&);
 			
     bool		operator==(const uiExtraIntKeyDesc& ev) const
-			{ return key_==ev.key_ && state_==ev.state_;
+			{ return key_==ev.key_ && state_==ev.state_ &&
 			         val_==ev.val_; }
 
     bool		set(const char* statestr,const char* keystr,int val);
