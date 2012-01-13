@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID = "$Id: odimage.cc,v 1.2 2010-08-11 19:33:43 cvskris Exp $";
+static const char* rcsID = "$Id: odimage.cc,v 1.3 2012-01-13 19:55:03 cvsnanne Exp $";
 
 #include "odimage.h"
 
@@ -24,7 +24,7 @@ void RGBImage::fill( unsigned char* res ) const
     const int xsize = getSize( true );
     const int ysize = getSize( false );
 
-    const int nrcomponents = nrComponents();
+    const char nrcomponents = nrComponents();
 
     for ( int idx=0; idx<xsize; idx++ )
     {
@@ -50,7 +50,7 @@ bool RGBImage::put( unsigned char const* source )
 {
     const int xsize = getSize( true );
     const int ysize = getSize( false );
-    const bool nrcomponents = nrComponents();
+    const char nrcomponents = nrComponents();
 
     Color col;
     for ( int idx=0; idx<xsize; idx++ )
