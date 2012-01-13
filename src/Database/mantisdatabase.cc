@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.39 2012-01-12 10:28:25 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.40 2012-01-13 19:54:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -417,7 +417,7 @@ const BufferStringSet* SqlDB::MantisDBMgr::getVersions(const char* projnm) const
 	return 0;
 
     const int pidx = projectnms.indexOf( projnm );
-    if ( ! pidx < 0 || !versionsbyproject_.validIdx( pidx ) )
+    if ( !versionsbyproject_.validIdx(pidx) )
 	return 0;
 
     return versionsbyproject_[pidx];
@@ -428,10 +428,10 @@ const BufferStringSet* SqlDB::MantisDBMgr::getVersions( int projid ) const
 {
     const TypeSet<int>& pids = projectIDs();
     const int pidx = pids.indexOf( projid );
-    if ( !projects().validIdx( pidx ) )
+    if ( !projects().validIdx(pidx) )
 	return 0;
 
-    BufferString projnm( projects().get( pidx ) );
+    BufferString projnm( projects().get(pidx) );
     return getVersions( projnm );
 }
 
@@ -456,8 +456,8 @@ void SqlDB::MantisDBMgr::fillSeverity()
 bool SqlDB::MantisDBMgr::getInfoFromTables()
 {
     if ( !fillCategories() || !fillProjectsInfo() || !fillBugTableEntries()
-	 || !fillUsersInfo() || !fillVersionsByProject() ||
-	 !fillAttachedFilesInfo() )
+	 || !fillUsersInfo() || !fillVersionsByProject()
+	 || !fillAttachedFilesInfo() )
 	return false;
 
     fillSeverity();
