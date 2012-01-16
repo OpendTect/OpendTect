@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.40 2012-01-13 19:54:25 cvsnanne Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.41 2012-01-16 12:30:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,11 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( BugTableEntry::sKeyBugTable() )
 	    .add( ".status=" ).add( BugTableEntry::cStatusFeedback() )
 	    .add( " OR " )
+	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( BugTableEntry::cStatusClosed() )
+	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".resolution=" ).add( BugTableEntry::cResolutionFixed() )
+	    .add( ") " ).add( " OR " )
 	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
 	    .add( ".status=" ).add( BugTableEntry::cStatusResolved() )
 	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
