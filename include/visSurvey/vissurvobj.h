@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.127 2011-12-20 08:09:26 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.128 2012-01-16 14:14:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,7 @@ mClass SurveyObject
 {
 public:
     virtual void		setInlCrlSystem(const SurveyInfo& si);
+    const SurveyInfo*		getInlCrlSystem() const { return survinfo_; }
     virtual const char*		getInlCrlSystemName() const;
 
     virtual void		setBaseMap(BaseMap*);
