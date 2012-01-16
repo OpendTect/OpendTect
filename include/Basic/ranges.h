@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.68 2011-12-22 14:55:17 cvsbruno Exp $
+ RCS:		$Id: ranges.h,v 1.69 2012-01-16 14:05:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 
     inline T		width(bool allowrev=true) const;
     inline virtual T	center() const;
+    inline float	getfCenter() const;
     inline void		shift(const T& len);
     inline void		widen(const T& len,bool allowrev=true);
     inline virtual void	scale(const T&);
@@ -392,10 +393,15 @@ template <class T> inline
 T Interval<T>::width( bool allowrev ) const
 { return allowrev && isRev() ? start - stop : stop - start; }
 
+#define mCenterImpl(func,typ) \
+template <class T> inline  \
+typ Interval<T>::func() const \
+{ return ((typ)(start+stop))/2; }
 
-template <class T> inline
-T Interval<T>::center() const
-{ return (start+stop)/2; }
+mCenterImpl(center, T )
+mCenterImpl(getfCenter, float )
+
+#undef mCenterImpl
 
 
 template <class T> inline
