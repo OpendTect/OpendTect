@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.54 2011-06-15 07:18:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.55 2012-01-16 22:19:05 cvsnanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -288,7 +288,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 	{
 	    const PosID& posid = (*attrset)[idy];
 	    if ( sid == posid.sectionID() )
-		surface_.setPosAttrib( posid, attr, false );
+		surface_.setPosAttrib( posid, attr, false, addtoundo );
 	}
     }
 
