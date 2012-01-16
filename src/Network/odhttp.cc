@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.14 2011-11-21 23:03:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.15 2012-01-16 17:54:39 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -50,6 +50,8 @@ int ODHttp::setProxy( const char* host, int port,
 		      const char* usrnm, const char* pwd )
 { return qhttp_->setProxy( host, port ); }
 
+int ODHttp::setHttpsHost( const char* host, int port )
+{ return qhttp_->setHost( host, QHttp::ConnectionModeHttps ); }
 
 int ODHttp::setHost( const char* host, int port )
 { return qhttp_->setHost( host, port ); }
