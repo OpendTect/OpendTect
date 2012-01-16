@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.10 2012-01-16 21:19:22 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: googletranslator.cc,v 1.9 2011-04-21 13:09:13 c
 
 #include <QString>
 
-static const char* sHostAddress()       { return "ajax.googleapis.com"; }
+static const char* sHostAddress()       { return "www.googleapis.com"; }
 
 static void setStatusMessage( const char* msg )
 { ODMainWin()->statusBar()->message( msg, 3 ); }
@@ -45,7 +45,7 @@ GoogleTranslator::~GoogleTranslator()
 
 
 void GoogleTranslator::enable()
-{ odhttp_.setHost( sHostAddress() ); }
+{ odhttp_.setHttpsHost( sHostAddress() ); }
 
 void GoogleTranslator::disable()
 { odhttp_.close(); }
@@ -95,19 +95,16 @@ void GoogleTranslator::setAPIKey( const char* key )
 { apikey_ = key; }
 
 static const char* sBasicUrl()
-{ return "/ajax/services/language/translate?v=1.0"; }
-
-static const char* sAPIKey()
-{ return "&key=AIzaSyBDR4RWX27WpkutU0olXxAl1-9BkaIp-EI"; }
+{ return "/language/translate/v2?"; }
 
 void GoogleTranslator::createUrl( BufferString& url, const char* txt )
 {
     url = sBasicUrl();
     if ( !apikey_.isEmpty() )
-	url.add( "&key=" ).add( apikey_ );
+	url.add( "key=" ).add( apikey_ );
 
     const char* tolang = tolanguage_ ? tolanguage_->code_.buf() : "nl";
-    url.add( "&q=" ).add( txt ).add( "&langpair=en|" ).add( tolang );
+    url.add( "&source=en&target=" ).add( tolang ).add( "&q=" ).add( txt );
 }
 
 
@@ -126,7 +123,7 @@ void GoogleTranslator::readyCB( CallBacker* )
     {
 	QString qresult = QString::fromWCharArray( buffer );
 	int idx1 = qresult.indexOf( "translatedText" );
-	idx1 += 17;
+	idx1 += 18;
 	int idx2 = qresult.indexOf( '"', idx1 );
 	QString qtrl = qresult.mid( idx1, idx2-idx1 );
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.6 2012-01-16 21:19:22 cvsnanne Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.5 2011-04-21 13:09:13 cvs
 #include "googletranslator.h"
 #include "settings.h"
 
-bool sUseKeyFld = false;
+bool sUseKeyFld = true;
 
 uiTranslateDlg::uiTranslateDlg( uiParent* p )
     : uiDialog(p,Setup("Google Translate","","0.2.10"))
@@ -106,7 +106,7 @@ void uiTranslateDlg::fillBox()
 
 
 static const char* sAPIKey()
-{ return "AIzaSyBDR4RWX27WpkutU0olXxAl1-9BkaIp-EI"; }
+{ return "AIzaSyBLTi8iwbbOHaKidJAJG14YAkI6V1KGugI"; }
 
 bool uiTranslateDlg::acceptOK( CallBacker* )
 {
@@ -121,6 +121,14 @@ bool uiTranslateDlg::acceptOK( CallBacker* )
     if ( keyfld_ )
     {
 	key = keyfld_->text();
+	if ( key.isEmpty() )
+	{
+	    uiMSG().error( "Please provide a Google API key. If you don't"
+			   " have one yet, you can get a key at:\n"
+			   "https://code.google.com/apis/console" );
+	    return false;
+	}
+
 	Settings::common().set( "Translator.Key", key );
     }
 
