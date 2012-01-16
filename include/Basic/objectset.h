@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.6 2011-05-30 06:36:49 cvsjaap Exp $
+ RCS:		$Id: objectset.h,v 1.7 2012-01-16 14:04:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,24 +85,25 @@ public:
 };
 
 
-//! empty the ObjectSet deleting all objects pointed to.
-template <class T>
-inline void deepErase( ObjectSet<T>& os )
-{
-    for ( int sz=os.size(), idx=0; idx<sz; idx++ )
-	delete os[idx];
-    os.plainErase();
+#define mObjectSetApplyToAll( os, op ) \
+    for ( int idx=0; idx<os.size(); idx++ ) \
+	op
+
+#define mObjectSetApplyToAllFunc( fn, op, extra ) \
+template <class T> \
+inline void fn( ObjectSet<T>& os ) \
+{ \
+    mObjectSetApplyToAll( os, op ); \
+    extra; \
 }
 
 
 //! empty the ObjectSet deleting all objects pointed to.
-template <class T>
-inline void deepEraseArr( ObjectSet<T>& os )
-{
-    for ( int sz=os.size(), idx=0; idx<sz; idx++ )
-	delete [] os[idx];
-    os.plainErase();
-}
+mObjectSetApplyToAllFunc( deepErase, delete os[idx], os.plainErase() )
+
+
+//! empty the ObjectSet deleting all objects pointed to.
+mObjectSetApplyToAllFunc( deepEraseArr, delete [] os[idx], os.plainErase() )
 
 
 //! append copies of one set's objects to another ObjectSet.
