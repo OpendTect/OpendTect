@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.120 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.121 2012-01-16 13:58:40 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1209,7 +1209,8 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	    work += Threads::Work( *tt, true );
 	}
 
-	Threads::WorkManager::twm().addWork( work );
+	Threads::WorkManager::twm().addWork( work,
+	       Threads::WorkManager::cDefaultQueueID() );
     }
   
     tesselationlock_ = false;
@@ -1537,7 +1538,8 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
 		*new TileTesselator( tileptrs[idx], res ), true );
     }
     
-    Threads::WorkManager::twm().addWork( work );
+    Threads::WorkManager::twm().addWork( work,
+	       Threads::WorkManager::cDefaultQueueID() );
 }
 
 
