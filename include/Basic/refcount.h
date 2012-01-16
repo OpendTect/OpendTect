@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.18 2011-12-13 14:11:56 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.19 2012-01-16 14:10:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,28 +107,19 @@ protected: \
 private:
 
 
-#define mDeepRef(funcname,func,extra) \
-template <class T> inline void deep##funcname( ObjectSet<T>& set )\
-{\
-    for ( int idx=0; idx<set.size(); idx++ )\
-    {\
-	if ( set[idx] ) set[idx]->func();\
-    }\
-\
-   extra;\
-}
-
-
 #define mRefCountImpl(ClassName) \
 mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
 
 #define mRefCountImplNoDestructor(ClassName) \
 mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
 
+mObjectSetApplyToAllFunc( deepUnRef, if ( os[idx] ) os[idx]->unRef(),
+		      os.plainErase() )
+mObjectSetApplyToAllFunc( deepRef, if ( os[idx] ) os[idx]->ref(), )
+mObjectSetApplyToAllFunc( deepUnRefNoDelete,
+		      if ( os[idx] ) os[idx]->unRefNoDelete(),
+		      os.plainErase() )
 
-mDeepRef(UnRef,unRef, set.erase() );
-mDeepRef(Ref,ref,);
-mDeepRef(UnRefNoDelete,unRefNoDelete,);
 
 mDefPtrMan1(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
 inline RefMan(const RefMan<T>& p) : ptr_( 0 ) {  set(p.ptr_); }
