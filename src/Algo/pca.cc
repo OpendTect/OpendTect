@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.15 2011-02-14 22:23:30 cvskris Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.16 2012-01-16 13:54:54 cvskris Exp $";
 
 
 #include "pca.h"
@@ -280,7 +280,8 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 
 bool PCA::calculate()
 {
-    Threads::WorkManager::twm().addWork( workload_ );
+    Threads::WorkManager::twm().addWork( workload_,
+	    	Threads::WorkManager::cDefaultQueueID() );
 
     // Now, get the eigenvalues
     ArrPtrMan<float> d = new float [nrvars_+1];
