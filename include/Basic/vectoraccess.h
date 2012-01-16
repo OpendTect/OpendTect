@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.29 2011-04-20 12:25:16 cvsbert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.30 2012-01-16 14:08:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,40 +39,39 @@ class VectorAccess
 public:
 
     inline		VectorAccess()			{}
-    inline		VectorAccess( unsigned int n ) : v(n)	{}
+    inline		VectorAccess( unsigned int n ) : v_(n)	{}
     inline		VectorAccess( unsigned int n, const T& t )
-				: v(n,t)		{}
+				: v_(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
-				: v(v2.v)		{}
-    inline std::vector<T>&	 vec()				{ return v; }
-    inline const std::vector<T>& vec() const			{ return v; }
+				: v_(v2.v_)		{}
+    inline std::vector<T>&	 vec()				{ return v_; }
+    inline const std::vector<T>& vec() const			{ return v_; }
 
-    inline T&		operator[]( int idx )		{ return v[idx]; }
+    inline T&		operator[]( int idx )		{ return v_[idx]; }
     inline const T&	operator[]( int idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
-    inline unsigned int	size() const	{ return (unsigned int) v.size(); }
+    inline unsigned int	size() const	{ return (unsigned int) v_.size(); }
     inline bool		setCapacity( int sz );
     			/*!<Allocates mem for sz, does not change size.*/
-    inline void		getCapacity() const		{ return v.capacity(); }
+    inline void		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
     inline bool		setSize( int sz, T val );
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
-			{ v = v2.v; return *this; }
+			{ v_ = v2.v_; return *this; }
     inline bool		push_back( const T& t );
     inline void		insert( int pos, const T& val )
-					    { v.insert(v.begin() + pos,val); }
-    inline void		erase()
-    			{ v.erase( v.begin(), v.end() ); }
+					    { v_.insert(v_.begin() + pos,val); }
+    inline void		erase()		    { v_.clear(); }
     inline void		erase( const T& t )
 			{
 			    for ( int idx=size()-1; idx!=-1; idx-- )
-				{ if ( v[idx] == t ) { remove(idx); return; } }
+				{ if ( v_[idx] == t ) { remove(idx); return; } }
 			}
     inline void		remove( unsigned int idx )
 			{
 			    if ( idx < size() )
-				v.erase( v.begin() + idx );
+				v_.erase( v_.begin() + idx );
 			}
     inline void		remove( unsigned int i1, unsigned int i2 )
 			{
@@ -82,15 +81,15 @@ public:
 			    if ( i1 >= sz ) return;
 
 			    if ( i2 >= sz-1 ) i2 = sz-1;
-			    v.erase( v.begin()+i1, v.begin()+i2+1 );
+			    v_.erase( v_.begin()+i1, v_.begin()+i2+1 );
 			}
     inline void		swap( unsigned int i, unsigned int j )
-			{ std::swap( v[i], v[j] ); }
+			{ std::swap( v_[i], v_[j] ); }
 
     inline void		fillWith( const T& val )
 			{
 			    const int sz = size();
-			    T* arr = sz ? &v[0] : 0;
+			    T* arr = sz ? &v_[0] : 0;
 			    for ( int i=sz-1; i>=0; i--,arr++ )
 				*arr = val;
 			}
@@ -101,9 +100,9 @@ public:
 	int tidx = -1; int aftidx = -1;
 	for ( int idx=size()-1; idx!=-1; idx-- )
 	{
-	    if ( v[idx] == t )
+	    if ( v_[idx] == t )
 		{ tidx = idx; if ( aftidx != -1 ) break; }
-	    if ( v[idx] == aft )
+	    if ( v_[idx] == aft )
 		{ aftidx = idx; if ( tidx != -1 ) break; }
 	}
 	if ( tidx == -1 || aftidx == -1 || tidx == aftidx ) return;
@@ -120,14 +119,14 @@ public:
 	if ( size() < 2 ) return;
 	int tidx = -1;
 	for ( int idx=size()-1; idx!=-1; idx-- )
-	    if ( v[idx] == t ) { tidx = idx; break; }
+	    if ( v_[idx] == t ) { tidx = idx; break; }
 	for ( int idx=tidx; idx>0; idx-- )
 	    swap( idx, idx-1 );
     }
 
 protected:
 
-    std::vector<T>	v;
+    std::vector<T>	v_;
 
 };
 
@@ -135,7 +134,7 @@ protected:
 template<class T> inline
 bool VectorAccess<T>::setCapacity( int sz )
 {
-    try { v.reserve(sz); }
+    try { v_.reserve(sz); }
     catch ( std::bad_alloc )
     { return false; }
     catch ( std::length_error )
@@ -148,7 +147,7 @@ bool VectorAccess<T>::setCapacity( int sz )
 template<class T> inline
 bool VectorAccess<T>::push_back( const T& t )
 {
-    try { v.push_back(t); }
+    try { v_.push_back(t); }
     catch ( std::bad_alloc )
     { return false; }
 
@@ -159,7 +158,7 @@ bool VectorAccess<T>::push_back( const T& t )
 template<class T> inline
 bool VectorAccess<T>::setSize( int sz, T val )
 {
-    try { v.resize(sz,val); }
+    try { v_.resize(sz,val); }
     catch ( std::bad_alloc )
     { return false; }
 
