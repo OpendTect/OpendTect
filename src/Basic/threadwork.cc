@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.40 2011-10-24 13:12:14 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.41 2012-01-16 12:25:14 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -537,7 +537,7 @@ protected:
 
 
 bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
-				    bool firstinline )
+				    int queueid, bool firstinline )
 {
     if ( work.isEmpty() )
 	return true;
@@ -563,7 +563,7 @@ bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
 	CallBack cb( mCB( &resultman, WorkResultManager, imFinished ));
 
 	for ( int idx=1; idx<nrwork; idx++ )
-	    addWork( work[idx], &cb, cDefaultQueueID(), firstinline );
+	    addWork( work[idx], &cb, queueid, firstinline );
 
 	res = work[0].doRun();
 

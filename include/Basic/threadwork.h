@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.32 2011-09-20 13:04:57 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.33 2012-01-16 12:25:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ public:
 	    				int queueid, bool putfirstinline);
     				//!< Managed by caller if manage flag is false
 
-    bool			addWork(TypeSet<Work>&,
+    bool			addWork(TypeSet<Work>&, int queueid,
 	    				bool firstinline = false);
     bool			removeWork(const Work&);	
     				/*!< Removes the task from queue

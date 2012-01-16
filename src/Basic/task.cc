@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.30 2012-01-11 11:42:09 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.31 2012-01-16 12:25:14 cvskris Exp $";
 
 #include "task.h"
 
@@ -396,7 +396,7 @@ bool ParallelTask::execute( bool parallel )
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm.addWork( tasks );
+	res = twm.addWork( tasks, twm.cDefaultQueueID() );
     }
 
     res = doFinish( res );
