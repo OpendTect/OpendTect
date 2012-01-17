@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.35 2011-12-22 12:40:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.36 2012-01-17 15:17:01 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
+#include "uistratsimplelaymoddisp.h"
 #include "uimanprops.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
@@ -35,25 +36,10 @@ mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
 	Strat::LayerSequenceGenDesc&,uiLayerSequenceGenDesc::factory)
 
 
-uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
-					Strat::LayerSequenceGenDesc& dsc )
-    : uiGraphicsView(p,"LayerSequence Gen Desc editor")
-    , desc_(dsc)
-    , border_(10)
-    , outeritm_(0)
-    , emptyitm_(0)
+uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
+    : desc_(d)
     , needsave_(false)
 {
-    setPrefWidth( 200 );
-    setPrefHeight( 500 );
-    reSize.notify( mCB(this,uiLayerSequenceGenDesc,reDraw) );
-    reDrawNeeded.notify( mCB(this,uiLayerSequenceGenDesc,reDraw) );
-
-    getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiLayerSequenceGenDesc,singClckCB) );
-    getMouseEventHandler().doubleClick.notify(
-	    			mCB(this,uiLayerSequenceGenDesc,dblClckCB) );
-
     if ( desc_.propSelection().size() < 2 )
     {
 	PropertyRefSelection prs( desc_.propSelection() );
@@ -66,7 +52,43 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
 }
 
 
-void uiLayerSequenceGenDesc::reDraw( CallBacker* )
+void uiLayerSequenceGenDesc::selProps()
+{
+    PropertyRefSelection prs( desc_.propSelection() );
+    uiSelectPropRefs dlg( outerObj()->parent(), prs );
+    if ( dlg.go() || dlg.structureChanged() )
+	desc_.setPropSelection( prs );
+}
+
+
+uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
+					Strat::LayerSequenceGenDesc& dsc )
+    : uiGraphicsView(p,"LayerSequence Gen Desc editor")
+    , uiLayerSequenceGenDesc(dsc)
+    , border_(10)
+    , outeritm_(0)
+    , emptyitm_(0)
+{
+    setPrefWidth( 200 );
+    setPrefHeight( 500 );
+    reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
+    reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
+
+    getMouseEventHandler().buttonReleased.notify(
+	    			mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
+    getMouseEventHandler().doubleClick.notify(
+	    			mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+}
+
+
+uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
+			uiStratLayModEditTools& lmt, Strat::LayerModel& lm )
+{
+    return new uiStratSimpleLayerModelDisp( lmt, lm );
+}
+
+
+void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 {
     uiRect& wr = const_cast<uiRect&>( workrect_ );
     wr.setLeft( border_.left() );
@@ -101,7 +123,7 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
 }
 
 
-void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
+void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 {
     MouseEventHandler& mevh = getMouseEventHandler();
     if ( !mevh.hasEvent() || mevh.isHandled() )
@@ -151,15 +173,6 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 }
 
 
-void uiLayerSequenceGenDesc::selProps()
-{
-    PropertyRefSelection prs( desc_.propSelection() );
-    uiSelectPropRefs dlg( parent(), prs );
-    if ( dlg.go() || dlg.structureChanged() )
-	desc_.setPropSelection( prs );
-}
-
-
 uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 				    const Strat::LayerGenerator& lg )
     : nm_(0)
@@ -203,7 +216,7 @@ uiBasicLayerSequenceGenDesc::DispUnit::~DispUnit()
 
 uiBasicLayerSequenceGenDesc::uiBasicLayerSequenceGenDesc( uiParent* p,
 				Strat::LayerSequenceGenDesc& d )
-    : uiLayerSequenceGenDesc(p,d)
+    : uiExtLayerSequenceGenDesc(p,d)
 {
     rebuildDispUnits();
 }

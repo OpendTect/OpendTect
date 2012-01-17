@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.44 2012-01-17 11:12:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.45 2012-01-17 15:17:01 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -154,45 +154,63 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
 {
-    uiGroup* gengrp = new uiGroup( this, "SeqGen disp" );
-    uiGroup* rightgrp = new uiGroup( this, "Right group" );
-    uiGroup* botgrp = new uiGroup( rightgrp, "Bottom group" );
-
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
+    descctio_.ctxt.toselect.require_.set( sKey::Type, edtyp );
+
+    uiGroup* gengrp = new uiGroup( this, "Gen group" );
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
-    descctio_.ctxt.toselect.require_.set( sKey::Type, edtyp );
+    const bool genissep = !seqdisp_->isLayModDisp();
 
+    uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp;
+    if ( genissep )
+    {
+	rightgrp = new uiGroup( this, "Right group" );
+	topgrp = new uiGroup( rightgrp, "Top group" );
+	botgrp = new uiGroup( rightgrp, "Bot group" );
+    }
+    else
+    {
+	topgrp = new uiGroup( this, "Top group" );
+	botgrp = gengrp;
+    }
+
+    modtools_ = new uiStratLayModEditTools( botgrp );
     gentools_ = new uiStratGenDescTools( gengrp );
-    gentools_->attach( ensureBelow, seqdisp_ );
+    moddisp_ = seqdisp_->getLayModDisp( *modtools_, modl_ );
+    synthdisp_ = new uiStratSynthDisp( topgrp, modl_ );
+    uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
+	   		    mCB(this,uiStratLayerModel,xPlotReq) );
+    synthdisp_->addTool( tbsu );
+
+    modtools_->attach( ensureBelow, moddisp_ );
+    modtools_->attach( rightBorder );
+    gentools_->attach( ensureBelow, seqdisp_->outerObj() );
+
+    uiSplitter* hspl;
+    if ( !genissep )
+	hspl = new uiSplitter( this, "Hor splitter", false );
+    else
+    {
+	uiSplitter* vspl = new uiSplitter( this, "Vert splitter", true );
+	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
+	hspl = new uiSplitter( rightgrp, "Hor splitter", false );
+    }
+    hspl->addGroup( topgrp ); hspl->addGroup( botgrp );
+
+    modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
+    modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
     gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
     gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
-
-    synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 				mCB(this,uiStratLayerModel,selElasticPropsCB) );
-    uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
-	   		    mCB(this,uiStratLayerModel,xPlotReq) );
-    synthdisp_->addTool( tbsu );
-
-    modtools_ = new uiStratLayModEditTools( botgrp );
-    moddisp_ = new uiStratSimpleLayerModelDisp( *modtools_, modl_ );
-    modtools_->attach( ensureBelow, moddisp_ );
-    modtools_->attach( rightBorder );
-    modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
-    modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
-
-    uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
-    spl->addGroup( gengrp ); spl->addGroup( rightgrp );
-    spl = new uiSplitter( rightgrp, "Hor splitter", false );
-    spl->addGroup( synthdisp_ ); spl->addGroup( botgrp );
 
     setWinTitle();
 }
