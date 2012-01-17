@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.3 2012-01-11 13:53:49 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.4 2012-01-17 05:44:11 cvskris Exp $
 #_______________________________________________________________________________
 
 MACRO( OD_INIT_MODULE )
@@ -16,51 +16,34 @@ ENDIF()
 
 #Add Qt-stuff
 IF(OD_USEQT)
-    include(${QT_USE_FILE})
-
-    IF(${OD_USEQT} MATCHES "Core" )
-	LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
-	    ${QT_QTNETWORK_INCLUDE_DIR}
-	    ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
-	SET(OWN_QTLIBS ${QT_QTCORE_LIBRARY}
-		       ${QT_QTNETWORK_LIBRARY})
-    ENDIF()
-
-    IF(${OD_USEQT} MATCHES "Sql" )
-	LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
-	    ${QT_QTSQL_INCLUDE_DIR}
-	    ${QTDIR}/include )
-	SET(OWN_QTLIBS ${QT_QTSQL_LIBRARY})
-    ENDIF()
-
-    IF(${OD_USEQT} MATCHES "Gui")
-	LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
-	    ${QT_QTCORE_INCLUDE_DIR}
-	    ${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
-	SET(OWN_QTLIBS ${QT_QTGUI_LIBRARY})
-    ENDIF()
-
-    IF( QT_MOC_HEADERS )
-	FOREACH( HEADER ${QT_MOC_HEADERS} )
-	    LIST(APPEND QT_MOC_INPUT
-		${OpendTect_SOURCE_DIR}/include/${LIB_NAME}/${HEADER})
-	ENDFOREACH()
-
-	QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
-    ENDIF( QT_MOC_HEADERS )
+   OD_SETUP_QT()
 ENDIF(OD_USEQT)
 
 #Add current module to include-path
-LIST(APPEND ${LIB_NAME}_INCLUDEPATH ${OpendTect_SOURCE_DIR}/include/${LIB_NAME} )
+IF (OD_IS_PLUGIN)
+    SET(PLUGINDIR ${OpendTect_SOURCE_DIR}/plugins/${LIB_NAME})
+    LIST(APPEND ${LIB_NAME}_INCLUDEPATH ${PLUGINDIR})
+    FOREACH( PLUGINSUBDIR ${PLUGINSUBDIRS} )
+	LIST(APPEND ${LIB_NAME}_INCLUDEPATH
+	    ${PLUGINDIR}/include/${PLUGINSUBDIR})
+	INCLUDE(${PLUGINDIR}/src/${PLUGINSUBDIR}/CMakeFile.txt)
+    ENDFOREACH()
+ELSE()
+    SET( ${LIB_NAME}_INCLUDEPATH
+	${OpendTect_SOURCE_DIR}/include/${LIB_NAME} )
+ENDIF(OD_IS_PLUGIN)
+
+LIST(APPEND INCLUDEPATH ${${LIB_NAME}_INCLUDEPATH} )
 
 #Export dependencies
 SET( ${LIB_NAME}_DEPS ${${LIB_NAME}_DEPS} PARENT_SCOPE )
+SET( ${LIB_NAME}_INCLUDEPATH ${${LIB_NAME}_INCLUDEPATH} PARENT_SCOPE)
 
 #Setup libraries & its deps
 ADD_LIBRARY( ${LIB_NAME} SHARED ${LIB_SOURCES} ${QT_MOC_OUTFILES} )
-target_link_libraries(
+TARGET_LINK_LIBRARIES(
         ${LIB_NAME}
-        ${${LIB_NAME}_DEPS}
+        ${DEPS}
         ${EXTRA_LIBS} 
 	${OWN_QTLIBS} )
 
@@ -68,20 +51,19 @@ target_link_libraries(
 IF(EXEC_SOURCES)
     FOREACH( EXEC ${EXEC_SOURCES} )
 	ADD_EXECUTABLE( ${EXEC} ${EXEC}.cc )
-	target_link_libraries(
+	TARGET_LINK_LIBRARIES(
 	    ${EXEC}
 	    ${LIB_NAME}
-	    ${${LIB_NAME}_DEPS}
-	    )
+	    ${DEPS})
     ENDFOREACH()
 
-    LIST(APPEND ${LIB_NAME}_INCLUDEPATH
+    LIST(APPEND INCLUDEPATH
 		${OpendTect_SOURCE_DIR}/include/Prog)
 
 ENDIF(EXEC_SOURCES)
 
 #Set current include_path
-INCLUDE_DIRECTORIES( ${${LIB_NAME}_INCLUDEPATH} )
+INCLUDE_DIRECTORIES( ${INCLUDEPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
@@ -98,8 +80,7 @@ IF(${INDEX} EQUAL -1)
     ENDFOREACH()
 
     #Add dependencies to include-path
-    LIST(APPEND ${LIB_NAME}_INCLUDEPATH
-		${OpendTect_SOURCE_DIR}/include/${DEP})
+    LIST(APPEND INCLUDEPATH ${${DEP}_INCLUDEPATH} )
 ENDIF()
 
 ENDMACRO(OD_ADD_DEPS)

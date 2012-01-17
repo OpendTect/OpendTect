@@ -2,15 +2,19 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.6 2012-01-12 14:14:05 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.7 2012-01-17 05:44:12 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
     IF( ${CMAKE_BUILD_TYPE} MATCHES Debug)
         ADD_DEFINITIONS("-D__debug__")
+	ADD_DEFINITIONS(
+		"-Wparentheses -Wreturn-type -Wpointer-arith"
+                "-Wwrite-strings -Wno-non-template-friend -Winline"
+                "-Wformat -Wshadow -Woverloaded-virtual")
     ENDIF()
     IF(APPLE)
-        ADD_DEFINITIONS("-D__mac__ -Dmac")
+        ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
