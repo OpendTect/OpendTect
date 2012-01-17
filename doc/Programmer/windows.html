@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.32 2012-01-17 10:08:50 cvsranojay Exp $ 
+  - RCS:        $Id: windows.html,v 1.33 2012-01-17 10:30:50 cvsranojay Exp $ 
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
@@ -54,8 +54,15 @@ Devel Env'  </p>
 
 <h3>Setup environment variables</h3>
 
-<p> Now you will have to setup at least one environment variable, i.e. WORK, and also OD_COINDIR for Coin and OD_QTDIR for Qt if needed. An easy method has been devised to setup all the environment variables through batch file instead of going through the 'My Computer' which is a bit cumbersome. Inside the msvc10 folder there is a batch file named odvars_example.bat, this file is just an example of adding environment variables with batch file. All you have to do is create another batch file at the same location and rename it to "odvars.bat" and copy the contents of the odvars_example.bat file in to it and edit the paths according to your local settings, now double-click on start_msvc_od.bat file, which is already there, this will load the OpendTect solution in Visual Studio IDE using the variables from the odvars.bar file. So now you are ready to work. This is only one time work and no need to do it every time you use start_msvc_od.bat to start OpendTect solution. The other method is Right-click on 'My Computer', select Properties, Advanced tab and click on the button 'Environment variables'. Add a new variable WORK and set its value to the directory created by the 'Create Devel Env' i.e. the fullpath of the "ODWork .
-If you're using Qt and/or Coin, you'll have to set OD_QTDIR and OD_COINDIR likewise.  
+<div class='vspace'></div><ul><li>For launching OpendTect solution in visual studio, we use batch files to pre-configure the environment variable and then build it with msvc compiler. The idea is to set environment variables before launching the visual studio IDE, so that when it comes in memory it will know where to look for the dependecy files.
+<div class='vspace'></div><ul><li>Please refer to our odvars_example.bat file under msvc10 folder in the od directory.
+</li><li>Create a new batch file form odvars_example.bat and rename it to &ldquo;odvars.bat&rdquo; ( these two files will be exactly similar except the local variable path names )
+</li><li>Start editing this new batch file and add the necessary variables as they are on your local system.
+</li><li>We have to setup WORK, OD_QTDIR, OD_COINDIR and OD_FFTWDIR based upon their installation directories on local machine, naturully it will vary from machine to machine.
+</li><li>Set up these variables according to the directory locations on your current working system. for e.g. if your od folder is at C:\odwork\od then you have to add this line in your batch file &ldquo;set WORK=C:\odwork\od &ldquo;
+</li><li>Save the file and double click on it to launch Visual studio.
+</li><li>Start building OpendTect. 
+
 </p>
 <br>
 
