@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: raytrace1d.cc,v 1.38 2012-01-11 11:42:59 cvskris Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.39 2012-01-17 16:09:27 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -78,6 +78,8 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
 bool RayTracer1D::usePar( const IOPar& par )
 {
     par.get( sKeyOffset(), offsets_ );
+    if ( offsets_.isEmpty() )
+	offsets_ += 0;
     return setup().usePar( par );
 }
 
@@ -91,12 +93,16 @@ void RayTracer1D::fillPar( IOPar& par ) const
 
 
 void RayTracer1D::setModel( const ElasticModel& lys )
-{ 
+{
+    if ( !model_.isEmpty() ) 
+	model_.insert( 0, model_[0] );
+
     model_ = lys; 
     for ( int idx=model_.size()-1; idx>=0; idx-- )
     {
 	ElasticLayer& lay = model_[idx];
-	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_)) || mIsUdf(lay.den_) )
+	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_)) 
+		|| ( mIsUdf(lay.den_) && setup().doreflectivity_ ) )
 	    model_.remove( idx );
     }
 }

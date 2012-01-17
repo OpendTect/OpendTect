@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.32 2011-12-12 14:43:52 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.33 2012-01-17 16:09:27 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
+#include "survinfo.h"
 #include "task.h"
 
 template <class T> class Array2DImpl;
@@ -37,10 +38,16 @@ public:
 			Setup() 
 			    : pdown_( true )
 			    , pup_( true )
-			    , sourcedepth_( 0 )
-			    , receiverdepth_( 0 )
+			    , sourcedepth_( 6 )
+			    , receiverdepth_( 7 )
 			    , doreflectivity_(true)			 
-			{}
+			{
+			    if ( SI().depthsInFeetByDefault() )
+			    {
+				sourcedepth_ = 20;
+				receiverdepth_ = 25;
+			    }
+			}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);

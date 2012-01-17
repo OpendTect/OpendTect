@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.6 2012-01-10 14:06:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.7 2012-01-17 16:09:27 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.6 2012-01-10 1
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
 #include "raytrace1d.h"
+#include "raytracerrunner.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "velocityfunctionvolume.h"
@@ -51,9 +52,12 @@ AngleMuteComputer::~AngleMuteComputer()
 }
 
 
-bool AngleMuteComputer::doPrepare( int )
+bool AngleMuteComputer::doPrepare( int nrthreads )
 {
     errmsg_.setEmpty();
+
+    deepErase( rtrunners_ );
+
     if ( !setVelocityFunction() )
 	return false;
 
@@ -61,18 +65,16 @@ bool AngleMuteComputer::doPrepare( int )
     if ( !muteioobj )
 	{ errmsg_ = "Cannot find MuteDef ID in Object Manager"; return false; }
 
-    MuteDefTranslator::store(outputmute_,muteioobj,errmsg_);
+    MuteDefTranslator::store( outputmute_, muteioobj, errmsg_ );
 
-    offsets_.erase();
-    params().raypar_.get( RayTracer1D::sKeyOffset(), offsets_ );
-    if ( offsets_.isEmpty() )
-	offsets_ += 0;
+    for ( int idx=0; idx<nrthreads; idx++ )
+	rtrunners_ += new RayTracerRunner( params().raypar_ );
 
     return errmsg_.isEmpty();
 }
 
 
-bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
+bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
     BinID startbid = params().hrg_.atIndex( start );
     BinID stopbid = params().hrg_.atIndex( stop );
@@ -84,10 +86,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
-    RayTracer1D* raytracer = 
-			RayTracer1D::createInstance(params().raypar_,errmsg_);
-    if ( !raytracer ) return false;
-
+    RayTracerRunner* rtrunner = rtrunners_[thread];
     BinID curbid;
     while( iterator.next( curbid ) && shouldContinue() )
     {
@@ -95,29 +94,56 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int )
 	if ( !getLayers( curbid, layers, sd ) )
 	    continue;
 
-	raytracer->setModel( layers );
-	raytracer->setOffsets( offsets_ );
-	if ( !raytracer->execute( false ) )
-	    continue;
+	rtrunner->addModel( layers, true );
+	if ( !rtrunner->execute( false ) )
+	    { errmsg_ = rtrunner->errMsg(); continue; }
 
 	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
 
 	const int nrlayers = layers.size();
-	for ( int ioff=0; ioff<offsets_.size(); ioff++ )
+	TypeSet<float> offsets;
+	params().raypar_.get( RayTracer1D::sKeyOffset(), offsets );
+	float zpos = 0;
+	int lastioff =0;
+	float lastvalidmutelayer = 0;
+	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    const float mutelayer = getOffsetMuteLayer( *raytracer, nrlayers, 
-		    					ioff, true );
+	    const float mutelayer = 
+		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
+				    nrlayers, ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
-		const float zpos = sd.start + sd.step*mutelayer;
-		mutefunc->add( offsets_[ioff], zpos );
+		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
+		lastvalidmutelayer = mutelayer;
+		mutefunc->add( offsets[ioff], zpos );
+		lastioff = ioff;
 	    }
 	}
+	if ( lastioff != offsets.size()-1 )
+	{
+	    float zdpt = 0;
+	    for ( int idx=0; idx<int(lastvalidmutelayer)+1 ; idx++ )
+	    {
+		if ( idx < lastvalidmutelayer+1 )
+		    zdpt += layers[idx].thickness_;
+	    }
+	    float lastdepth = 0;
+	    for ( int idx=0; idx<nrlayers; idx++ )
+		lastdepth += layers[idx].thickness_;
+
+	    float thk = lastdepth - zdpt;
+	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
+	    const float lastsinangle = 
+		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
+	    const float cosangle = sqrt(1-lastsinangle*lastsinangle);
+	    const float doff = thk*lastsinangle/cosangle;
+	    mutefunc->add( offsets[lastioff]+doff, lastzpos );
+	}
+
 	mutefuncs += mutefunc;
 	bids += curbid;
 	addToNrDone( 1 );
     }
-    delete raytracer;
 
     //add the mutes
     lock_.lock();

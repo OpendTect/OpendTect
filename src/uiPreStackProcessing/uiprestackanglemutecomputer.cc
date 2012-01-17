@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.5 2012-01-12 09:24:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.6 2012-01-17 16:09:27 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -38,6 +38,9 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     sep->attach( stretchedBelow, anglemutegrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
+    HorSampling hs; subsel_->getSampling( hs );
+    hs.step = BinID( SI().inlStep()*20, SI().crlStep()*20 );
+    subsel_->setInput( hs );
     subsel_->attach( alignedBelow, anglemutegrp_ );
     subsel_->attach( ensureBelow, sep );
 

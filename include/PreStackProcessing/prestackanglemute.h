@@ -7,20 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.11 2011-10-14 10:24:17 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.12 2012-01-17 16:09:27 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "prestackprocessor.h"
-#include "raytrace1d.h"
 #include "iopar.h"
 #include "samplingdata.h"
 
-
+class ElasticLayer;
 class MultiID;
 class Muter;
+class RayTracer1D;
+class RayTracerRunner;
 namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
@@ -33,8 +34,8 @@ public:
     mStruct Params
     {
 			    Params()
-				: mutecutoff_(0)
-				, dovelblock_(false)
+				: mutecutoff_(30)
+				, dovelblock_(true)
 				, velvolmid_(MultiID::udf())
 				{}	
 
@@ -64,6 +65,8 @@ protected:
     bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
 	    			SamplingData<float>&,int resamplesz=-1);
     float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
+
+    ObjectSet<RayTracerRunner>	rtrunners_;
 };
 
 
@@ -95,6 +98,9 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    const char*         errMsg() const 
+    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+
     AngleMutePars&	 params();
     const AngleMutePars& params() const;
 
@@ -103,10 +109,9 @@ protected:
     od_int64 		nrIterations() const	{ return outputs_.size(); }
     bool		doWork(od_int64,od_int64,int);
 
-    bool			raytraceparallel_;
-    Muter*			muter_; 
-
-    ObjectSet<RayTracer1D> 	rtracers_;
+    BufferString	errmsg_;
+    bool		raytraceparallel_;
+    Muter*		muter_;
 };
 
 

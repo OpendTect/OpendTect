@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.17 2011-10-17 14:39:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.18 2012-01-17 16:09:27 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: prestackanglemute.cc,v 1.17 2011-10-17 14:39:51
 #include "muter.h"
 #include "prestackgather.h"
 #include "prestackmute.h"
+#include "raytrace1d.h"
+#include "raytracerrunner.h"
 #include "timedepthconv.h"
 #include "velocityfunctionvolume.h"
 
@@ -34,6 +36,7 @@ AngleMuteBase::AngleMuteBase()
 AngleMuteBase::~AngleMuteBase()
 {
     delete params_;
+    deepErase( rtrunners_ ); 
     velsource_->unRef();
 }
 
@@ -127,8 +130,11 @@ bool AngleMuteBase::getLayers(const BinID& bid,
 	nrlayers = vels.size();
     }
 
-    for ( int il=1; il<nrlayers; il++ )
+    int il = 1;
+    for ( il=1; il<nrlayers; il++ )
 	layers += ElasticLayer(depths[il]-depths[il-1], 
+			vels[il], mUdf(float), mUdf(float) );
+    layers += ElasticLayer(depths[il-1]-depths[il-2], 
 			vels[il-1], mUdf(float), mUdf(float) );
 
     return !layers.isEmpty();
@@ -208,19 +214,15 @@ AngleMute::AngleMute()
 
 AngleMute::~AngleMute()
 { 
-    deepErase( rtracers_ ); 
     delete muter_;
 }
 
 
 bool AngleMute::doPrepare( int nrthreads )
 {
-    deepErase( rtracers_ );
+    deepErase( rtrunners_ );
 
     if ( !setVelocityFunction() )
-	return false;
-
-    if ( RayTracer1D::factory().getNames(false).isEmpty() )
 	return false;
 
     raytraceparallel_ = nrthreads < Threads::getNrProcessors();
@@ -228,9 +230,8 @@ bool AngleMute::doPrepare( int nrthreads )
     if ( !muter_ ) 
 	muter_ = new Muter( params().taperlen_, params().tail_ );
 
-    BufferString errmsg;
     for ( int idx=0; idx<nrthreads; idx++ )
-	rtracers_ += RayTracer1D::createInstance( params().raypar_, errmsg );
+	rtrunners_ += new RayTracerRunner( params().raypar_ );
 
     return true;
 }
@@ -265,7 +266,6 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !output || !input )
 	    continue;
 
-
 	const BinID bid = input->getBinID();
 
 	int nrlayers = input->data().info().getSize( Gather::zDim() );
@@ -277,10 +277,11 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
 	    offsets += input->getOffset( ioffset );
-	rtracers_[thread]->setOffsets( offsets );
-	rtracers_[thread]->setModel( layers );
-	if ( !rtracers_[thread]->execute(raytraceparallel_) )
-	    continue;
+
+	rtrunners_[thread]->setOffsets( offsets );
+	rtrunners_[thread]->addModel( layers, true );
+	if ( !rtrunners_[thread]->execute(raytraceparallel_) )
+	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
 
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, Gather::zDim() );
@@ -291,8 +292,9 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
-	    const float mutelayer = getOffsetMuteLayer( *rtracers_[thread],
-					    nrlayers, ioffs, params().tail_ );
+	    const float mutelayer = 
+		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
+					nrlayers, ioffs, params().tail_ );
 	    if ( !mIsUdf( mutelayer ) )
 		muter_->mute( trace, nrlayers, mutelayer );
 	}

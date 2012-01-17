@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.11 2012-01-06 09:08:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.12 2012-01-17 16:09:27 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -20,7 +20,7 @@ mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
     : uiGroup( p, "Ray Tracer Selector" )
-    , raytracerselfld_(0)  
+    , raytracerselfld_(0)
 {
     const BufferStringSet& usernms = uiRayTracer1D::factory().getNames( true );
     const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
@@ -99,6 +99,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , srcdepthfld_( 0 )
     , downwavefld_( 0 )
     , upwavefld_( 0 )
+    , doreflectivity_(s.doreflectivity_)			 
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
@@ -134,7 +135,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     }
 
     IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
-    usePar( par );
+    usePar( par ); 
 
     if ( s.dooffsets_ )
     {
@@ -186,6 +187,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	    offsetstepfld_->setValue( step );
 	}
     }
+
     return true;
 }
 
@@ -214,10 +216,11 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	offsetrg.step = (int)offsetstepfld_->getfValue();
     }
     TypeSet<float> offsets; 
-    for ( int idx=0; idx<offsetrg.nrSteps(); idx++ )
+    for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	offsets += offsetrg.atIndex( idx );
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
+    par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_);
 }
 
 

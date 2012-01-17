@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.13 2012-01-12 09:24:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.14 2012-01-17 16:09:27 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -37,7 +37,9 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, velfuncsel_ );
  
-    uiRayTracer1D::Setup rsu; rsu.dooffsets_ = dooffset;
+    uiRayTracer1D::Setup rsu; 
+    rsu.dooffsets_ = dooffset; 
+    rsu.doreflectivity_ = false;
     raytracerfld_ = new uiRayTracerSel( this, rsu );
     raytracerfld_->usePar( pars.raypar_ );
     raytracerfld_->attach( ensureBelow, velfuncsel_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.7 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.8 2012-01-17 16:09:27 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -30,13 +30,15 @@ public:
 			Setup()
 			    : convertedwaves_(false)
 			    , dosourcereceiverdepth_(true)
+			    , doreflectivity_(true)
 			    , dooffsets_(false)
-			    , offsetrg_(0,3000,100)
+			    , offsetrg_(0,6000,100)
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
 	mDefSetupMemb(bool,dosourcereceiverdepth);
 	mDefSetupMemb(bool,dooffsets);
+	mDefSetupMemb(bool,doreflectivity);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
     };
 
@@ -56,6 +58,7 @@ protected:
     uiGenInput* 	offsetstepfld_;
 
     uiGenInput*		lastfld_;
+    bool		doreflectivity_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.9 2011-12-12 14:45:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.10 2012-01-17 16:09:27 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"
@@ -19,12 +19,30 @@ RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
 {}
 
 
+RayTracerRunner::RayTracerRunner( const IOPar& raypars ) 
+    : raypar_(raypars)		
+{}
+
+
 RayTracerRunner::~RayTracerRunner() 
 { deepErase( raytracers_ );}
 
 
 od_int64 RayTracerRunner::nrIterations() const
 { return aimodels_.size(); }
+
+
+void RayTracerRunner::setOffsets( TypeSet<float> offsets )
+{ raypar_.set( RayTracer1D::sKeyOffset(), offsets ); }
+
+
+void RayTracerRunner::addModel( const ElasticModel& aim, bool dosingle )
+{
+    if ( dosingle )
+	aimodels_.erase();
+
+    aimodels_ += aim; 
+}
 
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
@@ -68,7 +86,8 @@ bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 
 	RayTracer1D* rt1d = raytracers_[idx];
 	rt1d->setModel( aim );
-	if ( !rt1d->execute() )
+	const bool parallel = maxNrThreads() > 1;
+	if ( !rt1d->execute( parallel ) )
 	    mErrRet( rt1d->errMsg() );
     }
     return true;
