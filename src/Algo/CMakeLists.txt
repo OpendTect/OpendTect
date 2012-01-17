@@ -2,12 +2,13 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 11:43:19 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(LIB_NAME Algo)
-SET(DEPS Basic )
-SET(LIB_SOURCES timeser.c
+SET(OD_MODULE_NAME Algo)
+SET(OD_MODULE_DEPS Basic )
+
+SET(OD_MODULE_SOURCES timeser.c
 	    array1dinterpol.cc
 	    array2dinterpol.cc
 	    bendpointfinder.cc

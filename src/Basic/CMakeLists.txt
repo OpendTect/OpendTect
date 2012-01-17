@@ -2,13 +2,13 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-01-12 06:34:34 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(LIB_NAME Basic)
+SET(OD_MODULE_NAME Basic)
 SET(OD_USEQT Core)
 SET(QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h)
-SET(LIB_SOURCES genc.c filegen.c errnomsg.c oddirs.c
+SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc

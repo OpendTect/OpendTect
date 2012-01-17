@@ -2,12 +2,12 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 13:55:38 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(LIB_NAME Network)
+SET(OD_MODULE_NAME Network)
 SET(OD_USEQT Core)
-SET(DEPS General)
+SET(OD_MODULE_DEPS General)
 
 SET(QT_MOC_HEADERS 
 	    qftpconn.h
@@ -16,7 +16,7 @@ SET(QT_MOC_HEADERS
 	    qlocalsocketcomm.h
 	    qtcpservercomm.h
 	    qtcpsocketcomm.h)
-SET(LIB_SOURCES 
+SET(OD_MODULE_SOURCES 
 		cvsaccess.cc
 		ftptask.cc
 		httptask.cc

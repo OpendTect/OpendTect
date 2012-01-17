@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.4 2012-01-17 05:44:12 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.5 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
 IF($ENV{OD_QTDIR})
@@ -25,7 +25,7 @@ MACRO(OD_SETUP_QT)
     include(${QT_USE_FILE})
 
     IF(${OD_USEQT} MATCHES "Core" )
-        LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
+        LIST(APPEND ${${OD_MODULE_NAME}_INCLUDEPATH}
             ${QT_QTNETWORK_INCLUDE_DIR}
             ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
         SET(OWN_QTLIBS ${QT_QTCORE_LIBRARY}
@@ -33,14 +33,14 @@ MACRO(OD_SETUP_QT)
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Sql" )
-        LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
+        LIST(APPEND ${${OD_MODULE_NAME}_INCLUDEPATH}
             ${QT_QTSQL_INCLUDE_DIR}
             ${QTDIR}/include )
         SET(OWN_QTLIBS ${QT_QTSQL_LIBRARY})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Gui")
-        LIST(APPEND ${${LIB_NAME}_INCLUDEPATH}
+        LIST(APPEND ${${OD_MODULE_NAME}_INCLUDEPATH}
             ${QT_QTCORE_INCLUDE_DIR}
             ${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
         SET(OWN_QTLIBS ${QT_QTGUI_LIBRARY})
@@ -49,7 +49,7 @@ MACRO(OD_SETUP_QT)
     IF( QT_MOC_HEADERS )
         FOREACH( HEADER ${QT_MOC_HEADERS} )
             LIST(APPEND QT_MOC_INPUT
-                ${OpendTect_SOURCE_DIR}/include/${LIB_NAME}/${HEADER})
+                ${OpendTect_SOURCE_DIR}/include/${OD_MODULE_NAME}/${HEADER})
         ENDFOREACH()
 
         QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})

@@ -2,11 +2,11 @@
 #
 #	Makefile : 	Basic UI-classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-11 14:05:43 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(LIB_NAME uiBase)
-SET(DEPS General)
+SET(OD_MODULE_NAME uiBase)
+SET(OD_MODULE_DEPS General)
 SET(OD_USEQT Gui)
 SET(QT_MOC_HEADERS i_qaction.h
 		i_qbutton.h
@@ -26,7 +26,7 @@ SET(QT_MOC_HEADERS i_qaction.h
 		i_qtoolbar.h
 		i_qtoolbut.h
 		i_qtxtbrowser.h)
-SET(LIB_SOURCES     i_layout.cc
+SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
 		iodraw.cc
 		inituibase.cc
@@ -82,5 +82,5 @@ SET(LIB_SOURCES     i_layout.cc
 		uitextedit.cc
 		uitoolbar.cc
 		uivirtualkeyboard.cc)
-SET(EXEC_SOURCES od_DispMsg )
+SET(OD_MODULE_EXECS od_DispMsg )
 OD_INIT_MODULE()

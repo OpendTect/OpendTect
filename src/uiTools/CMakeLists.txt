@@ -2,12 +2,12 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-17 05:42:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-17 16:23:04 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(LIB_NAME uiTools)
-SET(DEPS uiBase Network )
-SET(LIB_SOURCES
+SET(OD_MODULE_NAME uiTools)
+SET(OD_MODULE_DEPS uiBase Network )
+SET(OD_MODULE_SOURCES
 		inituitools.cc	
 		annotbuffill.cc	
 		drawaxis2d.cc	
@@ -82,5 +82,5 @@ SET(LIB_SOURCES
 		uiworld2ui.cc	
 		uizaxistransform.cc
                 uipolardiagram.cc)
-SET(EXEC_SOURCES od_HtmlViewer od_FileBrowser od_ProgressViewer)
+SET(OD_MODULE_EXECS od_HtmlViewer od_FileBrowser od_ProgressViewer)
 OD_INIT_MODULE()
