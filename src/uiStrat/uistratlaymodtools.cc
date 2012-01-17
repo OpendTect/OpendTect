@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.2 2012-01-11 10:56:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.3 2012-01-17 11:11:42 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.2 2012-01-11 10:56:25
 #include "uispinbox.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "stratlevel.h"
 
 
 uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
@@ -143,6 +144,20 @@ const char* uiStratLayModEditTools::selLevel() const
 int uiStratLayModEditTools::selLevelIdx() const
 {
     return lvlfld_->isEmpty() ? -1 : lvlfld_->currentItem() - 1;
+}
+
+
+const Strat::Level* uiStratLayModEditTools::selStratLevel() const
+{
+    const int lvlidx = selLevelIdx();
+    return lvlidx < 0 ? 0 : Strat::LVLS().get( lvlidx );
+}
+
+
+Color uiStratLayModEditTools::selLevelColor() const
+{
+    const Strat::Level* lvl = selStratLevel();
+    return lvl ? lvl->color() : Color::NoColor();
 }
 
 

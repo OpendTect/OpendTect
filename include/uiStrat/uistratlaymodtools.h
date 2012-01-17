@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.2 2012-01-11 10:56:25 cvsbert Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.3 2012-01-17 11:11:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class uiSpinBox;
 class uiGenInput;
 class uiComboBox;
 class uiToolButton;
+namespace Strat { class Level; }
 
 
 mClass uiStratGenDescTools : public uiGroup
@@ -55,8 +56,8 @@ public:
     void 	setProps(const BufferStringSet&);
     void 	setLevelNames(const BufferStringSet&);
 
-    const char*	selProp() const;	//!< May return null
-    const char*	selLevel() const; 	//!< May return null
+    const char*	selLevel() const; 		//!< May return null
+    const char*	selProp() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
@@ -73,8 +74,10 @@ public:
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
 
-    int		selPropIdx() const;	//!< May return -1
-    int		selLevelIdx() const;	//!< May return -1
+    int		selPropIdx() const;		//!< May return -1
+    int		selLevelIdx() const;		//!< May return -1
+    const Strat::Level*	selStratLevel() const; 	//!< May return null
+    Color	selLevelColor() const;		//!< May return NoColor
 
 protected:
 
