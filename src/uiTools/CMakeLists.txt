@@ -1,8 +1,8 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Algorithms
-# 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-11 13:55:38 cvskris Exp $
+#	Makefile : 	General uiToolkits
+# 	Jan 2012	K. Tingdahl
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-17 05:42:23 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(LIB_NAME uiTools)
