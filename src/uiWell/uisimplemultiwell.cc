@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.9 2012-01-09 10:44:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.10 2012-01-17 04:29:10 cvsraman Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -352,7 +352,7 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
 
     prevrow++;
     RowCol rc( prevrow, 0 );
-    if ( rc.row > tbl_->nrRows() )
+    if ( rc.row >= tbl_->nrRows() )
 	tbl_->setNrRows( tbl_->nrRows()+10 );
 
     tbl_->setText( rc, wcd.nm_ ); rc.col++;
