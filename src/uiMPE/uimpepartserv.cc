@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.130 2011-12-08 09:40:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.131 2012-01-17 09:13:12 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.130 2011-12-08 09:40:10 cv
 #include "attribdatacubes.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
+#include "attribdescsetsholder.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -1080,6 +1081,19 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 			st->adjuster()->getAttributeSel( asidx );
 	    if ( !as || !as->id().isValid() ) continue;
 
+	    if ( as->isStored() )
+	    {
+		BufferString idstr;
+		Attrib::Desc::getParamString( as->defString(), "id", idstr );
+		Attrib::DescSet* storedads =
+		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
+		storedads->getStoredID( idstr ); // will try to add if fail
+		Attrib::SelSpec newas( *as );
+		newas.setIDFromRef( *storedads );
+		st->adjuster()->setAttributeSel( asidx, newas );
+		continue;
+	    }
+
 	    Attrib::DescID newid = Attrib::DescID::undef();
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
@@ -1157,9 +1171,8 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	if ( !setupavailable )
 	    seedpicker->setSeedConnectMode( 
 		    			seedpicker->defaultSeedConMode(false) );
-	if ( setupavailable )
-	    setupgrp_->setAttribSelSpec( 
-		    		sectracker->adjuster()->getAttributeSel(0) );
+
+	setupgrp_->setAttribSelSpec(sectracker->adjuster()->getAttributeSel(0));
     }
 
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
