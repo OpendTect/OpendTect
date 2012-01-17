@@ -8,7 +8,9 @@
 cmake_minimum_required (VERSION 2.6)
 PROJECT(OpendTect)
 
-SET(CMAKE_BUILD_TYPE "Debug") #Can be "Release"
+SET(CMAKE_BUILD_TYPE "" CACHE STRING "Release or Debug" )
+SET(OD_DGB_DIR "" CACHE PATH
+	"Place where closed source part is found")
 
 SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 3)
@@ -30,3 +32,8 @@ SET(MODULES
 FOREACH( MODULE ${MODULES} )
     add_subdirectory( src/${MODULE} )
 ENDFOREACH()
+
+ADD_SUBDIRECTORY(plugins)
+IF(OD_DGB_DIR)
+    INCLUDE(${OD_DGB_DIR}/ODDGB.cmake REQUIRED)
+ENDIF(OD_DGB_DIR)
