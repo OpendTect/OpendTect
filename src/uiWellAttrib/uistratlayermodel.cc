@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.43 2012-01-13 10:26:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.44 2012-01-17 11:12:17 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -35,7 +35,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.43 2012-01-13 10:26:22
 #include "uiselsimple.h"
 #include "uisplitter.h"
 #include "uistratbasiclayseqgendesc.h"
-#include "uistratlaymoddisp.h"
+#include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
 #include "uistratsynthcrossplot.h"
 #include "uistratlaymodtools.h"
@@ -183,7 +183,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->addTool( tbsu );
 
     modtools_ = new uiStratLayModEditTools( botgrp );
-    moddisp_ = new uiStratLayerModelDisp( *modtools_, modl_ );
+    moddisp_ = new uiStratSimpleLayerModelDisp( *modtools_, modl_ );
     modtools_->attach( ensureBelow, moddisp_ );
     modtools_->attach( rightBorder );
     modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
@@ -224,7 +224,7 @@ void uiStratLayerModel::dispEachChg( CallBacker* cb )
 void uiStratLayerModel::levelChg( CallBacker* )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-	    			moddisp_->levelColor() );
+	    			modtools_->selLevelColor() );
 }
 
 

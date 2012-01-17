@@ -7,17 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.21 2012-01-11 10:56:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.22 2012-01-17 11:12:17 cvsbert Exp $";
 
-#include "uistratlaymoddisp.h"
+#include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
-#include "uispinbox.h"
-#include "uitoolbutton.h"
-#include "uilabel.h"
 #include "uigraphicsview.h"
 #include "uiaxishandler.h"
 #include "stratlevel.h"
@@ -31,27 +26,55 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     : uiGroup(t.parent(),"LayerModel display")
     , tools_(t)
     , lm_(lm)
+    , zoomwr_(mUdf(double),0,0,0)
+    , selseqidx_(-1)
+    , zrg_(0,1)
+    , sequenceSelected(this)
+{
+}
+
+
+uiStratLayerModelDisp::~uiStratLayerModelDisp()
+{
+}
+
+
+void uiStratLayerModelDisp::selectSequence( int selidx )
+{
+    selseqidx_ = selidx;
+    drawSelectedSequence();
+}
+
+
+bool uiStratLayerModelDisp::haveAnyZoom() const
+{
+    const int nrseqs = lm_.size();
+    uiWorldRect wr( 1, zrg_.start, nrseqs + 1, zrg_.stop );
+    return zoomwr_.isInside( wr, 1e-5 );
+}
+
+
+uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
+		uiStratLayModEditTools& t, const Strat::LayerModel& lm )
+    : uiStratLayerModelDisp(t,lm)
     , emptyitm_(0)
     , zoomboxitm_(0)
-    , zoomwr_(mUdf(double),0,0,0)
     , dispprop_(1)
     , dispeach_(1)
     , fillmdls_(true)
     , uselithcols_(true)
     , showzoomed_(false)
-    , zrg_(0,1)
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
     , selseqidx_(-1)
     , selectedlevel_(-1)
-    , sequenceSelected(this)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
     gv_->getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiStratLayerModelDisp,usrClicked) );
+			    mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
@@ -63,7 +86,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     yax_->setEnd( xax_ );
     xax_->setBegin( yax_ );
 
-    const CallBack redrawcb( mCB(this,uiStratLayerModelDisp,reDrawCB) );
+    const CallBack redrawcb( mCB(this,uiStratSimpleLayerModelDisp,reDrawCB) );
     gv_->reSize.notify( redrawcb );
     gv_->reDrawNeeded.notify( redrawcb );
     tools_.selPropChg.notify( redrawcb );
@@ -74,7 +97,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 }
 
 
-uiStratLayerModelDisp::~uiStratLayerModelDisp()
+uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
     eraseAll();
     delete &lvlitms_;
@@ -82,7 +105,7 @@ uiStratLayerModelDisp::~uiStratLayerModelDisp()
 }
 
 
-void uiStratLayerModelDisp::eraseAll()
+void uiStratSimpleLayerModelDisp::eraseAll()
 {
     logblckitms_.erase();
     lvlitms_.erase();
@@ -92,13 +115,13 @@ void uiStratLayerModelDisp::eraseAll()
 }
 
 
-uiGraphicsScene& uiStratLayerModelDisp::scene()
+uiGraphicsScene& uiStratSimpleLayerModelDisp::scene()
 {
     return gv_->scene();
 }
 
 
-void uiStratLayerModelDisp::usrClicked( CallBacker* cb )
+void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* cb )
 {
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
     if ( lm_.isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
@@ -120,7 +143,7 @@ void uiStratLayerModelDisp::usrClicked( CallBacker* cb )
 }
 
 
-void uiStratLayerModelDisp::reDrawCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
 {
     eraseAll(); lm_.prepareUse();
     if ( lm_.isEmpty() )
@@ -136,7 +159,7 @@ void uiStratLayerModelDisp::reDrawCB( CallBacker* )
 }
 
 
-void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
+void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 {
     if ( !zoomboxitm_ )
     {
@@ -156,22 +179,7 @@ void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 }
 
 
-void uiStratLayerModelDisp::selectSequence( int selidx )
-{
-    selseqidx_ = selidx;
-    drawSelectedSequence();
-}
-
-
-bool uiStratLayerModelDisp::haveAnyZoom() const
-{
-    const int nrseqs = lm_.size();
-    uiWorldRect wr( 1, zrg_.start, nrseqs + 1, zrg_.stop );
-    return zoomwr_.isInside( wr, 1e-5 );
-}
-
-
-void uiStratLayerModelDisp::updZoomBox()
+void uiStratSimpleLayerModelDisp::updZoomBox()
 {
     if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
 	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
@@ -185,7 +193,7 @@ void uiStratLayerModelDisp::updZoomBox()
 }
 
 
-void uiStratLayerModelDisp::modelChanged()
+void uiStratSimpleLayerModelDisp::modelChanged()
 {
     zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
     reDrawCB( 0 );
@@ -214,7 +222,7 @@ void uiStratLayerModelDisp::modelChanged()
     }
 
 
-void uiStratLayerModelDisp::getBounds()
+void uiStratSimpleLayerModelDisp::getBounds()
 {
     Interval<float> zrg(mUdf(float),mUdf(float)), vrg(mUdf(float),mUdf(float));
     mStartLayLoop( false )
@@ -246,7 +254,7 @@ void uiStratLayerModelDisp::getBounds()
 }
 
 
-int uiStratLayerModelDisp::getXPix( int iseq, float relx ) const
+int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
 {
     static const float margin = 0.05;
     relx = (1-margin) * relx + margin * .5; // get relx between 0.025 and 0.975
@@ -255,7 +263,7 @@ int uiStratLayerModelDisp::getXPix( int iseq, float relx ) const
 }
 
 
-bool uiStratLayerModelDisp::isDisplayedModel( int iseq ) const
+bool uiStratSimpleLayerModelDisp::isDisplayedModel( int iseq ) const
 {
     if ( iseq % dispeach_ )
 	return false;
@@ -272,7 +280,7 @@ bool uiStratLayerModelDisp::isDisplayedModel( int iseq ) const
 }
 
 
-void uiStratLayerModelDisp::doDraw()
+void uiStratSimpleLayerModelDisp::doDraw()
 {
     dispprop_ = tools_.selPropIdx();
     selectedlevel_ = tools_.selLevelIdx();
@@ -331,13 +339,12 @@ void uiStratLayerModelDisp::doDraw()
 }
 
 
-void uiStratLayerModelDisp::drawLevels()
+void uiStratSimpleLayerModelDisp::drawLevels()
 {
-    lvldpths_.erase(); lvlcol_ = Color::NoColor();
-    const Strat::Level* lvl = selectedlevel_ < 0 ? 0
-			: Strat::LVLS().get( selectedlevel_ );
+    lvldpths_.erase();
+    const Strat::Level* lvl = tools_.selStratLevel();
     if ( !lvl ) return;
-    lvlcol_ = lvl->color();
+    lvlcol_ = tools_.selLevelColor();
     const int nrseqs = lm_.size();
     if ( nrseqs < 1 ) return;
 
@@ -363,7 +370,7 @@ void uiStratLayerModelDisp::drawLevels()
 }
 
 
-void uiStratLayerModelDisp::drawSelectedSequence()
+void uiStratSimpleLayerModelDisp::drawSelectedSequence()
 {
     delete selseqitm_; selseqitm_ = 0;
     const int nrseqs = lm_.size();
