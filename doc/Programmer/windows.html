@@ -4,11 +4,11 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.31 2010-06-22 10:45:47 cvsranojay Exp $ 
+  - RCS:        $Id: windows.html,v 1.32 2012-01-17 10:08:50 cvsranojay Exp $ 
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
-Programmer's manual V4.1]</title>
+Programmer's manual V4.2]</title>
 
 <center>
 <h1>OpendTect development on MS Windows</h1>
@@ -26,11 +26,9 @@ Programmer's manual V4.1]</title>
 you like. </p>
 
 
-<h3>Visual Studio 8</h3>
+<h3>Visual Studio 10</h3>
 
-<p>OpendTect is build with Visual Studio 8. Although we're using a commercial
-version, the Visual Studio Express edition, should also get you started. Make
-sure you have installed the latest updates from Microsoft.</p>
+<p>OpendTect 4.3 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from Microsoft's official web site <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express"> here </a> </p>
 
 <h3>Vim editor</h3>
 <p>Visual Studio comes with it's own editor. For real coding, vim is still superiour and is our preferred editor. The Windows version can be downloaded from:
@@ -38,11 +36,11 @@ http://www.vim.org/ </p>
 
 
 <h3>Qt</h3>
-A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qtsoftware.com/"> Qt website </a>. 
+A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/"> Qt website </a>. 
 
 
 <h3>Coin and friends</h3>
-<p>A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from <a href="http://coin3d.org/">Coin website </a>. Or get the source code from <a href="http://tortoisesvn.net">subversion</a> and build yourself using Visual Studio.</p>
+<p>A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from <a href="http://coin3d.org/">Coin website </a>. Or get the source code from <a href="http://tortoisehg.bitbucket.org/">Mercurial</a> repositories and build yourself using Visual Studio. Check this <a href="http://www.coin3d.org/doc/mercurial_access/">link</a> for more details</p>
 <br>
 
 <a name=setup><h3>Setup ODWork dir</h3>
@@ -50,15 +48,14 @@ A Qt installation is only necessary when you want to build a plugin which is dir
 <p> Before you can build anything, you have to setup a work directory
 (usually called 'ODWork'). The easiest way to do this is from within
 OpendTect, menu 'Utilities-Tools-Create
-Devel Env'. Note that the OpendTect application window will freeze while
-the development environment is created. </p>
+Devel Env', but make sure you have downloaded and installed the developer package in the same location where OpendTect is already installed. Note that the OpendTect application window will freeze while the development environment is created. The developer package could also be installed right in to the ODWork folder, in that case the ODWork immediatly becomes the "WORK" directory and you won't have to use OpendTect ->menu -> 'Utilities-Tools-Create
+Devel Env'  </p>
 
 
 <h3>Setup environment variables</h3>
 
-<p> Now you will have to setup at least one environment variables: WORK.
-Right-click on 'My Computer', select Properties, Advanced tab and click on the button 'Environment variables'. Add a new variable WORK and set its value to the directory created by the 'Create Devel Env' tool.
-If you're using Qt and/or Coin, you'll have to set QTDIR and COINDIR likewise.
+<p> Now you will have to setup at least one environment variable, i.e. WORK, and also OD_COINDIR for Coin and OD_QTDIR for Qt if needed. An easy method has been devised to setup all the environment variables through batch file instead of going through the 'My Computer' which is a bit cumbersome. Inside the msvc10 folder there is a batch file named odvars_example.bat, this file is just an example of adding environment variables with batch file. All you have to do is create another batch file at the same location and rename it to "odvars.bat" and copy the contents of the odvars_example.bat file in to it and edit the paths according to your local settings, now double-click on start_msvc_od.bat file, which is already there, this will load the OpendTect solution in Visual Studio IDE using the variables from the odvars.bar file. So now you are ready to work. This is only one time work and no need to do it every time you use start_msvc_od.bat to start OpendTect solution. The other method is Right-click on 'My Computer', select Properties, Advanced tab and click on the button 'Environment variables'. Add a new variable WORK and set its value to the directory created by the 'Create Devel Env' i.e. the fullpath of the "ODWork .
+If you're using Qt and/or Coin, you'll have to set OD_QTDIR and OD_COINDIR likewise.  
 </p>
 <br>
 
@@ -66,9 +63,9 @@ If you're using Qt and/or Coin, you'll have to set QTDIR and COINDIR likewise.
 
 <h4>Testing the installation</h4>
 
-<p> After you setup your environment, goto the plugins\msvc8 folder and open the Tutorial solution. When openened, build the solution from the Build menu, the toolbar, or the Solution right-click menu.</p>
+<p> After you setup your environment, goto the plugins\msvc10 folder and open the Tutorial solution. When openened, build the solution from the Build menu, the toolbar, or the Solution right-click menu.</p>
 
-<p> The libraries should now be ready in $WORK\plugins\msvc8\Win32\debug|release.
+<p> The libraries should now be ready in $WORK\plugins\msvc10\Win32|x64\debug|release.
 </p>
 
 
@@ -160,7 +157,7 @@ directory is stored in the registry and used as 'DefaultDirName':</p>
 <pre>
 [Setup]
 AppName=OpendTect
-AppVerName=OpendTect 4.1
+AppVerName=OpendTect 4.x.y
 AppPublisher=De Groot-Bril Earth Sciences
 AppPublisherURL=http://www.opendtect.org
 AppSupportURL=http://www.opendtect.org
@@ -169,7 +166,7 @@ DefaultDirName={reg:HKLM\OpendTect\Base\Settings,Path|{pf}\OpendTect}
 DisableDirPage=yes
 DefaultGroupName=OpendTect
 AllowNoIcons=yes
-OutputBaseFilename=dgb-opendtect-1_0_5
+OutputBaseFilename=myplugin-opendtect-4.x.y
 LicenseFile=d:\users\admin\rel\opendtect-4.x.y\LICENSE.txt
 
 
@@ -180,7 +177,7 @@ Source: d:\users\admin\rel\plugins\opendtect-4.x.y\*; DestDir: {app}; Flags: rec
 
 <a name=buildod><h2>Building OpendTect</h2></a>
 <p>
-OpendTect solution and OpendTect plugins solution can be found in $WORK\msvc8. From these solutions it should be quite easy to build OpendTect from scratch. Note that it requires an installation of Qt, Coin and FFTW. The currently used versions can be found in: $DTECT_APPL\doc\ReleaseInfo\RELEASEINFO.txt
+OpendTect solution and OpendTect plugins solution can be found in $WORK\msvc10. From these solutions it should be quite easy to build OpendTect from scratch. Note that it requires an installation of Qt and Coin. The currently used versions can be found in: $DTECT_APPL\doc\ReleaseInfo\RELEASEINFO.txt
 </p>
 
 
@@ -189,7 +186,7 @@ OpendTect solution and OpendTect plugins solution can be found in $WORK\msvc8. F
 
 <p>
 <center>
-  <a href="index.html">Index</a>
+  <a href="index.html">Index</a1
 | <a href="overview.html">Overview</a>
 | <a href="plugins.html">Plugins</a>
 | <a href="pmake.html">Pmake</a>
