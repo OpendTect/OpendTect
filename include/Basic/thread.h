@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.48 2011-12-14 08:49:49 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.49 2012-01-18 04:12:37 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -144,12 +144,12 @@ int function()
 }
 */
 
-
-mClass MutexLocker
+template <class T>
+class Locker
 {
 public:
-		MutexLocker( Mutex& mutex, bool wait=true );
-		~MutexLocker();
+		Locker( T&, bool wait=true );
+		~Locker();
 
     bool	isLocked() const;
 
@@ -163,9 +163,12 @@ public:
 
 protected:
 
-    Mutex&	mutex_;
+    T&		lock_;
     bool	islocked_;
 };
+
+typedef Locker<Mutex> MutexLocker;
+typedef Locker<SpinLock> SpinLockLocker;
 
 
 /*!\brief
@@ -372,6 +375,37 @@ mGlobal void sleep(double time); /*!< Time in seconds */
     T retvar = var; \
     var##mutex.unLock()
 
+// Locker implementations
+template <class T> inline
+Locker<T>::Locker( T& thelock, bool wait )
+    : lock_( thelock )
+    , islocked_( true )
+{
+    if ( wait ) thelock.lock();
+    else islocked_ = thelock.tryLock();
+}
+
+
+template <class T> inline
+Threads::Locker<T>::~Locker()
+{
+    if ( islocked_ ) lock_.unLock();
+}
+
+
+template <class T> inline
+void Threads::Locker<T>::unLock()
+{ islocked_ = false; lock_.unLock(); }
+
+
+template <class T> inline
+void Threads::Locker<T>::lock()
+{ islocked_ = true; lock_.lock(); }
+
+
+template <class T> inline
+bool Locker<T>::isLocked() const
+{ return islocked_; }
 
 
 // Atomic implementations
@@ -447,14 +481,14 @@ mAtomicSpecialization( long long, 64 )
 template <class T> inline
 Atomic<T>::Atomic( T val )
     : val_( val )
-    , lock_( new Threads::Mutex )
+    , lock_( new Mutex )
 {}
 
 
 template <class T> inline
 T Atomic<T>::operator += (T b)
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_ += b;
 }
 
@@ -462,7 +496,7 @@ T Atomic<T>::operator += (T b)
 template <class T> inline
 T Atomic<T>::operator -= (T b)
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_ -= b;
 }
 
@@ -470,7 +504,7 @@ T Atomic<T>::operator -= (T b)
 template <class T> inline
 T Atomic<T>::operator ++()
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return ++val_;
 }
 
@@ -478,7 +512,7 @@ T Atomic<T>::operator ++()
 template <class T> inline
 T Atomic<T>::operator -- ()
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return --val_;
 }
 
@@ -486,7 +520,7 @@ T Atomic<T>::operator -- ()
 template <class T> inline
 T Atomic<T>::operator ++(int)
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_++;
 }
 
@@ -494,7 +528,7 @@ T Atomic<T>::operator ++(int)
 template <class T> inline
 T Atomic<T>::operator -- (int)
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_--;
 }
 
@@ -502,7 +536,7 @@ T Atomic<T>::operator -- (int)
 template <class T> inline
 bool Atomic<T>::setIfEqual(T newval, T oldval )
 {
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     const bool res = val_==oldval;
     if ( res )
 	val_ = newval;
@@ -516,7 +550,7 @@ template <class T> inline
 Atomic<T>::Atomic( T val )
     : val_( val )
 #ifdef mAtomicWithMutex
-    , lock_( new Threads::Mutex )
+    , lock_( new Mutex )
 #endif
 {}
 
@@ -525,7 +559,7 @@ template <class T> inline
 T Atomic<T>::operator += (T b)
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_ += b;
 #else
     return __sync_add_and_fetch(&val_, b);
@@ -537,7 +571,7 @@ template <class T> inline
 T Atomic<T>::operator -= (T b)
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_ -= b;
 #else
     return __sync_sub_and_fetch(&val_, b);
@@ -549,7 +583,7 @@ template <class T> inline
 T Atomic<T>::operator ++()
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return ++val_;
 #else
     return __sync_add_and_fetch(&val_, 1);
@@ -561,7 +595,7 @@ template <class T> inline
 T Atomic<T>::operator -- ()
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return --val_;
 #else
     return __sync_sub_and_fetch(&val_, 1);
@@ -573,7 +607,7 @@ template <class T> inline
 T Atomic<T>::operator ++(int)
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_++;
 #else
     return __sync_fetch_and_add(&val_, 1);
@@ -585,7 +619,7 @@ template <class T> inline
 T Atomic<T>::operator -- (int)
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     return val_--;
 #else
     return __sync_fetch_and_sub(&val_, 1);
@@ -597,7 +631,7 @@ template <class T> inline
 bool Atomic<T>::setIfEqual(T newval, T oldval )
 {
 #ifdef mAtomicWithMutex
-    Threads::MutexLocker lock( *lock_ );
+    MutexLocker lock( *lock_ );
     const bool res = val_==oldval;
     if ( res )
 	val_ = newval;

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.57 2011-12-13 14:13:47 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.58 2012-01-18 04:12:37 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -126,35 +126,6 @@ bool Threads::SpinLock::tryLock()
     return spinlock_.tryLock();
 }
 #endif
-
-
-
-Threads::MutexLocker::MutexLocker( Mutex& mutex, bool wait )
-    : mutex_( mutex )
-    , islocked_( true )
-{
-    if ( wait ) mutex_.lock();
-    else islocked_ = mutex_.tryLock();
-}
-
-
-Threads::MutexLocker::~MutexLocker()
-{
-    if ( islocked_ ) mutex_.unLock();
-}
-
-
-void Threads::MutexLocker::unLock()
-{ islocked_ = false; mutex_.unLock(); }
-
-
-void Threads::MutexLocker::lock()
-{ islocked_ = true; mutex_.lock(); }
-
-
-bool Threads::MutexLocker::isLocked() const
-{ return islocked_; }
-
 
 #define mUnLocked	0
 #define mPermissive	-1
