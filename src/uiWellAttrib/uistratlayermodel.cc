@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.45 2012-01-17 15:17:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.46 2012-01-18 14:12:43 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.45 2012-01-17 15:17:01
 #include "stratreftree.h"
 
 #include "uielasticpropsel.h"
+#include "uiobjdisposer.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uigroup.h"
@@ -162,10 +163,9 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
-    const bool genissep = !seqdisp_->isLayModDisp();
 
     uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp;
-    if ( genissep )
+    if ( seqdisp_->separateDisplay() )
     {
 	rightgrp = new uiGroup( this, "Right group" );
 	topgrp = new uiGroup( rightgrp, "Top group" );
@@ -180,20 +180,26 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     modtools_ = new uiStratLayModEditTools( botgrp );
     gentools_ = new uiStratGenDescTools( gengrp );
     moddisp_ = seqdisp_->getLayModDisp( *modtools_, modl_ );
+    if ( !moddisp_ )
+	return;
+
     synthdisp_ = new uiStratSynthDisp( topgrp, modl_ );
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->addTool( tbsu );
 
     modtools_->attach( ensureBelow, moddisp_ );
-    modtools_->attach( rightBorder );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
     uiSplitter* hspl;
-    if ( !genissep )
+    if ( !seqdisp_->separateDisplay() )
+    {
+	modtools_->attach( rightOf, gentools_ );
 	hspl = new uiSplitter( this, "Hor splitter", false );
+    }
     else
     {
+	modtools_->attach( rightBorder );
 	uiSplitter* vspl = new uiSplitter( this, "Vert splitter", true );
 	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
 	hspl = new uiSplitter( rightgrp, "Hor splitter", false );
@@ -213,6 +219,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 				mCB(this,uiStratLayerModel,selElasticPropsCB) );
 
     setWinTitle();
+    postFinalise().notify( mCB(this,uiStratLayerModel,initWin) );
 }
 
 
@@ -230,6 +237,17 @@ void uiStratLayerModel::setWinTitle()
     if ( descctio_.ioobj )
 	txt.add( " [" ).add( descctio_.ioobj->name() ).add( "]" );
     setCaption( txt );
+}
+
+
+void uiStratLayerModel::initWin( CallBacker* cb )
+{
+    if ( !moddisp_ )
+    {
+	modtools_->display( false );
+	gentools_->display( false );
+	uiOBJDISP()->go( this );
+    }
 }
 
 
