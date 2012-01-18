@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.16 2012-01-16 12:30:18 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.17 2012-01-18 11:46:00 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ void SqlDB::BugTextTableEntry::init()
 
 void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 {
+    removeTrailingBlanks( desc.buf() );
     if ( description_.isEqual( desc, true ) )
 	return;
 
@@ -61,6 +62,7 @@ void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 
 void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 {
+    removeTrailingBlanks( reproduce.buf() );
     if ( stepsreproduce_.isEqual( reproduce, true ) )
 	return;
 
@@ -71,6 +73,7 @@ void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 
 void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
 {
+    removeTrailingBlanks( reporter.buf() );
     if ( reporter_.isEqual( reporter, true ) )
 	return;
 
@@ -271,17 +274,16 @@ void SqlDB::BugTableEntry::setPlatform( const char* plf )
 }
 
 
-void SqlDB::BugTableEntry::setSummary( const BufferString& summary )
+void SqlDB::BugTableEntry::setSummary( BufferString& summary )
 {
+    removeTrailingBlanks( summary.buf() );
     if ( summary_.isEqual( summary ) )
 	return;
 
-    BufferString oldsummary( summary_ );
     BufferString newsummary( summary );
     SqlDB::MantisDBMgr::prepareForQuery( summary_ );
     SqlDB::MantisDBMgr::prepareForQuery( newsummary );
     addToHistory( "summary", summary_, newsummary );
-    summary_ = oldsummary;
     summary_ = summary;
 }
 
