@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.18 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.19 2012-01-18 18:37:10 cvsyuancheng Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -82,6 +82,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
 
     intsurf_->ref();
     intsurf_->turnOn( false );
+    intsurf_->turnOnForegroundLifter( true );
     addChild( intsurf_->getInventorNode() );
 }
 

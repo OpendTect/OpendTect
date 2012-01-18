@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.33 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.34 2012-01-18 18:37:10 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -527,17 +527,17 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
     for ( int idx=0; idx<activeplanes.size(); idx++ )
     {
-	bool presented = false;
+	bool planepresent = false;
 	for ( int idy=0; idy<intsinfo_.size(); idy++ )
 	{
     	    if ( intsinfo_[idy]->planeid_ == activepids[idx] )
 	    {
-		presented = true;
+		planepresent = true;
 		break;
 	    }
 	}
 
-	if ( presented ) continue;
+	if ( planepresent ) continue;
 
 	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
 	pi->visshape_->getMaterial()->setColor( getColor() );
@@ -618,6 +618,7 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
     computed_ = false;
 
     visshape_ = visBase::GeomIndexedShape::create();
+    visshape_->turnOnForegroundLifter( true );
     visshape_->ref();
     if ( !visshape_->getMaterial() )
 	visshape_->setMaterial(visBase::Material::create());
@@ -631,6 +632,7 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 		Geometry::IndexedGeometry::PerVertex, shape_->coordList(),
 		shape_->normalCoordList(),shape_->textureCoordList()) );
 }
+
 
 
 MarchingCubesDisplay::PlaneIntersectInfo::~PlaneIntersectInfo()
