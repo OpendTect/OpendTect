@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.12 2012-01-17 15:17:01 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.13 2012-01-18 14:13:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,16 +37,17 @@ public:
   			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
 	    		Strat::LayerSequenceGenDesc&,factory);
+    virtual		~uiLayerSequenceGenDesc()	{}
+    virtual bool	separateDisplay()		{ return true; }
 
-    virtual void	descHasChanged()			= 0;
-    virtual uiObject*	outerObj()				= 0;
-    virtual bool	isLayModDisp()		{ return false; }
+    virtual void	descHasChanged()		= 0;
+    virtual uiObject*	outerObj()			= 0;
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
-	    				Strat::LayerModel&)	= 0;
+				    Strat::LayerModel&)	= 0;
 
-    Strat::LayerSequenceGenDesc& desc()		{ return desc_; }
-    bool		needSave() const	{ return needsave_; }
-    void		setNeedSave( bool yn )	{ needsave_ = yn; }
+    Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
+    bool		needSave() const		{ return needsave_; }
+    void		setNeedSave( bool yn )		{ needsave_ = yn; }
     void		selProps();
 
 protected:
