@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.32 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.33 2012-01-18 18:36:00 cvsyuancheng Exp $";
 
 #include "visshape.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: visshape.cc,v 1.32 2011-12-16 15:57:21 cvskris 
 #include "visdataman.h"
 #include "visdetail.h"
 #include "visevent.h"
+#include "visforegroundlifter.h"
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexture2.h"
@@ -47,11 +48,20 @@ Shape::Shape( SoNode* shape )
     , material_( 0 )
     , root_( new SoSeparator )
     , materialbinding_( 0 )
+    , lifter_( ForegroundLifter::create() )			   
+    , lifterswitch_( new SoSwitch )
 {
     onoff_->ref();
     onoff_->addChild( root_ );
     onoff_->whichChild = 0;
     insertNode( shape_ );
+
+    lifterswitch_->ref();
+    lifterswitch_->whichChild = SO_SWITCH_NONE;
+    lifter_->ref();
+    lifter_->setLift(0.8);
+    lifterswitch_->addChild( lifter_->getInventorNode() );
+    insertNode( lifterswitch_ );
 }
 
 
@@ -62,7 +72,12 @@ Shape::~Shape()
     if ( material_ ) material_->unRef();
 
     getInventorNode()->unref();
+    lifter_->unRef();
 }
+
+
+void Shape::turnOnForegroundLifter( bool yn )
+{ lifterswitch_->whichChild = yn ? 0 : SO_SWITCH_NONE; }
 
 
 void Shape::turnOn(bool n)

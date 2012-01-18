@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.15 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.16 2012-01-18 18:36:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class SoMaterial;
 class SoMaterialBinding;
 class SoShapeHints;
 class SoIndexedShape;
+class SoSwitch;
 class TaskRunner;
 class DataPointSet;
 
@@ -32,6 +33,7 @@ namespace visBase
 class Coordinates;
 class Normals;
 class TextureCoords;
+class ForegroundLifter;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
@@ -79,6 +81,8 @@ public:
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);
 
+    void			turnOnForegroundLifter(bool);
+
 protected:
 				~GeomIndexedShape();
     void			reClip();
@@ -121,6 +125,9 @@ protected:
     ObjectSet<const Geometry::IndexedGeometry>	fangeoms_;
 
     Geometry::IndexedShape*			shape_;
+    
+    ForegroundLifter*				lifter_;
+    SoSwitch*					lifterswitch_;   
 };
 
 };

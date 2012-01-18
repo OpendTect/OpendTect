@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.27 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.28 2012-01-18 18:36:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,8 @@ class SoVertexShape;
 
 namespace visBase
 {
+
+class ForegroundLifter;    
 class VisColorTab;
 class Material;
 class Texture2;
@@ -81,6 +83,8 @@ public:
     virtual void		replaceShape(SoNode*);
     SoNode*			getShape() { return shape_; }
 
+    void			turnOnForegroundLifter(bool);
+
 protected:
 
 				Shape( SoNode* );
@@ -103,7 +107,9 @@ private:
 
     SoSeparator*		root_;
     SoMaterialBinding*		materialbinding_;
-
+    
+    ForegroundLifter*		lifter_;
+    SoSwitch*			lifterswitch_;
 };
 
 

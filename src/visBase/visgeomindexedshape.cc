@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.30 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.31 2012-01-18 18:36:00 cvsyuancheng Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.30 2011-12-16 15:57:
 #include "posvecdataset.h"
 #include "indexedshape.h"
 #include "viscoord.h"
+#include "visforegroundlifter.h"
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexturecoords.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.30 2011-12-16 15:57:
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
+#include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/SoDB.h>
 
 #include "SoIndexedLineSet3D.h"
@@ -50,7 +52,16 @@ GeomIndexedShape::GeomIndexedShape()
     , linemaxsize_( -1 )
     , hints_( new SoShapeHints )			
     , ctab_( 0 )
+    , lifter_( ForegroundLifter::create() )	
+    , lifterswitch_( new SoSwitch )						
 {
+    lifter_->ref();
+    lifter_->setLift(0.8);
+    lifterswitch_->ref();
+    lifterswitch_->addChild( lifter_->getInventorNode() );
+    lifterswitch_->whichChild = SO_SWITCH_NONE;
+    addChild( lifterswitch_ );
+
     addChild( hints_ );
 
     setLockable();
@@ -72,6 +83,7 @@ GeomIndexedShape::GeomIndexedShape()
 
 GeomIndexedShape::~GeomIndexedShape()
 {
+    lifter_->unRef();
     coords_->unRef();
     normals_->unRef();
     texturecoords_->unRef();
@@ -113,6 +125,10 @@ void GeomIndexedShape::ColTabMaterial::updatePropertiesFrom( const Material* m )
     coltab_->setShininess( m->getShininess() );
     coltab_->setTransparency( m->getTransparency() );
 }
+
+
+void GeomIndexedShape::turnOnForegroundLifter( bool yn )
+{ lifterswitch_->whichChild = yn ? 0 : SO_SWITCH_NONE; }
 
 
 void GeomIndexedShape::renderOneSide( int side )
