@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.11 2011-10-14 14:49:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.12 2012-01-18 10:52:19 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: elasticpropsel.cc,v 1.11 2011-10-14 14:49:06 cv
 static const char* filenamebase 	= "ElasticFormulas";
 
 static const char* sKeyFormulaName 	= "Name of formula";
-static const char* sKeyMathExpr 	= "Mathetmatic Expression";
+static const char* sKeyMathExpr 	= "Mathematic Expression";
 static const char* sKeySelVars 		= "Selected properties";
 static const char* sKeyType 		= "Type";
 static const char* sKeyPropertyName 	= "Property name";
