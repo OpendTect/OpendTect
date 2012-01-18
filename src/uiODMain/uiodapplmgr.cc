@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.427 2011-12-08 16:29:28 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.428 2012-01-18 17:54:57 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -458,7 +458,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 	    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pd,
 		    visserv_->getObject(visid) );
-	    if ( pd && pd->nrAttribs() > 1 )
+	    if ( false && pd && pd->nrAttribs() > 1 )//disabled for now
 	    {
 		const float step0 = pd->getDisplayMinDataStep(true);
 		const float step1 = pd->getDisplayMinDataStep(false);
