@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.10 2012-01-06 19:50:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.11 2012-01-18 18:50:08 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -54,48 +54,48 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res)
     : res_( res )
     , cs_( cs )
+{
+    res_.setAll( 1 );
+
+    c_[0] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.start.crl);
+    c_[1] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.start.crl);
+    c_[2] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.stop.crl);
+    c_[3] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.stop.crl);
+
+    for ( int idx=0; idx<surflist.size(); idx++ )
     {
-	res_.setAll( 1 );
-    
-	c_[0] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.start.crl);
-	c_[1] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.start.crl);
-	c_[2] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.stop.crl);
-	c_[3] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.stop.crl);
-
-	for ( int idx=0; idx<surflist.size(); idx++ )
+	RefMan<EM::EMObject> emobj = 
+	    EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
+	mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
+	if ( hor )
 	{
-	    RefMan<EM::EMObject> emobj = 
-		EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
-	    mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
-	    if ( hor )
-	    {
-		hor->ref();
-		hors_ += hor;
-		hsides_ += sides[idx];
-	    }
-	    else
-	    {
-	    	mDynamicCastGet( EM::Fault3D*, emflt, emobj.ptr() );
-		Geometry::FaultStickSurface* flt = 
-		emflt ? emflt->geometry().sectionGeometry(0) : 0;
-		if ( !flt ) continue;
-		emflt->ref();
-		
-		Geometry::ExplFaultStickSurface* efs = 
-		    new Geometry::ExplFaultStickSurface(0,SI().zScale());
-		efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
-		efs->setSurface( flt );
-		efs->update( true, 0 );
-		expflts_ += efs;
-		fsides_ += sides[idx];
-		flts_ += emflt;
-
-		computeFltOuterRange( *flt, sides[idx] );
-	    }
+	    hor->ref();
+	    hors_ += hor;
+	    hsides_ += sides[idx];
 	}
+	else
+	{
+	    mDynamicCastGet( EM::Fault3D*, emflt, emobj.ptr() );
+	    Geometry::FaultStickSurface* flt = 
+	    emflt ? emflt->geometry().sectionGeometry(0) : 0;
+	    if ( !flt ) continue;
+	    emflt->ref();
+	    
+	    Geometry::ExplFaultStickSurface* efs = 
+		new Geometry::ExplFaultStickSurface(0,SI().zScale());
+	    efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
+	    efs->setSurface( flt );
+	    efs->update( true, 0 );
+	    expflts_ += efs;
+	    fsides_ += sides[idx];
+	    flts_ += emflt;
 
-	computeHorOuterRange();
+	    computeFltOuterRange( *flt, sides[idx] );
+	}
     }
+
+    computeHorOuterRange();
+}
 
 
 ~ImplicitBodyRegionExtractor()
@@ -219,7 +219,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( minz>=maxz )
 		continue;
 	    
-	    const double val = curz<minz ? minz-curz : 
+	    double val = curz<minz ? minz-curz : 
 		(curz>maxz ? curz-maxz : -mMIN(curz-minz,maxz-curz) );
 	    res_.set( inlidx, crlidx, idz, val );
 	}
@@ -235,18 +235,16 @@ bool inFaultRange( const BinID& pos, int curidx,
     const char side = fsides_[curidx];
     const int ic = side==mToMinInline || side==mToMaxInline ? pos.inl : pos.crl;
     if ( outsidergs_[curidx].includes(ic,false) )
-	    return false;
-
-    if ( insidergs_[curidx].includes(ic,false) )
-	    return true;
-
-    if ( !epi || !epi->getPlaneIntersections().size() )
 	return false;
+
+    if ( insidergs_[curidx].includes(ic,false) || 
+	 !epi || !epi->getPlaneIntersections().size() )
+	return true;
 
     const TypeSet<Coord3>& crds = epi->getPlaneIntersections()[0].knots_;
     const int sz = crds.size();
     if ( sz<2 )
-	return false;
+	return true;
 
     mAllocVarLenArr(int,ids,sz);
     mAllocVarLenArr(int,inls,sz);
@@ -541,7 +539,10 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    createImplicitBody();
+    const bool res = createImplicitBody();
+    if ( res )
+	uiMSG().message( "Body created successfully" );
+
     return false; //Make the dialog stay.
 }
 
@@ -606,13 +607,8 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    mRetErr( "Writing body to disk failed, no permision?" ) 
     } 
 
-    taskrunner.execute( *exec ); 
+    if ( !taskrunner.execute(*exec) )
+	mRetErr("Saving body failed");
 
     return true;
 }
-
-
-
-
-
-
