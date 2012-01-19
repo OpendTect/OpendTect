@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.129 2011-12-21 04:19:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.130 2012-01-19 16:09:12 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -123,7 +123,8 @@ void uiFlatViewer::reDrawCB( CallBacker* )
 void uiFlatViewer::reSizeDraw( CallBacker* cb )
 {
     anysetviewdone_ = true;
-    if ( !initview_ && enabhaddrag_ && !control()->zoomMgr().atStart() )
+    if ( !initview_ && enabhaddrag_ && 
+	    ( control() && !control()->zoomMgr().atStart() ) )
     {
 	uiSize newsize( canvas_.width(), canvas_.height() );
 	mCBCapsuleUnpack(uiSize,oldsize,cb);
@@ -354,7 +355,7 @@ bool uiFlatViewer::drawBitMaps()
 
     if ( enabhaddrag_ )
     {
-	if ( initview_ || control()->zoomMgr().atStart() )
+	if ( initview_ || ( control() && control()->zoomMgr().atStart() ) )
 	{
 	    uiRect scenerect( uiPoint(0,0), uiSize(mNINT(canvas_.width()),
 						   mNINT(canvas_.height())) );
