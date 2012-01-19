@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.40 2011-09-02 13:00:13 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.41 2012-01-19 10:30:22 cvsnageswara Exp $";
 
 #include "timedepthconv.h"
 
@@ -940,9 +940,19 @@ void LinearD2TTransform::transform( const BinID& bid,
     if ( sz < 0 )
 	return;
 
+    bool constvel = mIsZero( dv_, 1e-6 );
+    if ( constvel && mIsZero(startvel_,1e-6) )
+	return;
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float depth = sd.start + idx*sd.step;
+	if ( constvel )
+	{
+	    res[idx] = depth / startvel_;
+	    continue;
+	}
+
 	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
 	res[idx] = (val - startvel_) / (dv_);
     }
