@@ -4,11 +4,32 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.6 2012-01-19 16:10:47 cvsbert Exp $";
 
 #include "stratlith.h"
+#include "stratcontent.h"
 #include "separstr.h"
 #include "bufstringset.h"
+
+
+const Strat::Content& Strat::Content::unspecified()
+{
+    static Strat::Content unspec( -1, "" );
+    return unspec;
+}
+
+static Strat::Content::ID content_lastid = Strat::Content::unspecified().id_;
+
+Strat::Content::ID Strat::Content::nextID()
+{
+    return ++content_lastid;
+}
+
+void Strat::Content::setLastID( Strat::Content::ID id )
+{
+    content_lastid = id;
+}
+
 
 const Strat::Lithology& Strat::Lithology::undef()
 {

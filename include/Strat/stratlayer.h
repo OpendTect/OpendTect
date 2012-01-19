@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.14 2011-01-28 11:08:03 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.15 2012-01-19 16:10:47 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "stratcontent.h"
 #include "compoundkey.h"
 #include "typeset.h"
 class Color;
@@ -44,6 +45,7 @@ public:
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
     const RefTree&	refTree() const;
     const Lithology&	lithology() const;
+    const Content&	content() const		{ return content_; }
 
     inline float	zTop() const		{ return ztop_; }
     inline float	thickness() const	{ return vals_[0]; }
@@ -52,6 +54,7 @@ public:
     inline void		setZTop( float v )	{ ztop_ = v; }
     inline void		setThickness( float v )	{ vals_[0] = v; }
     void		setValue(int,float);	//!< automatically adds space
+    void		setContent(const Content&);
 
     inline float	zBot() const	{ return zTop() + thickness(); }
     inline float	depth() const	{ return zTop() + 0.5*thickness(); }
@@ -68,6 +71,7 @@ protected:
     const LeafUnitRef*	ref_;
     float		ztop_;
     TypeSet<float>	vals_;
+    Content		content_;
 
 };
 

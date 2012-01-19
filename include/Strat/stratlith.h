@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.10 2010-12-22 16:12:21 cvsbert Exp $
+ RCS:		$Id: stratlith.h,v 1.11 2012-01-19 16:10:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "namedobj.h"
 #include "manobjectset.h"
-#include "repos.h"
 #include "color.h"
 class BufferStringSet;
 

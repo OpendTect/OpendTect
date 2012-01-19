@@ -7,20 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.25 2011-07-11 13:30:11 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.26 2012-01-19 16:10:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratunitref.h"
 #include "stratlith.h"
+#include "stratcontent.h"
 #include "repos.h"
 
 namespace Strat
 {
-
-class Lithology;
-class LeafUnitRef;
 
 
 /*!\brief Tree of UnitRef's  */
@@ -36,6 +34,8 @@ public:
     
     LithologySet&	lithologies()			{ return liths_; }
     const LithologySet&	lithologies() const		{ return liths_; }
+    ContentSet&		contents()			{ return contents_; }
+    const ContentSet&	contents() const		{ return contents_; }
 
     static const char*	sKeyNoCode()			{ return "<no_code>"; }
 
@@ -55,6 +55,7 @@ protected:
     void		setToActualTypes();
 
     LithologySet	liths_;
+    ContentSet		contents_;
     const UnitRef*	notifun_;
     LeafUnitRef&	udfleaf_;
 

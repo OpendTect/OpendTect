@@ -4,15 +4,17 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.11 2010-10-21 14:04:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.12 2012-01-19 16:10:47 cvsbert Exp $";
 
 
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 #include "ascstream.h"
+#include "separstr.h"
 
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";
+static const char* sKeyContent = "Content";
 static const char* sKeyLevelID = "Level.ID";
 static const char* sKeyTree = "Tree";
 
@@ -143,6 +145,11 @@ bool Strat::RefTree::read( std::istream& strm )
 	    else
 		liths_.add( lith );
 	}
+	else if ( astrm.hasKeyword(sKeyContent) )
+	{
+	    FileMultiString fms( astrm.value() );
+	    contents_ += new Content( toInt(fms[0]), fms[1] );
+	}
     }
 
     astrm.next(); // Read away the line: 'Units'
@@ -180,6 +187,12 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     {
 	liths_.getLith(idx).fill( bstr );
 	astrm.put( sKeyLith, bstr );
+    }
+    for ( int idx=0; idx<contents_.size(); idx++ )
+    {
+	const Content& c( *contents_[idx] );
+	FileMultiString fms( ::toString(c.id_) ); fms += c.name_;
+	astrm.put( sKeyContent, fms );
     }
 
     astrm.newParagraph();
