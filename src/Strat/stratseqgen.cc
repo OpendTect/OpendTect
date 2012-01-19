@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.32 2011-10-11 11:24:06 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.33 2012-01-19 10:46:57 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -123,13 +123,15 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
     deepErase( *this );
 
+    IOPar iop; iop.getFrom(astrm);
+    iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
+
     while ( !atEndOfSection(astrm.next()) )
     {
-	IOPar iop; iop.getFrom(astrm);
+	iop.setEmpty(); iop.getFrom(astrm);
 	if ( iop.isEmpty() ) 
 	    continue;
 
-	iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
 	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
 	if ( lg )
 	    *this += lg;
@@ -152,13 +154,14 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
     if ( !astrm.putHeader(sKeyFileType) )
 	{ errmsg_ = "Cannot write file header"; return false; }
 
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	IOPar iop; (*this)[idx]->fillPar(iop);
-	iop.putTo( astrm );
-    }
     IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
     iop.putTo( astrm );
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	iop.setEmpty(); (*this)[idx]->fillPar(iop);
+	iop.putTo( astrm );
+    }
 
     return true;
 }
