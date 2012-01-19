@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.8 2012-01-12 05:53:31 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.cc,v 1.9 2012-01-19 07:28:12 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,8 +190,11 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	BufferString str( values.get( idx ) );
-	str.isEmpty() ? querystr.add( "''" )
-	    	      : querystr.add( quoteString( str.buf(), '\'' ) );
+	if ( str.isEmpty() )
+	    querystr.add( "''" );
+	else
+	    querystr.add( "'" ).add ( str ).add( "'" );
+
 	if ( idx != nrvals-1 )
 	    querystr.add( "," );
     }
@@ -220,7 +223,7 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 	return querystr;
 //TODO
 //Better to get bug_text_id from mantis_bug_table by using bugid and update
-//mantis_bug_text_table by using bug_text_id which is to id in this table    
+//mantis_bug_text_table by using bug_text_id which is id in this table    
     const int nrvals = values.size();
     querystr = "UPDATE "; querystr.add( tablenm ).add( " SET " );
     for ( int idx=0; idx<nrvals; idx++ )
