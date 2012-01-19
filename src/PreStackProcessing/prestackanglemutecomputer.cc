@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.7 2012-01-17 16:09:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.8 2012-01-19 09:51:20 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -88,7 +88,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
     BinID curbid;
-    while( iterator.next( curbid ) && shouldContinue() )
+    while ( iterator.next( curbid ) && shouldContinue() )
     {
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
 	if ( !getLayers( curbid, layers, sd ) )
@@ -122,7 +122,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( lastioff != offsets.size()-1 )
 	{
 	    float zdpt = 0;
-	    for ( int idx=0; idx<int(lastvalidmutelayer)+1 ; idx++ )
+	    for ( int idx=0; idx<(int)lastvalidmutelayer+1 ; idx++ )
 	    {
 		if ( idx < lastvalidmutelayer+1 )
 		    zdpt += layers[idx].thickness_;
