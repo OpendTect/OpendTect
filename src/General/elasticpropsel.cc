@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.12 2012-01-18 10:52:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.13 2012-01-20 11:02:08 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -39,7 +39,7 @@ static const char* sKeyPropertyName 	= "Property name";
 mDefSimpleTranslators(ElasticPropSelection,mFileType,od,Seis);
 
 DefineEnumNames(ElasticFormula,Type,0,"Elastic Property")
-{ "Density", "PWave", "SWave", 0 };
+{ "Density", "PWave", "SWave", "Porosity", 0 };
 
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
@@ -188,6 +188,8 @@ const PropertyRef::StdType
 	return PropertyRef::Vel;
     if ( tp == ElasticFormula::Den )
 	return PropertyRef::Den;
+    if ( tp == ElasticFormula::Por )
+	return PropertyRef::Volum;
 
     return PropertyRef::Other;
 }
@@ -253,7 +255,8 @@ bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
     {
 	const char* propnm = elasticprops_[idx].name();
 	const BufferStringSet& vars = elasticprops_[idx].formula().variables();
-	if ( vars.isEmpty() )
+	if ( vars.isEmpty() 
+		&& elasticprops_[idx].elasticType() != ElasticFormula:: Por )
 	 {
 	    if ( errmsg )
 	    {	
