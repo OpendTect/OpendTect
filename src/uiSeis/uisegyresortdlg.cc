@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.8 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.9 2012-01-20 21:19:30 cvsnanne Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -34,6 +34,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     , volfld_(0)
     , ps3dfld_(0)
     , ps2dfld_(0)
+    , linenmfld_(0)
     , subselfld_(0)
     , newinleachfld_(0)
 {
