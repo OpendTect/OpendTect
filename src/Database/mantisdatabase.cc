@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.41 2012-01-16 12:30:18 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.42 2012-01-20 09:25:58 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -500,6 +500,8 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
     const int projid = isallprojs ? -1 : projectIDs()[projidx];
     const int usrid = isall || isunassign ? -1 : userIDs()[usridx];
     const int nrbugs = nrBugs();
+    const int reslfixed = BugTableEntry::cResolutionFixed();
+    const int statusnew = SqlDB::BugTableEntry::cStatusNew();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
 	BugTableEntry* bugtable = getBugTableEntry( idx );
@@ -507,14 +509,13 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 	    continue;
 
 	const int resolution = bugtable->resolution_;
-	const bool isbugfixed = resolution == BugTableEntry::cResolutionFixed();
+	const bool isbugfixed = resolution == reslfixed;
 	if ( onlyfixed != isbugfixed )
 	    continue;
 
 	if ( isunassign )
 	{
-	    bool isstatusequal =
-	    		bugtable->status_ == SqlDB::BugTableEntry::cStatusNew();
+	    bool isstatusequal = bugtable->status_ == statusnew;
 	    if ( !isstatusequal ) continue;
 	}
 
