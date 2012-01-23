@@ -2,17 +2,27 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.5 2012-01-17 16:23:04 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.6 2012-01-23 20:53:35 cvskris Exp $
 #_______________________________________________________________________________
 
+
 MACRO( OD_INIT_MODULE )
+
+#Start write ModDeps-line
+FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od
+    "${OD_MODULE_NAME}:\t\tS.${OD_MODULE_NAME}")
 
 #Add all module dependencies
 IF(OD_MODULE_DEPS)
     FOREACH( DEP ${OD_MODULE_DEPS} )
 	OD_ADD_DEPS( ${DEP} )
+	FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od
+	 " D.${DEP}")
     ENDFOREACH()
 ENDIF()
+
+#End ModDeps-line
+FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od "\n")
 
 #Add Qt-stuff
 IF(OD_USEQT)
@@ -57,10 +67,27 @@ IF(OD_MODULE_EXECS)
 	    ${OD_MODULE_DEPS})
     ENDFOREACH()
 
+    SET(OD_USE_PROG 1)
+ENDIF(OD_MODULE_EXECS)
+
+IF(OD_MODULE_BATCHPROGS)
+    FOREACH( EXEC ${OD_MODULE_BATCHPROGS} )
+	ADD_EXECUTABLE( ${EXEC} ${EXEC}.cc )
+	TARGET_LINK_LIBRARIES(
+	    ${EXEC}
+	    ${OD_MODULE_NAME}
+	    "Batch"
+	    ${OD_MODULE_DEPS})
+	SET_PROPERTY( TARGET ${EXEC} PROPERTY COMPILE_DEFINITIONS __prog__ )
+    ENDFOREACH()
+
+    SET(OD_USE_PROG 1)
+ENDIF(OD_MODULE_BATCHPROGS)
+
+IF(OD_USE_PROG)
     LIST(APPEND INCLUDEPATH
 		${OpendTect_SOURCE_DIR}/include/Prog)
-
-ENDIF(OD_MODULE_EXECS)
+ENDIF(OD_USE_PROG)
 
 #Set current include_path
 INCLUDE_DIRECTORIES( ${INCLUDEPATH} )
