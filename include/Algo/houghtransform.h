@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.11 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: houghtransform.h,v 1.12 2012-01-23 15:39:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "thread.h"
 #include "arrayndimpl.h"
+#include "ranges.h"
 
 class Array3DInfo;
 template <class T> class Array3D;
@@ -93,16 +94,56 @@ public:
 
 protected:
     void			incParamPos( int normal, double dist );
-    float			cliprate;
-    TypeSet<unsigned int>	calcpositions;
-    Array3DInfo*		datainfo;
+    float			cliprate_;
+    TypeSet<unsigned int>	calcpositions_;
+    Array3DInfo*		datainfo_;
 
-    Array2D<unsigned int>*	paramspace;
-    double			deltadist;
-    TypeSet<Coord3>*		normals;
+    Array2D<unsigned int>*	paramspace_;
+    double			deltadist_;
+    TypeSet<Coord3>*		normals_;
     friend			class ::PlaneFrom3DSpaceHoughTransformTask;
 
-    Threads::Mutex&		paramspacemutex;
+    Threads::Mutex&		paramspacemutex_;
 };
+
+
+mClass LineFrom2DSpaceHoughTransform
+{
+public:
+    				LineFrom2DSpaceHoughTransform(
+					const Array2D<float>&);
+    				~LineFrom2DSpaceHoughTransform();
+
+    bool			compute();
+
+    void			setThreshold(float val,bool above_val);
+    				/*<Make hough array based on above/below val.*/
+    void			setLineAngleRange(Interval<float>rg);
+    				/*<rg is between 0-PI in radian.*/
+    void			setTopList(int nr)	{ toplistnr_ = nr; }
+    				/*<nr is the number of top confident lines.*/
+    Array2D<unsigned char>*	getResult() const	{ return result_; }
+    				/*<0/1 array, 1 means on a line. */
+
+protected:
+
+    void			setLineFlag(float radius,float theta);
+
+    Array2D<float>*		input_;
+    Array2D<int>*		hougharr_;
+    Array2D<unsigned char>*	result_;
+
+    TypeSet<float>		sintable_;
+    TypeSet<float>		costable_;
+
+    float			threshold_;
+    bool			abovethreshold_;
+    float			maxrho_;
+    int				rhosz_;
+    int				thetasz_;  
+    int				toplistnr_; 
+    Interval<float>		anglerg_;
+};
+
 
 #endif
