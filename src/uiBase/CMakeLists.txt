@@ -2,10 +2,9 @@
 #
 #	Makefile : 	Basic UI-classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-17 16:23:04 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-01-23 20:55:23 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_NAME uiBase)
 SET(OD_MODULE_DEPS General)
 SET(OD_USEQT Gui)
 SET(QT_MOC_HEADERS i_qaction.h

@@ -1,0 +1,64 @@
+#_______________________Pmake___________________________________________________
+#
+#	Makefile : 	uiIo - OpendTect specific tools on top of uiBase/Tools
+# 	Jul 2000	A.H. Bril
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#_______________________________________________________________________________
+
+SET(OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
+SET(OD_MODULE_SOURCES
+	    dpsdensitycalc.cc
+	    ui2dgeomman.cc
+	    uibatchlaunch.cc
+	    uibatchprogs.cc
+	    uiclusterjobprov.cc
+	    uiconvpos.cc
+	    uicrdevenv.cc
+	    uicreatedpspdf.cc
+	    uicreatepicks.cc
+	    uidatapointset.cc
+	    uidatapointsetcrossplot.cc
+	    uidatapointsetman.cc
+	    uidatapointsetmerger.cc
+	    uidatapointsetcrossplotwin.cc
+	    uidpsaddcolumndlg.cc
+	    uidpscrossplotpropdlg.cc
+	    uidpscrossplottools.cc
+	    uidpsoverlayattrdlg.cc
+	    uidpsselectednessdlg.cc
+	    uidpsrefineseldlg.cc
+	    uidpsselgrpdlg.cc
+	    uidpsselectednessdlg.cc
+	    uieditpdf.cc
+	    uiimppickset.cc
+	    uiimpexpselgrp.cc
+	    uiimpexppdf.cc
+	    uiimppvds.cc
+	    uiioobj.cc
+	    uiioobjmanip.cc
+	    uiioobjsel.cc
+	    uilatlong.cc
+	    uimanprops.cc
+	    uiobjfileman.cc
+	    uipickpartserv.cc
+	    uipicksetman.cc
+	    uipicksetmgr.cc
+	    uiposfilterset.cc
+	    uiposfiltgroup.cc
+	    uiposprovider.cc
+	    uiposprovgroup.cc
+	    uiprobdenfuncman.cc
+	    uiprobdenfunvarsel.cc
+	    uisetdatadir.cc
+	    uiselobjothersurv.cc
+	    uiselsurvranges.cc
+	    uisrchprocfiles.cc
+	    uisurvey.cc
+	    uisurveyselect.cc
+	    uisurvinfoed.cc
+	    uisurvmap.cc
+	    uit2dconvsel.cc
+	    ui2dsip.cc
+	    inituiio.cc
+)
+OD_INIT_MODULE()

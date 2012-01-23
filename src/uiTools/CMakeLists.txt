@@ -2,10 +2,9 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-17 16:23:04 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-01-23 20:55:23 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_NAME uiTools)
 SET(OD_MODULE_DEPS uiBase Network )
 SET(OD_MODULE_SOURCES
 		inituitools.cc	
