@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.2 2011-12-23 09:59:53 cvsraman Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.3 2012-01-24 05:25:36 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -72,7 +72,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     _variant_t vardest( bd );
     Shell32::FolderPtr destfolder = shell->NameSpace( vardest );
     Shell32::FolderItemsPtr items = srcfolder->Items();
-    long flags = FOF_NOCONFIRMATION | FOF_NOERRORUI /* | FOF_SILENT  */;
+    long flags = FOF_NOCONFIRMATION | FOF_NOERRORUI;
     HRESULT hres = destfolder->CopyHere( 
 	_variant_t((IDispatch*)items,true), flags );
     ::Sleep(1000);
