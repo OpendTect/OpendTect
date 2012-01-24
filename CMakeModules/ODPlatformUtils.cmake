@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.9 2012-01-24 19:24:25 cvsnanne Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.10 2012-01-24 20:03:27 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -18,6 +18,7 @@ IF(UNIX)
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
+	SET(OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
     ELSE()
         ADD_DEFINITIONS("-Dlux")
     ENDIF()
