@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.43 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.44 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -104,7 +104,7 @@ public:
 
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
-    bool			canRemoveSelecion() const	{ return true; }
+    bool			canRemoveSelection() const	{ return true; }
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;

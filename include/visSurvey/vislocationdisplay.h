@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.35 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.36 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -93,7 +93,7 @@ public:
 
     const SurveyObject*		getPickedSurveyObject() const;
 
-    bool			canRemoveSelecion() const	{ return true; }
+    bool			canRemoveSelection() const	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
 

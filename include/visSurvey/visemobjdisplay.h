@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.68 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.69 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
     EM::PosID			getPosAttribPosID(int attrib,
 					   const TypeSet<int>& path ) const;
 
-    bool			canRemoveSelecion() const	{ return true; }
+    bool			canRemoveSelection() const	{ return true; }
     void                        removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
 

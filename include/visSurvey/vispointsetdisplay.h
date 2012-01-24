@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.15 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.16 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ public:
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner* tr=0);
     bool			selectable() const		{ return true; }
-    bool			canRemoveSelecion() const	{ return true; }
+    bool			canRemoveSelection() const	{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
 
 protected:

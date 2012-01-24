@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.19 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.20 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
 
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
-    bool			canRemoveSelecion() const	{ return true; }
+    bool			canRemoveSelection() const	{ return true; }
 
     void			setDisplayOnlyAtSections(bool yn);
     bool			displayedOnlyAtSections() const;

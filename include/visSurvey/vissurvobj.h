@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.128 2012-01-16 14:14:46 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.129 2012-01-24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -209,7 +209,7 @@ public:
 
     virtual void		removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*) {}
-    virtual bool		canRemoveSelecion() const	{ return false;}
+    virtual bool		canRemoveSelection() const	{ return false;}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
