@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.6 2012-01-16 21:19:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.7 2012-01-24 21:25:50 cvsnanne Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -105,9 +105,6 @@ void uiTranslateDlg::fillBox()
 }
 
 
-static const char* sAPIKey()
-{ return "AIzaSyBLTi8iwbbOHaKidJAJG14YAkI6V1KGugI"; }
-
 bool uiTranslateDlg::acceptOK( CallBacker* )
 {
     mDynamicCastGet(GoogleTranslator*,gtr,TrMgr().tr())
@@ -117,7 +114,7 @@ bool uiTranslateDlg::acceptOK( CallBacker* )
     if ( http.hasPendingRequests() )
 	http.clearPendingRequests();
 
-    BufferString key = sAPIKey();
+    BufferString key;
     if ( keyfld_ )
     {
 	key = keyfld_->text();

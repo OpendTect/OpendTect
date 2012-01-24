@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.10 2012-01-16 21:19:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.11 2012-01-24 21:25:50 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -33,6 +33,7 @@ GoogleTranslator::GoogleTranslator()
     odhttp_.readyRead.notify( mCB(this,GoogleTranslator,readyCB) );
     odhttp_.disconnected.notify( mCB(this,GoogleTranslator,disConnCB) );
     odhttp_.messageReady.notify( mCB(this,GoogleTranslator,messageCB) );
+    odhttp_.setASynchronous( true );
     init();
 }
 
@@ -42,6 +43,10 @@ GoogleTranslator::~GoogleTranslator()
     delete [] translation_;
     delete &odhttp_;
 }
+
+
+const char* GoogleTranslator::getIcon() const
+{ return "googletranslate.png"; }
 
 
 void GoogleTranslator::enable()

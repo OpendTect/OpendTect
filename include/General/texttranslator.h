@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: texttranslator.h,v 1.2 2010-09-27 05:14:51 cvsnanne Exp $
+ RCS:		$Id: texttranslator.h,v 1.3 2012-01-24 21:25:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 
     virtual int			translate(const char*)		= 0;
     virtual const wchar_t*	get() const			= 0;
+
+    virtual const char*		getIcon() const			{ return ""; }
 
     CNotifier<TextTranslator,int>	ready;
     Notifier<TextTranslator>		message;
