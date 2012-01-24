@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.3 2012-01-17 11:11:42 cvsbert Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.4 2012-01-24 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,21 +55,25 @@ public:
 
     void 	setProps(const BufferStringSet&);
     void 	setLevelNames(const BufferStringSet&);
+    void 	setContentNames(const BufferStringSet&);
 
-    const char*	selLevel() const; 		//!< May return null
     const char*	selProp() const;		//!< May return null
+    const char*	selLevel() const; 		//!< May return null
+    const char*	selContent() const; 		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
 
     void	setSelProp(const char*);
     void	setSelLevel(const char*);
+    void	setSelContent(const char*);
     void	setDispEach(int);
     void	setDispZoomed(bool);
     void	setDispLith(bool);
 
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
+    Notifier<uiStratLayModEditTools>	selContentChg;
     Notifier<uiStratLayModEditTools>	dispEachChg;
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
@@ -83,12 +87,14 @@ protected:
 
     uiComboBox*	propfld_;
     uiComboBox*	lvlfld_;
+    uiComboBox*	contfld_;
     uiSpinBox*	eachfld_;
     uiToolButton* zoomtb_;
     uiToolButton* lithtb_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
     void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
+    void	selContentCB( CallBacker* )	{ selContentChg.trigger(); }
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }

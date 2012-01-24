@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.36 2012-01-17 15:17:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.37 2012-01-24 16:40:14 cvsbert Exp $";
 
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.36 2012-01-17 15:17
 #include "stratsinglaygen.h"
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"
+#include "stratcontent.h"
 #include "stratunitrefiter.h"
 #include "unitofmeasure.h"
 #include "propertyimpl.h"
@@ -34,6 +35,39 @@ static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.36 2012-01-17 15:17
 
 mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
 	Strat::LayerSequenceGenDesc&,uiLayerSequenceGenDesc::factory)
+
+
+uiStratLayerContent::uiStratLayerContent( uiParent* p,
+					  const Strat::RefTree* srt )
+    : uiGroup(p,"Layer content")
+    , rt_(srt ? *srt : Strat::RT())
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Content" );
+    fld_ = lcb->box();
+    const Strat::RefTree& rt = srt ? *srt : Strat::RT();
+    fld_->addItem( "-" );
+    for ( int idx=0; idx<rt.contents().size(); idx++ )
+	fld_->addItem( rt.contents()[idx]->name_ );
+    setHAlignObj( lcb );
+}
+
+
+void uiStratLayerContent::set( const Strat::Content& c )
+{
+    if ( c.isUnspecified() )
+	fld_->setCurrentItem( 0 );
+    else
+	fld_->setCurrentItem( c.name_ );
+}
+
+
+const Strat::Content& uiStratLayerContent::get() const
+{
+    const int selidx = fld_->currentItem();
+    return selidx < 1 ? Strat::Content::unspecified()
+		      : *rt_.contents()[selidx-1];
+}
+
 
 
 uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
@@ -274,7 +308,11 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     curz += maxth;
     disp.boty_ = (int)(workrect_.top() + curz * pixperm + .5);
 
-    disp.nm_->setText( disp.gen_->name() );
+    BufferString dispnm;
+    if ( !disp.gen_->content().isUnspecified() )
+	dispnm.add( "[" ).add( disp.gen_->content().name_ ).add( "] " );
+    dispnm.add( disp.gen_->name() );
+    disp.nm_->setText( dispnm );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
     disp.nm_->setPos( midpt.x, midpt.y-2 );
 	    // the 'y-2' makes the text more nicely centered in the box
@@ -563,6 +601,9 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	propflds_ += fld;
     }
 
+    contfld_ = new uiStratLayerContent( propgrp, &rt_ );
+    if ( !propflds_.isEmpty() )
+	contfld_->attach( alignedBelow, propflds_[ propflds_.size()-1 ] );
     propgrp->attach( centeredRightOf, unfld_ );
 }
 
@@ -594,11 +635,13 @@ bool acceptOK( CallBacker* )
     }
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
     edun_->properties() = workprops_;
+    edun_->setContent( contfld_->get() );
     return true;
 }
 
     uiStratSelUnits*		unfld_;
     ObjectSet<uiSimpPropertyEd>	propflds_;
+    uiStratLayerContent*	contfld_;
 
     const Strat::LayerGenerator* inpun_;
     Strat::SingleLayerGenerator* edun_;

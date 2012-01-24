@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.5 2011-07-04 09:55:06 cvsbert Exp $
+ RCS:		$Id: stratsinglaygen.h,v 1.6 2012-01-24 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 namespace Strat
 {
 class LeafUnitRef;
+class Content;
 
 /*!\brief Layer generator based on Leaf Unit */
 
@@ -30,6 +31,8 @@ public:
 
     const LeafUnitRef&	unit() const;
     void		setUnit( const LeafUnitRef* ur ) { unit_ = ur; }
+    const Content&	content() const			{ return *content_; }
+    void		setContent( const Content& c )	{ content_ = &c; }
 
     bool		isEmpty() const		{ return props_.isEmpty(); }
     PropertySet&	properties()		{ return props_; }
@@ -44,6 +47,7 @@ protected:
 
     const LeafUnitRef*	unit_;
     PropertySet		props_;
+    const Content*	content_;
     mutable BufferString errmsg_;
 
 };

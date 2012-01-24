@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.13 2012-01-18 14:13:14 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.14 2012-01-24 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigroup.h"
 #include "factory.h"
-class uiParent;
-class uiObject;
+class uiComboBox;
 class uiStratLayerModelDisp;
 class uiStratLayModEditTools;
+namespace Strat { class Content; class RefTree; }
 namespace Strat { class LayerSequenceGenDesc; class LayerModel; }
 
 
@@ -55,6 +56,23 @@ protected:
     Strat::LayerSequenceGenDesc& desc_;
     bool		needsave_;
 
+};
+
+
+mClass uiStratLayerContent : public uiGroup
+{
+public:
+
+  			uiStratLayerContent(uiParent*,
+					    const Strat::RefTree* rt=0);
+
+    void		set(const Strat::Content&);
+    const Strat::Content& get() const;
+
+protected:
+
+    uiComboBox*		fld_;
+    const Strat::RefTree& rt_;
 };
 
 

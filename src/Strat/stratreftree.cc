@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.12 2012-01-19 16:10:47 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.13 2012-01-24 16:40:14 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -129,7 +129,7 @@ void Strat::RefTree::setToActualTypes()
 
 bool Strat::RefTree::read( std::istream& strm )
 {
-    deepErase( refs_ ); liths_.setEmpty();
+    deepErase( refs_ ); liths_.setEmpty(); deepErase( contents_ );
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyStratTree) )
 	{ initTree(); return false; }
@@ -148,7 +148,8 @@ bool Strat::RefTree::read( std::istream& strm )
 	else if ( astrm.hasKeyword(sKeyContent) )
 	{
 	    FileMultiString fms( astrm.value() );
-	    contents_ += new Content( toInt(fms[0]), fms[1] );
+	    const Content::ID id = toInt( fms[1] );
+	    contents_ += new Content( id, fms[0] );
 	}
     }
 
@@ -191,7 +192,7 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     for ( int idx=0; idx<contents_.size(); idx++ )
     {
 	const Content& c( *contents_[idx] );
-	FileMultiString fms( ::toString(c.id_) ); fms += c.name_;
+	FileMultiString fms; fms += c.name_; fms += ::toString(c.id_);
 	astrm.put( sKeyContent, fms );
     }
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.33 2012-01-19 10:46:57 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.34 2012-01-24 16:40:14 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -284,6 +284,7 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 
 Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
+    , content_(&Strat::Content::unspecified())
 {
     props_.add( new ValueProperty(PropertyRef::thickness()) );
 }
@@ -364,6 +365,12 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	if ( ur && ur->isLeaf() )
 	    unit_ = static_cast<const LeafUnitRef*>( ur );
     }
+    res = iop.find( sKey::Content );
+    if ( res && *res )
+    {
+	content_ = rt.contents().get( res );
+	if ( !content_ ) content_ = &Content::unspecified();
+    }
 
     props_.erase();
     for ( int pidx=0; ; pidx++ )
@@ -387,6 +394,8 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     LayerGenerator::fillPar( iop );
     iop.set( sKey::Unit, unit().fullCode() );
+    if ( !content().isUnspecified() )
+	iop.set( sKey::Content, content().name_ );
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {
 	IOPar subpar; props_.get(pidx).fillPar( subpar );

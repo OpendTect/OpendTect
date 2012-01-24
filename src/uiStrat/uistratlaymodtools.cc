@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.3 2012-01-17 11:11:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.4 2012-01-24 16:40:14 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -72,55 +72,70 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispEachChg(this)
     , dispZoomedChg(this)
     , dispLithChg(this)
+    , selContentChg(this)
 {
-    propfld_ = new uiComboBox( this, "Display property" );
+    uiGroup* leftgrp = new uiGroup( this, "Left group" );
+    propfld_ = new uiComboBox( leftgrp, "Display property" );
+    propfld_->setToolTip( "Displayed property" );
     propfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selPropCB) );
-    uiLabel* eachlbl = new uiLabel( this, "each" );
+
+    uiLabel* eachlbl = new uiLabel( leftgrp, "each" );
     eachlbl->attach( rightOf, propfld_ );
-    eachfld_ = new uiSpinBox( this, 0, "DispEach" );
+    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
     eachfld_->setInterval( 1, 1000 );
     eachfld_->attach( rightOf, eachlbl );
     eachfld_->valueChanging.notify(
 				mCB(this,uiStratLayModEditTools,dispEachCB) );
-    lvlfld_ = new uiComboBox( this, "Level" );
+
+    lvlfld_ = new uiComboBox( leftgrp, "Level" );
+    lvlfld_->setToolTip( "Selected stratigraphic level" );
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selLevelCB) );
 
-    lithtb_ = new uiToolButton( this, "togglithcols.png",
+    contfld_ = new uiComboBox( leftgrp, "Content" );
+    contfld_->setToolTip( "Marked content" );
+    contfld_->attach( rightOf, lvlfld_ );
+    contfld_->setHSzPol( uiObject::Small );
+    contfld_->selectionChanged.notify(
+	    			mCB(this,uiStratLayModEditTools,selContentCB) );
+
+    uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    lithtb_ = new uiToolButton( rightgrp, "togglithcols.png",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
     lithtb_->setOn( true );
-    lithtb_->attach( rightTo, lvlfld_ );
-    lithtb_->attach( rightBorder );
-    zoomtb_ = new uiToolButton( this, "toggzooming.png",
+    zoomtb_ = new uiToolButton( rightgrp, "toggzooming.png",
 			"Do not zoom into models when on",
 			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
     zoomtb_->setToggleButton( true );
     zoomtb_->setOn( true );
     zoomtb_->attach( leftOf, lithtb_ );
-    zoomtb_->attach( ensureRightOf, lvlfld_ );
+    rightgrp->attach( rightTo, leftgrp );
+    rightgrp->attach( rightBorder );
+}
+
+
+static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone )
+{
+    const BufferString selnm( cb->text() );
+    cb->setEmpty();
+    if ( wnone )
+	cb->addItem( "---" );
+    cb->addItems( nms );
+    int idxof = nms.isEmpty() || selnm.isEmpty() ? 0 : nms.indexOf( selnm );
+    if ( idxof >= 0 ) cb->setCurrentItem( idxof );
 }
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{
-    const BufferString selnm( propfld_->text() );
-    propfld_->setEmpty(); propfld_->addItems( nms );
-    int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
-    if ( idxof >= 0 ) propfld_->setCurrentItem( idxof );
-}
-
-
+{ setFldNms( propfld_, nms, false ); }
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
-{
-    const BufferString selnm( lvlfld_->text() );
-    lvlfld_->setEmpty(); lvlfld_->addItem( "---" ); lvlfld_->addItems( nms );
-    int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
-    if ( idxof >= 0 ) lvlfld_->setCurrentItem( idxof );
-}
+{ setFldNms( lvlfld_, nms, true ); }
+void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
+{ setFldNms( contfld_, nms, true ); }
 
 
 const char* uiStratLayModEditTools::selProp() const
@@ -144,6 +159,12 @@ const char* uiStratLayModEditTools::selLevel() const
 int uiStratLayModEditTools::selLevelIdx() const
 {
     return lvlfld_->isEmpty() ? -1 : lvlfld_->currentItem() - 1;
+}
+
+
+const char* uiStratLayModEditTools::selContent() const
+{
+    return contfld_->isEmpty() ? 0 : contfld_->text();
 }
 
 
@@ -188,6 +209,12 @@ void uiStratLayModEditTools::setSelProp( const char* sel )
 void uiStratLayModEditTools::setSelLevel( const char* sel )
 {
     lvlfld_->setText( sel );
+}
+
+
+void uiStratLayModEditTools::setSelContent( const char* sel )
+{
+    contfld_->setText( sel );
 }
 
 

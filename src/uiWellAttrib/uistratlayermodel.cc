@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.46 2012-01-18 14:12:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.47 2012-01-24 16:40:14 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -431,6 +431,10 @@ void uiStratLayerModel::setModelProps()
     for ( int idx=0; idx<lvls.size(); idx++ )
 	nms.add( lvls.levels()[idx]->name() );
     modtools_->setLevelNames( nms );
+    nms.erase(); const Strat::ContentSet& conts = modl_.refTree().contents();
+    for ( int idx=0; idx<conts.size(); idx++ )
+	nms.add( conts[idx]->name_ );
+    modtools_->setContentNames( nms );
 }
 
 

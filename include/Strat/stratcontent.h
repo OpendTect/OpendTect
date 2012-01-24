@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: stratcontent.h,v 1.1 2012-01-19 16:10:47 cvsbert Exp $
+ RCS:		$Id: stratcontent.h,v 1.2 2012-01-24 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
  Impl is in stratlith.cc.
@@ -45,6 +45,8 @@ public:
 
     const ID		id_;
     BufferString	name_;
+    inline bool		isUnspecified() const
+    			{ return id_ == unspecified().id_; }
 
     static const Content& unspecified();
     static ID		nextID();
@@ -61,12 +63,16 @@ public:
 
     			~ContentSet()		{ deepErase(*this); }
 
-    Content*		get(Content::ID);
-    const Content*	get(Content::ID) const;
-    Content*		get(const char*);
-    const Content*	get(const char*) const;
+    int		getIndexOf(Content::ID) const;
+    int		getIndexOf(const char*) const;
+
+    template <class T> Content*		get( const T& t )
+    { const int idx = getIndexOf(t); return idx<0 ? 0 : (*this)[idx]; }
+    template <class T> const Content*	get( const T& t ) const
+    { const int idx = getIndexOf(t); return idx<0 ? 0 : (*this)[idx]; }
 
 };
+
 
 } // namespace Strat
 
