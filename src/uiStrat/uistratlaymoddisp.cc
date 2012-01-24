@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.22 2012-01-17 11:12:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.23 2012-01-24 16:40:34 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.22 2012-01-17 11:12:17
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratreftree.h"
 #include "property.h"
 
 
@@ -67,9 +68,11 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)
+    , contitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
     , selseqidx_(-1)
     , selectedlevel_(-1)
+    , selectedcontent_(0)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
@@ -91,6 +94,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     gv_->reDrawNeeded.notify( redrawcb );
     tools_.selPropChg.notify( redrawcb );
     tools_.selLevelChg.notify( redrawcb );
+    tools_.selContentChg.notify( redrawcb );
     tools_.dispEachChg.notify( redrawcb );
     tools_.dispZoomedChg.notify( redrawcb );
     tools_.dispLithChg.notify( redrawcb );
@@ -287,6 +291,8 @@ void uiStratSimpleLayerModelDisp::doDraw()
     dispeach_ = tools_.dispEach();
     showzoomed_ = tools_.dispZoomed();
     uselithcols_ = tools_.dispLith();
+    const char* selcont = tools_.selContent();
+    selectedcontent_ = lm_.refTree().contents().get( selcont );
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
@@ -334,6 +340,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     mEndLayLoop()
 
     drawLevels();
+    drawContent();
     drawSelectedSequence();
     updZoomBox();
 }
@@ -366,6 +373,18 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 1 );
 	lvlitms_ += it;
+    }
+}
+
+
+void uiStratSimpleLayerModelDisp::drawContent()
+{
+    const int nrseqs = lm_.size();
+    if ( nrseqs < 1 ) return;
+
+    for ( int iseq=0; iseq<nrseqs; iseq++ )
+    {
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
     }
 }
 
