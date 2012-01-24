@@ -7,19 +7,93 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.15 2012-01-16 17:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.16 2012-01-24 21:18:27 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
 
 #include <QByteArray>
+#include <QEventLoop>
 #include <QFile>
 #include <QHttp>
 #include <QUrl>
 
 
+class MyHttp : public QHttp
+{
+public:
+MyHttp() : QHttp(), asynchronous_(false)		{}
+
+void init()
+{
+    qfiles_.allowNull();
+}
+
+void startEventLoop()
+{
+    if ( !asynchronous_ && !qeventloop_.isRunning() )
+	qeventloop_.exec();
+}
+
+void stopEventLoop()
+{
+    if ( !asynchronous_ )
+	qeventloop_.exit();
+}
+
+int _setHost( const char* host, int port )
+{
+    const int id = setHost( host, port );
+    startEventLoop();
+    return id;
+}
+
+int _get( const char* path, const char* dest )
+{
+    QFile* qfile = 0;
+    if ( dest && *dest )
+    {
+	qfile = new QFile( dest );
+	qfile->open( QIODevice::WriteOnly );
+    }
+
+    qfiles_ += qfile;
+    QUrl qurl( path );
+    const int id = get( qurl.toEncoded(), qfile );
+    getids_ += id;
+    startEventLoop();
+    return id;
+}
+
+
+void handleFinishedRequest( int reqid )
+{
+    const int reqidx = getids_.indexOf( reqid );
+    if ( qfiles_.validIdx(reqidx) )
+    {
+	QFile* qfile = qfiles_[reqidx];
+	if ( qfile )
+	    qfile->close();
+	delete qfiles_.remove( reqidx );
+	getids_.remove( reqidx );
+    }
+
+    stopEventLoop();
+}
+
+    bool		asynchronous_;
+
+protected:
+    QEventLoop	qeventloop_;
+
+    TypeSet<int>	getids_;
+    ObjectSet<QFile>	qfiles_;
+};
+
+
+
 ODHttp::ODHttp()
-    : qhttp_(new QHttp)
+    : qhttp_(new MyHttp)
     , requestStarted(this)
     , requestFinished(this)
     , messageReady(this)
@@ -30,10 +104,10 @@ ODHttp::ODHttp()
     , disconnected(this)
 {
     qhttpconn_ = new QHttpConnector( qhttp_, this );
+    qhttp_->init();
 
     error_ = false;
     requestid_ = 0;
-    qfiles_.allowNull();
 
     requestFinished.notify( mCB(this,ODHttp,reqFinishedCB) );
 }
@@ -45,6 +119,10 @@ ODHttp::~ODHttp()
 }
 
 
+void ODHttp::setASynchronous( bool yn )
+{ qhttp_->asynchronous_ = yn; }
+
+
 // ToDo: support username and passwd
 int ODHttp::setProxy( const char* host, int port,
 		      const char* usrnm, const char* pwd )
@@ -54,7 +132,7 @@ int ODHttp::setHttpsHost( const char* host, int port )
 { return qhttp_->setHost( host, QHttp::ConnectionModeHttps ); }
 
 int ODHttp::setHost( const char* host, int port )
-{ return qhttp_->setHost( host, port ); }
+{ return qhttp_->_setHost( host, port ); }
 
 int ODHttp::close()
 { return qhttp_->close(); }
@@ -65,22 +143,8 @@ void ODHttp::abort()
 ODHttp::State ODHttp::state() const
 { return (ODHttp::State)(int)qhttp_->state(); }
 
-
 int ODHttp::get( const char* path, const char* dest )
-{
-    QFile* qfile = 0;
-    if ( dest && *dest )
-    {
-	qfile = new QFile( dest );
-	qfile->open( QIODevice::WriteOnly );
-    }
-
-    qfiles_ += qfile;
-    QUrl qurl( path );
-    const int cmdid = qhttp_->get( qurl.toEncoded(), qfile );
-    getids_ += cmdid;
-    return cmdid;
-}
+{ return qhttp_->_get( path, dest ); }
 
 
 wchar_t* ODHttp::readWCharBuffer() const
@@ -127,13 +191,5 @@ void ODHttp::setMessage( const char* msg )
 
 void ODHttp::reqFinishedCB( CallBacker* )
 {
-    const int reqidx = getids_.indexOf( requestid_ );
-    if ( qfiles_.validIdx(reqidx) )
-    {
-	QFile* qfile = qfiles_[reqidx];
-	if ( qfile )
-	    qfile->close();
-	delete qfiles_.remove( reqidx );
-	getids_.remove( reqidx );
-    }
+    qhttp_->handleFinishedRequest( requestid_ );
 }

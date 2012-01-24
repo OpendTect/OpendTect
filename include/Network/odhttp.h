@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.12 2012-01-16 17:54:39 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.13 2012-01-24 21:18:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "bufstringset.h"
 
-class QFile;
-class QHttp;
+class MyHttp;
 class QHttpConnector;
 
 mClass ODHttp : public CallBacker
@@ -31,10 +30,11 @@ public:
     enum State		{ Unconnected, HostLookup, Connecting, Sending,
 			  Reading, Connected, Closing };
 
-    int			setProxy(const char* host,int port,
-				 const char* usrnm,const char* pwd);
+    void		setASynchronous(bool);
     int			setHost(const char* host,int port=80);
     int			setHttpsHost(const char* host,int port=443);
+    int			setProxy(const char* host,int port,
+				 const char* usrnm,const char* pwd);
     int			close();
     void		abort();
     State		state() const;
@@ -69,11 +69,8 @@ public:
 
 protected:
 
-    QHttp*		qhttp_;
+    MyHttp*		qhttp_;
     QHttpConnector*	qhttpconn_;
-
-    TypeSet<int>	getids_;
-    ObjectSet<QFile>	qfiles_;
 
     bool		error_;
     BufferString	message_;
