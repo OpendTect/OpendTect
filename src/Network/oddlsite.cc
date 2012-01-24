@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.10 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.11 2012-01-24 23:04:29 cvsnanne Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -30,6 +30,7 @@ ODDLSite::ODDLSite( const char* h, float t )
     , databuf_(0)
     , islocal_(h && matchString("DIR=",h))
     , isfailed_(false)
+    , issecure_(false)
 {
     odhttp_ = islocal_ ? 0 : new ODHttp;
     if ( !h ) h = "opendtect.org";
@@ -42,6 +43,7 @@ ODDLSite::ODDLSite( const char* h, float t )
 	{ stroffs = 8; issecure_ = true; }
     host_ = h + stroffs;
 
+    // TODO handle timeout
     if ( timeout_ <= 0 )
     {
 	Settings::common().get( sKeyTimeOut, timeout_ );
@@ -84,26 +86,13 @@ bool ODDLSite::reConnect()
 	{ errmsg_ = "TODO secure access not implemented."; return false; }
 
     if ( odhttp_->state() == ODHttp::Unconnected )
-	odhttp_->setHost( host_ );
-
-    Time::Counter tc; tc.start();
-    while ( odhttp_->state() < ODHttp::Sending )
     {
-	Threads::sleep( 0.1 );
-	if ( tc.elapsed() > 1000 * timeout_ )
-	{
-	    errmsg_ = "Cannot open connection to ";
-	    errmsg_.add( host_ ).add ( ":\n" );
-	    if ( odhttp_->state() == ODHttp::HostLookup )
-		errmsg_.add ( "Host name lookup timeout" );
-	    if ( odhttp_->state() == ODHttp::Connecting )
-		errmsg_.add ( "Host doesn't respond" );
-	    else
-		errmsg_.add ( "Internet connection not available" );
-	    isfailed_ = true;
-	    return false;
-	}
+	if ( issecure_ )
+	    odhttp_->setHttpsHost( host_ );
+	else
+	    odhttp_->setHost( host_ );
     }
+
     return true;
 }
 
@@ -118,7 +107,10 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
     HttpTask task( *odhttp_ );
     odhttp_->get( getFileName(relfnm), outfnm );
     if ( !task.execute() )
+    {
+	errmsg_ = odhttp_->message();
 	return false;
+    }
 
     if ( outfnm && *outfnm )
     {
