@@ -2,9 +2,16 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.6 2012-01-23 20:53:35 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.7 2012-01-24 13:51:14 cvskris Exp $
 #_______________________________________________________________________________
 
+# Setups a number of variables for compiling OpendTect:
+# OD_${MODULE_NAME}_INCLUDEPATH : The path(s) to the headerfiles of the module
+#				  Normally one single one, but may have multiple
+#				  paths in plugins
+# OD_${MODULE_NAME}_DEPS	: The modules this module is dependent on
+# MODULE_INCLUDEPATH		: The includepath needed to compile the source-
+#				  files of the module
 
 MACRO( OD_INIT_MODULE )
 
@@ -24,6 +31,14 @@ ENDIF()
 #End ModDeps-line
 FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od "\n")
 
+IF(OD_USECOIN)
+    OD_SETUP_COIN()
+ENDIF()
+
+IF(OD_USEOSG)
+    OD_SETUP_OSG()
+ENDIF()
+
 #Add Qt-stuff
 IF(OD_USEQT)
    OD_SETUP_QT()
@@ -39,11 +54,11 @@ IF (OD_IS_PLUGIN)
 	INCLUDE(${PLUGINDIR}/src/${PLUGINSUBDIR}/CMakeFile.txt)
     ENDFOREACH()
 ELSE()
-    SET( OD_${OD_MODULE_NAME}_INCLUDEPATH
+    LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	${OpendTect_SOURCE_DIR}/include/${OD_MODULE_NAME} )
 ENDIF(OD_IS_PLUGIN)
 
-LIST(APPEND INCLUDEPATH ${OD_${OD_MODULE_NAME}_INCLUDEPATH} )
+LIST(APPEND MODULE_INCLUDEPATH ${OD_${OD_MODULE_NAME}_INCLUDEPATH} )
 
 #Export dependencies
 SET( OD_${OD_MODULE_NAME}_DEPS ${OD_${OD_MODULE_NAME}_DEPS} PARENT_SCOPE )
@@ -54,8 +69,12 @@ ADD_LIBRARY( ${OD_MODULE_NAME} SHARED ${OD_MODULE_SOURCES} ${QT_MOC_OUTFILES} )
 TARGET_LINK_LIBRARIES(
         ${OD_MODULE_NAME}
         ${OD_MODULE_DEPS}
+	${OD_MODULE_EXTERNAL_LIBS}
+	${OD_MODULE_LINK_OPTIONS}
         ${EXTRA_LIBS} 
-	${OWN_QTLIBS} )
+	${OD_QT_LIBS}
+	${OD_COIN_LIBS}
+	${OD_OSG_LIBS} )
 
 #Add executable targets
 IF(OD_MODULE_EXECS)
@@ -85,12 +104,12 @@ IF(OD_MODULE_BATCHPROGS)
 ENDIF(OD_MODULE_BATCHPROGS)
 
 IF(OD_USE_PROG)
-    LIST(APPEND INCLUDEPATH
+    LIST(APPEND MODULE_INCLUDEPATH
 		${OpendTect_SOURCE_DIR}/include/Prog)
 ENDIF(OD_USE_PROG)
 
 #Set current include_path
-INCLUDE_DIRECTORIES( ${INCLUDEPATH} )
+INCLUDE_DIRECTORIES( ${MODULE_INCLUDEPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
@@ -107,7 +126,7 @@ IF(${INDEX} EQUAL -1)
     ENDFOREACH()
 
     #Add dependencies to include-path
-    LIST(APPEND INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
+    LIST(APPEND MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 ENDIF()
 
 ENDMACRO(OD_ADD_DEPS)

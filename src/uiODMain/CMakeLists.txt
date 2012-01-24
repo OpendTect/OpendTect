@@ -2,10 +2,16 @@
 #
 #	Makefile: 	uiODMain
 # 	Nov 2005:	Nanne Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-24 13:51:14 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiVis )
+SET(OD_MODULE_DEPS
+	    uiVis
+	    uiAttributes
+	    uiNLA
+	    uiWellAttrib
+	    uiEMAttrib 
+	    uiViewer2D )
 SET(OD_MODULE_SOURCES
 	    odsession.cc
 	    uiodapplmgr.cc

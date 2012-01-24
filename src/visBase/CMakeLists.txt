@@ -1,0 +1,90 @@
+#_______________________Pmake___________________________________________________
+#
+#	Makefile : 	Coin Wrapper classes
+# 	July 1995	A.H. Bril
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-24 13:51:14 cvskris Exp $
+#_______________________________________________________________________________
+
+SET(OD_MODULE_DEPS SoOD Geometry)
+SET(OD_USECOIN 1)
+SET(OD_MODULE_SOURCES
+	   initvisbase.cc
+	   visanchor.cc
+	   visannot.cc
+	   visbeachball.cc
+	   visboxdragger.cc
+	   viscamera.cc
+	   viscamerainfo.cc
+	   viscolorseq.cc
+	   viscolortab.cc
+	   viscolortabindexer.cc
+	   viscoltabmod.cc
+	   viscoord.cc
+	   viscube.cc
+	   visdata.cc
+	   visdatagroup.cc
+	   visdataman.cc
+	   visdepthtabplanedragger.cc
+	   visdetail.cc
+	   visdragger.cc
+	   visdrawstyle.cc
+	   visellipsoid.cc
+	   visevent.cc
+	   visfaceset.cc
+	   visflatviewer.cc
+	   visforegroundlifter.cc
+	   visgridlines.cc
+	   visimage.cc
+	   visinvisiblelinedragger.cc
+	   visgeomindexedshape.cc
+	   vishorizonsection.cc
+	   vislevelofdetail.cc
+	   vislight.cc
+	   vismarker.cc
+	   vismarchingcubessurface.cc
+	   vismaterial.cc
+	   vismultitexture.cc
+	   vismultitexture2.cc
+	   visnormals.cc
+	   visobject.cc
+	   vispickstyle.cc
+	   visrandompos2body.cc
+	   vispointset.cc
+	   vispolygonoffset.cc
+	   vispolygonselection.cc
+	   vispolyline.cc
+	   visrandomtrack.cc
+	   visrandomtrackdragger.cc
+	   visrectangle.cc
+	   visrgbatexturechannel2rgba.cc
+	   visrotationdragger.cc
+	   visscene.cc
+	   visscenecoltab.cc
+	   visselman.cc
+	   visshape.cc
+	   visshapehints.cc
+	   visshapescale.cc
+	   vissplittexturerandomline.cc
+	   vissplittexture2rectangle.cc
+	   vissplittextureseis2d.cc
+	   vistext.cc
+	   vistexture.cc
+	   vistexture2.cc
+	   vistexture3.cc
+	   vistexture3viewer.cc
+	   vistexturecoords.cc
+	   vistexturechannels.cc
+	   vistexturechannel2rgba.cc
+           vistexturechannel2voldata.cc
+	   vistexturerect.cc
+	   vistopbotimage.cc
+	   vistransform.cc
+	   vistristripset.cc
+	   visvolobliqueslice.cc
+	   visvolorthoslice.cc
+	   visvolrenscalarfield.cc
+	   visvolren.cc
+	   viswell.cc
+)
+
+OD_INIT_MODULE()
