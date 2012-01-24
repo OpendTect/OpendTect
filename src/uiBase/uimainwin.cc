@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.234 2012-01-09 17:28:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.235 2012-01-24 21:26:18 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1570,7 +1570,8 @@ uiObject* uiDialogBody::createChildren()
 	helpbut->setPrefWidthInChar( 5 );
 	if ( TrMgr().tr() && TrMgr().tr()->enabled() )
 	{
-	    translatebut = new uiToolButton( centralWidget_, "google.png",
+	    translatebut = new uiToolButton( centralWidget_,
+		TrMgr().tr()->getIcon(),
 		"Translate", mCB(this,uiDialogBody,doTranslate) );
 	    translatebut->attach( rightOf, helpbut );
 	}
