@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.30 2012-01-02 07:49:21 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.31 2012-01-24 05:25:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,12 +232,14 @@ bool copy( const char* from, const char* to )
 {
 #ifndef OD_NO_QT
 #ifdef __win__
-    if ( isDirectory(from) || getKbSize(from) > 1024 )
-	return winCopy( from, to, isFile(from) );
+    	return winCopy( from, to, isFile(from) );
 #endif
 
     if ( !isFile(from) )
 	return copyDir( from, to );
+
+    if ( isDirectory(to) )
+	return QFile::copy( from, to );
 
     if ( !exists(to) )
 	return QFile::copy( from, to );

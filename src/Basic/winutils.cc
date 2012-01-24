@@ -5,16 +5,17 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.21 2011-08-31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.22 2012-01-24 05:25:01 cvsranojay Exp $";
 
 
 #include "winutils.h"
 #include "bufstring.h"
 #include "envvars.h"
+#include "file.h"
 #include "debugmasks.h"
 #include "string2.h"
 #include "staticstring.h"
-
+#include "strmprov.h"
 #ifdef __win__
 # include <windows.h>
 # include <shlobj.h>
@@ -204,6 +205,15 @@ static int initialise_Co( void )
 
 bool winCopy( const char* from, const char* to, bool isfile )
 {
+    if ( File::getKbSize(from) < 1024 )
+    {
+	BufferString cmd;
+	cmd = "cmd /c \"copy ";
+	cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
+	const bool ret = ExecOSCmd( cmd );
+	return ret;
+    }
+
     SHFILEOPSTRUCT fileop;
     BufferString frm( from );
     if ( !isfile )
