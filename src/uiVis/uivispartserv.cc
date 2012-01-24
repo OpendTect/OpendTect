@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.472 2012-01-03 23:31:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.473 2012-01-24 14:46:14 cvsyuancheng Exp $";
 
 #include "uivispartserv.h"
 
@@ -1603,7 +1603,7 @@ void uiVisPartServer::removeSelection()
 	    int selobjectid = getSelObjectId();
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
 	    if ( !so ) continue;
-	    if ( so->canRemoveSelecion() )
+	    if ( so->canRemoveSelection() )
 	    {
 		BufferString msg = "Are you sure you want to \n"
 		    "remove selected part of ";
