@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.22 2012-01-24 05:25:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.23 2012-01-25 10:14:58 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -208,9 +208,9 @@ bool winCopy( const char* from, const char* to, bool isfile )
     if ( File::getKbSize(from) < 1024 )
     {
 	BufferString cmd;
-	cmd = "cmd /c \"copy ";
+	cmd = "copy /Y";
 	cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
-	const bool ret = ExecOSCmd( cmd );
+	const bool ret = system( cmd ) != -1;
 	return ret;
     }
 
