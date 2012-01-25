@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.13 2012-01-23 15:39:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.14 2012-01-25 20:45:19 cvsyuancheng Exp $";
 
 
 #include "houghtransform.h"
@@ -24,6 +24,10 @@ static const char* rcsID = "$Id: houghtransform.cc,v 1.13 2012-01-23 15:39:12 cv
 #include "trigonometry.h"
 
 #include <math.h>
+
+#define mRhoSize 200
+/*Do not change mThetaSize*/
+#define mThetaSize 360
 
 class PlaneFrom3DSpaceHoughTransformTask : public SequentialTask
 {
@@ -218,35 +222,31 @@ void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 
 LineFrom2DSpaceHoughTransform::LineFrom2DSpaceHoughTransform( 
 	const Array2D<float>& input )
-    : input_(0)
+    : input_(input)
+    , origcnt_(0)      
     , hougharr_(0)
     , result_(0)
-    , rhosz_(200)
-    , thetasz_(360)	
-    , maxrho_(0)
     , toplistnr_(10)	
     , anglerg_(mUdf(float),mUdf(float))		
-    , threshold_(0)
+    , threshold_(mUdf(float))
     , abovethreshold_(true)		   
 {
     const int sz0 = input.info().getSize(0);
     const int sz1 = input.info().getSize(1);
-    maxrho_ = sqrt((double)(sz0*sz0+sz1*sz1));
     
-    mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-	    Array2DImpl<float>(sz0,sz1) );
+    mDeclareAndTryAlloc(Array2DImpl<int>*,arr,Array2DImpl<int>(sz0,sz1));
     if ( !arr )	return;
 
-    mDeclareAndTryAlloc( Array2DImpl<unsigned char>*, result,
-	    Array2DImpl<unsigned char>(sz0,sz1) );
+    mDeclareAndTryAlloc(Array2DImpl<unsigned char>*,result,
+	    		Array2DImpl<unsigned char>(sz0,sz1));
     if ( !result )
     {
 	delete arr;
 	return;
     }
     
-    mDeclareAndTryAlloc( Array2DImpl<int>*, harr,
-	    Array2DImpl<int>(thetasz_,rhosz_) );
+    mDeclareAndTryAlloc(Array2DImpl<int>*,harr,
+	    		Array2DImpl<int>(mThetaSize,mRhoSize));
     if ( !harr )
     {
 	delete arr;
@@ -254,28 +254,17 @@ LineFrom2DSpaceHoughTransform::LineFrom2DSpaceHoughTransform(
 	return;
     }
 
-    arr->copyFrom( input );
-    input_ =  arr;
-    
+    origcnt_ =  arr;
     result_ = result;
-    result_->setAll(0);
-    
     hougharr_ = harr;
     hougharr_->setAll(0);
-    
-    const float factor = 2*M_PI/(float)thetasz_;
-    for ( int idx=0; idx<thetasz_; idx++ )
-    {
-	const float theta = idx*factor-M_PI;
-	sintable_ += sin(theta);
-	costable_ += cos(theta);
-    }
+    result_->setAll(0);
 }
 
 
 LineFrom2DSpaceHoughTransform::~LineFrom2DSpaceHoughTransform()
 {
-    delete input_;
+    delete origcnt_;
     delete hougharr_; 
     delete result_; 
 }
@@ -294,57 +283,93 @@ void LineFrom2DSpaceHoughTransform::setThreshold( float val, bool above )
 
 bool LineFrom2DSpaceHoughTransform::compute()
 {
-    if ( !input_ || !hougharr_ || !result_ || !sintable_.size() )
+    if ( !origcnt_ || !hougharr_ || !result_ )
 	return false;
 
-    const int rsz = input_->info().getSize(0);
-    const int csz = input_->info().getSize(1);
+    const int rsz = input_.info().getSize(0);
+    const int csz = input_.info().getSize(1);
+    const float maxrho = sqrt((double)(rsz*rsz+csz*csz));
+    
+    TypeSet<float> sintable, costable;
+    const float factor = 2*M_PI/(float)(mThetaSize);
+    for ( int idx=0; idx<mThetaSize; idx++ )
+    {
+	const float theta = idx*factor;
+	sintable += -sin(theta);
+	costable += -cos(theta);
+    }
 
     for ( int idx=1; idx<rsz-1; idx++ )
     {
 	for ( int idy=1; idy<csz-1; idy++ )
 	{
-	    if ( (abovethreshold_ && input_->get(idx,idy)<threshold_) ||
-	         (!abovethreshold_ && input_->get(idx,idy)>threshold_) )
+	    const float val = input_.get(idx,idy);
+	    if ( mIsUdf(val) ) continue;
+	    
+	    if ( (abovethreshold_ && val<threshold_) ||
+		 (!abovethreshold_ && val>threshold_) )
 		continue;
+
+	    bool shouldcontinue = false;/*
+	    if ( abovethreshold_ )
+	    {
+		if ( (input_.get(idx,idy+1)>=threshold_ && 
+		     input_.get(idx,idy-1)>=threshold_) ||
+		     (input_.get(idx-1,idy+1)>=threshold_ &&
+		      input_.get(idx+1,idy-1)>=threshold_) || 
+		     (input_.get(idx-1,idy-1)>=threshold_ &&
+		      input_.get(idx+1,idy+1)>=threshold_) )
+		    shouldcontinue = true;
+	    }
+	    else
+	    {
+		if ( (input_.get(idx,idy+1)<=threshold_ && 
+		     input_.get(idx,idy-1)<=threshold_) ||
+		     (input_.get(idx-1,idy+1)<=threshold_ &&
+		      input_.get(idx+1,idy-1)<=threshold_) || 
+		     (input_.get(idx-1,idy-1)<=threshold_ &&
+		      input_.get(idx+1,idy+1)<=threshold_) )
+		    shouldcontinue = true;
+	    }
+	    if ( !shouldcontinue ) continue;*/
 
 	    result_->set( idx, idy, 1 );
 	    int lastidx;		
-	    for ( int tidx=0; tidx<thetasz_/2; tidx++ )
+	    for ( int tidx=0; tidx<mThetaSize/2; tidx++ )
 	    {
-		const float radius = (idy-csz/2)*costable_[tidx] + 
-				     (idx-rsz/2)*sintable_[tidx];
-		const int ridx = (int)(0.5+(radius/maxrho_+0.5)*rhosz_);
-		if ( ridx<0 || ridx>=rhosz_ )
+		const float radius = (idy-csz/2)*costable[tidx] + 
+				     (idx-rsz/2)*sintable[tidx];
+		const int ridx = (int)(0.5+(radius/maxrho+0.5)*mRhoSize);
+		if ( ridx<0 || ridx>=mRhoSize )
 		{
 		    lastidx = ridx;
 		    continue;
 		}
 
 		hougharr_->set( tidx, ridx, hougharr_->get(tidx,ridx)+1 );
-		hougharr_->set( tidx+thetasz_/2, rhosz_-ridx, 
-			hougharr_->get(tidx+thetasz_/2,rhosz_-ridx)+1 );
+		hougharr_->set( tidx+mThetaSize/2, mRhoSize-ridx, 
+			hougharr_->get(tidx+mThetaSize/2,mRhoSize-ridx)+1 );
 		if ( !tidx )
 		{
 		    lastidx = ridx;
 		    continue;
 		}
 		
-		while ( lastidx-1>ridx && lastidx<rhosz_ )
+		while ( lastidx-1>ridx && lastidx<mRhoSize )
 		{
 		    lastidx--;
 		    hougharr_->set(tidx,lastidx, 
 			    hougharr_->get(tidx,lastidx)+1 );
-		    hougharr_->set( tidx+thetasz_/2, rhosz_-lastidx, 
-			hougharr_->get(tidx+thetasz_/2,rhosz_-lastidx)+1 );
+		    hougharr_->set( tidx+mThetaSize/2, mRhoSize-lastidx, 
+			hougharr_->get(tidx+mThetaSize/2,mRhoSize-lastidx)+1 );
 		}
 		while ( lastidx+1<ridx && lastidx>0 )
 		{
 		    lastidx++;
 		    hougharr_->set(tidx,lastidx, 
 			    hougharr_->get(tidx,lastidx)+1 );
-		    hougharr_->set(tidx+thetasz_/2, rhosz_-lastidx, 
-			hougharr_->get(tidx+thetasz_/2,rhosz_-lastidx)+1 );
+		    hougharr_->set(tidx+mThetaSize/2, mRhoSize-lastidx, 
+			hougharr_->get(tidx+mThetaSize/2,mRhoSize-lastidx)+1 );
 		}
 		
 		lastidx = ridx;
@@ -357,9 +382,9 @@ bool LineFrom2DSpaceHoughTransform::compute()
        for ( int idy=0; idy<csz; idy++ )
        {
 	   if ( !idx || !idy || idx==rsz-1 || idy==csz-1 )
-	       input_->set( idx, idy, 0 );
+	       origcnt_->set( idx, idy, 0 );
 	   else
-	       input_->set( idx, idy, result_->get(idx+1,idy+1) + 
+	       origcnt_->set( idx, idy, result_->get(idx+1,idy+1) + 
 		       result_->get(idx,idy+1) + result_->get(idx-1,idy+1) +
 		       result_->get(idx+1,idy) + result_->get(idx,idy) + 
 		       result_->get(idx-1,idy) + result_->get(idx+1,idy-1) + 
@@ -370,19 +395,19 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
     TypeSet<int> tops, topids;
     TypeSet<int> tis, ris;
-    for ( int tidx=0; tidx<thetasz_/2; tidx++ )
+    for ( int tidx=0; tidx<mThetaSize/2; tidx++ )
     {
-       for ( int ridx=0; ridx<rhosz_; ridx++ )
+       for ( int ridx=0; ridx<mRhoSize; ridx++ )
        {
 	   bool max = true;
 	   for ( int dt =tidx-2; dt<=tidx+2; dt++ )
 	   {
-	       if ( dt<0 || dt>=thetasz_ )
+	       if ( dt<0 || dt>=mThetaSize )
 		   continue;
 
 	       for ( int dr=ridx-2; dr<=ridx+2; dr++ )
 	       {   
-		   if ( dr>=0 && dr<rhosz_ && 
+		   if ( dr>=0 && dr<mRhoSize && 
 			(hougharr_->get(dt,dr)>hougharr_->get(tidx,ridx)) )
 		   {
 		       max = false;
@@ -410,55 +435,23 @@ bool LineFrom2DSpaceHoughTransform::compute()
     for ( int idx=localmaxsz-1; idx>=0 && nrdone<toplistnr_; idx-- )
     {
        int tidx = tis[topids[idx]];
-       const float theta = ((float)tidx/(float)thetasz_-0.5)*2*M_PI;
+       const float theta = ((float)tidx/(float)(mThetaSize)-0.5)*2*M_PI;
        if ( angledefined && !anglerg_.includes(fabs(theta),false) )
 	   continue;
 
-       nrdone++;
-       const float radius = ((float)ris[topids[idx]]/(float)rhosz_-0.5)*maxrho_;
-       setLineFlag(radius, theta);
+       float radius = ((float)ris[topids[idx]]/(float)mRhoSize-0.5)*maxrho;
+       if ( setLineFlag(radius,theta) )
+	   nrdone++;
     }
 
     return true;
-
-    /*Method 2*//*
-    for ( int idx=1; idx<rsz-1; idx++ )
-    {
-	for ( int idy=1; idy<csz-1; idy++ )
-	{
-	    if ( input_->get(idx,idy)>0.8 )
-		continue;
-
-	    for ( int tidx=0; tidx<thetasz_; tidx++ )
-	    {
-		double theta = (double)tidx*M_PI/(double) thetasz_;
-		double tantheta = tan(theta);
-		double rho;
-		if ( tantheta>263 )
-		    rho = (double)idy;
-		else
-		{
-		    double denom = tantheta * tantheta + 1.0;
-		    double y1 = ((double)idx-(double)idy*tantheta)/denom;
-		    double x1 = ((double)idy*tantheta*tantheta-
-			    (double)idx*tantheta)/denom;
-		    rho = sqrt (x1 * x1 + y1 * y1);
-		}
-
-		int ridx = (long)(rho*maxrho_+0.5);
-		int val = hougharr_->get(tidx,ridx);
-		if ( val<255 )
-		    hougharr_->set(tidx,ridx, val+1);
-	    }
-	}
-    }*/
 }
 
 
-void LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
+bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 {
-    const int rsz = input_->info().getSize(0);
-    const int csz = input_->info().getSize(1);
+    const int rsz = origcnt_->info().getSize(0);
+    const int csz = origcnt_->info().getSize(1);
 
     const bool usec = fabs(theta)>=M_PI_4 && fabs(theta)<=3*M_PI_4;
     const float slop = usec ? cos(theta)/sin(theta) : sin(theta)/cos(theta);
@@ -467,18 +460,28 @@ void LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
     int startidx = -1;
     const int sz0 = usec ? csz : rsz;
     const int sz1 = usec ? rsz : csz;
+    const int linelength = 5; //sz0/10;
+
+    bool result = false;
     for ( int idx=0; idx<sz0; idx++ )
     {
 	const int idy = (int)(0.5+dist-idx*slop);
 	if ( idy<0 || idy>=sz1 )
 	    continue;
 
-	const float val = usec ? input_->get(idy,idx) : input_->get(idx,idy);
+	const int val = usec ? origcnt_->get(idy,idx) : origcnt_->get(idx,idy);
+	/*if ( usec )
+	    result_->set( idy, idx, val ? 1 :0 );
+	else
+	    result_->set( idx, idy, val ? 1 : 0 ); result = true; 
+	continue;*/
+
+	/*with line length*/
 	if ( startidx<0 && val>0 )
 	    startidx = idx;
-	else if ( mIsZero(val,1e-8) && startidx>0 )
+	else if ( !val && startidx>0 )
 	{
-	    if ( idx-startidx>30 ) //length threshold
+	    if ( idx-startidx>linelength ) 
 	    {
 		for ( int tmpidx = startidx; tmpidx<idx; tmpidx++ )
 		{
@@ -491,10 +494,14 @@ void LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 		    else
 			result_->set( tmpidx, tmpidy, 1 );
 		}
+
+		result = true;
 	    }
 	    startidx = -1;
 	}
     }
+
+    return result;
 }
 
 

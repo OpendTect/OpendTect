@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.12 2012-01-23 15:39:12 cvsyuancheng Exp $
+ RCS:		$Id: houghtransform.h,v 1.13 2012-01-25 20:45:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -125,22 +125,17 @@ public:
     Array2D<unsigned char>*	getResult() const	{ return result_; }
     				/*<0/1 array, 1 means on a line. */
 
-protected:
+//protected:
 
-    void			setLineFlag(float radius,float theta);
+    bool			setLineFlag(float radius,float theta);
 
-    Array2D<float>*		input_;
+    const Array2D<float>&	input_;
+    Array2D<int>*		origcnt_;	
     Array2D<int>*		hougharr_;
     Array2D<unsigned char>*	result_;
 
-    TypeSet<float>		sintable_;
-    TypeSet<float>		costable_;
-
     float			threshold_;
     bool			abovethreshold_;
-    float			maxrho_;
-    int				rhosz_;
-    int				thetasz_;  
     int				toplistnr_; 
     Interval<float>		anglerg_;
 };
