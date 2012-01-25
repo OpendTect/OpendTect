@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.41 2012-01-10 09:07:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.42 2012-01-25 16:07:09 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -158,12 +158,14 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     }
 
     setColor( color_ ); 
-    if ( lbl_ || !transpfld_ )
+    if ( lbl_ )
 	setHAlignObj( colbut_ );
     else if ( transpfld_ )
 	setHAlignObj( transpfld_ );
-    else
+    else if ( descfld_ )
 	setHAlignObj( descfld_ );
+    else
+	setHAlignObj( colbut_ );
 }
 
 
