@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.14 2012-01-25 20:45:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.15 2012-01-25 20:47:47 cvsyuancheng Exp $";
 
 
 #include "houghtransform.h"
@@ -309,29 +309,6 @@ bool LineFrom2DSpaceHoughTransform::compute()
 	    if ( (abovethreshold_ && val<threshold_) ||
 		 (!abovethreshold_ && val>threshold_) )
 		continue;
-
-	    bool shouldcontinue = false;/*
-	    if ( abovethreshold_ )
-	    {
-		if ( (input_.get(idx,idy+1)>=threshold_ && 
-		     input_.get(idx,idy-1)>=threshold_) ||
-		     (input_.get(idx-1,idy+1)>=threshold_ &&
-		      input_.get(idx+1,idy-1)>=threshold_) || 
-		     (input_.get(idx-1,idy-1)>=threshold_ &&
-		      input_.get(idx+1,idy+1)>=threshold_) )
-		    shouldcontinue = true;
-	    }
-	    else
-	    {
-		if ( (input_.get(idx,idy+1)<=threshold_ && 
-		     input_.get(idx,idy-1)<=threshold_) ||
-		     (input_.get(idx-1,idy+1)<=threshold_ &&
-		      input_.get(idx+1,idy-1)<=threshold_) || 
-		     (input_.get(idx-1,idy-1)<=threshold_ &&
-		      input_.get(idx+1,idy+1)<=threshold_) )
-		    shouldcontinue = true;
-	    }
-	    if ( !shouldcontinue ) continue;*/
 
 	    result_->set( idx, idy, 1 );
 	    int lastidx;		
