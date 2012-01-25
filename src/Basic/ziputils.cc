@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.3 2012-01-24 05:25:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.4 2012-01-25 10:13:26 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -58,16 +58,34 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 }
 
 
+void ZipUtils::makeFileList( const char* src )
+{
+#ifdef __win__
+  HZIP hz = OpenZip( src, 0 );
+  ZIPENTRY ze; GetZipItem( hz, -1, &ze );
+  const int numitems = ze.index;
+  filelist_.erase();
+  for ( int zi=0; zi<numitems; zi++ )
+  { 
+     ZIPENTRY ze; GetZipItem( hz, zi, &ze );
+     BufferString name = ze.name;
+     filelist_.add( name );
+  }
+  CloseZip( hz );
+#endif
+}
+
+
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
 #ifdef __win__
+    makeFileList( src );
     CoInitialize(0); 
     Shell32::IShellDispatch2Ptr shell;
     shell.CreateInstance(__uuidof(Shell32::Shell));
     _bstr_t bs( src );
     _variant_t varsrc ( bs );
     Shell32::FolderPtr srcfolder = shell->NameSpace( varsrc );
-
     _bstr_t bd( dest );
     _variant_t vardest( bd );
     Shell32::FolderPtr destfolder = shell->NameSpace( vardest );
