@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.35 2012-01-25 19:31:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.36 2012-01-25 20:06:01 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -494,6 +494,9 @@ void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 {
     if ( displaysurface_ )
 	displaysurface_->getShape()->updateMaterialFrom( getMaterial() );
+
+    for ( int idx=0; idx<intsinfo_.size(); idx++ )
+	intsinfo_[idx]->visshape_->setMaterial( getMaterial() );
 }
 
 
@@ -611,6 +614,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
 	pi->visshape_->setDisplayTransformation( getDisplayTransformation() );
 	pi->visshape_->setRightHandSystem( righthandsystem_ );
+	pi->visshape_->setMaterial( getMaterial() );
 	pi->visshape_->turnOn( displayintersections_ );
 	addChild( pi->visshape_->getInventorNode() );
 
@@ -687,6 +691,8 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 
     visshape_ = visBase::GeomIndexedShape::create();
     visshape_->turnOnForegroundLifter( true );
+    if ( visshape_->getMaterial() )
+	visshape_->setMaterial( visBase::Material::create() );
     visshape_->ref();
     visshape_->setSelectable( false );
     visshape_->renderOneSide( 0 );
