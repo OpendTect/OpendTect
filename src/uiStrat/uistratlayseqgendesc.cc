@@ -7,8 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.37 2012-01-24 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.38 2012-01-25 16:07:36 cvsbert Exp $";
 
+#include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uimanprops.h"
@@ -47,7 +48,7 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p,
     const Strat::RefTree& rt = srt ? *srt : Strat::RT();
     fld_->addItem( "-" );
     for ( int idx=0; idx<rt.contents().size(); idx++ )
-	fld_->addItem( rt.contents()[idx]->name_ );
+	fld_->addItem( rt.contents()[idx]->name() );
     setHAlignObj( lcb );
 }
 
@@ -57,7 +58,7 @@ void uiStratLayerContent::set( const Strat::Content& c )
     if ( c.isUnspecified() )
 	fld_->setCurrentItem( 0 );
     else
-	fld_->setCurrentItem( c.name_ );
+	fld_->setCurrentItem( c.name() );
 }
 
 
@@ -310,7 +311,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
     BufferString dispnm;
     if ( !disp.gen_->content().isUnspecified() )
-	dispnm.add( "[" ).add( disp.gen_->content().name_ ).add( "] " );
+	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "] " );
     dispnm.add( disp.gen_->name() );
     disp.nm_->setText( dispnm );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
@@ -602,6 +603,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     }
 
     contfld_ = new uiStratLayerContent( propgrp, &rt_ );
+    contfld_->set( edun_->content() );
     if ( !propflds_.isEmpty() )
 	contfld_->attach( alignedBelow, propflds_[ propflds_.size()-1 ] );
     propgrp->attach( centeredRightOf, unfld_ );

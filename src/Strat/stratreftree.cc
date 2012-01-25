@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.13 2012-01-24 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.14 2012-01-25 16:07:36 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: stratreftree.cc,v 1.13 2012-01-24 16:40:14 cvsb
 
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";
-static const char* sKeyContent = "Content";
+static const char* sKeyContents = "Contents";
 static const char* sKeyLevelID = "Level.ID";
 static const char* sKeyTree = "Tree";
 
@@ -136,7 +136,14 @@ bool Strat::RefTree::read( std::istream& strm )
 
     while ( !atEndOfSection( astrm.next() ) )
     {
-	if ( astrm.hasKeyword(sKeyLith) )
+	if ( astrm.hasKeyword(sKeyContents) )
+	{
+	    FileMultiString fms( astrm.value() );
+	    const int nrcont = fms.size();
+	    for ( int idx=0; idx<nrcont; idx++ )
+		contents_ += new Content( fms[idx] );
+	}
+	else if ( astrm.hasKeyword(sKeyLith) )
 	{
 	    const BufferString nm( astrm.value() );
 	    Lithology* lith = new Lithology(astrm.value());
@@ -144,12 +151,6 @@ bool Strat::RefTree::read( std::istream& strm )
 		delete lith;
 	    else
 		liths_.add( lith );
-	}
-	else if ( astrm.hasKeyword(sKeyContent) )
-	{
-	    FileMultiString fms( astrm.value() );
-	    const Content::ID id = toInt( fms[1] );
-	    contents_ += new Content( id, fms[0] );
 	}
     }
 
@@ -183,18 +184,16 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     ascostream astrm( strm );
     astrm.putHeader( sKeyStratTree );
     astrm.put( "General" );
-    BufferString bstr;
     for ( int idx=0; idx<liths_.size(); idx++ )
     {
-	liths_.getLith(idx).fill( bstr );
+	BufferString bstr; liths_.getLith(idx).fill( bstr );
 	astrm.put( sKeyLith, bstr );
     }
+    FileMultiString fms;
     for ( int idx=0; idx<contents_.size(); idx++ )
-    {
-	const Content& c( *contents_[idx] );
-	FileMultiString fms; fms += c.name_; fms += ::toString(c.id_);
-	astrm.put( sKeyContent, fms );
-    }
+	fms += contents_[idx]->name();
+    if ( !fms.isEmpty() )
+	astrm.put( sKeyContents, fms );
 
     astrm.newParagraph();
     astrm.put( "Units" );
@@ -204,7 +203,8 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 
     while ( it.next() )
     {
-	const UnitRef& un = *it.unit(); un.fill( bstr );
+	const UnitRef& un = *it.unit();
+	BufferString bstr; un.fill( bstr );
 	astrm.put( un.fullCode(), bstr );
 	unitrefs += &un;
     }
@@ -236,4 +236,3 @@ void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
 	    lur->setLevelID( -1 );
     }
 }
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.52 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.53 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -246,7 +246,7 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,"110.0.4"))
+    : uiDialog(p,uiDialog::Setup("Manage Lithologies",mNoDlgTitle,"110.0.4"))
     , prevlith_(0)
     , nmfld_(0)
 {
@@ -257,12 +257,14 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     uiGroup* rightgrp = new uiGroup( this, "right group" );
     uiGroup* toprightgrp = new uiGroup( rightgrp, "top right group" );
     nmfld_ = new uiGenInput( toprightgrp, "Name", StringInpSpec() );
+    isporbox_ = new uiCheckBox( toprightgrp, "Porous" );
+    isporbox_->attach( rightOf, nmfld_ );
+
     uiColorInput::Setup csu( Color::White() );
     csu.dlgtitle( "Default color for this lithology" );
     colfld_ = new uiColorInput( toprightgrp, csu );
     colfld_->attach( alignedBelow, nmfld_ );
-    isporbox_ = new uiCheckBox( toprightgrp, "Porous" );
-    isporbox_->attach( rightOf, colfld_ );
+
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
 	    		mCB(this,uiStratLithoDlg,newLith), true );
     newlithbut->attach( alignedBelow, toprightgrp );
@@ -389,6 +391,40 @@ void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 bool uiStratLithoDlg::acceptOK( CallBacker* )
 {
     selChg( 0 );
+    return true;
+}
+
+
+uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Manage Contents",
+		"Define special layer contents",mTODOHelpID))
+{
+    const Strat::ContentSet& conts = Strat::RT().contents();
+    int nrrows = conts.size();
+    if ( nrrows < 6 ) nrrows = 6;
+    uiTable::Setup tsu( nrrows, 1 );
+    tsu.rowdesc( "Content" ).coldesc( "Name" ).enablecopytext( true )
+	.rowgrow( true ).removerowallowed( false ).fillcol( true );
+    tbl_ = new uiTable( this, tsu, "Names" );
+    tbl_->setColumnLabel( 0, "Content name" );
+
+    for ( int idx=0; idx<conts.size(); idx++ )
+	tbl_->setText( RowCol(idx,0), conts[idx]->name() );
+}
+
+
+bool uiStratContentsDlg::acceptOK( CallBacker* )
+{
+    Strat::ContentSet& conts = Strat::eRT().contents();
+    deepErase( conts );
+    const int nrrows = tbl_->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	BufferString nm( tbl_->text(RowCol(idx,0)) );
+	cleanupString( nm.buf(), false, false, false );
+	if ( !nm.isEmpty() )
+	    conts += new Strat::Content( nm );
+    }
     return true;
 }
 

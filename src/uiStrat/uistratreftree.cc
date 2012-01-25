@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.67 2011-02-01 15:41:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.68 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "uistratreftree.h"
 
@@ -276,6 +276,12 @@ Strat::NodeUnitRef* uiStratRefTree::replaceUnit( NodeUnitRef& un, bool byleaved)
     IOPar iop; un.putPropsTo( iop ); newpar->getPropsFrom( iop );
     delete upnode->replace( upnode->indexOf(&un), newpar );
     return newpar;
+}
+
+
+void uiStratRefTree::updateLithoCol()
+{
+    //TODO ... was defined but not implemented - gave a linker error
 }
 
 

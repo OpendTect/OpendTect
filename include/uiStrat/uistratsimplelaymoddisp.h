@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: uistratsimplelaymoddisp.h,v 1.2 2012-01-24 16:40:14 cvsbert Exp $
+ RCS:		$Id: uistratsimplelaymoddisp.h,v 1.3 2012-01-25 16:07:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,6 @@ protected:
     void		getBounds();
     void		drawModel(TypeSet<uiPoint>&,int);
     void		drawLevels();
-    void		drawContent();
     virtual void	drawSelectedSequence();
     void		updZoomBox();
     int			getXPix(int,float) const;

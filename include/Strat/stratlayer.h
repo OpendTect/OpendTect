@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.15 2012-01-19 16:10:47 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.16 2012-01-25 16:07:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -45,16 +45,16 @@ public:
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
     const RefTree&	refTree() const;
     const Lithology&	lithology() const;
-    const Content&	content() const		{ return content_; }
+    const Content&	content() const;
 
-    inline float	zTop() const		{ return ztop_; }
-    inline float	thickness() const	{ return vals_[0]; }
-    inline int		nrValues() const	{ return vals_.size(); }
-    float		value(int) const;	//!< returns undef if necessary
-    inline void		setZTop( float v )	{ ztop_ = v; }
-    inline void		setThickness( float v )	{ vals_[0] = v; }
-    void		setValue(int,float);	//!< automatically adds space
-    void		setContent(const Content&);
+    inline float	zTop() const			{ return ztop_; }
+    inline float	thickness() const		{ return vals_[0]; }
+    inline int		nrValues() const		{ return vals_.size(); }
+    float		value(int) const;		//!< can be undef
+    inline void		setZTop( float v )		{ ztop_ = v; }
+    inline void		setThickness( float v )		{ vals_[0] = v; }
+    void		setValue(int,float);
+    void		setContent( const Content& c )	{ content_ = &c; }
 
     inline float	zBot() const	{ return zTop() + thickness(); }
     inline float	depth() const	{ return zTop() + 0.5*thickness(); }
@@ -71,7 +71,7 @@ protected:
     const LeafUnitRef*	ref_;
     float		ztop_;
     TypeSet<float>	vals_;
-    Content		content_;
+    const Content*	content_;
 
 };
 

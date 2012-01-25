@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.7 2012-01-24 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.8 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "stratlith.h"
 #include "stratcontent.h"
@@ -14,37 +14,15 @@ static const char* rcsID = "$Id: stratlith.cc,v 1.7 2012-01-24 16:40:14 cvsbert 
 
 const Strat::Content& Strat::Content::unspecified()
 {
-    static Strat::Content unspec( -1, "" );
+    static Strat::Content unspec( "" );
     return unspec;
-}
-
-
-static Strat::Content::ID content_lastid = Strat::Content::unspecified().id_;
-
-Strat::Content::ID Strat::Content::nextID()
-{
-    return ++content_lastid;
-}
-
-void Strat::Content::setLastID( Strat::Content::ID id )
-{
-    content_lastid = id;
-}
-
-
-int Strat::ContentSet::getIndexOf( Content::ID id ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->id_ == id )
-	    return idx;
-    return -1;
 }
 
 
 int Strat::ContentSet::getIndexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->name_ == nm )
+	if ( (*this)[idx]->name() == nm )
 	    return idx;
     return -1;
 }

@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.34 2012-01-24 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.35 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -368,7 +368,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     res = iop.find( sKey::Content );
     if ( res && *res )
     {
-	content_ = rt.contents().get( res );
+	content_ = rt.contents().getByName( res );
 	if ( !content_ ) content_ = &Content::unspecified();
     }
 
@@ -394,8 +394,12 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     LayerGenerator::fillPar( iop );
     iop.set( sKey::Unit, unit().fullCode() );
-    if ( !content().isUnspecified() )
-	iop.set( sKey::Content, content().name_ );
+
+    if ( content().isUnspecified() )
+	iop.removeWithKey( sKey::Content );
+    else
+	iop.set( sKey::Content, content().name() );
+
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {
 	IOPar subpar; props_.get(pidx).fillPar( subpar );
@@ -418,8 +422,10 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
 
-#define mSetLayVal { haveset = true; newlay->setValue( ipr, prop.value(eo) ) ; }
     Layer* newlay = new Layer( unit() );
+    newlay->setContent( content() );
+
+#define mSetLayVal { haveset = true; newlay->setValue( ipr, prop.value(eo) ) ; }
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];

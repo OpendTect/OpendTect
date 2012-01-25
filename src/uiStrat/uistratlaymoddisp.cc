@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.23 2012-01-24 16:40:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.24 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -291,8 +291,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     dispeach_ = tools_.dispEach();
     showzoomed_ = tools_.dispZoomed();
     uselithcols_ = tools_.dispLith();
-    const char* selcont = tools_.selContent();
-    selectedcontent_ = lm_.refTree().contents().get( selcont );
+    selectedcontent_ = lm_.refTree().contents().getByName(tools_.selContent());
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
@@ -330,17 +329,22 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    const int xpix1 = getXPix( iseq, relx );
 	    uiRectItem* it = scene().addRect( xpix0, ypix0,
 		    			xpix1-xpix0+1, ypix1-ypix0+1 );
-	    const Color col = lay.dispColor( uselithcols_ );
-	    it->setPenColor( col );
+	    const Color laycol = lay.dispColor( uselithcols_ );
+	    const bool isannotcont = selectedcontent_
+				  && lay.content() == *selectedcontent_;
+	    const Color pencol = isannotcont ? laycol.complementaryColor()
+					     : laycol;
+	    it->setPenColor( pencol );
+	    if ( pencol != laycol )
+		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
 	    if ( fillmdls_ )
-		it->setFillColor( col );
+		it->setFillColor( laycol );
 	    logblckitms_ += it;
 	}
 
     mEndLayLoop()
 
     drawLevels();
-    drawContent();
     drawSelectedSequence();
     updZoomBox();
 }
@@ -373,18 +377,6 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 1 );
 	lvlitms_ += it;
-    }
-}
-
-
-void uiStratSimpleLayerModelDisp::drawContent()
-{
-    const int nrseqs = lm_.size();
-    if ( nrseqs < 1 ) return;
-
-    for ( int iseq=0; iseq<nrseqs; iseq++ )
-    {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
     }
 }
 

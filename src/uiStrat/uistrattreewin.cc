@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.64 2010-11-18 15:43:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.65 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -145,13 +145,13 @@ void uiStratTreeWin::createToolBar()
     tb_->addSeparator();
     mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
-//    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
-    mDefBut(savebut_,"save.png",saveCB,"Save");
-    uiToolButton* helpbut = new uiToolButton( tb_, "contexthelp.png", "Help",
-					      mCB(this,uiStratTreeWin,helpCB) );
-    tb_->addButton( helpbut );
+    uiToolButton* uitb;
+    mDefBut(uitb,"save.png",saveCB,"Save");
+    mDefBut(uitb,"contexthelp.png",helpCB,"Help on this window");
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree.png", switchViewCB, "Switch View" );
+    mDefBut( uitb, "lithologies.png", manLiths, "Manage Lithologies" );
+    mDefBut( uitb, "contents.png", manConts, "Manage Content Types" );
 
     for ( int idx=0; idx<tbsetups_.size(); idx++ )
 	tb_->addButton( *tbsetups_[idx] );
@@ -352,3 +352,17 @@ void uiStratTreeWin::helpCB( CallBacker* )
     uiMainWin::provideHelp( "110.0.0" );
 }
 
+
+void uiStratTreeWin::manLiths( CallBacker* )
+{
+    uiStratLithoDlg dlg( this );
+    dlg.go();
+    uitree_->updateLithoCol();
+}
+
+
+void uiStratTreeWin::manConts( CallBacker* )
+{
+    uiStratContentsDlg dlg( this );
+    dlg.go();
+}

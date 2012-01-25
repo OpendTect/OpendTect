@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.4 2012-01-24 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.5 2012-01-25 16:07:36 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -102,7 +102,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 	    			mCB(this,uiStratLayModEditTools,selContentCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
-    lithtb_ = new uiToolButton( rightgrp, "togglithcols.png",
+    lithtb_ = new uiToolButton( rightgrp, "lithologies.png",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
@@ -125,7 +125,8 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone )
     if ( wnone )
 	cb->addItem( "---" );
     cb->addItems( nms );
-    int idxof = nms.isEmpty() || selnm.isEmpty() ? 0 : nms.indexOf( selnm );
+    int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
+    if ( wnone ) idxof++;
     if ( idxof >= 0 ) cb->setCurrentItem( idxof );
 }
 
