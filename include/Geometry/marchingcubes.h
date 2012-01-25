@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.14 2011-12-13 22:06:36 cvsyuancheng Exp $
+ RCS:           $Id: marchingcubes.h,v 1.15 2012-01-25 19:34:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,8 @@ public:
 
     od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
-    const char*	message() const { return "Contouring"; }
+    const char*	message() const 
+    		{ return "Implicit body to MarchingCubes: Contouring"; }
 
 
 protected:
@@ -157,6 +158,7 @@ public:
 		~MarchingCubes2Implicit();
 
     float	threshold() const { return 0; }
+    const char*	message() const { return "Processing MarchingCubes2Implicit."; }
 
 protected:
     od_int64	nrDone() const;
