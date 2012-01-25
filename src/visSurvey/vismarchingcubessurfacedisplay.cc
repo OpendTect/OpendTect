@@ -4,10 +4,11 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.34 2012-01-18 18:37:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.35 2012-01-25 19:31:32 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
+#include "arrayndimpl.h"
 #include "datapointset.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
@@ -17,6 +18,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.34 2012-0
 #include "keystrs.h"
 #include "marchingcubes.h"
 #include "randcolor.h"
+#include "selector.h"
 #include "survinfo.h"
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
@@ -495,6 +497,73 @@ void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 }
 
 
+void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
+	TaskRunner* tr )
+{
+    return; //TODO
+    if ( !selector.isOK() || !displaysurface_ )
+	return;
+
+    const SamplingData<int>&  isp = emsurface_->inlSampling();
+    const SamplingData<int>&  csp = emsurface_->crlSampling();
+    const SamplingData<float>& zsp = emsurface_->zSampling();
+
+    ::MarchingCubesSurface* mcs = displaysurface_->getSurface();
+    
+    Interval<int> inlrg, crlrg, zrg;
+    if ( !mcs || !mcs->models_.getRange(0,inlrg) || 
+	 !mcs->models_.getRange(1,crlrg) || !mcs->models_.getRange(2,zrg) )
+   	return;	
+
+    const int inlsz = inlrg.width()+1;
+    const int crlsz = crlrg.width()+1;
+    const int zsz = zrg.width()+1;
+
+    mDeclareAndTryAlloc( Array3DImpl<int>*, arr,
+	    Array3DImpl<int>(inlsz,crlsz,zsz) );
+    if ( !arr ) return;
+
+    MarchingCubes2Implicit m2i( *mcs, *arr, 0, 0, 0, false );
+    if ( !m2i.execute() )
+    {
+	delete arr;
+	return;
+    }
+
+    for ( int idx=0; idx<inlsz; idx++ )
+    {
+	const int inl = inlrg.start+idx*isp.step;
+	for ( int idy=0; idy<crlsz; idy++ )
+	{
+	    const int crl = crlrg.start+idy*csp.step;
+	    Coord3 pos( SI().transform(BinID(inl,crl)), 0 );
+	    for ( int idz=0; idz<zsz; idz++ )
+	    {
+		if ( arr->get(idx, idy, idz)>0 )
+		    continue;
+
+		pos.z = zrg.start+idz*zsp.step;
+		if ( !selector.includes(pos) )
+	    	    continue;
+
+		arr->set( idx, idy, idz, 1 );
+	    }
+	}
+    }
+
+    mDeclareAndTryAlloc( Array3DImpl<float>*, narr,
+	    Array3DImpl<float>(inlsz,crlsz,zsz) );
+    Implicit2MarchingCubes i2m(0,0,0,*narr,0,*mcs);
+    if ( !i2m.execute() )
+    {
+	delete arr;
+	return;
+    }
+
+    emsurface_->setChangedFlag();
+}
+
+
 void MarchingCubesDisplay::otherObjectsMoved( 
 	const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
@@ -540,7 +609,6 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	if ( planepresent ) continue;
 
 	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
-	pi->visshape_->getMaterial()->setColor( getColor() );
 	pi->visshape_->setDisplayTransformation( getDisplayTransformation() );
 	pi->visshape_->setRightHandSystem( righthandsystem_ );
 	pi->visshape_->turnOn( displayintersections_ );
@@ -620,8 +688,6 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
     visshape_ = visBase::GeomIndexedShape::create();
     visshape_->turnOnForegroundLifter( true );
     visshape_->ref();
-    if ( !visshape_->getMaterial() )
-	visshape_->setMaterial(visBase::Material::create());
     visshape_->setSelectable( false );
     visshape_->renderOneSide( 0 );
     
