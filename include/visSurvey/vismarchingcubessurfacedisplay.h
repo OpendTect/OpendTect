@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.29 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.30 2012-01-25 19:32:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,9 @@ public:
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
+
+    bool			canRemoveSelection() const	{ return true; }    void			removeSelection(const Selector<Coord3>&,
+	    					TaskRunner*);    
 
 protected:
 
