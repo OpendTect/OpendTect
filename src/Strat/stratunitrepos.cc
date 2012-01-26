@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.58 2010-09-29 11:14:33 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.59 2012-01-26 13:20:17 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratreftree.h"
@@ -21,41 +21,60 @@ class RefTreeMgr : public CallBacker
 public:
 
 RefTreeMgr()
-    : rt_(0)
 {
     IOM().surveyChanged.notify( mCB(this,RefTreeMgr,doNull) );
 }
 
+~RefTreeMgr()
+{
+    doNull( 0 );
+}
+
 void doNull( CallBacker* )
 {
-    delete rt_; rt_ = 0;
+    deepErase( rts_ );
 }
 
 void createTree()
 {
     RepositoryAccess ra;
-    rt_ = ra.readTree();
-    if ( !rt_ )
+    RefTree* rt = ra.readTree();
+    if ( !rt )
     {
-	rt_ = new RefTree;
-	rt_->src_ = Repos::Survey;
+	rt = new RefTree;
+	rt->src_ = Repos::Survey;
     }
+    rts_ += rt;
 }
 
-    RefTree*	rt_;
+RefTree& curTree()
+{
+    if ( rts_.isEmpty() )
+	createTree();
+    return *rts_[rts_.size()-1];
+}
+
+    ObjectSet<RefTree> rts_;
 
 };
 
 } // namespace
 
 
+static Strat::RefTreeMgr& refTreeMgr()
+{ static Strat::RefTreeMgr mgr; return mgr; }
 const Strat::RefTree& Strat::RT()
-{
-    static Strat::RefTreeMgr mgr;
-    if ( !mgr.rt_ )
-	mgr.createTree();
+{ return refTreeMgr().curTree(); }
+void Strat::pushRefTree( Strat::RefTree* rt )
+{ refTreeMgr().rts_ += rt; }
+void Strat::popRefTree()
+{ delete refTreeMgr().rts_.remove( refTreeMgr().rts_.size()-1 ); }
 
-    return *mgr.rt_;
+
+void Strat::setRT( RefTree* rt )
+{
+    if ( rt )
+	delete refTreeMgr().rts_.replace( 0, rt );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlevel.h,v 1.3 2010-09-28 04:59:01 cvsranojay Exp $
+ RCS:		$Id: stratlevel.h,v 1.4 2012-01-26 13:20:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,9 @@ public:
     bool		store(Repos::Source) const;
     bool		needStore() const		{ return ischanged_; }
 
+    static void		getStdNames(BufferStringSet&);
+    static LevelSet*	createStd(const char*);
+
 protected:
 
     ObjectSet<Level>	lvls_;
@@ -179,6 +182,17 @@ public:
 
 mGlobal const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
+
+// Needless to say that if you push, make sure you pop (so afterwards the real
+// default levels are restored
+mGlobal void pushLevelSet(LevelSet*);
+mGlobal void popLevelSet();
+
+mGlobal void setLVLS(LevelSet*);
+
+mGlobal BufferString getStdFileName(const char* inpnm,const char* basenm);
+//!< example: getStdFileName("North Sea","Levels")
+
 
 }; //namespace
 

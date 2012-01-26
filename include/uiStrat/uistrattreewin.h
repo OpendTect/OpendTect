@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.41 2012-01-25 16:07:36 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.42 2012-01-26 13:20:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ protected:
     bool			needsave_;
     bool			istreedisp_;
 
+    void			initRT();
     void			createMenu();
     void			createToolBar();
     void			createGroups();

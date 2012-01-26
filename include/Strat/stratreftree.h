@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.26 2012-01-19 16:10:47 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.27 2012-01-26 13:20:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,12 @@ public:
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
     virtual int		level() const			{ return 0; }
 
+    static void		getStdNames(BufferStringSet&);
+    static RefTree*	createStd(const char*);
+
 protected:
 
     void		initTree();
-    bool		addLeavedUnit(const char*,const char*);
     void		setToActualTypes();
 
     LithologySet	liths_;
@@ -74,11 +76,21 @@ public:
 
     void		reportChange(const UnitRef*,bool isrem=false);
     void		reportAdd(const UnitRef*);
+    bool		addLeavedUnit(const char*,const char*);
 
 };
 
 mGlobal const RefTree& RT();
 inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
+
+// Needless to say that if you push, make sure you pop (so afterwards the real
+// default RefTree is restored
+mGlobal void pushRefTree(RefTree*);
+mGlobal void popRefTree();
+
+mGlobal void setRT(RefTree*);
+//!< replaces (and deletes) the current RT. No write.
+//!< Used by tree manager, and not by *you*. Very very likely not.
 
 
 }; // namespace Strat

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.65 2012-01-25 16:07:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.66 2012-01-26 13:20:17 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.65 2012-01-25 16:07:36 cv
 #include "uistratlvllist.h"
 #include "uistratutildlgs.h"
 #include "uistratdisplay.h"
+#include "uiselsimple.h"
 #include "uitoolbar.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
@@ -63,9 +64,13 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , needsave_(false)
     , istreedisp_(false)	
     , repos_(*new Strat::RepositoryAccess())
+    , tb_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
+    if ( RT().isEmpty() )
+	initRT();
+
     createMenu();
     createToolBar();
     createGroups();
@@ -78,6 +83,45 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete &repos_;
+}
+
+
+void uiStratTreeWin::initRT()
+{
+    BufferStringSet opts;
+    opts.add( "<Build from scratch>" );
+    Strat::RefTree::getStdNames( opts );
+
+    uiSelectFromList::Setup su( "Stratigraphy: select initial", opts );
+    uiSelectFromList dlg( this, su );
+    bool havenewrt = false;
+    if ( dlg.go() && dlg.selection() > 0 )
+    {
+	const char* nm = opts.get( dlg.selection() );
+	Strat::LevelSet* ls = Strat::LevelSet::createStd( nm );
+	if ( !ls )
+	    pErrMsg( "Cannot read LevelSet from Std!" );
+	else
+	{
+	    Strat::setLVLS( ls );
+	    Strat::RefTree* rt = Strat::RefTree::createStd( nm );
+	    if ( !rt )
+		pErrMsg( "Cannot read RefTree from Std!" );
+	    else
+	    {
+		Strat::setRT( rt );
+		if ( tb_ )
+		    resetCB( 0 );
+		const Repos::Source dest = Repos::Survey;
+		Strat::LVLS().store( dest );
+		Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
+		havenewrt = true;
+	    }
+	}
+    }
+
+    if ( !havenewrt )
+	eRT().addLeavedUnit( Strat::RefTree::sKeyNoCode(), "-1`" );
 }
 
 

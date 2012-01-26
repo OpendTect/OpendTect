@@ -4,13 +4,14 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.14 2012-01-25 16:07:36 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.15 2012-01-26 13:20:17 cvsbert Exp $";
 
 
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 #include "ascstream.h"
 #include "separstr.h"
+#include "strmprov.h"
 
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";
@@ -34,7 +35,6 @@ Strat::RefTree::RefTree()
 void Strat::RefTree::initTree()
 {
     src_ = Repos::Temp;
-    addLeavedUnit( sKeyNoCode(), "-1`" );
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this,Strat::RefTree,levelToBeRemoved) );
 }
@@ -235,4 +235,21 @@ void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
 	if ( lur && lur->levelID() == lvl.id() )
 	    lur->setLevelID( -1 );
     }
+}
+
+
+void Strat::RefTree::getStdNames( BufferStringSet& nms )
+{
+    return Strat::LevelSet::getStdNames( nms );
+}
+
+
+Strat::RefTree* Strat::RefTree::createStd( const char* nm )
+{
+    RefTree* ret = new RefTree;
+    const BufferString fnm( getStdFileName(nm,"Tree") );
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    if ( sd.usable() )
+	ret->read( *sd.istrm );
+    return ret;
 }

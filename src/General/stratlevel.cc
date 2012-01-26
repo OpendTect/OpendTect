@@ -4,19 +4,22 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.10 2010-10-11 09:19:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.11 2012-01-26 13:20:17 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "file.h"
+#include "filepath.h"
 #include "color.h"
 #include "separstr.h"
 #include "keystrs.h"
 #include "safefileio.h"
 #include "strmprov.h"
 #include "ascstream.h"
+#include "oddirs.h"
+#include "dirlist.h"
 
 
 namespace Strat
@@ -40,24 +43,24 @@ class LevelSetMgr : public CallBacker
 public:
 
 LevelSetMgr()
-    : ls_(0)
 {
     IOM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
 }
 
 ~LevelSetMgr()
 {
-    delete ls_;
+    doNull( 0 );
 }
 
 void doNull( CallBacker* )
 {
-    delete ls_; ls_ = 0;
+    deepErase( lss_ );
 }
 
 void createSet()
 {
     Repos::FileProvider rfp( "StratLevels", true );
+    Strat::LevelSet* ls = 0;
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
@@ -65,33 +68,51 @@ void createSet()
 	if ( !tmp->readFrom(rfp.fileName()) || tmp->isEmpty() )
 	    delete tmp;
 	else
-	    { ls_ = tmp; break; }
+	    { ls = tmp; break; }
     }
 
-    if ( !ls_ )
+    if ( !ls )
     {
-	ls_ = new Strat::LevelSet;
-	Repos::Source rsrc = ls_->readOldRepos();
+	ls = new Strat::LevelSet;
+	Repos::Source rsrc = ls->readOldRepos();
 	if ( rsrc != Repos::Temp )
-	    ls_->store( rsrc );
+	    ls->store( rsrc );
     }
+    lss_ += ls;
 }
 
-    LevelSet*	ls_;
+LevelSet& curSet()
+{
+    if ( lss_.isEmpty() )
+	createSet();
+    return *lss_[lss_.size()-1];
+}
+
+    ObjectSet<LevelSet>	lss_;
 
 };
 
 } // namespace
 
 
-
+static Strat::LevelSetMgr& lvlSetMgr()
+{ static Strat::LevelSetMgr mgr; return mgr; }
 const Strat::LevelSet& Strat::LVLS()
-{
-    static Strat::LevelSetMgr mgr;
-    if ( !mgr.ls_ )
-	mgr.createSet();
+{ return lvlSetMgr().curSet(); }
+void Strat::pushLevelSet( Strat::LevelSet* ls )
+{ lvlSetMgr().lss_ += ls; }
+void Strat::popLevelSet()
+{ delete lvlSetMgr().lss_.remove( lvlSetMgr().lss_.size()-1 ); }
 
-    return *mgr.ls_;
+
+void Strat::setLVLS( LevelSet* ls )
+{
+    if ( !ls ) return;
+
+    if ( lvlSetMgr().lss_.isEmpty() )
+	lvlSetMgr().lss_ += ls;
+    else
+	delete lvlSetMgr().lss_.replace( 0, ls );
 }
 
 
@@ -121,7 +142,6 @@ Strat::Level::Level( const Level& oth )
 Strat::Level::~Level()
 {
     toBeRemoved.trigger();
-
     delete &pars_;
 }
 
@@ -499,4 +519,38 @@ bool Strat::LevelSet::writeTo( const char* fnm ) const
 
     sfio.closeSuccess();
     return true;
+}
+
+
+BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
+{
+    BufferString nm( inpnm );
+    replaceCharacter( nm.buf(), ' ', '_' );
+    FilePath fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
+    if ( basenm )
+	fp.add( basenm );
+    if ( nm && *nm )
+	fp.setExtension( nm );
+    return fp.fullPath();
+}
+
+
+void Strat::LevelSet::getStdNames( BufferStringSet& nms )
+{
+    DirList dl( getStdFileName(0,0), DirList::FilesOnly, "Levels.*" );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	BufferString fnm( dl.get(idx) );
+	char* nm = fnm.buf() + 7;
+	replaceCharacter( nm, '_', ' ' );
+	nms.add( nm );
+    }
+}
+
+
+Strat::LevelSet* Strat::LevelSet::createStd( const char* nm )
+{
+    LevelSet* ret = new LevelSet;
+    ret->readFrom( getStdFileName(nm,"Levels") );
+    return ret;
 }
