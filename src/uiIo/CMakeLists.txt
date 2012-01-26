@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiIo - OpendTect specific tools on top of uiBase/Tools
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-26 20:09:23 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
@@ -25,7 +25,6 @@ SET(OD_MODULE_SOURCES
 	    uidpscrossplotpropdlg.cc
 	    uidpscrossplottools.cc
 	    uidpsoverlayattrdlg.cc
-	    uidpsselectednessdlg.cc
 	    uidpsrefineseldlg.cc
 	    uidpsselgrpdlg.cc
 	    uidpsselectednessdlg.cc
