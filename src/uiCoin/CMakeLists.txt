@@ -2,10 +2,12 @@
 #
 #	Makefile : 	Coin/Ui
 # 	Feb 2002	Arend Lammertink
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-26 20:10:40 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS visSurvey uiTools )
+
+ADD_DEFINITIONS("-Wno-shadow -Wno-overloaded-virtual")
 
 SET(OD_USEQT OpenGL)
 SET(OD_USEOSG 1)
@@ -23,5 +25,5 @@ SET(OD_MODULE_SOURCES
 		uithumbwheel.cc
 )
 
-SET(OD_MODULE_BATCHPROGS od_ivfileviewer od_ivfileviewer_clean )
+SET(OD_MODULE_EXECS od_ivfileviewer od_ivfileviewer_clean )
 OD_INIT_MODULE()
