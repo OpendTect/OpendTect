@@ -1,0 +1,653 @@
+dTect V4.3
+Stratigraphic Tree
+Wed 25 Jan 2012, 17:01:35
+!
+General
+Lithology: sand`0`P`#dc3232
+Lithology: shale`1`N`#3232dc
+Lithology: limestone`2`P`#32c832
+Lithology: dolomite`3`P`#32c8c8
+Lithology: halite`4`N`#ffd200
+Lithology: anhydrite`5`N`#dc00dc
+Contents: Oil`Gas
+!
+Units
+Quaternary:  
+Quaternary.Pleistocene:  
+Quaternary.Pleistocene.S6-S13: -1` 
+Quaternary.Pleistocene.S6-S13.sand: 0` 
+Quaternary.Pleistocene.S6-S13.shale: 1` 
+Tertiary:  
+Tertiary.Upper_North_Sea: NU
+Tertiary.Upper_North_Sea.Oosterhout: NUOT
+Tertiary.Upper_North_Sea.Oosterhout.S5: 21` 
+Tertiary.Upper_North_Sea.Oosterhout.S5.sand: 0` 
+Tertiary.Upper_North_Sea.Oosterhout.S5.shale: 1` 
+Tertiary.Upper_North_Sea.Oosterhout.S4: 22` 
+Tertiary.Upper_North_Sea.Oosterhout.S4.sand: 0` 
+Tertiary.Upper_North_Sea.Oosterhout.S4.shale: 1` 
+Tertiary.Upper_North_Sea.Oosterhout.S3: 41` 
+Tertiary.Upper_North_Sea.Oosterhout.S3.sand: 0` 
+Tertiary.Upper_North_Sea.Oosterhout.S2: 43` 
+Tertiary.Upper_North_Sea.Oosterhout.S2.sand: 0` 
+Tertiary.Upper_North_Sea.Oosterhout.S2.shale: 1` 
+Tertiary.Upper_North_Sea.Oosterhout.S1: 46` 
+Tertiary.Upper_North_Sea.Oosterhout.S1.sand: 0` 
+Tertiary.Upper_North_Sea.Oosterhout.S1.shale: 1` 
+Tertiary.Upper_North_Sea.Breda: NUBA
+Tertiary.Upper_North_Sea.Breda.S1a-S1b: 47` 
+Tertiary.Upper_North_Sea.Breda.S1a-S1b.sand: 0` 
+Tertiary.Upper_North_Sea.Breda.S1a-S1b.shale: 1` 
+Tertiary.Middle_North_Sea: NM
+Tertiary.Middle_North_Sea.Base_Miocene_Unconformity: 5` 
+Tertiary.Middle_North_Sea.Base_Miocene_Unconformity.sand: 0` 
+Tertiary.Middle_North_Sea.Rupel: -1`NMRF
+Tertiary.Middle_North_Sea.Rupel.sand: 0` 
+Tertiary.Middle_North_Sea.Rupel.shale: 1` 
+Tertiary.Lower_North_Sea: NL
+Tertiary.Lower_North_Sea.Landen: -1`NLLF
+Tertiary.Lower_North_Sea.Landen.sand: 0` 
+Tertiary.Lower_North_Sea.Landen.shale: 1` 
+Tertiary.Lower_North_Sea.Dongen: -1`NLFF
+Tertiary.Lower_North_Sea.Dongen.sand: 0` 
+Tertiary.Lower_North_Sea.Dongen.shale: 1` 
+Tertiary.Chalk: CK
+Tertiary.Chalk.Ekofisk: 1`CKEK
+Tertiary.Chalk.Ekofisk.limestone: 2` 
+Cretaceous: K
+Cretaceous.Chalk: CK
+Cretaceous.Chalk.Ommenlanden: 2`CKGR
+Cretaceous.Chalk.Ommenlanden.sand: 0` 
+Cretaceous.Chalk.Ommenlanden.shale: 1` 
+Cretaceous.Chalk.Ommenlanden.limestone: 2` 
+Cretaceous.Chalk.Texel: -1`CKTX
+Cretaceous.Chalk.Texel.shale: 1` 
+Cretaceous.Chalk.Texel.limestone: 2` 
+Cretaceous.Rijnland: KN
+Cretaceous.Rijnland.Holland: -1`KNGL
+Cretaceous.Rijnland.Holland.sand: 0` 
+Cretaceous.Rijnland.Holland.shale: 1` 
+Cretaceous.Rijnland.Vlieland: -1`KNNC
+Cretaceous.Rijnland.Vlieland.shale: 1` 
+Cretaceous.Scruff: SG
+Cretaceous.Scruff.Greensand: -1`SGGS
+Cretaceous.Scruff.Greensand.sand: 0` 
+Jurassic:  
+Jurassic.Schieland: SL
+Jurassic.Schieland.Central_Graben: -1`SLC
+Jurassic.Schieland.Central_Graben.shale: 1` 
+Jurassic.Altena: AT
+Jurassic.Altena.Werkendam: -1`ATWD
+Jurassic.Altena.Werkendam.shale: 1` 
+Jurassic.Altena.Posidonia: -1`ATPO
+Jurassic.Altena.Posidonia.shale: 1` 
+Jurassic.Altena.Aalburg: -1`ATAL
+Jurassic.Altena.Aalburg.shale: 1` 
+Jurassic.Altena.Sleen: -1`ATRT
+Jurassic.Altena.Sleen.shale: 1` 
+Triassic:  
+Triassic.Upper_Germanic: RN
+Triassic.Upper_Germanic.Keuper: -1` 
+Triassic.Upper_Germanic.Keuper.shale: 1` 
+Triassic.Upper_Germanic.Muschelkalk: -1`RNMU
+Triassic.Upper_Germanic.Muschelkalk.shale: 1` 
+Triassic.Upper_Germanic.Muschelkalk.anhydrite: 5` 
+Triassic.Upper_Germanic.Rot_Solling: -1` 
+Triassic.Upper_Germanic.Rot_Solling.shale: 1` 
+Triassic.Lower_Germanic: RB
+Triassic.Lower_Germanic.Main_Buntsandstein: -1` 
+Triassic.Lower_Germanic.Main_Buntsandstein.sand: 0` 
+Triassic.Lower_Germanic.Lower_Buntsandtein: -1`RBSH
+Triassic.Lower_Germanic.Lower_Buntsandtein.shale: 1` 
+Permian:  
+Permian.Zechstein: ZE
+Permian.Zechstein.H2: 3` 
+Permian.Zechstein.H2.halite: 4` 
+Permian.Zechstein.A2: -1` 
+Permian.Zechstein.A2.anhydrite: 5` 
+Permian.Rotliegend: RO
+Permian.Rotliegend.Silverpit: 4`ROCL
+Permian.Rotliegend.Silverpit.sand: 0` 
+Permian.Rotliegend.Silverpit.shale: 1` 
+Permian.Rotliegend.Slochteren: -1`ROSL
+Permian.Rotliegend.Slochteren.sand: 0` 
+Permian.Rotliegend.Slochteren.shale: 1` 
+Carboniferous:  
+Carboniferous.Limburg: DC
+Carboniferous.Limburg.Step_graben: -1`DHCP
+Carboniferous.Limburg.Step_graben.sand: 0` 
+Carboniferous.Limburg.Step_graben.shale: 1` 
+Carboniferous.Limburg.Hospital_ground: -1`DCDG
+Carboniferous.Limburg.Hospital_ground.sand: 0` 
+Carboniferous.Limburg.Hospital_ground.shale: 1` 
+Carboniferous.Limburg.Maurits: -1`DCCU
+Carboniferous.Limburg.Maurits.sand: 0` 
+Carboniferous.Limburg.Maurits.shale: 1` 
+Carboniferous.Limburg.Botney: -1`DCCKB
+Carboniferous.Limburg.Botney.sand: 0` 
+Carboniferous.Limburg.Botney.shale: 1` 
+Carboniferous.Limburg.Klaverbank: -1`DCCK
+Carboniferous.Limburg.Klaverbank.sand: 0` 
+Carboniferous.Limburg.Klaverbank.shale: 1` 
+Carboniferous.Limburg.Epen: -1`DCGE
+Carboniferous.Limburg.Epen.sand: 0` 
+Carboniferous.Limburg.Epen.shale: 1` 
+Carboniferous.Farne:  
+Carboniferous.Farne.Yoredale: -1`CFYD
+Carboniferous.Farne.Yoredale.sand: 0` 
+Carboniferous.Farne.Yoredale.shale: 1` 
+Carboniferous.Farne.Ellebog: -1`CFEB
+Carboniferous.Farne.Ellebog.sand: 0` 
+Carboniferous.Farne.Ellebog.shale: 1` 
+Carboniferous.Farne.Cementstone: -1`CFCS
+Carboniferous.Farne.Cementstone.sand: 0` 
+Carboniferous.Farne.Cementstone.shale: 1` 
+Devonian:  
+Devonian.Old_red: OR
+Devonian.Old_red.Tayport: -1`ORTP
+Devonian.Old_red.Tayport.sand: 0` 
+Devonian.Old_red.Tayport.shale: 1` 
+Devonian.Old_red.Buchan: -1`ORBU
+Devonian.Old_red.Buchan.sand: 0` 
+Devonian.Old_red.Buchan.shale: 1` 
+Devonian.Old_red.Patch: -1`ORPA
+Devonian.Old_red.Patch.sand: 0` 
+Devonian.Old_red.Patch.shale: 1` 
+!
+Properties for entire tree
+Color: 255`255`255
+Time: 0`2000
+!
+Properties for Quaternary
+Color: 128`128`128
+Time: 0`3
+!
+Properties for Quaternary.Pleistocene
+Color: 50`50`220
+Time: 0.4`3
+!
+Properties for Quaternary.Pleistocene.S6-S13
+Color: 100`160`0
+Time: 0.4`3
+!
+Properties for Quaternary.Pleistocene.S6-S13.sand
+Color: 255`255`255
+!
+Properties for Quaternary.Pleistocene.S6-S13.shale
+Color: 255`255`255
+!
+Properties for Tertiary
+Color: 220`50`50
+Time: 3`66
+!
+Properties for Tertiary.Upper_North_Sea
+Color: 255`0`0
+Time: 3`23
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout
+Color: 220`0`220
+Time: 3`6
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S5
+Color: 140`35`80
+Time: 3`3.6
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S5.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S5.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S4
+Color: 204`133`61
+Time: 3.6`4.2
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S4.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S4.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S3
+Color: 220`50`50
+Time: 4.2`4.8
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S3.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S2
+Color: 220`0`220
+Time: 4.8`5.4
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S2.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S2.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S1
+Color: 50`50`220
+Time: 5.4`6
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S1.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Oosterhout.S1.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Breda
+Color: 140`130`80
+Time: 12`20
+!
+Properties for Tertiary.Upper_North_Sea.Breda.S1a-S1b
+Color: 50`200`50
+Time: 12`20
+!
+Properties for Tertiary.Upper_North_Sea.Breda.S1a-S1b.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Upper_North_Sea.Breda.S1a-S1b.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Middle_North_Sea
+Color: 72`209`204
+Time: 23`34
+!
+Properties for Tertiary.Middle_North_Sea.Base_Miocene_Unconformity
+Color: 100`160`0
+Time: 23`28
+!
+Properties for Tertiary.Middle_North_Sea.Base_Miocene_Unconformity.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Middle_North_Sea.Rupel
+Color: 140`35`80
+Time: 28`34
+!
+Properties for Tertiary.Middle_North_Sea.Rupel.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Middle_North_Sea.Rupel.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Lower_North_Sea
+Color: 255`210`0
+Time: 34`62
+!
+Properties for Tertiary.Lower_North_Sea.Landen
+Color: 220`50`50
+Time: 56`62
+!
+Properties for Tertiary.Lower_North_Sea.Landen.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Lower_North_Sea.Landen.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Lower_North_Sea.Dongen
+Color: 204`133`61
+Time: 36`56
+!
+Properties for Tertiary.Lower_North_Sea.Dongen.sand
+Color: 255`255`255
+!
+Properties for Tertiary.Lower_North_Sea.Dongen.shale
+Color: 255`255`255
+!
+Properties for Tertiary.Chalk
+Color: 50`50`220
+Time: 63`66
+!
+Properties for Tertiary.Chalk.Ekofisk
+Color: 50`200`50
+Time: 63`66
+!
+Properties for Tertiary.Chalk.Ekofisk.limestone
+Color: 255`255`255
+!
+Properties for Cretaceous
+Color: 220`0`220
+Time: 66`146
+!
+Properties for Cretaceous.Chalk
+Color: 140`130`80
+Time: 66`100
+!
+Properties for Cretaceous.Chalk.Ommenlanden
+Color: 140`35`80
+Time: 66`94
+!
+Properties for Cretaceous.Chalk.Ommenlanden.sand
+Color: 255`255`255
+!
+Properties for Cretaceous.Chalk.Ommenlanden.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Chalk.Ommenlanden.limestone
+Color: 255`255`255
+!
+Properties for Cretaceous.Chalk.Texel
+Color: 204`133`61
+Time: 94`100
+!
+Properties for Cretaceous.Chalk.Texel.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Chalk.Texel.limestone
+Color: 255`255`255
+!
+Properties for Cretaceous.Rijnland
+Color: 100`160`0
+Time: 100`141
+!
+Properties for Cretaceous.Rijnland.Holland
+Color: 220`50`50
+Time: 100`125
+!
+Properties for Cretaceous.Rijnland.Holland.sand
+Color: 255`255`255
+!
+Properties for Cretaceous.Rijnland.Holland.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Rijnland.Vlieland
+Color: 50`50`220
+Time: 125`141
+!
+Properties for Cretaceous.Rijnland.Vlieland.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Scruff
+Color: 50`200`200
+Time: 141`146
+!
+Properties for Cretaceous.Scruff.Greensand
+Color: 100`160`0
+Time: 141`146
+!
+Properties for Cretaceous.Scruff.Greensand.sand
+Color: 255`255`255
+!
+Properties for Jurassic
+Color: 255`210`0
+Time: 146`200
+!
+Properties for Jurassic.Schieland
+Color: 220`0`220
+Time: 146`165
+!
+Properties for Jurassic.Schieland.Central_Graben
+Color: 140`35`80
+Time: 146`165
+!
+Properties for Jurassic.Schieland.Central_Graben.shale
+Color: 255`255`255
+!
+Properties for Jurassic.Altena
+Color: 140`130`80
+Time: 165`200
+!
+Properties for Jurassic.Altena.Werkendam
+Color: 204`133`61
+Time: 165`178
+!
+Properties for Jurassic.Altena.Werkendam.shale
+Color: 255`255`255
+!
+Properties for Jurassic.Altena.Posidonia
+Color: 220`50`50
+Time: 178`183
+!
+Properties for Jurassic.Altena.Posidonia.shale
+Color: 255`255`255
+!
+Properties for Jurassic.Altena.Aalburg
+Color: 50`50`220
+Time: 183`191
+!
+Properties for Jurassic.Altena.Aalburg.shale
+Color: 255`255`255
+!
+Properties for Jurassic.Altena.Sleen
+Color: 50`200`200
+Time: 191`200
+!
+Properties for Jurassic.Altena.Sleen.shale
+Color: 255`255`255
+!
+Properties for Triassic
+Color: 50`200`50
+Time: 200`253
+!
+Properties for Triassic.Upper_Germanic
+Color: 255`210`0
+Time: 200`247
+!
+Properties for Triassic.Upper_Germanic.Keuper
+Color: 140`130`80
+Time: 200`239
+!
+Properties for Triassic.Upper_Germanic.Keuper.shale
+Color: 255`255`255
+!
+Properties for Triassic.Upper_Germanic.Muschelkalk
+Color: 100`160`0
+Time: 239`242
+!
+Properties for Triassic.Upper_Germanic.Muschelkalk.shale
+Color: 255`255`255
+!
+Properties for Triassic.Upper_Germanic.Muschelkalk.anhydrite
+Color: 255`255`255
+!
+Properties for Triassic.Upper_Germanic.Rot_Solling
+Color: 140`35`80
+Time: 242`247
+!
+Properties for Triassic.Upper_Germanic.Rot_Solling.shale
+Color: 255`255`255
+!
+Properties for Triassic.Lower_Germanic
+Color: 220`0`220
+Time: 247`253
+!
+Properties for Triassic.Lower_Germanic.Main_Buntsandstein
+Color: 204`133`61
+Time: 247`248
+!
+Properties for Triassic.Lower_Germanic.Main_Buntsandstein.sand
+Color: 255`255`255
+!
+Properties for Triassic.Lower_Germanic.Lower_Buntsandtein
+Color: 220`50`50
+Time: 248`253
+!
+Properties for Triassic.Lower_Germanic.Lower_Buntsandtein.shale
+Color: 255`255`255
+!
+Properties for Permian
+Color: 50`50`220
+Time: 253`299
+!
+Properties for Permian.Zechstein
+Color: 50`200`50
+Time: 253`260
+!
+Properties for Permian.Zechstein.H2
+Color: 255`210`0
+Time: 253`259
+!
+Properties for Permian.Zechstein.H2.halite
+Color: 255`255`255
+!
+Properties for Permian.Zechstein.A2
+Color: 50`200`200
+Time: 259`260
+!
+Properties for Permian.Zechstein.A2.anhydrite
+Color: 255`255`255
+!
+Properties for Permian.Rotliegend
+Color: 50`200`200
+Time: 260`267
+!
+Properties for Permian.Rotliegend.Silverpit
+Color: 255`210`0
+Time: 260`262
+!
+Properties for Permian.Rotliegend.Silverpit.sand
+Color: 255`255`255
+!
+Properties for Permian.Rotliegend.Silverpit.shale
+Color: 255`255`255
+!
+Properties for Permian.Rotliegend.Slochteren
+Color: 220`0`220
+Time: 262`267
+!
+Properties for Permian.Rotliegend.Slochteren.sand
+Color: 255`255`255
+!
+Properties for Permian.Rotliegend.Slochteren.shale
+Color: 255`255`255
+!
+Properties for Carboniferous
+Color: 140`130`80
+Time: 299`359
+!
+Properties for Carboniferous.Limburg
+Color: 140`35`80
+Time: 299`326
+!
+Properties for Carboniferous.Limburg.Step_graben
+Color: 50`50`220
+Time: 299`306
+!
+Properties for Carboniferous.Limburg.Step_graben.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Step_graben.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Hospital_ground
+Color: 50`200`50
+Time: 306`307
+!
+Properties for Carboniferous.Limburg.Hospital_ground.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Hospital_ground.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Maurits
+Color: 50`200`200
+Time: 307`308
+!
+Properties for Carboniferous.Limburg.Maurits.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Maurits.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Botney
+Color: 255`210`0
+Time: 308`310
+!
+Properties for Carboniferous.Limburg.Botney.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Botney.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Klaverbank
+Color: 220`0`220
+Time: 310`313
+!
+Properties for Carboniferous.Limburg.Klaverbank.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Klaverbank.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Epen
+Color: 140`130`80
+Time: 313`326
+!
+Properties for Carboniferous.Limburg.Epen.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Limburg.Epen.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne
+Color: 204`133`61
+Time: 326`354
+!
+Properties for Carboniferous.Farne.Yoredale
+Color: 100`160`0
+Time: 326`335
+!
+Properties for Carboniferous.Farne.Yoredale.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne.Yoredale.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne.Ellebog
+Color: 140`35`80
+Time: 335`345
+!
+Properties for Carboniferous.Farne.Ellebog.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne.Ellebog.shale
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne.Cementstone
+Color: 204`133`61
+Time: 345`354
+!
+Properties for Carboniferous.Farne.Cementstone.sand
+Color: 255`255`255
+!
+Properties for Carboniferous.Farne.Cementstone.shale
+Color: 255`255`255
+!
+Properties for Devonian
+Color: 100`160`0
+Time: 359`415
+!
+Properties for Devonian.Old_red
+Color: 220`50`50
+Time: 359`386
+!
+Properties for Devonian.Old_red.Tayport
+Color: 220`50`50
+Time: 359`367
+!
+Properties for Devonian.Old_red.Tayport.sand
+Color: 255`255`255
+!
+Properties for Devonian.Old_red.Tayport.shale
+Color: 255`255`255
+!
+Properties for Devonian.Old_red.Buchan
+Color: 50`50`220
+Time: 367`380
+!
+Properties for Devonian.Old_red.Buchan.sand
+Color: 255`255`255
+!
+Properties for Devonian.Old_red.Buchan.shale
+Color: 255`255`255
+!
+Properties for Devonian.Old_red.Patch
+Color: 50`200`50
+Time: 380`386
+!
+Properties for Devonian.Old_red.Patch.sand
+Color: 255`255`255
+!
+Properties for Devonian.Old_red.Patch.shale
+Color: 255`255`255
+!

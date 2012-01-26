@@ -1,0 +1,54 @@
+dTect V4.3
+Stratigraphic Tree
+Thu 26 Jan 2012, 14:16:38
+!
+General
+Lithology: sand`0`P`#ffd700
+Lithology: shale`1`N`#a52a2a
+Contents: Oil`Gas
+!
+Units
+Above: -1` 
+Above.sand: 0` 
+Above.shale: 1` 
+Reservoir: 1` 
+Reservoir.sand: 0` 
+Reservoir.shale: 1` 
+Below: 2` 
+Below.sand: 0` 
+Below.shale: 1` 
+!
+Properties for entire tree
+Color: 255`255`255
+Time: 0`30
+!
+Properties for Above
+Color: 0`191`255
+Time: 0`10
+!
+Properties for Above.sand
+Color: 255`255`255
+!
+Properties for Above.shale
+Color: 255`255`255
+!
+Properties for Reservoir
+Color: 0`255`0
+Time: 10`20
+!
+Properties for Reservoir.sand
+Color: 255`255`255
+!
+Properties for Reservoir.shale
+Color: 255`255`255
+!
+Properties for Below
+Color: 148`0`211
+Time: 20`30
+!
+Properties for Below.sand
+Color: 255`255`255
+!
+Properties for Below.shale
+Color: 255`255`255
+!
