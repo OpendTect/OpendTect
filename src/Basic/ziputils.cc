@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.4 2012-01-25 10:13:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.5 2012-01-27 12:03:41 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -80,6 +80,13 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
 #ifdef __win__
     makeFileList( src );
+    if ( filelist_.isEmpty() )
+    {
+	errmsg_ = "Error: ";
+	errmsg_ += BufferString( src, " is empty." );
+	return false;
+    }
+
     CoInitialize(0); 
     Shell32::IShellDispatch2Ptr shell;
     shell.CreateInstance(__uuidof(Shell32::Shell));
