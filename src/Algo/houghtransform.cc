@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.15 2012-01-25 20:47:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.16 2012-01-27 21:37:09 cvsyuancheng Exp $";
 
 
 #include "houghtransform.h"
@@ -26,8 +26,8 @@ static const char* rcsID = "$Id: houghtransform.cc,v 1.15 2012-01-25 20:47:47 cv
 #include <math.h>
 
 #define mRhoSize 200
-/*Do not change mThetaSize*/
 #define mThetaSize 360
+#define mHalfThetaSize 180
 
 class PlaneFrom3DSpaceHoughTransformTask : public SequentialTask
 {
@@ -280,7 +280,6 @@ void LineFrom2DSpaceHoughTransform::setThreshold( float val, bool above )
     abovethreshold_ = above;
 }
 
-
 bool LineFrom2DSpaceHoughTransform::compute()
 {
     if ( !origcnt_ || !hougharr_ || !result_ )
@@ -312,7 +311,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
 	    result_->set( idx, idy, 1 );
 	    int lastidx;		
-	    for ( int tidx=0; tidx<mThetaSize/2; tidx++ )
+	    for ( int tidx=0; tidx<mHalfThetaSize; tidx++ )
 	    {
 		const float radius = (idy-csz/2)*costable[tidx] + 
 				     (idx-rsz/2)*sintable[tidx];
@@ -323,9 +322,9 @@ bool LineFrom2DSpaceHoughTransform::compute()
 		    continue;
 		}
 
-		hougharr_->set( tidx, ridx, hougharr_->get(tidx,ridx)+1 );
-		hougharr_->set( tidx+mThetaSize/2, mRhoSize-ridx, 
-			hougharr_->get(tidx+mThetaSize/2,mRhoSize-ridx)+1 );
+		hougharr_->set(tidx,ridx,hougharr_->get(tidx,ridx)+1);
+		hougharr_->set(tidx+mHalfThetaSize,mRhoSize-ridx, 
+			hougharr_->get(tidx+mHalfThetaSize,mRhoSize-ridx)+1);
 		if ( !tidx )
 		{
 		    lastidx = ridx;
@@ -335,20 +334,17 @@ bool LineFrom2DSpaceHoughTransform::compute()
 		while ( lastidx-1>ridx && lastidx<mRhoSize )
 		{
 		    lastidx--;
-		    hougharr_->set(tidx,lastidx, 
-			    hougharr_->get(tidx,lastidx)+1 );
-		    hougharr_->set( tidx+mThetaSize/2, mRhoSize-lastidx, 
-			hougharr_->get(tidx+mThetaSize/2,mRhoSize-lastidx)+1 );
+		    hougharr_->set(tidx,lastidx,hougharr_->get(tidx,lastidx)+1);
+		    hougharr_->set(tidx+mHalfThetaSize,mRhoSize-lastidx,
+			hougharr_->get(tidx+mHalfThetaSize,mRhoSize-lastidx)+1);
 		}
 		while ( lastidx+1<ridx && lastidx>0 )
 		{
 		    lastidx++;
-		    hougharr_->set(tidx,lastidx, 
-			    hougharr_->get(tidx,lastidx)+1 );
-		    hougharr_->set(tidx+mThetaSize/2, mRhoSize-lastidx, 
-			hougharr_->get(tidx+mThetaSize/2,mRhoSize-lastidx)+1 );
-		}
-		
+		    hougharr_->set(tidx,lastidx,hougharr_->get(tidx,lastidx)+1);
+		    hougharr_->set(tidx+mHalfThetaSize,mRhoSize-lastidx, 
+			hougharr_->get(tidx+mHalfThetaSize,mRhoSize-lastidx)+1);
+		}		
 		lastidx = ridx;
 	    }
 	}
@@ -372,7 +368,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
     TypeSet<int> tops, topids;
     TypeSet<int> tis, ris;
-    for ( int tidx=0; tidx<mThetaSize/2; tidx++ )
+    for ( int tidx=0; tidx<mHalfThetaSize; tidx++ )
     {
        for ( int ridx=0; ridx<mRhoSize; ridx++ )
        {
@@ -384,20 +380,22 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
 	       for ( int dr=ridx-2; dr<=ridx+2; dr++ )
 	       {   
-		   if ( dr>=0 && dr<mRhoSize && 
-			(hougharr_->get(dt,dr)>hougharr_->get(tidx,ridx)) )
-		   {
-		       max = false;
-		       break;
-		   }
+		   if ( dr<0 || dr>=mRhoSize ||
+			hougharr_->get(dt,dr)<=hougharr_->get(tidx,ridx) )
+		       continue;
+		  
+		   max = false;
+		   break;
 	       }
+	       if ( !max ) break;
 	   }
-	   if ( !max )
-	       continue;
 
-	   tops += hougharr_->get(tidx,ridx);
-	   tis += tidx;
-	   ris += ridx;
+	   if ( max )
+	   {
+	       tops += hougharr_->get(tidx,ridx);
+    	       tis += tidx;
+    	       ris += ridx;
+	   }
        }
     }
 
@@ -406,7 +404,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
        topids += idx;
 
     sort_coupled( tops.arr(), topids.arr(), localmaxsz );
-    int localmin = localmaxsz>toplistnr_ ? localmaxsz-toplistnr_ : 0;
+    
     int nrdone = 0;
     const bool angledefined = !mIsUdf(anglerg_.start);
     for ( int idx=localmaxsz-1; idx>=0 && nrdone<toplistnr_; idx-- )
@@ -416,7 +414,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
        if ( angledefined && !anglerg_.includes(fabs(theta),false) )
 	   continue;
 
-       float radius = ((float)ris[topids[idx]]/(float)mRhoSize-0.5)*maxrho;
+       float radius = ((float)ris[topids[idx]]/(float)(mRhoSize)-0.5)*maxrho;
        if ( setLineFlag(radius,theta) )
 	   nrdone++;
     }
@@ -481,6 +479,134 @@ bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
     return result;
 }
 
+
+/*This method is more direct use theta between [-PI/2,PI/2]*/
+/*bool LineFrom2DSpaceHoughTransform::compute()
+{
+    if ( !origcnt_ || !hougharr_ || !result_ )
+	return false;
+
+    const int rsz = input_.info().getSize(0);
+    const int csz = input_.info().getSize(1);
+    const float maxrho = sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
+    
+    TypeSet<float> sintable, costable;
+    const float factor = M_PI/(float)(mThetaSize-1);
+    for ( int idx=0; idx<mThetaSize; idx++ )
+    {
+	const float theta = -M_PI_2+idx*factor;
+	sintable += sin(theta);
+	costable += cos(theta);
+    }
+
+    for ( int idx=1; idx<rsz; idx++ )
+    {
+	for ( int idy=1; idy<csz; idy++ )
+	{
+	    const float val = input_.get(idx,idy);
+	    if ( mIsUdf(val) ) continue;
+	    
+	    if ( (abovethreshold_ && val<threshold_) ||
+		 (!abovethreshold_ && val>threshold_) )
+		continue;
+
+	    for ( int tidx=0; tidx<mThetaSize; tidx++ )
+	    {
+		const float rho = idx*costable[tidx] + idy*sintable[tidx];
+		int ridx = (int)((rho+maxrho)*mRhoSize/(2*maxrho));
+		if ( ridx>=mRhoSize )
+		    ridx = mRhoSize-1;
+
+		hougharr_->set( tidx, ridx, hougharr_->get(tidx,ridx)+1 );
+	    }
+	}
+    }
+
+    TypeSet<int> tops, topids;
+    TypeSet<int> tis, ris;
+    for ( int tidx=0; tidx<mThetaSize; tidx++ )
+    {
+       for ( int ridx=0; ridx<mRhoSize; ridx++ )
+       {
+	   bool max = true;
+	   for ( int dt =tidx-2; dt<=tidx+2; dt++ )
+	   {
+	       if ( dt<0 || dt>=mThetaSize )
+		   continue;
+
+	       for ( int dr=ridx-2; dr<=ridx+2; dr++ )
+	       {   
+		   if ( dr>=0 && dr<mRhoSize && 
+			(hougharr_->get(dt,dr)>hougharr_->get(tidx,ridx)) )
+		   {
+		       max = false;
+		       break;
+		   }
+	       }
+	   }
+	   if ( !max )
+	       continue;
+
+	   tops += hougharr_->get(tidx,ridx);
+	   tis += tidx;
+	   ris += ridx;
+       }
+    }
+
+    const int localmaxsz = tops.size();
+    for ( int idx=0; idx<localmaxsz; idx++ )
+       topids += idx;
+
+    result_->setAll(0);
+    sort_coupled( tops.arr(), topids.arr(), localmaxsz );
+    int nrdone = 0;
+    const bool angledefined = !mIsUdf(anglerg_.start);
+    for ( int lidx=localmaxsz-1; lidx>=0 && nrdone<toplistnr_; lidx-- )
+    {
+ 	int tidx = tis[topids[lidx]];
+ 	const float theta = -M_PI_2+(M_PI*tidx)/(float)(mThetaSize-1);
+ 	if ( angledefined && !anglerg_.includes(fabs(theta),false) )
+ 	    continue;
+ 
+	float rho = -maxrho+(2*maxrho*ris[topids[lidx]])/(float)(mRhoSize-1);
+	if ( mIsZero(sin(theta),1e-5) )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+	    {
+		const int idx = (int)(rho);
+		if ( idx<0 || idx>=rsz )
+		    continue;
+	    
+		const float val = input_.get(idx,idy);
+		if ( mIsUdf(val) || (abovethreshold_ && val<threshold_) ||
+				    (!abovethreshold_ && val>threshold_) )
+		    continue;
+
+		result_->set( idx, idy, 1 );
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<rsz; idx++ )
+	    {
+		const int idy = (int)((rho-idx*cos(theta))/sin(theta));
+		if ( idy<0 || idy>=csz )
+		    continue;
+	    
+		const float val = input_.get(idx,idy);
+		if ( mIsUdf(val) || (abovethreshold_ && val<threshold_) ||
+				    (!abovethreshold_ && val>threshold_) )
+		    continue;
+
+		result_->set( idx, idy, 1 );
+	    }
+	}
+
+	nrdone++;
+    }
+
+    return true;
+}*/
 
 
 
