@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qhttpconn.h,v 1.5 2011-10-24 05:24:50 cvsumesh Exp $
+ RCS:           $Id: qhttpconn.h,v 1.6 2012-01-27 15:04:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,10 +88,7 @@ void requestFinished( int id, bool error )
     receiver_->requestid_ = id;
     receiver_->error_ = error;
     if ( error )
-    {
 	receiver_->setMessage( sender_->errorString().toAscii().data() );
-	return;
-    }
 
     receiver_->requestFinished.trigger( *receiver_ );
 }
