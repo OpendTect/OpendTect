@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.36 2012-01-25 20:06:01 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.37 2012-01-27 21:30:42 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -522,16 +522,18 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
     const int crlsz = crlrg.width()+1;
     const int zsz = zrg.width()+1;
 
+#define mRetDetele() { delete arr; delete narr; return; }
+
     mDeclareAndTryAlloc( Array3DImpl<int>*, arr,
 	    Array3DImpl<int>(inlsz,crlsz,zsz) );
-    if ( !arr ) return;
+    mDeclareAndTryAlloc( Array3DImpl<float>*, narr,
+	    Array3DImpl<float>(inlsz,crlsz,zsz) );
+    if ( !arr || !narr )
+       mRetDetele()	
 
     MarchingCubes2Implicit m2i( *mcs, *arr, 0, 0, 0, false );
-    if ( !m2i.execute() )
-    {
-	delete arr;
-	return;
-    }
+    if ( !m2i.execute() ) 
+	mRetDetele()
 
     for ( int idx=0; idx<inlsz; idx++ )
     {
@@ -542,7 +544,9 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 	    Coord3 pos( SI().transform(BinID(inl,crl)), 0 );
 	    for ( int idz=0; idz<zsz; idz++ )
 	    {
-		if ( arr->get(idx, idy, idz)>0 )
+		const int val = arr->get(idx, idy, idz);
+		narr->set(idx, idy, idz, val);
+		if ( val>0 )
 		    continue;
 
 		pos.z = zrg.start+idz*zsp.step;
@@ -550,18 +554,14 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 	    	    continue;
 
 		arr->set( idx, idy, idz, 1 );
+		narr->set(idx, idy, idz, 1);
 	    }
 	}
     }
-
-    mDeclareAndTryAlloc( Array3DImpl<float>*, narr,
-	    Array3DImpl<float>(inlsz,crlsz,zsz) );
+    
     Implicit2MarchingCubes i2m(0,0,0,*narr,0,*mcs);
     if ( !i2m.execute() )
-    {
-	delete arr;
-	return;
-    }
+	mRetDetele()
 
     emsurface_->setChangedFlag();
 }
