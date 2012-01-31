@@ -5,7 +5,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.22 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: parametricsurface.h,v 1.23 2012-01-31 10:50:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 					const RowCol& step=RowCol(1,1) );
     			~ParametricSurface();
     ParametricSurface*	clone() const = 0;
+
     virtual Coord3 	computePosition(const Coord&) const;
     virtual Coord3 	computeNormal(const Coord&) const;
 
@@ -76,8 +77,8 @@ public:
 
     void 		trimUndefParts();
 
-protected:
     int			getKnotIndex(const RowCol& rc) const;
+protected:
 
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
     virtual bool	checkSelfIntersection( const RowCol& ) const;
