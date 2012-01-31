@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransmgr.cc,v 1.7 2009-12-14 22:35:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistransmgr.cc,v 1.8 2012-01-31 10:20:13 cvskris Exp $";
 
 
 #include "vistransmgr.h"
@@ -30,16 +30,16 @@ SceneTransformManager& STM()
 }
 
 
-visBase::Transformation* SceneTransformManager::createZScaleTransform()
+mVisTrans* SceneTransformManager::createZScaleTransform() const
 {
-    visBase::Transformation* tf = visBase::Transformation::create();
+    mVisTrans* tf = mVisTrans::create();
     setZScale( tf, defZStretch() );
     return tf;
 }
 
 
-void SceneTransformManager::setZScale( visBase::Transformation* tf,
-				       float zscale )
+void SceneTransformManager::setZScale( mVisTrans* tf,
+				       float zscale ) const
 {
     if ( !tf ) return;
 
@@ -51,10 +51,10 @@ void SceneTransformManager::setZScale( visBase::Transformation* tf,
 }
 
 
-visBase::Transformation* 
-    SceneTransformManager::createUTM2DisplayTransform( const HorSampling& hs )
+mVisTrans* 
+SceneTransformManager::createUTM2DisplayTransform( const HorSampling& hs ) const
 {
-    visBase::Transformation* tf = visBase::Transformation::create();
+    mVisTrans* tf = mVisTrans::create();
 
     const Coord startpos = SI().transform( hs.start );
     const Coord stoppos = SI().transform( hs.stop );
@@ -67,11 +67,18 @@ visBase::Transformation*
 }
 
 
-visBase::Transformation*
-    SceneTransformManager::createIC2DisplayTransform( const HorSampling& hs )
+mVisTrans*
+SceneTransformManager::createIC2DisplayTransform( const HorSampling& hs ) const
 {
-    visBase::Transformation* tf = visBase::Transformation::create();
+    mVisTrans* tf = mVisTrans::create();
+    setIC2DispayTransform( hs, tf );
+    return tf;
+}
 
+
+void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
+						  mVisTrans* tf ) const
+{
     const BinID startbid = hs.start;
     const BinID stopbid = hs.stop;
     const BinID extrabid( startbid.inl, stopbid.crl );
@@ -105,7 +112,7 @@ visBase::Transformation*
 	if ( !crlwidth )
 	{
 	    tf->reset();
-	    return tf;
+	    return;
 	}
 	
 	x[0] = 1;
@@ -140,7 +147,6 @@ visBase::Transformation*
 		mat21,	mat22,	0,	mat24,
 		0,	0,	-1,	0,
 		0,	0,	0,	1 );
-    return tf;
 }
 
 } // namespace visSurvey
