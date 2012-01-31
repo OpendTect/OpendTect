@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: geomelement.h,v 1.13 2012-01-31 10:49:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,27 @@ typedef od_int64 GeomPosID;
 namespace Geometry
 {
 
+
+/*!Iterator through all positions on an element. */
+
+mClass Iterator
+{
+public:
+    virtual 			~Iterator()		{}
+    virtual GeomPosID		next()			= 0;
+    				//!<returs -1 if not valid
+};
+
+
 mClass Element : public CallBacker
 {
 public:
     				Element();
     virtual			~Element();
+    virtual Iterator*		createIterator() const			= 0;
+
     virtual void		getPosIDs(TypeSet<GeomPosID>&,
-	   				  bool noudf=true) const	= 0;
+	   				  bool noudf=true) const;
     virtual IntervalND<float>	boundingBox(bool approx) const;
     virtual Element*		clone() const				= 0;
     virtual const char*		errMsg() const;

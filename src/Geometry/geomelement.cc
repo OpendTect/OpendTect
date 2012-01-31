@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.10 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.11 2012-01-31 10:49:20 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -24,18 +24,31 @@ Element::~Element()
 { delete errmsg_; }
 
 
+void Element::getPosIDs( TypeSet<GeomPosID>& res, bool noudf ) const
+{
+    PtrMan<Iterator> iter = createIterator();
+
+    GeomPosID posid;
+    while ( (posid=iter->next())!=-1 )
+    {
+	if ( noudf && !isDefined( posid ) )
+	    continue;
+
+	res+= posid;
+    }
+}
+
+
 IntervalND<float> Element::boundingBox(bool) const
 {
-    TypeSet<GeomPosID> ids;
-    getPosIDs( ids );
-
     IntervalND<float> bbox(3);
     Coord3 pos;
-    for ( int idx=0; idx<ids.size(); idx++ )
+
+    PtrMan<Iterator> iter = createIterator();
+    GeomPosID posid;
+    while ( (posid=iter->next())!=-1 )
     {
-	pos = getPosition(ids[idx]);
-	//if ( !pos.isDefined() )
-	    //continue;
+	pos = getPosition( posid );
 
 	if ( !bbox.isSet() ) bbox.setRange(pos);
 	else bbox.include(pos);
