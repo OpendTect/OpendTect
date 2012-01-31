@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.16 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: binidsurface.h,v 1.17 2012-01-31 20:34:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
     			BinIDSurface(const BinID& step);
     			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
+    Iterator*		createIterator() const	{ return 0; }			
     BinIDSurface*	clone() const;
     bool		isEmpty() const { return !depths_; }
 
