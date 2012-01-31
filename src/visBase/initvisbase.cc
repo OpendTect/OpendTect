@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.23 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.24 2012-01-31 11:01:34 cvskris Exp $";
 
 
 
@@ -148,7 +148,7 @@ mDefModInitFn(visBase)
     visBase::TextureChannels::initClass();
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::TextureChannel2VolData::initClass();
-    visBase::TextureRect::initClass();
+    visBase::TextureRectangle::initClass();
     visBase::Transformation::initClass();
     visBase::Rotation::initClass();
     visBase::TriangleStripSet::initClass();
