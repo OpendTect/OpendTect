@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.24 2011-09-13 14:09:54 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.25 2012-01-31 13:48:24 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -54,10 +54,11 @@ void NLACreationDesc::clear()
 
 static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
 {
-    if ( *inpnodenm == '[' )
+    const bool isstored = *inpnodenm == '[';
+    if ( isstored )
 	{ inpnodenm++; if ( !*inpnodenm ) return false; }
     BufferString nodenm( inpnodenm );
-    if ( nodenm[colnm.size()-1] == ']' )
+    if ( isstored && nodenm[colnm.size()-1] == ']' )
 	nodenm[colnm.size()-1] = '\0';
 
     if ( colnm == nodenm )
@@ -74,10 +75,11 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
 
 static bool isPresentInDesgn( const NLADesign& des, const char* inpcolnm )
 {
-    if ( *inpcolnm == '[' )
+    const bool isstored = *inpcolnm == '[';
+    if ( isstored )
 	{ inpcolnm++; if ( !*inpcolnm ) return false; }
     BufferString colnm( inpcolnm );
-    if ( colnm[colnm.size()-1] == ']' )
+    if ( isstored && colnm[colnm.size()-1] == ']' )
 	colnm[colnm.size()-1] = '\0';
 
     for ( int idx=0; idx<des.inputs.size(); idx++ )
