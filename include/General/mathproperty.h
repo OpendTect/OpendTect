@@ -1,5 +1,5 @@
-#ifndef propertyimpl_h
-#define propertyimpl_h
+#ifndef mathproperty_h
+#define mathproperty_h
 
 /*+
 ________________________________________________________________________
@@ -7,56 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.20 2011-09-01 15:27:33 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.21 2012-02-01 13:54:09 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "property.h"
-#include "undefval.h"
 class MathExpression;
 class UnitOfMeasure;
-
-
-/*!\brief Simple property */
-
-mClass ValueProperty : public Property
-{
-public:
-
-    			ValueProperty( const PropertyRef& pr )
-			: Property(pr)
-			, val_(pr.disp_.range_.center())	{}
-    			ValueProperty( const PropertyRef& pr, float v )
-			: Property(pr)
-			, val_(v)				{}
-
-    float		val_;
-
-    mDefPropertyFns(ValueProperty,"Value");
-
-};
-
-/*!\brief Range of values.  pos_ is usually in [0,1]. */
-
-mClass RangeProperty : public Property
-{
-public:
-
-    			RangeProperty( const PropertyRef& pr )
-			: Property(pr)
-			, rg_(pr.disp_.range_)		{}
-    			RangeProperty( const PropertyRef& pr,
-				       Interval<float> rg )
-			: Property(pr)
-			, rg_(rg)			{}
-
-    Interval<float>	rg_;
-
-    mDefPropertyFns(RangeProperty,"Range");
-
-};
 
 
 /*!\brief Calculated property
@@ -77,9 +36,13 @@ public:
 
     int			nrInputs() const;
     const char*		inputName(int) const;
+    int			nrConsts() const;
+    const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
     			//!< Must be done for all inputs after each setDef()
+    float		constValue(int) const;
+    void		setConst(int,float);
 
     virtual bool	init(const PropertySet&) const;
     virtual const char*	errMsg() const		{ return errmsg_.buf(); }
@@ -98,6 +61,7 @@ protected:
 
     mutable MathExpression*	expr_;
     mutable ObjectSet<const Property> inps_;
+    mutable TypeSet<float>	consts_;
     mutable BufferString	errmsg_;
     mutable BufferString	fulldef_;
 

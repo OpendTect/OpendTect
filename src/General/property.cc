@@ -4,9 +4,9 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.54 2012-02-01 08:30:03 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.55 2012-02-01 13:54:09 cvsbert Exp $";
 
-#include "propertyimpl.h"
+#include "mathproperty.h"
 #include "propertyref.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
@@ -176,15 +176,59 @@ MathProperty::~MathProperty()
 }
 
 
+static int getNrVars( const MathExpression* me, bool var )
+{
+    if ( !me ) return 0;
+    const int nrvars = me->nrVariables();
+    int ret = 0;
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	if (  (var && me->getType(idx) == MathExpression::Variable)
+	  || (!var && me->getType(idx) == MathExpression::Constant) )
+	    ret++;
+    }
+    return ret;
+}
+
+
 int MathProperty::nrInputs() const
 {
-    return expr_ ? expr_->nrVariables() : 0;
+    return getNrVars( expr_, true );
+}
+
+
+int MathProperty::nrConsts() const
+{
+    return getNrVars( expr_, false );
+}
+
+
+static const char* getVarName( const MathExpression* me, int nr, bool var )
+{
+    if ( !me || nr < 0 ) return 0;
+    const int nrvars = me->nrVariables();
+    int varnr = -1;
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	if (  (var && me->getType(idx) == MathExpression::Variable)
+	  || (!var && me->getType(idx) == MathExpression::Constant) )
+	    varnr++;
+	if ( varnr == nr )
+	    return me->fullVariableExpression( idx );
+    }
+    return 0;
 }
 
 
 const char* MathProperty::inputName( int idx ) const
 {
-    return expr_ ? expr_->fullVariableExpression(idx) : 0;
+    return getVarName( expr_, idx, true );
+}
+
+
+const char* MathProperty::constName( int idx ) const
+{
+    return getVarName( expr_, idx, true );
 }
 
 
@@ -198,6 +242,20 @@ void MathProperty::setInput( int idx, const Property* p )
 	p = 0;
     }
     inps_.replace( idx, p );
+}
+
+
+float MathProperty::constValue( int idx ) const
+{
+    return idx < 0 || idx >= consts_.size() ? 0 : consts_[idx];
+}
+
+
+void MathProperty::setConst( int idx, float f )
+{
+    while ( consts_.size() <= idx )
+	consts_ += 0;
+    consts_[ idx ] = f;
 }
 
 
@@ -301,35 +359,74 @@ bool MathProperty::init( const PropertySet& ps ) const
 
 const char* MathProperty::def() const
 {
-    fulldef_ = def_;
+    FileMultiString fms( def_ );
+    const int nrconsts = nrConsts();
+    for ( int idx=0; idx<nrconsts; idx++ )
+    {
+	BufferString cdef( "c", idx, "=" );
+	cdef.add( constValue(idx) );
+	fms += cdef;
+    }
     if ( uom_ )
-	fulldef_.add( "`" ).add( uom_->name() );
+	fms += uom_->name();
 
+    fulldef_ = fms;
     return fulldef_.buf();
 }
 
 
 void MathProperty::setDef( const char* s )
 {
-    inps_.erase();
+    inps_.erase(); consts_.erase();
     FileMultiString fms( s );
     def_ = fms[0];
-
     MathExpressionParser mep( def_ );
     delete expr_; expr_ = mep.parse();
     if ( !expr_ ) return;
-    const int sz = expr_->nrVariables();
-    while ( sz > inps_.size() )
+
+    const int varsz = getNrVars( expr_, true );
+    const int constsz = getNrVars( expr_, false );
+
+    const int fmssz = fms.size();
+    for ( int idx=0; idx<fmssz; idx++ )
+    {
+	BufferString word( fms[idx] );
+	const int wordlen = word.size();
+	if ( wordlen < 3 ) continue;
+	if ( word[0] == 'c' && isdigit(word[1]) && word[2] == '=' )
+	    consts_ += toFloat( word.buf() + 3 );
+    }
+
+    while ( constsz > inps_.size() )
+	consts_ += 0;
+    while ( varsz > inps_.size() )
 	inps_ += 0;
 
-    if ( fms.size() > 1 )
-	uom_ = UoMR().get( ref_.stdType(), fms[1] );
+    if ( fmssz > constsz+1 )
+	uom_ = UoMR().get( ref_.stdType(), fms[fmssz-1] );
 }
 
 
 bool MathProperty::isUdf() const
 {
     return def_.isEmpty();
+}
+
+
+static int getMathVarIdx( const MathExpression& me, int nr, bool var )
+{
+    const int nrvars = me.nrVariables();
+    int curnr = -1;
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	if (  (var && me.getType(idx) == MathExpression::Variable)
+	  || (!var && me.getType(idx) == MathExpression::Constant) )
+	    curnr++;
+	if ( curnr == nr )
+	    return idx;
+    }
+    pFreeFnErrMsg("Huh?","getMathVarIdx");
+    return 0;
 }
 
 
@@ -350,8 +447,11 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	if ( mIsUdf(v) )
 	    return mUdf(float);
 
-	expr_->setVariableValue( idx, v );
+	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
     }
+    for ( int idx=0; idx<consts_.size(); idx++ )
+	expr_->setVariableValue( getMathVarIdx(*expr_,idx,false), 
+	      			 constValue(idx) );
 
     float res = expr_->getValue();
     if ( uom_ )
