@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.5 2012-01-27 12:03:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.6 2012-02-01 20:36:05 cvsnanne Exp $";
 
 #include "ziputils.h"
 
@@ -42,13 +42,7 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
 {
     mDirCheck(src);
     mDirCheck(dest);
-
-#ifdef __win__
     return doUnZip( src, dest );
-#else
-    // TODO on Linux
-    return false;
-#endif
 }
 
 
@@ -101,16 +95,19 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     HRESULT hres = destfolder->CopyHere( 
 	_variant_t((IDispatch*)items,true), flags );
     ::Sleep(1000);
-    CoUninitialize(); 
-    if ( SUCCEEDED(hres) )
-	return true;
-    else
-    {
-	errmsg_ = "Unzip Failed";
-	return false;
-    }
+    CoUninitialize();
+    const bool res = SUCCEEDED(hres);
     
 #else
-    return false;
+
+    BufferString cmd( "unzip -q ", src );
+    cmd.add( " -d " ).add( dest );
+    const bool res = !system( cmd );
+
 #endif
+
+    if ( res ) return true;
+
+    errmsg_ = "Unzip failed";
+    return false;
 }
