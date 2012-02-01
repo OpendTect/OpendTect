@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.26 2011-09-23 13:15:54 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.27 2012-02-01 15:39:15 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -24,7 +24,7 @@ bool SoOD::getAllParams()
     static bool answer = false;
     if ( !answer )
     {
-#ifdef win
+#ifdef __win__
 	if ( wglGetCurrentContext() )
 #elif lux
 	if ( glXGetCurrentContext() )
@@ -48,7 +48,7 @@ int SoOD::supportsFragShading()
     static int answer = 0;
     if ( !answer )
     {
-#ifdef win
+#ifdef __win__
 	if ( wglGetCurrentContext() )
 #elif lux
 	if ( glXGetCurrentContext() )
@@ -71,7 +71,7 @@ int SoOD::supportsVertexShading()
     static int answer = 0;
     if ( !answer )
     {
-#ifdef win
+#ifdef __win__
 	if ( wglGetCurrentContext() )
 #elif lux
 	if ( glXGetCurrentContext() )
@@ -91,7 +91,7 @@ int SoOD::maxNrTextureUnits()
     static int answer = 0;
     if ( !answer )
     {
-#ifdef win
+#ifdef __win__
       if ( wglGetCurrentContext() )
 #elif lux
       if ( glXGetCurrentContext() )
@@ -110,7 +110,7 @@ int SoOD::maxTexture2DSize()
     static int answer = -1;
     if ( answer==-1 )
     {
-#ifdef win
+#ifdef __win__
 	if ( wglGetCurrentContext() )
 #elif lux
 	if ( glXGetCurrentContext() )
