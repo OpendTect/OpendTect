@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.27 2011-11-18 07:55:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.28 2012-02-01 16:29:51 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -26,6 +26,7 @@ static const char* lostinspace = "/tmp";
 #else
 # define sDirSep	"\\"
 static const char* lostinspace = "C:\\";
+
 #endif
 
 #ifdef __mac__
@@ -507,7 +508,7 @@ const char* GetUserNm()
 {
 #ifdef __win__
     static char usernm[256];
-    const int len = 256;
+    int len = 256;
     GetUserName( usernm, &len );
     return usernm;
 #else
