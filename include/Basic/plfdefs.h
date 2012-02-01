@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.27 2010-05-10 12:08:17 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.28 2012-02-01 16:16:51 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -79,7 +79,7 @@ Always defined:
 #undef __unix__
 #undef __win__
 
-#if defined( win ) || defined( WIN32 ) 
+#if defined( WIN32 ) 
 # define __win__ 1
 # ifdef _WIN64
 #  define __win64__ 1
