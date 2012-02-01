@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.11 2012-02-01 10:38:45 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.12 2012-02-01 13:11:28 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -30,7 +30,7 @@ ENDIF(UNIX)
 
 IF(WIN32)
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOOD_DLL" )
-    ADD_DEFINITIONS("/W1 /Ob1 /vmg")
+    ADD_DEFINITIONS("/W1 /Ob1 /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
