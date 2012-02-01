@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.17 2012-01-31 20:34:28 cvsyuancheng Exp $
+RCS:           $Id: binidsurface.h,v 1.18 2012-02-01 09:43:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "parametricsurface.h"
 
 class BinIDValue;
+class SurveyInfo;
 
 template <class T> class Array2D;
 template <class T> class TypeSet;
@@ -29,7 +30,8 @@ public:
     			BinIDSurface(const BinID& step);
     			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
-    Iterator*		createIterator() const	{ return 0; }			
+    void		setInlCrlSystem(const SurveyInfo& si)
+			{ surveyinfo_ = &si; }
     BinIDSurface*	clone() const;
     bool		isEmpty() const { return !depths_; }
 
@@ -57,12 +59,15 @@ public:
 			{ return getKnot(rc,false); }
     Coord3		getKnot(const RowCol&,bool computeifudf) const;
 
+    Coord		getKnotCoord(const RowCol&) const;
+
 protected:
     void		_setKnot(int idx,const Coord3&);
     int			nrRows() const;
     int			nrCols() const;
 
     Array2D<float>*	depths_;
+    const SurveyInfo*	surveyinfo_;
 };
 
 };
