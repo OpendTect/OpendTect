@@ -5,15 +5,16 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
- RCS:           $Id: wellposprovider.h,v 1.1 2012-02-01 16:57:22 cvsnanne Exp $
+ Author:        Nanne Hemstra
+ Date:          January 2012
+ RCS:           $Id: wellposprovider.h,v 1.2 2012-02-01 23:29:55 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "posprovider.h"
+
 class HorSampling;
 namespace Well { class Data; }
 
@@ -43,9 +44,8 @@ public:
 
     virtual BinID	curBinID() const	{ return curbid_; }
     virtual float	curZ() const		{ return curz_; }
-    virtual bool	includes(const BinID&,float) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
+    virtual bool	includes(const BinID&,float z) const;
+    virtual bool	includes(const Coord&,float z) const;
     virtual void	getSummary(BufferString&) const;
 
     virtual void	getExtent(BinID&,BinID&) const;
@@ -53,15 +53,19 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
 
-    const Well::Data*	wellData(int idx) const
-			{ return welldata_.validIdx(idx) ? welldata_[idx] : 0; }
+    const Well::Data*	wellData(int idx) const;
     StepInterval<float>& zRange()		{ return zrg_; }
     const StepInterval<float>& zRange() const	{ return zrg_; }
     HorSampling&	horSampling()		{ return hs_; }
     const HorSampling&	horSampling() const	{ return hs_; }
 
-    virtual bool	includes( const Coord& c, float z ) const
-			{ return Provider3D::includes(c,z); }
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+    static const char*	sKeyInlExt();
+    static const char*	sKeyCrlExt();
+    static const char*	sKeyZExt();
+    static const char*	sKeySurfaceCoords();
 
 protected:
 

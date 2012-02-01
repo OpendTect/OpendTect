@@ -1,10 +1,14 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : Jan 2005
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		January 2012
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: wellposprovider.cc,v 1.1 2012-02-01 16:57:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellposprovider.cc,v 1.2 2012-02-01 23:29:55 cvsnanne Exp $";
 
 #include "wellposprovider.h"
 
@@ -22,6 +26,12 @@ static const char* rcsID = "$Id: wellposprovider.cc,v 1.1 2012-02-01 16:57:51 cv
 
 namespace Pos
 {
+
+const char* WellProvider3D::sKeyInlExt()	{ return "Inline extension"; }
+const char* WellProvider3D::sKeyCrExt()		{ return "Crossline extension";}
+const char* WellProvider3D::sKeyZExt()		{ return "Z extension"; }
+const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
+
 
 WellProvider3D::WellProvider3D()
     : hs_(*new HorSampling(true))
@@ -141,6 +151,10 @@ bool WellProvider3D::includes( const BinID& bid, float z ) const
 }
 
 
+bool WellProvider3D::includes( const Coord& c, float z ) const
+{ return Provider3D::includes(c,z); }
+
+
 #define mGetWellKey(k) IOPar::compKey(sKey::Well,k)
 
 void WellProvider3D::usePar( const IOPar& iop )
@@ -205,6 +219,10 @@ od_int64 WellProvider3D::estNrPos() const
     fnr /= hs_.step.crl;
     return mRounded(od_int64,fnr);
 }
+
+
+const Well::Data* WellProvider3D::wellData( int idx ) const
+{ return welldata_.validIdx(idx) ? welldata_[idx] : 0; }
 
 
 void WellProvider3D::initClass()
