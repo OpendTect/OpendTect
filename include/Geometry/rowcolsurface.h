@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        K. Tingdahl
 Date:          April 2006
 Contents:      Ranges
-RCS:           $Id: rowcolsurface.h,v 1.5 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: rowcolsurface.h,v 1.6 2012-02-01 09:18:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
 
     virtual bool		isEmpty() const				= 0;
+
+
+    Iterator*			createIterator() const;
 
     virtual StepInterval<int>	colRange() const;
     virtual StepInterval<int>	colRange(int row) const			= 0;

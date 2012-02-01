@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: rowcolsurface.cc,v 1.6 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: rowcolsurface.cc,v 1.7 2012-02-01 09:18:23 cvskris Exp $";
 
 #include "rowcolsurface.h"
 
@@ -14,6 +14,48 @@ static const char* rcsID = "$Id: rowcolsurface.cc,v 1.6 2010-06-18 12:23:27 cvsk
 namespace Geometry
 {
 
+class RowColSurfaceIterator : public Iterator
+{
+public:
+    RowColSurfaceIterator( const RowColSurface& ps )
+	: curpos_( -1, -1 )
+	, rowrg_( ps.rowRange() )
+	, colrg_( ps.colRange() )
+    {}
+
+    GeomPosID           next()
+    {
+	if ( curpos_.row==-1 )
+	{
+	    curpos_.row = rowrg_.start;
+	    curpos_.col = colrg_.start;
+	}
+    else
+    {
+	curpos_.col += colrg_.step;
+	if ( !colrg_.includes( curpos_.col, false ) )
+	{
+	    curpos_.row += rowrg_.step;
+	    if ( !rowrg_.includes( curpos_.row, false ) )
+		return -1;
+
+	    curpos_.col = colrg_.start;
+	}
+    }
+
+    return curpos_.getSerialized();
+}
+
+protected:
+
+    RowCol              curpos_;
+    StepInterval<int>   rowrg_;
+    StepInterval<int>   colrg_;
+};
+
+
+Iterator* RowColSurface::createIterator() const
+{ return new RowColSurfaceIterator( *this ); }
 
 void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 {
