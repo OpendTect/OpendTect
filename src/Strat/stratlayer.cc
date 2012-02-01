@@ -4,14 +4,13 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.32 2012-01-25 16:07:36 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.33 2012-02-01 13:54:40 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
-#include "propertyimpl.h"
-#include "propertyref.h"
+#include "property.h"
 #include "separstr.h"
 #include "ascstream.h"
 #include "keystrs.h"

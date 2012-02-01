@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.29 2011-10-11 11:23:50 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.30 2012-02-01 13:54:40 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -95,21 +95,6 @@ protected:
 
 };
 
-// For impl of Property subclasses. gtVal and the last three must be provided.
-#define mDefPropertyFns(clss,typstr) \
-protected: \
-    virtual float	gtVal(EvalOpts) const; \
-public: \
-    static const char*	typeStr()		{ return typstr; } \
-    virtual const char* type() const		{ return typeStr(); } \
-    virtual const char* factoryKeyword() const	{ return type(); } \
-    static Property*	create( const PropertyRef& r ) { return new clss(r); } \
-    static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual Property*	clone() const		{ return new clss( *this ); }\
-    virtual const char*	def() const; \
-    virtual void	setDef(const char*); \
-    virtual bool	isUdf() const
-
 
 mClass PropertySet
 {
@@ -156,6 +141,63 @@ protected:
     mutable BufferString errmsg_;
 
     Property*		fnd(const char*,bool) const;
+
+};
+
+
+// For impl of Property subclasses. gtVal and the last three must be provided.
+#define mDefPropertyFns(clss,typstr) \
+protected: \
+    virtual float	gtVal(EvalOpts) const; \
+public: \
+    static const char*	typeStr()		{ return typstr; } \
+    virtual const char* type() const		{ return typeStr(); } \
+    virtual const char* factoryKeyword() const	{ return type(); } \
+    static Property*	create( const PropertyRef& r ) { return new clss(r); } \
+    static void		initClass() { factory().addCreator(create,typeStr());} \
+    virtual Property*	clone() const		{ return new clss( *this ); }\
+    virtual const char*	def() const; \
+    virtual void	setDef(const char*); \
+    virtual bool	isUdf() const
+
+
+
+/*!\brief Simple, single-value property */
+
+mClass ValueProperty : public Property
+{
+public:
+
+    			ValueProperty( const PropertyRef& pr )
+			: Property(pr)
+			, val_(pr.disp_.range_.center())	{}
+    			ValueProperty( const PropertyRef& pr, float v )
+			: Property(pr)
+			, val_(v)				{}
+
+    float		val_;
+
+    mDefPropertyFns(ValueProperty,"Value");
+
+};
+
+/*!\brief Range of values.  pos_ is usually in [0,1]. */
+
+mClass RangeProperty : public Property
+{
+public:
+
+    			RangeProperty( const PropertyRef& pr )
+			: Property(pr)
+			, rg_(pr.disp_.range_)		{}
+    			RangeProperty( const PropertyRef& pr,
+				       Interval<float> rg )
+			: Property(pr)
+			, rg_(rg)			{}
+
+    Interval<float>	rg_;
+
+    mDefPropertyFns(RangeProperty,"Range");
 
 };
 
