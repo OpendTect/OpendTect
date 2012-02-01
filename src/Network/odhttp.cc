@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.16 2012-01-24 21:18:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.17 2012-02-01 20:36:40 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -23,6 +23,12 @@ class MyHttp : public QHttp
 {
 public:
 MyHttp() : QHttp(), asynchronous_(false)		{}
+
+~MyHttp()
+{
+    if ( qeventloop_.isRunning() )
+	qeventloop_.exit();
+}
 
 void init()
 {
