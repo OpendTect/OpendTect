@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.6 2011-12-09 06:04:17 cvsranojay Exp $
+ RCS:           $Id: oddlsite.h,v 1.7 2012-02-01 12:35:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
     			//!< if haveErrMsg(), then failure - otherwise user stop
 
     BufferString	fullURL(const char*) const;
+    ODHttp*		getODHttp() const { return odhttp_; };
 
 protected:
 
