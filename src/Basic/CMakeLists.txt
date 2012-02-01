@@ -2,10 +2,11 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-02-01 10:21:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
+SET(OD_USEZLIB Yes)
 SET(QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h)
 SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    arrayndinfo.cc
@@ -67,6 +68,7 @@ SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    timer.cc
 	    undefarray.cc
 	    undo.cc
+	    unzip.cc
 	    veldesc.cc
 	    winutils.cc
 	    winterminate.cc
