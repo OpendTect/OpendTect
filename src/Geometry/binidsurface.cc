@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.27 2011-04-22 20:08:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.28 2012-02-01 09:43:14 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -24,12 +24,14 @@ namespace Geometry
 BinIDSurface::BinIDSurface( const BinID& newstep )
     : ParametricSurface( RowCol(0,0), RowCol(newstep) ) 
     , depths_( 0 )
+    , surveyinfo_( &SI() )
 { }
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
     : ParametricSurface( b.origin_, b.step_ ) 
     , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
+    , surveyinfo_( &SI() )
 { }
 
 
@@ -138,7 +140,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	}
     }
 
-    return Coord3(SI().binID2Coord().transform(param), depth );
+    return Coord3(surveyinfo_->binID2Coord().transform(param), depth );
 }
 
 
@@ -375,11 +377,15 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 }
 
 
+Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
+{ return surveyinfo_->transform(BinID(rc)); }
+
+
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 {
     const int index = getKnotIndex( rc );
     float posz = index<0 || !depths_ ? mUdf(float) : depths_->getData()[index];
-    Coord3 res = Coord3( SI().transform(BinID(rc)), posz );
+    Coord3 res = Coord3( getKnotCoord( rc ) , posz );
 
     if ( !depths_ || !mIsUdf(posz) || !interpolifudf )
 	return res;
