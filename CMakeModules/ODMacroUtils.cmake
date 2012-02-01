@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.7 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.8 2012-02-01 11:50:23 cvskris Exp $
 #_______________________________________________________________________________
 
 # Setups a number of variables for compiling OpendTect:
@@ -34,6 +34,11 @@ FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od "\n")
 IF(OD_USECOIN)
     OD_SETUP_COIN()
 ENDIF()
+
+IF( OD_USEZLIB )
+    LIST(APPEND MODULE_INCLUDEPATH ${ZLIB_INCLUDE_DIR} )
+    LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
+ENDIF( OD_USEZLIB )
 
 IF(OD_USEOSG)
     OD_SETUP_OSG()

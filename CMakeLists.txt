@@ -16,6 +16,7 @@ SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 3)
 
 INCLUDE ( CMakeModules/ODQtUtils.cmake REQUIRED )
+INCLUDE ( CMakeModules/ODZlibUtils.cmake REQUIRED )
 INCLUDE ( CMakeModules/ODCoinUtils.cmake REQUIRED )
 INCLUDE ( CMakeModules/ODOsgUtils.cmake REQUIRED )
 INCLUDE ( CMakeModules/ODPlatformUtils.cmake REQUIRED )
