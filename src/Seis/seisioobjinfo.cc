@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.46 2012-01-09 13:29:42 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.47 2012-02-01 15:51:06 cvskris Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -229,7 +229,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
     if ( isPS() )
     {
 	pErrMsg("TODO: no BPS for PS");
-	return -1;
+	return false;
     }
 
     Translator* tr = ioobj_->getTranslator();
