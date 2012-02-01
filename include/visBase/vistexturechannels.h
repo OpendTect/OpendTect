@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.19 2011-09-22 11:41:23 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.20 2012-02-01 09:04:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,8 @@ class SbImagei32;
 class TaskRunner;
 
 template <class T> class Array2D;
+
+namespace osgGeo { class LayeredTexture; }
 
 namespace ColTab { class Mapper; class MapperSetup; };
 
@@ -79,6 +81,8 @@ public:
 
     const SbImagei32*		getChannels() const;
     void			touchMappedData();
+
+    osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
     
 protected:
     friend			class ChannelInfo;
@@ -91,6 +95,7 @@ protected:
     MappedTextureDataSet*	tc_;
     SoSwitch*			onoff_;
     TextureChannel2RGBA*	tc2rgba_;
+    osgGeo::LayeredTexture*	osgtexture_;
 
     virtual SoNode*		gtInvntrNode();
 
