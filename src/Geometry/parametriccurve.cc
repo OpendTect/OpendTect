@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.16 2011-09-02 09:13:56 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.17 2012-02-01 09:44:27 cvskris Exp $";
 
 #include "parametriccurve.h"
 
@@ -16,6 +16,30 @@ static const char* rcsID = "$Id: parametriccurve.cc,v 1.16 2011-09-02 09:13:56 c
 
 namespace Geometry
 {
+
+
+class ParametricCurveIterator : public Iterator
+{
+public:
+    			ParametricCurveIterator( const ParametricCurve& pc )
+			    : range_( pc.parameterRange() )
+			    , curpos_( -1 )
+			{}
+
+    GeomPosID		next()
+    {
+	GeomPosID newid = curpos_++;
+	if ( !range_.includes( newid, false ) )
+	    return -1;
+
+	return newid;
+    }
+
+public:
+
+    StepInterval<int>		range_;
+    Threads::Atomic<od_int64>	curpos_;
+};
 
 
 class CurveSqDistanceFunction : public FloatMathFunction
@@ -116,6 +140,10 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 
     return false;
 }
+
+
+Iterator* ParametricCurve::createIterator() const
+{ return new ParametricCurveIterator( *this ); }
 
 
 void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const

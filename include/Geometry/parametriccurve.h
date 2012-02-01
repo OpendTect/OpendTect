@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        A.H. Bril
 Date:          23-10-1996
-RCS:           $Id: parametriccurve.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: parametriccurve.h,v 1.9 2012-02-01 09:44:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ public:
 			    parameterRange().stop and parameterRange().start. */
     void		getPosIDs( TypeSet<GeomPosID>&, bool=true ) const;
     			/*!<Returns a list with all defined positions. */
+    Iterator*		createIterator() const;
     virtual bool	insertPosition(GeomPosID,const Coord3&)		= 0;
     virtual StepInterval<int>	parameterRange() const			= 0;
 };
