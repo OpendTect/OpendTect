@@ -1,0 +1,25 @@
+dTect V4.3
+Rock Physics
+Thu Feb 2 12:54:10 2012
+!
+Castagna: Velocity
+Desc: This formula can convert P-wave velocity to S-wave, and vice versa.
+Formula: sqrt( c0*vel^2 + c1 )
+Variable.0: The input velocity
+Constant.0.Name: A
+Constant.0.Desc: The fluid factor
+Constant.0.Typical Range: 0.3`0.4
+Constant.1.Name: B
+Constant.1.Desc: The shift
+Constant.1.Typical Range: 0.5`1
+!
+Porosity from Density: Porosity
+Desc: Plain and simple.`Beware that this formula only works if the input density is always between the matrix and fluid density.
+Formula: (c0 - den) / (c0 - c1)
+Constant.0.Name: Matrix Density
+Constant.0.Desc: The average density of the rock material itself.`Therefore, the density for posority 0.
+Constant.0.Typical Range: 2.2`2.9
+Constant.1.Name: Fluid density
+Constant.1.Desc: The average density of the fluid.`Therefore, the density for 100% posority.
+Constant.1.Typical Range: 0.5`1.2
+!
