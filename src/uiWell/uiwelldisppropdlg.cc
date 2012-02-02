@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.36 2011-10-13 10:11:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.37 2012-02-02 10:49:59 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
 #include "uiwelldispprop.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uiobjdisposer.h"
 #include "uitabstack.h"
 #include "uiseparator.h"
 
@@ -148,7 +149,7 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
     wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
     wd_ = 0;
-    close();
+    uiOBJDISP()->go( this );
 }
 
 
