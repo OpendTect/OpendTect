@@ -4,12 +4,13 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: rockphysics.cc,v 1.1 2012-02-02 11:01:13 cvsbert Exp $";
+static const char* rcsID = "$Id: rockphysics.cc,v 1.2 2012-02-02 11:54:47 cvsbert Exp $";
 
 #include "rockphysics.h"
 #include "mathproperty.h"
 #include "ascstream.h"
 #include "safefileio.h"
+#include "separstr.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -38,11 +39,20 @@ RockPhysics::Formula& RockPhysics::Formula::operator =(
 	setName( fm.name() );
 	type_ = fm.type_;
 	def_ = fm.def_;
+	desc_ = fm.desc_;
 	src_ = fm.src_;
 	vardefs_ = fm.vardefs_;
 	deepCopy( constdefs_, fm.constdefs_ );
     }
     return *this;
+}
+
+
+static BufferString getStrFromFMS( const char* inp )
+{
+    SeparString fms( inp, '`' );
+    fms.setSepChar( '\n' );
+    return BufferString( fms );
 }
 
 
@@ -55,13 +65,15 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     setName( nm );
     type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
+    iop.get( sKey::Desc, desc_ );
+    desc_ = getStrFromFMS( desc_ );
 
     vardefs_.erase();
     for ( int idx=0; ; idx++ )
     {
 	const char* res = iop.find( IOPar::compKey(sKeyVar,idx) );
 	if ( !res || !*res ) break;
-	vardefs_.add( res );
+	vardefs_.add( getStrFromFMS(res) );
     }
 
     deepErase( constdefs_ );
@@ -74,8 +86,9 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	if ( !nm.isEmpty() )
 	{
 	    ConstDef* cd = new ConstDef( nm );
-	    iop.get( sKey::Desc, cd->desc_ );
-	    iop.get( sKeyRg, cd->typicalrg_ );
+	    subpar->get( sKey::Desc, cd->desc_ );
+	    cd->desc_ = getStrFromFMS( cd->desc_ );
+	    subpar->get( sKeyRg, cd->typicalrg_ );
 	    constdefs_ += cd;
 	}
 	delete subpar;
@@ -85,19 +98,31 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 }
 
 
+static void setIOPWithNLs( IOPar& iop, const char* ky, const char* val )
+{
+    SeparString fms( val, '\n' );
+    fms.setSepChar( '`' );
+    iop.set( ky, fms );
+}
+
+
 void RockPhysics::Formula::fillPar( IOPar& iop ) const
 {
     iop.setEmpty();
     iop.set( name(), toString(type_) );
     iop.set( sKeyDef, def_ );
+    setIOPWithNLs( iop, sKey::Desc, desc_ );
     for ( int idx=0; idx<vardefs_.size(); idx++ )
-	iop.set( IOPar::compKey(sKeyVar,idx), vardefs_.get(idx) );
+	setIOPWithNLs( iop, IOPar::compKey(sKeyVar,idx),
+			vardefs_.get(idx) );
     for ( int idx=0; idx<constdefs_.size(); idx++ )
     {
 	const BufferString keybase( IOPar::compKey(sKeyConst,idx) );
 	iop.set( IOPar::compKey(keybase,sKey::Name), constdefs_[idx]->name() );
-	iop.set( IOPar::compKey(keybase,sKey::Desc), constdefs_[idx]->desc_ );
 	iop.set( IOPar::compKey(keybase,sKeyRg), constdefs_[idx]->typicalrg_ );
+	iop.set( IOPar::compKey(keybase,sKey::Desc), constdefs_[idx]->desc_ );
+	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc),
+			constdefs_[idx]->desc_ );
     }
 }
 

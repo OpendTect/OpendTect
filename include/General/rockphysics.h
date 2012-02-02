@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.1 2012-02-02 11:01:13 cvsbert Exp $
+ RCS:		$Id: rockphysics.h,v 1.2 2012-02-02 11:54:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,7 @@ public:
 
     OutputType		type_;
     BufferString	def_;
+    BufferString	desc_;
     ObjectSet<ConstDef>	constdefs_;
     BufferStringSet	vardefs_;
     Repos::Source	src_;
