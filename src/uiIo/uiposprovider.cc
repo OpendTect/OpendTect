@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.29 2011-12-22 17:37:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.30 2012-02-02 16:35:53 cvsyuancheng Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -48,6 +48,8 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	    reqnms.add( sKey::Polygon );
 	    reqnms.add( sKey::Body );
 	}
+	else if ( setup_.choicetype_ == Setup::RangewithPolygon )
+	    reqnms.add( sKey::Polygon );
     }
 
     for ( int idx=0; idx<factnms.size(); idx++ )
