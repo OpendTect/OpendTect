@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.25 2011-08-02 09:45:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.26 2012-02-02 10:47:00 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -41,7 +41,7 @@ static const char* sKeyLeftRevertRange = "Left Revert Range Bool";
 static const char* sKeyLeftSeqname = "Left Sequence name";
 static const char* sKeyLeftLogWidth = "Left Log Width";
 static const char* sKeyLeftColTabFlipped = "Left Log Color Table Flipped";
-static const char* sKeyLeftScale = "Log scale";
+static const char* sKeyLeftScale = "Left Log scale";
 static const char* sKeyRightColor = "Right Log Color";
 static const char* sKeyRightSize = "Right Log Size";
 static const char* sKeyRightStyle = "Right Log Style";
@@ -60,7 +60,7 @@ static const char* sKeyRightRange = "Right Log Range";
 static const char* sKeyRightRevertRange = "Right Revert Range Bool";
 static const char* sKeyRightSeqname = "Right Sequence name";
 static const char* sKeyRightLogWidth = "Right Log Width";
-static const char* sKeyRightScale = "Log scale";
+static const char* sKeyRightScale = "Right Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 static const char* sKeySelMarkers = "Display markers";
