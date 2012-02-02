@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.11 2012-01-18 18:50:08 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.12 2012-02-02 16:58:36 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.11 2012-01-18 18:50:08 c
 #include "ioman.h"
 #include "marchingcubes.h"
 #include "polygon.h"
+#include "polyposprovider.h"
 #include "positionlist.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -51,9 +52,12 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 {
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist, 
-	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res)
+	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res,
+	const ODPolygon<float>& plg )
     : res_( res )
     , cs_( cs )
+    , plg_( plg )	      
+    , bidinplg_( 0 )			      
 {
     res_.setAll( 1 );
 
@@ -95,11 +99,26 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     }
 
     computeHorOuterRange();
+    if ( !plg_.isEmpty() )
+    {
+	bidinplg_ = new Array2DImpl<unsigned char>(cs_.nrInl(),cs_.nrCrl());
+	
+	HorSamplingIterator iter( cs_.hrg );
+	BinID bid;
+	while( iter.next(bid) )
+	{
+	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
+	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
+	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
+			Geom::Point2D<float>(bid.inl,bid.crl),true,0.01) );
+	}
+    }
 }
 
 
 ~ImplicitBodyRegionExtractor()
 {
+    delete bidinplg_;
     deepUnRef( hors_ );
     deepUnRef( flts_ );
     deepErase( expflts_ );
@@ -115,6 +134,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int lastzidx = cs_.nrZ()-1;
     const int horsz = hors_.size();
     const int fltsz = fsides_.size();
+    const bool usepolygon = !plg_.isEmpty();
     
     ObjectSet<Geometry::ExplPlaneIntersection> intersects;
     for ( int idx=0; idx<fltsz; idx++ )
@@ -178,6 +198,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
 	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
+		continue;
+
+	    if ( usepolygon && !bidinplg_->get(inlidx,crlidx) )
 		continue;
 	    
 	    bool infltrg = true;
@@ -407,6 +430,8 @@ ObjectSet<Geometry::ExplFaultStickSurface>	expflts_;
 TypeSet< Interval<int> >			insidergs_;
 TypeSet< Interval<int> >			outsidergs_;
 TypeSet< Interval<double> >			horoutrgs_;
+const ODPolygon<float>&				plg_;
+Array2D<unsigned char>*				bidinplg_;
 };
 
 
@@ -418,7 +443,8 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     //setHelpID( "dgb:104.0.4" );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
-		true).withstep(false).seltxt("Body box") );
+		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
+	    	seltxt("Geometry boundary") );
 
     table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(true)
 	    .rightclickdisabled(true).selmode(uiTable::Single), "Edges" );
@@ -561,14 +587,11 @@ bool uiBodyRegionDlg::createImplicitBody()
 		table_->getCellObject(RowCol(idx,cSideCol)) );    
     	sides += selbox->currentItem();
     }
-    
+   
     CubeSampling cs = subvolfld_->envelope();
-    cs.zrg.start -= cs.zrg.step;
-    cs.zrg.stop += cs.zrg.step;
-    cs.hrg.start.inl -= cs.hrg.step.inl;
-    cs.hrg.stop.inl += cs.hrg.step.inl;
-    cs.hrg.start.crl -= cs.hrg.step.crl;
-    cs.hrg.stop.crl += cs.hrg.step.crl;
+    cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
+    cs.hrg.start.inl -= cs.hrg.step.inl; cs.hrg.stop.inl += cs.hrg.step.inl;
+    cs.hrg.start.crl -= cs.hrg.step.crl; cs.hrg.stop.crl += cs.hrg.step.crl;
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
@@ -576,7 +599,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 	return false;
     
     uiTaskRunner taskrunner( this );
-    ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr );
+    ODPolygon<float> dummy;
+    mDynamicCastGet(Pos::PolyProvider3D*,plgp,subvolfld_->curProvider());
+    ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr, 
+	   plgp ? plgp->polygon() : dummy );
     if ( !taskrunner.execute(ext) )
 	mRetErr("Extracting body region failed.")
 
