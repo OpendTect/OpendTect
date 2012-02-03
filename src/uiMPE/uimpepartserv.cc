@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.131 2012-01-17 09:13:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.132 2012-02-03 14:17:42 cvsbruno Exp $";
 
 #include "uimpepartserv.h"
 
@@ -986,6 +986,8 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     MPE::engine().getNeededAttribs( usedattribs );
     TypeSet<Attrib::DescID> usedattribids;
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
+    if ( !attrset )
+	return false;
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
 	const Attrib::DescID descid = usedattribs[idx]->id();
