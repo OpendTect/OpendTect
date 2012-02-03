@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.10 2011-08-11 13:47:30 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.11 2012-02-03 14:16:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! brief assigns values to an elastic layer depending on user defined parameters !*/
 
-#include "ailayer.h"
 #include "elasticprop.h"
 
 class IOObj;
