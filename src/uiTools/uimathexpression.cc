@@ -7,53 +7,90 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathexpression.cc,v 1.2 2011-09-01 15:27:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathexpression.cc,v 1.3 2012-02-03 10:47:12 cvsbert Exp $";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilineedit.h"
 #include "uicombobox.h"
 #include "uilabel.h"
 
 
 
-uiMathExpression::uiMathExpression( uiParent* p, bool withfns )
+uiMathExpression::uiMathExpression( uiParent* p,
+				    const uiMathExpression::Setup& su )
     : uiGroup(p,"MathExpression editor")
-    , formSet(this)
+    , setup_(su)
     , grpfld_(0)
+    , setbut_(0)
+    , lastbut_(0)
+    , formSet(this)
 {
     txtfld_ = new uiLineEdit( this, "Formula" );
     txtfld_->setStretch( 2, 0 );
     txtfld_->returnPressed.notify( mCB(this,uiMathExpression,retPressCB) );
 
-    if ( !withfns ) return;
+    if ( setup_.withsetbut_ )
+    {
+	setbut_ = new uiPushButton( this, "&Set",
+			mCB(this,uiMathExpression,setButCB),
+			!setup_.setcb_.willCall() );
+	setbut_->attach( rightOf, txtfld_ );
+    }
 
-    uiGroup* insgrp = new uiGroup( this, "insert group" );
+    if ( setup_.withfns_ )
+    {
+	uiGroup* insgrp = new uiGroup( this, "insert group" );
 
-    grpfld_ = new uiComboBox( insgrp, "Formula group" );
-    const ObjectSet<const MathExpressionOperatorDescGroup>& grps =
-		MathExpressionOperatorDescGroup::supported();
-    for ( int idx=0; idx<grps.size(); idx++ )
-	grpfld_->addItem( grps[idx]->name_ );
-    grpfld_->setCurrentItem( 2 );
-    grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-    new uiLabel( insgrp, "   \\", grpfld_ );
-    grpfld_->setHSzPol( uiObject::Medium );
-    grpfld_->setStretch( 0, 0 );
+	grpfld_ = new uiComboBox( insgrp, "Formula group" );
+	const ObjectSet<const MathExpressionOperatorDescGroup>& grps =
+		    MathExpressionOperatorDescGroup::supported();
+	for ( int idx=0; idx<grps.size(); idx++ )
+	    grpfld_->addItem( grps[idx]->name_ );
+	grpfld_->setCurrentItem( 2 );
+	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
+	new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\" : "   /", grpfld_ );
+	grpfld_->setHSzPol( uiObject::Medium );
+	grpfld_->setStretch( 0, 0 );
 
-    fnfld_ = new uiComboBox( insgrp, "Formula desc" );
-    fnfld_->attach( rightOf, grpfld_ );
-    grpSel( 0 );
+	fnfld_ = new uiComboBox( insgrp, "Formula desc" );
+	fnfld_->attach( rightOf, grpfld_ );
+	grpSel( 0 );
 
-    uiPushButton* but = new uiPushButton( insgrp, "&Insert",
-	    	mCB(this,uiMathExpression,doIns), true );
-    but->attach( rightOf, fnfld_ );
-    but->setStretch( 0, 0 );
+	uiPushButton* but = new uiPushButton( insgrp, "&Insert",
+		    mCB(this,uiMathExpression,doIns), true );
+	but->attach( rightOf, fnfld_ );
+	but->setStretch( 0, 0 );
 
-    insgrp->attach( alignedBelow, txtfld_ );
-    txtfld_->attach( widthSameAs, insgrp );
+	if ( setup_.fnsbelow_ )
+	    insgrp->attach( alignedBelow, txtfld_ );
+	else
+	    txtfld_->attach( alignedBelow, insgrp );
+	txtfld_->attach( widthSameAs, insgrp );
+    }
+
+    setHAlignObj( txtfld_ );
+}
+
+
+uiObject* uiMathExpression::labelAlignObj()
+{
+    return txtfld_;
+}
+
+
+uiToolButton* uiMathExpression::addButton( const uiToolButtonSetup& tbsu )
+{
+    uiToolButton* newbut = new uiToolButton( this, tbsu );
+    if ( lastbut_ )
+	newbut->attach( rightOf, lastbut_ );
+    else if ( setbut_ )
+	newbut->attach( setup_.fnsbelow_?alignedBelow:alignedAbove, setbut_ );
+    // else attach it yourself
+    lastbut_ = newbut;
+    return newbut;
 }
 
 
@@ -72,6 +109,15 @@ void uiMathExpression::insertText( const char* txt )
 const char* uiMathExpression::text()
 {
     return txtfld_->text();
+}
+
+
+void uiMathExpression::setButCB( CallBacker* cb )
+{
+    if ( setup_.setcb_.willCall() )
+	setup_.setcb_.doCall( this );
+    else
+	retPressCB( cb );
 }
 
 
