@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.61 2011-11-22 10:27:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.62 2012-02-03 14:17:28 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -92,6 +92,15 @@ Data::Data( const Setup& wts, Well::Data& w)
     , synthtrc_(*new SeisTrc)  
     , trunner_(0)
 {
+    SeisIOObjInfo oinf( wts.seisid_ );
+    if ( oinf.isOK() )
+    {
+	CubeSampling cs;
+	oinf.getRanges( cs );
+	StepInterval<float>& rg = const_cast< StepInterval<float>& >(timeintv_);
+	rg.step = cs.zrg.step;
+    }
+
     estimatedwvlt_.setName( "Estimated wavelet" );
     for ( int idx=0; idx<w.markers().size(); idx++ )
     {

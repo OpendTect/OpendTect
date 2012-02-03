@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.40 2011-12-08 16:12:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.41 2012-02-03 14:17:28 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.40 2011-12-08 16:12:5
 #include "ioman.h"
 #include "datapointset.h"
 #include "linekey.h"
+#include "samplingdata.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seisread.h"
@@ -125,9 +126,14 @@ int SeismicExtractor::nextStep()
     {
 	const SeisTrc* trc = trcbuf_->get(idx);
 	BinID b = trc->info().binid;
+
+	const SamplingData<float>& sd = trc->info().sampling;
+	const int trcidx = sd.nearestIndex( zval );
+
 	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
 	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
-	const float trcval = trc->get( nrdone_, 0 );
+	const float trcval = ( trcidx < 0 || trcidx >= trc->size() ) ? 
+	    					0 : trc->get( trcidx, 0 );
 
 	if ( ( xx0 + yy0 )  < radius_*radius_ )
 	{
