@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: rockphysics.cc,v 1.2 2012-02-02 11:54:47 cvsbert Exp $";
+static const char* rcsID = "$Id: rockphysics.cc,v 1.3 2012-02-03 13:02:03 cvsbert Exp $";
 
 #include "rockphysics.h"
 #include "mathproperty.h"
@@ -142,6 +142,7 @@ bool RockPhysics::Formula::setDef( const char* str )
     for ( int idx=0; idx<nrvars; idx++ )
 	vardefs_.add( mp->inputName(idx) );
 
+    delete mp;
     return true;
 }
 
