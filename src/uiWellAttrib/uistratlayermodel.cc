@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.48 2012-01-25 16:07:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.49 2012-02-03 14:18:12 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -217,6 +217,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 				mCB(this,uiStratLayerModel,selElasticPropsCB) );
+    moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
 
     setWinTitle();
     postFinalise().notify( mCB(this,uiStratLayerModel,initWin) );
