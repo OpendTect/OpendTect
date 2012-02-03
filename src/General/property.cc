@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.55 2012-02-01 13:54:09 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.56 2012-02-03 13:01:48 cvsbert Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -228,7 +228,7 @@ const char* MathProperty::inputName( int idx ) const
 
 const char* MathProperty::constName( int idx ) const
 {
-    return getVarName( expr_, idx, true );
+    return getVarName( expr_, idx, false );
 }
 
 
@@ -397,7 +397,7 @@ void MathProperty::setDef( const char* s )
 	    consts_ += toFloat( word.buf() + 3 );
     }
 
-    while ( constsz > inps_.size() )
+    while ( constsz > consts_.size() )
 	consts_ += 0;
     while ( varsz > inps_.size() )
 	inps_ += 0;
