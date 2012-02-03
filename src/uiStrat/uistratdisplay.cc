@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.39 2011-09-15 14:56:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.40 2012-02-03 14:16:58 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -675,8 +675,9 @@ void uiStratViewControl::handDragging( CallBacker* )
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag 
 	|| !mousepressed_ || !manip_ ) return;
     viewdragged_ = true;
-    stopdragpos_ = mouseEventHandler().event().pos().y;
-    const float fac = ( startdragpos_ > stopdragpos_ )? -1 : 1;
+    const float newpos = mouseEventHandler().event().pos().y;
+    const float fac = ( startdragpos_ > newpos )? -1 : 1;
+    startdragpos_ = newpos;
     Interval<float> rg( range_ );
     const float width = rg.width();
     const float shift = mHandDragFac < 0.0005 ? 0.0005 : mHandDragFac;

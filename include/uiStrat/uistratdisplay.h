@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.28 2011-06-29 11:15:49 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.29 2012-02-03 14:16:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,6 @@ protected:
     float 			zoomfac_;
 
     float			startdragpos_;
-    float			stopdragpos_;
     bool 			mousepressed_;
     bool 			viewdragged_;
     bool 			manip_;
