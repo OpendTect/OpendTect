@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.11 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.12 2012-02-03 14:16:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "ailayer.h"
 #include "datapack.h"
 #include "elasticpropsel.h"
 #include "iopar.h"
