@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.15 2012-02-03 10:47:48 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigeninput.h"
 #include "uimathexpression.h"
 #include "uicombobox.h"
@@ -127,12 +127,15 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
-    formfld_ = new uiMathExpression( inpgrp );
-    uiLabel* lbl = new uiLabel( inpgrp, "Formula (like 'den / son')" );
-    formfld_->attach( rightOf, lbl );
+    uiMathExpression::Setup mesu;
+    mesu.withsetbut( true ).fnsbelow( false );
+    formfld_ = new uiMathExpression( inpgrp, mesu );
+    uiLabel* lbl = new uiLabel( formfld_, "Formula (like 'den / son')" );
+    lbl->attach( leftOf, formfld_->labelAlignObj() );
     formfld_->formSet.notify( formsetcb );
-    uiButton* setbut = new uiPushButton( inpgrp, "&Set", formsetcb, true );
-    setbut->attach( rightOf, formfld_ );
+    uiToolButtonSetup tbsu( "rockphys.png", "Choose rockphysics formula",
+	    		    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
+    formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
 
     BufferStringSet lognms;
@@ -201,6 +204,12 @@ void uiWellLogCalc::getMathExpr()
     if ( !expr_ )
 	uiMSG().warning(
 	BufferString("The provided expression cannot be used:\n",mep.errMsg()));
+}
+
+
+void uiWellLogCalc::rockPhysReq( CallBacker* )
+{
+    uiMSG().error( "TODO: implement" );
 }
 
 
