@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.16 2012-02-03 13:02:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.17 2012-02-03 14:16:40 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -128,11 +128,9 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
-    uiMathExpression::Setup mesu;
+    uiMathExpression::Setup mesu( "Formula (like 'den / son')" );
     mesu.withsetbut( true ).fnsbelow( false );
     formfld_ = new uiMathExpression( inpgrp, mesu );
-    uiLabel* lbl = new uiLabel( formfld_, "Formula (like 'den / son')" );
-    lbl->attach( leftOf, formfld_->labelAlignObj() );
     formfld_->formSet.notify( formsetcb );
     uiToolButtonSetup tbsu( "rockphys.png", "Choose rockphysics formula",
 	    		    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
