@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.6 2011-09-01 12:16:24 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.7 2012-02-03 10:47:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ protected:
     bool			calcLog(Well::Log&,const TypeSet<InpData>&);
 
     void			initWin(CallBacker*);
+    void			rockPhysReq(CallBacker*);
     void			feetSel(CallBacker*);
     void			formSet(CallBacker*);
     void			inpSel(CallBacker*);
