@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.15 2012-02-03 10:47:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.16 2012-02-03 13:02:41 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.15 2012-02-03 10:47:48 cvs
 #include "uitoolbutton.h"
 #include "uigeninput.h"
 #include "uimathexpression.h"
+#include "uirockphysform.h"
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -207,9 +208,48 @@ void uiWellLogCalc::getMathExpr()
 }
 
 
+class uiWellLogCalcRockPhys : public uiDialog
+{
+public:
+
+uiWellLogCalcRockPhys( uiParent* p )
+    : uiDialog(p, uiDialog::Setup("Rock Physics",
+				 "Use a rock physics formula", mTODOHelpID))
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+	    		PropertyRef::StdTypeNames(), "Output property type" );
+    typfld_ = lcb->box();
+    typfld_->setCurrentItem( (int)PropertyRef::Den );
+    typfld_->selectionChanged.notify( mCB(this,uiWellLogCalcRockPhys,typChg) );
+    formgrp_ = new uiRockPhysForm( this );
+    formgrp_->attach( alignedBelow, lcb );
+}
+
+void typChg( CallBacker* )
+{
+    formgrp_->setType( (PropertyRef::StdType)typfld_->currentItem() );
+}
+
+bool acceptOK( CallBacker* )
+{
+    uiMSG().error( "TODO: implement checks" );
+    return true;
+}
+
+    uiComboBox*		typfld_;
+    uiRockPhysForm*	formgrp_;
+
+};
+
+
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
-    uiMSG().error( "TODO: implement" );
+    uiWellLogCalcRockPhys dlg( this );
+    if ( dlg.go() )
+    {
+	formfld_->setText( dlg.formgrp_->getText() );
+	formSet( 0 );
+    }
 }
 
 
