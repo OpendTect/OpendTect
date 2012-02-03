@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathexpression.cc,v 1.3 2012-02-03 10:47:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathexpression.cc,v 1.4 2012-02-03 14:16:01 cvsbert Exp $";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"
@@ -31,6 +31,8 @@ uiMathExpression::uiMathExpression( uiParent* p,
     txtfld_ = new uiLineEdit( this, "Formula" );
     txtfld_->setStretch( 2, 0 );
     txtfld_->returnPressed.notify( mCB(this,uiMathExpression,retPressCB) );
+    if ( !setup_.label_.isEmpty() )
+	new uiLabel( this, setup_.label_, txtfld_ );
 
     if ( setup_.withsetbut_ )
     {
@@ -72,12 +74,6 @@ uiMathExpression::uiMathExpression( uiParent* p,
     }
 
     setHAlignObj( txtfld_ );
-}
-
-
-uiObject* uiMathExpression::labelAlignObj()
-{
-    return txtfld_;
 }
 
 

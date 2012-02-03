@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uimathexpression.h,v 1.2 2012-02-03 10:47:12 cvsbert Exp $
+ RCS:           $Id: uimathexpression.h,v 1.3 2012-02-03 14:16:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,20 +27,21 @@ public:
     mClass Setup
     {
     public:
-			Setup()
-			    : withsetbut_(false)
+			Setup( const char* lbl=0 )
+			    : label_(lbl)
+			    , withsetbut_(false)
 			    , withfns_(true)
 			    , fnsbelow_(true)		{}
 
 	mDefSetupMemb(bool,withfns);
 	mDefSetupMemb(bool,fnsbelow);
 	mDefSetupMemb(bool,withsetbut);
+	mDefSetupMemb(BufferString,label);
 	mDefSetupMemb(CallBack,setcb);
 		// if withsetbut and not set, will do returnpress
     };
 
 			uiMathExpression(uiParent*,const Setup&);
-    uiObject*		labelAlignObj();
 
     void		setText(const char*);
     void		insertText(const char*);
@@ -48,6 +49,7 @@ public:
     const char*		text();
     uiLineEdit*		textField()		{ return txtfld_; }
     uiToolButton*	addButton(const uiToolButtonSetup&);
+    //!< attach this yourself if it's the first and you have no 'Set' button
 
     Notifier<uiMathExpression>	formSet;
     void		extFormSet()		{ retPressCB(0); }
