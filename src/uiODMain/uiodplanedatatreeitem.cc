@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.57 2012-01-31 14:46:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.58 2012-02-03 23:19:54 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -270,17 +270,19 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     else
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && !scene->getZAxisTransform() )
-	{
-	    const float zval = cs.zrg.start * SI().zFactor();
-	    res = toString( SI().zIsTime() ? (float)(mNINT(zval)) : zval );
-	}
-	else
+	if ( !scene )
 	    res = cs.zrg.start;
+	else
+	{
+	    const float zval = cs.zrg.start * scene->zDomainUserFactor();
+	    res = toString( zval );
+	    //res = toString( SI().zIsTime() ? (float)(mNINT(zval)) : zval );
+	}
     }
 
     return res;
 }
+
 
 void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
 {
