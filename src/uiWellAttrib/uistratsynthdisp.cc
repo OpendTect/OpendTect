@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.71 2011-12-22 08:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.72 2012-02-06 10:03:42 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -535,6 +535,12 @@ void uiStratSynthDisp::dataSetSel( CallBacker* )
 const ObjectSet<SyntheticData>& uiStratSynthDisp::getSynthetics() const
 {
     return stratsynth_.synthetics();
+}
+
+
+const Wavelet* uiStratSynthDisp::getWavelet() const
+{
+    return stratsynth_.wavelet();
 }
 
 

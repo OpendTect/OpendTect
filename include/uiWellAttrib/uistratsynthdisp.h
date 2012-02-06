@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.40 2011-10-12 12:28:40 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.41 2012-02-06 10:03:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     const char*		levelName() const	{ return levelname_; }
     const MultiID&	waveletID() const;
     const ObjectSet<SyntheticData>& getSynthetics() const;
+    const Wavelet*	getWavelet() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
