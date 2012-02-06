@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.20 2011-11-04 08:52:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.21 2012-02-06 11:01:35 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -293,4 +293,22 @@ const Interval<float> SyntheticData::offsetRange() const
     const PreStack::Gather& gather = *gathers[0];
     offrg.set( gather.getOffset(0), gather.getOffset( gather.size(true)-1) );
     return offrg;
+}
+
+
+const SeisTrc* SyntheticData::getTrace( int seqnr, int* offset ) const
+{ return prestackpack_.getTrace( seqnr, offset ? *offset : 0 ); }
+
+
+float SyntheticData::getTime( float dpt, int seqnr ) const
+{
+    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getTime( dpt ) 
+					: mUdf( float );
+}
+
+
+float SyntheticData::getDepth( float time, int seqnr ) const
+{
+    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getDepth( time ) 
+					: mUdf( float );
 }

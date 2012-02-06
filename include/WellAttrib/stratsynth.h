@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.13 2012-02-06 10:02:47 cvsbert Exp $
+ RCS:		$Id: stratsynth.h,v 1.14 2012-02-06 11:01:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class TimeDepthModel;
 class SeisTrcBufDataPack;
+class SeisTrc;
 class Wavelet;
 namespace Strat { class LayerModel; class LayerSequence; }
 namespace PreStack { class GatherSetDataPack; }
@@ -34,6 +35,11 @@ public:
 					~SyntheticData();
 
     void				setName(const char*);
+
+    const SeisTrc*			getTrace(int seqnr,int* offset=0) const;
+
+    float				getTime(float dpt,int seqnr) const;
+    float				getDepth(float time,int seqnr) const;
 
     const DataPack*			getPack(bool isps) const; 
     const Interval<float>		offsetRange() const; 
