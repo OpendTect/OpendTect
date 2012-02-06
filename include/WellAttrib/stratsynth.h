@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.12 2012-02-03 14:16:33 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.13 2012-02-06 10:02:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ public:
     				StratSynth(const Strat::LayerModel&);
     				~StratSynth();
 
+    const Wavelet*		wavelet() const		{ return wvlt_; }
     void			setWavelet(const Wavelet*);
 
     void			clearSynthetics();
