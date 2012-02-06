@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.21 2012-02-06 10:04:41 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.22 2012-02-06 12:50:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class SyntheticData;
 class ElasticPropSelection;
 class uiGenInput;
 class uiSpinBox;
-class uiToolButtonSetup;
+class uiToolBar;
 class uiStratSynthDisp;
 class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
@@ -41,7 +41,7 @@ public:
     static const char*		sKeyModeler2Use();
 
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
-    void			addAnalysisTool(const uiToolButtonSetup&);
+    uiToolBar*			analysisToolBar();
 
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
     const Strat::LayerModel&		layerModel() const { return modl_; }

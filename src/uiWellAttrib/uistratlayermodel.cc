@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.50 2012-02-06 10:04:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.51 2012-02-06 12:50:11 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -35,6 +35,8 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.50 2012-02-06 10:04:41
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
+#include "uiflatviewer.h"
+#include "uiflatviewstdcontrol.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
@@ -274,6 +276,17 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 	uiOBJDISP()->go( this );
     }
     mTriggerInstanceCreatedNotifier();
+}
+
+
+uiToolBar* uiStratLayerModel::analysisToolBar()
+{
+    uiFlatViewControl* ctrl = synthdisp_->viewer()->control();
+    mDynamicCastGet(uiFlatViewStdControl*,sctrl,ctrl)
+    if ( !sctrl )
+	pErrMsg( "SynthDisp viewer null or not a StdControl" );
+
+    return sctrl ? sctrl->toolBar() : 0;
 }
 
 
