@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.30 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.31 2012-02-06 11:01:19 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ ________________________________________________________________________
 class IOObj;
 class SeisPSReader;
 class SeisTrcBuf;
+class SeisTrc;
 
 namespace PreStack
 {
@@ -138,6 +139,8 @@ public:
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
+    SeisTrc*			getTrace(int gatheridx,int offsetidx);
+    const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
     virtual float 		nrKBytes() const 	{ return 0; }
 
@@ -145,6 +148,7 @@ public:
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
 
 protected:
+    SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
     ObjectSet<Gather>		gathers_;
 };

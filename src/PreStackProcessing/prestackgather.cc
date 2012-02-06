@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.42 2011-12-22 08:20:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.43 2012-02-06 11:01:19 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -436,3 +436,25 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
 	}
     }
 }
+
+
+const SeisTrc* GatherSetDataPack::getTrace(int gatheridx,int offsetidx) const
+{
+    return gtTrace( gatheridx, offsetidx );
+}
+
+
+SeisTrc* GatherSetDataPack::getTrace( int gatheridx, int offsetidx )
+{
+    return gtTrace( gatheridx, offsetidx );
+}
+
+
+SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
+{
+    SeisTrcBuf tbuf(false); fill( tbuf, offsetidx );
+    return tbuf.size() > gatheridx ? tbuf.get( gatheridx ) : 0;
+}
+
+
+
