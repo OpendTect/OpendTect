@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.72 2012-02-06 10:03:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.73 2012-02-06 11:02:20 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -51,8 +51,9 @@ mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
     , lm_(lm)  
-    , d2tmodels_(0)	     
+    , d2tmodels_(0)	    
     , stratsynth_(*new StratSynth(lm))
+    , dispeach_(1)				      
     , wvltChanged(this)
     , zoomChanged(this)
     , modSelChanged(this)		       
@@ -193,6 +194,12 @@ void uiStratSynthDisp::cleanSynthetics()
 }
 
 
+void uiStratSynthDisp::setDispEach( int de )
+{
+    dispeach_ = de;
+}
+
+
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col )
 {
@@ -324,9 +331,19 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 
     if ( !sd ) return;
     mDynamicCastGet(const SeisTrcBufDataPack*,stbp,sd->getPack( false ));
-    SeisTrcBufDataPack* dp = stbp ? new SeisTrcBufDataPack( *stbp ) : 0;
-    if ( !dp ) return;
-    dp->posData() = stbp->posData();
+    const SeisTrcBuf* tbuf = stbp ? &stbp->trcBuf() : 0;
+    if ( !tbuf ) return;
+
+    SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
+    for ( int idx=0; idx<tbuf->size(); idx++ )
+    {
+	if ( idx%dispeach_ )
+	    continue;
+	disptbuf->add( new SeisTrc( *tbuf->get( idx ) ) );
+    }
+
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
+	    				SeisTrcInfo::TrcNr, stbp->category() );
     DPM( DataPackMgr::FlatID() ).add( dp );
 
     d2tmodels_ = &sd->d2tmodels_;

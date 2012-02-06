@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.42 2012-02-06 10:21:30 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.43 2012-02-06 11:02:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
+    void		setDispEach(int);
+
     const uiWorldRect&	curView(bool indepth) const;
     uiFlatViewer*	viewer()		{ return vwr_; }
 
@@ -76,6 +78,7 @@ protected:
     int			longestaimdl_;
     StratSynth&		stratsynth_;
     const Strat::LayerModel& lm_;
+    int			dispeach_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentsynthetic_;
