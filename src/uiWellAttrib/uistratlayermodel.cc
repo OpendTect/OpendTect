@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.49 2012-02-03 14:18:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.50 2012-02-06 10:04:41 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -44,6 +44,8 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.49 2012-02-03 14:18:12
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uichecklist.h"
+
+mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -154,6 +156,9 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , modl_(*new Strat::LayerModel)
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
+    , newModels(this)				   
+    , levelChanged(this)				   
+    , waveletChanged(this)				   
 {
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
@@ -241,6 +246,25 @@ void uiStratLayerModel::setWinTitle()
 }
 
 
+const char* uiStratLayerModel::levelName() const
+{
+    const char* nm = modtools_->selLevel();
+    return !nm || !*nm || (*nm == '-' && *(nm+1) == '-') ? 0 : nm;
+}
+
+
+const ObjectSet<SyntheticData>& uiStratLayerModel::syntheticData() const
+{
+    return synthdisp_->getSynthetics();
+}
+
+
+const Wavelet* uiStratLayerModel::wavelet() const
+{
+    return synthdisp_->getWavelet();
+}
+
+
 void uiStratLayerModel::initWin( CallBacker* cb )
 {
     if ( !moddisp_ )
@@ -249,19 +273,22 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 	gentools_->display( false );
 	uiOBJDISP()->go( this );
     }
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-void uiStratLayerModel::dispEachChg( CallBacker* cb )
+void uiStratLayerModel::dispEachChg( CallBacker* )
 {
-    levelChg( cb );
+    levelChg( 0 );
 }
 
 
-void uiStratLayerModel::levelChg( CallBacker* )
+void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 	    			modtools_->selLevelColor() );
+    if ( cb )
+	levelChanged.trigger();
 }
 
 
@@ -292,7 +319,8 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 void uiStratLayerModel::wvltChg( CallBacker* cb )
 {
     zoomChg( cb );
-    levelChg( cb );
+    levelChg( 0 );
+    waveletChanged.trigger();
 }
 
 
@@ -401,7 +429,7 @@ bool uiStratLayerModel::openGenDesc()
 }
 
 
-void uiStratLayerModel::genModels( CallBacker* cb )
+void uiStratLayerModel::genModels( CallBacker* )
 {
     const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
@@ -418,7 +446,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
-    levelChg( cb );
+    levelChg( 0 );
+    newModels.trigger();
 }
 
 

@@ -7,16 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.20 2012-01-18 14:12:00 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.21 2012-02-06 10:04:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 class CtxtIOObj;
+class Wavelet;
+class SyntheticData;
 class ElasticPropSelection;
 class uiGenInput;
 class uiSpinBox;
+class uiToolButtonSetup;
 class uiStratSynthDisp;
 class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
@@ -36,6 +39,19 @@ public:
     void			go()		{ show(); }
 
     static const char*		sKeyModeler2Use();
+
+    mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
+    void			addAnalysisTool(const uiToolButtonSetup&);
+
+    const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
+    const Strat::LayerModel&		layerModel() const { return modl_; }
+    const char*				levelName() const; //!< null if none
+    const ObjectSet<SyntheticData>&	syntheticData() const;
+    const Wavelet*			wavelet() const;
+
+    Notifier<uiStratLayerModel>	newModels;
+    Notifier<uiStratLayerModel>	levelChanged;
+    Notifier<uiStratLayerModel>	waveletChanged;
 
 protected:
 
