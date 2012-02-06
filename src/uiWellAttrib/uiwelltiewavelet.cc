@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.45 2011-07-08 14:53:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.46 2012-02-06 08:36:52 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -145,7 +145,7 @@ void uiWavelet::initWaveletViewer()
     app.ddpars_.wva_.left_ = Color::NoColor();
     app.ddpars_.wva_.right_ = Color::Black();
     app.ddpars_.wva_.mid_ = Color::Black();
-    app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
+    app.ddpars_.wva_.mappersetup_.symmidval_ = 0;
     app.setDarkBG( false );
     viewer_->setInitialSize( uiSize(80,100) );
     viewer_->setStretch( 1, 2 );
