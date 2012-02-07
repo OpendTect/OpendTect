@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.7 2012-02-07 08:10:30 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.8 2012-02-07 09:48:23 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -64,7 +64,6 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     if ( needfilelist_ )
     {
 	FilePath listfp( filelistname_ );
-	
 	if ( !File::exists( listfp.pathOnly() ) )
 	{
 	    tempfile = true;
