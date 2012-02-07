@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.8 2012-02-07 09:48:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.9 2012-02-07 12:47:48 cvsnageswara Exp $";
 
 #include "ziputils.h"
 
@@ -58,7 +58,6 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
-#ifdef __win__
     bool tempfile = false;
     BufferString tmpfnm( filelistname_ );
     if ( needfilelist_ )
@@ -73,11 +72,13 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 	}
     }
 
+    bool res = false;
+#ifdef __win__
     BufferString cmd( "unzip -o \"", src );
     cmd.add( "\" -d \"" ).add( dest ).add( "\"");
     if ( needfilelist_ )
 	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
-    const bool res = system( cmd ) != -1;
+    res = system( cmd ) != -1;
     if ( tempfile )
     {
 	BufferString cpcmd( "copy \"" );
@@ -85,11 +86,9 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 	system( cpcmd );
     }
 #else
-
-    BufferString cmd( "unzip -q ", src );
-    cmd.add( " -d " ).add( dest );
-    const bool res = !system( cmd );
-
+    BufferString cmd( "unzip ", src );
+    cmd.add( " -d " ).add( dest ).add( " > " ).add( filelistname_ );
+    res = !system( cmd );
 #endif
 
     if ( res ) return true;
