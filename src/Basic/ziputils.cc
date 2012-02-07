@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.6 2012-02-01 20:36:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.7 2012-02-07 08:10:30 cvsranojay Exp $";
 
 #include "ziputils.h"
 
 #include "file.h"
-#ifdef __win__
-#import "c:\windows\system32\shell32.dll"
-#endif
+#include "filepath.h"
 
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
@@ -23,6 +21,12 @@ static const char* rcsID = "$Id: ziputils.cc,v 1.6 2012-02-01 20:36:05 cvsnanne 
 	errmsg_ += " does not exist"; \
 	return false; \
     } \
+
+
+ZipUtils::ZipUtils( const char* filelistnm )
+    : filelistname_(filelistnm)
+    , needfilelist_(!filelistname_.isEmpty())
+{}
 
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
@@ -52,52 +56,35 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 }
 
 
-void ZipUtils::makeFileList( const char* src )
-{
-#ifdef __win__
-  HZIP hz = OpenZip( src, 0 );
-  ZIPENTRY ze; GetZipItem( hz, -1, &ze );
-  const int numitems = ze.index;
-  filelist_.erase();
-  for ( int zi=0; zi<numitems; zi++ )
-  { 
-     ZIPENTRY ze; GetZipItem( hz, zi, &ze );
-     BufferString name = ze.name;
-     filelist_.add( name );
-  }
-  CloseZip( hz );
-#endif
-}
-
-
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
 #ifdef __win__
-    makeFileList( src );
-    if ( filelist_.isEmpty() )
+    bool tempfile = false;
+    BufferString tmpfnm( filelistname_ );
+    if ( needfilelist_ )
     {
-	errmsg_ = "Error: ";
-	errmsg_ += BufferString( src, " is empty." );
-	return false;
+	FilePath listfp( filelistname_ );
+	
+	if ( !File::exists( listfp.pathOnly() ) )
+	{
+	    tempfile = true;
+	    FilePath tempfp( File::getTempPath() );
+	    tempfp.add( listfp.fileName() );
+	    filelistname_ = tempfp.fullPath();
+	}
     }
 
-    CoInitialize(0); 
-    Shell32::IShellDispatch2Ptr shell;
-    shell.CreateInstance(__uuidof(Shell32::Shell));
-    _bstr_t bs( src );
-    _variant_t varsrc ( bs );
-    Shell32::FolderPtr srcfolder = shell->NameSpace( varsrc );
-    _bstr_t bd( dest );
-    _variant_t vardest( bd );
-    Shell32::FolderPtr destfolder = shell->NameSpace( vardest );
-    Shell32::FolderItemsPtr items = srcfolder->Items();
-    long flags = FOF_NOCONFIRMATION | FOF_NOERRORUI;
-    HRESULT hres = destfolder->CopyHere( 
-	_variant_t((IDispatch*)items,true), flags );
-    ::Sleep(1000);
-    CoUninitialize();
-    const bool res = SUCCEEDED(hres);
-    
+    BufferString cmd( "unzip -o \"", src );
+    cmd.add( "\" -d \"" ).add( dest ).add( "\"");
+    if ( needfilelist_ )
+	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
+    const bool res = system( cmd ) != -1;
+    if ( tempfile )
+    {
+	BufferString cpcmd( "copy \"" );
+	cpcmd.add( filelistname_ ) .add( "\" \"" ).add( tmpfnm ).add("\"");
+	system( cpcmd );
+    }
 #else
 
     BufferString cmd( "unzip -q ", src );
