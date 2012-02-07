@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: price.h,v 1.2 2012-01-12 14:24:30 cvskris Exp $
+ RCS:           $Id: price.h,v 1.3 2012-02-07 10:29:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ mStruct Price
     float		getUserPrice() const
     			{ return ((float) amount_)/currency_->devisor_; }
     void		setUserPrice( float p )
-			{ amount_ = mNINT(p*currency_->devisor_); }
+			{ amount_ = currency_ ? mNINT(p*currency_->devisor_)
+					      : mNINT(p); }
 
     int			amount_; //In lowest devisible unit
     const Currency*	currency_;
