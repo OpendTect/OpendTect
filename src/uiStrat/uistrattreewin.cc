@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.66 2012-01-26 13:20:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.67 2012-02-07 08:44:43 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.66 2012-01-26 13:20:17 cv
 #include "uimenu.h"
 #include "uiselsimple.h"
 #include "uimsg.h"
+#include "uiobjdisposer.h"
 #include "stratreftree.h"
 #include "uiparent.h"
 #include "uisplitter.h"
@@ -375,6 +376,9 @@ void uiStratTreeWin::forceCloseCB( CallBacker* )
     IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( stratwin )
 	stratwin->close();
+
+    uiOBJDISP()->go( uistratdisp_ );
+
     delete lvllist_;
     delete uitree_;
     stratwin = 0;
