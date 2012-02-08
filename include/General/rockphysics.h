@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.2 2012-02-02 11:54:47 cvsbert Exp $
+ RCS:		$Id: rockphysics.h,v 1.3 2012-02-08 23:06:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -107,8 +107,8 @@ public:
 
 } // namespace RockPhysics
 
-const RockPhysics::FormulaSet& ROCKPHYSFORMS();
-inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
+mGlobal const RockPhysics::FormulaSet& ROCKPHYSFORMS();
+mGlobal inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 { return const_cast<RockPhysics::FormulaSet&>( ROCKPHYSFORMS() ); }
 
 
