@@ -8,13 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: wellposprovider.cc,v 1.2 2012-02-01 23:29:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellposprovider.cc,v 1.3 2012-02-08 23:14:37 cvsnanne Exp $";
 
 #include "wellposprovider.h"
 
 #include "keystrs.h"
 #include "iopar.h"
-#include "cubesampling.h"
+#include "horsampling.h"
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -22,15 +22,14 @@ static const char* rcsID = "$Id: wellposprovider.cc,v 1.2 2012-02-01 23:29:55 cv
 #include "welldata.h"
 #include "wellman.h"
 
-#include <math.h>
-
 namespace Pos
 {
 
 const char* WellProvider3D::sKeyInlExt()	{ return "Inline extension"; }
-const char* WellProvider3D::sKeyCrExt()		{ return "Crossline extension";}
+const char* WellProvider3D::sKeyCrlExt()	{ return "Crossline extension";}
 const char* WellProvider3D::sKeyZExt()		{ return "Z extension"; }
 const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
+const char* WellProvider3D::sKeyNrWells()	{ return "Nr of wells"; }
 
 
 WellProvider3D::WellProvider3D()
@@ -74,21 +73,18 @@ const char* WellProvider3D::type() const
 }
 
 
-static void setHS( const Well::Data& wd, HorSampling& hs )
+void WellProvider3D::setHS()
 {
-    const Well::Track& track = wd.track();
-
- /*   if ( poly.size() < 2 )
-	{ hs = SI().sampling(true).hrg; return; }
-
-    const Interval<float> xrg( poly.getRange(true) );
-    const Interval<float> yrg( poly.getRange(false) );*/
-    hs.start.inl = (int)floor( xrg.start + 0.5 );
-    hs.start.crl = (int)floor( yrg.start + 0.5 );
-    hs.stop.inl = (int)floor( xrg.stop + 0.5 );
-    hs.stop.crl = (int)floor( yrg.stop + 0.5 );
-    SI().snap( hs.start, 1 );
-    SI().snap( hs.stop, -1 );
+    hs_.init( false );
+    for ( int idx=0; idx<welldata_.size(); idx++ )
+    {
+	if ( this->onlysurfacecoords_ )
+	{
+	    const Well::Info& info = welldata_[idx]->info();
+	    const BinID bid = SI().transform( info.surfacecoord );
+	    hs_.include( bid );
+	}
+    }
 }
 
 
@@ -98,7 +94,7 @@ bool WellProvider3D::initialize( TaskRunner* )
 	welldata_ += Well::MGR().get( wellids_[idx] );
     if ( welldata_.isEmpty() ) return false;
 
-    setHS( *welldata_, hs_ );
+    setHS();
     curbid_ = hs_.start;
     if ( !toNextPos() )
 	return false;
@@ -159,42 +155,37 @@ bool WellProvider3D::includes( const Coord& c, float z ) const
 
 void WellProvider3D::usePar( const IOPar& iop )
 {
-    iop.get( mGetWellKey("Inline extension"), inlext_ );
-    iop.get( mGetWellKey("Crossline extension"), crlext_ );
-    iop.get( mGetWellKey("Z extension"), zext_ );
-    iop.get( mGetWellKey("Only surface coords"), onlysurfacecoords_ );
-
-
-
-    iop.get( mGetWellKey(sKey::StepInl), hs_.step.inl );
-    iop.get( mGetWellKey(sKey::StepCrl), hs_.step.crl );
-    ODPolygon<float>* poly = polyFromPar( iop );
-    if ( poly )
+    iop.get( mGetWellKey(sKeyInlExt()), inlext_ );
+    iop.get( mGetWellKey(sKeyCrlExt()), crlext_ );
+    iop.get( mGetWellKey(sKeyZExt()), zext_ );
+    iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
+    int nrwells = 0;
+    iop.get( mGetWellKey(sKeyNrWells()), nrwells );
+    for ( int idx=0; idx<nrwells; idx++ )
     {
-	poly_ = *poly;
-	setHS( poly_, hs_ );
+	MultiID mid;
+	iop.get( mGetWellKey(IOPar::compKey(sKey::ID,idx)), mid );
+	wellids_ += mid;
     }
 }
 
 
 void WellProvider3D::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetWellKey(sKey::ZRange), zrg_ );
-    iop.set( mGetWellKey(sKey::StepInl), hs_.step.inl );
-    iop.set( mGetWellKey(sKey::StepCrl), hs_.step.crl );
-    ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
+    iop.set( mGetWellKey(sKeyInlExt()), inlext_ );
+    iop.set( mGetWellKey(sKeyCrlExt()), crlext_ );
+    iop.set( mGetWellKey(sKeyZExt()), zext_ );
+    iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
+    iop.set( mGetWellKey(sKeyNrWells()), wellids_.size() );
+    for ( int idx=0; idx<wellids_.size(); idx++ )
+	iop.set( mGetWellKey(IOPar::compKey(sKey::ID,idx)), wellids_[idx] );
 }
 
 
 void WellProvider3D::getSummary( BufferString& txt ) const
 {
-    if ( poly_.isEmpty() ) { txt += "No points. Unsaved?"; return; }
-    txt += "area "; BufferString tmp;
-    hs_.start.fill( tmp.buf() ); txt += tmp; txt += "-";
-    hs_.stop.fill( tmp.buf() ); txt += tmp;
-    const int nrsamps = zrg_.nrSteps() + 1;
-    if ( nrsamps > 1 )
-	{ txt += " ("; txt += nrsamps; txt += " samples)"; }
+    if ( wellids_.isEmpty() ) { txt += "No wells."; return; }
+    txt.add( wellids_.size() ).add( " wells" );
 }
 
 
@@ -214,11 +205,7 @@ void WellProvider3D::getZRange( Interval<float>& zrg ) const
 
 
 od_int64 WellProvider3D::estNrPos() const
-{
-    float fnr = poly_.area() / hs_.step.inl;
-    fnr /= hs_.step.crl;
-    return mRounded(od_int64,fnr);
-}
+{ return hs_.totalNr(); }
 
 
 const Well::Data* WellProvider3D::wellData( int idx ) const

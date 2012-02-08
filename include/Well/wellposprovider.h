@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2012
- RCS:           $Id: wellposprovider.h,v 1.2 2012-02-01 23:29:55 cvsnanne Exp $
+ RCS:           $Id: wellposprovider.h,v 1.3 2012-02-08 23:14:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "multiid.h"
 #include "posprovider.h"
 
 class HorSampling;
@@ -66,9 +67,11 @@ public:
     static const char*	sKeyCrlExt();
     static const char*	sKeyZExt();
     static const char*	sKeySurfaceCoords();
+    static const char*	sKeyNrWells();
 
 protected:
 
+    void		setHS();
     TypeSet<MultiID>	wellids_;
     ObjectSet<Well::Data> welldata_;
 
