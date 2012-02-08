@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.67 2012-01-23 16:31:56 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.68 2012-02-08 23:08:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ namespace sKey
     mExt FixedString	Unit		mImpl("Unit");
     mExt FixedString	Value		mImpl("Value");
     mExt FixedString	Version		mImpl("Version");
+    mExt FixedString	Well		mImpl("Well");
     mExt FixedString	XCoord		mImpl("X-Coord");
     mExt FixedString	YCoord		mImpl("Y-Coord");
     mExt FixedString	Yes		mImpl("Yes");
