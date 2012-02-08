@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.115 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.116 2012-02-08 10:27:17 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -620,6 +620,9 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     {
 	uiAttrDescEd* de = desceds_[idx];
 	if ( !de ) continue;
+
+	if( !set_type )
+	    de->setNeedInputUpdate();
 
 	if ( curde == de )
 	{

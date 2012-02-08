@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.40 2012-01-03 15:49:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.41 2012-02-08 10:27:17 cvshelene Exp $";
 
 
 
@@ -61,6 +61,7 @@ uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const char* helpid )
     , ads_(0)
     , is2d_(is2d)
     , helpid_(helpid)
+    , needinpupd_(false)
 {
 }
 
@@ -204,7 +205,19 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
-	inpfld->setDescSet( ad.descSet() );
+    {
+	if ( needinpupd_ )
+	{
+	    Attrib::DescID defaultdid = ad.descSet()->ensureDefStoredPresent();
+	    Attrib::Desc* defaultdesc = ad.descSet()->getDesc( defaultdid );
+	    if ( !defaultdesc )
+		inpfld->setDescSet( ad.descSet() );
+
+	    inpfld->setDesc( defaultdesc );
+	}
+	else
+	    inpfld->setDescSet( ad.descSet() );
+    }
     else
     {
 	inpfld->setDesc( inpdesc );

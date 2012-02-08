@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.35 2011-06-27 08:33:55 cvsbruno Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.36 2012-02-08 10:27:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,8 @@ public:
 
     bool		is2D() const			{ return is2d_; }
 
+    void		setNeedInputUpdate()		{ needinpupd_ = true; }
+
     virtual void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
@@ -141,6 +143,8 @@ protected:
     void		putInp(uiSteerCubeSel*,const Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
+    bool                needInputUpdate() const		{ return needinpupd_; }
+
     BufferString	zDepLabel(const char* pre,const char* post) const;
     BufferString	gateLabel() const
 			{ return zDepLabel( 0, "gate" ); }
@@ -160,6 +164,7 @@ protected:
     BufferString	errmsg_;
     DescSet*		ads_;
     bool		is2d_;
+    bool		needinpupd_;
 
     TypeSet<DataPack::FullID> dpfids_;
 
