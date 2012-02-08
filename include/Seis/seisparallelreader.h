@@ -1,25 +1,25 @@
-#ifndef parallelseisread_h
-#define parallelseisread_h
+#ifndef seisparallelreader_h
+#define seisparallelreader_h
 /*
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2010
- RCS:		$Id: seisparallelreader.h,v 1.2 2011-08-12 13:17:03 cvskris Exp $
+ RCS:		$Id: seisparallelreader.h,v 1.3 2012-02-08 21:19:44 cvsnanne Exp $
 ________________________________________________________________________
 
 */
 
-#include "sets.h"
-#include "fixedstring.h"
-#include "task.h"
 #include "cubesampling.h"
+#include "fixedstring.h"
+#include "sets.h"
+#include "task.h"
 
+class BinIDValueSet;
+class CubeSampling;
 class IOObj;
 class SeisTrcReader;
-class CubeSampling;
-class BinIDValueSet;
 
 template <class T> class Array3D;
 
@@ -34,17 +34,17 @@ namespace Seis
 mClass ParallelReader : public ParallelTask
 {
 public:
-    			ParallelReader( const IOObj&,
+			ParallelReader(const IOObj&,
 			    const TypeSet<int>& components,
 			    const ObjectSet<Array3D<float> >&,
-			    const CubeSampling& );
+			    const CubeSampling&);
 			/*!<Allocates & resizes the cubes to fit the cs and the
 			    nr of comps. If data is missing in the storage, the
 			    cube will not be overwritten in those locations. */
 
-			ParallelReader( const IOObj&,
+			ParallelReader(const IOObj&,
 			    BinIDValueSet&,
-			    const TypeSet<int>& components );
+			    const TypeSet<int>& components);
 			/*!<Will read the z from the first value. Will add
 			    values to accomodate nr of components. If data
 			    cannot be read, that binid/z will be set to
@@ -52,9 +52,8 @@ public:
 
 			~ParallelReader();
 
-    const FixedString&	errMsg() const { return errmsg_; }
-
-    const ObjectSet<Array3D<float> >*	getArrays() const { return arrays_; }
+    const FixedString&	errMsg() const			{ return errmsg_; }
+    const ObjectSet<Array3D<float> >* getArrays() const	{ return arrays_; }
 
 protected:
     od_int64		nrIterations() const { return totalnr_; }
@@ -78,7 +77,6 @@ protected:
     FixedString			errmsg_;
 };
 
-}; //namespace
+} // namespace Seis
 
 #endif
-
