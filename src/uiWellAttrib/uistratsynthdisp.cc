@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.74 2012-02-08 12:50:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.75 2012-02-08 12:55:40 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -567,7 +567,7 @@ const MultiID& uiStratSynthDisp::waveletID() const
 }
 
 
-void uiStratSynthDisp::genExtraSynthetics( const Strat::LayerModel& lm , 
+void uiStratSynthDisp::genSyntheticsFor( const Strat::LayerModel& lm , 
 					SeisTrcBuf& seisbuf) 
 {
     if ( !stratsynth_.generate( lm, seisbuf ) && stratsynth_.errMsg() )
