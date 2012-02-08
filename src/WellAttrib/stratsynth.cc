@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.21 2012-02-06 11:01:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.22 2012-02-08 12:50:16 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -59,9 +59,9 @@ void StratSynth::clearSynthetics()
     act;\
 }
 
-void StratSynth::addSynthetics( SyntheticData* sd )
+void StratSynth::addSynthetics()
 {
-    synthetics_ += synthetics_.replace( 0, generate() );
+    synthetics_ += synthetics_.replace( 0, generateSD( lm_, &raypars_ ) );
 }
 
 
@@ -72,7 +72,7 @@ SyntheticData* StratSynth::getSynthetic( int selid )
 	if ( !synthetics_.isEmpty() )
 	    delete synthetics_.remove(0);
 
-	synthetics_.insertAt( generate(), 0 );
+	synthetics_.insertAt( generateSD( lm_, &raypars_ ), 0 );
     }
     if ( synthetics_.validIdx( selid ) )
 	return synthetics_[selid];
@@ -81,28 +81,48 @@ SyntheticData* StratSynth::getSynthetic( int selid )
 }
 
 
-SyntheticData* StratSynth::generate()
+bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
+{
+    SyntheticData* dummysd = generateSD( lm );
+    if ( !dummysd ) 
+	return false;
+
+    for ( int idx=0; idx<lm.size(); idx ++ )
+    {
+	const SeisTrc* trc = dummysd->getTrace( idx );
+	if ( trc )
+	    trcbuf.add( new SeisTrc( *trc ) );
+    }
+
+    delete dummysd;
+    return !trcbuf.isEmpty();
+}
+
+
+SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm, 
+				    const IOPar* raypars )
 {
     errmsg_.setEmpty(); 
 
-    if ( lm_.isEmpty() ) 
+    if ( lm.isEmpty() ) 
 	return false;
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.usePar( raypars_ );
+    if ( raypars )
+	synthgen.usePar( *raypars );
 
-    const int nraimdls = lm_.size();
+    const int nraimdls = lm.size();
     int maxsz = 0;
     for ( int idm=0; idm<nraimdls; idm++ )
     {
 	ElasticModel aimod; 
-	const Strat::LayerSequence& seq = lm_.sequence( idm ); 
+	const Strat::LayerSequence& seq = lm.sequence( idm ); 
 	const int sz = seq.size();
 	if ( sz < 1 )
 	    continue;
 
-	if ( !fillElasticModel( aimod, seq ) )
+	if ( !fillElasticModel( lm, aimod, idm ) )
 	{
 	    BufferString msg( errmsg_ );
 	    mErrRet( msg.buf(), return false;) 
@@ -170,11 +190,12 @@ const char* StratSynth::errMsg() const
 }
 
 
-bool StratSynth::fillElasticModel( ElasticModel& aimodel, 
-				const Strat::LayerSequence& seq )
+bool StratSynth::fillElasticModel( const Strat::LayerModel& lm, 
+				ElasticModel& aimodel, int seqidx )
 {
-    const ElasticPropSelection& eps = lm_.elasticPropSel();
-    const PropertyRefSelection& props = lm_.propertyRefs();
+    const Strat::LayerSequence& seq = lm.sequence( seqidx ); 
+    const ElasticPropSelection& eps = lm.elasticPropSel();
+    const PropertyRefSelection& props = lm.propertyRefs();
     if ( !eps.isValidInput( &errmsg_ ) )
 	return false; 
 
