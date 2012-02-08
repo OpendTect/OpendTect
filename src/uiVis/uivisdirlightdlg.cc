@@ -7,30 +7,32 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.29 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.30 2012-02-08 23:04:36 cvsnanne Exp $";
 
 #include "uivisdirlightdlg.h"
 
-#include "math.h"
-#include "survinfo.h"
-#include "vislight.h"
-#include "uibuttongroup.h"
-#include "uislider.h"
-#include "uidial.h"
-#include "uicombobox.h"
 #include "uibutton.h"
-#include "uilabel.h"
+#include "uibuttongroup.h"
+#include "uicombobox.h"
+#include "uidial.h"
 #include "uigeninput.h"
-#include "uiseparator.h"
-#include "uitoolbar.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "visdataman.h"
-#include "vistransmgr.h"
-#include "vissurvscene.h"
+#include "uilabel.h"
+#include "uiseparator.h"
+#include "uislider.h"
+#include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "visdataman.h"
+#include "vislight.h"
+#include "vissurvscene.h"
+#include "vistransmgr.h"
+
 #include "angles.h"
 #include "pixmap.h"
+#include "survinfo.h"
+
+#include <math.h>
 
 #define mInitAzimuth		0
 #define mInitDip		90
@@ -44,10 +46,9 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.29 2011-11-23 11:35:56 
 #define mShowLightIcons		false
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
-    : uiDialog(p,
-	       uiDialog::Setup("Light properties",
-		   "Set light properties", "50.0.18")
-	       .modal(false))
+    : uiDialog(p,uiDialog::Setup("Light properties",
+				 "Set light properties","50.0.18")
+		 .modal(false))
     , visserv_(visserv)
     , lightgrp_(0)
     , lightlbl_(0)		  
@@ -76,7 +77,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     postFinalise().notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
     pddlg_->setCtrlStyle( LeaveOnly );
-    pddlg_->postFinalise().notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
+    pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
     scenefld_->attach( hCentered );
@@ -148,7 +149,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     headonintensityfld_->sldr()->setStep( 5 );
     headonintensityfld_->display( false );
 
-    const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
+    const CallBack chgCB( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
     azimuthfld_ = new uiDialExtra( this, 
 	    uiDialExtra::Setup("Azimuth (degrees)").withedit(true),
@@ -184,7 +185,10 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     InitInfoType initinfo;
     if ( updateSceneSelector() )
+    {
+	setWidgets(true);
         initinfo = initinfo_[0];
+    }
 
     cameralightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
@@ -216,8 +220,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
 uiDirLightDlg::~uiDirLightDlg()
 {
-    // Remove only those callbacks that will survive this dialog.
-    
+    // Remove only those callbacks that will survive this dialog.    
     removeSceneNotifiers();
 
     visserv_->nrScenesChange().remove(
@@ -225,12 +228,7 @@ uiDirLightDlg::~uiDirLightDlg()
 
     delete pm1_;
     delete pm2_;
-
-    if ( pd_ )
-    {
-        delete pd_;
-	pd_ = 0;
-    }
+    delete pd_;
     
     pddlg_->close();
     delete pddlg_;
@@ -266,7 +264,7 @@ void uiDirLightDlg::dlgDoneCB( CallBacker* )
 float uiDirLightDlg::getHeadOnIntensity() const
 {
     float intensity = headonintensityfld_->sldr()->getValue();
-    if ( ( intensity < 0 ) || ( intensity > 100 ) )
+    if ( intensity<0 || intensity>100 )
 	headonintensityfld_->sldr()->setValue( 100 );
     return headonintensityfld_->sldr()->getValue() / 100;
 }
@@ -274,14 +272,14 @@ float uiDirLightDlg::getHeadOnIntensity() const
 
 void uiDirLightDlg::setHeadOnIntensity( float value )
 {
-    if ( ( value >= 0 ) && ( value <= 1.0) )
-	headonintensityfld_->sldr()->setValue( value * 100 );
+    if ( value>=0 && value<=1.0 )
+	headonintensityfld_->sldr()->setValue( value*100 );
 }
 
 
 void uiDirLightDlg::removeSceneNotifiers()
 {
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,
 		visserv_->getObject(initinfo_[idx].sceneid_));
@@ -308,7 +306,7 @@ int uiDirLightDlg::updateSceneSelector()
 	BufferStringSet scenenms;
 	if ( initinfo_.size() > 1 )
 	    scenenms.add( "All" );
-	for ( int idx = 0; idx < initinfo_.size(); idx++ )
+	for ( int idx=0; idx<initinfo_.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,
 		    	    visserv_->getObject(initinfo_[idx].sceneid_));
@@ -337,7 +335,7 @@ void uiDirLightDlg::updateInitInfo()
     visserv_->getChildIds( -1, newsceneids );
     
     // remove info for scene(s) removed
-    for ( int idx = 0; idx < initinfo_.size(); idx++)
+    for ( int idx=0; idx<initinfo_.size(); idx++)
 	if ( !newsceneids.isPresent( initinfo_[idx].sceneid_ ) )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,
@@ -352,17 +350,17 @@ void uiDirLightDlg::updateInitInfo()
     
     // append new info for scene(s) added
     const int size = initinfo_.size();
-    for ( int newidx = 0; newidx < newsceneids.size(); newidx++)
+    for ( int newidx=0; newidx<newsceneids.size(); newidx++ )
     {
-	int idx;
 	bool present = false;
-
-	for ( idx = 0; idx < size; idx++)
+	for ( int idx=0; idx<size; idx++ )
+	{
 	    if ( newsceneids[newidx] == initinfo_[idx].sceneid_ )
 	    {
 		present = true;
 		break;
 	    }
+	}
 
 	if ( !present )
 	{
@@ -384,11 +382,10 @@ void uiDirLightDlg::updateInitInfo()
 // Copy values from widgets to init info data structure.
 void uiDirLightDlg::saveInitInfo()
 {
-    bool saveall = scenefld_->box()->currentItem() == 0;
-
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    const bool saveall = scenefld_->box()->currentItem() == 0;
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
-	bool dosave = saveall || idx == scenefld_->box()->currentItem()-1;
+	const bool dosave = saveall || idx==scenefld_->box()->currentItem()-1;
 	if ( !dosave ) continue;
 
         initinfo_[idx].azimuth_ = azimuthfld_->dial()->getValue();
@@ -431,9 +428,9 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 
     bool anySceneDone = false;
 
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
-	bool doupd = updateall || idx == scenefld_->box()->currentItem()-1;
+	const bool doupd = updateall || idx==scenefld_->box()->currentItem()-1;
 	if ( !doupd ) continue;
 
 	// head on light
@@ -502,8 +499,7 @@ void uiDirLightDlg::setDirLight()
     validateInput();
 
     const bool lightall = scenefld_->box()->currentItem()==0;
-    
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
 	if ( !dolight ) continue;
@@ -558,7 +554,7 @@ void uiDirLightDlg::setAmbientLight()
     intensity = ambintensityfld_->sldr()->getValue() / 100 ;
     const bool lightall = scenefld_->box()->currentItem()==0;
     
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
 	if ( !dolight ) continue;
@@ -594,7 +590,7 @@ void uiDirLightDlg::setHeadOnLight()
     float intensity = getHeadOnIntensity();
     const bool lightall = scenefld_->box()->currentItem()==0;
     
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
 	if ( !dolight ) continue;
@@ -650,15 +646,15 @@ void uiDirLightDlg::showWidgets( bool showAll )
 void uiDirLightDlg::validateInput()
 {
     const float az = azimuthfld_->dial()->getValue();
-    if ( ( az < 0 ) || ( az > 360 ) )
+    if ( az<0 || az>360 )
 	azimuthfld_->dial()->setValue( mInitAzimuth );
     
     const float dip = dipfld_->sldr()->getValue();
-    if ( ( dip < 0 ) || ( dip > 90 ) )
+    if ( dip<0 || dip>90 )
 	dipfld_->sldr()->setValue( mInitDip );
     
     const float intensity = intensityfld_->sldr()->getValue();
-    if ( ( intensity < 0 ) || ( intensity > 100 ) )
+    if ( intensity<0 || intensity>100 )
 	intensityfld_->sldr()->setValue( mInitIntensity );
 }
 
@@ -759,11 +755,9 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* c )
 void uiDirLightDlg::polarDiagramCB( CallBacker* )
 {
     float azimuth, dip;
-
     pd_->getValues( &azimuth, &dip );
     azimuthfld_->dial()->setValue( (int)azimuth );
     dipfld_->sldr()->setValue( dip );
-
     setDirLight();
 }
 
@@ -795,10 +789,8 @@ void uiDirLightDlg::nrScenesChangedCB( CallBacker* )
 void uiDirLightDlg::sceneNameChangedCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,cb);
-    
-    int offset = ( initinfo_.size() > 1 ) ? 1 : 0;
-    
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
+    const int offset = initinfo_.size()>1 ? 1 : 0;
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
 	if ( scene->id() == initinfo_[idx].sceneid_ )
 	    scenefld_->box()->setItemText( idx+offset, scene->name() );
 }
@@ -834,8 +826,8 @@ void uiDirLightDlg::InitInfo::reset( bool resetheadonval )
 }
 
 
-uiDirLightDlg::InitInfo& uiDirLightDlg::InitInfo::operator = ( 
-	const InitInfo& it )
+uiDirLightDlg::InitInfo&
+    uiDirLightDlg::InitInfo::operator= ( const InitInfo& it )
 {
     sceneid_ = it.sceneid_;
     azimuth_ = it.azimuth_;
@@ -847,7 +839,7 @@ uiDirLightDlg::InitInfo& uiDirLightDlg::InitInfo::operator = (
 }
 
 
-bool uiDirLightDlg::InitInfo::operator == ( const InitInfo& it ) const
+bool uiDirLightDlg::InitInfo::operator== ( const InitInfo& it ) const
 {
     return ( (sceneid_ == it.sceneid_) && (azimuth_ == it.azimuth_)
 	     && (dip_ == it.dip_) && (intensity_ == it.intensity_)
@@ -856,11 +848,10 @@ bool uiDirLightDlg::InitInfo::operator == ( const InitInfo& it ) const
 }
 
 
-bool uiDirLightDlg::InitInfo::operator != ( const InitInfo& it ) const
+bool uiDirLightDlg::InitInfo::operator!= ( const InitInfo& it ) const
 {
     return ( (sceneid_ != it.sceneid_) || (azimuth_ != it.azimuth_)
 	     || (dip_ != it.dip_) || (intensity_ != it.intensity_)
 	     || (headonintensity_ != it.headonintensity_)
 	     || (ambintensity_ != it.ambintensity_) ) ? true : false;
 }
-

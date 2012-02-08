@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.473 2012-01-24 14:46:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.474 2012-02-08 23:04:36 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -1207,9 +1207,8 @@ visBase::EventCatcher* uiVisPartServer::getEventCatcher( int sceneid )
 void uiVisPartServer::setDirectionalLight()
 {
     if ( !dirlightdlg_ )
-    {
 	dirlightdlg_ = new uiDirLightDlg( appserv().parent(), this );
-    }
+
     dirlightdlg_->show();
 }
 
@@ -1232,16 +1231,10 @@ void uiVisPartServer::sendSetHeadOnIntensityEvent( int sceneid, float val )
 
 
 float uiVisPartServer::getHeadOnIntensity() const
-{
-    return ( dirlightdlg_ ) ? dirlightdlg_->getHeadOnIntensity() : 0;
-}
-
+{ return dirlightdlg_ ? dirlightdlg_->getHeadOnIntensity() : 0; }
 
 void uiVisPartServer::setHeadOnIntensity( float val )
-{
-    if ( dirlightdlg_ )
-	dirlightdlg_->setHeadOnIntensity( val );
-}
+{ if ( dirlightdlg_ ) dirlightdlg_->setHeadOnIntensity( val ); }
 
 
 void uiVisPartServer::vwAll( CallBacker* )
