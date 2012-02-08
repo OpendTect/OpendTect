@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.35 2012-01-12 14:23:35 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.36 2012-02-08 23:07:53 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -103,39 +103,27 @@ ________________________________________________________________________
 #define mExtern		extern dll_export
 #define mExternC	extern "C" dll_export
 
-#ifdef Basic_EXPORTS
+#if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
 # define mBasicClass	class dll_export
 # define mBasicGlobal	dll_export
 # define mBasicExtern	extern dll_export
 #else
-    #ifdef BASIC_EXPORTS
-	# define mBasicClass	class dll_export
-	# define mBasicGlobal	dll_export
-	# define mBasicExtern	extern dll_export
-    #else
-	# define mBasicClass	class dll_import
-	# define mBasicGlobal	dll_import
-	# define mBasicExtern	extern dll_import
-    #endif
+# define mBasicClass	class dll_import
+# define mBasicGlobal	dll_import
+# define mBasicExtern	extern dll_import
 #endif
 
 
 
 
-#ifdef General_EXPORTS
+#if defined(General_EXPORTS) || defined(GENERAL_EXPORTS)
 # define mGeneralClass	class dll_export
 # define mGeneralGlobal	dll_export
 # define mGeneralExtern	extern dll_export
 #else
-    #ifdef GENERAL_EXPORTS
-	# define mGeneralClass	class dll_export
-	# define mGeneralGlobal	dll_export
-	# define mGeneralExtern	extern dll_export
-    #else
-	# define mGeneralClass	class dll_import
-	# define mGeneralGlobal	dll_import
-	# define mGeneralExtern	extern dll_import
-    #endif
+# define mGeneralClass	class dll_import
+# define mGeneralGlobal	dll_import
+# define mGeneralExtern	extern dll_import
 #endif
 
 #define mIfNotFirstTime(act) \
