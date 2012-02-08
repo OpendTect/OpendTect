@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.150 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.151 2012-02-08 21:15:28 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.150 2011-12-16 15:57:21 c
 #include "welltrack.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
+#include "zaxistransform.h"
 
 #define		mPickSz 	3
 #define         mPickType	3
@@ -126,8 +127,9 @@ WellDisplay::WellDisplay()
 
 WellDisplay::~WellDisplay()
 {
+    setZAxisTransform( 0, 0 );
     removeChild( well_->getInventorNode() );
-    well_->unRef();
+    well_->unRef(); well_ = 0;
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
     if ( group_ )
@@ -272,6 +274,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     TypeSet<Coord3> trackpos = getTrackPos( wd );
     if ( trackpos.isEmpty() ) return;
+
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
@@ -897,15 +900,41 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 }
 
 
-bool WellDisplay::setZAxisTransform(ZAxisTransform*,TaskRunner*)
-{ return true; }
+bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+{
+    if ( datatransform_==zat )
+	return true;
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		mCB(this,WellDisplay,dataTransformCB) );
+	datatransform_->unRef();
+    }
+
+    datatransform_ = zat;
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		mCB(this,WellDisplay,dataTransformCB) );
+
+	datatransform_->ref();
+    }
+
+    if ( well_ )
+	well_->setZAxisTransform( zat, tr );
+    fullRedraw(0);
+    return true;
+}
+
 
 const ZAxisTransform* WellDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 void WellDisplay::dataTransformCB( CallBacker* )
-{
-}
+{ fullRedraw(0); }
 
 
 void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const

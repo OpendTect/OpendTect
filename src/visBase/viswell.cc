@@ -7,22 +7,24 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.70 2012-01-06 11:17:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.71 2012-02-08 21:15:28 cvsnanne Exp $";
 
 #include "viswell.h"
-#include "vispolyline.h"
-#include "visdrawstyle.h"
-#include "vistext.h"
+
 #include "visdatagroup.h"
-#include "vismaterial.h"
-#include "vistransform.h"
+#include "visdrawstyle.h"
 #include "vismarker.h"
-#include "survinfo.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
+#include "vistext.h"
+#include "vistransform.h"
+
 #include "coltabsequence.h"
 #include "iopar.h"
 #include "ranges.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
 
 #include "SoPlaneWellLog.h"
 
@@ -56,7 +58,7 @@ Well::Well()
     , showmarkers_(true)
     , showlogs_(true)
     , transformation_(0)
-				       
+    , zaxistransform_(0)
 {
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
@@ -129,6 +131,24 @@ Well::~Well()
 }
 
 
+void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
+{
+    if ( zaxistransform_==zat ) 
+	return;
+    
+    if ( zaxistransform_ )
+    {
+	zaxistransform_->unRef();
+    }
+
+    zaxistransform_ = zat;
+    if ( zaxistransform_ )
+    {
+	zaxistransform_->ref();
+    }
+}
+
+
 void Well::setTrack( const TypeSet<Coord3>& pts )
 {
     while ( track_->size()>pts.size() )
@@ -137,7 +157,9 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
     track_->setDisplayTransformation( transformation_ );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
-	const Coord3& crd = pts[idx];
+	Coord3 crd = pts[idx];
+	if ( zaxistransform_ )
+	    crd.z = zaxistransform_->transform( crd );
 	if ( idx>=track_->size() )
 	    track_->addPoint( crd );
 	else
@@ -243,10 +265,13 @@ void Well::addMarker( const MarkerParams& mp )
     marker->setMarkerShape(markershapesep);
     markershapesep->unref();
 
+    Coord3 markerpos = *mp.pos_;
+    if ( zaxistransform_ )
+	markerpos.z = zaxistransform_->transform( markerpos );
     //marker->doRestoreProportions(false);
     markergroup_->addObject( marker );
     marker->setDisplayTransformation( transformation_ );
-    marker->setCenterPos( *mp.pos_ );
+    marker->setCenterPos( markerpos );
     marker->getMaterial()->setColor( mp.col_ );
     marker->setScreenSize( mp.size_ );
     marker->turnOn( showmarkers_ );
@@ -255,7 +280,7 @@ void Well::addMarker( const MarkerParams& mp )
     markernm->setDisplayTransformation( transformation_ );
     markernm->setText( mp.name_ );
     markernm->setFontData( mp.font_ );
-    markernm->setPosition( *mp.pos_ );
+    markernm->setPosition( markerpos );
     markernm->setJustification( Text::Left );
     markernm->getMaterial()->setColor( mp.namecol_ );
     markernames_->addObject( markernm );
@@ -411,18 +436,22 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
 }
 
 
-const Coord3 Well::getPos( const TypeSet<Coord3Value>& crdv, int idx ) const 
+Coord3 Well::getPos( const TypeSet<Coord3Value>& crdv, int idx ) const 
 {
     const Coord3Value& cv = crdv[idx];
+    Coord3 crd = cv.coord;
+    if ( zaxistransform_ )
+	crd.z = zaxistransform_->transform( crd );
+
     Coord3 pos( 0,0,0 );
     if ( transformation_ )
-	pos = transformation_->transform( cv.coord );
+	pos = transformation_->transform( crd );
     return pos;
 }
 
 
-const float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx, 
-			    bool sclog, const LinScaler& scaler ) const
+float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx, 
+		      bool sclog, const LinScaler& scaler ) const
 {
     const Coord3Value& cv = crdvals[idx];
     float val = scaler.scale( cv.value );

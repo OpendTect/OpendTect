@@ -7,23 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.41 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: viswell.h,v 1.42 2012-02-08 21:15:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
-#include "visobject.h"
 #include "scaler.h"
-#include "color.h"
+#include "visobject.h"
 
 class Coord3;
 class Coord3Value;
 class IOPar;
 class LineStyle;
+class TaskRunner;
 class VisColorTab;
+class ZAxisTransform;
 class SoPlaneWellLog;
 template <class T> class Interval;
 
@@ -144,9 +146,9 @@ public:
 					   const LogParams&);
     void			setFilledLogData(const TypeSet<Coord3Value>&, 
 					   	 const LogParams&);
-    const float 		getValue(const TypeSet<Coord3Value>&,int,bool,
+    float 			getValue(const TypeSet<Coord3Value>&,int,bool,
 	    				 const LinScaler&) const;
-    const Coord3 		getPos(const TypeSet<Coord3Value>&,int) const;
+    Coord3 			getPos(const TypeSet<Coord3Value>&,int) const;
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     const Color&		logFillColor(int) const;
@@ -175,6 +177,7 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+    void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);
@@ -210,6 +213,7 @@ protected:
     float			constantlogsizefac_;
     
     ObjectSet<SoPlaneWellLog>	log_;
+    ZAxisTransform*		zaxistransform_;
 };
 
 
