@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.58 2012-02-03 23:19:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.59 2012-02-08 18:28:14 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -274,9 +274,9 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 	    res = cs.zrg.start;
 	else
 	{
-	    const float zval = cs.zrg.start * scene->zDomainUserFactor();
-	    res = toString( zval );
-	    //res = toString( SI().zIsTime() ? (float)(mNINT(zval)) : zval );
+	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
+	    const float zval = cs.zrg.start * zdef.userFactor();
+	    res = toString( zdef.isTime() ? (float)(mNINT(zval)) : zval );
 	}
     }
 
