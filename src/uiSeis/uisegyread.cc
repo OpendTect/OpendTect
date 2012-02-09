@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.46 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.47 2012-02-09 13:27:10 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uisegyread.cc,v 1.46 2010-11-16 09:49:10 cvsber
 #include "uisegyexamine.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
-#include "uibuttongroup.h"
+#include "uichecklist.h"
 #include "uifileinput.h"
 #include "uitaskrunner.h"
 #include "uiobjdisposer.h"
@@ -322,10 +322,9 @@ static const char* rev1info =
     "\n\nPlease specify:";
 static const char* rev1txts[] =
 {
-    "Yes - I know the file is 100% correct SEG-Y Rev.1",
-    "Yes - It's Rev. 1 but I may need to overrule some things",
-    "No - the file is not SEG-Y Rev.1 - treat as legacy SEG-Y Rev. 0",
-    "Cancel - Something must be wrong - take me back",
+    "[&No]: The file is NOT SEG-Y Rev.1 - treat as legacy (i.e. Rev. 0)",
+    "[&Almost]: It's Rev. 1 but I may need to overrule some things",
+    "[&Yes]: I know the file is 100% correct SEG-Y Rev.1",
     0
 };
 
@@ -338,42 +337,31 @@ uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
 	    	.modal(false) )
     , initialpol_(pol)
 {
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "" );
-    for ( int idx=0; rev1txts[idx]; idx++ )
-	buts_ += new uiRadioButton( bgrp, rev1txts[idx] );
-    bgrp->setExclusive( true );
-    buts_[pol-1]->setChecked( true );
+    choicefld_ = new uiCheckList( this, BufferStringSet(rev1txts),
+	    			  uiCheckList::OneOnly );
+    choicefld_->setChecked( pol-1, true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
-    dontaskfld_->attach( ensureBelow, bgrp );
+    dontaskfld_->attach( ensureBelow, choicefld_ );
     dontaskfld_->attach( rightBorder );
 }
 
 bool acceptOK( CallBacker* )
 {
-    pol_ = 3;
-    for ( int idx=0; idx<buts_.size(); idx++ )
-    {
-	if ( buts_[idx]->isChecked() )
-	    { pol_ = idx + 1; break; }
-    }
+    pol_ = choicefld_->firstChecked() + 1;
     int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;
     if ( storepol != initialpol_ )
     {
 	SI().getPars().set( sKeySEGYRev1Pol, storepol );
 	SI().savePars();
     }
+    pol_--;
     return true;
 }
 
-bool isGoBack() const
-{
-    return pol_ == buts_.size();
-}
-
-    ObjectSet<uiRadioButton>	buts_;
-    uiCheckBox*			dontaskfld_;
-    int				pol_, initialpol_;
+    uiCheckList*	choicefld_;
+    uiCheckBox*		dontaskfld_;
+    int			pol_, initialpol_;
 
 };
 
@@ -418,20 +406,23 @@ void uiSEGYRead::basicOptsGot()
 
     rev_ = exrev ? WeakRev1 : Rev0;
     revpolnr_ = exrev;
+    bool needimmediatedet = true;
     if ( rev_ != Rev0 )
     {
 	SI().pars().get( sKeySEGYRev1Pol, revpolnr_ );
 	if ( revpolnr_ < 0 )
-	    revpolnr_ = -revpolnr_;
+	    revpolnr_ = -revpolnr_ - 1;
 	else
 	{
 	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_,
 		    				    Seis::is2D(geom_) );
+	    needimmediatedet = false;
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
 	}
     }
 
-    determineRevPol();
+    if ( needimmediatedet )
+	determineRevPol();
 }
 
 
@@ -440,11 +431,11 @@ void uiSEGYRead::determineRevPol()
 {
     if ( rev1qdlg_ )
     {
-	if ( !rev1qdlg_->uiResult() || rev1qdlg_->isGoBack() )
+	if ( !rev1qdlg_->uiResult() )
 	    mSetState(BasicOpts)
 	revpolnr_ = rev1qdlg_->pol_;
     }
-    rev_ = revpolnr_ == 1 ? Rev1 : (revpolnr_ == 2 ? WeakRev1 : Rev0);
+    rev_ = (RevType)revpolnr_;
     mSetState( setup_.purpose_ == Import ? SetupImport : SetupScan );
 }
 
