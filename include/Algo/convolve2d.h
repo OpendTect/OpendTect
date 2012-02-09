@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.17 2012-01-11 11:38:48 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.18 2012-02-09 15:01:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "rowcol.h"
 
-#if defined(__msvc__) && defined(ALGO_EXPORTS)
+#if defined(__msvc__) && (defined(ALGO_EXPORTS) || defined(Algo_EXPORTS))
 # define mAlgoClass	class dll_export
 #else
 # define mAlgoClass	class

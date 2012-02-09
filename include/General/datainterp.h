@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.15 2010-06-30 14:02:42 cvskris Exp $
+ RCS:		$Id: datainterp.h,v 1.16 2012-02-09 15:01:27 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -29,7 +29,7 @@ are supported and instantiated.
 
 */
 
-#if defined(__msvc__) && defined(GENERAL_EXPORTS)
+#if defined(__msvc__) && (defined(GENERAL_EXPORTS) || defined(General_EXPORTS) )
 # define mGenClass	class dll_export
 #else
 # define mGenClass	class
