@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.39 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.40 2012-02-09 12:21:29 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -15,12 +15,16 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.39 2011-10-26 14:20:13 cvsbruno 
 #include "streamconn.h"
 #include "survinfo.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "tabledef.h"
 
 #include <math.h>
+
+static const char* sKeyScaled = "Scaled";
 
 
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
@@ -183,6 +187,64 @@ float Wavelet::getExtrValue( bool ismax ) const
     Stats::RunCalc<float> rc( Stats::CalcSetup().require(Stats::Max) );
     rc.addValues( sz, samps );
     return ismax ? rc.max() : rc.min();
+}
+
+
+static void markWaveletScaled( const MultiID& id, const char* val )
+{
+    IOObj* ioobj = IOM().get( id );
+    if ( !ioobj ) return;
+    ioobj->pars().set( sKeyScaled, val );
+    IOM().commitChanges( *ioobj );
+    delete ioobj;
+}
+
+
+void Wavelet::markScaled( const MultiID& id )
+{
+    markWaveletScaled( id, "External" );
+}
+
+
+void Wavelet::markScaled( const MultiID& id, const MultiID& orgid,
+			  const MultiID& horid, const MultiID& seisid,
+			  const char* lvlnm )
+{
+    FileMultiString fms( orgid.buf() );
+    fms += horid; fms += seisid; fms += lvlnm;
+    markWaveletScaled( id, fms );
+}
+
+
+static BufferString waveletScaleStr( const MultiID& id )
+{
+    BufferString ret;
+    IOObj* ioobj = IOM().get( id );
+    if ( !ioobj ) return ret;
+    ret = ioobj->pars().find( sKeyScaled );
+    delete ioobj;
+    return ret;
+}
+
+
+bool Wavelet::isScaled( const MultiID& id )
+{
+    return !waveletScaleStr(id).isEmpty();
+}
+
+
+bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
+			MultiID& seisid, BufferString& lvlnm )
+{
+    BufferString val( waveletScaleStr(id) );
+    if ( val.isEmpty() ) return false;
+    FileMultiString fms( val );
+    const int sz = fms.size();
+    if ( sz < 3 )
+	{ orgid = "0"; return true; }
+
+    orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
+    return true;
 }
 
 

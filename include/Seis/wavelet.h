@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.19 2009-09-21 11:22:35 cvsbruno Exp $
+ RCS:		$Id: wavelet.h,v 1.20 2012-02-09 12:21:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,15 @@ public:
     void		normalize();
     float		getExtrValue(bool ismax = true) const;
 
+    static void		markScaled(const MultiID& id); //!< "External"
+    static void		markScaled(const MultiID& id,const MultiID& orgid,
+	    			   const MultiID& horid,const MultiID& seisid,
+				   const char* lvlnm);
+    static bool		isScaled(const MultiID&);
+    static bool		isScaled(const MultiID& id,MultiID& orgid,
+					MultiID& horid,MultiID& seisid,
+					BufferString& lvlnm);
+    					//!< if external, orgid will be "0"
 
 protected:
 
