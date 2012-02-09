@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.129 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id: vissurvobj.h,v 1.130 2012-02-09 08:57:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -312,12 +312,7 @@ public:
 				{ userrefs_.replace( attrib, nms ); }
 
 protected:
-    				SurveyObject() 
-				: scene_(0)
-				, survinfo_( 0 )
-				, basemapobj_(0)
-				, locked_(false)	{};
-
+    				SurveyObject();
 				~SurveyObject()		{ deepErase(userrefs_);}
 
     static int			cValNameOffset()	{ return 12; }
