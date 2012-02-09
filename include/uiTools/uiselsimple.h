@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.15 2011-02-24 14:53:28 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.16 2012-02-09 12:59:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiListBox;
 class uiGenInput;
+class uiCheckList;
 class BufferStringSet;
 
 /*!\brief Select entry from list */
@@ -101,6 +102,33 @@ protected:
 
     void		selChg(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
+
+};
+
+
+/*!\brief Get an action from a series of possibilities from user */
+
+mClass uiGetChoice : public uiDialog
+{ 	
+public:
+
+			uiGetChoice(uiParent*,
+				    const BufferStringSet& options,
+				    const char* question=0,
+				    bool allowcancel=true,
+				    const char* helpid=mNoHelpID);
+
+    int			choice() const		{ return choice_; }
+    			//!< on cancel will be -1
+
+protected:
+
+    uiCheckList*	inpfld_;
+    int			choice_;
+    const bool		allowcancel_;
+
+    virtual bool	acceptOK(CallBacker*);
+    virtual bool	rejectOK(CallBacker*);
 
 };
 

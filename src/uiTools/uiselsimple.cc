@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.18 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.19 2012-02-09 12:59:18 cvsbert Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
+#include "uichecklist.h"
 #include "globexpr.h"
 #include "bufstringset.h"
 
@@ -125,4 +126,30 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 {
     const char* txt = text();
     return *txt ? true : false;
+}
+
+
+uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
+			  const char* qn, bool wcncl, const char* hid )
+    : uiDialog(p,uiDialog::Setup("Please specify",qn,hid))
+    , allowcancel_(wcncl)
+{
+    inpfld_ = new uiCheckList( this, opts, uiCheckList::OneOnly );
+    inpfld_->setChecked( 0, true );
+}
+
+
+bool uiGetChoice::rejectOK( CallBacker* )
+{
+    if ( !allowcancel_ )
+	return false;
+    choice_ = -1;
+    return true;
+}
+
+
+bool uiGetChoice::acceptOK( CallBacker* )
+{
+    choice_ = inpfld_->firstChecked();
+    return true;
 }
