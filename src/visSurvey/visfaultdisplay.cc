@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.89 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.90 2012-02-09 11:21:17 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -290,25 +290,25 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     {
 	const float zscale = scene_
 	    ? scene_->getZScale() *scene_->getZStretch()
-	    : SI().zScale();
+	    : survinfo_->zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
 	explicitpanels_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
-		BinIDValue( BinID(SI().inlRange(true).step,
-				  SI().crlRange(true).step),
-				  SI().zStep() ) );
+		BinIDValue( BinID(survinfo_->inlRange(true).step,
+				  survinfo_->crlRange(true).step),
+				  survinfo_->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
-		BinIDValue( BinID(SI().inlRange(true).step,
-				  SI().crlRange(true).step),
-				  SI().zStep() ) );
+		BinIDValue( BinID(survinfo_->inlRange(true).step,
+				  survinfo_->crlRange(true).step),
+				  survinfo_->zStep() ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
@@ -679,7 +679,7 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : survinfo_->zScale() )
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
@@ -1316,10 +1316,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( SI().transform(b00),cs.zrg.start );
-	const Coord3 c01( SI().transform(b01),cs.zrg.stop );
-	const Coord3 c11( SI().transform(b11),cs.zrg.stop );
-	const Coord3 c10( SI().transform(b10),cs.zrg.start );
+	const Coord3 c00( survinfo_->transform(b00),cs.zrg.start );
+	const Coord3 c01( survinfo_->transform(b01),cs.zrg.stop );
+	const Coord3 c11( survinfo_->transform(b11),cs.zrg.stop );
+	const Coord3 c10( survinfo_->transform(b10),cs.zrg.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 
@@ -1568,7 +1568,8 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	    continue;
 
 	const float onestepdist =
-	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(Coord3(0,0,1)) );
+	    Coord3(1,1,mZScale()).dot(
+		    survinfo_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -1609,7 +1610,8 @@ bool FaultDisplay::coincidesWithPlane(
 
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist = 
-	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(planenormal) );
+	    Coord3(1,1,mZScale()).dot(
+		    survinfo_->oneStepTranslation(planenormal) );
 
 	float prevdist;
 	Coord3 prevpos;
@@ -1726,8 +1728,10 @@ void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
     const int linewidth = islinesolid ? lineStyle()->width_ : -1;
-    const float inllen = SI().inlDistance() * SI().inlRange(true).width();
-    const float crllen = SI().crlDistance() * SI().crlRange(true).width();
+    const float inllen =
+	survinfo_->inlDistance() * survinfo_->inlRange(true).width();
+    const float crllen =
+	survinfo_->crlDistance() * survinfo_->crlRange(true).width();
     const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );

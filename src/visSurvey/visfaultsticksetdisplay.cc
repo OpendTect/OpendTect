@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.46 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.47 2012-02-09 11:22:13 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.46 2011-12-16 15
 #include "vispolyline.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
+#include "zdomain.h"
 
 mCreateFactoryEntry( visSurvey::FaultStickSetDisplay );
 
@@ -353,7 +354,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.x += SI().inlDistance() * 0.5 * dir;
+		    pos.x += survinfo_->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -362,7 +363,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.y += SI().inlDistance() * 0.5 * dir;
+		    pos.y += survinfo_->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -371,7 +372,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.z += SI().zStep() * 0.5 * dir;
+		    pos.z += survinfo_->zStep() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -498,7 +499,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 static float zdragoffset = 0;
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : survinfo_->zScale() )
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
@@ -562,7 +563,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    {
 		horid = new MultiID( hordisp->getMultiID() );
 		pickedmid = horid;
-		horshiftname = hordisp->getTranslation().z * SI().zFactor();
+		horshiftname = hordisp->getTranslation().z *
+		    scene_->zDomainInfo().userFactor();
 		pickednm = horshiftname.buf();
 		break;
 	    }
@@ -806,7 +808,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		    if ( displaytransform_ )
 			pos = displaytransform_->transformBack( pos );
 		    if ( nm )
-			pos.z += atof(nm) / SI().zFactor();
+			pos.z += atof(nm) / scene_->zDomainInfo().userFactor();
 
 		    zdragoffset = pos.z - dragpos.z;
 		}
@@ -878,8 +880,8 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	     !pickednm || strcmp(pickednm,s2dd->getLineName()) )
 	    continue;
 
-	const float onestepdist =
-	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(Coord3(0,0,1)) );
+	const float onestepdist = Coord3(1,1,mZScale()).dot(
+		survinfo_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -920,7 +922,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
-		    SI().oneStepTranslation(plane->getNormal(Coord3::udf())) );
+	    survinfo_->oneStepTranslation(plane->getNormal(Coord3::udf())) );
 
 	float prevdist;
 	Coord3 prevpos;
