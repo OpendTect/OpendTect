@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.20 2012-02-01 09:04:35 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.21 2012-02-09 11:10:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,9 +40,6 @@ public:
     static TextureChannels*	create()
 				mCreateDataObj(TextureChannels);
 
-    void			setSize(int,int,int);
-    int				getSize(int dim) const;
-
     virtual bool		turnOn(bool yn);
     virtual bool		isOn() const;
 
@@ -61,14 +58,24 @@ public:
     void			reMapData(int channel,TaskRunner*);
     const TypeSet<float>*	getHistogram(int channel) const;
 
+    void			setSize(int channel,int sz0,int sz1,int sz2);
+    int				getSize(int channel,unsigned char dim) const;
+
+    				//Old, don't use in new code. Will be removed
+    void			setSize(int sz0,int sz1,int sz2);
+    int				getSize(unsigned char dim) const;
+
+    void			setNrComponents(int channel,int nrcomp);
+    int				getNrComponents(int channel) const;
+
     void			setNrVersions(int channel,int nrvers);
     int				nrVersions(int channel) const;
     int				currentVersion(int channel) const;
     void			setCurrentVersion(int channel,int version);
 
     bool			setUnMappedVSData(int channel,int version,
-	    				        const ValueSeries<float>*, OD::PtrPolicy,
-						TaskRunner*);
+				    const ValueSeries<float>*, OD::PtrPolicy,
+				    TaskRunner*);
     bool			setUnMappedData(int channel,int version,
 	    				        const float*, OD::PtrPolicy,
 						TaskRunner*);
@@ -90,7 +97,6 @@ protected:
     void			update(ChannelInfo*,bool tc2rgba);
     				~TextureChannels();
 
-    int				size_[3];
     ObjectSet<ChannelInfo>	channelinfo_;
     MappedTextureDataSet*	tc_;
     SoSwitch*			onoff_;
