@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgeneral.cc,v 1.10 2012-02-01 13:54:40 cvsbert Exp $";
+static const char* rcsID = "$Id: initgeneral.cc,v 1.11 2012-02-09 11:13:56 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "rangeposprovider.h"
+#include "price.h"
 #include "mathproperty.h"
 
 mDefModInitFn(General)
@@ -22,4 +23,7 @@ mDefModInitFn(General)
     ValueProperty::initClass();
     RangeProperty::initClass();
     MathProperty::initClass();
+
+    Currency::repository_ += new Currency( "EUR", 2 );
+    Currency::repository_ += new Currency( "USD", 2 );
 }
