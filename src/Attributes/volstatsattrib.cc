@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.60 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.61 2012-02-09 10:40:38 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -353,7 +353,8 @@ void VolStats::prepPriorToBoundsCalc()
     if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
     {
 	errmsg_ = "Optical Stack only works on elements\n";
-	errmsg_ += "which define an horizontal direction";
+	errmsg_ += "which define an horizontal direction:\n";
+	errmsg_ += "inlines, crosslines and random lines.";
 	return;
     }
 
