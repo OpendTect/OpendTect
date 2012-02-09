@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.7 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.8 2012-02-09 23:26:45 cvsnanne Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -41,7 +41,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     if ( horizon_ ) horizon_->ref();
 
     savefld_ = new uiGenInput( this, "Save horizon",
-	    		       BoolInpSpec(false,"As new","Overwrite") );
+	    		       BoolInpSpec(true,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
