@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.83 2011-12-22 17:37:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.84 2012-02-09 08:41:07 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -304,7 +304,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 
     if ( setup.withstratfld_ )
     {
-	stratlvlfld_ = new uiStratLevelSel( this );
+	stratlvlfld_ = new uiStratLevelSel( this, true );
 	stratlvlfld_->attach( alignedBelow, objfld_ );
 	stratlvlfld_->selChange.notify( mCB(this,uiSurfaceWrite,stratLvlChg) );
     }

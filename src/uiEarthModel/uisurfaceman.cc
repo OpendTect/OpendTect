@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.90 2012-01-06 20:39:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.91 2012-02-09 08:41:07 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -466,7 +466,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	par.get( sKey::Color, col );
 	tbl_->setColor( RowCol(idx,1), col );
 
-	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
 	int lvlid = -1;

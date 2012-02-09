@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.46 2011-10-10 09:20:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.47 2012-02-09 08:41:07 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -128,7 +128,7 @@ void uiMarkerDlg::markerRemovedCB( CallBacker* )
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
+    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     table_->setCellGroup( RowCol(table_->currentRow(),cLevelCol), levelsel );
     levelsel->setSensitive( false );
@@ -248,7 +248,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const int irow = startrow + idx;
-	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx] : 0;

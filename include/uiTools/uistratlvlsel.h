@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.12 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.13 2012-02-09 08:41:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,31 +18,39 @@ class Color;
 class uiComboBox;
 namespace Strat { class Level; } 
 
-/*!\brief used to tie an object ( Horizon, Marker... ) to a Unit Level */
+
+/*!\brief Selector for stratigraphic levels */
 
 mClass uiStratLevelSel : public uiGroup
 {
 public:
 
-			uiStratLevelSel(uiParent*,bool withlabel=true);
+			uiStratLevelSel(uiParent*,bool withudf,
+					const char* lbltxt=sTiedToTxt());
+					//!< pass null for no label
 			~uiStratLevelSel();
 
     const Strat::Level*	selected() const;
-
-    int			getID() const;
-    void		setID(int);
-
-    Color		getColor() const;
     const char*		getName() const;
+    Color		getColor() const;
+    int			getID() const;
+
+    void		setSelected(const Strat::Level*);
+    void		setName(const char*);
+    void		setID(int);
 
     Notifier<uiStratLevelSel> selChange;
 
+    static const char*	sTiedToTxt();
+
 protected:
 
-    uiComboBox*		selfld_;
+    uiComboBox*		fld_;
+    bool		haveudf_;
 
     void		selCB(CallBacker*);
-    void		chgCB(CallBacker*);
+    void		extChgCB(CallBacker*);
 };
+
 
 #endif

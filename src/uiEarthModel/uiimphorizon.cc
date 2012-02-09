@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.139 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.140 2012-02-09 08:41:07 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -127,7 +127,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	outputfld_->attach( alignedBelow, filludffld_ );
 
-	stratlvlfld_ = new uiStratLevelSel( this );
+	stratlvlfld_ = new uiStratLevelSel( this, true );
 	stratlvlfld_->attach( alignedBelow, outputfld_ );
 	stratlvlfld_->selChange.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
