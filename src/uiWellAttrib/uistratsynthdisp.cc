@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.75 2012-02-08 12:55:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.76 2012-02-09 12:59:43 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -246,18 +246,39 @@ void uiStratSynthDisp::wvltChg( CallBacker* )
 
 void uiStratSynthDisp::scalePush( CallBacker* )
 {
+    haveUserScaleWavelet();
+}
+
+
+bool uiStratSynthDisp::haveUserScaleWavelet()
+{
+    uiMsgMainWinSetter mws( mainwin() );
     SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
-    if ( tbuf.isEmpty() ) return;
+    if ( tbuf.isEmpty() )
+    {
+	uiMSG().error( "Please generate layer models first.\n"
+		"The scaling tool compares the amplitudes at the selected\n"
+		"Stratigraphic Level to real amplitudes along a horizon" );
+	return false;
+    }
+    if ( levelname_.isEmpty() || matchString( "--", levelname_) )
+    {
+	uiMSG().error( "Please select a Stratigraphic Level.\n"
+		"The scaling tool compares the amplitudes there\n"
+		"to real amplitudes along a horizon" );
+	return false;
+    }
 
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
 	int res = uiMSG().question( "Type of seismic data to use", "2D", "3D",
 					"Cancel", "Specify geometry" );
-	if ( res < 0 ) return;
+	if ( res < 0 ) return false;
 	is2d = res == 1;
     }
 
+    bool rv = false;
     uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname_ );
     if ( dlg.go() )
     {
@@ -265,9 +286,13 @@ void uiStratSynthDisp::scalePush( CallBacker* )
 	if ( mid.isEmpty() )
 	    pErrMsg( "Huh" );
 	else
+	{
+	    rv = true;
 	    wvltfld_->setInput( mid );
+	}
 	vwr_->handleChange( FlatView::Viewer::All );
     }
+    return rv;
 }
 
 

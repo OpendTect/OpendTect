@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.5 2012-01-25 16:07:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.6 2012-02-09 12:59:43 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -118,25 +118,30 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 }
 
 
-static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone )
+static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
+		       int def )
 {
     const BufferString selnm( cb->text() );
     cb->setEmpty();
     if ( wnone )
 	cb->addItem( "---" );
+    if ( nms.isEmpty() ) return;
+
     cb->addItems( nms );
-    int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
-    if ( wnone ) idxof++;
-    if ( idxof >= 0 ) cb->setCurrentItem( idxof );
+    if ( !selnm.isEmpty() ) 
+	def = nms.indexOf( selnm );
+    if ( wnone ) def++;
+    if ( def > cb->size() ) def = cb->size() - 1;
+    cb->setCurrentItem( def );
 }
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{ setFldNms( propfld_, nms, false ); }
+{ setFldNms( propfld_, nms, false, 0 ); }
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
-{ setFldNms( lvlfld_, nms, true ); }
+{ setFldNms( lvlfld_, nms, true, 0 ); }
 void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
-{ setFldNms( contfld_, nms, true ); }
+{ setFldNms( contfld_, nms, true, -1 ); }
 
 
 const char* uiStratLayModEditTools::selProp() const

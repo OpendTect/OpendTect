@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratseisevent.cc,v 1.3 2011-02-09 12:28:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratseisevent.cc,v 1.4 2012-02-09 12:59:43 cvsbert Exp $";
 
 #include "uistratseisevent.h"
-#include "uicombobox.h"
+#include "uistratlvlsel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "stratlevel.h"
@@ -25,15 +25,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     , extrwinfld_(0)
     , levelfld_(0)
 {
-    uiLabeledComboBox* lcb = 0;
     if ( !setup_.fixedlevel_ )
-    {
-	lcb = new uiLabeledComboBox( this, "Reference level" );
-	levelfld_ = lcb->box();
-	const Strat::LevelSet& lvls = Strat::LVLS();
-	for ( int idx=0; idx<lvls.size(); idx++ )
-	    levelfld_->addItem( lvls.levels()[idx]->name() );
-    }
+	levelfld_ = new uiStratLevelSel( this, false, "Reference level" );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.remove(0);
@@ -42,8 +35,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     evfld_->setWithCheck( true );
     evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
     evfld_->setValue( 1 );
-    if ( lcb ) evfld_->attach( alignedBelow, lcb );
-    evfld_->setElemSzPol( uiObject::Small );
+    if ( levelfld_ ) evfld_->attach( alignedBelow, levelfld_ );
+    evfld_->setElemSzPol( uiObject::Medium );
     setHAlignObj( evfld_ );
     snapoffsfld_ = new uiGenInput( this, "Offset (ms)", FloatInpSpec(0) );
     snapoffsfld_->attach( rightOf, evfld_ );
@@ -62,9 +55,20 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 
 void uiStratSeisEvent::setLevel( const char* lvlnm )
 {
-    ev_.level_ = Strat::LVLS().get( lvlnm );
+    const Strat::Level* lvl = Strat::LVLS().get( lvlnm );
     if ( levelfld_ )
-	levelfld_->setText( lvlnm );
+	levelfld_->setSelected( lvl );
+    else if ( lvl )
+    {
+	setup_.fixedlevel_ = lvl;
+	ev_.level_ = lvl;
+    }
+}
+
+
+const char* uiStratSeisEvent::levelName() const
+{
+    return levelfld_ ? levelfld_->getName() : setup_.fixedlevel_->name().buf();
 }
 
 
@@ -78,9 +82,10 @@ void uiStratSeisEvent::evSnapCheck( CallBacker* )
 
 bool uiStratSeisEvent::getFromScreen()
 {
+    ev_.level_ = setup_.fixedlevel_;
     if ( levelfld_ )
     {
-	ev_.level_ = Strat::LVLS().get( levelfld_->text() );
+	ev_.level_ = levelfld_->selected();
 	if ( !ev_.level_ )
 	    mErrRet("Cannot find selected stratigraphic level")
     }
@@ -106,8 +111,8 @@ bool uiStratSeisEvent::getFromScreen()
 
 void uiStratSeisEvent::putToScreen()
 {
-    if ( levelfld_ && ev_.level_ )
-	levelfld_->setText( ev_.level_->name() );
+    if ( levelfld_ )
+	levelfld_->setSelected( ev_.level_ );
     evfld_->setChecked( ev_.evtype_ != VSEvent::None );
     if ( ev_.evtype_ == VSEvent::None )
 	evfld_->setValue( ((int)ev_.evtype_)-1 );

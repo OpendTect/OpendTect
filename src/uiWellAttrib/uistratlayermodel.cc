@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.51 2012-02-06 12:50:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.52 2012-02-09 12:59:43 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.51 2012-02-06 12:50:11
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
+#include "wavelet.h"
 
 #include "uielasticpropsel.h"
 #include "uiobjdisposer.h"
@@ -318,8 +319,42 @@ void uiStratLayerModel::zoomChg( CallBacker* )
 }
 
 
+bool uiStratLayerModel::checkUnscaledWavelet()
+{
+    const Wavelet* wvlt = synthdisp_->getWavelet();
+    if ( !wvlt )
+	return false;
+    if ( Wavelet::isScaled(synthdisp_->waveletID()) )
+	return true;
+
+    BufferStringSet opts;
+    opts.add( "[&Start tool]: Start the wavelet scaling dialog" );
+    opts.add( "[&Mark scaled]: The wavelet amplitude is already compatible "
+	      "with the seismic data" );
+    opts.add( "[&Ignore]: I will not use scaling-sensitive operations" );
+    uiGetChoice dlg( this, opts,
+	    "The wavelet seems to be unscaled.\n"
+	    "For most purposes, you will need a scaled wavelet.\n", true );
+    dlg.go(); const int choice = dlg.choice();
+    if ( choice < 0 )
+	return false;
+    else if ( choice == 2 )
+	return true;
+    else if ( choice == 1 )
+    {
+	Wavelet::markScaled( synthdisp_->waveletID() );
+	return true;
+    }
+
+    return synthdisp_->haveUserScaleWavelet();
+}
+
+
 void uiStratLayerModel::xPlotReq( CallBacker* )
 {
+    if ( !checkUnscaledWavelet() )
+	return;
+
     uiStratSynthCrossplot dlg( this, modl_, synthdisp_->getSynthetics() );
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 

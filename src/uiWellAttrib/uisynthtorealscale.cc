@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.13 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.14 2012-02-09 12:59:43 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -73,6 +73,9 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     valueslider_->attach( leftAlignedBelow, dispfld_ );
     avgfld_->attach( rightOf, valueslider_ );
     avgfld_->valuechanging.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
+
+    uiLabel* lbl = new uiLabel( this, nm );
+    dispfld_->attach( centeredBelow, lbl );
     setHAlignObj( dispfld_ );
 }
 
@@ -141,7 +144,18 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     , is2d_(is2d)
     , synth_(tb)
     , inpwvltid_(wid)
+    , seisfld_(0)
 {
+#define mNoDealRet(cond,msg) \
+    if ( cond ) \
+	{ new uiLabel( this, msg ); return; }
+    mNoDealRet( Strat::LVLS().isEmpty(), "No Stratigraphic Levels defined" )
+    mNoDealRet( tb.isEmpty(), "Please generate models first" )
+    mNoDealRet( !lvlnm || !*lvlnm, "Please select a Stratigraphic Level" )
+    mNoDealRet( inpwvltid_.isEmpty(), "Please create a Wavelet first" )
+    mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
+	    "Please select Stratigraphic Level\nbefore starting this tool" )
+
     BufferString wintitle( "Determine scaling for synthetics using '" );
     wintitle.add( IOM().nameOf( inpwvltid_ ) ).add( "'" );
     setTitleText( wintitle );
@@ -256,6 +270,8 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
     delete wvlt;
 
     outwvltid_ = ioobj->key();
+    Wavelet::markScaled( outwvltid_, inpwvltid_, horfld_->key(),
+	    		seisfld_->ioobj()->key(), evfld_->levelName() );
     return true;
 }
 
@@ -460,4 +476,3 @@ uiSynthToRealScale::DataSelection::~DataSelection()
     delete polygon_;
     if ( horizon_ ) horizon_->unRef();
 }
-
