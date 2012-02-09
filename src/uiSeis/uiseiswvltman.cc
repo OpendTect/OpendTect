@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.69 2011-11-04 20:26:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.70 2012-02-09 14:22:44 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -200,20 +200,34 @@ void uiSeisWvltMan::mkFileInfo()
 	const float zfac = SI().zFactor();
 
 	BufferString tmp;
-	tmp += "Number of samples: "; tmp += wvlt->size(); tmp += "\n";
-	tmp += "Sample interval "; tmp += SI().getZUnitString(true);tmp += ": ";
-	tmp += wvlt->sampleRate() * zfac; tmp += "\n";
-	tmp += "Min/Max amplitude: ";
-	tmp += wvlt->getExtrValue(false); tmp += "/"; 
-	tmp += wvlt->getExtrValue(); 
-	tmp += "\n";
-	txt += tmp;
-
+	tmp.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );
+	tmp.add( "Sample interval " ).add( SI().getZUnitString(true) )
+	   .add( ": " ).add( wvlt->sampleRate() * zfac ).add( "\n" );
+	tmp.add( "Min/Max amplitude: " ).add( wvlt->getExtrValue(false) )
+	   .add( "/" ).add( wvlt->getExtrValue() ).add( "\n" ); 
+	txt.add( tmp );
 	delete wvlt;
+
+	MultiID orgid; MultiID horid; MultiID seisid; BufferString lvlnm;
+	if ( Wavelet::isScaled(curioobj_->key(),orgid,horid,seisid,lvlnm) )
+	{
+	    tmp = "Scaled: ";
+	    if ( orgid == MultiID("0") )
+		tmp.add( "Outside OpendTect" );
+	    else
+	    {
+		tmp.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
+		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
+		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
+		tmp.add( " at '").add( lvlnm ).add( "')" );
+	    }
+	    txt.add( tmp ).add( "\n" );
+	}
     }
 
     wvltfld_->setPack( true, curid_, false );
     wvltfld_->handleChange( uiFlatViewer::All );
+
 
     txt += getFileInfo();
     setInfo( txt );
