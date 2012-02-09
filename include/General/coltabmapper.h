@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.25 2011-02-10 11:29:27 cvssatyaki Exp $
+ RCS:		$Id: coltabmapper.h,v 1.26 2012-02-09 11:26:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,11 +113,21 @@ mClass MapperTask : public ParallelTask
 public:    
     				MapperTask(const ColTab::Mapper& map,
 					   od_int64 sz,int nrsteps,
+					   bool separateundef,
 					   const float* unmapped,T* mapped);
+				/*!<separateundef will set every second value to
+				    0 or mUndefColIdx depending on if the value
+				    is undef or not. Mapped pointer should thus
+				    have space for 2*sz */
     				MapperTask(const ColTab::Mapper& map,
 					   od_int64 sz,int nrsteps,
+					   bool separateundef,
 					   const ValueSeries<float>& unmapped,
 					   T* mapped);
+				/*!<separateundef will set every second value to
+				    0 or mUndefColIdx depending on if the value
+				    is undef or not. Mapped pointer should thus
+				    have space for 2*sz */
 				~MapperTask();
     od_int64			nrIterations() const;
     const unsigned int*		getHistogram() const	{ return histogram_; }
@@ -133,11 +143,13 @@ private:
     T*				mapped_;
     int				nrsteps_;
     unsigned int*		histogram_;
+    bool			separateundef_;
 };
 
 
 template <class T> inline
 MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+			   bool separateundef,
 			   const float* unmapped, T* mapped )
     : mapper_( map )
     , totalsz_( sz )
@@ -146,6 +158,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps,
     , unmappedvs_( 0 )
     , mapped_( mapped )
     , histogram_( new unsigned int[nrsteps+1] )
+    , separateundef_( separateundef )
 {
     memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
 }
@@ -153,6 +166,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps,
 
 template <class T> inline
 MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+			   bool separateundef,
 			   const ValueSeries<float>& unmapped, T* mapped )
     : mapper_( map )
     , totalsz_( sz )
@@ -161,6 +175,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps,
     , unmappedvs_( unmapped.arr() ? 0 : &unmapped )
     , mapped_( mapped )
     , histogram_( new unsigned int[nrsteps+1] )
+    , separateundef_( separateundef )
 {
     memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
 }
@@ -183,16 +198,30 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
    
     memset( histogram, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+    const bool separateundef = separateundef_;
 
-    T* result = mapped_+start;
+    T* result = mapped_+start*(separateundef?2:1);
     const float* inp = unmapped_+start;
 
     int nrdone = 0;
     for ( int idx=start; idx<=stop; idx++, nrdone++ )
     {
-	float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
-	const T res = *result = ColTab::Mapper::snappedPosition( &mapper_,input,
+	const float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
+	T res;
+	const bool isudf = mIsUdf(input);
+	if ( isudf )
+	    res = mUndefColIdx;
+	else
+	    res = ColTab::Mapper::snappedPosition( &mapper_,input,
 						    nrsteps_, mUndefColIdx );
+
+	*result = res;
+	if ( separateundef )
+	{
+	    *result++;
+	    *result = isudf ? 0 : mUndefColIdx;
+	}
+
 	histogram[res]++;
 	result++; 
 	inp++;
