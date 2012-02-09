@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.9 2012-02-07 12:47:48 cvsnageswara Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.10 2012-02-09 11:01:56 cvsraman Exp $";
 
 #include "ziputils.h"
 
@@ -86,7 +86,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 	system( cpcmd );
     }
 #else
-    BufferString cmd( "unzip ", src );
+    BufferString cmd( "unzip -o ", src );
     cmd.add( " -d " ).add( dest ).add( " > " ).add( filelistname_ );
     res = !system( cmd );
 #endif
