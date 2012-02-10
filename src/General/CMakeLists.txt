@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-02-01 10:36:49 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-02-10 12:26:25 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Algo )
@@ -56,6 +56,7 @@ SET(OD_MODULE_SOURCES arrayndutils.cc
 	    price.cc
 	    rangeposprovider.cc
 	    raytracerrunner.cc
+	    rockphysics.cc
 	    stratlevel.cc
 	    tableascio.cc
 	    tableconv.cc
