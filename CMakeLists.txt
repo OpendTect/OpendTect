@@ -15,13 +15,16 @@ SET(OD_DGB_DIR "" CACHE PATH
 SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 3)
 
-INCLUDE ( CMakeModules/ODQtUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODZlibUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODCoinUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODOsgUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODPlatformUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODMacroUtils.cmake REQUIRED )
-INCLUDE ( CMakeModules/ODUtils.cmake REQUIRED )
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
+
+INCLUDE ( ODQtUtils REQUIRED )
+INCLUDE ( ODZlibUtils REQUIRED )
+INCLUDE ( ODCoinUtils REQUIRED )
+INCLUDE ( ODOsgUtils REQUIRED )
+INCLUDE ( ODPlatformUtils REQUIRED )
+INCLUDE ( ODMacroUtils REQUIRED )
+INCLUDE ( ODUtils REQUIRED )
+INCLUDE ( CreateLaunchers REQUIRED )
 
 SET(MODULES
 	Basic
