@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.14 2012-02-01 16:31:32 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.15 2012-02-10 13:25:24 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -28,9 +28,14 @@ IF(UNIX)
         
 ENDIF(UNIX)
 
+#Create Launchers on Windows and Mac OS
+IF( DEFINED WIN32 OR (UNIX AND APPLE) )
+    SET( OD_CREATE_LAUNCHERS 1 )
+ENDIF()
+
 IF(WIN32)
-    SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOOD_DLL" )
-    ADD_DEFINITIONS("/W1 /Ob1 /vmg /Zc:wchar_t-")
+    SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
+    ADD_DEFINITIONS("/W1 /Ob1 /MTd /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
