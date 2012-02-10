@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.15 2012-02-10 13:25:24 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.16 2012-02-10 15:50:12 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -19,6 +19,10 @@ IF(UNIX)
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	SET(OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
+
+	#NEEDED AS LONG AS WE HAVE COIN
+	SET(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
+
     ELSE()
         ADD_DEFINITIONS("-Dlux")
     ENDIF()
