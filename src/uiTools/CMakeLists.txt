@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-02-10 11:58:52 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-02-10 12:22:59 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -41,6 +41,7 @@ SET(OD_MODULE_SOURCES
 		uihelpwin.cc	
 		uihistogramdisplay.cc   
 		uiiosel.cc	
+		uistratlvlsel.cc
 		uimapperrangeeditor.cc  
 		uimenuhandler.cc
 		uimapperrangeeditordlg.cc 
