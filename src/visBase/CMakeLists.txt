@@ -2,11 +2,12 @@
 #
 #	Makefile : 	Coin Wrapper classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-02-10 12:00:01 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS SoOD Geometry)
 SET(OD_USECOIN 1)
+SET(OD_USEOSG 1)
 SET(OD_MODULE_SOURCES
 	   initvisbase.cc
 	   visanchor.cc
