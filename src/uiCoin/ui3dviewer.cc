@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.9 2011-12-21 12:03:35 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.10 2012-02-10 15:43:30 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -1104,7 +1104,7 @@ void uiSoViewerBody::errorCB( const SoError* error, void* data )
 	  GetEnvVarYN("COIN_DEBUG_DL") )
      {
 	 const SbString& str = error->getDebugString();
-         std::cerr << str.getString() << std::endl;
+	     programmerErrMsg( str.getString(), "uiSoViewerBody::errorCB" ,__FILE__,__LINE__);
      }
 }
 
