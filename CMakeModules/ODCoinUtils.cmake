@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.4 2012-02-01 10:44:17 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.5 2012-02-10 15:33:05 cvskris Exp $
 #_______________________________________________________________________________
 
 SET( OD_COINDIR_ENV $ENV{OD_COINDIR})
@@ -21,7 +21,7 @@ MACRO(OD_SETUP_COIN)
 	    ADD_DEFINITIONS( ${OD_EXTRA_COINFLAGS} )
 	ENDIF( OD_EXTRA_COINFLAGS )
 
-        LIST(APPEND MODULE_INCLUDEPATH ${COINDIR}/include )
+	LIST(APPEND OD_MODULE_INCLUDEPATH ${COINDIR}/include )
 	IF(WIN32)
 	    FIND_LIBRARY(COINLIB NAMES Coin3 PATHS ${COINDIR}/lib REQUIRED )
 	    FIND_LIBRARY(SOQTLIB NAMES SoQt1 PATHS ${COINDIR}/lib REQUIRED )
@@ -43,4 +43,6 @@ MACRO(OD_SETUP_COIN)
 
 	SET(OD_COIN_LIBS ${COINLIB} ${SOQTLIB} ${OPENGL_gl_LIBRARY} )
     ENDIF()
+
+    LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_COIN_LIBS} )
 ENDMACRO(OD_SETUP_COIN)

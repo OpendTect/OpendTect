@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.6 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.7 2012-02-10 15:33:05 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
@@ -28,31 +28,31 @@ MACRO(OD_SETUP_QT)
     include(${QT_USE_FILE})
 
     IF(${OD_USEQT} MATCHES "Core" )
-        LIST(APPEND MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDEPATH
             ${QT_QTNETWORK_INCLUDE_DIR}
             ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
-        SET(OD_QT_LIBS ${QT_QTCORE_LIBRARY}
-                       ${QT_QTNETWORK_LIBRARY})
+        SET(OD_QT_LIBS ${QT_QTCORE_LIBRARY_RELEASE}
+                       ${QT_QTNETWORK_LIBRARY_RELEASE})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Sql" )
-        LIST(APPEND MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDEPATH
             ${QT_QTSQL_INCLUDE_DIR}
             ${QTDIR}/include )
-        SET(OD_QT_LIBS ${QT_QTSQL_LIBRARY})
+        SET(OD_QT_LIBS ${QT_QTSQL_LIBRARY_RELEASE})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Gui")
-        LIST(APPEND MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDEPATH
             ${QT_QTCORE_INCLUDE_DIR}
             ${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
-        SET(OD_QT_LIBS ${QT_QTGUI_LIBRARY})
+        SET(OD_QT_LIBS ${QT_QTGUI_LIBRARY_RELEASE})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "OpenGL")
-        LIST(APPEND MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDEPATH
             ${QT_QTOPENGL_INCLUDE_DIR} ${QTDIR}/include )
-        SET(OD_QT_LIBS ${QT_QTOPENGL_LIBRARY})
+        SET(OD_QT_LIBS ${QT_QTOPENGL_LIBRARY_RELEASE})
     ENDIF()
 
     IF( QT_MOC_HEADERS )
@@ -63,4 +63,6 @@ MACRO(OD_SETUP_QT)
 
         QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
     ENDIF( QT_MOC_HEADERS )
+
+    LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
 ENDMACRO(OD_SETUP_QT)
