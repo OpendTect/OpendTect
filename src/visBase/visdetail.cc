@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID = "$Id: visdetail.cc,v 1.7 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdetail.cc,v 1.8 2012-02-10 15:40:57 cvskris Exp $";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>
@@ -35,8 +35,8 @@ int FaceDetail::getClosestIdx( const Coordinates* coordinates,
     for ( int idx=0; idx<nrpoints; idx++ )
     {
         const int coordidx = pointdetail[idx].getCoordinateIndex();
-        float dist = pickedpoint.distTo( coordinates->getPos(coordidx,true) );
-        if ( dist < mindist || !idx )
+        float dist = pickedpoint.sqDistTo( coordinates->getPos(coordidx,true) );
+        if ( !idx || dist < mindist )
         {
            mindist = dist;
            closestidx = coordidx;
