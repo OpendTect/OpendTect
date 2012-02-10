@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfoElement.h,v 1.8 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: SoCameraInfoElement.h,v 1.9 2012-02-10 11:34:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,11 +17,12 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
+
 /*!\brief
 The means to transfer information about the camera to the scene.
 */
 
-mClass SoCameraInfoElement : public SoInt32Element
+mExportClass( SoOD ) SoCameraInfoElement : public SoInt32Element
 {
     SO_ELEMENT_HEADER(SoCameraInfoElement);
 

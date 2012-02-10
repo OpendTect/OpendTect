@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.h,v 1.8 2011-08-02 09:13:16 cvskris Exp $
+ RCS:           $Id: SoMFImage.h,v 1.9 2012-02-10 11:34:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ The SoMFImagei32 class is a container for SbImagei32 values.
 This field is used where nodes, engines or other field containers needs to store
 multiple, large 2d or 3d images. */ 
 
-mClass SoMFImagei32 : public SoMField
+mExportClass( SoOD ) SoMFImagei32 : public SoMField
 {
     SO_MFIELD_HEADER( SoMFImagei32, SbImagei32, const SbImagei32& );
 
