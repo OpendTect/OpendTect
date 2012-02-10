@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.36 2012-02-08 23:07:53 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.37 2012-02-10 11:31:51 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -97,6 +97,12 @@ ________________________________________________________________________
 # define dll_import
 #endif
 
+#define mExportClass( module ) class Export_##module
+#define mExportStruct( module ) struct Export_##module
+#define mExportGlobal( module ) Export_##module
+#define mExportExtern( module ) extern Export_##module
+#define mExportExternC( module ) exptern "C" Export_##module
+
 #define mClass		class dll_export
 #define mStruct		struct dll_export
 #define mGlobal		dll_export 
@@ -104,17 +110,14 @@ ________________________________________________________________________
 #define mExternC	extern "C" dll_export
 
 #if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
-# define mBasicClass	class dll_export
-# define mBasicGlobal	dll_export
-# define mBasicExtern	extern dll_export
+# define Export_Basic	dll_export
 #else
-# define mBasicClass	class dll_import
-# define mBasicGlobal	dll_import
-# define mBasicExtern	extern dll_import
+# define Export_Basic	dll_import
 #endif
 
-
-
+# define mBasicClass	mExportClass( Basic )
+# define mBasicGlobal	mExportGlobal( Basic )
+# define mBasicExtern	mExportExtern( Basic )
 
 #if defined(General_EXPORTS) || defined(GENERAL_EXPORTS)
 # define mGeneralClass	class dll_export
