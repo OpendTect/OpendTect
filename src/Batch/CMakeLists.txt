@@ -2,14 +2,14 @@
 #
 #	Makefile : 	Batch
 # 	Sep 1998	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-26 20:11:58 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-02-10 16:11:14 cvskris Exp $
 #_______________________________________________________________________________
 
 ADD_DEFINITIONS("-D__prog__")
 
 
 SET(OD_MODULE_DEPS Network )
-SET(OD_USE_PROG 1)
+SET(OD_USEPROG 1)
 #SET(OD_USEQT Core)
 SET(OD_MODULE_SOURCES
 	batchprog.cc  )

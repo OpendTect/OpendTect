@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.9 2012-02-10 15:33:05 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.10 2012-02-10 16:11:14 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -13,6 +13,7 @@
 # OD_MODULE_NAME			: Name of the module, or the plugin
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
+# OD_USEPROG				: Whether to include include/Prog 
 # OD_USECOIN				: Dependency on Coin is enabled if set.
 # OD_USEQT				: Dependency on Qt is enabled if set.
 #					  value should be either Core, Sql, Gui
@@ -118,8 +119,7 @@ TARGET_LINK_LIBRARIES(
 #Setup common things for batch-programs
 IF(OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
     SET ( OD_RUNTIMELIBS ${OD_MODULE_NAME} ${OD_MODULE_DEPS})
-    LIST(APPEND OD_MODULE_INCLUDEPATH
-		${OpendTect_SOURCE_DIR}/include/Prog)
+    SET ( OD_USEPROG 1 )
 ENDIF()
 
 #Add executable targets
@@ -154,6 +154,12 @@ IF(OD_MODULE_BATCHPROGS)
     ENDFOREACH()
 
 ENDIF(OD_MODULE_BATCHPROGS)
+
+IF(OD_USEPROG)
+    LIST(APPEND OD_MODULE_INCLUDEPATH
+		${OpendTect_SOURCE_DIR}/include/Prog)
+ENDIF( OD_USEPROG )
+
 
 #Set current include_path
 INCLUDE_DIRECTORIES( ${OD_MODULE_INCLUDEPATH} )
