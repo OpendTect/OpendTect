@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.6 2011-09-02 13:06:05 cvskris Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.7 2012-02-10 11:54:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.6 2011-09-02 13:06:05 cvskris Exp $";
+static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.7 2012-02-10 11:54:49 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -404,7 +404,7 @@ SelectionArea::SelAxisType SelectionGrp::getSelectionAxis( int selareaid ) const
 
 bool SelectionGrp::isValidIdx( int idx ) const
 {
-    return selareas_.validIdx(idx) >= 0;
+    return selareas_.validIdx(idx);
 }
 
 
