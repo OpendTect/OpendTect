@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.69 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.70 2012-02-13 15:34:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     				/*!<\note that processInput should be called
 				          after selection, but before any call
 					  to this.  */
+    void			getSelected(TypeSet<MultiID>&) const;
     Notifier<uiIOObjSelGrp>	selectionChg;
     Notifier<uiIOObjSelGrp>	newStatusMsg;
     				/*!< Triggers when there is a new message for

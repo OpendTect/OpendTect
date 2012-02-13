@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.157 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.158 2012-02-13 15:34:00 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -226,6 +226,14 @@ const MultiID& uiIOObjSelGrp::selected( int objnr ) const
     msg += objnr; msg += " nrsel="; msg += nrSel();
     pErrMsg( msg );
     return udfmid;
+}
+
+
+void uiIOObjSelGrp::getSelected( TypeSet<MultiID>& mids ) const
+{
+    const int nrsel = nrSel();
+    for ( int idx=0; idx<nrsel; idx++ )
+	mids += selected( idx );
 }
 
 
@@ -463,7 +471,16 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 {
     if ( !const_cast<uiIOObjSelGrp*>(this)->processInput() || !ctio_.ioobj )
 	return false;
-    iop.set( "ID", ctio_.ioobj->key() );
+
+    if ( !ismultisel_ )
+	iop.set( sKey::ID, ctio_.ioobj->key() );
+    else
+    {
+	TypeSet<MultiID> mids; getSelected( mids );
+	iop.set( sKey::Size, mids.size() );
+	for ( int idx=0; idx<mids.size(); idx++ )
+	    iop.set( IOPar::compKey(sKey::ID,idx), mids[idx] );
+    }
 
     return true;
 }
@@ -471,11 +488,27 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 
 void uiIOObjSelGrp::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( "ID" );
-    if ( !res || !*res ) return;
-    const int selidx = indexOf( ioobjids_, MultiID(res) );
-    if ( selidx >= 0 )
-	setCur( selidx );
+    if ( !ismultisel_ )
+    {
+	const char* res = iop.find( "ID" );
+	if ( !res || !*res ) return;
+
+	const int selidx = indexOf( ioobjids_, MultiID(res) );
+	if ( selidx >= 0 )
+	    setCur( selidx );
+    }
+    else
+    {
+	int nrids;
+	iop.get( sKey::Size, nrids );
+	MultiID mid;
+	for ( int idx=0; idx<nrids; idx++ )
+	{
+	    iop.get( IOPar::compKey(sKey::ID,idx), mid );
+	    const int selidx = indexOf( ioobjids_, mid );
+	    listfld_->setSelected( selidx, true );
+	}
+    }
 }
 
 
