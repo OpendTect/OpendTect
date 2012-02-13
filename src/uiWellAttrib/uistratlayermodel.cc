@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.52 2012-02-09 12:59:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.53 2012-02-13 14:57:45 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -63,7 +63,7 @@ public:
 
 void theCB( CallBacker* cb )
 {
-    if ( !Strat::RT().hasChildren() )
+    if ( Strat::RT().isEmpty() )
 	return;
 
     const BufferStringSet& nms =
