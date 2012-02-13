@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.39 2012-02-01 13:54:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.40 2012-02-13 14:13:55 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -309,11 +309,10 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     curz += maxth;
     disp.boty_ = (int)(workrect_.top() + curz * pixperm + .5);
 
-    BufferString dispnm;
+    BufferString dispnm( disp.gen_->name() );
     if ( !disp.gen_->content().isUnspecified() )
-	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "] " );
-    dispnm.add( disp.gen_->name() );
-    disp.nm_->setText( dispnm );
+	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
+    disp.nm_->setText( getLimitedDisplayString(dispnm,25,false) );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
     disp.nm_->setPos( midpt.x, midpt.y-2 );
 	    // the 'y-2' makes the text more nicely centered in the box
