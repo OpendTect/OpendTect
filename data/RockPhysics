@@ -24,3 +24,14 @@ Constant.1.Name: Fluid density
 Constant.1.Description: The average density of the fluid.`Therefore, the density for 100% posority.
 Constant.1.Typical Range: 0.5`1.2
 !
+Density from Porosity: Density
+Description: Plain and simple.`Beware that this formula only works if the input porosity is always between the 0 and 1.
+Formula: ( 1 - por ) * c0  +  por * c1
+Variable.0: Input porosity
+Constant.0.Name: Matrix density
+Constant.0.Description: The average density of the rock material itself.
+Constant.0.Typical Range: 2.2`2.9
+Constant.1.Name: Fluid density
+Constant.1.Description: The average density of the fluid.
+Constant.1.Typical Range: 0.5`1.2
+!
