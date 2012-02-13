@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.40 2012-02-13 14:13:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.41 2012-02-13 14:57:30 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -87,12 +87,14 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 }
 
 
-void uiLayerSequenceGenDesc::selProps()
+bool uiLayerSequenceGenDesc::selProps()
 {
     PropertyRefSelection prs( desc_.propSelection() );
     uiSelectPropRefs dlg( outerObj()->parent(), prs );
-    if ( dlg.go() || dlg.structureChanged() )
+    const bool ret = dlg.go();
+    if ( ret || dlg.structureChanged() )
 	desc_.setPropSelection( prs );
+    return ret;
 }
 
 
@@ -172,11 +174,11 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	return;
 
     clickpos_ = mev.pos();
+    mevh.setHandled( true );
     if ( workrect_.isOutside(clickpos_) )
 	return;
-
-    if ( isempty || desc_.propSelection().size() < 2 )
-	selProps();
+    if ( (isempty || desc_.propSelection().size() < 2) && !selProps() )
+	return;
 
     int mnuid = dbl ? 0 : (isempty ? 1 : -1);
     if ( !isempty && !dbl )

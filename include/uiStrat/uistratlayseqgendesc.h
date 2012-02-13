@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.15 2012-01-25 16:07:36 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.16 2012-02-13 14:57:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
-    void		selProps();
+    bool		selProps();
 
 protected:
 
