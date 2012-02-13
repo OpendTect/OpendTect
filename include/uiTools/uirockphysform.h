@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.1 2012-02-03 13:00:59 cvsbert Exp $
+ RCS:           $Id: uirockphysform.h,v 1.2 2012-02-13 12:49:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,15 +22,26 @@ mClass uiRockPhysForm : public uiGroup
 public:
 
 			uiRockPhysForm(uiParent*);
+			uiRockPhysForm(uiParent*,PropertyRef::StdType);
 
+    PropertyRef::StdType getType() const;
     void		setType(PropertyRef::StdType);
+    				//!< only works when 1st constructor used
+    const char*		formulaName() const;
+    void		setFormulaName(const char*);
+
     BufferString	getText() const;
 
 protected:
 
+    uiComboBox*		typfld_;
     uiComboBox*		nmfld_;
+    const PropertyRef::StdType fixedtype_;
 
+    void		typSel(CallBacker*);
     void		nameSel(CallBacker*);
+
+    void		createFlds(uiObject*);
 
 };
 

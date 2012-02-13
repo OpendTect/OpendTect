@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.1 2012-02-03 13:00:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.2 2012-02-13 12:49:11 cvsbert Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -19,28 +19,96 @@ static const char* rcsID = "$Id: uirockphysform.cc,v 1.1 2012-02-03 13:00:59 cvs
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
+    , fixedtype_(PropertyRef::Den)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Property Type" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+	    			PropertyRef::StdTypeNames(), "Property Type" );
+    typfld_ = lcb->box();
+    typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
+
+    createFlds( lcb->attachObj() );
+}
+
+
+uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
+    : uiGroup(p,"RockPhyics Formula Selector")
+    , fixedtype_(typ)
+    , typfld_(0)
+{
+    createFlds( 0 );
+}
+
+
+void uiRockPhysForm::createFlds( uiObject* attobj )
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
+    if ( attobj )
+	lcb->attach( alignedBelow, attobj );
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
-
     setHAlignObj( lcb );
+
+    //TODO implement the hard part
+
+    setType( fixedtype_ );
+}
+
+
+PropertyRef::StdType uiRockPhysForm::getType() const
+{
+    if ( !typfld_ )
+	return fixedtype_;
+
+    const char* txt = typfld_->text();
+    if ( !txt || !*txt ) return PropertyRef::Other;
+
+    return PropertyRef::parseEnumStdType(txt);
 }
 
 
 void uiRockPhysForm::setType( PropertyRef::StdType typ )
 {
-    nmfld_->setEmpty();
+    if ( typfld_ )
+	typfld_->setText( PropertyRef::toString(typ) );
+
     BufferStringSet nms;
     ROCKPHYSFORMS().getRelevant( typ, nms );
+
+    NotifyStopper ns( nmfld_->selectionChanged );
+    nmfld_->setEmpty();
     nmfld_->addItems( nms );
+    if ( !nms.isEmpty() )
+	nmfld_->setCurrentItem( 0 );
+
     nameSel( 0 );
+}
+
+
+const char* uiRockPhysForm::formulaName() const
+{
+    return nmfld_->text();
+}
+
+
+void uiRockPhysForm::setFormulaName( const char* fmnm )
+{
+    nmfld_->setText( fmnm );
+}
+
+
+void uiRockPhysForm::typSel( CallBacker* cb )
+{
+    if ( !typfld_ ) return;
+
+    const char* txt = typfld_->text();
+    if ( !txt || !*txt ) return;
+
+    setType( PropertyRef::parseEnumStdType(txt) );
 }
 
 
 void uiRockPhysForm::nameSel( CallBacker* cb )
 {
-    // clean up
     const char* txt = nmfld_->text();
     if ( !txt || !*txt ) return;
 
