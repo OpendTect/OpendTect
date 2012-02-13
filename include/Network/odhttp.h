@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.13 2012-01-24 21:18:27 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.14 2012-02-13 09:50:32 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,9 @@ public:
     int			setProxy(const char* host,int port,
 				 const char* usrnm,const char* pwd);
     int			close();
+    void		forceAbort();
+    void		resetForceAbort() { forcedabort_ = false; }
+    bool		isForcedAbort() const { return forcedabort_; }
     void		abort();
     State		state() const;
 
@@ -77,6 +80,7 @@ protected:
     int			nrdone_;
     int			totalnr_;
     int			requestid_;
+    bool		forcedabort_;
 
     void		reqFinishedCB(CallBacker*);
 };

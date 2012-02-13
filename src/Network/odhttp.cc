@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.17 2012-02-01 20:36:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.18 2012-02-13 09:50:32 cvsranojay Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -108,6 +108,7 @@ ODHttp::ODHttp()
     , done(this)
     , connected(this)
     , disconnected(this)
+    , forcedabort_(false)
 {
     qhttpconn_ = new QHttpConnector( qhttp_, this );
     qhttp_->init();
@@ -151,6 +152,13 @@ ODHttp::State ODHttp::state() const
 
 int ODHttp::get( const char* path, const char* dest )
 { return qhttp_->_get( path, dest ); }
+
+
+void ODHttp::forceAbort()
+{
+    forcedabort_ = true;
+    qhttp_->abort();
+}
 
 
 wchar_t* ODHttp::readWCharBuffer() const

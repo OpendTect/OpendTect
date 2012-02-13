@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.12 2012-02-01 12:35:21 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.13 2012-02-13 09:50:32 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -105,7 +105,9 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
 	return getLocalFile( relfnm, outfnm );
   
     odhttp_->get( getFileName(relfnm), outfnm );
-  
+    if ( odhttp_->isForcedAbort() )
+    	return true;
+    
     if ( outfnm && *outfnm )
     {
 	if ( !File::exists(outfnm) )

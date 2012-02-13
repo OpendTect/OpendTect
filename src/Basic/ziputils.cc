@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.10 2012-02-09 11:01:56 cvsraman Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.11 2012-02-13 09:50:32 cvsranojay Exp $";
 
 #include "ziputils.h"
 
 #include "file.h"
 #include "filepath.h"
+#include "strmprov.h"
 
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
@@ -74,12 +75,12 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     bool res = false;
 #ifdef __win__
-    BufferString cmd( "unzip -o \"", src );
+    BufferString cmd( "cmd /c unzip -o \"", src );
     cmd.add( "\" -d \"" ).add( dest ).add( "\"");
     if ( needfilelist_ )
 	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
-    res = system( cmd ) != -1;
-    if ( tempfile )
+    res = ExecOSCmd( cmd );
+    if ( res && tempfile )
     {
 	BufferString cpcmd( "copy \"" );
 	cpcmd.add( filelistname_ ) .add( "\" \"" ).add( tmpfnm ).add("\"");
