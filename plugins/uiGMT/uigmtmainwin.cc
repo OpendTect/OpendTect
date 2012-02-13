@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.28 2012-01-11 22:14:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.29 2012-02-13 09:21:45 cvsbert Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -34,8 +34,6 @@ static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.28 2012-01-11 22:14:42 cvsn
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitoolbar.h"
-
-#include "dtect.xpm"
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
