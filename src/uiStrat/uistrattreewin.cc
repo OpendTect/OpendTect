@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.67 2012-02-07 08:44:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.68 2012-02-13 16:11:49 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -120,9 +120,6 @@ void uiStratTreeWin::initRT()
 	    }
 	}
     }
-
-    if ( !havenewrt )
-	eRT().addLeavedUnit( Strat::RefTree::sKeyNoCode(), "-1`" );
 }
 
 

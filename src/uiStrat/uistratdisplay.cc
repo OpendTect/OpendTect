@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.40 2012-02-03 14:16:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.41 2012-02-13 16:11:49 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -47,7 +47,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-
 
     disableScrollZoom();
     scene().setMouseEventActive( true );
@@ -102,6 +101,8 @@ void uiStratDisplay::createDispParamGrp()
 	viewrg.stop += wdth;
 	setZRange( viewrg );
     }
+    else
+	setZRange( maxrg_ );
    
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
@@ -248,12 +249,16 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	{
 	    const StratDispData::Unit* unit = getColIdxFromPos() > 0 ? 
 						getParentUnitFromPos() : 0;
-	    uiMenuItem* assmnuitm = new uiMenuItem( "Add Unit" );
-	    uiPopupMenu menu( parent(), "Action" );
-	    menu.insertItem( assmnuitm, 0 );
-	    const int mnuid = menu.exec();
-	    if ( mnuid<0 ) return false;
-	    else if ( mnuid == 0 );
+	    bool addunit = data_.nrUnits( 0 ) == 0;  
+	    if ( !addunit )
+	    {
+		uiMenuItem* assmnuitm = new uiMenuItem( "Add Unit" );
+		uiPopupMenu menu( parent(), "Action" );
+		menu.insertItem( assmnuitm, 0 );
+		const int mnuid = menu.exec();
+		addunit = mnuid == 0;
+	    }
+	    if ( addunit )
 		uidatawriter_.addUnit( unit ? unit->fullCode() : 0 );
 	}
 	return true;
@@ -340,6 +345,7 @@ uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
     , scene_(sc)  
     , xax_(0)
     , yax_(0)
+    , emptyitm_(0)	     
 {
     initAxis();
 }
@@ -417,6 +423,11 @@ void uiStratDrawer::drawColumns()
 	drawUnits( *colitm );
 	pos ++;
     }
+
+    if ( data_.nrUnits(0) == 0 )
+	drawEmptyText();
+    else
+	{ delete emptyitm_; emptyitm_ = 0; }
 }
 
 
@@ -490,6 +501,23 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 }
 
 
+void uiStratDrawer::drawEmptyText()
+{
+    delete emptyitm_; emptyitm_ =0;
+
+    int x1 = xax_->getPix( 0 );
+    int x2 = xax_->getPix( 1 );
+    int y1 = yax_->getPix( yax_->range().stop );
+    int y2 = yax_->getPix( yax_->range().start );
+
+    uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
+    ti->setTextColor( Color::Black() );
+    ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
+    ti->setZValue( 2 );
+    emptyitm_ = ti;
+}
+
+
 void uiStratDrawer::drawUnits( ColumnItem& colitm ) 
 {
     colitm.txtitms_.erase(); colitm.unititms_.erase();
@@ -497,6 +525,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     if ( colidx < 0 ) return;
 
     const Interval<float> rg = yax_->range();
+
     for ( int unidx=0; unidx<data_.getCol(colidx)->units_.size(); unidx++ )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[unidx];

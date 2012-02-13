@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.29 2012-02-03 14:16:58 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.30 2012-02-13 16:11:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ public:
 protected:
 
     ObjectSet<ColumnItem>	colitms_;
+    uiTextItem*			emptyitm_;
 
     uiGraphicsScene&		scene_;
     uiAxisHandler* 		yax_; 
@@ -89,6 +90,7 @@ protected:
     void			drawBorders(ColumnItem&);
     void			drawLevels(ColumnItem&);
     void			drawUnits(ColumnItem&);
+    void			drawEmptyText();
     void			eraseAll();
     void			initAxis();
     void			updateAxis(); 
