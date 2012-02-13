@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.17 2012-02-03 14:16:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.18 2012-02-13 12:49:35 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -214,18 +214,7 @@ uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup("Rock Physics",
 				 "Use a rock physics formula", mTODOHelpID))
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-	    		PropertyRef::StdTypeNames(), "Output property type" );
-    typfld_ = lcb->box();
-    typfld_->setCurrentItem( (int)PropertyRef::Den );
-    typfld_->selectionChanged.notify( mCB(this,uiWellLogCalcRockPhys,typChg) );
     formgrp_ = new uiRockPhysForm( this );
-    formgrp_->attach( alignedBelow, lcb );
-}
-
-void typChg( CallBacker* )
-{
-    formgrp_->setType( (PropertyRef::StdType)typfld_->currentItem() );
 }
 
 bool acceptOK( CallBacker* )
@@ -234,7 +223,6 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    uiComboBox*		typfld_;
     uiRockPhysForm*	formgrp_;
 
 };
