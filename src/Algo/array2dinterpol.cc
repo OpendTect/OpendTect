@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.35 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.36 2012-02-13 15:42:21 cvsnanne Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -216,7 +216,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
 	    		    nrcells_ );
-    setter.execute();
+    const bool res = tr ? tr->execute(setter) : setter.execute();
 
     if ( filltype_==ConvexHull )
     {
