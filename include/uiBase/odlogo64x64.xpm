@@ -1,6 +1,7 @@
-/* XPM $Id: odlogo64x64.xpm,v 1.1 2012-02-13 10:05:08 cvsbert Exp $ */
+/* XPM $Id: odlogo64x64.xpm,v 1.2 2012-02-13 10:29:53 cvsbert Exp $ */
 static const char* od_logo_64x64[]={
 "64 64 468 2",
+"Qt c None",
 ".c c #000000",
 "fr c #020202",
 "dF c #040404",
@@ -468,7 +469,6 @@ static const char* od_logo_64x64[]={
 "a. c #fe0303",
 "#X c #fe0505",
 "#9 c #ff0000",
-"Qt c #fffffe",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.#.a.a.a.b.c.c.c.c.b.a.a.a.#QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.d.e.f.g.h.i.j.k.k.l.m.m.n.o.o.p.q.h.g.r.e.dQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.s.t.u.v.w.x.y.z.A.B.B.B.C.D.D.C.B.B.B.B.E.F.G.w.v.u.t.sQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
