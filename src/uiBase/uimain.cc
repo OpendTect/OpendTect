@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.69 2011-10-19 07:47:47 cvskris Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.70 2012-02-13 10:05:08 cvsbert Exp $";
 
 #include "uimain.h"
 
@@ -38,8 +38,8 @@ static const char* rcsID = "$Id: uimain.cc,v 1.69 2011-10-19 07:47:47 cvskris Ex
 #include <QTreeWidget>
 #include <QMenu>
 
-#include "dtect.xpm"
-const char** uiMain::XpmIconData = dtect_xpm_data;
+#include "uimainicon.xpm"
+const char** uiMain::XpmIconData = uimainicon_xpm_data;
 void uiMain::setXpmIconData( const char** xpmdata )
 { 
     XpmIconData = xpmdata;
