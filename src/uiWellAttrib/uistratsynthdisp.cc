@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.76 2012-02-09 12:59:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.77 2012-02-14 11:55:11 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -332,7 +332,8 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 }
 
 
-#define mErrRet(s,act) { if ( s ) uiMSG().error(s); act; }
+#define mErrRet(s,act) \
+{ uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
 
 void uiStratSynthDisp::modelChanged()
 {
