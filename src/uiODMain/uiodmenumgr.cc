@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.239 2012-01-24 20:54:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.240 2012-02-14 19:41:18 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -360,13 +360,13 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body.png" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs.png" );
-    mInsertPixmapItem( manmnu_, "2D Geometry ..",
+    mInsertPixmapItem( manmnu_, "2D &Geometry ...",
 		 mManGeomItm, "man2dgeom.png" );
-    mInsertPixmapItem( manmnu_, "Cross Plot data..",
+    mInsertPixmapItem( manmnu_, "&Cross Plot data ...",
 		 mManCrossPlotItm, "manxplot.png" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 		   "man_seis.png" );
-
+    mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, "" )
     mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
 	    	       "man_strat.png" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt.png")

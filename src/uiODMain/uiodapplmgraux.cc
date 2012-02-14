@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.41 2011-12-06 16:13:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.42 2012-02-14 19:41:18 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.41 2011-12-06 16:13:19 cv
 #include "ioobj.h"
 #include "oddirs.h"
 #include "odplatform.h"
+#include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "separstr.h"
@@ -289,6 +290,12 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
   	if ( at == uiODApplMgr::Man )
 	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::sKeyword() );
     break;
+    mCase(Sess):
+	if ( at == uiODApplMgr::Man )
+	{
+	    uiSessionMan mandlg( par_ );
+    	    mandlg.go();
+	}
     }
 }
 

@@ -4,9 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.28 2011-06-03 14:10:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.29 2012-02-14 19:41:18 cvsnanne Exp $";
 
 #include "odsession.h"
+
 #include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -15,6 +16,8 @@ static const char* rcsID = "$Id: odsession.cc,v 1.28 2011-06-03 14:10:26 cvsbrun
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
+
+#include "uitextedit.h"
 
 
 const char* ODSession::visprefix()	{ return "Vis"; }
@@ -288,4 +291,34 @@ const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(ODSession)) )
 	return "Cannot write d-Tect session to file";
     return 0;
+}
+
+
+
+mDefineInstanceCreatedNotifierAccess(uiSessionMan)
+
+
+uiSessionMan::uiSessionMan( uiParent* p )
+    : uiObjFileMan(p,uiDialog::Setup("Manage Sessions",
+				     mNoDlgTitle,"101.3.0").nrstatusflds(1),
+		   ODSessionTranslatorGroup::ioContext())
+{
+    createDefaultUI();
+    mTriggerInstanceCreatedNotifier();
+    selChg( this );
+}
+
+
+uiSessionMan::~uiSessionMan()
+{
+}
+
+
+void uiSessionMan::mkFileInfo()
+{
+    if ( !curioobj_ ) { setInfo( "" ); return; }
+
+    BufferString txt;
+    txt += getFileInfo();
+    setInfo( txt );
 }

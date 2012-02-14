@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.13 2011-06-03 14:10:26 cvsbruno Exp $
+ RCS:		$Id: odsession.h,v 1.14 2012-02-14 19:41:18 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -124,5 +124,26 @@ public:
 
 };
 
+
+#include "uiobjfileman.h"
+
+class uiButton;
+
+/*! \brief
+Session manager
+*/
+
+mClass uiSessionMan : public uiObjFileMan
+{
+public:
+    				uiSessionMan(uiParent*);
+				~uiSessionMan();
+
+    mDeclInstanceCreatedNotifierAccess(uiSessionMan);
+
+protected:
+
+    void			mkFileInfo();
+};
 
 #endif
