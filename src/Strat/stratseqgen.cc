@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.36 2012-02-01 13:54:40 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.37 2012-02-14 11:54:32 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -417,6 +417,29 @@ bool Strat::SingleLayerGenerator::reset() const
 }
 
 
+static bool setLayVal( Strat::Layer& lay, int iprop, const Property& prop,
+			const Property::EvalOpts& eo )
+{
+    const float val = prop.value( eo );
+    if ( mIsUdf(val) && prop.errMsg() && *prop.errMsg() )
+	return false;
+
+    lay.setValue( iprop, val ) ;
+    return true;
+}
+
+#define mSetLayVal \
+{ \
+    if ( setLayVal(*newlay,ipr,prop,eo) ) \
+        haveset = true; \
+    else \
+    {  \
+	errmsg_ = prop.errMsg(); \
+	delete newlay; return false; \
+    } \
+}
+
+
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 						Property::EvalOpts eo ) const
 {
@@ -425,7 +448,6 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
 
-#define mSetLayVal { haveset = true; newlay->setValue( ipr, prop.value(eo) ) ; }
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];
