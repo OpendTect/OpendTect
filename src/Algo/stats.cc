@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.13 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.14 2012-02-14 09:02:10 cvsbruno Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -48,7 +48,7 @@ Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 	{ needextreme_ = true; return *this; }
     else if ( t == Stats::Variance || t == Stats::StdDev 
 	    || t == Stats::NormVariance )
-	{ needvariance_ = true; return *this; }
+	{ needvariance_ = true; needsums_ = true; return *this; }
 
     needsums_ = true;
     return *this;
