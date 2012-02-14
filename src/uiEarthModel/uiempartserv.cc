@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.225 2011-10-27 21:43:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.226 2012-02-14 21:06:43 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -479,46 +479,47 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
 
-    uiIOObjSelDlg dlg( parent(), context );
+    uiIOObjSelDlg dlg( parent(), context, 0, true );
     if ( !dlg.go() )
 	return;
 
-    if ( !dlg.ioObj() )
+    TypeSet<MultiID> mids;
+    dlg.selGrp()->getSelected( mids );
+    if ( mids.isEmpty() )
 	return;
 
-    const IOObj* ioobj = dlg.ioObj();
-    FixedString translator = ioobj->translator();
-
-    EM::EMObject* object = 0;
-    if ( translator==polygonEMBodyTranslator::sKeyUserName() )
-	object = EM::EMM().createTempObject(EM::PolygonBody::typeStr());
-    else if ( translator==randposEMBodyTranslator::sKeyUserName() ) 
-	object = EM::EMM().createTempObject(EM::RandomPosBody::typeStr());
-    else if ( translator==mcEMBodyTranslator::sKeyUserName() ||
-	      translator==dGBEMBodyTranslator::sKeyUserName() )
-	object =EM::EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
-    else
+    ExecutorGroup loaders( "Loading Bodies" );
+    for ( int idx=0; idx<mids.size(); idx++ )
     {
-	pErrMsg("Hmm");
-	return;
-    }
-    
-    if ( !object ) return;
-    object->ref();
-    objs += object;
+	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
+	FixedString translator = ioobj->translator();
 
-    object->setMultiID( dlg.ioObj()->key() );
-    Executor* exec = object->loader();
+	BufferString typestr;
+	if ( translator==polygonEMBodyTranslator::sKeyUserName() )
+	    typestr = EM::PolygonBody::typeStr();
+	else if ( translator==randposEMBodyTranslator::sKeyUserName() ) 
+	    typestr = EM::RandomPosBody::typeStr();
+	else if ( translator==mcEMBodyTranslator::sKeyUserName() ||
+		  translator==dGBEMBodyTranslator::sKeyUserName() )
+	    typestr = EM::MarchingCubesSurface::typeStr();
+	else
+	    continue;
+    
+	EM::EMObject* object = EM::EMM().createTempObject( typestr );
+	if ( !object ) continue;
+
+	object->ref();
+	object->setMultiID( mids[idx] );
+	objs += object;
+	loaders.add( object->loader() );
+    }
 
     uiTaskRunner execdlg( parent() );
-    if ( !exec || !execdlg.execute(*exec) )
+    if ( !execdlg.execute(loaders) )
     {
 	deepUnRef( objs );
-	delete exec;
 	return;
     }
-
-    delete exec;
 }
 
 
