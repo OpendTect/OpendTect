@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.11 2012-02-14 12:19:55 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.12 2012-02-14 12:21:31 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -112,7 +112,6 @@ SET( OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} PARENT
 
 #Setup libraries & its deps
 ADD_LIBRARY( ${OD_MODULE_NAME} SHARED ${OD_MODULE_SOURCES} ${QT_MOC_OUTFILES} )
-MESSAGE( ${OD_MODULE_NAME} ": " ${OD_MODULE_DEPS} ", " ${EXTRA_LIBS} )
 TARGET_LINK_LIBRARIES(
         ${OD_MODULE_NAME}
         ${OD_MODULE_DEPS}
