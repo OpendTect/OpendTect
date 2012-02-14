@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.7 2012-02-10 15:33:05 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.8 2012-02-14 12:19:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
@@ -21,6 +21,9 @@ ELSE()
         SET(ENV{OD_QTDIR} ${QTDIR})
     ENDIF()
 ENDIF()
+
+SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
+
 
 FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
 
