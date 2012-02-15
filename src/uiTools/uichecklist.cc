@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichecklist.cc,v 1.7 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uichecklist.cc,v 1.8 2012-02-15 16:22:41 cvsbert Exp $";
 
 #include "uichecklist.h"
 #include "uibutton.h"
@@ -75,7 +75,10 @@ bool uiCheckList::isChecked( int idx ) const
 void uiCheckList::setChecked( int idx, bool yn )
 {
     if ( idx >= 0 && idx < boxs_.size() )
+    {
 	boxs_[idx]->setChecked( yn );
+	boxChk( boxs_[idx] );
+    }
 }
 
 
