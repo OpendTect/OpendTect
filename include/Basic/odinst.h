@@ -7,31 +7,32 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2012
- RCS:           $Id: odinst.h,v 1.1 2012-02-15 13:44:07 cvsbert Exp $
+ RCS:           $Id: odinst.h,v 1.2 2012-02-15 16:22:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
 class Settings;
+class BufferStringSet;
 
 
 namespace ODInst
 {
 
-    enum AutoInstType	{ UseManager, InformOnly, FullAuto, NoAuto  };
-			DeclareNameSpaceEnumUtils(AutoInstType)
+    enum AutoInstType		{ UseManager, InformOnly, FullAuto, NoAuto  };
+				DeclareNameSpaceEnumUtils(AutoInstType)
 
-    bool		canInstall();
-    void		startInstManagement();
-    bool		updatesAvailable();
+    mGlobal bool		canInstall();
+    mGlobal void		startInstManagement();
+    mGlobal bool		updatesAvailable();
 
-    AutoInstType	getAutoInstType();		//!< from user settings
-    void		setAutoInstType(AutoInstType);	//!< to user settings
+    mGlobal AutoInstType	getAutoInstType();	//!< from user settings
+    mGlobal void		setAutoInstType(AutoInstType); //!< and store
 
-    static const char**	autoInstTypeUserMsgs();
-    static const char*	sKeyAutoInst();
-    Settings&		userSettings();
+    mGlobal const BufferStringSet& autoInstTypeUserMsgs();
+    mGlobal const char*		sKeyAutoInst();
+    mGlobal Settings&		userSettings();
 
 } // namespace
 

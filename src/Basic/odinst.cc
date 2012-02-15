@@ -7,29 +7,32 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.1 2012-02-15 13:44:07 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.2 2012-02-15 16:22:05 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "settings.h"
+#include "bufstringset.h"
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
-const char** ODInst::autoInstTypeUserMsgs()
+const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 {
-    static const char* ret[] =
+    static BufferStringSet* ret = 0;
+    if ( !ret )
     {
-	"[&Manager] Start the Installation Manager when updates are available",
-	"[&Inform] When new updates are present, "
-		    "show this in OpendTect's title bar",
-	"[&Auto] Automatically download and install new updates "
-		    "(requires sufficient administrator rights)",
-	"[&None] Never check for updates",
-	0
+	ret = new BufferStringSet;
+	ret->add( "[&Manager] Start the Installation Manager "
+		    "when updates are available" );
+	ret->add( "[&Inform] When new updates are present, "
+		    "show this in OpendTect's title bar" );
+	ret->add( "[&Auto] Automatically download and install new updates "
+		    "(requires sufficient administrator rights)" );
+	ret->add( "[&None] Never check for updates" );
     };
-    return ret;
+    return *ret;
 }
 const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
 
@@ -65,7 +68,7 @@ ODInst::AutoInstType ODInst::getAutoInstType()
 
 void ODInst::setAutoInstType( ODInst::AutoInstType ait )
 {
-    userSettings().set( sKeyAutoInst(), ait );
+    userSettings().set( sKeyAutoInst(), ODInst::toString(ait) );
     userSettings().write();
 }
 
