@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.118 2011-12-08 16:29:28 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.119 2012-02-15 16:24:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ public:
     void			setFonts();
     void			manageShortcuts();
     void			startInstMgr();
+    void			setAutoUpdatePol();
 
     // Tree menu services
     // Selections

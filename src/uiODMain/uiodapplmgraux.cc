@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.43 2012-02-15 13:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.44 2012-02-15 16:24:31 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -47,6 +47,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.43 2012-02-15 13:44:32 cv
 #include "uifontsel.h"
 #include "uipluginman.h"
 #include "uishortcuts.h"
+#include "uiselsimple.h"
 #include "uibatchprogs.h"
 #include "uibatchlaunch.h"
 #include "uistrattreewin.h"
@@ -434,6 +435,20 @@ void uiODApplMgrDispatcher::startInstMgr()
     uiMSG().message( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
     ODInst::startInstManagement();
+}
+
+
+void uiODApplMgrDispatcher::setAutoUpdatePol()
+{
+    const ODInst::AutoInstType curait = ODInst::getAutoInstType();
+    uiGetChoice dlg( par_, ODInst::autoInstTypeUserMsgs(),
+	    		"Select policy for auto-update", true, mTODOHelpID );
+    dlg.setDefaultChoice( (int)curait );
+    if ( !dlg.go() )
+	return;
+    ODInst::AutoInstType newait = (ODInst::AutoInstType)dlg.choice();
+    if ( newait != curait )
+	ODInst::setAutoInstType( newait );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.428 2012-01-18 17:54:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.429 2012-02-15 16:24:31 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1756,6 +1756,8 @@ int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
 { return dispatcher_.createMapDataPack( data, colnr ); }
 void uiODApplMgr::startInstMgr()
 { return dispatcher_.startInstMgr(); }
+void uiODApplMgr::setAutoUpdatePol()
+{ return dispatcher_.setAutoUpdatePol(); }
 
 
 void uiODApplMgr::MiscSurvInfo::refresh()

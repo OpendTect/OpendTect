@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.150 2011-12-22 14:01:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.151 2012-02-15 16:24:31 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -43,6 +43,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.150 2011-12-22 14:01:48 cvsbert
 #include "mousecursor.h"
 #include "oddatadirmanip.h"
 #include "oddirs.h"
+#include "odinst.h"
 #include "odsessionfact.h"
 #include "odver.h"
 #include "moddepmgr.h"
@@ -645,19 +646,19 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::updateCaption()
 {
-    BufferString capt( "OpendTect V" );
-    capt += GetFullODVersion();
-    capt += "/"; capt += OD::Platform::local().shortName();
+    BufferString capt( "OpendTect V", GetFullODVersion() );
+    capt.add( "/" ).add( OD::Platform::local().shortName() );
+
+    if ( ODInst::getAutoInstType() == ODInst::InformOnly
+	&& ODInst::updatesAvailable() )
+	capt.add( " *UPDATE AVAILABLE*" );
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
-    { capt += " ["; capt += usr; capt += "]"; }
+	capt.add( " [" ).add( usr ).add( "]" );
 
     if ( !SI().name().isEmpty() )
-    {
-	capt += ": ";
-	capt += SI().name();
-    }
+	capt.add( ": " ).add( SI().name() );
 
     setCaption( capt );
 }
