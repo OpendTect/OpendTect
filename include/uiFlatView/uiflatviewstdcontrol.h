@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.24 2011-10-21 12:29:33 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.25 2012-02-15 15:29:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ protected:
     void		updatePosButtonStates();
 
     void		vwChgCB(CallBacker*);
-    void		wheelMoveCB(CallBacker*);
-    void		zoomCB(CallBacker*);
+    virtual void	wheelMoveCB(CallBacker*);
+    virtual void	zoomCB(CallBacker*);
     void		handDragStarted(CallBacker*);
     void		handDragging(CallBacker*);
     void		handDragged(CallBacker*);
@@ -85,6 +85,7 @@ protected:
     virtual void	coltabChg(CallBacker*);
     void		dispChgCB(CallBacker*);
     void		keyPressCB(CallBacker*);
+    virtual void	vwrAdded(CallBacker*) 	{}
 
     bool		handleUserClick();
 
