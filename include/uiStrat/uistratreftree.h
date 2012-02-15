@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.35 2011-02-01 14:59:29 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.36 2012-02-15 15:30:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ protected:
     uiListView*		lv_;
 
     void		rClickCB(CallBacker*);
+    void		mousePressedCB(CallBacker*);
 
     void		insertSubUnit(uiListViewItem*);
     void		subdivideUnit(uiListViewItem*);
