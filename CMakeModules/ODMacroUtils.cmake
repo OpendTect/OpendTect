@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.12 2012-02-14 12:21:31 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.13 2012-02-15 10:04:39 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -47,20 +47,20 @@
 MACRO( OD_INIT_MODULE )
 
 #Start write ModDeps-line
-FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od
+FILE(APPEND ${OD_MODDEPS_FILE}
     "${OD_MODULE_NAME}:\t\tS.${OD_MODULE_NAME}")
 
 #Add all module dependencies
 IF(OD_MODULE_DEPS)
     FOREACH( DEP ${OD_MODULE_DEPS} )
 	OD_ADD_DEPS( ${DEP} )
-	FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od
+	FILE(APPEND ${OD_MODDEPS_FILE}
 	 " D.${DEP}")
     ENDFOREACH()
 ENDIF()
 
 #End ModDeps-line
-FILE(APPEND ${OpendTect_SOURCE_DIR}/Pmake/ModDeps.od "\n")
+FILE(APPEND ${OD_MODDEPS_FILE} "\n")
 
 IF(OD_USECOIN)
     OD_SETUP_COIN()
@@ -118,7 +118,14 @@ TARGET_LINK_LIBRARIES(
 	${OD_MODULE_EXTERNAL_LIBS}
 	${OD_MODULE_LINK_OPTIONS}
         ${EXTRA_LIBS} 
-	 )
+     )
+
+INSTALL(TARGETS
+        ${OD_MODULE_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib )
+
 
 #Setup common things for batch-programs
 IF(OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
@@ -138,6 +145,11 @@ IF(OD_MODULE_EXECS)
 		RUNTIME_LIBRARY_DIRS
 		${OD_MODULE_RUNTIMEPATH} )
         ENDIF( OD_CREATE_LAUNCHERS )
+	INSTALL(TARGETS
+		${EXEC}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib )
     ENDFOREACH()
 
 ENDIF(OD_MODULE_EXECS)
@@ -154,6 +166,11 @@ IF(OD_MODULE_BATCHPROGS)
 	    create_target_launcher( ${EXEC}
 		RUNTIME_LIBRARY_DIRS
 		${OD_MODULE_RUNTIMEPATH} )
+	INSTALL(TARGETS
+		${EXEC}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib )
 	ENDIF( OD_CREATE_LAUNCHERS )
     ENDFOREACH()
 
