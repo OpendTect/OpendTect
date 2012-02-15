@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.42 2012-01-20 09:25:58 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.43 2012-02-15 11:45:48 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,6 +195,11 @@ bool SqlDB::MantisDBMgr::fillBugTableEntries()
 	    .add( ".status=" ).add( BugTableEntry::cStatusClosed() )
 	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
 	    .add( ".resolution=" ).add( BugTableEntry::cResolutionFixed() )
+	    .add( ") " ).add( " OR " )
+	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".status=" ).add( BugTableEntry::cStatusResolved() )
+	    .add( " AND " ).add( BugTableEntry::sKeyBugTable() )
+	    .add( ".resolution=" ).add( BugTableEntry::cResolutionOpen() )
 	    .add( ") " ).add( " OR " )
 	    .add( "( " ).add( BugTableEntry::sKeyBugTable() )
 	    .add( ".status=" ).add( BugTableEntry::cStatusResolved() )
@@ -471,15 +476,14 @@ bool SqlDB::MantisDBMgr::getInfoFromTables()
 
 
 bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
-				      bool onlyfixed, TypeSet<int>& bugstofix )
+				      TypeSet<int>& bugstofix )
 {
     bugsindex_.erase();
     if ( !usernm ) return false;
 
     const int usridx = userNames().indexOf( usernm );
     const bool isall = caseInsensitiveEqual( usernm, sKeyAll() );
-    const bool isunassign = caseInsensitiveEqual( usernm, sKeyUnAssigned() );
-    if ( !isunassign && !userIDs().validIdx( usridx ) && !isall )
+    if ( !userIDs().validIdx( usridx ) && !isall )
     {
 	UsrMsg( BufferString("User ",usernm," does not exist in Mantis") );
 	return false;
@@ -498,26 +502,18 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 	return false;
 
     const int projid = isallprojs ? -1 : projectIDs()[projidx];
-    const int usrid = isall || isunassign ? -1 : userIDs()[usridx];
-    const int nrbugs = nrBugs();
+    const bool isunassign = caseInsensitiveEqual( usernm, sKeyUnAssigned() );
+    const int usrid = isall ? -1 : userIDs()[usridx];
+
     const int reslfixed = BugTableEntry::cResolutionFixed();
     const int statusnew = SqlDB::BugTableEntry::cStatusNew();
+    const int stresolved = SqlDB::BugTableEntry::cStatusResolved();
+    const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
 	BugTableEntry* bugtable = getBugTableEntry( idx );
 	if ( !bugtable )
 	    continue;
-
-	const int resolution = bugtable->resolution_;
-	const bool isbugfixed = resolution == reslfixed;
-	if ( onlyfixed != isbugfixed )
-	    continue;
-
-	if ( isunassign )
-	{
-	    bool isstatusequal = bugtable->status_ == statusnew;
-	    if ( !isstatusequal ) continue;
-	}
 
 	const bool isprojequal = projid < 0 ? true
 	    				    : bugtable->projectid_ == projid;
@@ -528,7 +524,6 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
     }
 
     bugstofix = bugsindex_;
-
     return bugstofix.isEmpty() ? false : true;
 }
 
