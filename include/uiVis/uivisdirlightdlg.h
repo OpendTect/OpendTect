@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.16 2010-02-03 16:36:00 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.17 2012-02-15 22:25:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 
     float			getHeadOnIntensity() const;
     void			setHeadOnIntensity(float);
+    void			show();
 
 protected:
 
@@ -84,7 +85,6 @@ protected:
     uiPixmapItem		*pm1_, *pm2_;
 
     uiLabeledComboBox*		scenefld_;
-    //uiSliderExtra*		azimuthfld_;
     uiDialExtra*		azimuthfld_;
     uiSliderExtra*		dipfld_;
     uiSliderExtra*		intensityfld_;
@@ -106,6 +106,7 @@ protected:
 		float		intensity_;
 	        float		headonintensity_;
         	float		ambintensity_;
+		bool		directlighton_;
 	
 	public:
 
