@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.16 2010-11-30 16:48:16 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.17 2012-02-15 15:18:58 cvsnanne Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -23,8 +23,14 @@ static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.16 2010-11-30 16:48:
 namespace EM
 {
 
+static const ZDomain::Def& getZDom()
+{
+    return SI().zIsTime() ? ZDomain::Def::get( "Time-Flattened" )
+			  : ZDomain::Def::get( "Depth-Flattened" );
+}
+
 HorizonZTransform::HorizonZTransform()
-    : ZAxisTransform(ZDomain::SI(),ZDomain::SI())
+    : ZAxisTransform(ZDomain::SI(),getZDom())
     , horizon_( 0 )
     , horchanged_( false )
     , change_( this )
@@ -133,8 +139,14 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 
     if ( horchanged_ ) return SI().zRange(true);
 
-    return Interval<float>( SI().zRange(true).start-depthrange_.stop,
-	    		    SI().zRange(true).stop-depthrange_.start );
+    Interval<float> intv( SI().zRange(true).start-depthrange_.stop,
+			  SI().zRange(true).stop-depthrange_.start );
+    const float step = SI().zRange(true).step;
+    float idx = intv.start / step;
+    intv.start = floor(idx) * step;
+    idx = intv.stop / step;
+    intv.stop = ceil(idx) * step;
+    return intv;
 }
 
 
