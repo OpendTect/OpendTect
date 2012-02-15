@@ -2,11 +2,11 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.16 2012-02-10 15:50:12 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.17 2012-02-15 10:01:44 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
-    IF( ${CMAKE_BUILD_TYPE} MATCHES Debug)
+    IF( OD_DEBUG MATCHES Debug)
         ADD_DEFINITIONS("-D__debug__")
 	ADD_DEFINITIONS(
 		"-Wparentheses -Wreturn-type -Wpointer-arith"
@@ -22,8 +22,13 @@ IF(UNIX)
 
 	#NEEDED AS LONG AS WE HAVE COIN
 	SET(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
-
+	SET( PLFSUBDIR mac )
     ELSE()
+	IF ( OD_64BIT )
+	    SET ( PLFSUBDIR "lux64" )
+	ELSE()
+	    SET ( PLFSUBDIR "lux32" )
+	ENDIF()
         ADD_DEFINITIONS("-Dlux")
     ENDIF()
 
@@ -43,5 +48,6 @@ IF(WIN32)
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
+    SET( PLFSUBDIR "win" )
 ENDIF()
 
