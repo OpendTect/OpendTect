@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.42 2012-02-14 19:41:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.43 2012-02-15 13:44:32 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -23,12 +23,13 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.42 2012-02-14 19:41:18 cv
 #include "filepath.h"
 #include "ioobj.h"
 #include "oddirs.h"
+#include "odinst.h"
 #include "odplatform.h"
 #include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "separstr.h"
-#include "strmprov.h"
+#include "odinst.h"
 #include "string2.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -432,8 +433,7 @@ void uiODApplMgrDispatcher::startInstMgr()
 {
     uiMSG().message( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
-    const BufferString cmd( "@od_instmgr --instdir ", GetSoftwareDir(1) );
-    StreamProvider( cmd ).executeCommand( true );
+    ODInst::startInstManagement();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.240 2012-02-14 19:41:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.241 2012-02-15 13:44:32 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -632,9 +632,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
-
-    if ( File::isWritable(GetSoftwareDir(1)) )
-	mInsertItem( utilmnu_, "&Installation Manager ...", mInstMgrMnuItem );
+    mInsertItem( utilmnu_, "&Installation Manager ...", mInstMgrMnuItem );
 
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
