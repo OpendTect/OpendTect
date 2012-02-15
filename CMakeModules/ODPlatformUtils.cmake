@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.18 2012-02-15 10:02:41 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.19 2012-02-15 13:08:20 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -26,8 +26,10 @@ IF(UNIX)
     ELSE()
 	IF ( OD_64BIT )
 	    SET ( OD_PLFSUBDIR "lux64" )
+	    ADD_DEFINITIONS("-Dlux64")
 	ELSE()
 	    SET ( OD_PLFSUBDIR "lux32" )
+	    ADD_DEFINITIONS("-Dlux32")
 	ENDIF()
         ADD_DEFINITIONS("-Dlux")
     ENDIF()
