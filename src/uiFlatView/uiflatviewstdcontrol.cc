@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.40 2012-02-15 15:51:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.41 2012-02-15 16:06:15 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -199,7 +199,7 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
 
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
-    if ( !vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() )
+    if (!vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() || !zoomin)
     {
 	newsz = zoommgr.current();
 	centre = vwr.curView().centre();
