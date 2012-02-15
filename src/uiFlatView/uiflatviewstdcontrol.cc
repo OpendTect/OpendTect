@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.39 2011-10-21 12:29:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.40 2012-02-15 15:51:59 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -174,36 +174,42 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
 void uiFlatViewStdControl::zoomCB( CallBacker* but )
 {
     const bool zoomin = but == zoominbut_;
-    uiRect viewrect = vwrs_[0]->annotBorder().getRect(
-	    vwrs_[0]->rgbCanvas().getViewArea() );
+    doZoom( zoomin, *vwrs_[0], zoommgr_ );
+}
+
+
+void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr, 
+					FlatView::ZoomMgr& zoommgr )
+{
+    uiRect viewrect = vwr.annotBorder().getRect(
+	    vwr.rgbCanvas().getViewArea() );
     uiSize newrectsz = viewrect.size();
-    if ( but == zoominbut_ )
+    if ( zoomin )
     {
-	zoommgr_.forward();
-	newrectsz.setWidth( mNINT(newrectsz.width()*zoommgr_.fwdFac()) );
-	newrectsz.setHeight( mNINT(newrectsz.height()*zoommgr_.fwdFac()));
+	zoommgr.forward();
+	newrectsz.setWidth( mNINT(newrectsz.width()*zoommgr.fwdFac()) );
+	newrectsz.setHeight( mNINT(newrectsz.height()*zoommgr.fwdFac()));
     }
     else
     {
-	if ( zoommgr_.atStart() )
+	if ( zoommgr.atStart() )
 	    return;
-	zoommgr_.back();
+	zoommgr.back();
     }
 
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
-    if ( !vwrs_[0]->rgbCanvas().getNavigationMouseEventHandler().hasEvent() ||
-	 !zoomin )
+    if ( !vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() )
     {
-	newsz = zoommgr_.current();
-	centre = vwrs_[0]->curView().centre();
+	newsz = zoommgr.current();
+	centre = vwr.curView().centre();
     }
     else
     {
 	uiWorld2Ui w2ui;
-	vwrs_[0]->getWorld2Ui( w2ui );
+	vwr.getWorld2Ui( w2ui );
 	const Geom::Point2D<int> viewevpos =
-	    vwrs_[0]->rgbCanvas().getCursorPos();
+	    vwr.rgbCanvas().getCursorPos();
 	uiRect selarea( viewevpos.x-(newrectsz.width()/2),
 			viewevpos.y-(newrectsz.height()/2),
 			viewevpos.x+(newrectsz.width()/2),
@@ -225,8 +231,8 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 	newsz = wr.size();
     }
 
-    if ( zoommgr_.atStart() )
-	centre = zoommgr_.initialCenter();
+    if ( zoommgr.atStart() )
+	centre = zoommgr.initialCenter();
 
     setNewView( centre, newsz );
 }

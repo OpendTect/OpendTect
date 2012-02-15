@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.25 2012-02-15 15:29:38 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.26 2012-02-15 15:51:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ protected:
 
     virtual void	finalPrepare();
     void		updatePosButtonStates();
+    void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
     void		vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);
