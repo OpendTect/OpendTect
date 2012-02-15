@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.16 2012-02-09 12:59:18 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.17 2012-02-15 16:19:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
 				    bool allowcancel=true,
 				    const char* helpid=mNoHelpID);
 
+    void		setDefaultChoice(int);
     int			choice() const		{ return choice_; }
     			//!< on cancel will be -1
 

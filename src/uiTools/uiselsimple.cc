@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.19 2012-02-09 12:59:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.20 2012-02-15 16:19:38 cvsbert Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
@@ -135,7 +135,13 @@ uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, opts, uiCheckList::OneOnly );
-    inpfld_->setChecked( 0, true );
+    setDefaultChoice( 0 );
+}
+
+
+void uiGetChoice::setDefaultChoice( int nr )
+{
+    inpfld_->setChecked( nr, true );
 }
 
 
