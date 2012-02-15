@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.45 2011-09-23 13:17:17 cvskris Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.46 2012-02-15 21:59:41 cvsyuancheng Exp $";
 
 #include "visscene.h"
 
@@ -41,13 +41,17 @@ Scene::Scene()
     : selroot_( new SoGroup )
     , environment_( new SoEnvironment )
     , polygonoffset_( PolygonOffset::create() )
-    , directionallight_( 0 )  
+    , directionallight_( DirectionalLight::create() )  
     , events_( *EventCatcher::create() )
     , mousedownid_( -1 )
     , blockmousesel_( false )
     , nameChanged(this)
     , callback_( 0 )
 {
+    directionallight_->ref();
+    directionallight_->turnOn( false );
+    insertObject( 0, directionallight_ );
+    
     selroot_->ref();
 
     if ( !SoOD::getAllParams() )
@@ -102,8 +106,7 @@ Scene::~Scene()
 
     polygonoffset_->unRef();
     selroot_->unref();
-    if (directionallight_ )
-	directionallight_->unRef();
+    directionallight_->unRef();
 }
 
 
@@ -139,13 +142,6 @@ float Scene::ambientLight() const
  
 void Scene::setDirectionalLight( const DirectionalLight& dl )
 {
-    if ( !directionallight_ )
-    {
-	directionallight_ = DirectionalLight::create();
-	directionallight_->ref();
-        insertObject( 0, directionallight_ );
-    }
-    
     directionallight_->setIntensity( dl.intensity() );
     directionallight_->setDirection( dl.direction( 0 ), dl.direction( 1 ),
 	    dl.direction( 2 ) );
