@@ -2,12 +2,8 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.4 2012-02-15 10:01:05 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.5 2012-02-15 15:37:41 cvskris Exp $
 #_______________________________________________________________________________
-
-#Empty ModDeps-file
-SET( OD_MODDEPS_FILE ${CMAKE_BINARY_DIR}/Pmake/ModDeps.od )
-FILE(WRITE ${OD_MODDEPS_FILE} "")
 
 #Discover 64 or 32 bits
 IF(CMAKE_SIZEOF_VOID_P MATCHES "8")

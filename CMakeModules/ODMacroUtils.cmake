@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.13 2012-02-15 10:04:39 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.14 2012-02-15 15:37:41 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -35,6 +35,7 @@
 # OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library, 
 #					  and all external libraries it is
 #					  dependent on.
+# OD_MODULE_NAMES			: A list of all modules
 #####################################
 #
 # Internal variables
@@ -46,21 +47,16 @@
 
 MACRO( OD_INIT_MODULE )
 
-#Start write ModDeps-line
-FILE(APPEND ${OD_MODDEPS_FILE}
-    "${OD_MODULE_NAME}:\t\tS.${OD_MODULE_NAME}")
+#Add this module to the list
+SET( OD_MODULE_NAMES ${OD_MODULE_NAMES} ${OD_MODULE_NAME} PARENT_SCOPE )
 
 #Add all module dependencies
 IF(OD_MODULE_DEPS)
     FOREACH( DEP ${OD_MODULE_DEPS} )
 	OD_ADD_DEPS( ${DEP} )
-	FILE(APPEND ${OD_MODDEPS_FILE}
-	 " D.${DEP}")
     ENDFOREACH()
 ENDIF()
 
-#End ModDeps-line
-FILE(APPEND ${OD_MODDEPS_FILE} "\n")
 
 IF(OD_USECOIN)
     OD_SETUP_COIN()
