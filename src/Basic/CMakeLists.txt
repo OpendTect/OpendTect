@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.8 2012-02-10 11:57:34 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.9 2012-02-16 10:09:47 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    moddepmgr.cc
 	    namedobj.cc
 	    odimage.cc
+	    odinst.cc
 	    odmemory.cc
 	    odver.cc
 	    plugins.cc
