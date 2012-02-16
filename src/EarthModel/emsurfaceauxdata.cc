@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.32 2012-01-06 13:21:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.33 2012-02-16 20:11:19 cvsnanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -229,15 +229,29 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 }
 
 
+BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
+{
+    PtrMan<StreamConn> conn =
+	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
+    if ( !conn ) return 0;
+
+    BufferString fnm;
+    for ( int idx=0; ; idx++ )
+    {
+	fnm = dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	if ( !File::exists(fnm.buf()) )
+	    return fnm;
+    }
+
+    return 0;
+}
+
+
 Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
 	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
-    PtrMan<StreamConn> conn =
-	dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-    if ( !conn ) return 0;
-
     bool binary = true;
     mSettUse(getYN,"dTect.Surface","Binary format",binary);
 
@@ -255,13 +269,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     for ( int selidx=0; selidx<nrAuxData(); selidx++ )
     {
 	if ( dataidx >= 0 && dataidx != selidx ) continue;
-	for ( int idx=0; ; idx++ )
-	{
-	    fnm = dgbSurfDataWriter::createHovName( conn->fileName(), idx );
-	    if ( !File::exists(fnm.buf()) )
-		break;
-	}
-
+	fnm = getFreeFileName( *ioobj );
 	Executor* exec =
 	    new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
 	grp->add( exec );

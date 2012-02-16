@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.14 2012-01-06 13:21:42 cvsbruno Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.15 2012-02-16 20:11:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -74,10 +74,10 @@ public:
 
     static BufferString	getFileName(const IOObj&,const char* attrnm);
     static BufferString	getFileName(const char* fullexp,const char* attrnm);
+    static BufferString	getFreeFileName(const IOObj&);
     static bool		removeFile(const IOObj&,const char* attrnm);
     BufferString	getFileName(const char* attrnm) const;
     bool		removeFile(const char* attrnm) const;
-
 
     Array2D<float>*	createArray2D(int dataid,SectionID) const;
     void		setArray2D(int dataid,SectionID,const Array2D<float>&);
@@ -86,17 +86,15 @@ public:
     virtual void	fillPar( IOPar& ) const;
 
 protected:
-    Horizon3D&					horizon_;
+    Horizon3D&		horizon_;
 
-    						//One entry per auxdata
-    BufferStringSet				auxdatanames_;
-    BufferStringSet				auxdatainfo_;
-    TypeSet<float>				auxdatashift_;
-
-    						//One entry per section
-    ObjectSet<BinIDValueSet>			auxdata_;
-
-    bool					changed_;
+    			//One entry per auxdata
+    BufferStringSet	auxdatanames_;
+    BufferStringSet	auxdatainfo_;
+    TypeSet<float>	auxdatashift_;
+        			//One entry per section
+    ObjectSet<BinIDValueSet>	auxdata_;
+    bool		changed_;
 };
 
 
