@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.11 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.12 2012-02-16 05:06:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,11 +308,14 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    emobj->setBurstAlert( true );
 
     doTheSeed( *seedpicker, clickedcrd, mouseevent );
+    if ( editor_ && !editor_->sower().moreToSow() )
+    {
+	emobj->setBurstAlert( true );
+	emobj->setBurstAlert( false );
+    }
 
-    emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
 
     const int currentevent = EM::EMM().undo().currentEventID();
