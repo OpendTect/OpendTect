@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.78 2012-02-16 15:39:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.79 2012-02-16 15:44:23 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -219,7 +219,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 {
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
-    drawLevel();
+    levelSnapChanged(0);
 }
 
 
