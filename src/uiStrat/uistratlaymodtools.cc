@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.6 2012-02-09 12:59:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.7 2012-02-16 13:22:02 cvsbruno Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -177,7 +177,7 @@ const char* uiStratLayModEditTools::selContent() const
 const Strat::Level* uiStratLayModEditTools::selStratLevel() const
 {
     const int lvlidx = selLevelIdx();
-    return lvlidx < 0 ? 0 : Strat::LVLS().get( lvlidx );
+    return lvlidx < 0 ? 0 : Strat::LVLS().levels()[lvlidx];
 }
 
 
