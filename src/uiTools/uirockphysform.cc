@@ -7,15 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.2 2012-02-13 12:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.3 2012-02-16 15:25:29 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
 #include "mathproperty.h"
 
 #include "uicombobox.h"
+#include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
+#define mMaxNrCsts	5
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
@@ -48,7 +51,16 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
     setHAlignObj( lcb );
 
-    //TODO implement the hard part
+    for ( int idx=0; idx< mMaxNrCsts; idx++ )
+    {
+	uiRockPhysCstFld* rpcfld = new uiRockPhysCstFld( this );
+	if ( idx )
+	    rpcfld->attach( alignedBelow, *(cstflds_[idx-1]) );
+	else
+	    rpcfld->attach( alignedBelow, nmfld_ );
+
+	cstflds_ += rpcfld;
+    }
 
     setType( fixedtype_ );
 }
@@ -144,4 +156,42 @@ BufferString uiRockPhysForm::getText() const
     //TODO construct it, remember to replace ' ' with '_' in variable names
 
     return ret;
+}
+
+
+//-----------------------------------------------------------------------------
+
+uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
+    : uiGroup(p,"Rock Physics Constant Field")
+{
+    nmlbl_ = new uiLabel( p, 0 );
+    nmlbl_->setPrefWidthInChar( 40 );
+
+    valfld_ = new uiGenInput( p, 0, FloatInpSpec() );
+    valfld_-> attach( rightOf, nmlbl_ );
+
+    rangelbl_ = new uiLabel( p, 0 );
+    rangelbl_->setPrefWidthInChar( 40 );
+    rangelbl_-> attach( rightOf, valfld_ );
+}
+
+
+float uiRockPhysCstFld::getCstVal() const
+{
+    return valfld_->getfValue();
+}
+
+
+void uiRockPhysCstFld::updField( BufferString nm,
+				 Interval<float> range, float val )
+{
+    BufferString prefix = "Value for '"; prefix += nm; prefix += "'";
+    nmlbl_->setText( prefix.buf() );
+
+    if ( !mIsUdf(val) )
+	valfld_->setValue( val );
+
+    BufferString suffix = "Typical range is ["; suffix += range.start;
+    suffix += ","; suffix += range.stop; suffix += "]";
+    rangelbl_->setText( suffix.buf() );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.2 2012-02-13 12:49:11 cvsbert Exp $
+ RCS:           $Id: uirockphysform.h,v 1.3 2012-02-16 15:25:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "propertyref.h"
 class uiComboBox;
+class uiGenInput;
+class uiLabel;
+class uiRockPhysCstFld;
 
 
 mClass uiRockPhysForm : public uiGroup
@@ -43,6 +46,27 @@ protected:
 
     void		createFlds(uiObject*);
 
+    ObjectSet<uiRockPhysCstFld>	cstflds_;
+
+};
+
+
+mClass uiRockPhysCstFld : public uiGroup
+{
+public:
+
+			uiRockPhysCstFld(uiParent*);
+
+    float		getCstVal() const;
+    void		updField(BufferString,Interval<float>,
+	    			 float val = mUdf(float));
+
+
+protected:
+
+    uiGenInput*		valfld_;
+    uiLabel*		nmlbl_;
+    uiLabel*		rangelbl_;
 };
 
 
