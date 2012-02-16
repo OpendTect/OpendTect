@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.41 2012-02-09 14:07:38 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.42 2012-02-16 13:28:41 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -383,18 +383,18 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     }
 
     const od_int64 nrelements = nrElements( false );
+    const unsigned char spacing = owner_.doOsg() ? 2 : 1;
 
     if ( !mappeddata_[version] )
     {
 	mDeclareAndTryAlloc(unsigned char*, mappeddata,
-			    unsigned char[nrelements] );
+			    unsigned char[nrelements*spacing] );
 	if ( !mappeddata ) return false;
 
 	mappeddata_.replace( version, mappeddata );
 	ownsmappeddata_[version] = true;
     }
 
-    const unsigned char spacing = owner_.doOsg() ? 2 : 1;
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], nrelements,
 	    mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
@@ -526,7 +526,6 @@ TextureChannels::TextureChannels()
     , osgtexture_( 0 )
 {
     onoff_->ref();
-    addChannel();
     turnOn( true );
 
     if ( doOsg() )
@@ -534,6 +533,8 @@ TextureChannels::TextureChannels()
 	osgtexture_ = new osgGeo::LayeredTexture;
 	osgtexture_->ref();
     }
+
+    addChannel();
 }
 
 
@@ -608,7 +609,7 @@ int TextureChannels::addChannel()
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
     const int res = channelinfo_.size();
-    if ( res && !doOsg() )
+    if ( res ) //&& !doOsg() ) For later
 	newchannel->setSize( channelinfo_[0]->getSize(0),
 			     channelinfo_[0]->getSize(1),
 			     channelinfo_[0]->getSize(2) );
