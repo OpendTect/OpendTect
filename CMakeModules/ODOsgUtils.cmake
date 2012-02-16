@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.3 2012-02-10 15:33:05 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.4 2012-02-16 19:42:33 cvskris Exp $
 #_______________________________________________________________________________
 
 SET( OD_OSG_DIR_ENV $ENV{OD_OSGDIR})
@@ -29,6 +29,11 @@ SET (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
 MACRO(OD_SETUP_OSG)
     IF(OD_USEOSG)
+
+    #Prepare for crappy OSG-code ;-<
+    IF( NOT DEFINED WIN32 )
+	ADD_DEFINITIONS("-Wno-shadow -Wno-overloaded-virtual")
+    ENDIF()
         LIST(APPEND OD_MODULE_INCLUDEPATH
 		${OSGGEO_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
