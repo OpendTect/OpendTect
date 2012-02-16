@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.48 2012-01-06 15:17:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.49 2012-02-16 04:50:58 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -59,7 +59,8 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 {
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	S2DPOS().setCurLineSet( geomids_[idx].lsid_ );
+	if( S2DPOS().curLineSetID() != geomids_[idx].lsid_ )
+	    S2DPOS().setCurLineSet( geomids_[idx].lsid_ );
 	BufferString lnm = S2DPOS().getLineName( geomids_[idx].lineid_ );
 	if ( lnm == linenm )
 	    return idx;
@@ -74,7 +75,8 @@ const char* Horizon2DGeometry::lineName( int lid ) const
     const PosInfo::GeomID geomid = lineGeomID( lid );
     if ( !geomid.isOK() ) return 0;
 
-    S2DPOS().setCurLineSet( geomid.lsid_ );
+    if( S2DPOS().curLineSetID() != geomid.lsid_ )
+	S2DPOS().setCurLineSet( geomid.lsid_ );
     return S2DPOS().getLineName( geomid.lineid_ );
 }
 
@@ -112,7 +114,8 @@ bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
     if ( !geomid.isOK() || geomids_.isPresent(geomid) )
 	return false;
 
-    S2DPOS().setCurLineSet( geomid.lsid_ );
+    if( S2DPOS().curLineSetID() != geomid.lsid_ )
+	S2DPOS().setCurLineSet( geomid.lsid_ );
     PosInfo::Line2DData linegeom( S2DPOS().getLineName(geomid.lineid_) );
     if ( !S2DPOS().getGeometry(linegeom) )
 	return false;
@@ -306,7 +309,8 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    PosInfo::GeomID geomid; geomid.fromString( idstr );
 	    geomids_ += geomid;
 
-	    S2DPOS().setCurLineSet( geomid.lsid_ );
+	    if( S2DPOS().curLineSetID() != geomid.lsid_ )
+		S2DPOS().setCurLineSet( geomid.lsid_ );
 	    PosInfo::Line2DData linegeom( S2DPOS().getLineName(geomid.lineid_));
 	    if ( !S2DPOS().getGeometry(linegeom) )
 		continue;
