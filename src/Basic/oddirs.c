@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.28 2012-02-01 16:29:51 cvskris Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.29 2012-02-16 15:50:51 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -243,7 +243,7 @@ static int gtSoftwareDirFromArgv( char* dirnm )
     if ( !*dirnm ) mRetNope()
 
     chptr2 = chptr1 = dirnm;
-    while ( chptr2 = strstr( chptr1 + 1, "bin" ) )
+    while ( (chptr2 = strstr( chptr1 + 1, "bin" )) )
 	chptr1 = chptr2;
 
     if ( !chptr1 ) mRetNope()
