@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.8 2011-08-18 04:14:41 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.9 2012-02-16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ bool HorizonPainter2D::addPolyLine()
 	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
 	markerline_ += secmarkerln;
 	FlatView::Annotation::AuxData* seedauxdata =
-					new FlatView::Annotation::AuxData( "" );
+			new FlatView::Annotation::AuxData( "Horizon2D Marker" );
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
@@ -131,7 +131,7 @@ bool HorizonPainter2D::addPolyLine()
 	    if ( newmarker )
 	    {
 		FlatView::Annotation::AuxData* auxdata =
-		    			new FlatView::Annotation::AuxData( "" );
+			new FlatView::Annotation::AuxData( "Horizon2D marker" );
 		viewer_.appearance().annot_.auxdata_ += auxdata;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
@@ -181,22 +181,6 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::PrefColorChange:
 	    {
 		changePolyLineColor();
-		break;
-	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	    {
-		if ( emobject->hasBurstAlert() )
-		    return;
-
-		BinID bid;
-		bid.fromInt64( cbdata.pid0.subID() );
-
-		if ( cs_.hrg.includes(bid) )
-		{
-		    changePolyLinePosition( cbdata.pid0 );
-		    viewer_.handleChange( FlatView::Viewer::Annot );
-		}
-		
 		break;
 	    }
 	case EM::EMObjectCallbackData::BurstAlert:
@@ -250,46 +234,6 @@ void HorizonPainter2D::changePolyLineColor()
     }
 
     viewer_.handleChange( FlatView::Viewer::Annot );
-}
-
-
-void HorizonPainter2D::changePolyLinePosition( const EM::PosID& pid )
-{
-    mDynamicCastGet(EM::Horizon2D*,hor2d,EM::EMM().getObject( id_ ));
-    if ( !hor2d ) return;
-
-    if ( id_ != pid.objectID() ) return;
-
-    BinID binid;
-    binid.fromInt64( pid.subID() );
-
-    for ( int idx=0; idx<hor2d->nrSections(); idx++ )
-    {
-	if ( hor2d->sectionID(idx) != pid.sectionID() )
-	    continue;
-
-	SectionMarker2DLine* secmarkerlines = markerline_[idx];
-	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
-	{
-	    Coord3 crd = hor2d->getPos( hor2d->sectionID(idx), pid.subID() );
-	    FlatView::Annotation::AuxData* auxdata = 
-					(*secmarkerlines)[markidx]->marker_;
-	    
-	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
-	    {
-		int trcidx = trcnos_.indexOf(binid.crl);
-		if ( trcidx == -1 )
-		    continue;
-
-		if ( distances_[trcidx] == auxdata->poly_[posidx].x )
-		{
-		    auxdata->poly_[posidx].y = crd.z;
-		    viewer_.handleChange( FlatView::Viewer::Annot );
-		    return;
-		}
-	    }
-	}
-    }
 }
 
 

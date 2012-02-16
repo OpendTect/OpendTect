@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.11 2011-09-02 09:15:41 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.12 2012-02-16 05:05:37 cvssatyaki Exp $";
 
 #include "horizon2dextender.h"
 
@@ -21,8 +21,10 @@ namespace MPE
 {
 
 Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
-					      const EM::SectionID& sid )
-    : BaseHorizon2DExtender( hor, sid )
+				      const EM::SectionID& sid )
+    : SectionExtender( sid )
+    , surface_( hor )
+    , anglethreshold_( 0.5 )
 {
 }
 
@@ -41,37 +43,15 @@ void Horizon2DExtender::initClass()
 }
 
 
-BaseHorizon2DExtender::BaseHorizon2DExtender( EM::Horizon2D& hor,
-				      const EM::SectionID& sid )
-    : SectionExtender( sid )
-    , surface_( hor )
-    , anglethreshold_( 0.5 )
-{}
-
-
-/*SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj,
-					    const EM::SectionID& sid )
-{
-    mDynamicCastGet(EM::Horizon2D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon2DExtender( *hor, sid );
-}
-
-
-void Horizon2DExtender::initClass()
-{
-    ExtenderFactory().addCreator( create, Horizon2DTracker::keyword() );
-}*/
-
-
-void BaseHorizon2DExtender::setAngleThreshold( float rad )
+void Horizon2DExtender::setAngleThreshold( float rad )
 { anglethreshold_ = cos( rad ); }
 
 
-float BaseHorizon2DExtender::getAngleThreshold() const
+float Horizon2DExtender::getAngleThreshold() const
 { return Math::ACos(anglethreshold_); }
 
 
-void BaseHorizon2DExtender::setDirection( const BinIDValue& dir )
+void Horizon2DExtender::setDirection( const BinIDValue& dir )
 {
     direction_ = dir;
     xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir.binid );
@@ -82,7 +62,7 @@ void BaseHorizon2DExtender::setDirection( const BinIDValue& dir )
 }
 
 
-int BaseHorizon2DExtender::nextStep()
+int Horizon2DExtender::nextStep()
 {
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
@@ -94,23 +74,25 @@ int BaseHorizon2DExtender::nextStep()
 }
 
 
-void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
+void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 {
+    BinID srcbid;
+    srcbid.fromInt64( srcsubid );
     const StepInterval<int> colrange =
-			    surface_.geometry().colRange( sid_, sourcerc.row );
+	surface_.geometry().colRange( sid_, geomid_ );
     EM::SubID neighborsubid;
     Coord3 neighborpos;
-    RowCol neighborrc = sourcerc;
+    BinID neighbrbid = srcbid;
     const CubeSampling& boundary = getExtBoundary();
 
     do 
     {
-	neighborrc += RowCol( 0, upwards ? colrange.step : -colrange.step );
-	if ( !colrange.includes(neighborrc.col,false) )
+	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
+	if ( !colrange.includes(neighbrbid.crl,false) )
 	    return;
-	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighborrc)) )
+	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighbrbid)) )
 	    return;
-	neighborsubid = neighborrc.toInt64();
+	neighborsubid = neighbrbid.toInt64();
 	neighborpos = surface_.getPos( sid_, neighborsubid );
     }
     while ( !Coord(neighborpos).isDefined() );
@@ -118,7 +100,7 @@ void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     if ( neighborpos.isDefined() )
 	return;
 
-    const Coord3 sourcepos = surface_.getPos( sid_,sourcerc.toInt64() );
+    const Coord3 sourcepos = surface_.getPos( sid_, srcsubid );
 
     if ( !alldirs_ )
     {
@@ -134,17 +116,17 @@ void BaseHorizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     }
 
     Coord3 refpos = surface_.getPos( sid_, neighborsubid );
-    refpos.z = getDepth( sourcerc, neighborrc );
+    refpos.z = getDepth( srcsubid, neighborsubid );
     surface_.setPos( sid_, neighborsubid, refpos, true );
 
-    addTarget( neighborsubid, sourcerc.toInt64() );
+    addTarget( neighborsubid, srcsubid );
 }
 
 
-float BaseHorizon2DExtender::getDepth( const RowCol& srcrc,
-					 const RowCol& destrc ) const
+float Horizon2DExtender::getDepth( const EM::SubID& srcrc,
+				       const EM::SubID& destrc ) const
 {
-    return surface_.getPos( sid_, srcrc.toInt64() ).z;
+    return surface_.getPos( sid_, srcrc ).z;
 }
 
 

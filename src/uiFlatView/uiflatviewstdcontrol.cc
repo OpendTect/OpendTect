@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.41 2012-02-15 16:06:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.42 2012-02-16 05:05:37 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -324,6 +324,14 @@ void uiFlatViewStdControl::flipCB( CallBacker* )
 void uiFlatViewStdControl::parsCB( CallBacker* )
 {
     doPropertiesDialog();
+}
+
+
+void uiFlatViewStdControl::setEditMode( bool yn )
+{
+    if ( editbut_ )
+	editbut_->setOn( yn );
+    editCB( 0 );
 }
 
 

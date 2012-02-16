@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.29 2011-10-20 14:17:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.30 2012-02-16 05:05:37 cvssatyaki Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.29 2011-10-20 14:17:
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seisinfo.h"
-#include "sectionextender.h"
+#include "horizon2dextender.h"
 #include "horizonadjuster.h"
 #include "sectiontracker.h"
 #include "executor.h"
@@ -412,9 +412,13 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
     SectionExtender* extender = sectracker->extender();
     mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
+    mDynamicCastGet( Horizon2DExtender*, extender2d, extender );
+    if ( !extender2d )
+	return false;
     
     extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
     extender->setExtBoundary( getTrackBox() );
+    extender2d->setGeomID( geomid_ );
 
     TypeSet<EM::SubID> addedpos;
     TypeSet<EM::SubID> addedpossrc;

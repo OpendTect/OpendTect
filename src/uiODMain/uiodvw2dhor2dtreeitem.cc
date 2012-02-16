@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.23 2011-09-29 14:47:11 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.24 2012-02-16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewwin.h"
 #include "uiempartserv.h"
+#include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
 #include "uilistview.h"
 #include "uimenu.h"
@@ -73,6 +74,8 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	uiODVw2DHor2DTreeItem* hortreeitem = 
 	    new uiODVw2DHor2DTreeItem( mps->getEMObjectID(trackid) );
 	addChld( hortreeitem, false, false );
+	viewer2D()->viewControl()->setEditMode( true );
+	hortreeitem->select();
 
     }
     else if ( mnuid == 1 )
@@ -346,8 +349,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
 bool uiODVw2DHor2DTreeItem::select()
 {
-    if ( !uilistviewitem_->isSelected() )
-	return false;
+    uilistviewitem_->setSelected( true );
 
     if ( !trackerefed_ )
     {

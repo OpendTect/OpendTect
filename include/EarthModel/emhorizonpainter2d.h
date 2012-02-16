@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.h,v 1.2 2010-08-03 09:03:28 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter2d.h,v 1.3 2012-02-16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ protected:
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
-    void		changePolyLinePosition( const EM::PosID& pid );
     void		repaintHorizon();
 
     EM::ObjectID	id_;

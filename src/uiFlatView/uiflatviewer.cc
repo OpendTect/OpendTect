@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.130 2012-01-19 16:09:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.131 2012-02-16 05:05:37 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 
@@ -81,7 +81,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     setStretch( 2, 2 ); canvas_.setStretch( 2, 2 );
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reSizeDraw) );
-    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDrawCB) );
     reportedchanges_ += All;
 
     postFinalise().notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -113,7 +112,7 @@ uiFlatViewer::~uiFlatViewer()
 }
 
 
-void uiFlatViewer::reDrawCB( CallBacker* )
+void uiFlatViewer::reDrawAll()
 {
     drawBitMaps();
     drawAnnot();
@@ -296,12 +295,19 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
+    if ( anysetviewdone_ )
+    {
+	reportedchanges_.erase();
+	reportedchanges_ += FlatView::Viewer::WVAPars;
+	reportedchanges_ += FlatView::Viewer::VDPars;
+    }
+
     anysetviewdone_ = true;
     if ( drawBitMaps() )
     {
-	drawAnnot();
 	if ( enabhaddrag_ )
 	    canvas_.centreOn( viewarea.centre() );
+	drawAnnot();
 	viewChanged.trigger();
     }
 }
@@ -330,7 +336,13 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     uiBorder actborder = enabhaddrag_ ? viewborder_ : uiBorder(0,0,0,0);
     actborder += annotborder_;
     canvas_.setBorder( actborder );
-    if ( dofill ) reDrawCB( 0 );
+    if ( dofill )
+    {
+	if ( dct == Annot )
+	    drawAnnot();
+	else
+	    reDrawAll();
+    }
 }
 
 
@@ -504,6 +516,15 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 
     if ( (mainwin() && !mainwin()->finalised()) )
 	return false;
+
+    for ( int idx=0; idx<reportedchanges_.size(); idx++ )
+    {
+	if (reportedchanges_[idx] == Annot )
+	{
+	    reportedchanges_.remove(idx);
+	    idx--;
+	}
+    }
 
     BufferStringSet bss; getAnnotChoices( bss );
 

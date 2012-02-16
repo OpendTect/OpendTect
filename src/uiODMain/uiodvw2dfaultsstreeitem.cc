@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.16 2011-09-29 14:47:11 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.17 2012-02-16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiodvw2dfaultsstreeitem.h"
 
 #include "uiempartserv.h"
+#include "uiflatviewstdcontrol.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
@@ -61,7 +62,11 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
-	addChld( new uiODVw2DFaultSSTreeItem(emo->id()), false, false );
+	uiODVw2DFaultSSTreeItem* treeitem =
+	    new uiODVw2DFaultSSTreeItem( emo->id() );
+	addChld( treeitem, false, false );
+	viewer2D()->viewControl()->setEditMode( true );
+	treeitem->select();
     }
     else if ( mnuid == 1 )
     {
@@ -209,8 +214,7 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DFaultSSTreeItem::select()
 {
-    if ( !uilistviewitem_->isSelected() )
-	return false;
+    uilistviewitem_->setSelected( true );
 
     viewer2D()->dataMgr()->setSelected( fssview_ );
     fssview_->selected();
