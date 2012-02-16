@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.121 2012-01-16 13:58:40 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.122 2012-02-16 20:18:58 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -46,6 +46,8 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.121 2012-01-16 13:58:4
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
+
+#include <osgGeo/Horizon3D>
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
@@ -432,6 +434,7 @@ HorizonSection::HorizonSection()
     , nrcells_( 0 )
     , normalstartidx_( 0 )
     , normalsidesize_( 0 )
+    , osghorizon_( 0 )
 {
     setLockable();
     cache_.allowNull( true );
@@ -454,6 +457,12 @@ HorizonSection::HorizonSection()
     addChild( texturecrds_ );
 
     wireframematerial_->ref();
+
+    if ( doOsg() )
+    {
+	osghorizon_ = new osgGeo::Horizon3DNode;
+	addChild( osghorizon_ );
+    }
 }
 
 
@@ -1089,6 +1098,76 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	updateZAxisVOI();
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,tr) )
 	    return;
+    }
+
+    if ( osghorizon_ )
+    {
+	const Interval<int> rowrg = geometry_->rowRange();
+	const Interval<int> colrg = geometry_->colRange();
+	std::vector<osg::Vec2d> cornerpts;
+	Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.start ) );
+	Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
+	Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
+	std::vector<osg::Vec2d> cornerptr;
+	cornerpts.push_back( osg::Vec2d( crd00.x, crd00.y ) );
+	cornerpts.push_back( osg::Vec2d( crd01.x, crd01.y ) );
+	cornerpts.push_back( osg::Vec2d( crd10.x, crd10.y ) );
+
+	osg::ref_ptr<osg::FloatArray> deptharr =
+	    static_cast<osg::FloatArray*>( osghorizon_->getDepthArray() );
+
+	if ( !deptharr )
+	{
+	    deptharr = new osg::FloatArray;
+	    osghorizon_->setDepthArray( deptharr );
+	    gpids = 0; //Force full update
+	}
+
+	const int newsize = geometry_->getArray()->info().getTotalSz();
+
+	if ( deptharr->size()!=newsize )
+	    deptharr->resize( newsize, mUdf(float) );
+
+	float* depthptr = (float*) deptharr->getDataPointer();
+
+	if ( !gpids )
+	{
+	    if ( !zaxistransform_ )
+		geometry_->getArray()->getAll( depthptr );
+	    else
+	    {
+		PtrMan<Geometry::Iterator> iter = geometry_->createIterator();
+		GeomPosID posid;
+		while ( (posid=iter->next())!=-1 )
+		{
+		    float z = geometry_->getPosition( posid ).z;
+		    const BinID bid( posid );
+		    if ( !mIsUdf(z) )
+		    {
+			if ( zaxistransform_ )
+			    z = zaxistransform_->transform( BinIDValue( bid, z ) );
+		    }
+
+		    depthptr[geometry_->getKnotIndex( bid )] = z;
+		}
+	    }
+	}
+	else
+    	{
+	    const GeomPosID* gpidptr = gpids->arr();
+	    const GeomPosID* stopptr = gpidptr+gpids->size();
+
+	    while ( gpidptr!=stopptr )
+	    {
+		float z = geometry_->getPosition( *gpidptr ).z;
+		const BinID bid( *gpidptr );
+		if ( !mIsUdf(z) )
+		    z = zaxistransform_->transform( BinIDValue( bid, z ) );
+
+		depthptr[geometry_->getKnotIndex( bid )] = z;
+		gpidptr++;
+	    }
+	}
     }
 
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
