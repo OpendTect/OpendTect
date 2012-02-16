@@ -18,6 +18,8 @@ public:
 				~uiColorTableCanvas();
     void			setRGB();
 
+    void			setFlipped(bool yn);
+
     bool			handleLongTabletPress();
 
 protected:
@@ -25,6 +27,7 @@ protected:
     bool			vertical_;
     const ColTab::Sequence&	ctseq_;
     uiRGBArray*			rgbarr_;
+    bool			flipseq_;
 
     uiRGBArray&			mkRGBArr(bool wa);
 };

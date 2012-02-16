@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.19 2011-04-08 07:33:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.20 2012-02-16 15:18:20 cvskris Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"
@@ -28,6 +28,7 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
     : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
     , vertical_(vert)
     , ctseq_(ct)
+    , flipseq_( false )
 {
     disableImageSave();
     setDragMode( uiGraphicsView::NoDrag );
@@ -39,6 +40,12 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
 uiColorTableCanvas::~uiColorTableCanvas()
 {
     delete rgbarr_;
+}
+
+
+void uiColorTableCanvas::setFlipped( bool yn )
+{
+    flipseq_ = yn;
 }
 
 
@@ -60,7 +67,8 @@ void uiColorTableCanvas::setRGB()
     const ColTab::IndexedLookUpTable indextable( ctseq_, sz0 );
     for ( int idx=0; idx<sz0; idx++ )
     {
-	const Color color = indextable.colorForIndex( idx );
+	const int colidx = flipseq_ ? sz0-idx-1 : idx;
+	const Color color = indextable.colorForIndex( colidx );
 	for ( int idy=0; idy<sz1; idy++ )
 	{
 	    if ( vertical_ )
