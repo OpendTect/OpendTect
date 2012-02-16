@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.51 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.52 2012-02-16 20:18:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,7 @@ class TaskRunner;
 
 namespace Geometry { class BinIDSurface; }
 namespace ColTab { class Sequence; class MapperSetup; }
+namespace osgGeo { class Horizon3DNode; }
 
 namespace visBase
 {
@@ -185,6 +186,8 @@ protected:
     int*			normalsidesize_;
 
     int				tesselationqueueid_;
+
+    osgGeo::Horizon3DNode*	osghorizon_;
     
     static const char*		sKeySectionID()	{ return "Section ID"; }
 };
