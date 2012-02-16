@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.26 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.27 2012-02-16 20:17:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,18 +85,17 @@ protected:
 mClass MappedTextureDataSet : public DataObject
 {
 public:
-    virtual int			nrChannels() const			= 0;
-    virtual bool		addChannel()				= 0;
-    virtual bool		enableNotify(bool)			= 0;
-    				//!<\returns previous status
-    virtual void		touch()					= 0;
-    virtual void		setNrChannels(int)			= 0;
+    virtual int		nrChannels() const			= 0;
+    virtual bool	addChannel()				= 0;
+    virtual bool	enableNotify(bool)			= 0;
+    			//!<\returns previous status
+    virtual void	touch()					= 0;
+    virtual void	setNrChannels(int)			= 0;
 
-    virtual void		setChannelData(int channel,const SbImagei32&) 
-				= 0;
-    				/*!<The SbImage's dataptr is assumed to
-				    remain in memory until new SbImage comes,
-				    or object is deleted. */
+    virtual void	setChannelData(int channel,const SbImagei32&) = 0;
+			/*!<The SbImage's dataptr is assumed to
+			    remain in memory until new SbImage comes,
+			    or object is deleted. */
 				 
     virtual const SbImagei32*	getChannelData() const			= 0;
 };
