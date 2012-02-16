@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.25 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.26 2012-02-16 04:50:21 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: surv2dgeom.cc,v 1.25 2011-12-14 13:16:41 cvsber
 #include "staticstring.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "timefun.h"
 
 #include <iostream>
 
@@ -359,6 +360,12 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
     if ( lsid >=0 && !hasLineSet(lsid) )
 	return;
 
+    if ( lsid == curLineSetID() )
+    {
+	getIDs( lineindex_, ids );
+	return;
+    }
+
     if ( lsid == -1 )
 	lsid = curLineSetID();
 
@@ -452,9 +459,13 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 	return;
     }
 
+    if ( lsnm_ == lsnm && !isIdxFileNew(lsnm) )
+	return;
+
     PosInfo::Survey2D& self = *const_cast<PosInfo::Survey2D*>( this );
     self.lsnm_ = lsnm;
     self.readIdxFiles();
+    curlstimestr_ = getIdxTimeStamp( lsnm_ );
     if ( lsnm_ == lsnm )
 	return;
 
@@ -469,6 +480,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
     self.updateMaxID( driinfo.getIValue(1), lsindex_ );
     writeIdxFile( false );
     self.readIdxFiles();
+    curlstimestr_ = getIdxTimeStamp( lsnm_ );
 }
 
 
@@ -763,4 +775,22 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     if ( !geomid.isOK() )
 	return 0;
     return FilePath(basefp_,cllsnm,cllnm).fullPath();
+}
+
+
+bool PosInfo::Survey2D::isIdxFileNew( const char* lsnm ) const
+{
+    BufferString timestamp( getIdxTimeStamp(lsnm) );
+    if ( timestamp.isEmpty() )
+	return false;
+    return Time::isEarlier( curlstimestr_.buf(), getIdxTimeStamp(lsnm) );
+}
+
+
+BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
+{
+    FilePath fp( basefp_, lsnm, sIdxFilename );
+    if ( fp.isEmpty() ) return 0;
+    BufferString timestamp( File::timeLastModified(fp.fullPath()) );
+    return timestamp;
 }

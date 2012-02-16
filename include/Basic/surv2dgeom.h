@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.10 2011-04-07 12:32:36 cvssatyaki Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.11 2012-02-16 04:50:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,9 +106,12 @@ private:
     BufferString	lsnm_;
     IOPar&		lsindex_;
     IOPar&		lineindex_;
+    mutable BufferString curlstimestr_;
     mutable Threads::Mutex mutex_;
 
     void		readIdxFiles();
+    bool		isIdxFileNew(const char* lsnm=0) const;
+    BufferString 	getIdxTimeStamp(const char* lsnm=0) const;
     static void		readIdxFile(const char*,IOPar&);
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
