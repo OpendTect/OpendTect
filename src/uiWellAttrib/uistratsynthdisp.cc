@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.77 2012-02-14 11:55:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.78 2012-02-16 15:39:59 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.77 2012-02-14 11:55:11 
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
-#include "uiflatviewstdcontrol.h"
+#include "uimultiflatviewcontrol.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -53,7 +53,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , lm_(lm)  
     , d2tmodels_(0)	    
     , stratsynth_(*new StratSynth(lm))
-    , dispeach_(1)				      
+    , dispeach_(1)	
     , wvltChanged(this)
     , zoomChanged(this)
     , modSelChanged(this)		       
@@ -80,45 +80,52 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
-    wvltfld_->attach( rightOf, rttb, 20 );
+    wvltfld_->attach( rightOf, rttb, 10 );
 
     scalebut_ = new uiPushButton( topgrp_, "Scale", false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
-    uiSeparator* wvlt2raysep = new uiSeparator(topgrp_, "Prop2Wvlt Sep", false);
-    wvlt2raysep->attach( stretchedRightTo, scalebut_ );
+    uiGroup* dataselgrp = new uiGroup( this, "Data Selection" );
+    dataselgrp->attach( rightBorder );
+    dataselgrp->attach( ensureRightOf, topgrp_ );
 
-    addasnewbut_ = new uiPushButton( topgrp_, "Add as new", false);
-    addasnewbut_->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    addasnewbut_->attach( rightBorder );
-    addasnewbut_->attach( ensureRightOf, scalebut_ );
-    addasnewbut_->setSensitive( false );
-
-    modelgrp_ = new uiGroup( this, "Model group" );
-    modelgrp_->attach( ensureBelow, topgrp_ );
-    modelgrp_->setFrame( true );
-    modelgrp_->setStretch( 2, 0 );
-
-    modellist_ = new uiLabeledComboBox( modelgrp_, "View ", "" );
-    modellist_->setStretch( 0, 0 );
-    modellist_->attach( leftBorder );
-    modellist_->box()->selectionChanged.notify(
+    datalist_ = new uiLabeledComboBox( dataselgrp, "View ", "" );
+    datalist_->setStretch( 0, 0 );
+    datalist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
 
-    stackbox_ = new uiCheckBox( modelgrp_, "Stack" );
-    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-    stackbox_->attach( rightOf, modellist_, 20 );
+    addasnewbut_ = new uiPushButton( dataselgrp, "Add as new", false);
+    addasnewbut_->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
+    addasnewbut_->attach( rightOf, datalist_ );
+    addasnewbut_->setSensitive( false );
 
-    stackfld_ = new uiStackGrp( modelgrp_ );
+    datagrp_ = new uiGroup( this, "DataSet group" );
+    datagrp_->attach( ensureBelow, topgrp_ );
+    datagrp_->attach( ensureBelow, dataselgrp );
+    datagrp_->setFrame( true );
+    datagrp_->setStretch( 2, 0 );
+
+    levelsnapselfld_ = new uiLabeledComboBox( datagrp_, "Snap level" );
+    levelsnapselfld_->attach( leftBorder );
+    levelsnapselfld_->setStretch( 2, 0 );
+    levelsnapselfld_->box()->selectionChanged.notify(
+				mCB(this,uiStratSynthDisp,levelSnapChanged) );
+    levelsnapselfld_->box()->addItems( VSEvent::TypeNames() );
+
+    stackbox_ = new uiCheckBox( datagrp_, "Stack" );
+    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
+    stackbox_->attach( rightOf, levelsnapselfld_, 20 );
+
+    stackfld_ = new uiStackGrp( datagrp_ );
     stackfld_->attach( rightOf, stackbox_ );
     stackfld_->rangeChg.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
 
-    offsetposfld_ = new uiSynthSlicePos( modelgrp_, "Offset" );
+    offsetposfld_ = new uiSynthSlicePos( datagrp_, "Offset" );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
     offsetposfld_->attach( rightOf, stackbox_ );
 
-    prestackbut_ = new uiToolButton( modelgrp_, "nonmocorr64.png", 
+    prestackbut_ = new uiToolButton( datagrp_, "nonmocorr64.png", 
 				"View Offset Direction", 
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
@@ -128,7 +135,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
-    vwr_->attach( ensureBelow, modelgrp_ );
+    vwr_->attach( ensureBelow, datagrp_ );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -142,11 +149,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withthumbnail(false).withcoltabed(false).tba( (int)uiToolBar::Right );
-    uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
-    ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
+    control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
+    control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
     topgrp_->setSensitive( false );
-    modelgrp_->setSensitive( false );
+    datagrp_->setSensitive( false );
     offsetChged(0);
 
     mTriggerInstanceCreatedNotifier();
@@ -156,6 +163,13 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 uiStratSynthDisp::~uiStratSynthDisp()
 {
     delete &stratsynth_;
+}
+
+
+void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
+{
+    if ( control_ )
+	control_->addViewer( vwr );
 }
 
 
@@ -173,7 +187,7 @@ void uiStratSynthDisp::layerPropsPush( CallBacker* )
 
 void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 {
-    uiToolButton* tb = new uiToolButton( modelgrp_, bsu );
+    uiToolButton* tb = new uiToolButton( datagrp_, bsu );
     if ( lasttool_ )
 	tb->attach( leftOf, lasttool_ );
     else
@@ -188,9 +202,9 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 void uiStratSynthDisp::cleanSynthetics()
 {
     stratsynth_.clearSynthetics();
-    modellist_->box()->setEmpty();
-    modellist_->box()->addItem( "Free view" );
-    modellist_->setSensitive( false );
+    datalist_->box()->setEmpty();
+    datalist_->box()->addItem( "Free view" );
+    datalist_->setSensitive( false );
 }
 
 
@@ -203,29 +217,54 @@ void uiStratSynthDisp::setDispEach( int de )
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col )
 {
-    levelname_ = lnm;
+    StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
+    stratsynth_.setLevel( lvl );
+    drawLevel();
+}
+
+
+void uiStratSynthDisp::levelSnapChanged( CallBacker* )
+{
+    const StratSynth::Level* lvl = stratsynth_.getLevel();
+    if ( !lvl )  return;
+    StratSynth::Level* edlvl = const_cast<StratSynth::Level*>( lvl );
+    VSEvent::Type tp;
+    VSEvent::parseEnumType( levelsnapselfld_->box()->text(), tp );
+    edlvl->snapev_ = tp;
+    drawLevel();
+}
+
+
+const char* uiStratSynthDisp::levelName()  const
+{
+    const StratSynth::Level* lvl = stratsynth_.getLevel();
+    return lvl ? lvl->name() : 0;
+}
+
+
+void uiStratSynthDisp::drawLevel()
+{
     FlatView::Annotation& ann = vwr_->appearance().annot_;
     deepErase( ann.auxdata_ );
 
-    if ( d2tmodels_ && !d2tmodels_->isEmpty() && !zvals.isEmpty() )
+    const StratSynth::Level* lvl = stratsynth_.getLevel();
+    if ( d2tmodels_ && !d2tmodels_->isEmpty() && lvl )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::Annotation::AuxData* auxd =
-			new FlatView::Annotation::AuxData("Level markers");
-	auxd->linestyle_.type_ = LineStyle::None;
-	for ( int imdl=0; imdl<d2tmodels_->size(); imdl++ )
-	{
-	    float tval = zvals[ imdl>=zvals.size() ? zvals.size()-1 :imdl ];
-	    if ( !mIsUdf(tval) )
-	    {
-		tval = (*d2tmodels_)[imdl]->getTime( tval );
-		if ( imdl < tbuf.size() )
-		    tbuf.get(imdl)->info().pick = tval;
+		new FlatView::Annotation::AuxData("Level markers");
+	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
 
-		auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
-						      cMarkerSize, col );
-		auxd->poly_ += FlatView::Point( imdl+1, tval );
-	    }
+	auxd->linestyle_.type_ = LineStyle::None;
+	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
+	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
+	{
+	    const float tval = imdl < tbuf.size() ? tbuf.get(imdl)->info().pick 
+						  : mUdf(float);
+
+	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
+						  cMarkerSize, lvl->col_ );
+	    auxd->poly_ += FlatView::Point( imdl+1, tval );
 	}
 	if ( auxd->isEmpty() )
 	    delete auxd;
@@ -261,7 +300,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 		"Stratigraphic Level to real amplitudes along a horizon" );
 	return false;
     }
-    if ( levelname_.isEmpty() || matchString( "--", levelname_) )
+    BufferString levelname; 
+    if ( stratsynth_.getLevel() ) levelname = stratsynth_.getLevel()->name();
+    if ( levelname.isEmpty() || matchString( "--", levelname) )
     {
 	uiMSG().error( "Please select a Stratigraphic Level.\n"
 		"The scaling tool compares the amplitudes there\n"
@@ -279,7 +320,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     }
 
     bool rv = false;
-    uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname_ );
+    uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname );
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -451,12 +492,12 @@ void uiStratSynthDisp::doModelChange()
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
     d2tmodels_ = 0;
 
-    const int seldataidx = modellist_->box()->currentItem(); 
+    const int seldataidx = datalist_->box()->currentItem(); 
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
     topgrp_->setSensitive( seldataidx == 0 );
-    modelgrp_->setSensitive( currentsynthetic_ );
-    addasnewbut_->setSensitive( currentsynthetic_ );
+    datagrp_->setSensitive( currentsynthetic_ );
+    addasnewbut_->setSensitive( currentsynthetic_ && seldataidx == 0 );
 
     if ( currentsynthetic_ )
     {
@@ -515,8 +556,8 @@ void uiStratSynthDisp::addSynth2List( CallBacker* )
 	return;
 
     BufferStringSet synthnms; 
-    for ( int idx=0; idx<modellist_->box()->size(); idx++ )
-	synthnms.add( modellist_->box()->textOfItem( idx ) );
+    for ( int idx=0; idx<datalist_->box()->size(); idx++ )
+	synthnms.add( datalist_->box()->textOfItem( idx ) );
 
     uiAddNewSynthDlg dlg( this, wvltfld_->getName(), synthnms );
     if ( !dlg.go() )
@@ -526,8 +567,8 @@ void uiStratSynthDisp::addSynth2List( CallBacker* )
     currentsynthetic_->setName( nm );
     stratsynth_.addSynthetics();
     
-    modellist_->box()->addItem( nm );
-    modellist_->setSensitive( stratsynth_.synthetics().size() > 1 );
+    datalist_->box()->addItem( nm );
+    datalist_->setSensitive( stratsynth_.synthetics().size() > 1 );
 }
 
 

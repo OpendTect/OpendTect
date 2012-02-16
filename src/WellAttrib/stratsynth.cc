@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.22 2012-02-08 12:50:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.23 2012-02-16 15:39:59 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.22 2012-02-08 12:50:16 cvsbru
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "synthseis.h"
@@ -29,6 +30,7 @@ static const char* rcsID = "$Id: stratsynth.cc,v 1.22 2012-02-08 12:50:16 cvsbru
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
+    , level_(0)     
 {}
 
 
@@ -36,6 +38,7 @@ StratSynth::~StratSynth()
 {
     deepErase( synthetics_ );
     setWavelet( 0 );
+    setLevel( 0 );
 }
 
 
@@ -93,6 +96,7 @@ bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
 	if ( trc )
 	    trcbuf.add( new SeisTrc( *trc ) );
     }
+    snapLevelTimes( trcbuf, dummysd->d2tmodels_ );
 
     delete dummysd;
     return !trcbuf.isEmpty();
@@ -219,6 +223,34 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 }
 
 
+#define mSearchFac 4*SI().zStep()
+void StratSynth::snapLevelTimes( SeisTrcBuf& trcs, 
+			const ObjectSet<const TimeDepthModel>& d2ts ) 
+{
+    if ( !level_ ) return;
+
+    TypeSet<float> times = level_->zvals_;
+    for ( int imdl=0; imdl<times.size(); imdl++ )
+	times[imdl] = d2ts.validIdx(imdl) ? 
+	    	d2ts[imdl]->getTime( times[imdl] ) : mUdf(float);
+
+    for ( int idx=0; idx<trcs.size(); idx++ )
+    {
+	SeisTrcPropCalc stp( *trcs.get( idx ) );
+	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
+	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
+	{
+	    Interval<float> tg( z-mSearchFac , z+mSearchFac );
+	    ValueSeriesEvent<float,float> vse = stp.find(level_->snapev_,tg); 
+	    z = vse.pos;
+	}
+	trcs.get( idx )->info().pick = z;
+    }
+}
+
+
+void StratSynth::setLevel( const Level* lvl )
+{ delete level_; level_ = lvl; }
 
 
 SyntheticData::SyntheticData( const char* nm, 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.46 2012-02-09 12:59:43 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.47 2012-02-16 15:39:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiflatviewslicepos.h"
 #include "stratsynth.h"
+#include "valseriesevent.h"
 
 class FlatDataPack;
 class TimeDepthModel;
@@ -30,6 +31,7 @@ class uiFlatViewer;
 class uiRayTracerSel;
 class uiLabeledComboBox;
 class uiFlatViewMainWin;
+class uiMultiFlatViewControl;
 class uiOffsetSlicePos;
 class uiPushButton;
 class uiRayTrcParamsDlg;
@@ -49,11 +51,11 @@ public:
     			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;	
-    const char*		levelName() const	{ return levelname_; }
+    const char*		levelName() const;
     const MultiID&	waveletID() const;
-    const ObjectSet<SyntheticData>& getSynthetics() const;
     const Wavelet*	getWavelet() const;
 
+    const ObjectSet<SyntheticData>& getSynthetics() const;
     void		genSyntheticsFor(const Strat::LayerModel&,
 	    				SeisTrcBuf&);
 
@@ -71,13 +73,13 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
+    void		addViewerToControl(uiFlatViewer&);
 
     void		modelChanged();
     bool		haveUserScaleWavelet();
 
 protected:
 
-    BufferString	levelname_;
     int			longestaimdl_;
     StratSynth&		stratsynth_;
     const Strat::LayerModel& lm_;
@@ -86,15 +88,18 @@ protected:
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentsynthetic_;
 
+    uiMultiFlatViewControl* control_;
+
     uiGroup*		topgrp_;
-    uiGroup*		modelgrp_;
+    uiGroup*		datagrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
     uiPushButton*	addasnewbut_;
-    uiLabeledComboBox*	modellist_;
+    uiLabeledComboBox*	datalist_;
+    uiLabeledComboBox*	levelsnapselfld_;
     uiCheckBox*		stackbox_;
     uiRayTrcParamsDlg*	raytrcpardlg_;
     uiSynthSlicePos*	offsetposfld_;
@@ -106,12 +111,14 @@ protected:
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
 
+    void		drawLevel();
     void		displaySynthetic(const SyntheticData*);
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*);
 
     void		addSynth2List(CallBacker*);
     void		dataSetSel(CallBacker*);
+    void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
     void		rayTrcParPush(CallBacker*);

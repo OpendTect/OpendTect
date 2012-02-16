@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.15 2012-02-08 12:50:16 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.16 2012-02-16 15:39:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "iopar.h"
 #include "samplingdata.h"
+#include "valseriesevent.h"
 
 class TimeDepthModel;
 class SeisTrcBufDataPack;
@@ -51,6 +52,7 @@ public:
 
     void				setPostStack(float offset,
 					     const Interval<float>* stackrg=0);
+
 protected:
     PreStack::GatherSetDataPack&	prestackpack_;
     SeisTrcBufDataPack*			poststackpack_;
@@ -80,10 +82,28 @@ public:
 
     bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
 
+    mStruct Level : public NamedObject
+    {
+				Level(const char* nm,const TypeSet<float>& dpts,
+				    const Color& c)
+				: NamedObject(nm), col_(c), zvals_(dpts)  {}
+
+	TypeSet<float>  	zvals_;
+	Color           	col_;
+	VSEvent::Type   	snapev_;
+    };
+
+    void			setLevel(const Level* lvl);
+    const Level*		getLevel() const 	{ return level_; }
+    void			snapLevelTimes(SeisTrcBuf&,
+				    const ObjectSet<const TimeDepthModel>&);
+
 protected:
 
     const Strat::LayerModel& 	lm_;
     const Wavelet*		wvlt_;
+    const Level*     		level_;
+
     BufferString		errmsg_;
     IOPar			raypars_;
 
