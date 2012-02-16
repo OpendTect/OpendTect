@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.27 2012-02-16 05:05:37 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.28 2012-02-16 15:40:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ protected:
     void		keyPressCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
 
-    bool		handleUserClick();
+    virtual bool		handleUserClick();
 
     uiMenuHandler&      menu_;
     MenuItem           	propertiesmnuitem_;
