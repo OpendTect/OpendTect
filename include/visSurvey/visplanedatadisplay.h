@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.131 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.132 2012-02-16 12:51:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ namespace visBase
     class GridLines;
     class PickStyle;
     class SplitTexture2Rectangle;
+    class TextureRectangle;
 };
 
 class BinIDValueSet;
@@ -54,13 +55,15 @@ mClass PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 
-    bool			isInlCrl() const	{ return true; }
+    bool			isInlCrl() const { return !inl2displaytrans_; }
 
     enum Orientation		{ Inline=0, Crossline=1, Zslice=2 };
     				DeclareEnumUtils(Orientation);
 
     static PlaneDataDisplay*	create()
 				mCreateDataObj(PlaneDataDisplay);
+
+    void			setInlCrlSystem(const SurveyInfo& si);
 
     void			setOrientation(Orientation);
     Orientation			getOrientation() const { return orientation_; }
@@ -91,7 +94,7 @@ public:
     void			setRandomPosData(int attrib,
 	    					 const DataPointSet*,
 						 TaskRunner*);
-    void			setCubeSampling(CubeSampling);
+    void			setCubeSampling(const CubeSampling&);
 
     bool			setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
@@ -217,8 +220,10 @@ protected:
     ZAxisTransform*			datatransform_;
     mutable int				voiidx_;
 
+    mVisTrans*				inl2displaytrans_;
+    visBase::TextureRectangle*		texturerect_;
+
     static const char*		sKeyOrientation() { return "Orientation"; }
-    static const char*		sKeyTextureRect() { return "Texture rectangle";}
     static const char*		sKeyResolution()  { return "Resolution"; }
     static const char*		sKeyGridLinesID() { return "GridLines ID"; }
 };
