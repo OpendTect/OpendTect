@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dindirectviewer.cc,v 1.2 2011-12-21 12:36:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: ui3dindirectviewer.cc,v 1.3 2012-02-16 14:02:49 cvskris Exp $";
 
 
 #include "ui3dindirectviewer.h"
@@ -168,11 +168,12 @@ void GraphicsWindowQt::setCursor( MouseCursor cursor )
 
 class GraphicsWindowIndirect;
 
-class OsgIndirectViewWidget : public QWidget
+template <class T>
+class OsgIndirectViewWidget : public T
 {
     typedef 	QWidget inherited;
 public:
-    		OsgIndirectViewWidget(QWidget* parent)
+    		OsgIndirectViewWidget(T* parent)
 		    : QWidget( parent )
 		    , forwardKeyEvents_( false )
 		{}
@@ -210,8 +211,8 @@ protected:
 class GraphicsWindowIndirect : public osgViewer::GraphicsWindow
 {
 public:
-		GraphicsWindowIndirect( OsgIndirectViewWidget* widget );
-		~GraphicsWindowIndirect();
+	    GraphicsWindowIndirect( OsgIndirectViewWidget<QWidget>* widget );
+	    ~GraphicsWindowIndirect();
 
     bool	init();
     void	getWindowRectangle(int&,int&,int&,int&);
@@ -238,12 +239,12 @@ public:
 
 protected:
 
-    OsgIndirectViewWidget*	qwidget_;
-    bool			realized_;
+    OsgIndirectViewWidget<QWidget>*	qwidget_;
+    bool				realized_;
 };
 
-
-OsgIndirectViewWidget::~OsgIndirectViewWidget()
+template <class T> inline
+OsgIndirectViewWidget<T>::~OsgIndirectViewWidget()
 {
     // close GraphicsWindowQt and remove the reference to us
     if ( gw_ )
@@ -255,14 +256,16 @@ OsgIndirectViewWidget::~OsgIndirectViewWidget()
 }
 
 
-int OsgIndirectViewWidget::getNumDeferredEvents()
+template <class T> inline
+int OsgIndirectViewWidget<T>::getNumDeferredEvents()
 {
     QMutexLocker lock( &deferredEventQueueMutex_ );
     return deferredEventQueue_.count();
 }
 
 
-void OsgIndirectViewWidget::enqueueDeferredEvent(QEvent::Type eventType,
+template <class T> inline
+void OsgIndirectViewWidget<T>::enqueueDeferredEvent(QEvent::Type eventType,
 					       QEvent::Type removeEventType )
 {
     QMutexLocker lock( &deferredEventQueueMutex_ );
@@ -282,7 +285,8 @@ void OsgIndirectViewWidget::enqueueDeferredEvent(QEvent::Type eventType,
 
 
 
-void OsgIndirectViewWidget::processDeferredEvents()
+template <class T> inline
+void OsgIndirectViewWidget<T>::processDeferredEvents()
 {
     QQueue<QEvent::Type> deferredEventQueueCopy;
     {
@@ -300,7 +304,8 @@ void OsgIndirectViewWidget::processDeferredEvents()
 }
 
 
-void OsgIndirectViewWidget::setKeyboardModifiers( QInputEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::setKeyboardModifiers( QInputEvent* event )
 {
     int modkey = event->modifiers() &
 	(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
@@ -315,23 +320,27 @@ void OsgIndirectViewWidget::setKeyboardModifiers( QInputEvent* event )
 }
 
 
-void OsgIndirectViewWidget::resizeEvent( QResizeEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::resizeEvent( QResizeEvent* event )
 {
     const QSize& size = event->size();
-    gw_->resized( x(), y(), size.width(), size.height() );
-    gw_->getEventQueue()->windowResize( x(), y(), size.width(), size.height() );
+    gw_->resized( this->x(), this->y(), size.width(), size.height() );
+    gw_->getEventQueue()->windowResize( this->x(), this->y(), size.width(), size.height() );
     gw_->requestRedraw();
 }
 
-void OsgIndirectViewWidget::moveEvent( QMoveEvent* event )
+
+template <class T> inline
+void OsgIndirectViewWidget<T>::moveEvent( QMoveEvent* event )
 {
     const QPoint& pos = event->pos();
-    gw_->resized( pos.x(), pos.y(), width(), height() );
-    gw_->getEventQueue()->windowResize( pos.x(), pos.y(), width(), height() );
+    gw_->resized( pos.x(), pos.y(), this->width(), this->height() );
+    gw_->getEventQueue()->windowResize( pos.x(), pos.y(), this->width(), this->height() );
 }
 
 
-void OsgIndirectViewWidget::keyPressEvent( QKeyEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::keyPressEvent( QKeyEvent* event )
 {
     setKeyboardModifiers( event );
     int value = s_QtKeyboardMap.remapKey( event );
@@ -345,7 +354,8 @@ void OsgIndirectViewWidget::keyPressEvent( QKeyEvent* event )
 }
 
 
-void OsgIndirectViewWidget::keyReleaseEvent( QKeyEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::keyReleaseEvent( QKeyEvent* event )
 {
     setKeyboardModifiers( event );
     gw_->getEventQueue()->keyRelease(
@@ -359,7 +369,8 @@ void OsgIndirectViewWidget::keyReleaseEvent( QKeyEvent* event )
 }
 
 
-void OsgIndirectViewWidget::mousePressEvent( QMouseEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::mousePressEvent( QMouseEvent* event )
 {
     int button = 0;
     switch ( event->button() )
@@ -375,7 +386,8 @@ void OsgIndirectViewWidget::mousePressEvent( QMouseEvent* event )
 }
 
 
-void OsgIndirectViewWidget::mouseReleaseEvent( QMouseEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::mouseReleaseEvent( QMouseEvent* event )
 {
     int button = 0;
     switch ( event->button() )
@@ -391,7 +403,8 @@ void OsgIndirectViewWidget::mouseReleaseEvent( QMouseEvent* event )
 }
 
 
-void OsgIndirectViewWidget::mouseDoubleClickEvent( QMouseEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::mouseDoubleClickEvent( QMouseEvent* event )
 {
     int button = 0;
     switch ( event->button() )
@@ -408,14 +421,16 @@ void OsgIndirectViewWidget::mouseDoubleClickEvent( QMouseEvent* event )
 }
 
 
-void OsgIndirectViewWidget::mouseMoveEvent( QMouseEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::mouseMoveEvent( QMouseEvent* event )
 {
     setKeyboardModifiers( event );
     gw_->getEventQueue()->mouseMotion( event->x(), event->y() );
 }
 
 
-void OsgIndirectViewWidget::wheelEvent( QWheelEvent* event )
+template <class T> inline
+void OsgIndirectViewWidget<T>::wheelEvent( QWheelEvent* event )
 {
     setKeyboardModifiers( event );
     gw_->getEventQueue()->mouseScroll( event->orientation() == Qt::Vertical
@@ -429,7 +444,8 @@ void OsgIndirectViewWidget::wheelEvent( QWheelEvent* event )
 }
 
 
-void OsgIndirectViewWidget::paintEvent(QPaintEvent *)
+template <class T> inline
+void OsgIndirectViewWidget<T>::paintEvent(QPaintEvent *)
 {
     //Get Image into pixmap
     QPixmap pixmap;
@@ -437,7 +453,8 @@ void OsgIndirectViewWidget::paintEvent(QPaintEvent *)
     painter.drawPixmap( 0, 0, pixmap );
 }
 
-GraphicsWindowIndirect::GraphicsWindowIndirect( OsgIndirectViewWidget* widget )
+GraphicsWindowIndirect::GraphicsWindowIndirect(
+	OsgIndirectViewWidget<QWidget>* widget )
     : qwidget_( widget )
     , realized_( false )
 {
@@ -634,8 +651,8 @@ ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
 	uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
 {
-    OsgIndirectViewWidget* widget =
-	new OsgIndirectViewWidget( parnt->pbody()->managewidg() );
+    OsgIndirectViewWidget<QWidget>* widget =
+	new OsgIndirectViewWidget<QWidget>( parnt->pbody()->managewidg() );
     graphicswin_ = new GraphicsWindowIndirect( widget );
     graphicswin_->ref();
     setStretch(2,2);
