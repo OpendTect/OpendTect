@@ -41,10 +41,10 @@ SET(MODULES
 	Algo
 	Database
 	General
-	Usage
 	Strat
 	Network
 	Batch
+	Usage
 	Geometry
 	EarthModel
 	MMProc
