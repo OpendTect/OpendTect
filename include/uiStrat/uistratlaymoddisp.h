@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.14 2012-02-03 14:18:12 cvsbruno Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.15 2012-02-16 15:40:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
 
     const TypeSet<float>&	levelDepths() const	{ return lvldpths_; }
     void			selectSequence(int seqidx);
+
+    virtual uiBaseObject*	getViewer() { return 0; }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;

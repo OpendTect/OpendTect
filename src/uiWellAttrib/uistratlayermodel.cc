@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.53 2012-02-13 14:57:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.54 2012-02-16 15:40:43 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -195,6 +195,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->addTool( tbsu );
+    mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
+    if ( vwr ) synthdisp_->addViewerToControl( *vwr );
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -293,6 +295,7 @@ uiToolBar* uiStratLayerModel::analysisToolBar()
 
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
+    synthdisp_->setDispEach( modtools_->dispEach() );
     levelChg( 0 );
 }
 

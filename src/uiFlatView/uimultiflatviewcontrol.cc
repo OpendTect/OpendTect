@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.1 2012-02-15 15:52:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.2 2012-02-16 15:40:43 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
 #include "uiflatviewer.h"
 #include "uigraphicsscene.h"
+#include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uirgbarraycanvas.h"
 #include "uiworld2ui.h"
@@ -21,14 +22,11 @@ static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.1 2012-02-15 15:5
 #include "mouseevent.h"
 #include "pixmap.h"
 
-#define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(tb_,fnm,tt,mCB(this,uiMultiFlatViewControl,cbnm) ); \
-    tb_->addButton( but );
-
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
 {
+    toolbars_ += tb_;
     zoommgrs_ += &zoommgr_;
     finalPrepare();
 }
@@ -36,7 +34,7 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
-    for ( int idx=zoommgrs_.size()-1; idx>=1; idx++ )
+    for ( int idx=zoommgrs_.size()-1; idx>=1; idx-- )
 	delete zoommgrs_.remove( idx );
 }
 
@@ -64,7 +62,10 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     MouseEventHandler& mevh =
 	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
     mevh.wheelMove.notify( mCB(this,uiMultiFlatViewControl,wheelMoveCB) );
+
+    toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
     zoommgrs_ += new FlatView::ZoomMgr;
+
     reInitZooms();
 }
 
@@ -138,4 +139,10 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 
     const bool zoomin = but == zoominbut_;
     doZoom( zoomin, *vwr, *zoommgr );
+}
+
+
+bool uiMultiFlatViewControl::handleUserClick()
+{
+    return true;
 }
