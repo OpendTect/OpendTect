@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.40 2012-02-09 12:21:29 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.41 2012-02-16 14:24:01 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -107,18 +107,20 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
     Wavelet* newwv = 0;
 
     Conn* connptr = ioobj->getConn( Conn::Read );
-    if ( connptr && !connptr->bad() )
+    if ( !connptr || connptr->bad() )
+	ErrMsg( "Cannot open Wavelet file" );
+    else
     {
 	newwv = new Wavelet;
-	if ( !tr->read( newwv, *connptr ) )
+	if ( tr->read( newwv, *connptr ) )
+	    newwv->setName( ioobj->name() );
+	else
 	{
 	    ErrMsg( "Problem reading Wavelet from file (format error?)" );
 	    delete newwv;
 	    newwv = 0;
 	}
     }
-    else
-	ErrMsg( "Cannot open Wavelet file" );
 
     delete connptr; delete tr;
     return newwv;
