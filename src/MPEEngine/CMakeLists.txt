@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tracking
 # 	April 2004	N. Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-02-16 08:27:30 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -38,5 +38,5 @@ SET(OD_MODULE_SOURCES
 		horizonadjuster.cc
 )
 
-SET(OD_MODULE_BATCHPROGS od_process_attrib od_process_attrib_em )
+SET(OD_MODULE_BATCHPROGS od_process_attrib_em )
 OD_INIT_MODULE()
