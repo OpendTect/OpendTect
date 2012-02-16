@@ -2,18 +2,19 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.19 2012-02-15 13:08:20 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.20 2012-02-16 13:57:38 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
-    IF( OD_DEBUG MATCHES Debug)
+    IF( OD_DEBUG )
         ADD_DEFINITIONS("-D__debug__")
-	ADD_DEFINITIONS(
+	ADD_DEFINITIONS( "-ggdb3"
 		"-Wparentheses -Wreturn-type -Wpointer-arith"
                 "-Wwrite-strings -Wno-non-template-friend -Winline"
                 "-Wformat -Wshadow -Woverloaded-virtual")
     ENDIF()
     IF(APPLE)
+	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
         ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
@@ -45,6 +46,7 @@ IF( DEFINED WIN32 OR (UNIX AND APPLE) )
 ENDIF()
 
 IF(WIN32)
+    SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
     ADD_DEFINITIONS("/W1 /Ob1 /MTd /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
