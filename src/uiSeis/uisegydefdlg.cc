@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.21 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.22 2012-02-16 15:04:55 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -114,7 +114,8 @@ Seis::GeomType uiSEGYDefDlg::geomType() const
 
 int uiSEGYDefDlg::nrTrcExamine() const
 {
-    return nrtrcexfld_->getIntValue();
+    const int nr = nrtrcexfld_->getIntValue();
+    return nr < 0 || mIsUdf(nr) ? 0 : nr;
 }
 
 
