@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.2 2012-02-16 15:40:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.3 2012-02-16 16:14:57 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.2 2012-02-16 15:4
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
+    , activevwr_(0)  
 {
     toolbars_ += tb_;
     zoommgrs_ += &zoommgr_;
@@ -42,18 +43,14 @@ uiMultiFlatViewControl::~uiMultiFlatViewControl()
 void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 	                                           Geom::Size2D<double>& sz)
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	uiFlatViewer& vwr = *vwrs_[idx];
-	if ( !vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() )
-	    continue;
+    if ( !activevwr_ ) 
+	return;
 
-	uiWorldRect br = vwrs_[idx]->boundingBox();
-	br.checkCorners();
-	const uiWorldRect wr = getNewWorldRect( centre, sz, vwr.curView(),br ); 
+    uiWorldRect br = activevwr_->boundingBox();
+    br.checkCorners();
+    const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
 
-	vwr.setView( wr );
-    }	
+    activevwr_->setView( wr );
 }
 
 
@@ -72,21 +69,28 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 
 void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 {
-    mDynamicCastGet( uiFlatViewer*, vwr, cb );
-    if ( !vwr ) return;
+    mDynamicCastGet( uiGraphicsView*,cnv, cb );
 
-    const uiRect* selarea = vwr->rgbCanvas().getSelectedArea();
+    activevwr_ = 0;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if ( &vwrs_[idx]->rgbCanvas()  == cnv )
+	{ activevwr_ = vwrs_[idx]; break; }
+    }
+    if ( !activevwr_ ) return;
+
+    const uiRect* selarea = activevwr_->rgbCanvas().getSelectedArea();
     if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) ||
 	(selarea->width()<5 && selarea->height()<5) )
 	return;
 
     uiWorld2Ui w2u;
-    vwr->getWorld2Ui(w2u);
+    activevwr_->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    const uiWorldRect oldview( vwr->curView() );
+    const uiWorldRect oldview( activevwr_->curView() );
     setNewView( centre, newsz );
 }
 
@@ -127,18 +131,17 @@ void uiMultiFlatViewControl::reInitZooms()
 
 void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 {
-    uiFlatViewer* vwr =  0; FlatView::ZoomMgr* zoommgr =0;
+    FlatView::ZoomMgr* zoommgr =0;
 
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
     {
-	vwr = vwrs_[idx]; zoommgr = zoommgrs_[idx];
-	if ( vwr->rgbCanvas().getNavigationMouseEventHandler().hasEvent() )
+	activevwr_ = vwrs_[idx]; zoommgr = zoommgrs_[idx];
+	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
 	    break;
     }
-    if ( !vwr ) return;
 
     const bool zoomin = but == zoominbut_;
-    doZoom( zoomin, *vwr, *zoommgr );
+    doZoom( zoomin, *activevwr_, *zoommgr );
 }
 
 

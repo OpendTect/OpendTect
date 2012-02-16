@@ -6,12 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.2 2012-02-16 15:40:43 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.3 2012-02-16 16:14:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-/*! brief : a control for FlatViewers with different zoom properties !*/
+/*! brief : a control for FlatViewers with different zoom properties and settings !*/
 
 #include "uiflatviewstdcontrol.h"
 
@@ -32,6 +32,8 @@ protected:
 
     bool		handleUserClick();
     void		reInitZooms();
+
+    uiFlatViewer*	activevwr_;
 
     void		editCB( CallBacker* );
     void		rubBandCB(CallBacker*);
