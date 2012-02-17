@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.54 2012-02-16 15:40:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.55 2012-02-17 13:27:35 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.54 2012-02-16 15:40:43
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uitoolbar.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
@@ -159,6 +160,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , modl_(*new Strat::LayerModel)
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
+    , analtb_(0)				   
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)				   
@@ -192,9 +194,10 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 	return;
 
     synthdisp_ = new uiStratSynthDisp( topgrp, modl_ );
+    analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
-    synthdisp_->addTool( tbsu );
+    analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
 
@@ -279,17 +282,6 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 	uiOBJDISP()->go( this );
     }
     mTriggerInstanceCreatedNotifier();
-}
-
-
-uiToolBar* uiStratLayerModel::analysisToolBar()
-{
-    uiFlatViewControl* ctrl = synthdisp_->viewer()->control();
-    mDynamicCastGet(uiFlatViewStdControl*,sctrl,ctrl)
-    if ( !sctrl )
-	pErrMsg( "SynthDisp viewer null or not a StdControl" );
-
-    return sctrl ? sctrl->toolBar() : 0;
 }
 
 
