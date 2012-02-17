@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.84 2011-09-16 10:57:07 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.85 2012-02-17 23:07:55 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -470,7 +470,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
-	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, false );
+	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, true );
 	if ( !saver || !saver->execute(&strm) )
 	    mErrRet( "Cannot save data" );
     }
