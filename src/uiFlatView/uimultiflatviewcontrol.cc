@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.4 2012-02-17 11:22:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.5 2012-02-17 13:23:15 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -51,6 +51,7 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
     const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
 
     activevwr_->setView( wr );
+    zoomChanged.trigger();
 }
 
 
