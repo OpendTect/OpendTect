@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.43 2012-02-15 11:45:48 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.44 2012-02-17 06:33:06 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,8 +84,7 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
     const bool isopen = acc_.open();
     if ( !isopen )
     {
-	const char* username = 0;
-	username = GetUserNm();
+	const char* username = GetUserNm();
 	BufferString errmsg( "Please check parameters in 'settings_DB' file " );
 	errmsg.add( "in '/users/" ).add( username ).add( "/.od/'" );
 	errmsg.add( "\nOR \nPlease check network connection" );
@@ -290,6 +289,23 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
 	userids_.add( toInt(query().data(1).buf()) );
     }
 
+    const char* usrnm = GetUserNm();
+    if ( !usrnm || !*usrnm )
+	return false;
+
+    if ( !usernames_.isPresent( usrnm ) )
+    {
+	developers_.erase();
+	usernames_.erase();
+	userids_.erase();
+
+	BufferString msg( "User '",usrnm,"'" );
+	msg.add( " is not existed in database. OR \n" )
+	   .add( "He/She did not have permission to work on mantis issues" );
+	errmsg_ = msg;
+	return false;
+    }
+
     return true;
 }
 
@@ -465,9 +481,9 @@ void SqlDB::MantisDBMgr::fillSeverity()
 
 bool SqlDB::MantisDBMgr::getInfoFromTables()
 {
-    if ( !fillCategories() || !fillProjectsInfo() || !fillBugTableEntries()
-	 || !fillUsersInfo() || !fillVersionsByProject()
-	 || !fillAttachedFilesInfo() )
+    if ( !fillUsersInfo() || !fillCategories() || !fillProjectsInfo() ||
+	 !fillBugTableEntries() || !fillVersionsByProject() ||
+	 !fillAttachedFilesInfo() )
 	return false;
 
     fillSeverity();
