@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.42 2012-02-16 05:05:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.43 2012-02-17 11:21:37 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -341,10 +341,14 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     manip_ = !manip_;
 
     manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
-    vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
-	   				  : uiGraphicsViewBase::ScrollHandDrag);
-    vwr_.rgbCanvas().scene().setMouseEventActive( true );
-    vwr_.appearance().annot_.editable_ = false;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode( 
+		!manip_ ? uiGraphicsViewBase::RubberBandDrag
+		        : uiGraphicsViewBase::ScrollHandDrag);
+	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
+	vwrs_[idx]->appearance().annot_.editable_ = false;
+    }
     if ( editbut_ )
 	editbut_->setOn( false );
 }
@@ -359,9 +363,12 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
 	    	      : uiGraphicsViewBase::RubberBandDrag;
 
-    vwr_.rgbCanvas().setDragMode( mode );
-    vwr_.rgbCanvas().scene().setMouseEventActive( true );
-    vwr_.appearance().annot_.editable_ = editbut_->isOn();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode( mode );
+	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
+	vwrs_[idx]->appearance().annot_.editable_ = editbut_->isOn();
+    }
 }
 
 
