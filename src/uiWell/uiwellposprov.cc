@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwellposprov.cc,v 1.1 2012-02-10 23:07:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellposprov.cc,v 1.2 2012-02-17 23:09:22 cvsnanne Exp $";
 
 #include "uiwellposprov.h"
 
@@ -17,14 +17,13 @@ static const char* rcsID = "$Id: uiwellposprov.cc,v 1.1 2012-02-10 23:07:07 cvsn
 #include "uimsg.h"
 #include "uiselsurvranges.h"
 #include "uistepoutsel.h"
+#include "uiwellsel.h"
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
-//#include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-//#include "oddirs.h"
 #include "survinfo.h"
 #include "wellposprovider.h"
 #include "welltransl.h"
@@ -35,9 +34,9 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , zrgfld_(0)
 {
-    wellfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well) );
+    wellfld_ = new uiWellParSel( this );
 
-    stepoutfld_ = new uiStepOutSel( this );
+    stepoutfld_ = new uiStepOutSel( this, false, "Extension" );
     stepoutfld_->attach( alignedBelow, wellfld_ );
 
     zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
@@ -58,7 +57,7 @@ uiWellPosProvGroup::~uiWellPosProvGroup()
 
 void uiWellPosProvGroup::usePar( const IOPar& iop )
 {
-    wellfld_->usePar( iop );
+//    wellfld_->usePar( iop );
     BinID so; float zext = 0; bool onlysurfacecoords = true;
     iop.get( mGetWellKey(sKeyInlExt()), so.inl );
     iop.get( mGetWellKey(sKeyCrlExt()), so.crl );
@@ -72,10 +71,10 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
 bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, sKey::Well );
-    if ( !wellfld_->nrSel() )
-	mErrRet("Please select at least one well")
+//    if ( !wellfld_->nrSel() )
+//	mErrRet("Please select at least one well")
 
-    wellfld_->fillPar( iop );
+//    wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;
     const BinID so = stepoutfld_->getBinID();
     iop.set( mGetWellKey(sKeyInlExt()), so.inl );

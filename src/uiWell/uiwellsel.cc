@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwellsel.cc,v 1.1 2012-02-14 23:23:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellsel.cc,v 1.2 2012-02-17 23:09:22 cvsnanne Exp $";
 
 #include "uiwellsel.h"
 
@@ -37,19 +37,13 @@ uiWellParSel::uiWellParSel( uiParent* p )
 
 void uiWellParSel::setSelected( const TypeSet<MultiID>& ids )
 {
-    selids_.erase();
-    selnms_.erase();
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
-	if ( !ioobj ) continue;
-
-	selnms_.add( ioobj->name() );
-	selids_ += ids[idx];
-    }
-
+    selids_ = ids;
     updSummary(0);
 }
+
+
+void uiWellParSel::getSelected( TypeSet<MultiID>& ids ) const
+{ ids = selids_; }
 
 
 void uiWellParSel::doDlg( CallBacker* )
@@ -57,26 +51,25 @@ void uiWellParSel::doDlg( CallBacker* )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     uiIOObjSelDlg dlg( this, *ctio, "Select Wells", true );
     uiIOObjSelGrp* selgrp = dlg.selGrp();
-    selgrp->getListField()->setSelectedItems( selnms_ );
+    selgrp->setSelected( selids_ );
     if ( !dlg.go() ) return;
 
-    selnms_.erase();
     selids_.erase();
     selgrp->processInput();
-    selgrp->getListField()->getSelectedItems( selnms_ );
     selgrp->getSelected( selids_ );
 }
 
 
 BufferString uiWellParSel::getSummary() const
 {
-    BufferString summ;
-    for ( int idx=0; idx<selnms_.size(); idx++ )
+    BufferStringSet names;
+    for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	summ += selnms_.get(idx);
-	summ += idx == selnms_.size()-1 ? "." : ", ";
+	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
+	if ( !ioobj ) continue;
+
+	names.add( ioobj->name() );
     }
 
-    return summ.isEmpty() ? BufferString(" - ") : summ;
+    return names.isEmpty() ? BufferString(" - ") : names.cat( ',' );
 }
-
