@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.3 2012-02-16 16:14:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.4 2012-02-17 11:22:02 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -75,7 +75,7 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	if ( &vwrs_[idx]->rgbCanvas()  == cnv )
-	{ activevwr_ = vwrs_[idx]; break; }
+	    { activevwr_ = vwrs_[idx]; break; }
     }
     if ( !activevwr_ ) return;
 
@@ -92,24 +92,6 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 
     const uiWorldRect oldview( activevwr_->curView() );
     setNewView( centre, newsz );
-}
-
-
-void uiMultiFlatViewControl::editCB( CallBacker* )
-{
-    uiGraphicsViewBase::ODDragMode mode;
-    if ( editbut_->isOn() )
-	mode = uiGraphicsViewBase::NoDrag;
-    else
-	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
-	      : uiGraphicsViewBase::RubberBandDrag;
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->rgbCanvas().setDragMode( mode );
-	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
-	vwrs_[idx]->appearance().annot_.editable_ = editbut_->isOn();
-    }
 }
 
 

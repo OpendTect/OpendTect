@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.3 2012-02-16 16:14:57 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.4 2012-02-17 11:22:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ protected:
 
     uiFlatViewer*	activevwr_;
 
-    void		editCB( CallBacker* );
     void		rubBandCB(CallBacker*);
     void		dataChangeCB(CallBacker*);
     void		vwrAdded(CallBacker*);
