@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.46 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.47 2012-02-17 13:43:47 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -357,12 +357,8 @@ void Math::setUpVarsSets()
 	    }
 	    case MathExpression::Constant :
 	    {
-		int insertatidx=0;
 		int constidx = expression_->getConstIdx( idx );
-		while ( insertatidx<cststable_.size()
-			&& constidx>cststable_[insertatidx].cstidx_ )
-		    insertatidx++;
-		cststable_.insert( insertatidx, CSTS( idx, constidx ) );
+		cststable_.add( CSTS( idx, constidx ) );
 		nrcsts++;
 		break;
 	    }
