@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.7 2012-02-01 12:35:21 cvsranojay Exp $
+ RCS:           $Id: oddlsite.h,v 1.8 2012-02-17 08:43:56 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ public:
 
     const char*		errMsg() const			{ return errmsg_; }
 
-    bool		getFile(const char* fnm,const char* outfnm=0);
+    bool		getFile(const char* fnm,const char* outfnm=0,
+				 TaskRunner* tr=0);
     			//!< Without a file name, get the DataBuffer
     DataBuffer*		obtainResultBuf();
     			//!< the returned databuf becomes yours

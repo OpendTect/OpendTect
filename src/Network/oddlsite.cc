@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.13 2012-02-13 09:50:32 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.14 2012-02-17 08:43:56 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: oddlsite.cc,v 1.13 2012-02-13 09:50:32 cvsranoj
 #include "timefun.h"
 
 static const char* sKeyTimeOut = "Download.Timout";
-
 
 ODDLSite::ODDLSite( const char* h, float t )
     : timeout_(t)
@@ -97,26 +96,44 @@ bool ODDLSite::reConnect()
 }
 
 
-bool ODDLSite::getFile( const char* relfnm, const char* outfnm )
+bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr )
 {
     delete databuf_; databuf_ = 0;
 
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
   
-    odhttp_->get( getFileName(relfnm), outfnm );
-    if ( odhttp_->isForcedAbort() )
-    	return true;
+    if ( outfnm )
+    {
+	odhttp_->setASynchronous( true );
+	odhttp_->get( getFileName(relfnm), outfnm );
+	HttpTask task( *odhttp_ );
+	tr ? tr->execute( task ) : task.execute();
+    }
+    else
+    {
+	odhttp_->setASynchronous( false );
+	odhttp_->get( getFileName(relfnm), outfnm );
+    }
     
+    if ( odhttp_->isForcedAbort() )
+    {
+	reConnect();
+	odhttp_->resetForceAbort();
+	errmsg_ = ". Operation aborted by the user";
+	return false;
+    }
+
+    const od_int64 totnr = odhttp_->totalNr();
     if ( outfnm && *outfnm )
     {
-	if ( !File::exists(outfnm) )
+	if ( File::getFileSize(outfnm) < 1024
+	    || File::getFileSize(outfnm) < totnr )
 	{
-	    errmsg_ = BufferString( "No output file: ", outfnm );
+	    errmsg_ = ". Download failed, it seems, you might be having problem"
+		      " with your internet connection ";
 	    return false;
 	}
-
-	return true;
     }
 
     const od_int64 nrbytes = odhttp_->bytesAvailable();

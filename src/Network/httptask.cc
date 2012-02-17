@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Oct 2011
- RCS:		$Id: httptask.cc,v 1.1 2011-10-24 05:24:55 cvsumesh Exp $
+ RCS:		$Id: httptask.cc,v 1.2 2012-02-17 08:43:56 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "odhttp.h"
 
 HttpTask::HttpTask( ODHttp& http )
-    : Executor("Http-ing file(s)")
+    : Executor("Downloading file(s)")
     , nrdone_(0)
     , totalnr_(0)
     , http_(http)
@@ -37,11 +37,11 @@ int HttpTask::nextStep()
 
 void HttpTask::controlWork( Control ctrl )
 {
-    if ( ctrl == Task::Run )
-	return;
+    if ( ctrl != Task::Stop )
+	return Task::controlWork( ctrl );
 
     msg_ = "Data transfer aborted";
-    http_.abort();
+    http_.forceAbort();
     state_ = ErrorOccurred();
     Task::controlWork( ctrl );
 }
