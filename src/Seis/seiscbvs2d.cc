@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.58 2011-10-06 21:38:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.59 2012-02-17 23:11:56 cvsnanne Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -116,6 +116,9 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return;
     const BufferString& fnm = gtFileName(iop);
+    FilePath parfp( fnm );
+    parfp.setExtension( "par" );
+    File::remove( parfp.fullPath() );
     File::remove( fnm.buf() );
 }
 
