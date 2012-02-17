@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.28 2011-10-19 17:51:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.29 2012-02-17 23:11:12 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -104,7 +104,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 void uiHorAttribPIMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    MenuItemSeparString gridprocstr( "Create Grid Output" );
+    MenuItemSeparString gridprocstr( "Create &Surface Output" );
     uiMenuItem* itm = mnumgr.procMnu()->find( gridprocstr );
     if ( !itm ) return;
 
