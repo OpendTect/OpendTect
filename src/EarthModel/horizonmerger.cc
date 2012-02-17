@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonmerger.cc,v 1.5 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: horizonmerger.cc,v 1.6 2012-02-17 22:16:58 cvsnanne Exp $";
 
 #include "horizonmerger.h"
 
@@ -37,7 +37,10 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(ids[idx]))
 	inputhors_ += hor;
 	if ( hor && !EM::EMM().getSurfaceData(hor->multiID(),sd) )
+	{
 	    hs_.include( sd.rg );
+	    hs_.step = sd.rg.step;
+	}
     }
 
     deepRef( inputhors_ );
@@ -75,7 +78,8 @@ od_int64 Horizon3DMerger::nrIterations() const
 
 bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    Stats::CalcSetup rcs; rcs.require( Stats::Extreme );
+    Stats::CalcSetup rcs;
+    rcs.require( Stats::Extreme ).require( Stats::Average );
     Stats::RunCalc<float> rc( rcs );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
@@ -89,6 +93,9 @@ bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    rc += zval;
 	}
+
+	if ( rc.isEmpty() )
+	    continue;
 
 	if ( mode_ == Average )
 	    depths_->getData()[idx] = rc.average();
