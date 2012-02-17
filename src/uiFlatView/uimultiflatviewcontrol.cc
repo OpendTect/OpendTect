@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.5 2012-02-17 13:23:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.6 2012-02-17 14:37:19 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -27,8 +27,10 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
     : uiFlatViewStdControl(vwr,setup)
     , activevwr_(0)  
 {
+    parsbuts_ += parsbut_;
     toolbars_ += tb_;
     zoommgrs_ += &zoommgr_;
+
     finalPrepare();
 }
 
@@ -55,14 +57,24 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 }
 
 
+#define mAddBut(but,fnm,cbnm,tt) \
+    but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
+    tb_->addButton( but );
+
 void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 {
+    const int ivwr = vwrs_.size()-1;
     MouseEventHandler& mevh =
-	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
+	    	vwrs_[ivwr]->rgbCanvas().getNavigationMouseEventHandler();
     mevh.wheelMove.notify( mCB(this,uiMultiFlatViewControl,wheelMoveCB) );
 
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
     zoommgrs_ += new FlatView::ZoomMgr;
+
+    parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars.png",
+	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
+
+    toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 
     reInitZooms();
 }
@@ -132,3 +144,13 @@ bool uiMultiFlatViewControl::handleUserClick()
 {
     return true;
 }
+
+
+void uiMultiFlatViewControl::parsCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,but,cb);
+    const int idx = parsbuts_.indexOf( but ); 
+    if ( idx >= 0 )
+	doPropertiesDialog( idx );
+}
+
