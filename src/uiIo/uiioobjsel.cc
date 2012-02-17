@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.158 2012-02-13 15:34:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.159 2012-02-17 23:08:40 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -226,6 +226,16 @@ const MultiID& uiIOObjSelGrp::selected( int objnr ) const
     msg += objnr; msg += " nrsel="; msg += nrSel();
     pErrMsg( msg );
     return udfmid;
+}
+
+
+void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
+{
+    for ( int idx=0; idx<mids.size(); idx++ )
+    {
+	const int selidx = indexOf( ioobjids_, mids[idx] );
+	listfld_->setSelected( selidx, true );
+    }
 }
 
 
@@ -501,13 +511,15 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     {
 	int nrids;
 	iop.get( sKey::Size, nrids );
-	MultiID mid;
+	TypeSet<MultiID> mids;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
-	    iop.get( IOPar::compKey(sKey::ID,idx), mid );
-	    const int selidx = indexOf( ioobjids_, mid );
-	    listfld_->setSelected( selidx, true );
+	    MultiID mid;
+	    if ( iop.get(IOPar::compKey(sKey::ID,idx),mid) )
+		mids += mid;
 	}
+
+	setSelected( mids );
     }
 }
 
