@@ -2,15 +2,10 @@
 #
 #	Makefile : 	Coin/Ui
 # 	Feb 2002	Arend Lammertink
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-02-10 15:42:42 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-02-17 09:21:44 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS visSurvey uiTools )
-
-IF( NOT DEFINED WIN32 )
-ADD_DEFINITIONS("-Wno-shadow -Wno-overloaded-virtual")
-ENDIF()
-
 SET(OD_USEQT OpenGL)
 SET(OD_USEOSG 1)
 SET(OD_USECOIN 1)
