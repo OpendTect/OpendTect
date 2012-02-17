@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.17 2012-02-15 22:25:11 cvsyuancheng Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.18 2012-02-17 22:33:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,18 +14,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uipolardiagram.h"
 
-class uiVisPartServer;
-class uiGroup;
-class uiLabel;
-class uiSliderExtra;
 class uiDialExtra;
-class uiLabeledComboBox;
 class uiGenInput;
-class uiSeparator;
-class uiRadioButton;
+class uiLabeledComboBox;
 class uiPushButton;
-class uiGraphicsView;
-class uiPixmapItem;
+class uiSliderExtra;
+class uiVisPartServer;
 
 namespace visBase { class DirectionalLight; }
 
@@ -46,9 +40,7 @@ protected:
     float			getHeadOnLight(int) const;
     void			setHeadOnLight();
     float			getAmbientLight(int) const;
-    void			setAmbientLight();
-    void			turnOnDirLight(bool);
-    int				updateSceneSelector();	
+    bool			updateSceneSelector();	
     void			updateInitInfo();
     void			saveInitInfo();
     void			resetWidgets();
@@ -61,7 +53,6 @@ protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			pdDlgDoneCB(CallBacker*);
-    void			dlgDoneCB(CallBacker*);
     void			showPolarDiagramCB(CallBacker*);
     void			lightSelChangedCB(CallBacker*);
     void			sceneSelChangedCB(CallBacker*);
@@ -72,17 +63,10 @@ protected:
     void			nrScenesChangedCB(CallBacker*);
     void			sceneNameChangedCB(CallBacker*);
     void			activeSceneChangedCB(CallBacker*);
+    void			onOffChg(CallBacker*);
+    void			setlightSwitch();
     
     uiVisPartServer*		visserv_;
-    uiGroup*			lightgrp_;
-    uiLabel*			lightlbl_;
-    uiRadioButton*		cameralightfld_;
-    uiRadioButton*		scenelightfld_;
-
-    // for the icons
-    uiGraphicsView*		cameralightview_;
-    uiGraphicsView*		scenelightview_;
-    uiPixmapItem		*pm1_, *pm2_;
 
     uiLabeledComboBox*		scenefld_;
     uiDialExtra*		azimuthfld_;
@@ -90,11 +74,11 @@ protected:
     uiSliderExtra*		intensityfld_;
     uiSliderExtra*		headonintensityfld_;
     uiSliderExtra*		ambintensityfld_;
-    uiSeparator*		sep1_;
-    uiSeparator*		sep2_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
     uiDialog*			pddlg_;
+    uiGenInput*			lighttypefld_;
+    uiGenInput*			switchfld_;
 
     typedef mStruct InitInfo
     {
@@ -103,10 +87,14 @@ protected:
         	float		azimuth_;  // user degrees
 	        float		dip_;  // degrees
         	
-		float		intensity_;
 	        float		headonintensity_;
         	float		ambintensity_;
+		
 		bool		directlighton_;
+		float		intensity_;
+		float		dx_;
+		float		dy_;
+		float		dz_;
 	
 	public:
 
@@ -124,9 +112,6 @@ protected:
     bool			initlighttype_;
     				// initial light type: 0 - headon light, 
     				// 1 - scene (directional light)
-
-    bool			currlighttype_;	// current light type
-
 };
 
 #endif

@@ -7,144 +7,79 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.31 2012-02-15 22:25:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.32 2012-02-17 22:33:09 cvsyuancheng Exp $";
 
 #include "uivisdirlightdlg.h"
 
+#include "angles.h"
 #include "uibutton.h"
-#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uidial.h"
 #include "uigeninput.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsitemimpl.h"
 #include "uilabel.h"
 #include "uiseparator.h"
-#include "uislider.h"
-#include "uitoolbar.h"
-#include "uivispartserv.h"
 #include "visdataman.h"
+#include "uislider.h"
 #include "vislight.h"
 #include "vissurvscene.h"
-#include "vistransmgr.h"
+#include "uivispartserv.h"
 
-#include "angles.h"
-#include "pixmap.h"
-#include "survinfo.h"
-
-#include <math.h>
 
 #define mInitAzimuth		0
 #define mInitDip		90
 #define mInitIntensity		100
 #define mInitHeadOnIntensity	100
 #define mInitAmbIntensity	50
-// Define mCanAdjustIntensity as true if the sliders for intensity of 
-// headon light and directional light should be displayed.
-#define mCanAdjustIntensity	true
-// Show or hide the (large) icons for the 2 types of light.
-#define mShowLightIcons		false
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,uiDialog::Setup("Light properties",
-				 "Set light properties","50.0.18")
-		 .modal(false))
+				 "Set light properties","50.0.18").modal(false))
     , visserv_(visserv)
-    , lightgrp_(0)
-    , lightlbl_(0)		  
-    , cameralightfld_(0)		    
-    , scenelightfld_(0)
-    , cameralightview_(0)
-    , scenelightview_(0)
-    , pm1_(0)
-    , pm2_(0)
-    , scenefld_(0)
-    , azimuthfld_(0)
-    , dipfld_(0)
-    , intensityfld_(0)
-    , headonintensityfld_(0)
-    , ambintensityfld_(0)
-    , sep1_(0)  
-    , sep2_(0)  
-    , showpdfld_(0)
     , pd_(0)
     , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram", 
 		    "Set azimuth and dip", mNoHelpID).modal(false)))
 {
-    if ( mShowLightIcons )
-    postFinalise().notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
-
     pddlg_->setCtrlStyle( LeaveOnly );
     pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
     scenefld_->attach( hCentered );
 
-    sep1_ = new uiSeparator( this, "HSep", true );
-    sep1_->attach( stretchedBelow, scenefld_ );
+    switchfld_ = new uiGenInput( this, "Turn light", 
+	    BoolInpSpec(false,"On","Off") );
+    switchfld_->attach( alignedBelow, scenefld_ );
+    switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
 
-    lightgrp_ = new uiGroup( this, "Light group" );
-    lightgrp_->attach( ensureBelow, sep1_ );
-    lightgrp_->attach( leftBorder );
-    if ( mShowLightIcons )
-	lightgrp_->setFrame( true );
+    uiSeparator* sep1 = new uiSeparator( this, "HSep", true );
+    sep1->attach( stretchedBelow, switchfld_ );
 
-    lightlbl_ = new uiLabel( lightgrp_, "Type of directional light" );
+    uiGroup* lightgrp = new uiGroup( this, "Light group" );
+    lightgrp->attach( ensureBelow, sep1 );
+    lightgrp->attach( leftBorder );
 
-    cameralightfld_ = new uiRadioButton( lightgrp_, 
-	    "positioned at the camera" );
-    scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
+    lighttypefld_ = new uiGenInput( lightgrp, "Light type", BoolInpSpec(
+		false,"Positioned at the camera","Relative to the scene") );
+    lighttypefld_->valuechanged.notify( 
+	    mCB(this,uiDirLightDlg,lightSelChangedCB) );
 
-    if ( mShowLightIcons )
-    {
-	cameralightview_ = new uiGraphicsView( lightgrp_, "Camera light icon" );
-	cameralightview_->attach( alignedBelow, lightlbl_ );
-	cameralightview_->display( mShowLightIcons );
-	cameralightview_->setStretch( 0, 0);
-	cameralightview_->setPrefWidth( 64 );
-	cameralightview_->setPrefHeight( 64 );
-	cameralightfld_->attach( centeredRightOf, cameralightview_ );
-	
-        scenelightview_ = new uiGraphicsView( lightgrp_, "Scene light icon" );
-	scenelightview_->attach( alignedBelow, cameralightview_ );
-	scenelightview_->attach( widthSameAs, cameralightview_ );
-	scenelightview_->display( mShowLightIcons );
-	scenelightview_->setStretch( 0, 0);
-	scenelightview_->setPrefWidth( 64 );
-	scenelightview_->setPrefHeight( 64 );
-	scenelightfld_->attach( centeredRightOf, scenelightview_ );
-    }
-    else
-    {
-	cameralightfld_->attach( alignedBelow, lightlbl_ );
-	scenelightfld_->attach( rightOf, cameralightfld_ );
-    }
-
-    if ( mShowLightIcons )
-	lightgrp_->setHAlignObj( cameralightview_ );
-    else
-	lightgrp_->setHAlignObj( scenelightfld_ );
+    lightgrp->setHAlignObj( lighttypefld_ );
 	
     intensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
 	    	         nrdec(1).logscale(false), "Intensity slider" );
-    intensityfld_->attach( alignedBelow, lightgrp_ );
+    intensityfld_->attach( alignedBelow, lightgrp );
     intensityfld_->sldr()->setMinValue( 0 );
     intensityfld_->sldr()->setMaxValue( 100 );
     intensityfld_->sldr()->setStep( 5 );
-#ifndef mCanAdjustIntensity
-    intensityfld_->display( false );
-#endif
 
     headonintensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Camera light intensity (%)").
 	    			 withedit(true).nrdec(1).logscale(false), 
 				 "Camera light intensity slider" );
-    headonintensityfld_->attach( alignedBelow, lightgrp_ );
+    headonintensityfld_->attach( alignedBelow, lightgrp );
     headonintensityfld_->sldr()->setMinValue( 0 );
     headonintensityfld_->sldr()->setMaxValue( 100 );
     headonintensityfld_->sldr()->setStep( 5 );
-    headonintensityfld_->display( false );
 
     const CallBack chgCB( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
@@ -168,14 +103,14 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
     showpdfld_->attach( alignedBelow, dipfld_ );
 
-    sep2_ = new uiSeparator( this, "HSep", true );
-    sep2_->attach( stretchedBelow, showpdfld_ );
+    uiSeparator* sep2 = new uiSeparator( this, "HSep", true );
+    sep2->attach( stretchedBelow, showpdfld_ );
 
     ambintensityfld_ = new uiSliderExtra( this,
 	    	        uiSliderExtra::Setup("Ambient light intensity (%)").
 	    			 withedit(true).nrdec(1).logscale(false), 
 				 "Ambient light intensity slider" );
-    ambintensityfld_->attach( centeredBelow, sep2_ );
+    ambintensityfld_->attach( centeredBelow, sep2 );
     ambintensityfld_->sldr()->setMinValue( 0 );
     ambintensityfld_->sldr()->setMaxValue( 100 );
     ambintensityfld_->sldr()->setStep( 5 );
@@ -187,10 +122,6 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
         initinfo = initinfo_[0];
     }
 
-    cameralightfld_->activated.notify( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-    scenelightfld_->activated.notify( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     azimuthfld_->dial()->setValue( (int)initinfo.azimuth_ );
     azimuthfld_->dial()->valueChanged.notify( chgCB );
     dipfld_->sldr()->setValue( initinfo.dip_ );
@@ -210,25 +141,54 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     showpdfld_->activated.notify(
 	    mCB(this,uiDirLightDlg,showPolarDiagramCB) );
 
-    initlighttype_ = currlighttype_ = 1;
-    initlighttype_ ? scenelightfld_->click() : cameralightfld_->click();
+    initlighttype_ = lighttypefld_->getBoolValue();
 }
 
 
 uiDirLightDlg::~uiDirLightDlg()
 {
-    // Remove only those callbacks that will survive this dialog.    
     removeSceneNotifiers();
 
     visserv_->nrScenesChange().remove(
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
 
-    delete pm1_;
-    delete pm2_;
     delete pd_;
     
     pddlg_->close();
     delete pddlg_;
+}
+
+
+void uiDirLightDlg::show()
+{
+    uiDialog::show();
+    onOffChg(0);
+}
+
+
+void uiDirLightDlg::onOffChg( CallBacker* cb )
+{
+    const bool turnedon = switchfld_->getBoolValue();
+    const bool dirlight = turnedon && !lighttypefld_->getBoolValue();
+   
+    lighttypefld_->display( turnedon );
+    azimuthfld_->display( dirlight );
+    dipfld_->display( dirlight );
+    intensityfld_->display( dirlight );
+    headonintensityfld_->display( turnedon && lighttypefld_->getBoolValue() );
+    showpdfld_->display( dirlight );
+    
+    const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
+    {
+	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
+	    continue;
+	
+	mDynamicCastGet(visSurvey::Scene*,scene,
+    		visBase::DM().getObject(initinfo_[idx].sceneid_));
+    	if ( scene )
+    	    scene->getDirectionalLight()->turnOn( turnedon );
+    }
 }
 
 
@@ -240,20 +200,6 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
     pd_->setValues( azimuthfld_->dial()->getValue(), 
 	    	    dipfld_->sldr()->getValue() );
     pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
-}
-
-
-void uiDirLightDlg::dlgDoneCB( CallBacker* )
-{
-    const ioPixmap pix1( "dir-light2a.png" );
-    pm1_ = new uiPixmapItem( pix1 );
-    cameralightview_->scene().addItem( pm1_ );
-    cameralightview_->reDraw( true );
-
-    const ioPixmap pix2( "dir-light2b.png" );
-    pm2_ = new uiPixmapItem( pix2 );
-    scenelightview_->scene().addItem( pm2_ );
-    scenelightview_->reDraw( true );
 }
 
 
@@ -286,68 +232,65 @@ void uiDirLightDlg::removeSceneNotifiers()
 }
 
 
-int uiDirLightDlg::updateSceneSelector()
+bool uiDirLightDlg::updateSceneSelector()
 {
     updateInitInfo();
     scenefld_->box()->setEmpty();
 
-    if ( initinfo_.size() == 0 )
+    if ( !initinfo_.size() )
     {
         scenefld_->label()->setText( "No scene!" );
-	return 0;
+	return false;
     }
 
-    if ( initinfo_.size() >= 1 )
+    BufferStringSet scenenms;
+    if ( initinfo_.size()>1 )
+	scenenms.add( "All" );
+
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
-	BufferStringSet scenenms;
-	if ( initinfo_.size() > 1 )
-	    scenenms.add( "All" );
-	for ( int idx=0; idx<initinfo_.size(); idx++ )
+	mDynamicCastGet(visSurvey::Scene*,scene,
+			visserv_->getObject(initinfo_[idx].sceneid_));
+	if ( scene )
 	{
-	    mDynamicCastGet(visSurvey::Scene*,scene,
-		    	    visserv_->getObject(initinfo_[idx].sceneid_));
-	    if ( scene )
-	    {
-		scenenms.add( scene->name() );
-		scene->nameChanged.notify(
-			mCB(this,uiDirLightDlg,sceneNameChangedCB) );
-	    }
+	    scenenms.add( scene->name() );
+	    scene->nameChanged.notify(
+		    mCB(this,uiDirLightDlg,sceneNameChangedCB) );
 	}
-
-	scenefld_->label()->setText( "Apply light to" );
-	scenefld_->box()->addItems( scenenms );
-        scenefld_->box()->setCurrentItem( 0 );
-	resetWidgets();
     }
 
-    return 1;
+    scenefld_->label()->setText( "Apply light to" );
+    scenefld_->box()->addItems( scenenms );
+    scenefld_->box()->setCurrentItem( 0 );
+    resetWidgets();
+
+    return true;
 }
 
 
-// Add or remove the init info and nameChanged notifier of the scenes affected.
 void uiDirLightDlg::updateInitInfo()
 {
     TypeSet<int> newsceneids;
     visserv_->getChildIds( -1, newsceneids );
-    
-    // remove info for scene(s) removed
-    for ( int idx=0; idx<initinfo_.size(); idx++)
-	if ( !newsceneids.isPresent( initinfo_[idx].sceneid_ ) )
-	{
-	    mDynamicCastGet(visSurvey::Scene*,scene,
-		    visserv_->getObject(initinfo_[idx].sceneid_));
-	    if ( scene )
-	    {
-		scene->nameChanged.remove(
-			mCB(this,uiDirLightDlg,sceneNameChangedCB) );
-		scene->getDirectionalLight()->turnOn( 
-			initinfo_[idx].directlighton_ );
-	    }
 
-	    initinfo_.remove( idx );
-	    if ( idx != initinfo_.size()-1 )
-	        idx--;	// items would have moved up by the removal
-	}    
+    // remove info for scene(s) removed
+    for (int idx=initinfo_.size()-1; idx>=0; idx--)
+    {
+	if ( newsceneids.isPresent( initinfo_[idx].sceneid_ ) )
+	    continue;
+
+	mDynamicCastGet(visSurvey::Scene*,scene,
+		visserv_->getObject(initinfo_[idx].sceneid_));
+	if ( scene )
+	{
+	    scene->nameChanged.remove(
+		    mCB(this,uiDirLightDlg,sceneNameChangedCB) );
+	    scene->getDirectionalLight()->turnOn( 
+		    initinfo_[idx].directlighton_ );
+	}
+
+	initinfo_.remove( idx );
+    }    
     
     // append new info for scene(s) added
     const int size = initinfo_.size();
@@ -356,7 +299,7 @@ void uiDirLightDlg::updateInitInfo()
 	bool present = false;
 	for ( int idx=0; idx<size; idx++ )
 	{
-	    if ( newsceneids[newidx] == initinfo_[idx].sceneid_ )
+	    if ( newsceneids[newidx]==initinfo_[idx].sceneid_ )
 	    {
 		present = true;
 		break;
@@ -364,22 +307,22 @@ void uiDirLightDlg::updateInitInfo()
 	}
 
 	if ( present ) continue;
+	
+	mDynamicCastGet(visSurvey::Scene*,scene,
+		visserv_->getObject(newsceneids[newidx]));
+	if ( !scene ) continue;
+	scene->nameChanged.notify(mCB(this,uiDirLightDlg,sceneNameChangedCB));
 
 	InitInfoType it;
 	it.sceneid_ = newsceneids[newidx];
-	// actual values will be got from Scene later by setWidgets
-
-	mDynamicCastGet(visSurvey::Scene*,scene,
-		visserv_->getObject(it.sceneid_));
-	if ( scene )
-	{
-	    scene->nameChanged.notify(
-		    mCB(this,uiDirLightDlg,sceneNameChangedCB) );
-	    it.directlighton_ = scene->getDirectionalLight()->isOn();
-	    scene->getDirectionalLight()->turnOn( true );
-	}
+	it.directlighton_ = scene->getDirectionalLight()->isOn();
+	it.intensity_ = scene->getDirectionalLight()->intensity();
+	it.dx_ = scene->getDirectionalLight()->direction(0);
+	it.dy_ = scene->getDirectionalLight()->direction(1);
+	it.dz_ = scene->getDirectionalLight()->direction(2);
 	initinfo_.add( it );
     }
+    setlightSwitch();
 }
 
 
@@ -400,7 +343,7 @@ void uiDirLightDlg::saveInitInfo()
         initinfo_[idx].ambintensity_ = ambintensityfld_->sldr()->getValue();
     }
 
-    initlighttype_ = currlighttype_;
+    initlighttype_ = lighttypefld_->getBoolValue();
 }
 
 
@@ -546,29 +489,27 @@ float uiDirLightDlg::getAmbientLight( int sceneidx ) const
 }
 
 
-void uiDirLightDlg::setAmbientLight()
+void uiDirLightDlg::ambientChangedCB( CallBacker* )
 {
     if  ( !initinfo_.size() )
 	return;
 
     float intensity = ambintensityfld_->sldr()->getValue();
-    if ( ( intensity < 0 ) || ( intensity > 100 ) )
-	ambintensityfld_->sldr()->setValue( 100 );
+    if ( intensity<0 || intensity>100 )
+	ambintensityfld_->sldr()->setValue(100);
 
     intensity = ambintensityfld_->sldr()->getValue() / 100 ;
     const bool lightall = scenefld_->box()->currentItem()==0;
     
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
-	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
+	bool dolight = lightall || idx==scenefld_->box()->currentItem()-1;
 	if ( !dolight ) continue;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,
 			visBase::DM().getObject(initinfo_[idx].sceneid_));
-	if ( !scene )
-	    continue;
-
-	scene->setAmbientLight( intensity );
+	if ( scene )
+	    scene->setAmbientLight( intensity );
     }
 }
 
@@ -607,29 +548,6 @@ void uiDirLightDlg::setHeadOnLight()
 	visserv_->sendSetHeadOnIntensityEvent( initinfo_[idx].sceneid_, 
 		intensity );
     }
-}
-
-
-void uiDirLightDlg::turnOnDirLight( bool turnOn )
-{
-    // true : turns on directional light and turns off headon light
-    // false: the other way around
-	
-#ifndef mCanAdjustIntensity
-    if ( turnOn )
-    {
-	intensityfld_->sldr()->setValue( mInitIntensity );
-	headonintensityfld_->sldr()->setValue( 0 );
-    }
-    else
-    {
-        intensityfld_->sldr()->setValue( 0 );
-        headonintensityfld_->sldr()->setValue( mInitHeadOnIntensity );
-    }
-#endif
-
-    setDirLight();
-    setHeadOnLight();
 }
 
 
@@ -687,19 +605,27 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
         intensityfld_->processInput();
         headonintensityfld_->processInput();
         ambintensityfld_->processInput();
-/*        setDirLight();
-        setHeadOnLight();*/
-	turnOnDirLight( currlighttype_ );
+    
+	setDirLight();
+    	setHeadOnLight();
         saveInitInfo();
     }
 
-    const int sceneidx = scenefld_->box()->currentItem();
-    if ( sceneidx<0 || sceneidx>=initinfo_.size() )
-	return true;
-    
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    visBase::DM().getObject(initinfo_[sceneidx].sceneid_));
-    initinfo_[sceneidx].directlighton_ = true;
+    const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
+    {
+	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
+	    continue;
+	
+	mDynamicCastGet(visSurvey::Scene*,scene,
+    		visBase::DM().getObject(initinfo_[idx].sceneid_));
+    	if ( !scene ) continue;
+	initinfo_[idx].directlighton_ = scene->getDirectionalLight()->isOn();
+	initinfo_[idx].intensity_ = scene->getDirectionalLight()->intensity();
+	initinfo_[idx].dx_ = scene->getDirectionalLight()->direction(0);
+	initinfo_[idx].dy_ = scene->getDirectionalLight()->direction(1);
+	initinfo_[idx].dz_ = scene->getDirectionalLight()->direction(2);
+    }
 
     return true;
 }
@@ -708,67 +634,86 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 bool uiDirLightDlg::rejectOK( CallBacker* )
 {
     resetWidgets();
-/*    setDirLight();
-    setHeadOnLight();*/
-    if ( initlighttype_ )
-	scenelightfld_->click();
-    else
-	cameralightfld_->click();
     
-    const int sceneid = scenefld_->box()->currentItem();
-    if ( sceneid<0 || sceneid>=initinfo_.size() )
-	return true;
-    
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    visBase::DM().getObject(initinfo_[sceneid].sceneid_));
-    if ( scene )
-	scene->getDirectionalLight()->turnOn(initinfo_[sceneid].directlighton_);
+    lighttypefld_->setValue(initlighttype_);
+   
+    bool lighton = false; 
+    const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
+    {
+	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
+	    continue;
+	
+	mDynamicCastGet(visSurvey::Scene*,scene,
+    		visBase::DM().getObject(initinfo_[idx].sceneid_));
+    	if ( scene )
+	{
+	    visBase::DirectionalLight& dl = *scene->getDirectionalLight();
+	    dl.turnOn(initinfo_[idx].directlighton_);
+	    dl.setDirection( initinfo_[idx].dx_, initinfo_[idx].dy_, 
+		    	     initinfo_[idx].dz_ );
+	    dl.setIntensity( initinfo_[idx].intensity_ );
+	    if ( !forall || initinfo_[idx].directlighton_ )
+		lighton = initinfo_[idx].directlighton_;
+	}
+    }
+
+    switchfld_->setValue( lighton );
 
     return true;
-}
-
-
-void uiDirLightDlg::show( )
-{
-    uiDialog::show();
-    for ( int idx = 0; idx < initinfo_.size(); idx++ )
-    {
-	mDynamicCastGet(visSurvey::Scene*,scene,
-		visBase::DM().getObject(initinfo_[idx].sceneid_));
-	if ( scene )
-	    scene->getDirectionalLight()->turnOn( true );
-    }
 }
 
 
 void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
 {
     static bool pdshown;
- 
-    mDynamicCastGet(uiRadioButton*,but,c);
-    currlighttype_ = ( but == cameralightfld_ ) ? 0 : 1;
+    const bool dirlight = !lighttypefld_->getBoolValue();
 
     // Save visibility of polar diagram dialog to restore when the scene light
     // is chosen the next time.
-    if ( currlighttype_ )
+    if ( dirlight )
 	pdshown = pddlg_ && !pddlg_->isHidden();
 
-    azimuthfld_->display( currlighttype_ );
-    dipfld_->display( currlighttype_ );
-    intensityfld_->display( currlighttype_ );
-    headonintensityfld_->display( !currlighttype_ );
-    showpdfld_->display( currlighttype_ );
-    if ( currlighttype_ && pdshown )
+    azimuthfld_->display( dirlight );
+    dipfld_->display( dirlight );
+    intensityfld_->display( dirlight );
+    headonintensityfld_->display( !dirlight );
+    showpdfld_->display( dirlight );
+    if ( dirlight && pdshown )
 	pddlg_->show();
     else 
 	pddlg_->close();
-    turnOnDirLight( currlighttype_ );
+    setDirLight();
+    setHeadOnLight();
 }
 
 
 void uiDirLightDlg::sceneSelChangedCB( CallBacker* )
 {
     setWidgets( false );
+    setlightSwitch();
+}
+	
+
+void uiDirLightDlg::setlightSwitch()
+{
+    bool lighton = false;    
+    const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
+    for ( int idx=0; idx<initinfo_.size(); idx++ )
+    {
+	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
+	    continue;
+	
+	mDynamicCastGet(visSurvey::Scene*,scene,
+    		visBase::DM().getObject(initinfo_[idx].sceneid_));
+    	if ( scene && scene->getDirectionalLight()->isOn() )
+	{
+	    lighton = true;
+	    break;
+	}
+    }
+
+    switchfld_->setValue( lighton );
 }
 
 
@@ -800,12 +745,6 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
 void uiDirLightDlg::headOnChangedCB( CallBacker* )
 {
     setHeadOnLight();
-}
-
-
-void uiDirLightDlg::ambientChangedCB( CallBacker* )
-{
-    setAmbientLight();
 }
 
 
