@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.28 2012-02-16 15:40:52 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.29 2012-02-17 14:37:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,23 +71,23 @@ protected:
     void		updatePosButtonStates();
     void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
-    void		vwChgCB(CallBacker*);
-    virtual void	wheelMoveCB(CallBacker*);
-    virtual void	zoomCB(CallBacker*);
+    virtual void	coltabChg(CallBacker*);
+    void		dispChgCB(CallBacker*);
+    void		editCB(CallBacker*);
+    void		flipCB(CallBacker*);
+    void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
     void		handDragging(CallBacker*);
     void		handDragged(CallBacker*);
-    void		panCB(CallBacker*);
-    void		flipCB(CallBacker*);
-    void		parsCB(CallBacker*);
-    void		stateCB(CallBacker*);
-    void		editCB(CallBacker*);
-    void		helpCB(CallBacker*);
-    void		translateCB(CallBacker*);
-    virtual void	coltabChg(CallBacker*);
-    void		dispChgCB(CallBacker*);
     void		keyPressCB(CallBacker*);
+    void		panCB(CallBacker*);
+    virtual void	parsCB(CallBacker*);
+    void		stateCB(CallBacker*);
+    void		translateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
+    void		vwChgCB(CallBacker*);
+    virtual void	wheelMoveCB(CallBacker*);
+    virtual void	zoomCB(CallBacker*);
 
     virtual bool		handleUserClick();
 
