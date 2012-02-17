@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.46 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.47 2012-02-17 23:05:37 cvsnanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -106,6 +106,22 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 }
 
 
+bool dgbSurfDataWriter::writeDummyHeader( const char* fnm, const char* attrnm )
+{
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() )
+	return false;
+
+    ascostream astream( *sd.ostrm );
+    astream.putHeader( dgbSurfDataWriter::sKeyFileType() );
+    IOPar par( "Surface Data" );
+    par.set( dgbSurfDataWriter::sKeyAttrName(), attrnm );
+    par.putTo( astream );
+    sd.close();
+    return true;
+}
+
+
 #define mErrRetWrite(msg) \
 { errmsg_ = msg; File::remove(filename_.buf()); \
     return ErrorOccurred(); }
@@ -132,7 +148,7 @@ int dgbSurfDataWriter::nextStep()
 
 	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
 	    const Geometry::BinIDSurface* meshsurf = 
-					surf_.geometry().sectionGeometry( sectionid );
+				surf_.geometry().sectionGeometry( sectionid );
 
 	    const int nrnodes = meshsurf->nrKnots();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -148,7 +164,8 @@ int dgbSurfDataWriter::nextStep()
 		const SubID subid = emrc.toInt64();
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
-		const float auxval = surf_.auxdata.getAuxDataVal(dataidx_,posid);
+		const float auxval =
+		    surf_.auxdata.getAuxDataVal( dataidx_, posid );
 		if ( mIsUdf(auxval) )
 		    continue;
 
