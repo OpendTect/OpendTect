@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.84 2011-10-19 08:06:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.85 2012-02-17 23:09:42 cvsnanne Exp $";
 
 #include "uiwellman.h"
 
@@ -51,7 +51,7 @@ mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 
 uiWellMan::uiWellMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
+    : uiObjFileMan(p,uiDialog::Setup("Manage Wells",mNoDlgTitle,
 				     "107.1.0").nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
 {
