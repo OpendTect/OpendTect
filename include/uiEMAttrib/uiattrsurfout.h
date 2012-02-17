@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.10 2011-04-11 04:52:59 cvsnageswara Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.11 2012-02-17 23:07:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ protected:
     uiGenInput*		attrnmfld_;
     uiIOObjSel*		objfld_;
     uiGenInput*		filludffld_;
-    CtxtIOObj&		ctio_;
     uiPushButton*	settingsbut_;
     Array2DInterpol*	interpol_;
     BufferString	methodname_;

@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.32 2011-04-11 04:52:59 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.33 2012-02-17 23:07:22 cvsnanne Exp $";
 
 
 #include "uiattrsurfout.h"
 
 #include "array2dinterpol.h"
 #include "array2dinterpolimpl.h"
+#include "ascstream.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -22,6 +23,8 @@ static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.32 2011-04-11 04:52:59 cvs
 #include "bufstring.h"
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfauxdataio.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -30,6 +33,7 @@ static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.32 2011-04-11 04:52:59 cvs
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
+#include "strmprov.h"
 #include "survinfo.h"
 
 #include "uiarray2dinterpol.h"
@@ -45,7 +49,6 @@ using namespace Attrib;
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiAttrEMOut( p, ad, n, mid, "Create surface output" )
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , interpol_(0)
 {
     setHelpID( "104.4.0" );
@@ -63,9 +66,8 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    ctio_.ctxt.forread = true;
-
-    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate on surface" );
+    objfld_ = new uiIOObjSel( uppgrp_, mIOObjContext(EMHorizon3D),
+			      "Calculate on surface" );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
 
@@ -76,8 +78,6 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 
 uiAttrSurfaceOut::~uiAttrSurfaceOut()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
 }
 
 
@@ -151,16 +151,39 @@ bool uiAttrSurfaceOut::prepareProcessing()
 bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
     uiAttrEMOut::fillPar( iopar );
-    BufferString outid;
-    outid += ctio_.ioobj->key();
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( !ioobj ) return false;
+
     if ( settingsbut_->isDisplayed() )
 	fillGridPar( iopar );
 
-    fillOutPar( iopar, Output::surfkey(), LocationOutput::surfidkey(), outid );
+    fillOutPar( iopar, Output::surfkey(),
+		LocationOutput::surfidkey(), ioobj->key() );
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
 	attrnm = attrfld_->getInput();
+
+    BufferString attrfnm =
+	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
+    if ( !attrfnm.isEmpty() )
+    {
+	const int val = uiMSG().askOverwrite("Surface data with this attribute"
+		" name already exists. Do you want to overwrite?");
+	if ( val==0 )
+	    return false;
+    }
+    else
+    {
+	attrfnm = EM::SurfaceAuxData::getFreeFileName( *ioobj );
+	const bool res =
+	    EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, attrnm );
+	if ( !res )
+	{
+	    uiMSG().error( "Cannot save surface data to: ", attrfnm );
+	    return false;
+	}
+    }
 
     iopar.set( sKey::Target, attrnm );
     return true;
