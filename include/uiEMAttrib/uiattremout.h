@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiattremout.h,v 1.5 2012-02-17 23:06:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ protected:
     virtual bool	fillPar(IOPar&);
     bool		addNLA(Attrib::DescID&);
     void		fillOutPar(IOPar&,const char* outtyp,
-	    			   const char* idlbl,const BufferString& outid);
+	    			   const char* idlbl,const char* outid);
 
     Attrib::DescSet&	ads_;
     const MultiID&	nlaid_;

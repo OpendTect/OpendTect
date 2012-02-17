@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.13 2010-10-07 06:18:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.14 2012-02-17 23:06:35 cvsnanne Exp $";
 
 
 #include "uiattremout.h"
@@ -104,7 +104,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
-			      const char* idlbl, const BufferString& outid )
+			      const char* idlbl, const char* outid )
 {
     iopar.set( IOPar::compKey( sKey::Output, sKey::Type), outtyp );
 
