@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.10 2011-12-21 04:17:14 cvsraman Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.11 2012-02-20 21:54:18 cvsyuancheng Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -390,7 +390,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( displaymode_ == ZeroOffset )
     {
-        clearDisplay();
+	for ( int idx=0; idx<parentattached_.size(); idx++ )
+    	    clearDisplay( parentattached_[idx] );
+
 	BinIDValueSet locations( 0, false );
 	eventman_->getLocations( locations );
 	TypeSet<float> vals;
@@ -433,7 +435,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    getMaterial()->setColor( eventman_->getColor() );
 	else
 	{
-	    const ArrayValueSeries<float,float> vs( vals.arr(), false, vals.size() );
+	    const ArrayValueSeries<float,float> vs(vals.arr(),0,vals.size());
 	    ctabmapper_.setData( &vs, vals.size() );
 	    for ( int idx=0; idx<eventseeds_->size(); idx++ )
 	    {
@@ -449,10 +451,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	return;
     }
     
+    clearDisplay( pao );
     CubeSampling cs( false );
     bool fullevent;
     Coord dir;
-    clearDisplay();
     if ( displaymode_==FullOnGathers )
     {
 	fullevent = true;
@@ -640,21 +642,19 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 }
 
 
-void PSEventDisplay::clearDisplay()
+void PSEventDisplay::clearDisplay( ParentAttachedObject* pao )
 {
     if ( eventseeds_ )
 	eventseeds_->removeAll();
 
-    for ( int idx=0; idx<parentattached_.size(); idx++ )
-    {
-	ParentAttachedObject* pao = parentattached_[idx];
-	if ( !pao || !pao->separator_ )
-	    continue;
-	
-	pao->separator_->removeAll();
-	pao->markers_.erase();
-	pao->lines_ = 0;
-    }
+    if ( !pao )
+	return;
+    
+    if ( pao->separator_ )
+    	pao->separator_->removeAll();
+
+    pao->markers_.erase();
+    pao->lines_ = 0;
 }
 
 

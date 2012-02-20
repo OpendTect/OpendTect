@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.7 2011-12-20 05:38:20 cvsranojay Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.8 2012-02-20 21:54:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,6 @@ public:
     void			setMarkerStyle(const MarkerStyle3D&,bool updat);
     virtual bool		hasColor() const { return true; }
     virtual Color		getColor() const;
-    void			clearDisplay();
     const char**		markerColorNames()const;
     const char**		displayModeNames()const;
     bool			hasParents() const;
@@ -113,6 +112,7 @@ protected:
 
     void				updateDisplay();
     void				updateDisplay(ParentAttachedObject*);
+    void				clearDisplay(ParentAttachedObject*);
     void				retriveParents();
     float				getMoveoutComp(const TypeSet<float>&,
 					const TypeSet<float>&) const;
