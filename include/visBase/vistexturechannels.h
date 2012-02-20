@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.21 2012-02-09 11:10:27 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.22 2012-02-20 10:11:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,8 @@ public:
     const ColTab::MapperSetup&	getColTabMapperSetup(int channel,
 	    					     int version) const;
     const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
-    void			reMapData(int channel,TaskRunner*);
+    void			reMapData(int channel,bool dontreclip,
+	    				  TaskRunner*);
     const TypeSet<float>*	getHistogram(int channel) const;
 
     void			setSize(int channel,int sz0,int sz1,int sz2);

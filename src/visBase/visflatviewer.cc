@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.36 2011-09-02 13:16:37 cvskris Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.37 2012-02-20 10:11:27 cvskris Exp $";
 
 #include "visflatviewer.h"
 
@@ -193,7 +193,7 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 		if ( channels_->getColTabMapperSetup( 0,0 )!=mappersetup )
 		{
 		    channels_->setColTabMapperSetup( 0, mappersetup );
-		    channels_->reMapData( 0, 0 );
+		    channels_->reMapData( 0, false, 0 );
 		}
 
 		ColTab::Sequence sequence = *channel2rgba_->getSequence( 0 );

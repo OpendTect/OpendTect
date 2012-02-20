@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.42 2012-02-16 13:28:41 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.43 2012-02-20 10:11:27 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -51,7 +51,7 @@ public:
 	    					const ColTab::MapperSetup&);
     const ColTab::MapperSetup&	getColTabMapperSetup(int version) const;
     const ColTab::Mapper&	getColTabMapper(int version) const;
-    bool			reMapData(TaskRunner*);
+    bool			reMapData(bool dontreclip,TaskRunner*);
     const TypeSet<float>&	getHistogram() const	{ return histogram_; }
 
     void			setNrVersions(int);
@@ -203,11 +203,12 @@ void ChannelInfo::clipData( int version, TaskRunner* tr )
 }
 
 
-bool ChannelInfo::reMapData( TaskRunner* tr ) 
+bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tr ) 
 {
     for ( int idx=nrVersions()-1; idx>=0; idx-- )
     {
-	if ( mappers_[idx]->setup_.type_!=ColTab::MapperSetup::Fixed )
+	if ( !dontreclip &&
+	    mappers_[idx]->setup_.type_!=ColTab::MapperSetup::Fixed )
 	    clipData( idx, tr );
 
 	if ( !mapData( idx, tr ) )
@@ -692,12 +693,12 @@ void TextureChannels::setColTabMapperSetup( int channel,
 }
 
 
-void TextureChannels::reMapData( int channel, TaskRunner* tr )
+void TextureChannels::reMapData( int channel, bool dontreclip, TaskRunner* tr )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
 	pErrMsg("Index out of bounds");
 
-    channelinfo_[channel]->reMapData( tr );
+    channelinfo_[channel]->reMapData( dontreclip, tr );
 }
 
 

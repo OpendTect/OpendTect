@@ -4,13 +4,14 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.122 2012-02-16 20:18:58 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.123 2012-02-20 10:11:27 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "coltabmapper.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "mousecursor.h"
@@ -899,8 +900,10 @@ void HorizonSection::setColTabMapperSetup( int channel,
 {
     if ( channel>=0 )
     {
+	const bool needsclip =
+	    channels_->getColTabMapperSetup( channel, 0 ).needsReClip( mapper );
 	channels_->setColTabMapperSetup( channel, mapper );
-	channels_->reMapData( channel, tr );
+	channels_->reMapData( channel, !needsclip, tr );
     }
 }
 

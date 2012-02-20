@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.114 2011-09-05 12:41:06 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.115 2012-02-20 10:11:27 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -114,7 +114,7 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
 	return;
 
     channels_->setColTabMapperSetup( attrib, ms );
-    channels_->reMapData( attrib, 0 );
+    channels_->reMapData( attrib, false, 0 );
 }
 
 
@@ -935,7 +935,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     }
 
     channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
-    channels_->reMapData( 0, 0 );
+    channels_->reMapData( 0, false, 0 );
 
     setCubeSampling( getCubeSampling(true,true,0) );
 
