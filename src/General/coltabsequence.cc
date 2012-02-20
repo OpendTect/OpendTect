@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.37 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.38 2012-02-20 10:05:30 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -345,21 +345,19 @@ void ColTab::Sequence::flipColor()
     int last = size() - 1;
     for ( ; first!=last && first<last; )
     {
-	unsigned char rtmp = r_[first];
-	r_[first] = r_[last];
-	r_[last] = rtmp;
-
-	unsigned char gtmp = g_[first];
-	g_[first] = g_[last];
-	g_[last] = gtmp;
-
-	unsigned char btmp = b_[first];
-	b_[first] = b_[last];
-	b_[last] = btmp;
+	unsigned char uctmp;
+	float ftmp;
+	mSWAP( r_[first], r_[last], uctmp );
+	mSWAP( g_[first], g_[last], uctmp );
+	mSWAP( b_[first], b_[last], uctmp );
+	mSWAP( x_[first], x_[last], ftmp );
 
 	first++;
 	last--;
     }
+
+    for ( int idx=0; idx<size(); idx++ )
+	x_[idx] = 1.0-x_[idx];
 }
 
 
