@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.29 2011-03-10 06:15:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.30 2012-02-20 10:06:30 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -112,6 +112,7 @@ ColTab::MapperSetup::MapperSetup()
     , maxpts_(2560)
     , nrsegs_(0)
     , range_(Interval<float>(0,0))
+    , flipseq_( false )
     , rangeChange(this)
     , autoscaleChange(this)
 {}
@@ -128,13 +129,23 @@ ColTab::MapperSetup&
     maxpts_ = ms.maxpts_;
     nrsegs_ = ms.nrsegs_;
     range_ = ms.range_;
+    flipseq_ = ms.flipseq_;
     return *this;
+}
+
+bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& b ) const
+{
+    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ || maxpts_!=b.maxpts_ )
+	return true;
+
+    return false;
 }
 
 
 bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 {
-    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ || maxpts_!=b.maxpts_ )
+    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ || maxpts_!=b.maxpts_ ||
+	 flipseq_!=b.flipseq_ )
 	return false;
 
     if ( type_==Fixed )
@@ -181,6 +192,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
     par.setYN( sKeyAutoSym(), autosym0_ );
     par.set( sKeyMaxPts(), maxpts_ );
     par.set( sKeyRange(), range_ );
+    par.setYN( sKeyFlipSeq(), flipseq_ );
 }
 
 
@@ -209,6 +221,9 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 	cliprate_.stop = cliprate_.start;
     else if ( mIsUdf(cliprate_.start) )
 	cliprate_ = defClipRate();
+
+    flipseq_ = false;
+    par.getYN( sKeyFlipSeq(), flipseq_ );
 
     return par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
@@ -265,6 +280,8 @@ float ColTab::Mapper::position( float val ) const
 
     if ( ret > 1 ) ret = 1;
     else if ( ret < 0 ) ret = 0;
+
+    if ( setup_.flipseq_ ) return 1.0-ret;
     return ret;
 }
 
@@ -282,7 +299,7 @@ int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 }
 
 
-Interval<float> ColTab::Mapper::range() const
+const Interval<float>& ColTab::Mapper::range() const
 {
     return setup_.range_;
 }

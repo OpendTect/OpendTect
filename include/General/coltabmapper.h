@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.27 2012-02-09 14:07:38 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.28 2012-02-20 10:06:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,15 @@ public:
     							//!< Usually mUdf(float)
     mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
     mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
+    mDefSetupClssMemb(MapperSetup,bool,flipseq);	//!< All
     mDefSetupClssMemb(MapperSetup,Interval<float>,range);
 
     bool 			operator==(const MapperSetup&) const;
     bool			operator!=(const MapperSetup&) const;
     MapperSetup&		operator=(const MapperSetup&);
+
+    bool			needsReClip(const MapperSetup&) const;
+    				//!<Is new clip necessary if set to this
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -61,6 +65,7 @@ public:
     static const char*		sKeyMaxPts()	{ return "Max Pts"; }
     static const char*		sKeyStarWidth()	{ return "Start_Width"; }
     static const char*		sKeyRange()	{ return "Range"; }
+    static const char*		sKeyFlipSeq()	{ return "Flip seq"; }
 
     void			triggerRangeChange();
     void			triggerAutoscaleChange();
@@ -73,18 +78,22 @@ mClass Mapper
 {
 public:
 
-			Mapper(); //!< defaults maps from [0,1] to [0,1]
-			~Mapper();
+				Mapper(); //!< defaults maps from [0,1] to [0,1]
+				~Mapper();
 
-    float		position(float val) const;
-    			//!< returns position in ColorTable
-    static int		snappedPosition(const Mapper*,float val,int nrsteps,
+    float			position(float val) const;
+    				//!< returns position in ColorTable
+    static int			snappedPosition(const Mapper*,float val,
+	    					int nrsteps,
 	    				int udfval);
-    Interval<float>	range() const;
+    const Interval<float>& range() const;
+    bool		isFlipped() const { return setup_.flipseq_; }
     const ValueSeries<float>* data() const
 			{ return vs_; }
     int			dataSize() const
 			{ return vssz_; }
+
+    void		setFlipped(bool yn) { setup_.flipseq_ = yn; }
 
     void		setRange( const Interval<float>& rg );
     void		setData(const ValueSeries<float>*,od_int64 sz,
