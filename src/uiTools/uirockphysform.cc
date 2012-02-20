@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.3 2012-02-16 15:25:29 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.4 2012-02-20 14:00:59 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -49,7 +49,6 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
 	lcb->attach( alignedBelow, attobj );
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
-    setHAlignObj( lcb );
 
     for ( int idx=0; idx< mMaxNrCsts; idx++ )
     {
@@ -57,11 +56,12 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
 	if ( idx )
 	    rpcfld->attach( alignedBelow, *(cstflds_[idx-1]) );
 	else
-	    rpcfld->attach( alignedBelow, nmfld_ );
+	    rpcfld->attach( alignedBelow, lcb );
 
 	cstflds_ += rpcfld;
     }
 
+    setHAlignObj( lcb );
     setType( fixedtype_ );
 }
 
