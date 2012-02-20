@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.15 2012-02-16 20:05:11 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.16 2012-02-20 10:19:42 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -109,15 +109,16 @@ SET( OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} PARENT
 
 #Setup library & its deps
 IF( OD_LIB_LINKER_NEEDS_ALL_LIBS )
-    SET( OD_LIB_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_EXTERNAL_LIBS} ${OD_MODULE_DEPS} )
+    SET( OD_LIB_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_DEPS} )
 ELSE()
-    SET( OD_EXEC_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_EXTERNAL_LIBS} ${OD_MODULE_DEPS} )
+    SET( OD_EXEC_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_INTERNAL_LIBS} )
 ENDIF()
+
 ADD_LIBRARY( ${OD_MODULE_NAME} SHARED ${OD_MODULE_SOURCES} ${QT_MOC_OUTFILES} )
 TARGET_LINK_LIBRARIES(
         ${OD_MODULE_NAME}
 	${OD_LIB_DEP_LIBS}
-	${EXTRA_LIBS} ${OD_MODULE_EXTERNAL_LIBS} ${OD_MODULE_DEPS}
+	${OD_MODULE_EXTERNAL_LIBS}
 	${OD_MODULE_LINK_OPTIONS}
      )
 
