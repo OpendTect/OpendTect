@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Oct 2011
- RCS:		$Id: httptask.cc,v 1.3 2012-02-20 04:56:01 cvsranojay Exp $
+ RCS:		$Id: httptask.cc,v 1.4 2012-02-20 06:35:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ void HttpTask::controlWork( Control ctrl )
     if ( ctrl == Task::Run )
 	return;
 
-    msg_ = "Data transfer aborted";
     http_.forceAbort();
     state_ = ErrorOccurred();
     Task::controlWork( ctrl );
@@ -49,8 +48,8 @@ void HttpTask::controlWork( Control ctrl )
 
 void HttpTask::progressCB( CallBacker* )
 {
-    nrdone_ = http_.nrDone();
-    totalnr_ = http_.totalNr();
+    nrdone_ = http_.nrDone() / 1024;
+    totalnr_ = http_.totalNr() / 1024;
     state_ = MoreToDo();
 }
 
