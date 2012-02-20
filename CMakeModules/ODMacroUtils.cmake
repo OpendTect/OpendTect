@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.16 2012-02-20 10:19:42 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.17 2012-02-20 14:36:39 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -11,6 +11,7 @@
 # Input variables:
 # 
 # OD_MODULE_NAME			: Name of the module, or the plugin
+# OD_SUBSYSTEM                          : "od" or "dgb"
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
 # OD_USEPROG				: Whether to include include/Prog 
@@ -35,7 +36,7 @@
 # OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library, 
 #					  and all external libraries it is
 #					  dependent on.
-# OD_MODULE_NAMES			: A list of all modules
+# OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
 #####################################
 #
 # Internal variables
@@ -49,7 +50,7 @@
 MACRO( OD_INIT_MODULE )
 
 #Add this module to the list
-SET( OD_MODULE_NAMES ${OD_MODULE_NAMES} ${OD_MODULE_NAME} PARENT_SCOPE )
+SET( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} ${OD_MODULE_NAME} PARENT_SCOPE )
 
 #Add all module dependencies
 IF(OD_MODULE_DEPS)
@@ -103,7 +104,7 @@ LIST(REMOVE_DUPLICATES OD_MODULE_INCLUDEPATH)
 LIST(REMOVE_DUPLICATES OD_MODULE_RUNTIMEPATH)
 
 #Export dependencies
-SET( OD_${OD_MODULE_NAME}_DEPS ${OD_${OD_MODULE_NAME}_DEPS} PARENT_SCOPE )
+SET( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} PARENT_SCOPE )
 SET( OD_${OD_MODULE_NAME}_INCLUDEPATH ${OD_${OD_MODULE_NAME}_INCLUDEPATH} PARENT_SCOPE)
 SET( OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} PARENT_SCOPE)
 
@@ -130,7 +131,7 @@ INSTALL(TARGETS
 
 
 #Setup common things for batch-programs
-IF(OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
+IF( OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
     SET ( OD_RUNTIMELIBS ${OD_MODULE_NAME} ${OD_MODULE_DEPS})
     SET ( OD_USEPROG 1 )
 ENDIF()
@@ -187,7 +188,7 @@ ENDIF(OD_MODULE_BATCHPROGS)
 
 IF(OD_USEPROG)
     LIST(APPEND OD_MODULE_INCLUDEPATH
-		${OpendTect_SOURCE_DIR}/include/Prog)
+		${OpendTect_DIR}/include/Prog)
 ENDIF( OD_USEPROG )
 
 
@@ -201,7 +202,7 @@ MACRO( OD_ADD_DEPS DEP )
 LIST(FIND OD_${OD_MODULE_NAME}_DEPS ${DEP} INDEX)
 IF(${INDEX} EQUAL -1)
     #Add dependency
-    LIST(APPEND OD_${OD_MODULE_NAME}_DEPS ${DEP})
+    LIST(APPEND OD_MODULE_INTERNAL_LIBS ${DEP} )
     
     #Add dependencies of dependencies
     FOREACH( DEPLIB ${OD_${DEP}_DEPS} )
@@ -211,7 +212,6 @@ IF(${INDEX} EQUAL -1)
     #Add dependencies to include-path
     LIST(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
     LIST(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
-    LIST(APPEND OD_MODULE_INTERNAL_LIBS ${DEP} )
 ENDIF()
 
 ENDMACRO(OD_ADD_DEPS)
