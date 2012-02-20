@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.45 2012-01-10 16:44:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.46 2012-02-20 10:08:56 cvskris Exp $";
 
 #include "uicolortable.h"
 
@@ -222,6 +222,7 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
     {
 	coltabseq_ = *ctseq;
 	selfld_->setCurrent( coltabseq_ );
+	canvas_->setFlipped( mapsetup_.flipseq_ );
 	canvas_->setRGB();
 	if ( !emitnotif )
 	    seqChanged.trigger();
@@ -233,6 +234,7 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
 
 void uiColorTable::canvasreDraw( CallBacker* )
 {
+    canvas_->setFlipped( mapsetup_.flipseq_ );
     canvas_->setRGB();
 }
 
@@ -289,8 +291,14 @@ void uiColorTable::canvasClick( CallBacker* )
 
     PtrMan<uiPopupMenu> mnu = new uiPopupMenu( this, "Action" );
     if ( hasmapper ) 
-	mnu->insertItem( new uiMenuItem("Flip",
-	    mCB(this,uiColorTable,doFlip)), 0 );
+    {
+	uiMenuItem* itm =
+	    new uiMenuItem("Flipped", mCB(this,uiColorTable,doFlip));
+
+	mnu->insertItem( itm, 0 );
+	itm->setCheckable( true );
+	itm->setChecked( mapsetup_.flipseq_ );
+    }
     if ( hasmapper )
 	mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
 	    mCB(this,uiColorTable,editScaling)), 1 );
@@ -428,12 +436,9 @@ void uiColorTable::editScaling( CallBacker* )
 
 void uiColorTable::doFlip( CallBacker* )
 { 
-    float start = mapsetup_.range_.start;
-    mapsetup_.range_.start = mapsetup_.range_.stop;
-    mapsetup_.range_.stop = start;
-    mapsetup_.type_ = ColTab::MapperSetup::Fixed;
-
-    updateRgFld();
+    mapsetup_.flipseq_ = !mapsetup_.flipseq_;
+    canvas_->setFlipped( mapsetup_.flipseq_ );
+    canvas_->setRGB();
     scaleChanged.trigger();
 }
 
@@ -473,6 +478,7 @@ void uiColorTable::doManage( CallBacker* )
 void uiColorTable::colTabManChgd( CallBacker* )
 {
     selfld_->setCurrent( coltabseq_ );
+    canvas_->setFlipped( mapsetup_.flipseq_ );
     canvas_->setRGB();
     seqChanged.trigger();
 }

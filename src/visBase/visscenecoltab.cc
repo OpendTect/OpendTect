@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.22 2011-08-22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.23 2012-02-20 10:08:56 cvskris Exp $";
 
 #include "visscenecoltab.h"
 
@@ -28,6 +28,7 @@ namespace visBase
 SceneColTab::SceneColTab()
     : VisualObjectImpl( false )
     , legendkit_(new LegendKit)
+    , flipseq_( false )
 {
     addChild( legendkit_ );
     legendkit_->ref();
@@ -119,7 +120,7 @@ void SceneColTab::updateVis()
     ColTab::IndexedLookUpTable table( sequence_, nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
     {
-	Color col = table.colorForIndex( idx );
+	Color col = table.colorForIndex( flipseq_ ? nrcols-idx-1 : idx );
 	od_uint32 val = ( (unsigned int)(col.r()&0xff) << 24 ) |
 		        ( (unsigned int)(col.g()&0xff) << 16 ) |
 		        ( (unsigned int)(col.b()&0xff) <<  8 ) |
@@ -148,10 +149,12 @@ void SceneColTab::updateVis()
 void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     Interval<float> rg = ms.range_;
-    if ( rg==rg_ )
+    if ( rg==rg_ && flipseq_==ms.flipseq_ )
 	return;
     
     rg_ = rg;
+    flipseq_ = ms.flipseq_;
+
     updateVis();
 }
 

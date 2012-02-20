@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.17 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.18 2012-02-20 10:08:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
     ColTab::Sequence		sequence_;
     Interval<float>		rg_;
     Pos				pos_;
+    bool			flipseq_;
 };
 
 } // class visBase
