@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.11 2012-02-20 21:54:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.12 2012-02-21 19:15:28 cvsyuancheng Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -579,7 +579,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pao->markers_ += marker;
 		}
 
-
 		Coord3 pos( bid.inl, bid.crl,  picks[idy] );
 		if ( fullevent )
 		{
@@ -617,14 +616,14 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
     {
-	const ArrayValueSeries<float,float> vs( values.arr(), false, values.size() );
+	const ArrayValueSeries<float,float> vs(values.arr(),0,values.size());
 	ctabmapper_.setData( &vs, values.size() );
     }
 
     for ( int idx=0; idx<markers.size(); idx++ )
     {
-	const Color col = ctabsequence_.color( ctabmapper_.position(values[idx]) );
-	markers[idx]->getMaterial()->setColor( col );
+	markers[idx]->getMaterial()->setColor( 
+		ctabsequence_.color( ctabmapper_.position(values[idx])) );
     }
 
     for ( int idx=pao->markers_.size()-1; idx>=lastmarker; idx-- )
