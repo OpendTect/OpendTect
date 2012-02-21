@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.41 2011-06-27 06:16:52 cvsranojay Exp $
+ RCS:		$Id: seistrc.h,v 1.42 2012-02-21 15:12:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,8 +95,8 @@ public:
     			//!< Added values can be first/last value of input,
     			//!< or zeros
 
-    bool		isWriteReady() const;
-    void		getWriteReady(SeisTrc&) const;
+    bool		isWriteReady(const SamplingData<float>&,int ns) const;
+    void		getWriteReady(SeisTrc&,SamplingData<float>&,int&) const;
 
     static const char*	sKeyExtTrcToSI()
     			{ return "Extend Traces To Survey Z Range"; }

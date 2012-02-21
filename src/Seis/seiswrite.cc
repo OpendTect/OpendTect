@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.68 2011-11-03 14:27:39 cvskris Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.69 2012-02-21 15:12:23 cvsbert Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -25,16 +25,16 @@ static const char* rcsID = "$Id: seiswrite.cc,v 1.68 2011-11-03 14:27:39 cvskris
 #include "iopar.h"
 
 
-#define mCurLineKey (lkp ? lkp->lineKey() : (seldata ? seldata->lineKey() : ""))
+#define mCurLineKey (lkp_ ? lkp_->lineKey() : (seldata ? seldata->lineKey():""))
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
-    	, lineauxiopar(*new IOPar)
-	, lkp(l)
-	, worktrc(*new SeisTrc)
-	, makewrready(true)
+    	, lineauxiopar_(*new IOPar)
+	, lkp_(l)
+	, worktrc_(*new SeisTrc)
+	, makewrready_(true)
 {
     init();
 }
@@ -42,10 +42,10 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
-    	, lineauxiopar(*new IOPar)
-	, lkp(0)
-	, worktrc(*new SeisTrc)
-	, makewrready(true)
+    	, lineauxiopar_(*new IOPar)
+	, lkp_(0)
+	, worktrc_(*new SeisTrc)
+	, makewrready_(true)
 {
     init();
 }
@@ -53,25 +53,27 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 
 void SeisTrcWriter::init()
 {
-    putter = 0; pswriter = 0;
-    nrtrcs = nrwritten = 0;
-    prepared = false;
+    putter_ = 0; pswriter_ = 0;
+    nrtrcs_ = nrwritten_ = 0;
+    prepared_ = false;
+    firstns_ = mUdf(int);
+    firstsampling_.start = mUdf(float);
 }
 
 
 SeisTrcWriter::~SeisTrcWriter()
 {
     close();
-    delete &lineauxiopar;
-    delete &worktrc;
+    delete &lineauxiopar_;
+    delete &worktrc_;
 }
 
 
 bool SeisTrcWriter::close()
 {
     bool ret = true;
-    if ( putter )
-	{ ret = putter->close(); if ( !ret ) errmsg_ = putter->errMsg(); }
+    if ( putter_ )
+	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
 
     if ( is2D() )
     {
@@ -90,8 +92,8 @@ bool SeisTrcWriter::close()
 	}
     }
 
-    delete putter; putter = 0;
-    delete pswriter; pswriter = 0;
+    delete putter_; putter_ = 0;
+    delete pswriter_; pswriter_ = 0;
     psioprov = 0;
     ret &= SeisStoreAccess::close();
 
@@ -113,7 +115,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
-    if ( is2d && !lkp && ( !seldata || seldata->lineKey().isEmpty() ) )
+    if ( is2d && !lkp_ && ( !seldata || seldata->lineKey().isEmpty() ) )
     {
 	errmsg_ = "Internal: 2D seismic can only be stored if line key known";
 	return false;
@@ -132,14 +134,14 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     else if ( psioprov )
     {
 	const char* psstorkey = ioobj->fullUserExpr(Conn::Write);
-	pswriter = is2d ? psioprov->make2DWriter( psstorkey, mCurLineKey )
+	pswriter_ = is2d ? psioprov->make2DWriter( psstorkey, mCurLineKey )
 	    		: psioprov->make3DWriter( psstorkey );
-	if ( !pswriter )
+	if ( !pswriter_ )
 	{
 	    errmsg_ = "Cannot open Pre-Stack data store for write";
 	    return false;
 	}
-	pswriter->usePar( ioobj->pars() );
+	pswriter_->usePar( ioobj->pars() );
 	if ( !is2d )
 	    SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
@@ -153,7 +155,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    return false;
     }
 
-    return (prepared = true);
+    return (prepared_ = true);
 }
 
 
@@ -219,8 +221,8 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 bool SeisTrcWriter::next2DLine()
 {
     LineKey lk = mCurLineKey;
-    if ( !attrib.isEmpty() )
-	lk.setAttrName( attrib );
+    if ( !attribnm_.isEmpty() )
+	lk.setAttrName( attribnm_ );
     BufferString lnm = lk.lineName();
     if ( lnm.isEmpty() )
     {
@@ -228,18 +230,18 @@ bool SeisTrcWriter::next2DLine()
 	return false;
     }
 
-    prevlk = lk;
-    delete putter;
+    prevlk_ = lk;
+    delete putter_;
 
     IOPar* lineiopar = new IOPar;
     lk.fillPar( *lineiopar, true );
 
-    if ( !datatype.isEmpty() )
-	lineiopar->set( sKey::DataType, datatype.buf() );
+    if ( !datatype_.isEmpty() )
+	lineiopar->set( sKey::DataType, datatype_.buf() );
 
-    lineiopar->merge( lineauxiopar );
-    putter = lset->linePutter( lineiopar );
-    if ( !putter )
+    lineiopar->merge( lineauxiopar_ );
+    putter_ = lset->linePutter( lineiopar );
+    if ( !putter_ )
     {
 	errmsg_ = "Cannot create 2D line writer";
 	return false;
@@ -251,17 +253,17 @@ bool SeisTrcWriter::next2DLine()
 
 bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
-    if ( !putter ) return false;
+    if ( !putter_ ) return false;
 
-    if ( mCurLineKey != prevlk )
+    if ( mCurLineKey != prevlk_ )
     {
 	if ( !next2DLine() )
 	    return false;
     }
 
-    bool res = putter->put( trc );
+    bool res = putter_->put( trc );
     if ( !res )
-	errmsg_ = putter->errMsg();
+	errmsg_ = putter_->errMsg();
 
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
@@ -275,24 +277,28 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 bool SeisTrcWriter::put( const SeisTrc& intrc )
 {
     const SeisTrc* trc = &intrc;
-    if ( makewrready && !intrc.isWriteReady() )
+    if ( makewrready_ )
     {
-	intrc.getWriteReady( worktrc );
-	trc = &worktrc;
+	const bool isfirst = mIsUdf(firstns_);
+	if ( isfirst || !intrc.isWriteReady(firstsampling_,firstns_) )
+	{
+	    intrc.getWriteReady( worktrc_, firstsampling_, firstns_ );
+	    trc = &worktrc_;
+	}
     }
-    if ( !prepared ) prepareWork(*trc);
+    if ( !prepared_ ) prepareWork(*trc);
 
-    nrtrcs++;
+    nrtrcs_++;
     if ( seldata && seldata->selRes( trc->info().binid ) )
 	return true;
 
     if ( psioprov )
     {
-	if ( !pswriter )
+	if ( !pswriter_ )
 	    return false;
-	if ( !pswriter->put(*trc) )
+	if ( !pswriter_->put(*trc) )
 	{
-	    errmsg_ = pswriter->errMsg();
+	    errmsg_ = pswriter_->errMsg();
 	    return false;
 	}
     }
@@ -313,7 +319,7 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	}
     }
 
-    nrwritten++;
+    nrwritten_++;
     return true;
 }
 
@@ -321,16 +327,16 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 void SeisTrcWriter::usePar( const IOPar& iop )
 {
     SeisStoreAccess::usePar( iop );
-    bool wrbl = !makewrready;
+    bool wrbl = !makewrready_;
     iop.getYN( sKeyWriteBluntly(), wrbl );
-    makewrready = !wrbl;
+    makewrready_ = !wrbl;
 }
 
 
 void SeisTrcWriter::fillPar( IOPar& iop ) const
 {
     SeisStoreAccess::fillPar( iop );
-    iop.setYN( sKeyWriteBluntly(), !makewrready );
+    iop.setYN( sKeyWriteBluntly(), !makewrready_ );
 }
 
 

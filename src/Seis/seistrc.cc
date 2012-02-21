@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.51 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.52 2012-02-21 15:12:23 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -191,54 +191,51 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 }
 
 
-bool SeisTrc::isWriteReady() const
+bool SeisTrc::isWriteReady( const SamplingData<float>& sampling, int ns ) const
 {
-    const float nsr = info_.sampling.start / info_.sampling.step;
-    const float intnsr = (float)( mNINT(nsr) );
-    return mIsEqual( nsr, intnsr, 0.0001 );
+    if ( !mIsUdf(ns) && ns != size() )
+	return false;
+
+    if ( mIsUdf(sampling.start) )
+    {
+	// sampling start must be N * sample rate
+	const float nz0 = info_.sampling.start / info_.sampling.step;
+	const float intnz0 = (float)( mNINT(nz0) );
+	return mIsEqual( nz0, intnz0, 0.0001 );
+    }
+
+    // sampling must be an almost exact match
+    const float dstart = info_.sampling.start - sampling.start;
+    const float dstep = info_.sampling.step - sampling.step;
+    return mIsZero(dstart,1e-6) && mIsZero(dstep,1e-8);
 }
 
 
-void SeisTrc::getWriteReady( SeisTrc& trc ) const
+void SeisTrc::getWriteReady( SeisTrc& trc, SamplingData<float>& sampling,
+			     int& ns ) const
 {
-    trc = *this;
-    if ( isWriteReady() )
-	return;
+    if ( mIsUdf(ns) )
+	ns = size();
+    if ( mIsUdf(sampling.start) )
+    {
+	sampling = info_.sampling;
+	const float nz0 = sampling.start / sampling.step;
+	const float newstart = sampling.step * mNINT( nz0 );
+	if ( !mIsEqual(sampling.start,newstart,1e-6) )
+	    sampling.start = newstart;
+    }
 
-    const int sz = size();
+    trc.info_ = info_;
+    trc.info_.sampling = sampling;
+    trc.reSize( ns, false ); trc.zero();
     const int nrcomps = nrComponents();
-    const int nsr = mNINT( info_.sampling.start / info_.sampling.step );
-    trc.info_.sampling.start = nsr * info_.sampling.step;
-    if ( sz < 2 )
-    {
-	if ( sz == 1 )
-	{
-	    for ( int icomp=0; icomp<nrcomps; icomp++ )
-		trc.set( 0, get(0,icomp), icomp );
-	    return;
-	}
-    }
-
-#define mGetVal(isamp,icomp) getValue(trc.info_.sampling.atIndex(isamp),icomp)
-
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	if ( trc.info_.sampling.start < info_.sampling.start )
+	for ( int isamp=0; isamp<ns; isamp++ )
 	{
-	    trc.set( 0, get(0,icomp), icomp );
-	    trc.set( sz-1, mGetVal(sz-1,icomp), icomp );
+	    const float z = sampling.atIndex( isamp );
+	    trc.set( isamp, getValue(z,icomp), icomp );
 	}
-	else
-	{
-	    trc.set( sz-1, get(sz-1,icomp), icomp );
-	    trc.set( 0, mGetVal(0,icomp), icomp );
-	}
-    }
-
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
-    {
-	for ( int isamp=1; isamp<sz-1; isamp++ )
-	    trc.set( isamp, mGetVal(isamp,icomp), icomp );
     }
 }
 

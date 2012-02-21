@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.33 2011-10-14 15:44:28 cvskris Exp $
+ RCS:		$Id: seiswrite.h,v 1.34 2012-02-21 15:12:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,29 +48,29 @@ public:
 
     bool		prepareWork(const SeisTrc&);
     virtual bool	put(const SeisTrc&);
-    int			nrWritten() const		{ return nrwritten; }
+    int			nrWritten() const		{ return nrwritten_; }
 
     bool		isMultiComp() const;
     bool		isMultiConn() const;
 
-    void		writeBluntly( bool yn=true )	{ makewrready = !yn; }
+    void		writeBluntly( bool yn=true )	{ makewrready_ = !yn; }
 
-    Seis2DLinePutter*	linePutter()			{ return putter; }
-    const Seis2DLinePutter* linePutter() const		{ return putter; }
+    Seis2DLinePutter*	linePutter()			{ return putter_; }
+    const Seis2DLinePutter* linePutter() const		{ return putter_; }
 
-    SeisPSWriter*	psWriter()			{ return pswriter; }
-    const SeisPSWriter*	psWriter() const		{ return pswriter; }
+    SeisPSWriter*	psWriter()			{ return pswriter_; }
+    const SeisPSWriter*	psWriter() const		{ return pswriter_; }
 
     			// 2D
-    const LineKeyProvider* lineKeyProvider() const	{ return lkp; }
+    const LineKeyProvider* lineKeyProvider() const	{ return lkp_; }
     void		setLineKeyProvider( const LineKeyProvider* l )
-							{ lkp = l; }
+							{ lkp_ = l; }
 				//!< If no lineKeyProvider set,
 				//!< seldata's linekey will be used
-    void		setAttrib( const char* a )	{ attrib = a; }
+    void		setAttrib( const char* a )	{ attribnm_ = a; }
 				//!< if set, overrules attrib in linekey
-    IOPar&		lineAuxPars()			{ return lineauxiopar; }
-    void 		setDataType( const char* dt ) 	{ datatype = dt; } 
+    IOPar&		lineAuxPars()			{ return lineauxiopar_;}
+    void 		setDataType( const char* dt ) 	{ datatype_ = dt; } 
 
     static const char*	sKeyWriteBluntly();
     virtual void	usePar(const IOPar&);
@@ -78,17 +78,19 @@ public:
 
 protected:
 
-    bool		prepared;
-    int			nrtrcs;
-    int			nrwritten;
-    SeisTrc&		worktrc;
-    bool		makewrready;
+    bool		prepared_;
+    int			nrtrcs_;
+    int			nrwritten_;
+    SeisTrc&		worktrc_;
+    bool		makewrready_;
+    int			firstns_;
+    SamplingData<float>	firstsampling_;
 
     void		init();
     void		startWork();
 
     // PS only
-    SeisPSWriter*	pswriter;
+    SeisPSWriter*	pswriter_;
 
     // 3D only
     Conn*		crConn(int,bool);
@@ -96,14 +98,14 @@ protected:
     bool		start3DWrite(Conn*,const SeisTrc&);
 
     // 2D only
-    BufferString	attrib;
-    Seis2DLinePutter*	putter;
+    BufferString	attribnm_;
+    Seis2DLinePutter*	putter_;
     PosInfo::Line2DData	geom_;
-    IOPar&		lineauxiopar;
-    LineKey		prevlk;
-    const LineKeyProvider* lkp;
+    IOPar&		lineauxiopar_;
+    LineKey		prevlk_;
+    const LineKeyProvider* lkp_;
+    BufferString	datatype_;
     bool		next2DLine();
-    BufferString	datatype;
     bool		put2D(const SeisTrc&);
 
 };
