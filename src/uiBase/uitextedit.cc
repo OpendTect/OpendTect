@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.49 2011-07-19 16:51:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.50 2012-02-21 09:09:06 cvsraman Exp $";
 
 
 #include "uitextedit.h"
@@ -350,6 +350,8 @@ void uiTextBrowser::readTailCB( CallBacker* )
 void uiTextBrowser::setText( const char* txt )
 { qte().setText( txt ); }
 
+void uiTextBrowser::setHtmlText( const char* txt )
+{ body_->setHtml( txt ); }
 
 const char* uiTextBrowser::source() const
 { 
