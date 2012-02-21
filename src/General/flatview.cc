@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.65 2011-10-21 12:29:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.66 2012-02-21 15:06:38 cvsbruno Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -599,4 +599,15 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
     if ( iop && iop->size() )
 	useAppearancePar( *iop );
     delete iop;
+}
+
+
+const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
+{
+    const bool wva = isVisible(true);
+    const FlatDataPack* dp = pack(wva) ? pack(wva) : pack(!wva); 
+    if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
+
+    const FlatPosData& pd = dp->posData();
+    return pd.range( forx1 );
 }
