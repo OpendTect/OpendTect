@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.2 2012-02-20 14:36:39 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.3 2012-02-21 14:39:06 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -21,29 +21,10 @@ INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
 
 
 FILE(WRITE ${OD_MODDEPS_FILE} "")
-FILE(WRITE ${OD_FIND_OD_FILE} "INCLUDE ( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
-FILE(APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/lib/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )\n")
-
 FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     #Start write ModDeps-line
     FILE(APPEND ${OD_MODDEPS_FILE}
 	"${MODULE}:\t\tS.${MODULE}")
-    IF ( OD_${MODULE}_DEPS )
-	FILE(APPEND ${OD_FIND_OD_FILE}
-	    "SET( OD_${MODULE}_DEPS ${OD_${MODULE}_DEPS} )\n" )
-    ENDIF()
-    IF ( OD_${MODULE}_INCLUDEPATH )
-	STRING( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
-			${OD_${MODULE}_INCLUDEPATH} )
-	FILE(APPEND ${OD_FIND_OD_FILE}
-	   "SET( OD_${MODULE}_INCLUDEPATH \${${PROJECT_NAME}_DIR}${INCLUDEPATH} )\n" )
-    ENDIF()
-    #IF ( OD_${MODULE}_RUNTIMEPATH )
-	#STRING( REPLACE ${CMAKE_SOURCE_DIR} "" RUNTIMEPATH
-			#${OD_${MODULE}_RUNTIMEPATH} )
-	#FILE(APPEND ${OD_FIND_OD_FILE}
-       #"SET( OD_${MODULE}_RUNTIMEPATH \${}${RUNTIMEPATH} )\n" )
-    #ENDIF()
 
     #Add all module dependencies
     IF( OD_${MODULE}_DEPS )
