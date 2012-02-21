@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.34 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.35 2012-02-21 19:14:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
     const visSurvey::PlaneDataDisplay* getSectionDisplay() const;
     
     Notifier<Viewer3D>		draggermoving;
+    NotifierAccess*		getMovementNotifier() { return &draggermoving;}
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
    				//2D case 
