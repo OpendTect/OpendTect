@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.44 2012-02-15 16:24:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.45 2012-02-21 10:52:18 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -449,6 +449,8 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
     ODInst::AutoInstType newait = (ODInst::AutoInstType)dlg.choice();
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
+    if ( newait == ODInst::InformOnly )
+	am_.appl_.updateCaption();
 }
 
 

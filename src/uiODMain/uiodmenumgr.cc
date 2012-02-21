@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.243 2012-02-17 23:11:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.244 2012-02-21 10:52:19 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -42,6 +42,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.243 2012-02-17 23:11:12 cvsn
 #include "strmprov.h"
 #include "survinfo.h"
 #include "thread.h"
+#include "odinst.h"
 
 static const char* sKeyIconSetNm = "Icon set name";
 
@@ -632,10 +633,19 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
-    uiPopupMenu* instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
-    utilmnu_->insertItem( instmgrmnu );
-    mInsertItem( instmgrmnu, "Installation &Manager ...", mInstMgrMnuItem );
-    mInsertItem( instmgrmnu, "&Auto-update policy ...", mInstAutoUpdPolMnuItm );
+
+    uiPopupMenu* instmgrmnu = utilmnu_;
+    const ODInst::AutoInstType ait = ODInst::getAutoInstType();
+    const bool aitfixed = ODInst::autoInstTypeIsFixed();
+    if ( !aitfixed )
+    {
+	instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
+	utilmnu_->insertItem( instmgrmnu );
+	mInsertItem( instmgrmnu, "&Auto-update policy ...",
+			mInstAutoUpdPolMnuItm );
+    }
+    if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
+	mInsertItem( instmgrmnu, "Installation &Manager ...", mInstMgrMnuItem );
 
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
