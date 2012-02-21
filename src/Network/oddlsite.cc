@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.14 2012-02-17 08:43:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.15 2012-02-21 07:20:24 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -121,6 +121,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr )
 	reConnect();
 	odhttp_->resetForceAbort();
 	errmsg_ = ". Operation aborted by the user";
+	File::remove( outfnm );
 	return false;
     }
 
