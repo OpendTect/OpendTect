@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.27 2011-02-17 19:12:06 cvskris Exp $
+ RCS:           $Id: uiodmain.h,v 1.28 2012-02-21 09:31:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,6 @@ protected:
     bool		failed_;
 
     virtual bool	closeOK();
-    void		updateCaption();
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
     void		restoreSession(const IOObj*);
@@ -114,6 +113,7 @@ public:
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
     bool		menuMgrAvailable() const	{ return menumgr_; }
     bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
+    void		updateCaption();
 
 };
 
