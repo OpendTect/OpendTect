@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Oct 2011 
- RCS:		$Id: httptask.h,v 1.2 2011-11-28 14:09:01 cvsbert Exp $
+ RCS:		$Id: httptask.h,v 1.3 2012-02-21 08:49:42 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     const char*		message() const         { return msg_; }
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64            nrDone() const          { return nrdone_; }
-    const char*         nrDoneText() const      { return "Bytes done"; }
+    const char*         nrDoneText() const      { return "Kilobytes done"; }
 
     bool		userStop() const
     			{ return state_ != ErrorOccurred(); }
