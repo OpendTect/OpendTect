@@ -7,14 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.2 2012-02-15 16:22:05 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.3 2012-02-21 09:31:28 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include "strmprov.h"
 #include "settings.h"
 #include "bufstringset.h"
+
+#define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
+#define mRelRootDir GetSoftwareDir(1)
+
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
@@ -35,8 +40,6 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
     return *ret;
 }
 const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
-
-#define mRelRootDir GetSoftwareDir(1)
 
 
 bool ODInst::canInstall()
@@ -59,9 +62,18 @@ bool ODInst::updatesAvailable()
 }
 
 
+bool ODInst::autoInstTypeIsFixed()
+{
+    mDeclEnvVarVal;
+    return envvarval && *envvarval;
+}
+
+
 ODInst::AutoInstType ODInst::getAutoInstType()
 {
-    const char* res = userSettings().find( sKeyAutoInst() );
+    mDeclEnvVarVal;
+    const char* res = envvarval && *envvarval ? envvarval
+			: userSettings().find( sKeyAutoInst() ).str();
     return res && *res ? parseEnumAutoInstType( res ) : ODInst::UseManager;
 }
 
