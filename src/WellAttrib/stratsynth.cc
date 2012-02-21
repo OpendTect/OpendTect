@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.23 2012-02-16 15:39:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.24 2012-02-21 13:53:17 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -223,7 +223,6 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 }
 
 
-#define mSearchFac 4*SI().zStep()
 void StratSynth::snapLevelTimes( SeisTrcBuf& trcs, 
 			const ObjectSet<const TimeDepthModel>& d2ts ) 
 {
@@ -236,13 +235,26 @@ void StratSynth::snapLevelTimes( SeisTrcBuf& trcs,
 
     for ( int idx=0; idx<trcs.size(); idx++ )
     {
-	SeisTrcPropCalc stp( *trcs.get( idx ) );
+	const SeisTrc& trc = *trcs.get( idx );
+	SeisTrcPropCalc stp( trc );
 	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
 	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
 	{
-	    Interval<float> tg( z-mSearchFac , z+mSearchFac );
-	    ValueSeriesEvent<float,float> vse = stp.find(level_->snapev_,tg); 
-	    z = vse.pos;
+	    Interval<float> tg( z, trc.startPos() );
+	    mFlValSerEv ev1 = stp.find( level_->snapev_, tg, 1 );
+	    tg.start = z; tg.stop = trc.samplePos( trc.size()-1 );
+	    mFlValSerEv ev2 = stp.find( level_->snapev_, tg, 1 );
+	    float tmpz = ev2.pos;
+	    const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
+	    const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
+	    if ( ev1invalid && ev2invalid )
+		continue;
+	    else if ( ev2invalid )
+		tmpz = ev1.pos;
+	    else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
+		tmpz = ev1.pos;
+
+	    z = tmpz;
 	}
 	trcs.get( idx )->info().pick = z;
     }
