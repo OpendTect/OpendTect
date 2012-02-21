@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.17 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.18 2012-02-21 21:15:01 cvsyuancheng Exp $";
 
 #include "prestackeventio.h"
 
@@ -320,6 +320,8 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
 
 bool EventReader::prepareWork()
 {
+    if ( !ioobj_ ) return false;
+
     const BufferString fnm( ioobj_->fullUserExpr(true) );
     if ( !File::isDirectory(fnm.buf()) )
     {
