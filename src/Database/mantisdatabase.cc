@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.44 2012-02-17 06:33:06 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.45 2012-02-21 11:43:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -841,10 +841,10 @@ bool SqlDB::MantisDBMgr::editBug( BugTableEntry& bugtable,
 }
 
 
-bool SqlDB::MantisDBMgr::deleteBug( int id )
+bool SqlDB::MantisDBMgr::deleteBug( int bugid )
 {
-    return deleteBugHistory( id ) && deleteBugNoteInfo( id ) &&
-	   deleteBugTableInfo( id );
+    return deleteBugHistory( bugid ) && deleteBugNotesInfo( bugid ) &&
+	   deleteBugTableInfo( bugid );
 }
 
 
@@ -895,12 +895,60 @@ bool SqlDB::MantisDBMgr::getNotesInfo( int bugid, TypeSet<int>& noteids,
 }
 
 
-bool SqlDB::MantisDBMgr::deleteBugNoteInfo( int id )
+int SqlDB::MantisDBMgr::getBugNoteTextID( int noteid )
+{
+    const char* bntt = sKeyBugNoteTextTable();
+    const char* bnt = sKeyBugNoteTable();
+    BufferString qstr( "SELECT bugnote_text_id FROM " );
+    qstr.add( bnt ).add( " WHERE id=" ).add( noteid );
+    int notetextid = -1;
+    const bool isok = query().execute( qstr );
+    if ( !isok )
+	return notetextid;
+
+    while ( query().next() )
+	notetextid = query().iValue( 0 );
+
+    return notetextid;
+}
+
+
+bool SqlDB::MantisDBMgr::deleteSelBugNote( int noteid )
+{
+    int notetextid = getBugNoteTextID( noteid );
+    const char* bntt = sKeyBugNoteTextTable();
+    const char* bnt = sKeyBugNoteTable();
+    if ( notetextid < 0 )
+	return false;
+
+    bool isntiddel = query().deleteInfo( bnt, "id", noteid );
+    bool isnttiddel = query().deleteInfo( bntt, "id", notetextid );
+    return isnttiddel && isntiddel;
+}
+
+
+
+bool SqlDB::MantisDBMgr::updateBugNote( int noteid, const BufferString& note )
+{
+    int notetextid = getBugNoteTextID( noteid );
+    if ( notetextid < 0 )
+	return false;
+
+    BufferStringSet cols,vals;
+    cols.add( "note" );
+    vals.add( note );
+    const char* bntt = sKeyBugNoteTextTable();
+    bool isupd = query().update( cols, vals, bntt, notetextid );
+    return isupd;
+}
+
+
+bool SqlDB::MantisDBMgr::deleteBugNotesInfo( int bugid )
 {
     const char* bntt = sKeyBugNoteTextTable();
     const char* bnt = sKeyBugNoteTable();
     BufferString qstr( "SELECT id,bugnote_text_id FROM " );
-    qstr.add( bnt ).add ( " WHERE " ).add( " bug_id=" ).add( id );
+    qstr.add( bnt ).add ( " WHERE " ).add( " bug_id=" ).add( bugid );
     bool isok = false;
     isok = query().execute( qstr );
     if ( !isok )
@@ -934,7 +982,7 @@ bool SqlDB::MantisDBMgr::deleteBugNoteInfo( int id )
 	}
     }
 
-    isok = query().deleteInfo( bnt, "bug_id", id );
+    isok = query().deleteInfo( bnt, "bug_id", bugid );
     if ( !isok )
 	mErrRet( "Unable to delete note info from BugNoteTable" );
 
