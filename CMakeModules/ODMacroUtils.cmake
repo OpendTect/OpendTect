@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.18 2012-02-21 14:40:11 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.19 2012-02-21 16:24:58 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -86,6 +86,16 @@ IF (OD_IS_PLUGIN)
 	LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	    ${PLUGINDIR}/include/${OD_PLUGINSUBDIR})
 	INCLUDE(${PLUGINDIR}/src/${OD_PLUGINSUBDIR}/CMakeLists.txt)
+    ENDFOREACH()
+
+    # Write alo-file
+    FOREACH( PLUGINEXEC ${OD_PLUGIN_EXECS} )
+	SET ( OD_ALOFILE ${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR}/${PLUGINEXEC}.${OD_SUBSYSTEM}.alo )
+	IF ( EXISTS ${OD_ALOFILE} )
+	    FILE( APPEND ${OD_ALOFILE} ${OD_MODULE_NAME} "\n" )
+	ELSE()
+	    FILE( WRITE ${OD_ALOFILE} ${OD_MODULE_NAME} "\n" )
+	ENDIF()
     ENDFOREACH()
 ELSE()
     LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
