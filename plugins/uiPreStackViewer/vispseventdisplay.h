@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.8 2012-02-20 21:54:18 cvsyuancheng Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.9 2012-02-21 21:12:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ public:
     virtual int			nrAttribs() const { return 1; }
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
     
-    enum DisplayMode		{ ZeroOffset, FullOnSections, 
+    enum DisplayMode		{ None, ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };
     				DeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);

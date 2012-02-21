@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.12 2012-02-21 19:15:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.13 2012-02-21 21:12:36 cvsyuancheng Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -36,7 +36,8 @@ DefineEnumNames( PSEventDisplay, MarkerColor, 0, "Marker Color" )
 { "Single", "Quality", "Velocity", "Velocity fit", 0 };
 
 DefineEnumNames( PSEventDisplay, DisplayMode, 0, "Display Mode" )
-{ "Zero offset", "Sticks from sections", "Zero offset on sections", 0 };
+{ "None","Zero offset", "Sticks from sections", "Zero offset on sections", 
+  "Sticks to gathers", 0 };
 
 PSEventDisplay::PSEventDisplay()
     : VisualObjectImpl( false )
@@ -388,7 +389,14 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( !eventman_ )
 	return;
 
-    if ( displaymode_ == ZeroOffset )
+    if ( displaymode_==None )
+    {
+	for ( int idx=0; idx<parentattached_.size(); idx++ )
+	    clearDisplay( parentattached_[idx] );
+	
+	return;
+    }
+    else if ( displaymode_==ZeroOffset )
     {
 	for ( int idx=0; idx<parentattached_.size(); idx++ )
     	    clearDisplay( parentattached_[idx] );
@@ -474,15 +482,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    return;
 	}
 
-	if ( gather->is3DSeis() )
-	{
-	    const BinID bid = gather->getPosition();
-	    cs.hrg.setInlRange( Interval<int>(bid.inl, bid.inl) );
-	    cs.hrg.setCrlRange( Interval<int>(bid.crl, bid.crl) );
-	}
-	else
-	{
-	}
+	const BinID bid = gather->is3DSeis() ? gather->getPosition()
+					     : BinID(-1,-1);
+	cs.hrg.setInlRange( Interval<int>(bid.inl, bid.inl) );
+	cs.hrg.setCrlRange( Interval<int>(bid.crl, bid.crl) );
 
 	const bool isinl = gather->isOrientationInline();
 	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
