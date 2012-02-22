@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.3 2012-02-21 14:39:06 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.4 2012-02-22 09:08:26 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -16,7 +16,7 @@
 
 MACRO( OD_WRITE_MODDEPS )
 
-SET( OD_MODDEPS_FILE ${CMAKE_BINARY_DIR}/Pmake/ModDeps.${OD_SUBSYSTEM} )
+SET( OD_MODDEPS_FILE ${OD_BINARY_BASEDIR}/Pmake/ModDeps.${OD_SUBSYSTEM} )
 INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
 
 
@@ -52,11 +52,12 @@ ENDMACRO()
 
 MACRO( OD_WRITE_FINDFILE )
 
-SET( OD_FIND_OD_FILE ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake )
+SET( OD_FIND_OD_FILE ${CMAKE_SOURCE_DIR}/CMakeModules/FindOpendTect.cmake )
 
 INSTALL( FILES ${OD_FIND_OD_FILE} DESTINATION data )
 FILE(WRITE ${OD_FIND_OD_FILE} "INCLUDE ( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
 FILE(APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/lib/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )\n")
+FILE(APPEND ${OD_FIND_OD_FILE} "SET ( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )\n" )
 
 FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     IF ( OD_${MODULE}_DEPS )
