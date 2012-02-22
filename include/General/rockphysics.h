@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.3 2012-02-08 23:06:24 cvsnanne Exp $
+ RCS:		$Id: rockphysics.h,v 1.4 2012-02-22 11:15:29 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -37,9 +37,9 @@ mClass Formula : public NamedObject
 {
 public:
 
-    typedef PropertyRef::StdType OutputType;
+    typedef PropertyRef::StdType PropType;
 
-			Formula( OutputType t, const char* nm=0 )
+			Formula( PropType t, const char* nm=0 )
 			: NamedObject(nm)
 			, type_(t)		{}
     static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
@@ -51,7 +51,7 @@ public:
     inline bool		operator !=( const Formula& pr ) const
 			{ return name() != pr.name(); }
 
-    inline bool		hasOutputType( OutputType t ) const
+    inline bool		hasPropType( PropType t ) const
 						{ return type_ == t; }
 
     mClass ConstDef : public NamedObject
@@ -62,14 +62,22 @@ public:
 			    , typicalrg_(0,1)		{}
 	BufferString	desc_;
 	Interval<float>	typicalrg_;
-
+    };
+    mClass VarDef : public NamedObject
+    {
+    public:
+			VarDef( const char* nm, PropType t )
+			    : NamedObject(nm)
+			    , type_(t)			{}
+	BufferString	desc_;
+	PropType	type_;
     };
 
-    OutputType		type_;
+    PropType		type_;
     BufferString	def_;
     BufferString	desc_;
     ObjectSet<ConstDef>	constdefs_;
-    BufferStringSet	vardefs_;
+    ObjectSet<VarDef>	vardefs_;
     Repos::Source	src_;
 
     bool		usePar(const IOPar&);

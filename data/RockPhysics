@@ -5,7 +5,9 @@ Thu Feb 2 12:54:10 2012
 Castagna: Velocity
 Description: This formula can convert P-wave velocity to S-wave, and vice versa.
 Formula: sqrt( c0*vel^2 + c1 )
-Variable.0: Input velocity
+Variable.0.Type: Velocity
+Variable.0.Name: Input velocity
+Variable.0.Description: The P-wave or S-wave velocity that you have available.
 Constant.0.Name: A
 Constant.0.Description: The fluid factor
 Constant.0.Typical Range: 0.3`0.4
@@ -16,7 +18,8 @@ Constant.1.Typical Range: 0.5`1
 Porosity from Density: Volumetrics
 Description: Plain and simple.`Beware that this formula only works if the input density is always between the matrix and fluid density.
 Formula: (c0 - den) / (c0 - c1)
-Variable.0: Input density
+Variable.0.Type: Density
+Variable.0.Name: Input density
 Constant.0.Name: Matrix density
 Constant.0.Description: The average density of the rock material itself.`Therefore, the density for posority 0.
 Constant.0.Typical Range: 2.2`2.9
@@ -27,7 +30,8 @@ Constant.1.Typical Range: 0.5`1.2
 Density from Porosity: Density
 Description: Plain and simple.`Beware that this formula only works if the input porosity is always between the 0 and 1.
 Formula: ( 1 - por ) * c0  +  por * c1
-Variable.0: Input porosity
+Variable.0.Type: Porosity
+Variable.0.Name: Input porosity
 Constant.0.Name: Matrix density
 Constant.0.Description: The average density of the rock material itself.
 Constant.0.Typical Range: 2.2`2.9

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.4 2012-02-20 14:00:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.5 2012-02-22 11:15:29 cvsbert Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -143,7 +143,7 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	{ uiMSG().error( "Formula doesn't match repository [v]!" ); return; }
     msg.add( "\nNr Vars:" ).add( nrvars );
     for ( int idx=0; idx<nrvars; idx++ )
-	msg.add( "\n" ).add( fm->vardefs_.get(idx) );
+	msg.add( "\n" ).add( fm->vardefs_[idx]->name() );
 
     uiMSG().message( msg );
 }
