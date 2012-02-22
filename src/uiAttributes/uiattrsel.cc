@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.75 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.76 2012-02-22 12:35:22 cvskris Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -46,8 +46,17 @@ static const char* rcsID = "$Id: uiattrsel.cc,v 1.75 2011-11-23 11:35:55 cvsbert
 #include "uilistbox.h"
 #include "uimsg.h"
 
-static const Attrib::DescSet emptyads2d( true );
-static const Attrib::DescSet emptyads3d( false );
+const Attrib::DescSet& emptyads2d()
+{
+	static Attrib::DescSet res( true );
+	return res;
+}
+
+const Attrib::DescSet& emptyads3d()
+{
+	static Attrib::DescSet res( false );
+    return res;
+}
 
 using namespace Attrib;
 
@@ -63,7 +72,7 @@ using namespace Attrib;
 }
 
 uiAttrSelData::uiAttrSelData( bool is2d, bool fillwithdef )
-    : attrset_(is2d ? &emptyads2d : &emptyads3d)
+    : attrset_(is2d ? &emptyads2d() : &emptyads3d() )
     mImplConstr
 
 
