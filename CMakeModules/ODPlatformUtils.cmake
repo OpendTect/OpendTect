@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.21 2012-02-22 09:09:26 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.22 2012-02-22 15:05:35 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -54,6 +54,10 @@ IF(WIN32)
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
-    SET( OD_PLFSUBDIR "win" )
+    IF ( OD_64BIT )
+        SET ( OD_PLFSUBDIR "win64" )
+    ELSE()
+        SET ( OD_PLFSUBDIR "win32" )
+    ENDIF()
 ENDIF()
 
