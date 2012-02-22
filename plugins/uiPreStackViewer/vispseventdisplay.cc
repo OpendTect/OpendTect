@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.13 2012-02-21 21:12:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.14 2012-02-22 19:10:39 cvsyuancheng Exp $";
 
 #include "vispseventdisplay.h"
 
@@ -370,17 +370,12 @@ void PSEventDisplay::otherObjectsMoved(
 float PSEventDisplay::getMoveoutComp( const TypeSet<float>& offsets,
 				    const TypeSet<float>& picks ) const
 {
-    float value = mUdf(float);
     float variables[] = { picks[0], 0, 3000 };
-	    //find better refoff
     PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
     const float error = moveoutcomp->findBestVariable(
 		    variables, 1, ctabmapper_.setup_.range_,
 		    offsets.size(), offsets.arr(), picks.arr() );
-    value = mIsUdf(error) ? error
-		: (markercolor_!=Velocity ? error : variables[1]);
-		    //TODO: set the value when mc=Quality, use v[1] for now.
-    return value;
+    return markercolor_==Velocity ? variables[1] : error;
 }
 
 
@@ -434,8 +429,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    picks += psevent->pick_[idy];
 		}
 		sort_coupled( offsets.arr(), picks.arr(), picks.size() );
-		const float val = getMoveoutComp( offsets, picks );  
-		vals += val;
+
+		vals += (markercolor_==Quality ? psevent->quality_
+					       : getMoveoutComp(offsets,picks));
 	    }
 	}
 
@@ -555,7 +551,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    if ( !event->sz_ )
 		continue;
 
-	    float value = mUdf(float);
 	    TypeSet<float> offsets( event->sz_, 0 );
 	    TypeSet<float> picks( event->sz_, 0 );
 	    for ( int idy=0; idy<event->sz_; idy++ )
@@ -564,11 +559,12 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		picks[idy] = event->pick_[idy];
 	    }
 	    sort_coupled( offsets.arr(), picks.arr(), picks.size() );
-	    if ( markercolor_!=Single )
-	    {
-		if ( event->sz_>1 )
-		    value = getMoveoutComp( offsets, picks );  
-	    }
+
+	    float value = mUdf(float);
+	    if ( markercolor_==Quality )
+		value = event->quality_;
+	    else if ( markercolor_!=Single && event->sz_>1 )
+		value = getMoveoutComp( offsets, picks );  
 
 	    Interval<int> pickrg( 0, fullevent ? event->sz_-1 : 0 );
 	    const bool doline = pickrg.start!=pickrg.stop;
