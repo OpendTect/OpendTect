@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.4 2012-02-22 09:08:26 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.5 2012-02-22 13:44:22 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -18,6 +18,9 @@ MACRO( OD_WRITE_MODDEPS )
 
 SET( OD_MODDEPS_FILE ${OD_BINARY_BASEDIR}/Pmake/ModDeps.${OD_SUBSYSTEM} )
 INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
+
+LIST( APPEND OD_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
+SET( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing );
 
 
 FILE(WRITE ${OD_MODDEPS_FILE} "")
@@ -37,6 +40,7 @@ FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     #End ModDeps-line
     FILE(APPEND ${OD_MODDEPS_FILE} "\n")
 ENDFOREACH()
+
 
 
 ENDMACRO()
