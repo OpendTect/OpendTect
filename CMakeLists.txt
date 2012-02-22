@@ -7,7 +7,10 @@
 
 cmake_minimum_required (VERSION 2.6)
 PROJECT(OpendTect)
+
 SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
+SET( OD_BINARY_BASEDIR ${OpendTect_DIR} )
+
 
 IF ( NOT DEFINED CMAKE_BUILD_TYPE )
     SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
@@ -18,72 +21,43 @@ SET(OD_DGB_DIR "" CACHE PATH
 
 SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 3)
-SET (OD_SUBSYSTEM "od" )
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
 
 INCLUDE ( OD_SetupOD )
 
+SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
+
 SET( EXECUTABLE_OUTPUT_PATH
      ${CMAKE_BINARY_DIR}/bin/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
 SET( LIBRARY_OUTPUT_PATH 
      ${CMAKE_BINARY_DIR}/lib/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
 
-SET(MODULES
-	Basic
-	Algo
-	Database
-	General
-	Strat
-	Network
-	Batch
-	Usage
-	Geometry
-	EarthModel
-	MMProc
-	Seis
-	NLA
-	AttributeEngine
-	Velocity
-	VolumeProcessing
-	PreStackProcessing
-	Attributes
-	EMAttrib
-	MPEEngine
-	Well
-	WellAttrib
-	uiBase
-	uiTools
-	uiFlatView
-	uiIo
-	uiSysAdm
-	uiNLA
-	uiSeis
-	uiStrat
-	uiEarthModel
-	uiWell
-	uiVelocity
-	uiVolumeProcessing
-	uiPreStackProcessing
-	uiAttributes
-	uiEMAttrib
-	uiMPE
-	uiViewer2D
-	uiWellAttrib
-	SoOD
-	visBase
-	visSurvey
-	uiCoin
-	uiVis
+SET(OD_MODULES
+	Basic Algo Database General
+	Strat Network Batch Usage
+	Geometry EarthModel MMProc Seis
+	NLA AttributeEngine Velocity
+	VolumeProcessing PreStackProcessing Attributes
+	EMAttrib MPEEngine Well WellAttrib
+	uiBase uiTools uiFlatView uiIo uiSysAdm
+	uiNLA uiSeis uiStrat uiEarthModel uiWell
+	uiVelocity uiVolumeProcessing uiPreStackProcessing
+	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
+	SoOD visBase visSurvey uiCoin uiVis
 	uiODMain
 )
 
-FOREACH( OD_MODULE_NAME ${MODULES} )
-    add_subdirectory( src/${OD_MODULE_NAME} )
-ENDFOREACH()
+SET( OD_PLUGINS Tut uiPreStackViewer )
 
-ADD_SUBDIRECTORY(plugins)
+OD_ADD_MODULES( src ${OD_MODULES} )
+
+SET( LIBRARY_OUTPUT_PATH 
+     ${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR}/libs )
+
+OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 
 OD_WRITE_MODDEPS()
 OD_WRITE_FINDFILE()
+OD_WRITE_ALOFILES()
