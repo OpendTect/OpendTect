@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.19 2012-02-21 16:24:58 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.20 2012-02-22 09:09:26 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -37,6 +37,7 @@
 #					  and all external libraries it is
 #					  dependent on.
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
+# OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}  : A list of all non-plugin modules
 #####################################
 #
 # Internal variables
@@ -88,16 +89,12 @@ IF (OD_IS_PLUGIN)
 	INCLUDE(${PLUGINDIR}/src/${OD_PLUGINSUBDIR}/CMakeLists.txt)
     ENDFOREACH()
 
-    # Write alo-file
-    FOREACH( PLUGINEXEC ${OD_PLUGIN_EXECS} )
-	SET ( OD_ALOFILE ${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR}/${PLUGINEXEC}.${OD_SUBSYSTEM}.alo )
-	IF ( EXISTS ${OD_ALOFILE} )
-	    FILE( APPEND ${OD_ALOFILE} ${OD_MODULE_NAME} "\n" )
-	ELSE()
-	    FILE( WRITE ${OD_ALOFILE} ${OD_MODULE_NAME} "\n" )
-	ENDIF()
-    ENDFOREACH()
+    # Record alo-entries
+    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_EXECS} )
+
 ELSE()
+    SET( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}
+	 ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} ${OD_MODULE_NAME} PARENT_SCOPE )
     LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
     LIST(APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH
@@ -237,7 +234,7 @@ ENDMACRO(OD_INIT_MODULE)
 
 MACRO( OD_ADD_DEPS DEP )
 #Check if dep is already in the list
-LIST(FIND OD_${OD_MODULE_NAME}_DEPS ${DEP} INDEX)
+LIST(FIND OD_MODULE_INTERNAL_LIBS ${DEP} INDEX)
 IF(${INDEX} EQUAL -1)
     #Add dependency
     LIST(APPEND OD_MODULE_INTERNAL_LIBS ${DEP} )

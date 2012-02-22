@@ -2,13 +2,13 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.20 2012-02-16 13:57:38 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.21 2012-02-22 09:09:26 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
     IF( OD_DEBUG )
         ADD_DEFINITIONS("-D__debug__")
-	ADD_DEFINITIONS( "-ggdb3"
+	ADD_DEFINITIONS(  "-ggdb3"
 		"-Wparentheses -Wreturn-type -Wpointer-arith"
                 "-Wwrite-strings -Wno-non-template-friend -Winline"
                 "-Wformat -Wshadow -Woverloaded-virtual")
@@ -24,7 +24,9 @@ IF(UNIX)
 	#NEEDED AS LONG AS WE HAVE COIN
 	SET(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
 	SET( OD_PLFSUBDIR mac )
-    ELSE()
+    ELSE() #Linux
+	#SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1) #Not needed, but percentages are screwed otherwise.
+
 	IF ( OD_64BIT )
 	    SET ( OD_PLFSUBDIR "lux64" )
 	    ADD_DEFINITIONS("-Dlux64")
