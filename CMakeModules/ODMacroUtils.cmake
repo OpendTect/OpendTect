@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.20 2012-02-22 09:09:26 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.21 2012-02-22 15:09:34 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -98,7 +98,7 @@ ELSE()
     LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
     LIST(APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH
-        ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME}/${CMAKE_BUILD_TYPE} )
+	${LIBRARY_OUTPUT_PATH}//${CMAKE_BUILD_TYPE} )
 ENDIF(OD_IS_PLUGIN)
 
 guess_runtime_library_dirs( EXTERNAL_RUNTIMEPATH ${OD_MODULE_EXTERNAL_LIBS} )
@@ -179,7 +179,10 @@ IF(OD_MODULE_EXECS)
         IF( OD_CREATE_LAUNCHERS )
 	    create_target_launcher( ${TARGET_NAME}
 		RUNTIME_LIBRARY_DIRS
-		${OD_MODULE_RUNTIMEPATH} )
+		${OD_MODULE_RUNTIMEPATH}
+		ENVIRONMENT
+		DTECT_APPL=${OD_BINARY_BASEDIR}
+		WORK=${OD_BINARY_BASEDIR})
         ENDIF( OD_CREATE_LAUNCHERS )
 	INSTALL(TARGETS
 		${TARGET_NAME}
