@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.5 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.6 2012-02-22 15:12:31 cvskris Exp $";
 
 
 #include "moddepmgr.h"
@@ -43,7 +43,8 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 	mdfnm = "ModDeps.od";
     FilePath relfp( GetSoftwareDir(0), "data", mdfnm );
     BufferString fnm( relfp.fullPath() );
-    FilePath devfp( GetEnvVar("WORK"), "Pmake", mdfnm );
+    const BufferString workdir = GetEnvVar("WORK");
+    FilePath devfp( workdir.buf(), "Pmake", mdfnm );
     if ( !File::exists(fnm) )
     {
 	isrel_ = false;
@@ -97,11 +98,21 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     devfp.setFileName( 0 );
     BufferString plfdir( GetPlfSubDir() );
     plfdir = plfdir == "win64" ? "x64" : "win32";
-    devfp.setFileName( "msvc10" ); devfp.add( plfdir );
+    devfp = workdir;
+    devfp.add( "msvc10" ); devfp.add( plfdir );
     devfp.add( isdebug ? "debug" : "release" );
     devbindir_ = devfp.fullPath();
     if ( !File::exists(devbindir_) )
-	devbindir_ = "";
+    {
+	devfp = workdir;
+	devfp.add( "lib" ); devfp.add( GetPlfSubDir() ).add( "G" );
+	devfp.add( isdebug ? "debug" : "release" );
+	devbindir_ = devfp.fullPath();
+	if ( !File::exists(devbindir_) )
+	{
+	    devbindir_ = "";
+	}
+    }
 #endif
 }
 
