@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.22 2012-02-22 15:05:35 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.23 2012-02-23 15:08:18 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -11,11 +11,12 @@ IF(UNIX)
 	ADD_DEFINITIONS(  "-ggdb3"
 		"-Wparentheses -Wreturn-type -Wpointer-arith"
                 "-Wwrite-strings -Wno-non-template-friend -Winline"
-                "-Wformat -Wshadow -Woverloaded-virtual")
+                "-Wformat -Wshadow -Woverloaded-virtual"
+		"-Wno-char-subscripts -Wno-sign-compare" )
     ENDIF()
     IF(APPLE)
 	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-        ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder")
+        ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder -Wno-unused")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
@@ -50,7 +51,7 @@ ENDIF()
 IF(WIN32)
     SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
-    ADD_DEFINITIONS("/W1 /Ob1 /MTd /vmg /Zc:wchar_t-")
+    ADD_DEFINITIONS("/W1 /Ob1 /MTd /vmg /Zc:wchar_t")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
