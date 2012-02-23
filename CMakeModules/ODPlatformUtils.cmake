@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.23 2012-02-23 15:08:18 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.24 2012-02-23 15:30:06 cvskris Exp $
 #_______________________________________________________________________________
 
 IF(UNIX)
@@ -50,8 +50,9 @@ ENDIF()
 
 IF(WIN32)
     SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+    SET ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
-    ADD_DEFINITIONS("/W1 /Ob1 /MTd /vmg /Zc:wchar_t")
+    ADD_DEFINITIONS("/W1 /Ob1 /MDd /vmg /Zc:wchar_t")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")

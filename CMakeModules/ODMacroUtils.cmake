@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.22 2012-02-23 08:59:22 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.23 2012-02-23 15:30:06 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -154,8 +154,10 @@ TARGET_LINK_LIBRARIES(
         ${OD_MODULE_NAME}
 	${OD_LIB_DEP_LIBS}
 	${OD_MODULE_EXTERNAL_LIBS}
-	${OD_MODULE_LINK_OPTIONS}
      )
+SET_TARGET_PROPERTIES( ${OD_MODULE_NAME}
+	PROPERTIES 
+	LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}" )
 
 INSTALL(TARGETS
         ${OD_MODULE_NAME}
