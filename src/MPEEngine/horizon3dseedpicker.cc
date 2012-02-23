@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.43 2012-01-04 14:07:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.44 2012-02-23 09:46:24 cvssatyaki Exp $";
 
 #include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "flthortools.h"
 #include "horizonadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
@@ -39,6 +40,7 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , lastseedpid_( EM::PosID::udf() )
     , lastseedkey_( Coord3::udf() )
     , seedpickarea_(false)
+    , fltdataprov_(0)
 {
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
     if ( hor && hor->nrSections()>0 )
@@ -84,8 +86,23 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
     const StepInterval<float> zrg = engine().activeVolume().zrg;
     if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
 	return false;
-
+    
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    BinID lastseedbid;
+    lastseedbid.fromInt64( lastseedpid_.subID() );
+    
+    bool iscuttingflt = false;
+    if ( fltdataprov_ && hrg.includes(lastseedbid) )
+    {
+	Coord3 lastseedcrd = emobj->getPos( lastseedpid_ );
+	if ( fltdataprov_->isCrossingFault(seedbid,seedcrd.z,lastseedbid,
+		    			   lastseedcrd.z) )
+	{
+	    iscuttingflt = true;
+	    drop = true;
+	}
+    }
+
     const EM::PosID pid( emobj->id(), sectionid_, seedbid.toInt64() );
     bool res = true;
 
@@ -588,7 +605,17 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     for ( int vtx=0; vtx<nrseeds-1; vtx++ ) 
     { 
-	const int diff = sortval[vtx+1] - sortval[vtx]; 
+	const int diff = sortval[vtx+1] - sortval[vtx];
+	if ( fltdataprov_ )
+	{
+	    Coord3 seed1 = emobj->getPos( seedlist_[vtx+1] );
+	    Coord3 seed2 = emobj->getPos( seedlist_[vtx] );
+	    BinID seed1bid = SI().transform( seed1 );
+	    BinID seed2bid = SI().transform( seed2 );
+	    if ( fltdataprov_->isCrossingFault(seed1bid,seed1.z,
+					       seed2bid,seed2.z) )
+		continue;
+	}
 	for ( int idx=step; idx<diff; idx+=step ) 
 	{ 
 	    const double frac = (double) idx / diff; 

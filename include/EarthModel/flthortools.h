@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.26 2011-09-01 16:02:19 cvsyuancheng Exp $
+ RCS:		$Id: flthortools.h,v 1.27 2012-02-23 09:46:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 namespace EM { class Fault; class Horizon; }
 class IOObj;
+class MultiID;
 class BinIDValueSet;
 class HorSampling;
 
@@ -57,6 +58,9 @@ public:
 	    				Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
+    bool		getHorTerminalPos( const EM::Horizon& hor,
+					   BinID& pos1bid, float& pos1z,
+					   BinID& pos2bid, float& pos2z ) const;
     bool		getImage(const BinID& srcbid,float srcz,
 	    			 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,
@@ -137,5 +141,44 @@ protected:
     od_int64			nrdone_;
 };
 
+
+mClass FaultTrcDataProvider
+{
+public:
+			FaultTrcDataProvider()
+			    : is2d_(false)	{}
+			FaultTrcDataProvider(const PosInfo::GeomID& geomid)
+			    : geomid_(geomid),is2d_(geomid.isOK()) {}
+			~FaultTrcDataProvider();
+
+    bool		init(const TypeSet<MultiID>&,const HorSampling&,
+	    		     TaskRunner* tr=0);
+
+    bool		is2D() const		{ return is2d_; }
+    int			nrFaults() const;
+    const HorSampling&	range(int) const;
+    bool		hasFaults(const BinID&) const;
+    const FaultTrace*	getFaultTrace(int,int,bool) const;
+    int			nrSticks(int fltidx) const;
+    const FaultTrace*	getFaultTrace2D(int fltidx,int stickidx) const;
+    bool		isCrossingFault(const BinID& b1,float z1,
+	    				const BinID& b2,float z2) const;
+    bool		getFaultZVals(const BinID&,TypeSet<float>&) const;
+    void		clear();
+    bool		isEmpty() const;
+    const char*		errMsg() const;
+
+protected:
+
+    bool		calcFaultBBox(const EM::Fault&,HorSampling&) const;
+    bool		get2DTraces(const TypeSet<MultiID>&);
+
+    bool				is2d_;
+    ObjectSet<ObjectSet<FaultTrace> >   flttrcs_;
+    TypeSet<HorSampling>                flths_;
+    PosInfo::GeomID			geomid_;
+    BufferString			errmsg_;
+
+};
 
 #endif

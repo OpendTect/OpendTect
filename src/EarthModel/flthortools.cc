@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.50 2011-10-28 11:29:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.51 2012-02-23 09:46:24 cvssatyaki Exp $";
 
 #include "flthortools.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.50 2011-10-28 11:29:35 cvsja
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
+#include "emsurfaceiodata.h"
 #include "executor.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
@@ -128,37 +129,54 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 }
 
 
-bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
+bool FaultTrace::getHorTerminalPos( const EM::Horizon& hor,
+				    BinID& pos1bid, float& pos1z,
+				    BinID& pos2bid, float& pos2z ) const
 {
-    BinID prevbid;
-    float prevz = mUdf(float);
+    pos2z = mUdf(float);
     const EM::SectionID sid = hor.sectionID( 0 );
     StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
 				     : hor.geometry().rowRange( sid );
     trcrg.limitTo( trcrange_ );
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
     {
-	BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	const float curz = hor.getPos( sid, curbid.toInt64() ).z;
-	if ( mIsUdf(curz) )
+	pos1bid = BinID( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
+	pos1z = hor.getPos( sid, pos1bid.toInt64() ).z;
+	if ( mIsUdf(pos1z) )
 	    continue;
 
-	if ( !mIsUdf(prevz) )
+	if ( !mIsUdf(pos2z) )
 	{
-	    Coord intsectn = getIntersection( curbid, curz, prevbid, prevz );
+	    Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
 	    if ( intsectn.isDefined() )
-	    {
-		bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT(intsectn.x) );
-		bid.crl = isinl_ ? trcrg.snap( mNINT(intsectn.x) ) : nr_;
 		return true;
-	    }
 	}
 
-	prevbid = curbid;
-	prevz = curz;
+	pos2bid = pos1bid;
+	pos2z = pos1z;
     }
 
     return false;
+}
+
+
+
+bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
+{
+    BinID pos1bid, pos2bid;
+    float pos1z, pos2z;
+    if ( !getHorTerminalPos(hor,pos1bid,pos1z,pos2bid,pos2z) )
+	return false;
+
+    const EM::SectionID sid = hor.sectionID( 0 );
+    StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
+				     : hor.geometry().rowRange( sid );
+    trcrg.limitTo( trcrange_ );
+
+    Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
+    bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT(intsectn.x) );
+    bid.crl = isinl_ ? trcrg.snap( mNINT(intsectn.x) ) : nr_;
+    return true;
 }
 
 
@@ -773,5 +791,286 @@ int FaultTraceCalc::nextStep()
     curnr_ += isinl_ ? hs_.step.inl : hs_.step.crl;
     nrdone_++;
     return MoreToDo();
+}
+
+
+FaultTrcDataProvider::~FaultTrcDataProvider()
+{ clear(); }
+
+const char* FaultTrcDataProvider::errMsg() const
+{ return errmsg_.buf(); }
+
+int FaultTrcDataProvider::nrFaults() const
+{ return flths_.size(); }
+
+const HorSampling& FaultTrcDataProvider::range( int index ) const
+{ return flths_[index]; }
+
+bool FaultTrcDataProvider::isEmpty() const
+{ return !flttrcs_.size(); }
+
+
+void FaultTrcDataProvider::clear()
+{
+    for ( int idx=0; idx<flttrcs_.size(); idx++ )
+	if ( flttrcs_[idx] )
+	    deepUnRef( *flttrcs_[idx] );
+
+    deepErase( flttrcs_ );
+    flths_.erase();
+}
+
+
+const FaultTrace* FaultTrcDataProvider::getFaultTrace( int index, int linenr,
+						       bool isinl ) const
+{
+    if ( !flttrcs_.validIdx(index) || !flths_.validIdx(index) || is2d_ )
+	return 0;
+
+    const HorSampling& hs = flths_[index];
+    const ObjectSet<FaultTrace>& trcs = *flttrcs_[index];
+    const int offset = isinl ? 0 : ( hs.nrCrl()==1 ? 0 : hs.nrInl());
+    int idx = isinl ? hs.inlIdx(linenr) : offset + hs.crlIdx(linenr);
+    return trcs.validIdx(idx) ? trcs[idx] : 0;
+}
+
+
+int FaultTrcDataProvider::nrSticks( int fltidx ) const
+{
+    if ( !flttrcs_.validIdx(fltidx) )
+	return 0;
+    
+    return flttrcs_[fltidx] ? flttrcs_[fltidx]->size() : 0;
+}
+
+
+const FaultTrace* FaultTrcDataProvider::getFaultTrace2D( int fltidx,
+							 int stickidx ) const
+{
+    if ( !flttrcs_.validIdx(fltidx) )
+	return 0;
+    
+    if ( !flttrcs_[fltidx]->validIdx(stickidx) )
+	return 0;
+    
+    return (*flttrcs_[fltidx])[stickidx];
+}
+
+
+bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
+					  HorSampling& hs ) const
+{
+    for ( int sdx=0; sdx<flt.nrSections(); sdx++ )
+    {
+	EM::SectionID sid = flt.sectionID( 0 );
+	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+			flt.geometry().sectionGeometry(sid) )
+	if ( !fss )
+	    continue;
+
+	const StepInterval<int> rowrg = fss->rowRange();
+	for ( int idx=rowrg.start; idx<=rowrg.stop; idx+=rowrg.step )
+	{
+	    const StepInterval<int> colrg = fss->colRange( idx );
+	    for ( int idy=colrg.start; idy<=colrg.stop; idy+=colrg.step )
+	    {
+		const Coord3 knot = fss->getKnot( RowCol(idx,idy) );
+		const BinID bid = SI().transform( knot );
+		hs.include( bid );
+	    }
+	}
+    }
+
+    return true;
+}
+
+# define mErrRet( str ) \
+{ errmsg_.setEmpty(); errmsg_ = str; return false; } 
+
+bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
+				 const HorSampling& hrg, TaskRunner* tr )
+{
+    clear();
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    sd.rg = hrg;
+    ExecutorGroup loadergrp( "Loading Faults" );
+    for ( int idx=0; idx<faultids.size(); idx++ )
+	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
+	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
+
+    const int res = tr ? tr->execute( loadergrp ) : loadergrp.execute();
+    if ( !res )
+	mErrRet("Failed to read the faults from disc")
+
+    if ( is2d_ )
+	return get2DTraces( faultids );
+
+    ExecutorGroup execgrp( "Calculating FaultTraces" );
+    for ( int idx=0; idx<faultids.size(); idx++ )
+    {
+	EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
+	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
+	if ( !flt )
+	    mErrRet("Failed to load the fault")
+
+	ObjectSet<FaultTrace>* trcs = new ObjectSet<FaultTrace>;
+	flttrcs_ += trcs;
+
+	HorSampling hs( false );
+	calcFaultBBox( *flt, hs );
+
+	hs.limitTo( hrg );
+	flths_ += hs;
+	execgrp.add( new FaultTraceCalc(flt,hs,*trcs) );
+
+    }
+
+    const bool ret = tr ? tr->execute(execgrp) : execgrp.execute();
+    if ( !ret )
+	mErrRet("Failed to extract Fault traces")
+
+    return true;
+}
+
+
+bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids )
+{
+    for ( int idx=0; idx<faultids.size(); idx++ )
+    {
+	EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
+	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
+	if ( !flt )
+	    return false;
+
+	ObjectSet<FaultTrace>* trcs = new ObjectSet<FaultTrace>;
+	trcs->allowNull( true );
+	flttrcs_ += trcs;
+	FaultTraceExtractor exec( flt, geomid_ );
+	HorSampling hs( false );
+        if ( exec.execute() )
+	{
+	    ObjectSet<FaultTrace>& nts = exec.getFaultTraces();
+	    hs.setInlRange( Interval<int>(0,0) );
+	    bool found = false;
+	    for ( int idy=0; idy<nts.size(); idy++ )
+	    {
+		(*trcs) += nts[idy];
+		if ( !nts[idy] )
+		    continue;
+		
+		nts[idy]->ref();
+		if ( !found )
+		{
+		    hs.setCrlRange( nts[idy]->trcRange() );
+		    found = true;
+		}
+		else
+		    hs.crlRange().include( nts[idy]->trcRange() );
+	    }
+	}
+	flths_ += hs;
+    }
+
+    return true;
+}
+
+
+bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
+{
+    for ( int idx=0; idx<flths_.size(); idx++ )
+	if ( flths_[idx].includes(bid) )
+	    return true;
+
+    return false;
+}
+
+
+bool FaultTrcDataProvider::isCrossingFault( const BinID& bid1, float z1,
+					    const BinID& bid2, float z2 ) const
+{
+    if ( is2d_ )
+    {
+    	for ( int idx=0; idx<nrFaults(); idx++ )
+	{
+	    const int nrsticks = nrSticks( idx );
+	    for ( int idy=0; idy<nrsticks; idy++ )
+	    {
+		const FaultTrace* flt = getFaultTrace2D( idx, idy );
+		if ( flt && flt->isCrossing(bid1,z1,bid2,z2) )
+		    return true;
+	    }
+	}
+
+	return false;
+    }
+
+    const int inldiff = abs( bid1.inl - bid2.inl );
+    const int crldiff = abs( bid1.crl - bid2.crl );
+    if ( !inldiff && !crldiff )
+    {
+	for ( int idx=0; idx<nrFaults(); idx++ )
+	{
+	    const FaultTrace* flt = getFaultTrace( idx, bid1.inl, true );
+	    if ( !flt )
+		flt = getFaultTrace( idx, bid1.crl, false );
+	    
+	    if ( flt && flt->isCrossing(bid1,z1,bid2,z2) )
+		return true;
+	}
+	
+	return false;
+    }
+
+    const BinID anchorbid( bid2.inl, bid1.crl );
+    const float anchorz = z1 + ( z2 - z1 ) * inldiff / ( inldiff + crldiff );
+    for ( int idx=0; idx<nrFaults(); idx++ )
+    {
+	int nrcrossings = 0;
+	if ( bid1.inl != bid2.inl )
+	{
+	    const FaultTrace* crlflt = getFaultTrace( idx, bid1.crl, false );
+	    if ( crlflt && crlflt->isCrossing(bid1,z1,anchorbid,anchorz) )
+		nrcrossings++;
+	}
+
+	if ( bid1.crl != bid2.crl )
+	{
+	    const FaultTrace* inlflt = getFaultTrace( idx, bid2.inl, true );
+	    if ( inlflt && inlflt->isCrossing(bid2,z2,anchorbid,anchorz) )
+		nrcrossings++;
+	}
+
+	if ( nrcrossings == 1 )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool FaultTrcDataProvider::getFaultZVals( const BinID& bid,
+					  TypeSet<float>& zvals ) const
+{
+    zvals.erase();
+    for ( int idx=0; idx<nrFaults(); idx++ )
+    {
+	const int nrsticks = is2d_ ? nrSticks( idx ) : 1;
+	for ( int idy=0; idy<nrsticks; idy++ )
+	{
+	    const FaultTrace* flt = is2d_ ? getFaultTrace2D( idx, idy ) :
+		getFaultTrace( idx,bid.inl,true);
+	    if ( !is2d_ && !flt )
+		flt = getFaultTrace( idx, bid.crl, false );
+	    
+	    if ( !flt ) continue;
+	    
+	    const float z = flt->getZValFor( bid );
+	    if ( !mIsUdf(z) )
+	   	zvals += z;
+	}
+    }
+
+    return !zvals.isEmpty();
 }
 

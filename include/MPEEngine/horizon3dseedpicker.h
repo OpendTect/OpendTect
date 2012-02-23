@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.26 2011-12-23 15:28:20 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.27 2012-02-23 09:46:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emseedpicker.h"
 
+class FaultTrcDataProvider;
 namespace Attrib { class SelSpec; }
 
 namespace MPE
@@ -70,6 +71,8 @@ public:
     void		setSeedPickArea(const HorSampling& hs)
     							{ seedpickarea_ = hs; }
     const HorSampling*	getSeedPickArea() const 	{return &seedpickarea_;}
+    void		setFaultData( const FaultTrcDataProvider* data )
+			{ fltdataprov_ = data; }
 
 protected:
     bool		retrackOnActiveLine( const BinID& startbid, 
@@ -103,6 +106,7 @@ protected:
     MPE::EMTracker&	tracker_;
 
     const Attrib::SelSpec* selspec_;
+    const FaultTrcDataProvider* fltdataprov_;
     
     int			seedconmode_;
     bool		blockpicking_;
