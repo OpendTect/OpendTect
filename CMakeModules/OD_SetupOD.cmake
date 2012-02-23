@@ -9,6 +9,7 @@ SET( INCLUDES
     ODModDeps
     CreateLaunchers
     ODAloFile
+    ODInitheader
 )
 
 FOREACH( INC ${INCLUDES} )
