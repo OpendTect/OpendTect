@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.5 2012-02-22 11:15:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.6 2012-02-23 10:35:49 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -132,18 +132,12 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
     if ( !mp )
 	{ uiMSG().error( "No property defined for this type" ); return; }
 
-    const int nrconsts = mp->nrConsts();
-    if ( nrconsts != fm->constdefs_.size() )
+    if ( mp->nrConsts() != fm->constdefs_.size() )
 	{ uiMSG().error( "Formula doesn't match repository [c]!" ); return; }
-    BufferString msg( "TODO ...\nNr consts: ", nrconsts );
-    for ( int idx=0; idx<nrconsts; idx++ )
-	msg.add( "\n" ).add( fm->constdefs_[idx]->name() );
-    const int nrvars = mp->nrInputs();
-    if ( nrvars != fm->vardefs_.size() )
+    if ( mp->nrInputs() != fm->vardefs_.size() )
 	{ uiMSG().error( "Formula doesn't match repository [v]!" ); return; }
-    msg.add( "\nNr Vars:" ).add( nrvars );
-    for ( int idx=0; idx<nrvars; idx++ )
-	msg.add( "\n" ).add( fm->vardefs_[idx]->name() );
+
+    BufferString msg( "TODO ..." );
 
     uiMSG().message( msg );
 }
@@ -152,6 +146,39 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 BufferString uiRockPhysForm::getText() const
 {
     BufferString ret( "TODO * implement" );
+//    BufferString ret;
+
+    const char* txt = nmfld_->text();
+    if ( !txt || !*txt )
+    {
+	uiMSG().error( "Internal [impossible?]: no formula name selected" );
+	return ret;
+    }
+
+    const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
+    if ( !fm )
+    {
+	uiMSG().error( "Internal [impossible?]: formula not found" );
+	return ret;
+    }
+
+    MathProperty* mp = fm->getProperty();
+    if ( !mp )
+	{ uiMSG().error( "No property defined for this type" ); return ret; }
+
+    for ( int idx=0; idx<mp->nrConsts(); idx++ )
+    {
+//	int index =0;
+//	def_.replaceAt(index, mp->constdefs_[idx]->name() );
+    }
+
+    for ( int idx=0; idx<mp->nrInputs(); idx++ )
+    {
+//	def_.replaceAt(index, mp->constdefs_[idx]->name() );
+    }
+
+
+
 
     //TODO construct it, remember to replace ' ' with '_' in variable names
 
