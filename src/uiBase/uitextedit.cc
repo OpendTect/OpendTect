@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.50 2012-02-21 09:09:06 cvsraman Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.51 2012-02-23 09:32:51 cvsranojay Exp $";
 
 
 #include "uitextedit.h"
@@ -351,7 +351,11 @@ void uiTextBrowser::setText( const char* txt )
 { qte().setText( txt ); }
 
 void uiTextBrowser::setHtmlText( const char* txt )
-{ body_->setHtml( txt ); }
+{
+    body_->setHtml( txt );
+    body_->setOpenExternalLinks(true);
+    body_->setOpenLinks(true);
+}
 
 const char* uiTextBrowser::source() const
 { 
