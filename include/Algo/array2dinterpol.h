@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.9 2011-10-26 14:20:13 cvsbruno Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.10 2012-02-23 09:47:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -93,7 +93,7 @@ protected:
     bool	isDefined(int idx) const;
     		/*!<idx refers to positions on the grid by
 		    row=idx/nrcols_,col=idx%nrcols_ */
-    void	setFrom(int target, const int* sources,
+    virtual void setFrom(int target, const int* sources,
 			const float* weights, int nrsrc);
     		/*!<For convenience, inheriting obj may set arr_ directly. */
     void	floodFillArrFrom(int seed, const bool* isdef,

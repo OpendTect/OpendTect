@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.15 2011-01-10 10:20:57 cvssatyaki Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.16 2012-02-23 09:47:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -76,11 +76,11 @@ public:
     bool	usePar(const IOPar&);
 
 protected:
-    bool	doWork(od_int64,od_int64,int);
+    virtual bool doWork(od_int64,od_int64,int);
     od_int64	nrIterations() const		{ return totalnr_; }
     const char*	nrDoneText() const		{ return "Nodes gridded"; }
 
-    bool	doPrepare(int);
+    bool doPrepare(int);
 
     bool	initFromArray(TaskRunner*);
     od_int64	getNextIdx();
