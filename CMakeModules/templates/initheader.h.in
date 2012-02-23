@@ -1,0 +1,31 @@
+#ifndef init@OD_MODULE_NAME_LOWER@.h
+#define init@OD_MODULE_NAME_LOWER@.h
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	A.H.Bril
+ Date:		Mar 2006
+ RCS:		$Id: initheader.h.in,v 1.1 2012-02-23 08:59:22 cvskris Exp $
+________________________________________________________________________
+
+
+-*/
+
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
+#else
+# define dll_export
+# define dll_import
+#endif
+
+#if defined(@OD_MODULE_NAME@_EXPORTS) || defined(@OD_MODULE_NAME_UPPER@_EXPORTS)
+# define Export_@OD_MODULE_NAME@	dll_export
+#else
+# define Export_@OD_MODULE_NAME@	dll_import
+#endif
+
+
+#endif
