@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.44 2012-01-05 06:28:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.45 2012-02-24 14:27:54 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -58,11 +58,11 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
 
-    welllogselfld_ = new uiMultiWellLogSel( this );
+    welllogselfld_ = new uiMultiWellLogSel( this, true );
     welllogselfld_->attach( ensureBelow, llba );
 
     const float inldist = SI().inlDistance();
-    radiusfld_ = new uiGenInput( this, "Radius around wells",
+    radiusfld_ = new uiGenInput( this, "         Radius around wells",
 	    			 FloatInpSpec((float)((int)(inldist+.5))) );
     radiusfld_->attach( alignedBelow, llba );
     radiusfld_->attach( ensureBelow, welllogselfld_ );
@@ -76,10 +76,6 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 	posfiltfld_->attach( alignedBelow, radiusfld_ );
 	attgrp = posfiltfld_;
     }
-
-    logresamplfld_ = new uiGenInput( this, "     Log resampling method",
-			      StringListInpSpec(Stats::UpscaleTypeNames()) );
-    logresamplfld_->attach( alignedBelow, attgrp );
 
     setDescSet( d );
 
@@ -187,7 +183,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
     {
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = (Stats::UpscaleType)logresamplfld_->getIntValue();
+	wlde.samppol_ = (Stats::UpscaleType)welllogselfld_->getResamplingType();
 	if ( !tr.execute(wlde) )
 	    return false;
     }

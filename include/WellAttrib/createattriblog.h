@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: createattriblog.h,v 1.2 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: createattriblog.h,v 1.3 2012-02-24 14:27:54 cvsbruno Exp $
  _______________________________________________________________________
 
 -*/
@@ -55,17 +55,19 @@ public:
 				    : nlamodel_(0)
 				    , attrib_(attr)
 				    , tr_(0)
-				    , extractstep_(0.15)	    
-				    , topmrknm_(0)     	
-				    , botmrknm_(0)     	
+				    , extractstep_(0.15)
+				    , topval_(0)	
+				    , botval_(0)	
 				    {}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
 	mDefSetupMemb(const Attrib::DescSet*,attrib)
 	mDefSetupMemb(Attrib::SelSpec*,selspec)
 	mDefSetupMemb(float,extractstep)
-	mDefSetupMemb(const char*,topmrknm)
-	mDefSetupMemb(const char*,botmrknm)
+	mDefSetupMemb(float,topval) 
+	mDefSetupMemb(float,botval) 
+	mDefSetupMemb(BufferString,topmrknm)
+	mDefSetupMemb(BufferString,botmrknm)
 	mDefSetupMemb(BufferString,lognm)
 	mDefSetupMemb(TaskRunner*,tr) //optional
     };

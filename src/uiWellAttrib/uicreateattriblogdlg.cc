@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.28 2011-01-20 10:23:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.29 2012-02-24 14:27:54 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -23,7 +23,9 @@ static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.28 2011-01-20 10:23
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimultiwelllogsel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 
 
@@ -72,46 +74,34 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
     attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
 
+    uiSeparator* sep1 = new uiSeparator( this, "Attrib/Well Sep" );
+    sep1->attach( stretchedBelow, attribfld_ );
+
     if ( !singlewell )
     {
 	welllistfld_ = new uiListBox( this );
-	welllistfld_->attach( alignedBelow, attribfld_ );
+	welllistfld_->attach( ensureBelow, sep1 );
+	welllistfld_->attach( ensureBelow, attribfld_ );
 	welllistfld_->setMultiSelect();
 	welllistfld_->addItems( wellnames );
     }
 
-    BufferStringSet markernames;
-    markernames.add( Well::TrackSampler::sKeyDataStart() );
-    if ( wd->haveMarkers() )
-    {
-	for ( int idx=0; idx<wd->markers().size(); idx++ )
-	    markernames.add( wd->markers()[idx]->name() );
-    }
-    markernames.add( Well::TrackSampler::sKeyDataEnd() );
-
-    StringListInpSpec slis( markernames );
-    topmrkfld_ = new uiGenInput( this, "Extract between",
-	    					slis.setName("Top Marker") );
+    zrangeselfld_ = new uiWellZRangeSel( this, true );
+    zrangeselfld_->addMarkers( wd->markers() );
 
     if ( singlewell )
-	topmrkfld_->attach( alignedBelow, attribfld_ );
+	zrangeselfld_->attach( ensureBelow, sep1 );
     else
-	topmrkfld_->attach( alignedBelow, welllistfld_ );
-    topmrkfld_->setValue( (int)0 );
-    topmrkfld_->setElemSzPol( uiObject::Medium );
-    botmrkfld_ = new uiGenInput( this, "", slis.setName("Bottom Marker") );
-    botmrkfld_->attach( rightOf, topmrkfld_ );
-    botmrkfld_->setValue( markernames.size()-1 );
-    botmrkfld_->setElemSzPol( uiObject::Medium );
+	zrangeselfld_->attach( ensureBelow, welllistfld_ );
 
-    const bool zinft = SI().depthsInFeetByDefault();
-    const float defstep = zinft ? 0.5 : 0.15;
-    BufferString lbl = "Step "; lbl += zinft ? "(ft)" : "(m)";
-    stepfld_ = new uiGenInput( this, lbl, FloatInpSpec(defstep) );
-    stepfld_->attach( rightOf, botmrkfld_ );
+    uiSeparator* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
+    sep2->attach( stretchedBelow, zrangeselfld_ );
 
     lognmfld_ = new uiGenInput( this, "Log name" );
-    lognmfld_->attach( alignedBelow, topmrkfld_ );
+    lognmfld_->attach( ensureBelow, sep2 );
+    lognmfld_->attach( centeredBelow, zrangeselfld_);
+
+    attribfld_->attach( alignedAbove, lognmfld_ );
 }
 
 
@@ -137,11 +127,10 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
     else
 	selwells.add( wellnames_.get(0) );
 
-    if ( !strcmp(topmrkfld_->text(),botmrkfld_->text()) )
+    zrangeselfld_->getLimitMarkers( datasetup_.topmrknm_, datasetup_.botmrknm_);
+    if ( datasetup_.topmrknm_.isEqual(datasetup_.botmrknm_) )
 	mErrRet( "Please select different markers" )
 
-    datasetup_.topmrknm_ = topmrkfld_->text();
-    datasetup_.botmrknm_ = botmrkfld_->text();
     datasetup_.lognm_ = lognmfld_->text();
     Attrib::SelSpec selspec;
     datasetup_.selspec_ = &selspec;
@@ -181,10 +170,11 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" );
 
-    datasetup_.extractstep_ = stepfld_->getfValue();
+    datasetup_.extractstep_ = zrangeselfld_->getStep();
     if( datasetup_.extractstep_<0 || datasetup_.extractstep_>100 )
 	mErrRet( "Please Enter a valid step value" );
-    
+
+    zrangeselfld_->getLimitDists( datasetup_.topval_, datasetup_.botval_ )
     datasetup_.lognm_ = lognmfld_->text();
     if ( datasetup_.lognm_.isEmpty() )
 	mErrRet( "Please provide logname" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createattriblog.cc,v 1.2 2010-12-20 08:00:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: createattriblog.cc,v 1.3 2012-02-24 14:27:54 cvsbruno Exp $";
 
 #include "createattriblog.h"
 
@@ -36,6 +36,9 @@ void AttribLogCreator::setUpRange( const Well::Data& wd, Interval<float>& intv )
     const Well::Marker* mrk = 0;
     mGetMrkDpth( mrk, setup_.topmrknm_, start )
     mGetMrkDpth( mrk, setup_.botmrknm_, stop )
+
+    start -= setup_.topval_;
+    stop += setup_.botval_;
 
     if ( start > stop )
     { float tmp; mSWAP( start, stop, tmp ); }

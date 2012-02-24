@@ -6,35 +6,71 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.3 2011-01-26 08:49:21 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.4 2012-02-24 14:27:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "bufstringset.h"
 
-class BufferStringSet;
 class IOObj;
 class MultiID;
 class uiComboBox;
 class uiGenInput;
 class uiListBox;
 
-/*! brief enables selecting logs for all wells at the same time within a common 
-  zrange !*/
+namespace Well { class MarkerSet; } 
 
-mClass uiMultiWellLogSel : public uiGroup
+/*! brief: UI facilities to select/extract log data with zrg and extraction methods!*/
+
+
+mClass uiWellZRangeSel : public uiGroup
 {
 public:
-			uiMultiWellLogSel(uiParent*);
+
+			uiWellZRangeSel(uiParent*,bool withzstep=false,
+					bool withresampling=false);
+
+    void		clear();
+
+    void		addMarkers(const Well::MarkerSet&);
+    void		addMarkers(const BufferStringSet&);
+
+    const char*		getTopMarker() const;
+    const char*		getBottomMarker() const;
+    void		getLimitMarkers(BufferString& t,BufferString& b) const;
+    void		getLimitDists(float& top,float& bot) const;
+
+    float		getStep() const;
+    int			getResamplingType() const;
+
+protected:
+
+    BufferStringSet	markernms_;
+
+    uiComboBox*		topmarkfld_;
+    uiComboBox*		botmarkfld_;
+    uiGenInput*		abovefld_;
+    uiGenInput*		belowfld_;
+    uiGenInput*		stepfld_;
+
+    uiGroup*		attach_;
+
+    uiGenInput*		logresamplfld_;
+};
+
+
+
+mClass uiMultiWellLogSel : public uiWellZRangeSel
+{
+public:
+			uiMultiWellLogSel(uiParent*,bool withresampling=false);
 			~uiMultiWellLogSel();
 
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
-
-    void		getLimitMarkers(BufferString& t,BufferString& b) const;
-    void		getLimitDists(float& top,float& bot) const;
 
     void		update(); //call this when data changed
 
@@ -45,10 +81,6 @@ protected :
 
     uiListBox*		wellsfld_;
     uiListBox*		logsfld_;
-    uiComboBox*		topmarkfld_;
-    uiComboBox*		botmarkfld_;
-    uiGenInput*		abovefld_;
-    uiGenInput*		belowfld_;
 };
 
 #endif
