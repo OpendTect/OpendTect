@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.57 2011-09-02 08:58:45 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.58 2012-02-24 10:11:58 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -330,6 +330,8 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    sd_ = sd;
 	    break;
 	}
+        default:
+            break;
     }
 
     return isOK();
@@ -872,9 +874,9 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 	return false;
 
     ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
-    mAllocVarLenArr( float, deptharr, nr_in );
-    mAllocVarLenArr( float, depthsampled, nr_out );
-    mAllocVarLenArr( float, Vint_sampled, nr_out );
+    ArrPtrMan<float> deptharr = new float[nr_in];
+    ArrPtrMan<float> depthsampled = new float[nr_out];
+    ArrPtrMan<float> Vint_sampled = new float[nr_out];
     if ( !tinser.isOK() || !deptharr || !depthsampled || !Vint_sampled )
 	return false;
 
@@ -1057,8 +1059,8 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 
     ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
     ArrayValueSeries<float,float> Vinser ( const_cast<float*>(Vin), false );
-    mAllocVarLenArr( float, deptharr, nr_in );
-    mAllocVarLenArr( float, depthsampled, nr_out );
+    ArrPtrMan<float> deptharr = new float[nr_in];
+    ArrPtrMan<float> depthsampled = new float[nr_out];
     if ( !tinser.isOK() || !Vinser.isOK() || !deptharr || !depthsampled )
 	return false;
 
@@ -1081,8 +1083,9 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 bool sampleVavg( const float* Vin, const float* t_in, int nr_in,
 		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
 {
-    mAllocVarLenArr( float, vintarr, nr_in );
-    mAllocVarLenArr( float, vintsampledarr, nr_out );
+    ArrPtrMan<float> vintarr = new float[nr_in];
+    ArrPtrMan<float> vintsampledarr = new float[nr_out];
+    
     if ( !vintarr || !vintsampledarr ) return false;
 
     TypeSet<float> outtimesamps;
@@ -1134,11 +1137,10 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     if ( nr < 2 )
 	return false;
 
-    mAllocVarLenArr( float, tmp, nr );
-    if ( !tmp ) return false;
-
+    ArrPtrMan<float> tmp = new float[nr];
     ArrayValueSeries<float,float> inputvels( (float*)vint, false, nr );
     ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
+    
     if ( zisdepth )
     {
 	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
