@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivarwizard.cc,v 1.1 2010-02-17 12:53:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uivarwizard.cc,v 1.2 2012-02-24 14:12:18 cvsbert Exp $";
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
@@ -15,8 +15,8 @@ static const char* rcsID = "$Id: uivarwizard.cc,v 1.1 2010-02-17 12:53:06 cvsber
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
-static const int cMaxPDFs = 5;
-static const char* sKeyBayesInv = "Bayesian Inversion";
+const char* uiVarWizardDlg::sProceedButTxt()	{ return "Next &>>"; }
+const char* uiVarWizardDlg::sBackButTxt()	{ return "&<< Back"; }
 
 
 uiVarWizard::uiVarWizard( uiParent* p )
@@ -50,16 +50,16 @@ bool uiVarWizard::mustLeave( uiVarWizardDlg* dlg )
 
 uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
 			IOPar& pars, uiVarWizardDlg::Position pos )
-    : uiDialog(p,su)
+    : uiDialog(p,uiDialog::Setup(su).okcancelrev(true))
     , pars_(pars)
     , pos_(pos)
 {
     setModal( false );
 
     if ( pos_ != End )
-	setOkText( "Next &>>" );
+	setOkText( sProceedButTxt() );
     if ( pos_ != Start )
-	setCancelText( "&<< Back" );
+	setCancelText( sBackButTxt() );
 }
 
 

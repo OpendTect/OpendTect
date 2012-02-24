@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizarddlg.h,v 1.2 2010-02-18 12:09:48 cvsbert Exp $
+ RCS:           $Id: uivarwizarddlg.h,v 1.3 2012-02-24 14:12:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ public:
     			uiVarWizardDlg(uiParent*,const uiDialog::Setup&,IOPar&,
 					Position);
 			~uiVarWizardDlg();
+
+    static const char*	sProceedButTxt();
+    static const char*	sBackButTxt();
 
 protected:
 
