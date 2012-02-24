@@ -7,41 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.33 2012-02-17 23:07:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.34 2012-02-24 23:17:00 cvsnanne Exp $";
 
 
 #include "uiattrsurfout.h"
 
-#include "array2dinterpol.h"
 #include "array2dinterpolimpl.h"
-#include "ascstream.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribengman.h"
-#include "attribfactory.h"
 #include "attriboutput.h"
-#include "bufstring.h"
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfauxdataio.h"
-#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "multiid.h"
-#include "nladesign.h"
-#include "nlamodel.h"
-#include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
 
 #include "uiarray2dinterpol.h"
 #include "uiattrsel.h"
-#include "uiioobjsel.h"
-#include "uigeninput.h"
 #include "uibutton.h"
 #include "uidlggroup.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
 
 using namespace Attrib;
