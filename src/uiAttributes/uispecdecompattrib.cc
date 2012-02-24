@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.34 2011-06-13 06:10:07 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.35 2012-02-24 19:11:04 cvsnanne Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -69,7 +69,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     tfpanelbut_->attach( alignedBelow, gatefld_ );
 
     BufferString lbl( "Output frequency (" );
-    lbl += zIsTime() ? "Hz" : "cycles/mm"; lbl += ")";
+    lbl += zIsTime() ? "Hz" :
+	(SI().zInMeter() ? "cycles/km" : "cycles/kft"); lbl += ")";
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );
@@ -107,10 +108,10 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
 
     const float freqscale = zIsTime() ? 1 : 1000;
     const float scalednyqfreq = nyqfreq_ * freqscale;
-    outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
-    outpfld_->box()->setMaxValue( scalednyqfreq );
     stepfld_->box()->setInterval( (float)0.5, scalednyqfreq/2 );
     stepfld_->box()->setStep( (float)0.5, true );
+    outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
+    outpfld_->box()->setMaxValue( scalednyqfreq );
 }
 
 
@@ -246,7 +247,7 @@ void uiSpecDecompAttrib::checkOutValSnapped() const
 
 
 void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
-{                                                                               
+{
     if ( inpfld_->attribID() == DescID::undef() )
     {
 	uiMSG().error( "Please, first, fill in the Input Data field" );
@@ -441,7 +442,7 @@ bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
 				       int seloutidx, int inpidx,
 				       DescID inpid ) const
 {
-    if ( strcmp( dsc->attribName(), attribnm ) )
+    if ( strcmp(dsc->attribName(),attribnm) )
 	return false;
 
     if ( dsc->selectedOutput() != seloutidx )
@@ -457,18 +458,10 @@ bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
 //______________________________________________________________________
 
 const char* uiSpecDecompPanel::getProcName()
-{
-    return "Compute all frequencies for a single trace";
-}
-
+{ return "Compute all frequencies for a single trace"; }
 
 const char* uiSpecDecompPanel::getPackName()
-{
-    return "Spectral Decomposition time/frequency spectrum";
-}
-
+{ return "Spectral Decomposition time/frequency spectrum"; }
 
 const char* uiSpecDecompPanel::getPanelName()
-{
-    return "Time Frequency spectrum";
-}
+{ return "Time Frequency spectrum"; }
