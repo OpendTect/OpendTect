@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: qtimercomm.h,v 1.3 2009-12-04 14:36:42 cvsjaap Exp $
+ RCS:           $Id: qtimercomm.h,v 1.4 2012-02-24 10:16:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ private:
 
     QTimer*		qtimer_;
     Timer*		timer_;
-    int 		magic_;
+    unsigned int 	magic_;
 
 };
 

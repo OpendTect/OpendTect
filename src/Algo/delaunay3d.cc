@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.23 2011-05-10 16:40:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.24 2012-02-24 10:14:17 cvskris Exp $";
 
 #include "delaunay3d.h"
 
@@ -796,7 +796,7 @@ void DAGTetrahedraTree::splitTetrahedraInside( int ci, int ti )
 
 
 void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1, 
-					       char face )
+                                               char face )
 {
     if ( ti0<0 || ti0>=tetrahedras_.size() || 
 	 ti1<0 || ti1>=tetrahedras_.size() || face<0 )
@@ -933,7 +933,7 @@ void DAGTetrahedraTree::splitTetrahedraOnEdge( int ci, const TypeSet<int>& tis,
 			     tetrahedras_[tis[idx]].coordindices_[1],
 			     tetrahedras_[tis[idx]].coordindices_[2],
        			     tetrahedras_[tis[idx]].coordindices_[3] };
-	char s0, s1, s2, s3;
+	unsigned char s0, s1, s2, s3;
 	for( int idy=0; idy<4; idy++ )
 	{
 	    if ( crds[idy]==sharedv0 )
