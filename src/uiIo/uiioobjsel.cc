@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.159 2012-02-17 23:08:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.160 2012-02-24 23:11:58 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -231,6 +231,7 @@ const MultiID& uiIOObjSelGrp::selected( int objnr ) const
 
 void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
 {
+    listfld_->selectAll( false );
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const int selidx = indexOf( ioobjids_, mids[idx] );
