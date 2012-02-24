@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.29 2012-02-24 14:27:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.30 2012-02-24 14:51:55 cvskris Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -174,7 +174,7 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if( datasetup_.extractstep_<0 || datasetup_.extractstep_>100 )
 	mErrRet( "Please Enter a valid step value" );
 
-    zrangeselfld_->getLimitDists( datasetup_.topval_, datasetup_.botval_ )
+    zrangeselfld_->getLimitDists( datasetup_.topval_, datasetup_.botval_ );
     datasetup_.lognm_ = lognmfld_->text();
     if ( datasetup_.lognm_.isEmpty() )
 	mErrRet( "Please provide logname" );
