@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.5 2012-02-24 12:00:00 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.6 2012-02-24 12:23:46 cvsbert Exp $
 #_______________________________________________________________________________
 
 
@@ -15,10 +15,6 @@ IF ( (NOT DEFINED OSG_DIR) OR OSG_DIR STREQUAL "" )
     ENDIF()
 ENDIF()
 
-IF ( OSG_DIR STREQUAL "" )
-    SET(OSG_DIR "" CACHE PATH "OSG location" FORCE )
-    MESSAGE( FATAL_ERROR "OSG_DIR not set")
-ENDIF()
 
 SET(OSGGEO_DIR ${OSG_DIR})
 
@@ -28,11 +24,17 @@ LIST(APPEND CMAKE_MODULE_PATH ${OSGGEO_DIR}/share/CMakeModules )
 SET (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
 SET (CMAKE_DEBUG_POSTFIX d)
 
-FIND_PACKAGE(OSG REQUIRED)
-FIND_PACKAGE(osgGeo REQUIRED)
+FIND_PACKAGE(OSG)
+FIND_PACKAGE(osgGeo)
 
 #RESTORE DEBUG POSTFIX
 SET (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
+
+IF ( (NOT DEFINED OSG_FOUND) OR (NOT DEFINED OSGGEO_FOUND) )
+    SET(OSG_DIR "" CACHE PATH "OSG location" FORCE )
+    MESSAGE( FATAL_ERROR "OSG_DIR not set")
+ENDIF()
+
 
 MACRO(OD_SETUP_OSG)
     IF(OD_USEOSG)
