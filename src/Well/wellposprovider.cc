@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: wellposprovider.cc,v 1.3 2012-02-08 23:14:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellposprovider.cc,v 1.4 2012-02-24 23:14:41 cvsnanne Exp $";
 
 #include "wellposprovider.h"
 
@@ -29,12 +29,12 @@ const char* WellProvider3D::sKeyInlExt()	{ return "Inline extension"; }
 const char* WellProvider3D::sKeyCrlExt()	{ return "Crossline extension";}
 const char* WellProvider3D::sKeyZExt()		{ return "Z extension"; }
 const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
-const char* WellProvider3D::sKeyNrWells()	{ return "Nr of wells"; }
 
 
 WellProvider3D::WellProvider3D()
     : hs_(*new HorSampling(true))
     , zrg_(SI().zRange(false))
+    , onlysurfacecoords_(true)
 {
 }
 
@@ -43,6 +43,7 @@ WellProvider3D::WellProvider3D( const WellProvider3D& pp )
     : welldata_(pp.welldata_)
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
+    , onlysurfacecoords_(pp.onlysurfacecoords_)
 {
 }
 
@@ -78,18 +79,27 @@ void WellProvider3D::setHS()
     hs_.init( false );
     for ( int idx=0; idx<welldata_.size(); idx++ )
     {
-	if ( this->onlysurfacecoords_ )
+	if ( onlysurfacecoords_ )
 	{
 	    const Well::Info& info = welldata_[idx]->info();
 	    const BinID bid = SI().transform( info.surfacecoord );
 	    hs_.include( bid );
 	}
     }
+
+    if ( !hs_.isDefined() )
+	return;
+
+    hs_.start.inl -= inlext_;
+    hs_.stop.inl += inlext_;
+    hs_.start.crl -= crlext_;
+    hs_.stop.crl += crlext_;
 }
 
 
 bool WellProvider3D::initialize( TaskRunner* )
 {
+    welldata_.erase();
     for ( int idx=0; idx<wellids_.size(); idx++ )
 	welldata_ += Well::MGR().get( wellids_[idx] );
     if ( welldata_.isEmpty() ) return false;
@@ -99,7 +109,6 @@ bool WellProvider3D::initialize( TaskRunner* )
     if ( !toNextPos() )
 	return false;
 
-    curbid_.crl -= hs_.step.crl;
     curz_ = zrg_.stop;
     return true;
 }
@@ -160,13 +169,16 @@ void WellProvider3D::usePar( const IOPar& iop )
     iop.get( mGetWellKey(sKeyZExt()), zext_ );
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
     int nrwells = 0;
-    iop.get( mGetWellKey(sKeyNrWells()), nrwells );
+    iop.get( mGetWellKey(sKey::Size), nrwells );
     for ( int idx=0; idx<nrwells; idx++ )
     {
 	MultiID mid;
-	iop.get( mGetWellKey(IOPar::compKey(sKey::ID,idx)), mid );
+	BufferString idkey = IOPar::compKey( sKey::ID, idx );
+	iop.get( mGetWellKey(idkey), mid );
 	wellids_ += mid;
     }
+
+    initialize(0);
 }
 
 
@@ -176,9 +188,12 @@ void WellProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetWellKey(sKeyCrlExt()), crlext_ );
     iop.set( mGetWellKey(sKeyZExt()), zext_ );
     iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
-    iop.set( mGetWellKey(sKeyNrWells()), wellids_.size() );
+    iop.set( mGetWellKey(sKey::Size), wellids_.size() );
     for ( int idx=0; idx<wellids_.size(); idx++ )
-	iop.set( mGetWellKey(IOPar::compKey(sKey::ID,idx)), wellids_[idx] );
+    {
+	BufferString idkey = IOPar::compKey( sKey::ID, idx );
+	iop.set( mGetWellKey(idkey), wellids_[idx] );
+    }
 }
 
 
