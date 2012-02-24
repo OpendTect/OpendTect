@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiwell.cc,v 1.3 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiwell.cc,v 1.4 2012-02-24 23:17:35 cvsnanne Exp $";
 
 #include "moddepmgr.h"
+#include "uiwellposprov.h"
 #include "uiwellt2dconv.h"
 
 mDefModInitFn(uiWell)
 {
     mIfNotFirstTime( return );
 
+    uiWellPosProvGroup::initClass();
     uiT2DWellConvSelGroup::initClass();
 }
