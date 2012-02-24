@@ -2,17 +2,21 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.6 2012-02-23 13:28:43 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.7 2012-02-24 12:00:00 cvskris Exp $
 #_______________________________________________________________________________
 
-SET( OD_COINDIR_ENV $ENV{OD_COINDIR})
+IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
+    SET(OD_COINDIR_ENV $ENV{OD_COINDIR})
 
-FIND_PACKAGE( OpenGL REQUIRED )
+    IF(OD_COINDIR_ENV)
+        SET(COINDIR ${OD_COINDIR_ENV} CACHE PATH "COIN Location" FORCE )
+        MESSAGE( STATUS "Detecting COIN location: ${COINDIR}" )
+    ENDIF()
+ENDIF()
 
-IF(OD_COINDIR_ENV)
-    SET(COINDIR ${OD_COINDIR_ENV})
-ELSE()
-    SET(COINDIR "" CACHE PATH "COINDIR location")
+IF ( COINDIR STREQUAL "" )
+    SET(COINDIR "" CACHE PATH "COIN location" FORCE )
+    MESSAGE( FATAL_ERROR "COINDIR not set")
 ENDIF()
 
 MACRO(OD_SETUP_COIN)

@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.8 2012-02-24 11:38:54 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.9 2012-02-24 12:00:00 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -15,6 +15,8 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "" )
     ELSE()
 	SET ( CMAKE_BUILD_TYPE "Release" CACHE STRING "Debug or Release" FORCE)
     ENDIF()
+
+    MESSAGE( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
 ENDIF()
 
 SET ( OD_PLUGIN_OUTPUT_PATH

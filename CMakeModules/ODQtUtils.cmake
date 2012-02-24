@@ -2,20 +2,20 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.9 2012-02-24 11:25:55 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.10 2012-02-24 12:00:00 cvskris Exp $
 #_______________________________________________________________________________
 
-IF ( QTDIR STREQUAL "" )
+IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
     SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
     SET(QTDIR_ENV $ENV{QTDIR})
 
     IF(OD_QTDIR_ENV)
-	SET(QTDIR ${OD_QTDIR_ENV} CACHE FORCE )
-	SET(ENV{QTDIR} ${QTDIR} )
+	SET(QTDIR ${OD_QTDIR_ENV} CACHE PATH "QT Location" FORCE )
+	MESSAGE( STATUS "Detecting QT location: ${QTDIR}" )
     ELSE()
 	IF(QTDIR_ENV)
-	    SET(QTDIR ${QTDIR_ENV} CACHE FORCE )
-	    SET(ENV{OD_QTDIR} ${QTDIR})
+	    SET(QTDIR ${QTDIR_ENV} CACHE PATH "QT Location" FORCE )
+	    MESSAGE( STATUS "Detecting QT location: ${QTDIR}" )
 	ENDIF()
     ENDIF()
 ENDIF()
@@ -25,6 +25,7 @@ IF ( QTDIR STREQUAL "" )
     MESSAGE( FATAL_ERROR "QTDIR not set")
 ENDIF()
 
+SET( ENV{QTDIR} ${QTDIR} )
 SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
 

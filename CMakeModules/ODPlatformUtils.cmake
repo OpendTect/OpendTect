@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.25 2012-02-24 10:03:29 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.26 2012-02-24 12:00:00 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -24,9 +24,12 @@ IF(UNIX) #Apple an Linux
         ADD_DEFINITIONS("-D__debug__")
 	ADD_DEFINITIONS(  "-ggdb3"
 		"-Wparentheses -Wreturn-type -Wpointer-arith"
-                "-Wwrite-strings -Wno-non-template-friend -Winline"
-                "-Wformat -Wshadow -Woverloaded-virtual"
+                "-Wwrite-strings -Winline"
+                "-Wformat -Wshadow "
 		"-Wno-char-subscripts -Wno-sign-compare" )
+	IF ( CMAKE_CXX_FLAGS STREQUAL "" )
+	    SET( CMAKE_CXX_FLAGS "-Wno-non-template-friend  -Woverloaded-virtual" CACHE STRING "CC flags" FORCE )
+	ENDIF()
     ENDIF()
 
     IF(APPLE)
