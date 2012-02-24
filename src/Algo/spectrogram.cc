@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: spectrogram.cc,v 1.2 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: spectrogram.cc,v 1.3 2012-02-24 10:12:39 cvskris Exp $";
 
 #include "spectrogram.h"
 #include "arrayndimpl.h"
@@ -60,7 +60,7 @@ bool Spectrogram::transform( const ArrayND< float > &in, ArrayND< float > &out )
     const float* indata = in.getData();
     unsigned long size = info.getTotalSz();
 
-    for ( int idx=0; idx<size; idx++ )
+    for ( unsigned int idx=0; idx<size; idx++ )
 	tindata[idx] = indata[idx];
 
     if ( !fft_->run(true) ) return false;
@@ -68,7 +68,7 @@ bool Spectrogram::transform( const ArrayND< float > &in, ArrayND< float > &out )
     float_complex* toutdata = tempout_->getData();
     float* outdata = out.getData();
 
-    for ( int idx=0; idx<size; idx++ )
+    for ( unsigned int idx=0; idx<size; idx++ )
     {
 	float val = abs( toutdata[idx] );
 	outdata[idx] = val*val;
@@ -89,7 +89,7 @@ bool Spectrogram::transform( const ArrayND< float_complex > &in,
     unsigned long size = in.info().getTotalSz();
     float_complex* data = out.getData();
 
-    for ( int idx=0; idx<size; idx++ )
+    for ( unsigned int idx=0; idx<size; idx++ )
     {
 	float val = abs( data[idx] );
 	data[idx] = val*val;
