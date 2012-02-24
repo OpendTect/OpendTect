@@ -1,10 +1,10 @@
 SET( INCLUDES
+    ODPlatformUtils
     ODUtils
     ODQtUtils
     ODZlibUtils
     ODCoinUtils
     ODOsgUtils
-    ODPlatformUtils
     ODMacroUtils
     ODModDeps
     CreateLaunchers

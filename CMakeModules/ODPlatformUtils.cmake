@@ -2,10 +2,24 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.24 2012-02-23 15:30:06 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.25 2012-02-24 10:03:29 cvskris Exp $
 #_______________________________________________________________________________
 
-IF(UNIX)
+#Discover 64 or 32 bits
+IF(CMAKE_SIZEOF_VOID_P MATCHES "8")
+    SET( OD_64BIT 1 )
+ENDIF()
+
+#Discover Debug
+IF( ${CMAKE_BUILD_TYPE} MATCHES Release)
+    SET( OD_DEBUG )
+    SET( OD_OUTPUTDIR "O" )
+ELSE()
+    SET( OD_DEBUG 1 )
+    SET( OD_OUTPUTDIR "G" )
+ENDIF()
+
+IF(UNIX) #Apple an Linux
     IF( OD_DEBUG )
         ADD_DEFINITIONS("-D__debug__")
 	ADD_DEFINITIONS(  "-ggdb3"
@@ -14,6 +28,7 @@ IF(UNIX)
                 "-Wformat -Wshadow -Woverloaded-virtual"
 		"-Wno-char-subscripts -Wno-sign-compare" )
     ENDIF()
+
     IF(APPLE)
 	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
         ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder -Wno-unused")

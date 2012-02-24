@@ -2,22 +2,16 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.6 2012-02-20 15:11:41 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.7 2012-02-24 10:03:29 cvskris Exp $
 #_______________________________________________________________________________
 
-#Discover 64 or 32 bits
-IF(CMAKE_SIZEOF_VOID_P MATCHES "8")
-    SET( OD_64BIT 1 )
-ENDIF()
 
-#Discover 64 or 32 bits
-IF( ${CMAKE_BUILD_TYPE} MATCHES Debug)
-    SET( OD_DEBUG 1 )
-    SET( OD_OUTPUTDIR "G" )
-ELSE()
-    SET( OD_DEBUG )
-    SET( OD_OUTPUTDIR "O" )
-ENDIF()
+SET ( OD_PLUGIN_OUTPUT_PATH
+      ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR}/${OD_OUTPUTDIR}/libs )
+SET ( OD_EXEC_OUTPUT_PATH
+      ${OD_BINARY_BASEDIR}/bin/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
+SET ( OD_LIB_OUTPUT_PATH
+      ${OD_BINARY_BASEDIR}/lib/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
 
 #Macro for going through a list of modules and adding them
 MACRO ( OD_ADD_MODULES )
