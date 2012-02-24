@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.235 2012-01-24 21:26:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.236 2012-02-24 10:10:33 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -325,6 +325,8 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	    move( 0, ypos ); break;
 	case uiMainWin::BottomRight :
 	    move( xpos, ypos ); break;
+        case uiMainWin::Middle :
+            move( mNINT(((float) xpos)/2), mNINT(((float) ypos) / 2)); break;
     }
 }
 
@@ -1733,6 +1735,20 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
     ctrlstyle_ = DoAndLeave;
+}
+
+
+void uiDialog::setButtonText( Button but, const char* txt )
+{
+    switch ( but )
+    {
+        case OK	: setOkText( txt ); break;
+        case CANCEL	: setCancelText( txt ); break;
+        case SAVE	: enableSaveButton( txt ); break;
+        case HELP	: pErrMsg("set help txt but"); break;
+        case CREDITS: pErrMsg("set credits txt but");
+        case TRANSLATE: pErrMsg("set transl txt but");
+    }
 }
 
 

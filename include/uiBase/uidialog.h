@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.61 2011-12-23 09:50:02 cvsranojay Exp $
+ RCS:           $Id: uidialog.h,v 1.62 2012-02-24 10:10:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,18 +111,8 @@ public:
     bool		isModal() const;
 
     uiButton*		button( Button but );
-    void		setButtonText( Button but, const char* txt )
-			{
-			    switch ( but )
-			    {
-			    case OK	: setOkText( txt ); break;
-			    case CANCEL	: setCancelText( txt ); break;
-			    case SAVE	: enableSaveButton( txt ); break;
-			    case HELP	: pErrMsg("set help txt but"); break;
-			    case CREDITS: pErrMsg("set credits txt but");
-			    }
-			}
-
+    void		setButtonText( Button but, const char* txt );
+    
     enum CtrlStyle	{ DoAndLeave, DoAndStay, LeaveOnly, DoAndProceed };
 			//! On construction, it's (of course) DoAndLeave
     void		setCtrlStyle(CtrlStyle);
