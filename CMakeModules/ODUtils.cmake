@@ -2,9 +2,20 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.7 2012-02-24 10:03:29 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.8 2012-02-24 11:38:54 cvskris Exp $
 #_______________________________________________________________________________
 
+IF ( CMAKE_BUILD_TYPE STREQUAL "" )
+    SET ( DEBUGENV $ENV{DEBUG} )
+    IF ( DEBUGENV AND
+	( (${DEBUGENV} MATCHES "yes" ) OR
+	  (${DEBUGENV} MATCHES "Yes" ) OR
+	  (${DEBUGENV} MATCHES "YES" ) ) )
+	SET ( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Debug or Release" FORCE )
+    ELSE()
+	SET ( CMAKE_BUILD_TYPE "Release" CACHE STRING "Debug or Release" FORCE)
+    ENDIF()
+ENDIF()
 
 SET ( OD_PLUGIN_OUTPUT_PATH
       ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR}/${OD_OUTPUTDIR}/libs )
@@ -24,4 +35,3 @@ MACRO ( OD_ADD_MODULES )
     ENDFOREACH()
 
 ENDMACRO()
-
