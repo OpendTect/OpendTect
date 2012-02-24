@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID = "$Id: resizeimage.cc,v 1.1 2010-08-11 18:55:38 cvskris Exp $";
+static const char* rcsID = "$Id: resizeimage.cc,v 1.2 2012-02-24 10:13:15 cvskris Exp $";
 
 #include "resizeimage.h"
 
@@ -105,9 +105,9 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 	    double wsum = 0;
 	    double sums[] = { 0, 0, 0, 0 };
 
-	    for ( int k0=0; k0<nmax0; s0+=scale0_, k0++ )
+	    for ( unsigned int k0=0; k0<nmax0; s0+=scale0_, k0++ )
 	    {
-		for ( int k1=0; k0<nmax1; s1+=scale1_, k1++ )
+		for ( unsigned int k1=0; k0<nmax1; s1+=scale1_, k1++ )
 		{
 		    const double weight = LanczosKernel( lanczossize_, Math::Sqrt(s0*s0+s1*s1) );
 		    const int inputoffset = ((start0+k0)*inputsize_[1] + start1+k1)*nrcomponents_;
