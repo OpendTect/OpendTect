@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.12 2011-05-17 08:13:00 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.13 2012-02-24 10:15:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,9 +68,9 @@ public:
 
     inline TypeSet<T>&		operator +=(const T&);
     inline TypeSet<T>&		operator -=(const T&);
-    inline virtual TypeSet<T>&	copy(const T*,unsigned int);
+    inline virtual TypeSet<T>&	copy(const T*,int);
     inline virtual TypeSet<T>&	copy(const TypeSet<T>&);
-    inline virtual bool		append(const T*,unsigned int);
+    inline virtual bool		append(const T*,int);
     inline virtual bool		append(const TypeSet<T>&);
     inline bool			add(const T&);
 
@@ -282,14 +282,14 @@ int TypeSet<T>::indexOf( T typ, bool forward, int start ) const
     const T* ptr = arr();
     if ( forward )
     {
-	const unsigned int sz = size();
+	const int sz = size();
 	if ( start<0 || start>=sz ) start = 0;
-	for ( unsigned int idx=start; idx<sz; idx++ )
+	for ( int idx=start; idx<sz; idx++ )
 	    if ( ptr[idx] == typ ) return idx;
     }
     else
     {
-	const unsigned int sz = size();
+	const int sz = size();
 	if ( start<0 || start>=sz ) start = sz-1;
 	for ( int idx=start; idx>=0; idx-- )
 	    if ( ptr[idx] == typ ) return idx;
@@ -317,13 +317,13 @@ TypeSet<T>& TypeSet<T>::copy( const TypeSet<T>& ts )
 
 
 template <class T> inline
-TypeSet<T>& TypeSet<T>::copy( const T* tarr, unsigned int sz )
+TypeSet<T>& TypeSet<T>::copy( const T* tarr, int sz )
 {
     if ( size() != sz )
 	{ erase(); append(tarr,sz); }
     else
     {
-	for ( unsigned int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<sz; idx++ )
 	    (*this)[idx] = tarr[idx];
     }
     return *this;
@@ -349,14 +349,14 @@ bool TypeSet<T>::append( const TypeSet<T>& ts )
 
 
 template <class T> inline
-bool TypeSet<T>::append( const T* tarr, unsigned int sz )
+bool TypeSet<T>::append( const T* tarr, int sz )
 {
     if ( !sz ) return true;
 
     if ( !setCapacity( sz+size() ) )
 	return false;
 
-    for ( unsigned int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
 	*this += tarr[idx];
 
     return true;
@@ -366,9 +366,9 @@ bool TypeSet<T>::append( const T* tarr, unsigned int sz )
 template <class T>
 inline void TypeSet<T>::createUnion( const TypeSet<T>& ts )
 {
-    const unsigned int sz = ts.size();
+    const int sz = ts.size();
     const T* ptr = ts.arr();
-    for ( unsigned int idx=0; idx<sz; idx++, ptr++ )
+    for ( int idx=0; idx<sz; idx++, ptr++ )
 	addIfNew( *ptr );
 }
 
@@ -376,7 +376,7 @@ inline void TypeSet<T>::createUnion( const TypeSet<T>& ts )
 template <class T>
 inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
 {
-    for ( unsigned int idx=0; idx<size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	if ( ts.indexOf((*this)[idx]) != -1 )
 	    continue;
@@ -388,8 +388,8 @@ inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
 template <class T>
 inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
 {
-    const unsigned int sz = ts.size();
-    for ( unsigned int idx=0; idx<sz; idx++ )
+    const int sz = ts.size();
+    for ( int idx=0; idx<sz; idx++ )
     {
 	const T typ = ts[idx];
 	for ( int idy=0; idy<size(); idy++ )
