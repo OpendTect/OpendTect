@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.236 2012-02-24 10:10:33 cvskris Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.237 2012-02-24 14:11:48 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1629,8 +1629,8 @@ uiObject* uiDialogBody::createChildren()
 
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
-    uiObject* leftbut = okbut;
-    uiObject* rightbut = cnclbut;
+    uiObject* leftbut = setup.okcancelrev_ ? cnclbut : okbut;
+    uiObject* rightbut = setup.okcancelrev_ ? okbut : cnclbut;
     uiObject* exitbut = okbut ? okbut : cnclbut;
     uiObject* centerbut = helpbut;
     uiObject* extrabut = savebut_tb;

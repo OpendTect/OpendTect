@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.62 2012-02-24 10:10:33 cvskris Exp $
+ RCS:           $Id: uidialog.h,v 1.63 2012-02-24 14:11:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
-			, fixedsize_(false)
+			, fixedsize_(false), okcancelrev_(false)
 			{}
 
 	mDefSetupMemb(BufferString,wintitle)
@@ -77,6 +77,7 @@ public:
 	mDefSetupMemb(bool,menubar)
 	mDefSetupMemb(bool,mainwidgcentered)
 	mDefSetupMemb(bool,fixedsize)
+	mDefSetupMemb(bool,okcancelrev) //!< used in wizards
 	mDefSetupMemb(int,nrstatusflds)
 	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
