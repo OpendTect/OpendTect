@@ -8,12 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwellsel.cc,v 1.2 2012-02-17 23:09:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellsel.cc,v 1.3 2012-02-24 23:13:20 cvsnanne Exp $";
 
 #include "uiwellsel.h"
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "welltransl.h"
 
@@ -30,8 +32,15 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const char* seltxt )
 
 uiWellParSel::uiWellParSel( uiParent* p )
     : uiCompoundParSel(p,"Well(s)","Select")
+    , iopar_(*new IOPar)
 {
     butPush.notify( mCB(this,uiWellParSel,doDlg) );
+}
+
+
+uiWellParSel::~uiWellParSel()
+{
+    delete &iopar_;
 }
 
 
@@ -51,12 +60,40 @@ void uiWellParSel::doDlg( CallBacker* )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     uiIOObjSelDlg dlg( this, *ctio, "Select Wells", true );
     uiIOObjSelGrp* selgrp = dlg.selGrp();
-    selgrp->setSelected( selids_ );
+    selgrp->usePar( iopar_ );
     if ( !dlg.go() ) return;
 
-    selids_.erase();
     selgrp->processInput();
+    selids_.erase();
     selgrp->getSelected( selids_ );
+    iopar_.setEmpty();
+    selgrp->fillPar( iopar_ );
+}
+
+
+void uiWellParSel::fillPar( IOPar& iop ) const
+{ iop.mergeComp( iopar_, sKey::Well ); }
+
+bool uiWellParSel::usePar( const IOPar& iop )
+{
+    selids_.erase();
+    iopar_.setEmpty();
+    PtrMan<IOPar> subsel = iop.subselect( sKey::Well );
+    if ( !subsel ) return false;
+
+    iopar_ = *subsel;
+
+    int nrids;
+    iopar_.get( sKey::Size, nrids );
+    for ( int idx=0; idx<nrids; idx++ )
+    {
+	MultiID mid;
+	if ( iopar_.get(IOPar::compKey(sKey::ID,idx),mid) )
+	    selids_ += mid;
+    }
+
+    updSummary(0);
+    return true;
 }
 
 

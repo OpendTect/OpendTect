@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwellposprov.cc,v 1.2 2012-02-17 23:09:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellposprov.cc,v 1.3 2012-02-24 23:13:20 cvsnanne Exp $";
 
 #include "uiwellposprov.h"
 
@@ -57,7 +57,7 @@ uiWellPosProvGroup::~uiWellPosProvGroup()
 
 void uiWellPosProvGroup::usePar( const IOPar& iop )
 {
-//    wellfld_->usePar( iop );
+    wellfld_->usePar( iop );
     BinID so; float zext = 0; bool onlysurfacecoords = true;
     iop.get( mGetWellKey(sKeyInlExt()), so.inl );
     iop.get( mGetWellKey(sKeyCrlExt()), so.crl );
@@ -71,10 +71,10 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
 bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, sKey::Well );
-//    if ( !wellfld_->nrSel() )
-//	mErrRet("Please select at least one well")
+    if ( !wellfld_->nrSel() )
+	mErrRet("Please select at least one well")
 
-//    wellfld_->fillPar( iop );
+    wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;
     const BinID so = stepoutfld_->getBinID();
     iop.set( mGetWellKey(sKeyInlExt()), so.inl );

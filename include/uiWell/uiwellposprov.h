@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiwellposprov.h,v 1.2 2012-02-17 23:09:22 cvsnanne Exp $
+ RCS:           $Id: uiwellposprov.h,v 1.3 2012-02-24 23:13:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiSelZRange;
 class uiWellParSel;
 
 
-/*! \brief UI for PolyPosProvider */
+/*! \brief UI for WellPosProvider */
 
 mClass uiWellPosProvGroup : public uiPosProvGroup
 {
