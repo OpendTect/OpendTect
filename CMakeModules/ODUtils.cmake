@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.9 2012-02-24 12:00:00 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.10 2012-02-24 14:07:10 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -20,11 +20,11 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "" )
 ENDIF()
 
 SET ( OD_PLUGIN_OUTPUT_PATH
-      ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR}/${OD_OUTPUTDIR}/libs )
+      ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR}/libs )
 SET ( OD_EXEC_OUTPUT_PATH
       ${OD_BINARY_BASEDIR}/bin/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
 SET ( OD_LIB_OUTPUT_PATH
-      ${OD_BINARY_BASEDIR}/lib/${OD_PLFSUBDIR}/${OD_OUTPUTDIR} )
+      ${OD_BINARY_BASEDIR}/bin/${OD_PLFSUBDIR}/${OD_OUTPUTDIR}/so )
 
 #Macro for going through a list of modules and adding them
 MACRO ( OD_ADD_MODULES )
