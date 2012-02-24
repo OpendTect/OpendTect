@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.26 2012-02-24 12:00:00 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.27 2012-02-24 16:24:19 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -28,13 +28,15 @@ IF(UNIX) #Apple an Linux
                 "-Wformat -Wshadow "
 		"-Wno-char-subscripts -Wno-sign-compare" )
 	IF ( CMAKE_CXX_FLAGS STREQUAL "" )
-	    SET( CMAKE_CXX_FLAGS "-Wno-non-template-friend  -Woverloaded-virtual" CACHE STRING "CC flags" FORCE )
+	    SET( CMAKE_CXX_FLAGS
+		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
+		 CACHE STRING "CC flags" FORCE )
 	ENDIF()
     ENDIF()
 
     IF(APPLE)
 	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-        ADD_DEFINITIONS("-D__mac__ -Dmac -Wno-reorder -Wno-unused")
+        ADD_DEFINITIONS("-D__mac__ -Dmac")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
