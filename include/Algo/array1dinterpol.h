@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          December 2009
- RCS:           $Id: array1dinterpol.h,v 1.2 2010-03-01 14:05:01 cvsbert Exp $
+ RCS:           $Id: array1dinterpol.h,v 1.3 2012-02-24 10:08:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ protected:
     Array1D<float>*	arr_;
     bool		arrstarted_;
     int			maxgapsize_;
-    int			nrdone_;
+    unsigned int	nrdone_;
 
 };
 
