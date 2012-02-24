@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.47 2012-02-09 13:27:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.48 2012-02-24 14:12:36 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -334,7 +334,9 @@ public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
     : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8")
-	    	.modal(false) )
+	    	.modal(false).okcancelrev(true)
+		.oktext(uiVarWizardDlg::sProceedButTxt())
+		.canceltext(uiVarWizardDlg::sBackButTxt()) )
     , initialpol_(pol)
 {
     choicefld_ = new uiCheckList( this, BufferStringSet(rev1txts),
