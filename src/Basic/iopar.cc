@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.93 2011-09-23 13:02:19 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.94 2012-02-24 10:18:06 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -998,7 +998,7 @@ void IOPar::putParsTo( BufferString& str ) const
     { \
 	*ptr++ = '\0'; \
 \
-	for ( int idx=1; idx<strlen(sep); idx++ ) \
+	for ( unsigned int idx=1; idx<strlen(sep); idx++ ) \
 	    { if( *ptr ) ptr++; } \
     }
 
@@ -1121,7 +1121,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 	res += " <\n";
     }
 
-    int maxkeylen = 0;
+    unsigned int maxkeylen = 0;
     bool haveval = false;
     for ( int idx=0; idx<size(); idx++ )
     {

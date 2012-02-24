@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.37 2011-12-16 12:49:15 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.38 2012-02-24 10:18:06 cvskris Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -37,7 +37,7 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 	if ( strm.eof() ) return false;
 
 	char* cp = (char*)ptr + strm.gcount();
-	for ( int idx=0; idx<nrretries; idx++ )
+	for ( unsigned int idx=0; idx<nrretries; idx++ )
 	{
 	    Threads::sleep( retrydelay );
 	    strm.clear();
@@ -67,7 +67,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
     if ( strm.bad() ) return false;
 
     strm.flush();
-    for ( int idx=0; idx<nrretries; idx++ )
+    for ( unsigned int idx=0; idx<nrretries; idx++ )
     {
 	Threads::sleep( retrydelay );
 	strm.clear();

@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.13 2011-12-13 06:14:46 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.14 2012-02-24 10:18:06 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -167,7 +167,7 @@ const char* getBytesString( od_uint64 sz )
 {
     const char* postfix[] = { " bytes", " KB", " MB", " GB", " TB", "PB" };
 
-    char nrshifts;
+    unsigned char nrshifts;
     for ( nrshifts=0; nrshifts<4 && sz>=1024; nrshifts++ )
 	sz >>= 10;
 

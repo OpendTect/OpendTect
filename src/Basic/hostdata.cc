@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.46 2010-09-29 11:50:57 cvsbert Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.47 2012-02-24 10:18:06 cvskris Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -82,8 +82,8 @@ void HostData::init( const char* nm )
 #define mTolower(bs) \
     { \
 	char* ptr=bs.buf(); \
-	for ( int idx=0; idx<bs.size(); idx++ ) \
-	    { *ptr++ = tolower(*ptr); } \
+	for ( unsigned int idx=0; idx<bs.size(); idx++, ptr++ ) \
+	    { *ptr = tolower(*ptr); } \
     }
 
 static FilePath getReplacePrefix( const FilePath& dir_,

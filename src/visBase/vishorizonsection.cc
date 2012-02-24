@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.123 2012-02-20 10:11:27 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.124 2012-02-24 10:20:42 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -108,7 +108,7 @@ public:
     void			resetGlueNeedsUpdateFlag();
 
     				//Makes object ready for render
-    void			updateNormals(char res);
+    void			updateNormals( char res);
     void			tesselateResolution(char,bool onlyifabsness);
     void			applyTesselation(char res);
     				//!<Should be called from rendering thread
@@ -321,7 +321,7 @@ public:
     }
 
     HorizonSectionTile*		tile_;
-    char			res_;
+    unsigned char		res_;
 };
 
 
@@ -332,7 +332,7 @@ public:
     HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 
 	    const Geometry::BinIDSurface& geo,
 	    StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat,
-	    int ssz, int lowresidx )
+	    int ssz, unsigned char lowresidx )
 	: tiles_( tiles )
 	, geo_( geo )  
 	, rrg_( rrg )
@@ -393,7 +393,7 @@ protected:
     }
 
     int					nrCrdsPerTileSide_;
-    int					lowestresidx_;
+    unsigned char			lowestresidx_;
     ObjectSet<HorizonSectionTile> 	tiles_;
     const Geometry::BinIDSurface&	geo_;
     StepInterval<int>			rrg_, crg_;

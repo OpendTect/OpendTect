@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.36 2011-12-02 14:33:43 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.37 2012-02-24 10:17:03 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -167,7 +167,7 @@ void BufferString::setBufSize( unsigned int newlen )
 	*buf_ = '\0';
     else
     {
-	int newsz = (oldbuf ? strlen( oldbuf ) : 0) + 1;
+	unsigned int newsz = (oldbuf ? strlen( oldbuf ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;

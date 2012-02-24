@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.26 2012-02-24 10:20:07 cvskris Exp $";
 
 #include "arrayndutils.h"
 
@@ -59,18 +59,21 @@ bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 
     switch( wintype )
     {
-    case ArrayNDWindow::CosTaper5:
-        winnm = "CosTaper";
-	paramval = 0.95;
-    break;
-    case ArrayNDWindow::CosTaper10:
-        winnm = "CosTaper";
-	paramval = 0.90;
-    break;
-    case ArrayNDWindow::CosTaper20:
-        winnm = "CosTaper";
-	paramval = 0.80;
-    break;
+    	case ArrayNDWindow::CosTaper5:
+            winnm = "CosTaper";
+            paramval = 0.95;
+            break;
+    	case ArrayNDWindow::CosTaper10:
+            winnm = "CosTaper";
+            paramval = 0.90;
+            break;
+    	case ArrayNDWindow::CosTaper20:
+            winnm = "CosTaper";
+            paramval = 0.80;
+            break;
+        default:
+            break;
+            
     }
 
     return setType( winnm, paramval );
