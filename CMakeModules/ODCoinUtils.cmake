@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.8 2012-02-24 12:56:07 cvsbert Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.9 2012-02-26 20:51:12 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
@@ -18,6 +18,8 @@ IF ( COINDIR STREQUAL "" )
     SET(COINDIR "" CACHE PATH "COIN location" FORCE )
     MESSAGE( FATAL_ERROR "COINDIR not set")
 ENDIF()
+
+FIND_PACKAGE( OpenGL )
 
 IF(WIN32)
     FIND_LIBRARY(COINLIB NAMES Coin3 PATHS ${COINDIR}/lib REQUIRED )
