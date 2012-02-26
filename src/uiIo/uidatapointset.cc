@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.86 2011-12-05 09:05:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.87 2012-02-26 17:47:32 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -1591,15 +1591,25 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( dcid<1 )
 	return uiMSG().error( "Please select an attribute column" );
 
+    dps_.dataSet().pars().set( sKeyGroups, grpnames_ );
+    int nrgroups = 0;
+    for ( DataPointSet::RowID irow=0; irow<dps_.size(); irow++ )
+    {
+	if ( dps_.group(irow) > nrgroups )
+	    nrgroups = dps_.group(irow);
+    }
+
     uiVariogramDlg varsettings( parent(), true );                              
     if ( !varsettings.go() )                                                    
 	return;
 
     VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
-			      varsettings.getMaxRg(), varsettings.getFold() );
+			      varsettings.getMaxRg(), varsettings.getFold(),
+	   		      nrgroups );
     if ( !vvc.isOK() ) return;
 
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), vvc.getData(),
+	    					       vvc.getLabels(),
 	   					       varsettings.getMaxRg(),
 						       varsettings.getStep(),
 						       false );

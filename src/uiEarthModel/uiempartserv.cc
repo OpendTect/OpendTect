@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.226 2012-02-14 21:06:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.227 2012-02-26 17:47:32 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -940,7 +940,9 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 
     HorVariogramComputer hvc( dpset, varsettings.getStep(),
 	    		      varsettings.getMaxRg(), varsettings.getFold() );
+    if ( !hvc.isOK() ) return false;
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
+	    					       hvc.getLabels(),
 	   					       varsettings.getMaxRg(),
 			  			       varsettings.getStep(),
 						       true );
