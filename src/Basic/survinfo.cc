@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.159 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.160 2012-02-26 21:24:52 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -85,9 +85,9 @@ void SurveyInfo::setInvalid() const
 SurveyInfo::SurveyInfo()
     : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
+    , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , valid_(false)
-    , zistime_(true)
-    , zinfeet_(false)
+    , depthsinfeet_(false)
     , xyinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
@@ -111,6 +111,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
+    , zdef_(*new ZDomain::Def( si.zDomain() ) )
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
 {
@@ -124,6 +125,7 @@ SurveyInfo::~SurveyInfo()
     delete &ll2c_;
     delete &cs_;
     delete &wcs_;
+    delete &zdef_;
 }
 
 
@@ -133,13 +135,12 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     if ( &si == this ) return *this;
 
     setName( si.name() );
+    zdef_ = si.zdef_;
     valid_ = si.valid_;
     datadir_ = si.datadir_;
     dirname_ = si.dirname_;
     wsprojnm_ = si.wsprojnm_;
     wspwd_ = si.wspwd_;
-    zistime_ = si.zistime_;
-    zinfeet_ = si.zinfeet_;
     xyinfeet_ = si.xyinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
@@ -183,6 +184,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
 
+    //Read params here, so we can look at the pars below
+    fp = fpsurvdir; fp.add( sKeyDefsFile );
+    si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
+    si->getPars().setName( sKeySurvDefs );
+
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
@@ -219,8 +225,17 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 		si->cs_.zrg.step = 0.004;
 	    if ( fms.size() > 3 )
 	    {
-		si->zistime_ = *fms[3] == 'T';
-		si->zinfeet_ = *fms[3] == 'F';
+		if ( *fms[3] == 'T' )
+		{
+		    si->zdef_ = ZDomain::Time();
+		    si->depthsinfeet_ = false;
+		    si->getPars().getYN( sKeyDpthInFt(), si->depthsinfeet_ );
+		}
+		else
+		{
+		    si->zdef_ = ZDomain::Depth();
+		    si->depthsinfeet_ = *fms[3] == 'F';
+		}
 	    }
 	}
 	else if ( keyw == sKeySurvDataType() )
@@ -254,9 +269,6 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     if ( si->wrapUpRead() )
 	si->valid_ = true;
 
-    fp = fpsurvdir; fp.add( sKeyDefsFile );
-    si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
-    si->getPars().setName( sKeySurvDefs );
     return si;
 }
 
@@ -524,52 +536,49 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 }
 
 
+bool SurveyInfo::zIsTime() const 
+{ return zdef_.isTime(); }
+
+
 SurveyInfo::Unit SurveyInfo::xyUnit() const
 { return xyinfeet_ ? Feet : Meter; }
 
 
 SurveyInfo::Unit SurveyInfo::zUnit() const
 {
-    if ( zistime_ ) return Second;
-    return zinfeet_ ? Feet : Meter;
+    if ( zIsTime() ) return Second;
+    return depthsinfeet_ ? Feet : Meter;
 }
 
 
 void SurveyInfo::putZDomain( IOPar& iop ) const
 {
-    iop.set( ZDomain::sKey(), zistime_ ? ZDomain::sKeyTime()
-	    			       : ZDomain::sKeyDepth() );
+    zdef_.set( iop );
 }
 
-static const char* SIDistUnitString( bool feet, bool wb )
-{
-    if ( feet )
-	return wb ? "(ft)" : "ft";
 
-    return wb ? "(m)" : "m";
-}
+const ZDomain::Def& SurveyInfo::zDomain() const
+{ return zdef_; }
 
 
 const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
-    return SIDistUnitString( xyinfeet_, wb );
+    return getDistUnitString( xyinfeet_, wb );
 }
 
 
 const char* SurveyInfo::getZUnitString( bool wb ) const
 {
-    if ( zistime_ )
-	return wb ? "(ms)" : "ms";
-
-    return SIDistUnitString( depthsInFeetByDefault(), wb );
+    return zdef_.unitStr( wb );
 }
 
 
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
-    zistime_ = istime;
-    zinfeet_ = istime ? false : infeet;
+    zdef_ = istime ? ZDomain::Time() : zdef_ = ZDomain::Depth();
+    depthsinfeet_ = infeet;
 }
+
 
 float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 {
@@ -593,24 +602,15 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 
 
 int SurveyInfo::zFactor() const
-{ return zFactor ( zIsTime() ); }
+{ return zdef_.userFactor(); }
 
 
 int SurveyInfo::zFactor( bool time )
-{ return time ? 1000 : 1; }
+{ return time ? ZDomain::Time().userFactor() : ZDomain::Depth().userFactor(); }
 
 
 float SurveyInfo::zScale() const
 { return defaultXYtoZScale( zUnit(), xyUnit() ); }
-
-
-bool SurveyInfo::depthsInFeetByDefault() const
-{
-    bool ret = zIsTime() ? xyInFeet() : zInFeet();
-    if ( !ret && zIsTime() )
-	pars().getYN( sKeyDpthInFt(), ret );
-    return ret;
-}
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
@@ -806,7 +806,7 @@ bool SurveyInfo::write( const char* basedir ) const
     fms += cs_.hrg.start.crl; fms += cs_.hrg.stop.crl; fms += cs_.hrg.step.crl;
     astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += cs_.zrg.start; fms += cs_.zrg.stop;
-    fms += cs_.zrg.step; fms += zistime_ ? "T" : ( zinfeet_ ? "F" : "D" );
+    fms += cs_.zrg.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     astream.put( sKeyZRange(), fms );
 
     if ( !wsprojnm_.isEmpty() )

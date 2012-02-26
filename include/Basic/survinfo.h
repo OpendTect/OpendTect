@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.101 2011-09-16 11:33:48 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.102 2012-02-26 21:24:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,13 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "rcol2coord.h"
 #include "enums.h"
+
 class ascostream;
 class IOPar;
 class CubeSampling;
 class LatLong2Coord;
+
+namespace ZDomain { class Def; }
 
 
 /*!\brief Holds survey general information.
@@ -73,20 +76,32 @@ public:
     BinID		transform(const Coord&) const;
     			/*!<\note BinID will be snapped using work step. */
 
-    enum Unit		{ Second, Meter, Feet };
-    Unit		xyUnit() const;
-    Unit		zUnit() const;
     inline bool		xyInFeet() const	{ return xyinfeet_;}
-    inline bool		zIsTime() const		{ return zistime_; }
-    inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
-    inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
-    const char*		getZUnitString(bool withparens=true) const;
+    const ZDomain::Def&	zDomain() const;
+    bool		depthsInFeet() const	{ return depthsinfeet_; }
+
+    bool		depthsInFeetByDefault() const { return depthsInFeet(); }
+    			//!<Legacy, don't use
+    bool		zIsTime() const;
+    			//!<Legacy, don't use
+    inline bool		zInMeter() const{ return !zIsTime() && !depthsinfeet_;}
+    			//!<Legacy, don't use
+    inline bool		zInFeet() const	{ return !zIsTime() && depthsinfeet_;}
+    			//<Legacy, don't use
     int			zFactor() const;
+    			//!<Legacy, don't use
     			//!< Factor between real and displayed unit in UI
     static int		zFactor(bool time);
+    			//!<Legacy, don't use
     			//!< Factor between real and displayed unit in UI
-    bool		depthsInFeetByDefault() const;
+    const char*		getZUnitString(bool withparens=true) const;
+    			//!<Legacy, don't use
+    enum Unit		{ Second, Meter, Feet };
+    Unit		xyUnit() const;
+    			//!<Legacy, don't use
+    Unit		zUnit() const;
+    			//!<Legacy, don't use
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
@@ -130,9 +145,11 @@ protected:
     BufferString	datadir_;
     BufferString	dirname_;
 
-    bool		zistime_;
-    bool		zinfeet_; //!< only relevant if zistime_ equals false
-    bool		xyinfeet_; //!< only relevant for a few cases
+    ZDomain::Def&	zdef_;
+
+    bool		xyinfeet_;
+    bool		depthsinfeet_;
+
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
@@ -186,6 +203,7 @@ public:
     			/*!< It's the angle (0 to pi/2) between
 			     the X-axis and the Inl-axis (not an inline) */
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
+    void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
     static float	defaultXYtoZScale(Unit,Unit);
     			/*!<Gives a ballpark figure of how to scale XY to
