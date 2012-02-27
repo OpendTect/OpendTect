@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.160 2012-02-26 21:24:52 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.161 2012-02-27 14:41:36 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -188,6 +188,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     fp = fpsurvdir; fp.add( sKeyDefsFile );
     si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
     si->getPars().setName( sKeySurvDefs );
+
+    //Scrub away old settings (confusing to users)
+    si->getPars().remove("Depth in feet");
 
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
@@ -567,12 +570,6 @@ const char* SurveyInfo::getXYUnitString( bool wb ) const
 }
 
 
-const char* SurveyInfo::getZUnitString( bool wb ) const
-{
-    return zdef_.unitStr( wb );
-}
-
-
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
     zdef_ = istime ? ZDomain::Time() : zdef_ = ZDomain::Depth();
@@ -599,14 +596,6 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
     //  zunit==Meter && xyunit==Feet
     return mToFeetFactor;
 }
-
-
-int SurveyInfo::zFactor() const
-{ return zdef_.userFactor(); }
-
-
-int SurveyInfo::zFactor( bool time )
-{ return time ? ZDomain::Time().userFactor() : ZDomain::Depth().userFactor(); }
 
 
 float SurveyInfo::zScale() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.102 2012-02-26 21:24:52 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.103 2012-02-27 14:41:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "rcol2coord.h"
 #include "enums.h"
+#include "zdomain.h"
 
 class ascostream;
 class IOPar;
 class CubeSampling;
 class LatLong2Coord;
-
-namespace ZDomain { class Def; }
 
 
 /*!\brief Holds survey general information.
@@ -82,21 +81,32 @@ public:
     bool		depthsInFeet() const	{ return depthsinfeet_; }
 
     bool		depthsInFeetByDefault() const { return depthsInFeet(); }
-    			//!<Legacy, don't use
+    			//!<Legacy, don't use. Use depthsInFeet().
     bool		zIsTime() const;
+    			//!<Legacy, don't use. Use zDomain().isTime()
+    inline bool		zInMeter() const
+    			{ return zDomain().isDepth() && !depthsinfeet_;}
     			//!<Legacy, don't use
-    inline bool		zInMeter() const{ return !zIsTime() && !depthsinfeet_;}
-    			//!<Legacy, don't use
-    inline bool		zInFeet() const	{ return !zIsTime() && depthsinfeet_;}
+    inline bool		zInFeet() const
+    			{ return zDomain().isDepth() && depthsinfeet_;}
     			//<Legacy, don't use
-    int			zFactor() const;
+    int			zFactor() const
+    			{ return zDomain().userFactor(); }
     			//!<Legacy, don't use
     			//!< Factor between real and displayed unit in UI
-    static int		zFactor(bool time);
+    static int		zFactor(bool time)	
     			//!<Legacy, don't use
+			{
+			    return ( time
+				? ZDomain::Time()
+				: ZDomain::Depth()
+				).userFactor();
+			}
+			
     			//!< Factor between real and displayed unit in UI
-    const char*		getZUnitString(bool withparens=true) const;
+    const char*		getZUnitString(bool withparens=true) const
     			//!<Legacy, don't use
+			{ return zDomain().unitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
     			//!<Legacy, don't use
