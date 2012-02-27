@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.14 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.15 2012-02-27 16:14:26 cvsnanne Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -74,7 +74,7 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 	idy++;
     }
 
-    filters += ";;PDF (*.pdf);;Postscript (*.ps)"; 
+    filters += ";;PDF (*.pdf);;PostScript (*.ps)"; 
     filters_ = filters;
 }
 
