@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.156 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.157 2012-02-27 14:27:48 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1206,7 +1206,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
+	    const float zfactor = scene_ ? scene_->getZScale(): survinfo_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
@@ -1221,7 +1221,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 
 float HorizonDisplay::maxDist() const
 {
-    return SI().zRange(true).step;
+    return survinfo_->zRange(true).step;
 }
 
 
@@ -1314,9 +1314,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    const TypeSet<float>& attribshifts = *shifts_[idx];
 	    const int version = selectedTexture( idx );
 	    if ( attribshifts.validIdx(version) )
-		attribshift = attribshifts[version] * SI().zFactor();
+		attribshift = attribshifts[version] * survinfo_->zFactor();
 
-	    const float zshift = getTranslation().z*SI().zFactor();
+	    const float zshift = getTranslation().z*survinfo_->zFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1674,7 +1674,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( rtdisplay )
 	{
 	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
-	    cs.zrg.step = SI().zStep();
+	    cs.zrg.step = survinfo_->zStep();
 	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
@@ -1689,7 +1689,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( seis2ddisplay )
 	{
 	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
-	    cs.zrg.step = SI().zStep();
+	    cs.zrg.step = survinfo_->zStep();
 	    const Interval<int>& trcnrrg = seis2ddisplay->getTraceNrRange();
 	    for ( int trcnr=trcnrrg.start; trcnr<=trcnrrg.stop; trcnr++ )
 	    {
