@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.9 2011-10-25 09:17:16 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.10 2012-02-27 16:17:13 cvskris Exp $";
 
 #include "prestackmutedeftransl.h"
 
@@ -103,7 +103,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {
-	if ( !hasiopar && !ifn && astrm.hasKeyword(sKeyRefHor()) )
+	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
 	    MultiID hormid = astrm.value();
 	    md.setReferenceHorizon( hormid );
@@ -112,11 +112,15 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
 	BinID bid;
 	bool extrapol = true;
+	bool rejectpt = false;
 	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
 
 	if ( astrm.hasKeyword(sKey::Position) )
 	{
 	    bid.use( astrm.value() );
+	    if ( !bid.inl || !bid.crl )
+		rejectpt = true;
+
 	    astrm.next();
 	}
 	if ( astrm.hasKeyword(sKeyPBMFSetup) )
@@ -153,7 +157,8 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
 	    astrm.next();
 	}
-	if ( fn->size() < 1 )
+
+	if ( rejectpt || fn->size()<1 )
 	    delete fn;
 	else
 	    md.add( fn, bid );
