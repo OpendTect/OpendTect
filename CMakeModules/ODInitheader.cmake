@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODInitheader.cmake,v 1.2 2012-02-24 14:54:45 cvskris Exp $
+#	RCS :		$Id: ODInitheader.cmake,v 1.3 2012-02-27 07:35:30 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_CREATE_INIT_HEADER
@@ -16,11 +16,15 @@ MACRO( OD_CREATE_INIT_HEADER )
     STRING ( TOLOWER ${OD_MODULE_NAME} OD_MODULE_NAME_LOWER )
 
     IF ( OD_IS_PLUGIN )
-	SET( INITHEADER ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME}/init${OD_MODULE_NAME_LOWER}.h )
+	SET( INCLUDEDIR ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
     ELSE()
-	SET( INITHEADER ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME}/init${OD_MODULE_NAME_LOWER}.h )
+	SET( INCLUDEDIR ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
     ENDIF()
 
-    CONFIGURE_FILE( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
-		    ${INITHEADER} )
+    IF ( EXISTS ${INCLUDEDIR} )
+	SET( INITHEADER ${INCLUDEDIR}/init${OD_MODULE_NAME_LOWER}.h )
+
+	CONFIGURE_FILE( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
+			${INITHEADER} )
+    ENDIF()
 ENDMACRO()
