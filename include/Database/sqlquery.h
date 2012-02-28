@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.5 2012-01-11 10:59:18 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.h,v 1.6 2012-02-28 11:08:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
+#include "enums.h"
 
 #ifdef __have_qsql__
 # define mQSqlQuery QSqlQuery
@@ -64,7 +65,7 @@ public:
     			//!<Returns the column index in the list
     static BufferString	select(const BufferStringSet& colnms,
 				const BufferString& tablenm,
-				int id, const char* idkey=0);
+				const char* condstr);
     BufferString	getUpdateString(const BufferStringSet& colnms,
 	    				const BufferStringSet& values,
 					const BufferString& tablenm,
@@ -82,6 +83,30 @@ protected:
     mQSqlQuery*		qsqlquery_;
 
 };
+
+
+/*! Helper class that creates conditions that can be put after WHERE
+    in a query. */
+mStruct ValueCondition
+{
+			enum Operator { Equals, Less, Greater, LessOrEqual,
+				  GreaterOrEqual, NotEqual, Null, NotNull,
+				  Or, And };
+			DeclareEnumUtils(Operator);
+	
+			ValueCondition(const char* key = 0,
+				Operator op = Equals,const char* val = 0 )
+			    : key_(key)
+			    , op_( op )
+			    , val_(val)					{}
+
+    BufferString	key_;
+    BufferString	val_;
+    Operator		op_;
+
+    BufferString	getStr() const;
+};
+
 
 } // namespace
 

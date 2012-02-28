@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.9 2012-01-19 07:28:12 cvsnageswara Exp $
+ RCS:           $Id: sqlquery.cc,v 1.10 2012-02-28 11:08:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,13 @@ ________________________________________________________________________
 #include "sqldatabase.h"
 #include "bufstringset.h"
 #include <QString>
+
+
+DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
+{ "=", "<", ">", "<=", ">=", "!=",
+  "IS NULL", "IS NOT NULL", "OR", "AND", 0 };
+
+
 
 #ifdef __have_qsql__
 
@@ -239,15 +246,10 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 
 
 BufferString SqlDB::Query::select( const BufferStringSet& colnms,
-				   const BufferString& tablenm, int id,
-       				   const char* idkey )
+				   const BufferString& tablenm,
+				   const char* condstr )
 {
-    if ( !idkey )
-	idkey = "`id`";
-
     BufferString querystr;
-    if ( id < 0 )
-	return querystr;
 
     const int nrvals = colnms.size();
     querystr.add( "SELECT " );
@@ -257,8 +259,12 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
 	querystr.add( idx != nrvals-1 ? "," : " " );
     }
 
-    querystr.add( "FROM " ).add( tablenm ).add( " WHERE " )
-	    .add( idkey ).add( "=" ).add( id );
+    querystr.add( "FROM " ).add( tablenm );
+    if ( condstr )
+    {
+	querystr.add( " WHERE " ).add( condstr );
+    }
+
     return querystr;
 }
 
@@ -278,4 +284,12 @@ bool SqlDB::Query::deleteInfo( const char* tablenm, const char* fieldnm,
     BufferString qstr( "DELETE FROM " );
     qstr.add( tablenm ).add( " WHERE " ).add( fieldnm ).add( "=" ).add( id );
     return execute( qstr );
+}
+
+
+BufferString SqlDB::ValueCondition::getStr() const
+{
+    BufferString res( key_ );
+    res.add( " ").add( toString( op_ ) ).add( " " ).add( val_ );
+    return res;
 }
