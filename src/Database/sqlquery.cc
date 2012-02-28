@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.11 2012-02-28 13:07:35 cvskris Exp $
+ RCS:           $Id: sqlquery.cc,v 1.12 2012-02-28 15:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,16 +305,24 @@ BufferString SqlDB::ValueCondition::getStr() const
 
 
 SqlDB::StringCondition::StringCondition( const char* col,
-					 const char* searchstr )
+					 const char* searchstr,
+					 bool exact )
     : col_( col )
     , searchstr_( searchstr )
+    , exact_( exact )
 {}
 
 
 BufferString SqlDB::StringCondition::getStr() const
 {
     BufferString res( col_ );
-    res.add( " LIKE( '%").add( searchstr_ ).add( "%' )" );
+    res.add( " LIKE( '" );
+    if ( !exact_ )
+	res.add( "%");
+    res.add( searchstr_ );
+    if ( !exact_ )
+	res.add( "%" );
+    res.add( "' )" );
     return res;
 }
 

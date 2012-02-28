@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.7 2012-02-28 13:07:35 cvskris Exp $
+ RCS:           $Id: sqlquery.h,v 1.8 2012-02-28 15:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,12 +120,14 @@ mClass StringCondition : public Condition
 {
 public:
     			StringCondition( const char* col,
-					 const char* searchstr );
+					 const char* searchstr,
+					 bool exact );
     BufferString	getStr() const;
 protected:
 
     BufferString	col_;
     BufferString	searchstr_;
+    bool		exact_;
 };
 
 
