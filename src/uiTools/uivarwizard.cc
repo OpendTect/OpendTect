@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivarwizard.cc,v 1.2 2012-02-24 14:12:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uivarwizard.cc,v 1.3 2012-02-28 14:36:54 cvsbert Exp $";
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uivarwizard.cc,v 1.2 2012-02-24 14:12:18 cvsber
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
-const char* uiVarWizardDlg::sProceedButTxt()	{ return "Next &>>"; }
+const char* uiVarWizardDlg::sProceedButTxt()	{ return "Next >&>"; }
 const char* uiVarWizardDlg::sBackButTxt()	{ return "&<< Back"; }
 
 
