@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.3 2012-02-16 15:25:29 cvshelene Exp $
+ RCS:           $Id: uirockphysform.h,v 1.4 2012-02-28 15:56:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiComboBox;
 class uiGenInput;
 class uiLabel;
+class uiTextEdit;
 class uiRockPhysCstFld;
 
 
@@ -39,6 +40,7 @@ protected:
 
     uiComboBox*		typfld_;
     uiComboBox*		nmfld_;
+    uiTextEdit*		descriptionfld_;
     const PropertyRef::StdType fixedtype_;
 
     void		typSel(CallBacker*);

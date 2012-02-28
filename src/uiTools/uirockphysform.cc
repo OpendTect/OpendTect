@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.7 2012-02-28 15:00:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.8 2012-02-28 15:56:20 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uirockphysform.cc,v 1.7 2012-02-28 15:00:04 cvs
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uitextedit.h"
 
 #define mMaxNrCsts	5
 
@@ -51,13 +52,18 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
 
-    for ( int idx=0; idx<1; idx++ )
+    descriptionfld_ = new uiTextEdit( this, "Formula Desc", true );
+    descriptionfld_->setPrefHeightInChar( 3 );
+    descriptionfld_->setPrefWidthInChar( 100 );
+    descriptionfld_->attach( alignedBelow, lcb->attachObj() );
+
+    for ( int idx=0; idx<mMaxNrCsts; idx++ )
      {
 	uiRockPhysCstFld* rpcfld = new uiRockPhysCstFld( this );
 	if ( idx )
 	    rpcfld->attach( alignedBelow, cstflds_[idx-1] );
 	else
-	    rpcfld->attach( alignedBelow, lcb->attachObj() );
+	    rpcfld->attach( alignedBelow, descriptionfld_ );
 
 	cstflds_ += rpcfld;
     }
@@ -140,10 +146,15 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	{ uiMSG().error( "Formula doesn't match repository [v]!" ); return; }
 
     for ( int idx=0; idx<cstflds_.size(); idx++ )
-	cstflds_[idx]->display( idx<nrconsts );
+    {
+	bool dodisp = idx<nrconsts;
+	cstflds_[idx]->display( dodisp );
+	if ( dodisp )
+	    cstflds_[idx]->updField( fm->constdefs_[idx]->name(),
+		    		     fm->constdefs_[idx]->typicalrg_ );
+    }
 
-    BufferString msg( fm->desc_ );
-    uiMSG().message( msg );
+    descriptionfld_->setText( fm->desc_ );
 }
 
 
@@ -189,13 +200,13 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
     nmlbl_ = new uiLabel( this, 0 );
-    nmlbl_->setPrefWidthInChar( 40 );
+    nmlbl_->setPrefWidthInChar( 35 );
 
     valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
     valfld_-> attach( rightOf, nmlbl_ );
 
     rangelbl_ = new uiLabel( this, 0 );
-    rangelbl_->setPrefWidthInChar( 40 );
+    rangelbl_->setPrefWidthInChar( 35 );
     rangelbl_-> attach( rightOf, valfld_ );
 }
 
