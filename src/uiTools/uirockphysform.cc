@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.6 2012-02-23 10:35:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.7 2012-02-28 15:00:04 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
+#include "mathexpression.h"
 #include "mathproperty.h"
 
 #include "uicombobox.h"
@@ -50,13 +51,13 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
 
-    for ( int idx=0; idx< mMaxNrCsts; idx++ )
-    {
+    for ( int idx=0; idx<1; idx++ )
+     {
 	uiRockPhysCstFld* rpcfld = new uiRockPhysCstFld( this );
 	if ( idx )
-	    rpcfld->attach( alignedBelow, *(cstflds_[idx-1]) );
+	    rpcfld->attach( alignedBelow, cstflds_[idx-1] );
 	else
-	    rpcfld->attach( alignedBelow, lcb );
+	    rpcfld->attach( alignedBelow, lcb->attachObj() );
 
 	cstflds_ += rpcfld;
     }
@@ -132,55 +133,51 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
     if ( !mp )
 	{ uiMSG().error( "No property defined for this type" ); return; }
 
-    if ( mp->nrConsts() != fm->constdefs_.size() )
+    int nrconsts = mp->nrConsts();
+    if ( nrconsts != fm->constdefs_.size() )
 	{ uiMSG().error( "Formula doesn't match repository [c]!" ); return; }
     if ( mp->nrInputs() != fm->vardefs_.size() )
 	{ uiMSG().error( "Formula doesn't match repository [v]!" ); return; }
 
-    BufferString msg( "TODO ..." );
+    for ( int idx=0; idx<cstflds_.size(); idx++ )
+	cstflds_[idx]->display( idx<nrconsts );
 
+    BufferString msg( fm->desc_ );
     uiMSG().message( msg );
 }
 
 
 BufferString uiRockPhysForm::getText() const
 {
-    BufferString ret( "TODO * implement" );
-//    BufferString ret;
 
-    const char* txt = nmfld_->text();
+    char* txt = const_cast<char*>(nmfld_->text());
     if ( !txt || !*txt )
     {
 	uiMSG().error( "Internal [impossible?]: no formula name selected" );
-	return ret;
+	return BufferString("error");
     }
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
     {
 	uiMSG().error( "Internal [impossible?]: formula not found" );
-	return ret;
+	return BufferString("error");
     }
 
+    BufferString ret(fm->def_);
     MathProperty* mp = fm->getProperty();
     if ( !mp )
 	{ uiMSG().error( "No property defined for this type" ); return ret; }
 
-    for ( int idx=0; idx<mp->nrConsts(); idx++ )
-    {
-//	int index =0;
-//	def_.replaceAt(index, mp->constdefs_[idx]->name() );
-    }
-
     for ( int idx=0; idx<mp->nrInputs(); idx++ )
     {
-//	def_.replaceAt(index, mp->constdefs_[idx]->name() );
+	char* cleanvarnm = const_cast<char*>(fm->vardefs_[idx]->name().buf());
+	cleanupString( cleanvarnm, false, false, false );
+	replaceString( ret.buf(), mp->inputName( idx ), cleanvarnm );
     }
-
-
-
-
-    //TODO construct it, remember to replace ' ' with '_' in variable names
+    for ( int idx=0; idx<mp->nrConsts(); idx++ )
+	replaceString( ret.buf(), mp->constName(idx),
+		       toString(cstflds_[idx]->getCstVal()) );
 
     return ret;
 }
@@ -191,13 +188,13 @@ BufferString uiRockPhysForm::getText() const
 uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
-    nmlbl_ = new uiLabel( p, 0 );
+    nmlbl_ = new uiLabel( this, 0 );
     nmlbl_->setPrefWidthInChar( 40 );
 
-    valfld_ = new uiGenInput( p, 0, FloatInpSpec() );
+    valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
     valfld_-> attach( rightOf, nmlbl_ );
 
-    rangelbl_ = new uiLabel( p, 0 );
+    rangelbl_ = new uiLabel( this, 0 );
     rangelbl_->setPrefWidthInChar( 40 );
     rangelbl_-> attach( rightOf, valfld_ );
 }
