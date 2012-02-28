@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.48 2011-12-13 06:14:46 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.49 2012-02-28 16:05:07 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -57,8 +57,12 @@ mGlobal void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: allow whitespace, allow slashes, allow dots */
 mGlobal void cleanupString(char*,bool,bool,bool);
+/*!> Removes initial and trailing spaces and tabs*/
+mGlobal void removeStartAndEndSpaces(char*);
 /*!> tells whether a string holds a parseable number */
 mGlobal bool isNumberString(const char*,bool int_only=false);
+/*!> tells whether has printable characters only. */
+mGlobal bool isAlphaNumString(const char*,bool allowspace = false);
 
 /*!> fills a buffer with the next word (delimited by whitespace) in string.
      It returns a ptr just after the word. */

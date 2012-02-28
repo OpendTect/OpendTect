@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.14 2012-02-24 10:18:06 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.15 2012-02-28 16:05:07 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -392,6 +392,47 @@ bool isNumberString( const char* str, bool int_only )
 
     return true;
 }
+
+
+bool isAlphaNumString( const char* str, bool allowspace )
+{
+    if ( !str || !*str )
+	return false;
+
+#define mCheckChar (isalnum(*str) || (allowspace && *str==' '))
+    while ( *str )
+    {
+	if ( !mCheckChar )
+	    return false;
+
+	str++;
+    }
+#undef mCheckChar
+
+    return true;
+}
+
+
+void removeStartAndEndSpaces( char* str )
+{
+    if ( !str ) return;
+
+    char* firstnonblank = str;
+    while ( *firstnonblank && isblank( *firstnonblank ) )
+	firstnonblank++;
+
+    if ( *firstnonblank )
+	memmove( str, firstnonblank, strlen( firstnonblank ) );
+
+    char* lastnonblank = str + strlen(str)-1;
+
+    while ( lastnonblank!=str && isblank( *lastnonblank ) )
+    {
+	*lastnonblank = 0;
+	lastnonblank--;
+    }
+}
+
 
 
 void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
