@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.91 2012-01-10 14:41:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.92 2012-02-28 23:52:50 cvshelene Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -195,8 +195,8 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , savesurfacedatamnuitem_("Save as Surface data ...")
     , loadsurfacedatamnuitem_("Surface data ...")
     , algomnuitem_("&Tools")
-    , fillholesmnuitem_("&Gridding ...")
     , filtermnuitem_("&Filtering ...")
+    , fillholesmnuitem_("&Gridding ...")
     , horvariogrammnuitem_("&Variogram ...")
     , attr2geommnuitm_("Set &Z values ...")
     , changed_(false)
@@ -241,8 +241,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
 }
 
@@ -334,27 +334,19 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	bool res = false;
 	DataPointSet vals( false, true );
-	if ( mnuid==horvariogrammnuitem_.id )
-	{
-	    vals.bivSet().setNrVals( 3 );
-	    visserv->getRandomPosCache( visid, attribnr, vals );
-	    res = applMgr()->EMServer()->computeVariogramAuxData( emid_, name_,
-		    						  vals );
-	    return;
-	}
-	else
-	{
-	    visserv->getRandomPosCache( visid, attribnr, vals );
-	    if ( mnuid==fillholesmnuitem_.id )
-		res = applMgr()->EMServer()->
-		    			interpolateAuxData( emid_, name_, vals);
-	    else if ( mnuid==attr2geommnuitm_.id )
-		res = applMgr()->EMServer()->attr2Geom( emid_, name_, vals );
-	    else if ( mnuid==filtermnuitem_.id )
-		res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals);
-	}
+	visserv->getRandomPosCache( visid, attribnr, vals );
+	if ( mnuid==filtermnuitem_.id )
+	    res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals);
+	else if ( mnuid==fillholesmnuitem_.id )
+	    res = applMgr()->EMServer()->
+				interpolateAuxData( emid_, name_, vals);
+	else if ( mnuid==horvariogrammnuitem_.id )
+	    res = applMgr()->EMServer()->
+				computeVariogramAuxData( emid_, name_, vals );
+	else if ( mnuid==attr2geommnuitm_.id )
+	    res = applMgr()->EMServer()->attr2Geom( emid_, name_, vals );
 
-	if ( !res )
+	if ( !res || mnuid==horvariogrammnuitem_.id )
 	    return;
 	
 	visserv->setSelSpec( visid, attribnr,

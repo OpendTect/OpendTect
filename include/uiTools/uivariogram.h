@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck & H. Huck
  Date:		Sep 2011
- RCS:		$Id: uivariogram.h,v 1.3 2012-02-26 17:47:32 cvshelene Exp $
+ RCS:		$Id: uivariogram.h,v 1.4 2012-02-28 23:52:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,23 +46,25 @@ mClass HorVariogramComputer
 public:
 
 				HorVariogramComputer(DataPointSet& dpset,
-						     int step,int range,
+						     int size,int range,
 						     int fold);
 				~HorVariogramComputer();
 
 	Array2D<float>*		getData() const;
+	Array2D<float>*		getXaxes() const;
 	BufferStringSet*	getLabels() const;
 
 	bool			isOK() const		{ return dataisok_; }
 
 protected:
 	Array2D<float>*		variogramvals_;
+	Array2D<float>*		axes_;
 	BufferStringSet*	variogramnms_;
 
 	bool			dataisok_;
 
 	bool			compVarFromRange(DataPointSet& dpset,
-						 int step,int range,int fold);
+						 int size,int range,int fold);
 };
 
 
@@ -76,6 +78,7 @@ public:
 				~VertVariogramComputer();
 
 	Array2D<float>*		getData() const;
+	Array2D<float>*		getXaxes() const;
 	Array2D<float>*		getStd() const;
 	Array2D<od_int64>*	getFold() const;
 	BufferStringSet*	getLabels() const;
@@ -84,6 +87,7 @@ public:
 
 protected:
 	Array2D<float>*		variogramvals_;
+	Array2D<float>*		axes_;
 	Array2D<float>*		variogramstds_;
 	Array2D<od_int64>*	variogramfolds_;
 	BufferStringSet*	variogramnms_;
@@ -114,8 +118,9 @@ mClass uiVariogramDisplay: public uiDialog
 {
 public:
      				uiVariogramDisplay(uiParent*,Array2D<float>*,
+						   Array2D<float>*,
 						   BufferStringSet*,
-						   int maxrg,int step,
+						   int maxrg,
 						   bool ishor);
 
 				~uiVariogramDisplay();
@@ -124,10 +129,10 @@ public:
 
 protected:
         Array2D<float>*		data_;
+	Array2D<float>*		axes_;
 	BufferStringSet*	labels_;
         uiFunctionDisplay* 	disp_;
 	int			maxrg_;
-	int			step_;
 
 	uiGenInput*		labelfld_;
 	uiGenInput*		typefld_;

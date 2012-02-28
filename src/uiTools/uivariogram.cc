@@ -35,15 +35,22 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 				 "Specify semi-variogram parameters",
 				 mTODOHelpID ) )
 {
-    int minrgval = isvert ? 40 : SI().xyInFeet() ? 300 : 100;
-    int maxrgval = isvert ? 100 : SI().xyInFeet() ? 10000 : 5000;
-    int defrgval = isvert ? 50 : SI().xyInFeet() ? 5000 : 2000;
-    int minstepval = isvert ? 1 : SI().xyInFeet() ? 50 : 25;
-    int defstep = isvert ? 1 : SI().xyInFeet() ? 50 : 25;
+    int dxmin = SI().inlDistance() <= SI().crlDistance() ?
+       		(int)SI().inlDistance() : (int)SI().crlDistance();
+    int minrgval = isvert ? 30 : SI().xyInFeet() ?
+       			    dxmin*mNINT(300/dxmin) : dxmin*mNINT(100/dxmin);
+    int maxrgval = isvert ? 300 : SI().xyInFeet() ? 
+			    dxmin*mNINT(10000/dxmin) : dxmin*mNINT(5000/dxmin);
+    int defrgval = isvert ? 50 : SI().xyInFeet() ?
+       			    dxmin*mNINT(5000/dxmin) : dxmin*mNINT(2000/dxmin);
+    int minstepval = isvert ? 1 : dxmin;
+    int maxstepval = isvert ? 10 : 10*dxmin;
+    int defstep = isvert ? 1 : dxmin;
     int minfldval = isvert ? 1 : 1000;
     int maxfldval = isvert ? 100 : 100000;
-    int deffldstep = isvert ? 1 : 1000;
     int deffldval = isvert ? 10 : 1000;
+    int deffldstep = isvert ? 1 : 1000;
+
     BufferString lbl( "Maximum range " );
     lbl += isvert ? "(ms)" : SI().getXYUnitString();
     uiLabeledSpinBox* lblmaxrgfld = new uiLabeledSpinBox( this, lbl, 0 );
@@ -56,10 +63,11 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     lbl2 += isvert ? "(ms)" : SI().getXYUnitString();
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
-    stepfld_->setInterval( minstepval, minrgval, minstepval );
+    stepfld_->setInterval( minstepval, maxrgval, defstep );
     stepfld_->setValue( defstep );
     stepfld_->valueChanged.notify(mCB(this,uiVariogramDlg,stepChgCB));
     lblstepfld->attach( alignedBelow, lblmaxrgfld );
+    lblstepfld->display( isvert );
 
     BufferString lbl3 = isvert ? "Min " : "Max ";
     lbl3 += "number of pairs per lag distance";
@@ -99,34 +107,36 @@ int uiVariogramDlg::getFold() const
 
 //-------------------------------------------------------------------------
 
-HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int step,
+HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int size,
 					    int range, int fold )
-	: variogramvals_( new Array2DImpl<float>(3,range/step+1) )
+	: variogramvals_( new Array2DImpl<float>(3,size) )
+	, axes_( new Array2DImpl<float>(3,size) )
 	, variogramnms_( new BufferStringSet )
 {
-    dataisok_ = compVarFromRange( dpset, step, range, fold );
+    dataisok_ = compVarFromRange( dpset, size, range, fold );
 }
 
 
 HorVariogramComputer::~HorVariogramComputer()
 {
     delete variogramvals_;
+    delete axes_;
     delete variogramnms_;
 }
 
 
-bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
-					     int step, int range, int fold )
+bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
+					     int range, int fold )
 {
     Stats::CalcSetup rcsetuptot;
     rcsetuptot.require( Stats::Variance );
     Stats::RunCalc<double> statstot( rcsetuptot );
     for ( DataPointSet::RowID irow=0; irow<dpset.size(); irow++ )
-	statstot+=dpset.getValues( irow )[1];
+	statstot+=(double)dpset.getValues( irow )[1];
 
     float totvar = (float)statstot.variance();
 
-    if ( mIsZero( totvar , 1e-6 ) )
+    if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
 	BufferString emsg = "Failed to compute the total variance\n";
 	emsg += "Please check the input data";
@@ -136,65 +146,81 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
 
     StepInterval<int> inlrg = dpset.bivSet().inlRange();
     StepInterval<int> crlrg = dpset.bivSet().crlRange();
-    for( int lag=step; lag<=range; lag+=step )
-    {
-	int mininl = inlrg.start+int(lag/SI().inlDistance())+1;
-	int maxinl = inlrg.stop-int(lag/SI().inlDistance())-1;
-	int mincrl = crlrg.start+int(lag/SI().crlDistance())+1;
-	int maxcrl = crlrg.stop-int(lag/SI().crlDistance())-1;
-	Array2DImpl<float> data(fold,3);
-
-	Stats::CalcSetup rcsetup;
-	rcsetup.require( Stats::Average );
-	Stats::RunCalc<float> stats( rcsetup );
-
-	for( int ifold=0; ifold<fold; ifold++ )
-	{
-	    int posinl1 = mininl + mNINT((maxinl-mininl)*Stats::RandGen::get());
-	    int poscrl1 = mincrl + mNINT((maxcrl-mincrl)*Stats::RandGen::get());
-	    Coord pos1 = SI().transform(BinID(posinl1,poscrl1));
-	    DataPointSet::RowID posval1 =
-			dpset.findFirst(BinID(posinl1,poscrl1));
-	    if ( posval1<0 ) continue;
-
-	    float azi = Stats::RandGen::get()*2*M_PI;
-	    Coord pos2 = Coord(pos1.x+lag*sin(azi),pos1.y+lag*cos(azi));
-	    BinID bidpos2 = SI().transform(pos2);
-	    DataPointSet::RowID posval2 = dpset.findFirst(bidpos2);
-	    if ( posval2<0 ) continue;
-
-	    //remark: we cannot use the functions of the DataPointSet here
-	    //because it is created in a very wrong way: creation and then
-	    //modification of the BinIDValueSet : the DataPointSet does not
-	    //know about the columns!
-	    //thus we use a workaround: getValues 0=shift, 1=surface data, 2=z
-	    //if this order would change we are in trouble-> even lead to crash.
-	    float val1 = dpset.getValues( posval1 )[1];
-	    float val2 = dpset.getValues( posval2 )[1];
-
-	    if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(val1-val2,1e-6) )
-	       	continue;
-
-	    Coord usedpos2 = SI().transform(bidpos2);
-	    float dist = sqrt( (usedpos2.x - pos1.x)*(usedpos2.x - pos1.x)
-		    	     + (usedpos2.y - pos1.y)*(usedpos2.y - pos1.y) );
-	    float diffval = 0.5*(val2-val1)*(val2-val1);
-	    data.set( ifold, 0, diffval );
-	    data.set( ifold, 1, dist );
-	    data.set( ifold, 2, azi );
-	    stats += diffval;
-	}
-
-	for ( int icomp = 0; icomp < 3 ; icomp++ )
-	{
-	    variogramvals_->set( icomp, 0, 0 );
-	    variogramvals_->set( icomp, lag/step, stats.average()/totvar );
-	}
-    }
 
     variogramnms_->add("Inline");
     variogramnms_->add("Diagonal");
     variogramnms_->add("Crossline");
+
+    for ( int icomp = 0; icomp < 3 ; icomp++ )
+    {
+	variogramvals_->set( icomp, 0, 0 );
+	axes_->set( icomp, 0, 0);
+	for( int ilag=1; ilag<size; ilag++ )
+	{
+	    Stats::CalcSetup rcsetup;
+	    rcsetup.require( Stats::Average );
+	    Stats::RunCalc<double> stats( rcsetup );
+
+	    int mininl = inlrg.start;
+	    int maxinl = inlrg.stop-ilag;
+	    int mincrl = crlrg.start;
+	    int maxcrl = crlrg.stop-ilag;
+
+	    variogramvals_->set( icomp, ilag, mUdf(float) );
+	    float dx = (float)ilag;
+	    if ( icomp == 0 )
+		dx *= SI().crlDistance();
+	    else if ( icomp == 1 )
+		dx *= sqrt(SI().inlDistance()*SI().inlDistance()+
+			   SI().crlDistance()*SI().crlDistance());
+	    else if ( icomp == 2)
+		dx *= SI().inlDistance();
+	    axes_->set( icomp, ilag, dx );
+
+	    if ( maxinl < mininl && icomp != 0 ) continue;
+	    if ( maxcrl < mincrl && icomp != 2 ) continue;
+	    
+	    int ifold = 0;
+	    int itested = 0;
+	    while ( ifold < fold )
+	    {
+		itested++;
+		if ( itested > fold*1000 ) continue;
+		int posinl1 = mininl +
+		   	      mNINT((maxinl-mininl)*Stats::RandGen::get());
+		int poscrl1 = mincrl +
+		   	      mNINT((maxcrl-mincrl)*Stats::RandGen::get());
+		Coord pos1 = SI().transform(BinID(posinl1,poscrl1));
+		DataPointSet::RowID posval1 =
+		    	      dpset.findFirst(BinID(posinl1,poscrl1));
+		if ( posval1<0 ) continue;
+
+		int posinl2 = posinl1;
+		int poscrl2 = poscrl1;
+		if ( icomp != 2 )
+		    poscrl2 += ilag;
+		if ( icomp != 0 )
+		    posinl2 += ilag;
+		Coord pos2 = SI().transform(BinID(posinl2,poscrl2));
+		DataPointSet::RowID posval2 =
+		    	      dpset.findFirst(BinID(posinl2,poscrl2));
+		if ( posval2<0 ) continue;
+
+		double val1 = (double)dpset.getValues( posval1 )[1];
+		double val2 = (double)dpset.getValues( posval2 )[1];
+		double diffval = 0.5*(val2-val1)*(val2-val1);
+		
+		if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(diffval,mDefEps) )
+		    continue;
+		
+		stats += diffval;
+		ifold++;
+	    }
+
+	    variogramvals_->set( icomp, ilag,
+		   		((float)stats.average())/totvar );
+	}
+    }
 
     return true;
 }
@@ -202,6 +228,11 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset,
 Array2D<float>* HorVariogramComputer::getData() const
 {
     return variogramvals_;
+}
+
+Array2D<float>* HorVariogramComputer::getXaxes() const
+{
+    return axes_;
 }
 
 BufferStringSet* HorVariogramComputer::getLabels() const
@@ -216,6 +247,7 @@ VertVariogramComputer::VertVariogramComputer( DataPointSet& dpset, int colid,
 					      int step, int range, int fold,
        					      int nrgroups )
 	: variogramvals_( new Array2DImpl<float>(nrgroups+1,range/step+1) )
+	, axes_( new Array2DImpl<float>(nrgroups+1,range/step+1) )
 	, variogramstds_( new Array2DImpl<float>(nrgroups+1,range/step) )
 	, variogramfolds_( new Array2DImpl<od_int64>(nrgroups+1,range/step) )
 	, variogramnms_( new BufferStringSet )
@@ -227,6 +259,7 @@ VertVariogramComputer::VertVariogramComputer( DataPointSet& dpset, int colid,
 VertVariogramComputer::~VertVariogramComputer()
 {
     delete variogramvals_;
+    delete axes_;
     delete variogramstds_;
     delete variogramfolds_;
     delete variogramnms_;
@@ -247,6 +280,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
     float zstep = SI().zIsTime() ? 1000 : 1;
 
     variogramvals_->set( 0, 0, 0 );
+    axes_->set( 0, 0, 0);
     variogramnms_->add("AllWells");
 
     BufferStringSet grpnames;
@@ -254,9 +288,16 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
     if ( grpnames.size() == 0 )
     {
-	BufferString emsg = "Could not retrieve group names.";
-	uiMSG().error( emsg.buf() );
-	return false;
+	BufferString basegrpnm = "Well";
+	for ( int igroup=1; igroup<=nrgroups; igroup++ )
+	{
+	    BufferString grpnm = basegrpnm;
+	    grpnm += igroup;
+	    grpnames.add(grpnm);
+	}
+	BufferString wmsg = "Could not retrieve group names\n";
+	wmsg += "Will use generic names";
+	uiMSG().warning( wmsg.buf() );
     }
 
     for ( int igroup=1; igroup<=nrgroups; igroup++ )
@@ -288,7 +329,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
 	for ( int idz = 0; idz<nrin-1; idz++ )
 	{
-	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , 1e-6 ) )
+	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) )
 	    {
 		BufferString emsg = "Data inappropriate for analysis.\n";
 		emsg += "Please re-extract with Radius around wells = 0";
@@ -346,6 +387,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
 	removeBias( &interpolatedvals, &interpolatedvals, false );
 	variogramvals_->set( nrcontribwells, 0, 0 );
+	axes_->set( nrcontribwells, 0, 0);
 	variogramnms_->add(grpnames.get( igroup-1 ));
 	for( int lag=step; lag<=range; lag+=step )
 	{
@@ -359,32 +401,26 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    {
 		double val1 = interpolatedvals.get(idz);
 		double val2 = interpolatedvals.get(idz+lag/step);
-		if ( lag==step )
-		{
-		    if ( idz < nrout-3 )
-		    {
-			statstot+=val1;
-		    }
-		    else
-		    {
-			statstot+=val2;
-		    }
-		}
 		idz++;
-		if ( mIsZero(val1-val2,1e-6) )
+		if ( lag==step )
+		    statstot+= idz < nrout-2 ? val1 : val2 ;
+		if ( mIsZero(val1-val2,mDefEps) )
 		    continue;
 		double diffval = 0.5*(val2-val1)*(val2-val1);
 		statstmp+=diffval;
 	    }
-	    variogramvals_->set(nrcontribwells, lag/step, statstmp.average());
-	    variogramstds_->set(nrcontribwells,lag/step-1, statstmp.variance());
-	    variogramfolds_->set(nrcontribwells, lag/step-1, statstmp.count());
+	    variogramvals_->set(nrcontribwells, lag/step,
+		    		(float)statstmp.average());
+	    variogramstds_->set(nrcontribwells,lag/step-1,
+		   		(float)statstmp.variance());
+	    variogramfolds_->set(nrcontribwells, lag/step-1,
+		   		(od_int64)statstmp.count());
 	}
     }
 
-    double totvar = statstot.variance();
+    float totvar = (float)statstot.variance();
 
-    if ( mIsZero( totvar , 1e-6 ) )
+    if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
 	BufferString emsg = "Failed to compute the total variance\n";
 	emsg += "Please check the input data";
@@ -417,14 +453,16 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	{
 	    variogramvals_->set( iwell, lag/step,
 		    variogramvals_->get(iwell,lag/step)/totvar);
+	    axes_->set( iwell, lag/step, (float)lag);
 
-	    tmpval+=variogramvals_->get(iwell,lag/step);
-	    tmpstd+=variogramstds_->get(iwell,lag/step-1);
+	    tmpval+=(double)variogramvals_->get(iwell,lag/step);
+	    tmpstd+=(double)variogramstds_->get(iwell,lag/step-1);
 	    tmpcount+=variogramfolds_->get(iwell,lag/step-1);
 	}
-	variogramvals_->set( 0, lag/step, tmpval/(double)nrcontribwells);
-	variogramstds_->set( 0, lag/step-1, tmpstd/(double)nrcontribwells);
-	variogramfolds_->set(0, lag/step-1, tmpcount);
+	variogramvals_->set( 0, lag/step, (float)tmpval/(float)nrcontribwells);
+	axes_->set( 0, lag/step, (float)lag);
+	variogramstds_->set( 0, lag/step-1,(float)tmpstd/(float)nrcontribwells);
+	variogramfolds_->set(0, lag/step-1, (od_int64)tmpcount);
     }
 
     return true;
@@ -435,10 +473,16 @@ Array2D<float>* VertVariogramComputer::getData() const
     return variogramvals_;
 }
 
+Array2D<float>* VertVariogramComputer::getXaxes() const
+{
+    return axes_;
+}
+
 Array2D<float>* VertVariogramComputer::getStd() const
 {
     return variogramstds_;
 }
+
 Array2D<od_int64>* VertVariogramComputer::getFold() const
 {
     return variogramfolds_;
@@ -461,16 +505,17 @@ static const char* typestrs[] =
 };
 
 uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
+					 Array2D<float>* axes,
 					 BufferStringSet* labels,
-					 int maxrg, int step, bool ishor )
+					 int maxrg, bool ishor )
     	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
 		    		     mTODOHelpID ).modal(false))
 	, maxrg_(maxrg)
-	, step_(step)
 {
-    if ( !data || !labels ) return;
+    if ( !data || ! axes || !labels ) return;
 
     data_ = new Array2DImpl<float>( *data );
+    axes_ = new Array2DImpl<float>( *axes );
     labels_ = new BufferStringSet( *labels);
     setCtrlStyle( LeaveOnly );
     const CallBack chgCBfld ( mCB(this,uiVariogramDisplay,fieldChangedCB) );
@@ -513,7 +558,7 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 
     BufferString lblnmstr = ishor ? "Direction:" : "Source:";
     labelfld_ = new uiGenInput( this, lblnmstr,
-	    		     StringListInpSpec(*labels) );
+	    			StringListInpSpec(*labels) );
     labelfld_->valuechanged.notify( chgCBlbl );
     labelfld_->attach( rightAlignedAbove, disp_ );
 }
@@ -522,25 +567,26 @@ void uiVariogramDisplay::draw()
 {
     float maxdataval = 0;
     float maxdatavalcomp1 = 0;
-    int size = data_->info().getSize(0);
-    for ( int icomp=0; icomp < size; icomp++ )
+    int nrcomp = data_->info().getSize(0);
+    int size = data_->info().getSize(1);
+    for ( int icomp=0; icomp<nrcomp; icomp++ )
     {
-	for ( int ilag=0; ilag <=maxrg_; ilag+=step_ )
+	for ( int ilag=0; ilag<size; ilag++ )
 	{
-	    float tmpval = data_->get(icomp,ilag/step_);
-	    if ( tmpval>maxdataval)
+	    float tmpval = data_->get(icomp,ilag);
+	    if ( tmpval>maxdataval && !mIsUdf(tmpval) )
 		maxdataval = tmpval;
-	    if ( icomp == 0 && ilag == maxrg_ )
+	    if ( icomp == 0 && ilag == size-1 )
 		maxdatavalcomp1 = maxdataval;
 	}
     }
 
     labelChangedCB(0);
-
+    disp_->setup().xrg_.stop = maxrg_;
     disp_->setup().yrg_.stop = maxdataval*1.1;
 
     rangefld_->sldr()->setMaxValue( maxrg_ );
-    rangefld_->sldr()->setStep( step_/100 );
+    rangefld_->sldr()->setStep( maxrg_/(100*(size-1)) );
     rangefld_->sldr()->setValue( maxrg_/4 );
 
     sillfld_->sldr()->setMinValue( 0 );
@@ -553,36 +599,45 @@ void uiVariogramDisplay::draw()
 
 void uiVariogramDisplay::labelChangedCB( CallBacker* c )
 {
-    TypeSet<float> xaxisvals;
-    for ( int ilag=0; ilag <=maxrg_; ilag+=step_ )
-	xaxisvals += ilag;
-
-    int size = xaxisvals.size();
+    int size = axes_->info().getSize(1);
     int curcomp = labelfld_->getIntValue();
-    Array1DImpl<float> out(size);
-    for ( int idx=0; idx<size; idx++ )
-	out.set( idx, data_->get(curcomp,idx) );
-    disp_->setVals( xaxisvals.arr(), out.getData(), size );
+    int nbpts = 0;
+    TypeSet<float> xaxisvals;
+    TypeSet<float> yaxisvals;
+    for ( int ilag=0; ilag<size; ilag++ )
+    {
+	if ( !mIsUdf(data_->get(curcomp,ilag)) )
+	{
+	    xaxisvals += axes_->get(curcomp,ilag);
+	    yaxisvals += data_->get(curcomp,ilag);
+	    nbpts++;
+	}
+    }
+    disp_->setVals( xaxisvals.arr(), yaxisvals.arr(), nbpts );
 }
 
 void uiVariogramDisplay::fieldChangedCB( CallBacker* c )
 {
     float nugget = 0;
-    TypeSet<float> xaxisvals;
-    for ( int ilag=0; ilag <=maxrg_; ilag+=step_ )
-	xaxisvals += ilag;
+    int size = axes_->info().getSize(1);
+    Array1DImpl<float> xaxisvals(size);
+    Array1DImpl<float> yaxisvals(size);
 
-    int size = xaxisvals.size();
+    int curcomp = labelfld_->getIntValue();
     float sill = sillfld_->sldr()->getValue();
     float range = rangefld_->sldr()->getValue();
-    Array1DImpl<float> out(size);
+
+    for ( int ilag=0; ilag<size; ilag++ )
+	xaxisvals.set( ilag, axes_->get(curcomp,ilag) );
     getVariogramModel( typefld_->text(), nugget, sill, range, size,
-	   		xaxisvals.arr(), out.getData() );
-    disp_->setY2Vals( xaxisvals.arr(), out.getData(), size );
+	   		xaxisvals.getData(), yaxisvals.getData() );
+
+    disp_->setY2Vals( xaxisvals.getData(), yaxisvals.getData(), size );
 }
 
 uiVariogramDisplay::~uiVariogramDisplay()
 {
     if ( data_ ) delete data_;
+    if ( axes_ ) delete axes_;
     if ( labels_ ) delete labels_;
 }

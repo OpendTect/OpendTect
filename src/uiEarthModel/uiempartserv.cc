@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.227 2012-02-26 17:47:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.228 2012-02-28 23:52:50 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -930,28 +930,6 @@ bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
 { return changeAuxData( oid, nm, false, dpset ); }
 
 
-bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
-					      const char* nm,
-					      DataPointSet& dpset )
-{
-    uiVariogramDlg varsettings( parent(), false );
-    if ( !varsettings.go() )
-	return false;
-
-    HorVariogramComputer hvc( dpset, varsettings.getStep(),
-	    		      varsettings.getMaxRg(), varsettings.getFold() );
-    if ( !hvc.isOK() ) return false;
-    uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
-	    					       hvc.getLabels(),
-	   					       varsettings.getMaxRg(),
-			  			       varsettings.getStep(),
-						       true );
-    variodlgs_ += uivv;
-    uivv->draw();
-    uivv->go();
-    return true;
-}
-
 static int getColID( const DataPointSet& dps, const char* nm )
 {
     const BinIDValueSet& bivs = dps.bivSet();
@@ -963,6 +941,51 @@ static int getColID( const DataPointSet& dps, const char* nm )
 	    { cid = idx; break; }
     }
     return cid;
+}
+
+
+bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
+					      const char* nm,
+					      DataPointSet& dpset )
+{
+    mDynamicCastAll(oid);
+    if ( !hor3d ) return false;
+
+    BinIDValueSet& bivs = dpset.bivSet();
+/*    if ( dpset.dataSet().nrCols() != bivs.nrVals() )
+	return false;
+
+    const int cid = getColID( dpset, nm );
+    if ( cid < 0 )
+	return false;*/
+
+    const EM::SectionID sid = hor3d->sectionID( 0 );
+    const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+    const StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+    BinID step( rowrg.step, colrg.step );
+//    BIDValSetArrAdapter adapter( bivs, cid, step );
+
+    uiVariogramDlg varsettings( parent(), false );
+    if ( !varsettings.go() )
+	return false;
+
+    int size = varsettings.getMaxRg();
+    size /= SI().inlDistance() <= SI().crlDistance() ?
+	int(SI().inlDistance()) : int(SI().crlDistance());
+    size++;
+
+    HorVariogramComputer hvc( dpset, size,
+	    		      varsettings.getMaxRg(), varsettings.getFold() );
+    if ( !hvc.isOK() ) return false;
+    uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
+	    					       hvc.getXaxes(),
+	    					       hvc.getLabels(),
+	   					       varsettings.getMaxRg(),
+						       true );
+    variodlgs_ += uivv;
+    uivv->draw();
+    uivv->go();
+    return true;
 }
 
 
