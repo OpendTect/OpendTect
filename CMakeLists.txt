@@ -44,7 +44,10 @@ SET(OD_MODULES
 	uiODMain
 )
 
-SET( OD_PLUGINS Tut uiPreStackViewer )
+SET( OD_PLUGINS
+	Tut
+	VoxelConnectivityFilter
+	uiPreStackViewer )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
