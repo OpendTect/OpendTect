@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.87 2012-02-26 17:47:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.88 2012-02-28 10:01:22 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -127,6 +127,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
     tbl_->setLabelAlignment( Alignment::Left, true );
+    dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
