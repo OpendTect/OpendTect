@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.6 2012-02-28 11:08:08 cvskris Exp $
+ RCS:           $Id: sqlquery.h,v 1.7 2012-02-28 13:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
+#include "bufstringset.h"
 #include "enums.h"
 
 #ifdef __have_qsql__
@@ -87,25 +88,61 @@ protected:
 
 /*! Helper class that creates conditions that can be put after WHERE
     in a query. */
-mStruct ValueCondition
+mClass Condition
 {
+public:
+    virtual			~Condition() {}
+    virtual BufferString	getStr() const			= 0;
+};
+
+mClass ValueCondition : public Condition
+{
+public:
 			enum Operator { Equals, Less, Greater, LessOrEqual,
 				  GreaterOrEqual, NotEqual, Null, NotNull,
 				  Or, And };
 			DeclareEnumUtils(Operator);
 	
-			ValueCondition(const char* key = 0,
-				Operator op = Equals,const char* val = 0 )
-			    : key_(key)
-			    , op_( op )
-			    , val_(val)					{}
+			ValueCondition(const char* col = 0,
+				Operator op = Equals,const char* val = 0 );
 
-    BufferString	key_;
+    BufferString	getStr() const;
+
+protected:
+    BufferString	col_;
     BufferString	val_;
     Operator		op_;
 
-    BufferString	getStr() const;
 };
+
+
+mClass StringCondition : public Condition
+{
+public:
+    			StringCondition( const char* col,
+					 const char* searchstr );
+    BufferString	getStr() const;
+protected:
+
+    BufferString	col_;
+    BufferString	searchstr_;
+};
+
+
+mClass FullTextCondition : public Condition
+{
+public:
+			FullTextCondition( BufferStringSet& cols,
+					   const char* searchstr );
+			FullTextCondition( const char* searchstr );
+    BufferString	getStr() const;
+    FullTextCondition&	addColumn(const char*);
+
+protected:
+    BufferString	searchstr_;
+    BufferStringSet	cols_;
+};
+
 
 
 } // namespace

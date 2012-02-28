@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.10 2012-02-28 11:08:08 cvskris Exp $
+ RCS:           $Id: sqlquery.cc,v 1.11 2012-02-28 13:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,9 +287,67 @@ bool SqlDB::Query::deleteInfo( const char* tablenm, const char* fieldnm,
 }
 
 
+SqlDB::ValueCondition::ValueCondition(const char* key,
+				      SqlDB::ValueCondition::Operator op,
+				      const char* val )
+    : col_(key)
+    , op_( op )
+    , val_(val)
+{}
+
+
 BufferString SqlDB::ValueCondition::getStr() const
 {
-    BufferString res( key_ );
+    BufferString res( col_ );
     res.add( " ").add( toString( op_ ) ).add( " " ).add( val_ );
+    return res;
+}
+
+
+SqlDB::StringCondition::StringCondition( const char* col,
+					 const char* searchstr )
+    : col_( col )
+    , searchstr_( searchstr )
+{}
+
+
+BufferString SqlDB::StringCondition::getStr() const
+{
+    BufferString res( col_ );
+    res.add( " LIKE( '%").add( searchstr_ ).add( "%' )" );
+    return res;
+}
+
+
+SqlDB::FullTextCondition::FullTextCondition( BufferStringSet& cols,
+					     const char* searchstr )
+    : cols_( cols )
+    , searchstr_( searchstr )
+{}
+
+
+SqlDB::FullTextCondition::FullTextCondition( const char* searchstr )
+    : searchstr_( searchstr )
+{}
+
+
+SqlDB::FullTextCondition& SqlDB::FullTextCondition::addColumn( const char* col )
+{
+    cols_.add( col );
+    return *this;
+}
+
+
+BufferString SqlDB::FullTextCondition::getStr() const
+{
+    BufferString res( "MATCH( ");
+    for ( int idx=0; idx<cols_.size(); idx++ )
+    {
+	res.add( cols_[idx]->buf() );
+	if ( idx!=cols_.size()-1 )
+	    res.add( ", " );
+    }
+
+    res.add( " ) AGAINST ( ").add( searchstr_ ).add( " )" );
     return res;
 }
