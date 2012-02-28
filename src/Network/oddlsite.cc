@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.15 2012-02-21 07:20:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.16 2012-02-28 06:46:41 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -96,7 +96,8 @@ bool ODDLSite::reConnect()
 }
 
 
-bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr )
+bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
+			    const char* nicename )
 {
     delete databuf_; databuf_ = 0;
 
@@ -108,6 +109,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr )
 	odhttp_->setASynchronous( true );
 	odhttp_->get( getFileName(relfnm), outfnm );
 	HttpTask task( *odhttp_ );
+	task.setName( nicename );
 	tr ? tr->execute( task ) : task.execute();
     }
     else
@@ -228,28 +230,47 @@ od_int64 totalNr() const	{ return fnms_.size(); }
 int ODDLSiteMultiFileGetter::nextStep()
 {
     if ( curidx_ < 0 )
+    { 
+	dlsite_.odhttp_->setASynchronous( false );
 	return ErrorOccurred();
+    }
     else if ( curidx_ >= fnms_.size() )
+    {
+	dlsite_.odhttp_->setASynchronous( false );
 	return Finished();
-
-    const BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
-    BufferString outfnm( FilePath(outdir_).add(inpfnm).fullPath() );
+    }
+    
+    BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
+#ifdef __win__
+    replaceCharacter( inpfnm.buf(), '/', '\\' );
+#endif
+    FilePath inpfp( inpfnm );
+    BufferString outfnm( FilePath(outdir_).add(inpfp.fileName()).fullPath() );
     bool isok = true;
     if ( dlsite_.islocal_ )
 	isok = dlsite_.getFile( inpfnm, outfnm );
     else
     {
+	dlsite_.odhttp_->setASynchronous( true );
 	dlsite_.odhttp_->get( inpfnm, outfnm );
+	bool res = false;
+	while ( dlsite_.odhttp_->state() == ODHttp::Reading );
+	curidx_++;
+	/*{
+	    if ( httptask_->getState() <= 0 )
+	    { curidx_++; break; }
+	}*/
+	
 	isok = dlsite_.odhttp_->state() > ODHttp::Connecting;
     }
 
-    if ( isok )
+    /*if ( isok )
 	curidx_++;
     else
     {
 	msg_ = dlsite_.errMsg();
 	curidx_ = -1;
-    }
+    }*/
 
     return MoreToDo();
 }
