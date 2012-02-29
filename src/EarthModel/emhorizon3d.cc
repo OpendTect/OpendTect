@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.132 2011-05-17 11:58:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.133 2012-02-29 15:33:53 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -255,6 +255,7 @@ protected:
     int			nrdone_;
 };
 
+// EM::Horizon3D
 
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
@@ -308,7 +309,6 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-// Horizon3D
 mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() );
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
@@ -316,6 +316,14 @@ bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 
 float Horizon3D::getZ( const BinID& bid ) const
 { return getPos( sectionID(0), bid.toInt64() ).z; }
+
+
+HorSampling Horizon3D::range( SectionID sid )
+{
+    HorSampling hs( false );
+    hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
+    return hs;
+}
 
 
 Array2D<float>* Horizon3D::createArray2D( 

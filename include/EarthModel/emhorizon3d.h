@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.71 2011-05-17 11:58:11 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.72 2012-02-29 15:33:56 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -93,6 +93,7 @@ public:
 				//!< Writes to the first section
     float			getZ(const BinID&) const;
 				//!< Reads from the first section
+    HorSampling			range(SectionID sid=-1) const;
 
     void			removeAll();
     Horizon3DGeometry&		geometry();
