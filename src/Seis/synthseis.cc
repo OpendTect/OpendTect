@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.46 2012-02-29 12:07:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.47 2012-02-29 13:08:29 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -287,8 +287,7 @@ bool SynthGenerator::doTimeConvolve( float* res )
     const int ns = outtrc_.size();
     TypeSet<float> refs; getSampledReflectivities( refs );
     const int wvltsz = wavelet_->size();
-    const int wvltcs = wvltsz%2 == 0 ? wavelet_->centerSample() 
-				     : wavelet_->centerSample()-1;
+    const int wvltcs = wavelet_->centerSample();
     GenericConvolve( wvltsz, -wvltcs, wavelet_->samples(),
 		     refs.size(), 0, refs.arr(),
 		     ns, 0, res );
