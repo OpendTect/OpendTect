@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.9 2012-02-29 13:42:57 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.10 2012-02-29 16:09:44 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
 #include "mathexpression.h"
 #include "mathproperty.h"
+#include "pixmap.h"
 
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -151,34 +153,50 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	cstflds_[idx]->display( dodisp );
 	if ( dodisp )
 	    cstflds_[idx]->updField( fm->constdefs_[idx]->name(),
-		    		     fm->constdefs_[idx]->typicalrg_ );
+		    		     fm->constdefs_[idx]->typicalrg_,
+		   		     fm->constdefs_[idx]->desc_ );
     }
 
     descriptionfld_->setText( fm->desc_ );
 }
 
 
-BufferString uiRockPhysForm::getText() const
+//TODO: remove
+const char* uiRockPhysForm::getText() const
+{
+    BufferString formula;
+    BufferString outunit;
+    BufferStringSet varsunits;
+    if ( getFormulaInfo( formula, outunit, varsunits ) )
+	return formula.buf();
+
+    return 0;
+}
+
+
+bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
+				     BufferString& outputunit,
+				     BufferStringSet& varsunits ) const
 {
 
     char* txt = const_cast<char*>(nmfld_->text());
     if ( !txt || !*txt )
     {
 	uiMSG().error( "Internal [impossible?]: no formula name selected" );
-	return BufferString("error");
+	return false;
     }
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
     {
 	uiMSG().error( "Internal [impossible?]: formula not found" );
-	return BufferString("error");
+	return false;
     }
 
     BufferString ret(fm->def_);
     MathProperty* mp = fm->getProperty();
     if ( !mp )
-	{ uiMSG().error( "No property defined for this type" ); return ret; }
+	{ uiMSG().error( "No property defined for this type" ); return false; }
 
     for ( int idx=0; idx<mp->nrInputs(); idx++ )
     {
@@ -190,14 +208,23 @@ BufferString uiRockPhysForm::getText() const
 	replaceString( ret.buf(), mp->constName(idx),
 		       toString(cstflds_[idx]->getCstVal()) );
 
-    return ret;
+    cleanformula = ret;
+    //TODO get units
+    return true;
 }
 
 
-bool uiRockPhysForm::isOK() const
+bool uiRockPhysForm::isOK()
 {
     for ( int idx=0; idx<cstflds_.size(); idx++ )
     {
+	if ( cstflds_[idx]->attachObj()->isDisplayed()
+	     && mIsUdf( cstflds_[idx]->getCstVal() ) )
+	{
+	    errmsg_ += "Please provide a value for constant '";
+	    errmsg_ += cstflds_[idx]->cstnm_; errmsg_ += "'\n";
+	    return false;
+	}
     }
     return true;
 }
@@ -212,11 +239,16 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     nmlbl_->setPrefWidthInChar( 35 );
 
     valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
-    valfld_-> attach( rightOf, nmlbl_ );
+    valfld_->attach( rightOf, nmlbl_ );
 
     rangelbl_ = new uiLabel( this, 0 );
     rangelbl_->setPrefWidthInChar( 35 );
-    rangelbl_-> attach( rightOf, valfld_ );
+    rangelbl_->attach( rightOf, valfld_ );
+
+    CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
+    descbutton_ = new uiPushButton( this, "", ioPixmap("contexthelp.png"),
+	    			    cb, true );
+    descbutton_->attach( rightOf, rangelbl_ );
 }
 
 
@@ -226,9 +258,12 @@ float uiRockPhysCstFld::getCstVal() const
 }
 
 
-void uiRockPhysCstFld::updField( BufferString nm,
-				 Interval<float> range, float val )
+void uiRockPhysCstFld::updField( BufferString nm, Interval<float> range,
+				 BufferString desc, float val )
 {
+    cstnm_ = nm;
+    desc_ = desc;
+
     BufferString prefix = "Value for '"; prefix += nm; prefix += "'";
     nmlbl_->setText( prefix.buf() );
 
@@ -238,4 +273,10 @@ void uiRockPhysCstFld::updField( BufferString nm,
     BufferString suffix = "Typical range is ["; suffix += range.start;
     suffix += ","; suffix += range.stop; suffix += "]";
     rangelbl_->setText( suffix.buf() );
+}
+
+
+void uiRockPhysCstFld::descPush( CallBacker* )
+{
+    uiMSG().message( desc_.buf() );
 }

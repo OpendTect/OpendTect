@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.5 2012-02-29 13:42:57 cvshelene Exp $
+ RCS:           $Id: uirockphysform.h,v 1.6 2012-02-29 16:09:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiComboBox;
 class uiGenInput;
 class uiLabel;
+class uiPushButton;
 class uiTextEdit;
 class uiRockPhysCstFld;
 
@@ -34,9 +35,11 @@ public:
     const char*		formulaName() const;
     void		setFormulaName(const char*);
 
-    BufferString	getText() const;
+    bool		getFormulaInfo(BufferString&,BufferString&,
+	    			       BufferStringSet&) const;
+    const char*		getText() const;	//TODO remove
     const char*		errMsg() const		{ return errmsg_.buf(); }
-    bool		isOK() const;
+    bool		isOK();
 
 protected:
 
@@ -63,15 +66,21 @@ public:
 			uiRockPhysCstFld(uiParent*);
 
     float		getCstVal() const;
-    void		updField(BufferString,Interval<float>,
+    void		updField(BufferString,Interval<float>,BufferString,
 	    			 float val = mUdf(float));
+
+    const char*		cstnm_;
 
 
 protected:
 
+    void		descPush(CallBacker*);
+
     uiGenInput*		valfld_;
     uiLabel*		nmlbl_;
     uiLabel*		rangelbl_;
+    uiPushButton*	descbutton_;
+    BufferString	desc_;
 };
 
 
