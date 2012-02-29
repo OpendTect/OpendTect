@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.68 2012-02-08 23:08:25 cvsnanne Exp $
+ RCS:		$Id: keystrs.h,v 1.69 2012-02-29 08:00:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ namespace sKey
     mExt FixedString	Subsample	mImpl("Subsample");
     mExt FixedString	Shortcuts	mImpl("Shortcuts");
     mExt FixedString	Size		mImpl("Size");
+    mExt FixedString	SpaceString	mImpl(" ");
     mExt FixedString	Steering	mImpl("Steering");
     mExt FixedString	Stored		mImpl("Stored");
     mExt FixedString	StratRef	mImpl("Strat Level");
