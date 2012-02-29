@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.4 2012-01-06 15:58:44 cvsnanne Exp $
+ RCS:		$Id: databaseobject.h,v 1.5 2012-02-29 14:55:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,10 @@ public:
     void 		setColumnOptions(const char* n){ columnoptions_=n; }
     virtual bool	isDBTypeOK(const char*) const;
     virtual const char* createColumnQuery() const;
+
 protected:
+
+    DatabaseTable&	table_;
 
     BufferString	columnname_;
     BufferString	columntype_;

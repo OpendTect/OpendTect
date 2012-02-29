@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.3 2012-02-29 08:01:20 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.4 2012-02-29 14:55:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
 	const char* columnname,const char* columntype )
     : columnname_( columnname )
     , columntype_( columntype )
+    , table_( dobj )
 {
     dobj.columns_ += this;
 }
@@ -68,7 +69,14 @@ const char* DatabaseColumnBase::createColumnQuery() const
 
 
 const char* DatabaseColumnBase::selectString() const
-{ return backQuoteString( columnName() ); }
+{
+    static StaticStringManager stm;
+    BufferString& str = stm.getString();
+
+    str = backQuoteString( table_.tableName() );
+    str.add( "." ).add( backQuoteString( columnName() ) );
+    return str;
+}
 
 
 StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
@@ -110,6 +118,7 @@ const char* CreatedTimeStampDatabaseColumn::selectString() const
     BufferString& str = stm.getString();
 
     str = "UNIX_TIMESTAMP(";
+    str.add( backQuoteString( table_.tableName() ) ).add(".");
     str += backQuoteString( columnName() );
     str += ")";
 
