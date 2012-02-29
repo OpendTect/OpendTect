@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.31 2011-12-15 21:45:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.32 2012-02-29 20:23:02 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -644,12 +644,12 @@ void Pos::EMImplicitBodyProvider::getCubeSampling( CubeSampling& cs ) const
 { cs = useinside_ ? cs_ : bbox_; }
 
 
-bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* )
+bool Pos::EMImplicitBodyProvider::initialize( TaskRunner* tr )
 {
     if ( !embody_ ) 
 	return false;
 
-    EM::ImplicitBody* body = embody_->createImplicitBody(0,false);
+    EM::ImplicitBody* body = embody_->createImplicitBody(tr,false);
     if ( !body || !body->arr_ )
     {
 	delete imparr_; imparr_ = 0;
@@ -708,6 +708,8 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
     iop.get( sKeyBBZrg(), zrg ); 
     bbox_.hrg.set( inlrg, crlrg ); 
     bbox_.zrg.setFrom( zrg );
+
+    initialize(0);
 }
 
 
@@ -775,10 +777,18 @@ bool Pos::EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 bool Pos::EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
     const CubeSampling& cs = useinside_ ? cs_ : bbox_;
-    if ( useinside_ && !imparr_ ) 
+    if ( mIsUdf(z) ) return cs.hrg.includes(bid);
+
+    if ( !imparr_ || !cs.hrg.includes(bid) || !cs.zrg.includes(z,false) ) 
 	return false;
-    
-    return cs.hrg.includes(bid); // && cs.zrg.includes(z,false); 
+
+    const int inlidx = cs.inlIdx(bid.inl);
+    const int crlidx = cs.crlIdx(bid.crl);
+    const int zidx = cs.zIdx(z);
+    const bool inbody = imparr_->info().validPos(inlidx,crlidx,zidx) &&
+	imparr_->get(inlidx,crlidx,zidx)<=threshold_;
+
+    return useinside_==inbody;
 }
 
 
