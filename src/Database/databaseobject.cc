@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.2 2012-01-05 10:28:47 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.3 2012-02-29 08:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
 {
     if ( maxsize==-1 )
     {
-	columntype_ = "TINYBLOB";
+	columntype_ = "TEXT";
     }
     else
     {
