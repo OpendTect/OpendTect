@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.86 2012-02-29 11:41:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.87 2012-02-29 12:38:32 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -176,9 +176,9 @@ void uiWellMan::fillLogsFld()
     BufferStringSet lognms;
     for ( int idx=0; idx<currdrs_.size(); idx++ )
     {
-	curlognms_.erase();
-	currdrs_[idx]->getLogInfo( curlognms_ );
-	lognms.add( curlognms_, true );
+	availablelognms_.erase();
+	currdrs_[idx]->getLogInfo( availablelognms_ );
+	lognms.add( availablelognms_, true );
     }
 
     if ( currdrs_.size() > 1 )
@@ -190,20 +190,20 @@ void uiWellMan::fillLogsFld()
 	    bool ispresent = true;
 	    for ( int idx=0; idx<currdrs_.size(); idx++ )
 	    {
-		curlognms_.erase();
-		currdrs_[idx]->getLogInfo( curlognms_ );
-		if ( !curlognms_.isPresent( lognm ) )
+		availablelognms_.erase();
+		currdrs_[idx]->getLogInfo( availablelognms_ );
+		if ( !availablelognms_.isPresent( lognm ) )
 		    { ispresent = false; break; }
 	    }
 	    if ( ispresent )
 		alllognms.addIfNew( lognm );
 	}
-	curlognms_.erase();
-	curlognms_.add( alllognms, true );
+	availablelognms_.erase();
+	availablelognms_.add( alllognms, true );
     }
 
-    for ( int idx=0; idx<curlognms_.size(); idx++)
-	logsfld_->addItem( curlognms_.get(idx) );
+    for ( int idx=0; idx<availablelognms_.size(); idx++)
+	logsfld_->addItem( availablelognms_.get(idx) );
 
     logsfld_->selectAll( false );
     checkButtons();
@@ -595,3 +595,11 @@ double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
 
     return totalsz;
 }
+
+
+void uiWellMan::getSelLogs( BufferStringSet& lognms ) const
+{ logsfld_->getSelectedItems( lognms ); }
+
+
+const BufferStringSet& uiWellMan::getAvailableLogs() const
+{ return availablelognms_; }
