@@ -4,16 +4,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.13 2012-02-29 07:35:42 cvskris Exp $
+ RCS:           $Id: sqlquery.cc,v 1.14 2012-02-29 08:00:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sqlquery.h"
+#include "keystrs.h"
 #include "sqldatabase.h"
 #include "bufstringset.h"
 #include <QString>
 
+
+const char* paranstart = " ( ";
+const char* paranend = " ) ";
 
 DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
 { "=", "<", ">", "<=", ">=", "!=",
@@ -182,7 +186,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	return querystr;
 
     const int nrvals = values.size();
-    querystr = "INSERT INTO "; querystr.add( tablenm ).add( " (" );
+    querystr = "INSERT INTO "; querystr.add( tablenm ).add( paranstart );
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() );
@@ -190,7 +194,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	    querystr.add( "," );
     }
 
-    querystr.add( ")" );
+    querystr.add( paranend );
 
     querystr.add( " VALUES (" );
 
@@ -211,7 +215,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	    querystr.add( "," );
     }
 
-    querystr.add( ")" );
+    querystr.add( paranend );
 
     return querystr;
 }
@@ -261,7 +265,7 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() );
-	querystr.add( idx != nrvals-1 ? "," : " " );
+	querystr.add( idx != nrvals-1 ? "," : sKey::SpaceString );
     }
 
     querystr.add( "FROM " ).add( tablenm );
@@ -304,7 +308,30 @@ SqlDB::ValueCondition::ValueCondition(const char* key,
 BufferString SqlDB::ValueCondition::getStr() const
 {
     BufferString res( col_ );
-    res.add( " ").add( toString( op_ ) ).add( " " ).add( val_ );
+    res.add( sKey::SpaceString).add( toString( op_ ) )
+        .add( sKey::SpaceString ).add( val_ );
+    return res;
+}
+
+
+BufferString SqlDB::MultipleLogicCondition::getStr() const
+{
+    const char* op = ValueCondition::toString( isand_
+	    ? ValueCondition::And
+	    : ValueCondition::Or );
+
+    BufferString res( paranstart );
+    for ( int idx=0; idx<statements_.size(); idx++ )
+    {
+	res.add( paranstart ).add( statements_[idx]->buf() ).add( paranend );
+	if ( idx!=statements_.size()-1 )
+	{
+	    res.add( op );
+	}
+    }
+
+    res.add( paranend );
+
     return res;
 }
 

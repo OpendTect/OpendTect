@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.8 2012-02-28 15:59:41 cvskris Exp $
+ RCS:           $Id: sqlquery.h,v 1.9 2012-02-29 08:00:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,22 @@ protected:
     BufferString	val_;
     Operator		op_;
 
+};
+
+
+mClass MultipleLogicCondition : public Condition
+{
+public:
+    			MultipleLogicCondition(bool isand)
+			    : isand_( isand )			{}
+
+    void		addStatement( const char* stmnt )
+			{ statements_.add( stmnt ); }
+
+    BufferString	getStr() const;
+protected:
+    BufferStringSet	statements_;
+    bool		isand_;
 };
 
 
