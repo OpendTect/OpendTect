@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.4 2012-02-28 15:56:20 cvshelene Exp $
+ RCS:           $Id: uirockphysform.h,v 1.5 2012-02-29 13:42:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     void		setFormulaName(const char*);
 
     BufferString	getText() const;
+    const char*		errMsg() const		{ return errmsg_.buf(); }
+    bool		isOK() const;
 
 protected:
 
@@ -50,6 +52,7 @@ protected:
 
     ObjectSet<uiRockPhysCstFld>	cstflds_;
 
+    BufferString	errmsg_;
 };
 
 

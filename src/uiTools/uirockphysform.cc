@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.8 2012-02-28 15:56:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.9 2012-02-29 13:42:57 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -191,6 +191,15 @@ BufferString uiRockPhysForm::getText() const
 		       toString(cstflds_[idx]->getCstVal()) );
 
     return ret;
+}
+
+
+bool uiRockPhysForm::isOK() const
+{
+    for ( int idx=0; idx<cstflds_.size(); idx++ )
+    {
+    }
+    return true;
 }
 
 

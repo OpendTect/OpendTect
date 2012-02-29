@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.18 2012-02-13 12:49:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.19 2012-02-29 13:42:57 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -219,7 +219,12 @@ uiWellLogCalcRockPhys( uiParent* p )
 
 bool acceptOK( CallBacker* )
 {
-    uiMSG().error( "TODO: implement checks" );
+    if ( !formgrp_->isOK() )
+    {
+	uiMSG().error( formgrp_->errMsg() );
+	return false;
+    }
+
     return true;
 }
 
