@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.29 2011-10-13 13:21:18 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.30 2012-02-29 12:07:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ailayer.h"
+#include "factory.h"
 #include "reflectivitymodel.h"
 #include "iopar.h"
 #include "odmemory.h"
@@ -46,6 +47,7 @@ namespace Seis
 mClass SynthGenBase 
 {
 public:
+
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
     virtual bool		setOutSampling(const StepInterval<float>&);
 
@@ -62,6 +64,9 @@ public:
 
     static const char*		sKeyFourier() 	{ return "Convolution Domain"; }
     static const char* 		sKeyNMO() 	{ return "Use NMO"; }
+    static const char*		sKeyInternal() 	{ return "Internal Multiples"; }
+    static const char*		sKeySurfRefl() 	
+				    { return "Surface Reflection coefficient"; }
 
 protected:
     				SynthGenBase();
@@ -70,7 +75,9 @@ protected:
     bool			isfourier_;
     bool			usenmotimes_;
     bool			waveletismine_;
+    bool			dointernalmultiples_;
     const Wavelet*		wavelet_;
+    float			surfacereflcoeff_;
     StepInterval<float>		outputsampling_;
     TaskRunner* 		tr_;
 
@@ -82,6 +89,10 @@ protected:
 mClass SynthGenerator : public SynthGenBase
 {
 public:
+    mDefineFactoryInClass( SynthGenerator, factory );
+
+    static SynthGenerator*	create(bool advanced);
+
     				SynthGenerator();
     				~SynthGenerator();
 
@@ -102,6 +113,7 @@ protected:
     bool 			doTimeConvolve(float* result); 
     bool 			doFFTConvolve(float* result);
     void 			setConvDomain(bool fourier);
+    virtual bool		computeReflectivities();
 
     const ReflectivityModel*	refmodel_;
 

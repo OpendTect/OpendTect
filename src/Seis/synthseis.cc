@@ -5,10 +5,12 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.45 2011-12-12 14:45:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.46 2012-02-29 12:07:56 cvsbruno Exp $";
 
+#include "synthseis.h"
 
 #include "arrayndimpl.h"
+#include "factory.h"
 #include "fourier.h"
 #include "genericnumer.h"
 #include "reflectivitysampler.h"
@@ -18,7 +20,6 @@ static const char* rcsID = "$Id: synthseis.cc,v 1.45 2011-12-12 14:45:50 cvsbrun
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "sorting.h"
-#include "synthseis.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "wavelet.h"
@@ -28,11 +29,14 @@ namespace Seis
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
 
+mImplFactory( SynthGenerator, SynthGenerator::factory );
 
 SynthGenBase::SynthGenBase()
     : wavelet_(0)
     , isfourier_(true)
     , usenmotimes_(false)
+    , dointernalmultiples_(false)			 
+    , surfacereflcoeff_(1)			 
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
     , tr_(0)
 {}
@@ -65,13 +69,17 @@ void SynthGenBase::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), usenmotimes_ );
+    par.setYN( sKeyInternal(), dointernalmultiples_ );
+    par.set( sKeySurfRefl(), surfacereflcoeff_ );
 }
 
 
 bool SynthGenBase::usePar( const IOPar& par ) 
 {
     return par.getYN( sKeyNMO(), usenmotimes_ )
-	&& par.getYN( sKeyFourier(), isfourier_ );
+	&& par.getYN( sKeyFourier(), isfourier_ )
+	&& par.get( sKeySurfRefl(), surfacereflcoeff_ )
+	&& par.getYN( sKeyInternal(), dointernalmultiples_ );
 }
 
 
@@ -101,6 +109,21 @@ SynthGenerator::~SynthGenerator()
     delete fft_;
     delete [] freqwavelet_;
     delete &outtrc_;
+}
+
+
+SynthGenerator* SynthGenerator::create( bool advanced )
+{
+    SynthGenerator* sg = 0;
+    const BufferStringSet& fnms = SynthGenerator::factory().getNames(false);
+
+    if ( !fnms.isEmpty() && advanced )
+	sg = factory().create( fnms.get( fnms.size()-1 ) );
+
+    if ( !sg )
+	sg = new SynthGenerator();
+
+    return sg;
 }
 
 
@@ -161,7 +184,7 @@ bool SynthGenerator::doPrepare()
     if ( freqwavelet_ )
 	delete [] freqwavelet_;
 
-    freqwavelet_ = new float_complex[ fftsz_];
+    freqwavelet_ = new float_complex[ fftsz_ ];
 
     for ( int idx=0; idx<fftsz_; idx++ )
 	freqwavelet_[idx] = idx<wavelet_->size() ? wavelet_->samples()[idx] : 0;
@@ -175,7 +198,7 @@ bool SynthGenerator::doPrepare()
 
 bool SynthGenerator::doWork()
 {
-    setConvDomain( isfourier_ );
+    setConvDomain( isfourier_ && !dointernalmultiples_ );
 
     if ( needprepare_ )
 	doPrepare();
@@ -203,6 +226,16 @@ bool SynthGenerator::doWork()
 bool SynthGenerator::computeTrace( float* res ) 
 {
     outtrc_.zero();
+
+    if ( !computeReflectivities() ) 
+	return false;
+
+    return fft_ ? doFFTConvolve( res ) : doTimeConvolve( res );
+}
+
+
+bool SynthGenerator::computeReflectivities()
+{
     cresamprefl_.erase();
 
     if ( doresample_ )
@@ -219,7 +252,7 @@ bool SynthGenerator::computeTrace( float* res )
 	    cresamprefl_ += (*refmodel_)[idx].reflectivity_;
     }
 
-    return fft_ ? doFFTConvolve( res) : doTimeConvolve( res );
+    return true;
 }
 
 
@@ -302,7 +335,7 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 {
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	SynthGenerator* synthgen = new SynthGenerator();
+	SynthGenerator* synthgen = SynthGenerator::create(dointernalmultiples_);
 	synthgens_ += synthgen;
     }
 
