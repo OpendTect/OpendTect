@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.15 2012-02-28 16:05:07 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.16 2012-02-29 07:38:34 cvsranojay Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -418,7 +418,7 @@ void removeStartAndEndSpaces( char* str )
     if ( !str ) return;
 
     char* firstnonblank = str;
-    while ( *firstnonblank && isblank( *firstnonblank ) )
+    while ( *firstnonblank && isspace( *firstnonblank ) )
 	firstnonblank++;
 
     if ( *firstnonblank )
@@ -426,7 +426,7 @@ void removeStartAndEndSpaces( char* str )
 
     char* lastnonblank = str + strlen(str)-1;
 
-    while ( lastnonblank!=str && isblank( *lastnonblank ) )
+    while ( lastnonblank!=str && isspace( *lastnonblank ) )
     {
 	*lastnonblank = 0;
 	lastnonblank--;
