@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitysampler.h,v 1.3 2012-02-17 15:59:45 cvsbruno Exp $
+ RCS:		$Id: reflectivitysampler.h,v 1.4 2012-02-29 12:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,43 +52,6 @@ protected:
     Fourier::CC*		fft_;
 
     ObjectSet<float_complex>	buffers_;
-};
-
-
-
-mClass InternalMultipleComputer 
-{
-public:
-    			InternalMultipleComputer(const ReflectivityModel& rm,
-				    const StepInterval<float>& timesampling,
-				    TypeSet<float_complex>& output);
-
-protected:
-
-    mStruct Polynomial : public TypeSet<float_complex> 
-    {
-				Polynomial() {};
-				Polynomial(const Polynomial& P)
-				    { *this = P; } 
-
-	    void		substract(const Polynomial& Q);
-	    void		multiplyByConst(float_complex cplxval);
-	    void		increaseDegree( int by=1 );
-
-	    int 		degree() const { return size(); }
-    };
-
-    TypeSet<Polynomial>		Ps_;
-    TypeSet<Polynomial>		Qs_;
-
-    const ReflectivityModel&	model_;
-    const StepInterval<float>	outsampling_;
-    TypeSet<float_complex>&	output_;
-    TypeSet<float_complex>	workset_;
-    int				size_;
-
-    void			computePolynomials();
-    void			computeOutput();
 };
 
 
