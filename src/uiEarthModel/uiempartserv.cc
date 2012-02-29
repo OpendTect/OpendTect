@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.228 2012-02-28 23:52:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.229 2012-02-29 14:57:10 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -1005,7 +1005,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 
     const EM::SectionID sid = hor3d->sectionID( 0 );
     const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-    const StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+    const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
     BinID step( rowrg.step, colrg.step );
     BIDValSetArrAdapter adapter( bivs, cid, step );
 

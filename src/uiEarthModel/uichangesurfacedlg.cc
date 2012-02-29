@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.36 2012-01-06 15:19:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.37 2012-02-29 14:57:10 cvsnanne Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -134,7 +134,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 
 	PtrMan<Executor> worker = getWorker( *arr,
 			hor3d->geometry().rowRange(sid),
-			hor3d->geometry().colRange(sid) );
+			hor3d->geometry().colRange(sid,-1) );
 	if ( !worker ) return false;
 
 	uiTaskRunner dlg( this );

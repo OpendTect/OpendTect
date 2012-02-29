@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.8 2012-02-09 23:26:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.9 2012-02-29 14:57:10 cvsnanne Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -217,7 +217,7 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
 	return;
     
     StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
-    StepInterval<int> colrg = horizon_->geometry().colRange( sid );
+    StepInterval<int> colrg = horizon_->geometry().colRange( sid, -1 );
     
     const StepInterval<int> survcrlrg = SI().crlRange(true);
     while ( colrg.start-colrg.step>=survcrlrg.start )
