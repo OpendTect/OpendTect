@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.133 2012-02-29 15:33:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.134 2012-02-29 15:52:05 cvsyuancheng Exp $";
 
 #include "emhorizon3d.h"
 
@@ -318,7 +318,7 @@ float Horizon3D::getZ( const BinID& bid ) const
 { return getPos( sectionID(0), bid.toInt64() ).z; }
 
 
-HorSampling Horizon3D::range( SectionID sid )
+HorSampling Horizon3D::range( SectionID sid ) const
 {
     HorSampling hs( false );
     hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
