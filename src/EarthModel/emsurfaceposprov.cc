@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.32 2012-02-29 20:23:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.33 2012-02-29 22:35:25 cvsyuancheng Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -776,15 +776,15 @@ bool Pos::EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 
 bool Pos::EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
-    const CubeSampling& cs = useinside_ ? cs_ : bbox_;
-    if ( mIsUdf(z) ) return cs.hrg.includes(bid);
+    const CubeSampling& bb = useinside_ ? cs_ : bbox_;
+    if ( mIsUdf(z) ) return bb.hrg.includes(bid);
 
-    if ( !imparr_ || !cs.hrg.includes(bid) || !cs.zrg.includes(z,false) ) 
+    if ( !imparr_ || !bb.hrg.includes(bid) || !bb.zrg.includes(z,false) ) 
 	return false;
 
-    const int inlidx = cs.inlIdx(bid.inl);
-    const int crlidx = cs.crlIdx(bid.crl);
-    const int zidx = cs.zIdx(z);
+    const int inlidx = cs_.inlIdx(bid.inl);
+    const int crlidx = cs_.crlIdx(bid.crl);
+    const int zidx = cs_.zIdx(z);
     const bool inbody = imparr_->info().validPos(inlidx,crlidx,zidx) &&
 	imparr_->get(inlidx,crlidx,zidx)<=threshold_;
 
