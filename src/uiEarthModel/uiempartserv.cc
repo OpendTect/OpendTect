@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.229 2012-02-29 14:57:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.230 2012-02-29 20:09:53 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -951,8 +951,8 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
-    BinIDValueSet& bivs = dpset.bivSet();
-/*    if ( dpset.dataSet().nrCols() != bivs.nrVals() )
+/*    BinIDValueSet& bivs = dpset.bivSet();
+    if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
 
     const int cid = getColID( dpset, nm );
@@ -961,7 +961,7 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 
     const EM::SectionID sid = hor3d->sectionID( 0 );
     const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-    const StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+    const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
     BinID step( rowrg.step, colrg.step );
 //    BIDValSetArrAdapter adapter( bivs, cid, step );
 

@@ -15,17 +15,21 @@ static const char* rcsID = "$Id Exp $";
 #include "arrayndutils.h"
 #include "bufstringset.h"
 #include "datapointset.h"
+#include "executor.h"
 #include "interpol1d.h"
 #include "posvecdataset.h"
+#include "ptrman.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+
 #include "uiaxishandler.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "uitaskrunner.h"
 #include "variogrammodels.h" 
 
 #include <math.h>
@@ -147,6 +151,9 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
     StepInterval<int> inlrg = dpset.bivSet().inlRange();
     StepInterval<int> crlrg = dpset.bivSet().crlRange();
 
+//    uiTaskRunner execdlg( 0 );
+//    ExecutorGroup computer( "Processing variogram" );
+
     variogramnms_->add("Inline");
     variogramnms_->add("Diagonal");
     variogramnms_->add("Crossline");
@@ -159,6 +166,7 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	{
 	    Stats::CalcSetup rcsetup;
 	    rcsetup.require( Stats::Average );
+	    rcsetup.require( Stats::Count );
 	    Stats::RunCalc<double> stats( rcsetup );
 
 	    int mininl = inlrg.start;
@@ -185,14 +193,14 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	    while ( ifold < fold )
 	    {
 		itested++;
-		if ( itested > fold*1000 ) continue;
+//		computer.add(itested);
+		if ( itested > fold*100 ) break;
 		int posinl1 = mininl +
 		   	      mNINT((maxinl-mininl)*Stats::RandGen::get());
 		int poscrl1 = mincrl +
 		   	      mNINT((maxcrl-mincrl)*Stats::RandGen::get());
-		Coord pos1 = SI().transform(BinID(posinl1,poscrl1));
-		DataPointSet::RowID posval1 =
-		    	      dpset.findFirst(BinID(posinl1,poscrl1));
+		BinID pos1 = BinID(posinl1,poscrl1);
+		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
 		if ( posval1<0 ) continue;
 
 		int posinl2 = posinl1;
@@ -201,9 +209,8 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		    poscrl2 += ilag;
 		if ( icomp != 0 )
 		    posinl2 += ilag;
-		Coord pos2 = SI().transform(BinID(posinl2,poscrl2));
-		DataPointSet::RowID posval2 =
-		    	      dpset.findFirst(BinID(posinl2,poscrl2));
+		BinID pos2 = BinID(posinl2,poscrl2);
+		DataPointSet::RowID posval2 = dpset.findFirst(pos2);
 		if ( posval2<0 ) continue;
 
 		double val1 = (double)dpset.getValues( posval1 )[1];
@@ -217,10 +224,15 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		ifold++;
 	    }
 
-	    variogramvals_->set( icomp, ilag,
-		   		((float)stats.average())/totvar );
+	    if ( stats.count() == 0 )
+		variogramvals_->set( icomp, ilag, mUdf(float) );
+	    else
+		variogramvals_->set( icomp, ilag,
+			((float)stats.average())/totvar );
 	}
     }
+
+//    execdlg.execute(computer);
 
     return true;
 }
@@ -401,20 +413,29 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    {
 		double val1 = interpolatedvals.get(idz);
 		double val2 = interpolatedvals.get(idz+lag/step);
-		idz++;
-		if ( lag==step )
-		    statstot+= idz < nrout-2 ? val1 : val2 ;
-		if ( mIsZero(val1-val2,mDefEps) )
-		    continue;
 		double diffval = 0.5*(val2-val1)*(val2-val1);
+		idz++;
+		if ( mIsZero(diffval,mDefEps) )
+		    continue;
+		if ( lag==step )
+		    statstot+= idz < nrout-3 ? val1 : val2 ;
 		statstmp+=diffval;
 	    }
-	    variogramvals_->set(nrcontribwells, lag/step,
-		    		(float)statstmp.average());
-	    variogramstds_->set(nrcontribwells,lag/step-1,
-		   		(float)statstmp.variance());
-	    variogramfolds_->set(nrcontribwells, lag/step-1,
-		   		(od_int64)statstmp.count());
+	    if ( statstmp.count() == 0 )
+	    {
+		variogramvals_->set(nrcontribwells, lag/step, mUdf(float));
+		variogramstds_->set(nrcontribwells, lag/step-1, mUdf(float));
+		variogramfolds_->set(nrcontribwells, lag/step-1, 0);
+	    }
+	    else
+	    {
+		variogramvals_->set(nrcontribwells, lag/step,
+				    (float)statstmp.average());
+		variogramstds_->set(nrcontribwells,lag/step-1,
+				    (float)statstmp.variance());
+		variogramfolds_->set(nrcontribwells, lag/step-1,
+				    (od_int64)statstmp.count());
+	    }
 	}
     }
 
