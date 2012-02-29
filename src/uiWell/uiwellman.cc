@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.85 2012-02-17 23:09:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.86 2012-02-29 11:41:01 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -148,7 +148,7 @@ void uiWellMan::getCurrentWells()
     curfnms_.erase();
     deepErase( currdrs_ );
     deepErase( curwds_ );
-    multiids_.erase();
+    curmultiids_.erase();
 
     if ( !curioobj_ ) return;
 
@@ -159,7 +159,7 @@ void uiWellMan::getCurrentWells()
 	const IOObj* obj = IOM().get( selgrp_->selected(idx) );
 	if ( !obj ) continue;
 
-	multiids_ += obj->key();
+	curmultiids_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
 	curwds_ += new Well::Data;
 	currdrs_ += new Well::Reader( curfnms_[idx]->buf(), *curwds_[idx] );
@@ -173,12 +173,12 @@ void uiWellMan::fillLogsFld()
     logsfld_->setEmpty();
     if ( currdrs_.isEmpty() ) return;
 
-    BufferStringSet lognms, currentlognms;
+    BufferStringSet lognms;
     for ( int idx=0; idx<currdrs_.size(); idx++ )
     {
-	currentlognms.erase();
-	currdrs_[idx]->getLogInfo( currentlognms );
-	lognms.add( currentlognms, true );
+	curlognms_.erase();
+	currdrs_[idx]->getLogInfo( curlognms_ );
+	lognms.add( curlognms_, true );
     }
 
     if ( currdrs_.size() > 1 )
@@ -190,20 +190,20 @@ void uiWellMan::fillLogsFld()
 	    bool ispresent = true;
 	    for ( int idx=0; idx<currdrs_.size(); idx++ )
 	    {
-		currentlognms.erase();
-		currdrs_[idx]->getLogInfo( currentlognms );
-		if ( !currentlognms.isPresent( lognm ) )
+		curlognms_.erase();
+		currdrs_[idx]->getLogInfo( curlognms_ );
+		if ( !curlognms_.isPresent( lognm ) )
 		    { ispresent = false; break; }
 	    }
 	    if ( ispresent )
 		alllognms.addIfNew( lognm );
 	}
-	currentlognms.erase();
-	currentlognms.add( alllognms, true );
+	curlognms_.erase();
+	curlognms_.add( alllognms, true );
     }
 
-    for ( int idx=0; idx<currentlognms.size(); idx++)
-	logsfld_->addItem( currentlognms.get(idx) );
+    for ( int idx=0; idx<curlognms_.size(); idx++)
+	logsfld_->addItem( curlognms_.get(idx) );
 
     logsfld_->selectAll( false );
     checkButtons();
@@ -213,7 +213,6 @@ void uiWellMan::fillLogsFld()
 void uiWellMan::checkButtons()
 {
     addlogsbut_->setSensitive( curwds_.size() == 1 );
-    calclogsbut_->setSensitive( curwds_.size() == 1 );
     checkMoveLogs(0);
 }
 
@@ -419,7 +418,7 @@ void uiWellMan::writeLogs()
 	wtr.putLogs();
 
 	fillLogsFld();
-	Well::MGR().reload( multiids_[idwell] );
+	Well::MGR().reload( curmultiids_[idwell] );
 
 	mDeleteLogs(idwell);
     }
@@ -437,7 +436,7 @@ void uiWellMan::exportLogs( CallBacker* )
     {
 	currdrs_[idwell]->getLogs();
 	currdrs_[idwell]->getD2T();
-	const IOObj* obj = IOM().get( multiids_[idwell] );
+	const IOObj* obj = IOM().get( curmultiids_[idwell] );
 	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
     }
 

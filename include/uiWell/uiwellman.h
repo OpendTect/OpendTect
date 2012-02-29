@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.25 2011-09-16 10:01:23 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.26 2012-02-29 11:41:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,9 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
     void			addTool(uiButton*);
 
+    const TypeSet<MultiID>&	getSelWells() const	{ return curmultiids_; }
+    const BufferStringSet&	getSelLogs() const 	{ return curlognms_; }
+
 protected:
 
     uiListBox*			logsfld_;
@@ -38,8 +41,9 @@ protected:
 
     ObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
-    TypeSet<MultiID>		multiids_;
+    TypeSet<MultiID>		curmultiids_;
     BufferStringSet		curfnms_;
+    BufferStringSet		curlognms_;
 
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
