@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.4 2012-02-22 11:15:29 cvsbert Exp $
+ RCS:		$Id: rockphysics.h,v 1.5 2012-03-01 13:01:39 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
 			    , type_(t)			{}
 	BufferString	desc_;
 	PropType	type_;
+	BufferString	unit_;
     };
 
     PropType		type_;
@@ -79,6 +80,7 @@ public:
     ObjectSet<ConstDef>	constdefs_;
     ObjectSet<VarDef>	vardefs_;
     Repos::Source	src_;
+    BufferString	unit_;
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;

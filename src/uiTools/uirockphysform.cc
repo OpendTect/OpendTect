@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.10 2012-02-29 16:09:44 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.11 2012-03-01 13:01:39 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -203,13 +203,15 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 	char* cleanvarnm = const_cast<char*>(fm->vardefs_[idx]->name().buf());
 	cleanupString( cleanvarnm, false, false, false );
 	replaceString( ret.buf(), mp->inputName( idx ), cleanvarnm );
+
+	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
     }
     for ( int idx=0; idx<mp->nrConsts(); idx++ )
 	replaceString( ret.buf(), mp->constName(idx),
 		       toString(cstflds_[idx]->getCstVal()) );
 
     cleanformula = ret;
-    //TODO get units
+    outputunit = fm->unit_;
     return true;
 }
 

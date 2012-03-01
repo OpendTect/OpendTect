@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: rockphysics.cc,v 1.4 2012-02-22 11:15:29 cvsbert Exp $";
+static const char* rcsID = "$Id: rockphysics.cc,v 1.5 2012-03-01 13:01:39 cvshelene Exp $";
 
 #include "rockphysics.h"
 #include "mathproperty.h"
@@ -41,6 +41,7 @@ RockPhysics::Formula& RockPhysics::Formula::operator =(
 	def_ = fm.def_;
 	desc_ = fm.desc_;
 	src_ = fm.src_;
+	unit_ = fm.unit_;
 	deepCopy( vardefs_, fm.vardefs_ );
 	deepCopy( constdefs_, fm.constdefs_ );
     }
@@ -65,6 +66,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     setName( nm );
     type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
+    iop.get( sKey::Unit, unit_ );
     iop.get( sKey::Desc, desc_ );
     desc_ = getStrFromFMS( desc_ );
 
@@ -80,8 +82,10 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	    const PropType typ =
 			PropertyRef::parseEnumStdType( iop.find(sKey::Type) );
 	    VarDef* vd = new VarDef( nm, typ );
+	    subpar->get( sKey::Unit, vd->unit_ );
 	    subpar->get( sKey::Desc, vd->desc_ );
 	    vd->desc_ = getStrFromFMS( vd->desc_ );
+
 	    vardefs_ += vd;
 	}
 	delete subpar;
@@ -123,12 +127,14 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
     iop.set( name(), toString(type_) );
     iop.set( sKeyDef, def_ );
     setIOPWithNLs( iop, sKey::Desc, desc_ );
+    iop.set( sKey::Unit, unit_ );
     for ( int idx=0; idx<vardefs_.size(); idx++ )
     {
 	const VarDef& vd = *vardefs_[idx];
 	const BufferString keybase( IOPar::compKey(sKeyVar,idx) );
 	iop.set( IOPar::compKey(keybase,sKey::Type), toString(vd.type_) );
 	iop.set( IOPar::compKey(keybase,sKey::Name), vd.name() );
+	iop.set( IOPar::compKey(keybase,sKey::Unit), vd.unit_ );
 	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc), vd.desc_ );
     }
     for ( int idx=0; idx<constdefs_.size(); idx++ )
