@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.4 2010-12-10 09:31:58 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.5 2012-03-01 06:07:15 cvsnageswara Exp $";
 
 #include "visbouncydisplay.h"
 #include "beachballdata.h"
@@ -214,8 +214,8 @@ void BouncyDisplay::eventCB( CallBacker* cb )
 	BinID bid;
 	bid = SI().transform( eventinfo.worldpickedpos );
 //	if ( !SI().isInside( bid, true ) )
-	if ( !SI().inlRange(true).includes( bid.inl ) ||
-		    !SI().crlRange(true).includes( bid.crl ) )           
+	if ( !SI().inlRange(true).includes( bid.inl,true ) ||
+		    !SI().crlRange(true).includes( bid.crl,true ) )           
 	    return;
 
 	setPaddlePosition( Coord3( eventinfo.worldpickedpos.x, 
@@ -315,7 +315,7 @@ void BouncyDisplay::movePaddleDown()
 }
 
 
-visBase::Transformation* BouncyDisplay::getDisplayTransformation()
+const visBase::Transformation* BouncyDisplay::getDisplayTransformation()
 {
     return bb_->getDisplayTransformation();
 }
