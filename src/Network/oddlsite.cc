@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: oddlsite.cc,v 1.16 2012-02-28 06:46:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.17 2012-03-01 12:55:19 cvsbert Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -322,6 +322,6 @@ BufferString ODDLSite::fullURL( const char* relfnm ) const
 	return getFileName( relfnm );
 
     BufferString ret( "http://" );
-    ret.add( host_ ).add( "/" ).add( getFileName(relfnm) );
+    ret.add( host_ ).add( getFileName(relfnm) );
     return ret;
 }
