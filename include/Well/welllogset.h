@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.14 2011-01-20 12:59:24 cvsbruno Exp $
+ RCS:		$Id: welllogset.h,v 1.15 2012-03-01 12:54:51 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ public:
     						//!< not def if start == undef
     void		updateDahIntvs();
     						//!< if logs changed
+    void		removeTopBottomUdfs();
 
     void		add(Log*);		//!< becomes mine
     Log*		remove(int);		//!< becomes yours

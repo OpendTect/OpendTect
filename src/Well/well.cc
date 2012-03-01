@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.90 2011-11-28 16:03:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.91 2012-03-01 12:54:51 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -275,6 +275,13 @@ void Well::LogSet::empty()
 }
 
 
+void Well::LogSet::removeTopBottomUdfs()
+{
+    for ( int idx=0; idx<logs.size(); idx++ )
+	logs[idx]->removeTopBottomUdfs();
+}
+
+
 Well::Log& Well::Log::operator =( const Well::Log& l )
 {
     if ( &l != this )
@@ -375,6 +382,34 @@ void Well::Log::ensureAscZ()
 	Swap( val_[idx], val_[sz-idx-1] );
     }
 }
+
+
+void Well::Log::removeTopBottomUdfs()
+{
+    const int sz = size();
+    Interval<int> defrg( 0, sz-1 );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( !mIsUdf(val_[idx]) )
+	    break;
+	defrg.start++;
+    }
+    for ( int idx=sz-1; idx>=defrg.start; idx-- )
+    {
+	if ( !mIsUdf(val_[idx]) )
+	    break;
+	dah_.remove( idx ); val_.remove( idx );
+    }
+
+    if ( defrg.start == 0 )
+	return;
+
+    TypeSet<float> newval, newdah;
+    for ( int idx=defrg.start; idx<size(); idx++ )
+	{ newdah += dah_[idx]; newval += val_[idx]; }
+    dah_ = newdah; val_ = newval;
+}
+
 
 
 #define mInsertAtDah(dh,v,vals,ascendingvalonly)\
