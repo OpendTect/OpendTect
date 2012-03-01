@@ -57,6 +57,16 @@ SET( OD_PLUGINS
 	VoxelConnectivityFilter
 	uiBouncy
 	uiDPSDemo
+	uiExpAttribs
+	uiGapDecon
+	uiGoogleIO
+	uiGrav
+	uiHello
+	uiMadagascar
+	uiMadagascarAttribs
+	uiQtApp
+	uiTut
+	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer )
 
