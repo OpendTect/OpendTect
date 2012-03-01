@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.6 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.7 2012-03-01 13:26:25 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -48,7 +48,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb ); 
 
-    if ( SI().zIsTime() )
+    if ( SI().zIsTime() && s.withextractintime_ )
     {
 	zistimefld_ = new uiCheckBox( this, "Extract in time" );
 	zistimefld_->attach( rightOf, zchoicefld_ );
@@ -56,15 +56,16 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     }
 
     const bool zinft = SI().depthsInFeetByDefault();
-    const char* units[] = 	{ "", zinft ? "(ft)":"(m)", "(ms)", 0 };
+    BufferString dptlbl = zinft ? "(ft)":"(m)";
+    const char* units[] = {s.withzstep_ ?dptlbl.buf():"",dptlbl.buf(),"(ms)",0};
     const char* markernms[] = 	{ "Top Marker", "Bottom Marker", 0 };
 
     StringListInpSpec slis; 
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
     {
-	BufferString msg( "Start/stop " );
+	BufferString msg( "Start / stop " );
 	if ( s.withzstep_ )
-	    msg += "/step "; 
+	    msg += "/ step "; 
 	msg += units[idx];
 	zselectionflds_ += idx ? 
 	      new uiGenInput(this,msg,FloatInpIntervalSpec())
@@ -190,9 +191,10 @@ void uiWellExtractParams::getFromScreen( CallBacker* )
 	params_.zrg_ = zselectionflds_[selidx_]->getFInterval();
 
     for ( int idx=0; idx<zselectionflds_.size(); idx++ )
-    {
 	zselectionflds_[idx]->display( idx == selidx_ );
-    }
+
+    abovefld_->display( selidx_ == 0 );
+    belowfld_->display( selidx_ == 0 );
 
     params_.zrg_.step = stepfld_ ? stepfld_->getfValue() : mUdf(float); 
 
@@ -204,9 +206,8 @@ void uiWellExtractParams::getFromScreen( CallBacker* )
 
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, bool withsampling ) 
-    : uiWellExtractParams(p,uiWellExtractParams::Setup()
-	    				.withsampling(withsampling))
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s ) 
+    : uiWellExtractParams(p,s)
 {
     uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
     wellsfld_ = llbw->box();
@@ -229,6 +230,8 @@ void uiMultiWellLogSel::onFinalise( CallBacker* )
     {
 	zselectionflds_[idx]->display( true );
     }
+    abovefld_->display( true );
+    belowfld_->display( true  );
 }
 
 

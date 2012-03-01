@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.46 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.47 2012-03-01 13:26:25 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -58,7 +58,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
 
-    welllogselfld_ = new uiMultiWellLogSel( this, true );
+    welllogselfld_ = new uiMultiWellLogSel( this, 
+	    	uiWellExtractParams::Setup().withsampling(true) );
     welllogselfld_->attach( ensureBelow, llba );
 
     const float inldist = SI().inlDistance();

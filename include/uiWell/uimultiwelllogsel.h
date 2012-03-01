@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.5 2012-03-01 13:01:02 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.6 2012-03-01 13:26:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,14 @@ public:
 				    , withzintime_(false)
 				    , withzvalsel_(true)
 				    , withsampling_(false)
+				    , withextractintime_(false)
 				    {}
 
 	mDefSetupMemb(bool,withzstep) 
 	mDefSetupMemb(bool,withzintime) 
 	mDefSetupMemb(bool,withzvalsel) 
 	mDefSetupMemb(bool,withsampling) 
+	mDefSetupMemb(bool,withextractintime) 
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);
@@ -85,7 +87,7 @@ protected:
 mClass uiMultiWellLogSel : public uiWellExtractParams
 {
 public:
-			uiMultiWellLogSel(uiParent*,bool withresampling=false);
+			uiMultiWellLogSel(uiParent*,const Setup&);
 			~uiMultiWellLogSel();
 
     void		getSelLogNames(BufferStringSet&) const;
