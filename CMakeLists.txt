@@ -51,9 +51,12 @@ SET( OD_PLUGINS
 	GapDecon
 	GoogleTranslate
 	Hello
+	Madagascar
+	MadagascarAttribs
 	Tut
 	VoxelConnectivityFilter
 	uiBouncy
+	uiDPSDemo
 	uiVoxelConnectivityFilter
 	uiPreStackViewer )
 
