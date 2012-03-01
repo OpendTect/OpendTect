@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.87 2012-02-29 12:38:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.88 2012-03-01 12:56:27 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -352,13 +352,15 @@ void uiWellMan::importLogs( CallBacker* )
 
 void uiWellMan::calcLogs( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty()
+	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
 
     currdrs_[0]->getLogs();
-    uiWellLogCalc dlg( this, curwds_[0]->logs() );
+    uiWellLogCalc dlg( this, curwds_[0]->logs(), availablelognms_,
+	    		curmultiids_ );
     dlg.go();
     if ( dlg.haveNewLogs() )
-	writeLogs();
+	wellsChgd();
 }
 
 
@@ -416,10 +418,17 @@ void uiWellMan::writeLogs()
     {
 	Well::Writer wtr( curfnms_[idwell]->buf(), *curwds_[idwell] );
 	wtr.putLogs();
+    }
+    wellsChgd();
+}
 
+
+void uiWellMan::wellsChgd()
+{
+    for ( int idwell=0; idwell<curwds_.size(); idwell++ )
+    {
 	fillLogsFld();
 	Well::MGR().reload( curmultiids_[idwell] );
-
 	mDeleteLogs(idwell);
     }
 }

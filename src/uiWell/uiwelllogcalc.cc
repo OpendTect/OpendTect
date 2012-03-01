@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.19 2012-02-29 13:42:57 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.20 2012-03-01 12:56:26 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -24,11 +24,16 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.19 2012-02-29 13:42:57 cvs
 #include "uiseparator.h"
 
 #include "welllogset.h"
+#include "wellreader.h"
+#include "welldata.h"
+#include "wellwriter.h"
 #include "welllog.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 static const int cMaxNrInps = 6;
 static const char* specvararr[] = { "MD", "DZ", 0 };
@@ -38,12 +43,11 @@ class uiWellLogCalcInpData : public uiGroup
 {
 public:
 
-uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
-		      const BufferStringSet& lognms, int fieldnr )
+uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp, int fieldnr )
     : uiGroup(inpgrp,"Inp data group")
-    , wls_(p->wls_)
     , idx_(fieldnr)
-    , lognms_(lognms)
+    , wls_(&p->wls_)
+    , lognms_(p->lognms_)
     , lognmsettodef_(false)
 {
     varmfld_ = new uiGenInput( this, "For" );
@@ -52,7 +56,8 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, lognms_, "use",
 				    BufferString("input ",fieldnr) );
     inpfld_ = lcb->box();
-    int selidx = fieldnr; if ( selidx >= wls_.size() ) selidx = wls_.size()-1;
+    int selidx = fieldnr;
+    if ( selidx >= lognms_.size() ) selidx = lognms_.size()-1;
     inpfld_->setCurrentItem( selidx );
     inpfld_->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
     lcb->attach( rightOf, varmfld_ );
@@ -93,7 +98,7 @@ bool hasVarName( const char* nm )
 
 const Well::Log* getLog()
 {
-    return wls_.getLog( inpfld_->text() );
+    return wls_->getLog( inpfld_->text() );
 }
 
 bool getInp( uiWellLogCalc::InpData& inpdata )
@@ -106,24 +111,50 @@ bool getInp( uiWellLogCalc::InpData& inpdata )
     uiGenInput*		varmfld_;
     uiComboBox*		inpfld_;
     uiCheckBox*		udfbox_;
-    const Well::LogSet&	wls_;
     const int		idx_;
-    BufferStringSet	lognms_;
+    const Well::LogSet*	wls_;
+    const BufferStringSet&	lognms_;
     bool		lognmsettodef_;
 
 };
 
 
-uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
+static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
+{
+    const int sz = wllids.size();
+    if ( sz < 1 )
+	return BufferString( "No wells selected" );
+
+    BufferString ret( "Calculate new logs for '", IOM().nameOf(wllids[0]), "'");
+    for ( int idx=1; idx<sz; idx++ )
+	ret.add( ", '" ).add( IOM().nameOf(wllids[idx]) ).add( "'" );
+
+    ret = getLimitedDisplayString( ret.buf(), 80, true );
+    return ret;
+}
+
+
+uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
+			      const BufferStringSet& lognms,
+			      const TypeSet<MultiID>& wllids )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
-				     "Specify inputs and outputs for new log",
+				     getDlgTitle(wllids),
 				     "107.1.10"))
     	, wls_(ls)
+    	, lognms_(lognms)
+    	, wellids_(wllids)
     	, formfld_(0)
     	, nrvars_(0)
     	, expr_(0)
     	, havenew_(false)
 {
+    if ( lognms_.isEmpty() || wellids_.isEmpty() )
+    {
+	new uiLabel( this, lognms.isEmpty() ? "No logs" : "No wells" );
+	setCtrlStyle( LeaveOnly );
+	return;
+    }
+
     setCtrlStyle( DoAndStay );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
@@ -137,19 +168,9 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
 
-    BufferStringSet lognms;
-    for ( int idx=0; idx<wls_.size(); idx++ )
+    for ( int idx=0; idx<cMaxNrInps; idx++ )
     {
-	const BufferString& nm( ls.getLog(idx).name() );
-	if ( !nm.isEmpty() )
-	    lognms.addIfNew( nm );
-    }
-
-    const int maxnrinps = wls_.size() < cMaxNrInps ? wls_.size() : cMaxNrInps;
-    for ( int idx=0; idx<maxnrinps; idx++ )
-    {
-	uiWellLogCalcInpData* fld = new uiWellLogCalcInpData( this, inpgrp,
-							      lognms, idx );
+	uiWellLogCalcInpData* fld = new uiWellLogCalcInpData(this,inpgrp,idx);
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
 	else
@@ -160,17 +181,20 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
 
-    dahrgfld_ = new uiGenInput( this, "Output MD range",
-	    			  FloatInpIntervalSpec(true) );
-    dahrgfld_->attach( alignedBelow, inpgrp );
-    dahrgfld_->attach( ensureBelow, sep );
+    float defsr = 1;
+    if ( !wls_.isEmpty() )
+	defsr = wls_.getLog(0).dahStep( false );
+    srfld_ = new uiGenInput( this, "Output sample distance",
+	    			FloatInpSpec(defsr));
+    srfld_->attach( alignedBelow, inpgrp );
+    srfld_->attach( ensureBelow, sep );
     ftbox_ = new uiCheckBox( this, "Feet" );
     ftbox_->setChecked( SI().depthsInFeetByDefault() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
-    ftbox_->attach( rightOf, dahrgfld_ );
+    ftbox_->attach( rightOf, srfld_ );
 
     nmfld_ = new uiGenInput( this, "Name for new log" );
-    nmfld_->attach( alignedBelow, dahrgfld_ );
+    nmfld_->attach( alignedBelow, srfld_ );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    					"Output unit of measure" );
@@ -194,6 +218,8 @@ uiWellLogCalc::~uiWellLogCalc()
 void uiWellLogCalc::getMathExpr()
 {
     delete expr_; expr_ = 0;
+    if ( !formfld_ ) return;
+
     const BufferString inp( formfld_->text() );
     if ( inp.isEmpty() ) return;
 
@@ -246,12 +272,12 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
 
 void uiWellLogCalc::feetSel( CallBacker* )
 {
-    dahrg_ = dahrgfld_->getFStepInterval();
-    const float fac = ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
-    if ( !mIsUdf(dahrg_.start) ) dahrg_.start *= fac;
-    if ( !mIsUdf(dahrg_.stop) ) dahrg_.stop *= fac;
-    if ( !mIsUdf(dahrg_.step) ) dahrg_.step *= fac;
-    dahrgfld_->setValue( dahrg_ );
+    zsampintv_ = srfld_->getfValue();
+    if ( !mIsUdf(zsampintv_) )
+    {
+	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
+	srfld_->setValue( zsampintv_ );
+    }
 }
 
 
@@ -286,7 +312,7 @@ void uiWellLogCalc::inpSel( CallBacker* )
 {
     if ( nrvars_ < 1 ) return;
 
-    StepInterval<float> dahrg; int actualnr = 0;
+    float sr = mUdf(float);
     for ( int idx=0; idx<nrvars_; idx++ )
     {
 	if ( idx >= inpdataflds_.size() ) break;
@@ -295,20 +321,15 @@ void uiWellLogCalc::inpSel( CallBacker* )
 	if ( !wl ) { pErrMsg("Huh"); continue; }
 	if ( wl->isEmpty() ) continue;
 
-	StepInterval<float> curdahrg( wl->dah( 0 ), wl->dah( wl->size()-1 ),
-				      wl->dahStep( false ) );
-	if ( actualnr == 0 )
-	    dahrg = curdahrg;
-	else
-	    { dahrg.include( curdahrg, false ); dahrg.step += curdahrg.step; }
-	actualnr++;
+	sr = wl->dahStep( false );
+	if ( !mIsUdf(sr) )
+	    break;
     }
-    if ( actualnr < 1 ) return;
+    if ( mIsUdf(sr) ) return;
 
-    dahrg.step /= actualnr;
     if ( ftbox_->isChecked() )
-	dahrg.scale( mToFeetFactor );
-    dahrgfld_->setValue( dahrg );
+	sr *= mToFeetFactor;
+    srfld_->setValue( sr );
 }
 
 
@@ -318,37 +339,61 @@ void uiWellLogCalc::inpSel( CallBacker* )
 bool uiWellLogCalc::acceptOK( CallBacker* )
 {
     getMathExpr();
-    if ( !expr_ ) return false;
+    if ( !expr_ ) return formfld_ ? false : true;
     nrvars_ = expr_->nrUniqueVarNames();
 
     const BufferString newnm = nmfld_->text();
     if ( newnm.isEmpty() )
 	mErrRet("Please provide a name for the new log")
-    if ( wls_.getLog(newnm) )
+    if ( lognms_.isPresent(newnm) || wls_.getLog(newnm) )
 	mErrRet("A log with this name already exists."
 		"\nPlease enter a different name for the new log")
 
-    dahrg_ = dahrgfld_->getFStepInterval();
-    if ( mIsUdf(dahrg_.start) || mIsUdf(dahrg_.stop) || mIsUdf(dahrg_.step) )
-	mErrRet("Please provide the MD range and step for the output log")
+    zsampintv_ = srfld_->getfValue();
+    if ( mIsUdf(zsampintv_) )
+	mErrRet("Please provide the Z dample rate for the  output log")
     if ( ftbox_->isChecked() )
-    	dahrg_.scale( mFromFeetFactor );
+    	zsampintv_ *= mFromFeetFactor;
 
-    TypeSet<InpData> inpdata;
-    if ( !getInpData(inpdata) || !getRecInfo() )
-	return false;
 
-    Well::Log* newwl = new Well::Log( newnm );
-    if ( !calcLog(*newwl,inpdata) )
-	{ delete newwl; return false; }
-    const int unselidx = unfld_->currentItem();
-    if ( unselidx > 0 )
-	newwl->setUnitMeasLabel( unfld_->text() );
+    //TODO needs to be in Executor
+    for ( int iwell=0; iwell<wellids_.size(); iwell++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( wellids_[iwell] );
+	if ( !ioobj ) continue; //TODO errh required
+	Well::Data wd;
+	const BufferString fnm( ioobj->fullUserExpr(true) );
+	Well::Reader rdr( fnm, wd );
+	if ( !rdr.getLogs() ) continue; //TODO errh required
+	Well::LogSet& wls = wd.logs();
+	setCurWls( wls );
+	TypeSet<InpData> inpdata;
+	if ( !getInpData(inpdata) || !getRecInfo() )
+	    continue; //TODO errh required
 
-    wls_.add( newwl );
+	Well::Log* newwl = new Well::Log( newnm );
+	if ( !calcLog(*newwl,inpdata) )
+	    { delete newwl; continue; } //TODO errh required
+	const int unselidx = unfld_->currentItem();
+	if ( unselidx > 0 )
+	    newwl->setUnitMeasLabel( unfld_->text() );
+	wls.add( newwl );
+
+	Well::Writer wtr( fnm, wd );
+	if ( !wtr.putLogs() ) continue; //TODO errh required
+    }
+
+    setCurWls( wls_ );
     uiMSG().message( "Successfully added this log" );
     havenew_ = true;
     return false;
+}
+
+
+void uiWellLogCalc::setCurWls( const Well::LogSet& wls )
+{
+    for ( int idx=0; idx<inpdataflds_.size(); idx++ )
+	inpdataflds_[idx]->wls_ = &wls;
 }
 
 
@@ -452,15 +497,24 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	{ vals = startvals_; rgidx = 1; }
     if ( nrstart > 0 ) nrstart--;
 
-    dahrg_.sort();
-    const int endrgidx = dahrg_.nrSteps();
+    StepInterval<float> samprg;
+    samprg.step = zsampintv_;
+    Interval<float> dahrg( wls_.dahInterval() );
+    if ( !inpdata.isEmpty() )
+    {
+	dahrg = inpdata[0].wl_->dahRange();
+	for ( int idx=1; idx<inpdata.size(); idx++ )
+	    dahrg.include( inpdata[idx].wl_->dahRange(), false );
+    }
+    samprg.start = dahrg.start; samprg.stop = dahrg.stop;
+    const int endrgidx = samprg.nrSteps();
     for ( ; rgidx<=endrgidx; rgidx++ )
     {
-	const float dah = dahrg_.atIndex( rgidx );
+	const float dah = samprg.atIndex( rgidx );
 	for ( int iinp=0; iinp<inpdata.size(); iinp++ )
 	{
 	    const uiWellLogCalc::InpData& inpd = inpdata[iinp];
-	    const float curdah = dah + dahrg_.step * inpd.shift_;
+	    const float curdah = dah + samprg.step * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
 		const float val = inpd.wl_->getValue( curdah, inpd.noudf_ );
@@ -477,7 +531,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    {
 		float val = mUdf(float);
 		if ( inpd.specidx_ == 0 )	val = curdah;
-		else if ( inpd.specidx_ == 1 )	val = dahrg_.step;
+		else if ( inpd.specidx_ == 1 )	val = samprg.step;
 		expr_->setVariableValue( iinp, val );
 	    }
 	}
@@ -487,9 +541,10 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
     for ( int idx=nrstart; idx<vals.size(); idx++ )
     {
-	const float dah = dahrg_.atIndex( idx - nrstart );
+	const float dah = samprg.atIndex( idx - nrstart );
 	wlout.addValue( dah, vals[idx] );
     }
 
+    wlout.removeTopBottomUdfs();
     return true;
 }

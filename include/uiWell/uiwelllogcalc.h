@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.7 2012-02-03 10:47:29 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.8 2012-03-01 12:56:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,9 @@ namespace Well { class Log; class LogSet; }
 mClass uiWellLogCalc : public uiDialog
 {
 public:
-				uiWellLogCalc(uiParent*,Well::LogSet&);
+				uiWellLogCalc(uiParent*,const Well::LogSet&,
+						const BufferStringSet&,
+						const TypeSet<MultiID>&);
 				~uiWellLogCalc();
 
     bool			haveNewLogs() const	{ return havenew_; }
@@ -36,11 +38,10 @@ protected:
 
     uiMathExpression*		formfld_;
     uiGenInput*			nmfld_;
-    uiGenInput*			dahrgfld_;
+    uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
     uiComboBox*			unfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
-    Well::LogSet&		wls_;
 
     int				nrvars_;
     int				nrspecvars_;
@@ -50,7 +51,10 @@ protected:
     TypeSet<float>		startvals_;
     MathExpression*		expr_;
     bool			havenew_;
-    StepInterval<float>		dahrg_;
+    float			zsampintv_;
+    const BufferStringSet&	lognms_;
+    const Well::LogSet&		wls_;
+    const TypeSet<MultiID>	wellids_;
 
     friend class		uiWellLogCalcInpData;
 
@@ -67,6 +71,7 @@ protected:
     };
 
     void			getMathExpr();
+    void			setCurWls(const Well::LogSet&);
     bool			getInpData(TypeSet<InpData>&);
     bool			getRecInfo();
     bool			calcLog(Well::Log&,const TypeSet<InpData>&);
