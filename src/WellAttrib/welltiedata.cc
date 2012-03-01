@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.62 2012-02-03 14:17:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.63 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -319,13 +319,13 @@ bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 bool DataWriter::writeLogs2Cube( LogData& ld ) const
 {
     bool allsucceeded = true;
-    LogCubeCreator lcr( wd_->track(), wd_->d2TModel() ); 
+    LogCubeCreator lcr( *wd_ ); 
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	const Well::Log& wl = ld.logset_.getLog( idx );
+	BufferString lnm( ld.logset_.getLog( idx ).name() );
 	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[idx] );
-	logdatas += new LogCubeCreator::LogCubeData( wl, *ctx );
+	logdatas += new LogCubeCreator::LogCubeData( lnm, *ctx );
     }
     lcr.setInput( logdatas, ld.nrtraces_ );
     return lcr.execute();

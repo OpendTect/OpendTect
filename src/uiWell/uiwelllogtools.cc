@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.10 2011-11-21 09:47:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.11 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -66,9 +66,10 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	if ( !ldata->setSelectedLogs( lognms ) ) 
 	    { delete ldata; continue; }
 	ldata->wellid_ = wid; 
-	BufferString topm; BufferString botm; float topd, botd;
-	welllogselfld_->getLimitMarkers( topm, botm );
-	welllogselfld_->getLimitDists( topd, botd );
+	const Well::ExtractParams& params = welllogselfld_->params();
+	BufferString topm = params.topmrkr_;  
+	BufferString botm = params.botmrkr_; 
+	float topd =  params.above_; float botd = params.below_;
 	const Well::Marker* topmrk = wd.markers().getByName( topm );
 	const Well::Marker* botmrk = wd.markers().getByName( botm );
 	ldata->dahrg_.start = topmrk ? topmrk->dah() : wls->dahInterval().start;

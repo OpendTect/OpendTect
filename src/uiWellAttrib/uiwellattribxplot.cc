@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.45 2012-02-24 14:27:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.46 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -153,11 +153,10 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 					     ObjectSet<DataPointSet>& dpss )
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
-    wts.for2d = false; wts.lognms = lognms;
-    wts.locradius = radiusfld_->getfValue();
-    welllogselfld_->getLimitMarkers( wts.topmrkr, wts.botmrkr );
-    welllogselfld_->getLimitDists( wts.above, wts.below );
-    wts.mkdahcol = true;
+    wts.for2d_ = false; wts.lognms_ = lognms;
+    wts.locradius_ = radiusfld_->getfValue();
+    wts.mkdahcol_ = true;
+    wts.params_ = welllogselfld_->params();
     uiTaskRunner tr( this );
     if ( !tr.execute(wts) )
 	return false;
@@ -183,7 +182,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
     {
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = (Stats::UpscaleType)welllogselfld_->getResamplingType();
+	wlde.samppol_ = welllogselfld_->params().samppol_; 
 	if ( !tr.execute(wlde) )
 	    return false;
     }

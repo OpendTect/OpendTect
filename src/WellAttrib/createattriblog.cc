@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createattriblog.cc,v 1.3 2012-02-24 14:27:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: createattriblog.cc,v 1.4 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "createattriblog.h"
 
@@ -16,34 +16,12 @@ static const char* rcsID = "$Id: createattriblog.cc,v 1.3 2012-02-24 14:27:54 cv
 #include "survinfo.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 
-
-
-#define mGetMrkDpth(mrk,nm,dpt)\
-    mrk = nm ? wd.markers().getByName(nm) : 0;\
-    if ( mrk ) dpt = mrk->dah(); 
-void AttribLogCreator::setUpRange( const Well::Data& wd, Interval<float>& intv )
-{
-    const bool zinft = SI().zInFeet();
-
-    float start = wd.track().dah(0);
-    float stop = wd.track().dah( wd.track().size()-1);
-
-    const Well::Marker* mrk = 0;
-    mGetMrkDpth( mrk, setup_.topmrknm_, start )
-    mGetMrkDpth( mrk, setup_.botmrknm_, stop )
-
-    start -= setup_.topval_;
-    stop += setup_.botval_;
-
-    if ( start > stop )
-    { float tmp; mSWAP( start, stop, tmp ); }
-    intv.set( start, stop );
-}
 
 
 #define mErrRet(m) errmsg+=m; errmsg+="from well "; errmsg+=wd.name(); return false; 
@@ -53,11 +31,11 @@ bool AttribLogCreator::doWork( Well::Data& wd, BufferString& errmsg )
     aem.setAttribSet( setup_.attrib_ );
     aem.setNLAModel( setup_.nlamodel_ );
     aem.setAttribSpec( *setup_.selspec_ );
-    StepInterval<float> dahrg;
-    setUpRange( wd, dahrg );
+
+    BufferStringSet dummy;
+    StepInterval<float> dahrg = setup_.extractparams_->calcFrom( wd, dummy );
 
     AttribLogExtractor ale( wd );
-    dahrg.step = setup_.extractstep_;
     if ( !ale.fillPositions(dahrg) )
     { mErrRet( "No positions extracted" ) }
 

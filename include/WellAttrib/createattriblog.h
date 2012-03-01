@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: createattriblog.h,v 1.3 2012-02-24 14:27:54 cvsbruno Exp $
+ RCS:           $Id: createattriblog.h,v 1.4 2012-03-01 13:01:02 cvsbruno Exp $
  _______________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@
 #include "binidvalset.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
-namespace Well { class Data; }
+namespace Well { class Data; class ExtractParams; }
 class NLAModel;
 class TaskRunner;
 
@@ -51,24 +51,19 @@ public:
     mClass Setup
     {
     public:
-				Setup(const Attrib::DescSet* attr)
+				Setup(const Attrib::DescSet* attr,
+					const Well::ExtractParams* wep)
 				    : nlamodel_(0)
 				    , attrib_(attr)
 				    , tr_(0)
-				    , extractstep_(0.15)
-				    , topval_(0)	
-				    , botval_(0)	
+				    , extractparams_(wep)	    
 				    {}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
 	mDefSetupMemb(const Attrib::DescSet*,attrib)
 	mDefSetupMemb(Attrib::SelSpec*,selspec)
-	mDefSetupMemb(float,extractstep)
-	mDefSetupMemb(float,topval) 
-	mDefSetupMemb(float,botval) 
-	mDefSetupMemb(BufferString,topmrknm)
-	mDefSetupMemb(BufferString,botmrknm)
 	mDefSetupMemb(BufferString,lognm)
+	mDefSetupMemb(const Well::ExtractParams*,extractparams)
 	mDefSetupMemb(TaskRunner*,tr) //optional
     };
     
@@ -89,7 +84,6 @@ protected:
     int&			sellogidx_;
 
     bool                        extractData(BinIDValueSet&);
-    void                        setUpRange(const Well::Data&,Interval<float>&);
     bool                        createLog(Well::Data&,const AttribLogExtractor&);
 
 };

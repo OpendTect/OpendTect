@@ -18,24 +18,23 @@ ________________________________________________________________________
 class BinID;
 class CtxtIOObj;
 
-namespace Well { class Track; class D2TModel; class Log;  }
+namespace Well { class Data;  }
 
 mClass LogCubeCreator : public ParallelTask
 {
 public:
-				LogCubeCreator(const Well::Track&,
-						const Well::D2TModel*);
+				LogCubeCreator(const Well::Data&);
 				~LogCubeCreator();
 
 
     mStruct LogCubeData
     {
-				LogCubeData(const Well::Log& l, CtxtIOObj& ctio)
-				    : seisctio_(ctio), log_(l) {}
+				LogCubeData(const BufferString& l,CtxtIOObj& c)
+				    : seisctio_(c), lognm_(l) {}
 			        ~LogCubeData();	
 
 	CtxtIOObj& 		seisctio_;  
-	const Well::Log&	log_;
+	const BufferString&	lognm_;
     };
 
     void			setInput(ObjectSet<LogCubeData>&,int nrtrcs);
@@ -47,9 +46,7 @@ public:
 
 protected:
 
-    const Well::D2TModel*	d2t_;
-    const Well::Track&		track_;
-
+    const Well::Data&		wd_;
     BufferString 		errmsg_;
     TypeSet<BinID>		binids_;
     HorSampling			hrg_;

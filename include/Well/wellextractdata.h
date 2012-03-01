@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.27 2011-09-30 07:32:40 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.28 2012-03-01 13:01:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,21 +18,75 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 #include "stattype.h"
+#include "survinfo.h"
 
 class MultiID;
 class DataPointSet;
 class IODirEntryList;
+class IOObj;
+template <class T> class Array2DImpl;
 
 
 namespace Well
 {
 class Log;
+class LogSet;
 class Info;
 class D2TModel;
 class Data;
 class Track;
 class Marker;
 class MarkerSet;
+
+
+/*!\brief parameters (zrg, sampling method) to extract well data */
+
+mClass ExtractParams
+{
+public :
+    			ExtractParams() 
+			    : zrg_( SI().zRange(true) ) { setEmpty(); }
+    			ExtractParams(const ExtractParams&);
+
+    static const char*	sKeyTopMrk();
+    static const char*	sKeyBotMrk();
+    static const char*	sKeyDataStart();
+    static const char*	sKeyDataEnd();
+    static const char*	sKeyLimits();
+    static const char*	sKeySamplePol();
+    static const char*	sKeyZExtractInTime();
+    static const char*	sKeyZSelection();
+    static const char*	sKeyZRange();
+
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+    void		setEmpty();
+    bool		isOK(BufferString* errmsg=0) const;
+
+    BufferString	topmrkr_;
+    BufferString	botmrkr_;
+    float		above_;
+    float		below_;
+    bool		extractzintime_;
+
+    enum		ZSelection { Markers, Depths, Times };
+			DeclareEnumUtils(ZSelection);
+    ZSelection		zselection_;
+    StepInterval<float> zrg_;
+
+    Stats::UpscaleType	samppol_;
+
+    StepInterval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs) const;
+    StepInterval<float>	calcFrom(const Data&,const BufferStringSet& logs) const;
+
+protected:
+    void		getMarkerRange(const Data&,Interval<float>&) const;
+    void		getLimitPos(const MarkerSet&,const D2TModel*,
+				bool,float&,const Interval<float>&) const;
+};
+
+
 
 /*!\brief Collects info about all wells in store */
 
@@ -74,6 +128,7 @@ protected:
 };
 
 
+
 /*!\brief Collects positions along selected well tracks. The DataPointSets will
   get new rows with the positions along the track. */
 
@@ -85,48 +140,40 @@ public:
 				     ObjectSet<DataPointSet>&,
 				     bool zvalsintime);
 
-    BufferString	topmrkr;
-    BufferString	botmrkr;
-    BufferStringSet	lognms;
-    float		above;
-    float		below;
-    float		locradius;
-    bool		for2d;
-    bool		minidps;
-    bool		mkdahcol;
+    float		locradius_;
+    bool		for2d_;
+    bool		minidps_;
+    bool		mkdahcol_;
+    BufferStringSet	lognms_;
+
+    ExtractParams	params_;
 
     void		usePar(const IOPar&);
 
     int			nextStep();
     const char*		message() const	   { return "Scanning well tracks"; }
     const char*		nrDoneText() const { return "Wells inspected"; }
-    od_int64		nrDone() const	   { return curid; }
-    od_int64		totalNr() const	   { return ids.size(); }
+    od_int64		nrDone() const	   { return curid_; }
+    od_int64		totalNr() const	   { return ids_.size(); }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids; }
-    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss; }
+    const BufferStringSet&	ioObjIds() const	{ return ids_; }
+    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
 
-    static const char*	sKeyTopMrk();
-    static const char*	sKeyBotMrk();
-    static const char*	sKeyLimits();
     static const char*	sKeySelRadius();
-    static const char*	sKeyDataStart();
-    static const char*	sKeyDataEnd();
-    static const char*	sKeyLogNm();
-    static const char*	sKeyFor2D();
     static const char*	sKeyDahCol();
+    static const char*	sKeyFor2D();
+    static const char*	sKeyLogNm();
 
 protected:
 
-    const BufferStringSet&	ids;
-    ObjectSet<DataPointSet>&	dpss;
-    int				curid;
-    const bool			zistime;
-    Interval<float>		fulldahrg;
-    int				dahcolnr;
+    const BufferStringSet&	ids_;
+    ObjectSet<DataPointSet>&	dpss_;
+    int				curid_;
+    const bool			zistime_;
+    Interval<float>		welldahrg_;
+    int				dahcolnr_;
 
     void		getData(const Data&,DataPointSet&);
-    void		getLimitPos(const MarkerSet&,bool,float&) const;
     bool		getSnapPos(const Data&,float,BinIDValue&,int&,
 	    			   Coord3&) const;
     void		addPosns(DataPointSet&,const BinIDValue&,
@@ -160,6 +207,9 @@ public:
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
 
+    static float	calcVal(const Log&,float dah,float winsz,
+	    				Stats::UpscaleType samppol); 
+
 protected:
 
     const BufferStringSet&	ids_;
@@ -173,7 +223,6 @@ protected:
 	    				int,int);
     void		addValAtDah(float,const Log&,float,
 	    			    DataPointSet&,int,int) const;
-    float		calcVal(const Log&,float,float) const;
     float		findNearest(const Track&,const BinIDValue&,
 	    			    float,float,float) const;
 };
@@ -213,6 +262,51 @@ protected:
     const Well::Track&  track_;
     const Well::D2TModel* d2t_;
     int                 nrdone_;
+};
+
+
+
+/*! brief Log resampler, extracts all the logs given by log names along a z time or dah axis !*/
+
+mClass LogSampler : public ParallelTask
+{
+public:
+			LogSampler(const Well::Data& wd,
+				const Well::ExtractParams&,
+				const BufferStringSet& lognms);
+
+			LogSampler(const Well::Data& wd,
+				const StepInterval<float>& zrg,bool extrintime,
+				Stats::UpscaleType samppol, 
+				const BufferStringSet& lognms);
+			~LogSampler();
+
+    //avalaible after execution
+    float		getDah(int idz) const;
+    float		getDah(float zpos) const;
+
+    float		getLogVal(int logidx,int idz) const;
+    float		getLogVal(int logidx,float zpos) const;
+    float		getLogVal(const char* lognm,int idx) const;
+
+protected:
+
+    od_int64            	nrIterations() const;
+
+    bool 			doPrepare(int);
+    bool 			doWork(od_int64,od_int64,int);
+    bool			doLog(int logidx);
+
+    const Well::Data&		wd_;
+    Array2DImpl<float>*		data_;
+
+    const Well::D2TModel* 	d2t_;
+    StepInterval<float>		zrg_;
+    bool 			extrintime_;
+    const BufferStringSet& 	lognms_;
+
+    BufferString		errmsg_;
+    Stats::UpscaleType 		samppol_;
 };
 
 }; // namespace Well

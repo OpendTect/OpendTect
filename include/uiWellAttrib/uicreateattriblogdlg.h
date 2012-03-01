@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.8 2012-02-24 14:27:54 cvsbruno Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.9 2012-03-01 13:01:02 cvsbruno Exp $
  _______________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class NLAModel;
 class uiAttrSel;
 class uiListBox;
 class uiGenInput;
-class uiWellZRangeSel;
+class uiWellExtractParams;
 
 mClass uiCreateAttribLogDlg : public uiDialog
 {
@@ -40,7 +40,7 @@ protected:
     uiAttrSel*			attribfld_;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
-    uiWellZRangeSel*		zrangeselfld_;
+    uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
     int 			sellogidx_;
     bool 			singlewell_;

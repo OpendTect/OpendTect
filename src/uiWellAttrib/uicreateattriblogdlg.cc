@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.30 2012-02-24 14:51:55 cvskris Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.31 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -48,13 +48,12 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
 				 "Specify parameters for the new attribute log",
 				 "107.3.0") )
-    , datasetup_(AttribLogCreator::Setup(attrib))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
     , sellogidx_(-1)
     , attribfld_(0)
+    , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
 {
-    datasetup_.nlamodel_ = mdl;
     int nrmarkers = -1; int wellidx = -1;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
@@ -68,6 +67,12 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     if ( !wd )
 	{ uiMSG().error( "First well not valid" ); return; }
 
+    zrangeselfld_ = new uiWellExtractParams(this,
+			uiWellExtractParams::Setup().withzstep(true)); 
+    zrangeselfld_->addMarkers( wd->markers() );
+
+    datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
+    datasetup_.nlamodel_ = mdl;
     attribfld_ = datasetup_.attrib_ ? 
 			      new uiAttrSel( this, *datasetup_.attrib_ )
 			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
@@ -85,9 +90,6 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	welllistfld_->setMultiSelect();
 	welllistfld_->addItems( wellnames );
     }
-
-    zrangeselfld_ = new uiWellZRangeSel( this, true );
-    zrangeselfld_->addMarkers( wd->markers() );
 
     if ( singlewell )
 	zrangeselfld_->attach( ensureBelow, sep1 );
@@ -127,9 +129,10 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
     else
 	selwells.add( wellnames_.get(0) );
 
-    zrangeselfld_->getLimitMarkers( datasetup_.topmrknm_, datasetup_.botmrknm_);
-    if ( datasetup_.topmrknm_.isEqual(datasetup_.botmrknm_) )
-	mErrRet( "Please select different markers" )
+
+    BufferString errmsg;
+    if ( !datasetup_.extractparams_->isOK( &errmsg ) )
+	mErrRet( errmsg );
 
     datasetup_.lognm_ = lognmfld_->text();
     Attrib::SelSpec selspec;
@@ -147,7 +150,6 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	uiTaskRunner* tr = new uiTaskRunner( this );
 	datasetup_.tr_ = tr;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
-	BufferString errmsg;
 	Well::Data* wd = Well::MGR().wells()[ wellidx ];
 	if ( !wd ) 
 	    continue;
@@ -170,11 +172,6 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" );
 
-    datasetup_.extractstep_ = zrangeselfld_->getStep();
-    if( datasetup_.extractstep_<0 || datasetup_.extractstep_>100 )
-	mErrRet( "Please Enter a valid step value" );
-
-    zrangeselfld_->getLimitDists( datasetup_.topval_, datasetup_.botval_ );
     datasetup_.lognm_ = lognmfld_->text();
     if ( datasetup_.lognm_.isEmpty() )
 	mErrRet( "Please provide logname" );

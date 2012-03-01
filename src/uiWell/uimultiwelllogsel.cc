@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.5 2012-02-24 14:27:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.6 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -19,61 +19,104 @@ static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.5 2012-02-24 14:27:54 
 #include "wellmarker.h"
 
 #include "uicombobox.h"
+#include "uibutton.h"
+#include "uilabel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uitaskrunner.h"
 
 
-uiWellZRangeSel::uiWellZRangeSel( uiParent* p,
-      			bool withzstep,  bool withresampling )
+uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     : uiGroup( p, "Select Z Range" )
     , stepfld_(0)  
-    , logresamplfld_(0)  
+    , sampfld_(0)  
+    , zchoicefld_(0)
+    , zistimefld_(0) 
 {
-    uiLabeledComboBox* llc0 = new uiLabeledComboBox( this, "Extract between" );
-    topmarkfld_ = llc0->box();
-    topmarkfld_->setName( "Top marker" );
+    const char** zchoice = Well::ExtractParams::ZSelectionNames();	
+    BufferStringSet zchoiceset;
 
-    botmarkfld_ = new uiComboBox( this, "Bottom marker" );
-    botmarkfld_->attach( rightOf, llc0 );
+    for ( int idx=0; zchoice[idx]; idx++ )
+    {
+	zchoiceset.add( BufferString( zchoice[idx] ) );
+	if ( !SI().zIsTime() && idx ==1 )
+	    break;
+    }
+
+    CallBack cb(mCB(this,uiWellExtractParams,getFromScreen));
+    zchoicefld_ = new uiGenInput( this, "Extract between",
+					StringListInpSpec(zchoiceset) );
+    zchoicefld_->valuechanged.notify( cb ); 
+
+    if ( SI().zIsTime() )
+    {
+	zistimefld_ = new uiCheckBox( this, "Extract in time" );
+	zistimefld_->attach( rightOf, zchoicefld_ );
+	zistimefld_->activated.notify( cb );
+    }
+
+    const bool zinft = SI().depthsInFeetByDefault();
+    const char* units[] = 	{ "", zinft ? "(ft)":"(m)", "(ms)", 0 };
+    const char* markernms[] = 	{ "Top Marker", "Bottom Marker", 0 };
+
+    StringListInpSpec slis; 
+    for ( int idx=0; idx<zchoiceset.size(); idx++ )
+    {
+	BufferString msg( "Start/stop " );
+	if ( s.withzstep_ )
+	    msg += "/step "; 
+	msg += units[idx];
+	zselectionflds_ += idx ? 
+	      new uiGenInput(this,msg,FloatInpIntervalSpec())
+	    : new uiGenInput( this,msg, slis.setName(markernms[0]),
+				        slis.setName(markernms[1]) );
+
+
+	zselectionflds_[idx]->setElemSzPol( uiObject::Medium );
+	zselectionflds_[idx]->attach( alignedBelow, zchoicefld_ );
+	zselectionflds_[idx]->valuechanged.notify( cb );
+    }
+
     BufferString txt = "Distance above/below ";
     txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
     abovefld_ = new uiGenInput( this, txt,
 	    			FloatInpSpec(0).setName("Distance above") );
-    abovefld_->attach( alignedBelow, llc0 );
+    abovefld_->setElemSzPol( uiObject::Medium );
+    abovefld_->valuechanged.notify( cb );
+    abovefld_->attach( alignedBelow, zselectionflds_[0] );
     belowfld_ = new uiGenInput( this, "", 
 	    			FloatInpSpec(0).setName("Distance below") );
+    belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );
+    belowfld_->valuechanged.notify( cb );
 
-    if ( withzstep )
+    if ( s.withzstep_ )
     {
-	const bool zinft = SI().depthsInFeetByDefault();
 	const float defstep = zinft ? 0.5 : 0.15;
-	BufferString lbl = "Step "; lbl += zinft ? "(ft)" : "(m)";
-	stepfld_ = new uiGenInput( this, lbl, FloatInpSpec(defstep) );
-	stepfld_->attach( rightOf, botmarkfld_ );
+	stepfld_ = new uiGenInput( this, "", FloatInpSpec(defstep) );
+	stepfld_->attach( rightOf, zselectionflds_[0] );
+	stepfld_->valuechanged.notify( cb );
     }
 
-    if ( withresampling )
+    if ( s.withsampling_ )
     {
-	logresamplfld_ = new uiGenInput( this, "Log resampling method",
+	sampfld_ = new uiGenInput( this, "Log resampling method",
 				StringListInpSpec(Stats::UpscaleTypeNames()) );
-	logresamplfld_->attach( alignedBelow, abovefld_ );
+	sampfld_->valuechanged.notify( cb );
+	sampfld_->attach( alignedBelow, abovefld_ );
     }
-    attach_ = llc0;
-
-    setStretch( 2, 2 );
+    attach_ = zchoicefld_;
+    getFromScreen(0);
 }
 
 
-void uiWellZRangeSel::clear()
+void uiWellExtractParams::clear()
 {
-    topmarkfld_->setEmpty(); botmarkfld_->setEmpty();
     markernms_.erase();
 }
 
 
-void uiWellZRangeSel::addMarkers( const Well::MarkerSet& mrkrs )
+void uiWellExtractParams::addMarkers( const Well::MarkerSet& mrkrs )
 {
     BufferStringSet markernms;
     for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
@@ -83,53 +126,87 @@ void uiWellZRangeSel::addMarkers( const Well::MarkerSet& mrkrs )
 }
 
 
-void uiWellZRangeSel::addMarkers( const BufferStringSet& mrkrs )
+void uiWellExtractParams::addMarkers( const BufferStringSet& mrkrs )
 {
-    topmarkfld_->setEmpty(); botmarkfld_->setEmpty();
-
     for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
 	markernms_.addIfNew( mrkrs.get( imrk ) );
 
     BufferStringSet uimarkernms; 
-    uimarkernms.addIfNew( Well::TrackSampler::sKeyDataStart() );
+    uimarkernms.addIfNew( Well::ExtractParams::sKeyDataStart() );
     uimarkernms.add( markernms_, false );
-    uimarkernms.addIfNew( Well::TrackSampler::sKeyDataEnd() );
+    uimarkernms.addIfNew( Well::ExtractParams::sKeyDataEnd() );
+    StringListInpSpec slis( uimarkernms );
+    zselectionflds_[0]->newSpec( slis, 0 );
+    zselectionflds_[0]->newSpec( slis, 1 );
+    zselectionflds_[0]->setText( uimarkernms.get(0).buf(), 0 );
+    zselectionflds_[0]->setText(uimarkernms.get(uimarkernms.size()-1).buf(), 1);
 
-    topmarkfld_->addItems( uimarkernms );
-    botmarkfld_->addItems( uimarkernms );
-    topmarkfld_->setCurrentItem( 0 );
-    botmarkfld_->setCurrentItem( uimarkernms.size() - 1 );
+    getFromScreen(0);
 }
 
 
-void uiWellZRangeSel::getLimitMarkers( BufferString& top, 
-				       BufferString& bot) const
-{ top = topmarkfld_->text(); bot = botmarkfld_->text(); }
+void uiWellExtractParams::putToScreen()
+{
+    if ( zistimefld_ )
+	zistimefld_->setChecked( params_.extractzintime_ );
+    selidx_ = (int)params_.zselection_ ;
+    zchoicefld_->setValue( selidx_ );	
+
+    if ( selidx_ == 0 )
+    {
+	zselectionflds_[0]->setText(params_.topmrkr_,0);
+	zselectionflds_[0]->setText(params_.botmrkr_,1);
+	abovefld_->setValue( params_.above_, 0 ); 
+	belowfld_->setValue( params_.below_, 0 ); 
+    }
+    else
+	zselectionflds_[selidx_]->setValue( params_.zrg_ );
+
+    if ( stepfld_ )
+	stepfld_->setValue( params_.zrg_.step );
+
+    if ( sampfld_ )
+	sampfld_->setValue( (int)params_.samppol_ );
+}
 
 
-void uiWellZRangeSel::getLimitDists( float& top, float& bot ) const
-{ top = abovefld_->getfValue(0,0); bot = belowfld_->getfValue(0,0); }
+void uiWellExtractParams::getFromScreen( CallBacker* )
+{
+    selidx_ = zchoicefld_->getIntValue();
+
+    params_.setEmpty();
+    params_.zselection_ = Well::ExtractParams::ZSelection( 
+	    				zchoicefld_->getIntValue() );
+
+    params_.extractzintime_ = zistimefld_ ?  zistimefld_->isChecked() : false;
+    if ( selidx_ == 0 )
+    {
+	params_.topmrkr_ = zselectionflds_[0]->text(0);
+	params_.botmrkr_ = zselectionflds_[0]->text(1);
+	params_.above_ = abovefld_->getfValue(0,0); 
+	params_.below_ = belowfld_->getfValue(0,0); 
+    }
+    else
+	params_.zrg_ = zselectionflds_[selidx_]->getFInterval();
+
+    for ( int idx=0; idx<zselectionflds_.size(); idx++ )
+    {
+	zselectionflds_[idx]->display( idx == selidx_ );
+    }
+
+    params_.zrg_.step = stepfld_ ? stepfld_->getfValue() : mUdf(float); 
+
+    if ( sampfld_ )
+	params_.samppol_ = (Stats::UpscaleType)(sampfld_->getIntValue());
+}
 
 
-float uiWellZRangeSel::getStep() const
-{ return stepfld_ ? stepfld_->getfValue() : mUdf(float); }
-
-
-int uiWellZRangeSel::getResamplingType() const
-{ return logresamplfld_ ? logresamplfld_->getIntValue() : -1; }
-
-
-const char* uiWellZRangeSel::getTopMarker() const
-{ return topmarkfld_->text(); }
-
-const char* uiWellZRangeSel::getBottomMarker() const
-{ return botmarkfld_->text();  }
 
 
 
-
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, bool withresampling ) 
-    : uiWellZRangeSel(p,withresampling)
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, bool withsampling ) 
+    : uiWellExtractParams(p,uiWellExtractParams::Setup()
+	    				.withsampling(withsampling))
 {
     uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
     wellsfld_ = llbw->box();
@@ -137,9 +214,21 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, bool withresampling )
 						   uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
     llbl->attach( rightTo, llbw );
+    welllslblfld_ = llbw;
 
-    botmarkfld_->attach( ensureBelow, llbl );
+    zchoicefld_->attach( ensureBelow, llbl );
     attach_->attach( alignedBelow, llbw );
+
+    postFinalise().notify(mCB(this,uiMultiWellLogSel,onFinalise));
+}
+
+
+void uiMultiWellLogSel::onFinalise( CallBacker* )
+{
+    for ( int idx=0; idx<zselectionflds_.size(); idx++ )
+    {
+	zselectionflds_[idx]->display( true );
+    }
 }
 
 
@@ -200,5 +289,4 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& lognms ) const
 { logsfld_->getSelectedItems( lognms ); }
-
 

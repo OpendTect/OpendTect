@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.101 2012-01-12 09:07:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.102 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -534,14 +534,14 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	    				StringListInpSpec(choice) );
     choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
     
-    markernames_.add( Well::TrackSampler::sKeyDataStart() );
+    markernames_.add( Well::ExtractParams::sKeyDataStart() );
     mGetWD(return)
     if ( wd && wd->haveMarkers() )
     {
 	for ( int idx=0; idx<wd->markers().size(); idx++)
 	    markernames_.add( wd->markers()[idx]->name() );
     }
-    markernames_.add( Well::TrackSampler::sKeyDataEnd() );
+    markernames_.add( Well::ExtractParams::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
     const char* units[] = { "", "seconds", "meters", 0 };

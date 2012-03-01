@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.3 2011-07-29 07:37:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreatelogcubedlg.cc,v 1.4 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "uicreatelogcubedlg.h"
 
@@ -64,7 +64,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     if ( !savefld_->text() )
 	mErrRet( "Please enter a valid name extension for the new cubes" );
 
-    LogCubeCreator lcr( wd_.track(), SI().zIsTime() ? wd_.d2TModel() : 0 );
+    LogCubeCreator lcr( wd_ );
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     TypeSet<int> selidxs; loglistfld_->getSelectedItems( selidxs );
     for ( int idx=0; idx<selidxs.size(); idx++ )
@@ -76,7 +76,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 	if ( !ctio ) continue;
 	ctio->setName( cbvsnm ); 
 	ctio->fillObj();
-	logdatas += new LogCubeCreator::LogCubeData( log, *ctio ); 
+	logdatas += new LogCubeCreator::LogCubeData( log.name(), *ctio ); 
     }
     lcr.setInput( logdatas, repeatfld_->box()->getValue() );
     uiTaskRunner* tr = new uiTaskRunner( this );

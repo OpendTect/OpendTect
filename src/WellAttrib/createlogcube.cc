@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.6 2011-11-22 10:27:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.7 2012-03-01 13:01:02 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: createlogcube.cc,v 1.6 2011-11-22 10:27:29 cvsb
 #include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
+#include "stattype.h"
 
 
 LogCubeCreator::LogCubeData::~LogCubeData()
@@ -29,13 +30,12 @@ LogCubeCreator::LogCubeData::~LogCubeData()
 }
 
 
-LogCubeCreator::LogCubeCreator( const Well::Track& t, const Well::D2TModel* d2t)
-    : d2t_(d2t)
-    , track_(t)  
+LogCubeCreator::LogCubeCreator( const Well::Data& wd )
+    : wd_(wd)
     , hrg_(false)
     , nrduplicatetrcs_(0)		 
 {
-    Well::SimpleTrackSampler wtextr( t, d2t );
+    Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
@@ -77,7 +77,7 @@ bool LogCubeCreator::doPrepare( int )
 
 bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( SI().zIsTime() && !d2t_ )
+    if ( SI().zIsTime() && !wd_.haveD2TModel() )
 	{ errmsg_ = "No depth/time model found"; return false; }
 
     for ( int idx=start; idx<=stop; idx++ )
@@ -102,12 +102,15 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     SeisTrc trc( SI().zRange(true).nrSteps() );
     trc.info().sampling.step = SI().zStep();
 
-    for ( int idx=0; idx<trc.size(); idx++ )
-    {
-	float z = trc.info().sampling.atIndex( idx );
-	z = d2t_ ? d2t_->getDah( z ) : track_.getDahForTVD( z );
-	trc.set( idx, lcd.log_.getValue( z, false ),0 );
-    }
+    BufferStringSet lognms; lognms.add( lcd.lognm_ );
+    Well::LogSampler ls( wd_, SI().zRange(true), true, 
+	    			Stats::TakeNearest, lognms );
+    if ( !ls.execute( false ) )
+	return false;
+
+    for ( int idz=0; idz<trc.size(); idz++ )
+	trc.set( idz, ls.getLogVal( 0, idz ), 0 );
+
     HorSamplingIterator hsit( hrg_ );
     bool succeeded = true;
     BinID bid;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.23 2010-12-16 13:04:29 cvsbert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.24 2012-03-01 13:01:02 cvsbruno Exp $";
 
 
 #include "welltransl.h"
@@ -107,7 +107,7 @@ Executor* WellTranslator::createDataPointSets(	const BufferStringSet& ids,
        						bool ztm )
 {
     Well::TrackSampler* ts = new Well::TrackSampler( ids, dpss, ztm );
-    ts->for2d = for2d;
+    ts->for2d_ = for2d;
     ts->usePar( pars );
     return ts;
 }
