@@ -5,9 +5,11 @@ Thu Feb 2 12:54:10 2012
 Castagna: Velocity
 Description: This formula can convert P-wave velocity to S-wave, and vice versa.
 Formula: sqrt( c0*vel^2 + c1 )
+Unit: Meter/second
 Variable.0.Type: Velocity
 Variable.0.Name: Input velocity
 Variable.0.Description: The P-wave or S-wave velocity that you have available.
+Variable.0.Unit: Meter/second
 Constant.0.Name: A
 Constant.0.Description: The fluid factor
 Constant.0.Typical Range: 0.3`0.4
