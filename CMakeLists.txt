@@ -45,8 +45,16 @@ SET(OD_MODULES
 )
 
 SET( OD_PLUGINS
+        Annotations
+	Bouncy
+	CmdDriver
+	ExpAttribs
+	GapDecon
+	GoogleTranslate
+	Hello
 	Tut
 	VoxelConnectivityFilter
+	uiVoxelConnectivityFilter
 	uiPreStackViewer )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
