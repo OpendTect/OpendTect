@@ -47,13 +47,13 @@ SET(OD_MODULES
 SET( OD_PLUGINS
         Annotations
 	Bouncy
-	CmdDriver
 	ExpAttribs
 	GapDecon
 	GoogleTranslate
 	Hello
 	Tut
 	VoxelConnectivityFilter
+	uiBouncy
 	uiVoxelConnectivityFilter
 	uiPreStackViewer )
 
