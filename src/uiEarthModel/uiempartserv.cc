@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.230 2012-02-29 20:09:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.231 2012-03-02 13:43:30 cvshelene Exp $";
 
 #include "uiempartserv.h"
 
@@ -47,6 +47,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.230 2012-02-29 20:09:53 cvs
 #include "survinfo.h"
 #include "undo.h"
 #include "varlenarray.h"
+#include "variogramcomputers.h"
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
@@ -951,13 +952,13 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
-/*    BinIDValueSet& bivs = dpset.bivSet();
+    BinIDValueSet& bivs = dpset.bivSet();
     if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
 
     const int cid = getColID( dpset, nm );
-    if ( cid < 0 )
-	return false;*/
+    if ( cid < 0 || mIsUdf(cid) )
+	return false;
 
     const EM::SectionID sid = hor3d->sectionID( 0 );
     const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
@@ -974,9 +975,17 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 	int(SI().inlDistance()) : int(SI().crlDistance());
     size++;
 
-    HorVariogramComputer hvc( dpset, size,
-	    		      varsettings.getMaxRg(), varsettings.getFold() );
-    if ( !hvc.isOK() ) return false;
+    BufferString errmsg;
+    bool msgiserror = true;
+
+    HorVariogramComputer hvc( dpset, size, cid, varsettings.getMaxRg(),
+	    		      varsettings.getFold(), errmsg, msgiserror );
+    if ( !hvc.isOK() )
+    {
+	msgiserror ? uiMSG().error( errmsg.buf() )
+	    	   : uiMSG().warning( errmsg.buf() );
+	return false;
+    }
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
 	    					       hvc.getXaxes(),
 	    					       hvc.getLabels(),

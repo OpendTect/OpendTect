@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.89 2012-02-28 23:52:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.90 2012-03-02 13:43:31 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
 #include "uistatsdisplaywin.h"
 #include "uidatapointsetcrossplotwin.h"
+#include "uimsg.h"
 
 #include "datapointset.h"
 #include "dpsdispmgr.h"
@@ -34,6 +35,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.89 2012-02-28 23:52:50 cv
 #include "mathexpression.h"
 #include "settings.h"
 #include "timer.h"
+#include "variogramcomputers.h"
 
 #include "uibutton.h"
 #include "uitable.h"
@@ -1604,10 +1606,17 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( !varsettings.go() )                                                    
 	return;
 
+    BufferString errmsg;
+    bool msgiserror = true;
     VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold(),
-	   		      nrgroups );
-    if ( !vvc.isOK() ) return;
+	   		      nrgroups, errmsg, msgiserror );
+    if ( !vvc.isOK() )
+    {
+	msgiserror ? uiMSG().error( errmsg.buf() )
+	    	   : uiMSG().warning( errmsg.buf() );
+	return;
+    }
 
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), vvc.getData(),
 	    					       vvc.getXaxes(),
