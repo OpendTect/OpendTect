@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.51 2009-04-17 11:21:33 cvsbert Exp $
+# $Id: od_exec,v 1.52 2012-03-02 10:20:15 cvsraman Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -253,14 +253,16 @@ if ( "$1" != "" ) then
 
 endif
 
-
+set exitcode = 0
 if ( $issys == yes ) then
 
     if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
     if ( $background == yes ) then
 	$xtermcmd $nicecmd $allargs &
+	set exitcode = $status
     else
 	$xtermcmd $nicecmd $allargs 
+	set exitcode = $status
     endif
 else
     if ( $?DTECT_SCRIPT_DEBUG ) then
@@ -278,11 +280,11 @@ else
 
     if ( $background == yes ) then
 	$xtermcmd $nicecmd "$bindir"/$allargs &
+	set exitcode = $status
     else
 	$xtermcmd $nicecmd "$bindir"/$allargs
+	set exitcode = $status
     endif
-
 endif
 
-
-exit $status
+exit $exitcode
