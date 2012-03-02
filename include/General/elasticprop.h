@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.4 2012-01-20 11:02:08 cvsbruno Exp $
+ RCS:		$Id: elasticprop.h,v 1.5 2012-03-02 14:05:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 mClass ElasticFormula : public NamedObject
 {
 public:
-			enum Type 	{ Den, PVel, SVel, Por };
+			enum Type 	{ Den, PVel, SVel };
 			DeclareEnumUtils(Type)
 
 			ElasticFormula(const char* nm,const char* expr,Type tp)
@@ -81,11 +81,11 @@ public:
     bool                	write(Repos::Source) const;
 
 protected:
-    				ElasticFormulaRepository();
 
     TypeSet<ElasticFormula> 	formulas_;
 
-    void 			addFormulasFromFile(const char*,Repos::Source);
+    void 			addRockPhysicsFormulas();
+    void 			addPreDefinedFormulas();
 
     mGlobal friend ElasticFormulaRepository& ElFR();
 };

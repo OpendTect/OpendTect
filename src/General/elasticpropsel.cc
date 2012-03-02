@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.13 2012-01-20 11:02:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.14 2012-03-02 14:05:18 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -23,12 +23,11 @@ static const char* rcsID = "$Id: elasticpropsel.cc,v 1.13 2012-01-20 11:02:08 cv
 #include "math.h"
 #include "mathexpression.h"
 #include "strmprov.h"
+#include "rockphysics.h"
 
 
 #define mFileType "Elastic Property Selection"
 
-
-static const char* filenamebase 	= "ElasticFormulas";
 
 static const char* sKeyFormulaName 	= "Name of formula";
 static const char* sKeyMathExpr 	= "Mathematic Expression";
@@ -39,7 +38,7 @@ static const char* sKeyPropertyName 	= "Property name";
 mDefSimpleTranslators(ElasticPropSelection,mFileType,od,Seis);
 
 DefineEnumNames(ElasticFormula,Type,0,"Elastic Property")
-{ "Density", "PWave", "SWave", "Porosity", 0 };
+{ "Density", "PWave", "SWave", 0 };
 
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
@@ -92,65 +91,70 @@ ElasticFormulaRepository& ElFR()
     if ( !elasticrepos )
     {
 	elasticrepos = new ElasticFormulaRepository;
+	elasticrepos->addPreDefinedFormulas();
+	elasticrepos->addRockPhysicsFormulas();
     }
     return *elasticrepos;
 }
 
-
-ElasticFormulaRepository::ElasticFormulaRepository()
+void ElasticFormulaRepository::addPreDefinedFormulas()
 {
-    Repos::FileProvider rfp( filenamebase );
-    while ( rfp.next() )
-	addFormulasFromFile( rfp.fileName(), rfp.source() );
+    BufferString ai = "AI";
+    BufferString den = "Density";
+    BufferString vel = "Velocity";
+    BufferString son = "Sonic";
+    BufferString shearson = "ShearSonic";
+
+    BufferStringSet vars; 
+    vars.erase(); vars.add( ai ); vars.add( vel );
+    addFormula( "AI derived", "AI/Velocity", ElasticFormula::Den, vars );  
+
+    vars.erase(); vars.add( ai ); vars.add( den );
+    addFormula( "AI derived", "AI/Density", ElasticFormula::PVel, vars );  
+
+    vars.erase(); vars.add( son );
+    addFormula( "Sonic derived", "1/Sonic", ElasticFormula::PVel, vars );  
+
+    vars.erase(); vars.add( shearson );
+    addFormula("Shear Sonic derived","1/ShearSonic",ElasticFormula::SVel,vars);
 }
 
 
-void ElasticFormulaRepository::addFormulasFromFile( const char* fnm, 
-						    Repos::Source src )
+void ElasticFormulaRepository::addRockPhysicsFormulas() 
 {
-    if ( !File::exists(fnm) ) return;
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() ) return;
+    const ObjectSet<RockPhysics::Formula> forms;
 
-    ascistream stream( *sd.istrm, true );
-    while ( !atEndOfSection( stream.next() ) )
+    const char** props = ElasticFormula::TypeNames();
+    for ( int idx=0; props[idx]; idx++ )
     {
-	IOPar iop; iop.getFrom( stream );
-	if ( iop.isEmpty() )
-	    continue;
-	ElasticFormula fm("","",ElasticFormula::Den); 
-	fm.usePar( iop );
-	formulas_ += fm;
-    }
+	ElasticFormula::Type tp;
+	ElasticFormula::parseEnumType( props[idx], tp );
+	BufferStringSet fnms;
+	ROCKPHYSFORMS().getRelevant( 
+			    ElasticPropertyRef::elasticToStdType(tp), fnms );
 
-    sd.close();
+	for ( int idfor=0; idfor<fnms.size(); idfor ++ ) 
+	{
+	    BufferString elasnm = fnms.get( idfor );
+	    const RockPhysics::Formula* rpf = ROCKPHYSFORMS().get( elasnm );
+	    if ( !rpf ) continue;
+
+	    ElasticFormula fm( elasnm, rpf->def_, tp );
+	    for ( int idvar=0; idvar<rpf->vardefs_.size(); idvar++ )
+		fm.variables().add( rpf->vardefs_[idvar]->name() );
+	    for ( int idconst=0; idconst<rpf->constdefs_.size(); idconst++ )
+		fm.variables().add( rpf->constdefs_[idconst]->name() );
+
+	    formulas_ += fm;
+	}
+    }
 }
 
 
 bool ElasticFormulaRepository::write( Repos::Source src ) const
 {
-    Repos::FileProvider rfp( filenamebase );
-    const BufferString fnm = rfp.fileName( src );
-
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
-    {
-	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( fnm );
-	return false;
-    }
-
-    ascostream strm( *sd.ostrm );
-    strm.putHeader( "Elastic formulas" );
-    for ( int idx=0; idx<formulas_.size(); idx++ )
-    {
-	IOPar iop; 
-	formulas_[idx].fillPar( iop );
-	iop.putTo( strm );
-    }
-
-    sd.close();
-    return true;
+    //Not Supported
+    return false;
 }
 
 
@@ -188,8 +192,6 @@ const PropertyRef::StdType
 	return PropertyRef::Vel;
     if ( tp == ElasticFormula::Den )
 	return PropertyRef::Den;
-    if ( tp == ElasticFormula::Por )
-	return PropertyRef::Volum;
 
     return PropertyRef::Other;
 }
@@ -255,8 +257,7 @@ bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
     {
 	const char* propnm = elasticprops_[idx].name();
 	const BufferStringSet& vars = elasticprops_[idx].formula().variables();
-	if ( vars.isEmpty() 
-		&& elasticprops_[idx].elasticType() != ElasticFormula:: Por )
+	if ( vars.isEmpty() ) 
 	 {
 	    if ( errmsg )
 	    {	
