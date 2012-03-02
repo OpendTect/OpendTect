@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.12 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.13 2012-03-02 10:25:16 cvsraman Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -87,8 +87,8 @@ od_int64 totalNr() const
 
 #define mSetEnvVar(s) \
     *sd.ostrm << "setenv " << s << " " << GetEnvVar(s) << std::endl;
-static bool writeScriptFile( const char* scrfnm, const char* parfnm,
-			     const char* logfnm, const char* prognm )
+static bool writeScriptFile( const char* scrfnm, const char* prognm,
+			     const char* desc )
 {
     StreamData sd = StreamProvider(scrfnm).makeOStream();
     if ( !sd.usable() )
@@ -99,13 +99,15 @@ static bool writeScriptFile( const char* scrfnm, const char* parfnm,
     mSetEnvVar("DTECT_DATA")
     mSetEnvVar("LD_LIBRARY_PATH")
     *sd.ostrm << GetExecScript(false) << " " << prognm << "\\" << std::endl;
-    *sd.ostrm << parfnm << std::endl;
-    *sd.ostrm << "echo \"exited with code ${status}\" >>\\" << std::endl;
-    *sd.ostrm << logfnm << std::endl;
-    *sd.ostrm << "rm -f " << parfnm << std::endl;
-    *sd.ostrm << "rm -f $0" << std::endl;
-    *sd.ostrm << "echo \"removed script with ${status}\" >>\\" << std::endl;
-    *sd.ostrm << logfnm << std::endl;
+    FilePath fp( scrfnm );
+    fp.setExtension( ".par" );
+    *sd.ostrm << fp.fullPath().buf() << std::endl;
+    *sd.ostrm << "set exitcode = $status" << std::endl;
+    *sd.ostrm << "echo \""; *sd.ostrm << desc;
+    *sd.ostrm << " finished with code ${exitcode} >>\\" << std::endl;
+    fp.setExtension( ".log" );
+    *sd.ostrm << fp.fullPath().buf() << std::endl;
+    *sd.ostrm << "exit ${exitcode}" << std::endl;
     sd.close();
     File::setPermissions( scrfnm, "711", 0 );
     return true;
@@ -118,7 +120,10 @@ int nextStep()
 	return Finished();
 
     IOPar iop;
-    jobprov_.getJob( curidx_++, iop );
+    jobprov_.getJob( curidx_, iop );
+    BufferString desc( "Inline " );
+    desc.add( jobprov_.objName(curidx_++) );
+    iop.set( sKey::Desc, desc.buf() );
     BufferString filenm( "Job" );
     filenm += curidx_;
     FilePath fp( dirnm_.buf() );
@@ -133,7 +138,7 @@ int nextStep()
 
     fp.setExtension( "scr" );
     BufferString scrfnm = fp.fullPath();
-    if ( !writeScriptFile(scrfnm.buf(),parfnm.buf(),logfnm.buf(),prognm_.buf()))
+    if ( !writeScriptFile(scrfnm.buf(),prognm_.buf(),desc.buf()))
 	return ErrorOccurred();
 
     return MoreToDo();
@@ -176,8 +181,11 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
-    FilePath fp( GetProcFileName(0) );
-    fp.add( "scriptdir" );
+    FilePath fp( parfnm );
+    fp.setExtension( 0 );
+    BufferString filenm = fp.fileName();
+    filenm += "_scriptdir";
+    fp.setFileName( filenm.buf() );
     if ( !File::isDirectory(fp.fullPath()) )
 	File::createDir( fp.fullPath() );
     scriptdirfld_ = new uiFileInput( this, "Storage directory for scripts",
@@ -185,14 +193,9 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
-    fp.setFileName( "clusterprocscript" );
-    masterscriptfld_ = new uiFileInput( this, "Main script file",
-	    		uiFileInput::Setup(fp.fullPath()).forread(false) );
-    masterscriptfld_->attach( alignedBelow, scriptdirfld_ );
-
     cmdfld_ = new uiGenInput( this, "Cluster Processing command",
 	   		      StringInpSpec("srun") );
-    cmdfld_->attach( alignedBelow, masterscriptfld_ );
+    cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 }
@@ -234,10 +237,6 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
 	mErrRet( "Please make a valid entry for script storage directory")
 
-    BufferString mainscrnm = masterscriptfld_->fileName();
-    if ( mainscrnm.isEmpty() )
-	mErrRet( "Please make a valid entry for Main script file")
-
     if ( tempstordir_ != tmpdir )
 	File::remove( tempstordir_.buf() );
 
@@ -251,11 +250,34 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     iopar_.set( "Output.ID", outseisid );
     iopar_.set( "Script dir", scriptdir.buf() );
     iopar_.set( sKey::TmpStor, tmpdir.buf() );
+    const char* cmd = cmdfld_->text();
+    if ( !cmd || !*cmd )
+	mErrRet("Please enter a valid command for submitting jobs")
+
+    iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars) )
 	mErrRet("Failed to write parameter file")
 
-    return createJobScripts( scriptdir.buf() )
-    	&& createMasterScript( parfnm.buf(), scriptdir.buf() );
+    if ( !createJobScripts(scriptdir.buf()) )
+	mErrRet("Failed to split jobs")
+
+    BufferString msg = "Job scripts";
+    msg += " have been created successfully. Execute now?";
+    if ( uiMSG().askGoOn(msg.buf()) )
+    {
+
+	BufferString comm( "@" );
+	comm += GetExecScript( false );
+	comm += " "; comm += "od_ClusterProc";
+	comm += " -bg -dosubmit "; comm += parfnm;
+	if ( !StreamProvider( comm ).executeCommand(true) )
+	{
+	    uiMSG().error( "Cannot start batch program" );
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 
@@ -307,32 +329,3 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
     return ret;
 }
 
-
-bool uiClusterJobProv::createMasterScript( const char* parfnm,
-					   const char* scriptdir ) const
-{
-    BufferString masterscript = masterscriptfld_->fileName();
-    StreamData sd = StreamProvider(masterscript.buf()).makeOStream();
-
-    FilePath fp( scriptdir );
-    fp.add( "*.scr" );
-    BufferString cmscmd = cmdfld_->text();
-    if ( cmscmd.isEmpty() )
-	mErrRet("Please enter a valid command to run the job")
-
-    *sd.ostrm << "#!/bin/csh -f " << std::endl;
-    *sd.ostrm << GetExecScript(false) << " ";
-    *sd.ostrm << "od_ClusterProc" << "\\" << std::endl;
-    *sd.ostrm << parfnm << " &" << std::endl;
-    *sd.ostrm << "foreach file ( " << fp.fullPath() << " )" << std::endl;
-    *sd.ostrm << "    " << cmscmd.buf() << " $file &" << std::endl;
-    *sd.ostrm << "end" << std::endl;
-    sd.close();
-    File::setPermissions( masterscript.buf(), "744", 0 );
-    BufferString msg( "The script file " );
-    msg += masterscript;
-    msg += " has been created successfully. Execute now?";
-    if ( uiMSG().askGoOn(msg.buf()) )
-	return !system(masterscript.buf());
-    return true;
-}
