@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.20 2012-02-02 16:35:53 cvsyuancheng Exp $
+ RCS:           $Id: uiposprovider.h,v 1.21 2012-03-02 22:54:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,7 @@ public:
 
     struct Setup : public uiPosProvGroup::Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, SeisTypeswithBody,
-       			  RangewithPolygon };
+	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon };
 
 			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
