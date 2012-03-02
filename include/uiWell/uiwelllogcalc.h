@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.8 2012-03-01 12:56:26 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.9 2012-03-02 14:45:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "bufstringset.h"
 
 class uiGenInput;
 class uiCheckBox;
@@ -55,6 +56,7 @@ protected:
     const BufferStringSet&	lognms_;
     const Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
+    BufferStringSet		inputunits_;
 
     friend class		uiWellLogCalcInpData;
 

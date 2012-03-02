@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.20 2012-03-01 12:56:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.21 2012-03-02 14:45:02 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -56,14 +56,29 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp, int fieldnr )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, lognms_, "use",
 				    BufferString("input ",fieldnr) );
     inpfld_ = lcb->box();
+//    inpfld_->addItem( "Constant" );
     int selidx = fieldnr;
+//    if ( selidx > lognms_.size() ) selidx = lognms_.size();
     if ( selidx >= lognms_.size() ) selidx = lognms_.size()-1;
     inpfld_->setCurrentItem( selidx );
     inpfld_->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
     lcb->attach( rightOf, varmfld_ );
 
+    uiLabeledComboBox* unitlcb = new uiLabeledComboBox( this, "convert to:",
+					    BufferString( "unitbox ",fieldnr ));
+    unfld_ = unitlcb->box();
+    const ObjectSet<const UnitOfMeasure>& alluom( UoMR().all() );
+    unfld_->addItem( "-" );
+    for ( int idx=0; idx<alluom.size(); idx++ )
+	unfld_->addItem( alluom[idx]->name() );
+    unitlcb->attach( rightOf, lcb );
+
     udfbox_ = new uiCheckBox( this, "Fill empty sections" );
-    udfbox_->attach( rightOf, lcb );
+    udfbox_->attach( rightOf, unitlcb );
+
+    cstvalfld_ = new uiGenInput( this, "value", FloatInpSpec() );
+    cstvalfld_->attach( rightOf, lcb );
+    cstvalfld_->display( false );
 
     setHAlignObj( lcb );
 }
@@ -108,9 +123,17 @@ bool getInp( uiWellLogCalc::InpData& inpdata )
     return inpdata.wl_;
 }
 
+
+void setUnit( const char* s )
+{
+    unfld_->setText( s );
+}
+
     uiGenInput*		varmfld_;
     uiComboBox*		inpfld_;
+    uiComboBox*		unfld_;
     uiCheckBox*		udfbox_;
+    uiGenInput*		cstvalfld_;
     const int		idx_;
     const Well::LogSet*	wls_;
     const BufferStringSet&	lognms_;
@@ -254,6 +277,13 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
+
+bool getFormulaInfo( BufferString& cleanformula, BufferString& outputunit,
+		     BufferStringSet& varsunits ) const
+{
+    return formgrp_->getFormulaInfo( cleanformula, outputunit, varsunits );
+}
+
     uiRockPhysForm*	formgrp_;
 
 };
@@ -262,9 +292,12 @@ bool acceptOK( CallBacker* )
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
     uiWellLogCalcRockPhys dlg( this );
-    if ( dlg.go() )
+    BufferString formula;
+    BufferString outunit;
+    if ( dlg.go() && dlg.getFormulaInfo( formula, outunit, inputunits_ ) )
     {
-	formfld_->setText( dlg.formgrp_->getText() );
+	formfld_->setText( formula.buf() );
+	unfld_->setText( outunit.buf() );
 	formSet( 0 );
     }
 }
@@ -302,7 +335,11 @@ void uiWellLogCalc::formSet( CallBacker* )
     MathExpression* useexpr = haveconst ? 0 : expr_;
     nrvars_ = useexpr ? useexpr->nrUniqueVarNames() : 0;
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
+    {
 	inpdataflds_[idx]->use( useexpr );
+	if ( inputunits_.size()>idx )
+	    inpdataflds_[idx]->setUnit( inputunits_.get(idx).buf() );
+    }
 
     inpSel( 0 );
 }
