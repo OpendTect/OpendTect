@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.12 2012-02-02 16:58:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.13 2012-03-02 17:29:05 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -48,6 +48,93 @@ static const char* collbls[] = { "Name", "Side", 0 };
 #define cNameCol 0
 #define cSideCol 1
 
+class BodyExtractorFromHorizons : public ParallelTask
+{
+public:
+BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist, 
+	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res,
+	const ODPolygon<float>& plg )
+    : res_( res )
+    , cs_( cs )
+    , plg_( plg )	      
+{
+    res_.setAll( 1 );
+    for ( int idx=0; idx<hlist.size(); idx++ )
+    {
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx]);
+	mDynamicCastGet(EM::Horizon3D*,hor,emobj);
+	if ( !hor ) continue;
+	
+	hor->ref();
+	hors_ += hor;
+	hsides_ += sides[idx];
+    }
+}
+
+
+~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
+od_int64 nrIterations() const   { return cs_.nrInl()*cs_.nrCrl(); }
+const char* message() const	{ return "Extracting body from horizons"; }
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const int crlsz = cs_.nrCrl();
+    if ( !crlsz ) return true;
+
+    const int zsz = cs_.nrZ();
+    const int horsz = hors_.size();
+    const bool usepolygon = !plg_.isEmpty();
+    
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    {
+	const int inlidx = idx/crlsz;
+	const int crlidx = idx%crlsz;
+	const BinID bid = cs_.hrg.atIndex(inlidx,crlidx);
+	if ( bid.inl==cs_.hrg.start.inl || bid.inl==cs_.hrg.stop.inl ||
+	     bid.crl==cs_.hrg.start.crl || bid.crl==cs_.hrg.stop.crl )
+	    continue;/*Extended one layer*/
+
+	if ( usepolygon && 
+	     !plg_.isInside(Geom::Point2D<float>(bid.inl,bid.crl),true,0.01) )
+	    continue;
+
+	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
+	{
+    	    const double curz = cs_.zrg.atIndex( idz );
+	    bool curzinrange = true;
+	    float mindist = -1;
+	    for ( int idy=0; idy<horsz; idy++ )
+	    {
+		const float hz = hors_[idy]->getZ(bid);
+		if ( mIsUdf(hz) ) continue;
+	    
+		const float dist = hsides_[idy]==mBelow ? curz-hz : hz-curz;
+		if ( dist<0 )
+		{
+		    curzinrange = false;
+		    break;
+		}
+
+		if ( mindist<0 || mindist>dist )
+		    mindist = dist; 
+	    }
+
+	    if ( curzinrange )
+    		res_.set( inlidx, crlidx, idz, -mindist );
+	}
+    }
+
+    return true;
+}
+
+Array3D<float>&					res_;
+const CubeSampling&				cs_;
+ObjectSet<EM::Horizon3D>			hors_;
+TypeSet<char>					hsides_;
+const ODPolygon<float>&				plg_;
+};
+
+
 class ImplicitBodyRegionExtractor : public ParallelTask
 {
 public:
@@ -68,9 +155,8 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
-	RefMan<EM::EMObject> emobj = 
-	    EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
-	mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
+	mDynamicCastGet( EM::Horizon3D*, hor, emobj );
 	if ( hor )
 	{
 	    hor->ref();
@@ -79,7 +165,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	}
 	else
 	{
-	    mDynamicCastGet( EM::Fault3D*, emflt, emobj.ptr() );
+	    mDynamicCastGet( EM::Fault3D*, emflt, emobj );
 	    Geometry::FaultStickSurface* flt = 
 	    emflt ? emflt->geometry().sectionGeometry(0) : 0;
 	    if ( !flt ) continue;
@@ -444,7 +530,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
-	    	seltxt("Geometry boundary") );
+	    	seltxt("Geometry boundary").withstep(false) );
 
     table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(true)
 	    .rightclickdisabled(true).selmode(uiTable::Single), "Edges" );
@@ -581,11 +667,20 @@ bool uiBodyRegionDlg::createImplicitBody()
     MouseCursorChanger mcc( MouseCursor::Wait );
 
     TypeSet<char> sides;
+    bool hasfaults = false;
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*, selbox, 
 		table_->getCellObject(RowCol(idx,cSideCol)) );    
     	sides += selbox->currentItem();
+	
+	if ( !hasfaults )
+	{
+    	    RefMan<EM::EMObject> emobj = 
+		EM::EMM().loadIfNotFullyLoaded( surfacelist_[idx] );
+    	    mDynamicCastGet(EM::Fault3D*,emflt,emobj.ptr());
+	    if ( emflt ) hasfaults = true;
+	}
     }
    
     CubeSampling cs = subvolfld_->envelope();
@@ -601,10 +696,22 @@ bool uiBodyRegionDlg::createImplicitBody()
     uiTaskRunner taskrunner( this );
     ODPolygon<float> dummy;
     mDynamicCastGet(Pos::PolyProvider3D*,plgp,subvolfld_->curProvider());
-    ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr, 
-	   plgp ? plgp->polygon() : dummy );
-    if ( !taskrunner.execute(ext) )
-	mRetErr("Extracting body region failed.")
+
+    if ( hasfaults )
+    {
+	ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr, 
+     		plgp ? plgp->polygon() : dummy );
+    
+	if ( !taskrunner.execute(ext) )
+    	    mRetErr("Extracting body region failed.")
+    }
+    else
+    {
+	BodyExtractorFromHorizons ext( surfacelist_, sides, cs, *arr, 
+     		plgp ? plgp->polygon() : dummy );
+	if ( !taskrunner.execute(ext) )
+    	    mRetErr("Extracting body from horizons failed.")
+    }
 
     RefMan<EM::MarchingCubesSurface> emcs = 
 	new EM::MarchingCubesSurface(EM::EMM());
