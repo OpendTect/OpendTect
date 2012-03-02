@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.28 2012-03-01 13:01:02 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.29 2012-03-02 20:46:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,7 +194,6 @@ public:
 
     BufferString	lognm_;
     Stats::UpscaleType	samppol_;
-    static const char*	sKeySamplePol();
     static const char*	sKeyLogNm(); //!< equals address of TrackSampler's
 
     void		usePar(const IOPar&);

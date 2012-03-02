@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.65 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.66 2012-03-02 20:46:19 cvsnanne Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -912,14 +912,14 @@ float Well::LogSampler::getDah( int idz ) const
 }
 
 
-float Well::LogSampler::getDah(float zpos) const
+float Well::LogSampler::getDah( float zpos ) const
 {
     const int idz = zrg_.getIndex( zpos );
     return getDah( idz );
 }
 
 
-float Well::LogSampler::getLogVal(int logidx,int idz) const
+float Well::LogSampler::getLogVal( int logidx, int idz ) const
 {
     const int xsz = data_->info().getSize(0);
     const int zsz = data_->info().getSize(1);
