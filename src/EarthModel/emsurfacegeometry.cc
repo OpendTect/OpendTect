@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.55 2012-01-16 22:19:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.56 2012-03-02 20:47:24 cvsnanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -541,7 +541,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	    if ( rowrange.width(false)<0 )
 		continue;
 
-	    const StepInterval<int> colrange = colRange(sid);
+	    const StepInterval<int> colrange = colRange(sid,-1);
 
 	    RowCol idx( rowrange.start, colrange.start );
 	    for ( ; rowrange.includes( idx.row ); idx.row+=rowrange.step )
@@ -1108,6 +1108,9 @@ RowColSurfaceGeometry::sectionGeometry( const SectionID& sid ) const
 
 StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& sid ) const
 {
+    if ( sid == -1 )
+	return rowRange();
+
     const Geometry::RowColSurface* elem = sectionGeometry( sid );
     return elem->rowRange();
 }
@@ -1136,6 +1139,9 @@ StepInterval<int> RowColSurfaceGeometry::rowRange() const
 StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
        						   int row ) const
 {
+    if ( sid == -1 )
+	return colRange();
+
     const Geometry::RowColSurface* elem = sectionGeometry( sid );
     return row<0 ? elem->colRange() : elem->colRange( row );
 }

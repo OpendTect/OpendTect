@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emrandlinegen.cc,v 1.16 2011-09-16 11:04:01 cvskris Exp $";
+static const char* rcsID = "$Id: emrandlinegen.cc,v 1.17 2012-03-02 20:47:24 cvsnanne Exp $";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"
@@ -61,7 +61,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	    continue;
 
 	const StepInterval<int> inlrg = geom_.rowRange(sid);
-	const StepInterval<int> crlrg = geom_.colRange(sid);
+	const StepInterval<int> crlrg = geom_.colRange(sid,-1);
 	IsoContourTracer ict( *arr );
 	ict.setSampling( inlrg, crlrg );
 	ict.selectPolyROI( setup_.selpoly_ );

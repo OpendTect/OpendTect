@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.44 2010-08-19 05:28:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.45 2012-03-02 20:47:24 cvsnanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1683,9 +1683,7 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
     }
 
     const StepInterval<int> rowrange = horizon_.geometry().rowRange(section);
-    const StepInterval<int> colrange = horizon_.geometry().colRange(section);
-
-    
+    const StepInterval<int> colrange = horizon_.geometry().colRange(section,-1);
     for ( int row=rowrange.start; row<=rowrange.stop; row+=rowrange.step )
     {
 	for ( int col=colrange.start; col<=colrange.stop; col+=colrange.step )
