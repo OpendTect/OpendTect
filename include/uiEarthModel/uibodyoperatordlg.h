@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uibodyoperatordlg.h,v 1.4 2012-01-06 20:39:06 cvsyuancheng Exp $
+ RCS:		$Id: uibodyoperatordlg.h,v 1.5 2012-03-02 19:25:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "ctxtioobj.h"
-#include "uidialog.h"
 #include "multiid.h"
+#include "uidialog.h"
+#include "uiioobjsel.h"
 
 class uiGenInput;
-class uiIOObjSel;
 class uiLabeledComboBox;
 class uiListView;
 class uiListViewItem;
@@ -32,8 +31,9 @@ mClass uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);
- 			~uiBodyOperatorDlg();   
+ 			~uiBodyOperatorDlg();  
 
+    const MultiID	getBodyMid() const { return outputfld_->key(); }			
 protected:
 
     bool		acceptOK(CallBacker*);
@@ -73,7 +73,6 @@ protected:
     ObjectSet<uiListViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
-    CtxtIOObj			ctio_;
 };
 
 

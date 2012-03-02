@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.13 2012-03-02 17:29:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.14 2012-03-02 19:25:46 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -523,7 +523,6 @@ Array2D<unsigned char>*				bidinplg_;
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     : uiDialog( p, Setup("Region constructor","Boundary settings",mNoHelpID) )
-    , ctio_( EMBodyTranslatorGroup::ioContext() )		  
 {
     setCtrlStyle( DoAndStay );
     //setHelpID( "dgb:104.0.4" );
@@ -555,8 +554,8 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
 
-    ctio_.ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, ctio_, "Output name" );
+    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output name" );
+    outputfld_->setForRead( false );
     outputfld_->attach( alignedBelow, table_ ); 
 }
 
@@ -637,29 +636,31 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
 }
 
 
+#define mRetErr(msg)  { uiMSG().error( msg ); return false; }
+
 bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 {
     if ( !surfacelist_.size() )
-    {
-	uiMSG().warning("Please select at least one boundary");
-	return false;
-    }
+	mRetErr("Please select at least one boundary");
+
+    if ( outputfld_->isEmpty() )
+	mRetErr("Please select choose a name for the output");
 
     if ( !outputfld_->commitInput() )
-    {
-	uiMSG().error( "Cannot create the output body" );
 	return false;
-    }
 
     const bool res = createImplicitBody();
     if ( res )
-	uiMSG().message( "Body created successfully" );
+    {
+	BufferString msg = "The body ";
+	msg += outputfld_->getInput();
+	msg += " created successfully";
+	uiMSG().message( msg.buf() );
+    }
 
     return false; //Make the dialog stay.
 }
 
-#define mRetErr( msg ) \
-{ uiMSG().error( msg ); return false; }
 
 
 bool uiBodyRegionDlg::createImplicitBody()
@@ -721,8 +722,8 @@ bool uiBodyRegionDlg::createImplicitBody()
     emcs->setCrlSampling(SamplingData<int>(cs.hrg.start.crl,cs.hrg.step.crl));
     emcs->setZSampling(SamplingData<float>(cs.zrg.start,cs.zrg.step));
 
-    emcs->setMultiID( ctio_.ioobj->key() );
-    emcs->setName( ctio_.ioobj->name() );
+    emcs->setMultiID( outputfld_->key() );
+    emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 

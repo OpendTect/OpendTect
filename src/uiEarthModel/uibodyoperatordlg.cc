@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.6 2012-01-06 20:39:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.7 2012-03-02 19:25:46 cvsyuancheng Exp $";
 
 #include "uibodyoperatordlg.h"
 
@@ -31,7 +31,6 @@ static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.6 2012-01-06 20:39:06 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mNoHelpID) )
-    , ctio_( EMBodyTranslatorGroup::ioContext() )		 
 {
     setCtrlStyle( DoAndStay );
 
@@ -101,8 +100,8 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     minusbut_ = new uiToolButton( this, "set_minus.png", "Minus", CallBack() );
     minusbut_->attach( rightOf, oprselfld_ );
 
-    ctio_.ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, ctio_, "Output body" );
+    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
+    outputfld_->setForRead( false );
     outputfld_->attach( alignedBelow, tree_ );
 
     typefld_->display( false );
@@ -281,8 +280,7 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
 }
 
 
-#define mRetErr( msg ) \
-{ uiMSG().error( msg ); return false; }
+#define mRetErr(msg) { uiMSG().error(msg); return false; }
 
 
 bool uiBodyOperatorDlg::acceptOK( CallBacker* )
@@ -292,11 +290,14 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 	if ( !listinfo_[idx].defined ||
 	    (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf())
 	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()))
-	    mRetErr( "Do not forget to pick Action/Body" )
+	    mRetErr("Do not forget to pick Action/Body")
     }
+
+    if ( outputfld_->isEmpty() )
+	mRetErr("Select an output name")
     
     if ( !outputfld_->commitInput() )
-	mRetErr( "Cannot create the output body, write permission?" )
+	return false;
     
     RefMan<EM::MarchingCubesSurface> emcs = 
 	new EM::MarchingCubesSurface(EM::EMM());
@@ -305,22 +306,22 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 
     setOprator( listsaved_[0], *emcs->getBodyOperator() );
     if ( !emcs->getBodyOperator()->isOK() )
-	mRetErr( "Your operator is wrong" )
+	mRetErr("Your operator is wrong")
     
     MouseCursorChanger bodyopration( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
     if ( !emcs->regenerateMCBody( &taskrunner ) )
-	mRetErr( "Generating body failed" )
+	mRetErr("Generating body failed")
 
-    emcs->setMultiID( ctio_.ioobj->key() );
-    emcs->setName( ctio_.ioobj->name() );
+    emcs->setMultiID( outputfld_->key() );
+    emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr( "Body saving failed" )
+	mRetErr("Body saving failed")
 	    
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
@@ -328,10 +329,16 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     {
 	ioobj->pars().set( sKey::Type, emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
-	    mRetErr( "Writing body to disk failed, no permision?" )
+	    mRetErr("Writing body to disk failed, no permision?")
     }
 
     taskrunner.execute( *exec );
+    
+    BufferString msg = "The body ";
+    msg += outputfld_->getInput();
+    msg += " created successfully";
+    uiMSG().message( msg.buf() );
+
     return false;
 }
 

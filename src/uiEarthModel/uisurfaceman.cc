@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.91 2012-02-09 08:41:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.92 2012-03-02 19:25:46 cvsyuancheng Exp $";
 
 
 #include "uisurfaceman.h"
@@ -220,6 +220,7 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
     uiBodyOperatorDlg dlg( this );
     dlg.go();
+    selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -227,6 +228,7 @@ void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
     uiBodyRegionDlg dlg( this );
     dlg.go();
+    selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
