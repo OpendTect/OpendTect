@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.66 2012-03-02 20:46:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.67 2012-03-05 11:31:04 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -446,7 +446,6 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 	return;
 
     const float sqrlocradius = locradius_ * locradius_;
-    const BinID stp( SI().inlStep(), SI().crlStep() );
 
 #define mTryAddRow(stmt) \
 { \
