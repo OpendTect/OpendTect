@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.24 2012-02-24 10:03:29 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.25 2012-03-05 19:46:11 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -14,12 +14,14 @@
 # OD_SUBSYSTEM                          : "od" or "dgb"
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
+# OD_MODULE_SOURCES			: Sources that should go into the library
 # OD_USEPROG				: Whether to include include/Prog 
 # OD_USECOIN				: Dependency on Coin is enabled if set.
 # OD_USEQT				: Dependency on Qt is enabled if set.
 #					  value should be either Core, Sql, Gui
 #					  or OpenGL
 # OD_USEZLIB				: Dependency on zlib is enabled if set.
+# OD_USEOSG				: Dependency on OSG is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
 #					  a plugin. Each submodule must have an
