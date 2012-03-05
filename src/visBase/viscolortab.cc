@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.54 2011-09-16 11:02:54 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.55 2012-03-05 12:16:47 cvskris Exp $";
 
 #include "viscolortab.h"
 
@@ -89,11 +89,11 @@ float VisColorTab::symMidval() const
 { return ctmapper_->setup_.symmidval_; }
 
 
-Interval<float> VisColorTab::clipRate() const
+const Interval<float>& VisColorTab::clipRate() const
 { return ctmapper_->setup_.cliprate_; }
 
 
-void VisColorTab::setClipRate( Interval<float> ncr )
+void VisColorTab::setClipRate( const Interval<float>& ncr )
 {
     if ( mIsEqual(ncr.start,ctmapper_->setup_.cliprate_.start,mDefEps) ||
       	 mIsEqual(ncr.stop,ctmapper_->setup_.cliprate_.stop,mDefEps) )
@@ -163,7 +163,7 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 }
 
 
-Interval<float> VisColorTab::getInterval() const
+const Interval<float>& VisColorTab::getInterval() const
 { return ctmapper_->range(); }
 
 
