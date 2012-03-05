@@ -10,6 +10,7 @@ SET( INCLUDES
     CreateLaunchers
     ODAloFile
     ODInitheader
+    ODDoxygen
 )
 
 FOREACH( INC ${INCLUDES} )
