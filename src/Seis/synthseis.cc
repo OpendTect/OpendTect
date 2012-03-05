@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.47 2012-02-29 13:08:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.48 2012-03-05 16:19:20 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -35,10 +35,10 @@ SynthGenBase::SynthGenBase()
     : wavelet_(0)
     , isfourier_(true)
     , usenmotimes_(false)
-    , dointernalmultiples_(false)			 
-    , surfacereflcoeff_(1)			 
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
     , tr_(0)
+    , dointernalmultiples_(false)
+    , surfreflcoeff_(1)
 {}
 
 
@@ -70,7 +70,7 @@ void SynthGenBase::fillPar( IOPar& par ) const
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), usenmotimes_ );
     par.setYN( sKeyInternal(), dointernalmultiples_ );
-    par.set( sKeySurfRefl(), surfacereflcoeff_ );
+    par.set( sKeySurfRefl(), surfreflcoeff_ );
 }
 
 
@@ -78,8 +78,8 @@ bool SynthGenBase::usePar( const IOPar& par )
 {
     return par.getYN( sKeyNMO(), usenmotimes_ )
 	&& par.getYN( sKeyFourier(), isfourier_ )
-	&& par.get( sKeySurfRefl(), surfacereflcoeff_ )
-	&& par.getYN( sKeyInternal(), dointernalmultiples_ );
+	&& par.getYN( sKeyInternal(), dointernalmultiples_ )
+        && par.get( sKeySurfRefl(), surfreflcoeff_ );
 }
 
 
@@ -141,7 +141,7 @@ bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 }
 
 
-void SynthGenerator::setConvDomain( bool fourier )
+void SynthGenerator::setConvolDomain( bool fourier )
 {
     if ( fourier == ((bool) fft_ ) )
 	return;
@@ -154,6 +154,7 @@ void SynthGenerator::setConvDomain( bool fourier )
     {
 	fft_ = new Fourier::CC;
     }
+    isfourier_ = fourier;
 }
 
 
@@ -198,7 +199,7 @@ bool SynthGenerator::doPrepare()
 
 bool SynthGenerator::doWork()
 {
-    setConvDomain( isfourier_ && !dointernalmultiples_ );
+    setConvolDomain( isfourier_ );
 
     if ( needprepare_ )
 	doPrepare();
@@ -334,7 +335,7 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 {
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	SynthGenerator* synthgen = SynthGenerator::create(dointernalmultiples_);
+	SynthGenerator* synthgen = SynthGenerator::create( true );
 	synthgens_ += synthgen;
     }
 
