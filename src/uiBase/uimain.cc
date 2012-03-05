@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.70 2012-02-13 10:05:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.71 2012-03-05 14:33:20 cvskris Exp $";
 
 #include "uimain.h"
 
@@ -273,6 +273,11 @@ static void initQApplication()
     QCoreApplication::setOrganizationName( "dGB");
     QCoreApplication::setOrganizationDomain( "opendtect.org" );
     QCoreApplication::setApplicationName( "OpendTect" );
+#ifdef __mac__
+
+    QCoreApplication::setAttribute( Qt::AA_MacDontSwapCtrlAndMeta, true );
+#endif
+    
 #ifndef __win__
     QCoreApplication::addLibraryPath( GetBinPlfDir() ); // Qt plugin libraries
 #endif
