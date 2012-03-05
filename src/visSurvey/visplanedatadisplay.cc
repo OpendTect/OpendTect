@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.263 2012-02-16 12:51:36 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.264 2012-03-05 23:11:30 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -310,7 +310,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	newpos = survey;
 	if ( orientation_==Zslice && datatransform_ && resetz )
 	{
-	    const float center = datatransform_->getZIntervalCenter(false);
+	    const float center = survey.zrg.snappedCenter();
 	    if ( !mIsUdf(center) )
 		newpos.zrg.start = newpos.zrg.stop = center;
 	}
@@ -837,9 +837,17 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     if ( datatransform_ )
     {
 	if ( !displayspace )
+	{
 	    res.zrg.setFrom( datatransform_->getZInterval(true) );
+	    res.zrg.step = SI().zRange(true).step;
+	}
 	else
-	    res.zrg.step = datatransform_->getGoodZStep();
+	{
+	    if ( scene_ )
+		res.zrg.step = scene_->getCubeSampling().zrg.step;
+	    else
+		res.zrg.step = datatransform_->getGoodZStep();
+	}
     }
 
     return res;
@@ -905,10 +913,15 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	} \
     }
 
+    const bool alreadytransformed = alreadyTransformed( attrib );
     if ( minx0step_<0 || minx1step_<0 )
     {
 	minx0step_ = f3ddp->posData().range(true).step;
-	minx1step_ = f3ddp->posData().range(false).step;
+
+	if ( alreadytransformed || getOrientation()==Zslice )
+	    minx1step_ = f3ddp->posData().range(false).step;
+	else if ( scene_ )
+	    minx1step_ = scene_->getCubeSampling().zrg.step;
     }
 
     TypeSet<DataPack::ID> attridpids;
@@ -917,7 +930,6 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     mLoadFDPs( f3ddp, attridpids, displaypacks );
 
     //transform data if necessary.
-    const bool alreadytransformed = alreadyTransformed( attrib );
     if ( !alreadytransformed && datatransform_ )
     {
 	attridpids.erase();
