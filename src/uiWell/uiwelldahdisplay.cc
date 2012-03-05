@@ -162,6 +162,11 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 	startpos = d2T()->getTime( startpos )*1000;
 	stoppos = d2T()->getTime( stoppos )*1000;
     }
+    else if ( !zdata_.zistime_ && track() )
+    {
+	startpos = track()->getPos( startpos ).z;
+	stoppos = track()->getPos( stoppos ).z;
+    }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
     if ( zdata_.dispzinft_ && !zdata_.zistime_)
