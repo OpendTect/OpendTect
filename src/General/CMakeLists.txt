@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-02-10 12:26:25 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-03-05 10:42:24 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Algo )
@@ -62,6 +62,7 @@ SET(OD_MODULE_SOURCES arrayndutils.cc
 	    tableconv.cc
 	    transl.cc
 	    unitofmeasure.cc
+	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 OD_INIT_MODULE()
 
