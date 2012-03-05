@@ -7,33 +7,33 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.71 2012-01-09 10:44:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.72 2012-03-05 23:10:53 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
-#include "ctxtioobj.h"
 #include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "survinfo.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
 #include "welltransl.h"
 
+#include "uibutton.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
-#include "uibutton.h"
-#include "uimsg.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uiseparator.h"
 #include "uiselsurvranges.h"
 #include "uitblimpexpdatasel.h"
+#include "uiwellsel.h"
+
 
 static const char* sHelpID = "107.0.0";
 static const char* nHelpID = "107.0.4";
@@ -42,8 +42,8 @@ static const char* nHelpID = "107.0.4";
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Import Well Track",sHelpID))
-    , ctio_(*mMkCtxtIOObj(Well))
     , fd_(*Well::TrackAscIO::getDesc())
+    , wd_(*new Well::Data)
     , trckinpfld_(0)
 {
     setCtrlStyle( DoAndStay );
@@ -98,8 +98,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	    			       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
-    ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Well" );
+    outfld_ = new uiWellSel( this, false );
     outfld_->attach( alignedBelow, but );
 
     postFinalise().notify( mCB(this,uiWellImportAsc,haveTrckSel) );
@@ -108,14 +107,15 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
 uiWellImportAsc::~uiWellImportAsc()
 {
-    delete ctio_.ioobj; delete &ctio_;
     delete &fd_;
+    delete &wd_;
 }
 
 
 void uiWellImportAsc::haveTrckSel( CallBacker* )
 {
     if ( !trckinpfld_ ) return;
+
     const bool havetrck = havetrckbox_->isChecked();
     trckinpfld_->display( havetrck );
     dataselfld_->display( havetrck );
@@ -129,22 +129,24 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
 void uiWellImportAsc::trckFmtChg( CallBacker* )
 {
     const Table::FormatDesc& fd = dataselfld_->desc();
-    if ( fd.isGood() )
+    if ( !fd.isGood() )
+	return;
+
+    for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
     {
-	for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
+	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
+	if ( ti.name() == "Z" || ti.name() == "MD" )
 	{
-	    const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	    if ( ti.name() == "Z" || ti.name() == "MD" )
-	    {
-		if ( ti.selection_.isInFile(0) )
-		    return;
-	    }
+	    if ( ti.selection_.isInFile(0) )
+		return;
 	}
-	uiMSG().error( "The format you defined has neither Z nor MD."
-			"\nYou should define at least one."
-			"\nAs it is now, the track will not load." );
     }
+
+    uiMSG().error( "The format you defined has neither Z nor MD."
+		   "\nYou should define at least one."
+		   "\nAs it is now, the track will not load." );
 }
+
 
 
 class uiWellImportAscOptDlg : public uiDialog
@@ -301,12 +303,13 @@ bool uiWellImportAsc::doWork()
 	    d2tgrp_->getD2T( wd_, true );
     }
 
-    PtrMan<Translator> t = ctio_.ioobj->getTranslator();
+    const IOObj* ioobj = outfld_->ioobj();
+    PtrMan<Translator> t = ioobj ? ioobj->getTranslator() : 0;
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 	    		 "Another type object with this name already exists." );
 
-    if ( !wtr->write(wd_,*ctio_.ioobj) ) mErrRet( "Cannot write well" );
+    if ( !wtr->write(wd_,*ioobj) ) mErrRet( "Cannot write well" );
 
     uiMSG().message( "Well successfully created" );
     return false;
