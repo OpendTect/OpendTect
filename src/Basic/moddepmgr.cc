@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.6 2012-02-22 15:12:31 cvskris Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.7 2012-03-05 13:17:20 cvskris Exp $";
 
 
 #include "moddepmgr.h"
@@ -85,13 +85,19 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 #ifndef __win__
     relfp.add( "so" );
     relbindir_ = relfp.fullPath();
-    devfp.setFileName( 0 );
-    devfp.setFileName( "lib" ); devfp.add( GetPlfSubDir() ).add( "G" );
+    devfp.setFileName( "lib" );
+    devfp.add( GetPlfSubDir() ).add( "G" );
     devbindir_ = devfp.fullPath();
     if ( !File::exists(devbindir_) )
     {
-	devfp.setFileName( "OG" );
+	devfp = workdir;
+	devfp.add( "bin"). add( GetPlfSubDir() ).add( "G" ).add("so");
 	devbindir_ = devfp.fullPath();
+	if ( !File::exists(devbindir_) )
+	{
+	    devfp.setFileName( "OG" );
+	    devbindir_ = devfp.fullPath();
+	}
     }
 #else
     relbindir_ = relfp.fullPath();
