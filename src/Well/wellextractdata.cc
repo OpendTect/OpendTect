@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.67 2012-03-05 11:31:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.68 2012-03-06 14:29:08 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -839,6 +839,8 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
     , data_(0)
     , samppol_(samppol)
     , lognms_(lognms)
+    , zrg_(zrg) 
+    , extrintime_(extrintime)
 {
 }
 
@@ -850,7 +852,7 @@ Well::LogSampler::~LogSampler()
 
 
 od_int64 Well::LogSampler::nrIterations() const
-{ return lognms_.size() ; }
+{ return lognms_.size(); }
 
 
 bool Well::LogSampler::doPrepare( int thread )
@@ -896,8 +898,9 @@ bool Well::LogSampler::doLog( int logidx )
     {
 	float z = zrg_.atIndex( idz );
 	z = d2t && extrintime_ ? d2t->getDah(z) : wd_.track().getDahForTVD(z);
-	float winsz = mWinSz;
-	float lval = LogDataExtracter::calcVal(*log,z,winsz,samppol_);
+	const float winsz = mWinSz;
+	const float lval = samppol_ == Stats::TakeNearest ? 
+	    log->getValue(z) : LogDataExtracter::calcVal(*log,z,winsz,samppol_);
 	data_->set( logidx+1, idz, lval );
     }
 
