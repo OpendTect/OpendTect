@@ -2,7 +2,7 @@
 #
 #	Makefile : 	HorizonAttrib plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-06 13:41:28 cvsnageswara Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-06 13:45:20 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS  Batch Basic Algo AttributeEngine PreStackProcessing
@@ -13,5 +13,5 @@ SET(OD_MODULE_SOURCES
 	horattribpi.cc
 	stratamp.cc
 	isopachmaker.cc)
-SET(OD_MODULE_EXECS od_stratamp od_isopach)
+SET( OD_MODULE_BATCHPROGS od_isopach od_stratamp)
 OD_INIT_MODULE()
