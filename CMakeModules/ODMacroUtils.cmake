@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.25 2012-03-05 19:46:11 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.26 2012-03-06 11:12:16 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -59,9 +59,15 @@ SET( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} ${OD_MOD
 OD_CREATE_INIT_HEADER()
 
 #Add all module dependencies
-IF(OD_MODULE_DEPS)
-    FOREACH( DEP ${OD_MODULE_DEPS} )
-	OD_ADD_DEPS( ${DEP} )
+SET( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} )
+
+#Setup all deps and set runtime and includepath
+IF( OD_MODULE_DEPS )
+    OD_GET_ALL_DEPS( ${OD_MODULE_NAME} OD_MODULE_INTERNAL_LIBS )
+    FOREACH( DEP ${OD_MODULE_INTERNAL_LIBS} )
+	#Add dependencies to include-path
+	LIST(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
+	LIST(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
     ENDFOREACH()
 ENDIF()
 
@@ -253,24 +259,24 @@ INCLUDE_DIRECTORIES( ${OD_MODULE_INCLUDEPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
-MACRO( OD_ADD_DEPS DEP )
-#Check if dep is already in the list
-LIST(FIND OD_MODULE_INTERNAL_LIBS ${DEP} INDEX)
-IF(${INDEX} EQUAL -1)
-    #Add dependency
-    LIST(APPEND OD_MODULE_INTERNAL_LIBS ${DEP} )
-    
-    #Add dependencies of dependencies
-    FOREACH( DEPLIB ${OD_${DEP}_DEPS} )
-	OD_ADD_DEPS( ${DEPLIB} )
+# OD_GET_ALL_DEPS( MODULE LISTNAME ) - dumps all deps to MODULE into LISTNAME
+MACRO( OD_GET_ALL_DEPS MODULE DEPS )
+    FOREACH( DEPLIB ${OD_${MODULE}_DEPS} )
+	OD_GET_ALL_DEPS_ADD( ${DEPLIB} ${DEPS} )
     ENDFOREACH()
+ENDMACRO( OD_GET_ALL_DEPS )
 
-    #Add dependencies to include-path
-    LIST(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
-    LIST(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
-ENDIF()
+MACRO( OD_GET_ALL_DEPS_ADD DEP DEPLIST )
+    LIST ( FIND ${DEPLIST} ${DEP} INDEX )
+    IF ( ${INDEX} EQUAL -1 )
+        LIST ( APPEND ${DEPLIST} ${DEP} )
+        FOREACH( DEPLIB ${OD_${DEP}_DEPS} )
+            OD_GET_ALL_DEPS_ADD( ${DEPLIB} ${DEPLIST} )
+        ENDFOREACH()
+    ENDIF()
 
-ENDMACRO(OD_ADD_DEPS)
+ENDMACRO ( OD_GET_ALL_DEPS_ADD )
+
 
 
 # OD_ADD_PLUGIN_SOURCES(SOURCES) - Adds sources in a submodule of a plugin
