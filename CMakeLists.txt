@@ -46,11 +46,14 @@ SET(OD_MODULES
 
 SET( OD_PLUGINS
         Annotations
+	AttribExp
 	Bouncy
 	ExpAttribs
 	GapDecon
 	GoogleTranslate
+	GMT
 	Hello
+	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
 	Tut
