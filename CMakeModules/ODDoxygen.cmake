@@ -2,18 +2,23 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODDoxygen.cmake,v 1.2 2012-03-06 11:23:04 cvskris Exp $
+#	RCS :		$Id: ODDoxygen.cmake,v 1.3 2012-03-06 13:23:23 cvskris Exp $
 #_______________________________________________________________________________
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 
 # OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
 MACRO( OD_BUILD_DOCUMENTATION )
-    SET( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated/cmake )
+    SET( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     SET( OD_DOXYGEN_FILE ${OD_DOXYGEN_PATH}/Doxyfile )
 
     FOREACH ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
-	SET ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE}" )
+	IF ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
+	    SET ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE}" )
+	ENDIF()
+	IF( EXISTS ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
+	    SET ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE}" )
+	ENDIF()
     ENDFOREACH()
 
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in 
