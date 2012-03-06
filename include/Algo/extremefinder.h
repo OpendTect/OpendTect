@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.10 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: extremefinder.h,v 1.11 2012-03-06 09:25:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ Implementation of Brent's Method in one dimension.
 mClass ExtremeFinder1D : public SequentialTask
 {
 public:
-    			ExtremeFinder1D( const FloatMathFunction&,
+    			ExtremeFinder1D( const FloatMathFunction& func,
 					 bool max, int itermax, float tol,
 					 const Interval<float>& startinterval,
 					 const Interval<float>* limitinterval);
