@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.21 2012-03-02 14:45:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.22 2012-03-06 14:37:38 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -49,6 +49,7 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp, int fieldnr )
     , wls_(&p->wls_)
     , lognms_(p->lognms_)
     , lognmsettodef_(false)
+    , convertedlog_(0)
 {
     varmfld_ = new uiGenInput( this, "For" );
     varmfld_->setElemSzPol( uiObject::Small );
@@ -82,6 +83,13 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp, int fieldnr )
 
     setHAlignObj( lcb );
 }
+
+
+~uiWellLogCalcInpData()
+{
+    if ( convertedlog_ ) delete convertedlog_;
+}
+
 
 void use( MathExpression* expr )
 {
@@ -120,7 +128,29 @@ bool getInp( uiWellLogCalc::InpData& inpdata )
 {
     inpdata.noudf_ = udfbox_->isChecked();
     inpdata.wl_ = getLog();
-    return inpdata.wl_;
+    const char* logunitnm = inpdata.wl_->unitMeasLabel();
+    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    const UnitOfMeasure* convertun = UoMR().get( unfld_->text() );
+    if ( !logun || !convertun )
+	return inpdata.wl_;		//TODO: would we want to stop?
+
+    if ( logun == convertun )
+	return inpdata.wl_;
+
+    if ( !inpdata.wl_ )
+	return false;
+
+    convertedlog_ = new Well::Log( *inpdata.wl_ );
+    for ( int idx=0; idx<inpdata.wl_->size(); idx++ )
+    {
+	const float initialval = inpdata.wl_->value( idx );
+	const float valinsi = logun->getSIValue( initialval );
+	const float convertedval = convertun->getUserValueFromSI( valinsi );
+	convertedlog_->valArr()[idx] = convertedval;
+    }
+
+    inpdata.wl_ = convertedlog_;
+    return true;
 }
 
 
@@ -136,6 +166,7 @@ void setUnit( const char* s )
     uiGenInput*		cstvalfld_;
     const int		idx_;
     const Well::LogSet*	wls_;
+    Well::Log*		convertedlog_;
     const BufferStringSet&	lognms_;
     bool		lognmsettodef_;
 
