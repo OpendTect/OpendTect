@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.24 2012-01-24 13:15:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.25 2012-03-06 12:20:41 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -383,7 +383,7 @@ static void reportHdrEntry( IOPar& iop, const char* nm,
 	val += "<undef>";
     else
     {
-	val += (int)he.bytepos_;
+	val += (int)he.bytepos_ + 1;
 	val += " (size "; val += he.byteSize(); val += ")";
 	iop.set( keyw.buf(), val.buf() );
     }
