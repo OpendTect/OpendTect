@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.83 2011-03-25 15:02:34 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.84 2012-03-06 10:51:27 cvsbert Exp $";
 
 /*!
 
@@ -151,12 +151,14 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
 
 void CBVSReader::setCubePos( bool fromgeom ) const
 {
-    if ( fromgeom )
-	curldscubepos_ = lds_.cubeDataPos(
-				info_.geom.cubedata.binID(curgeomcubepos_) );
-    else
-	curgeomcubepos_ = info_.geom.cubedata.cubeDataPos(
-				lds_.binID(curldscubepos_) );
+    PosInfo::CubeDataPos& inp = fromgeom ? curgeomcubepos_ : curldscubepos_;
+    PosInfo::CubeDataPos& out = fromgeom ? curldscubepos_ : curgeomcubepos_;
+    const PosInfo::CubeData& inpcd = fromgeom ? info_.geom.cubedata : lds_;
+    const PosInfo::CubeData& outcd = fromgeom ? lds_ : info_.geom.cubedata;
+
+    out = inp; // guess
+    if ( outcd.binID(out) != inpcd.binID(inp) )
+	out = outcd.cubeDataPos( inpcd.binID(inp) );
 }
 
 
