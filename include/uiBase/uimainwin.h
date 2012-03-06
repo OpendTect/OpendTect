@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.85 2011-05-04 08:03:42 cvssatyaki Exp $
+ RCS:           $Id: uimainwin.h,v 1.86 2012-03-06 23:48:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,8 @@ public:
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
-    enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight, Middle };
+    enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight,
+			  Middle, Auto };
     void		setPopupArea( PopupArea pa )	{ popuparea_ = pa; }
     PopupArea		getPopupArea() const		{ return popuparea_; }
     void		setCornerPos(int x,int y);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.237 2012-02-24 14:11:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.238 2012-03-06 23:48:14 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -325,8 +325,8 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	    move( 0, ypos ); break;
 	case uiMainWin::BottomRight :
 	    move( xpos, ypos ); break;
-        case uiMainWin::Middle :
-            move( mNINT(((float) xpos)/2), mNINT(((float) ypos) / 2)); break;
+	case uiMainWin::Middle :
+	    move( mNINT(((float) xpos)/2), mNINT(((float) ypos) / 2)); break;
     }
 }
 
@@ -661,7 +661,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(setup.caption_,0)
     , body_(0)
     , parent_(p)
-    , popuparea_(Middle)
+    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -682,7 +682,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     : uiParent(nm,0)
     , body_(0)
     , parent_(parnt)
-    , popuparea_(Middle)
+    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -700,7 +700,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     : uiParent(nm,0)
     , body_(0)			
     , parent_(parnt)
-    , popuparea_(Middle)
+    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
