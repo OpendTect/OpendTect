@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.90 2011-10-06 21:38:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.91 2012-03-06 10:51:57 cvsbert Exp $";
 
 #include "seiscbvs.h"
 
@@ -380,12 +380,19 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	return false;
     }
 
+    const bool matchingdc = *trc.data().getInterpreter(0) == *storinterps_[0];
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	for ( int isamp=0; isamp<outnrsamples; isamp++ )
-	    trc.set( isamp,
-		     storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
-		     iselc );
+	if ( matchingdc && outnrsamples > 1 )
+	    memcpy( trc.data().getComponent(iselc)->data(), blockbufs_[iselc],
+		    outnrsamples * storinterps_[iselc]->nrBytes() );
+	else
+	{
+	    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+		trc.set( isamp,
+			 storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
+			 iselc );
+	}
     }
 
     headerdone_ = false;
