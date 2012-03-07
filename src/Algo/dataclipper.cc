@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.32 2012-03-07 15:22:35 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.33 2012-03-07 15:31:27 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -284,10 +284,10 @@ void DataClipSampler::add( const float* v, int sz )
     }
 
     const float relwt = maxnrvals_ / ((float)count_);
-    int randint = Stats::RandGen::getIndex( mUdf(int) );
-    const int nr2add = (int)(relwt * sz * randint + .5);
-    if ( nr2add == 0 ) return;
+    const int nr2add = (int)(relwt * sz - .5);
+    if ( nr2add < 1 ) return;
 
+    int randint = Stats::RandGen::getIndex( mUdf(int) );
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	od_int64 vidx = Stats::RandGen::getIndexFast( sz, randint );
