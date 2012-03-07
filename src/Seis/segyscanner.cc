@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.32 2011-11-21 13:49:35 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.33 2012-03-07 12:44:04 cvsbert Exp $";
 
 #include "segyscanner.h"
 
@@ -185,8 +185,8 @@ int SEGY::Scanner::readNext()
 
     const SeisTrcInfo& ti = trc_.info();
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
-    for ( int idx=0; idx<trc_.size(); idx++ )
-	clipsmplr_.add( trc_.get(idx,0) );
+    clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
+	    	    trc_.size() );
     nrdone_++;
 
     if ( notrcinfo_ )
@@ -234,6 +234,9 @@ int SEGY::Scanner::openNext()
 	addFailed( tr_->errMsg() );
 	return Executor::MoreToDo();
     }
+    for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
+	tr_->componentInfo()[idx]->datachar
+	    = DataCharacteristics( DataCharacteristics::F32 );
 
     initFileData();
     return Executor::MoreToDo();
