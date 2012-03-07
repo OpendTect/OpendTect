@@ -46,7 +46,6 @@ SET(OD_MODULES
 
 SET( OD_PLUGINS
         Annotations
-	AttribExp
 	Bouncy
 	ExpAttribs
 	GapDecon
@@ -65,6 +64,7 @@ SET( OD_PLUGINS
 	uiGoogleIO
 	uiGrav
 	uiHello
+	uiHorizonAttrib
 	uiMadagascar
 	uiMadagascarAttribs
 	uiQtApp
