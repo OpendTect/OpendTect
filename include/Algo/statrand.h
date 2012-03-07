@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: statrand.h,v 1.6 2009-10-20 15:20:32 cvsbert Exp $
+ RCS:           $Id: statrand.h,v 1.7 2012-03-07 15:22:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,12 @@ public:
     			//!< Normally distributed
     static int		getIndex(int sz);
     			//!< random index in the range [0,sz>
+    static int		getIndexFast(int sz,int seed);
+    			//!< getIndex using a very simple random generator
     static od_int64	getIndex(od_int64 sz);
     			//!< random index in the range [0,sz>
+    static od_int64	getIndexFast(od_int64 sz,od_int64 seed);
+    			//!< getIndex using a very simple random generator
 
     template <class T,class SzTp>
     static void		subselect(T*,SzTp sz,SzTp targetsz);
