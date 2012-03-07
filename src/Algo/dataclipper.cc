@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.30 2010-07-01 20:13:05 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.31 2012-03-07 12:42:55 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -276,27 +276,39 @@ DataClipSampler::DataClipSampler( int ns )
 
 void DataClipSampler::add( const float* v, int sz )
 {
-    for ( int idx=0; idx<sz; idx++ )
-	add( v[idx] );
+    if ( count_ < maxnrvals_ )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    doAdd( v[idx] );
+	return;
+    }
+
+    const float relwt = maxnrvals_ / ((float)count_);
+    const int nr2add = (int)(relwt * sz * Stats::RandGen::get() + .5);
+    for ( int idx=0; idx<nr2add; idx++ )
+	doAdd( v[Stats::RandGen::getIndex(sz)] );
 }
 
 
 void DataClipSampler::add( float val )
 {
-    if ( !Math::IsNormalNumber(val) || val > 1e30 || val < -1e30 )
+    if ( Stats::RandGen::getIndex(count_) < maxnrvals_ )
+	doAdd( val );
+}
+
+
+void DataClipSampler::doAdd( float val )
+{
+    if ( !Math::IsNormalNumber(val) || mIsUdf(val) || val > 1e32 || val < -1e32)
 	return;
+
     if ( finished_ )
 	finished_ = false;
 
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
     else
-    {
-	const float fidx = Stats::RandGen::get() * count_ - .5;
-	const od_int64 idx = fidx < 0 ? 0 : (od_int64)(fidx + .5);
-	if ( idx < maxnrvals_ )
-	    vals_[idx] = val;
-    }
+	vals_[ Stats::RandGen::getIndex(maxnrvals_) ] = val;
 
     count_++;
 }
