@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.5 2012-02-29 14:55:28 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.6 2012-03-07 16:17:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "sets.h"
 #include "fixedstring.h"
 #include "sqlquery.h"
+
+class DateInfo;
+class Price;
 
 namespace SqlDB
 {
@@ -88,6 +91,27 @@ public:
     bool	parse(const Query&,int column,od_int64&) const;
     const char*	dataString(const od_int64&) const { return 0; }
 };
+
+
+mClass DateDatabaseColumn : public DatabaseColumnBase
+{
+public:
+    		DateDatabaseColumn( DatabaseTable& dobj,
+				    const char* columnname );
+    bool	parse( const Query&, int column, DateInfo& ) const;
+    const char*	dataString(const DateInfo&) const;
+};
+
+
+mClass PriceDatabaseColumn : public DatabaseColumnBase
+{
+public:
+    		PriceDatabaseColumn( DatabaseTable& dobj,
+				    const char* columnname );
+    bool	parse( const Query&, int column, Price& ) const;
+    const char*	dataString(const Price&) const;
+};
+
 
 
 mClass DatabaseTable

@@ -4,15 +4,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.4 2012-02-29 14:55:28 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.5 2012-03-07 16:17:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "databaseobject.h"
 
+#include "dateinfo.h"
 #include "errh.h"
+#include "separstr.h"
 #include "staticstring.h"
+#include "price.h"
 #include "sqlquery.h"
 
 namespace SqlDB
@@ -93,6 +96,86 @@ StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
 	columntype_ += maxsize;
 	columntype_ += ")";
     }
+}
+
+
+DateDatabaseColumn::DateDatabaseColumn( DatabaseTable& dobj,
+					const char* columnname )
+    : DatabaseColumnBase( dobj, columnname, "DATE" )
+{}
+
+
+bool DateDatabaseColumn::parse( const Query& query, int column,
+				DateInfo& di ) const
+{
+
+    SeparString datestr( query.data( column ), '-' );
+    if ( datestr.size()!=3 )
+	return false;
+
+    int year, month, day;
+    if ( !getFromString( year, datestr[0], mUdf(int) )  ||
+	 !getFromString( month, datestr[1], mUdf(int) ) ||
+	 !getFromString( day, datestr[2], mUdf(int) ) )
+	return false;
+
+    di.setDay( day );
+    di.setMonth( month );
+    di.setYear( year );
+
+    return true;
+}
+
+const char* DateDatabaseColumn::dataString(const DateInfo& di) const
+{
+    SeparString datestr( toString( di.year() ), '-' );
+    datestr.add( toString( di.usrMonth() ) );
+    datestr.add( toString( di.day() ) );
+
+    static StaticStringManager stm;
+    BufferString& res = stm.getString();
+    res = datestr.buf();
+    return res.buf();
+}
+
+
+PriceDatabaseColumn::PriceDatabaseColumn( DatabaseTable& dobj,
+					const char* columnname )
+    : DatabaseColumnBase( dobj, columnname, "VARCHAR(50)" )
+{}
+
+
+bool PriceDatabaseColumn::parse( const Query& query, int column,
+				Price& price ) const
+{
+    SeparString pricestr( query.data( column ), ' ' );
+    if ( pricestr.size()!=2 )
+	return false;
+
+    const Currency* currency = Currency::getCurrency( pricestr[0] );
+    if ( !currency )
+	return false;
+
+    int amount;
+    if ( !getFromString( amount, pricestr[1], mUdf(int) ) )
+	return false;
+
+    price.currency_ = currency;
+    price.amount_ = amount;
+
+    return true;
+}
+
+const char* PriceDatabaseColumn::dataString( const Price& price ) const
+{
+
+    SeparString pricestr( price.currency_->abrevation_, ' ' );
+    pricestr.add( toString( price.amount_ ) );
+
+    static StaticStringManager stm;
+    BufferString& res = stm.getString();
+    res = pricestr.buf();
+    return res.buf();
 }
 
 
