@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.7 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.8 2012-03-07 07:53:31 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -99,8 +99,8 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
     SeisTrcWriter writer( lcd.seisctio_.ioobj );
 
-    SeisTrc trc( SI().zRange(true).nrSteps() );
-    trc.info().sampling.step = SI().zStep();
+    SeisTrc trc( SI().zRange(true).nrSteps()+1 );
+    trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
     Well::LogSampler ls( wd_, SI().zRange(true), true, 
