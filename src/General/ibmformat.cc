@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID = "$Id: ibmformat.cc,v 1.4 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ibmformat.cc,v 1.5 2012-03-07 12:43:23 cvsbert Exp $";
 
 #include "ibmformat.h"
 #include <string.h>
@@ -92,7 +92,7 @@ float IbmFormat::asFloat( const void* buf )
 {
     register int fconv;
     register int fmant, t;
-    memcpy( &fconv, buf, 4 );
+    fconv = *((int*)buf);
 
 #ifdef __little__
     fconv = (fconv<<24) | ((fconv>>24)&0xff) |
