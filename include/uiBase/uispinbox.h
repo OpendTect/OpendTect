@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.27 2011-03-15 05:18:31 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.28 2012-03-07 09:53:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ public:
 					 int nrdecimals=0,const char* nm=0);
 
     uiSpinBox*  	box()			{ return sb; }
+    const uiSpinBox*  	box() const		{ return sb; }
     uiLabel*    	label()			{ return lbl; }
 
 protected:
