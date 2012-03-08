@@ -4,45 +4,13 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.10 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.11 2012-03-08 13:15:14 cvskris Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "task.h"
 #include "math2.h"
-
-namespace ColTab
-{
-
-class Indexer : public ParallelTask
-{
-public:
-    			Indexer( IndexedLookUpTable& l, int n )
-			    : ilut_(l), nrcols_(n), dx_(1./(n-1))
-			{
-			    l.cols_.erase();
-			    l.cols_.setSize( nrcols_, l.seq_.undefColor() );
-			}
-
-    bool		doWork( od_int64 start, od_int64 stop, int threadid )
-    			{
-			    for ( int idx=start; idx<=stop;idx++,addToNrDone(1))
-				ilut_.cols_[idx] = ilut_.seq_.color( dx_*idx );
-			    return true;
-			}
-
-    od_int64		nrIterations() const { return nrcols_; }
-
-protected:
-
-    int			nrcols_;
-    float		dx_;
-    IndexedLookUpTable&	ilut_;
-
-};
-
-} // namespace ColTab
 
 
 ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
@@ -54,11 +22,13 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
     update();
 }
 
-
 void ColTab::IndexedLookUpTable::update()
 {
-    Indexer idxer( *this, nrcols_ );
-    idxer.execute();
+    mParallelApplyToAll( ColTab::IndexedLookUpTable, (*this),
+	    self.cols_.size(),
+	    const float dx = 1./(self.cols_.size()-1),
+	    self.cols_[idx] = self.seq_.color( idx*dx ),
+	    , )
 }
 
 
