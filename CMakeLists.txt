@@ -30,7 +30,7 @@ INCLUDE ( OD_SetupOD )
 SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
 SET(OD_MODULES
-	Basic Algo Database General
+	Basic Algo General Database
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
 	NLA AttributeEngine Velocity
