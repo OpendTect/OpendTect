@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.26 2012-03-06 11:12:16 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.27 2012-03-08 14:58:10 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -152,6 +152,9 @@ ENDFOREACH()
 #Setup library & its deps
 IF( OD_LIB_LINKER_NEEDS_ALL_LIBS )
     SET( OD_LIB_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_DEPS} )
+    IF ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+	LIST( APPEND OD_LIB_DEP_LIBS ${OD_MODULE_INTERNAL_LIBS} )
+    ENDIF()
 ELSE()
     SET( OD_EXEC_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_INTERNAL_LIBS} )
 ENDIF()
