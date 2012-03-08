@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.30 2012-02-20 10:06:30 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.31 2012-03-08 13:41:18 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -332,12 +332,20 @@ od_int64 nrIterations() const { return sz_; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
+    od_int64 above0 = 0;
+    od_int64 below0 = 0;
+
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	if ( mIsUdf(vs_[idx]) ) continue;
-	if ( vs_[idx] < 0 ) below0_++;
-	else if ( vs_[idx] > 0 ) above0_++;
+	if ( vs_[idx] < 0 ) below0++;
+	else if ( vs_[idx] > 0 ) above0++;
     }
+
+    lock_.lock();
+    above0_ += above0;
+    below0_ += below0;
+    lock_.unLock();
     return true;
 }
 
@@ -351,10 +359,11 @@ bool isSymmAroundZero() const
     return max/min - 1 < 0.05;
 }
 
-    od_int64	sz_;
-    od_int64	above0_;
-    od_int64	below0_;
-    const ValueSeries<float>& vs_;
+    od_int64			sz_;
+    od_int64			above0_;
+    od_int64			below0_;
+    Threads::SpinLock		lock_;
+    const ValueSeries<float>&	vs_;
 };
 
 
