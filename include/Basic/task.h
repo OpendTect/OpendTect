@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.31 2011-12-14 10:36:51 cvskris Exp $
+ RCS:		$Id: task.h,v 1.32 2012-03-08 11:37:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,6 +260,59 @@ private:
     od_int64				totalnrcache_;
 };
 
+
+#define mParallelApplyToAllImpl( type, obj, op, assignop ) \
+{ \
+    class _##obj##ApplyClass : public ParallelTask \
+    { \
+    public: \
+		_##obj##ApplyClass( type& objset ) : obj ( objset ) {} \
+	od_int64 nrIterations() const { return obj.size(); } \
+	bool	doWork( od_int64 start, od_int64 stop, int ) \
+	{ \
+	    for ( int idx=start; idx<=stop; idx++ ) \
+	    { \
+		op; \
+	    } \
+	 \
+	    return true; \
+	} \
+    protected: \
+       type&	obj; \
+    } _##obj##applyinst( obj ); \
+    assignop _##obj##applyinst.execute(); \
+}
+
+/*!Runs the op to all members of obj in parallel.
+
+Example:
+\code
+    TypeSet<int> array( 50, 5 );
+    mParallelApplyToAll( TypeSet<int>, array, array[idx] += 5 )
+\endcode
+*/
+
+#define mParallelApplyToAll( type, obj, op ) \
+mParallelApplyToAllImpl( type, obj, op, )
+
+/*!Runs the op to all members of obj in parallel, and the success
+   can be known.
+
+Example:
+\code
+    TypeSet<int> array( 50, 5 );
+    bool success;
+    mParallelApplyToAllWithResult( TypeSet<int>, array, array[idx] += 5,
+    				   success )
+    if ( !success )
+    {
+        return error;
+    }
+\endcode
+*/
+
+#define mParallelApplyToAllWithResult( type, obj, op, resvar ) \
+mParallelApplyToAllImpl( type, obj, op, resvar = )
 
 /*!Class that can execute a task. Can be used as such, be inherited by
    fancy subclasses with user interface and progressbars etc. */
