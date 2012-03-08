@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.11 2012-03-08 13:15:14 cvskris Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.12 2012-03-08 17:41:23 cvsnanne Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -24,6 +24,8 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
 
 void ColTab::IndexedLookUpTable::update()
 {
+    cols_.erase();
+    cols_.setSize( nrcols_, seq_.undefColor() );
     mParallelApplyToAll( ColTab::IndexedLookUpTable, (*this),
 	    self.cols_.size(),
 	    const float dx = 1./(self.cols_.size()-1),
