@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.108 2012-03-09 13:50:55 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.109 2012-03-09 14:54:05 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -822,33 +822,20 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     headerbufread_ = headerdone_ = false;
 
     if ( !readDataToBuf() ) return false;
-    if ( true || outnrsamples < 10 )
+    if ( outnrsamples < 10000 )
 	for ( int isamp=0; isamp<outnrsamples; isamp++ )
 	    trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
     else
     {
-	class ApplyClass : public ParallelTask
-	{
-	public:
-	    ApplyClass( SeisTrc& t, int cc, unsigned char* bb,
-		    	const TraceDataInterpreter& si )
-		: trc_(t), curcomp_(cc), blockbuf_(bb), storinterp_(si) {}
-	    int64_t nrIterations() const { return trc_.size(); }
-	    bool doWork( int64_t start, int64_t stop, int )
-	    {
-		for ( int idx=start; idx<=stop; idx++ )
+	mDefParallelCalc4Pars( SEGYSampleInterpreter, trc.size(),
+			   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
+			   const TraceDataInterpreter&,storinterp)
+	mDefParallelCalcBody( /* No initializations */,
 		    trc_.set( idx, storinterp_.get(blockbuf_,idx), curcomp_ );
-		return true;
-	    }
-
-	    SeisTrc&			trc_;
-	    int				curcomp_;
-	    unsigned char*		blockbuf_;
-	    const TraceDataInterpreter&	storinterp_;
-
-	} applyinst( trc, curcomp, blockbuf_, *storinterp_ );
-
-	applyinst.execute();
+			    , /* No post-operations */)
+	SEGYSampleInterpreter interp( trc.size(),
+			trc, curcomp, blockbuf_, *storinterp_ );
+	interp.execute();
     }
 
     if ( curtrcscale_ )
