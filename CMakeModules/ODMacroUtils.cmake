@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.27 2012-03-08 14:58:10 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.28 2012-03-09 08:28:23 cvsnageswara Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -176,8 +176,8 @@ SET_TARGET_PROPERTIES( ${OD_MODULE_NAME}
 
 INSTALL(TARGETS
         ${OD_MODULE_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin/${OD_PLFSUBDIR}/so
+        LIBRARY DESTINATION bin/${OD_PLFSUBDIR}/so
         ARCHIVE DESTINATION lib )
 
 
@@ -211,8 +211,8 @@ IF(OD_MODULE_EXECS)
         ENDIF( OD_CREATE_LAUNCHERS )
 	INSTALL(TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION bin/${OD_PLFSUBDIR}
+		LIBRARY DESTINATION bin/${OD_PLFSUBDIR}/so
 		ARCHIVE DESTINATION lib )
     ENDFOREACH()
 
@@ -243,8 +243,8 @@ IF(OD_MODULE_BATCHPROGS)
 		${OD_MODULE_RUNTIMEPATH} )
 	INSTALL(TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION bin/${OD_PLFSUBDIR}
+		LIBRARY DESTINATION bin/${OD_PLFSUBDIR}/so
 		ARCHIVE DESTINATION lib )
 	ENDIF( OD_CREATE_LAUNCHERS )
     ENDFOREACH()
