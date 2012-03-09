@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODAloFile.cmake,v 1.1 2012-02-22 09:07:25 cvskris Exp $
+#	RCS :		$Id: ODAloFile.cmake,v 1.2 2012-03-09 11:59:26 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -77,5 +77,7 @@ MACRO ( OD_WRITE_ALOFILES )
 		FILE( APPEND ${OD_ALOFILE} ${ENTRY} "\n" )
 	    ENDIF()
 	ENDFOREACH()
+
+	INSTALL( FILES ${OD_ALOFILE} DESTINATION plugins/${OD_PLFSUBDIR} )
     ENDFOREACH()
 ENDMACRO()
