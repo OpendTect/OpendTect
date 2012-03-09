@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.47 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.48 2012-03-09 22:53:52 cvsnanne Exp $";
 
 #include "pixmap.h"
 
@@ -75,7 +75,7 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     bool isnone = true;
     if ( srcname_.isEmpty() )
 	pErrMsg("Empty icon name specified. "
-		" (if this is intentional, use uiIcons::None())");
+		" (if this is intentional, use uiIcon::None())");
     if ( srcname_ != uiIcon::None() )
 	isnone = false;
     if ( isnone )
