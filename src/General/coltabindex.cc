@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.12 2012-03-08 17:41:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.13 2012-03-09 17:55:20 cvsnanne Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -20,6 +20,32 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
     , nrcols_(nrc)
 {
     update();
+}
+
+
+#define mParallelApplyToAll( vartype, obj, nriterimpl, preops, op, postops, \
+				     resultop ) \
+{ \
+    class ApplyClass : public ParallelTask \
+    { \
+    public: \
+		ApplyClass( vartype& var ) : self ( var ) {} \
+	od_int64 nrIterations() const { return nriterimpl; } \
+	bool	doWork( od_int64 start, od_int64 stop, int ) \
+	{ \
+	    preops; \
+	    for ( int idx=start; idx<=stop; idx++ ) \
+	    { \
+		op; \
+	    } \
+	 \
+	    postops; \
+	    return true; \
+	} \
+    protected: \
+      vartype&	self; \
+    } applyinst( obj ); \
+    resultop applyinst.execute(); \
 }
 
 void ColTab::IndexedLookUpTable::update()
