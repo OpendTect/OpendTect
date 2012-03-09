@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.11 2012-03-01 13:01:39 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.12 2012-03-09 15:29:03 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -250,6 +250,7 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
     descbutton_ = new uiPushButton( this, "", ioPixmap("contexthelp.png"),
 	    			    cb, true );
+    descbutton_->setPrefWidthInChar( 5 );
     descbutton_->attach( rightOf, rangelbl_ );
 }
 
