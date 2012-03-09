@@ -1,3 +1,5 @@
+SET( OD_CORE_SUBSYSTEM "od" )
+
 SET( INCLUDES
     ODPlatformUtils
     ODUtils
@@ -17,4 +19,3 @@ FOREACH( INC ${INCLUDES} )
     INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )
 ENDFOREACH()
 
-SET( OD_CORE_SUBSYSTEM "od" )

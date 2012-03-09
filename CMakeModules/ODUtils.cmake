@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.11 2012-02-24 14:54:45 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.12 2012-03-09 12:32:24 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -26,6 +26,12 @@ SET ( OD_LIB_OUTPUT_RELPATH bin/${OD_PLFSUBDIR}/${OD_OUTPUTDIR}/so )
 SET ( OD_PLUGIN_OUTPUT_PATH ${OpendTect_DIR}/${OD_PLUGIN_OUTPUT_RELPATH} )
 SET ( OD_EXEC_OUTPUT_PATH ${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH} )
 SET ( OD_LIB_OUTPUT_PATH ${OpendTect_DIR}/${OD_LIB_OUTPUT_RELPATH} )
+
+IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+    SET ( OD_IS_CORE  1 )
+ELSE()
+    SET( OD_IS_CORE )
+ENDIF()
 
 #Macro for going through a list of modules and adding them
 MACRO ( OD_ADD_MODULES )
