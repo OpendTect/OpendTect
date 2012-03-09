@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.109 2012-03-09 14:54:05 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.110 2012-03-09 14:54:53 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -821,22 +821,11 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     prepareComponents( trc, outnrsamples );
     headerbufread_ = headerdone_ = false;
 
-    if ( !readDataToBuf() ) return false;
-    if ( outnrsamples < 10000 )
-	for ( int isamp=0; isamp<outnrsamples; isamp++ )
-	    trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
-    else
-    {
-	mDefParallelCalc4Pars( SEGYSampleInterpreter, trc.size(),
-			   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
-			   const TraceDataInterpreter&,storinterp)
-	mDefParallelCalcBody( /* No initializations */,
-		    trc_.set( idx, storinterp_.get(blockbuf_,idx), curcomp_ );
-			    , /* No post-operations */)
-	SEGYSampleInterpreter interp( trc.size(),
-			trc, curcomp, blockbuf_, *storinterp_ );
-	interp.execute();
-    }
+    if ( !readDataToBuf() )
+	return false;
+
+    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+	trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
 
     if ( curtrcscale_ )
     {
