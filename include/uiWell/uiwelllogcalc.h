@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.9 2012-03-02 14:45:02 cvshelene Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.10 2012-03-09 15:03:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ protected:
     const Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
     BufferStringSet		inputunits_;
+    BufferString		rpoutunit_;
 
     friend class		uiWellLogCalcInpData;
 

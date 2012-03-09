@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.22 2012-03-06 14:37:38 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.23 2012-03-09 15:03:39 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -329,6 +329,7 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
     {
 	formfld_->setText( formula.buf() );
 	unfld_->setText( outunit.buf() );
+	rpoutunit_ = outunit;
 	formSet( 0 );
     }
 }
@@ -345,7 +346,7 @@ void uiWellLogCalc::feetSel( CallBacker* )
 }
 
 
-void uiWellLogCalc::formSet( CallBacker* )
+void uiWellLogCalc::formSet( CallBacker*  c )
 {
     getMathExpr();
     const int totnrvars = expr_ ? expr_->nrVariables() : 0;
@@ -373,6 +374,7 @@ void uiWellLogCalc::formSet( CallBacker* )
     }
 
     inpSel( 0 );
+    if ( c ) rpoutunit_.setEmpty();
 }
 
 
@@ -444,7 +446,27 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    { delete newwl; continue; } //TODO errh required
 	const int unselidx = unfld_->currentItem();
 	if ( unselidx > 0 )
-	    newwl->setUnitMeasLabel( unfld_->text() );
+	{
+	    const char* desunittxt = unfld_->text();
+	    newwl->setUnitMeasLabel( desunittxt );
+	    if ( !rpoutunit_.isEmpty() )
+	    {
+		const UnitOfMeasure* logun = UoMR().get( rpoutunit_.buf() );
+		const UnitOfMeasure* convertun = UoMR().get( desunittxt );
+		if ( logun && convertun && logun!=convertun )
+		{
+		    for ( int idx=0; idx<newwl->size(); idx++ )
+		    {
+			const float initialval = newwl->value( idx );
+			const float valinsi = logun->getSIValue( initialval );
+			const float convertedval =
+				    convertun->getUserValueFromSI( valinsi );
+			newwl->valArr()[idx] = convertedval;
+		    }
+		}
+	    }
+	}
+
 	wls.add( newwl );
 
 	Well::Writer wtr( fnm, wd );
