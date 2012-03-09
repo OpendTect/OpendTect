@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.33 2012-03-08 13:13:31 cvskris Exp $
+ RCS:		$Id: task.h,v 1.34 2012-03-09 14:51:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,45 +261,99 @@ private:
 };
 
 
-/*!Runs the op to all members of obj in parallel, and the success
-   can be known.
+/*!Macros to define a class to exectute your loop in parallel.
+
+  The loop index is 'idx'.
 
 Example:
-\code
-    TypeSet<int> array( 50, 5 );
-    bool success;
-    mParallelApplyToAll( TypeSet<int>, array, self.size(), , self[idx] += 5,
-    			, success =  )
-    if ( !success )
-    {
-        return error;
-    }
-\endcode
-*/
-#define mParallelApplyToAll( vartype, obj, nriterimpl, preops, op, postops, \
-			     resultop ) \
-{ \
-    class ApplyClass : public ParallelTask \
-    { \
-    public: \
-		ApplyClass( vartype& var ) : self ( var ) {} \
-	od_int64 nrIterations() const { return nriterimpl; } \
-	bool	doWork( od_int64 start, od_int64 stop, int ) \
+
+    The original loop was:
+
+for ( int isamp=0; isamp<outnrsamples; isamp++ )
+    trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
+
+    There are 4 parameters (trc, curcomp, blockbuf_ and storinterp_) to
+    pass to the executing object, thus:
+
+mDefParallelCalc4Pars( SEGYSampleInterpreter, trc.size(),
+		   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
+		   const TraceDataInterpreter*,storinterp)
+mDefParallelCalcBody( \* No initializations *\,
+	    trc_.set( idx, storinterp_->get(blockbuf_,idx), curcomp_ );
+		    , \* No post-operations *\)
+
+SEGYSampleInterpreter interp( trc.size(), trc, curcomp, blockbuf_, storinterp_);
+interp.execute();
+ 
+ */
+
+#define mDefParallelCalcNoPars(clss,sz) \
+	class clss : public ParallelTask \
 	{ \
-	    preops; \
-	    for ( int idx=start; idx<=stop; idx++ ) \
+	public: \
+	    od_int64	sz_; \
+	    clss( od_int64 _sz_ ) : sz_(_sz_)  		{} \
+	    int64_t nrIterations() const { return sz_; }
+
+#define mDefParallelCalc1Par(clss,sz,T1,v1) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 		v1##_; \
+	    clss( od_int64 _sz_, T1 _##v1##_ ) \
+		: sz_(_sz_) v1##_(_##v1##_) 		{} \
+	    int64_t nrIterations() const { return sz_; }
+
+#define mDefParallelCalc2Pars(clss,sz,T1,v1,T2,v2) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; \
+	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
+	    int64_t nrIterations() const { return sz_; }
+
+#define mDefParallelCalc3Pars(clss,sz,T1,v1,T2,v2,T3,v3) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; T3 v3##_; \
+	    clss( od_int64 _sz_, \
+		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_)			{} \
+	    int64_t nrIterations() const { return sz_; }
+
+#define mDefParallelCalc4Pars(clss,sz,T1,v1,T2,v2,T3,v3,T4,v4) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
+	    clss( od_int64 _sz_, \
+		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, T4 _##v4##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_), v4##_(_##v4##_)		{} \
+	    int64_t nrIterations() const { return sz_; }
+
+#define mDefParallelCalcBody(preop,impl,postop) \
+	    bool doWork( int64_t start, int64_t stop, int ) \
 	    { \
-		op; \
+		preop; \
+		for ( int idx=start; idx<=stop; idx++ ) \
+		    { impl; } \
+		postop; \
+		return true; \
 	    } \
-	 \
-	    postops; \
-	    return true; \
-	} \
-    protected: \
-       vartype&	self; \
-    } applyinst( obj ); \
-    resultop applyinst.execute(); \
-}
+	};
+
+
 
 /*!Class that can execute a task. Can be used as such, be inherited by
    fancy subclasses with user interface and progressbars etc. */
