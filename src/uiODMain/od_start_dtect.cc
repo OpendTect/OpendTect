@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_start_dtect.cc,v 1.1 2012-03-07 06:58:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_start_dtect.cc,v 1.2 2012-03-09 22:02:26 cvsnanne Exp $";
 
 #include "prog.h"
 
@@ -39,7 +39,7 @@ static bool ExecODInstMgr()
     if ( envvar == "None" )
 	return true;
 
-    BufferString cmd( "uiODInstMgr --updcheck_startup --instdir " );
+    BufferString cmd( "od_instmgr --updcheck_startup --instdir " );
     cmd += GetSoftwareDir( false );
     return ExecOSCmd( cmd, true, false );
 }
