@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.11 2011-04-21 06:39:57 cvsnanne Exp $
+ RCS:		$Id: file.h,v 1.12 2012-03-09 12:45:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "timefun.h"
+class BufferString;
 
 
 /*!\brief Interface for several file and directory related services */
@@ -46,6 +47,7 @@ namespace File
     mGlobal bool	copyDir(const char* from,const char* to);
     mGlobal bool	removeDir(const char*);
 
+    mGlobal bool	getContent(const char*,BufferString&);
     mGlobal od_int64	getFileSize(const char*); //!<returns size in bytes
     			//!<Returns 0 on error
     mGlobal int		getKbSize(const char*);

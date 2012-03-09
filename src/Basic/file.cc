@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.31 2012-01-24 05:25:01 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.32 2012-03-09 12:45:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "winutils.h"
 #include "errh.h"
+#include "strmprov.h"
+#include "strmoper.h"
 
 #ifndef OD_NO_QT
 #include <QDateTime>
@@ -340,6 +342,22 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
     cmd.add( perms ).add( " " ).add( fnm );
     return system( cmd ) != -1;
 #endif
+}
+
+
+bool getContent( const char* fnm, BufferString& bs )
+{
+    bs.setEmpty();
+    if ( !fnm || !*fnm ) return false;
+
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    bool rv = true;
+    if ( sd.usable() )
+	StrmOper::readFile( *sd.istrm, bs );
+    else
+	rv = false;
+    sd.close();
+    return rv;
 }
 
 
