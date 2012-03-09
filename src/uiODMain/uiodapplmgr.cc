@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.429 2012-02-15 16:24:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.430 2012-03-09 22:43:09 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -670,6 +670,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			    visserv_->getObject(visid) )
 	    vishor->setAttribShift( attrib, shifts );
+
+	    BufferStringSet* userrefs = new BufferStringSet;
+	    userrefs->add( "Section ID" );
+	    userrefs->add( myas.userRef() );
+	    vishor->setUserRefs( attrib, userrefs );
 	}
 
 	return auxdatanr>=0;
