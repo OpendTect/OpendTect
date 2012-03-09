@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.27 2012-02-24 16:24:19 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.28 2012-03-09 12:33:11 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -20,20 +20,6 @@ ELSE()
 ENDIF()
 
 IF(UNIX) #Apple an Linux
-    IF( OD_DEBUG )
-        ADD_DEFINITIONS("-D__debug__")
-	ADD_DEFINITIONS(  "-ggdb3"
-		"-Wparentheses -Wreturn-type -Wpointer-arith"
-                "-Wwrite-strings -Winline"
-                "-Wformat -Wshadow "
-		"-Wno-char-subscripts -Wno-sign-compare" )
-	IF ( CMAKE_CXX_FLAGS STREQUAL "" )
-	    SET( CMAKE_CXX_FLAGS
-		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
-		 CACHE STRING "CC flags" FORCE )
-	ENDIF()
-    ENDIF()
-
     IF(APPLE)
 	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
         ADD_DEFINITIONS("-D__mac__ -Dmac")
@@ -60,6 +46,23 @@ IF(UNIX) #Apple an Linux
 
     ADD_DEFINITIONS("'-DmDeclareRcsID=static const char* __attribute__ ((unused)) rcsID'")
     SET(OD_STATIC_EXTENSION ".a")
+    SET( OD_PLUGIN_INSTALL_PATH plugins/${OD_PLFSUBDIR}/libs )
+    SET( OD_LIBRARY_INSTALL_PATH bin/${OD_PLFSUBDIR}/so )
+    SET( OD_EXEC_INSTALL_PATH bin/${OD_PLFSUBDIR} )
+    IF( OD_DEBUG )
+        ADD_DEFINITIONS("-D__debug__")
+	ADD_DEFINITIONS(  "-ggdb3"
+		"-Wparentheses -Wreturn-type -Wpointer-arith"
+                "-Wwrite-strings -Winline"
+                "-Wformat -Wshadow "
+		"-Wno-char-subscripts -Wno-sign-compare" )
+	IF ( CMAKE_CXX_FLAGS STREQUAL "" )
+	    SET( CMAKE_CXX_FLAGS
+		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
+		 CACHE STRING "CC flags" FORCE )
+	ENDIF()
+    ENDIF()
+
         
 ENDIF(UNIX)
 
@@ -81,5 +84,9 @@ IF(WIN32)
     ELSE()
         SET ( OD_PLFSUBDIR "win32" )
     ENDIF()
+
+    SET( OD_PLUGIN_INSTALL_PATH bin/${OD_PLFSUBDIR} )
+    SET( OD_LIBRARY_INSTALL_PATH bin/${OD_PLFSUBDIR} )
+    SET( OD_EXEC_INSTALL_PATH bin/${OD_PLFSUBDIR} )
 ENDIF()
 
