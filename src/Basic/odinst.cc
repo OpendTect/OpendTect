@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.3 2012-02-21 09:31:28 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.4 2012-03-09 12:45:48 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "envvars.h"
 #include "strmprov.h"
 #include "settings.h"
@@ -59,6 +61,31 @@ bool ODInst::updatesAvailable()
     const BufferString cmd( "@od_instmgr --updcheck_report --instdir ",
 	    			mRelRootDir );
     return StreamProvider( cmd ).executeCommand( false );
+}
+
+
+const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
+{
+    static BufferString ret;
+    const BufferString part1( "ver.", file_pkg_basenm );
+    BufferString fnm = part1;
+    fnm.add( "_" ).add( OD::Platform::local().shortName() );
+    FilePath fp( GetSoftwareDir(1), "relinfo", fnm );
+    fp.setExtension( "txt", false );
+
+    fnm = fp.fullPath();
+    if ( !File::exists(fnm) )
+    {
+	fp.setFileName( part1 ); fp.setExtension( "txt", false );
+	fnm = fp.fullPath();
+	if ( !File::exists(fnm) )
+	    { ret = "[unknown]"; return ret.buf(); }
+    }
+
+    File::getContent( fnm, ret );
+    if ( ret.isEmpty() )
+	ret = "[err]";
+    return ret.buf();
 }
 
 
