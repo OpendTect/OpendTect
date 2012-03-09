@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: madagcattrib.cc,v 1.3 2010-09-14 04:36:51 cvsnageswara Exp $";
+static const char* rcsID = "$Id: madagcattrib.cc,v 1.4 2012-03-09 12:45:05 cvskris Exp $";
 
 #include "madagcattrib.h"
 #include "attribdataholder.h"
@@ -40,8 +40,8 @@ void MadAGC::initClass()
 }
 
 
-MadAGC::MadAGC( Desc& desc_ )
-    : Provider( desc_ )
+MadAGC::MadAGC( Desc& desc )
+    : Provider( desc )
 {
     if ( !isOK() ) return;
 
