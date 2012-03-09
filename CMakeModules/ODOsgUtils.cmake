@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.6 2012-02-24 12:23:46 cvsbert Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.7 2012-03-09 12:56:22 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -66,6 +66,11 @@ MACRO(OD_SETUP_OSG)
 		    MESSAGE(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
 		ENDIF()
 		LIST(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
+	    ENDIF()
+
+	    IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+		INSTALL ( FILES ${${OSGMODULE}_LIBRARY} DESTINATION
+		      ${OD_LIBRARY_INSTALL_PATH} )
 	    ENDIF()
 	ENDFOREACH()
     ENDIF()
