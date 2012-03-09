@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: price.h,v 1.3 2012-02-07 10:29:42 cvsbert Exp $
+ RCS:           $Id: price.h,v 1.4 2012-03-09 12:44:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,22 +32,30 @@ mStruct Currency
     static void			getCurrencyStrings(BufferStringSet&);
 
     static ManagedObjectSet<const Currency>	repository_;
+    static const char*		sKeyEUR() { return "EUR"; }
 };
 
 
 mStruct Price
 {
-                        Price( float userprice = 0 )
-			    : currency_( Currency::getCurrency("EUR") )
-			{
-			    setUserPrice( userprice );
-			}
+               Price( double userprice = 0,
+		       const char* currencystr=Currency::sKeyEUR() )
+		    : currency_( Currency::getCurrency(currencystr) )
+		{
+		    setUserPrice( userprice );
+		}
 
-    float		getUserPrice() const
-    			{ return ((float) amount_)/currency_->devisor_; }
-    void		setUserPrice( float p )
-			{ amount_ = currency_ ? mNINT(p*currency_->devisor_)
-					      : mNINT(p); }
+    bool	operator==(const Price& p) const
+		{
+		    return p.amount_==amount_ &&
+			   currency_->abrevation_==p.currency_->abrevation_;
+		}
+
+    double	getUserPrice() const
+    		{ return ((double) amount_)/currency_->devisor_; }
+    void	setUserPrice( double p )
+		{ amount_ = currency_ ? mNINT(p*currency_->devisor_)
+				      : mNINT(p); }
 
     int			amount_; //In lowest devisible unit
     const Currency*	currency_;
