@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.9 2012-02-26 20:51:12 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.10 2012-03-09 13:32:35 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
@@ -38,6 +38,16 @@ ELSE()
     FIND_LIBRARY(OD_SIMVOLEON_LIBRARY NAMES SimVoleon
 		 PATHS ${COINDIR}/lib REQUIRED )
     SET(CMAKE_FIND_LIBRARY_SUFFIXES ${TMPVAR})
+ENDIF()
+
+IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+    INSTALL ( FILES ${COINLIB} ${SOQTLIB}
+	      DESTINATION ${OD_LIBRARY_INSTALL_PATH} )
+
+    IF ( WIN32 )
+	INSTALL ( FILES ${OD_SIMVOLEON_LIBRARY} DESTINATION
+		  ${OD_LIBRARY_INSTALL_PATH} )
+    ENDIF()
 ENDIF()
 
 

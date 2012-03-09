@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.10 2012-02-24 12:00:00 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.11 2012-03-09 13:32:35 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
@@ -31,6 +31,7 @@ SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
 FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
 
+ 
 MACRO(OD_SETUP_QT)
     include(${QT_USE_FILE})
 
@@ -72,4 +73,9 @@ MACRO(OD_SETUP_QT)
     ENDIF( QT_MOC_HEADERS )
 
     LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
+    IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+	INSTALL ( FILES ${QT_QTGUI_LIBRARY_RELEASE} ${QT_QTCORE_LIBRARY_RELEASE}
+			${QT_QTSQL_LIBRARY_RELEASE} ${QT_QTNETWORK_LIBRARY_RELEASE}
+		    DESTINATION ${OD_LIBRARY_INSTALL_PATH} )
+    ENDIF()
 ENDMACRO(OD_SETUP_QT)
