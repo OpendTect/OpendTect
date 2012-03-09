@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.46 2011-12-22 12:36:49 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.47 2012-03-09 15:41:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,6 +212,8 @@ public:
     const QTreeWidgetItem* qItem() const	{ return qtreeitem_; }
 
     int			nrChildren() const;
+
+    void		setBGColor(int column,const Color&);
 
     void		setCheckable(bool);
     bool		isCheckable() const;
