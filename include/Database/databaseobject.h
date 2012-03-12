@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.7 2012-03-12 16:16:52 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.8 2012-03-12 20:38:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ public:
     bool		parseEntryID(const Query& q,int col, int& id) const;
 
     const char*		timeStampSelectString() const;
-    bool		parseTimeStamp(const Query& q,int col, time_t&) const;
+    bool		parseTimeStamp(const Query& q,int col, od_int64&) const;
 
     bool		searchTable( Access&,int entryid, bool onlylatest,
 	    			     TypeSet<int>& rowids,

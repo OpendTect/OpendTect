@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.6 2012-03-12 16:16:51 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.7 2012-03-12 20:38:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,7 +352,7 @@ const char* DatabaseTable::timeStampSelectString() const
 { return timestampcolumn_->selectString(); }
 
 
-bool DatabaseTable::parseTimeStamp(const Query& q,int col, time_t& ts) const
+bool DatabaseTable::parseTimeStamp(const Query& q,int col, od_int64& ts) const
 { return timestampcolumn_->parse( q, col, ts ); }
 
 
