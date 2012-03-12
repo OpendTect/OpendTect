@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.68 2012-03-06 14:29:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.69 2012-03-12 12:47:08 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -383,16 +383,32 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 {
     float dahincr = SI().zStep() * .5;
     if ( SI().zIsTime() )
-	dahincr = 2000 * dahincr; // As dx = v * dt , Using v = 2000 m/s
+	dahincr = 2000 * dahincr; //As dx = v * dt, Using v = 2000 m/s
 
     BinIDValue biv; float dah = welldahrg_.start - dahincr;
+    float time = mUdf(float);
+    const Well::D2TModel* d2t = wd.d2TModel();
+    const bool extractintime = params_.extractzintime_ && d2t && SI().zIsTime();
+    float timeincr = SI().zStep();
+    if ( extractintime )
+    {
+	time = d2t->getTime( dah ); 
+	timeincr = params_.zrg_.step; 
+    }
     int trackidx = 0; Coord3 precisepos;
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
     while ( true )
     {
-	dah += dahincr;
-	if ( dah > welldahrg_.stop )
+	if ( extractintime )
+	{
+	    time += timeincr;
+	    dah = d2t->getDah( time ); 
+	}
+	else
+	    dah += dahincr;
+
+	if ( mIsUdf(dah) || !welldahrg_.includes( dah, true ) )
 	    return;
 	else if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
 	    continue;
