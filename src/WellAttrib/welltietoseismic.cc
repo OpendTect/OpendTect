@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.75 2011-12-08 16:12:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.76 2012-03-12 08:01:24 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -107,20 +107,21 @@ bool DataPlayer::setAIModel()
 	    || !processLog( denlog, pdlog, data_.density() ) )
 	return false;
 
-    if ( data_.isSonic() )
-	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
-
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
+    ElasticPropGen epg ( data_.elPropSel(), data_.propRefSel() );
     for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
 	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
 	const bool inside = data_.dahrg_.includes( dah1, true );
-	const float vel = inside ? pslog.getValue( dah1, true ) : mUdf(float);
-	const float den = inside ? pdlog.getValue( dah1, true ) : mUdf(float);
-	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
+	TypeSet<float> vals;
+	vals += inside ? pslog.getValue( dah1, true ) : mUdf(float);
+	vals += inside ? pdlog.getValue( dah1, true ) : mUdf(float);
+	float den, pvel, svel = mUdf( float );
+	epg.getVals( den, pvel, svel, vals.arr(), 2 );
+	aimodel_ += AILayer( fabs( dah1-dah0 ), pvel, den );
     }
     return true;
 }
@@ -220,14 +221,16 @@ bool DataPlayer::copyDataToLogSet()
 
     TypeSet<float> dahlog, dahseis, son, den, ai, synth, refs;
     int refid = 0;
+
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
 	const float dh = wd_->d2TModel()->getDah( workrg_.atIndex(workidx) );
 
 	dahseis += dh;
-	refs += reflvals_[idx];
-	synth += data_.seistrc_.get( idx, 0 ); 
+	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
+	synth += data_.seistrc_.size() > idx ? data_.seistrc_.get(idx,0) 
+					     : mUdf(float);
 
 	if ( !data_.dahrg_.includes( dh, true ) )
 	    continue;
@@ -283,8 +286,11 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
     const float step = disprg_.step;
     const int nrsamps = (int)( zrg.width()/step )+1;
 
+    if ( data_.seistrc_.size() < nrsamps || data_.synthtrc_.size() < nrsamps )
+	{ errmsg_ = "No valid synthetic or seismic trace"; return false; }
+
     if ( nrsamps <= 1 )
-	errmsg_ = "Invalid time or depth range specified";
+	{ errmsg_ = "Invalid time or depth range specified"; return false; }
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.setSize( nrsamps, 0 ); 

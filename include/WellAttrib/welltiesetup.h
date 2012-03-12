@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.22 2011-12-08 11:58:21 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.23 2012-03-12 08:01:24 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 
+#include "elasticpropsel.h"
 #include "enums.h"
 #include "linekey.h"
 #include "multiid.h"
@@ -72,6 +73,8 @@ public:
     bool 			useexistingd2tm_;
     CorrType			corrtype_;
     float			replacevel_;
+    ElasticPropSelection	elps_;
+    PropertyRefSelection	ps_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

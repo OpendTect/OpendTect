@@ -18,9 +18,12 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "welldisp.h"
 #include "welltied2tmodelmanager.h"
+#include "welltiesetup.h"
 
 class BinID;
 class CtxtIOObj;
+class ElasticPropSelection;
+class PropertyRefSelection;
 class SeisTrc;
 class TaskRunner;
 class Wavelet;
@@ -98,7 +101,9 @@ public :
     bool			isinitwvltactive_;
     const StepInterval<float>& 	timeintv_;
     Interval<float>		dahrg_;
-    const Setup&		setup() const	{ return setup_; }
+    const Setup&		setup() const		{ return setup_; }
+    const ElasticPropSelection&	elPropSel() const 	{ return setup_.elps_; }
+    const PropertyRefSelection&	propRefSel() const 	{ return setup_.ps_; }
 
     const char*  		sonic() 	const;
     const char*  		density() 	const;

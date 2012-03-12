@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.79 2012-02-16 15:44:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.80 2012-03-12 08:01:24 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -148,7 +148,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	app.ddpars_.vd_.mappersetup_.symmidval_ = 0;
 
     uiFlatViewStdControl::Setup fvsu( this );
-    fvsu.withthumbnail(false).withcoltabed(false).tba( (int)uiToolBar::Right );
+    fvsu.withedit(true).withthumbnail(false).withcoltabed(false).tba( 
+	    						(int)uiToolBar::Right );
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
@@ -752,9 +753,14 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par )
 
     bool isnmo = true;
     raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
+
+    uiSeparator* sep = new uiSeparator( this, "NMO corr separator" );
+    sep->attach( stretchedBelow, rtsel_ );
+
     nmobox_ = new uiCheckBox( this, "NMO corrections" );
     nmobox_->setChecked( isnmo );
     nmobox_->attach( centeredBelow, rtsel_ );
+    nmobox_->attach( ensureBelow, sep );
 }
 
 

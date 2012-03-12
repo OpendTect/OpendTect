@@ -1,0 +1,330 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Bruno
+ Date:          April 2011
+________________________________________________________________________
+
+-*/
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.1 2012-03-12 08:01:24 cvsbruno Exp $";
+
+
+#include "uiwellpropertyrefsel.h"
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uilabel.h"
+#include "uiunitsel.h"
+#include "uimsg.h"
+
+#include "elasticprop.h"
+#include "elasticpropsel.h"
+#include "unitofmeasure.h"
+#include "property.h"
+#include "welllogset.h"
+#include "welllog.h"
+
+
+uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
+	                                const PropertyRef* alternatepr )
+    : uiGroup( p, pr.name() )
+    , propref_(pr)
+    , altpropref_(0)
+    , checkboxfld_(0)
+{
+    typefld_ = new uiComboBox( this, BufferString(pr.name()," type") );
+    typelbl_ = new uiLabel( this, pr.name(), typefld_ );
+
+    unfld_ = new uiUnitSel( this, propref_.stdType(), 0, true );
+    unfld_->setUnit( propref_.disp_.unit_ );
+    unfld_->attach( rightOf, typefld_ );
+
+    if ( alternatepr )
+    {
+	altpropref_ = new PropertyRef(*alternatepr);
+	checkboxfld_ = new uiCheckBox( this, alternatepr->name() );
+	checkboxfld_->attach( rightOf, unfld_ );
+    }
+    setHAlignObj( typefld_ );
+}
+
+
+uiPropSelFromList::~uiPropSelFromList()
+{
+    delete altpropref_;
+}
+
+
+void uiPropSelFromList::switchPropCB( CallBacker* )
+{
+    if ( !altpropref_ ) return;
+    const bool isaltprop = checkboxfld_->isChecked();
+    const PropertyRef& pr = isaltprop ? *altpropref_ : propref_;
+
+    unfld_->setPropType( pr.stdType() );
+    unfld_->setUnit( pr.disp_.unit_ );
+}
+
+
+void uiPropSelFromList::setNames( const BufferStringSet& nms )
+{
+    typefld_->setEmpty();
+    typefld_->addItems( nms );
+}
+
+
+void uiPropSelFromList::setCurrent( const char* lnm )
+{
+    typefld_->setCurrentItem( lnm );
+}
+
+
+void uiPropSelFromList::setUOM( const UnitOfMeasure& um )
+{
+    unfld_->setUnit( um.symbol() );
+}
+
+
+void uiPropSelFromList::set( const char* txt, bool alt, const UnitOfMeasure* um)
+{
+    setCurrent( txt ); setUseAlternate( alt );
+    if ( um ) setUOM( *um );
+}
+
+
+void uiPropSelFromList::getData( BufferString& lognm, UnitOfMeasure& un ) const
+{
+    if ( unfld_->getUnit() )
+	un = *unfld_->getUnit();
+
+    lognm = typefld_->text();
+}
+
+
+const char* uiPropSelFromList::uiPropSelFromList::text() const
+{
+    return typefld_->text();
+}
+
+
+const UnitOfMeasure* uiPropSelFromList::uom() const
+{
+    return unfld_->getUnit();
+}
+
+
+void uiPropSelFromList::setUseAlternate( bool yn )
+{
+    if ( checkboxfld_ && altpropref_ )
+	checkboxfld_->setChecked( yn );
+}
+
+
+bool uiPropSelFromList::isUseAlternate() const
+{
+    return checkboxfld_ ? checkboxfld_->isChecked() : false;
+}
+
+
+const PropertyRef& uiPropSelFromList::propRef() const
+{
+    return isUseAlternate() ? *altpropref_ : propref_;
+}
+
+
+
+uiWellPropSel::uiWellPropSel( uiParent* p, 
+				const PropertyRefSelection& prs )
+    : uiGroup(p," property selection from well logs")
+    , proprefsel_(prs)  
+{
+    postFinalise().notify( mCB(this,uiWellPropSel,initFldsCB) );
+}
+
+
+void uiWellPropSel::initFldsCB( CallBacker* )
+{
+    for ( int idx=0; idx<proprefsel_.size(); idx ++ )
+    {
+	const PropertyRef& pr = *proprefsel_[idx];
+	if ( pr == PropertyRef::thickness() )
+	    continue;
+
+	const PropertyRef* altpr = 0;
+	//TODO check on something like SI(1/uom) = SI(uom) for more generic ...
+	const bool issonic = pr.hasType( PropertyRef::Son );
+	const bool isvel = pr.hasType( PropertyRef::Vel );
+	if ( issonic || isvel )
+	    altpr = issonic ? new PropertyRef( "Velocity", PropertyRef::Vel )
+			    : new PropertyRef( "Sonic", PropertyRef::Son ); 
+
+	uiPropSelFromList* fld = new uiPropSelFromList( this, pr, altpr );
+	if ( propflds_.size() > 0 )
+	    fld->attach( alignedBelow, propflds_[propflds_.size()-1] );
+	else
+	    setHAlignObj( (uiObject*)(fld->typeFld()) );
+
+	delete altpr;
+	propflds_ += fld;
+    }
+}
+
+
+void uiWellPropSel::setLogs( const Well::LogSet& logs  )
+{
+    BufferStringSet lognms; 
+    for ( int idx=0; idx<logs.size(); idx++ )
+	lognms.add( logs.getLog(idx).name() );
+    lognms.sort();
+
+    BufferStringSet allnms;
+    allnms.add( sKeyPlsSel() );
+    allnms.add( lognms, true );
+
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	propflds_[idx]->setNames( allnms );
+	for ( int idlog=0; idlog<logs.size(); idlog++ )
+	{
+	    const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
+	    const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
+	    if ( um && propflds_[idx]->propRef().stdType() == um->propType() )
+		propflds_[idx]->setCurrent( lognms[idx]->buf() );
+	}
+    }
+}
+
+
+#define mErrRet(msg) { errmsg = msg; retrun false; }
+bool uiWellPropSel::isOK() const
+{
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	if ( !strcmp ( propflds_[idx]->text(), sKeyPlsSel() ) )
+	{
+	    BufferString propnm( propflds_[idx]->propRef().name() );
+	    BufferString msg( "Please select a log for " ); msg += propnm; 
+	    uiMSG().error( msg.buf() ); return false;
+	}
+    }
+    return true;
+}
+
+
+bool uiWellPropSel::setLog( const PropertyRef::StdType tp, 
+				const char* nm, bool usealt,
+				const UnitOfMeasure* uom )
+{
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	if ( propflds_[idx]->propRef().hasType( tp ) )
+	    propflds_[idx]->set( nm, usealt, uom );
+    }
+    return false;
+}
+
+
+bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs, 
+			bool& check, const UnitOfMeasure* uom ) const
+{
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	if ( propflds_[idx]->propRef().hasType( tp ) )
+	{
+	    bs = propflds_[idx]->text();
+	    check = propflds_[idx]->isUseAlternate();
+	    uom = propflds_[idx]->uom();
+	    return true;
+	}
+    }
+    return false;
+}
+
+
+
+uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, 
+			ElasticPropSelection& elps, bool withswaves )
+    : uiWellPropSel(p,*new PropertyRefSelection)
+    , elps_(elps)  
+{
+    const int denidx = PROPS().indexOf( PropertyRef::Den );
+    const int sonidx = PROPS().indexOf( PropertyRef::Son );
+
+    PropertyRefSelection& eps = const_cast<PropertyRefSelection&>(proprefsel_);
+
+    if ( denidx >= 0 ) eps += PROPS()[denidx];
+    if ( sonidx >= 0 ) eps += PROPS()[sonidx];
+}
+
+
+uiWellElasticPropSel::~uiWellElasticPropSel()
+{
+    delete &proprefsel_;
+}
+
+
+bool uiWellElasticPropSel::isOK() const
+{
+    if ( !uiWellPropSel::isOK() ) 
+	return false;
+
+    BufferString lognm; const UnitOfMeasure* loguom =0; bool alternate = false;
+
+    getVelLog( lognm, loguom, alternate );
+    ElasticFormula::Type dentp = ElasticFormula::Den;
+    ElasticPropertyRef& denepr = elps_.getPropertyRef( dentp );
+    denepr.formula().setExpression( lognm );
+    denepr.formula().variables().add( lognm );
+    if ( loguom )
+	denepr.formula().units().add( loguom->symbol() );
+
+    loguom = 0;
+    getDenLog( lognm, loguom );
+    ElasticFormula::Type veltp = ElasticFormula::PVel;
+    ElasticPropertyRef& velepr = elps_.getPropertyRef( veltp );
+    velepr.formula().setExpression( lognm );
+    velepr.formula().variables().add( lognm );
+    if ( loguom )
+	velepr.formula().units().add( loguom->symbol() );
+
+    return true;
+}
+
+
+bool uiWellElasticPropSel::setDenLog( const char* nm, const UnitOfMeasure* uom )
+{
+    const PropertyRef::StdType tp = 
+	ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
+
+    return setLog( tp, nm, false, uom );
+}
+
+
+bool uiWellElasticPropSel::setVelLog( const char* nm, const UnitOfMeasure* uom,
+				    bool rev )
+{
+    const PropertyRef::StdType tp = 
+	ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
+
+    return setLog( tp, nm, rev, uom );
+}
+
+
+bool uiWellElasticPropSel::getDenLog( BufferString& nm, 
+					const UnitOfMeasure* uom ) const
+{
+    const PropertyRef::StdType tp =
+	        ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
+    bool dummy;
+    return getLog( tp, nm, dummy, uom );
+}
+
+
+bool uiWellElasticPropSel::getVelLog( BufferString& nm, const UnitOfMeasure* um,
+					bool isrev ) const
+{
+    const PropertyRef::StdType tp =
+		ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
+    return getLog( tp, nm, isrev, um );
+}
+
