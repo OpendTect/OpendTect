@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiunitsel.cc,v 1.4 2011-08-08 15:38:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiunitsel.cc,v 1.5 2012-03-12 15:43:01 cvsbert Exp $";
 
 #include "uiunitsel.h"
 
@@ -42,7 +42,13 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
 
 void uiUnitSel::setUnit( const char* unitnm )
 {
-    if ( !unitnm || !*unitnm ) return;
+    if ( !unitnm || !*unitnm )
+    {
+	const UnitOfMeasure* un = UoMR().getInternalFor( proptype_ );
+	if ( un )
+	    setUnit( un->name() );
+	return;
+    }
 
     if ( inpfld_->isPresent(unitnm) )
 	inpfld_->setCurrentItem( unitnm );
