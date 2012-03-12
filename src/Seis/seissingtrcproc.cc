@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.62 2011-03-11 14:35:49 cvshelene Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.63 2012-03-12 11:40:25 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -258,7 +258,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 
 const char* SeisSingleTraceProc::nrDoneText() const
 {
-    return "Traces written";
+    return "Traces handled";
 }
 
 
