@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.6 2012-03-07 16:17:15 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.7 2012-03-12 16:16:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,23 @@ protected:
     BufferString	columntype_;
     BufferString	columnoptions_;
 };
+
+
+#define mEnumDatabaseColumn( clssnm, enmcls, enm )			\
+mClass clssnm : public ::SqlDB::DatabaseColumnBase			\
+{									\
+public:									\
+    		clssnm( ::SqlDB::DatabaseTable& dobj,	\
+				    const char* columnname )		\
+    		    : ::SqlDB::DatabaseColumnBase( dobj, columnname,	\
+			    		  "VARCHAR(50)" )		\
+		{}							\
+ 									\
+    bool	parse(const ::SqlDB::Query& q,int column,enmcls::enm& e) const \
+    		{ return enmcls::parseEnum( q.data(column).buf(), e ); }\
+    const char*	dataString(const enmcls::enm& e) const			\
+		{ return enmcls::toString( e ); }			\
+}
 
 
 
@@ -113,6 +130,9 @@ public:
 };
 
 
+/*!A database where each row has a unique id. A row is never deleted, by
+   a new row is added where entryidcol is set to the id of the row it is
+   replacing, and a timestamp will tell which row that is the current. */
 
 mClass DatabaseTable
 {
@@ -127,9 +147,22 @@ public:
 
     virtual const char*	tableName() const { return tablename_; }
 
-    const char*		idColumnName() const;
-    const char*		idSelectString() const;
-    bool		parseID(const Query& q,int col, int& id) const;
+    const char*		rowIDSelectString() const;
+    bool		parseRowID(const Query& q,int col, int& id) const;
+
+    const char*		entryIDSelectString() const;
+    bool		parseEntryID(const Query& q,int col, int& id) const;
+
+    const char*		timeStampSelectString() const;
+    bool		parseTimeStamp(const Query& q,int col, time_t&) const;
+
+    bool		searchTable( Access&,int entryid, bool onlylatest,
+	    			     TypeSet<int>& rowids,
+	   			     BufferString& errmsg );
+
+    bool		insertRow( Access&,const BufferStringSet& cols,
+	    			const BufferStringSet& vals, int entryid,
+	   			int& rowid, BufferString& errmsg );
 
 protected:
     TableStatus		checkTable(bool fix,Access&,BufferString& errmsg) const;
@@ -139,7 +172,9 @@ protected:
 
     const BufferString			tablename_;
 
-    IDDatabaseColumn*			idcolumn_;
+    IDDatabaseColumn*			rowidcolumn_;
+    CreatedTimeStampDatabaseColumn*	timestampcolumn_;
+    DatabaseColumn<int>*		entryidcolumn_;
     ObjectSet<DatabaseColumnBase>	columns_;
 };
 

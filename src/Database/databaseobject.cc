@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: databaseobject.cc,v 1.5 2012-03-07 16:17:15 cvskris Exp $
+ RCS:           $Id: databaseobject.cc,v 1.6 2012-03-12 16:16:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,16 +211,20 @@ const char* CreatedTimeStampDatabaseColumn::selectString() const
 
 
 DatabaseTable::DatabaseTable( const char* tablename )
-    : idcolumn_( 0 )
+    : rowidcolumn_( 0 )
     , tablename_( tablename )
 {
-    idcolumn_ = new IDDatabaseColumn( *this );
+    rowidcolumn_ = new IDDatabaseColumn( *this );
+    timestampcolumn_ = new CreatedTimeStampDatabaseColumn( *this );
+    entryidcolumn_ = new DatabaseColumn<int>( *this, "entryid", "INT(11)" );
 }
 
 
 DatabaseTable::~DatabaseTable()
 {
-    delete idcolumn_;
+    delete rowidcolumn_;
+    delete timestampcolumn_;
+    delete entryidcolumn_;
 }
 
 
@@ -231,7 +235,7 @@ DatabaseTable::TableStatus DatabaseTable::getTableStatus( SqlDB::Access& access,
 }
 
 
-bool DatabaseTable::fixTable( SqlDB::Access& access, BufferString& errmsg ) const
+bool DatabaseTable::fixTable( SqlDB::Access& access, BufferString& errmsg) const
 {
     return checkTable( true, access, errmsg );
 }
@@ -260,9 +264,9 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 	BufferString querystring = "CREATE TABLE ";
 	querystring += backQuoteString( tableName() );
 	querystring += " (";
-	querystring += idcolumn_->createColumnQuery();
+	querystring += rowidcolumn_->createColumnQuery();
 	querystring += " , PRIMARY KEY(";
-	querystring += backQuoteString( idcolumn_->columnName() );
+	querystring += backQuoteString( rowidcolumn_->columnName() );
 	querystring += ") )";
 
 	if ( !query.execute( querystring.buf() ) )
@@ -327,15 +331,132 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 }
 
 
-const char* DatabaseTable::idColumnName() const
-{ return idcolumn_->columnName(); }
+const char* DatabaseTable::rowIDSelectString() const
+{ return rowidcolumn_->selectString(); }
 
 
-const char* DatabaseTable::idSelectString() const
-{ return idcolumn_->selectString(); }
+bool DatabaseTable::parseRowID(const Query& q,int col, int& id) const
+{ return rowidcolumn_->parse( q, col, id ); }
 
 
-bool DatabaseTable::parseID(const Query& q,int col, int& id) const
-{ return idcolumn_->parse( q, col, id ); }
+
+const char* DatabaseTable::entryIDSelectString() const
+{ return entryidcolumn_->selectString(); }
+
+
+bool DatabaseTable::parseEntryID(const Query& q,int col, int& id) const
+{ return entryidcolumn_->parse( q, col, id ); }
+
+
+const char* DatabaseTable::timeStampSelectString() const
+{ return timestampcolumn_->selectString(); }
+
+
+bool DatabaseTable::parseTimeStamp(const Query& q,int col, time_t& ts) const
+{ return timestampcolumn_->parse( q, col, ts ); }
+
+
+
+bool DatabaseTable::searchTable( Access& access,int entryid, bool onlylatest,
+				 TypeSet<int>& rowids, BufferString& errmsg )
+{
+    //Either replacesid or id can be identical to entryid
+    ValueCondition idcond( rowIDSelectString(),
+            ValueCondition::Equals, toString(entryid) );
+    ValueCondition entryidcond( entryidcolumn_->selectString(),
+            ValueCondition::Equals, toString(entryid) );
+    ValueCondition cond( idcond.getStr(),
+            ValueCondition::Or, entryidcond.getStr() );
+
+    SqlDB::Query query( access );
+
+
+    BufferString condstring;
+    if ( onlylatest )
+    {
+        BufferStringSet subcolumns;
+        BufferString timestamp( "MAX(", timestampcolumn_->selectString(), ")" );
+        query.addToColList( subcolumns, timestamp );
+        const BufferString subquery( "(",
+            query.select(subcolumns, tableName(), cond.getStr() ),
+            ")" );
+
+        SqlDB::ValueCondition latestcond( timestampcolumn_->selectString(),
+                SqlDB::ValueCondition::Equals, subquery );
+
+	SqlDB::ValueCondition combinedcomb ( latestcond.getStr(),
+		ValueCondition::And, cond.getStr() );
+
+
+        condstring = combinedcomb.getStr();
+    }
+    else
+        condstring = cond.getStr();
+
+    BufferStringSet columns;
+    const int idcolidx
+        = query.addToColList( columns, rowIDSelectString() );
+
+    if ( !query.execute( query.select( columns, tableName(), condstring ) ) )
+    {
+        errmsg = query.errMsg();
+        return false;
+    }
+
+    while ( query.next() )
+    {
+        int rowid;
+        if ( !parseRowID( query, idcolidx, rowid ) )
+            continue;
+
+        rowids += rowid;
+    }
+
+    return true;
+
+}
+
+
+bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
+			       const BufferStringSet& vals, int entryid,
+			       int& rowid, BufferString& errmsg )
+{
+    SqlDB::Query query( access );
+    BufferStringSet usedvals( vals );
+    BufferStringSet usedcols( cols );
+
+    usedvals.add( entryidcolumn_->dataString( entryid ) );
+    usedcols.add( entryidcolumn_->columnName() );
+
+    if ( !query.insert( usedcols, usedvals, tableName() ) )
+    {
+	errmsg = query.errMsg();
+	return false;
+    }
+
+    BufferString querystring = "SELECT LAST_INSERT_ID() AS ";
+    querystring += IDDatabaseColumn::sKey();
+    querystring += " FROM ";
+    querystring += backQuoteString( tableName() );
+    querystring += " LIMIT 1";
+
+    if ( !query.execute(querystring) )
+    {
+	errmsg = query.errMsg();
+	return false;
+    }
+
+    if ( query.next() )
+    {
+	const int newid = query.iValue( 0 );
+	if ( newid<0 )
+	    return false;
+
+	rowid = newid;
+	return true;
+    }
+
+    return false;
+}
 
 } //namespace
