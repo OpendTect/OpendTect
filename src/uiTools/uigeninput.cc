@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.96 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.97 2012-03-12 12:55:00 cvsbert Exp $";
 
 #include "uigeninput.h"
 #include "uigeninput_impl.h"
@@ -610,6 +610,7 @@ void uiGenInput::doFinalise( CallBacker* )
     {
 	labl = new uiLabel( this, name() );
 	labl->attach( leftTo, lastElem );
+	labl->setAlignment( Alignment::Right );
     }
 
     for( int i=1; i<inputs.size(); i++ )
