@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.12 2012-03-09 15:29:03 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.13 2012-03-12 14:06:54 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -57,7 +57,8 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     descriptionfld_ = new uiTextEdit( this, "Formula Desc", true );
     descriptionfld_->setPrefHeightInChar( 3 );
     descriptionfld_->setPrefWidthInChar( 100 );
-    descriptionfld_->attach( alignedBelow, lcb->attachObj() );
+    descriptionfld_->setStretch(2,0);
+    descriptionfld_->attach( ensureBelow, lcb->attachObj() );
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
      {
@@ -239,6 +240,7 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
 {
     nmlbl_ = new uiLabel( this, 0 );
     nmlbl_->setPrefWidthInChar( 35 );
+    nmlbl_->setAlignment( Alignment::Right );
 
     valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
