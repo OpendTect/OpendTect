@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: elasticpropsel.cc,v 1.14 2012-03-02 14:05:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: elasticpropsel.cc,v 1.15 2012-03-12 08:00:17 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: elasticpropsel.cc,v 1.14 2012-03-02 14:05:18 cv
 #include "mathexpression.h"
 #include "strmprov.h"
 #include "rockphysics.h"
+#include "unitofmeasure.h"
 
 
 #define mFileType "Elastic Property Selection"
@@ -32,6 +33,7 @@ static const char* rcsID = "$Id: elasticpropsel.cc,v 1.14 2012-03-02 14:05:18 cv
 static const char* sKeyFormulaName 	= "Name of formula";
 static const char* sKeyMathExpr 	= "Mathematic Expression";
 static const char* sKeySelVars 		= "Selected properties";
+static const char* sKeyUnits 		= "Units";
 static const char* sKeyType 		= "Type";
 static const char* sKeyPropertyName 	= "Property name";
 
@@ -49,6 +51,7 @@ ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 	type_ = ef.type_;
 	expression_ = ef.expression_;
 	variables_ = ef.variables_;
+	units_ 	= ef.units_;
     }
     return *this;
 }
@@ -60,6 +63,7 @@ void ElasticFormula::fillPar( IOPar& par ) const
     par.set( sKeyType, getTypeString( type_ ) );
     par.set( sKeyMathExpr, expression_ );
     par.set( sKeySelVars, variables_ );
+    par.set( sKeyUnits, units_ );
 }
 
 
@@ -69,6 +73,7 @@ void ElasticFormula::usePar( const IOPar& par )
     parseEnumType( par.find( sKeyType ), type_ );
     par.get( sKeyMathExpr, expression_ );
     par.get( sKeySelVars, variables_ );
+    par.get( sKeyUnits, units_ );
 }
 
 
@@ -355,6 +360,23 @@ void ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps,
 }
 
 
+void ElasticPropGen::getVals( float& den, float& pvel, float& svel, 
+				const float* vals,int sz) const
+{
+    const ElasticPropertyRef& denref = 
+			elasticprops_.getPropertyRef(ElasticFormula::Den);
+    const ElasticPropertyRef& pvref = 
+			elasticprops_.getPropertyRef(ElasticFormula::PVel);
+    const ElasticPropertyRef& svref = 
+			elasticprops_.getPropertyRef(ElasticFormula::SVel);
+
+    den  = getVal( denref.formula(), vals, sz );
+    pvel = getVal( pvref.formula(), vals, sz );
+    svel = getVal( svref.formula(), vals, sz );
+}
+
+
+
 float ElasticPropGen::getVal(const ElasticFormula& ef,
 				const float* vals,int sz) const
 {
@@ -374,7 +396,10 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	const char* var = ef.parseVariable( idx, val );
 
 	if ( refprops_.isPresent( var ) )
-	    val = vals[refprops_.indexOf(var)];
+	{
+	    const int pridx = refprops_.indexOf(var);
+	    val = vals[pridx];
+	}
 	else if ( elasticprops_.isPresent( var ) )
 	{
 	    const int propidx = elasticprops_.indexOf(var);
@@ -384,9 +409,15 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	if ( !expr ) 
 	    break;
 
+	if ( ef.variables().size() == ef.units().size() )
+	{
+	    const char* uoms = ef.units().get( idx ).buf();
+	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uoms );
+	    val = uom ? uom->getSIValue( val ) : val;
+	}
 	expr->setVariableValue( idx, val );
     }
-    return expr ? expr->getValue() : val;
+    return val = expr ? expr->getValue() : val;
 }
 
 

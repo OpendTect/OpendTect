@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.11 2012-02-03 14:16:23 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.12 2012-03-12 08:00:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,10 @@ public:
 	    			const float* proprefvals,
 				int proprefsz) const
     			{ return getVal(ef.formula(),proprefvals, proprefsz); }
+
+    void 		getVals(float& den,float& pbel,float& svel,
+	    			const float* proprefvals,int proprefsz) const;
+
 protected:
 
     ElasticPropSelection elasticprops_;

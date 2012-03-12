@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.24 2012-02-21 13:53:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.25 2012-03-12 08:00:17 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -204,18 +204,12 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	return false; 
 
     ElasticPropGen elpgen( eps, props );
-    const ElasticPropertyRef& denref = eps.getPropertyRef(ElasticFormula::Den); 
-    const ElasticPropertyRef& pvref = eps.getPropertyRef(ElasticFormula::PVel); 
-    const ElasticPropertyRef& svref = eps.getPropertyRef(ElasticFormula::SVel); 
-
     const Strat::Layer* lay = 0;
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
-	const float dval  = elpgen.getVal(denref,lay->values(),props.size());
-	const float pval = elpgen.getVal(pvref,lay->values(),props.size());
-	const float sval = elpgen.getVal(svref,lay->values(),props.size());
-
+	float dval, pval, sval; 
+	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	aimodel += ail;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.5 2012-03-02 14:05:18 cvsbruno Exp $
+ RCS:		$Id: elasticprop.h,v 1.6 2012-03-12 08:00:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     BufferStringSet&	variables() 			{ return variables_; }
     const BufferStringSet& variables() const 		{ return variables_; }
+    BufferStringSet&	units() 			{ return units_; }
+    const BufferStringSet& units() const 		{ return units_; }
     const char*		parseVariable(int idx,float&) const;
 
     void 		fillPar(IOPar&) const;
@@ -60,6 +62,8 @@ protected:
 
     BufferString 	expression_; 
     BufferStringSet	variables_;
+    BufferStringSet	units_;
+    
     Type		type_;
 };
 
