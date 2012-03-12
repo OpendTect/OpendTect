@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.13 2012-03-09 17:55:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.14 2012-03-12 14:57:24 cvsbert Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -23,40 +23,19 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
 }
 
 
-#define mParallelApplyToAll( vartype, obj, nriterimpl, preops, op, postops, \
-				     resultop ) \
-{ \
-    class ApplyClass : public ParallelTask \
-    { \
-    public: \
-		ApplyClass( vartype& var ) : self ( var ) {} \
-	od_int64 nrIterations() const { return nriterimpl; } \
-	bool	doWork( od_int64 start, od_int64 stop, int ) \
-	{ \
-	    preops; \
-	    for ( int idx=start; idx<=stop; idx++ ) \
-	    { \
-		op; \
-	    } \
-	 \
-	    postops; \
-	    return true; \
-	} \
-    protected: \
-      vartype&	self; \
-    } applyinst( obj ); \
-    resultop applyinst.execute(); \
-}
-
 void ColTab::IndexedLookUpTable::update()
 {
     cols_.erase();
     cols_.setSize( nrcols_, seq_.undefColor() );
-    mParallelApplyToAll( ColTab::IndexedLookUpTable, (*this),
-	    self.cols_.size(),
-	    const float dx = 1./(self.cols_.size()-1),
-	    self.cols_[idx] = self.seq_.color( idx*dx ),
-	    , )
+
+    mDefParallelCalc2Pars(ColTabIndexAppl,cols_.size(),
+	    		  TypeSet<Color>&,cols,const Sequence&,seq)
+    mDefParallelCalcBody(
+	const float dx = 1./(sz_-1),
+	cols_[idx] = seq_.color( idx*dx ), )
+
+    ColTabIndexAppl appl( cols_.size(), cols_, seq_ );
+    appl.execute();
 }
 
 
