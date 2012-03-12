@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.1 2012-03-12 08:01:24 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.2 2012-03-12 12:46:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
 
     const PropertyRef&  propRef() const;
 
-    const uiComboBox*   typeFld() const         { return typefld_; }
+    uiComboBox*   	typeFld() const         { return typefld_; }
 
 protected:
     const PropertyRef&  propref_;
@@ -81,7 +81,7 @@ public:
     virtual bool	isOK() const;
 
 protected:
-    void				initFldsCB(CallBacker*);
+    void				initFlds();
 
     const PropertyRefSelection&  	proprefsel_;
     ObjectSet<uiPropSelFromList> 	propflds_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.54 2012-03-12 08:01:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.55 2012-03-12 12:46:53 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -130,7 +130,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( ensureBelow, sep );
 
     logsfld_ = new uiWellElasticPropSel( logsgrp, wtsetup_.elps_ ); 
-    logsgrp->setHAlignObj( logsfld_ );
     
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
@@ -140,6 +139,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs, 
 	    				WellTie::Setup::sKeyCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
+    logsgrp->setHAlignObj( cscorrfld_ );
 
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );

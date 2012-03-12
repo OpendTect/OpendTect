@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.1 2012-03-12 08:01:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.2 2012-03-12 12:46:52 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -44,6 +44,7 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 	altpropref_ = new PropertyRef(*alternatepr);
 	checkboxfld_ = new uiCheckBox( this, alternatepr->name() );
 	checkboxfld_->attach( rightOf, unfld_ );
+	checkboxfld_->activated.notify(mCB(this,uiPropSelFromList,switchPropCB));
     }
     setHAlignObj( typefld_ );
 }
@@ -138,11 +139,11 @@ uiWellPropSel::uiWellPropSel( uiParent* p,
     : uiGroup(p," property selection from well logs")
     , proprefsel_(prs)  
 {
-    postFinalise().notify( mCB(this,uiWellPropSel,initFldsCB) );
+    initFlds();
 }
 
 
-void uiWellPropSel::initFldsCB( CallBacker* )
+void uiWellPropSel::initFlds()
 {
     for ( int idx=0; idx<proprefsel_.size(); idx ++ )
     {
@@ -162,7 +163,7 @@ void uiWellPropSel::initFldsCB( CallBacker* )
 	if ( propflds_.size() > 0 )
 	    fld->attach( alignedBelow, propflds_[propflds_.size()-1] );
 	else
-	    setHAlignObj( (uiObject*)(fld->typeFld()) );
+	    setHAlignObj( fld->typeFld() );
 
 	delete altpr;
 	propflds_ += fld;
@@ -254,6 +255,8 @@ uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p,
 
     if ( denidx >= 0 ) eps += PROPS()[denidx];
     if ( sonidx >= 0 ) eps += PROPS()[sonidx];
+
+    initFlds();
 }
 
 

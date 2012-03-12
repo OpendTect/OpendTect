@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.7 2012-03-01 13:26:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.8 2012-03-12 12:46:52 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -47,31 +47,31 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     zchoicefld_ = new uiGenInput( this, "Extract between",
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb ); 
+    setHAlignObj( zchoicefld_ );
 
     if ( SI().zIsTime() && s.withextractintime_ )
     {
 	zistimefld_ = new uiCheckBox( this, "Extract in time" );
 	zistimefld_->attach( rightOf, zchoicefld_ );
+	zistimefld_->activated.notify( 
+				mCB(this,uiWellExtractParams,extrInTimeCB) );
 	zistimefld_->activated.notify( cb );
     }
 
     const bool zinft = SI().depthsInFeetByDefault();
     BufferString dptlbl = zinft ? "(ft)":"(m)";
-    const char* units[] = {s.withzstep_ ?dptlbl.buf():"",dptlbl.buf(),"(ms)",0};
+    const char* units[] = { "",dptlbl.buf(),"(ms)",0 };
     const char* markernms[] = 	{ "Top Marker", "Bottom Marker", 0 };
 
     StringListInpSpec slis; 
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
     {
 	BufferString msg( "Start / stop " );
-	if ( s.withzstep_ )
-	    msg += "/ step "; 
 	msg += units[idx];
 	zselectionflds_ += idx ? 
 	      new uiGenInput(this,msg,FloatInpIntervalSpec())
 	    : new uiGenInput( this,msg, slis.setName(markernms[0]),
 				        slis.setName(markernms[1]) );
-
 
 	zselectionflds_[idx]->setElemSzPol( uiObject::Medium );
 	zselectionflds_[idx]->attach( alignedBelow, zchoicefld_ );
@@ -93,9 +93,12 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( s.withzstep_ )
     {
-	const float defstep = zinft ? 0.5 : 0.15;
-	stepfld_ = new uiGenInput( this, "", FloatInpSpec(defstep) );
-	stepfld_->attach( rightOf, zselectionflds_[0] );
+	const float defstep =  zinft ? 0.5 : 0.15;
+	stepfld_ = new uiGenInput( this, "Step (ms) ", FloatInpSpec(defstep) );
+	if ( zistimefld_ )
+	    stepfld_->attach( rightOf, zistimefld_ );
+	else
+	    stepfld_->attach( rightOf, zchoicefld_ ); 
 	stepfld_->valuechanged.notify( cb );
     }
 
@@ -107,6 +110,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	sampfld_->attach( alignedBelow, abovefld_ );
     }
     attach_ = zchoicefld_;
+    extrInTimeCB(0);
     getFromScreen(0);
 }
 
@@ -168,6 +172,21 @@ void uiWellExtractParams::putToScreen()
 
     if ( sampfld_ )
 	sampfld_->setValue( (int)params_.samppol_ );
+}
+
+
+void uiWellExtractParams::extrInTimeCB( CallBacker* )
+{
+    if ( !zistimefld_ || !stepfld_ )
+	return;
+
+    const bool zinft = SI().depthsInFeetByDefault();
+    const bool intime = zistimefld_->isChecked();
+    const float defstep = intime ? SI().zStep() : zinft ? 0.5 : 0.15;
+    BufferString steplbl( "Step" );
+    steplbl += intime ? " (ms)" : zinft ? " (ft)" : " (meters) ";
+    stepfld_->setTitleText( steplbl );
+    stepfld_->setValue( defstep );
 }
 
 

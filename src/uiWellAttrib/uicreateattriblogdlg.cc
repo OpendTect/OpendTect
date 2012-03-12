@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.31 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.32 2012-03-12 12:46:52 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -86,24 +86,25 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     {
 	welllistfld_ = new uiListBox( this );
 	welllistfld_->attach( ensureBelow, sep1 );
-	welllistfld_->attach( ensureBelow, attribfld_ );
+	welllistfld_->attach( alignedBelow, attribfld_ );
 	welllistfld_->setMultiSelect();
 	welllistfld_->addItems( wellnames );
     }
 
     if ( singlewell )
+    {
 	zrangeselfld_->attach( ensureBelow, sep1 );
+	zrangeselfld_->attach( alignedBelow, attribfld_ );
+    }
     else
-	zrangeselfld_->attach( ensureBelow, welllistfld_ );
+	zrangeselfld_->attach( alignedBelow, welllistfld_ );
 
     uiSeparator* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
     sep2->attach( stretchedBelow, zrangeselfld_ );
 
     lognmfld_ = new uiGenInput( this, "Log name" );
     lognmfld_->attach( ensureBelow, sep2 );
-    lognmfld_->attach( centeredBelow, zrangeselfld_);
-
-    attribfld_->attach( alignedAbove, lognmfld_ );
+    lognmfld_->attach( alignedBelow, zrangeselfld_);
 }
 
 

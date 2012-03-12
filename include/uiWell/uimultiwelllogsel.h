@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.6 2012-03-01 13:26:25 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.7 2012-03-12 12:46:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 				    , withzintime_(false)
 				    , withzvalsel_(true)
 				    , withsampling_(false)
-				    , withextractintime_(false)
+				    , withextractintime_(SI().zIsTime())
 				    {}
 
 	mDefSetupMemb(bool,withzstep) 
@@ -80,6 +80,7 @@ protected:
 
     void		putToScreen();
     void		getFromScreen(CallBacker*);
+    void 		extrInTimeCB(CallBacker*);
 };
 
 
