@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.15 2011-07-05 08:31:51 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.16 2012-03-12 15:38:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ public:
     const ObjectSet<const UnitOfMeasure>& all() const	{ return entries; }
     void		getRelevant(PropertyRef::StdType,
 	    			    ObjectSet<const UnitOfMeasure>&) const;
+    const UnitOfMeasure* getInternalFor(PropertyRef::StdType) const;
 
     bool		add(const UnitOfMeasure&);
     			//!< returns false when already present
