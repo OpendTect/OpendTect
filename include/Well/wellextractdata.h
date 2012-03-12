@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.29 2012-03-02 20:46:19 cvsnanne Exp $
+ RCS:		$Id: wellextractdata.h,v 1.30 2012-03-12 07:59:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,7 @@ public:
 
 			LogSampler(const Well::Data& wd,
 				const StepInterval<float>& zrg,bool extrintime,
-				Stats::UpscaleType samppol, 
+				Stats::UpscaleType samppol,
 				const BufferStringSet& lognms);
 			~LogSampler();
 
@@ -287,6 +287,9 @@ public:
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(int logidx,float zpos) const;
     float		getLogVal(const char* lognm,int idx) const;
+
+    const char*		errMsg() const 
+			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 protected:
 
