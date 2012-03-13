@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.2 2012-03-12 12:46:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.3 2012-03-13 14:27:28 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -129,7 +129,7 @@ bool uiPropSelFromList::isUseAlternate() const
 
 const PropertyRef& uiPropSelFromList::propRef() const
 {
-    return isUseAlternate() ? *altpropref_ : propref_;
+    return propref_;
 }
 
 
@@ -152,7 +152,7 @@ void uiWellPropSel::initFlds()
 	    continue;
 
 	const PropertyRef* altpr = 0;
-	//TODO check on something like SI(1/uom) = SI(uom) for more generic ...
+	//TODO check on something like 1/uom = uom for more generic ...
 	const bool issonic = pr.hasType( PropertyRef::Son );
 	const bool isvel = pr.hasType( PropertyRef::Vel );
 	if ( issonic || isvel )
@@ -176,7 +176,6 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
     BufferStringSet lognms; 
     for ( int idx=0; idx<logs.size(); idx++ )
 	lognms.add( logs.getLog(idx).name() );
-    lognms.sort();
 
     BufferStringSet allnms;
     allnms.add( sKeyPlsSel() );
@@ -185,12 +184,31 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	propflds_[idx]->setNames( allnms );
+	bool found = false;
+	const PropertyRef& propref = propflds_[idx]->propRef();
+	const PropertyRef* altpropref = propflds_[idx]->altPropRef();
 	for ( int idlog=0; idlog<logs.size(); idlog++ )
 	{
 	    const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
 	    const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
-	    if ( um && propflds_[idx]->propRef().stdType() == um->propType() )
-		propflds_[idx]->setCurrent( lognms[idx]->buf() );
+	    if ( um && propref.stdType() == um->propType() )
+	    {
+		propflds_[idx]->set( lognms[idlog]->buf(), false, um );
+		found = true; break;
+	    }
+	}
+	if ( !found && altpropref )
+	{
+	    for ( int idlog=0; idlog<logs.size(); idlog++ )
+	    {
+		const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
+		const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
+		if ( um && altpropref->stdType() == um->propType())
+		{
+		    propflds_[idx]->set( lognms[idlog]->buf(), true, um );
+		    break;
+		}
+	    }
 	}
     }
 }
@@ -226,15 +244,19 @@ bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
 
 
 bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs, 
-			bool& check, const UnitOfMeasure* uom ) const
+			bool& check, BufferString& uom ) const
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
-	if ( propflds_[idx]->propRef().hasType( tp ) )
+	const bool usealternate = propflds_[idx]->isUseAlternate();
+	const PropertyRef* alternatepr = usealternate ? 
+			 propflds_[idx]->altPropRef() : 0;
+	if ( propflds_[idx]->propRef().hasType( tp ) 
+			|| alternatepr && alternatepr->hasType( tp ) ) 
 	{
 	    bs = propflds_[idx]->text();
-	    check = propflds_[idx]->isUseAlternate();
-	    uom = propflds_[idx]->uom();
+	    check = usealternate;
+	    uom = propflds_[idx]->uom() ? propflds_[idx]->uom()->symbol() : ""; 
 	    return true;
 	}
     }
@@ -271,24 +293,22 @@ bool uiWellElasticPropSel::isOK() const
     if ( !uiWellPropSel::isOK() ) 
 	return false;
 
-    BufferString lognm; const UnitOfMeasure* loguom =0; bool alternate = false;
+    BufferString lognm; BufferString loguom; bool alternate = false;
 
     getVelLog( lognm, loguom, alternate );
     ElasticFormula::Type dentp = ElasticFormula::Den;
     ElasticPropertyRef& denepr = elps_.getPropertyRef( dentp );
     denepr.formula().setExpression( lognm );
     denepr.formula().variables().add( lognm );
-    if ( loguom )
-	denepr.formula().units().add( loguom->symbol() );
+    denepr.formula().units().add( loguom );
 
-    loguom = 0;
+    loguom.setEmpty();
     getDenLog( lognm, loguom );
     ElasticFormula::Type veltp = ElasticFormula::PVel;
     ElasticPropertyRef& velepr = elps_.getPropertyRef( veltp );
     velepr.formula().setExpression( lognm );
     velepr.formula().variables().add( lognm );
-    if ( loguom )
-	velepr.formula().units().add( loguom->symbol() );
+    velepr.formula().units().add( loguom );
 
     return true;
 }
@@ -313,8 +333,7 @@ bool uiWellElasticPropSel::setVelLog( const char* nm, const UnitOfMeasure* uom,
 }
 
 
-bool uiWellElasticPropSel::getDenLog( BufferString& nm, 
-					const UnitOfMeasure* uom ) const
+bool uiWellElasticPropSel::getDenLog( BufferString& nm, BufferString& uom) const
 {
     const PropertyRef::StdType tp =
 	        ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
@@ -323,7 +342,7 @@ bool uiWellElasticPropSel::getDenLog( BufferString& nm,
 }
 
 
-bool uiWellElasticPropSel::getVelLog( BufferString& nm, const UnitOfMeasure* um,
+bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
 					bool isrev ) const
 {
     const PropertyRef::StdType tp =

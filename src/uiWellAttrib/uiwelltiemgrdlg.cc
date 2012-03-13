@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.55 2012-03-12 12:46:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.56 2012-03-13 14:27:28 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -303,8 +303,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !logsfld_->isOK() ) 
 	return false;
 
-    const UnitOfMeasure* veluom =0; 
-    const UnitOfMeasure* denuom =0; 
+    BufferString veluom, denuom; 
     bool isvel = false;
     logsfld_->getDenLog( wtsetup_.denlognm_, denuom );
     logsfld_->getVelLog( wtsetup_.vellognm_, veluom, isvel );
@@ -323,7 +322,7 @@ bool uiTieWinMGRDlg::initSetup()
     const Well::Log* d = wd_->logs().getLog( wtsetup_.denlognm_ );
     if ( !s || !d ) mErrRet( "No valid log selected" );
 
-    if ( !veluom || !denuom )
+    if ( veluom.isEmpty() || denuom.isEmpty() )
 	mErrRet( "invalid log units, please check your input logs" );
 
     wtsetup_.ps_.erase();

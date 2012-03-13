@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.2 2012-03-12 12:46:52 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.3 2012-03-13 14:27:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     bool                isUseAlternate() const;
 
     const PropertyRef&  propRef() const;
+    const PropertyRef*  altPropRef() const { return altpropref_; }
 
     uiComboBox*   	typeFld() const         { return typefld_; }
 
@@ -76,7 +77,7 @@ public:
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*);
     bool		getLog(const PropertyRef::StdType,BufferString&,
-	    			bool&,const UnitOfMeasure*) const;
+	    			bool&,BufferString& uom) const;
 
     virtual bool	isOK() const;
 
@@ -100,10 +101,10 @@ public:
 			~uiWellElasticPropSel();
 
     bool		setDenLog(const char*,const UnitOfMeasure*);
-    bool		getDenLog(BufferString&,const UnitOfMeasure* u=0) const;
+    bool		getDenLog(BufferString&,BufferString& uom) const;
 
     bool		setVelLog(const char*,const UnitOfMeasure*,bool);
-    bool		getVelLog(BufferString&,const UnitOfMeasure* u=0,
+    bool		getVelLog(BufferString&,BufferString& uom,
 	    			bool isrev=false)const;
 
     virtual bool	isOK() const;
