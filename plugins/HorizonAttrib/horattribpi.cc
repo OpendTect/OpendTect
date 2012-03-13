@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horattribpi.cc,v 1.9 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: horattribpi.cc,v 1.10 2012-03-13 08:16:35 cvsbert Exp $";
 
 
 #include "horizonattrib.h"
@@ -19,7 +19,7 @@ mDefODPluginEarlyLoad(HorizonAttrib)
 mDefODPluginInfo(HorizonAttrib)
 {
     static PluginInfo retpii = {
-	"Horizon-Attribute Base",
+	"Horizon-Attribute (Base)",
 	"dGB (Nanne)",
 	"=od",
 	"The 'Horizon' attribute plugin." };
