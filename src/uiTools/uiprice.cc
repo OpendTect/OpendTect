@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprice.cc,v 1.2 2012-03-09 12:44:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiprice.cc,v 1.3 2012-03-13 15:44:05 cvskris Exp $";
 
 #include "uiprice.h"
 
@@ -63,4 +63,10 @@ bool uiPrice::getPrice( Price& price ) const
 
     price.amount_ = mNINT(valuefld_->getdValue()*currency->devisor_);
     return true;
+}
+
+
+void uiPrice::allowCurrencyEdit( bool yn )
+{
+    currencyselfld_->setSensitive( yn );
 }

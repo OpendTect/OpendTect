@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2011
- RCS:		$Id: uiprice.h,v 1.1 2011-12-23 15:23:02 cvskris Exp $
+ RCS:		$Id: uiprice.h,v 1.2 2012-03-13 15:44:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ public:
 			 const Price* price = 0 );
     void	setPrice(const Price&);
     bool	getPrice(Price&) const;
+
+    void	allowCurrencyEdit( bool );
 
 protected:
     uiComboBox*	currencyselfld_;
