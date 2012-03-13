@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.31 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.32 2012-03-13 08:16:46 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: uipluginman.cc,v 1.31 2011-12-14 13:16:41 cvsbe
 #include "file.h"
 #include "separstr.h"
 #include "filepath.h"
-#include "strmprov.h"
 #include "settings.h"
+#include "odver.h"
 #include <iostream>
 
 
@@ -104,23 +104,13 @@ void uiPluginMan::selChg( CallBacker* )
     if ( piinf.version && *piinf.version )
     {
 	txt += "\nVersion: ";
+
 	if ( *piinf.version != '=' )
 	    txt += piinf.version;
 	else
 	{
-	    BufferString fnm = ".rel.";
-	    fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
-	    const FilePath fp( GetSoftwareDir(0), fnm );
-	    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
-	    if ( !sd.usable() )
-		txt += "<unknown>";
-	    else
-	    {
-		char buf[80];
-		sd.istrm->getline( buf, 80 );
-		txt += buf;
-	    }
-	    sd.close();
+	    BufferString ver; GetSpecificODVersion( 0, ver );
+	    txt += ver;
 	}
     }
 
