@@ -4,15 +4,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.15 2011-12-14 13:16:41 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.16 2012-03-13 08:16:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.15 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.16 2012-03-13 08:16:21 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
+#include "odinst.h"
 #include "odplatform.h"
 
 #include "bufstring.h"
@@ -60,26 +61,7 @@ extern "C" const char* GetFullODVersion()
 
 void GetSpecificODVersion( const char* typ, BufferString& res )
 {
-    if ( !typ ) typ = GetPlfSubDir();
-
-    FilePath fp( GetSoftwareDir(0), "relinfo", "ver" );
-    BufferString fnm = fp.fullPath();
-    fnm += "."; fnm += typ;
-    if ( !File::exists(fnm) )
-	fnm = fp.fullPath();
-
-    res = "";
-    if ( File::exists(fnm) )
-    {
-	StreamData sd = StreamProvider( fnm ).makeIStream();
-	if ( sd.usable() )
-	{
-	    char vstr[80]; sd.istrm->getline( vstr, 80 );
-	    if ( vstr[0] )
-		res = vstr;
-	}
-	sd.close();
-    }
+    res = ODInst::getPkgVersion( typ ? typ : "basedata" );
 }
 
 
