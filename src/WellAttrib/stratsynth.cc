@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.25 2012-03-12 08:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.26 2012-03-13 14:27:03 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -172,7 +172,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     }
 
     PreStack::GatherSetDataPack* gdp = 
-		    new PreStack::GatherSetDataPack( 0, gatherset );
+	    new PreStack::GatherSetDataPack( "Pre-Stack Gather", gatherset );
     SyntheticData* sd = new SyntheticData( "Synthetic", *gdp );
 
     ObjectSet<TimeDepthModel> tmpd2ts;
@@ -267,9 +267,9 @@ SyntheticData::SyntheticData( const char* nm,
     , poststackpackid_(DataPack::cNoID())    
     , prestackpackid_(DataPack::cNoID())    
 {
-    p.setName( name() );
     setPack( true, &p );
     setPostStack( 0 );
+    setName( nm );
 }
 
 
