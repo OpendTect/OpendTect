@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.4 2012-03-09 12:45:48 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.5 2012-03-13 08:14:55 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -79,12 +79,12 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 	fp.setFileName( part1 ); fp.setExtension( "txt", false );
 	fnm = fp.fullPath();
 	if ( !File::exists(fnm) )
-	    { ret = "[unknown]"; return ret.buf(); }
+	    { ret = "[error: version file not found]"; return ret.buf(); }
     }
 
     File::getContent( fnm, ret );
     if ( ret.isEmpty() )
-	ret = "[err]";
+	ret = "[error: empty version file]";
     return ret.buf();
 }
 
