@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2012
- RCS:           $Id: odinst.h,v 1.4 2012-03-09 12:45:48 cvsbert Exp $
+ RCS:           $Id: odinst.h,v 1.5 2012-03-13 08:11:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ namespace ODInst
     mGlobal bool		updatesAvailable();
     mGlobal const char*		getPkgVersion(const char* file_pkg_basenm);
     				//!< For example, the Base pkg has "base" 
+    inline bool			isErrPkgVersion( const char* s )
+				{ return !s || !*s || *s == '['; }
 
 
     enum AutoInstType		{ UseManager, InformOnly, FullAuto, NoAuto  };
