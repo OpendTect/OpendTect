@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.32 2012-03-13 08:16:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.33 2012-03-13 08:35:43 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -58,22 +58,32 @@ void uiPluginMan::fillList()
 {
     listfld->setEmpty();
     const ObjectSet<PluginManager::Data>& lst = PIM().getData();
-    BufferStringSet loaded, notloaded;
+    BufferStringSet early, late, notloaded;
 
     for ( int idx=0; idx<lst.size(); idx++ )
     {
 	const PluginManager::Data& data = *lst[idx];
 	if ( !data.info_ || !data.isloaded_ )
 	    notloaded.add( data.name_ );
+	else if ( data.autotype_ == PI_AUTO_INIT_LATE )
+	    late.add( data.info_->dispname );
 	else
-	    loaded.add( data.info_->dispname );
+	    early.add( data.info_->dispname );
 
     }
-    loaded.sort(); notloaded.sort();
-    listfld->addItems( loaded );
+    early.sort(); late.sort(); notloaded.sort();
+    listfld->addItems( late );
+    listfld->addItem( "" );
+    listfld->addItem( "" );
+    listfld->addItem( "- Base plugins" );
+    listfld->addItem( "" );
+    listfld->addItems( early );
     if ( !notloaded.isEmpty() )
     {
-	listfld->addItem( "------------------" );
+	listfld->addItem( "" );
+	listfld->addItem( "" );
+	listfld->addItem( "- Not loaded" );
+	listfld->addItem( "" );
 	listfld->addItems( notloaded );
     }
     if ( listfld->size() )
@@ -84,7 +94,8 @@ void uiPluginMan::fillList()
 void uiPluginMan::selChg( CallBacker* )
 {
     const char* nm = listfld->getText();
-    if ( !nm || !*nm ) return;
+    if ( !nm || !*nm || *nm == '-' )
+	{ infofld->setText( "" ); return; }
 
     BufferString txt;
     const PluginManager::Data* data = 0;
