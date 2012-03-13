@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.69 2012-03-12 12:47:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.70 2012-03-13 14:13:35 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -880,8 +880,14 @@ bool Well::LogSampler::doPrepare( int thread )
 	{errmsg_ ="No valid range for the resampling specified"; return false;}
 
     data_ = new Array2DImpl<float>( nrIterations()+1, zrg_.nrSteps()+1 );
+
+    const Well::D2TModel* d2t = wd_.d2TModel();
     for ( int idz=0; idz<zrg_.nrSteps()+1; idz++ ) 
-	data_->set( 0, idz, zrg_.atIndex( idz ) );
+    {
+	float z = zrg_.atIndex( idz );
+	z = d2t && extrintime_ ? d2t->getDah(z) : wd_.track().getDahForTVD(z);
+	data_->set( 0, idz, z );
+    }
 
     return true;
 }
@@ -909,14 +915,13 @@ bool Well::LogSampler::doLog( int logidx )
     const Well::Log* log = wd_.logs().getLog( lognms_.get( logidx ) );
     if ( !log || log->isEmpty() ) return false;
 
-    const Well::D2TModel* d2t = wd_.d2TModel();
     for ( int idz=0; idz<zrg_.nrSteps()+1; idz++ ) 
     {
-	float z = zrg_.atIndex( idz );
-	z = d2t && extrintime_ ? d2t->getDah(z) : wd_.track().getDahForTVD(z);
+	const float dah = data_->get( 0, idz );
 	const float winsz = mWinSz;
 	const float lval = samppol_ == Stats::TakeNearest ? 
-	    log->getValue(z) : LogDataExtracter::calcVal(*log,z,winsz,samppol_);
+	    	  log->getValue(dah,true) 
+		: LogDataExtracter::calcVal(*log,dah,winsz,samppol_);
 	data_->set( logidx+1, idz, lval );
     }
 
