@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.34 2012-03-09 14:51:01 cvsbert Exp $
+ RCS:		$Id: task.h,v 1.35 2012-03-13 09:18:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,7 +293,7 @@ interp.execute();
 	public: \
 	    od_int64	sz_; \
 	    clss( od_int64 _sz_ ) : sz_(_sz_)  		{} \
-	    int64_t nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc1Par(clss,sz,T1,v1) \
 	class clss : public ParallelTask \
@@ -303,7 +303,7 @@ interp.execute();
 	    T1 		v1##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_ ) \
 		: sz_(_sz_) v1##_(_##v1##_) 		{} \
-	    int64_t nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc2Pars(clss,sz,T1,v1,T2,v2) \
 	class clss : public ParallelTask \
@@ -314,7 +314,7 @@ interp.execute();
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
-	    int64_t nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc3Pars(clss,sz,T1,v1,T2,v2,T3,v3) \
 	class clss : public ParallelTask \
@@ -327,7 +327,7 @@ interp.execute();
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_)			{} \
-	    int64_t nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc4Pars(clss,sz,T1,v1,T2,v2,T3,v3,T4,v4) \
 	class clss : public ParallelTask \
@@ -340,10 +340,10 @@ interp.execute();
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_)		{} \
-	    int64_t nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalcBody(preop,impl,postop) \
-	    bool doWork( int64_t start, int64_t stop, int ) \
+	    bool doWork( od_int64 start, od_int64 stop, int ) \
 	    { \
 		preop; \
 		for ( int idx=start; idx<=stop; idx++ ) \
