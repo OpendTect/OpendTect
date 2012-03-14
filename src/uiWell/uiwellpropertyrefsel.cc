@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.6 2012-03-14 11:19:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.7 2012-03-14 15:23:19 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -215,7 +215,7 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 
 
 #define mErrRet(msg) { errmsg = msg; retrun false; }
-bool uiWellPropSel::isOK() const
+bool uiWellPropSel::isOK() 
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -280,7 +280,7 @@ uiWellElasticPropSel::~uiWellElasticPropSel()
 }
 
 
-bool uiWellElasticPropSel::acceptChanges() 
+bool uiWellElasticPropSel::isOK() 
 {
     if ( !uiWellPropSel::isOK() ) 
 	return false;
