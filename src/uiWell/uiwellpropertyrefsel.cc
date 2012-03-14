@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.4 2012-03-14 06:02:21 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.5 2012-03-14 10:05:41 cvsjaap Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -251,8 +251,8 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 	const bool usealternate = propflds_[idx]->isUseAlternate();
 	const PropertyRef* alternatepr = usealternate ? 
 			 propflds_[idx]->altPropRef() : 0;
-	if ( propflds_[idx]->propRef().hasType( tp ) 
-			|| alternatepr && alternatepr->hasType( tp ) ) 
+	if ( propflds_[idx]->propRef().hasType(tp) 
+			|| (alternatepr && alternatepr->hasType(tp)) ) 
 	{
 	    bs = propflds_[idx]->text();
 	    check = usealternate;
