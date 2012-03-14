@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.19 2011-12-05 13:17:20 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.20 2012-03-14 06:57:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ extern "C" {
 }
 
 class BufferString;
-void GetSpecificODVersion(const char* typ,BufferString&);
+void mGlobal GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
 
 #endif
