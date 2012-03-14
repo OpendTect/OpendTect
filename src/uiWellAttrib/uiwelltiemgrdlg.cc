@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.56 2012-03-13 14:27:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.57 2012-03-14 11:19:55 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -129,7 +129,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    logsfld_ = new uiWellElasticPropSel( logsgrp, wtsetup_.elps_ ); 
+    logsfld_ = new uiWellElasticPropSel( logsgrp, wtsetup_.elps_); 
     
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
@@ -325,7 +325,6 @@ bool uiTieWinMGRDlg::initSetup()
     if ( veluom.isEmpty() || denuom.isEmpty() )
 	mErrRet( "invalid log units, please check your input logs" );
 
-    wtsetup_.ps_.erase();
 
     if ( is2d_ )
     {

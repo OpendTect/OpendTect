@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.12 2012-03-12 08:00:17 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.13 2012-03-14 11:19:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-/*! brief assigns values to an elastic layer depending on user defined parameters !*/
+/*! brief user params to compute values for an elastic layer (den,p/s-waves) !*/
 
 #include "elasticprop.h"
 
@@ -20,25 +20,20 @@ class IOObj;
 class MultiID;
 
 
-mClass ElasticPropSelection : public NamedObject
+mClass ElasticPropSelection : public PropertyRefSelection
 {
 public:
-				ElasticPropSelection(const char* nm=0);
+				ElasticPropSelection();
 				ElasticPropSelection(
 					const ElasticPropSelection& elp)
 				{ *this = elp; }
 
-    ElasticPropSelection&     	operator =(const ElasticPropSelection&);
-    inline bool         	operator ==(const ElasticPropSelection& e) const
-   				{ return name() == e.name(); }
-    inline bool         	operator !=(const ElasticPropSelection& e) const
-    				{ return name() != e.name(); }
-
-    bool			isPresent(const char*) const;
-    int				indexOf(const char*) const;
-
-    ElasticPropertyRef&		getPropertyRef(ElasticFormula::Type);
-    const ElasticPropertyRef&	getPropertyRef(ElasticFormula::Type) const;
+    ElasticPropertyRef&		get(int idx) 		{ return gt(idx); }
+    const ElasticPropertyRef&	get(int idx) const	{ return gt(idx); }
+    ElasticPropertyRef&		get(ElasticFormula::Type tp) 
+    							{ return gt(tp); }
+    const ElasticPropertyRef&	get(ElasticFormula::Type tp) const
+    							{ return gt(tp); }
 
     static ElasticPropSelection* get(const MultiID&);
     static ElasticPropSelection* get(const IOObj*);
@@ -49,11 +44,9 @@ public:
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
-    const TypeSet<ElasticPropertyRef>& getPropertyRefs() const 
-    				{ return elasticprops_; }
-
-protected :
-    TypeSet<ElasticPropertyRef>	elasticprops_;
+protected:
+    ElasticPropertyRef&		gt(ElasticFormula::Type) const;
+    ElasticPropertyRef&		gt(int idx) const;
 };
 
 

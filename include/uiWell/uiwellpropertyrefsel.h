@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.3 2012-03-13 14:27:28 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.4 2012-03-14 11:19:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,10 +107,9 @@ public:
     bool		getVelLog(BufferString&,BufferString& uom,
 	    			bool isrev=false)const;
 
-    virtual bool	isOK() const;
+    bool		acceptChanges();
 
-protected:
-    ElasticPropSelection&		elps_;
+    ElasticPropSelection& elasticProps(); 
 };
 
 

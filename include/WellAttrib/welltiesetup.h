@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.23 2012-03-12 08:01:24 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.24 2012-03-14 11:19:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,8 @@ public:
 				    , is2d_(setup.is2d_)
 				    , useexistingd2tm_(setup.useexistingd2tm_)
 				    , corrtype_(setup.corrtype_) 
-				    , replacevel_(setup.replacevel_) 
+				    , replacevel_(setup.replacevel_)
+				    , elps_(setup.elps_)
 				    {}	
 		
     MultiID			wellid_;
@@ -74,7 +75,6 @@ public:
     CorrType			corrtype_;
     float			replacevel_;
     ElasticPropSelection	elps_;
-    PropertyRefSelection	ps_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

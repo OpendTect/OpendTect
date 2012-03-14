@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.76 2012-03-12 08:01:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.77 2012-03-14 11:19:54 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -110,7 +110,7 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
-    ElasticPropGen epg ( data_.elPropSel(), data_.propRefSel() );
+    ElasticPropGen epg ( data_.elPropSel(), data_.elPropSel() );
     for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );

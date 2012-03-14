@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.6 2011-09-08 09:08:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.7 2012-03-14 11:19:55 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -334,7 +334,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	tgs += new uiGroup( ts_->tabGroup(), props[idx] );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
-	ElasticPropertyRef& epr = elpropsel_.getPropertyRef(tp);
+	ElasticPropertyRef& epr = elpropsel_.get(tp);
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
 	ts_->addTab( tgs[idx], props[idx] );
     }
@@ -484,9 +484,9 @@ bool uiElasticPropSelDlg::doRead( const MultiID& mid )
 
     elpropsel_ = *elp; delete elp;
     propnms_ = orgpropnms_;
-    for ( int idx=0; idx<elpropsel_.getPropertyRefs().size(); idx++ )
+    for ( int idx=0; idx<elpropsel_.size(); idx++ )
     {
-	const ElasticPropertyRef& epr = elpropsel_.getPropertyRefs()[idx];
+	const ElasticPropertyRef& epr = elpropsel_.get(idx);
 	propnms_.addIfNew( epr.name() );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.5 2012-03-14 10:05:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.6 2012-03-14 11:19:55 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -267,18 +267,10 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, 
 			ElasticPropSelection& elps, bool withswaves )
-    : uiWellPropSel(p,*new PropertyRefSelection)
-    , elps_(elps)  
+    : uiWellPropSel(p,elps)
 {
-    const int denidx = PROPS().indexOf( PropertyRef::Den );
-    const int sonidx = PROPS().indexOf( PropertyRef::Son );
-
-    PropertyRefSelection& eps = const_cast<PropertyRefSelection&>(proprefsel_);
-
-    if ( denidx >= 0 ) eps += PROPS()[denidx];
-    if ( sonidx >= 0 ) eps += PROPS()[sonidx];
-
-    initFlds();
+    if ( !withswaves )
+	propflds_[propflds_.size()-1]->display( false );
 }
 
 
@@ -288,7 +280,7 @@ uiWellElasticPropSel::~uiWellElasticPropSel()
 }
 
 
-bool uiWellElasticPropSel::isOK() const
+bool uiWellElasticPropSel::acceptChanges() 
 {
     if ( !uiWellPropSel::isOK() ) 
 	return false;
@@ -297,7 +289,7 @@ bool uiWellElasticPropSel::isOK() const
 
     getVelLog( lognm, loguom, alternate );
     ElasticFormula::Type dentp = ElasticFormula::Den;
-    ElasticPropertyRef& denepr = elps_.getPropertyRef( dentp );
+    ElasticPropertyRef& denepr = elasticProps().get( dentp );
     denepr.formula().setExpression( lognm );
     denepr.formula().variables().add( lognm );
     denepr.formula().units().add( loguom );
@@ -305,7 +297,7 @@ bool uiWellElasticPropSel::isOK() const
     loguom.setEmpty();
     getDenLog( lognm, loguom );
     ElasticFormula::Type veltp = ElasticFormula::PVel;
-    ElasticPropertyRef& velepr = elps_.getPropertyRef( veltp );
+    ElasticPropertyRef& velepr = elasticProps().get( veltp );
     velepr.formula().setExpression( lognm );
     velepr.formula().variables().add( lognm );
     velepr.formula().units().add( loguom );
@@ -350,3 +342,9 @@ bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
     return getLog( tp, nm, isrev, um );
 }
 
+
+ElasticPropSelection& uiWellElasticPropSel::elasticProps()
+{
+    PropertyRefSelection& prs = const_cast<PropertyRefSelection&>(proprefsel_);
+    return dynamic_cast<ElasticPropSelection&>( prs );
+}
