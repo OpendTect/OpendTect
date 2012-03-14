@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.3 2012-03-13 14:27:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.4 2012-03-14 06:02:21 cvsranojay Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -102,7 +102,7 @@ void uiPropSelFromList::getData( BufferString& lognm, UnitOfMeasure& un ) const
 }
 
 
-const char* uiPropSelFromList::uiPropSelFromList::text() const
+const char* uiPropSelFromList::text() const
 {
     return typefld_->text();
 }
