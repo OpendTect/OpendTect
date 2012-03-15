@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.20 2011-03-25 15:02:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.21 2012-03-15 13:34:56 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -440,7 +440,7 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 	return false;
 
     ild_ = newild; iseg_ = newiseg;
-    itrc_ = ld.segments_[ild_].getIndex( bid.crl );
+    itrc_ = ld.segments_[iseg_].getIndex( bid.crl );
     return positionTranslator();
 }
 
