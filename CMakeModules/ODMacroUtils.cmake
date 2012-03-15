@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.31 2012-03-09 13:32:35 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.32 2012-03-15 07:31:20 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -56,7 +56,7 @@ MACRO( OD_INIT_MODULE )
 SET( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} ${OD_MODULE_NAME} PARENT_SCOPE )
 
 #Create init-header 
-OD_CREATE_INIT_HEADER()
+#OD_CREATE_INIT_HEADER()
 
 #Add all module dependencies
 SET( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} )
