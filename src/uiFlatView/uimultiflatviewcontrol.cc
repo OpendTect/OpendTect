@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.6 2012-02-17 14:37:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.7 2012-03-15 14:41:25 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -43,7 +43,7 @@ uiMultiFlatViewControl::~uiMultiFlatViewControl()
 
 
 void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
-	                                           Geom::Size2D<double>& sz)
+					Geom::Size2D<double>& sz)
 {
     if ( !activevwr_ ) 
 	return;
@@ -51,6 +51,9 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
     uiWorldRect br = activevwr_->boundingBox();
     br.checkCorners();
     const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
+    const bool havezoom = haveZoom( activevwr_->curView().size(), sz );
+    if ( (activevwr_ != &vwr_) && havezoom )
+	 zoommgrs_[vwrs_.indexOf(activevwr_)]->add( sz );
 
     activevwr_->setView( wr );
     zoomChanged.trigger();
@@ -64,8 +67,8 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 {
     const int ivwr = vwrs_.size()-1;
-    MouseEventHandler& mevh =
-	    	vwrs_[ivwr]->rgbCanvas().getNavigationMouseEventHandler();
+    uiFlatViewer& vwr = *vwrs_[ivwr];
+    MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mevh.wheelMove.notify( mCB(this,uiMultiFlatViewControl,wheelMoveCB) );
 
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
@@ -75,6 +78,11 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
 
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
+
+    vwr.setRubberBandingOn( !manip_ );
+    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
+    vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
+    vwr.appearance().annot_.editable_ = false;
 
     reInitZooms();
 }
@@ -131,12 +139,9 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
     for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
     {
 	activevwr_ = vwrs_[idx]; zoommgr = zoommgrs_[idx];
-	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
-	    break;
+	const bool zoomin = but == zoominbut_;
+	doZoom( zoomin, *activevwr_, *zoommgr );
     }
-
-    const bool zoomin = but == zoominbut_;
-    doZoom( zoomin, *activevwr_, *zoommgr );
 }
 
 
