@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.5 2012-02-17 14:37:19 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.6 2012-03-15 14:41:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ public:
 	                                       Geom::Size2D<double>& sizes);
 
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
+
+    uiFlatViewer*	activeVwr() const   { return activevwr_; }
 
 protected:
     ObjectSet<FlatView::ZoomMgr> zoommgrs_;
