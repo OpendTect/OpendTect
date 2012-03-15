@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-17 16:19:05 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-15 10:49:16 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_NAME uiTut)
@@ -14,4 +14,5 @@ SET(OD_MODULE_SOURCES
 	uitutorialattrib.cc
 	uitutwelltools.cc
 	uitutpi.cc)
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()

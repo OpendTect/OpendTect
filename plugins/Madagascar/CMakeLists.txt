@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Madagascar batch-level
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-01 06:27:49 cvsnageswara Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-15 10:49:15 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS AttributeEngine)
@@ -14,5 +14,6 @@ SET(OD_MODULE_SOURCES
 	madprocflow.cc
 	madprocexec.cc
 	madpi.cc madstream.cc)
-SET( OD_PLUGIN_EXECS od_madexec)
+SET( OD_MODULE_BATCHPROGS od_madexec)
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()

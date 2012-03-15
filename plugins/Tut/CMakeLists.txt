@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-05 07:34:43 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-15 10:49:15 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS AttributeEngine EarthModel Well)
@@ -13,5 +13,5 @@ SET(OD_MODULE_SOURCES
 	tutorialattrib.cc
 	tutlogtools.cc
 	tutpi.cc)
-SET( OD_PLUGIN_EXECS od_main od_process_attrib )
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} ${OD_ATTRIB_EXECS} )
 OD_INIT_MODULE()

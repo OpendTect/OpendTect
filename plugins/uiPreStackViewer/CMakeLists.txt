@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-02-22 09:44:59 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-15 10:49:16 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain )
@@ -25,5 +25,5 @@ SET( OD_MODULE_SOURCES
 		uipsviewer2dposdlg.cc
 		visprestackviewer.cc
 		vispseventdisplay.cc )
-SET( OD_PLUGIN_EXECS od_main )
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()
