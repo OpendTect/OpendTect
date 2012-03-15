@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.31 2011-09-01 06:23:14 cvskris Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.32 2012-03-15 13:34:19 cvsbert Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -69,7 +69,14 @@ int PosInfo::LineData::segmentOf( int nr ) const
     for ( int iseg=0; iseg<segments_.size(); iseg++ )
     {
 	if ( segments_[iseg].includes(nr,false) )
-	    return !((nr-segments_[iseg].start) % segments_[iseg].step);
+	{
+	    if ( segments_[iseg].step < 2 )
+		return iseg;
+
+	    const bool inbetween = (nr-segments_[iseg].start)
+				   % segments_[iseg].step;
+	    return inbetween ? -1 : iseg;
+	}
     }
 
     return -1;
