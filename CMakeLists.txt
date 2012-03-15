@@ -29,6 +29,10 @@ INCLUDE ( OD_SetupOD )
 
 SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
+SET ( OD_MAIN_EXEC od_main )
+SET ( OD_ATTRIB_EXECS od_process_attrib )
+SET ( OD_VOLUME_EXECS od_process_volume )
+
 SET(OD_MODULES
 	Basic Algo General Database
 	Strat Network Batch Usage
