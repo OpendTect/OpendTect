@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.70 2012-03-13 14:13:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.71 2012-03-15 08:29:03 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -385,16 +385,19 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     if ( SI().zIsTime() )
 	dahincr = 2000 * dahincr; //As dx = v * dt, Using v = 2000 m/s
 
-    BinIDValue biv; float dah = welldahrg_.start - dahincr;
+    BinIDValue biv; float dah = welldahrg_.start; 
     float time = mUdf(float);
     const Well::D2TModel* d2t = wd.d2TModel();
     const bool extractintime = params_.extractzintime_ && d2t && SI().zIsTime();
     float timeincr = SI().zStep();
     if ( extractintime )
     {
-	time = d2t->getTime( dah ); 
-	timeincr = params_.zrg_.step; 
+	time = d2t->getTime( dah ) - timeincr; 
+	if ( !mIsUdf(params_.zrg_.step) )	
+	    timeincr = params_.zrg_.step; 
     }
+    else
+	dah -= dahincr;
     int trackidx = 0; Coord3 precisepos;
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
