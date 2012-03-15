@@ -4,7 +4,7 @@
  * DATE     : July 2007
 -*/
 
-static const char* rcsID = "$Id: madpi.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: madpi.cc,v 1.6 2012-03-15 14:43:01 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "odplugin.h"
@@ -13,7 +13,7 @@ mDefODPluginEarlyLoad(Madagascar)
 mDefODPluginInfo(Madagascar)
 {
     static PluginInfo retpii = {
-	"Madagascar base",
+	"Madagascar (base)",
 	"dGB - Bert Bril",
 	"=od",
 	"The Madagascar batch-level tools." };

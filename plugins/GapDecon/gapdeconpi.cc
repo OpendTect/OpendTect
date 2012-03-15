@@ -4,7 +4,7 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID = "$Id: gapdeconpi.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gapdeconpi.cc,v 1.7 2012-03-15 14:43:01 cvsbert Exp $";
 
 #include "odplugin.h"
 #include "gapdeconattrib.h"
@@ -13,7 +13,7 @@ mDefODPluginEarlyLoad(GapDecon)
 mDefODPluginInfo(GapDecon)
 {
     static PluginInfo retpii = {
-	"Gap Decon Base",
+	"Gap Decon (base)",
 	"dGB - Helene",
 	"=od",
 	"Gap Decon (Prediction Error Filter) attribute plugin.\n\n" };
