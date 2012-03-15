@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.13 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.14 2012-03-15 09:34:56 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
 #include "gmtpar.h"
-#include "initgmt.h"
+#include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "timefun.h"
