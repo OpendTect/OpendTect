@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: gmtpi.cc,v 1.8 2012-03-06 06:21:22 cvsnageswara Exp $";
+static const char* rcsID = "$Id: gmtpi.cc,v 1.9 2012-03-15 09:33:38 cvsbert Exp $";
 
 #include "initgmtplugin.h"
 #include "odplugin.h"
@@ -23,7 +23,7 @@ mDefODPluginInfo(GMT)
 
 mDefODInitPlugin(GMT)
 {
-    GMTPlugin::initStdClasses();
+    GMT::initStdClasses();
 
     return 0;
 }

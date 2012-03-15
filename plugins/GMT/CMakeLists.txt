@@ -2,7 +2,7 @@
 #
 #	Makefile : 	GMT plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-06 06:22:39 cvsnageswara Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-15 09:33:38 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Batch EarthModel Seis Well)
@@ -20,5 +20,6 @@ SET(OD_MODULE_SOURCES
 	initgmt.cc
 	gmtprocflow.cc
 	gmtpi.cc)
-SET( OD_PLUGIN_EXECS od_gmtexec)
+SET ( OD_PLUGIN_EXECS od_main )
+SET ( OD_MODULE_BATCHPROGS od_gmtexec )
 OD_INIT_MODULE()
