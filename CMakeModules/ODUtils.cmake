@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.14 2012-03-15 10:48:00 cvsbert Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.15 2012-03-15 16:09:46 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -40,5 +40,17 @@ MACRO ( OD_ADD_MODULES )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} )
 	ENDIF()
     ENDFOREACH()
+ENDMACRO()
 
+
+# Macro for going through a list of modules and adding them
+# as optional targets
+MACRO ( OD_ADD_OPTIONAL_MODULES )
+    SET( DIR ${ARGV0} )
+
+    FOREACH( OD_MODULE_NAME ${ARGV} )
+	IF ( NOT ${OD_MODULE_NAME} MATCHES ${DIR} )
+	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} EXCLUDE_FROM_ALL )
+	ENDIF()
+    ENDFOREACH()
 ENDMACRO()
