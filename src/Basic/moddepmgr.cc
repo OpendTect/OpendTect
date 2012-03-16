@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.8 2012-03-05 14:27:18 cvsbert Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.9 2012-03-16 09:53:41 cvsbert Exp $";
 
 
 #include "moddepmgr.h"
@@ -82,6 +82,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     sd.close();
 
     relfp.set( GetBinPlfDir() );
+#ifndef __cmake__
 #ifndef __win__
     relfp.add( "so" );
     relbindir_ = relfp.fullPath();
@@ -119,6 +120,17 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 	{
 	    devbindir_ = "";
 	}
+    }
+#endif
+
+#else //CMAKE
+    relbindir_ = relfp.fullPath();
+    devfp = workdir.buf();
+    devfp.add( "bin" ).add( GetPlfSubDir() );
+    devbindir_ = devfp.fullPath();
+    if ( !File::exists(devbindir_) )
+    {
+	devbindir_ = "";
     }
 #endif
 }
