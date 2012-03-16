@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.158 2012-02-27 14:42:33 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.159 2012-03-16 16:04:16 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -77,6 +77,7 @@ HorizonDisplay::HorizonDisplay()
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )    
 {
+    setLockable();
     maxintersectionlinethickness_ = 0.02 *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
 	      SI().crlDistance() * SI().crlRange(true).width() );
@@ -1632,13 +1633,13 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 
+    writeLock();
     for ( int idx=0; idx<intersectionlineids_.size(); idx++ )
     {
 	if ( !lineshouldexist[idx] )
 	{
 	    removeChild( intersectionlines_[idx]->getInventorNode() );
 	    intersectionlines_[idx]->unRef();
-
 	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
 	    intersectionpointsets_[idx]->unRef();
 
@@ -1801,6 +1802,8 @@ void HorizonDisplay::updateIntersectionLines(
 
 	line->removeCoordIndexAfter(cii-1);
     }
+
+    writeUnLock();
 }
 
 
