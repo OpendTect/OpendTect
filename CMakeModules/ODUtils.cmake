@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.15 2012-03-15 16:09:46 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.16 2012-03-16 09:53:17 cvsbert Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -18,6 +18,8 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "" )
 
     MESSAGE( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
 ENDIF()
+
+ADD_DEFINITIONS("-D__cmake__")
 
 SET ( OD_PLUGIN_OUTPUT_RELPATH bin/${OD_PLFSUBDIR} )
 SET ( OD_EXEC_OUTPUT_RELPATH bin/${OD_PLFSUBDIR} )
