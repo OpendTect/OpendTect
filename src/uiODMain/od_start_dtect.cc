@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_start_dtect.cc,v 1.3 2012-03-16 10:01:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_start_dtect.cc,v 1.4 2012-03-16 12:21:56 cvsranojay Exp $";
 
 #include "prog.h"
 
@@ -26,6 +26,7 @@ static BufferString getInstDir()
 	dirnm[len] = '\0';
     return dirnm;
 }
+
 
 static BufferString getCmdLine( int argc, char** argv )
 {
