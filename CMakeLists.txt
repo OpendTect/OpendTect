@@ -75,7 +75,8 @@ SET( OD_PLUGINS
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
-	uiPreStackViewer )
+	uiPreStackViewer
+	CmdDriver )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
