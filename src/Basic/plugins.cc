@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.74 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.75 2012-03-16 11:15:49 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -33,6 +33,11 @@ static const char* rcsID = "$Id: plugins.cc,v 1.74 2011-12-14 13:16:41 cvsbert E
 
 
 static const char* sPluginDir = "plugins";
+#ifndef __cmake__
+    static const char* sPluginBinDir = sPluginDir;
+#else
+    static const char* sPluginBinDir = "bin";
+#endif
 static const char* sKeyNoDispName = "??";
 
 extern "C" {
@@ -207,9 +212,9 @@ void PluginManager::getDefDirs()
 	fromenv = true;
 
     FilePath fp( dnm );
-    if ( !fromenv )
-	fp.add( sPluginDir );
     appdir_ = fp.fullPath();
+    if ( !fromenv )
+	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
     applibdir_ = fp.fullPath();
 
@@ -221,9 +226,9 @@ void PluginManager::getDefDirs()
 	fromenv = true;
 
     fp.set( dnm );
-    if ( !fromenv )
-	fp.add( sPluginDir );
     userdir_ = fp.fullPath();
+    if ( !fromenv )
+	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
     userlibdir_ = fp.fullPath();
 
@@ -271,7 +276,10 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     else
 	ret = FilePath(
 		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
-		"libs", data.name_ ).fullPath();
+#ifndef __cmake__
+		"libs",
+#endif
+		data.name_ ).fullPath();
     return ret.buf();
 }
 
@@ -380,7 +388,8 @@ void PluginManager::openALOEntries()
 
 void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
-    DirList dl( dirnm, DirList::FilesOnly );
+    FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
+    DirList dl( fp.fullPath(), DirList::FilesOnly );
     const BufferString prognm = getProgNm( argv_[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -418,8 +427,8 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 
 void PluginManager::mkALOList()
 {
-    getALOEntries( userlibdir_, true );
-    getALOEntries( applibdir_, false );
+    getALOEntries( userdir_, true );
+    getALOEntries( appdir_, false );
     openALOEntries();
 }
 
