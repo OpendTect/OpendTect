@@ -7,14 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_start_dtect.cc,v 1.2 2012-03-09 22:02:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_start_dtect.cc,v 1.3 2012-03-16 10:01:05 cvsranojay Exp $";
 
 #include "prog.h"
 
 #include "envvars.h"
-#include "oddirs.h"
 #include "strmprov.h"
 
+#ifdef __win__
+# include <direct.h>
+#endif
+
+static BufferString getInstDir()
+{
+    BufferString dirnm( _getcwd(NULL,0) );
+    const int len = dirnm.size() - 10;
+    if ( len > 0 )
+	dirnm[len] = '\0';
+    return dirnm;
+}
 
 static BufferString getCmdLine( int argc, char** argv )
 {
@@ -39,14 +50,14 @@ static bool ExecODInstMgr()
     if ( envvar == "None" )
 	return true;
 
-    BufferString cmd( "od_instmgr --updcheck_startup --instdir " );
-    cmd += GetSoftwareDir( false );
+    BufferString cmd( "od_instmgr.exe --updcheck_startup --instdir " );
+    cmd += getInstDir();
     return ExecOSCmd( cmd, true, false );
 }
 
 
 int main( int argc, char** argv )
 {
-    if ( ExecODInstMgr() )
-	ExecODMain( argc, argv );
+    ExecODInstMgr();
+    ExecODMain( argc, argv );
 }
