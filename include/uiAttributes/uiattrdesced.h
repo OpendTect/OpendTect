@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.36 2012-02-08 10:27:16 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.37 2012-03-19 20:43:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
     bool		operator==(const EvalParam& ep) const
 			{
 			    return label_==ep.label_ && par1_==ep.par1_ &&
-				   par2_==ep.par2_, pgidx_==ep.pgidx_;
+				   par2_==ep.par2_ && pgidx_==ep.pgidx_;
 			}
 
     BufferString	label_;
