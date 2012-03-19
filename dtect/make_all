@@ -67,6 +67,10 @@ if ( ! -d $logdir ) then
     mkdir $logdir
 endif
 
+cdw
+set oddir=$WORK:t
+set dgbdir=`echo $oddir | sed 's/od/dgb/'`
+
 if ( $shallow == no ) then
     if ( $cmake == no ) then
 	cdl
@@ -88,8 +92,6 @@ if ( $shallow == no ) then
 	cd ../$dgbdir; make clean
     endif
 endif
-
-cdw
 
 if ( $doupd == yes ) then
     set oddir=$WORK:t
