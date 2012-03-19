@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.38 2011-09-05 08:29:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.39 2012-03-19 17:23:35 cvsyuancheng Exp $";
 
 
 #include "uimathattrib.h"
@@ -309,6 +309,8 @@ bool uiMathAttrib::getInput( Desc& desc )
 
 void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
+    if ( !curDesc() ) return;
+
     mDescGetConstParamGroup(FloatParam,cstset,(*curDesc()),
 	    		    Attrib::Math::cstStr());
     BufferString constantbase = "constant c";

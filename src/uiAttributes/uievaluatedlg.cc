@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.31 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.32 2012-03-19 17:24:36 cvsyuancheng Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -58,6 +58,9 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	setHAlignObj( initfld );
 	return;
     }
+
+    if ( !ade.curDesc() )
+	return;
 
     const ValParam* valpar1 = ade.curDesc()->getValParam( parstr1_ );
     const ValParam* valpar2 = ade.curDesc()->getValParam( parstr2_ );
