@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.159 2012-03-16 16:04:16 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.160 2012-03-19 14:30:49 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1633,7 +1633,8 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 
-    writeLock();
+    visBase::VisualWriteLockLocker writelock( *this );
+
     for ( int idx=0; idx<intersectionlineids_.size(); idx++ )
     {
 	if ( !lineshouldexist[idx] )
@@ -1802,8 +1803,6 @@ void HorizonDisplay::updateIntersectionLines(
 
 	line->removeCoordIndexAfter(cii-1);
     }
-
-    writeUnLock();
 }
 
 
