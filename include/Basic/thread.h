@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.49 2012-01-18 04:12:37 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.50 2012-03-19 14:32:00 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -132,45 +132,6 @@ protected:
 };
 
 
-/*!\brief Is an object that is convenient to use when a mutex should be
-  locked and unlocked automaticly when returning.
-
-Example:
-
-int function()
-{
-    MutexLocker lock( myMutex );
-    //Do whatever you want to do
-}
-*/
-
-template <class T>
-class Locker
-{
-public:
-		Locker( T&, bool wait=true );
-		~Locker();
-
-    bool	isLocked() const;
-
-    void	unLock();
-		/*!<Use at own risk! To be safe, it should only be called
-		    by the process that created the lock. */
-    void	lock();
-		/*!<Use at own risk! To be safe, it should only be called
-		    by the process that created the lock, and have
-		    called the unLock(). */
-
-protected:
-
-    T&		lock_;
-    bool	islocked_;
-};
-
-typedef Locker<Mutex> MutexLocker;
-typedef Locker<SpinLock> SpinLockLocker;
-
-
 /*!\brief
 Is an object that is faciliates many threads to wait for something to happen.
 
@@ -271,6 +232,55 @@ protected:
 			//>0, number of readers
     ConditionVar	statuscond_;
 };
+
+
+/*!\brief Is an object that is convenient to use when a mutex should be
+  locked and unlocked automaticly when returning.
+
+Example:
+
+int function()
+{
+    MutexLocker lock( myMutex );
+    //Do whatever you want to do
+}
+*/
+
+#define mLockerClassImpl( clssnm, clss, lockfn, unlockfn, trylockfn ) \
+class clssnm \
+{ \
+public: \
+		clssnm( clss& thelock, bool wait=true ) \
+		    : lock_( thelock ) \
+		    , islocked_( true ) \
+		{ \
+		    if ( wait ) thelock.lockfn; \
+		    else islocked_ = thelock.trylockfn; \
+		} \
+ \
+		~clssnm() { if ( islocked_ ) lock_.unlockfn; } \
+    bool	isLocked() const { return islocked_; } \
+ \
+    void	unLock() { islocked_ = false; lock_.unlockfn; } \
+		/*!<Use at own risk! To be safe, it should only be called \
+		    by the process that created the lock. */ \
+    void	lock() { islocked_ = true; lock_.lockfn; } \
+		/*!<Use at own risk! To be safe, it should only be called \
+		    by the process that created the lock, and have \
+		    called the unLock(). */ \
+ \
+protected: \
+ \
+    clss&	lock_; \
+    bool	islocked_; \
+};
+
+mLockerClassImpl( MutexLocker, Mutex, lock(), unLock(), tryLock() )
+mLockerClassImpl( SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
+mLockerClassImpl( ReadLockLocker, ReadWriteLock,
+		  readLock(), readUnLock(), tryReadLock() )
+mLockerClassImpl( WriteLockLocker, ReadWriteLock,
+		  writeLock(), writeUnLock(), tryWriteLock() )
 
 
 /*!Waits for a number of threads to reach a certain point (i.e. the call to
@@ -374,39 +384,6 @@ mGlobal void sleep(double time); /*!< Time in seconds */
     var##mutex.lock(); \
     T retvar = var; \
     var##mutex.unLock()
-
-// Locker implementations
-template <class T> inline
-Locker<T>::Locker( T& thelock, bool wait )
-    : lock_( thelock )
-    , islocked_( true )
-{
-    if ( wait ) thelock.lock();
-    else islocked_ = thelock.tryLock();
-}
-
-
-template <class T> inline
-Threads::Locker<T>::~Locker()
-{
-    if ( islocked_ ) lock_.unLock();
-}
-
-
-template <class T> inline
-void Threads::Locker<T>::unLock()
-{ islocked_ = false; lock_.unLock(); }
-
-
-template <class T> inline
-void Threads::Locker<T>::lock()
-{ islocked_ = true; lock_.lock(); }
-
-
-template <class T> inline
-bool Locker<T>::isLocked() const
-{ return islocked_; }
-
 
 // Atomic implementations
 #ifdef __win__
