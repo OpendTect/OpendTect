@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.48 2011-12-08 14:01:08 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.49 2012-03-19 14:31:17 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "thread.h"
 
 class SoSeparator;
 class SoLockableSeparator;
@@ -138,6 +139,10 @@ private:
     osg::Switch*	osgroot_;
 };
 
+mLockerClassImpl( VisualReadLockLocker, VisualObjectImpl,
+		  readLock(), readUnLock(), tryReadLock() )
+mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
+		  writeLock(), writeUnLock(), tryWriteLock() )
 };
 
 
