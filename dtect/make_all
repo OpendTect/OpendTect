@@ -85,6 +85,7 @@ if ( $shallow == no ) then
     else
 	cdw
 	make clean
+	cd ../$dgbdir; make clean
     endif
 endif
 
@@ -123,6 +124,9 @@ if ( $cmake == no ) then
 else
     make $flags
     cd ../$dgbdir
+    if ( -e CMakeCache.txt ) then
+	cmake .
+    endif
     make $flags
 endif
 
@@ -138,5 +142,8 @@ if ( $dodoc == yes ) then
     else
 	cdw
 	make doc
+	cd ../$dgbdir
+	make doc
+	cdw
     endif
 endif
