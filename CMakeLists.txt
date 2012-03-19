@@ -78,7 +78,7 @@ SET( OD_PLUGINS
 	uiPreStackViewer
 	CmdDriver )
 
-SET( OD_SPECPROGS ODGeneral )
+SET( OD_SPECPROGS ODGeneral ODSeis )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
