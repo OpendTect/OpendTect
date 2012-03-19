@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.45 2011-10-21 14:10:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.46 2012-03-19 09:44:14 cvsbruno Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -732,9 +732,12 @@ Sower::~Sower()
 {
     deepErase( eventlist_ );
 
-    const int idx =
-	editor_.viewer().appearance().annot_.auxdata_.indexOf( sowingline_ );
-    delete editor_.viewer().appearance().annot_.auxdata_.remove( idx );
+
+    ObjectSet<FlatView::Annotation::AuxData>& vwrauxs 
+			= editor_.viewer().appearance().annot_.auxdata_;
+    const int idx = vwrauxs.indexOf( sowingline_ );
+    if ( vwrauxs.validIdx( idx ) ) 
+	delete vwrauxs.remove( idx );
 }
 
 
