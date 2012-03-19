@@ -6,11 +6,18 @@ set dodeps=yes
 set doupd=yes
 set dodoc=no
 set nrcpus=1
+set cmake=no
 
 source $WORK/Pmake/base/PMinit.csh
 
+if ( -e $WORK/CMakeModules/FindOpendTect.cmake ) then
+    set cmake=yes
+endif
+
 if ( $?OD_PMAKE_NR_PROCESSORS ) then
 	set nrcpus=$OD_PMAKE_NR_PROCESSORS
+else if ( -x $WORK/bin/$PLFSUBDIR/GetNrProc ) then
+	set nrcpus=`$WORK/bin/$PLFSUBDIR/GetNrProc`
 else if ( -x $WORK/Pmake/base/bin/$HDIR/GetNrProc ) then
 	set nrcpus=`$WORK/Pmake/base/bin/$HDIR/GetNrProc`
 endif
@@ -18,6 +25,8 @@ endif
 parse_args:
 if ( "$1" == "--shallow" ) then
     set shallow=yes
+else if ( "$1" == "--cmake" ) then
+    set cmake=yes
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
 else if ( "$1" == "--mkdep" ) then
@@ -59,19 +68,24 @@ if ( ! -d $logdir ) then
 endif
 
 if ( $shallow == no ) then
-    cdl
-    echo "Removing all libs from " `pwd`
-    if ( $HDIR == win ) then
-	\rm *.lib
-	\rm *.dll
-	\rm *.dll.a
-    else if ( $HDIR == mac ) then
-	\rm *.dylib
-	\rm *.a
+    if ( $cmake == no ) then
+	cdl
+	echo "Removing all libs from " `pwd`
+	if ( $HDIR == win ) then
+	    \rm *.lib
+	    \rm *.dll
+	    \rm *.dll.a
+	else if ( $HDIR == mac ) then
+	    \rm *.dylib
+	    \rm *.a
+	else
+	    \rm *.a
+	endif
+	ln -s ../*.a .
     else
-	\rm *.a
+	cdw
+	make clean
     endif
-    ln -s ../*.a .
 endif
 
 cdw
@@ -90,26 +104,39 @@ if ( $doupd == yes ) then
 endif
 
 if ( $dodeps == yes ) then
-    make $flags dep MODS=$mods
-    cd plugins ; make $flags dep
-    cd ../spec ; make $flags dep
-    cd ..
+    if ( $cmake == no ) then
+	make $flags dep MODS=$mods
+	cd plugins ; make $flags dep
+	cd ../spec ; make $flags dep
+	cd ..
+    endif
 endif
 
-make $flags lib MODS=$mods
-make MODS=$mods
-cd plugins
-make $flags lib
-make
-cd ../spec
-make
+if ( $cmake == no ) then
+    make $flags lib MODS=$mods
+    make MODS=$mods
+    cd plugins
+    make $flags lib
+    make
+    cd ../spec
+    make
+else
+    make $flags
+    cd ../$dgbdir
+    make $flags
+endif
 
 programmer_doc:
 
 if ( $dodoc == yes ) then
-    cdw
-    make doc MODS=.mods.od
-    cd doc/Programmer/Generated
-    ./mk_paths_relative
-    GenModDeps --html $WORK/Pmake/ModDeps.od index.html
+    if ( $cmake == no ) then
+	cdw
+	make doc MODS=.mods.od
+	cd doc/Programmer/Generated
+	./mk_paths_relative
+	GenModDeps --html $WORK/Pmake/ModDeps.od index.html
+    else
+	cdw
+	make doc
+    endif
 endif
