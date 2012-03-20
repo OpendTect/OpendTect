@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_start_dtect.cc,v 1.4 2012-03-16 12:21:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_start_dtect.cc,v 1.5 2012-03-20 05:32:20 cvsranojay Exp $";
 
 #include "prog.h"
 
@@ -52,7 +52,9 @@ static bool ExecODInstMgr()
 	return true;
 
     BufferString cmd( "od_instmgr.exe --updcheck_startup --instdir " );
+    cmd += "\"";
     cmd += getInstDir();
+    cmd += "\""; 
     return ExecOSCmd( cmd, true, false );
 }
 
