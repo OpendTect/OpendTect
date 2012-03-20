@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.184 2012-01-05 06:28:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.185 2012-03-20 21:48:04 cvsyuancheng Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -70,6 +70,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.184 2012-01-05 06:28:17
 #include "uitaskrunner.h"
 #include "uivolprocbatchsetup.h"
 #include "uivolprocchain.h"
+#include "uicrossattrevaluatedlg.h"
 
 #include <math.h>
 
@@ -273,6 +274,8 @@ bool uiAttribPartServer::editSet( bool is2d )
 	   				 attrsneedupdt_ );
     attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
     attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
+    attrsetdlg_->crossevalattrcb.notify( 
+	    mCB(this,uiAttribPartServer,showCrossEvalDlg) );
     attrsetdlg_->xplotcb.notify( mCB(this,uiAttribPartServer,showXPlot) );
     if ( attrsneedupdt_ )
     {
@@ -1480,7 +1483,7 @@ IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
 
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 
-void uiAttribPartServer::showEvalDlg( CallBacker* )
+void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
 {
     if ( !attrsetdlg_ ) return;
     const Desc* curdesc = attrsetdlg_->curDesc();
@@ -1494,16 +1497,68 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
 			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
-    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( attrsetdlg_, *ade,
-	    					allowevalstor_ );
-    if ( !evaldlg->evaluationPossible() )
-	mErrRet( "This attribute has no parameters to evaluate" )
+    if ( !iscrossevaluate )
+    {
+    	uiEvaluateDlg* evaldlg = 
+	    new uiEvaluateDlg( attrsetdlg_, *ade, allowevalstor_ );
+    
+	if ( !evaldlg->evaluationPossible() )
+    	    mErrRet( "This attribute has no parameters to evaluate" )
+    
+	evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
+    	evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
+    	evaldlg->windowClosed.notify(
+		mCB(this,uiAttribPartServer,evalDlgClosed) );
+	evaldlg->go();
+    }
+    else
+    {
+    	uiCrossAttrEvaluateDlg* evaldlg = 
+	    new uiCrossAttrEvaluateDlg(attrsetdlg_,*attrsetdlg_,allowevalstor_);
+	evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
+    	evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
+    	evaldlg->windowClosed.notify(
+		mCB(this,uiAttribPartServer,crossEvalDlgClosed) );
+	evaldlg->go();
+    }
 
-    evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
-    evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
-    evaldlg->windowClosed.notify( mCB(this,uiAttribPartServer,evalDlgClosed) );
-    evaldlg->go();
     attrsetdlg_->setSensitive( false );
+}
+
+
+void uiAttribPartServer::showCrossEvalDlg( CallBacker* )
+{ processEvalDlg( true ); }
+
+
+void uiAttribPartServer::showEvalDlg( CallBacker* cb )
+{ processEvalDlg( false ); }
+
+
+void uiAttribPartServer::crossEvalDlgClosed( CallBacker* cb )
+{
+    mDynamicCastGet(uiCrossAttrEvaluateDlg*,evaldlg,cb);
+    if ( !evaldlg ) return; 
+
+    if ( evaldlg->storeSlices() )
+	sendEvent( evEvalStoreSlices() );
+    
+    Desc* curdesc = attrsetdlg_->curDesc();
+    BufferString curusrref = curdesc->userRef();
+    uiAttrDescEd* ade = attrsetdlg_->curDescEd();
+
+    DescSet* curattrset = attrsetdlg_->getSet();
+    const Desc* evad = evaldlg->getAttribDesc();
+    if ( evad )
+    {
+	BufferString defstr;
+	evad->getDefStr( defstr );
+	curdesc->parseDefStr( defstr );
+	curdesc->setUserRef( curusrref );
+	attrsetdlg_->updateCurDescEd();
+    }
+
+    sendEvent( evEvalRestore() );
+    attrsetdlg_->setSensitive( true );
 }
 
 
