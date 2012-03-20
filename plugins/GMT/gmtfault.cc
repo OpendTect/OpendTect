@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.11 2012-03-20 09:59:06 cvskris Exp $
+RCS:		$Id: gmtfault.cc,v 1.12 2012-03-20 10:10:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,8 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	Geometry::FaultStickSurface* fsssurf =
 	    			fault3d->geometry().sectionGeometry(fltsid);
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
-	    new Geometry::ExplFaultStickSurface( fsssurf, SI().zDomain().userFactor() );
+	    new Geometry::ExplFaultStickSurface( fsssurf,
+		    				 SI().zDomain().userFactor() );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
 	if ( !fltsurf->update(true,0) )
 	    continue;
