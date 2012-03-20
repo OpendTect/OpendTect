@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.26 2010-10-07 17:29:19 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.27 2012-03-20 21:37:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ namespace Attrib
 };
 
 namespace Pick { class Set; }
+class AttribParamGroup;
+class EvalParam;
 class uiAttrDescEd;
 class uiAttrTypeSel;
 class uiGenInput;
@@ -61,8 +63,15 @@ public:
 
     void		setSensitive(bool);
 
+    bool		getUiAttribParamGrps(bool forall,
+	    			uiParent*,ObjectSet<AttribParamGroup>&,
+				BufferStringSet& paramnms,
+				TypeSet<BufferStringSet>& usernms);
+    			//!<if not forall, thenonly use curDesc()!
+
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
+    Notifier<uiAttribDescSetEd>		crossevalattrcb;
     Notifier<uiAttribDescSetEd>		xplotcb;
 
     static const char* 	sKeyUseAutoAttrSet;
@@ -123,6 +132,7 @@ protected:
     void			crossPlot(CallBacker*);
     void			directShow(CallBacker*);
     void			evalAttribute(CallBacker*);
+    void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);
 
     void			setButStates();

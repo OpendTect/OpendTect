@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.116 2012-02-08 10:27:17 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.117 2012-03-20 21:37:12 cvsyuancheng Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -44,6 +44,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.116 2012-02-08 10:27:17 
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
 #include "uiautoattrdescset.h"
+#include "uievaluatedlg.h"
 #include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
@@ -85,6 +86,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , attrset_(0)
     , dirshowcb(this)
     , evalattrcb(this)
+    , crossevalattrcb(this)
     , xplotcb(this)
     , adsman_(0)
     , updating_fields_(false)
@@ -152,6 +154,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
     mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
+    mAddButton( "evalcrossattr.png",crossEvalAttrs,"Cross attributes evaluate");
     mAddButton( "xplot.png", crossPlot, "Cross-Plot attributes" );
 }
 
@@ -1074,6 +1077,13 @@ void uiAttribDescSetEd::evalAttribute( CallBacker* )
 }
 
 
+void uiAttribDescSetEd::crossEvalAttrs( CallBacker* )
+{
+    if ( !doCommit() ) return;
+    crossevalattrcb.trigger();
+}
+
+
 bool uiAttribDescSetEd::offerSetSave()
 {
     doCommit( true );
@@ -1133,4 +1143,53 @@ bool uiAttribDescSetEd::is2D() const
 void uiAttribDescSetEd::updtAllEntries()
 {
     PF().updateAllDescsDefaults();
+}
+
+
+bool uiAttribDescSetEd::getUiAttribParamGrps( bool forall,
+	uiParent* uip, ObjectSet<AttribParamGroup>& res,
+	BufferStringSet& paramnms, TypeSet<BufferStringSet>& usernms )
+{
+    TypeSet<int> ids;
+    TypeSet<EvalParam> eps;
+    for ( int idx=0; idx<attrset_->size(); idx++ )
+    {
+	if ( !forall && curDesc()!=attrset_->desc(idx) )
+	    continue;
+
+	const char* attrnm =  attrset_->desc(idx) ? 
+	    attrset_->desc(idx)->attribName() : 0;
+	if ( !attrnm ) continue;
+	
+	for ( int idy=0; idy<desceds_.size(); idy++ )
+	{
+	    if ( !desceds_[idy] || strcmp(attrnm,desceds_[idy]->attribName()) )
+		continue;
+
+	    TypeSet<EvalParam> tmp;
+	    desceds_[idy]->getEvalParams( tmp );
+
+	    for ( int idz=0; idz<tmp.size(); idz++ )
+	    {
+		const int pidx = eps.indexOf(tmp[idy]);
+		if ( pidx>=0 )
+		    usernms[pidx].add( curDesc()->userRef() );
+		else
+		{
+		    eps += tmp[idy];
+		    paramnms.add( tmp[idy].label_ );
+
+		    BufferStringSet unms;
+		    unms.add( curDesc()->userRef() );
+		    usernms += unms;
+		    ids += idy;
+		}
+	    }
+	}
+    }
+
+    for ( int idx=0; idx<eps.size(); idx++ )
+	res += new AttribParamGroup( uip, *desceds_[ids[idx]], eps[idx] );
+
+    return eps.size();
 }
