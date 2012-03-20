@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.20 2011-08-05 08:06:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.21 2012-03-20 10:08:51 cvskris Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -82,7 +82,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
     freqfld_->attach( alignedBelow, isrickfld_ );
 
-    const float usrsr = sisr * SI().zFactor();
+    const float usrsr = sisr * SI().zDomain().userFactor();
     txt = "Sample interval "; txt += SI().getZUnitString();
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
@@ -107,7 +107,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
     else if ( mIsUdf(freq) || freq <= 0 )
 	mErrRet( "The frequency must be positive" )
 
-    const float realsr = sr / SI().zFactor();
+    const float realsr = sr / SI().zDomain().userFactor();
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
     putWvlt( wvlt );
 

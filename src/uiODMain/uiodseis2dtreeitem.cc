@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.111 2012-01-11 22:14:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.112 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -504,15 +504,15 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg( mNINT(curzrg_.start*SI().zFactor()), 
-			      mNINT(curzrg_.stop*SI().zFactor()) );
+	Interval<int> intzrg( mNINT(curzrg_.start*SI().zDomain().userFactor()), 
+			      mNINT(curzrg_.stop*SI().zDomain().userFactor()) );
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
 	if ( !dlg.go() ) return;
 
 	intzrg = dlg.getFld()->getIInterval();
-	curzrg_.start = float(intzrg.start) / SI().zFactor();
-	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
+	curzrg_.start = float(intzrg.start) / SI().zDomain().userFactor();
+	curzrg_.stop = float(intzrg.stop) / SI().zDomain().userFactor();
 	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
     }
     else if ( mnuid == expanditm_.id )

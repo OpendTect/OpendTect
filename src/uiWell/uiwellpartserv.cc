@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.66 2012-02-03 14:18:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.67 2012-03-20 10:08:52 cvskris Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -344,7 +344,7 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
     {
 	const Well::D2TModel& d2t = *wd->d2TModel();
 	resamprg.set(d2t.getTime(resamprg.start),d2t.getTime(resamprg.stop),1);
-	resamprg.step /= SI().zFactor();
+	resamprg.step /= SI().zDomain().userFactor();
 	resampsz = resamprg.nrSteps(); 
 	for ( int idx=0; idx<resampsz; idx++ )
 	{

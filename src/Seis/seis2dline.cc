@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.91 2012-02-17 23:11:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.92 2012-03-20 10:08:50 cvskris Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -916,7 +916,7 @@ int nextStep()
     }
 
     BufferString outstr;
-    const float zfac = SI().zFactor();
+    const float zfac = SI().zDomain().userFactor();
     const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
     for ( int idx=0; idx<posns.size(); idx++ )
     {

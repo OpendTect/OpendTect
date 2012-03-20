@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.71 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.72 2012-03-20 10:08:50 cvskris Exp $";
 
 -*/
 
@@ -465,7 +465,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
     Coord3 crd = pickretriever_->getPos();
     const BinID bid = SI().transform( crd );
     refposfld_->setValue( bid );
-    refposzfld_->setValue( crd.z*SI().zFactor() );
+    refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
 }
 
@@ -537,7 +537,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
     if ( refgrp_->selectedId() == 1 )
     {
 	BinID refpos = is2d_ ? get2DRefPos() : refposfld_->getBinID();
-	float refposz = refposzfld_->getfValue() / SI().zFactor();
+	float refposz = refposzfld_->getfValue() / SI().zDomain().userFactor();
 
 	if ( mIsUdf(refpos.inl) || mIsUdf(refpos.crl) || mIsUdf(refposz) )
 	{

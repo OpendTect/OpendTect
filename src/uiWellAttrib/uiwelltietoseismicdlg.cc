@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.102 2012-03-01 13:01:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.103 2012-03-20 10:08:52 cvskris Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -583,7 +583,8 @@ void uiInfoDlg::putToScreen()
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
 						 : data_.estimatedwvlt_;
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
-    estwvltlengthfld_->setValue( wvlt.samplePositions().width()*SI().zFactor());
+    estwvltlengthfld_->setValue(
+	    wvlt.samplePositions().width()*SI().zDomain().userFactor());
     zrangeflds_[selidx_]->setValue( zrg_ );
     if ( !selidx_ )
     {

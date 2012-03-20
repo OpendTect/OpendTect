@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.51 2011-06-06 13:58:09 cvshelene Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.52 2012-03-20 10:08:50 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -289,7 +289,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 
     const SeisTrc& trc0 = *get( 0 );
     strm << trc0.info().sampling.start
-	 << ' ' << trc0.info().sampling.step * SI().zFactor()
+	 << ' ' << trc0.info().sampling.step * SI().zDomain().userFactor()
 	 << ' ' << trc0.size();
 
     for ( int itrc=0; itrc<size(); itrc++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.70 2012-02-09 14:22:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.71 2012-03-20 10:08:51 cvskris Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -197,7 +197,7 @@ void uiSeisWvltMan::mkFileInfo()
     {
 	setViewerData( wvlt );
 
-	const float zfac = SI().zFactor();
+	const float zfac = SI().zDomain().userFactor();
 
 	BufferString tmp;
 	tmp.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );
@@ -237,7 +237,7 @@ void uiSeisWvltMan::mkFileInfo()
 void uiSeisWvltMan::setViewerData( const Wavelet* wvlt )
 {
     const int wvltsz = wvlt->size();
-    const float zfac = SI().zFactor();
+    const float zfac = SI().zDomain().userFactor();
 
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );

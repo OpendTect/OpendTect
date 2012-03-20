@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandompos2body.cc,v 1.5 2011-12-16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id: visrandompos2body.cc,v 1.6 2012-03-20 10:08:52 cvskris Exp $";
 
 #include "visrandompos2body.h"
 
@@ -81,7 +81,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     }
 
     TypeSet<Coord3> picks;
-    const float zscale = SI().zFactor();
+    const float zscale = SI().zDomain().userFactor();
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	triset_->getCoordinates()->setPos( idx, pts[idx] );

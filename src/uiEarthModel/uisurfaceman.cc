@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.92 2012-03-02 19:25:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.93 2012-03-20 10:08:50 cvskris Exp $";
 
 
 #include "uisurfaceman.h"
@@ -394,8 +394,10 @@ void uiSurfaceMan::mkFileInfo()
 	if ( !zrange.isUdf() )
 	{
 	    txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
-	    txt += mNINT( zrange.start * SI().zFactor() ); txt += " - ";
-	    txt += mNINT( zrange.stop * SI().zFactor() ); txt += "\n";
+	    txt += mNINT( zrange.start * SI().zDomain().userFactor() );
+	    txt += " - ";
+	    txt += mNINT( zrange.stop * SI().zDomain().userFactor() );
+	    txt += "\n";
 	}
     }
 

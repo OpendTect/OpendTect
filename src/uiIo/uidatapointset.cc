@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.90 2012-03-02 13:43:31 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.91 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -83,7 +83,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
     	, setup_(su)
-    	, zfac_(SI().zFactor())
+    	, zfac_(SI().zDomain().userFactor())
     	, zunitnm_(SI().getZUnitString(false))
 	, tbl_(0)
     	, unsavedchgs_(false)
@@ -615,9 +615,10 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
 	{
-	    Coord3 coord( tbl_->getdValue(RowCol(rownr,0)),
-		    	  tbl_->getdValue(RowCol(rownr,1)),
-			  tbl_->getdValue(RowCol(rownr,2))/SI().zFactor() );
+	    Coord3 coord(
+	      tbl_->getdValue(RowCol(rownr,0)),
+	      tbl_->getdValue(RowCol(rownr,1)),
+	      tbl_->getdValue(RowCol(rownr,2))/SI().zDomain().userFactor() );
 	    if ( mIsEqual(coord.x,newcoord.x,2) &&
 	    	 mIsEqual(coord.y,newcoord.y,2) &&
 	    	 mIsEqual(coord.z,newcoord.z,1e-4) )

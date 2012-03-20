@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.12 2011-12-08 11:58:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.13 2012-03-20 10:08:52 cvskris Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -228,7 +228,7 @@ void uiCheckShotEdit::drawDrift()
 	const float dah = longermdl->dah( idx );
 	const float d2tval = orgd2t_->getTime( dah );
 	const float csval = cs_->getTime( dah );
-	const float drift = SI().zFactor()*( csval - d2tval );
+	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift ); 
     }
     for ( int idx=0; idx<sz2; idx++ )
@@ -236,7 +236,7 @@ void uiCheckShotEdit::drawDrift()
 	const float dah = cs_->dah( idx );
 	const float d2tval = orgd2t_->getTime( dah );
 	const float csval = cs_->value( idx );
-	const float drift = SI().zFactor()*( csval - d2tval );
+	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;
 	driftcurve_.insertAtDah( dah, drift );
@@ -262,7 +262,7 @@ void uiCheckShotEdit::applyPushed( CallBacker* )
 	const float dah = driftcurve.dah( idx );
 	const float drift = driftcurve.value( idx );
 	const float d2tval = orgd2t_->getTime( dah );
-	const float csval = drift / SI().zFactor() + d2tval;
+	const float csval = drift / SI().zDomain().userFactor() + d2tval;
 	tmpcs.add( dah, csval ); 
     }
 

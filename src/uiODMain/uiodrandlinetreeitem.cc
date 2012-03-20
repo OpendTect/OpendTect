@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.46 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.47 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -247,7 +247,7 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 		      		  "109.0.4") );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
-    zrg.scale( SI().zFactor() );
+    zrg.scale( SI().zDomain().userFactor() );
     table->setZRange( zrg );
 
     if ( dlg.go() )
@@ -263,7 +263,7 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 	rtd->setKnotPositions( newbids );
 
 	table->getZRange( zrg );
-	zrg.scale( 1./SI().zFactor() );
+	zrg.scale( 1./SI().zDomain().userFactor() );
 	rtd->setDepthInterval( zrg );
     }
 }
@@ -471,7 +471,7 @@ void uiODRandomLineTreeItem::editNodes()
     table->setBinIDs( bids );
 
     Interval<float> zrg = rtd->getDataTraceRange();
-    zrg.scale( SI().zFactor() );
+    zrg.scale( SI().zDomain().userFactor() );
     table->setZRange( zrg );
     if ( dlg.go() )
     {
@@ -480,7 +480,7 @@ void uiODRandomLineTreeItem::editNodes()
 	rtd->setKnotPositions( newbids );
 
 	table->getZRange( zrg );
-	zrg.scale( 1./SI().zFactor() );
+	zrg.scale( 1./SI().zDomain().userFactor() );
 	rtd->setDepthInterval( zrg );
 
 	visserv_->setSelObjectId( rtd->id() );

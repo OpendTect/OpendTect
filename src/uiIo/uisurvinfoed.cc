@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.131 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.132 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -402,7 +402,7 @@ void uiSurveyInfoEditor::setValues()
     crlfld_->setValue( crlrg );
 
     const StepInterval<float>& zrg = si_.zRange( false );
-    const float zfac = si_.zFactor();
+    const float zfac = si_.zDomain().userFactor();
     setZValFld( zfld_, 0, zrg.start, zfac );
     setZValFld( zfld_, 1, zrg.stop, zfac );
     setZValFld( zfld_, 2, zrg.step, zfac );
@@ -720,7 +720,7 @@ bool uiSurveyInfoEditor::setRanges()
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
-    const float zfac = 1. / si_.zFactor();
+    const float zfac = 1. / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )

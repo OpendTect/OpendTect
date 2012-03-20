@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.41 2012-02-16 14:24:01 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.42 2012-03-20 10:08:50 cvskris Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -309,7 +309,7 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
+    astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';

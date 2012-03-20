@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.40 2011-05-02 06:10:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.41 2012-03-20 10:09:12 cvskris Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -502,8 +502,8 @@ void uiHorizonSetupGroup::initEventGroup()
     evfld_->setValue( fldidx );
 
     Interval<float> srchintv(
-	    horadj_->permittedZRange().start * SI().zFactor(),
-	    horadj_->permittedZRange().stop * SI().zFactor() );
+	    horadj_->permittedZRange().start * SI().zDomain().userFactor(),
+	    horadj_->permittedZRange().stop * SI().zDomain().userFactor() );
 
     char str[255];
     getStringFromFloat("%.5f",srchintv.start, str);
@@ -521,8 +521,8 @@ void uiHorizonSetupGroup::initSimiGroup()
     usesimifld_->setValue( !horadj_->trackByValue() );
 
     Interval<float> simiintv(
-	    horadj_->similarityWindow().start * SI().zFactor(),
-	    horadj_->similarityWindow().stop * SI().zFactor() );
+	    horadj_->similarityWindow().start * SI().zDomain().userFactor(),
+	    horadj_->similarityWindow().stop * SI().zDomain().userFactor() );
 
     char str[255];
     getStringFromFloat("%.5f",simiintv.start, str );
@@ -607,8 +607,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( "Search window should be minus to positive, ex. -20, 20");
-    Interval<float> relintv( (float)intv.start/SI().zFactor(),
-			     (float)intv.stop/SI().zFactor() );
+    Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
+			     (float)intv.stop/SI().zDomain().userFactor() );
     if ( horadj_->permittedZRange() != relintv )
     {
 	fieldchange = true;
@@ -627,8 +627,9 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	Interval<float> intval = compwinfld_->getFInterval();
 	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
 	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
-	Interval<float> relintval( (float)intval.start/SI().zFactor(),
-				   (float)intval.stop/SI().zFactor() );
+	Interval<float> relintval(
+		(float)intval.start/SI().zDomain().userFactor(),
+	        (float)intval.stop/SI().zDomain().userFactor() );
 	if ( horadj_->similarityWindow() != relintval )
 	{
 	    fieldchange = true;

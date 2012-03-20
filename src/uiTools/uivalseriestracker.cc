@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivalseriestracker.cc,v 1.6 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivalseriestracker.cc,v 1.7 2012-03-20 10:08:52 cvskris Exp $";
 
 #include "uivalseriestracker.h"
 
@@ -43,8 +43,8 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     srchgatefld_ =
 	new uiGenInput( this, srchwindtxt.buf(), FloatInpIntervalSpec());
     const Interval<float> srchintv(
-	    tracker_.permittedRange().start * SI().zFactor(),
-	    tracker_.permittedRange().stop * SI().zFactor() );
+	    tracker_.permittedRange().start * SI().zDomain().userFactor(),
+	    tracker_.permittedRange().stop * SI().zDomain().userFactor() );
     srchgatefld_->setValue( srchintv );
     srchgatefld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     if ( evfld_ ) srchgatefld_->attach( alignedBelow, evfld_ );
@@ -82,8 +82,8 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     compwinfld_->attach( alignedBelow, usesimifld_ );
 
     const Interval<float> simiintv(
-	    tracker_.similarityWindow().start * SI().zFactor(),
-	    tracker_.similarityWindow().stop * SI().zFactor() );
+	    tracker_.similarityWindow().start * SI().zDomain().userFactor(),
+	    tracker_.similarityWindow().stop * SI().zDomain().userFactor() );
     compwinfld_->setValue( simiintv );
 
 
@@ -160,8 +160,8 @@ bool uiEventTracker::updateTracker( bool domsg )
     const Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( "Search window should be minus to positive, ex. -20, 20");
-    const Interval<float> relintv( intv.start/SI().zFactor(),
-			           intv.stop/SI().zFactor() );
+    const Interval<float> relintv( intv.start/SI().zDomain().userFactor(),
+			           intv.stop/SI().zDomain().userFactor() );
     tracker_.setPermittedRange( relintv );
 
     const bool usesimi = usesimifld_->getBoolValue();
@@ -170,8 +170,8 @@ bool uiEventTracker::updateTracker( bool domsg )
     const Interval<float> intval = compwinfld_->getFInterval();
     if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
 	mErrRet( "Compare window should be minus to positive, ex. -20, 20");
-    const Interval<float> relintval( intval.start/SI().zFactor(),
-				     intval.stop/SI().zFactor() );
+    const Interval<float> relintval( intval.start/SI().zDomain().userFactor(),
+				     intval.stop/SI().zDomain().userFactor() );
     tracker_.setSimilarityWindow( relintval );
 	
     const float mgate = simithresholdfld_->getfValue();

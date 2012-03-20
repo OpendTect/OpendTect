@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.45 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.46 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -283,7 +283,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     }
     else
     {
-	if ( !mIsUdf(val) && isz ) val *= SI().zFactor();
+	if ( !mIsUdf(val) && isz ) val *= SI().zDomain().userFactor();
 	FloatInpSpec fis( val );
 	BufferString fldtxt( txt );
 	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnitString(); }
@@ -901,7 +901,7 @@ void uiSEGYFileOpts::toggledFldFillPar( uiGenInput* inp, const IOPar& iop,
     if ( ispresent )
     {
 	if ( !mIsUdf(val) && isz )
-	    val *= SI().zFactor();
+	    val *= SI().zDomain().userFactor();
 	inp->setValue( val );
     }
 }
@@ -1023,7 +1023,7 @@ void uiSEGYFileOpts::setToggled( IOPar& iop, const char* key,
 	if ( !isz )
 	    iop.set( key, inp->text() );
 	else
-	    iop.set( key, inp->getfValue() / SI().zFactor() );
+	    iop.set( key, inp->getfValue() / SI().zDomain().userFactor() );
     }
 }
 

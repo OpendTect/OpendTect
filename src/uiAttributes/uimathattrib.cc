@@ -7,7 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.39 2012-03-19 17:23:35 cvsyuancheng Exp $";
+<<<<<<< uimathattrib.cc
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.40 2012-03-20 10:08:50 cvskris Exp $";
+=======
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.40 2012-03-20 10:08:50 cvskris Exp $";
+>>>>>>> 1.39
 
 
 #include "uimathattrib.h"
@@ -241,7 +245,8 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	float recstartpos =
 	    desc.getValParam( Attrib::Math::recstartposStr() )->getfValue(0);
 	if ( !mIsUdf( recstartpos ) )
-	    recstartposfld_->setValue( recstartpos * SI().zFactor() );
+	    recstartposfld_->setValue(
+		    recstartpos * SI().zDomain().userFactor() );
     }
     
     return true;
@@ -290,7 +295,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
     
     mSetString( Attrib::Math::recstartvalsStr(), recstartfld_->text() );
     mSetFloat( Attrib::Math::recstartposStr(),
-	       recstartposfld_->getfValue() / SI().zFactor() );
+	       recstartposfld_->getfValue() / SI().zDomain().userFactor() );
     return true;
 }
 

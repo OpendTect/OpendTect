@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.94 2011-09-16 10:57:52 cvskris Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.95 2012-03-20 10:08:50 cvskris Exp $";
 
 
 #include "segyhdr.h"
@@ -442,7 +442,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
     SamplingData<float> sd( sdin );
     mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
 
-    const float zfac = SI().zFactor();
+    const float zfac = SI().zDomain().userFactor();
     float drt = sd.start * zfac;
     short delrt = (short)mNINT(drt);
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
@@ -517,7 +517,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     intval = mNINT( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
-    const float zfac = SI().zFactor();
+    const float zfac = SI().zDomain().userFactor();
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
 	{ intval = mNINT(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
@@ -594,7 +594,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( !isrev1_ )
 	getRev1Flds( ti );
 
-    const float zfac = 1. / SI().zFactor();
+    const float zfac = 1. / SI().zDomain().userFactor();
     short delrt = entryVal( EntryDelRt() );
     if ( delrt == 0 )
     {

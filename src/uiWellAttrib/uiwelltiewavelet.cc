@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.46 2012-02-06 08:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.47 2012-03-20 10:08:52 cvskris Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -213,7 +213,7 @@ void uiWavelet::drawWavelet()
     dp->setName( wvlt_->name() );
     viewer_->setPack( true, dp->id(), false, false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
+    if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );
     viewer_->handleChange( uiFlatViewer::All );
 }

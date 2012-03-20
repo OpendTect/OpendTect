@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.12 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.13 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -31,7 +31,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
-    , zfac_(SI().zFactor())
+    , zfac_(SI().zDomain().userFactor())
     , zstepfld_(0)
     , extrazfld_(0)
 {

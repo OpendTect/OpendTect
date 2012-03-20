@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.25 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.26 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uicreatepicks.h"
 
@@ -213,7 +213,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     zlbl += SI().getZUnitString();
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
-    inpzrg.scale( SI().zFactor() );
+    inpzrg.scale( SI().zDomain().userFactor() );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
@@ -290,7 +290,7 @@ void uiGenRandPicks2D::mkRandPars()
     else
     {
 	randpars_.zrg_ = zfld_->getFInterval();
-	randpars_.zrg_.scale( 1. / SI().zFactor() );
+	randpars_.zrg_.scale( 1. / SI().zDomain().userFactor() );
     }
 }
 
@@ -312,7 +312,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     {
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
-	survzrg.scale( SI().zFactor() );
+	survzrg.scale( SI().zDomain().userFactor() );
 	if ( !survzrg.includes(zrg.start,false) || !survzrg.includes(zrg.stop,false) )
 		mErrRet( "Please Enter a valid Z Range" );
     }

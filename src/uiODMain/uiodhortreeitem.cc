@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.74 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.75 2012-03-20 10:08:51 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -267,7 +267,7 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
 	res += " (";
-	res += uivisemobj_->getShift() * SI().zFactor();
+	res += uivisemobj_->getShift() * SI().zDomain().userFactor();
 	res += ")";
     }
 

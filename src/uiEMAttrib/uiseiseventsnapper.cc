@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.30 2011-09-16 10:59:21 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.31 2012-03-20 10:08:50 cvskris Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -62,8 +62,8 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
-    gatefld_->setValues( -SI().zStep() * SI().zFactor(), 
-	    		  SI().zStep() * SI().zFactor() );
+    gatefld_->setValues( -SI().zStep() * SI().zDomain().userFactor(), 
+	    		  SI().zStep() * SI().zDomain().userFactor() );
     gatefld_->attach( alignedBelow, eventfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
@@ -120,7 +120,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     usedhor->setBurstAlert( true );
     
     Interval<float> rg = gatefld_->getFInterval();
-    rg.scale( 1. / SI().zFactor() );
+    rg.scale( 1. / SI().zDomain().userFactor() );
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
