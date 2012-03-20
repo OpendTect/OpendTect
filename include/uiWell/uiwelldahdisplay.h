@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.11 2011-11-28 16:03:41 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.12 2012-03-20 16:14:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
     {
 				    Data()
 				    : zrg_(mUdf(float),mUdf(float))
-				    , zistime_(false)
+				    , zistime_(SI().zIsTime())
 				    , dispzinft_(SI().depthsInFeetByDefault())
 				    , wd_(0)
 				    {}
