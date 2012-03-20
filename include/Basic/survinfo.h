@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.104 2012-03-20 10:09:51 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.105 2012-03-20 14:49:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,16 +90,6 @@ public:
     inline bool		zInFeet() const
     			{ return zDomain().isDepth() && depthsinfeet_;}
     			//<Legacy, don't use
-    static int		zFactor(bool time)	
-    			//!<Legacy, don't use
-			{
-			    return ( time
-				? ZDomain::Time()
-				: ZDomain::Depth()
-				).userFactor();
-			}
-			
-    			//!< Factor between real and displayed unit in UI
     const char*		getZUnitString(bool withparens=true) const
     			//!<Legacy, don't use
 			{ return zDomain().unitStr( withparens ); }
