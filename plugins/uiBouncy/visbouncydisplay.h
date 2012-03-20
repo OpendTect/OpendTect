@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: visbouncydisplay.h,v 1.4 2012-03-01 06:07:15 cvsnageswara Exp $
+ RCS:           $Id: visbouncydisplay.h,v 1.5 2012-03-20 11:08:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ public:
     Coord3			getPaddlePosition() const;
 
     void                        setDisplayTransformation(
-	    				visBase::Transformation*);
-    const visBase::Transformation*    getDisplayTransformation();  
+	    				const visBase::Transformation*);
+    const visBase::Transformation*    getDisplayTransformation() const;
 
 protected:
     				

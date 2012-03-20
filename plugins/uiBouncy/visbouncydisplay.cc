@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.5 2012-03-01 06:07:15 cvsnageswara Exp $";
+static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.6 2012-03-20 11:08:52 cvskris Exp $";
 
 #include "visbouncydisplay.h"
 #include "beachballdata.h"
@@ -315,13 +315,13 @@ void BouncyDisplay::movePaddleDown()
 }
 
 
-const visBase::Transformation* BouncyDisplay::getDisplayTransformation()
+const visBase::Transformation* BouncyDisplay::getDisplayTransformation() const
 {
     return bb_->getDisplayTransformation();
 }
 
 
-void BouncyDisplay::setDisplayTransformation( visBase::Transformation* nt )
+void BouncyDisplay::setDisplayTransformation( const visBase::Transformation* nt )
 {
     bb_->setDisplayTransformation( nt );
     paddle_->setDisplayTransformation( nt );
