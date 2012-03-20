@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.58 2011-07-08 11:04:56 cvshelene Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.59 2012-03-20 10:57:09 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -401,7 +401,7 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 	rg = SI().zRange( true );
 
     if ( !t2d_ )
-	rg.scale( SI().zFactor(true) );
+	rg.scale( ZDomain::Time().userFactor() );
 
     rangefld_->setValue( rg );
 }
