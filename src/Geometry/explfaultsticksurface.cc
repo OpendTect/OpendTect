@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.52 2011-11-15 16:09:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.53 2012-03-20 09:59:08 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1160,7 +1160,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 {
     //Refine needed for pos calculation
 
-    const float zscale = SI().zFactor();
+    const float zscale = SI().zDomain().userFactor();
     
     TypeSet<Coord> knots;
     TypeSet<int> knotids;

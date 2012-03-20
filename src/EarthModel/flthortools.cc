@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.51 2012-02-23 09:46:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.52 2012-03-20 09:59:08 cvskris Exp $";
 
 #include "flthortools.h"
 
@@ -411,17 +411,17 @@ void FaultTrace::computeTraceSegments()
 	const bool is2d = !trcnrs_.isEmpty();
 	if ( is2d )
 	{
-	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zFactor() );
-	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zFactor() );
+	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zDomain().userFactor() );
+	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zDomain().userFactor() );
 	}
 	else
 	{
 	    Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
 	    Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
 	    nodepos1.setXY( isinl_ ? posbid1.y : posbid1.x,
-		    	   pos1.z * SI().zFactor() );
+		    	   pos1.z * SI().zDomain().userFactor() );
 	    nodepos2.setXY( isinl_ ? posbid2.y : posbid2.x,
-		    	   pos2.z * SI().zFactor() );
+		    	   pos2.z * SI().zDomain().userFactor() );
 	}
 
 	tracesegs_ += Line2( nodepos1, nodepos2 );
@@ -441,8 +441,8 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 
     Interval<float> zrg( z1, z2 );
     zrg.sort();
-    z1 *= SI().zFactor();
-    z2 *= SI().zFactor();
+    z1 *= SI().zDomain().userFactor();
+    z2 *= SI().zDomain().userFactor();
     if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
 	    || ( !isinl_ && (bid1.crl != nr_ || bid2.crl != nr_) ) )
 	return Coord::udf();
@@ -457,7 +457,7 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 	Coord interpos = line.intersection( fltseg );
 	if ( interpos != Coord::udf() )
 	{
-	    interpos.y /= SI().zFactor();
+	    interpos.y /= SI().zDomain().userFactor();
 	    return interpos;
 	}
     }
@@ -579,7 +579,7 @@ bool FaultTraceExtractor::execute()
     EM::SectionID fltsid = fault_->sectionID( 0 );
     mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
     Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
-		fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
+		fault3d->geometry().sectionGeometry(fltsid), SI().zDomain().userFactor() );
     efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
     if ( !efss->update(true,0) )
 	return false;

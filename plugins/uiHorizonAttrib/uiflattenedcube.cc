@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.10 2011-09-06 13:13:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.11 2012-03-20 09:59:06 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -63,7 +63,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     pp_.getZRange( horzrg_ );
     MouseCursorManager::restoreOverride();
-    defzval_ = horzrg_.center() * SI().zFactor();
+    defzval_ = horzrg_.center() * SI().zDomain().userFactor();
     defzval_ = mNINT(defzval_);
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
@@ -100,7 +100,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 
     float zval = zvalfld_->getfValue();
     if ( mIsUdf(zval) ) zval = defzval_;
-    zval /= SI().zFactor();
+    zval /= SI().zDomain().userFactor();
     if ( !SI().zRange(false).includes(zval,false) )
 	mErrRet("Please provide a Z value inside the survey Z Range")
 

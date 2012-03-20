@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.24 2012-02-24 10:14:17 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.25 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "delaunay3d.h"
 
@@ -202,8 +202,8 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 
 	if ( narrow[2] )
 	{
-	    center_.z = SI().zRange(true).center()*SI().zFactor();
-	    zlength = SI().zRange(true).width()*SI().zFactor();
+	    center_.z = SI().zRange(true).center()*SI().zDomain().userFactor();
+	    zlength = SI().zRange(true).width()*SI().zDomain().userFactor();
 	}
     }
 

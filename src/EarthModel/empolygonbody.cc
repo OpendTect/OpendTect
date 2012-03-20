@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.16 2011-12-15 21:45:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.17 2012-03-20 09:59:08 cvskris Exp $";
 
 #include "empolygonbody.h"
 
@@ -182,7 +182,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	 surf->getCubicBezierCurve( plg, pts, SI().zFactor() );
+	 surf->getCubicBezierCurve( plg, pts, SI().zDomain().userFactor() );
    
      BodyOperator bodyopt;
      return bodyopt.createImplicitBody( pts, tr ); 

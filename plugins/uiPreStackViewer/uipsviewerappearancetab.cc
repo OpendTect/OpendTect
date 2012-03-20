@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.6 2009-08-18 18:10:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.7 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "uipsviewerappearancetab.h"
 
@@ -132,8 +132,8 @@ void uiViewer3DAppearanceTab::updateFlds( uiGenInput* gridfld,
 				     : (x1 ? manuoffssampl_ : manuzsampl_);
     if ( !x1 )
     {
-	sd.start *= SI().zFactor();
-	sd.step *= SI().zFactor();
+	sd.start *= SI().zDomain().userFactor();
+	sd.step *= SI().zDomain().userFactor();
     }
 
     rgfld->setValues( sd.start, sd.step );
@@ -192,7 +192,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 		return;
 	    }
 
-	    const float zfac = SI().zFactor();
+	    const float zfac = SI().zDomain().userFactor();
 	    zsmp.start /= zfac;
 	    zsmp.step /= zfac;
 	    manuzsampl_ = zsmp;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.44 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.45 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -228,8 +228,8 @@ Scaling::Scaling( Desc& desc )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/(2.*SI().zFactor()), 
-				width_/(2.*SI().zFactor()) );
+    window_ = Interval<float>( -width_/(2.*SI().zDomain().userFactor()), 
+				width_/(2.*SI().zDomain().userFactor()) );
 }
 
 

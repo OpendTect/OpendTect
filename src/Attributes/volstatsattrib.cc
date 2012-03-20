@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.61 2012-02-09 10:40:38 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.62 2012-03-20 09:59:08 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -83,7 +83,7 @@ void VolStatsBase::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zFactor();
+    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );

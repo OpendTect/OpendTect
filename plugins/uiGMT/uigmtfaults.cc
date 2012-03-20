@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.8 2011-11-23 11:35:55 cvsbert Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.9 2012-03-20 09:59:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     iop.set( sKey::Name, namefld_->text() );
     const bool onzslice = optionfld_->getBoolValue();
     iop.setYN( ODGMT::sKeyZIntersectionYN, onzslice );
-    const float zvalue = zvaluefld_->getfValue()/SI().zFactor();
+    const float zvalue = zvaluefld_->getfValue()/SI().zDomain().userFactor();
     StepInterval<float> zrg = SI().zRange( true );
     if ( onzslice )
     {
@@ -125,8 +125,8 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	if ( !isbetween )
 	{
 	    BufferString msg( "Z value is out of survey range(" );
-	    msg.add( mNINT(zrg.start*SI().zFactor()) ).add( " , " )
-	       .add( mNINT(zrg.stop*SI().zFactor()) ).add( ")" );
+	    msg.add( mNINT(zrg.start*SI().zDomain().userFactor()) ).add( " , " )
+	       .add( mNINT(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
 	    uiMSG().message( msg );
 	    return false;
 	}
@@ -184,7 +184,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     {
 	float zvalue;
 	iop.get( ODGMT::sKeyZVals, zvalue );
-	zvaluefld_->setValue( zvalue*SI().zFactor() );
+	zvaluefld_->setValue( zvalue*SI().zDomain().userFactor() );
     }
     else
     {

@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.20 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.21 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "uistratamp.h"
 
@@ -220,9 +220,9 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
     iop.set( StratAmpCalc::sKeyAmplitudeOption(), ampoptionfld_->box()->text());
     iop.setYN( StratAmpCalc::sKeyOutputFoldYN(), foldfld_->getBoolValue() );
     iop.set( StratAmpCalc::sKeyTopShift(),
-	     tophorshiftfld_->getfValue() / SI().zFactor() );
+	     tophorshiftfld_->getfValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyBottomShift(),
-	     bothorshiftfld_->getfValue() / SI().zFactor() );
+	     bothorshiftfld_->getfValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 

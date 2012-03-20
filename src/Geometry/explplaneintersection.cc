@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.20 2011-10-13 14:21:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.21 2012-03-20 09:59:08 cvskris Exp $";
 
 
 #include "explplaneintersection.h"
@@ -508,7 +508,7 @@ ExplPlaneIntersection::ExplPlaneIntersection()
     , intersection_( 0 )
     , shape_( 0 )
     , shapeversion_( -1 )
-    , zscale_( SI().zFactor() )
+    , zscale_( SI().zDomain().userFactor() )
 { }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.32 2011-09-16 10:55:12 cvskris Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.33 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -85,7 +85,7 @@ void Frequency::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zFactor();
+    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );

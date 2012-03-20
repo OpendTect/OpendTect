@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.47 2011-11-30 09:07:08 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.48 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -334,7 +334,7 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     iop.set( mKeyY, c.y );
     iop.set( "Inline", bid.inl );
     iop.set( "Crossline", bid.crl );
-    iop.set( "Z", c.z*SI().zFactor() );
+    iop.set( "Z", c.z*SI().zDomain().userFactor() );
 
     if ( usemultcubes_ )
 	iop.set( mKeyCube, cube_.cubeSampling().nrZ() > 1 ? i0 : i1 );
@@ -521,7 +521,7 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     
     const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
-    iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zFactor() );
+    iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zDomain().userFactor() );
 }
 
 
@@ -643,7 +643,7 @@ void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 	return;
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
-    iop.set( "Z-Coord", ti.samplePos(i1)*SI().zFactor() );
+    iop.set( "Z-Coord", ti.samplePos(i1)*SI().zDomain().userFactor() );
 }
 
 

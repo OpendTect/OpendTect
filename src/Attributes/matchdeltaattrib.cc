@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.3 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.4 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"
@@ -135,7 +135,7 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 void MatchDelta::fillOutput( const DataHolder& output,
 			     int z0, int nrsamples ) const
 {
-    const float outfac = refstep_ * SI().zFactor();
+    const float outfac = refstep_ * SI().zDomain().userFactor();
     if ( poss_.size() < 2 )
     {
 	const float deltaval = (deltas_.isEmpty() ? 0 : deltas_[0]) * outfac;

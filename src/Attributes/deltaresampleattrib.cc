@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: deltaresampleattrib.cc,v 1.3 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: deltaresampleattrib.cc,v 1.4 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "deltaresampleattrib.h"
 #include "attribdataholder.h"
@@ -78,7 +78,7 @@ bool DeltaResample::computeData( const DataHolder& output, const BinID& relpos,
 		      && !mIsUdf(interp.period_);
     int refoffs = z0 - refcubedata_->z0_;
 
-    const float inpfac = 1. / (refstep_ * SI().zFactor());
+    const float inpfac = 1. / (refstep_ * SI().zDomain().userFactor());
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float deltaval = getInputValue( *deltacubedata_, dcdataidx_,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.28 2012-01-10 22:41:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.29 2012-03-20 09:59:06 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -65,7 +65,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     iszval_ = zvalstr == attrnm;
     if ( iszval_ )
     {
-	const float zfac = SI().zFactor();
+	const float zfac = SI().zDomain().userFactor();
 	rg_.scale( zfac );
 	contourintv_.scale( zfac );
     }
@@ -106,7 +106,7 @@ StepInterval<float> getContourInterval() const
 {
     StepInterval<float> res = intvfld_->getFStepInterval();
     if ( iszval_ )
-	res.scale( 1.0/SI().zFactor() );
+	res.scale( 1.0/SI().zDomain().userFactor() );
     
     return res;
 }
@@ -513,7 +513,7 @@ void uiContourTreeItem::createContours()
     if ( !computeContours(*field,rowrg,colrg) )
 	return;
 
-    const float fac = SI().zFactor();
+    const float fac = SI().zDomain().userFactor();
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
     zshift_ = trans.z;
@@ -692,7 +692,7 @@ void uiContourTreeItem::updateZShift()
 	pos.z += deltaz;
 	labels_[idx]->setPosition( pos );
 	float labelval = toFloat( labels_[idx]->getText() );
-	labelval += deltaz * SI().zFactor(); 
+	labelval += deltaz * SI().zDomain().userFactor(); 
 	labels_[idx]->setText( getStringFromFloat(fmt, labelval, buf) );
     }
 

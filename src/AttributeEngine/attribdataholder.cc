@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.24 2011-09-21 08:53:33 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.25 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -144,7 +144,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 
 float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 {
-    if ( !(int)(refzstep*SI().zFactor()) )
+    if ( !(int)(refzstep*SI().zDomain().userFactor()) )
 	return ((exactz/refzstep)-(int)(exactz/refzstep))*refzstep;
 
     //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
@@ -153,7 +153,7 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
     const int extrazem7 = (int)(exactz*fact)%(int)(refzstep*fact);
     const int extrazem7noprec = (int)(refzstep*fact) - 5;
     const int leftem3 = (int)(exactz*fact) - extrazem7;
-    const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*SI().zFactor());
+    const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*SI().zDomain().userFactor());
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
 	return extrazem3*1e-3 + extrazem7 * (SI().zIsTime() ? 1e-7 : 1e-4);
 

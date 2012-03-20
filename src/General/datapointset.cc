@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.45 2011-12-22 12:39:26 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.46 2012-03-20 09:59:08 cvskris Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -766,7 +766,7 @@ if ( !SI().zIsTime() ) \
 } \
 else \
 { \
-    res = dz * SI().zFactor(); \
+    res = dz * SI().zDomain().userFactor(); \
     if ( SI().xyInFeet() ) \
 	res *= mToFeetFactor; \
 } 

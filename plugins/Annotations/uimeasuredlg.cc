@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.23 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.24 2012-03-20 09:59:06 cvskris Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -219,7 +219,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 				      : uom->getUserValueFromSI( totrealdist );
 
     hdistfld_->setValue( tothdist );
-    zdistfld_->setValue( totzdist*SI().zFactor() );
+    zdistfld_->setValue( totzdist*SI().zDomain().userFactor() );
     if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
     distfld_->setValue( totrealdist );
     if ( dist2fld_ ) dist2fld_->setValue( convdist );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.18 2011-05-31 10:30:38 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.19 2012-03-20 09:59:06 cvskris Exp $";
 
 #include "gmtcontour.h"
 
@@ -166,7 +166,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     HorSamplingIterator iter( sd.rg );
     BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
-    const float fac = SI().zFactor();
+    const float fac = SI().zDomain().userFactor();
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {

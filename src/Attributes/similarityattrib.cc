@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.59 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.60 2012-03-20 09:59:07 cvskris Exp $";
 
 #include "similarityattrib.h"
 
@@ -125,7 +125,7 @@ void Similarity::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zFactor();
+    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
