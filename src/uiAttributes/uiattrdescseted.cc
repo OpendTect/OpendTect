@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.117 2012-03-20 21:37:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.118 2012-03-20 21:48:57 cvsyuancheng Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1171,13 +1171,13 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( bool forall,
 
 	    for ( int idz=0; idz<tmp.size(); idz++ )
 	    {
-		const int pidx = eps.indexOf(tmp[idy]);
+		const int pidx = eps.indexOf(tmp[idz]);
 		if ( pidx>=0 )
 		    usernms[pidx].add( curDesc()->userRef() );
 		else
 		{
-		    eps += tmp[idy];
-		    paramnms.add( tmp[idy].label_ );
+		    eps += tmp[idz];
+		    paramnms.add( tmp[idz].label_ );
 
 		    BufferStringSet unms;
 		    unms.add( curDesc()->userRef() );
