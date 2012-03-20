@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          March 2012
- RCS:           $Id: uicrossattrevaluatedlg.h,v 1.1 2012-03-20 20:12:33 cvsyuancheng Exp $
+ RCS:           $Id: uicrossattrevaluatedlg.h,v 1.2 2012-03-20 21:48:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,8 +76,7 @@ protected:
     bool			acceptOK(CallBacker*);
 
     Attrib::DescSet&		attrset_;
-    ObjectSet<uiAttrDescEd>& 	uiattdesceds_;	
-    TypeSet<BufferStringSet>	paramattnms_;//per parameter
+    TypeSet<BufferStringSet>	userattnms_;//per parameter
 
     IOPar&			initpar_;
     BufferStringSet		lbls_;

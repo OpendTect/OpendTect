@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.1 2012-03-20 20:12:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.2 2012-03-20 21:48:31 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 #include "uievaluatedlg.h"
@@ -45,66 +45,23 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     , enabstore_(store)
     , haspars_(false)
     , attrset_(*uads.getSet())  
-    , uiattdesceds_(uads.desceds_)  
 {
     attrset_.fillPar( initpar_ );
 
-    const DescID descid = uads.curDesc()->id();
-    DescSet* clonedset = attrset_.optimizeClone( descid );
-    TypeSet<int> validids;
-    for ( int idx=0; idx<clonedset->size(); idx++ )
-    {
-	Desc* desc = clonedset->desc( idx );
-	if ( !desc )
-	    continue;
+    uiGroup* pargrp = new uiGroup( this, "" );
+    pargrp->setStretch( 1, 1 );
 
-	const char* attrnm = desc->attribName();
-	for ( int idy=0; idy<uiattdesceds_.size(); idy++ )
-	{
-	    if ( !uiattdesceds_[idy] ||
-		 strcmp(attrnm,uiattdesceds_[idy]->attribName()) )
-		continue;
-
-	    TypeSet<EvalParam> tmp;
-	    uiattdesceds_[idy]->getEvalParams( tmp );
-	    /*if ( !tmp.size() && !uiattdesceds_[idy]->curDesc() )
-	    {
-		Attrib::Desc* ad = 
-		    const_cast<Attrib::Desc*>( uads.attrdescs_[idx] );
-		uiattdesceds_[idy]->setDesc( ad, uads.adsman_ );
-		uiattdesceds_[idy]->getEvalParams( tmp );
-	    }*/
-
-	    for ( int idz=0; idz<tmp.size(); idz++ )
-	    {
-		const int pidx = params_.indexOf( tmp[idz] );
-		if ( pidx>=0 )
-		    paramattnms_[pidx].add( desc->userRef() ); 
-		else
-		{
-    		    params_ += tmp[idz];
-    
-		    BufferStringSet pattrnms;
-		    pattrnms.add( desc->userRef() );
-    		    paramattnms_ += pattrnms;
-    		    validids += idy;
-    		}
-    	    }
-	    break;
-    	}
-    }
-    if ( params_.isEmpty() ) return;
+    BufferStringSet paramnms;
+    uads.getUiAttribParamGrps( true, pargrp, grps_, paramnms, userattnms_ );
+    if ( grps_.isEmpty() ) return;
     
     haspars_ = true;
-    BufferStringSet strs;
-    for ( int idx=0; idx<params_.size(); idx++ )
-	strs.add( params_[idx].label_ );
 
     uiGroup* grp = new uiGroup( this, "Attr-Params" );
     uiLabel* paramlabel = new uiLabel( grp, "Evaluate parameters" );
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
-    paramsfld_->addItems( strs );
+    paramsfld_->addItems( paramnms );
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,variableSel));
 
@@ -114,13 +71,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     attrlabel->attach( alignedAbove, attrnmsfld_ );
     attrlabel->attach( rightTo, paramlabel );
 
-    uiGroup* pargrp = new uiGroup( this, "" );
-    pargrp->setStretch( 1, 1 );
     pargrp->attach( alignedBelow, grp );
-    for ( int idx=0; idx<params_.size(); idx++ )
-	grps_ += new AttribParamGroup( pargrp, *uiattdesceds_[validids[idx]], 
-		params_[idx] );
-
     pargrp->setHAlignObj( grps_[0] );
 
     nrstepsfld = new uiLabeledSpinBox( this, "Nr of steps" );
@@ -170,7 +121,7 @@ void uiCrossAttrEvaluateDlg::variableSel( CallBacker* )
 	grps_[idx]->display( idx==sel );
 
     attrnmsfld_->setEmpty();
-    attrnmsfld_->addItems( paramattnms_[sel] );
+    attrnmsfld_->addItems( userattnms_[sel] );
 }
 
 
