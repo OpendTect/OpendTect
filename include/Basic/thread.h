@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.50 2012-03-19 14:32:00 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.51 2012-03-20 14:49:14 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -55,6 +55,7 @@ class Atomic
 public:
     		Atomic(T val=0);
 #ifdef mAtomicWithMutex
+		Atomic( const Atomic<T>& );
 		~Atomic();
 #endif
 
@@ -621,6 +622,11 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
 #endif // not win
 
 #ifdef mAtomicWithMutex
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& b )
+    : lock_( new Mutex ), val_( b.val_ )
+{}
+
 template <class T> inline
 Atomic<T>::~Atomic()
 {
