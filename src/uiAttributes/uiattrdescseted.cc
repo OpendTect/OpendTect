@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.119 2012-03-21 18:30:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.120 2012-03-21 19:41:42 cvsyuancheng Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1158,7 +1158,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( bool forall,
 	     !attrset_->desc(idx) )
 	    continue;
 
-	const char* usernm = attrset_->desc(idx).userRef();
+	const char* usernm = attrset_->desc(idx)->userRef();
 	const char* attrnm =  attrset_->desc(idx) ? 
 	    attrset_->desc(idx)->attribName() : 0;
 	if ( !attrnm ) continue;
