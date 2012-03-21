@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.118 2012-03-20 21:48:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.119 2012-03-21 18:30:16 cvsyuancheng Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1154,9 +1154,11 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( bool forall,
     TypeSet<EvalParam> eps;
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
-	if ( !forall && curDesc()!=attrset_->desc(idx) )
+	if ( (!forall && curDesc()!=attrset_->desc(idx)) ||
+	     !attrset_->desc(idx) )
 	    continue;
 
+	const char* usernm = attrset_->desc(idx).userRef();
 	const char* attrnm =  attrset_->desc(idx) ? 
 	    attrset_->desc(idx)->attribName() : 0;
 	if ( !attrnm ) continue;
@@ -1173,14 +1175,14 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( bool forall,
 	    {
 		const int pidx = eps.indexOf(tmp[idz]);
 		if ( pidx>=0 )
-		    usernms[pidx].add( curDesc()->userRef() );
+		    usernms[pidx].add( usernm );
 		else
 		{
 		    eps += tmp[idz];
 		    paramnms.add( tmp[idz].label_ );
 
 		    BufferStringSet unms;
-		    unms.add( curDesc()->userRef() );
+		    unms.add( usernm );
 		    usernms += unms;
 		    ids += idy;
 		}
