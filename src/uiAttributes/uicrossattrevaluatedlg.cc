@@ -7,29 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.2 2012-03-20 21:48:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.3 2012-03-21 16:25:30 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
-#include "uievaluatedlg.h"
-#include "uigeninput.h"
-#include "datainpspec.h"
-#include "iopar.h"
-#include "uislider.h"
-#include "uibutton.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uispinbox.h"
-#include "uiattrdesced.h"
-#include "uiattrdescseted.h"
-#include "attribdescsetman.h"
 
-#include "attribparam.h"
-#include "attribparamgroup.h"
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "attribsel.h"
 #include "odver.h"
-#include "survinfo.h"
+
+#include "uiattrdescseted.h"
+#include "uibutton.h"
+#include "uievaluatedlg.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uislider.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
@@ -63,7 +55,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
     paramsfld_->selectionChanged.notify(
-	    mCB(this,uiCrossAttrEvaluateDlg,variableSel));
+	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
     uiLabel* attrlabel = new uiLabel( grp, "Attributes" );
     attrnmsfld_ = new uiListBox( grp, "From attributes", true );
@@ -104,7 +96,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
 void uiCrossAttrEvaluateDlg::doFinalise( CallBacker* )
 {
-    variableSel(0);
+    parameterSel(0);
 }
 
 
@@ -114,7 +106,7 @@ uiCrossAttrEvaluateDlg::~uiCrossAttrEvaluateDlg()
 }
 
 
-void uiCrossAttrEvaluateDlg::variableSel( CallBacker* )
+void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 {
     const int sel = paramsfld_->currentItem();
     for ( int idx=0; idx<grps_.size(); idx++ )
@@ -137,41 +129,51 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     if ( sel >= grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
-    Desc& srcad = *attrset_.desc( 0 );
-    BufferString userchosenref = srcad.userRef();
+    TypeSet<int> attrselected;
+    attrnmsfld_->getSelectedItems( attrselected );
+
     const int nrsteps = nrstepsfld->box()->getValue();
-    for ( int idx=0; idx<nrsteps; idx++ )
+    const int attsetsz = attrset_.size();
+    for ( int idx=0; idx<attrselected.size(); idx++ )
     {
-	Desc* newad = idx ? new Desc(srcad) : &srcad;
-	if ( !newad ) return;
-	pargrp->updatePars( *newad, idx );
-	pargrp->updateDesc( *newad, idx );
-
-	BufferString defstr; newad->getDefStr( defstr ); //Only for debugging
-
-	const char* lbl = pargrp->getLabel();
-	BufferString usrref = newad->attribName();
-	usrref += " - "; usrref += lbl;
-	newad->setUserRef( usrref );
-	if ( newad->selectedOutput()>=newad->nrOutputs() )
+	const char* userattnm = userattnms_[sel].get(idx).buf();
+	for ( int idy=0; idy<attsetsz; idy++ )
 	{
-	    newad->ref(); newad->unRef();
-	    continue;
+	    Desc& srcad = *attrset_.desc( idy );
+	    BufferString userchosenref = srcad.userRef();
+	    if ( !userchosenref.isEqual(userattnm,true) )
+		continue;
+
+	    for ( int idz=0; idz<nrsteps; idz++ )
+	    {
+		Desc* newad = idz ? new Desc(srcad) : &srcad;
+		if ( !newad ) return;
+		pargrp->updatePars( *newad, idz );
+		pargrp->updateDesc( *newad, idz );
+
+		BufferString defstr; newad->getDefStr( defstr ); //to remove
+
+		const char* lbl = pargrp->getLabel();
+		BufferString usrref = newad->attribName();
+		usrref += " - "; usrref += lbl;
+		newad->setUserRef( usrref );
+		if ( newad->selectedOutput()>=newad->nrOutputs() )
+		{
+		    newad->ref(); newad->unRef();
+		    continue;
+		}
+
+		if ( idz ) 
+		    attrset_.addDesc( newad );
+
+		lbls_ += new BufferString( lbl );
+		SelSpec as; as.set( *newad );
+
+		as.setObjectRef( userattnm );
+		specs_ += as;
+	    }
 	}
-
-	if ( idx ) 
-	    attrset_.addDesc( newad );
-
-	lbls_ += new BufferString( lbl );
-	SelSpec as; as.set( *newad );
-
-	// trick : use as -> objectRef to store the userref;
-	// possible since objref_ is only used for NN which cannot be evaluated
-	as.setObjectRef( userchosenref.buf() );
-		
-	specs_ += as;
     }
-
     if ( specs_.isEmpty() )
 	return;
 

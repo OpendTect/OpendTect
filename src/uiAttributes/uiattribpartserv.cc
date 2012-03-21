@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.185 2012-03-20 21:48:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.186 2012-03-21 16:25:30 cvsyuancheng Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1513,13 +1513,15 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     }
     else
     {
-    	uiCrossAttrEvaluateDlg* evaldlg = 
+    	uiCrossAttrEvaluateDlg* crossevaldlg = 
 	    new uiCrossAttrEvaluateDlg(attrsetdlg_,*attrsetdlg_,allowevalstor_);
-	evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
-    	evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
-    	evaldlg->windowClosed.notify(
+	crossevaldlg->calccb.notify( 
+		mCB(this,uiAttribPartServer,calcEvalAttrs) );
+	crossevaldlg->showslicecb.notify( 
+		mCB(this,uiAttribPartServer,showSliceCB) );
+	crossevaldlg->windowClosed.notify(
 		mCB(this,uiAttribPartServer,crossEvalDlgClosed) );
-	evaldlg->go();
+	crossevaldlg->go();
     }
 
     attrsetdlg_->setSensitive( false );
@@ -1593,12 +1595,18 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
 {
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
-    if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
+    mDynamicCastGet(uiCrossAttrEvaluateDlg*,crossevaldlg,cb);
+    if ( !evaldlg && !crossevaldlg )
+       return;	
 
     const bool is2d = attrsetdlg_->is2D();
     DescSetMan* kpman = eDSHolder().getDescSetMan( is2d );
-    DescSet* ads = evaldlg->getEvalSet();
-    evaldlg->getEvalSpecs( targetspecs_ );
+    DescSet* ads = evaldlg ? evaldlg->getEvalSet() : crossevaldlg->getEvalSet();
+    if ( evaldlg )
+    	evaldlg->getEvalSpecs( targetspecs_ );
+    else
+	crossevaldlg->getEvalSpecs( targetspecs_ );
+    
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
     eDSHolder().replaceADSMan( tmpadsman );
     set2DEvent( is2d );

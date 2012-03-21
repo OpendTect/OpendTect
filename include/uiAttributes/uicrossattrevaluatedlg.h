@@ -7,34 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          March 2012
- RCS:           $Id: uicrossattrevaluatedlg.h,v 1.2 2012-03-20 21:48:31 cvsyuancheng Exp $
+ RCS:           $Id: uicrossattrevaluatedlg.h,v 1.3 2012-03-21 16:25:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-#include "uigroup.h"
 #include "bufstringset.h"
-#include "attribdescid.h"
 #include "attribdescset.h"
 
-namespace Attrib
-{
-    class Desc;
-    class DescSet;
-    class SelSpec;
-    class ValParam;
-}
-
 class AttribParamGroup;
-class DataInpSpec;
-class EvalParam;
 class IOPar;
 class uiAttribDescSetEd;
-class uiAttrDescEd;
 class uiCheckBox;
-class uiGenInput;
 class uiLabel;
 class uiLabeledSpinBox;
 class uiListBox;
@@ -68,7 +54,7 @@ protected:
     uiLabel*			displaylbl;
     uiCheckBox*			storefld;
 
-    void			variableSel(CallBacker*);
+    void			parameterSel(CallBacker*);
     void			calcPush(CallBacker*);
     void			sliderMove(CallBacker*);
     void			doFinalise(CallBacker*);
@@ -81,7 +67,6 @@ protected:
     IOPar&			initpar_;
     BufferStringSet		lbls_;
     ObjectSet<AttribParamGroup>	grps_;
-    TypeSet<EvalParam>		params_;
 
     TypeSet<Attrib::SelSpec>	specs_;
     bool			enabstore_;
