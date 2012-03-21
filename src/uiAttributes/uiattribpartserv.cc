@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.186 2012-03-21 16:25:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.187 2012-03-21 18:42:57 cvsyuancheng Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1520,7 +1520,7 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
 	crossevaldlg->showslicecb.notify( 
 		mCB(this,uiAttribPartServer,showSliceCB) );
 	crossevaldlg->windowClosed.notify(
-		mCB(this,uiAttribPartServer,crossEvalDlgClosed) );
+		mCB(this,uiAttribPartServer,evalDlgClosed) );
 	crossevaldlg->go();
     }
 
@@ -1536,40 +1536,15 @@ void uiAttribPartServer::showEvalDlg( CallBacker* cb )
 { processEvalDlg( false ); }
 
 
-void uiAttribPartServer::crossEvalDlgClosed( CallBacker* cb )
-{
-    mDynamicCastGet(uiCrossAttrEvaluateDlg*,evaldlg,cb);
-    if ( !evaldlg ) return; 
-
-    if ( evaldlg->storeSlices() )
-	sendEvent( evEvalStoreSlices() );
-    
-    Desc* curdesc = attrsetdlg_->curDesc();
-    BufferString curusrref = curdesc->userRef();
-    uiAttrDescEd* ade = attrsetdlg_->curDescEd();
-
-    DescSet* curattrset = attrsetdlg_->getSet();
-    const Desc* evad = evaldlg->getAttribDesc();
-    if ( evad )
-    {
-	BufferString defstr;
-	evad->getDefStr( defstr );
-	curdesc->parseDefStr( defstr );
-	curdesc->setUserRef( curusrref );
-	attrsetdlg_->updateCurDescEd();
-    }
-
-    sendEvent( evEvalRestore() );
-    attrsetdlg_->setSensitive( true );
-}
-
-
 void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
-    if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
-
-    if ( evaldlg->storeSlices() )
+    mDynamicCastGet(uiCrossAttrEvaluateDlg*,crossevaldlg,cb);
+    if ( !evaldlg && !crossevaldlg )
+       return;	
+    
+    if ( (evaldlg && evaldlg->storeSlices()) ||
+	 (crossevaldlg && crossevaldlg->storeSlices()) )
 	sendEvent( evEvalStoreSlices() );
     
     Desc* curdesc = attrsetdlg_->curDesc();
@@ -1577,7 +1552,8 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
     uiAttrDescEd* ade = attrsetdlg_->curDescEd();
 
     DescSet* curattrset = attrsetdlg_->getSet();
-    const Desc* evad = evaldlg->getAttribDesc();
+    const Desc* evad = evaldlg ? evaldlg->getAttribDesc() 
+			       : crossevaldlg->getAttribDesc();
     if ( evad )
     {
 	BufferString defstr;
