@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.3 2012-03-21 16:25:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.4 2012-03-21 22:46:14 cvsnanne Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -36,7 +36,8 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     , initpar_(*new IOPar)
     , enabstore_(store)
     , haspars_(false)
-    , attrset_(*uads.getSet())  
+    , attrset_(*uads.getSet())
+    , paramsfld_(0)
 {
     attrset_.fillPar( initpar_ );
 
@@ -200,6 +201,9 @@ void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
 
 bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 {
+    if ( !paramsfld_ )
+	return true;
+
     const int sliceidx = sliderfld->sldr()->getIntValue();
     //if ( sliceidx < specs_.size() )
 	//seldesc_ = attrset_.getDesc( specs_[sliceidx].id() );
