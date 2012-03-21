@@ -65,6 +65,7 @@ SET( OD_PLUGINS
 	uiDPSDemo
 	uiExpAttribs
 	uiGapDecon
+	uiGMT
 	uiGoogleIO
 	uiGrav
 	uiHello
