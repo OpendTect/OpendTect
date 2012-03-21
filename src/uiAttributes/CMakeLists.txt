@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Attribute-related UI
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-21 07:09:01 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiPreStackProcessing uiVolumeProcessing Attributes )
@@ -26,6 +26,7 @@ SET(OD_MODULE_SOURCES
 		uiattrvolout.cc
 		uiautoattrdescset.cc
 		uiconvolveattrib.cc
+		uicrossattrevaluatedlg.cc
 		uideltaresampleattrib.cc
 		uidipfilterattrib.cc
 		uienergyattrib.cc
