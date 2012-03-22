@@ -2,10 +2,11 @@
 #
 #	Makefile : 	Coin Extensions
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-02-23 11:05:59 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-22 16:01:27 cvssatyaki Exp $
 #_______________________________________________________________________________
 
 SET(OD_USECOIN 1)
+SET(OD_USEQT OpenGL )
 SET(OD_MODULE_SOURCES
 		initsood.cc
 		SbImagei32.cc
