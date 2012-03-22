@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.44 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.45 2012-03-22 12:15:25 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -146,6 +146,11 @@ public:
 				{ return DataPackMgr::SurfID(); }
 
     static const char*		sKeyTriProjection() { return "TriangulateProj";}
+
+    void			doOtherObjectsMoved( 
+				    const ObjectSet<const SurveyObject>& objs,
+				    int whichobj)
+				{ otherObjectsMoved( objs, whichobj ); }
 
 protected:
 
