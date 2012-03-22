@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.5 2012-03-13 08:14:55 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.6 2012-03-22 09:28:30 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -50,16 +50,20 @@ bool ODInst::canInstall()
 }
 
 
+#define mDefCmd() \
+    BufferString cmd( "@", FilePath(GetBinPlfDir(),"od_instmgr").fullPath() ); \
+    cmd.add( " --instdir " ).add( mRelRootDir )
+
+
 void ODInst::startInstManagement()
 {
-    const BufferString cmd( "@od_instmgr --instdir ", mRelRootDir );
+    mDefCmd();
     StreamProvider( cmd ).executeCommand( true );
 }
 
 bool ODInst::updatesAvailable()
 {
-    const BufferString cmd( "@od_instmgr --updcheck_report --instdir ",
-	    			mRelRootDir );
+    mDefCmd(); cmd.add( " --updcheck_report" );
     return StreamProvider( cmd ).executeCommand( false );
 }
 
