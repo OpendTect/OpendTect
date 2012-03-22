@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.52 2012-03-20 09:59:08 cvskris Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.53 2012-03-22 12:15:02 cvsbruno Exp $";
 
 #include "flthortools.h"
 
@@ -923,13 +923,13 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	hs.limitTo( hrg );
 	flths_ += hs;
 	execgrp.add( new FaultTraceCalc(flt,hs,*trcs) );
-
     }
 
     const bool ret = tr ? tr->execute(execgrp) : execgrp.execute();
     if ( !ret )
 	mErrRet("Failed to extract Fault traces")
 
+    multiids_ = faultids; 
     return true;
 }
 

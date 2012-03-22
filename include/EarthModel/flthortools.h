@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.27 2012-02-23 09:46:24 cvssatyaki Exp $
+ RCS:		$Id: flthortools.h,v 1.28 2012-03-22 12:15:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+#include "multiid.h"
 #include "positionlist.h"
 #include "sets.h"
 #include "surv2dgeom.h"
@@ -168,6 +169,8 @@ public:
     bool		isEmpty() const;
     const char*		errMsg() const;
 
+    const TypeSet<MultiID>& getFaultIds() const { return multiids_; }
+    				
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,HorSampling&) const;
@@ -176,6 +179,7 @@ protected:
     bool				is2d_;
     ObjectSet<ObjectSet<FaultTrace> >   flttrcs_;
     TypeSet<HorSampling>                flths_;
+    TypeSet<MultiID> 			multiids_;
     PosInfo::GeomID			geomid_;
     BufferString			errmsg_;
 
