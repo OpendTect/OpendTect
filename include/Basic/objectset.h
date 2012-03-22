@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.7 2012-01-16 14:04:10 cvskris Exp $
+ RCS:		$Id: objectset.h,v 1.8 2012-03-22 15:34:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,11 @@ public:
     virtual inline T*		remove(int,bool preserve_order=true);
     				/*!<\returns the removed pointer. */
     inline virtual void		remove(int from,int to);
+
+    inline T*			first();
+    inline const T*		first() const;
+    inline T*			last();
+    inline const T*		last() const;
 
 
 protected:
@@ -362,9 +367,16 @@ T* ObjectSet<T>::remove( int idx, bool kporder )
 }
 
 
-template <class T> inline
-void ObjectSet<T>::remove( int i1, int i2 )
+template <class T> inline void ObjectSet<T>::remove( int i1, int i2 )
 { vec_.remove( i1, i2 ); }
+template <class T> inline T* ObjectSet<T>::first()
+{ return isEmpty() ? 0 : (*this)[0]; }
+template <class T> inline const T* ObjectSet<T>::first() const
+{ return isEmpty() ? 0 : (*this)[0]; }
+template <class T> inline T* ObjectSet<T>::last()
+{ return isEmpty() ? 0 : (*this)[size()-1]; }
+template <class T> inline const T* ObjectSet<T>::last() const
+{ return isEmpty() ? 0 : (*this)[size()-1]; }
 
 
 #endif
