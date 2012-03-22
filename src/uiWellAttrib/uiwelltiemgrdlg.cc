@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.57 2012-03-14 11:19:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.58 2012-03-22 15:13:30 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -15,11 +15,11 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.57 2012-03-14 11:19:55 c
 #include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "multiid.h"
-#include "propertyref.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welldata.h"
+#include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
 #include "welltransl.h"
@@ -33,7 +33,6 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.57 2012-03-14 11:19:55 c
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uielasticpropsel.h"
 #include "unitofmeasure.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -129,7 +128,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    logsfld_ = new uiWellElasticPropSel( logsgrp, wtsetup_.elps_); 
+    logsfld_ = new uiWellElasticPropSel( logsgrp ); 
     
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
@@ -261,7 +260,7 @@ bool uiTieWinMGRDlg::getDefaults()
 	if ( seis2dfld_ && was2d ) seis2dfld_->setInput(  wtsetup_.seisid_ );
     }
 
-    logsfld_->setVelLog( wtsetup_.vellognm_, 0, !wtsetup_.issonic_ );
+    logsfld_->setVelLog( wtsetup_.vellognm_, 0, wtsetup_.issonic_ );
     logsfld_->setDenLog( wtsetup_.denlognm_, 0 );
 
     if ( !wtsetup_.wvltid_.isEmpty() )
@@ -304,10 +303,10 @@ bool uiTieWinMGRDlg::initSetup()
 	return false;
 
     BufferString veluom, denuom; 
-    bool isvel = false;
+    bool issonic = false;
     logsfld_->getDenLog( wtsetup_.denlognm_, denuom );
-    logsfld_->getVelLog( wtsetup_.vellognm_, veluom, isvel );
-    wtsetup_.issonic_ = !isvel; 
+    logsfld_->getVelLog( wtsetup_.vellognm_, veluom, issonic );
+    wtsetup_.issonic_ = issonic; 
     
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
@@ -316,15 +315,16 @@ bool uiTieWinMGRDlg::initSetup()
 	    mErrRet( "A window with this well is already opened" )
     }
 
-
     WellTie::UnitFactors units;
-    const Well::Log* s = wd_->logs().getLog( wtsetup_.vellognm_ ); 
-    const Well::Log* d = wd_->logs().getLog( wtsetup_.denlognm_ );
+    Well::Log* s = wd_->logs().getLog( wtsetup_.vellognm_ ); 
+    Well::Log* d = wd_->logs().getLog( wtsetup_.denlognm_ );
     if ( !s || !d ) mErrRet( "No valid log selected" );
 
     if ( veluom.isEmpty() || denuom.isEmpty() )
 	mErrRet( "invalid log units, please check your input logs" );
 
+    s->setUnitMeasLabel( veluom );
+    d->setUnitMeasLabel( denuom );
 
     if ( is2d_ )
     {

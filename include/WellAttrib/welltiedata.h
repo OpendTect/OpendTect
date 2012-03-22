@@ -22,8 +22,6 @@ ________________________________________________________________________
 
 class BinID;
 class CtxtIOObj;
-class ElasticPropSelection;
-class PropertyRefSelection;
 class SeisTrc;
 class TaskRunner;
 class Wavelet;
@@ -102,7 +100,6 @@ public :
     const StepInterval<float>& 	timeintv_;
     Interval<float>		dahrg_;
     const Setup&		setup() const		{ return setup_; }
-    const ElasticPropSelection&	elPropSel() const 	{ return setup_.elps_; }
 
     const char*  		sonic() 	const;
     const char*  		density() 	const;

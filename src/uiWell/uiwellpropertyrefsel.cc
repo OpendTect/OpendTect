@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.7 2012-03-14 15:23:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.8 2012-03-22 15:13:30 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -265,9 +265,8 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 
 
 
-uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, 
-			ElasticPropSelection& elps, bool withswaves )
-    : uiWellPropSel(p,elps)
+uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
+    : uiWellPropSel(p,*new ElasticPropSelection())
 {
     if ( !withswaves )
 	propflds_[propflds_.size()-1]->display( false );
@@ -277,32 +276,6 @@ uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p,
 uiWellElasticPropSel::~uiWellElasticPropSel()
 {
     delete &proprefsel_;
-}
-
-
-bool uiWellElasticPropSel::isOK() 
-{
-    if ( !uiWellPropSel::isOK() ) 
-	return false;
-
-    BufferString lognm; BufferString loguom; bool alternate = false;
-
-    getVelLog( lognm, loguom, alternate );
-    ElasticFormula::Type dentp = ElasticFormula::Den;
-    ElasticPropertyRef& denepr = elasticProps().get( dentp );
-    denepr.formula().setExpression( lognm );
-    denepr.formula().variables().add( lognm );
-    denepr.formula().units().add( loguom );
-
-    loguom.setEmpty();
-    getDenLog( lognm, loguom );
-    ElasticFormula::Type veltp = ElasticFormula::PVel;
-    ElasticPropertyRef& velepr = elasticProps().get( veltp );
-    velepr.formula().setExpression( lognm );
-    velepr.formula().variables().add( lognm );
-    velepr.formula().units().add( loguom );
-
-    return true;
 }
 
 
@@ -342,9 +315,3 @@ bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
     return getLog( tp, nm, isrev, um );
 }
 
-
-ElasticPropSelection& uiWellElasticPropSel::elasticProps()
-{
-    PropertyRefSelection& prs = const_cast<PropertyRefSelection&>(proprefsel_);
-    return dynamic_cast<ElasticPropSelection&>( prs );
-}

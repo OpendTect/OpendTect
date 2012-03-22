@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.77 2012-03-14 11:19:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.78 2012-03-22 15:13:30 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -107,21 +107,20 @@ bool DataPlayer::setAIModel()
 	    || !processLog( denlog, pdlog, data_.density() ) )
 	return false;
 
+    if ( data_.isSonic() )
+	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
+
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
-    ElasticPropGen epg ( data_.elPropSel(), data_.elPropSel() );
     for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
 	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
 	const bool inside = data_.dahrg_.includes( dah1, true );
-	TypeSet<float> vals;
-	vals += inside ? pslog.getValue( dah1, true ) : mUdf(float);
-	vals += inside ? pdlog.getValue( dah1, true ) : mUdf(float);
-	float den, pvel, svel = mUdf( float );
-	epg.getVals( den, pvel, svel, vals.arr(), 2 );
-	aimodel_ += AILayer( fabs( dah1-dah0 ), pvel, den );
+	const float vel = inside ? pslog.getValue( dah1, true ) : mUdf(float);
+	const float den = inside ? pdlog.getValue( dah1, true ) : mUdf(float);
+	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
     }
     return true;
 }
