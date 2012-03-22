@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.7 2012-03-09 12:56:22 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.8 2012-03-22 06:47:09 cvsnageswara Exp $
 #_______________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ MACRO(OD_SETUP_OSG)
 		OSGVIEWER
 		OSGVOLUME
 		OPENTHREADS
+		OSGTEXT
 		OSGGEO )
 
 	FOREACH( OSGMODULE ${OSGMODULES} )
