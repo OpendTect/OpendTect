@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.12 2012-01-06 13:33:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.13 2012-03-23 21:07:18 cvsnanne Exp $";
 
 
 #include "vissower.h"
@@ -35,18 +35,19 @@ namespace visSurvey
 
 
 Sower::Sower( const visBase::VisualObjectImpl* editobj )
-    : visBase::VisualObjectImpl( false )
-    , editobject_( editobj )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , mode_( Idle )
-    , sowingline_( visBase::PolyLine::create() )
-    , pickstyle_( visBase::PickStyle::create() )
-    , linelost_( false )
-    , singleseeded_( true )
-    , curpid_( EM::PosID::udf() )
-    , curpidstamp_( mUdf(int) )
-    , workrange_( 0 )
+    : visBase::VisualObjectImpl(false)
+    , editobject_(editobj)
+    , eventcatcher_(0)
+    , transformation_(0)
+    , mode_(Idle)
+    , sowingline_(visBase::PolyLine::create())
+    , pickstyle_(visBase::PickStyle::create())
+    , linelost_(false)
+    , singleseeded_(true)
+    , curpid_(EM::PosID::udf())
+    , curpidstamp_(mUdf(int))
+    , workrange_(0)
+    , underlyingobjid_(-1)
 {
     pickstyle_->ref();
     pickstyle_->setStyle( visBase::PickStyle::Unpickable );
