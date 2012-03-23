@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.9 2012-03-23 12:58:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.10 2012-03-23 14:50:03 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -267,8 +267,7 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
     : uiWellPropSel(p,*new ElasticPropSelection())
 {
-    if ( !withswaves )
-	propflds_[propflds_.size()-1]->display( false );
+    propflds_[propflds_.size()-1]->display( withswaves );
 }
 
 
