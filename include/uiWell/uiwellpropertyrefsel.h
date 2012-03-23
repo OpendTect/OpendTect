@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.6 2012-03-22 15:13:30 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.7 2012-03-23 12:58:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ public:
     bool		getLog(const PropertyRef::StdType,BufferString&,
 	    			bool&,BufferString& uom) const;
 
-    virtual bool	isOK(); 
+    virtual bool	isOK() const;  
 
 protected:
     void				initFlds();

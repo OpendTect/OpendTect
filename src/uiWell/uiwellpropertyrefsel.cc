@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.8 2012-03-22 15:13:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.9 2012-03-23 12:58:11 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -214,8 +214,7 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 }
 
 
-#define mErrRet(msg) { errmsg = msg; retrun false; }
-bool uiWellPropSel::isOK() 
+bool uiWellPropSel::isOK() const
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
