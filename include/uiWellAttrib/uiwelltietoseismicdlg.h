@@ -110,7 +110,7 @@ protected:
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
-    void			reDrawSeisViewerAnnot(CallBacker*);
+    void			reDrawAnnots(CallBacker*);
     void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);

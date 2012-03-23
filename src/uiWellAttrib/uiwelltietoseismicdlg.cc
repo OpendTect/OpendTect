@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.103 2012-03-20 10:08:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.104 2012-03-23 14:53:42 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -158,8 +158,9 @@ void uiTieWin::reDrawSeisViewer( CallBacker* )
 }
 
 
-void uiTieWin::reDrawSeisViewerAnnot( CallBacker* )
+void uiTieWin::reDrawAnnots( CallBacker* )
 {
+    drawer_->redrawLogsAnnots();
     drawer_->redrawViewerAnnots();
 }
 
@@ -187,8 +188,7 @@ void uiTieWin::addControls()
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
     controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
-    controlview_->redrawAnnotNeeded.notify( 
-	    			mCB(this,uiTieWin,reDrawSeisViewerAnnot) );
+    controlview_->redrawAnnotNeeded.notify( mCB(this,uiTieWin,reDrawAnnots) );
 }
 
 
@@ -204,7 +204,6 @@ void uiTieWin::drawFields()
     disppropgrp->attach( ensureBelow, viewer() );
     disppropgrp->attach( ensureBelow, drawer_->logDisps()[0] );
     disppropgrp->attach( ensureBelow, drawer_->logDisps()[1] );
-    disppropgrp->attach( leftBorder );
     createDispPropFields( disppropgrp );
 
     uiSeparator* horSepar = new uiSeparator( this );
@@ -283,17 +282,13 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     dispgrp->setHSpacing( 50 );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
+    zinftfld_->attach( hCentered );
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
-    markerfld_ = new uiCheckBox( dispgrp, "Display Markers" );
-    markerfld_->attach( rightOf, zintimefld_ );
-    markerfld_->display( wd->haveMarkers() );
-
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
-    markerfld_->activated.notify( pccb );
     zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
 
@@ -305,13 +300,11 @@ void uiTieWin::getDispParams()
 {
     params_.iszinft_ = zinftfld_->isChecked();
     params_.iszintime_ = zintimefld_->isChecked();
-    params_.ismarkerdisp_ = markerfld_->isChecked();
 }
 
 
 void uiTieWin::putDispParams()
 {
-    markerfld_->setChecked( params_.ismarkerdisp_ );
     zinftfld_->setChecked( params_.iszinft_ );
     zintimefld_->setChecked( params_.iszintime_ );
 }
@@ -380,7 +373,7 @@ void uiTieWin::clearPicks( CallBacker* cb )
 {
     server_.pickMgr().clearAllPicks();
     checkIfPick( cb );
-    reDrawSeisViewerAnnot(0);
+    drawer_->redrawViewerAnnots();
 }
 
 
@@ -388,7 +381,7 @@ void uiTieWin::clearLastPick( CallBacker* cb )
 {
     server_.pickMgr().clearLastPicks();
     checkIfPick( cb );
-    reDrawSeisViewerAnnot(0);
+    drawer_->redrawViewerAnnots();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.98 2012-01-11 16:07:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.99 2012-03-23 14:53:42 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -108,6 +108,12 @@ void uiTieView::redrawViewerAnnots()
     drawViewerWellMarkers();
     drawHorizons();
     vwr_->handleChange( FlatView::Viewer::Annot );
+}
+
+
+void uiTieView::redrawLogsAnnots()
+{
+    drawLogDispWellMarkers();
 }
 
 
@@ -258,10 +264,10 @@ void uiTieView::drawLogDispWellMarkers()
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_; 
+	logsdisp_[idx]->reDrawAnnots();
     }
 }
 
-#define mMrkrScale2DFac 1/(float)5
 #define mRemoveItms( itms ) \
     for ( int idx=0; idx<itms.size(); idx++ ) \
 	vwr_->rgbCanvas().scene().removeItem( itms[idx] ); \
@@ -312,7 +318,7 @@ void uiTieView::drawViewerWellMarkers()
 	app.annot_.auxdata_ +=  auxdata;
 	zpos *= 1000;	
 	const int shapeint = mrkdisp.shapeint_;
-	const int drawsize = (int)(mrkdisp.size_*mMrkrScale2DFac);
+	const int drawsize = mrkdisp.size_;
 	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =  LineStyle::Solid;

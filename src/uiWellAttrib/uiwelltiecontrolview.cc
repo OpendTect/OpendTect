@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.37 2011-09-21 14:23:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.38 2012-03-23 14:53:42 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -55,6 +55,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     , server_(server)
     , redrawNeeded(this)
     , redrawAnnotNeeded(this)
+    , mrkrdlg_(0)			     
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -214,9 +215,12 @@ class uiMrkDispDlg : public uiDialog
 public :
 
     uiMrkDispDlg( uiParent* p, DispParams& pms )
-	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
-	, pms_(pms) 
+	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID)
+		.modal(false))
+	, pms_(pms)
+	, redrawneeded_(this)		   
     {
+	setCtrlStyle( LeaveOnly );
 	uiGroup* topgrp = new uiGroup( this, "top group" );
 	dispmrkfld_ = new uiCheckBox( topgrp, "display markers");
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
@@ -234,7 +238,7 @@ public :
 	disphorfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
 	disphorfullnamefld_->attach( rightOf, disphorfld_ );
 	disphorfullnamefld_->setChecked(
-	pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
+			    pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
 	disphorfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
 
 	uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
@@ -245,6 +249,8 @@ public :
 		pms_.mrkdisp_, pms_.allmarkernms_, true );	
 	mrkdispfld_->attach( ensureBelow, sep );
 	mrkdispfld_->attach( alignedBelow, topgrp );
+	mrkdispfld_->putToScreen();
+	mrkdispfld_->propChanged.notify(mCB(this,uiMrkDispDlg,dispChged));
 
 	dispChged(0);
     }
@@ -257,8 +263,11 @@ public :
 	pms_.disphorfullnames_ = disphorfullnamefld_->isChecked();
 	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
 	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
-	mrkdispfld_->putToScreen();
+
+	redrawneeded_.trigger(); 
     }
+
+    Notifier<uiMrkDispDlg>	redrawneeded_;
 
 protected:
 
@@ -273,9 +282,18 @@ protected:
 
 void uiControlView::dispHorMrks( CallBacker* )
 {
-    uiMrkDispDlg dlg( this, server_.dispParams() );
-    if ( dlg.go() )
-	redrawNeeded.trigger();
+    if ( !mrkrdlg_ )
+    {
+	mrkrdlg_ = new uiMrkDispDlg( this, server_.dispParams() );
+	mrkrdlg_->redrawneeded_.notify(mCB(this,uiControlView,reDrawNeeded) );
+    }
+    mrkrdlg_->go();
+}
+
+
+void uiControlView::reDrawNeeded( CallBacker* )
+{
+    redrawAnnotNeeded.trigger();
 }
 
 

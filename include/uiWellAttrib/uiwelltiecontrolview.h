@@ -52,7 +52,7 @@ protected:
     uiIOObjSelDlg*	selhordlg_;
     uiWorldRect		curview_;
    
-    uiMrkDispDlg*	hormrkdispdlg_;
+    uiMrkDispDlg*	mrkrdlg_;
     Server&		server_;
 
     bool 		checkIfInside(double,double);
@@ -65,6 +65,7 @@ protected:
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);
     void		rubBandCB(CallBacker*);
+    void		reDrawNeeded(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
 
     friend class	uiTieWin;
