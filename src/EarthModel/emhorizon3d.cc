@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.134 2012-02-29 15:52:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.135 2012-03-23 21:06:31 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -770,6 +770,12 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     return new RowColIterator( surface_, sid, rowrg, colrg );
 }
 
+
+const char* Horizon3DAscIO::sKeyFormatStr()
+{ return "Horizon3D"; }
+
+const char* Horizon3DAscIO::sKeyAttribFormatStr()
+{ return "Horizon3DAttributes"; }
 
 Table::FormatDesc* Horizon3DAscIO::getDesc() 
 {

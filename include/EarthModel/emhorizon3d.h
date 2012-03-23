@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.72 2012-02-29 15:33:56 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.73 2012-03-23 21:06:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -149,6 +149,9 @@ public:
 
     bool			isXY() const;
     int				getNextLine(Coord&,TypeSet<float>&);
+
+    static const char*		sKeyFormatStr();
+    static const char*		sKeyAttribFormatStr();
 
 protected:
 
