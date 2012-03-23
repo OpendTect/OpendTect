@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.38 2012-03-23 12:14:20 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.39 2012-03-23 12:29:12 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -164,6 +164,10 @@ FOREACH( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
                 SOURCES ${STATIC_LIB}
                 COMMENT "Extracting shared library ${STATIC_LIB_NAME}" )
 
+    set_directory_properties( PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+		${STATIC_LIB_DIR} )
+
+    LIST ( APPEND STATIC_TARGETS ${STATIC_LIB_NAME} )
 ENDFOREACH()
 
 #Setup library & its deps
@@ -185,6 +189,10 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
 	 )
+
+    FOREACH ( DEP ${STATIC_TARGETS} )
+	ADD_DEPENDENCIES( ${OD_MODULE_NAME} ${DEP} )
+    ENDFOREACH()
 
     SET_TARGET_PROPERTIES( ${OD_MODULE_NAME}
 	    PROPERTIES 
