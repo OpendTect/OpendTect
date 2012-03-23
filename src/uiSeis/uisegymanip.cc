@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.19 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.20 2012-03-23 15:01:51 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -55,13 +55,15 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     , havechg_(false)
 {
     const int nrrows = def_.size();
-    tbl_ = new uiTable( this, uiTable::Setup(nrrows,2),
+    tbl_ = new uiTable( this, uiTable::Setup(nrrows,3).manualresize(true),
 	    		      "Bin header table" );
     tbl_->setColumnLabel( 0, "Byte" );
     tbl_->setColumnToolTip( 0, "Byte location in binary header" );
     tbl_->setColumnReadOnly( 0, true );
     tbl_->setColumnLabel( 1, "Value" );
     tbl_->setColumnToolTip( 1, "Value (initially from file)" );
+    tbl_->setColumnLabel( 2, "Description" );
+    tbl_->setColumnReadOnly( 2, true );
 
     for ( int irow=0; irow<nrrows; irow++ )
     {
@@ -71,7 +73,10 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
 	tbl_->setValue( RowCol(irow,0), he.bytepos_+1 );
 	tbl_->setValue( RowCol(irow,1),
 			he.getValue(hdr_.buf(),hdr_.isSwapped()) );
+	tbl_->setText( RowCol(irow,2), he.description() );
     }
+    tbl_->setColumnResizeMode( uiTable::Interactive );
+    tbl_->resizeColumnToContents( 2 );
 
 #define mSetUsedRow(nm) \
     tbl_->setLabelBGColor( SEGY::BinHeader::Entry##nm(), Color::Peach(), true )
@@ -155,10 +160,16 @@ uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
 
 BufferString getSummary() const
 {
-    BufferString ret( hdr_.isSwapped() ? "[Swapped] " : "" );
-    ret.add( "ns=" ).add( hdr_.nrSamples() )
-       .add( " ; fmt=" )
-       .add( SEGY::FilePars::nameOfFmt( hdr_.format(), false ) );
+    BufferString ret;
+    if ( hdr_.isSwapped() )
+	ret.add( "[Swapped] " );
+    if ( hdr_.isRev1() )
+	ret.add( "[Rev 1] " );
+    if ( hdr_.isInFeet() )
+	ret.add( "[feet] " );
+    ret.add( hdr_.nrSamples() ).add( " samples (" )
+	.add( hdr_.bytesPerSample() ).add( "-byte), interval=" )
+	.add( hdr_.sampleRate(true) );
     return ret;
 }
 
@@ -272,7 +283,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     uiTable::Setup tsu( nrrows, 2 ); tsu.selmode( uiTable::SingleRow );
     thtbl_ = new uiTable( grp, tsu, "Trace header table" );
     thtbl_->setColumnLabel( 0, "Byte" );
-    thtbl_->setColumnToolTip( 0, "Byte location in binary header" );
+    thtbl_->setColumnToolTip( 0, "Byte location in trace header" );
     thtbl_->setColumnReadOnly( 0, true );
     thtbl_->setColumnLabel( 1, "Value" );
     thtbl_->setColumnToolTip( 1, "Resulting value" );
