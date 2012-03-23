@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.60 2011-07-21 08:38:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.61 2012-03-23 08:10:11 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -192,14 +192,18 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
     samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
-    
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Display markers" );
-    displaymarkersfld_ = llb->box();
+   
+    checkallfld_ = new uiCheckBox( this, "All" );
+    checkallfld_->attach( alignedBelow, nmcolfld_ );
+    checkallfld_->setChecked( true );
+
+    uiLabel* lbl = new uiLabel( this, "Display markers" );
+    lbl->attach( leftOf, checkallfld_  );
+
+    displaymarkersfld_ = new uiListBox( this, lbl->text() );
     displaymarkersfld_->addItems( allmarkernms );
     displaymarkersfld_->setItemsCheckable( true );
-    displaymarkersfld_->itemChecked.notify(
-	    		mCB(this,uiWellMarkersDispProperties,propChg) );
-    llb->attach( alignedBelow, nmcolfld_ );
+    displaymarkersfld_->attach( alignedBelow, checkallfld_ );
 
     doPutToScreen();
     markerFldsChged(0);
@@ -224,6 +228,14 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     shapefld_->box()->selectionChanged.notify(
 		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
+    checkallfld_->activated.notify(
+		    mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
+    checkallfld_->activated.notify(
+		    mCB(this,uiWellMarkersDispProperties,propChg) );
+    displaymarkersfld_->itemChecked.notify(
+	    		mCB(this,uiWellMarkersDispProperties,propChg) );
+    displaymarkersfld_->itemChecked.notify(
+	    		mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
 }
 
 
@@ -256,11 +268,38 @@ void uiWellMarkersDispProperties::resetProps(
 }
 
 
-void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
+void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
     cylinderheightfld_->display( !shapefld_->box()->currentItem() && !is2d_ );
+
+    mDynamicCastGet(uiCheckBox*,allfld,cb)
+    if ( allfld )
+    {
+	displaymarkersfld_->itemChecked.disable();
+	const bool ischecked = checkallfld_->isChecked();
+	for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
+	{
+	    if ( displaymarkersfld_->isItemChecked(idx) != ischecked )
+	    displaymarkersfld_->setItemChecked( idx, ischecked );
+	}
+	displaymarkersfld_->itemChecked.enable();
+	return;
+    }
+
+    bool chkall = true;
+    for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
+    {
+	if ( !displaymarkersfld_->isItemChecked(idx) )
+	    { chkall = false; break; }
+    }
+
+    checkallfld_->activated.disable();
+    checkallfld_->setChecked( chkall );
+    checkallfld_->activated.enable();
+
+    displaymarkersfld_->itemChecked.enable();
 }
 
 
