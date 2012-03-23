@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiWell
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-03-12 20:23:01 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-23 09:26:36 cvsbruno Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiStrat Well)
@@ -20,6 +20,7 @@ SET(OD_MODULE_SOURCES
 		uiwelldlgs.cc
 		uiwellimpasc.cc
 		uiwelllogcalc.cc
+		uiwelllogcalcinpdata.cc
 		uiwelllogdisplay.cc
 		uiwelllogtools.cc
 		uiwellman.cc
