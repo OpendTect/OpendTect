@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.29 2010-10-19 05:50:13 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.30 2012-03-23 21:06:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ protected:
 
     virtual bool	acceptOK(CallBacker*);
     void                descChg(CallBacker*);
-    void		formatSel(CallBacker*);
+    void		inputChgd(CallBacker*);
     void		addAttrib(CallBacker*);
     void		scanPush(CallBacker*);
     void                fillUdfSel(CallBacker*);
