@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.23 2012-03-09 15:03:39 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.24 2012-03-23 08:59:07 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.23 2012-03-09 15:03:39 cvs
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uiseparator.h"
+#include "uiwelllogcalcinpdata.h"
 
 #include "welllogset.h"
 #include "wellreader.h"
@@ -38,140 +39,6 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.23 2012-03-09 15:03:39 cvs
 static const int cMaxNrInps = 6;
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
-
-class uiWellLogCalcInpData : public uiGroup
-{
-public:
-
-uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp, int fieldnr )
-    : uiGroup(inpgrp,"Inp data group")
-    , idx_(fieldnr)
-    , wls_(&p->wls_)
-    , lognms_(p->lognms_)
-    , lognmsettodef_(false)
-    , convertedlog_(0)
-{
-    varmfld_ = new uiGenInput( this, "For" );
-    varmfld_->setElemSzPol( uiObject::Small );
-
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, lognms_, "use",
-				    BufferString("input ",fieldnr) );
-    inpfld_ = lcb->box();
-//    inpfld_->addItem( "Constant" );
-    int selidx = fieldnr;
-//    if ( selidx > lognms_.size() ) selidx = lognms_.size();
-    if ( selidx >= lognms_.size() ) selidx = lognms_.size()-1;
-    inpfld_->setCurrentItem( selidx );
-    inpfld_->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
-    lcb->attach( rightOf, varmfld_ );
-
-    uiLabeledComboBox* unitlcb = new uiLabeledComboBox( this, "convert to:",
-					    BufferString( "unitbox ",fieldnr ));
-    unfld_ = unitlcb->box();
-    const ObjectSet<const UnitOfMeasure>& alluom( UoMR().all() );
-    unfld_->addItem( "-" );
-    for ( int idx=0; idx<alluom.size(); idx++ )
-	unfld_->addItem( alluom[idx]->name() );
-    unitlcb->attach( rightOf, lcb );
-
-    udfbox_ = new uiCheckBox( this, "Fill empty sections" );
-    udfbox_->attach( rightOf, unitlcb );
-
-    cstvalfld_ = new uiGenInput( this, "value", FloatInpSpec() );
-    cstvalfld_->attach( rightOf, lcb );
-    cstvalfld_->display( false );
-
-    setHAlignObj( lcb );
-}
-
-
-~uiWellLogCalcInpData()
-{
-    if ( convertedlog_ ) delete convertedlog_;
-}
-
-
-void use( MathExpression* expr )
-{
-    const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
-    if ( idx_ >= nrvars )
-	{ display( false ); return; }
-    const BufferString varnm = expr->uniqueVarName( idx_ );
-    if ( specvars.indexOf(varnm.buf()) >= 0 )
-	{ display( false ); return; }
-
-    display( true );
-    varmfld_->setText( varnm );
-    if ( !lognmsettodef_ )
-    {
-	const int nearidx = lognms_.nearestMatch( varnm );
-	if ( nearidx >= 0 )
-	{
-	    inpfld_->setCurrentItem( nearidx );
-	    lognmsettodef_ = true;
-	}
-    }
-}
-
-bool hasVarName( const char* nm )
-{
-    BufferString selnm( varmfld_->text() );
-    return selnm == nm;
-}
-
-const Well::Log* getLog()
-{
-    return wls_->getLog( inpfld_->text() );
-}
-
-bool getInp( uiWellLogCalc::InpData& inpdata )
-{
-    inpdata.noudf_ = udfbox_->isChecked();
-    inpdata.wl_ = getLog();
-    const char* logunitnm = inpdata.wl_->unitMeasLabel();
-    const UnitOfMeasure* logun = UoMR().get( logunitnm );
-    const UnitOfMeasure* convertun = UoMR().get( unfld_->text() );
-    if ( !logun || !convertun )
-	return inpdata.wl_;		//TODO: would we want to stop?
-
-    if ( logun == convertun )
-	return inpdata.wl_;
-
-    if ( !inpdata.wl_ )
-	return false;
-
-    convertedlog_ = new Well::Log( *inpdata.wl_ );
-    for ( int idx=0; idx<inpdata.wl_->size(); idx++ )
-    {
-	const float initialval = inpdata.wl_->value( idx );
-	const float valinsi = logun->getSIValue( initialval );
-	const float convertedval = convertun->getUserValueFromSI( valinsi );
-	convertedlog_->valArr()[idx] = convertedval;
-    }
-
-    inpdata.wl_ = convertedlog_;
-    return true;
-}
-
-
-void setUnit( const char* s )
-{
-    unfld_->setText( s );
-}
-
-    uiGenInput*		varmfld_;
-    uiComboBox*		inpfld_;
-    uiComboBox*		unfld_;
-    uiCheckBox*		udfbox_;
-    uiGenInput*		cstvalfld_;
-    const int		idx_;
-    const Well::LogSet*	wls_;
-    Well::Log*		convertedlog_;
-    const BufferStringSet&	lognms_;
-    bool		lognmsettodef_;
-
-};
-
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
