@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.3 2011-06-15 13:01:09 cvsbert Exp $
+ RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.4 2012-03-23 15:03:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,10 @@ namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 mClass uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
+
     			uiStratLaySeqAttribSetBuild(uiParent*,
-						const Strat::LayerModel&);
+						const Strat::LayerModel&,
+						Strat::LaySeqAttribSet* a=0);
     			~uiStratLaySeqAttribSetBuild();
 
     const Strat::LaySeqAttribSet& attribSet() const	{ return attrset_; }
@@ -33,6 +35,7 @@ public:
 protected:
 
     Strat::LaySeqAttribSet&	attrset_;
+    const bool			setismine_;
     const Strat::RefTree&	reftree_;
     PropertyRefSelection	props_;
     CtxtIOObj&			ctio_;

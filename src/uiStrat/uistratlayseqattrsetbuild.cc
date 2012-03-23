@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.9 2011-10-14 12:10:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.10 2012-03-23 15:03:55 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -25,13 +25,15 @@ static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.9 2011-10-14 1
 
 
 uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
-					    const Strat::LayerModel& lm )
+					    const Strat::LayerModel& lm,
+					    Strat::LaySeqAttribSet* as )
     : uiBuildListFromList(p,
 		  uiBuildListFromList::Setup(false,"property","attribute"),
 		  "Layer Sequence Attrib Set build group")
-    , attrset_(*new Strat::LaySeqAttribSet)
+    , attrset_(as ? *as : *new Strat::LaySeqAttribSet)
     , reftree_(lm.refTree())
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
+    , setismine_(!as)
 {
     BufferStringSet dispnms;
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
@@ -43,13 +45,21 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 
     dispnms.sort();
     setAvailable( dispnms );
+    if ( !attrset_.isEmpty() )
+    {
+	for ( int idx=0; idx<attrset_.size(); idx++ )
+	    deffld_->addItem( attrset_.attr(idx).name() );
+	deffld_->setCurrentItem( 0 );
+	defSelChg();
+    }
 }
 
 
 uiStratLaySeqAttribSetBuild::~uiStratLaySeqAttribSetBuild()
 {
     delete ctio_.ioobj;
-    delete &attrset_;
+    if ( setismine_ )
+	delete &attrset_;
     delete &ctio_;
 }
 
