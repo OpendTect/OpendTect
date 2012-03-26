@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.7 2012-02-24 14:54:45 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.8 2012-03-26 15:02:09 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -14,9 +14,9 @@
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
 
-MACRO( OD_WRITE_MODDEPS )
+MACRO( OD_WRITE_MODDEPS BASEDIR )
 
-SET( OD_MODDEPS_FILE ${OD_BINARY_BASEDIR}/Pmake/ModDeps.${OD_SUBSYSTEM} )
+SET( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
 INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
 
 LIST( APPEND OD_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
