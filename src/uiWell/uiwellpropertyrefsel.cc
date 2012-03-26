@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.10 2012-03-23 14:50:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.11 2012-03-26 07:40:26 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -306,7 +306,7 @@ bool uiWellElasticPropSel::getDenLog( BufferString& nm, BufferString& uom) const
 
 
 bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
-					bool isrev ) const
+					bool& isrev ) const
 {
     const PropertyRef::StdType tp =
 		ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
