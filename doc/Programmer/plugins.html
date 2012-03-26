@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.49 2010-06-22 10:36:13 cvsnanne Exp $
+  - RCS:	$Id: plugins.html,v 1.50 2012-03-26 12:11:11 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V4.1]</title>
@@ -112,20 +112,23 @@ extern "C" const char* InitHelloPlugin( int, char** )
 
 <p> You'll find this example plugin in the plugins directory of your
 work environment. Those 6 lines are enough to constitute a plugin for
-OpendTect. The Makefile to build the plugin looks like this: </p>
+OpendTect. The CMakeLists.txt to build the plugin looks like this: </p>
 
 <p>
-<pre><code>SRC.cc := hellopi.cc
-PLUGIN := yes
-include make.od.Defaults
-include make.Targets
+<pre><code>SET(OD_MODULE_DEPS Basic)
+SET(OD_IS_PLUGIN yes)
+SET(OD_MODULE_SOURCES
+        hellopi.cc)
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
+SET( OD_NO_ALO_ENTRY 1 )
+OD_INIT_MODULE()
 </code></pre>
 </p>
 
 <p> First try <code>make -n</code> (make sure you have <a
-href="pmake.html">Pmake</a> initialised!). Notice that Pmake makes an
-awful lot of commands with a small specification. This is because Pmake includes loads of make-code.</p>
-<p>An important remark here is that Pmake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
+href="http://cmake.org">CMake</a> initialised!). Notice that CMake makes an
+awful big Makefile with a small specification. This is because the CMakeLists.txt includes loads of stuff.</p>
+<p>An important remark here is that CMake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
 <p>Anyway, after typing
 <code>make</code> the plugin should be generated. The new plugin can
 be loaded from within OpendTect (Menu Utilities-Plugins; press the
@@ -150,14 +153,9 @@ extern "C" const char* InituiHelloPlugin( int*, char** )
 message with an OK button. </p>
 
 <p>In this case we actually use stuff from OpendTect libraries, so the
-Makefile needs to change. We need to add the line:
+Makefile needs to change. We need change the module dependency:
 
-<pre><code>MODDEP := uiBase </code></pre>
-
-Notice that this is added <i>before</i> the make
-inclusions: It's a directive to establish all kinds of variables in
-the make includes. By typing <code>make -n</code> again you'll see
-that Pmake added some directives for the compiler. </p>
+<pre><code>SET(OD_MODULE_DEPS uiODMain)</code></pre>
 
 <p>If you really want to see this simple thing working, make sure you add:
 <code>OWNC++FLAGS := -DPLAN_A</code>
@@ -197,20 +195,10 @@ extern "C" PluginInfo* GetuiHelloPluginInfo()
 The plugin will now <a href=#autoload>auto-load</a> when added to the auto-loaded plugins.</p>
 
 <p> The idea is to add a menu item 'Display Hello Message ...' to the
-'Utilities' menu of OpendTect. The Makefile and the example code are
+'Utilities' menu of OpendTect. The CMakeLists.txt and the example code are
 already prepared for this.
-The
-<code>MODDEP := uiODMain</code> tells Pmake that the
-<code>uiODMain</code> headers, and the headers <code>uiODMain</code>
-depends on will be used. That is much more than the original
-<code>uiBase</code> dependencies. uiODMain is the top level of
-OpendTect.
 
 </p>
-
-<p> If <code>"make"</code> does not compile anything
-(because a uiHello.so already exists), you can try "<code>make
-uihellopi.rmlib</code>" first. </p>
 
 <h4>Problems</h4>
 
@@ -876,7 +864,6 @@ auto-extracting installer to do this. For more info on this, see the
 <center>
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
-| <a href="pmake.html">Pmake</a>
 | <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
