@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.40 2012-03-23 14:46:48 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.41 2012-03-26 15:00:36 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -110,17 +110,20 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	IF ( NOT DEFINED OD_NO_ALO_ENTRY )
 	    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_EXECS} )
 	ENDIF()
-
-	SET ( OD_LINKER_OUTPUT_PATH ${OD_PLUGIN_OUTPUT_PATH} )
     ELSE()
 	SET( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}
 	     ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}}
 		${OD_MODULE_NAME} PARENT_SCOPE )
 	LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	    ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    SET ( OD_LINKER_OUTPUT_PATH ${OD_LIB_OUTPUT_PATH} )
     ENDIF(OD_IS_PLUGIN)
 ENDIF ( OD_MODULE_HAS_LIBRARY )
+
+
+IF ( NOT DEFINED OD_BUILD_LOCAL )
+    SET ( OD_LINKER_OUTPUT_PATH ${OD_EXEC_OUTPUT_PATH} )
+ENDIF()
+
 
 guess_runtime_library_dirs( EXTERNAL_RUNTIMEPATH ${OD_MODULE_EXTERNAL_LIBS} )
 LIST(APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${EXTERNAL_RUNTIMEPATH} )
