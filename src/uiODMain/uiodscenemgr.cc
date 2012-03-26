@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.227 2012-01-11 22:13:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.228 2012-03-26 17:05:33 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1147,7 +1147,9 @@ uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( scenes_[idx]->itemmanager_->sceneID() == sceneid )
+	uiODSceneMgr::Scene* scn = scenes_[idx];
+	if ( scn && scn->itemmanager_ &&
+		scn->itemmanager_->sceneID() == sceneid )
 	    return scenes_[idx];
     }
 
