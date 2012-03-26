@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.11 2012-03-09 13:32:35 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.12 2012-03-26 14:57:10 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
@@ -29,7 +29,7 @@ SET( ENV{QTDIR} ${QTDIR} )
 SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
 
-FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
+FIND_PACKAGE(Qt4 COMPONENTS QtGui QtCore QtSql QtNetwork )
 
  
 MACRO(OD_SETUP_QT)
