@@ -2,12 +2,13 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.30 2012-03-26 10:31:29 cvsdgb Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.31 2012-03-26 15:03:57 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
-IF(CMAKE_SIZEOF_VOID_P MATCHES "8")
-    SET( OD_64BIT 1 )
+SET( OD_64BIT 1 )
+IF ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+    SET( OD_64BIT )
 ENDIF()
 
 #Discover Debug
