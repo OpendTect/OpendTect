@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.7 2012-03-14 11:19:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uielasticpropsel.cc,v 1.8 2012-03-26 14:34:27 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -397,6 +397,9 @@ bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
+	propflds_[idx]->setPropRef( elpropsel_.get( idx ) );
+
+    for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
 }
 
@@ -451,6 +454,7 @@ bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
 
     sd.close();
     storedmid_ = ioobj.key(); 
+    propsaved_ = true;
     return rv;
 }
 

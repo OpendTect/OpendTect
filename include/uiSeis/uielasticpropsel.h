@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.6 2011-08-31 14:50:01 cvsbruno Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.7 2012-03-26 14:34:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,9 @@ public:
 					 const BufferStringSet&,
 					 ElasticPropertyRef&,
 					 const TypeSet<ElasticFormula>&);
+
+    void			setPropRef(const ElasticPropertyRef& pr)
+				{ elpropref_ = pr; }
 
     void			getFromScreen();
     void			putToScreen();
