@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.49 2011-09-02 13:06:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.50 2012-03-26 18:18:32 cvsnanne Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -21,17 +21,18 @@ static const char* rcsID = "$Id: uiimppickset.cc,v 1.49 2011-09-02 13:06:19 cvsk
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
-#include "ioobj.h"
+#include "file.h"
+#include "filepath.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "pickset.h"
+#include "picksettr.h"
 #include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "file.h"
-#include "pickset.h"
-#include "picksettr.h"
 
 #include <math.h>
 
@@ -62,10 +63,12 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
 					    .forread(import_) );
+    if ( import_ )
+	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread = !import_;
-    label = import_ ? "Output " : "Input "; label += "PickSet";
+    label = import_ ? "Output " : "Input "; label += "PickSet/Polygon";
     objfld_ = new uiIOObjSel( this, ctxt, label );
 
     if ( import_ )
@@ -116,7 +119,14 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 }
 
 
-void uiImpExpPickSet::formatSel( CallBacker* cb )
+void uiImpExpPickSet::inputChgd( CallBacker* )
+{
+    FilePath fnmfp( filefld_->fileName() );
+    objfld_->setInputText( fnmfp.baseName() );
+}
+
+
+void uiImpExpPickSet::formatSel( CallBacker* )
 {
     const int zchoice = zfld_->box()->currentItem(); 
     const bool iszreq = zchoice == 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.11 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiimppickset.h,v 1.12 2012-03-26 18:18:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ protected:
     uiPickPartServer*	serv_;
 
     virtual bool	acceptOK(CallBacker*);
+    void		inputChgd(CallBacker*);
     void		formatSel(CallBacker*);
     bool		checkInpFlds();
     bool		doImport();
