@@ -90,12 +90,11 @@ if ( $shallow == no ) then
 	cdw
 	make clean
 	cd ../$dgbdir; make clean
+	cdw
     endif
 endif
 
 if ( $doupd == yes ) then
-    set oddir=$WORK:t
-    set dgbdir=`echo $oddir | sed 's/od/dgb/'`
     cd ..
     echo "dvs update $oddir"
     cd $oddir; dvs update
@@ -130,6 +129,7 @@ else
 	cmake .
     endif
     make $flags
+    cdw
 endif
 
 programmer_doc:
