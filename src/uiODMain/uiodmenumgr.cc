@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.244 2012-02-21 10:52:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.245 2012-03-26 17:06:37 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -219,7 +219,7 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impfault = new uiPopupMenu( &appl_, "&Faults" );
     uiPopupMenu* impfaultstick = new uiPopupMenu( &appl_, "F&aultStickSets" );
     uiPopupMenu* impwell = new uiPopupMenu( &appl_, "&Wells" );
-    uiPopupMenu* imppick = new uiPopupMenu( &appl_, "&PickSets" );
+    uiPopupMenu* imppick = new uiPopupMenu( &appl_, "&PickSets/Polygons" );
     uiPopupMenu* impwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     uiPopupMenu* impmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     uiPopupMenu* impcpd = new uiPopupMenu( &appl_, "&Cross-plot data" );
@@ -294,7 +294,7 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* exphor = new uiPopupMenu( &appl_, "&Horizons" );
     uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
     uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "F&aultStickSets" );
-    uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
+    uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets/Polygons" );
     uiPopupMenu* expwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     uiPopupMenu* exppdf =
