@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.29 2012-03-15 10:48:00 cvsbert Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.30 2012-03-26 10:31:29 cvsdgb Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -13,10 +13,8 @@ ENDIF()
 #Discover Debug
 IF( ${CMAKE_BUILD_TYPE} MATCHES Release)
     SET( OD_DEBUG )
-    SET( OD_OUTPUTDIR "O" )
 ELSE()
     SET( OD_DEBUG 1 )
-    SET( OD_OUTPUTDIR "G" )
 ENDIF()
 
 IF(UNIX) #Apple an Linux
@@ -58,6 +56,8 @@ IF(UNIX) #Apple an Linux
 		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
 		 CACHE STRING "CC flags" FORCE )
 	ENDIF()
+    ELSE( OD_DEBUG )
+	ADD_DEFINITIONS( -Wno-inline )
     ENDIF()
 
         
