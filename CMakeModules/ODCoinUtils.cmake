@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.10 2012-03-09 13:32:35 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.11 2012-03-26 11:19:55 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
@@ -14,7 +14,7 @@ IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
     ENDIF()
 ENDIF()
 
-IF ( COINDIR STREQUAL "" )
+IF ( (NOT DEFINED COINDIR) OR COINDIR STREQUAL "" )
     SET(COINDIR "" CACHE PATH "COIN location" FORCE )
     MESSAGE( FATAL_ERROR "COINDIR not set")
 ENDIF()
