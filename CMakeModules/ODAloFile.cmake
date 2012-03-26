@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODAloFile.cmake,v 1.2 2012-03-09 11:59:26 cvskris Exp $
+#	RCS :		$Id: ODAloFile.cmake,v 1.3 2012-03-26 14:55:31 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -22,7 +22,10 @@ MACRO( OD_ADD_ALO_ENTRIES )
 	#Add EXEC to list of execs
 	LIST( FIND OD_ALO_FILE_EXECS_${OD_SUBSYSTEM} ${EXEC} INDEX )
 	IF( ${INDEX} EQUAL -1 )
-	    SET ( OD_ALO_FILE_EXECS_${OD_SUBSYSTEM} ${OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}} ${EXEC} PARENT_SCOPE )
+	    SET ( OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}
+		${OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}} ${EXEC} )
+	    SET ( OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}
+		${OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}} ${EXEC} PARENT_SCOPE )
 	ENDIF()
 
 	#Add all dependencies to alo-entry
@@ -51,6 +54,8 @@ MACRO( OD_ADD_ALO_ENTRIES )
 	ENDIF()
 
 	SET ( OD_ALO_FILE_ENTRIES_${EXEC}
+	  ${OD_ALO_FILE_ENTRIES_${EXEC}} )
+	SET ( OD_ALO_FILE_ENTRIES_${EXEC}
 	  ${OD_ALO_FILE_ENTRIES_${EXEC}} PARENT_SCOPE )
     ENDFOREACH()
 
@@ -65,9 +70,9 @@ ENDMACRO()
 # OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}}	: list of executables (od_main ...)
 # OD_OD_ALO_FILE_ENTRIES_${EXEC}	: list of deps for each executable
 
-MACRO ( OD_WRITE_ALOFILES )
+MACRO ( OD_WRITE_ALOFILES BASEDIR )
     FOREACH( EXEC ${OD_ALO_FILE_EXECS_${OD_SUBSYSTEM}} )
-	SET ( OD_ALOFILE ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR}/${EXEC}.${OD_SUBSYSTEM}.alo )
+	SET ( OD_ALOFILE ${BASEDIR}/${EXEC}.${OD_SUBSYSTEM}.alo )
 	SET ( FIRST 1 )
 	FOREACH( ENTRY ${OD_ALO_FILE_ENTRIES_${EXEC}} )
 	    IF ( FIRST )
