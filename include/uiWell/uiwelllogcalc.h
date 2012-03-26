@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.10 2012-03-09 15:03:39 cvshelene Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.11 2012-03-26 09:28:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "bufstringset.h"
+#include "multiid.h"
 
 class uiGenInput;
 class uiCheckBox;
