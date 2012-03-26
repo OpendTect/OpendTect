@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.17 2011-12-14 09:59:02 cvsbert Exp $
+ RCS:		$Id: filepath.h,v 1.18 2012-03-26 16:56:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
     const char*		extension() const;	//!< may return null
 
     const BufferString& fileName() const;
+    BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
 

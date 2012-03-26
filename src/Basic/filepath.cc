@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.36 2011-12-14 09:59:02 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.37 2012-03-26 16:56:33 cvsnanne Exp $";
 
 #include "filepath.h"
 
@@ -270,6 +270,17 @@ const char* FilePath::extension() const
 
 const BufferString& FilePath::fileName() const
 { return dir(-1); }
+
+
+BufferString FilePath::baseName() const
+{
+    BufferString ret = fileName();
+    char* ptr = ret.buf();
+    while ( *ptr && *ptr != '.' ) ptr++;
+    if ( !*ptr ) return ret;
+    *ptr++ = '\0';
+    return ret;
+}
 
 
 BufferString FilePath::pathOnly() const
