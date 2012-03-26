@@ -26,6 +26,7 @@ LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
 
 INCLUDE ( OD_SetupOD )
+INCLUDE ( ODInternal )
 
 SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
@@ -55,7 +56,6 @@ SET( OD_PLUGINS
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
-	Tut
 	VoxelConnectivityFilter
 	uiBouncy
 	uiDPSDemo
@@ -69,7 +69,6 @@ SET( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiQtApp
-	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
@@ -81,9 +80,9 @@ OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
 
-OD_WRITE_MODDEPS()
+OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/Pmake )
 OD_WRITE_FINDFILE()
-OD_WRITE_ALOFILES()
+OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 OD_SIGN_TARGETS()
 
 IF( BUILD_DOCUMENTATION )
