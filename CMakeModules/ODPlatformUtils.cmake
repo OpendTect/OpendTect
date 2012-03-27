@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.33 2012-03-27 08:24:07 cvsdgb Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.34 2012-03-27 09:00:27 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -21,6 +21,7 @@ ENDIF()
 IF(UNIX) #Apple an Linux
     IF(APPLE)
 	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+	SET( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
         ADD_DEFINITIONS("-arch x86_64 -D__mac__ -Dmac")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
