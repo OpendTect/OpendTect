@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.53 2011-10-07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.54 2012-03-27 20:29:59 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -359,9 +359,13 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addattribmnuitem_.id )
     {
 	uiODDataTreeItem* newitem = addAttribItem();
+	const int id = newitem->displayID();
+	const int attrib = newitem->attribNr();
+	const bool selok = applMgr()->selectAttrib( id, attrib );
+	if ( selok )
+	    applMgr()->getNewData( id, attrib );
 	newitem->select();
-	applMgr()->updateColorTable( newitem->displayID(),
-				     newitem->attribNr() );
+	applMgr()->updateColorTable( id, attrib );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==addvolprocmnuitem_.id )
@@ -377,6 +381,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	VolProc::uiDataTreeItem* newitem =
 	    new VolProc::uiDataTreeItem( typeid(*this).name() );
 	addChild( newitem, false );
+	const bool selok = newitem->selectSetup();
+	if ( selok )
+	    applMgr()->getNewData( newitem->displayID(), newitem->attribNr() );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
