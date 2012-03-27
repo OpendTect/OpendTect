@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.42 2012-03-27 09:27:31 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.43 2012-03-27 14:23:34 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -108,6 +108,7 @@ IF ( OD_MODULE_HAS_LIBRARY )
 
 	# Record alo-entries
 	IF ( NOT DEFINED OD_NO_ALO_ENTRY )
+	    SET( OD_ALO_NAME ${OD_MODULE_NAME} )
 	    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_EXECS} )
 	ENDIF()
     ELSE()
