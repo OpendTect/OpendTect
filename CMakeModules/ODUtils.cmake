@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.17 2012-03-21 14:06:59 cvsbert Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.18 2012-03-27 14:22:05 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -36,6 +36,7 @@ SET( OD_EXEC_INSTALL_PATH ${OD_LIB_OUTPUT_RELPATH} )
 SET ( OD_MAIN_EXEC od_main )
 SET ( OD_ATTRIB_EXECS od_process_attrib )
 SET ( OD_VOLUME_EXECS od_process_volume )
+SET ( OD_PRESTACK_EXECS od_process_prestack )
 
 #Macro for going through a list of modules and adding them
 MACRO ( OD_ADD_MODULES )
