@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.72 2012-03-05 23:10:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.73 2012-03-27 20:16:21 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
 #include "file.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
@@ -44,16 +45,18 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				 "Import Well Track",sHelpID))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
-    , trckinpfld_(0)
 {
     setCtrlStyle( DoAndStay );
 
     havetrckbox_ = new uiCheckBox( this, "" );
-    havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
     havetrckbox_->setChecked( true );
+    havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
+
     trckinpfld_ = new uiFileInput( this, "Well Track File",
 	    			   uiFileInput::Setup().withexamine(true) );
+    trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
+
     vertwelllbl_ = new uiLabel( this, "-> Vertical well" );
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
@@ -114,8 +117,6 @@ uiWellImportAsc::~uiWellImportAsc()
 
 void uiWellImportAsc::haveTrckSel( CallBacker* )
 {
-    if ( !trckinpfld_ ) return;
-
     const bool havetrck = havetrckbox_->isChecked();
     trckinpfld_->display( havetrck );
     dataselfld_->display( havetrck );
@@ -123,6 +124,13 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
     coordfld_->display( !havetrck );
     kbelevfld_->display( !havetrck );
     tdfld_->display( !havetrck );
+}
+
+
+void uiWellImportAsc::inputChgd( CallBacker* )
+{
+    FilePath fnmfp( trckinpfld_->fileName() );
+    outfld_->setInputText( fnmfp.baseName() );
 }
 
 
