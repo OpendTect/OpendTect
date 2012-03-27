@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: uivoxelconnectivityfilterpi.cc,v 1.2 2011-08-12 13:18:51 cvskris Exp $";
+static const char* rcsID = "$Id: uivoxelconnectivityfilterpi.cc,v 1.3 2012-03-27 10:25:34 cvsbert Exp $";
 
 #include "odplugin.h"
 
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: uivoxelconnectivityfilterpi.cc,v 1.2 2011-08-12
 mDefODPluginInfo(uiVoxelConnectivityFilter)
 {
     static PluginInfo retpi = {
-	"VoxelConnectivityFilter plugin (UI)",
+	"VoxelConnectivityFilter plugin",
 	"Kristofer",
 	"1.0",
    	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies." };

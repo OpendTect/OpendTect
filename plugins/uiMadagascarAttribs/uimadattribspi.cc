@@ -4,7 +4,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: uimadattribspi.cc,v 1.2 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadattribspi.cc,v 1.3 2012-03-27 10:25:34 cvsbert Exp $";
 
 #include "uimadagcattrib.h"
 #include "odplugin.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: uimadattribspi.cc,v 1.2 2011-04-21 13:09:13 cvs
 mDefODPluginInfo(uiMadagascarAttribs)
 {
     static PluginInfo retpii = {
-	"Madagascar attributes (UI)",
+	"Madagascar Attributes",
 	"dGB - Helene Huck",
 	"=od",
 	"Transforming Madagascar routines into OpendTect attributes." };
