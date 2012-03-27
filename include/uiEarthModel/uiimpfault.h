@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.15 2011-05-09 05:42:38 cvssatyaki Exp $
+ RCS:           $Id: uiimpfault.h,v 1.16 2012-03-27 20:15:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ protected:
 			uiImportFault(uiParent*,const char*,bool is2d=false);
 
     void		createUI();
+    void		inputChgd(CallBacker*);
     void		typeSel(CallBacker*);
     void		stickSel(CallBacker*);
     bool		checkInpFlds();

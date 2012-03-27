@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.43 2011-05-09 05:42:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.44 2012-03-27 20:15:24 cvsnanne Exp $";
 
 #include "uiimpfault.h"
 
@@ -18,8 +18,10 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.43 2011-05-09 05:42:38 cvssat
 #include "emfsstofault3d.h"
 #include "emmanager.h"
 #include "file.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "lmkemfaulttransl.h"
+#include "oddirs.h"
 #include "streamconn.h"
 #include "strmdata.h"
 #include "strmprov.h"
@@ -32,7 +34,6 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.43 2011-05-09 05:42:38 cvssat
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
-#include "uidatapointset.h"
 
 #define mGet( tp, fss, f3d ) \
     !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
@@ -80,7 +81,8 @@ void uiImportFault::createUI()
 {
     infld_ = new uiFileInput( this, "Input ascii file",
 		uiFileInput::Setup().withexamine(true)
-		.defseldir(IOObjContext::getDataDirName(IOObjContext::Surf)) );
+		.defseldir(GetDataDir()) );
+    infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
 
     if ( !isfss_ ) 
     {
@@ -136,6 +138,14 @@ void uiImportFault::createUI()
 uiImportFault::~uiImportFault()
 {
     delete ctio_.ioobj; delete &ctio_;
+}
+
+
+void uiImportFault::inputChgd( CallBacker* )
+{
+    FilePath fnmfp( infld_->fileName() );
+    fnmfp.setExtension( "" );
+    outfld_->setInputText( fnmfp.fileName() );
 }
 
 
@@ -287,9 +297,10 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 
 bool uiImportFault::checkInpFlds()
 {
-    if ( !*infld_->fileName() )
+    FixedString fnm = infld_->fileName();
+    if ( fnm.isEmpty() )
 	mErrRet( "Please select the input file" )
-    else if ( !File::exists(infld_->fileName()) )
+    else if ( !File::exists(fnm) )
 	mErrRet( "Input file does not exist" )
 
     if( !isfss_ )

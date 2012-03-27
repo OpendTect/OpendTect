@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.141 2012-03-23 21:05:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.142 2012-03-27 20:15:24 cvsnanne Exp $";
 
 #include "uiimphorizon.h"
 
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uiimphorizon.cc,v 1.141 2012-03-23 21:05:48 cvs
 #include "filepath.h"
 #include "horizonscanner.h"
 #include "ioobj.h"
+#include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
 #include "strmdata.h"
@@ -52,7 +53,7 @@ static const char* rcsID = "$Id: uiimphorizon.cc,v 1.141 2012-03-23 21:05:48 cvs
 
 static const char* sZVals = "Z values";
 
-
+static BufferString sImportFromPath = GetDataDir();
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("Import Horizon","Specify parameters",
@@ -74,8 +75,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
     inpfld_ = new uiFileInput( this, "Input ASCII File",
-	    uiFileInput::Setup(uiFileDialog::Gen)
-	    .withexamine(true).forread(true).filter(fltr) );
+		uiFileInput::Setup(uiFileDialog::Gen)
+		.withexamine(true).forread(true).filter(fltr)
+		.defseldir(sImportFromPath) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
@@ -203,12 +205,10 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 	    filludffld_->setSensitive( false );
     }
 
+    FilePath fnmfp( fnm );
+    sImportFromPath = fnmfp.pathOnly();
     if ( isgeom_ )
-    {
-	FilePath fnmfp( fnm );
-	fnmfp.setExtension( "" );
-	outputfld_->setInputText( fnmfp.fileName() );
-    }
+	outputfld_->setInputText( fnmfp.baseName() );
 }
 
 
