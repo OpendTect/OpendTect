@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.37 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:           $Id: cubesampling.h,v 1.38 2012-03-27 20:51:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ public:
     bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
+    void		include(const BinID&,float z);
     void		include(const CubeSampling&);
     void		limitTo(const CubeSampling&);
     void		limitToWithUdf(const CubeSampling&);
