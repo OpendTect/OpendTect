@@ -2,10 +2,10 @@
 #
 #	Makefile : 	GMT plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-15 10:49:15 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-03-27 11:39:02 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Batch EarthModel Seis Well)
+SET(OD_MODULE_DEPS EarthModel Seis Well)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	gmtpar.cc
