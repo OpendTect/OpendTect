@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.6 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.7 2012-03-27 14:31:59 cvskris Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -39,6 +39,7 @@ uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     , editmenuitem_( "Edit", true )
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
+    reloadmenuitem_.iconfnm = "refresh.png";
 }
 
 
