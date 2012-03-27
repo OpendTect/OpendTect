@@ -66,6 +66,7 @@ SET( OD_PLUGINS
 	uiGrav
 	uiHello
 	uiHorizonAttrib
+	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
 	uiQtApp
