@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2007
- RCS:		$Id: uiodvolproctreeitem.h,v 1.3 2011-11-04 08:22:04 cvskris Exp $
+ RCS:		$Id: uiodvolproctreeitem.h,v 1.4 2012-03-27 20:15:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,11 @@ public:
 				
 				uiDataTreeItem(const char* parenttype);
 
-    static const char*	sKeyVolumeProcessing() { return "VolumeProcessing"; }
+    bool			selectSetup();
+
+    static const char*		sKeyVolumeProcessing()
+				{ return "VolumeProcessing"; }
+
 protected:
     
     bool			anyButtonClick(uiListViewItem*);

@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.7 2012-03-27 14:31:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.8 2012-03-27 20:15:41 cvsnanne Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -102,36 +102,7 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==selmenuitem_.id )
     {
 	menu->setIsHandled( true );
-	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-
-	const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
-	uiIOObjSelDlg dlg( ODMainWin(), ctxt );
-	if ( !dlg.go() || !dlg.nrSel() )
-	    return;
-
-	RefMan<VolProc::Chain> chain = new VolProc::Chain;
-	BufferString str;
-	if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
-	{
-	    if ( !chain->areSamplesIndependent() )
-	    {
-		if ( !uiMSG().askGoOn("The output of this setup is not "
-			    "sample-independent, and the output may not be "
-			    "the same as when computing the entire volume") )
-		    return;
-	    }
-	}
-
-	mid_ = dlg.selected( 0 );
-
-	const BufferString def =
-	    VolProc::ExternalAttribCalculator::createDefinition( mid_ );
-	Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttrib(),
-			      false, 0 );
-	spec.setDefString( def.buf() );
-	visserv->setSelSpec( displayID(), attribNr(), spec );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-
+	if ( !selectSetup() ) return;
     }
 
     if ( mnuid==selmenuitem_.id || mnuid==reloadmenuitem_.id )
@@ -143,6 +114,41 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	applMgr()->doVolProc( mid_ );
     }
+}
+
+
+bool uiDataTreeItem::selectSetup()
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+
+    const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
+    uiIOObjSelDlg dlg( ODMainWin(), ctxt );
+    if ( !dlg.go() || !dlg.nrSel() )
+	return false;
+
+    RefMan<VolProc::Chain> chain = new VolProc::Chain;
+    BufferString str;
+    if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
+    {
+	if ( !chain->areSamplesIndependent() )
+	{
+	    if ( !uiMSG().askGoOn("The output of this setup is not "
+			"sample-independent, and the output may not be "
+			"the same as when computing the entire volume") )
+		return false;
+	}
+    }
+
+    mid_ = dlg.selected( 0 );
+
+    const BufferString def =
+	VolProc::ExternalAttribCalculator::createDefinition( mid_ );
+    Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttrib(),
+			  false, 0 );
+    spec.setDefString( def.buf() );
+    applMgr()->visServer()->setSelSpec( displayID(), attribNr(), spec );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    return true;
 }
 
 
