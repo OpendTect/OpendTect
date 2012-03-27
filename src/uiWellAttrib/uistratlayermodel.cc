@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.55 2012-02-17 13:27:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.56 2012-03-27 14:30:05 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -469,6 +469,15 @@ bool uiStratLayerModel::openGenDesc()
     delete elpropsel_; elpropsel_ = 0;
     setWinTitle();
     return true;
+}
+
+
+MultiID uiStratLayerModel::genDescID() const
+{
+    MultiID ret;
+    if ( descctio_.ioobj )
+	ret = descctio_.ioobj->key();
+    return ret;
 }
 
 

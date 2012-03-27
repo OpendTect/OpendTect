@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.24 2012-02-17 13:27:35 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.25 2012-03-27 14:30:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     const char*				levelName() const; //!< null if none
     const ObjectSet<SyntheticData>&	syntheticData() const;
     const Wavelet*			wavelet() const;
+    MultiID				genDescID() const;
 
     Notifier<uiStratLayerModel>	newModels;
     Notifier<uiStratLayerModel>	levelChanged;
