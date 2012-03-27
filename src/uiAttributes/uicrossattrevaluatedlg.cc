@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.4 2012-03-21 22:46:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.5 2012-03-27 22:11:47 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -34,18 +34,24 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     , calccb(this)
     , showslicecb(this)
     , initpar_(*new IOPar)
+    , seldesc_(0)  
     , enabstore_(store)
     , haspars_(false)
     , attrset_(*uads.getSet())
     , paramsfld_(0)
+    , srcid_(-1,true)  
 {
+    if ( !uads.curDesc() )
+	return;
+
+    srcid_ = uads.curDesc()->id();
     attrset_.fillPar( initpar_ );
 
     uiGroup* pargrp = new uiGroup( this, "" );
     pargrp->setStretch( 1, 1 );
 
     BufferStringSet paramnms;
-    uads.getUiAttribParamGrps( true, pargrp, grps_, paramnms, userattnms_ );
+    uads.getUiAttribParamGrps( pargrp, grps_, paramnms, userattnms_ );
     if ( grps_.isEmpty() ) return;
     
     haspars_ = true;
@@ -125,55 +131,70 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     sliderfld->sldr()->setValue(0);
     lbls_.erase();
     specs_.erase();
+    evadesids_.erase();
 
     const int sel = paramsfld_->currentItem();
-    if ( sel >= grps_.size() ) return;
+    if ( sel<0 || sel>=grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
     TypeSet<int> attrselected;
     attrnmsfld_->getSelectedItems( attrselected );
-
     const int nrsteps = nrstepsfld->box()->getValue();
-    const int attsetsz = attrset_.size();
+    
     for ( int idx=0; idx<attrselected.size(); idx++ )
     {
 	const char* userattnm = userattnms_[sel].get(idx).buf();
-	for ( int idy=0; idy<attsetsz; idy++ )
+	for ( int idy=0; idy<attrset_.size(); idy++ )
 	{
-	    Desc& srcad = *attrset_.desc( idy );
-	    BufferString userchosenref = srcad.userRef();
-	    if ( !userchosenref.isEqual(userattnm,true) )
+	    BufferString anm = attrset_.desc(idy)->userRef();
+	    if ( !anm.isEqual(userattnm,true) || !attrset_.desc(idy) )
 		continue;
 
 	    for ( int idz=0; idz<nrsteps; idz++ )
 	    {
-		Desc* newad = idz ? new Desc(srcad) : &srcad;
-		if ( !newad ) return;
-		pargrp->updatePars( *newad, idz );
-		pargrp->updateDesc( *newad, idz );
-
-		BufferString defstr; newad->getDefStr( defstr ); //to remove
-
-		const char* lbl = pargrp->getLabel();
-		BufferString usrref = newad->attribName();
-		usrref += " - "; usrref += lbl;
-		newad->setUserRef( usrref );
-		if ( newad->selectedOutput()>=newad->nrOutputs() )
-		{
-		    newad->ref(); newad->unRef();
-		    continue;
-		}
-
-		if ( idz ) 
-		    attrset_.addDesc( newad );
-
-		lbls_ += new BufferString( lbl );
-		SelSpec as; as.set( *newad );
-
-		as.setObjectRef( userattnm );
-		specs_ += as;
-	    }
+		pargrp->updatePars( *attrset_.desc(idy), idz );
+		pargrp->updateDesc( *attrset_.desc(idy), idz );
+	    }	    
+	    break;
 	}
+    }
+
+    Desc& srcad = *attrset_.getDesc( srcid_ );
+    for ( int idz=0; idz<nrsteps; idz++ )
+    {
+	Desc* newad = idz ? new Desc(srcad) : &srcad;
+	if ( !newad ) return;
+	pargrp->updatePars( *newad, idz );
+	pargrp->updateDesc( *newad, idz );
+
+	/*BufferString defstr; newad->getDefStr( defstr );
+	DescSet* ds = newad->descSet();
+	TypeSet<Attrib::DescID> cids;
+	newad->getDependencies(cids);
+	for ( int tt=0; tt<cids.size(); tt++ )
+	{
+	    Desc* dsc = attrset_.getDesc( cids[tt] );
+	    BufferString tmpst;
+	    dsc->getDefStr( tmpst );
+	} debug check*/
+
+	const char* lbl = pargrp->getLabel();
+	BufferString usrref = newad->attribName();
+	usrref += " - "; usrref += lbl; usrref += idz;
+	newad->setUserRef( usrref );
+	if ( newad->selectedOutput()>=newad->nrOutputs() )
+	{
+	    newad->ref(); newad->unRef();
+	    continue;
+	}
+
+	if ( idz ) attrset_.addDesc( newad );
+	lbls_ += new BufferString( lbl );
+	
+	SelSpec as; 
+	as.set( *newad );
+	as.setObjectRef( srcad.userRef() );
+	specs_ += as;
     }
     if ( specs_.isEmpty() )
 	return;
@@ -205,17 +226,16 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 	return true;
 
     const int sliceidx = sliderfld->sldr()->getIntValue();
-    //if ( sliceidx < specs_.size() )
-	//seldesc_ = attrset_.getDesc( specs_[sliceidx].id() );
+    if ( sliceidx < specs_.size() )
+	seldesc_ = attrset_.getDesc( specs_[sliceidx].id() );
 
     return true;
 }
 
 
-void uiCrossAttrEvaluateDlg::getEvalSpecs( TypeSet<Attrib::SelSpec>& specs ) const
-{
-    specs = specs_;
-}
+void uiCrossAttrEvaluateDlg::getEvalSpecs(
+	TypeSet<Attrib::SelSpec>& specs ) const
+{ specs = specs_; }
 
 
 bool uiCrossAttrEvaluateDlg::storeSlices() const

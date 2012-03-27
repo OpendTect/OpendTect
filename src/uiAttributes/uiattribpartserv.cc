@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.187 2012-03-21 18:42:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.188 2012-03-27 22:11:47 cvsyuancheng Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1494,8 +1494,8 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     if ( !ade ) return;
 
     sendEvent( evEvalAttrInit() );
-    if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
-			       "Inlines, Crosslines, Timeslices and Surfaces.");
+    //if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
+//			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
     if ( !iscrossevaluate )
     {

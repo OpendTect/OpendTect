@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.27 2012-03-20 21:37:12 cvsyuancheng Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.28 2012-03-27 22:11:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,11 +63,11 @@ public:
 
     void		setSensitive(bool);
 
-    bool		getUiAttribParamGrps(bool forall,
+    bool		getUiAttribParamGrps(
 	    			uiParent*,ObjectSet<AttribParamGroup>&,
 				BufferStringSet& paramnms,
 				TypeSet<BufferStringSet>& usernms);
-    			//!<if not forall, thenonly use curDesc()!
+    			//!<Get curDesc() parameter grps and param-usernms info!
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
