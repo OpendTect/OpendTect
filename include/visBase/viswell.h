@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.42 2012-02-08 21:15:28 cvsnanne Exp $
+ RCS:           $Id: viswell.h,v 1.43 2012-03-27 22:33:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,9 +214,9 @@ protected:
     
     ObjectSet<SoPlaneWellLog>	log_;
     ZAxisTransform*		zaxistransform_;
+    int				voiidx_;
 };
 
-
-};
+} // namespace visBase
 
 #endif
