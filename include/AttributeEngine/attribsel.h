@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.30 2011-04-26 04:40:44 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.31 2012-03-27 20:15:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,17 +20,6 @@ ________________________________________________________________________
 class IOPar;
 class NLAModel;
 
-/*!\brief specifies an attribute selection (ID or output number of NN).
-
-  When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
-  user reference is stored, so you can try to get a valid ID in that situation.
-
-  Object reference holds the NLA or attribute set name.
-  discrSpec() specifies whether (if (0,0) interval not) and how a discrete
-  output is to be expected.
- 
- */
-
 namespace ZDomain { class Info; }
 
 namespace Attrib 
@@ -38,6 +27,17 @@ namespace Attrib
 
 class Desc;
 class DescSet;
+
+/*!\brief
+  Specifies an attribute selection (ID or output number of NN).
+
+  When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
+  user reference is stored, so you can try to get a valid ID in that situation.
+
+  Object reference holds the NLA or attribute set name.
+  discrSpec() specifies whether (if (0,0) interval not) and how a discrete
+  output is to be expected.
+*/
 
 mClass SelSpec
 {
