@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.31 2012-03-26 15:03:57 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.32 2012-03-27 05:09:11 cvsyuancheng Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -31,7 +31,9 @@ IF(UNIX) #Apple an Linux
 	SET(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
 	SET( OD_PLFSUBDIR mac )
     ELSE() #Linux
-	#SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1) #Not needed, but percentages are screwed otherwise.
+
+	#Not on most platforms, but for the few that does, it's better
+	SET(OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 
 	IF ( OD_64BIT )
 	    SET ( OD_PLFSUBDIR "lux64" )
