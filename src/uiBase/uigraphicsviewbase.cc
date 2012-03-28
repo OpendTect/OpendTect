@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.33 2011-09-29 15:59:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.34 2012-03-28 09:14:10 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -93,12 +93,16 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 
     if ( ev->button() == Qt::RightButton )
     {
+	QGraphicsView::DragMode dragmode = dragMode(); 
+	setDragMode( QGraphicsView::NoDrag );
+
 	buttonstate_ = OD::RightButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	const int refnr = handle_.beginCmdRecEvent( "rightButtonPressed" );
 	mousehandler_.triggerButtonPressed( me );
 	QGraphicsView::mousePressEvent( ev );
 	handle_.endCmdRecEvent( refnr, "rightButtonPressed" );
+	setDragMode( dragmode );
 	return;
     }
     else if ( ev->button() == Qt::LeftButton )
@@ -298,6 +302,10 @@ bool uiGraphicsViewBase::isRubberBandingOn() const
 void uiGraphicsViewBase::rubberBandCB( CallBacker* )
 {
     if ( !isRubberBandingOn() )
+	return;
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    if ( ev.rightButton() )
 	return;
 
     selectedarea_ = new uiRect( body_->getStartPos(), getCursorPos() );
