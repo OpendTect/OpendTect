@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.34 2012-03-28 09:14:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.35 2012-03-28 10:14:38 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -168,8 +168,6 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
 }
 
 
-static const int cBorder = 5;
-
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 {
     if ( !ev ) return;
@@ -177,14 +175,16 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
     bool isfinished = ev->isAccepted();
     if ( handle_.scene_ )
     {
+	const int sceneborder = handle_.getSceneBorder();
 #if defined(__win__) && !defined(__msvc__)
 	QSize newsz = ev->size();
-	handle_.scene_->setSceneRect( cBorder, cBorder,
-				      newsz.width()-2*cBorder,
-				      newsz.height()-2*cBorder );
+	handle_.scene_->setSceneRect( sceneborder, sceneborder,
+				      newsz.width()-2*sceneborder,
+				      newsz.height()-2*sceneborder );
 #else
-	handle_.scene_->setSceneRect( cBorder, cBorder,
-				      width()-2*cBorder, height()-2*cBorder );
+	handle_.scene_->setSceneRect( sceneborder, sceneborder,
+				      width()-2*sceneborder, 
+				      height()-2*sceneborder );
 #endif
     }
 
@@ -247,6 +247,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , scrollBarUsed(this) 
     , scene_(0)
     , selectedarea_(0)
+    , sceneborder_(5)		      
     , enabscrollzoom_(true)
     , isctrlpressed_(false)
 {
@@ -375,8 +376,8 @@ void uiGraphicsViewBase::setScene( uiGraphicsScene& scn )
 {
     if ( scene_ ) delete scene_;
     scene_ = &scn;
-    scene_->setSceneRect( cBorder, cBorder,
-			  width()-2*cBorder, height()-2*cBorder );
+    scene_->setSceneRect( sceneborder_, sceneborder_,
+			  width()-2*sceneborder_, height()-2*sceneborder_ );
     body_->setScene( scn.qGraphicsScene() );
 }
 
@@ -475,4 +476,16 @@ void uiGraphicsViewBase::setSceneAlignment( const Alignment& al )
 	qal = qal | Qt::AlignHCenter;
 
     body_->setAlignment( qal ); 
+}
+
+
+void uiGraphicsViewBase::setSceneBorder( int border )
+{
+    sceneborder_ = border;
+}
+
+
+int uiGraphicsViewBase::getSceneBorder() const
+{
+    return sceneborder_;
 }

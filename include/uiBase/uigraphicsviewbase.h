@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.17 2011-05-12 10:03:46 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.18 2012-03-28 10:14:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,9 @@ public:
 
     int				width() const; 
     int				height() const; 
+
+    int				getSceneBorder() const;
+    void			setSceneBorder(int);
 
     void			centreOn(uiPoint);
     uiRect			getSceneRect() const;
@@ -101,6 +104,7 @@ protected:
 
     uiRect*			selectedarea_;
     uiGraphicsScene*		scene_;
+    int				sceneborder_;
 
     bool			isctrlpressed_;
     bool			enabscrollzoom_;
