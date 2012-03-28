@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.27 2012-02-23 09:46:24 cvssatyaki Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.28 2012-03-28 08:02:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ protected:
     TypeSet<EM::PosID>	eraselist_;
 
     EM::PosID		lastseedpid_;
+    EM::PosID		lastsowseedpid_;
     Coord3		lastseedkey_;
     bool		sowermode_;
     HorSampling		seedpickarea_;

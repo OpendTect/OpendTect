@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.44 2012-02-23 09:46:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.45 2012-03-28 08:02:19 cvssatyaki Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -38,6 +38,7 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , selspec_(0)
     , sowermode_( false )
     , lastseedpid_( EM::PosID::udf() )
+    , lastsowseedpid_( EM::PosID::udf() )
     , lastseedkey_( Coord3::udf() )
     , seedpickarea_(false)
     , fltdataprov_(0)
@@ -88,18 +89,18 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return false;
     
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    BinID lastseedbid;
-    lastseedbid.fromInt64( lastseedpid_.subID() );
+    BinID lastsowseedbid;
+    lastsowseedbid.fromInt64( lastsowseedpid_.subID() );
     
-    bool iscuttingflt = false;
-    if ( fltdataprov_ && hrg.includes(lastseedbid) )
+    if ( fltdataprov_ && hrg.includes(lastsowseedbid) )
     {
-	Coord3 lastseedcrd = emobj->getPos( lastseedpid_ );
-	if ( fltdataprov_->isCrossingFault(seedbid,seedcrd.z,lastseedbid,
+	Coord3 lastseedcrd = emobj->getPos( lastsowseedpid_ );
+	if ( sowermode_ &&
+	     fltdataprov_->isCrossingFault(seedbid,seedcrd.z,lastsowseedbid,
 		    			   lastseedcrd.z) )
 	{
-	    iscuttingflt = true;
-	    drop = true;
+	    lastseedkey_ = seedkey;
+	    return false;
 	}
     }
 
@@ -108,6 +109,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 
     if ( sowermode_ )
     {
+	lastsowseedpid_ = pid;
 	// Duplicate promotes hidden seed to visual seed in sower mode
 	const bool isvisualseed = lastseedkey_==seedkey;
 
@@ -130,6 +132,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
     }
     else
     {
+	lastsowseedpid_ = EM::PosID::udf();
 	propagatelist_.erase();
 	propagatelist_ += pid;
 
@@ -616,13 +619,14 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 					       seed2bid,seed2.z) )
 		continue;
 	}
-	for ( int idx=step; idx<diff; idx+=step ) 
+	for ( int idx=step; idx<=diff; idx+=step ) 
 	{ 
 	    const double frac = (double) idx / diff; 
 	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] + 
 				       frac  * seedpos_[ sortidx[vtx+1] ];
-	    const EM::PosID interpid( emobj->id(), sectionid_, 
-				SI().transform(interpos).toInt64() ); 
+	    BinID interpbid = SI().transform(interpos);
+	    const EM::PosID interpid( emobj->id(), sectionid_,
+		    		      interpbid.toInt64() ); 
 	    emobj->setPos( interpid, interpos, true ); 
 	    emobj->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );
 
