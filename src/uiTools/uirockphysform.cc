@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.13 2012-03-12 14:06:54 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.14 2012-03-28 13:34:32 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -49,16 +49,26 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 void uiRockPhysForm::createFlds( uiObject* attobj )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
-    if ( attobj )
-	lcb->attach( alignedBelow, attobj );
+    lcb->label()->setPrefWidthInChar( 35 );
+    lcb->label()->setAlignment( Alignment::Right );
+
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
+
+    formulafld_ = new uiTextEdit( this, "Formula", true );
+    formulafld_->setPrefHeightInChar( 1 );
+    formulafld_->setPrefWidthInChar( 100 );
+    formulafld_->setStretch(2,0);
+    formulafld_->attach( ensureBelow, lcb->attachObj() );
+
+    if ( attobj )
+	attobj->attach( alignedAbove, lcb );
 
     descriptionfld_ = new uiTextEdit( this, "Formula Desc", true );
     descriptionfld_->setPrefHeightInChar( 3 );
     descriptionfld_->setPrefWidthInChar( 100 );
     descriptionfld_->setStretch(2,0);
-    descriptionfld_->attach( ensureBelow, lcb->attachObj() );
+    descriptionfld_->attach( alignedBelow, formulafld_ );
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
      {
@@ -159,17 +169,18 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
     }
 
     descriptionfld_->setText( fm->desc_ );
+
+    formulafld_->setText( getText(false).buf() );
 }
 
 
-//TODO: remove
-const char* uiRockPhysForm::getText() const
+BufferString uiRockPhysForm::getText( bool usecstvals ) const
 {
     BufferString formula;
     BufferString outunit;
     BufferStringSet varsunits;
-    if ( getFormulaInfo( formula, outunit, varsunits ) )
-	return formula.buf();
+    if ( getFormulaInfo( formula, outunit, varsunits, usecstvals ) )
+	return formula;
 
     return 0;
 }
@@ -177,9 +188,9 @@ const char* uiRockPhysForm::getText() const
 
 bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 				     BufferString& outputunit,
-				     BufferStringSet& varsunits ) const
+				     BufferStringSet& varsunits,
+				     bool usecstvals ) const
 {
-
     char* txt = const_cast<char*>(nmfld_->text());
     if ( !txt || !*txt )
     {
@@ -208,8 +219,18 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
     }
     for ( int idx=0; idx<mp->nrConsts(); idx++ )
-	replaceString( ret.buf(), mp->constName(idx),
-		       toString(cstflds_[idx]->getCstVal()) );
+    {
+	if ( usecstvals )
+	    replaceString( ret.buf(), mp->constName(idx),
+			   toString(cstflds_[idx]->getCstVal()) );
+	else
+	{
+	    char* cleancstnm = const_cast<char*>(
+		    			fm->constdefs_[idx]->name().buf());
+	    cleanupString( cleancstnm, false, false, false );
+	    replaceString( ret.buf(), mp->constName( idx ), cleancstnm );
+	}
+    }
 
     cleanformula = ret;
     outputunit = fm->unit_;
