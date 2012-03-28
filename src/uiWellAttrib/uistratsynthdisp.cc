@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.81 2012-03-13 14:27:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.82 2012-03-28 14:14:55 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -603,6 +603,17 @@ void uiStratSynthDisp::offsetChged( CallBacker* )
 void uiStratSynthDisp::modelPosChged( CallBacker* )
 {
     displayPreStackSynthetic( currentsynthetic_ );
+}
+
+
+const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
+{
+    static SeisTrcBuf emptytb( true );
+    if ( !currentsynthetic_ ) return emptytb;
+
+    const DataPack* dp = currentsynthetic_->getPack( false );
+    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,dp);
+    return stbp ? stbp->trcBuf() : emptytb;
 }
 
 

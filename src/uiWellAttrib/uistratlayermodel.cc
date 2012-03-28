@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.56 2012-03-27 14:30:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.57 2012-03-28 14:14:55 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -261,9 +261,9 @@ const char* uiStratLayerModel::levelName() const
 }
 
 
-const ObjectSet<SyntheticData>& uiStratLayerModel::syntheticData() const
+const SeisTrcBuf& uiStratLayerModel::postStackTraces() const
 {
-    return synthdisp_->getSynthetics();
+    return synthdisp_->postStackTraces();
 }
 
 

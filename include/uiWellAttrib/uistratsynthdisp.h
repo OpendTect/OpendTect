@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.47 2012-02-16 15:39:59 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.48 2012-03-28 14:14:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     const ObjectSet<SyntheticData>& getSynthetics() const;
     void		genSyntheticsFor(const Strat::LayerModel&,
 	    				SeisTrcBuf&);
+    const SeisTrcBuf&	postStackTraces() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
