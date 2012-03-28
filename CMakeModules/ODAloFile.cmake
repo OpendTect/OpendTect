@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODAloFile.cmake,v 1.4 2012-03-27 14:23:34 cvskris Exp $
+#	RCS :		$Id: ODAloFile.cmake,v 1.5 2012-03-28 13:54:19 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ MACRO( OD_ADD_ALO_ENTRIES )
 	IF ( EXEC STREQUAL ${OD_MAIN_EXEC}) 
 	    SET( EXEC_IS_MAIN 1 )
 	ELSE()
-	    SET( EXEC_IS_MAIN 1 )
+	    SET( EXEC_IS_MAIN 0 )
 	ENDIF()
 
 	#Add all dependencies to alo-entry
