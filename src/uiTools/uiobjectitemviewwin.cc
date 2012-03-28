@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.16 2011-09-29 14:10:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemviewwin.cc,v 1.17 2012-03-28 11:50:27 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -54,6 +54,9 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     infobar_->disableScrollZoom();
 
     mainviewer_->attach( ensureBelow, infobar_, 0 );
+
+    mainviewer_->setSceneBorder(0);
+    infobar_->setSceneBorder(0);
 
     makeSliders();
 }
@@ -249,8 +252,8 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
     const int top = inforect.top();
     const int bot = inforect.bottom();
     const int w = abs( y - x ); 
-    const int h = abs( y - x ); 
-    infobar_->setViewArea( x, y, w, h );
+    const int h = abs( top - bot ); 
+    infobar_->setViewArea( x, top, w, h );
     infobar_->updateItemsPos();
     mainviewer_->resetViewArea(0);
 }
