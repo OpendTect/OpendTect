@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.45 2012-03-28 08:02:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.46 2012-03-28 16:30:08 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -619,14 +619,13 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 					       seed2bid,seed2.z) )
 		continue;
 	}
-	for ( int idx=step; idx<=diff; idx+=step ) 
+	for ( int idx=step; idx<diff; idx+=step ) 
 	{ 
 	    const double frac = (double) idx / diff; 
 	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] + 
 				       frac  * seedpos_[ sortidx[vtx+1] ];
-	    BinID interpbid = SI().transform(interpos);
 	    const EM::PosID interpid( emobj->id(), sectionid_,
-		    		      interpbid.toInt64() ); 
+				      SI().transform(interpos).toInt64() ); 
 	    emobj->setPos( interpid, interpos, true ); 
 	    emobj->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );
 
