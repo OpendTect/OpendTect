@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.1 2012-03-23 08:59:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.2 2012-03-28 13:35:07 cvshelene Exp $";
 
 
 #include "uiwelllogcalcinpdata.h"
@@ -82,6 +82,13 @@ const Well::Log* uiWellLogCalcInpData::getLog()
 
 bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 {
+    if ( isCst() )
+    {
+	inpdata.iscst_ = true;
+	inpdata.cstval_ = getCstVal();
+	return true;
+    }
+
     inpdata.noudf_ = udfbox_->isChecked();
     inpdata.wl_ = getLog();
     const char* logunitnm = inpdata.wl_->unitMeasLabel();

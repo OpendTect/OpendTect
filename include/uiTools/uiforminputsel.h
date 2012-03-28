@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H. Huck
  Date:		Mar 2012
- RCS:		$Id: uiforminputsel.h,v 1.1 2012-03-23 08:59:06 cvshelene Exp $
+ RCS:		$Id: uiforminputsel.h,v 1.2 2012-03-28 13:35:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,12 @@ public:
     const char*			getInput() const;
     void                        setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
+    float			getCstVal() const;
+    bool			isCst() const;
 
 protected:
+
+    void			selChg(CallBacker*);
 
     const int			idx_;			//needed?
     uiLabeledComboBox*         	inpfld_;

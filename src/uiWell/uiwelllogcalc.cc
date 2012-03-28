@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.24 2012-03-23 08:59:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.25 2012-03-28 13:35:07 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -179,7 +179,7 @@ bool acceptOK( CallBacker* )
 bool getFormulaInfo( BufferString& cleanformula, BufferString& outputunit,
 		     BufferStringSet& varsunits ) const
 {
-    return formgrp_->getFormulaInfo( cleanformula, outputunit, varsunits );
+    return formgrp_->getFormulaInfo( cleanformula, outputunit, varsunits, true);
 }
 
     uiRockPhysForm*	formgrp_;
@@ -216,28 +216,13 @@ void uiWellLogCalc::feetSel( CallBacker* )
 void uiWellLogCalc::formSet( CallBacker*  c )
 {
     getMathExpr();
-    const int totnrvars = expr_ ? expr_->nrVariables() : 0;
-    nrvars_ = 0; bool haveconst = false;
-    for ( int idx=0; idx<totnrvars; idx++ )
-    {
-	if ( expr_->getType(idx) == MathExpression::Constant )
-	{
-	    haveconst = true;
-	    uiMSG().error(
-		    BufferString("Constants not supported here:\n'",
-			expr_->fullVariableExpression(idx),
-			"'.\nPlease insert the value itself.") );
-	    break;
-	}
-    }
-
-    MathExpression* useexpr = haveconst ? 0 : expr_;
-    nrvars_ = useexpr ? useexpr->nrUniqueVarNames() : 0;
+    nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;
+    int truevaridx = 0;	//should always be ==idx if inputunits_.size, safety.
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
-	inpdataflds_[idx]->use( useexpr );
-	if ( inputunits_.size()>idx )
-	    inpdataflds_[idx]->setUnit( inputunits_.get(idx).buf() );
+	inpdataflds_[idx]->use( expr_ );
+	if ( inputunits_.size()>truevaridx && !inpdataflds_[idx]->isCst() )
+	    inpdataflds_[idx]->setUnit( inputunits_.get(truevaridx).buf() );
     }
 
     inpSel( 0 );
@@ -255,7 +240,8 @@ void uiWellLogCalc::inpSel( CallBacker* )
 	if ( idx >= inpdataflds_.size() ) break;
 
 	const Well::Log* wl = inpdataflds_[idx]->getLog();
-	if ( !wl ) { pErrMsg("Huh"); continue; }
+	if ( !wl && !inpdataflds_[idx]->isCst() ) { pErrMsg("Huh"); continue; }
+	if ( !wl ) continue;
 	if ( wl->isEmpty() ) continue;
 
 	sr = wl->dahStep( false );
@@ -368,10 +354,6 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 
 	switch ( typ )
 	{
-	case MathExpression::Constant:
-	    mErrRet(BufferString("Please insert the actual value rather than: '"
-				 ,varnm,"'"))
-
 	case MathExpression::Recursive:
 	{
 	    if ( inpd.shift_ == 0 )
@@ -384,6 +366,7 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 	    recvaridxs_ += iexpr;
 	} break;
 
+	case MathExpression::Constant:
 	case MathExpression::Variable:
 	{
 	    inpd.specidx_ = specvars.indexOf( varnm.buf() );
@@ -397,7 +380,7 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 		}
 		if ( !inpfld || !inpfld->getInp(inpd) )
 		    mErrRet("Internal: Can't find log")
-		if ( inpd.wl_->isEmpty() )
+		if ( inpd.wl_ && inpd.wl_->isEmpty() )
 		    mErrRet(BufferString("Empty well log: '",
 					 inpd.wl_->name(),"'"))
 	    }
@@ -448,6 +431,7 @@ bool uiWellLogCalc::getRecInfo()
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdata )
 {
+    //TODO inpdata[0].wl_ can be 0 ? check + make it safer
     TypeSet<float> vals; int rgidx = 0;
     int nrstart = startvals_.size();
     if ( nrstart > 0 )
@@ -459,9 +443,11 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
     Interval<float> dahrg( wls_.dahInterval() );
     if ( !inpdata.isEmpty() )
     {
-	dahrg = inpdata[0].wl_->dahRange();
+	if ( inpdata[0].wl_ )
+	    dahrg = inpdata[0].wl_->dahRange();
 	for ( int idx=1; idx<inpdata.size(); idx++ )
-	    dahrg.include( inpdata[idx].wl_->dahRange(), false );
+	    if ( inpdata[idx].wl_ )
+		dahrg.include( inpdata[idx].wl_->dahRange(), false );
     }
     samprg.start = dahrg.start; samprg.stop = dahrg.stop;
     const int endrgidx = samprg.nrSteps();
@@ -477,6 +463,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		const float val = inpd.wl_->getValue( curdah, inpd.noudf_ );
 		expr_->setVariableValue( iinp, val );
 	    }
+	    else if ( inpd.iscst_ )
+		expr_->setVariableValue( iinp, inpd.cstval_ );
 	    else if ( inpd.specidx_ < 0 )
 	    {
 		const int valsidx = rgidx + nrstart + inpd.shift_;

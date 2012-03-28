@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.11 2012-03-26 09:28:38 cvsranojay Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.12 2012-03-28 13:35:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,13 +65,18 @@ protected:
     struct InpData
     {
 			InpData( const Well::Log* w=0, int s=0, bool n=false )
-			    : wl_(w), shift_(s), noudf_(n), specidx_(-1) {}
+			    : wl_(w), shift_(s), noudf_(n), specidx_(-1)
+			    , cstval_(mUdf(float)), iscst_(false) {}
 	bool		operator ==( const InpData& id ) const
-					{ return wl_ == id.wl_; }
+			{ return shift_ == id.shift_
+			    && iscst_ ? mIsEqual(cstval_,id.cstval_, 1e-3)
+				      : wl_ == id.wl_; }
 	const Well::Log* wl_;
 	int		shift_;
 	bool		noudf_;
 	int		specidx_;
+	float		cstval_;
+	bool		iscst_;
     };
 
     void			getMathExpr();

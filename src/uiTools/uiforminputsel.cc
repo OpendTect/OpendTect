@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiforminputsel.cc,v 1.1 2012-03-23 08:59:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiforminputsel.cc,v 1.2 2012-03-28 13:35:07 cvshelene Exp $";
 
 
 #include "uiforminputsel.h"
@@ -39,11 +39,11 @@ uiFormInputSel::uiFormInputSel( uiGroup* inpgrp,
 	    			     BufferString("input ",curselidx) );
     inpfld_->label()->setPrefWidthInChar( 35 );
     inpfld_->label()->setAlignment( Alignment::Right );
-//    inpfld_->addItem( "Constant" );
+    inpfld_->box()->addItem( "Constant" );
     int selidx = curselidx;
-//    if ( selidx > lognms_.size() ) selidx = lognms_.size();
-    if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size()-1;
+    if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size();
     inpfld_->box()->setCurrentItem( selidx );
+    inpfld_->box()->selectionChanged.notify( mCB(this,uiFormInputSel,selChg) );
 
     if ( displayuom )
     {
@@ -102,6 +102,29 @@ void uiFormInputSel::setUnit( const char* s )
 
 const UnitOfMeasure* uiFormInputSel::getUnit() const
 {
-    if ( !unfld_ ) return 0;
+    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() ) return 0;
     return UoMR().get( unfld_->box()->text() );
 }
+
+
+float uiFormInputSel::getCstVal() const
+{
+    return cstvalfld_->mainObject()->isDisplayed() ? cstvalfld_->getfValue()
+						   : mUdf(float);
+}
+
+
+bool uiFormInputSel::isCst() const
+{
+    return cstvalfld_->mainObject()->isDisplayed();
+}
+
+
+void uiFormInputSel::selChg( CallBacker* )
+{
+    const int selidx = inpfld_->box()->currentItem();
+    const bool iscst = selidx == posinpnms_.size();
+    unfld_->display( !iscst );
+    cstvalfld_->display( iscst );
+}
+
