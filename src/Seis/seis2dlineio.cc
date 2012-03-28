@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.11 2010-10-21 06:37:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.12 2012-03-28 12:54:00 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -204,7 +204,8 @@ bool Seis2DLineMerger::nextFetcher()
 
     const int lid = currentlyreading_ == 1 ? lid1_ : lid2_;
     PosInfo::Line2DData& l2dd( currentlyreading_==1 ? l2dd1_ : l2dd2_ );
-    const char* lnm = currentlyreading_ == 1 ? lnm1_.buf() : lnm2_.buf();
+    l2dd.setLineName( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
+    const char* lnm = l2dd.lineName().buf();
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
