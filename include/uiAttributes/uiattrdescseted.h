@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.28 2012-03-27 22:11:46 cvsyuancheng Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.29 2012-03-28 21:58:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 
     uiAttrDescEd*	curDescEd();
     			//!< Use during operation only!
-    Attrib::Desc*		curDesc() const;
+    Attrib::Desc*	curDesc() const;
     			//!< Use during operation only!
     int			curDescNr() const;
     			//!< Use during operation only!
