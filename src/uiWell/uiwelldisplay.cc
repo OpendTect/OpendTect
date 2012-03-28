@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.19 2011-11-02 15:26:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.20 2012-03-28 15:20:46 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -45,6 +45,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 	uiWellLogDisplay::Setup wlsu; 
 	wlsu.noyannot_ = s.noyannot_;
 	wlsu.noxannot_ = s.noxannot_;
+	wlsu.xannotinpercents_ = s.xaxisinpercents_;
 	if ( s.nologborder_ )
 	{
 	    wlsu.border_ = uiBorder(0); 

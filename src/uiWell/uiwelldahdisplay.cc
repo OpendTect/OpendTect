@@ -47,9 +47,28 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     , col_(Color::Black())
     , drawascurve_(true)
     , drawaspoints_(false)
+    , xaxprcts_(0)
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
+    if ( s.xannotinpercents_ )
+    {
+	xaxprcts_ = new uiAxisHandler( &scn, uiAxisHandler::Setup( 
+				    isfirst? uiRect::Top : uiRect::Bottom )
+				    .border(s.border_)
+				    .annotinside(s.annotinside_)
+				    .noannot(s.noxannot_)
+				    .noannotpos(true));
+	xaxprcts_->setBounds( StepInterval<float>(0,100,25) );
+	xax_.setup().noannot( true );
+    }
+}
+
+void uiWellDahDisplay::DahObjData::plotAxis()
+{
+    xax_.plotAxis();  yax_.plotAxis();
+    if ( xaxprcts_ )
+	xaxprcts_->plotAxis();
 }
 
 
@@ -137,6 +156,19 @@ void uiWellDahDisplay::setAxisRelations()
     ld1_->yax_.setNewDevSize( height(), width() );
     ld2_->xax_.setNewDevSize( width(), height() );
     ld2_->yax_.setNewDevSize( height(), width() );
+
+    if ( ld2_->xaxprcts_ )
+    {
+	ld2_->xaxprcts_->setBegin( &ld1_->yax_ );
+	ld2_->xaxprcts_->setEnd( &ld2_->yax_ );
+	ld2_->xaxprcts_->setNewDevSize( width(), height() );
+    }
+    if ( ld1_->xaxprcts_ )
+    {
+	ld1_->xaxprcts_->setBegin( &ld1_->yax_ );
+	ld1_->xaxprcts_->setEnd( &ld2_->yax_ );
+	ld1_->xaxprcts_->setNewDevSize( width(), height() );
+    }
 }
 
 
@@ -218,8 +250,8 @@ void uiWellDahDisplay::draw()
 {
     setAxisRelations();
 
-    ld1_->xax_.plotAxis(); ld1_->yax_.plotAxis();
-    ld2_->xax_.plotAxis(); ld2_->yax_.plotAxis();
+    ld1_->plotAxis();
+    ld2_->plotAxis();
 
     drawMarkers();
     drawCurve( true );
@@ -290,9 +322,11 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ld.curveitms_.add( ti );
     }
 
+    /*
     if ( first )
 	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
 			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
+    */
 }
 
 

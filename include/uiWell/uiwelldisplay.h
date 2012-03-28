@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.12 2011-06-29 13:58:26 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.13 2012-03-28 15:20:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 				    , nologborder_(false)
 				    , noxannot_(false)
 				    , noyannot_(false)
+				    , xaxisinpercents_(false)
 				    , withcontrol_(true)
 				    , preflogsz_(uiSize(150,600))
 				    , takedisplayfrom3d_(false)
@@ -45,6 +46,7 @@ public:
 
 	mDefSetupMemb(bool,nobackground)
 	mDefSetupMemb(bool,noxannot)
+	mDefSetupMemb(bool,xaxisinpercents)
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
@@ -59,6 +61,7 @@ public:
 	    preflogsz_ 	  	= su.preflogsz_;
 	    noxannot_	  	= su.noxannot_;
 	    noyannot_	  	= su.noyannot_;
+	    xaxisinpercents_ 	= su.xaxisinpercents_;
 	    takedisplayfrom3d_ 	= su.takedisplayfrom3d_;
 	}
     };

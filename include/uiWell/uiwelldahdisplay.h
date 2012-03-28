@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.13 2012-03-23 14:53:42 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.14 2012-03-28 15:20:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,8 @@ public:
 			    , annotinside_(false)
 			    , samexaxisrange_(false)
 			    , symetricalxaxis_(false) 
-			    , drawcurvenames_(true) 
+			    , drawcurvenames_(false)
+			    , xannotinpercents_(false)			   
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -71,6 +72,7 @@ public:
 	mDefSetupMemb(bool,drawcurvenames)
 	mDefSetupMemb(bool,samexaxisrange)
 	mDefSetupMemb(bool,symetricalxaxis)
+	mDefSetupMemb(bool,xannotinpercents)
     };
 
 				    uiWellDahDisplay(uiParent*,const Setup&);
@@ -78,7 +80,7 @@ public:
 
     mStruct DahObjData
     {
-	virtual			~DahObjData() {}
+	virtual			~DahObjData() { delete xaxprcts_; }
 
 	//Set these	
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
@@ -93,9 +95,11 @@ public:
 	Interval<float>         zrg_;
 	Interval<float>         valrg_;
 	uiAxisHandler           xax_;
+	uiAxisHandler*          xaxprcts_;
 	uiAxisHandler           yax_;
 
 	virtual void		getInfoForDah(float dah,BufferString&) const;
+	void			plotAxis();
 
     protected:
 				DahObjData(uiGraphicsScene&,bool,
