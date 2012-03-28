@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.31 2011-10-28 08:03:49 cvsbruno Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.32 2012-03-28 15:20:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
 			    , noaxisline_(false)
 			    , noaxisannot_(false)
 			    , nogridline_(false)
+			    , noannotpos_(false)
 			    , annotinside_(false)
 			    , ticsz_(2)	
 			    , width_(w)
@@ -70,6 +71,7 @@ public:
 	mDefSetupMemb(int,width)
 	mDefSetupMemb(int,height)
 	mDefSetupMemb(bool,islog)
+	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,noaxisline)
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.58 2011-10-28 08:03:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.59 2012-03-28 15:20:14 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -481,7 +481,7 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 
 void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 {
-    if ( setup_.noaxisannot_ ) return;
+    if ( setup_.noaxisannot_ || setup_.noannotpos_ ) return;
     const int edgepix = pixToEdge();
     const bool inside = setup_.annotinside_;
     if ( isHor() )
