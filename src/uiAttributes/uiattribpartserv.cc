@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.188 2012-03-27 22:11:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.189 2012-03-28 21:59:41 cvsyuancheng Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1561,6 +1561,19 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	curdesc->parseDefStr( defstr );
 	curdesc->setUserRef( curusrref );
 	attrsetdlg_->updateCurDescEd();
+
+	if ( crossevaldlg )
+	{
+	    const TypeSet<Attrib::DescID>& cids = 
+		crossevaldlg->evaluateChildIds();
+	    BufferString ds = crossevaldlg->acceptedDefStr();
+	    Attrib::DescSet* ads = attrsetdlg_->getSet();
+	    for ( int idx=0; idx<cids.size(); idx++ )
+	    {
+		Desc* ad = ads->getDesc( cids[idx] );
+		if ( ad ) ad->parseDefStr( ds );
+	    }
+	}
     }
 
     sendEvent( evEvalRestore() );
