@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.61 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:		$Id: position.h,v 1.62 2012-03-29 12:32:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,13 +197,14 @@ public:
     inline const BinID&		operator/=(const BinID&);
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
+    inline int			toInt32() const;
+    inline void			fromInt64(od_int64);
+    inline void			fromInt32(int);
+    inline int			sqDistTo(const BinID&) const;
+
     void			fill(char*) const;
     bool			use(const char*);
-    od_int64			toInt64() const;
-    int				toInt32() const;
-    void			fromInt64(od_int64);
-    void			fromInt32(int);
-    int				sqDistTo(const BinID&) const;
+    inline od_int64		toInt64() const;
     bool                        isNeighborTo(const BinID&,const BinID&,
 					     bool eightconnectivity=true) const;
 
