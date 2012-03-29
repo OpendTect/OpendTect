@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.30 2012-03-12 07:59:27 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.31 2012-03-29 14:38:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,6 +287,8 @@ public:
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(int logidx,float zpos) const;
     float		getLogVal(const char* lognm,int idx) const;
+
+    int			nrSamples() const 	{ return zrg_.nrSteps()+1; }
 
     const char*		errMsg() const 
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
