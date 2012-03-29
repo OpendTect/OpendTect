@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.34 2012-03-27 09:00:27 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.35 2012-03-29 13:50:51 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -68,7 +68,7 @@ IF(UNIX) #Apple an Linux
 ENDIF(UNIX)
 
 #Create Launchers on Windows and Mac OS
-IF( DEFINED WIN32 OR (UNIX AND APPLE) )
+IF( DEFINED WIN32 )
     SET( OD_CREATE_LAUNCHERS 1 )
 ENDIF()
 
