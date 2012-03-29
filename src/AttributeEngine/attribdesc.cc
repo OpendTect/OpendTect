@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.81 2011-05-27 06:52:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.82 2012-03-29 21:33:26 cvsyuancheng Exp $";
 
 #include "attribdesc.h"
 
@@ -258,6 +258,52 @@ void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 	deps += inputs_[idx]->id();
 	inputs_[idx]->getDependencies(deps);
     }
+}
+
+
+bool Desc::getParentID( DescID did, DescID& pid, int& dididx ) const
+{
+    TypeSet<DescID> tmp;
+    getDependencies( tmp );
+    if ( tmp.indexOf(did)==-1 )
+	return false; 
+
+    for ( int idx=nrInputs()-1; idx>=0; idx-- )
+    {
+	if ( inputs_[idx] && inputs_[idx]->id()==did )
+	{
+	    pid = id();
+	    dididx = idx;
+	    return true;
+	}
+    }
+
+    for ( int idx=nrInputs()-1; idx>=0; idx-- )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	if ( inputs_[idx]->getParentID(did,pid,dididx) )
+	    return true;
+    }
+
+    return true;
+}
+
+
+void Desc::getAncestorIDs( DescID cid, TypeSet<Attrib::DescID>& aids,
+       TypeSet<int>& pindices ) const
+{
+    int cidx;
+    DescID pid;
+    if ( !getParentID(cid,pid,cidx) )
+	return;
+
+    aids += pid;
+    pindices += cidx;
+
+    if ( pid!=id() )
+	getAncestorIDs( pid, aids, pindices );
 }
 
 
