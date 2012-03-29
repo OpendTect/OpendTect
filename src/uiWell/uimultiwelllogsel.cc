@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.8 2012-03-12 12:46:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.9 2012-03-29 07:15:25 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -33,13 +33,14 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     , zchoicefld_(0)
     , zistimefld_(0) 
 {
+    const bool withzintime = s.withzintime_ && SI().zIsTime();
     const char** zchoice = Well::ExtractParams::ZSelectionNames();	
     BufferStringSet zchoiceset;
 
     for ( int idx=0; zchoice[idx]; idx++ )
     {
 	zchoiceset.add( BufferString( zchoice[idx] ) );
-	if ( !SI().zIsTime() && idx ==1 )
+	if ( !withzintime && idx ==1 )
 	    break;
     }
 
