@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.10 2012-03-26 11:04:58 cvskris Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.11 2012-03-29 13:51:30 cvskris Exp $";
 
 
 #include "moddepmgr.h"
@@ -44,7 +44,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     FilePath relfp( GetSoftwareDir(0), "data", mdfnm );
     BufferString fnm( relfp.fullPath() );
     const BufferString workdir = GetEnvVar("WORK");
-    FilePath devfp( workdir.buf(), "Pmake", mdfnm );
+    FilePath devfp( workdir.buf(), "data", mdfnm );
     if ( !File::exists(fnm) )
     {
 	isrel_ = false;
