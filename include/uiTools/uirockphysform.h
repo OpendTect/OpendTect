@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.7 2012-03-28 13:34:32 cvshelene Exp $
+ RCS:           $Id: uirockphysform.h,v 1.8 2012-03-29 06:54:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 
     bool		getFormulaInfo(BufferString&,BufferString&,
 	    			       BufferStringSet&,bool) const;
-    BufferString	getText(bool) const;
+    BufferString	getText(bool usecstevals=false) const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
     bool		isOK();
 
