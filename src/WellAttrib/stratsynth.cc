@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.26 2012-03-13 14:27:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.27 2012-03-29 09:27:07 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -135,8 +135,9 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	synthgen.addModel( aimod );
     }
     if ( maxsz == 0 )
-	mErrRet( "Model has no layer, please add some layers to the model.", 
-		return false; );
+	return false;
+	/* mErrRet( "Model has no lay2er, please add some layers to the model.",	return false; ); */
+
     if ( maxsz == 1 )
 	mErrRet( "Model has only one layer, please add an other layer.", 
 		return false; );
