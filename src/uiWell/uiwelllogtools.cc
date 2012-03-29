@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.13 2012-03-09 14:12:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.14 2012-03-29 07:16:24 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -41,7 +41,9 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 	: uiDialog( p, Setup( "Well log tools", "Select logs", mTODOHelpID ) )
 {
     setCtrlStyle( DoAndStay );
-    welllogselfld_ = new uiMultiWellLogSel(this,uiWellExtractParams::Setup());
+    welllogselfld_ = new uiMultiWellLogSel(this,uiWellExtractParams::Setup()
+	    					.withextractintime(false)
+	    					.withzintime(false));
     postFinalise().notify( mCB(this,uiWellLogToolWinMgr,initWin) );
 }
 
@@ -73,14 +75,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	    { delete ldata; continue; }
 	ldata->wellid_ = wid; 
 	const Well::ExtractParams& params = welllogselfld_->params();
-	BufferString topm = params.topmrkr_;  
-	BufferString botm = params.botmrkr_; 
-	float topd =  params.above_; float botd = params.below_;
-	const Well::Marker* topmrk = wd.markers().getByName( topm );
-	const Well::Marker* botmrk = wd.markers().getByName( botm );
-	ldata->dahrg_.start = topmrk ? topmrk->dah() : wls->dahInterval().start;
-	ldata->dahrg_.stop  = botmrk ? botmrk->dah() : wls->dahInterval().stop;
-	ldata->dahrg_.start -= topd; 	ldata->dahrg_.stop += botd;
+	ldata->dahrg_ = params.calcFrom( wd, lognms );
 	ldata->wellname_ = wellnms[idx]->buf();
 
 	logdatas += ldata;
