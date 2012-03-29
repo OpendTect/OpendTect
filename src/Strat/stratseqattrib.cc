@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.10 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.11 2012-03-29 11:43:55 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -71,6 +71,8 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 
 void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 {
+    deepErase( *this );
+
     for ( int idx=0; ; idx++ )
     {
 	const char* res = iop.find( IOPar::compKey(sKey::Property,idx) );
