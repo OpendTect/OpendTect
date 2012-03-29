@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.62 2011-11-04 08:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.63 2012-03-29 11:21:36 cvskris Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -56,6 +56,11 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     view2dwvaitem_.iconfnm = "wva.png";
     view2dvditem_.iconfnm = "vd.png";
     amplspectrumitem_.iconfnm = "amplspectrum.png";
+
+     movetotopmnuitem_.iconfnm = "totop.png";
+     moveupmnuitem_.iconfnm = "uparrow.png";
+     movedownmnuitem_.iconfnm = "downarrow.png";
+     movetobottommnuitem_.iconfnm = "tobottom.png";
 }
 
 
