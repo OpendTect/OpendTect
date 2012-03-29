@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.6 2012-03-28 21:59:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.7 2012-03-29 21:38:45 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -128,8 +128,8 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 #define mSetSelSpecAndLbl( origad ) \
     Desc* newad = new Desc(origad); \
     if ( !newad ) continue;	\
-    pargrp->updatePars( *newad, idz ); \
-    pargrp->updateDesc( *newad, idz ); \
+    pargrp->updatePars( *newad, idx ); \
+    pargrp->updateDesc( *newad, idx ); \
     const char* lbl = pargrp->getLabel(); \
     if ( !lbladded ) \
     { \
@@ -163,44 +163,53 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     lbls_.erase();
     specs_.erase();
     srcspecids_.erase();
-    childdesids_.erase();
     defstr_.erase();
 
     const int sel = paramsfld_->currentItem();
     if ( sel<0 || sel>=grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
-    TypeSet<int> attrselected;
-    attrnmsfld_->getSelectedItems( attrselected );
-    const int nrsteps = nrstepsfld->box()->getValue();
+    TypeSet<TypeSet<DescID> > ancestorids;//for each selected
+    TypeSet<TypeSet<int> > aids;
+    getSelDescIDs( ancestorids, aids );
+  
+    int srcspecidx = -1;
     Desc& srcad = *attrset_.getDesc( srcid_ );
-   
-    int srcspecidx = -1; 
-    for ( int idz=0; idz<nrsteps; idz++ )
+    const int initattrsz = attrset_.size(); 
+    const int selsz = seldeschildids_.size();
+    const int nrsteps = nrstepsfld->box()->getValue();
+    for ( int idx=0; idx<nrsteps; idx++ )
     {
 	bool lbladded = false;
-	for ( int idx=0; idx<attrselected.size(); idx++ )
+	TypeSet<int> startidx;
+	for ( int ci=0; ci<selsz; ci++ )
 	{
-	    const char* userattnm = userattnms_[sel].get(idx).buf();
-	    for ( int idy=0; idy<attrset_.size(); idy++ )
+	    startidx += attrset_.size();
+	    /*add me and my ancestors except the top one*/
+	    for ( int pi=0; pi<ancestorids[ci].size(); pi++ )
 	    {
-		if ( !attrset_.desc(idy) || attrset_.desc(idy)==&srcad ) 
-		    continue;
-
-		BufferString anm = attrset_.desc(idy)->userRef();
-		if ( !anm.isEqual(userattnm,true) ) continue;
-		
-		if ( !idz ) 
-		    childdesids_ += attrset_.desc(idy)->id();
-
-		Desc& childsrcad = *attrset_.desc( idy );
-		mSetSelSpecAndLbl(childsrcad);
-		break;
+	        Desc& ds = !pi ? *attrset_.getDesc(seldeschildids_[ci]) :
+		    		 *attrset_.getDesc(ancestorids[ci][pi-1] );
+		mSetSelSpecAndLbl(ds);
 	    }
 	}
 
 	mSetSelSpecAndLbl(srcad);
 	srcspecids_ += srcspecidx;
+
+	/*reset dependency*/
+	for ( int ci=0; ci<selsz; ci++ )
+	{
+	    int didx = startidx[ci];
+	    const int lastpidx = aids[ci].size()-1;
+	    for ( int pi=0; pi<lastpidx; pi++ )
+	    {
+		attrset_.desc(didx+1)->setInput( aids[ci][pi], 
+			attrset_.desc(didx));
+		didx++;
+	    }
+	    newad->setInput( aids[ci][lastpidx], attrset_.desc(didx) );
+	}
     }
     if ( specs_.isEmpty() )
 	return;
@@ -212,6 +221,45 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     sliderfld->sldr()->setMaxValue( nrsteps-1 );
     sliderfld->sldr()->setTickStep( 1 );
     sliderMove(0);
+}
+
+
+void uiCrossAttrEvaluateDlg::getSelDescIDs(
+	TypeSet<TypeSet<DescID> >& ancestorids, TypeSet<TypeSet<int> >& aids ) 
+{
+    seldeschildids_.erase();
+    
+    TypeSet<int> attrselected;
+    attrnmsfld_->getSelectedItems( attrselected );
+    
+    Desc& srcad = *attrset_.getDesc( srcid_ );
+    const int sel = paramsfld_->currentItem();
+    for ( int idx=0; idx<attrselected.size(); idx++ )
+    {
+	const char* userattnm = userattnms_[sel].get(attrselected[idx]).buf();
+	for ( int idy=0; idy<attrset_.size(); idy++ )
+	{
+	    if ( !attrset_.desc(idy) || attrset_.desc(idy)==&srcad ) 
+		continue;
+
+	    BufferString anm = attrset_.desc(idy)->userRef();
+	    if ( !anm.isEqual(userattnm,true) ) 
+		continue;
+
+	    seldeschildids_ += attrset_.desc(idy)->id();
+	    break;
+	}
+    }
+
+    const int selsz = seldeschildids_.size();
+    for ( int idx=0; idx<selsz; idx++ )
+    {
+	TypeSet<DescID> tmpids;
+	TypeSet<int> ids;
+	srcad.getAncestorIDs( seldeschildids_[idx], tmpids, ids );
+	ancestorids += tmpids;
+	aids += ids;
+    }
 }
 
 

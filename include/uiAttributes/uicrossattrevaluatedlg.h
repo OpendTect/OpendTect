@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          March 2012
- RCS:           $Id: uicrossattrevaluatedlg.h,v 1.5 2012-03-28 21:59:41 cvsyuancheng Exp $
+ RCS:           $Id: uicrossattrevaluatedlg.h,v 1.6 2012-03-29 21:38:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     bool			storeSlices() const;
     bool			evaluationPossible() const { return haspars_; }
     const TypeSet<Attrib::DescID>& evaluateChildIds() const 
-    				{ return childdesids_; }
+    				{ return seldeschildids_; }
     BufferString		acceptedDefStr() const;
 
     Notifier<uiCrossAttrEvaluateDlg>		calccb;
@@ -61,6 +61,9 @@ protected:
     void			calcPush(CallBacker*);
     void			sliderMove(CallBacker*);
     void			doFinalise(CallBacker*);
+    void			getSelDescIDs(
+	    				TypeSet<TypeSet<Attrib::DescID> >&, 
+					TypeSet<TypeSet<int> >&);
 
     bool			acceptOK(CallBacker*);
 
@@ -73,7 +76,7 @@ protected:
     ObjectSet<AttribParamGroup>	grps_;
 
     TypeSet<int>		srcspecids_;
-    TypeSet<Attrib::DescID>	childdesids_;
+    TypeSet<Attrib::DescID>	seldeschildids_;
     BufferStringSet		lbls_; //size is nr of steps
     TypeSet<Attrib::SelSpec> 	specs_;//size is nr of steps
 
