@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Coin/Ui
 # 	Feb 2002	Arend Lammertink
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-02-17 09:21:44 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-29 11:26:27 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS visSurvey uiTools )
@@ -22,5 +22,5 @@ SET(OD_MODULE_SOURCES
 		uithumbwheel.cc
 )
 
-SET(OD_MODULE_EXECS od_ivfileviewer od_ivfileviewer_clean )
+SET(OD_MODULE_PROGS od_ivfileviewer od_ivfileviewer_clean )
 OD_INIT_MODULE()

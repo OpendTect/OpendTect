@@ -2,7 +2,7 @@
 #
 #	Makefile : 	GoogleTranslate plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-15 10:49:15 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-03-29 11:26:24 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)
@@ -12,5 +12,5 @@ SET(OD_MODULE_SOURCES
 	googletranslatepi.cc
 	googletranslator.cc
 	uitranslatedlg.cc)
-SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
+SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()

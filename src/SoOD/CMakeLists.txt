@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Coin Extensions
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-22 16:01:27 cvssatyaki Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-03-29 11:26:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_USECOIN 1)
@@ -59,5 +59,5 @@ IF ( WIN32 )
 ELSE()
     SET( OD_MODULE_STATIC_LIBS ${OD_SIMVOLEON_LIBRARY} )
 ENDIF()
-SET(OD_MODULE_EXECS oib2a)
+SET(OD_MODULE_PROGS oib2a)
 OD_INIT_MODULE()

@@ -2,7 +2,7 @@
 #
 #	Makefile: 	uiODMain
 # 	Nov 2005:	Nanne Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:27 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS
@@ -51,6 +51,6 @@ SET(OD_MODULE_SOURCES
 	    uiodwelltreeitem.cc
 )
 
-SET(OD_MODULE_EXECS od_main )
+SET(OD_MODULE_PROGS od_main )
 
 OD_INIT_MODULE()

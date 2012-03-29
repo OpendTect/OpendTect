@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.44 2012-03-29 10:46:02 cvsnageswara Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.45 2012-03-29 11:26:24 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -109,7 +109,7 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	# Record alo-entries
 	IF ( NOT DEFINED OD_NO_ALO_ENTRY )
 	    SET( OD_ALO_NAME ${OD_MODULE_NAME} )
-	    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_EXECS} )
+	    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_ALO_EXEC} )
 	ENDIF()
     ELSE()
 	SET( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}
@@ -223,7 +223,7 @@ IF ( OD_MODULE_HAS_LIBRARY )
 ENDIF ( OD_MODULE_HAS_LIBRARY )
 
 #Setup common things for batch-programs
-IF( OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
+IF( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS )
     SET ( OD_RUNTIMELIBS ${OD_MODULE_DEPS})
     IF ( OD_MODULE_HAS_LIBRARY )
 	LIST ( APPEND OD_RUNTIMELIBS ${OD_MODULE_NAME} )
@@ -232,8 +232,8 @@ IF( OD_MODULE_EXECS OR OD_MODULE_BATCHPROGS )
 ENDIF()
 
 #Add executable targets
-IF(OD_MODULE_EXECS)
-    FOREACH( EXEC ${OD_MODULE_EXECS} )
+IF(OD_MODULE_PROGS)
+    FOREACH( EXEC ${OD_MODULE_PROGS} )
 	GET_FILENAME_COMPONENT( TARGET_NAME ${EXEC} NAME_WE )
 	ADD_EXECUTABLE( ${TARGET_NAME} ${EXEC} )
 	SET_TARGET_PROPERTIES( ${TARGET_NAME}
@@ -263,7 +263,7 @@ IF(OD_MODULE_EXECS)
 	OD_SIGN_TARGET( ${TARGET_NAME} )
     ENDFOREACH()
 
-ENDIF(OD_MODULE_EXECS)
+ENDIF(OD_MODULE_PROGS)
 
 IF(OD_MODULE_BATCHPROGS)
     #Add dep on Batch if there are batch-progs
@@ -355,11 +355,11 @@ ENDMACRO()
 # SOURCES				: List of sources to add
 #
 # Output:
-# OD_MODULE_EXECS
+# OD_MODULE_PROGS
 
 MACRO ( OD_ADD_PLUGIN_EXECS )
     FOREACH( SRC ${ARGV} )
-	LIST( APPEND OD_MODULE_EXECS src/${OD_PLUGINSUBDIR}/${SRC} )
+	LIST( APPEND OD_MODULE_PROGS src/${OD_PLUGINSUBDIR}/${SRC} )
     ENDFOREACH()
 ENDMACRO()
 
