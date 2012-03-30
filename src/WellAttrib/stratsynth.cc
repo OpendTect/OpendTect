@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.27 2012-03-29 09:27:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratsynth.cc,v 1.28 2012-03-30 13:20:08 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -233,6 +233,7 @@ void StratSynth::snapLevelTimes( SeisTrcBuf& trcs,
 	const SeisTrc& trc = *trcs.get( idx );
 	SeisTrcPropCalc stp( trc );
 	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
+	trcs.get( idx )->info().zref = z;
 	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
 	{
 	    Interval<float> tg( z, trc.startPos() );
