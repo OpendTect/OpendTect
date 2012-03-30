@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.46 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.47 2012-03-30 04:26:39 cvsraman Exp $";
 
 #include "helpview.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: helpview.cc,v 1.46 2011-12-14 13:16:41 cvsbert 
 #include "filepath.h"
 #include "multiid.h"
 #include "oddirs.h"
+#include "odinst.h"
 #include "strmprov.h"
 #include "ascstream.h"
 #include "staticstring.h"
@@ -28,10 +29,10 @@ static const char* sBookHtml = "book1.htm";
 static const char* sNotFoundHtml = "notfound.html";
 static const char* sNotInstHtml = "docnotinst.html";
 static const char* sToDoHtml = "todo.html";
+static const char* sWebSite = "http://opendtect.org";
 
 static bool showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
 			 || GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
-
 
 static StreamData getStreamData( const char* fnm )
 {
@@ -199,8 +200,15 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
     }
 
     const char* fnm = htmlfnm.isEmpty() ? sIndexHtml : htmlfnm.buf();
-    url = FilePath( docdir ).add( fnm ).fullPath();
-    const bool doesexist = File::exists(url);
+    FilePath urlfp( docdir ); urlfp.add( fnm );
+    url = urlfp.fullPath();
+    bool doesexist = File::exists(url);
+    if ( !doesexist )
+    {
+	url = getWebUrlFromLocal( url.buf() );
+	doesexist = !url.isEmpty();
+    }
+
     if ( showhelpstuff )
     {
 	BufferString msg( "Link '", linknm, "' -> URL '" );
@@ -280,6 +288,32 @@ bool HelpViewer::hasSpecificCredits( const char* winid )
     return getCreditsSpecificFileName(winid);
 }
 
+
+BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
+{
+    FilePath localfp( localfnm );
+    BufferString url;
+    bool docfound = false;
+    FilePath fp;
+    for ( int idx=0; idx<localfp.nrLevels(); idx++ )
+    {
+	if ( localfp.dir(idx) == "doc" )
+	    docfound = true;
+
+	if ( docfound )
+	    fp.add( localfp.dir(idx).buf() );
+    }
+
+    if ( docfound )
+    {
+	ODInst::RelType reltype = ODInst::getRelType();
+	url = sWebSite;
+	url += reltype == ODInst::Stable ? "/rel/" : "/devel/";
+	url += fp.fullPath( FilePath::Unix );
+    }
+
+    return url;
+}
 
 #include "texttranslator.h"
 mGlobal TextTranslateMgr& TrMgr()
