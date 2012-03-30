@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.23 2012-01-25 10:14:58 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.24 2012-03-30 06:10:18 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -228,6 +228,22 @@ bool winCopy( const char* from, const char* to, bool isfile )
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
 			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
 
+    int res = SHFileOperation( &fileop );
+    return !res;
+}
+
+
+bool winRemoveDir( const char* dirnm )
+{
+    SHFILEOPSTRUCT fileop;
+    BufferString frm( dirnm );
+    const int sz = frm.size();
+    frm[sz+1] = '\0';
+    ZeroMemory( &fileop, sizeof(fileop) );
+    fileop.hwnd = NULL;
+    fileop.wFunc = FO_DELETE;
+    fileop.pFrom = frm;
+    fileop.fFlags = FOF_MULTIDESTFILES | FOF_NOCONFIRMATION;
     int res = SHFileOperation( &fileop );
     return !res;
 }

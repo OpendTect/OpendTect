@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.12 2012-02-24 03:52:19 cvsraman Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.13 2012-03-30 06:10:18 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -60,17 +60,17 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
     bool tempfile = false;
-    BufferString tmpfnm( filelistname_ );
+    FilePath orgfnm( filelistname_ );
     if ( needfilelist_ )
     {
-	FilePath listfp( filelistname_ );
-	if ( !File::exists( listfp.pathOnly() ) )
+	if ( !File::exists(orgfnm.pathOnly()) ) 
 	{
 	    tempfile = true;
-	    FilePath tempfp( File::getTempPath() );
-	    tempfp.add( listfp.fileName() );
-	    filelistname_ = tempfp.fullPath();
-	}
+	    FilePath listfp( src );
+	    listfp = listfp.pathOnly();
+	    listfp.add( orgfnm.fileName() );
+	    filelistname_ = listfp.fullPath();
+	}    
     }
 
     bool res = false;
@@ -80,12 +80,6 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     if ( needfilelist_ )
 	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
     res = ExecOSCmd( cmd );
-    if ( res && tempfile )
-    {
-	BufferString cpcmd( "copy \"" );
-	cpcmd.add( filelistname_ ) .add( "\" \"" ).add( tmpfnm ).add("\"");
-	system( cpcmd );
-    }
 #else
     BufferString cmd( "unzip -o ", src );
     cmd.add( " -d " ).add( dest ).add( " > " )
@@ -93,8 +87,16 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     res = !system( cmd );
 #endif
 
-    if ( res ) return true;
+    if ( res && tempfile )
+    {
+	BufferString cpcmd( "copy \"" );
+	cpcmd.add( filelistname_ ) .add( "\" \"" ).add( orgfnm.fullPath() )
+	    .add("\"");
+	system( cpcmd );
+	File::remove( filelistname_ );
+	return true;
+    }
 
-    errmsg_ = "Unzip failed";
-    return false;
+    errmsg_ = !res ? " Unzip Failed" : ""; 
+    return res;
 }

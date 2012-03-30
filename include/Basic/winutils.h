@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.7 2012-02-01 16:28:05 cvskris Exp $
+ RCS:		$Id: winutils.h,v 1.8 2012-03-30 06:10:18 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ extern "C"
 
 #ifdef __cpp__
 mGlobal	bool		winCopy(const char* from,const char* to,bool isfile);
+mGlobal	bool		winRemoveDir( const char* dirnm );
 #endif
 
 mGlobal const char*	getCygDir();

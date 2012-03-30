@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.32 2012-03-09 12:45:26 cvsbert Exp $
+ RCS:		$Id: file.cc,v 1.33 2012-03-30 06:10:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,11 +292,10 @@ bool removeDir( const char* dirnm )
     if ( !exists(dirnm) )
 	return true;
 
-    BufferString cmd;
 #ifdef __win__
-    cmd = "rd /Q /S";
-    cmd.add(" \"").add(dirnm).add("\"");
+    return winRemoveDir( dirnm );
 #else
+    BufferString cmd;
     cmd = "/bin/rm -rf";
     if ( isLink(dirnm) )
     {
@@ -304,11 +303,10 @@ bool removeDir( const char* dirnm )
     }
 
     cmd.add(" '").add(dirnm).add("'");
-#endif
-
     bool res = system( cmd ) != -1;
     if ( res ) res = !exists(dirnm);
     return res;
+#endif
 }
 
 
