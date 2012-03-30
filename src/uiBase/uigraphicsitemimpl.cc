@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.52 2012-03-30 15:31:54 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.53 2012-03-30 21:43:29 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.52 2012-03-30 15:31:5
 #include "uiobj.h"
 
 #include <QBrush>
+#include <QPainter>
 #include <QFont>
 #include <QFontMetrics>
 #include <QGraphicsProxyWidget>
@@ -279,7 +280,6 @@ public:
 	, needsData( this )
     {}
 
-
     const Geom::PosRectangle<float>& neededData() const
     { return neededdata_; }
 
@@ -295,7 +295,7 @@ public:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	       QWidget* widget)
     {
-	if ( updateResolution() )
+	if ( updateResolution( painter ) )
 	{
 	    needsData.trigger();
 	}
@@ -304,12 +304,27 @@ public:
 	    paintingitem_->paint( painter, option, widget );
     }
 
-    bool updateResolution()
+    bool updateResolution( const QPainter* painter )
     {
-	//TODO investigation and setting of wanted rectangle
+	const QPaintDevice* device = painter->device();
+	const QRectF viewport = painter->viewport();
+	const QTransform worldtolocal = painter->transform().inverted();
+	const QRectF projectedviewport = worldtolocal.mapRect( viewport );
+
+	Geom::PosRectangle<float> neededdata(
+		mMAX(projectedviewport.left(),0),
+		mMAX(projectedviewport.top(),0),
+		mMIN(projectedviewport.right(),1),
+		mMIN(projectedviewport.bottom(),1) );
+
+	if ( neededdata == neededdata_ )
+	    return false;
+
+	neededdata_ = neededdata_;
+	//Set pixelspacing
+	pixelspacing_ = 1;
 	return true;
     }
-
 
     Notifier<QDynamicPixmapItem>	needsData;
 protected:
