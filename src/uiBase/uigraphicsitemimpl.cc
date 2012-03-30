@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.51 2011-06-10 12:31:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.52 2012-03-30 15:31:54 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -270,6 +270,84 @@ void uiLineItem::setPenStyle( const LineStyle& ls, bool )
     qlineitem_->setPen( qpen );
 }
 
+
+class QDynamicPixmapItem : public QGraphicsItem, public CallBacker
+{
+public:
+    QDynamicPixmapItem()
+	: paintingitem_( 0 )
+	, needsData( this )
+    {}
+
+
+    const Geom::PosRectangle<float>& neededData() const
+    { return neededdata_; }
+
+    float pixelSpacing() const
+    { return pixelspacing_; }
+
+    QRectF boundingRect() const
+    {
+	//TODO
+	return QRectF();
+    }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	       QWidget* widget)
+    {
+	if ( updateResolution() )
+	{
+	    needsData.trigger();
+	}
+
+	if ( paintingitem_ )
+	    paintingitem_->paint( painter, option, widget );
+    }
+
+    bool updateResolution()
+    {
+	//TODO investigation and setting of wanted rectangle
+	return true;
+    }
+
+
+    Notifier<QDynamicPixmapItem>	needsData;
+protected:
+
+    Geom::PosRectangle<float>		neededdata_;
+    float				pixelspacing_;
+
+    ODGraphicsPixmapItem*		paintingitem_;
+};
+
+
+//uiDynamicPixmapItem
+uiDynamicPixmapItem::uiDynamicPixmapItem()
+    : uiGraphicsItem( mkQtObj() )
+{}
+
+
+uiDynamicPixmapItem::~uiDynamicPixmapItem()
+{}
+
+
+NotifierAccess& uiDynamicPixmapItem::needsData()
+{ return item_->needsData; }
+
+
+const Geom::PosRectangle<float>& uiDynamicPixmapItem::neededData() const
+{ return item_->neededData(); }
+
+
+float uiDynamicPixmapItem::pixelSpacing() const
+{ return item_->pixelSpacing(); }
+
+
+QGraphicsItem* uiDynamicPixmapItem::mkQtObj()
+{
+    item_ = new QDynamicPixmapItem();
+    return item_;
+}
 
 // uiPixmapItem
 uiPixmapItem::uiPixmapItem()
