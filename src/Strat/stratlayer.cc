@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.33 2012-02-01 13:54:40 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.34 2012-03-30 12:31:21 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: stratlayer.cc,v 1.33 2012-02-01 13:54:40 cvsber
 #include "stratunitrefiter.h"
 #include "property.h"
 #include "separstr.h"
-#include "ascstream.h"
+#include "strmoper.h"
 #include "keystrs.h"
 #include "elasticpropsel.h"
 
@@ -29,6 +29,12 @@ Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
 {
     setValue( 0, 0 ); setValue( 1, 0 );
+}
+
+
+BufferString Strat::Layer::name() const
+{
+    return BufferString( unitRef().fullCode().buf() );
 }
 
 
@@ -244,78 +250,103 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
-bool Strat::LayerModel::readHeader( std::istream& strm, IOPar& pars )
+
+bool Strat::LayerModel::read( std::istream& strm )
 {
-    pars.setEmpty();
-    ascistream astrm( strm, true );
-    if ( !astrm.isOfFileType(sKeyLayModFileType) )
+    deepErase( seqs_ );
+    char buf[256];
+    StrmOper::wordFromLine( strm, buf, 256 );
+    if ( buf[0] != '#' || buf[1] != 'M' )
 	return false;
 
-    pars.set( sKey::Date, astrm.timeStamp() );
-    pars.getFrom( astrm );
-    return strm.good();
-}
+    int nrseqs, nrprops;
+    strm >> nrprops >> nrseqs;
+    if ( nrprops < 1 ) return false;
 
-
-bool Strat::LayerModel::read( std::istream& strm, IOPar& pars )
-{
-    if ( !readHeader(strm,pars) )
-	return false;
-
-    ascistream astrm( strm, false );
-    IOPar iop; iop.getFrom( astrm );
-    BufferStringSet nms; TypeSet<float> vals;
-    for ( int idx=0; ; idx++ )
+    PropertyRefSelection newprops;
+    newprops += &PropertyRef::thickness(); // get current survey's thickness
+    for ( int iprop=0; iprop<nrprops; iprop++ )
     {
-	BufferString ky( sKey::Value ); ky.add( "." ).add( idx );
-	const char* res = iop.find( ky );
-	if ( res && *res )
-	    { nms.add( res ); vals += 0; }
-    }
-    if ( nms.isEmpty() )
-	return false;
-
-    // TODO create props_ from nms
-    // read data
-    return false;
-}
-
-
-bool Strat::LayerModel::write( std::ostream& strm, const IOPar& pars ) const
-{
-    ascostream astrm( strm );
-    if ( !astrm.putHeader(sKeyLayModFileType) )
-	return false;
-
-    pars.putTo( astrm );
-
-    const int nrseqs = seqs_.size();
-    const int nrprops = props_.size();
-    IOPar iop; iop.set( sKeyNrSeqs(), nrseqs );
-    for ( int idx=0; idx<nrprops; idx++ )
-    {
-	const PropertyRef& pref = *props_[idx];
-	BufferString ky( sKey::Value ); ky.add( "." ).add( idx );
-	FileMultiString fms( pref.name() );
-	fms += pref.disp_.color_.getStdStr();
-	fms += pref.disp_.unit_;
-	iop.set( ky, fms );
-    }
-    iop.putTo( astrm );
-
-    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
-    {
-	const LayerSequence& seq = *seqs_[iseq];
-	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	StrmOper::wordFromLine( strm, buf, 256 ); // read "#P.."
+	BufferString propnm;
+	StrmOper::readLine( strm, &propnm );
+	if ( iprop != 0 )
 	{
-	    const Layer& lay = *seq.layers()[iseq];
-	    for ( int iprop=0; iprop<nrprops; iprop++ )
-		strm << '\t' << lay.value( iprop );
-	strm << '\n';
+	    const PropertyRef* p = PROPS().find( propnm.buf() );
+	    if ( !p ) return false;
+	    newprops += p;
 	}
-	astrm.newParagraph();
+    }
+    if ( !strm.good() ) return false;
+
+    props_ = newprops;
+    const RefTree& rt = RT();
+
+    for ( int iseq=0; iseq<nrseqs; iseq++ )
+    {
+	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S"
+	LayerSequence* seq = new LayerSequence( &props_ );
+	int nrlays, seqnr;
+	strm >> seqnr >> nrlays;
+	if ( !strm.good() ) return false;
+
+	for ( int ilay=0; ilay<nrlays; ilay++ )
+	{
+	    StrmOper::wordFromLine( strm, buf, 256 ); // read away "#L"
+	    StrmOper::wordFromLine( strm, buf, 256 );
+	    FileMultiString fms( buf );
+	    const UnitRef* ur = rt.find( fms[0] );
+	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
+	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf() );
+	    if ( fms.size() > 1 )
+	    {
+		const Content* c = rt.contents().getByName(fms[1]);
+		newlay->setContent( c ? *c : Content::unspecified() );
+	    }
+	    float val; strm >> val;
+	    newlay->setThickness( val );
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+		{ strm >> val; newlay->setValue( iprop, val ); }
+	}
     }
     return true;
+}
+
+
+bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
+{
+    const int nrseqs = seqs_.size();
+    const int nrprops = props_.size();
+    strm << "#M" << modnr << '\t' << nrprops << '\t' << nrseqs << '\n';
+
+    for ( int iprop=0; iprop<nrprops; iprop++ )
+	strm << "#P" << iprop << '\t' << props_[iprop]->name() << '\n';
+
+    for ( int iseq=0; iseq<nrseqs; iseq++ )
+    {
+	const LayerSequence& seq = *seqs_[iseq];
+	const int nrlays = seq.size();
+	strm << "#S" << iseq << '\t' << nrlays << '\n';
+
+	for ( int ilay=0; ilay<nrlays; ilay++ )
+	{
+	    strm << "#L" << ilay << '\t';
+	    const Layer& lay = *seq.layers()[iseq];
+	    if ( lay.content().isUnspecified() )
+		strm << lay.name();
+	    else
+	    {
+		FileMultiString fms( lay.name() );
+		fms += lay.content().name();
+		strm << fms;
+	    }
+	    strm << '\t' << lay.thickness();
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+		strm << '\t' << lay.value( iprop );
+	    strm << std::endl;
+	}
+    }
+    return strm.good();
 }
 
 

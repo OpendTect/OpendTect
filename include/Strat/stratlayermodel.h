@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.9 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: stratlayermodel.h,v 1.10 2012-03-30 12:31:21 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -56,9 +56,8 @@ public:
 
     const RefTree&		refTree() const;
 
-    static bool			readHeader(std::istream&,IOPar&);
-    bool			read(std::istream&,IOPar&);
-    bool			write(std::ostream&,const IOPar&) const;
+    bool			read(std::istream&);
+    bool			write(std::ostream&,int modnr=0) const;
     static const char*		sKeyNrSeqs()		{return "Nr Sequences";}
 
 protected:
