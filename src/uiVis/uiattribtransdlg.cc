@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribtransdlg.cc,v 1.7 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribtransdlg.cc,v 1.8 2012-03-30 22:33:39 cvsnanne Exp $";
 
 #include "uiattribtransdlg.h"
 
@@ -21,12 +21,12 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )
 {
-    slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Transparency"),
-	    			 "Transparency slider" );
+    uiSliderExtra::Setup ss( "Transparency" ); ss.withedit(true);
+    slider_ = new uiSliderExtra( this, ss, "Transparency slider" );
     slider_->sldr()->setMinValue( 0 );
-    slider_->sldr()->setMaxValue( 255 );
+    slider_->sldr()->setMaxValue( 100 );
     slider_->sldr()->setStep( 1 );
-    slider_->sldr()->setValue( initaltrans_ ); 
+    slider_->sldr()->setValue( 100*initaltrans_/255 ); 
 
     slider_->sldr()->valueChanged.notify( mCB(this,uiAttribTransDlg,changeCB) );
 }
@@ -34,6 +34,7 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
+    const int val = 255*slider_->sldr()->getIntValue()/100;
     so_.setAttribTransparency( attrib_, slider_->sldr()->getIntValue() );
 }
 

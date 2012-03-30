@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.29 2011-11-04 16:17:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.30 2012-03-30 22:33:39 cvsnanne Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -192,7 +192,8 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
 {
     if ( !domk ) return;
 
-    uiSliderExtra* se = new uiSliderExtra( this, uiSliderExtra::Setup(lbltxt),
+    uiSliderExtra::Setup ss( lbltxt ); ss.withedit(true);
+    uiSliderExtra* se = new uiSliderExtra( this, ss,
 	    				   BufferString(lbltxt," slider") );
     slider = se->sldr();
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
