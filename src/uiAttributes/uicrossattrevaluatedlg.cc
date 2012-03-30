@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.7 2012-03-29 21:38:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.8 2012-03-30 14:55:15 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -127,7 +127,7 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 
 #define mSetSelSpecAndLbl( origad ) \
     Desc* newad = new Desc(origad); \
-    if ( !newad ) continue;	\
+    if ( !newad ) return;	\
     pargrp->updatePars( *newad, idx ); \
     pargrp->updateDesc( *newad, idx ); \
     const char* lbl = pargrp->getLabel(); \
@@ -138,11 +138,6 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 	BufferString defstr; \
 	newad->getDefStr( defstr ); \
 	defstr_.add( defstr ); \
-    } \
-    if ( newad->selectedOutput()>=newad->nrOutputs() ) \
-    { \
-	newad->ref(); newad->unRef(); \
-	continue; \
     } \
     BufferString usrref = newad->attribName(); \
     usrref += " - "; usrref += lbl; \
@@ -157,6 +152,9 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 
 void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 {
+    if ( !attrset_.getDesc(srcid_) )
+	return;
+
     float vsn = mODMajorVersion + 0.1*mODMinorVersion;
     attrset_.usePar( initpar_, vsn );
     sliderfld->sldr()->setValue(0);
@@ -170,7 +168,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     AttribParamGroup* pargrp = grps_[sel];
 
     TypeSet<TypeSet<DescID> > ancestorids;//for each selected
-    TypeSet<TypeSet<int> > aids;
+    TypeSet<TypeSet<int> > aids;//index of children
     getSelDescIDs( ancestorids, aids );
   
     int srcspecidx = -1;
@@ -188,9 +186,11 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	    /*add me and my ancestors except the top one*/
 	    for ( int pi=0; pi<ancestorids[ci].size(); pi++ )
 	    {
-	        Desc& ds = !pi ? *attrset_.getDesc(seldeschildids_[ci]) :
-		    		 *attrset_.getDesc(ancestorids[ci][pi-1] );
-		mSetSelSpecAndLbl(ds);
+	        Desc* ds = !pi ? attrset_.getDesc(seldeschildids_[ci]) :
+		    		 attrset_.getDesc(ancestorids[ci][pi-1] );
+		if ( !ds ) return;
+
+		mSetSelSpecAndLbl(*ds);
 	    }
 	}
 
