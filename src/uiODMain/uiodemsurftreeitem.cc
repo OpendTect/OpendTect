@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.92 2012-02-28 23:52:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.93 2012-03-30 22:34:37 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -67,6 +67,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , treeitemwasenabled_(true)
     , prevtrackstatus_(true)
 {
+    savemnuitem_.iconfnm = "save.png";
     enabletrackingmnuitem_.checkable = true;
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
@@ -186,201 +187,19 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 }
 
 
-uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
-							EM::ObjectID objid,
-							uiVisEMObject* uv,
-       							const char* parenttype )
-    : uiODAttribTreeItem( parenttype )
-    , depthattribmnuitem_("Z values")
-    , savesurfacedatamnuitem_("Save as Surface data ...")
-    , loadsurfacedatamnuitem_("Surface data ...")
-    , algomnuitem_("&Tools")
-    , filtermnuitem_("&Filtering ...")
-    , fillholesmnuitem_("&Gridding ...")
-    , horvariogrammnuitem_("&Variogram ...")
-    , attr2geommnuitm_("Set &Z values ...")
-    , changed_(false)
-    , emid_(objid)
-    , uivisemobj_(uv)
+void uiODEarthModelSurfaceTreeItem::addToToolBarCB( CallBacker* cb )
 {
-    horvariogrammnuitem_.iconfnm = "variogram.png";
-}
-
-
-void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
-						    bool istb )
-{
-    uiODAttribTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
-
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-	    					     attribNr() );
-
-    const bool islocked = visserv->isLocked( displayID() );
-    const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
-    BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
-    itmtxt += ") ...";
-    loadsurfacedatamnuitem_.text = itmtxt;
-    mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
-		  !islocked && nrsurfdata>0, false );
-    if ( uivisemobj_ )
-    {
-	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
-    }
-    else
-    {
-	mResetMenuItem( &depthattribmnuitem_ );
-    }
-
-    const bool enabsave = changed_ ||
-	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
-
-    mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
-}
-
-
-void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
-{
-    uiODAttribTreeItem::handleMenuCB(cb);
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( mnuid==-1 || menu->isHandled() )
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    const int visid = displayID();
-    const int attribnr = attribNr();
-
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribnr );
-    if ( mnuid==savesurfacedatamnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	DataPointSet vals( false, true );
-	vals.bivSet().setNrVals( 3 );
-	visserv->getRandomPosCache( visid, attribnr, vals );
-	if ( vals.size() )
-	{
-	    const float shift = visserv->getTranslation( visid ).z;
-	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
-	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
-		    name_, validx, shift );
-	    if ( auxnr<0 )
-	    {
-		pErrMsg( "Cannot find data." );
-		return;
-	    }
-
-	    BufferString auxdatanm;
-	    const bool saved =
-		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
-	    if ( saved )
-	    {
-		const Attrib::SelSpec newas( auxdatanm,
-			Attrib::SelSpec::cOtherAttrib() );
-		visserv->setSelSpec( visid, attribnr, newas );
-		BufferStringSet* userrefs = new BufferStringSet;
-		userrefs->add( "Section ID" );
-		userrefs->add( auxdatanm );
-		visserv->setUserRefs( visid, attribnr, userrefs );
-		updateColumnText( uiODSceneMgr::cNameColumn() );
-	    }
-	    changed_ = !saved;
-	}
-    }
-    else if ( mnuid==depthattribmnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	uivisemobj_->setDepthAsAttrib( attribnr );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	changed_ = false;
-    }
-    else if ( mnuid==loadsurfacedatamnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
-	    return;
-
-	TypeSet<float> shifts;
-	DataPointSet vals( false, true );
-	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	setDataPointSet( vals );
-
-	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
-			visserv->getObject(visid) );
-	vishor->setAttribShift( attribnr, shifts );
-
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	changed_ = false;
-    }
-    else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id
-	   || mnuid==attr2geommnuitm_.id || mnuid==horvariogrammnuitem_.id )
-    {
-	menu->setIsHandled( true );
-
-	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
-	{
-	    uiMSG().error( "This algorithm can only be applied on Surface data."
-		    	   "\nPlease save attribute first" );
-	    return;
-	}
-
-	bool res = false;
-	DataPointSet vals( false, true );
-	visserv->getRandomPosCache( visid, attribnr, vals );
-	if ( mnuid==filtermnuitem_.id )
-	    res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals);
-	else if ( mnuid==fillholesmnuitem_.id )
-	    res = applMgr()->EMServer()->
-				interpolateAuxData( emid_, name_, vals);
-	else if ( mnuid==horvariogrammnuitem_.id )
-	    res = applMgr()->EMServer()->
-				computeVariogramAuxData( emid_, name_, vals );
-	else if ( mnuid==attr2geommnuitm_.id )
-	    res = applMgr()->EMServer()->attr2Geom( emid_, name_, vals );
-
-	if ( !res || mnuid==horvariogrammnuitem_.id )
-	    return;
-	
-	visserv->setSelSpec( visid, attribnr,
-		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( visid, attribnr, &vals );
-	changed_ = true;
-    }
-}
-
-
-void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
-						const DataPointSet& vals )
-{
-    const int visid = displayID();
-    const int attribnr = attribNr();
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
-    visserv->setSelSpec( visid, attribnr,
-	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-    visserv->createAndDispDataPack( visid, attribnr, &vals );
-    visserv->selectTexture( visid, attribnr, 0 );
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-}
-
-
-BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
-{
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-
-    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return BufferString("Z values");
-
-    return uiODAttribTreeItem::createDisplayName();
+    const bool isshifted =
+		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
+    mAddMenuItem( tb, &savemnuitem_,
+		  applMgr()->EMServer()->isChanged(emid_) &&
+		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
+		  !isshifted, false );
+    uiODDisplayTreeItem::addToToolBarCB( cb );
 }
 
 
@@ -623,3 +442,205 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
+
+
+// uiODEarthModelSurfaceDataTreeItem
+uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
+							EM::ObjectID objid,
+							uiVisEMObject* uv,
+       							const char* parenttype )
+    : uiODAttribTreeItem( parenttype )
+    , depthattribmnuitem_("Z values")
+    , savesurfacedatamnuitem_("Save as Surface data ...")
+    , loadsurfacedatamnuitem_("Surface data ...")
+    , algomnuitem_("&Tools")
+    , filtermnuitem_("&Filtering ...")
+    , fillholesmnuitem_("&Gridding ...")
+    , horvariogrammnuitem_("&Variogram ...")
+    , attr2geommnuitm_("Set &Z values ...")
+    , changed_(false)
+    , emid_(objid)
+    , uivisemobj_(uv)
+{
+    horvariogrammnuitem_.iconfnm = "variogram.png";
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
+						    bool istb )
+{
+    uiODAttribTreeItem::createMenu( menu, istb );
+    if ( istb ) return;
+
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
+	    					     attribNr() );
+
+    const bool islocked = visserv->isLocked( displayID() );
+    const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
+    BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
+    itmtxt += ") ...";
+    loadsurfacedatamnuitem_.text = itmtxt;
+    mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
+		  !islocked && nrsurfdata>0, false );
+    if ( uivisemobj_ )
+    {
+	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
+		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+    }
+    else
+    {
+	mResetMenuItem( &depthattribmnuitem_ );
+    }
+
+    const bool enabsave = changed_ ||
+	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
+	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
+
+    mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
+    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
+{
+    uiODAttribTreeItem::handleMenuCB(cb);
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    const int visid = displayID();
+    const int attribnr = attribNr();
+
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribnr );
+    if ( mnuid==savesurfacedatamnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	DataPointSet vals( false, true );
+	vals.bivSet().setNrVals( 3 );
+	visserv->getRandomPosCache( visid, attribnr, vals );
+	if ( vals.size() )
+	{
+	    const float shift = visserv->getTranslation( visid ).z;
+	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
+	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
+		    name_, validx, shift );
+	    if ( auxnr<0 )
+	    {
+		pErrMsg( "Cannot find data." );
+		return;
+	    }
+
+	    BufferString auxdatanm;
+	    const bool saved =
+		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
+	    if ( saved )
+	    {
+		const Attrib::SelSpec newas( auxdatanm,
+			Attrib::SelSpec::cOtherAttrib() );
+		visserv->setSelSpec( visid, attribnr, newas );
+		BufferStringSet* userrefs = new BufferStringSet;
+		userrefs->add( "Section ID" );
+		userrefs->add( auxdatanm );
+		visserv->setUserRefs( visid, attribnr, userrefs );
+		updateColumnText( uiODSceneMgr::cNameColumn() );
+	    }
+	    changed_ = !saved;
+	}
+    }
+    else if ( mnuid==depthattribmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	uivisemobj_->setDepthAsAttrib( attribnr );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	changed_ = false;
+    }
+    else if ( mnuid==loadsurfacedatamnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
+	    return;
+
+	TypeSet<float> shifts;
+	DataPointSet vals( false, true );
+	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
+	setDataPointSet( vals );
+
+	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
+			visserv->getObject(visid) );
+	vishor->setAttribShift( attribnr, shifts );
+
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	changed_ = false;
+    }
+    else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id
+	   || mnuid==attr2geommnuitm_.id || mnuid==horvariogrammnuitem_.id )
+    {
+	menu->setIsHandled( true );
+
+	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
+	{
+	    uiMSG().error( "This algorithm can only be applied on Surface data."
+		    	   "\nPlease save attribute first" );
+	    return;
+	}
+
+	bool res = false;
+	DataPointSet vals( false, true );
+	visserv->getRandomPosCache( visid, attribnr, vals );
+	if ( mnuid==filtermnuitem_.id )
+	    res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals);
+	else if ( mnuid==fillholesmnuitem_.id )
+	    res = applMgr()->EMServer()->
+				interpolateAuxData( emid_, name_, vals);
+	else if ( mnuid==horvariogrammnuitem_.id )
+	    res = applMgr()->EMServer()->
+				computeVariogramAuxData( emid_, name_, vals );
+	else if ( mnuid==attr2geommnuitm_.id )
+	    res = applMgr()->EMServer()->attr2Geom( emid_, name_, vals );
+
+	if ( !res || mnuid==horvariogrammnuitem_.id )
+	    return;
+	
+	visserv->setSelSpec( visid, attribnr,
+		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
+	visserv->setRandomPosData( visid, attribnr, &vals );
+	changed_ = true;
+    }
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
+						const DataPointSet& vals )
+{
+    const int visid = displayID();
+    const int attribnr = attribNr();
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
+    visserv->setSelSpec( visid, attribnr,
+	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+    visserv->createAndDispDataPack( visid, attribnr, &vals );
+    visserv->selectTexture( visid, attribnr, 0 );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
+{
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+
+    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+	return BufferString("Z values");
+
+    return uiODAttribTreeItem::createDisplayName();
+}
+
+
+

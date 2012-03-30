@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.17 2012-01-10 14:41:57 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.18 2012-03-30 22:34:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,9 @@ public:
 protected:
     			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
     			~uiODEarthModelSurfaceTreeItem();
+
     void		createMenuCB(CallBacker*);
+    void		addToToolBarCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
