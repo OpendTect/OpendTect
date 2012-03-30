@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.6 2012-03-22 09:28:30 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.7 2012-03-30 04:20:28 cvsraman Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: odinst.cc,v 1.6 2012-03-22 09:28:30 cvsbert Exp
 #include "oddirs.h"
 #include "odplatform.h"
 #include "envvars.h"
+#include "strmoper.h"
 #include "strmprov.h"
 #include "settings.h"
 #include "bufstringset.h"
@@ -25,6 +26,45 @@ static const char* rcsID = "$Id: odinst.cc,v 1.6 2012-03-22 09:28:30 cvsbert Exp
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
+
+
+DefineNameSpaceEnumNames(ODInst,RelType,0,"Release type")
+{
+	"Stable",
+	"Development",
+	"Pre-Release Stable",
+	"Pre-Release Development",
+	"Old Version",
+	"Other",
+	0
+};
+
+
+ODInst::RelType ODInst::getRelType()
+{
+    FilePath relinfofp( GetSoftwareDir(true), "relinfo", "README.txt" );
+    const BufferString reltxtfnm( relinfofp.fullPath() );
+    if ( !File::exists(reltxtfnm) )
+	return ODInst::Other;
+    StreamData sd( StreamProvider(reltxtfnm).makeIStream() );
+    if ( !sd.usable() )
+	return ODInst::Other;
+
+    char appnm[64], relstr[64];
+    appnm[0] = relstr[0] = '\0';
+    StrmOper::wordFromLine(*sd.istrm,appnm,64);
+    StrmOper::wordFromLine(*sd.istrm,relstr,64);
+    sd.close();
+    int relstrlen = strlen( relstr );
+    if ( appnm[0] != '[' || relstrlen < 4 || relstr[0] != '('
+	|| relstr[relstrlen-1] != ']' || relstr[relstrlen-2] != ')' )
+	return ODInst::Other;
+
+    relstr[relstrlen-2] = '\0';
+    return ODInst::parseEnumRelType( relstr+1 );
+}
+
+
 const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 {
     static BufferStringSet* ret = 0;
