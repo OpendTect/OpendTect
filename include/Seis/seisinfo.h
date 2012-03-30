@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.30 2010-03-12 14:58:23 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.31 2012-03-30 13:16:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
 			SeisTrcInfo()
 			: sampling(0,defaultSampleInterval()), nr(0)
 			, refnr(mUdf(float)), pick(mUdf(float))
-			, offset(0), azimuth(0), new_packet(false)
+			, offset(0), azimuth(0), zref(0), new_packet(false)
 			{}
 
     SamplingData<float>	sampling;
@@ -72,6 +72,7 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
+    float		zref;		// not stored
     bool		new_packet;	// not stored
 
     void		handlePossibleFeetConversion(bool conv_back=false,
