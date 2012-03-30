@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		18-8-2000
- RCS:		$Id: helpview.h,v 1.15 2009-08-27 10:01:41 cvsbert Exp $
+ RCS:		$Id: helpview.h,v 1.16 2012-03-30 04:25:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ mGlobal BufferString	getCreditsFileName(const char* winid);
 mGlobal bool		getCreditsData(const char* filenm,IOPar&);
 mGlobal bool		hasSpecificCredits(const char* winid);
 mGlobal const char*	getCreditsSpecificFileName(const char* winid);
+mGlobal BufferString	getWebUrlFromLocal(const char*);
 
 };
 
