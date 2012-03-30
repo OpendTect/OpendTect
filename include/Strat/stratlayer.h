@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.16 2012-01-25 16:07:36 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.17 2012-03-30 12:30:27 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
 
 			Layer(const LeafUnitRef&);
 
+    BufferString	name() const;
     const LeafUnitRef&	unitRef() const;
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
     const RefTree&	refTree() const;
