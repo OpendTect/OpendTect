@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.131 2012-02-16 05:05:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.132 2012-03-31 13:36:19 cvskris Exp $";
 
 #include "uiflatviewer.h"
 
@@ -562,8 +562,8 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 	delete pointitem_;
 	pointitem_ = 0;
     }
-    for ( int idx=0; idx<annot.auxdata_.size(); idx++ )
-	drawAux( *annot.auxdata_[idx], drawarea, wr );
+    for ( int idx=0; idx<annot.nrAuxData(); idx++ )
+	drawAux( *annot.getAuxData(idx), drawarea, wr );
 
     if ( annot.title_.isEmpty() )
 	mRemoveAnnotItem( titletxtitem_ )
