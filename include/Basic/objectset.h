@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.8 2012-03-22 15:34:14 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.9 2012-03-31 07:32:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,16 @@ inline void deepAppend( ObjectSet<T>& to, const ObjectSet<S>& from )
 }
 
 
+//! append clones of one set's objects to another ObjectSet.
+template <class T,class S>
+inline void deepAppendClone( ObjectSet<T>& to, const ObjectSet<S>& from )
+{
+    const int sz = from.size();
+    for ( int idx=0; idx<sz; idx++ )
+	to += from[idx] ? from[idx]->clone() : 0;
+}
+
+
 //! fill an ObjectSet with copies of the objects in the other set.
 template <class T,class S>
 inline void deepCopy( ObjectSet<T>& to, const ObjectSet<S>& from )
@@ -129,6 +139,17 @@ inline void deepCopy( ObjectSet<T>& to, const ObjectSet<S>& from )
     deepErase( to );
     to.allowNull( from.nullAllowed() );
     deepAppend( to, from );
+}
+
+
+//! fill an ObjectSet with clones of the objects in the other set.
+template <class T,class S>
+inline void deepCopyClone( ObjectSet<T>& to, const ObjectSet<S>& from )
+{
+    if ( &to == &from ) return;
+    deepErase( to );
+    to.allowNull( from.nullAllowed() );
+    deepAppendClone( to, from );
 }
 
 
