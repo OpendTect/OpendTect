@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.7 2011-09-21 10:41:37 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.8 2012-03-31 08:44:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,12 +96,12 @@ bool HorizonPainter3D::addPolyLine()
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
 	FlatView::Annotation::AuxData* seedauxdata =
-	    				new FlatView::Annotation::AuxData( "" );
+	    viewer_.appearance().annot_.createAuxData( 0 );
 	
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.appearance().annot_.auxdata_ += seedauxdata;
+	viewer_.appearance().annot_.addAuxData( seedauxdata );
 
 	markerseeds_ = new Marker3D;
 	markerseeds_->marker_ = seedauxdata;
@@ -182,8 +182,8 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 					  Marker3D*& marker )
 {
     FlatView::Annotation::AuxData* auxdata =
-					new FlatView::Annotation::AuxData( "" );
-    viewer_.appearance().annot_.auxdata_ += auxdata;
+	    viewer_.appearance().annot_.createAuxData( 0 );
+    viewer_.appearance().annot_.addAuxData( auxdata );
     auxdata->poly_.erase();
     auxdata->linestyle_ = markerlinestyle_;
     Color prefcol = hor3d.preferredColor();
@@ -391,15 +391,17 @@ void HorizonPainter3D::removePolyLine()
     {
 	SectionMarker3DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	    viewer_.appearance().annot_.auxdata_ -=
-						(*markerlines)[idy]->marker_;
+	{
+	    viewer_.appearance().annot_.removeAuxData(
+		    (*markerlines)[idy]->marker_ );
+	}
     }
 
     deepErase( markerline_ );
 
     if ( markerseeds_ )
     {
-	viewer_.appearance().annot_.auxdata_ -= markerseeds_->marker_;
+	viewer_.appearance().annot_.removeAuxData( markerseeds_->marker_ );
 	delete markerseeds_;
 	markerseeds_ = 0;
     }
