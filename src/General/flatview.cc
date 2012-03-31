@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.67 2012-03-31 07:37:00 cvskris Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.68 2012-03-31 13:30:09 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -224,6 +224,19 @@ bool FlatView::Annotation::haveAux() const
 FlatView::Annotation::AuxData*
 FlatView::Annotation::createAuxData(const char* nm) const
 { return new AuxData(nm); }
+
+
+FlatView::Annotation::AuxData* FlatView::Annotation::getAuxData(int idx) 
+{ return auxdata_[idx]; }
+
+
+const FlatView::Annotation::AuxData*
+FlatView::Annotation::getAuxData(int idx) const
+{ return auxdata_[idx]; }
+
+
+int FlatView::Annotation::nrAuxData() const
+{ return auxdata_.size(); }
 
 
 void FlatView::Annotation::addAuxData( FlatView::Annotation::AuxData* a )
