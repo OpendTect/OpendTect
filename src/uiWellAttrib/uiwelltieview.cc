@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.99 2012-03-23 14:53:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.100 2012-03-31 13:56:10 cvskris Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -274,7 +274,7 @@ void uiTieView::drawLogDispWellMarkers()
     deepErase( itms );
 #define mRemoveSet( auxs ) \
     for ( int idx=0; idx<auxs.size(); idx++ ) \
-        app.annot_.auxdata_ -= auxs[idx]; \
+        app.annot_.removeAuxData( auxs[idx] ); \
     deepErase( auxs );
 void uiTieView::drawViewerWellMarkers()
 {
@@ -310,12 +310,12 @@ void uiTieView::drawViewerWellMarkers()
 	    continue;
 
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
+	auxdata = app.annot_.createAuxData( marker->name() );
 	if ( !auxdata )
 	    continue;
 
 	wellmarkerauxdatas_ += auxdata;
-	app.annot_.auxdata_ +=  auxdata;
+	app.annot_.addAuxData( auxdata );
 	zpos *= 1000;	
 	const int shapeint = mrkdisp.shapeint_;
 	const int drawsize = mrkdisp.size_;
@@ -347,9 +347,9 @@ void uiTieView::drawUserPicks()
     for ( int idx=0; idx<nrauxs; idx++ )
     {
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
+	auxdata = app.annot_.createAuxData( 0 );
 	userpickauxdatas_ += auxdata;
-	app.annot_.auxdata_ +=  auxdata;
+	app.annot_.addAuxData( auxdata );
     }
     drawUserPicks( seispickset_, false );
     drawUserPicks( synthpickset_, true );
@@ -380,9 +380,9 @@ void uiTieView::drawHorizons()
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
+	auxdata = app.annot_.createAuxData( 0 );
 	horauxdatas_ += auxdata;
-	app.annot_.auxdata_ += auxdata;
+	app.annot_.addAuxData( auxdata );
 	const Marker& hor = horizons[idx];
 	float zval = hor.zpos_;
 
