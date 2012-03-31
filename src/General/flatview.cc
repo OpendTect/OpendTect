@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.66 2012-02-21 15:06:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.67 2012-03-31 07:37:00 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -219,6 +219,29 @@ bool FlatView::Annotation::haveAux() const
 
     return false;
 }
+
+
+FlatView::Annotation::AuxData*
+FlatView::Annotation::createAuxData(const char* nm) const
+{ return new AuxData(nm); }
+
+
+void FlatView::Annotation::addAuxData( FlatView::Annotation::AuxData* a )
+{ auxdata_ += a; }
+
+
+FlatView::Annotation::AuxData*
+FlatView::Annotation::removeAuxData( FlatView::Annotation::AuxData* a )
+{ auxdata_ -= a; return a; }
+
+
+FlatView::Annotation::AuxData* FlatView::Annotation::removeAuxData(int idx)
+{ return auxdata_.remove(idx); }
+
+
+const ObjectSet<FlatView::Annotation::AuxData>& FlatView::Annotation::auxdata() const
+{ return auxdata_; }
+
 
 #define mIOPDoAxes(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyAxes(),keynm), memb )
