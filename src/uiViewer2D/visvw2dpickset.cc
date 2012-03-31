@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.11 2011-09-02 13:12:08 cvskris Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.12 2012-03-31 13:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , pickset_(0) 					  
-    , picks_(new FlatView::Annotation::AuxData( "Picks" ))
+    , picks_( 0 )
     , editor_(const_cast<uiFlatViewAuxDataEditor*>(editors[0]))
     , viewer_(editor_->getFlatViewer())
     , deselected_(this)
@@ -45,7 +45,8 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
     if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
 	pickset_ = &Pick::Mgr().get( picksetidx );
 
-    viewer_.appearance().annot_.auxdata_ += picks_;
+    picks_ = viewer_.appearance().annot_.createAuxData( "Picks" );
+    viewer_.appearance().annot_.addAuxData( picks_ );
     viewer_.appearance().annot_.editable_ = false; 
     viewer_.dataChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
     viewer_.viewChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
@@ -63,7 +64,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 
 VW2DPickSet::~VW2DPickSet()
 {
-    viewer_.appearance().annot_.auxdata_ -= picks_;
+    viewer_.appearance().annot_.removeAuxData( picks_ );
     editor_->removeAuxData( auxid_ );
     delete picks_;
 
