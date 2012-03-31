@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.12 2011-10-04 05:52:18 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.13 2012-03-31 08:31:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
     {
 	StepInterval<int> colrg = fss->colRange( rc.row );
 	FlatView::Annotation::AuxData* stickauxdata =
-	 			new FlatView::Annotation::AuxData( 0 );
+	    viewer_.appearance().annot_.createAuxData( 0 );
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
 	if ( rc.row == activestickid_ )
@@ -178,7 +178,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 		stkmkrinfo->marker_ = stickauxdata;
 		stkmkrinfo->stickid_ = rc.row;
 		f3dmaker->stickmarker_ += stkmkrinfo;
-		viewer_.appearance().annot_.auxdata_ += stickauxdata;
+		viewer_.appearance().annot_.addAuxData( stickauxdata );
 	    }
     }
 
@@ -419,7 +419,8 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 					    TypeSet<Coord3>& intxnposs)
 {
     FlatView::Annotation::AuxData* intsecauxdat =
-					new FlatView::Annotation::AuxData( 0 );
+	viewer_.appearance().annot_.createAuxData( 0 );
+
     intsecauxdat->poly_.erase();
     intsecauxdat->linestyle_ = markerlinestyle_;
     intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
@@ -430,9 +431,9 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
     {
 	if ( coordindices[idx] == -1 )
 	{
-	    viewer_.appearance().annot_.auxdata_ += intsecauxdat;
+	    viewer_.appearance().annot_.addAuxData( intsecauxdat );
 	    f3dmaker->intsecmarker_ += intsecauxdat;
-	    intsecauxdat = new FlatView::Annotation::AuxData( 0 );
+	    intsecauxdat = viewer_.appearance().annot_.createAuxData( 0 );
 	    intsecauxdat->poly_.erase();
 	    intsecauxdat->linestyle_ = markerlinestyle_;
 	    intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
@@ -462,7 +463,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	    intsecauxdat->poly_ += FlatView::Point( posbid.crl, pos.z );
     }
 
-    viewer_.appearance().annot_.auxdata_ += intsecauxdat;
+    viewer_.appearance().annot_.addAuxData( intsecauxdat );
     f3dmaker->intsecmarker_ += intsecauxdat;
 }
 
@@ -572,11 +573,15 @@ void Fault3DPainter::removePolyLine()
     {
 	Fault3DMarker* f3dmarker = f3dmarkers_[markidx];
 	for ( int idi=f3dmarker->intsecmarker_.size()-1; idi>=0; idi-- )
-	    viewer_.appearance().annot_.auxdata_ -= 
-					f3dmarker->intsecmarker_[idi];
+	{
+	    viewer_.appearance().annot_.removeAuxData(
+				f3dmarker->intsecmarker_[idi] );
+	}
 	for ( int ids=f3dmarker->stickmarker_.size()-1; ids>=0; ids-- )
-	    viewer_.appearance().annot_.auxdata_ -= 
-				f3dmarker->stickmarker_[ids]->marker_;
+	{
+	    viewer_.appearance().annot_.removeAuxData(
+				f3dmarker->stickmarker_[ids]->marker_ );
+	}
     }
 
     deepErase( f3dmarkers_ );
