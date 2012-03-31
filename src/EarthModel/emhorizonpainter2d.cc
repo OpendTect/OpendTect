@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.9 2012-02-16 05:05:37 cvssatyaki Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.10 2012-03-31 08:40:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,11 +88,11 @@ bool HorizonPainter2D::addPolyLine()
 	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
 	markerline_ += secmarkerln;
 	FlatView::Annotation::AuxData* seedauxdata =
-			new FlatView::Annotation::AuxData( "Horizon2D Marker" );
+	    viewer_.appearance().annot_.createAuxData( "Horizon2D Marker" );
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.appearance().annot_.auxdata_ += seedauxdata;
+	viewer_.appearance().annot_.addAuxData( seedauxdata );
 	
 	markerseeds_ = new Marker2D;
 	markerseeds_->marker_ = seedauxdata;
@@ -131,8 +131,9 @@ bool HorizonPainter2D::addPolyLine()
 	    if ( newmarker )
 	    {
 		FlatView::Annotation::AuxData* auxdata =
-			new FlatView::Annotation::AuxData( "Horizon2D marker" );
-		viewer_.appearance().annot_.auxdata_ += auxdata;
+		    viewer_.appearance().annot_.createAuxData(
+			    "Horizon2D marker" );
+		viewer_.appearance().annot_.addAuxData( auxdata );
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
 		Color prefcol = hor2d->preferredColor();
@@ -243,14 +244,16 @@ void HorizonPainter2D::removePolyLine()
     {
 	SectionMarker2DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	    viewer_.appearance().annot_.auxdata_ -=
-						(*markerlines)[idy]->marker_;
+	{
+	    viewer_.appearance().annot_.removeAuxData(
+		    (*markerlines)[idy]->marker_ );
+	}
     }
     deepErase( markerline_ );
 
     if ( markerseeds_ )
     {
-	viewer_.appearance().annot_.auxdata_ -= markerseeds_->marker_;
+	viewer_.appearance().annot_.removeAuxData(  markerseeds_->marker_ );
 	delete markerseeds_;
 	markerseeds_ = 0;
     }

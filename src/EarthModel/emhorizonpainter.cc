@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.22 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.23 2012-03-31 08:40:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	    break;
 
      FlatView::Annotation::AuxData* seedsauxdata =
-	 			new FlatView::Annotation::AuxData( 0 );
+	 viewer_.appearance().annot_.createAuxData( 0 );
      seedsauxdata->enabled_ = horizoninfos_[horidx]->seedenabled_;
 
     if ( isupdating_ )
@@ -165,7 +165,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 
     seedsauxdata->poly_.erase();
     seedsauxdata->markerstyles_ += markerstyle_;
-    viewer_.appearance().annot_.auxdata_ += seedsauxdata;
+    viewer_.appearance().annot_.addAuxData( seedsauxdata );
 
     ObjectSet<SectionMarkerLine>* sectionmarkerlines =
 					new ObjectSet<SectionMarkerLine>;
@@ -220,9 +220,9 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 
 	    if ( newmarker )
 	    {
-		auxdata = new FlatView::Annotation::AuxData( "" );
+		auxdata = viewer_.appearance().annot_.createAuxData( 0 );
 		(*markerlines) += auxdata;
-		viewer_.appearance().annot_.auxdata_ += auxdata;
+		viewer_.appearance().annot_.addAuxData( auxdata );
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
 		Color prefcol = hor->preferredColor();
@@ -482,7 +482,7 @@ void HorizonPainter::removePolyLine( int idx )
     {
 	SectionMarkerLine* markerlines = (*sectionmarkerlines)[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	    viewer_.appearance().annot_.auxdata_ -= (*markerlines)[idy];
+	    viewer_.appearance().annot_.removeAuxData( (*markerlines)[idy] );
 
     }
     deepErase( *hormarkerlines_[idx] );
@@ -492,8 +492,7 @@ void HorizonPainter::removePolyLine( int idx )
     else
 	hormarkerlines_.remove( idx );
 
-    viewer_.appearance().annot_.auxdata_ -= horsmarkerseeds_[idx];
-    delete horsmarkerseeds_[idx];
+    delete viewer_.appearance().annot_.removeAuxData( horsmarkerseeds_[idx] );
     if ( isupdating_ )
 	horsmarkerseeds_.replace( idx, 0 );
     else
