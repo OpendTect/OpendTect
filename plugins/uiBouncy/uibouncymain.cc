@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncymain.cc,v 1.1 2009-09-08 09:02:46 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncymain.cc,v 1.2 2012-04-02 14:38:53 cvskris Exp $";
 
 #include "uibouncymain.h"
 #include "uibouncysettingsdlg.h"
@@ -54,9 +54,9 @@ BufferString uiBouncyMain::getPlayerName() const
 }
 
 
-void uiBouncyMain::setPlayerName( const BufferString name )
+void uiBouncyMain::setPlayerName( const BufferString& nm )
 {
-    namefld_->setText( name );
+    namefld_->setText( nm );
 }
 
 }
