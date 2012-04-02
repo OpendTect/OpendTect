@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.52 2012-03-20 10:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.53 2012-04-02 13:45:58 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -52,7 +52,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 {
     const int sz = size();
     if ( sz < 1 ) return;
-    const SeisTrc* trc = get( 0 );
+    const SeisTrc* trc = first();
     BinID bid = trc->info().binid;
     spi.inlrg.start = bid.inl; spi.inlrg.stop = bid.inl;
     spi.crlrg.start = bid.crl; spi.crlrg.stop = bid.crl;
@@ -103,7 +103,7 @@ bool SeisTrcBuf::isSorted( bool ascending, SeisTrcInfo::Fld fld ) const
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = get(0)->info().getValue(fld);
+    float prevval = first()->info().getValue(fld);
     for ( int idx=1; idx<sz; idx++ )
     {
 	float val = get(idx)->info().getValue(fld);
@@ -149,7 +149,7 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
 				bool dostack )
 {
-    SeisTrc* prevtrc = get(0);
+    SeisTrc* prevtrc = first();
     if ( !prevtrc ) return;
 
     float prevval = prevtrc->info().getValue( fld );
@@ -195,7 +195,7 @@ float* SeisTrcBuf::getHdrVals( SeisTrcInfo::Fld fld, double& offs )
     if ( sz < 1 ) return 0;
 
     float* ret = new float [sz];
-    offs = get(0)->info().getValue( fld );
+    offs = first()->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
 	ret[idx] = (float)(get(idx)->info().getValue( fld ) - offs);
 
@@ -287,7 +287,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
     if ( !sd.usable() ) return false;
     std::ostream& strm = *sd.ostrm;
 
-    const SeisTrc& trc0 = *get( 0 );
+    const SeisTrc& trc0 = *first();
     strm << trc0.info().sampling.start
 	 << ' ' << trc0.info().sampling.step * SI().zDomain().userFactor()
 	 << ' ' << trc0.size();
@@ -340,7 +340,7 @@ int getSize( int dim ) const
     if ( dim == 0 )
 	return buf_.size();
 
-    const SeisTrc* trc = buf_.get( 0 );
+    const SeisTrc* trc = buf_.first();
     return trc ? trc->size() : 0;
 }
 
@@ -507,8 +507,8 @@ bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
     if ( buf.isEmpty() )
 	return false;
 
-    cs.hrg.start.inl = cs.hrg.stop.inl = buf.get( 0 )->info().binid.inl;
-    cs.hrg.start.crl = cs.hrg.stop.crl = buf.get( 0 )->info().binid.crl;
+    cs.hrg.start.inl = cs.hrg.stop.inl = buf.first()->info().binid.inl;
+    cs.hrg.start.crl = cs.hrg.stop.crl = buf.first()->info().binid.crl;
     cs.hrg.step.inl = SI().inlStep();
     cs.hrg.step.crl = SI().crlStep();
 
