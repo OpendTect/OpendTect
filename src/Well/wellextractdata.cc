@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.71 2012-03-15 08:29:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.72 2012-04-02 13:04:33 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -101,6 +101,16 @@ int Well::InfoCollector::nextStep()
 	    BufferStringSet* newlognms = new BufferStringSet;
 	    wr.getLogInfo( *newlognms );
 	    logs_ += newlognms;
+
+
+	    if ( mIsUdf(logsdahrg_.start) )
+		logsdahrg_ = wr.getAllLogsDahRange();
+	    else 
+	    {
+		StepInterval<float> dahrg = wr.getAllLogsDahRange();
+		if ( !mIsUdf( dahrg.start ) )
+		    logsdahrg_.include( dahrg );
+	    }
 	}
 	if ( domrkrs_ )
 	{
@@ -782,7 +792,8 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     if ( track_.isEmpty() ) 
 	return;
 
-    extrintv_.step = SI().zStep();
+    if ( mIsUdf( extrintv_.step ) )
+	extrintv_.step = SI().zStep();
 
     float zstop = track_.dah( track_.size()-1 );
     float zstart = track_.dah( 0 );
@@ -879,8 +890,15 @@ bool Well::LogSampler::doPrepare( int thread )
     if ( !nrIterations() )
 	{ errmsg_ = "No log found"; return false; } 
 
+    if ( mIsUdf( zrg_.step ) )
+    {
+	zrg_.step = SI().zStep()*0.5;
+	if ( SI().zIsTime() )
+	    zrg_.step = 2000 * zrg_.step;
+    }
     if ( mIsUdf(zrg_.start) || mIsUdf(zrg_.stop) || !zrg_.nrSteps() )
-	{errmsg_ ="No valid range for the resampling specified"; return false;}
+	{errmsg_ ="No valid range specified"; return false;}
+
 
     data_ = new Array2DImpl<float>( nrIterations()+1, zrg_.nrSteps()+1 );
 

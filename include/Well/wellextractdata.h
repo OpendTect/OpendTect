@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.31 2012-03-29 14:38:09 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.32 2012-04-02 13:04:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
     				//!< If selected, same size as ids()
     const ObjectSet<BufferStringSet>& logs() const { return logs_; }
     				//!< If selected, same size as ids()
-
+    const StepInterval<float>	getLogsDahRange() const { return logsdahrg_; }
 
 protected:
 
@@ -124,6 +124,7 @@ protected:
     BufferString		curmsg_;
     bool			domrkrs_;
     bool			dologs_;
+    Interval<float>		logsdahrg_;
 
 };
 
