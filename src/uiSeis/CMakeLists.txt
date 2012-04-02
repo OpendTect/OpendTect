@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:27 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-02 22:45:42 cvsnanne Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo Seis Usage Velocity )
@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 		uibatchtime2depthsetup.cc
 		uiclusterproc.cc	
 		uielasticpropsel.cc	
+		uifkspectrum.cc
 		uifreqtaper.cc		
 		uimergeseis.cc		
 		uimultcomputils.cc	
