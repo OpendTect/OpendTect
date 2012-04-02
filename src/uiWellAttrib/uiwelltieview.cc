@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.100 2012-03-31 13:56:10 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.101 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -248,7 +248,7 @@ void uiTieView::zoomChg( CallBacker* )
 }
 
 
-void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
+void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 				bool left, float zpos )
 {
     Interval<float> xrg(vwr_->boundingBox().left(),vwr_->boundingBox().right());
@@ -274,7 +274,7 @@ void uiTieView::drawLogDispWellMarkers()
     deepErase( itms );
 #define mRemoveSet( auxs ) \
     for ( int idx=0; idx<auxs.size(); idx++ ) \
-        app.annot_.removeAuxData( auxs[idx] ); \
+        vwr_->removeAuxData( auxs[idx] ); \
     deepErase( auxs );
 void uiTieView::drawViewerWellMarkers()
 {
@@ -309,13 +309,13 @@ void uiTieView::drawViewerWellMarkers()
 	if ( col == Color::NoColor() || col == Color::White() )
 	    continue;
 
-	FlatView::Annotation::AuxData* auxdata = 0;
-	auxdata = app.annot_.createAuxData( marker->name() );
+	FlatView::AuxData* auxdata = 0;
+	auxdata = vwr_->createAuxData( marker->name() );
 	if ( !auxdata )
 	    continue;
 
 	wellmarkerauxdatas_ += auxdata;
-	app.annot_.addAuxData( auxdata );
+	vwr_->addAuxData( auxdata );
 	zpos *= 1000;	
 	const int shapeint = mrkdisp.shapeint_;
 	const int drawsize = mrkdisp.size_;
@@ -346,10 +346,10 @@ void uiTieView::drawUserPicks()
     
     for ( int idx=0; idx<nrauxs; idx++ )
     {
-	FlatView::Annotation::AuxData* auxdata = 0;
-	auxdata = app.annot_.createAuxData( 0 );
+	FlatView::AuxData* auxdata = 0;
+	auxdata = vwr_->createAuxData( 0 );
 	userpickauxdatas_ += auxdata;
-	app.annot_.addAuxData( auxdata );
+	vwr_->addAuxData( auxdata );
     }
     drawUserPicks( seispickset_, false );
     drawUserPicks( synthpickset_, true );
@@ -379,10 +379,10 @@ void uiTieView::drawHorizons()
     const TypeSet<Marker>& horizons = data_.horizons_;
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	FlatView::Annotation::AuxData* auxdata = 0;
-	auxdata = app.annot_.createAuxData( 0 );
+	FlatView::AuxData* auxdata = 0;
+	auxdata = vwr_->createAuxData( 0 );
 	horauxdatas_ += auxdata;
-	app.annot_.addAuxData( auxdata );
+	vwr_->addAuxData( auxdata );
 	const Marker& hor = horizons[idx];
 	float zval = hor.zpos_;
 

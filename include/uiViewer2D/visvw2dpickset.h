@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.h,v 1.4 2011-06-03 15:29:36 cvsbruno Exp $
+ RCS:		$Id: visvw2dpickset.h,v 1.5 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,15 @@ protected:
     void		triggerDeSel();
     void		updateSetIdx(const CubeSampling&);
 
-    Pick::Set*			    pickset_;
-    FlatView::Annotation::AuxData*  picks_;
-    uiFlatViewAuxDataEditor*	    editor_;
-    uiFlatViewer&		    viewer_;
-    int				    auxid_;
-    bool			    isselected_;
-    Notifier<VW2DPickSet>	    deselected_;
-    bool			    isownremove_;
-    TypeSet<int>		    picksetidxs_;
+    Pick::Set*			pickset_;
+    FlatView::AuxData*  	picks_;
+    uiFlatViewAuxDataEditor*	editor_;
+    uiFlatViewer&		viewer_;
+    int				auxid_;
+    bool			isselected_;
+    Notifier<VW2DPickSet>	deselected_;
+    bool			isownremove_;
+    TypeSet<int>		picksetidxs_;
 };
 
 #endif

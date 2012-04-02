@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.132 2012-03-31 13:36:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.133 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "uiflatviewer.h"
 
@@ -562,8 +562,8 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 	delete pointitem_;
 	pointitem_ = 0;
     }
-    for ( int idx=0; idx<annot.nrAuxData(); idx++ )
-	drawAux( *annot.getAuxData(idx), drawarea, wr );
+    for ( int idx=0; idx<nrAuxData(); idx++ )
+	drawAux( *getAuxData(idx), drawarea, wr );
 
     if ( annot.title_.isEmpty() )
 	mRemoveAnnotItem( titletxtitem_ )
@@ -731,7 +731,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 }
 
 
-void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
+void uiFlatViewer::drawAux( FlatView::AuxData& ad,
 			    const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( !ad.enabled_ || ad.isEmpty() ) return;
@@ -872,8 +872,7 @@ void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
 }
 
 
-void uiFlatViewer::showAuxDataObjects( FlatView::Annotation::AuxData& ad,
-				       bool yn )
+void uiFlatViewer::showAuxDataObjects( FlatView::AuxData& ad, bool yn )
 {
     for ( int idx=0; idx<ad.dispids_.size(); idx++ )
     {
@@ -885,7 +884,7 @@ void uiFlatViewer::showAuxDataObjects( FlatView::Annotation::AuxData& ad,
 }
 
 
-void uiFlatViewer::updateProperties( const FlatView::Annotation::AuxData& ad )
+void uiFlatViewer::updateProperties( const FlatView::AuxData& ad )
 {
     for ( int idx=0; idx<ad.dispids_.size(); idx++ )
     {
@@ -924,7 +923,7 @@ void uiFlatViewer::updateProperties( const FlatView::Annotation::AuxData& ad )
 }
 
 
-void uiFlatViewer::remove( const FlatView::Annotation::AuxData& ad )
+void uiFlatViewer::remove( const FlatView::AuxData& ad )
 {
     for ( int idx=0; idx<ad.dispids_.size(); idx++ )
     {
@@ -962,7 +961,7 @@ void uiFlatViewer::remove( const FlatView::Annotation::AuxData& ad )
 }
 
 
-void uiFlatViewer::reGenerate( FlatView::Annotation::AuxData& ad )
+void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
 {
     remove( ad );
     drawAux( ad, canvas_.arrArea(), wr_ );

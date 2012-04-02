@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.61 2012-03-31 13:36:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.62 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -595,9 +595,9 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     x2_->attach( alignedBelow, x1_ );
 
     BufferStringSet auxnames;
-    for ( int idx=0; idx<annot_.nrAuxData(); idx++ )
+    for ( int idx=0; idx<vwr_.nrAuxData(); idx++ )
     {
-	const FlatView::Annotation::AuxData& auxdata = *annot_.getAuxData(idx);
+	const FlatView::AuxData& auxdata = *vwr_.getAuxData(idx);
 	if ( auxdata.name_.isEmpty() || !auxdata.editpermissions_ )
 	    continue;
 
@@ -653,18 +653,18 @@ void uiFVAnnotPropTab::putToScreen()
 
     for ( int idx=0; idx<indices_.size(); idx++ )
     {
-	*permissions_[idx] = *annot_.getAuxData(indices_[idx])->editpermissions_;
-	enabled_[idx] = annot_.getAuxData(indices_[idx])->enabled_;
-	linestyles_[idx] = annot_.getAuxData(indices_[idx])->linestyle_;
-	fillcolors_[idx] = annot_.getAuxData(indices_[idx])->fillcolor_;
-	markerstyles_[idx] = annot_.getAuxData(indices_[idx])->markerstyles_.size()
-	    ? annot_.getAuxData(indices_[idx])->markerstyles_[0]
+	*permissions_[idx] = *vwr_.getAuxData(indices_[idx])->editpermissions_;
+	enabled_[idx] = vwr_.getAuxData(indices_[idx])->enabled_;
+	linestyles_[idx] = vwr_.getAuxData(indices_[idx])->linestyle_;
+	fillcolors_[idx] = vwr_.getAuxData(indices_[idx])->fillcolor_;
+	markerstyles_[idx] = vwr_.getAuxData(indices_[idx])->markerstyles_.size()
+	    ? vwr_.getAuxData(indices_[idx])->markerstyles_[0]
 	    : MarkerStyle2D();
-	x1rgs_[idx] = annot_.getAuxData(indices_[idx])->x1rg_
-	    ? *annot_.getAuxData(indices_[idx])->x1rg_
+	x1rgs_[idx] = vwr_.getAuxData(indices_[idx])->x1rg_
+	    ? *vwr_.getAuxData(indices_[idx])->x1rg_
 	    : Interval<double>( 0, 1 );
-	x2rgs_[idx] = annot_.getAuxData(indices_[idx])->x2rg_
-	    ? *annot_.getAuxData(indices_[idx])->x2rg_
+	x2rgs_[idx] = vwr_.getAuxData(indices_[idx])->x2rg_
+	    ? *vwr_.getAuxData(indices_[idx])->x2rg_
 	    : Interval<double>( 0, 1 );
     }
 
@@ -686,15 +686,15 @@ bool uiFVAnnotPropTab::acceptOK()
 
     for ( int idx=0; idx<indices_.size(); idx++ )
     {
-	annot_.getAuxData(indices_[idx])->linestyle_ = linestyles_[idx];
-	annot_.getAuxData(indices_[idx])->fillcolor_ = fillcolors_[idx];
-	if ( annot_.getAuxData(indices_[idx])->markerstyles_.size() )
-	    annot_.getAuxData(indices_[idx])->markerstyles_[0]=markerstyles_[idx];
-	annot_.getAuxData(indices_[idx])->enabled_ = enabled_[idx];
-	if ( annot_.getAuxData(indices_[idx])->x1rg_ )
-	    *annot_.getAuxData(indices_[idx])->x1rg_ = x1rgs_[idx];
-	if ( annot_.getAuxData(indices_[idx])->x2rg_ )
-	    *annot_.getAuxData(indices_[idx])->x2rg_ = x2rgs_[idx];
+	vwr_.getAuxData(indices_[idx])->linestyle_ = linestyles_[idx];
+	vwr_.getAuxData(indices_[idx])->fillcolor_ = fillcolors_[idx];
+	if ( vwr_.getAuxData(indices_[idx])->markerstyles_.size() )
+	    vwr_.getAuxData(indices_[idx])->markerstyles_[0]=markerstyles_[idx];
+	vwr_.getAuxData(indices_[idx])->enabled_ = enabled_[idx];
+	if ( vwr_.getAuxData(indices_[idx])->x1rg_ )
+	    *vwr_.getAuxData(indices_[idx])->x1rg_ = x1rgs_[idx];
+	if ( vwr_.getAuxData(indices_[idx])->x2rg_ )
+	    *vwr_.getAuxData(indices_[idx])->x2rg_ = x2rgs_[idx];
     }
 
     return true;
@@ -743,7 +743,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     }
 
     if ( permissions_[idx]->fillcolor_ &&
-	 annot_.getAuxData(indices_[idx])->close_)
+	 vwr_.getAuxData(indices_[idx])->close_)
     {
 	fillcolorfld_->setColor( fillcolors_[idx] );
 	fillcolorfld_->display( true );
@@ -751,7 +751,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     else
 	fillcolorfld_->display( false );
 
-    if ( permissions_[idx]->x1rg_ && annot_.getAuxData(indices_[idx])->x1rg_ )
+    if ( permissions_[idx]->x1rg_ && vwr_.getAuxData(indices_[idx])->x1rg_ )
     {
 	x1rgfld_->setValue( x1rgs_[idx] );
 	x1rgfld_->display( true );
@@ -759,7 +759,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     else
 	x1rgfld_->display( false );
 
-    if ( permissions_[idx]->x2rg_ && annot_.getAuxData(indices_[idx])->x2rg_ )
+    if ( permissions_[idx]->x2rg_ && vwr_.getAuxData(indices_[idx])->x2rg_ )
     {
 	x2rgfld_->setValue( x2rgs_[idx] );
 	x2rgfld_->display( true );

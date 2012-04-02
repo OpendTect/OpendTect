@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.84 2012-04-02 13:57:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.85 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -245,16 +245,15 @@ const char* uiStratSynthDisp::levelName()  const
 
 void uiStratSynthDisp::drawLevel()
 {
-    FlatView::Annotation& ann = vwr_->appearance().annot_;
-    while ( ann.nrAuxData() )
-	delete ann.removeAuxData( 0 );
+    while ( vwr_->nrAuxData() )
+	delete vwr_->removeAuxData( 0 );
 
     const StratSynth::Level* lvl = stratsynth_.getLevel();
     if ( d2tmodels_ && !d2tmodels_->isEmpty() && lvl )
     {
-	const SeisTrcBuf& tbuf = postStackTraces();
-	FlatView::Annotation::AuxData* auxd =
-	    ann.createAuxData("Level markers");
+	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
+	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
+	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
 
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
@@ -269,7 +268,7 @@ void uiStratSynthDisp::drawLevel()
 	if ( auxd->isEmpty() )
 	    delete auxd;
 	else
-	    ann.addAuxData( auxd );
+	    vwr_->addAuxData( auxd );
     }
 
     vwr_->handleChange( FlatView::Viewer::Annot, true );
@@ -394,8 +393,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 {
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
-    while ( vwr_->appearance().annot_.nrAuxData() )
-	delete vwr_->appearance().annot_.removeAuxData( 0 );
+    while ( vwr_->nrAuxData() )
+	delete vwr_->removeAuxData( 0 );
 
     if ( !sd ) return;
     mDynamicCastGet(const SeisTrcBufDataPack*,stbp,sd->getPack( false ));
@@ -451,8 +450,8 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 
     //Not sure what to do here, delete? Old code commented out.
     //vwr.appearance().annot_.auxdata_.erase();
-    while ( vwr.appearance().annot_.nrAuxData() )
-	vwr.appearance().annot_.removeAuxData( 0 );
+    while ( vwr.nrAuxData() )
+	vwr.removeAuxData( 0 );
 
     vwr.setPack( false, gdp->id(), false, false ); 
     vwr.setPack( true, gdp->id(), false , false); 

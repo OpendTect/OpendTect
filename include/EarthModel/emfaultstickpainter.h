@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.8 2011-09-26 09:28:40 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.9 2012-04-02 15:06:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,12 +47,12 @@ public:
     int			getActiveStickId()	{ return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*);
-    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
+    FlatView::AuxData*	getAuxData(const EM::PosID*);
 
     	mStruct StkMarkerInfo
 	{
-	    FlatView::Annotation::AuxData*	marker_;
-	    int					stickid_;
+	    FlatView::AuxData*	marker_;
+	    int			stickid_;
 	};
 
     EM::ObjectID&	getFaultSSID()			{ return emid_; }

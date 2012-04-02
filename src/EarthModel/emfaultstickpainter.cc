@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.14 2012-03-31 08:31:48 cvskris Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.15 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,8 +115,7 @@ bool FaultStickPainter::addPolyLine()
 	{
 	    StepInterval<int> colrg = fss->colRange( rc.row ); 
 
-	    FlatView::Annotation::AuxData* stickauxdata =
-		viewer_.appearance().annot_.createAuxData( 0 );
+	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
 	    if ( rc.row == activestickid_ )
@@ -274,7 +273,7 @@ bool FaultStickPainter::addPolyLine()
 		stkmkrinfo->marker_ = stickauxdata;
 		stkmkrinfo->stickid_ = rc.row;
 		(*secmarkerlines) += stkmkrinfo;
-		viewer_.appearance().annot_.addAuxData( stickauxdata );
+		viewer_.addAuxData( stickauxdata );
 	    }
 	}
     }
@@ -341,8 +340,7 @@ void FaultStickPainter::removePolyLine()
 
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	{
-	    viewer_.appearance().annot_.removeAuxData(
-		    (*markerlines)[idy]->marker_ );
+	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
 	}
     }
 
@@ -409,7 +407,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 }
 
 
-FlatView::Annotation::AuxData* FaultStickPainter::getAuxData(
+FlatView::AuxData* FaultStickPainter::getAuxData(
 							 const EM::PosID* pid )
 {
     if ( pid->objectID() != emid_ )

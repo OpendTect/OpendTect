@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.8 2012-03-31 08:44:33 cvskris Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.9 2012-04-02 15:06:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,13 +95,12 @@ bool HorizonPainter3D::addPolyLine()
 	EM::SectionID sid( ids );
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
-	FlatView::Annotation::AuxData* seedauxdata =
-	    viewer_.appearance().annot_.createAuxData( 0 );
+	FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );
 	
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.appearance().annot_.addAuxData( seedauxdata );
+	viewer_.addAuxData( seedauxdata );
 
 	markerseeds_ = new Marker3D;
 	markerseeds_->marker_ = seedauxdata;
@@ -181,9 +180,8 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 					  SectionMarker3DLine& secmarkerln,
 					  Marker3D*& marker )
 {
-    FlatView::Annotation::AuxData* auxdata =
-	    viewer_.appearance().annot_.createAuxData( 0 );
-    viewer_.appearance().annot_.addAuxData( auxdata );
+    FlatView::AuxData* auxdata = viewer_.createAuxData( 0 );
+    viewer_.addAuxData( auxdata );
     auxdata->poly_.erase();
     auxdata->linestyle_ = markerlinestyle_;
     Color prefcol = hor3d.preferredColor();
@@ -333,8 +331,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
 	{
 	    Coord3 crd = hor3d->getPos( hor3d->sectionID(idx), pid.subID() );
-	    FlatView::Annotation::AuxData* auxdata =
-					(*secmarkerlines)[markidx]->marker_;
+	    FlatView::AuxData* auxdata = (*secmarkerlines)[markidx]->marker_;
 	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
 	    {
 		if ( path_ )
@@ -392,8 +389,7 @@ void HorizonPainter3D::removePolyLine()
 	SectionMarker3DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	{
-	    viewer_.appearance().annot_.removeAuxData(
-		    (*markerlines)[idy]->marker_ );
+	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
 	}
     }
 
@@ -401,7 +397,7 @@ void HorizonPainter3D::removePolyLine()
 
     if ( markerseeds_ )
     {
-	viewer_.appearance().annot_.removeAuxData( markerseeds_->marker_ );
+	viewer_.removeAuxData( markerseeds_->marker_ );
 	delete markerseeds_;
 	markerseeds_ = 0;
     }

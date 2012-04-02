@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.12 2012-02-16 05:06:16 cvssatyaki Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.13 2012-04-02 15:06:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -529,7 +529,7 @@ void HorizonFlatViewEditor2D::horRepaintedCB( CallBacker* )
 }
 
 
-FlatView::Annotation::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
+FlatView::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
     {

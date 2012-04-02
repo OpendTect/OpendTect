@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.15 2011-10-21 12:29:33 cvsbruno Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.16 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,15 +206,15 @@ protected:
     uiGenInput*		x1rgfld_;
     uiGenInput*		x2rgfld_;
 
-    ObjectSet<FlatView::Annotation::AuxData::EditPermissions>	permissions_;
-    BoolTypeSet							enabled_;
-    TypeSet<LineStyle>						linestyles_;
-    TypeSet<int>						indices_;
-    TypeSet<Color>						fillcolors_;
-    TypeSet<MarkerStyle2D>					markerstyles_;
-    TypeSet<Interval<double> >					x1rgs_;
-    TypeSet<Interval<double> >					x2rgs_;
-    int								currentaux_;
+    ObjectSet<FlatView::AuxData::EditPermissions>	permissions_;
+    BoolTypeSet						enabled_;
+    TypeSet<LineStyle>					linestyles_;
+    TypeSet<int>					indices_;
+    TypeSet<Color>					fillcolors_;
+    TypeSet<MarkerStyle2D>				markerstyles_;
+    TypeSet<Interval<double> >				x1rgs_;
+    TypeSet<Interval<double> >				x2rgs_;
+    int							currentaux_;
 };
 
 

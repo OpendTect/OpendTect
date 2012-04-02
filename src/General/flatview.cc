@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.68 2012-03-31 13:30:09 cvskris Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.69 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -201,10 +201,10 @@ FlatView::Annotation::Annotation( bool drkbg )
 
 FlatView::Annotation::~Annotation()
 {
-    deepErase( auxdata_ );
 }
 
 
+/*
 bool FlatView::Annotation::haveAux() const
 {
     if ( !showaux_ ) return false;
@@ -220,40 +220,7 @@ bool FlatView::Annotation::haveAux() const
     return false;
 }
 
-
-FlatView::Annotation::AuxData*
-FlatView::Annotation::createAuxData(const char* nm) const
-{ return new AuxData(nm); }
-
-
-FlatView::Annotation::AuxData* FlatView::Annotation::getAuxData(int idx) 
-{ return auxdata_[idx]; }
-
-
-const FlatView::Annotation::AuxData*
-FlatView::Annotation::getAuxData(int idx) const
-{ return auxdata_[idx]; }
-
-
-int FlatView::Annotation::nrAuxData() const
-{ return auxdata_.size(); }
-
-
-void FlatView::Annotation::addAuxData( FlatView::Annotation::AuxData* a )
-{ auxdata_ += a; }
-
-
-FlatView::Annotation::AuxData*
-FlatView::Annotation::removeAuxData( FlatView::Annotation::AuxData* a )
-{ auxdata_ -= a; return a; }
-
-
-FlatView::Annotation::AuxData* FlatView::Annotation::removeAuxData(int idx)
-{ return auxdata_.remove(idx); }
-
-
-const ObjectSet<FlatView::Annotation::AuxData>& FlatView::Annotation::auxdata() const
-{ return auxdata_; }
+*/
 
 
 #define mIOPDoAxes(fn,keynm,memb) \
@@ -293,7 +260,7 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 }
 
 
-FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
+FlatView::AuxData::EditPermissions::EditPermissions()
     : onoff_( true )
     , namepos_( true )
     , linestyle_( true )
@@ -307,7 +274,7 @@ FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
 
 
 
-FlatView::Annotation::AuxData::AuxData( const char* nm )
+FlatView::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
     , namealignment_(mAlignment(Center,Center))
@@ -323,7 +290,7 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
 {}
 
 
-FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
+FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     : name_( aux.name_ )
     , namepos_( aux.namepos_ )
     , namealignment_( aux.namealignment_ )
@@ -342,7 +309,7 @@ FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
 {}
 
 
-FlatView::Annotation::AuxData::~AuxData()
+FlatView::AuxData::~AuxData()
 {
     delete x1rg_;
     delete x2rg_;
@@ -350,11 +317,11 @@ FlatView::Annotation::AuxData::~AuxData()
 }
 
 
-bool FlatView::Annotation::AuxData::isEmpty() const
+bool FlatView::AuxData::isEmpty() const
 { return poly_.isEmpty(); }
 
 
-void FlatView::Annotation::AuxData::empty()
+void FlatView::AuxData::empty()
 { poly_.erase(); }
 
 
@@ -488,6 +455,8 @@ FlatView::Viewer::~Viewer()
 	if ( !obs_[idx] )
 	    dpm_.release( ids_[idx] );
     }
+
+    deepErase( auxdata_ );
 }
 
 
@@ -647,3 +616,38 @@ const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
     const FlatPosData& pd = dp->posData();
     return pd.range( forx1 );
 }
+
+
+
+FlatView::AuxData* FlatView::Viewer::createAuxData(const char* nm) const
+{ return new AuxData(nm); }
+
+
+FlatView::AuxData* FlatView::Viewer::getAuxData(int idx) 
+{ return auxdata_[idx]; }
+
+
+const FlatView::AuxData* FlatView::Viewer::getAuxData(int idx) const
+{ return auxdata_[idx]; }
+
+
+int FlatView::Viewer::nrAuxData() const
+{ return auxdata_.size(); }
+
+
+void FlatView::Viewer::addAuxData( FlatView::AuxData* a )
+{ auxdata_ += a; }
+
+
+FlatView::AuxData* FlatView::Viewer::removeAuxData( FlatView::AuxData* a )
+{ auxdata_ -= a; return a; }
+
+
+FlatView::AuxData* FlatView::Viewer::removeAuxData(int idx)
+{ return auxdata_.remove(idx); }
+
+
+const ObjectSet<FlatView::AuxData>& FlatView::Viewer::auxdata() const
+{ return auxdata_; }
+
+

@@ -70,9 +70,9 @@ protected:
     SeisTrcBuf&			trcbuf_;
     SeisTrcBufDataPack*		seisdp_;
 
-    ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
-    ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
-    ObjectSet<FlatView::Annotation::AuxData> horauxdatas_;
+    ObjectSet<FlatView::AuxData> userpickauxdatas_;
+    ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;
+    ObjectSet<FlatView::AuxData> horauxdatas_;
     ObjectSet<uiTextItem> 	hortxtnms_;
     ObjectSet<uiTextItem> 	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
@@ -80,7 +80,7 @@ protected:
     void        		drawLog(const char*,bool,int,bool);
     void        		drawTraces();
     void			drawUserPicks(const TypeSet<Marker>&,bool);
-    void        		drawMarker(FlatView::Annotation::AuxData*,
+    void        		drawMarker(FlatView::AuxData*,
 					    bool,float);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();

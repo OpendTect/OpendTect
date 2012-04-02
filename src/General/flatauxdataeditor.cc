@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.47 2012-03-31 07:37:00 cvskris Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.48 2012-04-02 15:06:17 cvskris Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -56,8 +56,8 @@ AuxDataEditor::~AuxDataEditor()
 
     if ( feedback_ )
     {
-	delete viewer_.appearance().annot_.removeAuxData( feedback_ );
-	delete feedback_;
+	delete viewer_.removeAuxData( feedback_ );
+	feedback_ = 0;
     }
 
     delete sower_;
@@ -75,7 +75,7 @@ bool AuxDataEditor::removeSelectionPolygon()
 	return false;
 
     for ( int idx=0; idx<polygonsel_.size(); idx++ )
-	viewer_.appearance().annot_.removeAuxData( polygonsel_[idx] );
+	viewer_.removeAuxData( polygonsel_[idx] );
 
     deepErase( polygonsel_ );
 
@@ -83,9 +83,9 @@ bool AuxDataEditor::removeSelectionPolygon()
 }
 
 
-int AuxDataEditor::addAuxData( FlatView::Annotation::AuxData* nd, bool doedit )
+int AuxDataEditor::addAuxData( FlatView::AuxData* nd, bool doedit )
 {
-    if ( viewer_.appearance().annot_.auxdata().indexOf( nd )==-1 )
+    if ( viewer_.auxdata().indexOf( nd )==-1 )
     {
 	pErrMsg("Auxdata not present in viewer");
 	return -1;
@@ -226,7 +226,7 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 
 
 void AuxDataEditor::getPointSelections(
-	const ObjectSet<Annotation::AuxData>& polygonsel,
+	const ObjectSet<AuxData>& polygonsel,
 	TypeSet<int>& ids, TypeSet<int>& idxs) const
 {
     ids.erase();
@@ -277,7 +277,7 @@ const TypeSet<int>& AuxDataEditor::getIds() const
 { return ids_; }
 
 
-const ObjectSet<Annotation::AuxData>& AuxDataEditor::getAuxData() const
+const ObjectSet<AuxData>& AuxDataEditor::getAuxData() const
 { return auxdata_; }
 
 
@@ -287,7 +287,7 @@ void AuxDataEditor::removePolygonSelected( int dataid )
     TypeSet<int> idxs;
 
 
-    ObjectSet<Annotation::AuxData> polygonsel;
+    ObjectSet<AuxData> polygonsel;
     deepCopyClone( polygonsel, polygonsel_ );
 
     getPointSelections( polygonsel, ids, idxs );
@@ -460,11 +460,11 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( feedback_ )
     {
-	delete viewer_.appearance().annot_.removeAuxData( feedback_ );
+	delete viewer_.removeAuxData( feedback_ );
 	feedback_ = 0;
 
 	if ( selptidx_.size() )
-	    viewer_.appearance().annot_.addAuxData( auxdata_[seldatasetidx_] );
+	    viewer_.addAuxData( auxdata_[seldatasetidx_] );
 
 	viewer_.handleChange( Viewer::Annot );
     }
@@ -529,15 +529,14 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	else if ( !feedback_ )
 	{
 	    feedback_ = auxdata_[seldatasetidx_]->clone();
-	    viewer_.appearance().annot_.addAuxData( feedback_ );
+	    viewer_.addAuxData( feedback_ );
 	    if ( !selptidx_.size() )
 	    {
 		feedback_->poly_.erase();
 		feedback_->poly_ += selptcoord_;
 	    }
 	    else
-		viewer_.appearance().annot_.removeAuxData(
-		    		     auxdata_[seldatasetidx_] );
+		viewer_.removeAuxData( auxdata_[seldatasetidx_] );
 	}
 	else if ( !selptidx_.size() )
 	    feedback_->poly_[0] = selptcoord_;
@@ -553,13 +552,12 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 
 	if ( (!hasmoved_ && !ev.shiftStatus()) || !polygonsel_.size() )
 	{
-	    Annotation::AuxData* polysel =
-		viewer_.appearance().annot_.createAuxData( 0 );
+	    AuxData* polysel = viewer_.createAuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
 	    //polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
 	    polygonsel_ += polysel;
-	    viewer_.appearance().annot_.addAuxData( polysel );
+	    viewer_.addAuxData( polysel );
 	}
 
 	const int polyidx = polygonsel_.size()-1;
@@ -721,8 +719,8 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
 {
-    sowingline_ = editor_.viewer().appearance().annot_.createAuxData( 0 );
-    editor_.viewer().appearance().annot_.addAuxData( sowingline_ );
+    sowingline_ = editor_.viewer().createAuxData( 0 );
+    editor_.viewer().addAuxData( sowingline_ );
     reInitSettings();
 }
 
@@ -730,11 +728,7 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
 Sower::~Sower()
 {
     deepErase( eventlist_ );
-
-
-    const ObjectSet<FlatView::Annotation::AuxData>& vwrauxs 
-			= editor_.viewer().appearance().annot_.auxdata();
-    delete editor_.viewer().appearance().annot_.removeAuxData( sowingline_ );
+    delete editor_.viewer().removeAuxData( sowingline_ );
 }
 
 

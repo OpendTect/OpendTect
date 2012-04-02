@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.h,v 1.3 2012-02-16 05:05:37 cvssatyaki Exp $
+ RCS:		$Id: emhorizonpainter2d.h,v 1.4 2012-04-02 15:06:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ public:
 				~Marker2D()
 				{ delete marker_; }
 
-	    FlatView::Annotation::AuxData*      marker_;
-	    EM::SectionID			sectionid_;
+	    FlatView::AuxData*  marker_;
+	    EM::SectionID	sectionid_;
 	};
 
     void		getDisplayedHor(ObjectSet<Marker2D>&);

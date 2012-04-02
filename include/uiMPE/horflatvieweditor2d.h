@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.h,v 1.4 2010-09-15 08:20:21 cvsbruno Exp $
+ RCS:		$Id: horflatvieweditor2d.h,v 1.5 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,14 +82,14 @@ protected:
 
     	mStruct Hor2DMarkerIdInfo
 	{
-	    FlatView::Annotation::AuxData*	marker_;
-	    int					merkerid_;
-	    EM::SectionID			sectionid_;
+	    FlatView::AuxData*	marker_;
+	    int			merkerid_;
+	    EM::SectionID	sectionid_;
 	};
 
     void			cleanAuxInfoContainer();
     void			fillAuxInfoContainer();
-    FlatView::Annotation::AuxData* getAuxData(int markerid);
+    FlatView::AuxData*		getAuxData(int markerid);
     EM::SectionID		getSectionID(int markerid);
 
     EM::ObjectID        	emid_;

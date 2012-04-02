@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter3d.h,v 1.3 2011-09-21 10:41:08 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.h,v 1.4 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,8 @@ public:
 				~Marker3D()
 				{ delete marker_; }
 	     
-	    FlatView::Annotation::AuxData*	marker_;
-	    EM::SectionID                       sectionid_;	    
+	    FlatView::AuxData*	marker_;
+	    EM::SectionID	sectionid_;	    
 	};
 
     void		getDisplayedHor(ObjectSet<Marker3D>&);

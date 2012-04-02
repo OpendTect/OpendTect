@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.59 2012-04-02 08:03:14 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.60 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,58 @@ namespace FlatView
 typedef Geom::Point2D<double> Point;
 typedef Geom::PosRectangle<double> Rect;
 
+mClass AuxData
+{
+public:
+    //!\brief explains what part of the an auxdata's appearance that may be
+    //!	  edited by the user
+    mClass EditPermissions
+    {
+    public:			EditPermissions();
+	bool		onoff_;
+	bool		namepos_;
+	bool		linestyle_;
+	bool		linecolor_;
+	bool		fillcolor_;
+	bool		markerstyle_;
+	bool		markercolor_;
+	bool		x1rg_;
+	bool		x2rg_;
+    };
+			    ~AuxData();
+    virtual AuxData*	clone() const { return new AuxData(*this); }
+
+    EditPermissions*	editpermissions_;//!<If null no editing allowed
+
+    bool			enabled_; 	//!<Turns on/off everything
+    BufferString		name_;
+    Alignment		namealignment_;
+    int			namepos_;	//!<nodraw=udf, before first=-1,
+					    //!< center=0, after last=1
+    LineStyle		linestyle_;
+    Color			fillcolor_;
+    TypeSet<MarkerStyle2D>	markerstyles_;
+    int			zvalue_; 	//overlay zvalue ( max=on top )
+    bool			areMarkersVisible() const;
+
+    Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
+    Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom
+
+    TypeSet<Point>		poly_;
+
+    TypeSet<int>		dispids_;	//!<ids of corresponding displed						//!<object
+    bool			displayed_;
+
+    bool			close_;
+
+    bool			isEmpty() const;
+    void			empty();
+
+protected:
+			    friend class Viewer;
+			    AuxData( const char* nm );
+			    AuxData( const AuxData& );
+};
 
 /*!\brief Annotation data for flat views */
 
@@ -38,58 +90,6 @@ public:
 
 
     //!\brief Things like well tracks, cultural data, 2-D line positions
-    mClass AuxData
-    {
-    public:
-	//!\brief explains what part of the an auxdata's appearance that may be
-	//!	  edited by the user
-	mClass EditPermissions
-	{
-	public:			EditPermissions();
-	    bool		onoff_;
-	    bool		namepos_;
-	    bool		linestyle_;
-	    bool		linecolor_;
-	    bool		fillcolor_;
-	    bool		markerstyle_;
-	    bool		markercolor_;
-	    bool		x1rg_;
-	    bool		x2rg_;
-	};
-				~AuxData();
-	virtual AuxData*	clone() const { return new AuxData(*this); }
-
-	EditPermissions*	editpermissions_;//!<If null no editing allowed
-
-	bool			enabled_; 	//!<Turns on/off everything
-	BufferString		name_;
-	Alignment		namealignment_;
-	int			namepos_;	//!<nodraw=udf, before first=-1,
-						//!< center=0, after last=1
-	LineStyle		linestyle_;
-	Color			fillcolor_;
-	TypeSet<MarkerStyle2D>	markerstyles_;
-	int			zvalue_; 	//overlay zvalue ( max=on top )
-	bool			areMarkersVisible() const;
-
-	Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
-	Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom
-
-	TypeSet<Point>		poly_;
-
-	TypeSet<int>		dispids_;	//!<ids of corresponding displed						//!<object
-	bool			displayed_;
-
-	bool			close_;
-
-	bool			isEmpty() const;
-	void			empty();
-
-    protected:
-				friend class Annotation;
-				AuxData( const char* nm );
-				AuxData( const AuxData& );
-    };
 
     mStruct AxisData
     {
@@ -114,17 +114,6 @@ public:
     AxisData			x1_;
     AxisData			x2_;
 
-    virtual AuxData*		createAuxData(const char* nm) const;
-
-    int				nrAuxData() const; 
-    AuxData* 			getAuxData(int idx);
-    const AuxData* 		getAuxData(int idx) const;
-    virtual void		addAuxData(AuxData* a);
-    virtual AuxData*		removeAuxData(AuxData* a);
-    virtual AuxData*		removeAuxData(int idx);
-
-    const ObjectSet<AuxData>&	auxdata() const;
-
     bool			showaux_;
     bool			editable_;
     bool			allowuserchange_;
@@ -142,7 +131,7 @@ public:
 			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showgridlines_)
 				|| (!x1dir && x2_.showgridlines_)); }
-    bool		haveAux() const;
+    //bool		haveAux() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -155,9 +144,6 @@ public:
     static const char*	sKeyIsRev();
     static const char*	sKeyShwAux();
     static const char*	sKeyAllowUserChangeAxis();
-
-protected:
-    ObjectSet<AuxData>		auxdata_;
 };
 
 
@@ -353,15 +339,26 @@ public:
     void		useStoredDefaults(const char* key);
 
     void		getAuxInfo(const Point&,IOPar&) const;
-    virtual void	showAuxDataObjects(Annotation::AuxData&,bool)	{}
-    virtual void	updateProperties(const Annotation::AuxData&)	{}
-    virtual void	reGenerate(Annotation::AuxData&)		{}
-    virtual void	remove(const Annotation::AuxData&)		{}
+    virtual void	showAuxDataObjects(AuxData&,bool)	{}
+    virtual void	updateProperties(const AuxData&)	{}
+    virtual void	reGenerate(AuxData&)		{}
+    virtual void	remove(const AuxData&)		{}
     
     const StepInterval<double> getDataPackRange( bool forx1 ) const;
 
     virtual Interval<float> getDataRange(bool wva) const
     			{ return Interval<float>(mUdf(float),mUdf(float)); }
+
+    virtual AuxData*		createAuxData(const char* nm) const;
+
+    int				nrAuxData() const; 
+    AuxData* 			getAuxData(int idx);
+    const AuxData* 		getAuxData(int idx) const;
+    virtual void		addAuxData(AuxData* a);
+    virtual AuxData*		removeAuxData(AuxData* a);
+    virtual AuxData*		removeAuxData(int idx);
+
+    const ObjectSet<AuxData>&	auxdata() const;
 
 protected:
 
@@ -374,6 +371,9 @@ protected:
     FlatView_CB_Rcvr*		cbrcvr_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
+protected:
+    ObjectSet<AuxData>		auxdata_;
+
 
 };
 

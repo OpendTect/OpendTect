@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.13 2012-03-31 08:31:48 cvskris Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.14 2012-04-02 15:06:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,8 +144,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
 	StepInterval<int> colrg = fss->colRange( rc.row );
-	FlatView::Annotation::AuxData* stickauxdata =
-	    viewer_.appearance().annot_.createAuxData( 0 );
+	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
 	if ( rc.row == activestickid_ )
@@ -178,7 +177,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 		stkmkrinfo->marker_ = stickauxdata;
 		stkmkrinfo->stickid_ = rc.row;
 		f3dmaker->stickmarker_ += stkmkrinfo;
-		viewer_.appearance().annot_.addAuxData( stickauxdata );
+		viewer_.addAuxData( stickauxdata );
 	    }
     }
 
@@ -189,7 +188,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 					RowCol& rc,const StepInterval<int>& crg,
 					const Coord3& stkednor,
-				FlatView::Annotation::AuxData& stickauxdata )
+				FlatView::AuxData& stickauxdata )
 {
     Coord3 editnormal( 0, 0, 1 );
 
@@ -267,7 +266,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 					RowCol& rc,const StepInterval<int>& crg,
 					const Coord3& stkednor,
-				   FlatView::Annotation::AuxData& stickauxdata )
+				   FlatView::AuxData& stickauxdata )
 {
     BinID bid;
     for ( rc.col=crg.start;rc.col<=crg.stop;rc.col+=crg.step )
@@ -418,8 +417,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 					    TypeSet<int>& coordindices,
 					    TypeSet<Coord3>& intxnposs)
 {
-    FlatView::Annotation::AuxData* intsecauxdat =
-	viewer_.appearance().annot_.createAuxData( 0 );
+    FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
 
     intsecauxdat->poly_.erase();
     intsecauxdat->linestyle_ = markerlinestyle_;
@@ -431,9 +429,9 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
     {
 	if ( coordindices[idx] == -1 )
 	{
-	    viewer_.appearance().annot_.addAuxData( intsecauxdat );
+	    viewer_.addAuxData( intsecauxdat );
 	    f3dmaker->intsecmarker_ += intsecauxdat;
-	    intsecauxdat = viewer_.appearance().annot_.createAuxData( 0 );
+	    intsecauxdat = viewer_.createAuxData( 0 );
 	    intsecauxdat->poly_.erase();
 	    intsecauxdat->linestyle_ = markerlinestyle_;
 	    intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
@@ -463,7 +461,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	    intsecauxdat->poly_ += FlatView::Point( posbid.crl, pos.z );
     }
 
-    viewer_.appearance().annot_.addAuxData( intsecauxdat );
+    viewer_.addAuxData( intsecauxdat );
     f3dmaker->intsecmarker_ += intsecauxdat;
 }
 
@@ -549,7 +547,7 @@ bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid ) const
 }
 
 
-FlatView::Annotation::AuxData* Fault3DPainter::getAuxData(
+FlatView::AuxData* Fault3DPainter::getAuxData(
 						const EM::PosID* pid) const
 {
     if ( pid->objectID() != emid_ )
@@ -574,13 +572,11 @@ void Fault3DPainter::removePolyLine()
 	Fault3DMarker* f3dmarker = f3dmarkers_[markidx];
 	for ( int idi=f3dmarker->intsecmarker_.size()-1; idi>=0; idi-- )
 	{
-	    viewer_.appearance().annot_.removeAuxData(
-				f3dmarker->intsecmarker_[idi] );
+	    viewer_.removeAuxData( f3dmarker->intsecmarker_[idi] );
 	}
 	for ( int ids=f3dmarker->stickmarker_.size()-1; ids>=0; ids-- )
 	{
-	    viewer_.appearance().annot_.removeAuxData(
-				f3dmarker->stickmarker_[ids]->marker_ );
+	    viewer_.removeAuxData( f3dmarker->stickmarker_[ids]->marker_ );
 	}
     }
 

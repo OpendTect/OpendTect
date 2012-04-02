@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.12 2012-03-31 13:44:24 cvskris Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.13 2012-04-02 15:06:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
     if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
 	pickset_ = &Pick::Mgr().get( picksetidx );
 
-    picks_ = viewer_.appearance().annot_.createAuxData( "Picks" );
-    viewer_.appearance().annot_.addAuxData( picks_ );
+    picks_ = viewer_.createAuxData( "Picks" );
+    viewer_.addAuxData( picks_ );
     viewer_.appearance().annot_.editable_ = false; 
     viewer_.dataChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
     viewer_.viewChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
@@ -64,7 +64,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 
 VW2DPickSet::~VW2DPickSet()
 {
-    viewer_.appearance().annot_.removeAuxData( picks_ );
+    viewer_.removeAuxData( picks_ );
     editor_->removeAuxData( auxid_ );
     delete picks_;
 

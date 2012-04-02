@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.5 2011-10-04 05:52:14 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.6 2012-04-02 15:06:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,12 +46,12 @@ public:
     const int		getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*) const;
-    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*) const;
+    FlatView::AuxData*	getAuxData(const EM::PosID*) const;
 
 	mStruct StkMarkerInfo
 	{
-	    FlatView::Annotation::AuxData*	marker_;
-	    int					stickid_;
+	    FlatView::AuxData*	marker_;
+	    int			stickid_;
 	};
 
     EM::ObjectID&       getFaultID()			{ return emid_; }
@@ -73,20 +73,18 @@ protected:
 					    deepErase(stickmarker_);
 					    deepErase(intsecmarker_);
 					}
-	    ObjectSet<StkMarkerInfo>			stickmarker_;
-	    ObjectSet<FlatView::Annotation::AuxData>	intsecmarker_;
+	    ObjectSet<StkMarkerInfo>		stickmarker_;
+	    ObjectSet<FlatView::AuxData>	intsecmarker_;
 	};
 
     bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
 				    Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
-					  const Coord3&,
-					  FlatView::Annotation::AuxData&);
+					  const Coord3&, FlatView::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
-					  const Coord3&,
-					  FlatView::Annotation::AuxData&);
+					  const Coord3&, FlatView::AuxData&);
     bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
 	    				  Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
