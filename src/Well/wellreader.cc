@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.48 2011-05-27 07:33:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.49 2012-04-02 13:03:38 cvsbruno Exp $";
 
 #include "wellreader.h"
 
@@ -356,6 +356,25 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	break;
     }
 
+    return ret;
+}
+
+
+Interval<float> Well::Reader::getAllLogsDahRange() const
+{
+    Interval<float> ret( mUdf(float), mUdf(float) );
+    BufferStringSet lognms; getLogInfo( lognms );
+
+    int ilog = 0;
+    for ( ; mIsUdf(ret.start) && ilog<lognms.size(); ilog++ )
+	ret = getLogDahRange( lognms.get(ilog) );
+
+    for ( ; ilog<lognms.size(); ilog++ )
+    {
+	Interval<float> dahrg = getLogDahRange( lognms.get(ilog) );
+	if ( mIsUdf(dahrg.start) ) continue;
+	ret.include( dahrg );
+    }
     return ret;
 }
 

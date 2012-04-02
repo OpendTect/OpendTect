@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.15 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: wellreader.h,v 1.16 2012-04-02 13:03:38 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,8 @@ public:
     void		getLogInfo(BufferStringSet&) const;
     Interval<float>	getLogDahRange(const char*) const;
     			//!< If no log with this name, returns [undef,undef]
+    Interval<float>	getAllLogsDahRange() const;
+    			//!< If no log returns [undef,undef]
 
 protected:
 
