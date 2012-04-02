@@ -4,10 +4,11 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.9 2011-09-16 10:54:03 cvskris Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.10 2012-04-02 11:55:19 cvsbert Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
+#include "odcomplex.h"
 
 namespace Fourier
 {
@@ -1011,13 +1012,8 @@ bool FFTCC1D::doFinish()
 		idx1 = 0;
  		do 
  		{
-#ifdef __win__
-		    data_[kidx].real( rtmp_[idx1] );
-		    data_[kidx].imag( itmp_[idx1] );
-#else
- 		    data_[kidx].real() = rtmp_[idx1];
- 		    data_[kidx].imag() = itmp_[idx1];
-#endif
+		    mSetComplexReal(data_[kidx],rtmp_[idx1]);
+		    mSetComplexImag(data_[kidx],itmp_[idx1]);
  		    idx1++;
  		    kidx -= sample_;		    
  		} while ( kidx != tidx );
