@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.83 2012-03-31 13:56:10 cvskris Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.84 2012-04-02 13:57:31 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -252,13 +252,11 @@ void uiStratSynthDisp::drawLevel()
     const StratSynth::Level* lvl = stratsynth_.getLevel();
     if ( d2tmodels_ && !d2tmodels_->isEmpty() && lvl )
     {
-	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
+	const SeisTrcBuf& tbuf = postStackTraces();
 	FlatView::Annotation::AuxData* auxd =
 	    ann.createAuxData("Level markers");
-	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
 
 	auxd->linestyle_.type_ = LineStyle::None;
-	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
 	{
 	    const float tval = imdl < tbuf.size() ? tbuf.get(imdl)->info().pick 
@@ -620,7 +618,14 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
 
     const DataPack* dp = currentsynthetic_->getPack( false );
     mDynamicCastGet(const SeisTrcBufDataPack*,stbp,dp);
-    return stbp ? stbp->trcBuf() : emptytb;
+    if ( !stbp ) return emptytb;
+
+    if ( d2tmodels_ && !d2tmodels_->isEmpty() )
+    {
+	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( stbp->trcBuf() );
+	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
+    }
+    return stbp->trcBuf();
 }
 
 
