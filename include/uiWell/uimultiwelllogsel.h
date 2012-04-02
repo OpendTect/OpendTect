@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.8 2012-03-29 07:15:25 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.9 2012-04-02 11:58:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 				    , withzintime_(true)
 				    , withzvalsel_(true)
 				    , withsampling_(false)
+				    , txtofmainfld_("Extract Between")
 				    , withextractintime_(SI().zIsTime())
 				    {}
 
@@ -48,6 +49,7 @@ public:
 	mDefSetupMemb(bool,withzvalsel) 
 	mDefSetupMemb(bool,withsampling) 
 	mDefSetupMemb(bool,withextractintime) 
+	mDefSetupMemb(BufferString,txtofmainfld) 
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);

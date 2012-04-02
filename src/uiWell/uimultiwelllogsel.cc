@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.9 2012-03-29 07:15:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.10 2012-04-02 11:58:29 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -45,7 +45,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     }
 
     CallBack cb(mCB(this,uiWellExtractParams,getFromScreen));
-    zchoicefld_ = new uiGenInput( this, "Extract between",
+    zchoicefld_ = new uiGenInput( this, s.txtofmainfld_,
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb ); 
     setHAlignObj( zchoicefld_ );
