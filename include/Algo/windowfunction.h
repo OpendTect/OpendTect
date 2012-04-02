@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		2007
- RCS:		$Id: windowfunction.h,v 1.8 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: windowfunction.h,v 1.9 2012-04-02 09:53:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,85 +36,41 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-#define mDeclWFGetValueFns() \
-    float		getValue(float) const; \
-    float		getValue( const float* x ) const { return getValue(*x); }
+#define mDeclWFStdFns(nm) \
+    static void			initClass(); \
+    static const char*		sName()		{ return #nm; }\
+    static WindowFunction*	create()	{ return new nm##Window; } \
+    const char*			name() const	{ return #nm; } \
+    float	getValue(float) const; \
+    float	getValue( const float* x ) const { return getValue(*x); }
+
+    static void		addAllStdClasses(); // done by Algo/initalgo.cc
 
 };
 
 
-mClass BoxWindow : public WindowFunction
-{
-public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
-
+#define mDeclWFSimpleClass(nm) \
+mClass nm##Window : public WindowFunction \
+{ \
+public: \
+    mDeclWFStdFns(nm); \
 };
 
-
-mClass HammingWindow : public WindowFunction
-{
-public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
-};
-
-
-mClass HanningWindow : public WindowFunction
-{
-public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
-};
-
-
-mClass BlackmanWindow : public WindowFunction
-{
-public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
-};
-
-
-mClass BartlettWindow : public WindowFunction
-{
-public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
-};
+mDeclWFSimpleClass(Box)
+mDeclWFSimpleClass(Hamming)
+mDeclWFSimpleClass(Hanning)
+mDeclWFSimpleClass(Blackman)
+mDeclWFSimpleClass(Bartlett)
+mDeclWFSimpleClass(FlatTop)
 
 
 mClass CosTaperWindow : public WindowFunction
 {
 public:
-    static void			initClass();
-    static const char*		sName();
-    static WindowFunction*	create();
+
+    mDeclWFStdFns(CosTaper)
 
 				CosTaperWindow()	{ setVariable( 0.05 ); }
-
-    const char*			name() const;
-				mDeclWFGetValueFns()
 
     bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }
@@ -128,7 +84,7 @@ protected:
 };
 
 
+mDefineFactory(WindowFunction,WINFUNCS);
 
-mDefineFactory( WindowFunction, WinFuncs );
 
 #endif

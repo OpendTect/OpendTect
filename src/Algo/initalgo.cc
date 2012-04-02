@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.23 2011-10-06 14:17:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.24 2012-04-02 09:53:23 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"
@@ -21,11 +21,7 @@ mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
 
-    BartlettWindow::initClass();
-    BoxWindow::initClass();
-    CosTaperWindow::initClass();
-    HammingWindow::initClass();
-    HanningWindow::initClass();
+    WindowFunction::addAllStdClasses();
 
     InverseDistanceGridder2D::initClass();
     TriangulatedGridder2D::initClass();
