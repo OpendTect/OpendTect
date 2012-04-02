@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.33 2012-03-20 09:59:07 cvskris Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.34 2012-04-02 09:53:41 cvsbert Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -74,7 +74,7 @@ void Frequency::updateDesc( Desc& desc )
     else if ( winstr == "CosTaper20" )
     { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 
-    WindowFunction* winfunc = WinFuncs().create( winstr );
+    WindowFunction* winfunc = WINFUNCS().create( winstr );
     const bool hasvar = winfunc && winfunc->hasVariable();
     desc.setParamEnabled( paramvalStr(), hasvar );
     delete winfunc;

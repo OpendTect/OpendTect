@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.6 2011-07-24 13:04:48 cvskris Exp $
+ RCS:		$Id: smoother2d.h,v 1.7 2012-04-02 09:53:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ bool Smoother2D<T>::execute()
 
     if ( !window_ )
     {
-	PtrMan<WindowFunction> wf = WinFuncs().create( windowname_ );
+	PtrMan<WindowFunction> wf = WINFUNCS().create( windowname_ );
 	if ( !wf )
 	    return false;
 

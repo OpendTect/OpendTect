@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.24 2009-11-27 15:34:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.25 2012-04-02 09:53:41 cvsbert Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -29,7 +29,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     if ( onlytaper_ ) 
 	funcnames.add( "CosTaper" ); 
     else
-	funcnames = WinFuncs().getNames();
+	funcnames = WINFUNCS().getNames();
     funcnames.insertAt( new BufferString( sNone() ), 0 );
     const StringListInpSpec funclist( funcnames );
     windowtypefld_ =  new uiGenInput( this, su.label_, funclist );
@@ -44,7 +44,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 
     for ( int idx=1; idx<funcnames.size(); idx++ )
     {
-	WindowFunction* winfunc = WinFuncs().create( funcnames[idx]->buf());
+	WindowFunction* winfunc = WINFUNCS().create( funcnames[idx]->buf());
 	if ( winfunc && winfunc->hasVariable() )
 	{
 	    taperidx_ = idx-1;

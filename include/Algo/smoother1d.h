@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.10 2011-07-16 20:48:36 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.11 2012-04-02 09:53:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ bool Smoother1D<T>::operator==( const Smoother1D<T>& b ) const
 template <class T> inline
 bool Smoother1D<T>::setWindow( const char* nm, float param, int length )
 {
-    PtrMan<WindowFunction> wf = WinFuncs().create( nm );
+    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
     if ( !wf )
 	return false;
 

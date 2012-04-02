@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.42 2010-11-09 09:25:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.43 2012-04-02 09:53:41 cvsbert Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -277,11 +277,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
   
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );
-    funcnames_ = WinFuncs().getNames();
+    funcnames_ = WINFUNCS().getNames();
 
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	winfunc_ += WinFuncs().create( funcnames_[idx]->buf() );
+	winfunc_ += WINFUNCS().create( funcnames_[idx]->buf() );
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 

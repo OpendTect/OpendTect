@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother3d.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: smoother3d.h,v 1.5 2012-04-02 09:53:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ template <class T> inline
 bool Smoother3D<T>::setWindow( const char* nm, float param,
 			       int sz0, int sz1, int sz2 )
 {
-    PtrMan<WindowFunction> wf = WinFuncs().create( nm );
+    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
     if ( !wf )
 	return false;
 
