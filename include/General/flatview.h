@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.58 2012-03-31 13:30:09 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.59 2012-04-02 08:03:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ public:
 	bool			isEmpty() const;
 	void			empty();
 
-    //protected:
+    protected:
 				friend class Annotation;
 				AuxData( const char* nm );
 				AuxData( const AuxData& );
@@ -122,7 +122,6 @@ public:
     virtual void		addAuxData(AuxData* a);
     virtual AuxData*		removeAuxData(AuxData* a);
     virtual AuxData*		removeAuxData(int idx);
-   
 
     const ObjectSet<AuxData>&	auxdata() const;
 
@@ -157,7 +156,7 @@ public:
     static const char*	sKeyShwAux();
     static const char*	sKeyAllowUserChangeAxis();
 
-//protected:
+protected:
     ObjectSet<AuxData>		auxdata_;
 };
 
