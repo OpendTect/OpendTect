@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.13 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.14 2012-04-02 22:39:38 cvsnanne Exp $";
 
 #include "measuretoolman.h"
 #include "odplugin.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: annotationspi.cc,v 1.13 2011-04-21 13:09:13 cvs
 #include "visannotimage.h"
 #include "visarrow.h"
 #include "viscallout.h"
+#include "visscalebar.h"
 
 
 mDefODPluginInfo(Annotations)
@@ -45,6 +46,8 @@ mDefODInitPlugin(Annotations)
     Annotations::ArrowDisplay::initClass();
     Annotations::CalloutDisplay::initClass();
     Annotations::Callout::initClass();
+    Annotations::ScaleBar::initClass();
+    Annotations::ScaleBarDisplay::initClass();
 
     return 0;
 }

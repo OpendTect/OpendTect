@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.19 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: treeitem.h,v 1.20 2012-04-02 22:39:38 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -187,6 +187,7 @@ protected:
 
 };
 
+
 class ImageSubItem : public SubItem
 {
 public:
@@ -215,6 +216,34 @@ protected:
 };
 
 
+class ScaleBarSubItem : public SubItem
+{
+public:
+    			ScaleBarSubItem(Pick::Set&,int displayid=-1);
+    bool		init();
+    static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
+
+protected:
+			~ScaleBarSubItem()	{ removeStuff(); }
+
+    const char*		parentType() const;
+    void		fillStoragePar(IOPar&) const;
+
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+    void		propertyChange(CallBacker*);
+
+    const char*		managerName() const		{ return sKeyManager();}
+
+    MenuItem		propmnuitem_;
+    int			orientation_;
+
+    static const char*		sKeyOrientation()      { return "Orientation"; }
+    static const char*		sKeyLineWidth()	       { return "Line width"; }
+};
+
+
+
 
 #define mDefineParentItem(type,typestr,defsz) \
 class type##ParentItem : public AnnotTreeItem \
@@ -233,6 +262,7 @@ protected: \
 mDefineParentItem(Text,"Text",25);
 mDefineParentItem(Arrow,"Arrows",1000);
 mDefineParentItem(Image,"Image",1000);
+mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 
 }; // namespace Annotations

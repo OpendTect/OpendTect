@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Annotations plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:24 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-02 22:39:38 cvsnanne Exp $
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain)
@@ -16,6 +16,7 @@ SET( OD_MODULE_SOURCES
 	uimeasuredlg.cc
 	visannotimage.cc
 	visarrow.cc
-	viscallout.cc )
+	viscallout.cc
+	visscalebar.cc )
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()
