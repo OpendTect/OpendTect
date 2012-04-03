@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.42 2012-04-03 09:03:28 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.43 2012-04-03 10:08:04 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -272,19 +272,20 @@ int Threads::WorkManager::addQueue( QueueType type )
 }
 
 
-void Threads::WorkManager::executeQueue( int queueid )
+bool Threads::WorkManager::executeQueue( int queueid )
 {
     Threads::MutexLocker lock( workloadcond_ );
     int queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 )
-	return;
+	return false;
 
     if ( queuetypes_[queueidx]!=Manual )
     {
 	pErrMsg("Only manual queues can be executed" );
-	return;
+	return false;
     }
 
+    bool success = true;
     while ( true )
     {
 	::Threads::Work task;
@@ -310,7 +311,9 @@ void Threads::WorkManager::executeQueue( int queueid )
 	queueworkload_[queueidx]++;
 	lock.unLock();
 
-	task.doRun();
+	if ( !task.doRun() )
+	    success = false;
+
 	cb.doCall( 0 );
 
 	lock.lock();
@@ -320,6 +323,8 @@ void Threads::WorkManager::executeQueue( int queueid )
 
 	reduceWorkload( queueidx );
     }
+
+    return success;
 }
 
 

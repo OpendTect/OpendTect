@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.33 2012-01-16 12:25:14 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.34 2012-04-03 10:08:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
     				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
-    void			executeQueue(int queueid);
+    bool			executeQueue(int queueid);
     				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
