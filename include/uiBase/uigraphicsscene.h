@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.37 2012-04-03 10:55:11 cvskris Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.38 2012-04-03 13:59:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsitem.h"
+#include "task.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "keyboardevent.h"
@@ -91,6 +92,8 @@ public:
     				{ return (QGraphicsScene*)odgraphicsscene_; }
     void			copyToClipBoard();
 
+
+    void			addUpdateToQueue(Task*);
     bool			executePendingUpdates();
 protected:
 
@@ -137,5 +140,25 @@ protected:
     QGraphicsLinearLayout*      layout_;
     QGraphicsWidget*		layoutitem_;
 };
+
+
+class uiGraphicsSceneChanger : public Task
+{
+public:
+    uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,
+			    bool remove );
+    uiGraphicsSceneChanger( uiGraphicsItemGroup& scene, uiGraphicsItem& itm,
+			    bool remove );
+
+    bool execute();
+
+protected:
+    uiGraphicsScene*    	scene_;
+    uiGraphicsItemGroup*	group_;
+    uiGraphicsItem&     	itm_;
+    bool                	remove_;
+};
+
+
 
 #endif

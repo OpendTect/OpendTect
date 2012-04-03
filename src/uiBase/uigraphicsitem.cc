@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.34 2012-04-03 10:55:11 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.35 2012-04-03 13:59:25 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
 #include "uigraphicsscene.h"
 
 #include "uicursor.h"
+#include "uimain.h"
 
 #include "draw.h"
 
@@ -217,6 +218,15 @@ uiGraphicsItemGroup::uiGraphicsItemGroup( bool owner )
 {}
 
 
+void uiGraphicsItemGroup::setScene( uiGraphicsScene* scene )
+{
+    uiGraphicsItem::setScene( scene );
+    for ( int idx=0; idx<items_.size(); idx++ )
+	items_[idx]->setScene( scene );
+
+}
+
+
 uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
     : uiGraphicsItem(mkQtObj())
     , isvisible_(true)
@@ -245,8 +255,18 @@ QGraphicsItem* uiGraphicsItemGroup::mkQtObj()
 
 void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 {
-    items_ += itm;
-    qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
+    if ( !isMainThreadCurrent() )
+    {
+	scene_->addUpdateToQueue(
+		new uiGraphicsSceneChanger(*this,*itm,false) );
+    }
+    else
+    {
+	items_ += itm;
+	itm->setScene( scene_ );
+	itm->setParent( this );
+	qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
+    }
 }
 
 
@@ -255,6 +275,9 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
     if ( !itm ) return;
 
     items_ -= itm;
+    itm->setScene( 0 );
+    itm->setParent( 0 );
+
     QGraphicsItem* qitm = itm->qGraphicsItem();
     qgraphicsitemgrp_->removeFromGroup( qitm );
     if ( withdelete )

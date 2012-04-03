@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.31 2012-04-03 10:55:11 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.32 2012-04-03 13:59:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
 
     void		setCursor(const MouseCursor&);
 
-    void		setScene(uiGraphicsScene*);
+    virtual void	setScene(uiGraphicsScene*);
     void		setParent(uiGraphicsItem*);
 
     int			id() const			{ return id_; }
@@ -85,7 +85,6 @@ private:
     const int		id_;
 
     virtual void	stPos(float,float);
-
 };
 
 
@@ -111,6 +110,8 @@ public:
 			uiGraphicsItemGroup(const ObjectSet<uiGraphicsItem>&);
 			~uiGraphicsItemGroup();
 			//!<If owner, it deletes all items
+
+    void		setScene(uiGraphicsScene*);
 
     void		setIsOwner( bool own )	{ owner_ = own; }
     bool		isOwner() const		{ return owner_; }

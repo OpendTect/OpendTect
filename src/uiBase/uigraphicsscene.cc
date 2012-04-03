@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.59 2012-04-03 10:55:11 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.60 2012-04-03 13:59:25 cvskris Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -140,7 +140,6 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 }
 
 
-
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
@@ -172,42 +171,59 @@ int uiGraphicsScene::nrItems() const
 }
 
 
-class uiGraphicsSceneChanger : public Task
+uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsScene& scene,
+	uiGraphicsItem& itm, bool remove )
+    : scene_( &scene )
+    , group_( 0 )
+    , itm_( itm )
+    , remove_( remove )
+{}
+
+
+uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsItemGroup& group,
+	uiGraphicsItem& itm, bool remove )
+    : group_( &group )
+    , itm_( itm )
+    , scene_( 0 )
+    , remove_( remove )
+{}
+
+
+bool uiGraphicsSceneChanger::execute()
 {
-public:
-    uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,
-	    		    bool remove )
-	: scene_( scene )
-	, itm_( itm )
-	, remove_( remove )
-    {}
-
-    bool execute()
+    if ( !isMainThreadCurrent() )
     {
-	if ( !isMainThreadCurrent() )
-	{
-	    pErrMsg("Violating QT threading");
-	    return false;
-	}
-
-	if ( remove )
-	    scene_.removeItem( &itm_ );
-	else
-	    scene_.addItem( &itm_ );
-
-	return true;
+	pErrMsg("Violating QT threading");
+	return false;
     }
 
-protected:
-    uiGraphicsScene&	scene_;
-    uiGraphicsItem&	itm_;
-    bool		remove_;
-};
+    if ( remove )
+    {
+	if ( scene_ ) scene_->removeItem( &itm_ );
+	else group_->remove( &itm_, false );
+    }
+    else
+    {
+	if ( scene_ ) scene_->addItem( &itm_ );
+	else group_->add( &itm_ );
+    }
+
+    return true;
+}
 
 
 bool uiGraphicsScene::executePendingUpdates()
 {
     return Threads::WorkManager::twm().executeQueue( queueid_ );
+}
+
+
+void uiGraphicsScene::addUpdateToQueue( Task* t )
+{
+    Threads::WorkManager::twm().addWork( 
+	Threads::Work( *t, true ), 0, queueid_, false );
+
+    odgraphicsscene_->update();
 }
 
 
@@ -217,11 +233,7 @@ uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 
     if ( !isMainThreadCurrent() )
     {
-	Threads::WorkManager::twm().addWork( 
-		Threads::Work( *new uiGraphicsSceneChanger(*this,*itm,false), true ),
-	        0, queueid_, false );
-
-	odgraphicsscene_->update();
+	addUpdateToQueue( new uiGraphicsSceneChanger(*this,*itm,false) );
     }
     else
     {
