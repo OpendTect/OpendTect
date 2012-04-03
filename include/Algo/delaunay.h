@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.34 2011-08-19 14:58:14 cvsjaap Exp $
+ RCS:           $Id: delaunay.h,v 1.35 2012-04-03 21:02:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,8 +202,6 @@ protected:
 
     TypeSet<int>		perimeter_;
     TypeSet<double>		perimeterazimuth_;
-    double			initazimuth_[3];
-    double			maxdist_;
 };
     			
 

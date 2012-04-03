@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.50 2011-11-18 16:02:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.51 2012-04-03 21:02:30 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -991,13 +991,19 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
     : triangles_( tri )
 {
     triangles_.getSurroundingIndices( perimeter_ );
-    triangles_.getConnectionAndWeights(mInitCorner0, corner0_, cornerweights0_);
-    triangles_.getConnectionAndWeights(mInitCorner1, corner1_, cornerweights1_);
-    triangles_.getConnectionAndWeights(mInitCorner2, corner2_, cornerweights2_);
+    triangles_.getConnectionAndWeights(mInitCorner0,corner0_,cornerweights0_);
+    triangles_.getConnectionAndWeights(mInitCorner1,corner1_,cornerweights1_);
+    triangles_.getConnectionAndWeights(mInitCorner2,corner2_,cornerweights2_);
      
     initcenter_ = ( triangles_.getInitCoord(mInitCorner0) + 
 	    	    triangles_.getInitCoord(mInitCorner1) +
 	    	    triangles_.getInitCoord(mInitCorner2) )/3;
+    const Coord startpt = initcenter_ + Coord(1,0);
+    for ( int idx=0; idx<perimeter_.size(); idx++ )
+	perimeterazimuth_ += initcenter_.angle( startpt,
+		triangles_.coordList()[perimeter_[idx]] );
+
+    sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimeter_.size());
 }
 
 
@@ -1118,28 +1124,10 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	const Coord& pt, TypeSet<int>& vertices, TypeSet<float>& weights )
 {
     const Coord startpt = initcenter_ + Coord(1,0);
-    const int perimetersize = perimeter_.size();
-    
-    if ( !perimeterazimuth_.size() )
-    {
-	initazimuth_[0] = initcenter_.angle( startpt,
-		triangles_.getInitCoord(mInitCorner0) );
-    	initazimuth_[1] = initcenter_.angle( startpt, 
-		triangles_.getInitCoord(mInitCorner1) );
-    	initazimuth_[2] = initcenter_.angle( startpt,
-		triangles_.getInitCoord(mInitCorner2) );
-	
-	for ( int idx=0; idx<perimetersize; idx++ )
-	    perimeterazimuth_ += initcenter_.angle( startpt,
-		    triangles_.coordList()[perimeter_[idx]] );
-    
-	sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimetersize);
-    }
-    
     const double ptazim = initcenter_.angle( startpt, pt );
 
     int preidx = -1, aftidx = -1;
-    for ( int idx=0; idx<perimetersize; idx++ )
+    for ( int idx=0; idx<perimeter_.size(); idx++ )
     {
 	if ( perimeterazimuth_[idx]<ptazim )
 	    preidx = perimeter_[idx];
