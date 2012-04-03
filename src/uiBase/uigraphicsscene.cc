@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.60 2012-04-03 13:59:25 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.61 2012-04-03 14:00:22 cvsbert Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -197,7 +197,7 @@ bool uiGraphicsSceneChanger::execute()
 	return false;
     }
 
-    if ( remove )
+    if ( remove_ )
     {
 	if ( scene_ ) scene_->removeItem( &itm_ );
 	else group_->remove( &itm_, false );
