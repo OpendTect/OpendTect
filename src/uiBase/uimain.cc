@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.72 2012-03-29 13:43:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.73 2012-04-03 09:03:28 cvskris Exp $";
 
 #include "uimain.h"
 
@@ -557,4 +557,4 @@ bool isMainThread( const void* thread )
 { return uiMain::theMain().thread() == thread; }
 
 bool isMainThreadCurrent()
-{ return isMainThread( Threads::Thread::currentThread() ); }
+{ return isMainThread( Threads::currentThread() ); }

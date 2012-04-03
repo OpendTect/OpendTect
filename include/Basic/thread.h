@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.51 2012-03-20 14:49:14 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.52 2012-04-03 09:03:27 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -342,8 +342,6 @@ public:
 
     const void*			threadID() const;
 
-    static const void*		currentThread();
-
     void			waitForFinish();
     				/*!< Stop the thread with this function.
 				    Will wait for the thread to return.  */
@@ -361,6 +359,8 @@ protected:
 */
 
 mGlobal int getNrProcessors();
+mGlobal const void* currentThread();
+
 
 
 /*! Causes the current thread to sleep */

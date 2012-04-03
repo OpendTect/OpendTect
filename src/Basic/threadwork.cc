@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.41 2012-01-16 12:25:14 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.42 2012-04-03 09:03:28 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -616,7 +616,7 @@ int Threads::WorkManager::nrFreeThreads() const
 
 bool Threads::WorkManager::isWorkThread() const
 {
-    return threadids_.indexOf( Threads::Thread::currentThread() )!=-1;
+    return threadids_.indexOf( Threads::currentThread() )!=-1;
 }
 
 
