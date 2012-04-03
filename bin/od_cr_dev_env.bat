@@ -9,8 +9,8 @@ if not exist %inpdir%\.rel.devel goto MSGPKG
 if not exist %outdir% goto MSGOUTDIR
 
 
-FOR %%a IN ( plugins, src, include, Pmake, spec, msvc8, data ) DO md %outdir%\%%a
-FOR %%a IN ( plugins, src, include, Pmake, spec, msvc8, data ) DO xcopy /s %inpdir%\%%a\* %outdir%\%%a
+FOR %%a IN ( plugins, src, include, Pmake, spec, msvc10, data ) DO md %outdir%\%%a
+FOR %%a IN ( plugins, src, include, Pmake, spec, msvc10, data ) DO xcopy /s %inpdir%\%%a\* %outdir%\%%a
 
 copy %inpdir%\.rel.devel %outdir%
 
