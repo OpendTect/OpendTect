@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.14 2009-09-08 22:07:14 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.15 2012-04-03 08:54:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,15 @@ public:
     void			setResolution(int res);
     int				getResolution() const	{ return resolution_; } 
     BufferString		getResolutionName(int) const;
+
+    FlatView::AuxData*		createAuxData(const char* nm) const { return 0; }
+
+    int				nrAuxData() const { return 0; }
+    FlatView::AuxData*		getAuxData(int idx) { return 0; }
+    const FlatView::AuxData*	getAuxData(int idx) const { return 0; }
+    void			addAuxData(FlatView::AuxData* a) {}
+    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) { return a; }
+    FlatView::AuxData*		removeAuxData(int idx) { return 0; }
 
 protected:
     				~FlatViewer();
