@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: rockphysics.cc,v 1.5 2012-03-01 13:01:39 cvshelene Exp $";
+static const char* rcsID = "$Id: rockphysics.cc,v 1.6 2012-04-03 09:15:29 cvshelene Exp $";
 
 #include "rockphysics.h"
 #include "mathproperty.h"
@@ -104,6 +104,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	    subpar->get( sKey::Desc, cd->desc_ );
 	    cd->desc_ = getStrFromFMS( cd->desc_ );
 	    subpar->get( sKeyRg, cd->typicalrg_ );
+	    subpar->get( sKey::Default, cd->defaultval_ );
 	    constdefs_ += cd;
 	}
 	delete subpar;
@@ -143,6 +144,7 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
 	const BufferString keybase( IOPar::compKey(sKeyConst,idx) );
 	iop.set( IOPar::compKey(keybase,sKey::Name), cd.name() );
 	iop.set( IOPar::compKey(keybase,sKeyRg), cd.typicalrg_ );
+	iop.set( IOPar::compKey(keybase,sKey::Default), cd.defaultval_ );
 	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc), cd.desc_ );
     }
 }

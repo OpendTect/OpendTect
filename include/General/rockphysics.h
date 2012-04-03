@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.5 2012-03-01 13:01:39 cvshelene Exp $
+ RCS:		$Id: rockphysics.h,v 1.6 2012-04-03 09:15:29 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -59,9 +59,11 @@ public:
     public:
 			ConstDef( const char* nm )
 			    : NamedObject(nm)
-			    , typicalrg_(0,1)		{}
+			    , typicalrg_(0,1)
+			    , defaultval_(mUdf(float))	{}
 	BufferString	desc_;
 	Interval<float>	typicalrg_;
+	float defaultval_;
     };
     mClass VarDef : public NamedObject
     {

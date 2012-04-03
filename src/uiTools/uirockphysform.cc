@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.14 2012-03-28 13:34:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.15 2012-04-03 09:15:29 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -165,7 +165,8 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	if ( dodisp )
 	    cstflds_[idx]->updField( fm->constdefs_[idx]->name(),
 		    		     fm->constdefs_[idx]->typicalrg_,
-		   		     fm->constdefs_[idx]->desc_ );
+		   		     fm->constdefs_[idx]->desc_,
+		   		     fm->constdefs_[idx]->defaultval_ );
     }
 
     descriptionfld_->setText( fm->desc_ );
@@ -295,6 +296,8 @@ void uiRockPhysCstFld::updField( BufferString nm, Interval<float> range,
 
     if ( !mIsUdf(val) )
 	valfld_->setValue( val );
+    else
+	valfld_->clear();
 
     BufferString suffix = "Typical range is ["; suffix += range.start;
     suffix += ","; suffix += range.stop; suffix += "]";

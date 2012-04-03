@@ -3,19 +3,47 @@ Rock Physics
 Thu Feb 2 12:54:10 2012
 !
 Castagna: Velocity
-Description: This formula can convert P-wave velocity to S-wave, and vice versa.
+Description: S-wave from P-wave velocity.
 Formula: sqrt( c0*vel^2 + c1 )
 Unit: Meter/second
 Variable.0.Type: Velocity
 Variable.0.Name: Input velocity
-Variable.0.Description: The P-wave or S-wave velocity that you have available.
+Variable.0.Description: Input P-wave
 Variable.0.Unit: Meter/second
-Constant.0.Name: A
-Constant.0.Description: The fluid factor
-Constant.0.Typical Range: 0.3`0.4
-Constant.1.Name: B
-Constant.1.Description: The shift
-Constant.1.Typical Range: 0.5`1
+Constant.0.Name: a
+Constant.0.Description: scaler
+Constant.0.Typical Range: 0.1`2
+Constant.0.Default: 0.8619
+Constant.1.Name: b
+Constant.1.Description: shift
+Constant.1.Typical Range: -5000`5000
+Constant.1.Default: -1172
+!
+Acoustic Impedance from sonic: Impedance
+Description: Compute acoustic impedance from sonic and density
+Formula: density/sonic
+Unit: Kg/m2s
+Variable.0.Type: Density
+Variable.0.Name: Density
+Variable.0.Description: Density
+Variable.0.Unit: Kg/m3
+Variable.1.Type: Sonic travel time
+Variable.1.Name: Sonic
+Variable.1.Description: Input sonic
+Variable.1.Unit: Seconds/meter
+!
+Acoustic Impedance from P-wave velocity: Impedance
+Description: Compute acoustic impedance from P-wave velocity and density
+Formula: density*velocity
+Unit: Kg/m2s
+Variable.0.Type: Density
+Variable.0.Name: Density
+Variable.0.Description: Input density
+Variable.0.Unit: Kg/m3
+Variable.1.Type: Velocity
+Variable.1.Name: Velocity
+Variable.1.Description: P-wave velocity
+Variable.1.Unit: Meter/second
 !
 Porosity from Density: Volumetrics
 Description: Plain and simple.`Beware that this formula only works if the input density is always between the matrix and fluid density.
