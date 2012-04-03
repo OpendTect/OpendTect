@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.54 2012-04-03 08:56:32 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.55 2012-04-03 09:00:46 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -456,11 +456,10 @@ void uiPolygonItem::fill()
 #define mImplSetPolygon( type, ptaccess ) \
 void uiPolygonItem::setPolygon( type ptlist ) \
 { \
-    QPolygon qpolygon( ptlist.size() );\
+    QPolygonF qpolygonf( ptlist.size() );\
     for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
-	qpolygon.setPoint( idx, ptaccess[idx].x, \
-			        ptaccess[idx].y );\
-    QPolygonF qpolygonf(qpolygon);\
+	qpolygonf[idx] = QPointF( (float) ptaccess[idx].x, \
+			         (float) ptaccess[idx].y );\
     qpolygonitem_->setPolygon( qpolygonf ); \
 }
 
