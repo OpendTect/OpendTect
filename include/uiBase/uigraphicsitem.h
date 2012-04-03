@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.29 2011-04-26 14:18:29 cvsbert Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.30 2012-04-03 08:56:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,9 @@ public:
     bool		isSelected() const		{ return selected_; }
 
     uiPoint		getPos() const;
-    void		setPos( const uiPoint& p )	{ stPos(p.x,p.y); }
-    void		setPos( int x, int y )		{ stPos(x,y); }
+    void		setPos( const uiWorldPoint&);
+    void		setPos( const uiPoint& p );
+    void		setPos( float x, float y );
     void		moveBy(float x,float y);
     void		rotate(float angle);
     void		scale(float sx,float sy);
@@ -84,7 +85,7 @@ private:
     static int		getNewID();
     const int		id_;
 
-    virtual void	stPos(int,int);
+    virtual void	stPos(float,float);
 
 };
 

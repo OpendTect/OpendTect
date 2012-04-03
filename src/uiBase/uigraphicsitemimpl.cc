@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.53 2012-03-30 21:43:29 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.54 2012-04-03 08:56:32 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -421,22 +421,19 @@ uiPolygonItem::uiPolygonItem()
 {}
 
 
-uiPolygonItem::uiPolygonItem( const ODPolygon<int>& polygon, bool dofill )
-    : uiGraphicsItem(mkQtObj())
-{
-    setPolygon( polygon );
-    if ( dofill )
-	fill();
+#define mImplPolygonConstructor( type ) \
+uiPolygonItem::uiPolygonItem( type polygon, bool dofill ) \
+    : uiGraphicsItem(mkQtObj()) \
+{ \
+    setPolygon( polygon ); \
+    if ( dofill ) \
+	fill(); \
 }
 
 
-uiPolygonItem::uiPolygonItem( const TypeSet<uiPoint>& polygon, bool dofill )
-    : uiGraphicsItem(mkQtObj())
-{
-    setPolygon( polygon );
-    if ( dofill )
-	fill();
-}
+mImplPolygonConstructor( const ODPolygon<int>& )
+mImplPolygonConstructor( const TypeSet<uiPoint>& );
+mImplPolygonConstructor( const TypeSet<uiWorldPoint>& );
 
 uiPolygonItem::~uiPolygonItem()
 {
@@ -456,23 +453,21 @@ void uiPolygonItem::fill()
 }
 
 
-void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
-{
-    QPolygon qpolygon( ptlist.size() );
-    for ( int idx=0; idx<ptlist.size(); idx++ )
-	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
-    QPolygonF qpolygonf(qpolygon);
-    qpolygonitem_->setPolygon( qpolygonf );
+#define mImplSetPolygon( type, ptaccess ) \
+void uiPolygonItem::setPolygon( type ptlist ) \
+{ \
+    QPolygon qpolygon( ptlist.size() );\
+    for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
+	qpolygon.setPoint( idx, ptaccess[idx].x, \
+			        ptaccess[idx].y );\
+    QPolygonF qpolygonf(qpolygon);\
+    qpolygonitem_->setPolygon( qpolygonf ); \
 }
 
 
-void uiPolygonItem::setPolygon( const ODPolygon<int>& polygon )
-{
-    TypeSet<uiPoint> ptlist;
-    for ( int idx=0; idx<polygon.size(); idx++ )
-	ptlist += polygon.data()[idx];
-    setPolygon( ptlist );
-}
+mImplSetPolygon( const TypeSet<uiPoint>&, ptlist )
+mImplSetPolygon( const ODPolygon<int>&, ptlist.data() )
+mImplSetPolygon( const TypeSet<uiWorldPoint>&, ptlist )
 
 
 // uiPolyLineItem
@@ -488,33 +483,44 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiPoint>& ptlist )
 }
 
 
+uiPolyLineItem::uiPolyLineItem( const TypeSet<uiWorldPoint>& ptlist )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolyLine( ptlist );
+}
+
+
 uiPolyLineItem::~uiPolyLineItem()
 {
     polylines_.erase();
 }
 
-
-void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
-{
-    for ( int idx=0; idx<polylines_.size(); idx++ )
-	polylines_[idx]->setEmpty();
-
-    QPolygon qpolygon; 
-    for ( int idx=0; idx<ptlist.size(); idx++ )
-    {
-	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) )
-	{ 
-	    setPolyLine( qpolygon ); 
-	    qpolygon.clear(); 
-	    continue;
-	}
-	qpolygon.append( QPoint( ptlist[idx].x, ptlist[idx].y ) );
-    }
-    setPolyLine( qpolygon );
+#define mImpSetPolyline( type ) \
+void uiPolyLineItem::setPolyLine( type ptlist ) \
+{ \
+    for ( int idx=0; idx<polylines_.size(); idx++ ) \
+	polylines_[idx]->setEmpty(); \
+ \
+    QPolygonF qpolygon;  \
+    for ( int idx=0; idx<ptlist.size(); idx++ ) \
+    { \
+	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) ) \
+	{  \
+	    setPolyLine( qpolygon );  \
+	    qpolygon.clear();  \
+	    continue; \
+	} \
+	qpolygon.append( QPointF( ptlist[idx].x, ptlist[idx].y ) ); \
+    } \
+ \
+    setPolyLine( qpolygon ); \
 }
 
+mImpSetPolyline( const TypeSet<uiPoint>& )
+mImpSetPolyline( const TypeSet<uiWorldPoint>& )
 
-void uiPolyLineItem::setPolyLine( const QPolygon& qpolygon )
+
+void uiPolyLineItem::setPolyLine( const QPolygonF& qpolygon )
 {
     if ( qpolygon.isEmpty() ) return;
 
@@ -636,7 +642,7 @@ uiTextItem::uiTextItem( const char* txt, const Alignment& al )
 uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
 			const Alignment& al )
     : uiGraphicsItem(mkQtObj())
-    , pos_(pos)
+    , pos_(pos.x, pos.y )
     , al_(al)
 {
     setText( txt );
@@ -691,9 +697,9 @@ void uiTextItem::setAlignment( const Alignment& al )
 }
 
 
-void uiTextItem::stPos( int x, int y )
+void uiTextItem::stPos( float x, float y )
 {
-    pos_ = uiPoint(x,y); updatePos();
+    pos_ = uiWorldPoint(x,y); updatePos();
 }
 
 
@@ -727,8 +733,7 @@ void uiTextItem::updatePos()
 	    break;
     }
 
-    uiPoint newpos( mNINT(pos_.x+movex), mNINT(pos_.y+movey) );
-    qtextitem_->setPos( newpos.x, newpos.y );
+    qtextitem_->setPos( pos_.x+movex, pos_.y+movey );
 }
 
 

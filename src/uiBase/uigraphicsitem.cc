@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.32 2011-04-26 14:18:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.33 2012-04-03 08:56:32 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -82,8 +82,21 @@ uiRect uiGraphicsItem::boundingRect() const
 }
 
 
-void uiGraphicsItem::stPos( int x, int y )
+void uiGraphicsItem::setPos( float x, float y )
+{ stPos( x, y ); }
+
+
+void uiGraphicsItem::setPos( const uiPoint& p )
+{ stPos( p.x, p.y ); }
+
+
+void uiGraphicsItem::setPos( const uiWorldPoint& p )
+{ stPos( p.x, p.y ); }
+
+
+void uiGraphicsItem::stPos( float x, float y )
 { qgraphicsitem_->setPos( x, y ); }
+
 
 void uiGraphicsItem::moveBy( float x, float y )
 { qgraphicsitem_->moveBy( x, y ); }

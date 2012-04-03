@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2009
- RCS:		$Id: uigraphicscoltab.h,v 1.5 2011-04-26 14:18:29 cvsbert Exp $
+ RCS:		$Id: uigraphicscoltab.h,v 1.6 2012-04-03 08:56:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ protected:
     uiTextItem*		minvalitm_;
     uiTextItem*		maxvalitm_;
 
-    virtual void	stPos(int,int);
+    virtual void	stPos(float,float);
     void		setPixmap();
     void		setPixmapPos();
 

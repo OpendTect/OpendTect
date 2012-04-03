@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.34 2012-03-30 15:31:54 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.35 2012-04-03 08:56:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QDynamicPixmapItem;
 class QPainterPath;
-class QPolygon;
+class QPolygonF;
 class QSize;
 
 class ODGraphicsArrowItem;
@@ -174,6 +174,8 @@ mClass uiPolygonItem : public uiGraphicsItem
 public:
     			uiPolygonItem();
     			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
+    			uiPolygonItem(const TypeSet<uiWorldPoint>&,
+				      bool fill);
     			uiPolygonItem(const ODPolygon<int>&,bool fill);
     			uiPolygonItem(QGraphicsPolygonItem*);
 			~uiPolygonItem();
@@ -181,6 +183,7 @@ public:
     QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
     void		setPolygon(const TypeSet<uiPoint>&);
+    void		setPolygon(const TypeSet<uiWorldPoint>&);
     void		setPolygon(const ODPolygon<int>&);
 
 protected:
@@ -193,16 +196,18 @@ protected:
 mClass uiPolyLineItem : public uiGraphicsItem
 {
 public:
-    				uiPolyLineItem();
-    				uiPolyLineItem(const TypeSet<uiPoint>&);
-				~uiPolyLineItem();
+    			uiPolyLineItem();
+    			uiPolyLineItem(const TypeSet<uiPoint>&);
+    			uiPolyLineItem(const TypeSet<uiWorldPoint>&);
+			~uiPolyLineItem();
 
     int				nrSegments() const 
     					{ return polylines_.size(); }
     ODGraphicsPolyLineItem*	getSegment(int idx) const
     					{ return gtSegment(idx); }
 
-    void			setPolyLine(const TypeSet<uiPoint>&);
+    void		setPolyLine(const TypeSet<uiPoint>&);
+    void		setPolyLine(const TypeSet<uiWorldPoint>&);
 
     //TODO remove this when qgraphicsitemgroup can support it :
     void        		setPenStyle(const LineStyle&,bool alpha=false);
@@ -210,11 +215,11 @@ public:
     void        		setFillColor(const Color&,bool withalpha=false);
 
     QGraphicsItemGroup* 	qPolyLineItemGroup()
-					{ return qgraphicsitemgrp_; }
+				{ return qgraphicsitemgrp_; }
 
 protected:
 
-    void			setPolyLine(const QPolygon&);
+    void			setPolyLine(const QPolygonF&);
     ODGraphicsPolyLineItem*	getEmptyPolyLine();
     ODGraphicsPolyLineItem*	gtSegment(int idx) const
 				{
@@ -278,10 +283,10 @@ protected:
     QGraphicsTextItem*	qtextitem_;
 
     Alignment		al_;
-    uiPoint		pos_;
+    uiWorldPoint	pos_;
 
     void		updatePos();
-    virtual void	stPos(int,int);
+    virtual void	stPos(float,float);
 };
 
 
