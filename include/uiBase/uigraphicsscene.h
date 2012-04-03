@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.36 2011-08-24 05:57:17 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.37 2012-04-03 10:55:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,7 @@ public:
     				{ return (QGraphicsScene*)odgraphicsscene_; }
     void			copyToClipBoard();
 
+    bool			executePendingUpdates();
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;
@@ -103,13 +104,14 @@ protected:
     uiGraphicsItem*		doAddItem(uiGraphicsItem*);
     int				indexOf(int id) const;
 
+    int				queueid_;
 };
 
 
 template <class T>
 inline T* uiGraphicsScene::addItem( T* itm )
 {
-    return (T*)(itm ? itm->addToScene( this ) : itm);
+    return (T*) doAddItem( itm );
 }
 
 
