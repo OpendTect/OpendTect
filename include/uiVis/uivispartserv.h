@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.269 2011-12-16 09:27:36 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.270 2012-04-04 14:33:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,6 +382,7 @@ public:
 protected:
 
     void			createMenuCB(CallBacker*);
+    void			addToToolBarCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 
     visSurvey::Scene*		getScene(int);

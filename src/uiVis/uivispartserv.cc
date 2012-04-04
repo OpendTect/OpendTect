@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.474 2012-02-08 23:04:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.475 2012-04-04 14:33:15 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -125,11 +125,15 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , selectionmode_( Polygon )
     , selectionmodechange(this)
 {
+    changematerialmnuitem_.iconfnm = "disppars.png";
+
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
     toolbar_.ref();
+    toolbar_.createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
+    toolbar_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -1913,6 +1917,18 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 }
 
 
+void uiVisPartServer::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb ) return;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(tb->menuID()));
+    if ( !so ) return;
+
+    mAddMenuItemCond( tb, &changematerialmnuitem_, true, false,
+		      so->allowMaterialEdit() );
+}
+
+
 void uiVisPartServer::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
@@ -1953,7 +1969,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     if ( mnuid==-1 ) return;
 
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     const int id = menu->menuID();
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
