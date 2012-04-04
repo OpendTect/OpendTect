@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.11 2009-11-26 07:13:02 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.12 2012-04-04 05:14:56 cvsranojay Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0
@@ -40,9 +40,6 @@ ________________________________________________________________________
 
 #define finite		_finite
 #define atoll		_atoi64
-
-// Index variable's scope is non-ANSI. This corrects that idiocy.
-#define for				if (0) ; else for
 
 # define mMaxFilePathLength		_MAX_PATH
 
