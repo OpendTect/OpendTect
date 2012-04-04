@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.23 2012-04-04 08:04:54 cvskris Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.24 2012-04-04 08:17:52 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -144,20 +144,20 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	    szx /=2;
 	    szy /=2;
 	case MarkerStyle2D::Circle:
-	    painter.drawEllipse( -szx, -szy, 2*szx, 2*szy );
+	    painter.drawEllipse( QRectF( -szx, -szy, 2*szx, 2*szy) );
 	    break;
 
 	case MarkerStyle2D::Cross:
-	    painter.drawLine( -szx, -szy, +szx, +szy );
-	    painter.drawLine( -szx, +szy, +szx, -szy );
+	    painter.drawLine( QLineF(-szx, -szy, +szx, +szy) );
+	    painter.drawLine( QLineF(-szx, +szy, +szx, -szy) );
 	    break;
 
 	case MarkerStyle2D::HLine:
-	    painter.drawLine( -szx, 0, +szx, 0 );
+	    painter.drawLine( QLineF( -szx, 0, +szx, 0 ) );
 	    break;
 
 	case MarkerStyle2D::VLine:
-	    painter.drawLine( 0, -szy, 0, +szy );
+	    painter.drawLine( QLineF( 0, -szy, 0, +szy ) );
 	    break;
 
 	case MarkerStyle2D::Plus:
@@ -170,8 +170,10 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	    break;
 
 	case MarkerStyle2D::Triangle: {
-	    QPolygon triangle;
-	    triangle.putPoints( 0, 3, -szx, 0, 0, -2*szy, +szx, 0 );
+	    QPolygonF triangle;
+	    triangle += QPointF( -szx, 0 );
+	    triangle += QPointF( 0, -2*szy );
+	    triangle += QPointF( +szx, 0 );
 	    painter.drawPolygon( triangle );
 	    } break;
 
