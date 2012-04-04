@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.9 2012-04-02 11:58:29 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.10 2012-04-04 10:24:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,59 +29,87 @@ namespace Well { class MarkerSet; }
 
 /*! brief: UI facilities to extract well data with zrg and extraction methods!*/
 
-mClass uiWellExtractParams : public uiGroup
+mClass uiWellZRangeSelector : public uiGroup
 {
 public:
     mClass Setup
     {
 	public:
 				Setup()
-				    : withzstep_(false)
-				    , withzintime_(true)
+				    : withzintime_(true)
 				    , withzvalsel_(true)
-				    , withsampling_(false)
 				    , txtofmainfld_("Extract Between")
-				    , withextractintime_(SI().zIsTime())
 				    {}
 
-	mDefSetupMemb(bool,withzstep) 
 	mDefSetupMemb(bool,withzintime) 
 	mDefSetupMemb(bool,withzvalsel) 
-	mDefSetupMemb(bool,withsampling) 
-	mDefSetupMemb(bool,withextractintime) 
 	mDefSetupMemb(BufferString,txtofmainfld) 
     };
 
-			uiWellExtractParams(uiParent*,const Setup&);
+			uiWellZRangeSelector(uiParent*,const Setup&);
 
-    void		clear();
+    virtual void	clear();
 
     void		addMarkers(const Well::MarkerSet&);
     void		addMarkers(const BufferStringSet&);
 
-    const Well::ExtractParams& params() { return params_; }
+    void		setRangeSel( const Well::ZRangeSelector& sel )
+			{ params_ = sel;  putToScreen(); }
+    void		setRange(Interval<float> rg, bool istime);
+
+    Well::ZRangeSelector& zRangeSel() { return params_; }
 
 protected:
 
     BufferStringSet	markernms_;
-    Well::ExtractParams	params_;	
-
     uiGenInput*		abovefld_;
     uiGenInput*		belowfld_;
-    uiGenInput*		stepfld_;
-    uiCheckBox*		zistimefld_;
 
     ObjectSet<uiGenInput> zselectionflds_;
     ObjectSet<uiLabel> 	zlabelflds_;
     uiGenInput*         zchoicefld_;
 
     uiGroup*		attach_;
-    uiGenInput*		sampfld_;
 
     int			selidx_;
+    Well::ZRangeSelector params_;	
 
-    void		putToScreen();
-    void		getFromScreen(CallBacker*);
+    virtual void	putToScreen();
+    virtual void	getFromScreen(CallBacker*);
+};
+
+
+mClass uiWellExtractParams : public uiWellZRangeSelector
+{
+public:
+    mClass Setup : public uiWellZRangeSelector::Setup
+    {
+	public:
+				Setup()
+				    : withzstep_(false)
+				    , withsampling_(false)
+				    , withextractintime_(SI().zIsTime())
+				    {}
+
+	mDefSetupMemb(bool,withzstep) 
+	mDefSetupMemb(bool,withsampling) 
+	mDefSetupMemb(bool,withextractintime) 
+    };
+
+			uiWellExtractParams(uiParent*,const Setup&);
+
+    Well::ExtractParams& params() 
+    			{ return static_cast<Well::ExtractParams&>(params_); }
+
+protected:
+
+
+    uiGenInput*		stepfld_;
+    uiCheckBox*		zistimefld_;
+    uiGenInput*		sampfld_;
+
+    virtual void	putToScreen();
+    virtual void	getFromScreen(CallBacker*);
     void 		extrInTimeCB(CallBacker*);
 };
 

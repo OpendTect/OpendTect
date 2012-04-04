@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.14 2012-03-29 07:16:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.15 2012-04-04 10:24:08 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -41,9 +41,9 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 	: uiDialog( p, Setup( "Well log tools", "Select logs", mTODOHelpID ) )
 {
     setCtrlStyle( DoAndStay );
-    welllogselfld_ = new uiMultiWellLogSel(this,uiWellExtractParams::Setup()
-	    					.withextractintime(false)
-	    					.withzintime(false));
+    uiWellExtractParams::Setup su;
+    su.withzintime_ = su.withextractintime_ = false;
+    welllogselfld_ = new uiMultiWellLogSel( this, su );
     postFinalise().notify( mCB(this,uiWellLogToolWinMgr,initWin) );
 }
 

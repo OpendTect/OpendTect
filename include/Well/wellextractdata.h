@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.32 2012-04-02 13:04:33 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.33 2012-04-04 10:24:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,51 +41,70 @@ class MarkerSet;
 
 /*!\brief parameters (zrg, sampling method) to extract well data */
 
-mClass ExtractParams
+mClass ZRangeSelector
 {
 public :
-    			ExtractParams() 
-			    : zrg_( SI().zRange(true) ) { setEmpty(); }
-    			ExtractParams(const ExtractParams&);
+    			ZRangeSelector() { setEmpty(); }
+    			ZRangeSelector(const ZRangeSelector&);
+
+    enum		ZSelection { Markers, Depths, Times };
+			DeclareEnumUtils(ZSelection);
+
+    ZSelection		zselection_;
 
     static const char*	sKeyTopMrk();
     static const char*	sKeyBotMrk();
     static const char*	sKeyDataStart();
     static const char*	sKeyDataEnd();
     static const char*	sKeyLimits();
-    static const char*	sKeySamplePol();
-    static const char*	sKeyZExtractInTime();
     static const char*	sKeyZSelection();
     static const char*	sKeyZRange();
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
-    void		setEmpty();
-    bool		isOK(BufferString* errmsg=0) const;
+    virtual void	setEmpty();
+    virtual bool	isOK(BufferString* errmsg=0) const;
 
     BufferString	topmrkr_;
     BufferString	botmrkr_;
     float		above_;
     float		below_;
-    bool		extractzintime_;
 
-    enum		ZSelection { Markers, Depths, Times };
-			DeclareEnumUtils(ZSelection);
-    ZSelection		zselection_;
-    StepInterval<float> zrg_;
+    bool		isZRangeInTime() const { return zselection_ == Times; }
 
-    Stats::UpscaleType	samppol_;
-
-    StepInterval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs) const;
-    StepInterval<float>	calcFrom(const Data&,const BufferStringSet& logs) const;
-
+    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs) const;
+    Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs) const;
+    Interval<float>	zrg_; /*! raw zrg, can be in time if selection is time. 
+				  In principle should not be used. 
+				  Use calcFrom instead !*/ 
 protected:
     void		getMarkerRange(const Data&,Interval<float>&) const;
-    void		getLimitPos(const MarkerSet&,const D2TModel*,
-				bool,float&,const Interval<float>&) const;
+    void		getLimitPos(const MarkerSet&,bool,float&,
+	    			const Interval<float>&) const;
 };
 
+
+mClass ExtractParams : public ZRangeSelector
+{
+public:
+    			ExtractParams() { setEmpty(); }
+    			ExtractParams(const ExtractParams&);
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    void		setEmpty();
+    bool		isOK(BufferString* errmsg=0) const;
+
+    static const char*	sKeySamplePol();
+    static const char*	sKeyZExtractInTime();
+    float 		getZStep() const;
+
+    float		zstep_; //can be in time 
+    bool		extractzintime_;
+    Stats::UpscaleType	samppol_;
+};
 
 
 /*!\brief Collects info about all wells in store */
@@ -171,7 +190,7 @@ protected:
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
-    Interval<float>		welldahrg_;
+    Interval<float>		zrg_;
     int				dahcolnr_;
 
     void		getData(const Data&,DataPointSet&);
@@ -276,20 +295,17 @@ public:
 				const BufferStringSet& lognms);
 
 			LogSampler(const Well::Data& wd,
-				const StepInterval<float>& zrg,bool extrintime,
+				const Interval<float>& zrg, bool zrgintime,
+				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const BufferStringSet& lognms);
 			~LogSampler();
 
     //avalaible after execution
     float		getDah(int idz) const;
-    float		getDah(float zpos) const;
 
     float		getLogVal(int logidx,int idz) const;
-    float		getLogVal(int logidx,float zpos) const;
     float		getLogVal(const char* lognm,int idx) const;
-
-    int			nrSamples() const 	{ return zrg_.nrSteps()+1; }
 
     const char*		errMsg() const 
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
@@ -306,9 +322,12 @@ protected:
     Array2DImpl<float>*		data_;
 
     const Well::D2TModel* 	d2t_;
-    StepInterval<float>		zrg_;
+    Interval<float>		zrg_;
+    float			zstep_; 
+
     bool 			extrintime_;
     const BufferStringSet& 	lognms_;
+    bool			zrgisintime_;
 
     BufferString		errmsg_;
     Stats::UpscaleType 		samppol_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.8 2012-03-07 07:53:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.9 2012-04-04 10:24:08 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -103,8 +103,8 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler ls( wd_, SI().zRange(true), true, 
-	    			Stats::TakeNearest, lognms );
+    Well::LogSampler ls( wd_, SI().zRange(true), true, SI().zRange(true).step,
+			    true, Stats::TakeNearest, lognms );
     if ( !ls.execute( false ) )
 	return false;
 
