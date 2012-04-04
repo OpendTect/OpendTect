@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.73 2012-03-23 21:06:31 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.74 2012-04-04 10:14:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
 protected:
+
     Geometry::BinIDSurface*	createSectionGeometry() const;
 
     RowCol			loadedstep_;
@@ -89,10 +90,13 @@ mClass Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
-    bool			setZ(const BinID&,float z,bool addtohist);
-				//!< Writes to the first section
     float			getZ(const BinID&) const;
-				//!< Reads from the first section
+				//!< Fast: reads from the first section
+    bool			setZ(const BinID&,float z,bool addtohist);
+				//!< Fast: writes to the first section
+    virtual float		getZValue(const Coord&,bool allow_udf=true,
+	    				  int nr=0) const;
+				//!< Slow: if you need the choices
     HorSampling			range(SectionID sid=-1) const;
 
     void			removeAll();

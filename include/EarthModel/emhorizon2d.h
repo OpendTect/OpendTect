@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.29 2011-10-20 14:17:38 cvsjaap Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.30 2012-04-04 10:14:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -94,6 +94,11 @@ multiple z-values per trace is needed, multiple sections can be added. */
 mClass Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
+
+    virtual float		getZValue(const Coord&,bool allow_udf=true,
+					  int nr=0) const;
+    				//!< Convenience function. If you need speed,
+    				//!< don't use it.
 
     bool			unSetPos(const EM::PosID&,bool addtohistory);
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,

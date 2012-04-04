@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: emhorizon.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhorizon.h,v 1.7 2012-04-04 10:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -39,30 +39,33 @@ public:
 					{ return const_cast<Horizon*>(this)
 					    			->geometry(); }
 
-    void			setStratLevelID( int lvlid )
-				{ stratlevelid_ = lvlid; }
-    int				stratLevelID() const
-				{ return stratlevelid_; }
+    virtual float	getZValue(const Coord&,bool allow_udf=true,
+				  int nr=0) const = 0;
 
-    virtual void		fillPar( IOPar& par ) const
-				{
-				    Surface::fillPar( par );
-				    par.set( sKey::StratRef, stratlevelid_ );
-				}
+    void		setStratLevelID( int lvlid )
+			{ stratlevelid_ = lvlid; }
+    int			stratLevelID() const
+			{ return stratlevelid_; }
 
-    virtual bool		usePar( const IOPar& par )
-				{
-				    par.get( sKey::StratRef, stratlevelid_ );
-				    return Surface::usePar( par );
-				}
+    virtual void	fillPar( IOPar& par ) const
+			{
+			    Surface::fillPar( par );
+			    par.set( sKey::StratRef, stratlevelid_ );
+			}
+
+    virtual bool	usePar( const IOPar& par )
+			{
+			    par.get( sKey::StratRef, stratlevelid_ );
+			    return Surface::usePar( par );
+			}
 
 protected:
-    				Horizon( EMManager& emm )
-				    : Surface(emm), stratlevelid_(-1)	{}
+    			Horizon( EMManager& emm )
+			    : Surface(emm), stratlevelid_(-1)	{}
 
     virtual const IOObjContext&	getIOObjContext() const		= 0;
 
-    int				stratlevelid_;
+    int			stratlevelid_;
 };
 
 } // namespace EM

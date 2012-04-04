@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.49 2012-02-16 04:50:58 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.50 2012-04-04 10:14:46 cvsbert Exp $";
 
 #include "emhorizon2d.h"
 
@@ -378,6 +378,13 @@ Horizon2D::Horizon2D( EMManager& emm )
 
 Horizon2D::~Horizon2D()
 {}
+
+
+float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
+{
+    //TODO implement
+    return 0;
+}
 
 
 void Horizon2D::removeAll()
