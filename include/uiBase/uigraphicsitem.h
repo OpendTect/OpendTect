@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.33 2012-04-04 04:50:09 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.34 2012-04-04 08:07:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,9 +47,8 @@ public:
     void		setPos( const uiPoint& p );
     void		setPos( float x, float y );
     void		moveBy(float x,float y);
-    void		rotate(float angle);
-    void		scale(float sx,float sy);
-    void		scaleAroundXY(float sx,float sy,int x,int y);
+    void		setRotation(float angle);
+    void		setScale(float sx,float sy);
     void		setZValue(int); //<! z value decides the stacking order
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;

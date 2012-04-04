@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.36 2012-04-04 04:50:09 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.37 2012-04-04 08:07:29 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -113,14 +113,14 @@ void uiGraphicsItem::moveBy( float x, float y )
     updateTransform();
 }
 
-void uiGraphicsItem::rotate( float angle )
+void uiGraphicsItem::setRotation( float angle )
 {
     angle_ = angle;
     updateTransform();
 }
 
 
-void uiGraphicsItem::scale( float sx, float sy )
+void uiGraphicsItem::setScale( float sx, float sy )
 {
     scale_.x = sx;
     scale_.y = sy;
@@ -139,11 +139,13 @@ void uiGraphicsItem::updateTransform()
     qgraphicsitem_->setTransform( transform );
 }
 
-void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
+/*
+ * void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 {
     qgraphicsitem_->setTransform( QTransform().translate(x,y)
 	   			  .scale(sx,sy).translate(-x,-y) );
 }
+*/
 
 void uiGraphicsItem::setZValue( int zval )
 { qgraphicsitem_->setZValue( zval ); }
@@ -168,6 +170,7 @@ void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
     if ( withalpha ) color.setAlpha( col.t() );
 
     QPen qpen( color );
+    qpen.setCosmetic( true );
     agsitm->setPen( qpen );
 }
 
@@ -205,6 +208,7 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
     if ( colorwithalpha ) color.setAlpha( ls.color_.t() );
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
+    qpen.setCosmetic( true );
     agsitm->setPen( qpen );
 }
 

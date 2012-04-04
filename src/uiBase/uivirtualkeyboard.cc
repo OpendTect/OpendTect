@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.8 2011-03-08 14:21:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.9 2012-04-04 08:07:29 cvskris Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -67,7 +67,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     textline_->selectionChanged.notify( mCB(this,uiVirtualKeyboard,selChg) );
 
     uiPixmapItem* pixmapitm = new uiPixmapItem( pixmap );
-    pixmapitm->scale( keyboardscale_, keyboardscale_ );
+    pixmapitm->setScale( keyboardscale_, keyboardscale_ );
     pixmapitm->setZValue( 0 );
 
     uiGraphicsScene* scene = new uiGraphicsScene( "Virtual keyboard scene" );

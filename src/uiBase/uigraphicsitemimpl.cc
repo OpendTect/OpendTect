@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.55 2012-04-03 09:00:46 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.56 2012-04-04 08:07:29 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -490,95 +490,40 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiWorldPoint>& ptlist )
 
 
 uiPolyLineItem::~uiPolyLineItem()
-{
-    polylines_.erase();
-}
+{ }
 
 #define mImpSetPolyline( type ) \
 void uiPolyLineItem::setPolyLine( type ptlist ) \
 { \
-    for ( int idx=0; idx<polylines_.size(); idx++ ) \
-	polylines_[idx]->setEmpty(); \
- \
-    QPolygonF qpolygon;  \
+    QPainterPath path; \
+    bool newpt = true; \
     for ( int idx=0; idx<ptlist.size(); idx++ ) \
     { \
 	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) ) \
 	{  \
-	    setPolyLine( qpolygon );  \
-	    qpolygon.clear();  \
+	    newpt = true; \
 	    continue; \
 	} \
-	qpolygon.append( QPointF( ptlist[idx].x, ptlist[idx].y ) ); \
+	if ( newpt ) \
+	{ \
+	    path.moveTo( ptlist[idx].x, ptlist[idx].y ); \
+	    newpt = false; \
+	} \
+	else \
+	    path.lineTo( ptlist[idx].x, ptlist[idx].y ); \
     } \
  \
-    setPolyLine( qpolygon ); \
+    qgraphicspath_->setPath( path ); \
 }
 
 mImpSetPolyline( const TypeSet<uiPoint>& )
 mImpSetPolyline( const TypeSet<uiWorldPoint>& )
 
 
-void uiPolyLineItem::setPolyLine( const QPolygonF& qpolygon )
-{
-    if ( qpolygon.isEmpty() ) return;
-
-    ODGraphicsPolyLineItem* qpolyline = getEmptyPolyLine();
-    if ( qpolyline ) qpolyline->setPolyLine( qpolygon );
-}
-
-
-ODGraphicsPolyLineItem* uiPolyLineItem::getEmptyPolyLine() 
-{
-    ODGraphicsPolyLineItem* polyline = 0;
-    for ( int idx=0; idx<polylines_.size(); idx++ )
-    {
-	polyline = polylines_[idx];
-	if ( polyline->isEmpty() )
-	    return polyline;
-    }
-    polyline = new ODGraphicsPolyLineItem();
-    polylines_ += polyline;
-    qgraphicsitemgrp_->addToGroup( polyline );
-    return polyline;
-}
-
-
-void uiPolyLineItem::setPenStyle( const LineStyle& ls, bool alpha )
-{
-    QColor color = QColor( QRgb(ls.color_.rgb()) );
-    if ( alpha ) color.setAlpha( ls.color_.t() );
-    QBrush qbrush( color );
-    QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
-    for ( int idx=0; idx<polylines_.size(); idx++ )
-	polylines_[idx]->setPen( qpen );
-}
-
-
-void uiPolyLineItem::setPenColor( const Color& col, bool alpha )
-{
-    QColor qcol = QColor(QRgb(col.rgb()));
-    if ( alpha ) qcol.setAlpha( col.t() );
-    QPen qpen( qcol );
-    for ( int idx=0; idx<polylines_.size(); idx++ )
-	polylines_[idx]->setPen( qpen );
-}
-
-
-void uiPolyLineItem::setFillColor( const Color& col, bool alpha )
-{
-    QColor qcol = QColor(QRgb(col.rgb()));
-    if ( alpha ) qcol.setAlpha( col.t() );
-    QBrush qbrush( qcol );
-    for ( int idx=0; idx<polylines_.size(); idx++ )
-	polylines_[idx]->setBrush( qbrush );
-} 
-
-
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
-    qgraphicsitemgrp_ = new QGraphicsItemGroup();
-    return qgraphicsitemgrp_;
+    qgraphicspath_ = new QGraphicsPathItem();
+    return qgraphicspath_;
 }
 
 
@@ -910,7 +855,7 @@ void uiArrowItem::update()
     setPos( headpos_ );
     const uiPoint relvec( mNINT(diffx), mNINT(diffy) );
     const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
-    rotate( ang );
+    setRotation( ang );
 }
 
 

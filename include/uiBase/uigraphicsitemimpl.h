@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.35 2012-04-03 08:56:32 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.36 2012-04-04 08:07:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,37 +201,13 @@ public:
     			uiPolyLineItem(const TypeSet<uiWorldPoint>&);
 			~uiPolyLineItem();
 
-    int				nrSegments() const 
-    					{ return polylines_.size(); }
-    ODGraphicsPolyLineItem*	getSegment(int idx) const
-    					{ return gtSegment(idx); }
-
     void		setPolyLine(const TypeSet<uiPoint>&);
     void		setPolyLine(const TypeSet<uiWorldPoint>&);
 
-    //TODO remove this when qgraphicsitemgroup can support it :
-    void        		setPenStyle(const LineStyle&,bool alpha=false);
-    void        		setPenColor(const Color&,bool withalpha=false);
-    void        		setFillColor(const Color&,bool withalpha=false);
-
-    QGraphicsItemGroup* 	qPolyLineItemGroup()
-				{ return qgraphicsitemgrp_; }
-
 protected:
 
-    void			setPolyLine(const QPolygonF&);
-    ODGraphicsPolyLineItem*	getEmptyPolyLine();
-    ODGraphicsPolyLineItem*	gtSegment(int idx) const
-				{
-				    return !polylines_.validIdx(idx) ? 0 
-				    : const_cast<ODGraphicsPolyLineItem*>( 
-					    polylines_[idx] );
-				}
-
-
     QGraphicsItem*		mkQtObj();
-    QGraphicsItemGroup*		qgraphicsitemgrp_;
-    ObjectSet<ODGraphicsPolyLineItem> polylines_;
+    QGraphicsPathItem*		qgraphicspath_;
 };
 
 
