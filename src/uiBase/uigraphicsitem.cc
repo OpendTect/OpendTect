@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.35 2012-04-03 13:59:25 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.36 2012-04-04 04:50:09 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -31,8 +31,10 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     , scene_(0)
     , id_(getNewID())
     , selected_(false)
-{
-}
+    , translation_( 0, 0 )
+    , scale_( 1, 1 )
+    , angle_( 0 )
+{}
 
 
 uiGraphicsItem::~uiGraphicsItem()
@@ -96,17 +98,46 @@ void uiGraphicsItem::setPos( const uiWorldPoint& p )
 
 
 void uiGraphicsItem::stPos( float x, float y )
-{ qgraphicsitem_->setPos( x, y ); }
+{
+    translation_.x = x;
+    translation_.y = y;
+
+    updateTransform();
+}
 
 
 void uiGraphicsItem::moveBy( float x, float y )
-{ qgraphicsitem_->moveBy( x, y ); }
+{
+    translation_.x += x;
+    translation_.y += y;
+    updateTransform();
+}
 
 void uiGraphicsItem::rotate( float angle )
-{ qgraphicsitem_->rotate( angle ); }
+{
+    angle_ = angle;
+    updateTransform();
+}
+
 
 void uiGraphicsItem::scale( float sx, float sy )
-{ qgraphicsitem_->scale( sx, sy ); }
+{
+    scale_.x = sx;
+    scale_.y = sy;
+
+    updateTransform();
+}
+
+
+void uiGraphicsItem::updateTransform()
+{
+    QTransform transform;
+    transform.translate( translation_.x, translation_.y );
+    transform.scale( scale_.x, scale_.y );
+    transform.rotate( angle_ );
+
+    qgraphicsitem_->setTransform( transform );
+}
 
 void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 {

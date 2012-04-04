@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.32 2012-04-03 13:59:24 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.33 2012-04-04 04:50:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,11 +80,16 @@ protected:
 private:
 
     			uiGraphicsItem() : id_(0)	{}
+    void		updateTransform();
 
     static int		getNewID();
     const int		id_;
 
     virtual void	stPos(float,float);
+
+    uiWorldPoint	translation_;
+    uiWorldPoint	scale_;
+    double		angle_;
 };
 
 
