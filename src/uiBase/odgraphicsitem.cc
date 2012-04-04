@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.22 2011-06-17 05:23:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.23 2012-04-04 08:04:54 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -106,8 +106,21 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
+    const QPointF p00 = mapToScene( QPointF(0,0) );
+    const QPointF d01 = mapToScene( QPointF(0,1) )-p00;
+    const QPointF d10 = mapToScene( QPointF(1,0) )-p00;
+
+    const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
+    const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
+
+    const float szx = mstyle_->size_/xdist;
+    const float szy = mstyle_->size_/ydist;
+
     painter->setPen( pen() );
-    drawMarker( *painter );
+    if ( fill_ )
+	painter->setBrush( QColor(QRgb(fillcolor_.rgb())) );
+
+    drawMarker( *painter, mstyle_->type_, szx, szy );
 
     if ( option->state & QStyle::State_Selected )
     {
@@ -118,61 +131,54 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 }
 
 
-void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
-{
-    if ( fill_ )
-	painter.setBrush( QColor(QRgb(fillcolor_.rgb())) );
-    drawMarker( painter, mstyle_->type_, mstyle_->size_ );
-}
-
-
 void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
-					MarkerStyle2D::Type typ, int sz )
+		    MarkerStyle2D::Type typ, float szx, float szy )
 {
     switch ( typ )
     {
 	case MarkerStyle2D::Square:
-	    painter.drawRect( QRectF(-sz, -sz, 2*sz, 2*sz) );
-	break;
+	    painter.drawRect( QRectF(-szx, -szy, 2*szx, 2*szy) );
+	    break;
 	
+	case MarkerStyle2D::Target:
+	    szx /=2;
+	    szy /=2;
 	case MarkerStyle2D::Circle:
-	    painter.drawEllipse( -sz, -sz, 2*sz, 2*sz );
-	break;
+	    painter.drawEllipse( -szx, -szy, 2*szx, 2*szy );
+	    break;
 
 	case MarkerStyle2D::Cross:
-	    painter.drawLine( -sz, -sz, +sz, +sz );
-	    painter.drawLine( -sz, +sz, +sz, -sz );
-	break;
+	    painter.drawLine( -szx, -szy, +szx, +szy );
+	    painter.drawLine( -szx, +szy, +szx, -szy );
+	    break;
 
 	case MarkerStyle2D::HLine:
-	    painter.drawLine( -sz, 0, +sz, 0 );
-	break;
+	    painter.drawLine( -szx, 0, +szx, 0 );
+	    break;
 
 	case MarkerStyle2D::VLine:
-	    painter.drawLine( 0, -sz, 0, +sz );
-	break;
+	    painter.drawLine( 0, -szy, 0, +szy );
+	    break;
 
-	case MarkerStyle2D::Target:
-	    drawMarker( painter, MarkerStyle2D::Circle, sz/2 );
 	case MarkerStyle2D::Plus:
-	    drawMarker( painter, MarkerStyle2D::HLine, sz );
-	    drawMarker( painter, MarkerStyle2D::VLine, sz );
-	break;
+	    drawMarker( painter, MarkerStyle2D::HLine, szx, szy );
+	    drawMarker( painter, MarkerStyle2D::VLine, szx, szy );
+	    break;
 
 	case MarkerStyle2D::Plane:
-	    painter.drawRect( QRectF(-3*sz, -sz/2, 6*sz, sz) );
-	break;
+	    painter.drawRect( QRectF(-3*szx, -szy/2, 6*szx, szy) );
+	    break;
 
 	case MarkerStyle2D::Triangle: {
 	    QPolygon triangle;
-	    triangle.putPoints( 0, 3, -sz, 0, 0, -2*sz, +sz, 0 );
+	    triangle.putPoints( 0, 3, -szx, 0, 0, -2*szy, +szx, 0 );
 	    painter.drawPolygon( triangle );
 	    } break;
 
 	case MarkerStyle2D::Arrow:
-	    drawMarker( painter, MarkerStyle2D::VLine, 2*sz );
-	    drawMarker( painter, MarkerStyle2D::Triangle, -sz );
-	break;
+	    drawMarker( painter, MarkerStyle2D::VLine, 2*szx, 2*szy );
+	    drawMarker( painter, MarkerStyle2D::Triangle, -szx, -szy );
+	    break;
     }
 }
 
