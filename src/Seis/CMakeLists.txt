@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-04-04 08:21:06 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Geometry MMProc )
@@ -38,7 +38,6 @@ SET(OD_MODULE_SOURCES
 	    seisioobjinfo.cc
 	    seisiosimple.cc
 	    seisjobexecprov.cc
-	    seismdlscore.cc
 	    seismerge.cc
 	    seismulticubeps.cc
 	    seisparallelreader.cc
