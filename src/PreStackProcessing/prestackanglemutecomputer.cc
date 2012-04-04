@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.8 2012-01-19 09:51:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.9 2012-04-04 14:26:41 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -78,9 +78,10 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
     BinID startbid = params().hrg_.atIndex( start );
     BinID stopbid = params().hrg_.atIndex( stop );
-    HorSampling hs(false);
+    HorSampling hs(false); 
     hs.set( Interval<int>(startbid.inl,stopbid.inl), 
 	    Interval<int>(startbid.crl,stopbid.crl) );
+    hs.step = params().hrg_.step; 
     HorSamplingIterator iterator( hs );
 
     ObjectSet<PointBasedMathFunction> mutefuncs;
