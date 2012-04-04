@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.34 2012-04-04 08:07:29 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.35 2012-04-04 08:10:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,9 @@ public:
 
     int			id() const			{ return id_; }
 
+    			//Old, will be remove once all dep code is changed
+    void		rotate(float angle) { setRotation(angle); }
+    void		scale(float sx,float sy) { setScale( sx, sy ); }
 protected:
 
     			uiGraphicsItem(QGraphicsItem*);
