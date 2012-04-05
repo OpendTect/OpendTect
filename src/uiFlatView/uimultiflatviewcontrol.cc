@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.7 2012-03-15 14:41:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.8 2012-04-05 13:43:47 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -19,12 +19,14 @@ static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.7 2012-03-15 14:4
 #include "uiworld2ui.h"
 
 #include "flatviewzoommgr.h"
+#include "scaler.h"
 #include "mouseevent.h"
 #include "pixmap.h"
 
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
+    , iszoomcoupled_(true)  
     , activevwr_(0)  
 {
     parsbuts_ += parsbut_;
@@ -56,6 +58,8 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 	 zoommgrs_[vwrs_.indexOf(activevwr_)]->add( sz );
 
     activevwr_->setView( wr );
+    setZoomBoxes();
+
     zoomChanged.trigger();
 }
 
@@ -132,15 +136,53 @@ void uiMultiFlatViewControl::reInitZooms()
 }
 
 
+void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
+{
+    activevwr_ = 0;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
+	    { activevwr_ = vwrs_[idx]; break; }
+    }
+    if ( !activevwr_ ) return;
+
+    const MouseEvent& ev = 
+	activevwr_->rgbCanvas().getNavigationMouseEventHandler().event();
+    if ( mIsZero(ev.angle(),0.01) )
+	return;
+
+    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+}
+
+
 void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 {
-    FlatView::ZoomMgr* zoommgr =0;
+    if ( !activevwr_ ) return;
+    const bool zoomin = but == zoominbut_;
+    doZoom( zoomin, *activevwr_, zoommgr_ );
+}
 
-    for ( int idx=vwrs_.size()-1; idx>=0; idx-- )
+
+void uiMultiFlatViewControl::setZoomBoxes()
+{
+    if ( !iszoomcoupled_ || !activeVwr() ) return;
+
+    const uiWorldRect& masterbbox = activeVwr()->boundingBox();
+    const uiWorldRect& wr = activeVwr()->curView();
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	activevwr_ = vwrs_[idx]; zoommgr = zoommgrs_[idx];
-	const bool zoomin = but == zoominbut_;
-	doZoom( zoomin, *activevwr_, *zoommgr );
+	if ( vwrs_[idx] == activeVwr() )
+	    continue;
+
+	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
+	LinScaler sclr( masterbbox.left(), bbox.left(),
+		        masterbbox.right(), bbox.right() );
+	LinScaler sctb( masterbbox.top(), bbox.top(),
+		        masterbbox.bottom(), bbox.bottom() );
+	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
+			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
+	vwrs_[idx]->setView( newwr );
     }
 }
 

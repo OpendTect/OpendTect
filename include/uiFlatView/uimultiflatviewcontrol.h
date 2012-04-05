@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.6 2012-03-15 14:41:02 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.7 2012-04-05 13:43:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
 
     uiFlatViewer*	activeVwr() const   { return activevwr_; }
 
+    void		setZoomCoupled( bool yn ) { iszoomcoupled_ = yn; }
+
 protected:
     ObjectSet<FlatView::ZoomMgr> zoommgrs_;
     ObjectSet<uiToolBar> toolbars_;
@@ -35,14 +37,17 @@ protected:
 
     bool		handleUserClick();
     void		reInitZooms();
+    bool		iszoomcoupled_;
 
     uiFlatViewer*	activevwr_;
 
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		dataChangeCB(CallBacker*);
+    void		setZoomBoxes();
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*);
+    void		wheelMoveCB(CallBacker*);
 };
 
 #endif
