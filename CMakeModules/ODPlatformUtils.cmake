@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.35 2012-03-29 13:50:51 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.36 2012-04-05 06:35:24 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -85,5 +85,7 @@ IF(WIN32)
     ELSE()
         SET ( OD_PLFSUBDIR "win32" )
     ENDIF()
+
+    SET ( OD_GUI_SYSTEM "WIN32" )
 ENDIF()
 

@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.45 2012-03-29 11:26:24 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.46 2012-04-05 06:35:24 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -233,9 +233,19 @@ ENDIF()
 
 #Add executable targets
 IF(OD_MODULE_PROGS)
+
+    #Check if we are a ui-applications, and set OD_EXEC_GUI_SYSTEM
+    #flag accordingly.
+    IF ( OD_MODULE_INTERNAL_LIBS )
+	LIST ( FIND OD_MODULE_INTERNAL_LIBS "uiBase" INDEX )
+	IF ( NOT ${INDEX} EQUAL -1 )
+	    SET( OD_EXEC_GUI_SYSTEM ${OD_GUI_SYSTEM} )
+	ENDIF()
+    ENDIF( OD_MODULE_INTERNAL_LIBS )
+
     FOREACH( EXEC ${OD_MODULE_PROGS} )
 	GET_FILENAME_COMPONENT( TARGET_NAME ${EXEC} NAME_WE )
-	ADD_EXECUTABLE( ${TARGET_NAME} ${EXEC} )
+	ADD_EXECUTABLE( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} )
 	SET_TARGET_PROPERTIES( ${TARGET_NAME}
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
