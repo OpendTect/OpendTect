@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.20 2011-04-14 13:50:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.21 2012-04-05 13:52:41 cvsbert Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"
@@ -22,8 +22,9 @@ static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.20 2011-04-14 13:50:0
 
 
 uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
-					const uiSeisTrcBufViewer::Setup& setup )
+					const uiFlatViewMainWin::Setup& setup )
     : uiFlatViewMainWin( p, setup )      
+    , dp_(0)
 {
     viewer().setInitialSize( uiSize(420,600) );
     FlatView::Appearance& app = viewer().appearance();
@@ -38,37 +39,71 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 
 uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 {
+    releaseDP();
 }
 
 
-SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
-				Seis::GeomType geom, const char* category,
-				const char* dpname, int compnr )
+void uiSeisTrcBufViewer::releaseDP()
 {
-    if ( !tbuf ) return 0;
-    const int sz = tbuf->size();
-    if ( sz < 1 ) return 0;
-    const int type = sz < 2 ? (int)SeisTrcInfo::TrcNr
-	: tbuf->get(0)->info().getDefaultAxisFld( geom, &tbuf->get(1)->info() );
-
-    SeisTrcBufDataPack* dp =
-	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type,
-				category, compnr );
-    dp->setName( dpname );
-    DPM( DataPackMgr::FlatID() ).add( dp );
-    viewer().addPack( dp->id() );
-
-    int w = 250 + sz; if ( w > 600 ) w = 600;
-    viewer().setInitialSize( uiSize(w,500) );
-    return dp;
+    if ( dp_ )
+	DPM( DataPackMgr::FlatID() ).release( dp_->id() );
+    dp_ = 0;
 }
 
 
-SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
-				Seis::GeomType geom, const char* category,
+void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
+				 Seis::GeomType geom, const char* cat,
+				 const char* dpname, int compnr, bool mine )
+{
+    releaseDP();
+    const int sz = tbuf.size();
+    if ( sz < 1 ) return;
+
+    const SeisTrcInfo::Fld type = (SeisTrcInfo::Fld)
+	(sz < 2 ? (int)SeisTrcInfo::TrcNr
+	: tbuf.first()->info().getDefaultAxisFld( geom, &tbuf.get(1)->info() ));
+
+    if ( mine )
+	dp_ = new SeisTrcBufDataPack( const_cast<SeisTrcBuf*>(&tbuf), geom,
+				     type, cat, compnr );
+    else
+	dp_ = new SeisTrcBufDataPack( tbuf, geom, type, cat, compnr );
+    dp_->setName( dpname );
+
+    DPM( DataPackMgr::FlatID() ).addAndObtain( dp_ );
+    const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
+    viewer().addPack( dp_->id(), !mine );
+    if ( ddpars.wva_.show_ )
+	viewer().usePack( true, dp_->id() );
+    if ( ddpars.vd_.show_ )
+	viewer().usePack( false, dp_->id() );
+
+    int w = 200 + 2*sz; if ( w > 600 ) w = 600;
+    int h = 150 + 5*tbuf.first()->size(); if ( h > 500 ) h = 500;
+    viewer().setInitialSize( uiSize(w,h) );
+}
+
+
+void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf* tbuf,
+				Seis::GeomType geom, const char* cat,
 				const char* dpname, int compnr )
 {
-    return setTrcBuf( new SeisTrcBuf( tbuf ), geom, category, dpname, compnr );
+    if ( tbuf )
+	setBuf( *tbuf, geom, cat, dpname, compnr, false );
+}
+
+
+void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
+				Seis::GeomType geom, const char* cat,
+				const char* dpname, int compnr )
+{
+    setBuf( *new SeisTrcBuf(tbuf), geom, cat, dpname, compnr, true );
+}
+
+
+void uiSeisTrcBufViewer::selectDispTypes( bool wva, bool vd )
+{
+    viewer().appearance().ddpars_.show( wva, vd );
 }
 
 

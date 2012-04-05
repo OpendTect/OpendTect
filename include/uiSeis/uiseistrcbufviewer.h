@@ -6,51 +6,57 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.14 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.15 2012-04-05 13:52:41 cvsbert Exp $
 _______________________________________________________________________
 
 -*/
 
 
-#include "flatview.h"
 #include "seistype.h"
-#include "seisbufadapters.h"
-#include "seisbuf.h"
-
 #include "uiflatviewmainwin.h"
-
-
 class BufferString;
+class SeisTrcBuf;
+class SeisTrcBufDataPack;
 
+
+/*! Displays SeisTrcBuf's
+
+  Sequence is: Construct - setTrcBuf - start() - handleBufChange().
+
+*/
 
 mClass uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
 public:
 
-    mClass Setup : public uiFlatViewMainWin::Setup
-    {
-    public:
-			Setup( const char* wt, const int nv )
-			    : uiFlatViewMainWin::Setup(wt) 	
-			    , nrvwrs_(nv)				{}
-        mDefSetupMemb(BufferString, wintitl)
-        mDefSetupMemb(int, nrvwrs)
-    };		    
-    				
 			uiSeisTrcBufViewer(uiParent*,
-				           const uiSeisTrcBufViewer::Setup&) ;
+				           const uiFlatViewMainWin::Setup&) ;
     			~uiSeisTrcBufViewer();
 
-    SeisTrcBufDataPack*	setTrcBuf(SeisTrcBuf*,Seis::GeomType,
+    void		setTrcBuf(const SeisTrcBuf*,Seis::GeomType,
 	                          const char*,const char* nm,int compnr=0);
-    SeisTrcBufDataPack*	setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
+    			//!< This uses the buf in-place
+    void		setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
 	    			  const char*,const char* nm,int compnr=0);
+    			//!< This makes a copy of the buf
+
+    SeisTrcBufDataPack*	dataPack()		{ return dp_; }
     void		handleBufChange();
     void		clearData();
+
+    // Convenience
+    void		selectDispTypes(bool wva,bool vd);
 
     uiFlatViewer*	getViewer()		{ return &viewer(); }
 
 protected:
+
+    SeisTrcBufDataPack*	dp_;
+
+    void	setBuf(const SeisTrcBuf&,Seis::GeomType,
+		       const char*,const char* nm,int compnr,bool);
+    void	releaseDP();
+
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.32 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.33 2012-04-05 13:52:41 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uisegyexamine.cc,v 1.32 2011-12-14 13:16:41 cvs
 #include "msgh.h"
 #include "seistrc.h"
 #include "seisread.h"
+#include "seisbuf.h"
 #include "segytr.h"
 #include "segyhdr.h"
 #include "iopar.h"
@@ -164,16 +165,14 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    uiSeisTrcBufViewer::Setup su( "Trace display", 1 );
-    uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this, su );
-    SeisTrcBufDataPack* dp = vwr->setTrcBuf( tbuf_, Seis::Line, "Examine",
-				      FilePath(setup_.fs_.fname_).fileName() );
-    vwr->getViewer()->usePack( true, dp->id(), true );
-    vwr->getViewer()->usePack( false, dp->id(), true );
-    vwr->getViewer()->appearance().ddpars_.show( true, true );
-    vwr->start();
-    vwr->handleBufChange();
-    vwr->show();
+    const BufferString fnm( FilePath(setup_.fs_.fname_).fileName() );
+    BufferString wintitle( "First ", tbuf_.size(), " traces from " );
+    wintitle.add( fnm );
+    uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
+	    			uiSeisTrcBufViewer::Setup(wintitle) );
+    vwr->selectDispTypes( true, true );
+    vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "SEG-Y Examiner" );
+    vwr->start(); vwr->handleBufChange();
 }
 
 

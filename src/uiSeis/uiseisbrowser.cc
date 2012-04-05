@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.60 2011-12-26 14:12:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.61 2012-04-05 13:52:41 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -339,7 +339,6 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
 	tbuf_.get(idx)->info().nr = idx;
 
     fillTable();
-    //setZ( z );
     return true;
 }
 
@@ -667,7 +666,7 @@ bool init()
 	return false;
     }
     StreamConn* conno = new StreamConn( safeio_->strmdata() );
-    if ( !tro_->initWrite( conno, *tbufchgdtrcs_.get(0)) )
+    if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
     {
 	uiMSG().error( "Unable to write" );
 	return false;
@@ -739,23 +738,19 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( "", 1 );
+	uiSeisTrcBufViewer::Setup stbvsetup( "" );
 	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
-	SeisTrcBufDataPack* dp =
-	    trcbufvwr_->setTrcBuf ( &tbuf_, setup_.geom_, "Seismics",
-		    		    IOM().nameOf(setup_.id_), compnr_ );
-	if ( (dp->trcBuf().isEmpty()) )
-	{
-	    uiMSG().error( "No data present in the specified position " );
-	    return;
-	}
-	dp->trcBufArr2D().setBufMine( false );
-	trcbufvwr_->getViewer()->usePack( true, dp->id(), false );
-	trcbufvwr_->start();
-	trcbufvwr_->handleBufChange();
+	trcbufvwr_->selectDispTypes( true, false );
 	trcbufvwr_->windowClosed.notify(
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
+
+	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
+		    		    IOM().nameOf(setup_.id_), compnr_ );
+	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
+
+	if ( (tbuf_.isEmpty()) )
+	    uiMSG().error( "No data at the specified position " );
     }
 
     updateWiggleButtonStatus();
