@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.133 2012-04-02 15:06:17 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.134 2012-04-05 12:20:32 cvskris Exp $";
 
 #include "uiflatviewer.h"
 
@@ -999,3 +999,39 @@ void uiFlatViewer::disableReSizeDrawNotifier()
 {
     canvas_.reSize.remove( mCB(this,uiFlatViewer,reSizeDraw) );
 }
+
+
+FlatView::AuxData* uiFlatViewer::createAuxData(const char* nm) const
+{ return new FlatView::AuxData(nm); }
+
+
+FlatView::AuxData* uiFlatViewer::getAuxData(int idx)
+{ return auxdata_[idx]; }
+
+
+const FlatView::AuxData* uiFlatViewer::getAuxData(int idx) const
+{ return auxdata_[idx]; }
+
+
+int uiFlatViewer::nrAuxData() const
+{ return auxdata_.size(); }
+
+
+void uiFlatViewer::addAuxData( FlatView::AuxData* a )
+{ auxdata_ += a; }
+
+
+FlatView::AuxData* uiFlatViewer::removeAuxData( FlatView::AuxData* a )
+{
+    return removeAuxData( auxdata_.indexOf( a ) );
+}
+
+
+FlatView::AuxData* uiFlatViewer::removeAuxData( int idx )
+{
+    if ( idx==-1 )
+	return 0;
+
+    return auxdata_.remove(idx);
+}
+

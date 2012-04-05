@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.52 2012-04-02 15:06:16 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.53 2012-04-05 12:20:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,14 @@ public:
     void		reGenerate(FlatView::AuxData&);
     void		remove(const FlatView::AuxData&);
 
+    FlatView::AuxData*		createAuxData(const char* nm) const;
+    int				nrAuxData() const;
+    FlatView::AuxData*		getAuxData(int idx);
+    const FlatView::AuxData*	getAuxData(int idx) const;
+    void			addAuxData(FlatView::AuxData* a);
+    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a);
+    FlatView::AuxData*		removeAuxData(int idx);
+
 protected:
 
     uiRGBArrayCanvas&		canvas_;
@@ -154,6 +162,8 @@ protected:
 
     friend class		uiFlatViewControl;
     uiFlatViewControl*		control_;
+
+    ObjectSet<FlatView::AuxData>	auxdata_;
 };
 
 #endif
