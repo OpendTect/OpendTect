@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.20 2012-03-28 15:20:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.21 2012-04-05 12:54:09 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -127,7 +127,7 @@ void uiWellDisplay::setInitialSize()
     setPrefWidth( newwidth ); 
     setPrefHeight( initheight );
 
-    size_ = uiSize( newwidth, initheight ); 
+    size_ = uiSize( newwidth, initheight );  
 }
 
 
