@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.69 2012-04-02 15:06:17 cvskris Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.70 2012-04-05 12:18:23 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -202,25 +202,6 @@ FlatView::Annotation::Annotation( bool drkbg )
 FlatView::Annotation::~Annotation()
 {
 }
-
-
-/*
-bool FlatView::Annotation::haveAux() const
-{
-    if ( !showaux_ ) return false;
-
-    for ( int idx=auxdata_.size()-1; idx>=0; idx-- )
-    {
-	if ( auxdata_[idx]->enabled_ )
-	{
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-*/
 
 
 #define mIOPDoAxes(fn,keynm,memb) \
@@ -455,8 +436,6 @@ FlatView::Viewer::~Viewer()
 	if ( !obs_[idx] )
 	    dpm_.release( ids_[idx] );
     }
-
-    deepErase( auxdata_ );
 }
 
 
@@ -616,38 +595,3 @@ const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
     const FlatPosData& pd = dp->posData();
     return pd.range( forx1 );
 }
-
-
-
-FlatView::AuxData* FlatView::Viewer::createAuxData(const char* nm) const
-{ return new AuxData(nm); }
-
-
-FlatView::AuxData* FlatView::Viewer::getAuxData(int idx) 
-{ return auxdata_[idx]; }
-
-
-const FlatView::AuxData* FlatView::Viewer::getAuxData(int idx) const
-{ return auxdata_[idx]; }
-
-
-int FlatView::Viewer::nrAuxData() const
-{ return auxdata_.size(); }
-
-
-void FlatView::Viewer::addAuxData( FlatView::AuxData* a )
-{ auxdata_ += a; }
-
-
-FlatView::AuxData* FlatView::Viewer::removeAuxData( FlatView::AuxData* a )
-{ auxdata_ -= a; return a; }
-
-
-FlatView::AuxData* FlatView::Viewer::removeAuxData(int idx)
-{ return auxdata_.remove(idx); }
-
-
-const ObjectSet<FlatView::AuxData>& FlatView::Viewer::auxdata() const
-{ return auxdata_; }
-
-

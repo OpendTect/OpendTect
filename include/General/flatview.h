@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.60 2012-04-02 15:06:16 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.61 2012-04-05 12:18:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ namespace FlatView
 typedef Geom::Point2D<double> Point;
 typedef Geom::PosRectangle<double> Rect;
 
+/*!Class that represenents non-bitmap data to be displayed in a flatviewer,
+   such as markers, lines and more */
+
 mClass AuxData
 {
 public:
@@ -47,28 +50,29 @@ public:
 	bool		x1rg_;
 	bool		x2rg_;
     };
-			    ~AuxData();
-    virtual AuxData*	clone() const { return new AuxData(*this); }
+    virtual			~AuxData();
+    virtual AuxData*		clone() const { return new AuxData(*this); }
 
-    EditPermissions*	editpermissions_;//!<If null no editing allowed
+    EditPermissions*		editpermissions_;//!<If null no editing allowed
 
     bool			enabled_; 	//!<Turns on/off everything
     BufferString		name_;
-    Alignment		namealignment_;
-    int			namepos_;	//!<nodraw=udf, before first=-1,
+    Alignment			namealignment_;
+    int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
-    LineStyle		linestyle_;
+    LineStyle			linestyle_;
     Color			fillcolor_;
     TypeSet<MarkerStyle2D>	markerstyles_;
-    int			zvalue_; 	//overlay zvalue ( max=on top )
+    int				zvalue_; 	//overlay zvalue ( max=on top )
     bool			areMarkersVisible() const;
 
-    Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
-    Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom
+    Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
+    Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
 
     TypeSet<Point>		poly_;
 
-    TypeSet<int>		dispids_;	//!<ids of corresponding displed						//!<object
+    TypeSet<int>		dispids_;	//!<ids of corresponding displed
+    						//!<object
     bool			displayed_;
 
     bool			close_;
@@ -76,7 +80,8 @@ public:
     bool			isEmpty() const;
     void			empty();
 
-protected:
+//protected:
+//Temporary public, will be protected.
 			    friend class Viewer;
 			    AuxData( const char* nm );
 			    AuxData( const AuxData& );
@@ -349,16 +354,14 @@ public:
     virtual Interval<float> getDataRange(bool wva) const
     			{ return Interval<float>(mUdf(float),mUdf(float)); }
 
-    virtual AuxData*		createAuxData(const char* nm) const;
+    virtual AuxData*		createAuxData(const char* nm) const	= 0;
 
-    int				nrAuxData() const; 
-    AuxData* 			getAuxData(int idx);
-    const AuxData* 		getAuxData(int idx) const;
-    virtual void		addAuxData(AuxData* a);
-    virtual AuxData*		removeAuxData(AuxData* a);
-    virtual AuxData*		removeAuxData(int idx);
-
-    const ObjectSet<AuxData>&	auxdata() const;
+    virtual int			nrAuxData() const			= 0;
+    virtual AuxData* 		getAuxData(int idx)			= 0;
+    virtual const AuxData* 	getAuxData(int idx) const		= 0;
+    virtual void		addAuxData(AuxData* a)			= 0;
+    virtual AuxData*		removeAuxData(AuxData* a)		= 0;
+    virtual AuxData*		removeAuxData(int idx)			= 0;
 
 protected:
 
@@ -371,10 +374,6 @@ protected:
     FlatView_CB_Rcvr*		cbrcvr_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
-protected:
-    ObjectSet<AuxData>		auxdata_;
-
-
 };
 
     static const char*	sKeyAllowUserChange();
