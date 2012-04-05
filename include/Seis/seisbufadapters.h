@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.13 2011-04-24 10:06:45 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.14 2012-04-05 13:51:47 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -25,8 +25,8 @@ mClass SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
-    			SeisTrcBufArray2D(const SeisTrcBuf&);
-    			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr=0);
+    			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr);
+    			SeisTrcBufArray2D(const SeisTrcBuf&,int compnr);
 			~SeisTrcBufArray2D();
 
     bool		isOK() const		{ return true; }
@@ -44,6 +44,7 @@ public:
     void		setComp( int ic )	{ comp_ = ic; }
     int			getComp() const		{ return comp_; }
 
+    bool		bufIsMine() const	{ return bufmine_; }
     void		setBufMine( bool yn )	{ bufmine_ = yn; }
 
 protected:
@@ -65,10 +66,15 @@ public:
     			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
+			//!< buf becomes mine
+    			SeisTrcBufDataPack(const SeisTrcBuf&,Seis::GeomType,
+					   SeisTrcInfo::Fld,const char* categry,
+					   int compnr=0);
+			//!< buf stays yours (and must remain alive!)
 			SeisTrcBufDataPack(const SeisTrcBufDataPack&);
 
     void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
-	    			  int icomp=0);
+	    			  int icomp=0,bool manage_buf=true);
 
     bool		getCubeSampling(CubeSampling&) const;
 

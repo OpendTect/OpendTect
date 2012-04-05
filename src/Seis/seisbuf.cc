@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.53 2012-04-02 13:45:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.54 2012-04-05 13:51:47 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -368,10 +368,10 @@ SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
 }
 
 
-SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf )
+SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
     : buf_(const_cast<SeisTrcBuf&>(tbuf))
     , info_(*new SeisTrcBufArray2DInfo(tbuf))
-    , comp_(0)
+    , comp_(icomp)
     , bufmine_(false)
 {
 }
@@ -417,28 +417,43 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
     , gt_(gt)
     , posfld_(fld)
 {
-    setBuffer( tbuf, gt, fld, icomp );
+    setBuffer( tbuf, gt, fld, icomp, true );
+}
+
+
+SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBuf& tbuf,
+					Seis::GeomType gt,
+					SeisTrcInfo::Fld fld,
+					const char* cat, int icomp )
+    : FlatDataPack( cat )
+    , gt_(gt)
+    , posfld_(fld)
+{
+    setBuffer( const_cast<SeisTrcBuf*>(&tbuf), gt, fld, icomp, false );
 }
 
 
 SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     : FlatDataPack( b.category(), 0 )
 {
-    SeisTrcBuf* buf = b.trcBuf().clone();
-    setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp() );
+    const bool bufisours =
+		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
+    SeisTrcBuf* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
+    if ( bufisours )
+	buf = buf->clone();
+    setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
 }
     
 
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
-				    SeisTrcInfo::Fld fld, int icomp )
+				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
-    delete arr2d_;
-    arr2d_ = 0;
+    delete arr2d_; arr2d_ = 0;
     if ( !tbuf )
 	return;
 
-    arr2d_ = new SeisTrcBufArray2D( *tbuf, true, icomp );
+    arr2d_ = new SeisTrcBufArray2D( *tbuf, mine, icomp );
     const int tbufsz = tbuf->size();
     posfld_ = fld;
     gt_ = gt;
