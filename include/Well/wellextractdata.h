@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.33 2012-04-04 10:24:08 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.34 2012-04-05 14:06:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,9 @@ mClass InfoCollector : public ::Executor
 {
 public:
 
-			InfoCollector(bool wellloginfo=true,bool markers=true);
+			InfoCollector(bool wellloginfo=true,
+				      bool markers=true,
+				      bool trackinfo=false);
 			~InfoCollector();
 
     int			nextStep();
@@ -129,7 +131,7 @@ public:
     				//!< If selected, same size as ids()
     const ObjectSet<BufferStringSet>& logs() const { return logs_; }
     				//!< If selected, same size as ids()
-    const StepInterval<float>	getLogsDahRange() const { return logsdahrg_; }
+    const StepInterval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
 protected:
 
@@ -143,7 +145,8 @@ protected:
     BufferString		curmsg_;
     bool			domrkrs_;
     bool			dologs_;
-    Interval<float>		logsdahrg_;
+    bool			dotracks_;
+    Interval<float>		trackstvdrg_;
 
 };
 

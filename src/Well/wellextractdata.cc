@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.73 2012-04-04 10:24:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.74 2012-04-05 14:06:35 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -62,10 +62,11 @@ DefineEnumNames(ZRangeSelector,ZSelection,0,"Type of selection")
 static const char* sKeyDAHColName()	    { return "<MD>"; }
 
 
-Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
+Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     : Executor("Well information extraction")
     , domrkrs_(domarkers)
     , dologs_(dologs)
+    , dotracks_(dotracks)     
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
@@ -101,16 +102,6 @@ int Well::InfoCollector::nextStep()
 	    BufferStringSet* newlognms = new BufferStringSet;
 	    wr.getLogInfo( *newlognms );
 	    logs_ += newlognms;
-
-
-	    if ( mIsUdf(logsdahrg_.start) )
-		logsdahrg_ = wr.getAllLogsDahRange();
-	    else 
-	    {
-		StepInterval<float> dahrg = wr.getAllLogsDahRange();
-		if ( !mIsUdf( dahrg.start ) )
-		    logsdahrg_.include( dahrg );
-	    }
 	}
 	if ( domrkrs_ )
 	{
@@ -118,6 +109,20 @@ int Well::InfoCollector::nextStep()
 	    markers_ += newset;
 	    if ( wr.getMarkers() )
 		deepCopy( *newset, wd.markers() );
+	}
+	if ( dotracks_ )
+	{
+	    wr.getTrack();
+	    const Well::Track& trk = wd.track();
+	    if ( mIsUdf(trackstvdrg_.start) )
+		trackstvdrg_.set( trk.pos(0).z, trk.pos(trk.size()-1).z );
+	    else 
+	    {
+		Interval<float> tvdrg;
+		tvdrg.set( trk.pos(0).z, trk.pos(trk.size()-1).z );
+		if ( !mIsUdf( tvdrg.start ) )
+		    trackstvdrg_.include( tvdrg );
+	    }
 	}
     }
 
@@ -187,8 +192,8 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
 Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj, 
 					const BufferStringSet& lognms ) const 
 {
-    if ( zselection_ != Markers )
-	return zrg_; 
+    if ( zselection_ == Times )
+	return zrg_;
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
@@ -198,6 +203,14 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     wr.getTrack(); 
     wr.getD2T(); 
     wr.getMarkers();
+
+    if ( zselection_ == Depths )
+    {
+	const Well::Track& track = wd.track();
+	dahrg.start = track.getDahForTVD( zrg_.start );
+	dahrg.stop = track.getDahForTVD( zrg_.stop );
+	return dahrg;
+    }
 
     if ( lognms.isEmpty() )
 	{ mGetTrackRg( dahrg ); }
@@ -222,10 +235,19 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
 Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 					const BufferStringSet& lognms ) const 
 {
-    if ( zselection_ != Markers )
-	return zrg_; 
+    if ( zselection_ == Times )
+	return zrg_;
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
+
+    if (  zselection_ == Depths )
+    {
+	const Well::Track& track = wd.track();
+	dahrg.start = track.getDahForTVD( zrg_.start );
+	dahrg.stop = track.getDahForTVD( zrg_.stop );
+	return dahrg;
+    }
+
     int ilog = 0;
 
     if ( lognms.isEmpty() )
@@ -419,7 +441,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 {
     float dahincr = SI().zStep() * .5;
     if ( SI().zIsTime() )
-    dahincr = 2000 * dahincr; //As dx = v * dt, Using v = 2000 m/s
+	dahincr = 2000 * dahincr; //As dx = v * dt, Using v = 2000 m/s
 
     BinIDValue biv; 
     const Well::D2TModel* d2t = wd.d2TModel();
