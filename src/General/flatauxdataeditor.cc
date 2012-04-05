@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.48 2012-04-02 15:06:17 cvskris Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.49 2012-04-05 12:19:20 cvskris Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -85,7 +85,17 @@ bool AuxDataEditor::removeSelectionPolygon()
 
 int AuxDataEditor::addAuxData( FlatView::AuxData* nd, bool doedit )
 {
-    if ( viewer_.auxdata().indexOf( nd )==-1 )
+    bool found = false;
+    for ( int idx=viewer_.nrAuxData()-1; idx>=0; idx-- )
+    {
+	if ( viewer_.getAuxData(idx)==nd )
+	{
+	    found = true;
+	    break;
+	}
+    }
+
+    if ( !found ) 
     {
 	pErrMsg("Auxdata not present in viewer");
 	return -1;
