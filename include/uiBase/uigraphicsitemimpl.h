@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.36 2012-04-04 08:07:29 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.37 2012-04-05 12:06:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,12 +137,14 @@ public:
     					uiDynamicPixmapItem();
 					~uiDynamicPixmapItem();
     
+    void				setBasePixmap(const ioPixmap&,
+						      const uiWorldRect&);
     NotifierAccess&			needsData();
     const Geom::PosRectangle<float>&	neededData() const;
     float				pixelSpacing() const;
 
-    void				setPixmap(ioPixmap*,
-	    				    const Geom::PosRectangle<float>&);
+    void				setDynamicPixmap(ioPixmap*,
+							 const uiWorldRect&);
 
 protected:
     QGraphicsItem*			mkQtObj();

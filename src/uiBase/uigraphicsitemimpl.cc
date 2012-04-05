@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.56 2012-04-04 08:07:29 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.57 2012-04-05 12:06:23 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -276,9 +276,28 @@ class QDynamicPixmapItem : public QGraphicsItem, public CallBacker
 {
 public:
     QDynamicPixmapItem()
-	: paintingitem_( 0 )
-	, needsData( this )
+	: needsData( this )
+	, bbox_( 0, 0, 1, 1 )
     {}
+
+    ~QDynamicPixmapItem()
+    { }
+
+    void setBasePixmap( const QPixmap& p, const QRectF& rect )
+    {
+	basepixmap_ = p;
+	bbox_ = rect;
+    }
+
+    void setDynamicPixmap( const QPixmap& p, const QRectF& rect )
+    {
+	if ( !dynamicpixmap_ )
+	    dynamicpixmap_ = new QPixmap( p );
+	else
+	    *dynamicpixmap_ = p;
+
+	dynamicbbox_ = rect;
+    }
 
     const Geom::PosRectangle<float>& neededData() const
     { return neededdata_; }
@@ -288,8 +307,7 @@ public:
 
     QRectF boundingRect() const
     {
-	//TODO
-	return QRectF();
+	return bbox_;
     }
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -300,8 +318,28 @@ public:
 	    needsData.trigger();
 	}
 
-	if ( paintingitem_ )
-	    paintingitem_->paint( painter, option, widget );
+	if ( dynamicpixmap_ )
+	    paintPixmap( painter, *dynamicpixmap_, dynamicbbox_ );
+	else
+	    paintPixmap( painter, basepixmap_, bbox_ );
+    }
+
+
+    void paintPixmap( QPainter* painter, const QPixmap& pixmap,
+	    const QRectF& wrect ) const
+    {
+	// This should work, but it does not
+	//painter->drawPixmap( bbox_, basepixmap_,
+	//	     		 QRectF(basepixmap_.rect()) );
+       
+	const QRect scenerect =
+	    painter->worldTransform().mapRect(wrect).toRect();
+
+	painter->save();
+	painter->resetTransform();
+
+	painter->drawPixmap( scenerect, pixmap );
+	painter->restore();
     }
 
     bool updateResolution( const QPainter* painter )
@@ -332,7 +370,10 @@ protected:
     Geom::PosRectangle<float>		neededdata_;
     float				pixelspacing_;
 
-    ODGraphicsPixmapItem*		paintingitem_;
+    PtrMan<QPixmap>			dynamicpixmap_;
+    QRectF				dynamicbbox_;
+    QPixmap				basepixmap_;
+    QRectF				bbox_;
 };
 
 
@@ -344,6 +385,14 @@ uiDynamicPixmapItem::uiDynamicPixmapItem()
 
 uiDynamicPixmapItem::~uiDynamicPixmapItem()
 {}
+
+
+void uiDynamicPixmapItem::setBasePixmap( const ioPixmap& pixmap,
+					 const uiWorldRect& wr )
+{
+    item_->setBasePixmap( *pixmap.qpixmap(),
+	      QRectF( wr.left(), wr.top(), wr.width(), wr.height() ) );
+}
 
 
 NotifierAccess& uiDynamicPixmapItem::needsData()
