@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visscalebar.h,v 1.1 2012-04-02 22:39:38 cvsnanne Exp $
+ RCS:		$Id: visscalebar.h,v 1.2 2012-04-06 22:10:28 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,15 +33,23 @@ public:
     void			setPick(const Pick::Location&);
     void			setDisplayTransformation(const mVisTrans*);
     void			setLineWidth(int);
+    void			setLength(double);
+    void			setOrientation(int);
 
 protected:
 				~ScaleBar();
+
+    Coord3			getSecondPos(const Pick::Location&) const;
+    void			updateVis(const Pick::Location&);
 
     visBase::Marker*		marker1_;
     visBase::Marker*		marker2_;
     visBase::IndexedPolyLine*	polyline_;
     visBase::DrawStyle*		linestyle_;
     const mVisTrans*		displaytrans_;
+    double			length_;
+    int				orientation_;
+    Pick::Location&		firstloc_;
 };
 
 /*!\brief
@@ -53,27 +61,30 @@ class ScaleBarDisplay : public visSurvey::LocationDisplay
 public:
     static ScaleBarDisplay*	create()
 				mCreateDataObj(ScaleBarDisplay);
+    				~ScaleBarDisplay();
 
     void			setScene(visSurvey::Scene*);
 
-    enum Orientation		{ Horizontal, Vertical };
-    void			setOrientation(Orientation);
-    Orientation			getOrientation() const;
+    void			setOrientation(int);
+    int				getOrientation() const;
 
     void			setLineWidth(int);
     int				getLineWidth() const;
+    void			setLength(double);
+    double			getLength() const;
 
 protected:
-    				~ScaleBarDisplay();
 
     void			zScaleCB(CallBacker*);
     void			dispChg(CallBacker*);
     visBase::VisualObject*	createLocation() const;
     void			setPosition(int,const Pick::Location&);
-    bool			hasDirection() const { return true; }
+    int				isMarkerClick(const TypeSet<int>&) const;
+    bool			hasDirection() const { return false; }
 
-    Orientation			orientation_;
+    int				orientation_;
     int				linewidth_;
+    double			length_;
 };
 
 

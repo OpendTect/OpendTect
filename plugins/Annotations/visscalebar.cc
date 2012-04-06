@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscalebar.cc,v 1.1 2012-04-02 22:39:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: visscalebar.cc,v 1.2 2012-04-06 22:10:28 cvsnanne Exp $";
 
 #include "visscalebar.h"
 
@@ -28,18 +28,27 @@ namespace Annotations
 ScaleBar::ScaleBar()
     : visBase::VisualObjectImpl(true)
     , displaytrans_(0)
+    , length_(1000)
+    , firstloc_(*new Pick::Location)
+    , orientation_(0)
 {
+    firstloc_.pos = Coord3::udf();
+    setMaterial( 0 );
+
     linestyle_ = visBase::DrawStyle::create();
     linestyle_->ref();
     insertChild( 0, linestyle_->getInventorNode() );
+    setLineWidth( 2 );
 
     marker1_ = visBase::Marker::create();
     marker1_->setMaterial( 0 );
+    marker1_->setMarkerStyle( MarkerStyle3D::Sphere );
     marker1_->ref();
     addChild( marker1_->getInventorNode() );
 
     marker2_ = visBase::Marker::create();
     marker2_->setMaterial( 0 );
+    marker2_->setMarkerStyle( MarkerStyle3D::Sphere );
     marker2_->ref();
     addChild( marker2_->getInventorNode() );
 
@@ -52,6 +61,7 @@ ScaleBar::ScaleBar()
 
 ScaleBar::~ScaleBar()
 {
+    delete &firstloc_;
     linestyle_->unRef();
     marker1_->unRef();
     marker2_->unRef();
@@ -60,15 +70,69 @@ ScaleBar::~ScaleBar()
 }
 
 
+void ScaleBar::setLength( double l )
+{
+    if ( length_ == l )
+	return;
+
+    length_ = l;
+    updateVis( firstloc_ );
+}
+
+
+void ScaleBar::setOrientation( int orient )
+{
+    if ( orientation_ == orient )
+	return;
+
+    orientation_ = orient;
+    updateVis( firstloc_ );
+}
+
+
 void ScaleBar::setPick( const Pick::Location& loc )
 {
-    marker1_->setCenterPos( loc.pos );
-    marker2_->setCenterPos( loc.pos );
+    firstloc_ = loc;
+    updateVis( loc );
+}
+
+
+void ScaleBar::updateVis( const Pick::Location& loc )
+{
+    if ( !loc.pos.isDefined() )
+	return;
+
+    const Coord3 pos1 = loc.pos;
+    const Coord3 pos2 = getSecondPos( loc );
+
+    marker1_->setCenterPos( pos1 );
+    marker2_->setCenterPos( pos2 );
 
     polyline_->setCoordIndex( 0, 0 );
     polyline_->setCoordIndex( 1, 1 );
-    polyline_->getCoordinates()->setPos( 0, loc.pos );
-    polyline_->getCoordinates()->setPos( 1, loc.pos );
+    polyline_->getCoordinates()->setPos( 0, pos1 );
+    polyline_->getCoordinates()->setPos( 1, pos2 );
+}
+
+
+Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
+{
+    if ( orientation_ == 1 )
+    {
+	Coord3 pos = loc.pos;
+	pos.z += length_;
+	return pos;
+    }
+
+    Coord3 normal = spherical2Cartesian( loc.dir, true );
+    const double l2 = length_*length_;
+    const double ny2 = normal.x*normal.x;
+    const double nx2 = normal.y*normal.y;
+    const double term = 1 + nx2/ny2;
+    const double dx2 = l2 / term;
+    const double dy2 = l2 - dx2;
+    Coord3 pos = loc.pos + Coord3( sqrt(dx2), sqrt(dy2), 0 );
+    return pos;
 }
 
 
@@ -93,9 +157,10 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 
 // ScaleBarDisplay
 ScaleBarDisplay::ScaleBarDisplay()
-    : orientation_(Horizontal)
+    : orientation_(0)
+    , length_(1000)
+    , linewidth_(2)
 {
-    setLineWidth( 2 );
 }
 
 
@@ -103,21 +168,6 @@ ScaleBarDisplay::~ScaleBarDisplay()
 {
     if ( scene_ )
 	scene_->zstretchchange.remove( mCB(this,ScaleBarDisplay,zScaleCB) );
-}
-
-
-void ScaleBarDisplay::setOrientation( Orientation ortn )
-{
-    if ( orientation_ == ortn )
-	return;
-
-    orientation_ = ortn;
-
-    for ( int idx=group_->size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
-	if ( !sb ) continue;
-    }
 }
 
 
@@ -132,23 +182,43 @@ void ScaleBarDisplay::setScene( visSurvey::Scene* ns )
 }
 
 
-ScaleBarDisplay::Orientation ScaleBarDisplay::getOrientation() const
-{ return orientation_; }
+#define mToGroup( fn, val ) \
+    for ( int idx=0; idx<group_->size(); idx++ ) \
+    { \
+	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx)); \
+	if ( sb ) sb->fn( val ); \
+    }
+
+void ScaleBarDisplay::setLength( double l )
+{
+    length_ = l;
+    mToGroup( setLength, l )
+}
+
+double ScaleBarDisplay::getLength() const
+{ return length_; }
 
 
 void ScaleBarDisplay::setLineWidth( int width )
 {
     linewidth_ = width;
-    for ( int idx=group_->size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
-	if ( sb ) sb->setLineWidth( width );
-    }
+    mToGroup( setLineWidth, width )
 }
 
 
 int ScaleBarDisplay::getLineWidth() const
 { return linewidth_; }
+
+
+void ScaleBarDisplay::setOrientation( int ortn )
+{
+    orientation_ = ortn;
+    mToGroup( setOrientation, ortn )
+}
+
+
+int ScaleBarDisplay::getOrientation() const
+{ return orientation_; }
 
 
 void ScaleBarDisplay::zScaleCB( CallBacker* )
@@ -165,6 +235,9 @@ void ScaleBarDisplay::dispChg( CallBacker* cb )
 visBase::VisualObject* ScaleBarDisplay::createLocation() const
 {
     ScaleBar* sb = ScaleBar::create();
+    sb->setLineWidth( linewidth_ );
+    sb->setLength( length_ );
+    sb->setOrientation( orientation_ );
     return sb;
 }
 	
@@ -173,6 +246,19 @@ void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
     if ( sb ) sb->setPick( loc );
+}
+
+
+int ScaleBarDisplay::isMarkerClick( const TypeSet<int>& path ) const
+{
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
+	if ( sb && path.indexOf(sb->id()) != -1 )
+	    return idx;
+    }
+
+    return -1;
 }
 
 } // namespace Annotation
