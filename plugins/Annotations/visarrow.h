@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visarrow.h,v 1.5 2009-07-22 16:01:26 cvsbert Exp $
+ RCS:		$Id: visarrow.h,v 1.6 2012-04-06 22:10:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ class ArrowDisplay : public visSurvey::LocationDisplay
 public:
     static ArrowDisplay*	create()
 				mCreateDataObj(ArrowDisplay);
+    				~ArrowDisplay();
 
     void			setScene( visSurvey::Scene* );
 
@@ -40,7 +41,7 @@ public:
     int				getLineWidth() const;
 
 protected:
-    				~ArrowDisplay();
+
     void			zScaleCB(CallBacker*);
     void			dispChg(CallBacker*);
     visBase::VisualObject*	createLocation() const;
