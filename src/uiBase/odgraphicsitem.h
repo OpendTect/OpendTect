@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.15 2012-04-04 08:04:54 cvskris Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.16 2012-04-06 12:17:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <QPolygonF>
 #include <QString>
 #include <QTextOption>
+#include <QMutex>
 
 #include "draw.h"
 
@@ -143,6 +144,42 @@ public:
 
 protected:
     QPolygonF			qpolygon_;
+};
+
+
+class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
+{
+public:
+			ODGraphicsDynamicImageItem();
+
+    void		setImage( bool isdynamic, const QImage& image,
+	    			  const QRectF& rect );
+    const		QRectF& wantedWorldRect() const { return wantedwr_; }
+    const QSize&	wantedScreenSize() const { return wantedscreensz_; }
+
+    QRectF		boundingRect() const { return bbox_; }
+
+    void		paint(QPainter*,const QStyleOptionGraphicsItem*,
+	    		      QWidget*);
+
+    bool		updateResolution(const QPainter*);
+
+    Notifier<ODGraphicsDynamicImageItem>	wantsData;
+protected:
+
+    QRectF			wantedwr_;
+    QSize			wantedscreensz_;
+
+    bool			updatedynpixmap_;
+    QMutex			dynamiclock_;
+    QImage			dynamicimage_;
+    QRectF			dynamicimagebbox_;
+
+    PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
+    QRectF			dynamicpixmapbbox_; //Only access in paint
+
+    QPixmap			basepixmap_;
+    QRectF			bbox_;
 };
 
 

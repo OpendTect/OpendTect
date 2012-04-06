@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.57 2012-04-05 12:06:23 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.58 2012-04-06 12:17:38 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -19,7 +19,9 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.57 2012-04-05 12:06:2
 #include "uigeom.h"
 #include "uigroup.h"
 #include "uiobj.h"
+#include "uirgbarray.h"
 
+#include <QMutex>
 #include <QBrush>
 #include <QPainter>
 #include <QFont>
@@ -272,144 +274,45 @@ void uiLineItem::setPenStyle( const LineStyle& ls, bool )
 }
 
 
-class QDynamicPixmapItem : public QGraphicsItem, public CallBacker
-{
-public:
-    QDynamicPixmapItem()
-	: needsData( this )
-	, bbox_( 0, 0, 1, 1 )
-    {}
-
-    ~QDynamicPixmapItem()
-    { }
-
-    void setBasePixmap( const QPixmap& p, const QRectF& rect )
-    {
-	basepixmap_ = p;
-	bbox_ = rect;
-    }
-
-    void setDynamicPixmap( const QPixmap& p, const QRectF& rect )
-    {
-	if ( !dynamicpixmap_ )
-	    dynamicpixmap_ = new QPixmap( p );
-	else
-	    *dynamicpixmap_ = p;
-
-	dynamicbbox_ = rect;
-    }
-
-    const Geom::PosRectangle<float>& neededData() const
-    { return neededdata_; }
-
-    float pixelSpacing() const
-    { return pixelspacing_; }
-
-    QRectF boundingRect() const
-    {
-	return bbox_;
-    }
-
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	       QWidget* widget)
-    {
-	if ( updateResolution( painter ) )
-	{
-	    needsData.trigger();
-	}
-
-	if ( dynamicpixmap_ )
-	    paintPixmap( painter, *dynamicpixmap_, dynamicbbox_ );
-	else
-	    paintPixmap( painter, basepixmap_, bbox_ );
-    }
-
-
-    void paintPixmap( QPainter* painter, const QPixmap& pixmap,
-	    const QRectF& wrect ) const
-    {
-	// This should work, but it does not
-	//painter->drawPixmap( bbox_, basepixmap_,
-	//	     		 QRectF(basepixmap_.rect()) );
-       
-	const QRect scenerect =
-	    painter->worldTransform().mapRect(wrect).toRect();
-
-	painter->save();
-	painter->resetTransform();
-
-	painter->drawPixmap( scenerect, pixmap );
-	painter->restore();
-    }
-
-    bool updateResolution( const QPainter* painter )
-    {
-	const QPaintDevice* device = painter->device();
-	const QRectF viewport = painter->viewport();
-	const QTransform worldtolocal = painter->transform().inverted();
-	const QRectF projectedviewport = worldtolocal.mapRect( viewport );
-
-	Geom::PosRectangle<float> neededdata(
-		mMAX(projectedviewport.left(),0),
-		mMAX(projectedviewport.top(),0),
-		mMIN(projectedviewport.right(),1),
-		mMIN(projectedviewport.bottom(),1) );
-
-	if ( neededdata == neededdata_ )
-	    return false;
-
-	neededdata_ = neededdata_;
-	//Set pixelspacing
-	pixelspacing_ = 1;
-	return true;
-    }
-
-    Notifier<QDynamicPixmapItem>	needsData;
-protected:
-
-    Geom::PosRectangle<float>		neededdata_;
-    float				pixelspacing_;
-
-    PtrMan<QPixmap>			dynamicpixmap_;
-    QRectF				dynamicbbox_;
-    QPixmap				basepixmap_;
-    QRectF				bbox_;
-};
-
-
-//uiDynamicPixmapItem
-uiDynamicPixmapItem::uiDynamicPixmapItem()
+//uiDynamicImageItem
+uiDynamicImageItem::uiDynamicImageItem()
     : uiGraphicsItem( mkQtObj() )
 {}
 
 
-uiDynamicPixmapItem::~uiDynamicPixmapItem()
+uiDynamicImageItem::~uiDynamicImageItem()
 {}
 
 
-void uiDynamicPixmapItem::setBasePixmap( const ioPixmap& pixmap,
-					 const uiWorldRect& wr )
+void uiDynamicImageItem::setImage( bool isdynamic, const uiRGBArray& image,
+				   const uiWorldRect& wr )
 {
-    item_->setBasePixmap( *pixmap.qpixmap(),
+    item_->setImage( isdynamic, image.qImage(),
 	      QRectF( wr.left(), wr.top(), wr.width(), wr.height() ) );
 }
 
 
-NotifierAccess& uiDynamicPixmapItem::needsData()
-{ return item_->needsData; }
+NotifierAccess& uiDynamicImageItem::wantsData()
+{ return item_->wantsData; }
 
 
-const Geom::PosRectangle<float>& uiDynamicPixmapItem::neededData() const
-{ return item_->neededData(); }
-
-
-float uiDynamicPixmapItem::pixelSpacing() const
-{ return item_->pixelSpacing(); }
-
-
-QGraphicsItem* uiDynamicPixmapItem::mkQtObj()
+uiWorldRect uiDynamicImageItem::wantedWorldRect() const
 {
-    item_ = new QDynamicPixmapItem();
+    QRectF res = item_->wantedWorldRect();
+    return uiWorldRect( res.left(), res.top(), res.right(), res.bottom() );
+}
+
+
+uiSize uiDynamicImageItem::wantedScreenSize() const
+{
+    QSize sz = item_->wantedScreenSize();
+    return uiSize( sz.width(), sz.height() );
+}
+
+
+QGraphicsItem* uiDynamicImageItem::mkQtObj()
+{
+    item_ = new ODGraphicsDynamicImageItem();
     return item_;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.37 2012-04-05 12:06:23 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.38 2012-04-06 12:17:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiFont;
 class uiGroup;
 class uiObject;
 class uiSize;
+class uiRGBArray;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
@@ -32,7 +33,6 @@ class QGraphicsPolygonItem;
 class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
-class QDynamicPixmapItem;
 class QPainterPath;
 class QPolygonF;
 class QSize;
@@ -42,6 +42,7 @@ class ODGraphicsMarkerItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
+class ODGraphicsDynamicImageItem;
 template <class T> class ODPolygon;
 
 
@@ -131,24 +132,29 @@ protected:
 };
 
 
-mClass uiDynamicPixmapItem : public uiGraphicsItem
+/*!Displays an image tied to a rectangle. There is one basic image (not dynamic)
+  that provides a background model. The notifier will trigger if object
+  wants a higher resolution version of the image. If so, that can be set
+  by callint setImage with dynamic==true. */
+
+mClass uiDynamicImageItem : public uiGraphicsItem
 {
 public:
-    					uiDynamicPixmapItem();
-					~uiDynamicPixmapItem();
+    				uiDynamicImageItem();
+				~uiDynamicImageItem();
     
-    void				setBasePixmap(const ioPixmap&,
-						      const uiWorldRect&);
-    NotifierAccess&			needsData();
-    const Geom::PosRectangle<float>&	neededData() const;
-    float				pixelSpacing() const;
+    void			setImage(bool dynamic,const uiRGBArray&,
+					 const uiWorldRect&);
+    				/*!<If dynamic==false, worldrect will define
+				    the bounding box of the item. */
 
-    void				setDynamicPixmap(ioPixmap*,
-							 const uiWorldRect&);
+    NotifierAccess&		wantsData();
+    uiWorldRect			wantedWorldRect() const;
+    uiSize			wantedScreenSize() const;
 
 protected:
-    QGraphicsItem*			mkQtObj();
-    QDynamicPixmapItem*			item_;
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsDynamicImageItem*	item_;
 };
 
 
