@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.93 2012-03-30 22:34:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.94 2012-04-06 22:14:04 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -195,10 +195,17 @@ void uiODEarthModelSurfaceTreeItem::addToToolBarCB( CallBacker* cb )
 
     const bool isshifted =
 		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
-    mAddMenuItem( tb, &savemnuitem_,
-		  applMgr()->EMServer()->isChanged(emid_) &&
-		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
-		  !isshifted, false );
+    const bool doadd = applMgr()->EMServer()->isChanged(emid_) &&
+		       applMgr()->EMServer()->isFullyLoaded(emid_) &&
+		       !isshifted;
+    if ( doadd )
+    {
+	mAddMenuItem( tb, &savemnuitem_, true, false );
+    }
+    else
+    {
+	mResetMenuItem( &savemnuitem_ );
+    }
     uiODDisplayTreeItem::addToToolBarCB( cb );
 }
 
