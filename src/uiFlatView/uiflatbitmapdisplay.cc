@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatbitmapdisplay.cc,v 1.2 2012-04-06 12:27:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatbitmapdisplay.cc,v 1.3 2012-04-06 13:03:31 cvskris Exp $";
 
 #include "uiflatbitmapdisplay.h"
 
@@ -59,7 +59,8 @@ public:
 	if ( !bmpmgr_->generate( wr_, sz_, sz_ ) )
 	    return false;
 
-	bitmap2image_->draw( 0, bmpmgr_->bitMap(), uiPoint(0,0) ); 
+	bitmap2image_->draw( wva_ ? bmpmgr_->bitMap() : 0,
+			     wva_ ? 0 : bmpmgr_->bitMap(), uiPoint(0,0) ); 
 	display_->setImage( isdynamic_, *image_, wr_ );
 	return true;
     }
