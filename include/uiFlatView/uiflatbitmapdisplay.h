@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatbitmapdisplay.h,v 1.1 2012-04-05 12:09:47 cvskris Exp $
+ RCS:           $Id: uiflatbitmapdisplay.h,v 1.2 2012-04-06 12:27:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,11 @@ ________________________________________________________________________
 #include "array2dbitmap.h"
 #include "arrayndimpl.h"
 
-class uiDynamicPixmapItem;
+class uiDynamicImageItem;
 class FlatDataPack;
 class uiGraphicsItem;
 class A2DBitMapGenerator;
 class uiRGBArray;
-class uiFlatViewer;
 
 namespace FlatView
 {
@@ -29,35 +28,38 @@ namespace FlatView
 class BitMapMgr;
 class BitMap2RGB;
 class Appearance;
+class uiBitMapDisplayTask;
+class Viewer;
+
+/*Takes the flat-data from a flatviewer and puts it into a uiGraphicsItem */
 
 mClass uiBitMapDisplay : public CallBacker
 {
 public:
-    			uiBitMapDisplay(uiFlatViewer&);
+    			uiBitMapDisplay(Viewer&,bool wva);
 			~uiBitMapDisplay();
 
     void		update();
     			//When inputs or settings have changed
 
     uiGraphicsItem*	getDisplay();
-    void		removeDisplay() { display_ = 0; }
+    void		removeDisplay();
 
 protected:
 
     void			reGenerateCB(CallBacker*);
-    uiFlatViewer&		viewer_;
+    void			dymamicTaskFinishCB(CallBacker*);
 
-    BitMapMgr*			wvabmpmgr_;
-    BitMapMgr*			vdbmpmgr_;
+    Viewer&			viewer_;
+    bool			wva_;
+    bool			isworking_;
 
-    uiRGBArray*			baseimage_;
-    BitMap2RGB*			basebitmap2baseimage_;
+    uiDynamicImageItem*		display_;
 
-    uiRGBArray*			dynamicimage_;
-    A2DBitMapImpl*		dynamicbitmap_;
+    uiBitMapDisplayTask*	basetask_;
+    uiBitMapDisplayTask*	dynamictask_;
 
-    uiDynamicPixmapItem*	display_;
-
+    CallBack			finishedcb_;
 };
 
 
