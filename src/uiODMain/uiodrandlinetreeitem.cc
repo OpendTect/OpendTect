@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.47 2012-03-20 10:08:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.48 2012-04-06 22:13:13 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -119,9 +119,9 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add ..."), 7 );
+    mnu.insertItem( new uiMenuItem("&Add Empty"), 0 );
+    mnu.insertItem( new uiMenuItem("&Add Stored ..."), 7 );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
-    newmnu->insertItem( new uiMenuItem("Empty"), 0 );
     newmnu->insertItem( new uiMenuItem("&Interactive  ..."), 6 );
     newmnu->insertItem( new uiMenuItem("Along &Contours ..."), 2 );
     newmnu->insertItem( new uiMenuItem("From &Existing ..."), 1 );
