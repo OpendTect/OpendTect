@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Annotations plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-02 22:39:38 cvsnanne Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-04-06 22:09:59 cvsnanne Exp $
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain)
@@ -14,6 +14,7 @@ SET( OD_MODULE_SOURCES
 	treeitem.cc
 	uiarrowdlg.cc
 	uimeasuredlg.cc
+	uiscalebaritem.cc
 	visannotimage.cc
 	visarrow.cc
 	viscallout.cc
