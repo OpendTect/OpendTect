@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.52 2012-04-02 22:39:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.53 2012-04-06 22:11:58 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -319,7 +319,8 @@ SubItem::SubItem( Pick::Set& set, int displayid )
 
 
 SubItem::~SubItem()
-{}
+{
+}
 
 
 void SubItem::prepareForShutdown()
@@ -331,9 +332,13 @@ void SubItem::prepareForShutdown()
 	BufferString msg = "The annotation group ";
 	msg += name();
 	msg += " is not saved.\n\nDo you want to save it?";
-	if ( uiMSG().askSave(msg,false) )
-	    store();
+	if ( !uiMSG().askSave(msg,false) )
+	    return;
+
+	store();
     }
+
+    removeStuff();
 }
 
 
@@ -548,7 +553,7 @@ void SubItem::removeStuff()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    if ( setidx>= 0 )
+    if ( setidx >= 0 )
 	mgr.set( mgr.id(setidx), 0 );
     mgr.removeCBs( this );
 }
@@ -1071,124 +1076,4 @@ void ImageSubItem::selectFileName() const
 }
 
 
-
-// ScaleBarSubItem
-const char* ScaleBarSubItem::parentType() const
-{ return typeid(ScaleBarParentItem).name(); }
-
-
-ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
-    : SubItem(pck,displayid)
-    , propmnuitem_("Properties ...")
-    , orientation_(0)
-{
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.reportDispChange( this, *set_ );
-}
-
-
-bool ScaleBarSubItem::init()
-{
-    if (  displayid_==-1 )
-    {
-	ScaleBarDisplay* ad = ScaleBarDisplay::create();
-	visserv_->addObject( ad, sceneID(), true );
-	displayid_ = ad->id();
-	ad->setName( name_ );
-    }
-
-    mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_))
-    if ( !ad ) return false;
-
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
-
-    if ( !ioobj->pars().get(sKeyOrientation(),orientation_) )
-	set_->pars_.get( sKeyOrientation(), orientation_ );
-    ad->setOrientation( (ScaleBarDisplay::Orientation)orientation_ );
-
-    int linewidth = 2;
-    if ( !ioobj->pars().get(sKeyLineWidth(),linewidth) )
-	set_->pars_.get( sKeyLineWidth(), linewidth );
-    ad->setLineWidth( linewidth );
-
-    return SubItem::init();
-}
-
-
-void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
-{
-    SubItem::fillStoragePar( par );
-    mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_))
-    par.set( sKeyOrientation(), (int)ad->getOrientation() );
-    par.set( sKeyLineWidth(), ad->getLineWidth() );
-}
-
-
-void ScaleBarSubItem::createMenuCB( CallBacker* cb )
-{
-    SubItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
-	return;
-
-    mAddMenuItem(menu,&propmnuitem_,true,false );
-}
-
-
-void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
-{
-    SubItem::handleMenuCB( cb );
-    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
-	return;
-
-    if ( mnuid==propmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-
-/*
-	uiScaleBarDialog dlg( getUiParent() );
-	dlg.setColor( set_->disp_.color_ );
-	dlg.setOrientation( orientation_ );
-	mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_));
-	dlg.setLineWidth( ad->getLineWidth() );
-	dlg.propertyChange.notify( mCB(this,ScaleBarSubItem,propertyChange) );
-	dlg.go();
-	if ( set_->disp_.color_!=dlg.getColor() )
-	{
-	    set_->disp_.color_ = dlg.getColor();
-	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	    mgr.reportDispChange( this, *set_ );
-	}
-
-	orientation_ = dlg.getOrientation();
-*/
-	updateColumnText( 1 );
-    }
-}
-
-
-void ScaleBarSubItem::propertyChange( CallBacker* cb )
-{
-    /*
-    mDynamicCastGet(uiScaleBarDialog*,dlg,cb)
-    if ( !dlg ) return;
-
-    orientation_ = dlg->getOrientation();
-    setColor( dlg->getColor() );
-
-    mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_));
-    ad->setOrientation( (ScaleBarDisplay::Orientation)orientation_ );
-    ad->setLineWidth( dlg->getLineWidth() );
-*/
-
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    mgr.setUnChanged( setidx, false );
-}
-
-}; // namespace Annotations
+} // namespace Annotations

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.20 2012-04-02 22:39:38 cvsnanne Exp $
+ RCS:           $Id: treeitem.h,v 1.21 2012-04-06 22:11:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -236,13 +236,11 @@ protected:
     const char*		managerName() const		{ return sKeyManager();}
 
     MenuItem		propmnuitem_;
-    int			orientation_;
 
     static const char*		sKeyOrientation()      { return "Orientation"; }
     static const char*		sKeyLineWidth()	       { return "Line width"; }
+    static const char*		sKeyLength()	       { return "Length"; }
 };
-
-
 
 
 #define mDefineParentItem(type,typestr,defsz) \
