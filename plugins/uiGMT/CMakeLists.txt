@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiGMT plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-21 10:11:52 cvsnageswara Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-04-06 09:45:38 cvsraman Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain GMT )
@@ -26,6 +26,7 @@ SET(OD_MODULE_SOURCES
 	  uigmtsymbolpars.cc
 	  uigmtpi.cc
 	  uigmtinfodlg.cc)
+SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()
 
 #REFERS_QTLIBS := yes
