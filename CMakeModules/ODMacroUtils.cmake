@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.46 2012-04-05 06:35:24 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.47 2012-04-06 06:30:06 cvsranojay Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -245,7 +245,8 @@ IF(OD_MODULE_PROGS)
 
     FOREACH( EXEC ${OD_MODULE_PROGS} )
 	GET_FILENAME_COMPONENT( TARGET_NAME ${EXEC} NAME_WE )
-	ADD_EXECUTABLE( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} )
+	ADD_EXECUTABLE( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
+			${OD_${EXEC}_RESOURCE} )
 	SET_TARGET_PROPERTIES( ${TARGET_NAME}
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
