@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.28 2012-02-21 09:31:41 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.29 2012-04-06 16:54:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
+    Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis
     Notifier<uiODMain>	sessionRestore;	//!< Get data from pars
     IOPar&		sessionPars();	//!< On session save or restore
     					//!< notification, to get/put data

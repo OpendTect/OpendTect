@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.151 2012-02-15 16:24:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.152 2012-04-06 16:54:39 cvsnanne Exp $";
 
 #include "uiodmain.h"
 
@@ -144,6 +144,7 @@ uiODMain::uiODMain( uicMain& a )
     , cursession_(0)
     , restoringsess_(false)
     , sessionSave(this)
+    , sessionRestoreEarly(this)
     , sessionRestore(this)
     , justBeforeGo(this)
 {
@@ -517,6 +518,7 @@ void uiODMain::doRestoreSession()
     applMgr().resetServers();
     restoringsess_ = true;
 
+    sessionRestoreEarly.trigger();
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
