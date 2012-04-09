@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.53 2012-04-06 22:11:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.54 2012-04-09 16:20:11 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -332,10 +332,8 @@ void SubItem::prepareForShutdown()
 	BufferString msg = "The annotation group ";
 	msg += name();
 	msg += " is not saved.\n\nDo you want to save it?";
-	if ( !uiMSG().askSave(msg,false) )
-	    return;
-
-	store();
+	if ( uiMSG().askSave(msg,false) )
+	    store();
     }
 
     removeStuff();
