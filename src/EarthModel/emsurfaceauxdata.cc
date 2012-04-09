@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.33 2012-02-16 20:11:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.34 2012-04-09 13:44:22 cvsnanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -289,18 +289,18 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 }
 
 
-BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
-					  const char* attrnm )
-{
-    return getFileName( ioobj.fullUserExpr(true), attrnm );
-}
+bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
+{ return getFileName(ioobj,attrnm).isEmpty(); }
+
+BufferString
+    SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
+{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
 
 
-BufferString SurfaceAuxData::getFileName( const char* fulluserexp,
-					  const char* attrnm )
+BufferString
+    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnm )
 {
     const BufferString basefnm( fulluserexp );
-
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
     {

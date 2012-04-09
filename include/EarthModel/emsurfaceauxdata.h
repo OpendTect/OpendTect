@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.15 2012-02-16 20:11:19 cvsnanne Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.16 2012-04-09 13:44:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -72,6 +72,7 @@ public:
     bool		isChanged(int) const;
     void		resetChangedFlag();
 
+    static bool		hasAttribute(const IOObj&,const char* attrnm);
     static BufferString	getFileName(const IOObj&,const char* attrnm);
     static BufferString	getFileName(const char* fullexp,const char* attrnm);
     static BufferString	getFreeFileName(const IOObj&);
