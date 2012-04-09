@@ -7,12 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.8 2012-03-30 14:55:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.9 2012-04-09 16:43:19 cvsnanne Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
 #include "attribdesc.h"
 #include "attribsel.h"
+#include "envvars.h"
+#include "filepath.h"
+#include "keystrs.h"
 #include "odver.h"
 
 #include "uiattrdescseted.h"
@@ -214,6 +217,14 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     if ( specs_.isEmpty() )
 	return;
 
+    // For debugging
+    if ( GetEnvVarYN("OD_WRITE_EVALUATE_ATTRIBUTE_SET") )
+    {
+	IOPar newpar;
+	attrset_.fillPar( newpar );
+	newpar.write( FilePath::getTempName("par"), sKey::Attributes );
+    }
+
     calccb.trigger();
 
     if ( enabstore_ ) storefld->setSensitive( true );
@@ -276,12 +287,12 @@ void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
 
 bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 {
-    if ( !paramsfld_ )
+    if ( !paramsfld_ || srcspecids_.isEmpty() )
 	return true;
 
     const int sliceidx = sliderfld->sldr()->getIntValue();
     const int srcspecid = srcspecids_[sliceidx];
-    if ( srcspecid < specs_.size() )
+    if ( specs_.validIdx(srcspecid) )
 	seldesc_ = attrset_.getDesc( specs_[srcspecid].id() );
 
     return true;
