@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          March 2012
- RCS:           $Id: uicrossattrevaluatedlg.h,v 1.6 2012-03-29 21:38:45 cvsyuancheng Exp $
+ RCS:           $Id: uicrossattrevaluatedlg.h,v 1.7 2012-04-09 19:52:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ protected:
     IOPar&			initpar_;
     ObjectSet<AttribParamGroup>	grps_;
 
-    TypeSet<int>		srcspecids_;
+    TypeSet<Attrib::DescID>	srcspecids_;
     TypeSet<Attrib::DescID>	seldeschildids_;
     BufferStringSet		lbls_; //size is nr of steps
     TypeSet<Attrib::SelSpec> 	specs_;//size is nr of steps

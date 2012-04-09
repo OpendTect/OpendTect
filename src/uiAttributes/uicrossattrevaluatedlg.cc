@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.9 2012-04-09 16:43:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicrossattrevaluatedlg.cc,v 1.10 2012-04-09 19:52:08 cvsyuancheng Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -148,9 +148,7 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
     attrset_.addDesc( newad ); \
     SelSpec as; \
     as.set( *newad ); \
-    as.setObjectRef( srcad.userRef() ); \
-    specs_ += as; \
-    srcspecidx++
+    as.setObjectRef( srcad.userRef() ) 
 
 
 void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
@@ -174,7 +172,6 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     TypeSet<TypeSet<int> > aids;//index of children
     getSelDescIDs( ancestorids, aids );
   
-    int srcspecidx = -1;
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int initattrsz = attrset_.size(); 
     const int selsz = seldeschildids_.size();
@@ -198,7 +195,8 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	}
 
 	mSetSelSpecAndLbl(srcad);
-	srcspecids_ += srcspecidx;
+	srcspecids_ += newad->id();
+	specs_ += as; 
 
 	/*reset dependency*/
 	for ( int ci=0; ci<selsz; ci++ )
@@ -222,6 +220,10 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     {
 	IOPar newpar;
 	attrset_.fillPar( newpar );
+	for ( int idx=0; idx<srcspecids_.size(); idx++ )
+	    newpar.set( IOPar::compKey(sKey::Output,idx),
+		        srcspecids_[idx].asInt() );
+
 	newpar.write( FilePath::getTempName("par"), sKey::Attributes );
     }
 
@@ -291,9 +293,7 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 	return true;
 
     const int sliceidx = sliderfld->sldr()->getIntValue();
-    const int srcspecid = srcspecids_[sliceidx];
-    if ( specs_.validIdx(srcspecid) )
-	seldesc_ = attrset_.getDesc( specs_[srcspecid].id() );
+    seldesc_ = attrset_.getDesc( srcspecids_[sliceidx] );
 
     return true;
 }
@@ -304,6 +304,7 @@ BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const
     const int sliceidx = sliderfld->sldr()->getIntValue();
     return defstr_.get(sliceidx);
 }
+
 
 void uiCrossAttrEvaluateDlg::getEvalSpecs(
 	TypeSet<Attrib::SelSpec>& specs ) const
