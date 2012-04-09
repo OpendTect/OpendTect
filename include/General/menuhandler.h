@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.20 2011-12-16 16:04:23 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.21 2012-04-09 22:11:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,7 +263,7 @@ protected:
 { \
     MenuItem* _item = item; \
     MenuItemHolder* _parent = parent; \
-    if ( (_parent)->itemIndex(_item)==-1 ) \
+    if ( _parent && (_parent)->itemIndex(_item)==-1 ) \
 	(_parent)->addItem( _item ); \
    \
     (_item)->enabled = (enab); \
@@ -279,15 +279,15 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 
 
 #define mAddMenuItemCond( menu, item, enab, check, cond ) { \
-    if ( cond ) \
+    if ( menu && cond ) \
 	mAddMenuItem( menu, item, enab, check ) \
     else \
 	mResetMenuItem( item ) } \
 
-//Macro that can poplulate both a toolbar and a menu. Only
-//items with an icon is put in a toolbar.
-#define mAddMenuOrTBItem( istoolbar, parent, item, enab, check ) \
-    mAddMenuItemCond( parent, item, enab, check, \
-	    (!istoolbar || !(item)->iconfnm.isEmpty()) )
+//Macro that can poplulate both a toolbar and a menu. 
+#define mAddMenuOrTBItem( istoolbar, tbparent, popupparent, item, enab, check )\
+    mAddMenuItem( \
+	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \
+	    item, enab, check )
 
 #endif

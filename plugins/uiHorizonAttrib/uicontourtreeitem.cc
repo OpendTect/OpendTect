@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.29 2012-03-20 09:59:06 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.30 2012-04-09 22:15:32 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -212,6 +212,8 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , color_(0,0,0)
     , showlabels_(true)
 {
+    optionsmenuitem_.iconfnm = "disppars.png";
+
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
 }
@@ -332,7 +334,7 @@ void uiContourTreeItem::removeLabels()
 void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDataTreeItem::createMenu( menu, istb );
-    mAddMenuOrTBItem( istb, menu, &optionsmenuitem_, lines_, false );
+    mAddMenuOrTBItem( istb, menu, menu, &optionsmenuitem_, lines_, false );
 }
 
 
