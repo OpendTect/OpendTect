@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.475 2012-04-04 14:33:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.476 2012-04-09 19:00:34 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -1925,7 +1925,7 @@ void uiVisPartServer::addToToolBarCB( CallBacker* cb )
     if ( !so ) return;
 
     mAddMenuItemCond( tb, &changematerialmnuitem_, true, false,
-		      so->allowMaterialEdit() );
+		      selattrib_==-1 && so->allowMaterialEdit() );
 }
 
 
