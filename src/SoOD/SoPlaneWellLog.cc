@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.48 2011-07-26 11:20:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.49 2012-04-09 13:49:05 cvsnanne Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -44,8 +44,7 @@ void SoPlaneWellLog::initClass()
 
 
 SoPlaneWellLog::SoPlaneWellLog()
-    : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
-    , timesensor( new SoTimerSensor() )
+    : timesensor( new SoTimerSensor() )
     , revscale1(false)
     , revscale2(false)
     , fillrevscale1(false)
@@ -140,6 +139,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( screenWidth1, (40) );
     SO_KIT_ADD_FIELD( screenWidth2, (40) );
 
+    valuesensor = new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this);
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
     valuesensor->attach( &screenWidth1 );
