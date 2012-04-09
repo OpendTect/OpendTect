@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.50 2012-04-04 10:14:46 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.51 2012-04-09 05:39:20 cvskris Exp $";
 
 #include "emhorizon2d.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emhorizon2d.cc,v 1.50 2012-04-04 10:14:46 cvsbe
 #include "horizon2dline.h"
 #include "ioman.h"
 #include "selector.h"
+#include "toplist.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -382,8 +383,51 @@ Horizon2D::~Horizon2D()
 
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
-    //TODO implement
-    return 0;
+    const int sectionidx = nr;
+
+    const EM::SectionID sectionid = sectionID( sectionidx );
+    const Geometry::Horizon2DLine* line =
+	geometry().sectionGeometry( sectionid );
+
+    if ( !line )
+	return allow_udf ? mUdf(float) : 0;
+
+    TopList<double,double> closestpoints( 2 );
+
+    const StepInterval<int> rowrg = line->rowRange();
+    const int nrrows = rowrg.nrSteps()+1;
+    for ( int rowidx=0; rowidx<nrrows; rowidx++ )
+    {
+	StepInterval<int> colrg = line->colRange( rowidx );
+	RowCol rowcol( rowrg.atIndex( rowidx ), 0 );
+
+	for ( rowcol.col=colrg.start; rowcol.col<=colrg.stop;
+	      rowcol.col+= colrg.step )
+	{
+	    const Coord3 knot = line->getKnot( rowcol );
+	    if ( !knot.isDefined() )
+		continue;
+
+	    const double sqdist = c.sqDistTo( knot );
+	    if ( mIsZero(sqdist,1e-3) )
+		return knot.z;
+
+	    closestpoints.addValue( -sqdist, knot.z );
+	}
+    }
+
+    if ( closestpoints.isEmpty() )
+	return allow_udf ? mUdf(float) : 0;
+
+    if ( closestpoints.size()==1 )
+	return closestpoints.getAssociatedValue( 0 );
+
+    const double z0 = closestpoints.getAssociatedValue( 0 );
+    const double dist0 = Math::Sqrt( -closestpoints.getValue( 0 ) );
+    const double z1 = closestpoints.getAssociatedValue( 1 );
+    const double dist1 = Math::Sqrt( -closestpoints.getValue( 1 ) );
+
+    return (dist1*z0+dist0*z1)/(dist0+dist1);
 }
 
 
