@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.122 2012-04-09 13:43:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.123 2012-04-09 14:09:08 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -313,7 +313,11 @@ void uiAttribDescSetEd::init()
 	}
     }
     else
-    	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : sKeyNotSaved );
+    {
+	const BufferString txt = setctio_.ioobj ? setctio_.ioobj->name().buf()
+						: sKeyNotSaved;
+    	attrsetfld_->setText( txt );
+    }
 
     cancelsetid_ = setid_;
     newList(0);
