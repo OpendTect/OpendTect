@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.18 2011-09-09 13:49:19 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.19 2012-04-09 22:15:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -60,8 +60,9 @@ protected:
     virtual bool	askContinueAndSaveIfNeeded(bool withcancel)	
 			{ return true; }
 
-    virtual void	addToToolBarCB(CallBacker*);
-    virtual void	createMenuCB(CallBacker*);
+    void		addToToolBarCB(CallBacker*);
+    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
     
     uiVisPartServer*	visserv_;

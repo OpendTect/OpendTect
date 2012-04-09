@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.13 2012-01-02 14:04:14 cvsbruno Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.14 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ protected:
     bool		init();
     BufferString	createDisplayName() const;
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     bool		anyButtonClick( uiListViewItem* item );
 
@@ -90,7 +90,7 @@ public:
 protected:
 			~uiODVolrenSubTreeItem();
 
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		posChangeCB(CallBacker*);
     void		selChgCB(CallBacker*);

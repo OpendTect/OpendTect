@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.54 2012-03-27 20:29:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.55 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -272,16 +272,7 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    if ( visserv_->hasAttrib(displayid_) &&
-	 visserv_->canHaveMultipleAttribs(displayid_) )
-    {
-	mAddMenuItem( tb, &histogrammnuitem_, true, false );
-    }
-    else
-	mResetMenuItem( &histogrammnuitem_ );
-
-    mAddMenuItem( tb, &lockmnuitem_, true, false );
-    mAddMenuItem( tb, &removemnuitem_, !visserv_->isLocked(displayid_),false);
+    createMenu( tb, true );
 }
 
 
@@ -290,6 +281,28 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu || menu->menuID() != displayID() )
 	return;
+
+    createMenu( menu, false );
+}
+
+
+void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
+{
+    if ( istb )
+    {
+	if ( visserv_->hasAttrib(displayid_) &&
+	     visserv_->canHaveMultipleAttribs(displayid_) )
+	{
+	    mAddMenuItem( menu, &histogrammnuitem_, true, false );
+	}
+	else
+	    mResetMenuItem( &histogrammnuitem_ );
+
+	mAddMenuItem( menu, &lockmnuitem_, true, false );
+	mAddMenuItem( menu, &removemnuitem_,
+		      !visserv_->isLocked(displayid_),false);
+	return;
+    }
 
     if ( visserv_->hasAttrib(displayid_) &&
 	 visserv_->canHaveMultipleAttribs(displayid_) )
@@ -317,8 +330,10 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
 
-    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene() && 
-			!visserv_->isSoloMode();
+    mDynamicCastGet(uiMenuHandler*,uimenu,menu)
+    const bool usehide = uimenu &&
+	uimenu->getMenuType()==uiMenuHandler::fromScene() &&
+	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.22 2011-11-04 15:04:47 cvsyuancheng Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.23 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		prepareForShutdown();
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
 
@@ -95,7 +95,7 @@ public:
 protected:
     bool		askContinueAndSaveIfNeeded( bool withcancel );
     void		prepareForShutdown();
-    void		createMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
 

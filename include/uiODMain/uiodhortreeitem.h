@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.19 2011-09-07 17:36:01 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.20 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
 
-    virtual void	createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
 
     bool		askContinueAndSaveIfNeeded(bool withcancel);
@@ -91,7 +91,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }
 
-    virtual void	createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
     
     bool		askContinueAndSaveIfNeeded(bool withcancel);

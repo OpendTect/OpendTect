@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.94 2012-04-06 22:14:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.95 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -68,6 +68,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , prevtrackstatus_(true)
 {
     savemnuitem_.iconfnm = "save.png";
+    saveasmnuitem_.iconfnm = "saveas.png";
     enabletrackingmnuitem_.checkable = true;
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
@@ -187,45 +188,15 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 }
 
 
-void uiODEarthModelSurfaceTreeItem::addToToolBarCB( CallBacker* cb )
+void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayID() || !isSelected() )
-	return;
-
-    const bool isshifted =
-		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
-    const bool doadd = applMgr()->EMServer()->isChanged(emid_) &&
-		       applMgr()->EMServer()->isFullyLoaded(emid_) &&
-		       !isshifted;
-    if ( doadd )
-    {
-	mAddMenuItem( tb, &savemnuitem_, true, false );
-    }
-    else
-    {
-	mResetMenuItem( &savemnuitem_ );
-    }
-    uiODDisplayTreeItem::addToToolBarCB( cb );
-}
-
-
-void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
-{
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
-
-    EM::SectionID sectionid = -1;
-    if ( uivisemobj_->nrSections()==1 )
-	sectionid = uivisemobj_->getSectionID(0);
-    else if ( menu->getPath() )
-	sectionid = uivisemobj_->getSectionID( menu->getPath() );
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
     const bool hastracker = mps->getTrackerID(emid_)>=0;
@@ -235,7 +206,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &changesetupmnuitem_ );
 	mResetMenuItem( &enabletrackingmnuitem_ );
     }
-    else if ( hastracker && sectionid!=-1 && !visserv_->isLocked(displayid_) &&
+    else if ( hastracker && !visserv_->isLocked(displayid_) &&
 	      !hastransform )
     {
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, false, false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.16 2011-05-05 08:53:01 cvssatyaki Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.17 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
 
 protected:
 
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void                changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);

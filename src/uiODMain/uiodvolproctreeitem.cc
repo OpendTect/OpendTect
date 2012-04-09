@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.8 2012-03-27 20:15:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.9 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -77,14 +77,14 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 #define mCreateMenu( func ) \
     mDynamicCastGet(MenuHandler*,menu,cb); \
 
-void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istoolbar)
+void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istb )
 {
-    uiODDataTreeItem::createMenu( menu, istoolbar );
+    uiODDataTreeItem::createMenu( menu, istb );
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    mAddMenuOrTBItem( istoolbar, menu, &selmenuitem_, true, false );
-    mAddMenuOrTBItem( istoolbar, menu, &reloadmenuitem_, ioobj, false );
-    mAddMenuOrTBItem( istoolbar, menu, &editmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istb, 0, menu, &selmenuitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &reloadmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istb, 0, menu, &editmenuitem_, ioobj, false );
 }
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.112 2012-03-20 10:08:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.113 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -696,13 +696,12 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 }
 
 
-void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
+void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb)
+    uiODDisplayTreeItem::createMenu( menu, istb );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || menu->menuID() != displayID() || !s2d ) return;
+    if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
 
     mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
     mAddMenuItem( menu, &positionitm_, true, false );
@@ -930,7 +929,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
-    if ( !menu || !s2d ) return;
+    if ( !menu || !s2d || istb ) return;
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.63 2012-01-05 10:45:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.64 2012-04-09 22:15:07 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -175,11 +175,10 @@ uiODDataTreeItem* uiODVolrenTreeItem::createAttribItem(
 { return 0; }
 
 
-void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
+void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( !menu || menu->menuID() != displayID() ) return;
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb ) return;
 
     const bool islocked = visserv_->isLocked( displayID() );
     selattrmnuitem_.removeItems();
@@ -504,11 +503,11 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 }
 
 
-void uiODVolrenSubTreeItem::createMenuCB( CallBacker* cb )
+void uiODVolrenSubTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( !menu || menu->menuID() != displayID() ) return;
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb ) return;
+
     if ( !isIsoSurface() )
     {
 	mResetMenuItem( &resetisosurfacemnuitem_ );

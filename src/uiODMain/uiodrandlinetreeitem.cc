@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.48 2012-04-06 22:13:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.49 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -353,11 +353,10 @@ bool uiODRandomLineTreeItem::init()
 }
 
 
-void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
+void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
     mAddMenuItem( menu, &create2dgridmnuitem_, true, false );

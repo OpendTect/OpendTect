@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.75 2012-03-20 10:08:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.76 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -360,18 +360,16 @@ bool uiODHorizonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
+void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
+    uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
+    if ( istb ) return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
-
     const bool hastransform = scene && scene->getZAxisTransform();
-
     const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
 
-    if ( menu->menuID()!=displayID() || hastransform )
+    if ( !menu || menu->menuID()!=displayID() || hastransform )
     {
 	mResetMenuItem( &positionmnuitem_ );
 	mResetMenuItem( &shiftmnuitem_ );
@@ -708,12 +706,12 @@ bool uiODHorizon2DTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
+void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb)
+    uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
+    if ( istb ) return;
 
-    if ( menu->menuID()!=displayID() )
+    if ( !menu || menu->menuID()!=displayID() )
     {
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );

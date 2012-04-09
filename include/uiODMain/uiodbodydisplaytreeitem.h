@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.15 2011-10-07 21:53:42 cvsnanne Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.16 2012-04-09 22:15:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
 protected:
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
 

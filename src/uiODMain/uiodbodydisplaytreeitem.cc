@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.40 2012-02-14 23:17:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.41 2012-04-09 22:15:06 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -315,44 +315,42 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 }
 
 
+#define mCommonInit \
+    , savemnuitem_("&Save") \
+    , saveasmnuitem_("Save &as ...") \
+    , displaybodymnuitem_("&Body") \
+    , displaypolygonmnuitem_("&Picked polygons") \
+    , displayintersectionmnuitem_("&Only at sections") \
+    , singlecolormnuitem_("Use single &color") \
+    , mcd_(0) \
+    , plg_(0) \
+    , rpb_(0)
+
+#define mCommonInit2 \
+    displaybodymnuitem_.checkable = true; \
+    displaypolygonmnuitem_.checkable = true; \
+    displayintersectionmnuitem_.checkable = true; \
+    singlecolormnuitem_.checkable = true; \
+    savemnuitem_.iconfnm = "save.png"; \
+    saveasmnuitem_.iconfnm = "saveas.png";
+
+
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
-    , savemnuitem_("&Save")
-    , saveasmnuitem_("Save &as ...")
-    , displaybodymnuitem_("&Body")
-    , displaypolygonmnuitem_("&Picked polygons")			    
-    , displayintersectionmnuitem_("&Only at sections")
-    , singlecolormnuitem_("Use single &color")
-    , mcd_(0)
-    , plg_(0)
-    , rpb_(0) 	       
+    mCommonInit
 {
-    displaybodymnuitem_.checkable = true;
-    displaypolygonmnuitem_.checkable = true;
-    displayintersectionmnuitem_.checkable = true;
-    singlecolormnuitem_.checkable = true;
+    mCommonInit2
 }
 
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_( -1 )
-    , savemnuitem_("Save")
-    , saveasmnuitem_("Save as ...")
-    , displaybodymnuitem_("Body")
-    , displaypolygonmnuitem_("Picked polygons")			    
-    , displayintersectionmnuitem_("Only at sections")
-    , singlecolormnuitem_("Use single &color")
-    , mcd_(0)
-    , plg_(0)	       
-    , rpb_(0) 	       
+    , emid_(-1)
+    mCommonInit
 {
     displayid_ = id;
-    displaybodymnuitem_.checkable = true;
-    displaypolygonmnuitem_.checkable = true;
-    displayintersectionmnuitem_.checkable = true;
-    singlecolormnuitem_.checkable = true;
+    mCommonInit2
 }
 
 
@@ -516,11 +514,10 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 }
 
 
-void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
+void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,

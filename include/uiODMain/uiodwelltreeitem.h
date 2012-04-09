@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.16 2011-11-03 09:22:54 cvsbruno Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.17 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ protected:
     void		initMenuItems();
     bool		init();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }

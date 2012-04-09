@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.25 2012-01-11 22:14:00 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.26 2012-04-09 22:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,7 @@ protected:
     int			uiListViewItemType() const;
 
     void		checkCB(CallBacker*);
-    void		createMenuCB(CallBacker*);
+    virtual void	createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     void		createAttrMenu(MenuHandler*);
@@ -104,7 +104,7 @@ protected:
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
-    void		createMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		getNewData(CallBacker*);
 

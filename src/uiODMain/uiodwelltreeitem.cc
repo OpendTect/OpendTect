@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.64 2012-02-08 23:16:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.65 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -40,7 +40,7 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 
 
 static const int cAddIdx	= 0;
-static const int cWellTieIdx	= 1;
+static const int cTieIdx	= 1;
 static const int cNewWellIdx	= 2;
 static const int cAttribIdx	= 3;
 static const int cLogDispSize = 4;
@@ -50,7 +50,8 @@ bool uiODWellParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add ..."), cAddIdx );
     if ( SI().zIsTime() )
-	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),cWellTieIdx);
+	mnu.insertItem(
+	    new uiMenuItem("&Tie Well to Seismic ...","well_tie.png"), cTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),cAttribIdx);
@@ -112,7 +113,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	deepErase( emwellids );
     }
 
-    else if ( mnuid == cWellTieIdx )
+    else if ( mnuid == cTieIdx )
     {
 	 MultiID wid;
 	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
@@ -229,8 +230,10 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
+    propertiesmnuitem_.iconfnm = "disppars.png";
     logviewermnuitem_.text = "&2D Log Viewer ...";
     gend2tmmnuitem_.text = "&Tie Well to Seismic ...";
+    gend2tmmnuitem_.iconfnm = "well_tie.png";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -241,6 +244,7 @@ void uiODWellTreeItem::initMenuItems()
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
+    storemnuitem_.iconfnm = "save.png";
     amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 
     nametopmnuitem_.checkable = true;
@@ -283,12 +287,17 @@ bool uiODWellTreeItem::init()
 }
 
 
-void uiODWellTreeItem::createMenuCB( CallBacker* cb )
+void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
+
+    if ( istb )
+    {
+	mAddMenuItem( menu, &propertiesmnuitem_, true, false );
+	return;
+    }
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );

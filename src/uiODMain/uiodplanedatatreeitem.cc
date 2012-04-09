@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.60 2012-03-13 14:23:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.61 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -285,27 +285,21 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 }
 
 
-void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
+void uiODPlaneDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem( tb, &positionmnuitem_, !visserv_->isLocked(displayid_),
-	          false );
-    uiODDisplayTreeItem::addToToolBarCB( cb );
-}
-
-
-void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
-{
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    const bool islocked = visserv_->isLocked( displayid_ );
+    if ( istb )
+    {
+	mAddMenuItem( menu, &positionmnuitem_, !islocked, false );
 	return;
+    }
 
     mAddMenuItem( &displaymnuitem_, &positionmnuitem_,
-		  !visserv_->isLocked(displayid_), false );
+		  !islocked, false );
     mAddMenuItem( &displaymnuitem_, &gridlinesmnuitem_, true, false );
 }
 

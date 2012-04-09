@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.55 2011-11-04 15:04:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.56 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -170,6 +170,15 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
     , displayintersecthorizonmnuitem_( "Only at &horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
 
+#define mCommonInit2 \
+    displayplanemnuitem_.checkable = true; \
+    displaystickmnuitem_.checkable = true; \
+    displayintersectionmnuitem_.checkable = true; \
+    displayintersecthorizonmnuitem_.checkable = true; \
+    singlecolmnuitem_.checkable = true; \
+    savemnuitem_.iconfnm = "save.png"; \
+    saveasmnuitem_.iconfnm = "saveas.png"; \
+
 
 
 uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
@@ -177,11 +186,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     mCommonInit
 {
-    displayplanemnuitem_.checkable = true;
-    displaystickmnuitem_.checkable = true;
-    displayintersectionmnuitem_.checkable = true;
-    displayintersecthorizonmnuitem_.checkable = true;
-    singlecolmnuitem_.checkable = true;
+    mCommonInit2
 }
 
 
@@ -191,11 +196,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     , faultdisplay_(0)
     mCommonInit
 {
-    displayplanemnuitem_.checkable = true;
-    displaystickmnuitem_.checkable = true;
-    displayintersectionmnuitem_.checkable = true;
-    displayintersecthorizonmnuitem_.checkable = true;
-    singlecolmnuitem_.checkable = true;
+    mCommonInit2
     displayid_ = id;
 }
 
@@ -284,11 +285,10 @@ void uiODFaultTreeItem::prepareForShutdown()
 }
 
 
-void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
+void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
@@ -480,6 +480,8 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     mCommonInit
 {
     onlyatsectmnuitem_.checkable = true;
+    savemnuitem_.iconfnm = "save.png";
+    saveasmnuitem_.iconfnm = "saveas.png";
 }
 
 
@@ -490,6 +492,8 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     onlyatsectmnuitem_.checkable = true;
+    savemnuitem_.iconfnm = "save.png";
+    saveasmnuitem_.iconfnm = "saveas.png";
 }
 
 
@@ -578,11 +582,10 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
 }
 
 
-void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
+void uiODFaultStickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,

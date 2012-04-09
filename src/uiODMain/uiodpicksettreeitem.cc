@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.74 2012-03-30 22:34:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.75 2012-04-09 22:15:07 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -236,6 +236,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     onlyatsectmnuitem_.checkable = true;
 
     storemnuitem_.iconfnm = "save.png";
+    storeasmnuitem_.iconfnm = "saveas.png";
 }
 
 
@@ -287,12 +288,19 @@ bool uiODPickSetTreeItem::init()
 }
 
 
-void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
+void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet( MenuHandler*, menu, cb );
-    if ( menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
+
+    if ( istb )
+    {
+	const int setidx = Pick::Mgr().indexOf( set_ );
+	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
+	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
+	return;
+    }
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
