@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.29 2012-03-28 21:58:22 cvsyuancheng Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.30 2012-04-09 13:43:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ protected:
     uiToolBar*			toolbar_;
     uiListBox*			attrlistfld_;
     uiAttrTypeSel*		attrtypefld_;
-    uiPushButton*		rmbut_;
+
     uiPushButton*		addbut_;
     uiPushButton*		revbut_;
     uiGenInput*			attrnmfld_;
@@ -106,7 +106,7 @@ protected:
     uiToolButton*       	moveupbut_;
     uiToolButton*       	movedownbut_;
     uiToolButton*       	sortbut_;
-
+    uiToolButton*		rmbut_;
 
     void			attrTypSel(CallBacker*);
     void			selChg(CallBacker*);
@@ -122,6 +122,7 @@ protected:
     void			openSet(CallBacker*);
     void                	openAttribSet(const IOObj*);
     void			savePush(CallBacker*);
+    void			saveAsPush(CallBacker*);
     void			changeInput(CallBacker*);
     void			defaultSet(CallBacker*);
     void			getDefaultAttribsets(BufferStringSet&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.121 2012-03-27 22:11:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.122 2012-04-09 13:43:07 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -66,6 +66,7 @@ const char* uiAttribDescSetEd::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
 const char* uiAttribDescSetEd::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";
 
 BufferString uiAttribDescSetEd::nmprefgrp_( "" );
+static const char* sKeyNotSaved = "<not saved>";
 
 static bool prevsavestate = true;
 static bool evaldlgpoppedup = false;
@@ -124,7 +125,8 @@ void uiAttribDescSetEd::createMenuBar()
     uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
     mInsertItem( "&New set ...", newSet, "newset.png" );
     mInsertItem( "&Open set ...", openSet, "openset.png" );
-    mInsertItem( "&Save set ...", savePush, "saveset.png" );
+    mInsertItem( "&Save set ...", savePush, "save.png" );
+    mInsertItem( "&Save set as ...", saveAsPush, "saveas.png" );
     mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
     mInsertItemNoIcon( "&Change input ...", changeInput );
     filemnu->insertSeparator();
@@ -149,7 +151,8 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "impset.png", importSet, 
 	    	"Import attribute set from other survey" );
     mAddButton( "job2set.png", job2Set, "Reconstruct set from job file" );
-    mAddButton( "saveset.png", savePush, "Save attribute set" );
+    mAddButton( "save.png", savePush, "Save attribute set" );
+    mAddButton( "saveas.png", saveAsPush, "Save attribute set as" );
     toolbar_->addSeparator();
     mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
@@ -171,21 +174,18 @@ void uiAttribDescSetEd::createGroups()
     attrlistfld_->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
     attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
-    rmbut_ = new uiPushButton( leftgrp, "Remove selected", true );
-    rmbut_->attach( leftAlignedBelow, attrlistfld_ );
-    rmbut_->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
-
-    sortbut_ = new uiToolButton( leftgrp, "sort.png", "Sort attributes",
-	    			 mCB(this,uiAttribDescSetEd,sortPush) );
-    sortbut_->attach( rightOf, rmbut_ );
-    sortbut_->setPrefWidth( 30 );
-
     moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow, "Up",
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
     movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, "Down",
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
+    sortbut_ = new uiToolButton( leftgrp, "sort.png", "Sort attributes",
+	    			 mCB(this,uiAttribDescSetEd,sortPush) );
+    sortbut_->attach( alignedBelow, movedownbut_ );
+    rmbut_ = new uiToolButton( leftgrp, "trashcan.png", "Remove selected",
+				mCB(this,uiAttribDescSetEd,rmPush) );
+    rmbut_->attach( alignedBelow, sortbut_ );
 
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
@@ -313,7 +313,7 @@ void uiAttribDescSetEd::init()
 	}
     }
     else
-    	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : "" );
+    	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : sKeyNotSaved );
 
     cancelsetid_ = setid_;
     newList(0);
@@ -365,6 +365,13 @@ void uiAttribDescSetEd::selChg( CallBacker* )
 
 
 void uiAttribDescSetEd::savePush( CallBacker* )
+{
+    removeNotUsedAttr();
+    doSave( true );
+}
+
+
+void uiAttribDescSetEd::saveAsPush( CallBacker* )
 {
     removeNotUsedAttr();
     doSave( false );
@@ -868,7 +875,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
     setid_ = -1;
     updateUserRefs();
     newList( -1 );
-    attrsetfld_->setText( "" );
+    attrsetfld_->setText( sKeyNotSaved );
     adsman_->setSaved( true );
 }
 
@@ -940,7 +947,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
-    attrsetfld_->setText( attribnames[selitm]->buf() );
+    attrsetfld_->setText( sKeyNotSaved );
 }
 
 
@@ -996,7 +1003,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     replaceStoredAttr( iopar );
     attrset_->usePar( iopar, toFloat(ascstrm.version()) );
     newList( -1 );
-    attrsetfld_->setText( "" );
+    attrsetfld_->setText( sKeyNotSaved );
     setctio_.ioobj = 0;
 }
 
@@ -1017,7 +1024,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 	    setid_ = setctio_.ioobj->key();
 	    replaceStoredAttr();
 	    newList( -1 );
-	    attrsetfld_->setText( "" );
+	    attrsetfld_->setText( sKeyNotSaved );
 	    setctio_.ioobj = 0;
 	}
     }
@@ -1047,7 +1054,7 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 	adsman_->setSaved( false );
 
 	setctio_.setObj( 0 );
-	newList( -1 ); attrsetfld_->setText( "" );
+	newList( -1 ); attrsetfld_->setText( sKeyNotSaved );
     }
 }
 
