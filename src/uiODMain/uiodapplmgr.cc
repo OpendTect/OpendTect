@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.431 2012-03-20 10:08:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.432 2012-04-09 22:11:58 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -86,6 +86,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
 	, applservice_(*new uiODApplService(&a,*this))
 	, nlaserv_(0)
+	, attribSetChg(this)
 	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
@@ -1500,8 +1501,11 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet() )
+    {
+	attribSetChg.trigger();
 	mpeserv_->setCurrentAttribDescSet(
 				attrserv_->curDescSet(attrserv_->is2DEvent()) );
+    }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed() )
     {
 	enableMenusAndToolBars( true );
