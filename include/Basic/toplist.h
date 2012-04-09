@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.5 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: toplist.h,v 1.6 2012-04-09 05:31:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "typeset.h"
+
+#include <utility>
 
 /*!\brief
 is a class that holds a "top N" list with the N highest (or lowest) values
@@ -24,77 +26,48 @@ template <class VT, class AVT>
 class TopList
 {
 public:
-			TopList( int maxsize_, VT undefval_, bool istop_)
-			    : istop( istop_ )
-			    , maxsize( maxsize_ )
-			    , undefval( undefval_ ) { }
-    virtual		~TopList() {}
+			TopList( int maxsize )
+			    : maxsize_( maxsize )		{}
 
-    inline bool		isTop() const;
-    inline void		setTop(bool yn);
-    			/*!<\note If the new setting is different from the 
-			  	  current one, the object will be reset
-			*/
+    virtual		~TopList()				{}
+
     inline void		reset();
     			/*!< Removes all values */
 
-    inline VT		getValue(int pos) const;
-    inline AVT		getAssociatedValue(int pos) const;
+    inline VT		getValue(int rank) const;
+    inline AVT		getAssociatedValue(int rank) const;
 
-    inline virtual int	size() const;
-    inline VT		getBottomValue() const;
+    inline int		size() const;
+    inline int		isEmpty() const { return !size(); }
+
     inline void		addValue( VT val, AVT aval );
 private:
 
-    TypeSet<VT>		values;
-    TypeSet<AVT>	avals;
-    bool		istop;
-    const int		maxsize;
-    VT			undefval;
-
+    TypeSet<std::pair<VT,AVT> >	values_;
+    const int			maxsize_;
 };
-
-
-template <class VT, class AVT> inline
-bool TopList<VT,AVT>::isTop() const { return istop; }
-
-
-template <class VT, class AVT> inline
-void TopList<VT,AVT>::setTop( bool yn )
-{
-    if ( yn==istop ) return;
-    istop = yn;
-    reset();
-}
 
 
 template <class VT, class AVT> inline
 void TopList<VT,AVT>::reset()
 {
-    values.erase();
-    avals.erase();
+    values_.erase();
 }
 
 
 template <class VT, class AVT> inline
-VT TopList<VT,AVT>::getBottomValue() const
-{
-    if ( size() )
-	return values[size()-1];
-    return undefval;
-}
+VT TopList<VT,AVT>::getValue(int pos) const
+{ return values_[pos].first; }
 
 
 template <class VT, class AVT> inline
-VT TopList<VT,AVT>::getValue(int pos) const { return values[pos]; }
+AVT TopList<VT,AVT>::getAssociatedValue(int pos) const
+{ return values_[pos].second; }
 
 
 template <class VT, class AVT> inline
-AVT TopList<VT,AVT>::getAssociatedValue(int pos) const { return avals[pos]; }
-
-
-template <class VT, class AVT> inline
-int TopList<VT,AVT>::size() const { return avals.size(); }
+int TopList<VT,AVT>::size() const
+{ return values_.size(); }
 
 
 template <class VT, class AVT> inline
@@ -102,29 +75,22 @@ void TopList<VT,AVT>::addValue( VT val, AVT aval )
 {
     int pos = 0;
     const int mysize = size();
-    if ( istop )
-	while ( pos<mysize && values[pos]>val ) pos++;
-    else
-	while ( pos<mysize && values[pos]<val ) pos++;
+
+    while ( pos<mysize && values_[pos].first>val ) pos++;
 
     if ( pos==mysize )
     {
-	if ( mysize>=maxsize )
+	if ( mysize>=maxsize_ )
 	    return;
 
-	values += val;
-	avals += aval;
+	values_ += std::pair<VT,AVT>( val, aval );
     }
     else
     {
-	values.insert( pos, val );
-	avals.insert( pos, aval );
+	values_.insert( pos, std::pair<VT,AVT>(val,aval) );
 
-	if ( mysize==maxsize )
-	{
-	    values.remove(mysize);
-	    avals.remove(mysize);
-	}
+	if ( mysize==maxsize_ )
+	    values_.remove(mysize);
     }
 }
 #endif
