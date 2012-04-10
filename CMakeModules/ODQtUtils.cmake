@@ -2,37 +2,37 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.12 2012-03-26 14:57:10 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.13 2012-04-10 07:20:28 cvskris Exp $
 #_______________________________________________________________________________
 
-IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
-    SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
-    SET(QTDIR_ENV $ENV{QTDIR})
+MACRO(OD_SETUP_QT)
+    IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
+	SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
+	SET(QTDIR_ENV $ENV{QTDIR})
 
-    IF(OD_QTDIR_ENV)
-	SET(QTDIR ${OD_QTDIR_ENV} CACHE PATH "QT Location" FORCE )
-	MESSAGE( STATUS "Detecting QT location: ${QTDIR}" )
-    ELSE()
-	IF(QTDIR_ENV)
-	    SET(QTDIR ${QTDIR_ENV} CACHE PATH "QT Location" FORCE )
+	IF(OD_QTDIR_ENV)
+	    SET(QTDIR ${OD_QTDIR_ENV} CACHE PATH "QT Location" FORCE )
 	    MESSAGE( STATUS "Detecting QT location: ${QTDIR}" )
+	ELSE()
+	    IF(QTDIR_ENV)
+		SET(QTDIR ${QTDIR_ENV} CACHE PATH "QT Location" FORCE )
+		MESSAGE( STATUS "Detecting QT location: ${QTDIR}" )
+	    ENDIF()
 	ENDIF()
     ENDIF()
-ENDIF()
 
-IF ( QTDIR STREQUAL "" )
-    SET(QTDIR "" CACHE PATH "QT location" FORCE )
-    MESSAGE( FATAL_ERROR "QTDIR not set")
-ENDIF()
+    IF ( QTDIR STREQUAL "" )
+	SET(QTDIR "" CACHE PATH "QT location" FORCE )
+	MESSAGE( FATAL_ERROR "QTDIR not set")
+    ENDIF()
 
-SET( ENV{QTDIR} ${QTDIR} )
-SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
+    SET( ENV{QTDIR} ${QTDIR} )
+    SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
 
-FIND_PACKAGE(Qt4 COMPONENTS QtGui QtCore QtSql QtNetwork )
+    FIND_PACKAGE(Qt4 COMPONENTS QtGui QtCore QtSql QtNetwork )
 
- 
-MACRO(OD_SETUP_QT)
+     
     include(${QT_USE_FILE})
 
     IF(${OD_USEQT} MATCHES "Core" )
