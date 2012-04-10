@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.98 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.99 2012-04-10 18:22:45 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -388,7 +388,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     {
 	if ( File::isEmpty(fnm) )
 	{
-	    uiMSG().error( "Invalid (epty or not readable) specification file" );
+	    uiMSG().error("Invalid (empty or not readable) specification file");
 	    return false;
 	}
     }
