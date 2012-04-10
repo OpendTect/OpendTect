@@ -7,11 +7,13 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uifkspectrum.cc,v 1.1 2012-04-02 22:45:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifkspectrum.cc,v 1.2 2012-04-10 21:38:36 cvsnanne Exp $";
 
 #include "uifkspectrum.h"
 
 #include "uimsg.h"
+#include "uiflatviewer.h"
+#include "uiflatviewstdcontrol.h"
 
 #include "arrayndimpl.h"
 #include "bufstring.h"
@@ -21,15 +23,26 @@ static const char* rcsID = "$Id: uifkspectrum.cc,v 1.1 2012-04-02 22:45:42 cvsna
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p )
-    : uiMainWin( p,"FK Spectrum", 0, false, false )
+    : uiFlatViewMainWin(p,Setup("FK Spectrum"))
     , fft_(0)
+    , input_(0)
     , output_(0)
+    , spectrum_(0)
 {
+    uiFlatViewer& vwr = viewer();
+    vwr.setInitialSize( uiSize(600,400) );
+    vwr.appearance().setDarkBG( false );
+    vwr.appearance().setGeoDefaults( false );
+    vwr.appearance().annot_.setAxesAnnot(true);
+    vwr.appearance().ddpars_.wva_.allowuserchange_ = false;
+    vwr.appearance().ddpars_.vd_.show_ = true;
+    addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
 }
 
 
 uiFKSpectrum::~uiFKSpectrum()
 {
+    delete input_;
     delete output_;
     delete fft_;
 }
@@ -72,7 +85,11 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
     if ( !compute(array) )
 	return;
 
-    view( *output_ );
+    for ( int idx=0; idx<sz0; idx++ )
+	for ( int idy=0; idy<sz1; idy++ )
+	    spectrum_->set( idx, idy, abs(output_->get(idx,idy)) );
+
+    view( *spectrum_ );
 }
 
 
@@ -86,7 +103,12 @@ void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
     fft_->setInputInfo( Array2DInfoImpl(xsz,zsz) );
     fft_->setDir( true );
 
-    output_ = new Array2DImpl<float>( zsz, zsz );
+    input_ = new Array2DImpl<float_complex>( xsz, zsz );
+    input_->setAll( float_complex(0,0) );
+    output_ = new Array2DImpl<float_complex>( xsz, zsz );
+    output_->setAll( float_complex(0,0) );
+    spectrum_ = new Array2DImpl<float>( xsz, zsz );
+    spectrum_->setAll( 0 );
 }
 
 
@@ -94,7 +116,18 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 {
     if ( !output_ ) return false;
 
-    fft_->setInput( array.getData() );
+    const int sz0 = array.info().getSize( 0 );
+    const int sz1 = array.info().getSize( 1 );
+    for ( int idx=0; idx<sz0; idx++ )
+    {
+	for ( int idy=0; idy<sz1; idy++ )
+	{
+	    const float val = array.get( idx, idy );
+	    input_->set( idx, idy, mIsUdf(val) ? 0 : val );
+	}
+    }
+
+    fft_->setInput( input_->getData() );
     fft_->setOutput( output_->getData() );
     fft_->run( true );
 
@@ -102,33 +135,20 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 }
 
 
-bool uiFKSpectrum::view( const Array2D<float>& array )
+bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    /*
-    MapDataPack* datapack = new MapDataPack( "Attribute", "Thickness", data );
-    StepInterval<double> inlrg( hs_.start.inl, hs_.stop.inl, hs_.step.inl );
-    StepInterval<double> crlrg( hs_.start.crl, hs_.stop.crl, hs_.step.crl );
-    datapack->posData().setRange( true, inlrg );
-    datapack->posData().setRange( false, crlrg );
+    MapDataPack* datapack = new MapDataPack( "Attribute", "F-K", &array );
+    const int sz0 = array.info().getSize( 0 );
+    const int sz1 = array.info().getSize( 1 );
+    StepInterval<double> frg( 0, sz0-1, 1 );
+    StepInterval<double> krg( 0, sz1-1, 1 );
+    datapack->posData().setRange( true, frg );
+    datapack->posData().setRange( false, krg );
     datapack->setPosCoord( false );
-    datapack->setDimNames( "In-line", "Cross-line", true );
+    datapack->setDimNames( "F", "K", true );
     DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
     dpman.add( datapack );
-
-    uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
-	    			 uiFlatViewMainWin::Setup( "Thickness Map") );
-    uiFlatViewer& vwr = fvmw->viewer();
-    vwr.setInitialSize( uiSize(600,400) );
-    vwr.appearance().setDarkBG( false );
-    vwr.appearance().setGeoDefaults( false );
-    vwr.appearance().annot_.setAxesAnnot(true);
-    vwr.appearance().ddpars_.wva_.allowuserchange_ = false;
-    fvmw->addControl( new uiFlatViewStdControl( vwr, 
-					uiFlatViewStdControl::Setup(0) ) );
-    vwr.setPack( false, datapack->id(), false, false );
-    vwr.appearance().ddpars_.vd_.show_ = true;
-    fvmw->start();
-    */
+    viewer().setPack( false, datapack->id(), false, false );
 
     return true;
 }

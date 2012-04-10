@@ -7,12 +7,13 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uifkspectrum.h,v 1.1 2012-04-02 22:45:41 cvsnanne Exp $
+RCS:           $Id: uifkspectrum.h,v 1.2 2012-04-10 21:38:36 cvsnanne Exp $
 ______________________________________________________________________
                        
 */   
 
-#include "uidialog.h"
+#include "uiflatviewmainwin.h"
+
 #include "datapack.h"
 #include "survinfo.h"
 
@@ -23,7 +24,7 @@ namespace Fourier { class CC; }
 template <class T> class Array2D;
 
 
-mClass uiFKSpectrum : public uiMainWin
+mClass uiFKSpectrum : public uiFlatViewMainWin
 {
 public:
     				uiFKSpectrum(uiParent*);
@@ -36,10 +37,12 @@ protected:
 
     void			initFFT(int,int);
     bool			compute(const Array2D<float>&);
-    bool			view(const Array2D<float>&);
+    bool			view(Array2D<float>&);
 
     Fourier::CC*		fft_;
-    Array2D<float>*		output_;
+    Array2D<float_complex>*	input_;
+    Array2D<float_complex>*	output_;
+    Array2D<float>*		spectrum_;
 };
 
 
