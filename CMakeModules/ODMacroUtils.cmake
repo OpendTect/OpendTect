@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.47 2012-04-06 06:30:06 cvsranojay Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.48 2012-04-10 09:10:16 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -232,19 +232,17 @@ IF( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS )
 ENDIF()
 
 #Add executable targets
-IF(OD_MODULE_PROGS)
+IF( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 
-    #Check if we are a ui-applications, and set OD_EXEC_GUI_SYSTEM
-    #flag accordingly.
-    IF ( OD_MODULE_INTERNAL_LIBS )
-	LIST ( FIND OD_MODULE_INTERNAL_LIBS "uiBase" INDEX )
+    FOREACH( EXEC ${OD_MODULE_PROGS} ${OD_MODULE_GUI_PROGS} )
+	GET_FILENAME_COMPONENT( TARGET_NAME ${EXEC} NAME_WE )
+
+	#Check if from GUI list
+	LIST ( FIND OD_MODULE_GUI_PROGS ${EXEC} INDEX )
 	IF ( NOT ${INDEX} EQUAL -1 )
 	    SET( OD_EXEC_GUI_SYSTEM ${OD_GUI_SYSTEM} )
 	ENDIF()
-    ENDIF( OD_MODULE_INTERNAL_LIBS )
 
-    FOREACH( EXEC ${OD_MODULE_PROGS} )
-	GET_FILENAME_COMPONENT( TARGET_NAME ${EXEC} NAME_WE )
 	ADD_EXECUTABLE( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
 			${OD_${EXEC}_RESOURCE} )
 	SET_TARGET_PROPERTIES( ${TARGET_NAME}
@@ -274,7 +272,7 @@ IF(OD_MODULE_PROGS)
 	OD_SIGN_TARGET( ${TARGET_NAME} )
     ENDFOREACH()
 
-ENDIF(OD_MODULE_PROGS)
+ENDIF()
 
 IF(OD_MODULE_BATCHPROGS)
     #Add dep on Batch if there are batch-progs
