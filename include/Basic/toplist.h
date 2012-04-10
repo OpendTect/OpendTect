@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.6 2012-04-09 05:31:50 cvskris Exp $
+ RCS:		$Id: toplist.h,v 1.7 2012-04-10 06:42:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,9 @@ public:
 
     inline VT		getValue(int rank) const;
     inline AVT		getAssociatedValue(int rank) const;
+
+    inline bool		getHighestValue( VT& ) const;
+    inline bool		getLowestValue( VT& ) const;
 
     inline int		size() const;
     inline int		isEmpty() const { return !size(); }
@@ -68,6 +71,35 @@ AVT TopList<VT,AVT>::getAssociatedValue(int pos) const
 template <class VT, class AVT> inline
 int TopList<VT,AVT>::size() const
 { return values_.size(); }
+
+
+
+template <class VT, class AVT> inline
+bool TopList<VT,AVT>::getHighestValue( VT& res ) const
+{
+    if ( size() )
+    {
+	res = values_[0].first;
+	return true;
+    }
+
+    return false;
+}
+
+
+template <class VT, class AVT> inline
+bool TopList<VT,AVT>::getLowestValue( VT& res ) const
+{
+    const int sz = size();
+    if ( sz )
+    {
+	res = values_[sz-1].first;
+	return true;
+    }
+
+    return false;
+}
+
 
 
 template <class VT, class AVT> inline

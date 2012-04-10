@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.18 2012-04-09 05:31:50 cvskris Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.19 2012-04-10 06:42:22 cvskris Exp $";
 
 
 #include "houghtransform.h"
@@ -177,16 +177,13 @@ PlaneFrom3DSpaceHoughTransform::sortParamSpace(int size) const
 
     unsigned int* paramptr = paramspace_->getData();
 
-    unsigned int lowest = res->isEmpty()
-	? 0
-	: res->getValue(res->size()-1 );
-
+    unsigned int lowest = 0;
     for ( unsigned int idx=0; idx<paramsize; idx++ )
     {
 	if ( paramptr[idx]>lowest )
 	{
 	    res->addValue( paramptr[idx], idx );
-	    lowest = res->getValue(res->size()-1 );
+	    res->getLowestValue( lowest );
 	}
     }
 
