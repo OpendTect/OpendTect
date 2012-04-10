@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.13 2012-03-30 06:10:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: ziputils.cc,v 1.14 2012-04-10 04:47:00 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -89,10 +89,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     if ( res && tempfile )
     {
-	BufferString cpcmd( "copy \"" );
-	cpcmd.add( filelistname_ ) .add( "\" \"" ).add( orgfnm.fullPath() )
-	    .add("\"");
-	system( cpcmd );
+	File::copy( filelistname_, orgfnm.fullPath() );
 	File::remove( filelistname_ );
 	return true;
     }

@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.24 2012-03-30 06:10:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.25 2012-04-10 04:47:00 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -205,7 +205,7 @@ static int initialise_Co( void )
 
 bool winCopy( const char* from, const char* to, bool isfile )
 {
-    if ( File::getKbSize(from) < 1024 )
+    if ( isfile && File::getKbSize(from) < 1024 )
     {
 	BufferString cmd;
 	cmd = "copy /Y";
