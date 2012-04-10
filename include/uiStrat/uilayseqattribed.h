@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uilayseqattribed.h,v 1.4 2011-12-22 12:40:08 cvsbert Exp $
+ RCS:           $Id: uilayseqattribed.h,v 1.5 2012-04-10 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,14 +20,27 @@ class uiStratSelUnits;
 namespace Strat { class LaySeqAttrib; class RefTree; };
 
 
-/*! \brief Dialog for creating volume output */
+/*! \brief edits a layer sequence attribute */
 
 mClass uiLaySeqAttribEd : public uiDialog
 {
 public:
 
+    mClass Setup
+    {
+    public:
+			Setup( bool isnw )
+			    : isnew_(isnw)
+			    , allowlocal_(true)
+			    , allowintegr_(true)	{}
+
+	mDefSetupMemb(bool,isnew)
+	mDefSetupMemb(bool,allowlocal)
+	mDefSetupMemb(bool,allowintegr)
+    };
+
 			uiLaySeqAttribEd(uiParent*,Strat::LaySeqAttrib&,
-					 const Strat::RefTree&,bool isnew);
+					 const Strat::RefTree&,const Setup&);
 			~uiLaySeqAttribEd();
 
     bool		anyChange() const	{ return anychg_; }
@@ -41,8 +54,8 @@ protected:
     bool		anychg_;
 
     uiGroup*		localgrp_;
-    uiGroup*		slidegrp_;
-    uiGenInput*		isslidingfld_;
+    uiGroup*		integrgrp_;
+    uiGenInput*		islocalfld_;
     uiGenInput*		namefld_;
     uiGenInput*		valfld_;
     uiStratSelUnits*	unfld_;
@@ -51,7 +64,9 @@ protected:
     uiComboBox*		upscaletypfld_;
     uiComboBox*		transformfld_;
 
-    const char*		gtDlgTitle(const Strat::LaySeqAttrib&,bool) const;
+    inline bool		haveLocal() const	{ return localgrp_; }
+    inline bool		haveIntegrated() const	{ return integrgrp_; }
+    bool		isLocal() const;
     void		putToScreen();
     bool		getFromScreen();
 

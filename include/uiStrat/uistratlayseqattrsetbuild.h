@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.4 2012-03-23 15:03:55 cvsbert Exp $
+ RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.5 2012-04-10 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,11 @@ mClass uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
 
+    enum SetTypeSel	{ AllTypes, OnlyLocal, OnlyIntegrated };
+
     			uiStratLaySeqAttribSetBuild(uiParent*,
 						const Strat::LayerModel&,
+						SetTypeSel sts=AllTypes,
 						Strat::LaySeqAttribSet* a=0);
     			~uiStratLaySeqAttribSetBuild();
 
@@ -39,6 +42,7 @@ protected:
     const Strat::RefTree&	reftree_;
     PropertyRefSelection	props_;
     CtxtIOObj&			ctio_;
+    const SetTypeSel		typesel_;
 
     virtual void	editReq(bool);
     virtual void	removeReq();

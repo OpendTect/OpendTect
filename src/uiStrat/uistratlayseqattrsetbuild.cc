@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.10 2012-03-23 15:03:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.11 2012-04-10 14:29:43 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -25,14 +25,16 @@ static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.10 2012-03-23 
 
 
 uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
-					    const Strat::LayerModel& lm,
-					    Strat::LaySeqAttribSet* as )
+				    const Strat::LayerModel& lm,
+				    uiStratLaySeqAttribSetBuild::SetTypeSel sts,
+				    Strat::LaySeqAttribSet* as )
     : uiBuildListFromList(p,
 		  uiBuildListFromList::Setup(false,"property","attribute"),
 		  "Layer Sequence Attrib Set build group")
     , attrset_(as ? *as : *new Strat::LaySeqAttribSet)
     , reftree_(lm.refTree())
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
+    , typesel_(sts)
     , setismine_(!as)
 {
     BufferStringSet dispnms;
@@ -89,7 +91,10 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
     }
     if ( !attr ) { pErrMsg("Huh"); return; }
 
-    uiLaySeqAttribEd dlg( this, *attr, reftree_, isadd );
+    uiLaySeqAttribEd::Setup su( isadd );
+    su.allowlocal( typesel_ != OnlyIntegrated );
+    su.allowintegr( typesel_ != OnlyLocal );
+    uiLaySeqAttribEd dlg( this, *attr, reftree_, su );
     if ( dlg.go() )
 	handleSuccessfullEdit( isadd, attr->name() );
     else if ( isadd )
@@ -139,6 +144,15 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	if ( !forsave )
 	{
 	    removeAll();
+	    if ( typesel_ != AllTypes )
+	    {
+		const bool needlocal = typesel_ == OnlyLocal;
+		for ( int idx=0; idx<attrset_.size(); idx++ )
+		{
+		    if ( attrset_[idx]->islocal_ != needlocal )
+			{ attrset_.remove( idx ); idx--; }
+		}
+	    }
 	    for ( int idx=0; idx<attrset_.size(); idx++ )
 		addItem( attrset_.attr(idx).name() );
 	}
