@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.7 2012-04-05 13:43:47 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.8 2012-04-11 15:00:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ protected:
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		dataChangeCB(CallBacker*);
-    void		setZoomBoxes();
+    void		setZoomBoxesCB(CallBacker*);
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*);
     void		wheelMoveCB(CallBacker*);

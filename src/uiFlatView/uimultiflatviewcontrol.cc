@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.8 2012-04-05 13:43:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiflatviewcontrol.cc,v 1.9 2012-04-11 15:00:49 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -58,7 +58,6 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 	 zoommgrs_[vwrs_.indexOf(activevwr_)]->add( sz );
 
     activevwr_->setView( wr );
-    setZoomBoxes();
 
     zoomChanged.trigger();
 }
@@ -87,6 +86,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
     vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
     vwr.appearance().annot_.editable_ = false;
+    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
 
     reInitZooms();
 }
@@ -138,7 +138,7 @@ void uiMultiFlatViewControl::reInitZooms()
 
 void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 {
-    activevwr_ = 0;
+    activevwr_ = vwrs_[0];
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
@@ -157,13 +157,15 @@ void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 
 void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 {
-    if ( !activevwr_ ) return;
+    if ( !activevwr_ ) 
+	activevwr_ = vwrs_[0];
+
     const bool zoomin = but == zoominbut_;
-    doZoom( zoomin, *activevwr_, zoommgr_ );
+    doZoom( zoomin, *activevwr_, *zoommgrs_[vwrs_.indexOf( activevwr_ )] );
 }
 
 
-void uiMultiFlatViewControl::setZoomBoxes()
+void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 {
     if ( !iszoomcoupled_ || !activeVwr() ) return;
 
@@ -182,6 +184,7 @@ void uiMultiFlatViewControl::setZoomBoxes()
 		        masterbbox.bottom(), bbox.bottom() );
 	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
 			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
+	NotifyStopper ns( vwrs_[idx]->viewChanged );
 	vwrs_[idx]->setView( newwr );
     }
 }
