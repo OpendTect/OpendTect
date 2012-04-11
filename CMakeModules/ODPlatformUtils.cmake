@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.37 2012-04-11 11:19:54 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.38 2012-04-11 14:01:20 cvsbert Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -43,7 +43,8 @@ IF(UNIX) #Apple an Linux
 	    SET ( OD_PLFSUBDIR "lux32" )
 	    ADD_DEFINITIONS("-Dlux32")
 	ENDIF()
-        ADD_DEFINITIONS("-Dlux")
+        ADD_DEFINITIONS("-Dlux -Wmissing-declarations")
+	
     ENDIF()
 
     ADD_DEFINITIONS("'-DmDeclareRcsID=static const char* __attribute__ ((unused)) rcsID'")
