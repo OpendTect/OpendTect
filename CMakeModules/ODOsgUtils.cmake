@@ -2,21 +2,13 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.9 2012-04-10 07:20:28 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.10 2012-04-11 07:50:59 cvskris Exp $
 #_______________________________________________________________________________
 
 
+SET(OSG_DIR "" CACHE PATH "OSG Location" )
+
 MACRO(OD_SETUP_OSG)
-    IF ( (NOT DEFINED OSG_DIR) OR OSG_DIR STREQUAL "" )
-	SET(OD_OSGDIR_ENV $ENV{OD_OSGDIR})
-
-	IF(OD_OSGDIR_ENV)
-	    SET(OSG_DIR ${OD_OSGDIR_ENV} CACHE PATH "OSG Location" FORCE )
-	    MESSAGE( STATUS "Detecting OSG location: ${OSG_DIR}" )
-	ENDIF()
-    ENDIF()
-
-
     SET(OSGGEO_DIR ${OSG_DIR})
 
     LIST(APPEND CMAKE_MODULE_PATH ${OSGGEO_DIR}/share/CMakeModules )
