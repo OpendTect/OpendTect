@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-04-11 11:02:29 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-11 12:58:27 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -21,6 +21,13 @@ OPTION ( OD_BUILD_LOCAL "Build in local directory" ON )
 SET ( PLUGINS Tut uiTut )
 OD_ADD_MODULES( plugins ${PLUGINS} )
 
+FOREACH ( plugin ${PLUGINS} )
+    LIST( APPEND RUNTIMEPATH ${OD_${plugin}_RUNTIMEPATH} )
+ENDFOREACH()
+
+LIST ( APPEND RUNTIMEPATH ${OD_EXEC_OUTPUT_PATH} )
+LIST ( REMOVE_DUPLICATES RUNTIMEPATH )
+
 IF( OD_CREATE_LAUNCHERS )
     add_custom_target( od_main ALL )
     foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -32,12 +39,12 @@ IF( OD_CREATE_LAUNCHERS )
 
     create_target_launcher( od_main
     	RUNTIME_LIBRARY_DIRS
-    	${OD_MODULE_RUNTIMEPATH}
-    	${OD_LIB_OUTPUT_PATH}
-    	${OD_PLUGIN_OUTPUT_PATH}
+	${RUNTIMEPATH}
     	ENVIRONMENT
 	DTECT_APPL=${OpendTect_DIR}
 	WORK=${OpendTect_DIR} )
+
+    MESSAGE( 	${RUNTIMEPATH} )
 ENDIF( OD_CREATE_LAUNCHERS )
 
 OD_WRITE_ALOFILES( ${CMAKE_CURRENT_BINARY_DIR} )
