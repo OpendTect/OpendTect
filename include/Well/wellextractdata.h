@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.34 2012-04-05 14:06:35 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.35 2012-04-11 11:00:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,10 @@ public :
 
     bool		isZRangeInTime() const { return zselection_ == Times; }
 
-    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs) const;
-    Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs) const;
+    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
+	    				bool todah=true) const;
+    Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
+	    				bool todah=true) const;
     Interval<float>	zrg_; /*! raw zrg, can be in time if selection is time. 
 				  In principle should not be used. 
 				  Use calcFrom instead !*/ 

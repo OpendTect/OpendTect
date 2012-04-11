@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.74 2012-04-05 14:06:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.75 2012-04-11 11:00:40 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -190,7 +190,7 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
 #define mGetTrackRg(rg)\
     rg.start = wd.track().dah(0); rg.stop = wd.track().dah(wd.track().size()-1);
 Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj, 
-					const BufferStringSet& lognms ) const 
+			    const BufferStringSet& lognms, bool todah ) const 
 {
     if ( zselection_ == Times )
 	return zrg_;
@@ -204,11 +204,15 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     wr.getD2T(); 
     wr.getMarkers();
 
+    const Well::Track& track = wd.track();
     if ( zselection_ == Depths )
     {
-	const Well::Track& track = wd.track();
-	dahrg.start = track.getDahForTVD( zrg_.start );
-	dahrg.stop = track.getDahForTVD( zrg_.stop );
+	dahrg = zrg_;
+	if ( todah )
+	{
+	    dahrg.start = track.getDahForTVD( zrg_.start );
+	    dahrg.stop = track.getDahForTVD( zrg_.stop );
+	}
 	return dahrg;
     }
 
@@ -228,23 +232,32 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     }
 
     getMarkerRange( wd, dahrg );
+    if ( !todah )
+    {
+	dahrg.start = track.getPos( dahrg.start ).z;
+	dahrg.stop = track.getPos( dahrg.stop ).z;
+    }
     return dahrg;
 }
 
 
 Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
-					const BufferStringSet& lognms ) const 
+			    const BufferStringSet& lognms, bool todah ) const 
 {
     if ( zselection_ == Times )
 	return zrg_;
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
+    const Well::Track& track = wd.track();
     if (  zselection_ == Depths )
     {
-	const Well::Track& track = wd.track();
-	dahrg.start = track.getDahForTVD( zrg_.start );
-	dahrg.stop = track.getDahForTVD( zrg_.stop );
+	dahrg = zrg_;
+	if ( todah )
+	{
+	    dahrg.start = track.getDahForTVD( zrg_.start );
+	    dahrg.stop = track.getDahForTVD( zrg_.stop );
+	}
 	return dahrg;
     }
 
@@ -271,6 +284,11 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
     }
 
     getMarkerRange( wd, dahrg );
+    if ( !todah )
+    {
+	dahrg.start = track.getPos( dahrg.start ).z;
+	dahrg.stop = track.getPos( dahrg.stop ).z;
+    }
     return dahrg;
 }
 
