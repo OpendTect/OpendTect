@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-04-11 08:53:49 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-04-11 11:02:29 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -23,18 +23,21 @@ OD_ADD_MODULES( plugins ${PLUGINS} )
 
 IF( OD_CREATE_LAUNCHERS )
     add_custom_target( od_main ALL )
-    set_target_properties( od_main PROPERTIES LOCATION_Debug od_main )
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+	set_target_properties( od_main
+		PROPERTIES
+		LOCATION_${CONFIG}
+		${OD_EXEC_OUTPUT_PATH}/${CONFIG}/od_main )
+    endforeach()
 
-    create_generic_launcher( od_main
-	RUNTIME_LIBRARY_DIRS
-	${OD_MODULE_RUNTIMEPATH}
-	${OD_LIB_OUTPUT_PATH}
-	${OD_PLUGIN_OUTPUT_PATH}
-	ENVIRONMENT
-	DTECT_APPL=${OD_BINARY_BASEDIR}
-	WORK=${OD_BINARY_BASEDIR})
-
-
+    create_target_launcher( od_main
+    	RUNTIME_LIBRARY_DIRS
+    	${OD_MODULE_RUNTIMEPATH}
+    	${OD_LIB_OUTPUT_PATH}
+    	${OD_PLUGIN_OUTPUT_PATH}
+    	ENVIRONMENT
+	DTECT_APPL=${OpendTect_DIR}
+	WORK=${OpendTect_DIR} )
 ENDIF( OD_CREATE_LAUNCHERS )
 
 OD_WRITE_ALOFILES( ${CMAKE_CURRENT_BINARY_DIR} )
