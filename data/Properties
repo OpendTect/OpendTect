@@ -1,6 +1,6 @@
 dTect V4.3
 Properties
-Tue Jul 19 16:08:14 2011
+Wed Apr 11 15:47:58 2012
 !
 Density: Density
 Aliases: Den`Rho`RhoB`RhoZ
@@ -99,5 +99,15 @@ Vshale: Volumetrics
 Aliases: Vclay`VCL`VSH
 Color: 100`200`100
 Range: 0`100`%
+DefaultValue: Value`0
+!
+Delta: Anisotropy
+Color: 150`200`150
+Range: -1`1
+DefaultValue: Value`0
+!
+Epsilon: Anisotropy
+Color: 200`150`150
+Range: -1`1
 DefaultValue: Value`0
 !
