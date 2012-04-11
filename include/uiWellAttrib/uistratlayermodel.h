@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.26 2012-03-28 14:14:54 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.27 2012-04-11 11:08:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class Wavelet;
 class SeisTrcBuf;
+class TimeDepthModel;
 class ElasticPropSelection;
 class uiGenInput;
 class uiSpinBox;
@@ -47,6 +48,7 @@ public:
     const Strat::LayerModel&		layerModel() const { return modl_; }
     const char*				levelName() const; //!< null if none
     const SeisTrcBuf&			postStackTraces() const;
+    const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
     MultiID				genDescID() const;
 

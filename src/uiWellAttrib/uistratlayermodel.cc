@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.57 2012-03-28 14:14:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.58 2012-04-11 11:08:54 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -264,6 +264,14 @@ const char* uiStratLayerModel::levelName() const
 const SeisTrcBuf& uiStratLayerModel::postStackTraces() const
 {
     return synthdisp_->postStackTraces();
+}
+
+
+const ObjectSet<const TimeDepthModel>& uiStratLayerModel::d2TModels() const
+{
+    static ObjectSet<const TimeDepthModel> empty;
+    const ObjectSet<const TimeDepthModel>* ret = synthdisp_->d2TModels();
+    return ret ? *ret : empty;
 }
 
 
