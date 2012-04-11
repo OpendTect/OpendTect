@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.58 2012-04-11 11:08:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.59 2012-04-11 15:01:33 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -229,8 +229,10 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
-				mCB(this,uiStratLayerModel,selElasticPropsCB) );
+			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
+    moddisp_->rangeChanged.notify( 
+			    mCB(this,uiStratLayerModel,modDispRangeChanged));
 
     setWinTitle();
     postFinalise().notify( mCB(this,uiStratLayerModel,initWin) );
@@ -372,6 +374,14 @@ void uiStratLayerModel::wvltChg( CallBacker* cb )
     zoomChg( cb );
     levelChg( 0 );
     waveletChanged.trigger();
+}
+
+
+void uiStratLayerModel::modDispRangeChanged( CallBacker* )
+{
+    mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
+    if ( vwr ) 
+	synthdisp_->setZDataRange( vwr->getSelDataRange( false ) , true );
 }
 
 
@@ -559,3 +569,5 @@ bool uiStratLayerModel::closeOK()
 {
     return saveGenDescIfNecessary();
 }
+
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.15 2012-02-16 15:40:43 cvsbruno Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.16 2012-04-11 15:01:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
+    Notifier<uiStratLayerModelDisp> rangeChanged;
 
 protected:
 

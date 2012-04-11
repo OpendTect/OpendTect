@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.86 2012-04-11 10:45:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.87 2012-04-11 15:01:33 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -221,6 +221,25 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
     levelSnapChanged(0);
+}
+
+
+void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
+{
+    Interval<double> newzrg; newzrg.set( zrg.start, zrg.stop );
+    if ( indpth && d2tmodels_ && !d2tmodels_->isEmpty() )
+    {
+	int mdlidx = longestaimdl_;
+	if ( mdlidx >= d2tmodels_->size() )
+	    mdlidx = d2tmodels_->size()-1;
+
+	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
+	newzrg.start = d2t.getTime( (float)zrg.start );
+	newzrg.stop = d2t.getTime( (float)zrg.stop );
+    }
+    const Interval<double> xrg = vwr_->getDataPackRange( true );
+    vwr_->setSelDataRanges( xrg, newzrg ); 
+    vwr_->handleChange( FlatView::Viewer::All );
 }
 
 

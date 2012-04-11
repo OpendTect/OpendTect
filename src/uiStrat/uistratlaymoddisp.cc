@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.25 2012-02-03 14:18:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.26 2012-04-11 15:01:32 cvsbruno Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -32,6 +32,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , zrg_(0,1)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
+    , rangeChanged(this)   
 {
 }
 

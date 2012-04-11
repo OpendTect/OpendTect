@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.27 2012-04-11 11:08:54 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.28 2012-04-11 15:01:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ protected:
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
     void			levelChg(CallBacker*);
+    void			modDispRangeChanged(CallBacker*);
     void			zoomChg(CallBacker*);
     void			wvltChg(CallBacker*);
     void			modSelChg(CallBacker*);
