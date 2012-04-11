@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: propertyref.cc,v 1.1 2012-02-01 08:30:03 cvsbert Exp $";
+static const char* rcsID = "$Id: propertyref.cc,v 1.2 2012-04-11 13:51:15 cvsbert Exp $";
 
 #include "propertyref.h"
 #include "property.h"
@@ -29,22 +29,23 @@ mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
-	"Other",
-	"Time",
-	"Distance/Depth",
-	"Volumetrics",
-	"Permeability",
-	"Gamma Ray",
-	"Temperature",
-	"Pressure",
-	"Density",
-	"Velocity",
-	"Sonic travel time",
-	"Impedance",
-	"Electrical Potential",
-	"Resistivity",
-	"Poisson's Ratio",
+	"Anisotropy",
 	"Compressibility",
+	"Density",
+	"Distance/Depth",
+	"Electrical Potential",
+	"Gamma Ray",
+	"Impedance",
+	"Permeability",
+	"Poisson's Ratio",
+	"Pressure",
+	"Resistivity",
+	"Sonic travel time",
+	"Temperature",
+	"Time",
+	"Velocity",
+	"Volumetrics",
+	"Other",
 	0
 };
 
