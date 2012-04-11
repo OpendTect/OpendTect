@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.85 2012-04-02 15:06:17 cvskris Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.86 2012-04-11 10:45:31 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -626,6 +626,10 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
     }
     return stbp->trcBuf();
 }
+
+
+const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
+{ return d2tmodels_; }
 
 
 void uiStratSynthDisp::rayTrcParChged( CallBacker* )
