@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.38 2012-04-11 14:01:20 cvsbert Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.39 2012-04-12 15:20:48 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -43,7 +43,7 @@ IF(UNIX) #Apple an Linux
 	    SET ( OD_PLFSUBDIR "lux32" )
 	    ADD_DEFINITIONS("-Dlux32")
 	ENDIF()
-        ADD_DEFINITIONS("-Dlux -Wmissing-declarations")
+        ADD_DEFINITIONS("-Dlux")
 	
     ENDIF()
 
@@ -60,6 +60,11 @@ IF(UNIX) #Apple an Linux
 	    SET( CMAKE_CXX_FLAGS
 		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
 		 CACHE STRING "CC flags" FORCE )
+	ENDIF()
+	IF ( CMAKE_C_FLAGS STREQUAL "" )
+	    SET( CMAKE_C_FLAGS
+		"-Wmissing-declarations"
+		 CACHE STRING "C flags" FORCE )
 	ENDIF()
     ELSE( OD_DEBUG )
 	ADD_DEFINITIONS( -Wno-inline )
