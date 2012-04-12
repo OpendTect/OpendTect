@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiunitsel.cc,v 1.5 2012-03-12 15:43:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiunitsel.cc,v 1.6 2012-04-12 14:46:54 cvsbruno Exp $";
 
 #include "uiunitsel.h"
 
@@ -18,11 +18,12 @@ static const char* rcsID = "$Id: uiunitsel.cc,v 1.5 2012-03-12 15:43:01 cvsbert 
 
 
 uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
-       		      bool symb )
+       		      bool symb, bool withempty )
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
     , symbolsdisp_(symb)
     , selChange(this)
+    , withempty_(withempty)		     
 {
     inpfld_ = new uiComboBox( this, "Units" );
     if ( symbolsdisp_ )
@@ -60,7 +61,7 @@ void uiUnitSel::setUnit( const char* unitnm )
 	    const BufferString unnm( un.name() );
 	    const BufferString unsymb( un.symbol() );
 	    if ( unnm == unitnm || unsymb == unitnm )
-		{ inpfld_->setCurrentItem( idx ); break; }
+		{ inpfld_->setCurrentItem( withempty_ ? idx+1 : idx ); break; }
 	}
     }
 }
@@ -68,7 +69,8 @@ void uiUnitSel::setUnit( const char* unitnm )
 
 const UnitOfMeasure* uiUnitSel::getUnit() const
 {
-    const int selidx = inpfld_->currentItem();
+    int selidx = inpfld_->currentItem();
+    if ( withempty_ ) selidx -= 1;
     return units_.validIdx( selidx ) ? units_[selidx] : 0;
 }
 
@@ -86,6 +88,8 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 void uiUnitSel::update()
 {
     inpfld_->setEmpty();
+    if ( withempty_ )
+	inpfld_->addItem( "-" );
     units_.erase();
     UoMR().getRelevant( proptype_, units_ );
     for ( int idx=0; idx<units_.size(); idx++ )

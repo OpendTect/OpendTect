@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Feb 2010
- RCS:           $Id: uiunitsel.h,v 1.4 2011-08-08 15:38:06 cvsbert Exp $
+ RCS:           $Id: uiunitsel.h,v 1.5 2012-04-12 14:46:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,8 @@ mClass uiUnitSel : public uiGroup
 public:
     				uiUnitSel(uiParent*,PropertyRef::StdType,
 					  const char* lbltxt=0,
-					  bool dispsymbols=false);
+					  bool dispsymbols=false,
+					  bool withempty=false);
 
     void			setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
@@ -43,6 +44,7 @@ protected:
     bool			symbolsdisp_;
 
     uiComboBox*			inpfld_;
+    bool 			withempty_;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			update();
