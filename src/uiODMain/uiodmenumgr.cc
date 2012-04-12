@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.245 2012-03-26 17:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.246 2012-04-12 14:04:26 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -37,7 +37,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.245 2012-03-26 17:06:37 cvsn
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "odmemory.h"
+#include "odsysmem.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -658,7 +658,7 @@ void uiODMenuMgr::fillUtilMenu()
     if ( enabdpdump )
     {
 	mInsertItem( toolsmnu_, "Data pack dump ...", mDumpDataPacksMnuItm );
-	if ( OD::canDumpMemInfo() )
+	if ( OD::haveMemInfo() )
 	{
 	    mInsertItem( toolsmnu_, "Display memory info ...",
 			 mDisplayMemoryMnuItm );
