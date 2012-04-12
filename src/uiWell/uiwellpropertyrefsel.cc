@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.11 2012-03-26 07:40:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.12 2012-04-12 14:47:21 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -35,7 +35,7 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
     typefld_ = new uiComboBox( this, BufferString(pr.name()," type") );
     typelbl_ = new uiLabel( this, pr.name(), typefld_ );
 
-    unfld_ = new uiUnitSel( this, propref_.stdType(), 0, true );
+    unfld_ = new uiUnitSel( this, propref_.stdType(), 0, false, true );
     unfld_->setUnit( propref_.disp_.unit_ );
     unfld_->attach( rightOf, typefld_ );
 
