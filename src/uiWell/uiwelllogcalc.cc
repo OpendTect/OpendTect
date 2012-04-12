@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.25 2012-03-28 13:35:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.26 2012-04-12 08:57:25 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -222,7 +222,10 @@ void uiWellLogCalc::formSet( CallBacker*  c )
     {
 	inpdataflds_[idx]->use( expr_ );
 	if ( inputunits_.size()>truevaridx && !inpdataflds_[idx]->isCst() )
+	{
 	    inpdataflds_[idx]->setUnit( inputunits_.get(truevaridx).buf() );
+	    truevaridx++;
+	}
     }
 
     inpSel( 0 );
