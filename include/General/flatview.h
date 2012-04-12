@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.61 2012-04-05 12:18:23 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.62 2012-04-12 09:26:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,11 @@ public:
 	bool		x1rg_;
 	bool		x2rg_;
     };
+
+
     virtual			~AuxData();
     virtual AuxData*		clone() const { return new AuxData(*this); }
+    virtual void		touch()					{}
 
     EditPermissions*		editpermissions_;//!<If null no editing allowed
 
