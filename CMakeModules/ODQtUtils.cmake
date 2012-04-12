@@ -2,19 +2,21 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.14 2012-04-11 07:50:59 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.15 2012-04-12 14:15:53 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(QTDIR "" CACHE PATH "QT Location" )
 
 MACRO(OD_SETUP_QT)
-    IF ( QTDIR STREQUAL "" )
+    IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
 	MESSAGE( FATAL_ERROR "QTDIR not set")
     ENDIF()
 
     SET( ENV{QTDIR} ${QTDIR} )
+    SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
-    FIND_PACKAGE(Qt4 COMPONENTS QtGui QtCore QtSql QtNetwork )
+
+    FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
      
     include(${QT_USE_FILE})
 
