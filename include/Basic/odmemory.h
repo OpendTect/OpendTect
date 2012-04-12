@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.7 2011-10-19 18:55:53 cvskris Exp $
+ RCS:		$Id: odmemory.h,v 1.8 2012-04-12 14:04:09 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -18,16 +18,12 @@ class IOPar;
 namespace OD
 {
     enum		PtrPolicy { UsePtr, CopyPtr, TakeOverPtr };
-
-    mGlobal bool	canDumpMemInfo();
-    mGlobal void	dumpMemInfo(IOPar&);
 };
 
 template <class T> class ValueSeries;
 
 // 1M operations min per thread
 #define mMemMinThreadSize 1048576
-
 
 
 /*!Sets large amounts of values to a constant using multiple threads. */
