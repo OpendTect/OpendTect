@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.54 2012-04-09 16:20:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.55 2012-04-12 20:48:41 cvsyuancheng Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -315,6 +315,9 @@ SubItem::SubItem( Pick::Set& set, int displayid )
 {
     name_ = set_->name();
     displayid_ = displayid;
+
+    storemnuitem_.iconfnm = "save.png";
+    storeasmnuitem_.iconfnm = "saveas.png";
 }
 
 
@@ -354,21 +357,21 @@ bool SubItem::init()
 }
 
 
-void SubItem::createMenuCB( CallBacker* cb )
+void SubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
-    uiODDisplayTreeItem::createMenuCB(cb);
+    uiODDisplayTreeItem::createMenu( menu, istb );
     if ( hasScale() )
-	mAddMenuItem(menu,&scalemnuitem_,!islocked,false);
+	mAddMenuOrTBItem(istb,0,menu,&scalemnuitem_,!islocked,false);
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    mAddMenuItem(menu,&storemnuitem_,mgr.isChanged(setidx),false);
-    mAddMenuItem(menu,&storeasmnuitem_,true,false);
+    mAddMenuOrTBItem(istb,menu,menu,&storemnuitem_,
+		     mgr.isChanged(setidx),false);
+    mAddMenuOrTBItem(istb,0,menu,&storeasmnuitem_,true,false);
 }
 
 
@@ -610,14 +613,14 @@ bool TextSubItem::init()
 }
 
 
-void TextSubItem::createMenuCB( CallBacker* cb )
+void TextSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    SubItem::createMenuCB( cb );
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    SubItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() || istb )
 	return;
 
-    mAddMenuItem( menu, &changetextmnuitem_, menu->getPath(), false );
+    mDynamicCastGet(uiMenuHandler*,uimenu,menu)
+    mAddMenuItem( menu, &changetextmnuitem_, uimenu && uimenu->getPath(), false );
     mAddMenuItem( menu, &changecolormnuitem_, true, false );
 }
 
@@ -822,6 +825,8 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     defscale_ = set_->disp_.pixsize_;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
+
+    propmnuitem_.iconfnm = "disppars.png";
 }
 
 
@@ -887,14 +892,13 @@ void ArrowSubItem::fillStoragePar( IOPar& par ) const
 }
 
 
-void ArrowSubItem::createMenuCB( CallBacker* cb )
+void ArrowSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    SubItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    SubItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem(menu,&propmnuitem_,true,false );
+    mAddMenuOrTBItem(istb,menu,menu,&propmnuitem_,true,false );
 }
 
 
@@ -1014,14 +1018,13 @@ void ImageSubItem::fillStoragePar( IOPar& par ) const
 }
 
 
-void ImageSubItem::createMenuCB( CallBacker* cb )
+void ImageSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
-    SubItem::createMenuCB( cb );
-    mAddMenuItem(menu,&filemnuitem_,true,false);
+    SubItem::createMenu( menu, istb );
+    mAddMenuOrTBItem(istb,0,menu,&filemnuitem_,true,false);
 }
 
 

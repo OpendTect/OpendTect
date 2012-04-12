@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalebaritem.cc,v 1.1 2012-04-06 22:09:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiscalebaritem.cc,v 1.2 2012-04-12 20:48:41 cvsyuancheng Exp $";
 
 
 #include "treeitem.h"
@@ -117,6 +117,8 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
+
+    propmnuitem_.iconfnm = "disppars.png";
 }
 
 
@@ -164,14 +166,13 @@ void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
 }
 
 
-void ScaleBarSubItem::createMenuCB( CallBacker* cb )
+void ScaleBarSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    SubItem::createMenuCB( cb );
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    SubItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem(menu,&propmnuitem_,true,false );
+    mAddMenuOrTBItem(istb,menu,menu,&propmnuitem_,true,false );
 }
 
 
