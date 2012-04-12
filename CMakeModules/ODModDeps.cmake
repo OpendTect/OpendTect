@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.8 2012-03-26 15:02:09 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.9 2012-04-12 14:48:17 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -60,7 +60,7 @@ SET( OD_FIND_OD_FILE ${CMAKE_SOURCE_DIR}/CMakeModules/FindOpendTect.cmake )
 
 INSTALL( FILES ${OD_FIND_OD_FILE} DESTINATION data )
 FILE(WRITE ${OD_FIND_OD_FILE} "INCLUDE ( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
-FILE(APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/\${OD_LIB_OUTPUT_RELPATH} )\n")
+FILE(APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/\${OD_EXEC_OUTPUT_RELPATH} )\n")
 FILE(APPEND ${OD_FIND_OD_FILE} "SET ( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )\n" )
 
 FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
