@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.31 2012-01-11 23:25:38 cvsnanne Exp $
+ RCS:		$Id: polygon.h,v 1.32 2012-04-12 08:06:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "iopar.h"
 #include "bufstring.h"
+#include <math.h>
 
 /*!\brief (Closed) sequence of connected 2-D coordinates */
 

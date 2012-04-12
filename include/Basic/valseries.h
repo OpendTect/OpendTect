@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.34 2011-09-22 21:39:04 cvsyuancheng Exp $
+ RCS:           $Id: valseries.h,v 1.35 2012-04-12 08:01:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		    const T* fromarr = from_.arr();
 		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-			memcpy( toarr+start, fromarr+start, 
+			memcpy( (void*) (toarr+start), fromarr+start, 
 				nrleft*from_.bytesPerItem() );
 		    else if ( toarr )
 		    {

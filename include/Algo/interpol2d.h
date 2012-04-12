@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.10 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.11 2012-04-12 08:04:47 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -44,6 +44,7 @@ the origin (where v[0] is located), and should therefore generally be between
 template <class T>
 struct Applier2D
 {
+    virtual		~Applier2D()				{}
     virtual void	set(const T*)				= 0;
     virtual T		apply(float x,float y) const		= 0;
 };
