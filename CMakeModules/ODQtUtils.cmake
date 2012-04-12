@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.15 2012-04-12 14:15:53 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.16 2012-04-12 14:34:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(QTDIR "" CACHE PATH "QT Location" )
@@ -61,6 +61,6 @@ MACRO(OD_SETUP_QT)
     IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	INSTALL ( FILES ${QT_QTGUI_LIBRARY_RELEASE} ${QT_QTCORE_LIBRARY_RELEASE}
 			${QT_QTSQL_LIBRARY_RELEASE} ${QT_QTNETWORK_LIBRARY_RELEASE}
-		    DESTINATION ${OD_LIBRARY_INSTALL_PATH} )
+		    DESTINATION ${OD_EXEC_INSTALL_PATH} )
     ENDIF()
 ENDMACRO(OD_SETUP_QT)

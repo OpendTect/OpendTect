@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.13 2012-04-11 07:50:59 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.14 2012-04-12 14:34:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(COINDIR "" CACHE PATH "COIN Location" )
@@ -35,11 +35,11 @@ MACRO(OD_SETUP_COIN)
 
     IF ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	INSTALL ( FILES ${COINLIB} ${SOQTLIB}
-		  DESTINATION ${OD_LIBRARY_INSTALL_PATH} )
+		  DESTINATION ${OD_EXEC_INSTALL_PATH} )
 
 	IF ( WIN32 )
 	    INSTALL ( FILES ${OD_SIMVOLEON_LIBRARY} DESTINATION
-		      ${OD_LIBRARY_INSTALL_PATH} )
+		      ${OD_EXEC_INSTALL_PATH} )
 	ENDIF()
     ENDIF()
 
