@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.34 2011-03-17 11:24:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.35 2012-04-13 13:24:41 cvshelene Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -126,6 +126,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     lowenergymute = new uiGenInput( this, "Low energy mute (%)",
 	    			    FloatInpSpec() );
     lowenergymute->setValue( 0 );
+    lowenergymute->attach( alignedBelow, windowfld );
 
     // for Gain Correction
     analysebut_ = new uiPushButton( this, "Analyse",
