@@ -1,0 +1,77 @@
+#!/bin/csh -f
+
+if ( $?appmanbase ) then
+else
+    echo "appmanbase not set"
+    exit 1
+endif
+
+set buildtype=Release
+set dodoc = ""
+set cmakedoc = ""
+set shallow=no
+
+parse_args:
+if ( "$1" == "--doc" ) then
+    set dodoc=--doc
+    set cmakedoc="-DBUILD_DOCUMENTATION=yes"
+else if ( $1 == "--internal" ) then
+    set buildtype=RelWithDebInfo
+else if ( $1 == "--shallow" ) then
+    set shallow=yes
+else
+    goto do_it
+endif
+
+shift
+goto parse_args
+
+do_it:
+
+echo "Making a ${buildtype} build"
+
+set oddir=$WORK:t
+set dgbdir=`echo $oddir | sed 's/od/dgb/'`
+
+set cmakeargs = "-DCMAKE_BUILD_TYPE=${buildtype} \
+		-DCMAKE_INSTALL_PREFIX=$WORK/inst \
+		-DOD_RUN_LMSTRIP=ON \
+		${cmakedoc} \
+		-DQTDIR=${appmanbase}/qt/devel \
+		-DOSG_DIR=${appmanbase}/osg/devel \
+		-DCOINDIR=${appmanbase}/coin/devel"
+
+cd $WORK
+if ( -e CMakeCache.txt ) then
+    if ( ${shallow} == "no" ) then
+        make clean
+        rm CMakeCache.txt
+    endif
+endif
+cvs update
+cmake $cmakeargs
+
+cd ../$dgbdir
+if ( -e CMakeCache.txt ) then
+    if ( ${shallow} == "no" ) then
+	make clean
+	rm CMakeCache.txt
+    endif
+endif
+
+cvs update
+cmake $cmakeargs -DOpendTect_DIR=$WORK
+
+cd $WORK
+
+set makeallcmd="dtect/make_all --cmake ${dodoc} --noupd"
+if ( ${shallow} == "yes" ) then
+    set makeallcmd="${makeallcmd} --shallow"
+endif
+
+$makeallcmd
+make install
+
+cd ../$dgbdir
+make install
+cd $WORK
