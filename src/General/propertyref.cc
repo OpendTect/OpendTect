@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: propertyref.cc,v 1.3 2012-04-13 10:14:23 cvsbert Exp $";
+static const char* rcsID = "$Id: propertyref.cc,v 1.4 2012-04-13 14:48:58 cvsbert Exp $";
 
 #include "propertyref.h"
 #include "property.h"
@@ -30,6 +30,7 @@ mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
 	"Anisotropy",
+	"Classification",
 	"Compressibility",
 	"Density",
 	"Distance/Depth",
