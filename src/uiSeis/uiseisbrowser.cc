@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.61 2012-04-05 13:52:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.62 2012-04-13 08:39:03 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -247,7 +247,7 @@ void uiSeisBrowser::createMenuAndToolBar()
 
 void uiSeisBrowser::createTable()
 {
-    const int nrrows = tr_->readMgr()->info().nrsamples;
+    const int nrrows = tr_->readMgr()->info().nrsamples_;
     const int nrcols = 2*stepout_ + 1;
     tbl_ = new uiTable( this, uiTable::Setup( nrrows, nrcols )
 			     .selmode(uiTable::Multi)
@@ -264,7 +264,7 @@ void uiSeisBrowser::createTable()
 BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 				   bool before ) const
 {
-    const BinID& step = tr_->readMgr()->info().geom.step;
+    const BinID& step = tr_->readMgr()->info().geom_.step;
     return crlwise_ ? BinID( cur.inl + (before?-1:1) * step.inl * idx, cur.crl)
 		    : BinID( cur.inl, cur.crl + (before?-1:1) * step.crl * idx);
 }
@@ -390,9 +390,9 @@ void uiSeisBrowser::fillTable()
     const CBVSInfo& info = tr_->readMgr()->info();
     const float zfac = zdomdef_->userFactor();
     const char* zunstr = zdomdef_->unitStr(false);
-    for ( int idx=0; idx<info.nrsamples; idx++ )
+    for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
-	const BufferString zvalstr( getZValStr(info.sd.atIndex(idx),zfac) );
+	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
 	tbl_->setRowLabel( idx, zvalstr );
 	BufferString tt;
 	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )

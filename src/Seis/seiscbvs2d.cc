@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.59 2012-02-17 23:11:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.60 2012-04-13 08:39:03 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -246,8 +246,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     tr->readMgr()->getPositions( coords );
     tr->readMgr()->getPositions( binids );
 
-    StepInterval<float> zrg( cbvsinf.sd.start, 0, cbvsinf.sd.step );
-    zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
+    StepInterval<float> zrg( cbvsinf.sd_.start, 0, cbvsinf.sd_.step );
+    zrg.stop = cbvsinf.sd_.start + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step;
     geom.setZRange( zrg );
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.55 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.56 2012-04-13 08:39:03 cvskris Exp $";
 
 #include "seiscbvsps.h"
 
@@ -368,7 +368,7 @@ void SeisCBVSPS3DReader::addInl( int inl )
     if ( !mkTr(inl) ) return;
 
     PosInfo::LineData* newid = new PosInfo::LineData( inl );
-    const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom;
+    const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom_;
 
     if ( sg.fullyrectandreg )
 

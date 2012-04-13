@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.14 2011-11-30 07:49:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.15 2012-04-13 08:39:03 cvskris Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -176,12 +176,12 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 
     const CBVSInfo& info = tr_->readMgr()->info();
     const RCol2Coord& b2c = tr_->getTransform();
-    const CBVSInfo::SurvGeom& geom = info.geom;
+    const CBVSInfo::SurvGeom& geom = info.geom_;
     olddata_.cs_.hrg.start = BinID( geom.start.inl, geom.start.crl );
     olddata_.cs_.hrg.stop  = BinID( geom.stop.inl, geom.stop.crl );
     olddata_.cs_.hrg.step  = BinID( geom.step.inl, geom.step.crl ); 
     data_.hsit_ = new HorSamplingIterator( olddata_.cs_.hrg );
-    olddata_.cs_.zrg = info.sd.interval( info.nrsamples );
+    olddata_.cs_.zrg = info.sd_.interval( info.nrsamples_ );
     data_.cs_.zrg = olddata_.cs_.zrg; data_.cs_.zrg.step = SI().zStep();
 
     BinID bid;

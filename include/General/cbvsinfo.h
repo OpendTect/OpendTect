@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.28 2011-03-25 15:02:34 cvsbert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.29 2012-04-13 08:39:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ mClass CBVSInfo
 public:
 
 				CBVSInfo()
-				: seqnr(0), nrtrcsperposn(1)	{}
-				~CBVSInfo()	{ deepErase(compinfo); }
+				: seqnr_(0), nrtrcsperposn_(1)	{}
+				~CBVSInfo()	{ deepErase(compinfo_); }
 				CBVSInfo( const CBVSInfo& ci )
 				{ *this = ci; }
     CBVSInfo&			operator =(const CBVSInfo&);
@@ -71,22 +71,22 @@ protected:
 
     };
 
-    int				seqnr;
-    int				nrtrcsperposn;
+    int				seqnr_;
+    int				nrtrcsperposn_;
 
-    PosAuxInfoSelection		auxinfosel;
-    ObjectSet<BasicComponentInfo> compinfo;
-    SamplingData<float>		sd;
-    int				nrsamples;
-    SurvGeom			geom;
+    PosAuxInfoSelection		auxinfosel_;
+    ObjectSet<BasicComponentInfo> compinfo_;
+    SamplingData<float>		sd_;
+    int				nrsamples_;
+    SurvGeom			geom_;
 
-    BufferString		stdtext;
-    BufferString		usertext;
+    BufferString		stdtext_;
+    BufferString		usertext_;
 
     bool			contributesTo(const CubeSampling&) const;
     void			clean()
-				{ deepErase(compinfo); geom.clean();
-				  usertext = ""; }
+				{ deepErase(compinfo_); geom_.clean();
+				  usertext_ = ""; }
 
 };
 
