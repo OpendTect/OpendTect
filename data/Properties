@@ -129,3 +129,8 @@ Color: 200`150`150
 Range: -1`1
 DefaultValue: Value`0
 !
+Eta: Anisotropy
+Color: 200`150`250
+Range: -1`1
+DefaultValue: Value`0
+!
