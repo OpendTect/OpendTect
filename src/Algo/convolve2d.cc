@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: convolve2d.cc,v 1.4 2011-11-24 14:39:51 cvskris Exp $";
+static const char* rcsID = "$Id: convolve2d.cc,v 1.5 2012-04-13 07:33:45 cvskris Exp $";
 
 #include "convolve2d.h"
 
@@ -60,7 +60,7 @@ bool Convolver2D<float>::doPrepare( int )
 	fft_->setInput( freqdomain ); \
 	fft_->setOutput( freqdomain ); \
 	fft_->setDir( true ); \
-	if ( !fft_->execute() ); \
+	if ( !fft_->execute() ) \
 	    return false; \
 	update##freqdomain = false; \
     }
