@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.4 2012-04-12 14:04:38 cvsbert Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.5 2012-04-13 12:44:56 cvsbert Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -43,10 +43,10 @@ void OD::dumpMemInfo( IOPar& res )
 {
     float total, free;
     getSystemMemory( total, free );
-    total /= 1024; free /= 1024;
+    total /= 1024 * 1024; free /= 1024 * 1024;
     int itot = mNINT(total); int ifree = mNINT(free);
-    res.set( "Total memory (kB)", itot );
-    res.set( "Free memory (kB)", ifree );
+    res.set( "Total memory (MB)", itot );
+    res.set( "Free memory (MB)", ifree );
 }
 
 
@@ -61,7 +61,12 @@ static float getMemFromStr( char* str, const char* ky )
     *endptr = '\0';
     float ret = toFloat( ptr );
     *endptr = '\n';
-    return ret;
+    ptr = endptr;
+    mSkipBlanks(ptr);
+    const float fac = tolower(*ptr) == 'k' ? 1024
+		   : (tolower(*ptr) == 'm' ? 1024*1024
+		   : (tolower(*ptr) == 'g' ? 1024*1024*1024 : 1) );
+    return ret * fac;
 }
 #endif
 
@@ -79,6 +84,7 @@ void OD::getSystemMemory( float& total, float& free )
 
     total = getMemFromStr( filecont.buf(), "MemTotal:" );
     free = getMemFromStr( filecont.buf(), "MemFree:" );
+    free += getMemFromStr( filecont.buf(), "Cached:" );
 
 #endif
 #ifdef mac
