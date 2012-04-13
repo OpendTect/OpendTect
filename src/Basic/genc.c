@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.116 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.117 2012-04-13 12:43:32 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -28,7 +28,9 @@ static const char* rcsID = "$Id: genc.c,v 1.116 2011-06-27 06:16:52 cvsranojay E
 #endif
 
 static int insysadmmode_ = 0;
+mGlobal int InSysAdmMode();
 mGlobal int InSysAdmMode() { return insysadmmode_; }
+mGlobal void SetInSysAdmMode();
 mGlobal void SetInSysAdmMode() { insysadmmode_ = 1; }
 
 #ifdef __win__
@@ -118,6 +120,7 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 
 extern const char* errno_message();
 
+mGlobal void forkProcess();
 mGlobal void forkProcess()
 {
 #if !defined( __mac__ ) && !defined( __win__ )

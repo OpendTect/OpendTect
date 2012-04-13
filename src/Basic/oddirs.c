@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.29 2012-02-16 15:50:51 cvskris Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.30 2012-04-13 12:43:32 cvsbert Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -68,18 +68,21 @@ static const char* mkFullPath( const char* path, const char* filename )
 
 /* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
 
+mGlobal int SurveyNameDirty();
 mGlobal int SurveyNameDirty()
 {
     return surveynamedirty;
 }
 
 
+mGlobal void SetSurveyNameDirty();
 mGlobal void SetSurveyNameDirty()
 {
     surveynamedirty = 1;
 }
 
 
+mGlobal const char* GetSurveyFileName();
 mGlobal const char* GetSurveyFileName()
 {
     static FileNameString sfname;
@@ -109,6 +112,7 @@ mGlobal const char* GetSurveyFileName()
 }
 
 
+mGlobal void SetSurveyName(const char*);
 mGlobal void SetSurveyName( const char* newnm )
 {
     mSkipBlanks( newnm );
@@ -118,6 +122,7 @@ mGlobal void SetSurveyName( const char* newnm )
 }
 
 
+mGlobal const char* GetSurveyName();
 mGlobal const char* GetSurveyName()
 {
     FILE* fp; char* ptr;
