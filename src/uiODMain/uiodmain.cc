@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.152 2012-04-06 16:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.153 2012-04-13 12:43:58 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.152 2012-04-06 16:54:39 cvsnann
 #include "uidockwin.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uistatusbar.h"
 #include "uilabel.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
@@ -54,6 +55,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.152 2012-04-06 16:54:39 cvsnann
 #include "settings.h"
 #include "survinfo.h"
 #include "timer.h"
+#include "odsysmem.h"
 
 #include "visdata.h"
 
@@ -129,9 +131,12 @@ int ODMain( int argc, char** argv )
 }
 
 
+#define mMemStatusFld 4
+#define mNrStatusFlds OD::haveMemInfo() ? 5 : 4
+
 
 uiODMain::uiODMain( uicMain& a )
-    : uiMainWin(0,"OpendTect Main Window",4,true)
+    : uiMainWin(0,"OpendTect Main Window",mNrStatusFlds,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
@@ -140,6 +145,7 @@ uiODMain::uiODMain( uicMain& a )
     , ctabed_(0)
     , ctabwin_(0)
     , timer_(*new Timer("Session restore timer"))
+    , memtimer_(OD::haveMemInfo()?new Timer("Memory display timer"):0)
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
@@ -166,6 +172,14 @@ uiODMain::uiODMain( uicMain& a )
 
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
+    if ( memtimer_ )
+    {
+	statusBar()->setToolTip( mMemStatusFld,
+				 "System memory: Free/Available" );
+	statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
+	memtimer_->tick.notify( mCB(this,uiODMain,memTimerCB) );
+	memtimer_->start( 1000 );
+    }
 }
 
 
@@ -177,6 +191,7 @@ uiODMain::~uiODMain()
     delete ctabwin_;
     delete &lastsession_;
     delete &timer_;
+    delete memtimer_;
 
     delete menumgr_;
     delete viewer2dmgr_;
@@ -574,6 +589,32 @@ void uiODMain::handleStartupSession()
 void uiODMain::timerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMain::memTimerCB( CallBacker* )
+{
+    if ( !memtimer_ ) return;
+
+    float tot, av;
+    OD::getSystemMemory( tot, av );
+    const float ratiofree = av / tot;
+
+    BufferString txt( "[mem] " );
+    const bool ingb = tot > 1070000000;
+    const float fac = ingb ? 1073741824 : 1048576;
+    tot /= fac; av /=fac;
+    int itot = mNINT(tot*10); int iav = mNINT(av*10);
+    txt			.add( iav/10 ).add( "." ).add( iav%10 )
+	.add( "/" )	.add( itot/10 ).add( "." ).add( itot%10 )
+	.add( ingb ? "G" : "M" );
+    statusBar()->message( txt, mMemStatusFld );
+
+    float redval = (1-ratiofree)*255;
+    float greenval = (ratiofree-0.1)*255; if ( greenval < 0 ) greenval = 0;
+    Color bgcol( mNINT(redval), mNINT(greenval), 0 );
+    bgcol.lighter( 2 );
+    statusBar()->setBGColor( mMemStatusFld, bgcol );
 }
 
 

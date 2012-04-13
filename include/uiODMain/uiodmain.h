@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.29 2012-04-06 16:54:39 cvsnanne Exp $
+ RCS:           $Id: uiodmain.h,v 1.30 2012-04-13 12:43:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,9 @@ private:
     void		doRestoreSession();
 
     Timer&		timer_;
+    Timer*		memtimer_;
     void		timerCB(CallBacker*);
+    void		memTimerCB(CallBacker*);
 
 public:
 
