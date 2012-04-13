@@ -86,10 +86,28 @@ Color: 200`200`0
 Range: 0`200`ohmm
 Logarithmic: Yes
 !
-Poissons Ratio: Poisson's Ratio
+Poissons Ratio: Elastic Ratio
 Aliases: Poi`PR
 Color: 200`100`200
 Range: 0.1`0.5
+!
+Vp/Vs: Elastic Ratio
+Aliases: vpvs
+Color: 200`150`200
+Range: 0.1`0.5
+!
+Vs/Vp: Elastic Ratio
+Aliases: vsvp
+Color: 200`150`150
+Range: 2`10
+!
+LambdaRho: PresWt
+Color: 100`150`255
+Range: 5`80`GPa.g/cm3
+!
+MuRho: PresWt
+Color: 100`255`150
+Range: 5`60`GPa.g/cm3
 !
 Compressibility: Compressibility
 Color: 100`200`100
