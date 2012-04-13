@@ -4,7 +4,7 @@ Thu Feb 2 12:54:10 2012
 !
 Gardner equation - Sonic: Density
 Description: Compute density from sonic
-Formula: c0*(1/dt)^c1
+Formula: c0 * (1/dt)^c1
 Unit: Gram/cm3
 Variable.0.Type: Sonic travel time
 Variable.0.Name: DT
@@ -17,7 +17,7 @@ Constant.1.Default: 0.25
 !
 Gardner equation - P-wave: Density
 Description: Compute density from P-wave velocity
-Formula: c0*(Pwave)^c1
+Formula: c0 * Pwave^c1
 Unit: Gram/cm3
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -35,7 +35,7 @@ Unit: Gram/cm3
 Variable.0.Type: Porosity
 Variable.0.Name: Porosity
 Constant.0.Name: Matrix density
-Constant.0.Description: The average density of the rock material itself.`(Sandstone: 2.65, Limestone: 2.67, Dolomite: 2.71)`Therefore, the density for porosity 0.
+Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
 Constant.0.Default: 2.65
 Constant.0.Typical Range: 2.2`2.9
 Constant.1.Name: Fluid density
@@ -72,9 +72,121 @@ Constant.3.Name: b0
 Constant.3.Description: Mean Vs (from all wells)
 Constant.3.Default: 1500
 !
+Gardner equation - Density spliced with longer sonic: Density
+Description: Extend existing density log with longer sonic
+Formula: den == undef ? c0 * (1/dt)^c1 : den
+Unit: Gram/cm3
+Variable.0.Type: Density
+Variable.0.Name: Rhob
+Variable.0.Description: Density
+Variable.0.Unit: Gram/cm3
+Variable.1.Type: Sonic travel time
+Variable.1.Name: DT
+Variable.1.Description: Sonic
+Variable.1.Unit: Seconds/meter
+Constant.0.Name: a
+Constant.0.Default: 0.31
+Constant.1.Name: b
+Constant.1.Default: 0.25
+!
+Gardner equation - Density spliced with longer P-wave: Density
+Description: Extend exisiting density log with longer P-wave velocity
+Formula: den == undef ? c0 * Pwave^c1 : den
+Unit: Gram/cm3
+Variable.0.Type: Density
+Variable.0.Name: Rhob
+Variable.0.Description: Density
+Variable.0.Unit: Gram/cm3
+Variable.1.Type: Velocity
+Variable.1.Name: Vp
+Variable.1.Description: P-wave velocity
+Variable.1.Unit: Meter/second
+Constant.0.Name: a
+Constant.0.Default: 0.31
+Constant.1.Name: b
+Constant.1.Default: 0.25
+!
+Poisson's ratio from Velocity logs: Elastic Ratio
+Description: Poisson's ratio
+Formula: ( (velp/vels)^2 - 2 ) / ( 2* ( (velp/vels)^2 - 1 ) )
+Unit: Ratio
+Variable.0.Type: Velocity
+Variable.0.Name: Vp
+Variable.0.Description: P-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: Velocity
+Variable.1.Name: Vs
+Variable.1.Description: S-wave velocity
+Variable.1.Unit: Meter/second
+!
+Vp/Vs ratio from Velocity curves: Elastic Ratio
+Description: Vp/Vs ratio
+Formula: velp / vels
+Unit: Ratio
+Variable.0.Type: Velocity
+Variable.0.Name: Vp
+Variable.0.Description: P-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: Velocity
+Variable.1.Name: Vs
+Variable.1.Description: S-wave velocity
+Variable.1.Unit: Meter/second
+!
+Vs/Vp ratio from Velocity curves: Elastic Ratio
+Description: Vs/Vp ratio
+Formula: vels / velp
+Unit: Ratio
+Variable.0.Type: Velocity
+Variable.0.Name: Vs
+Variable.0.Description: S-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: Velocity
+Variable.1.Name: Vp
+Variable.1.Description: P-wave velocity
+Variable.1.Unit: Meter/second
+!
+Poisson's ratio from Sonic logs: Elastic Ratio
+Description: Poisson's ratio
+Formula: ( (dts/dt)^2 - 2 ) / ( 2* ( (dts/dt)^2 - 1 ) )
+Unit: Ratio
+Variable.0.Type: Sonic travel time
+Variable.0.Name: DT
+Variable.0.Description: Sonic
+Variable.0.Unit: Seconds/meter
+Variable.1.Type: Sonic travel time
+Variable.1.Name: DTS
+Variable.1.Description: Shear sonic
+Variable.1.Unit: Seconds/meter
+!
+Vp/Vs ratio from Sonic logs: Elastic Ratio
+Description: Vp/Vs ratio
+Formula: dts / dt
+Unit: Ratio
+Variable.0.Type: Sonic travel time
+Variable.0.Name: DTS
+Variable.0.Description: Shear sonic
+Variable.0.Unit: Seconds/meter
+Variable.1.Type: Sonic travel time
+Variable.1.Name: DT
+Variable.1.Description: Sonic
+Variable.1.Unit: Seconds/meter
+!
+Vs/Vp ratio from Sonic logs: Elastic Ratio
+Description: Vs/Vp ratio
+Formula: dt / dts
+Unit: Ratio
+Variable.0.Type: Sonic travel time
+Variable.0.Name: DT
+Variable.0.Description: Sonic
+Variable.0.Unit: Seconds/meter
+Variable.1.Type: Sonic travel time
+Variable.1.Name: DTS
+Variable.1.Description: Shear sonic
+Variable.1.Unit: Seconds/meter
+!
 Acoustic Impedance from sonic: Impedance
 Description: Compute acoustic impedance from sonic and density
-Formula: density/sonic
+Formula: den / dt
 Unit: Kg/m2s
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -85,9 +197,22 @@ Variable.1.Name: DT
 Variable.1.Description: Sonic
 Variable.1.Unit: Seconds/meter
 !
+Shear Impedance from sonic: Impedance
+Description: Compute shear impedance from shear sonic and density
+Formula: den / dts
+Unit: Kg/m2s
+Variable.0.Type: Density
+Variable.0.Name: Rhob
+Variable.0.Description: Density
+Variable.0.Unit: Kg/m3
+Variable.1.Type: Sonic travel time
+Variable.1.Name: DTS
+Variable.1.Description: Shear sonic
+Variable.1.Unit: Seconds/meter
+!
 Acoustic Impedance from P-wave velocity: Impedance
 Description: Compute acoustic impedance from P-wave velocity and density
-Formula: velp*den
+Formula: velp * den
 Unit: Kg/m2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -100,7 +225,7 @@ Variable.1.Unit: Kg/m3
 !
 Shear Impedance from P-wave velocity: Impedance
 Description: Compute shear impedance from S-wave velocity and density
-Formula: vels*den
+Formula: vels * den
 Unit: Kg/m2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vs
@@ -140,97 +265,68 @@ Constant.3.Name: b0
 Constant.3.Description: Mean Vs (from all wells)
 Constant.3.Default: 1500
 !
-Poisson's ratio from Velocity logs: Poisson's Ratio
-Description: Poisson's ratio
-Formula: ( (velp/vels)^2 - 2 ) / ( 2* ( (velp/vels)^2 - 1 ) )
-Unit: Ratio
-Variable.0.Type: Velocity
-Variable.0.Name: Vp
-Variable.0.Description: P-wave velocity
-Variable.0.Unit: Meter/second
-Variable.1.Type: Velocity
-Variable.1.Name: Vs
-Variable.1.Description: S-wave velocity
-Variable.1.Unit: Meter/second
+Lambda: Pressure
+Description: Lambda from Ip-Is and density
+Formula: ( Ip^2 - c0*Is^2 ) /  den
+Unit: GigaPascal
+Variable.0.Type: Impedance
+Variable.0.Name: Ip
+Variable.0.Description: Acoustic Impedance
+Variable.0.Unit: Kg/m2s
+Variable.1.Type: Impedance
+Variable.1.Name: Is
+Variable.1.Description: Shear Impedance
+Variable.1.Unit: Kg/m2s
+Variable.2.Type: Density
+Variable.2.Name: Rhob
+Variable.2.Description: Density
+Variable.2.Unit: Kg/m3
+Constant.0.Name: a
+Constant.0.Default: 2
+Constant.0.Typical Range: 2`2.5
 !
-Vp/Vs ratio from Velocity curves: Poisson's Ratio
-Description: Vp/Vs ratio
-Formula: velp/vels
-Unit: Ratio
-Variable.0.Type: Velocity
-Variable.0.Name: Vp
-Variable.0.Description: P-wave velocity
-Variable.0.Unit: Meter/second
-Variable.1.Type: Velocity
-Variable.1.Name: Vs
-Variable.1.Description: S-wave velocity
-Variable.1.Unit: Meter/second
+Mhu: Pressure
+Description: Mhu from Is and density
+Formula: Is^2 / den
+Unit: GigaPascal
+Variable.0.Type: Impedance
+Variable.0.Name: Is
+Variable.0.Description: Shear Impedance
+Variable.0.Unit: Kg/m2s
+Variable.1.Type: Density
+Variable.1.Name: Rhob
+Variable.1.Description: Density
+Variable.1.Unit: Kg/m3
 !
-Vs/Vp ratio from Velocity curves: Poisson's Ratio
-Description: Vs/Vp ratio
-Formula: vels/velp
-Unit: Ratio
-Variable.0.Type: Velocity
-Variable.0.Name: Vs
-Variable.0.Description: S-wave velocity
-Variable.0.Unit: Meter/second
-Variable.1.Type: Velocity
-Variable.1.Name: Vp
-Variable.1.Description: P-wave velocity
-Variable.1.Unit: Meter/second
+Lambda-Rho: Pressure-Weight
+Description: Lambda-Rho from Ip-Is
+Formula: Ip^2 - c0*Is^2
+Unit: GigaPascal.g/cm3
+Variable.0.Type: Impedance
+Variable.0.Name: Ip
+Variable.0.Description: Acoustic Impedance
+Variable.0.Unit: G/cm2s
+Variable.1.Type: Impedance
+Variable.1.Name: Is
+Variable.1.Description: Shear Impedance
+Variable.1.Unit: G/cm2s
+Constant.0.Name: a
+Constant.0.Default: 2
+Constant.0.Typical Range: 2`2.5
 !
-Poisson's ratio from Sonic logs: Poisson's Ratio
-Description: Poisson's ratio
-Formula: ( (dts/dt)^2 - 2 ) / ( 2* ( (dts/dt)^2 - 1 ) )
-Unit: Ratio
-Variable.0.Type: Sonic travel time
-Variable.0.Name: DT
-Variable.0.Description: Sonic
-Variable.0.Unit: Seconds/meter
-Variable.1.Type: Sonic travel time
-Variable.1.Name: DTS
-Variable.1.Description: Shear sonic
-Variable.1.Unit: Seconds/meter
+Mhu-Rho: Pressure-Weight
+Description: Mhu-Rho from Is
+Formula: Is^2
+Unit: GigaPascal.g/cm3
+Variable.0.Type: Impedance
+Variable.0.Name: Is
+Variable.0.Description: Shear Impedance
+Variable.0.Unit: G/cm2s
 !
-Vp/Vs ratio from Sonic logs: Poisson's Ratio
-Description: Vp/Vs ratio
-Formula: dts/dt
-Unit: Ratio
-Variable.0.Type: Sonic travel time
-Variable.0.Name: DTS
-Variable.0.Description: Shear sonic
-Variable.0.Unit: Seconds/meter
-Variable.1.Type: Sonic travel time
-Variable.1.Name: DT
-Variable.1.Description: Sonic
-Variable.1.Unit: Seconds/meter
-!
-Vs/Vp ratio from Sonic logs: Poisson's Ratio
-Description: Vs/Vp ratio
-Formula: dt/dts
-Unit: Ratio
-Variable.0.Type: Sonic travel time
-Variable.0.Name: DT
-Variable.0.Description: Sonic
-Variable.0.Unit: Seconds/meter
-Variable.1.Type: Sonic travel time
-Variable.1.Name: DTS
-Variable.1.Description: Shear sonic
-Variable.1.Unit: Seconds/meter
-!
-Sonic (us/m) from velocity: Sonic travel time
-Description: Convertion from velocity to sonic travel time
-Formula: 1e6/vel
+Sonic from velocity: Sonic travel time
+Description: Conversion from velocity to sonic travel time
+Formula: 1 / vel
 Unit: Microseconds/meter
-Variable.0.Type: Velocity
-Variable.0.Name: Velocity
-Variable.0.Description: Velocity
-Variable.0.Unit: Meter/second
-!
-Sonic (us/ft) from velocity: Sonic travel time
-Description: Convertion from velocity to sonic travel time
-Formula: 0.3048e6/vel
-Unit: Microseconds/foot
 Variable.0.Type: Velocity
 Variable.0.Name: Velocity
 Variable.0.Description: Velocity
@@ -258,6 +354,7 @@ Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
 Variable.0.Unit: Km/second
 Constant.0.Name: a
+Constant.0.Description: Default values:`Wet sandstone: a=0.452, b=-1.743`Gas sandstone: a=0.438, b=-0.395`Shaly sandstone: a=0.492, b=-2.407`Limestone (chalk): a=0.348, b=-0.959`Beware that the default values may vary considerably`Best parameters should be obtained by crossplotting on-site measured data
 Constant.0.Default: 0.452
 Constant.1.Name: b
 Constant.1.Default: -1.743
@@ -292,7 +389,7 @@ Constant.0.Default: 0.31
 Constant.1.Name: b
 Constant.1.Default: 0.25
 !
-Velocity (m/s) from Sonic: Velocity
+Velocity from Sonic: Velocity
 Description: Velocity from Sonic travel time
 Formula: 1 / dt
 Unit: Meter/second
@@ -301,14 +398,52 @@ Variable.0.Name: Sonic
 Variable.0.Description: Sonic travel time
 Variable.0.Unit: Seconds/meter
 !
-Velocity (ft/s) from Sonic: Velocity
-Description: Velocity from Sonic travel time
-Formula: ( 1 / dt ) / 0.3048
-Unit: Feet/second
-Variable.0.Type: Sonic travel time
-Variable.0.Name: Sonic
-Variable.0.Description: Sonic travel time
-Variable.0.Unit: Seconds/meter
+Castagna's equation - S-wave velocity spliced with longer P-wave: Velocity
+Description: Extend exisiting S-wave velocity log with longer P-wave velocity.
+Formula: Vs == undef ? c0*Vp + c1 : Vs
+Unit: Meter/second
+Variable.0.Type: Velocity
+Variable.0.Name: Vs
+Variable.0.Description: S-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: Velocity
+Variable.1.Name: Vp
+Variable.1.Description: P-wave velocity
+Variable.1.Unit: Meter/second
+Constant.0.Name: a
+Constant.0.Default: 0.8619
+Constant.1.Name: b
+Constant.1.Default: -1172
+!
+P-wave velocity from Lambda-Mhu and density: Velocity
+Description: Compute P-wave velocity from Lambda-Mhu and density
+Formula: sqrt ( ( lambda+2*mhu )  / den )
+Unit: Meter/second
+Variable.0.Type: Pressure
+Variable.0.Name: Lambda
+Variable.0.Description: Lame parameter 'Lambda'
+Variable.0.Unit: Pascal
+Variable.1.Type: Pressure
+Variable.1.Name: Mhu
+Variable.1.Description: Lame parameter 'Mhu'
+Variable.1.Unit: Pascal
+Variable.2.Type: Density
+Variable.2.Name: Rhob
+Variable.2.Description: Density
+Variable.2.Unit: Kg/m3
+!
+S-wave velocity from Mhu and density: Velocity
+Description: Compute P-wave velocity from Mhu and density
+Formula: sqrt ( mhu / den )
+Unit: Meter/second
+Variable.0.Type: Pressure
+Variable.0.Name: Mhu
+Variable.0.Description: Lame parameter 'Mhu'
+Variable.0.Unit: Pascal
+Variable.1.Type: Density
+Variable.1.Name: Rhob
+Variable.1.Description: Density
+Variable.1.Unit: Kg/m3
 !
 Porosity from Density: Volumetrics
 Description: Standard formula.`Beware that this formula only works if the input density is always between the matrix and fluid density.
@@ -319,7 +454,7 @@ Variable.0.Name: Rhob
 Variable.0.Description: Measured density log
 Variable.0.Unit: Gram/cm3
 Constant.0.Name: Matrix density
-Constant.0.Description: The average density of the rock material itself.`(Sandstone: 2.65, Limestone: 2.67, Dolomite: 2.71)`Therefore, the density for porosity 0.
+Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
 Constant.0.Default: 2.65
 Constant.0.Typical Range: 2.2`2.9
 Constant.1.Name: Fluid density
