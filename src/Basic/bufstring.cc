@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.38 2012-04-13 07:34:22 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.39 2012-04-13 14:17:25 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -410,41 +410,21 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 }
 
 
-int BufferStringSet::nearestMatch( const char* s ) const
+int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 {
     if ( isEmpty() ) return -1;
     const int sz = size();
     if ( sz < 2 ) return 0;
     if ( !s ) s = "";
 
-    // Find the nearest, case insensitive
-    TypeSet<int> dists; int mindist;
+    int mindist; int minidx;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int curdist = getMatchDist( get(idx), s, false );
-	dists += curdist;
+	const int curdist = getMatchDist( get(idx), s, caseinsens );
 	if ( idx == 0 || curdist < mindist  )
-	    mindist = curdist;
+	    { mindist = curdist; minidx = idx; }
     }
-    TypeSet<int> candidates;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( dists[idx] == mindist )
-	    candidates += idx;
-    }
-    if ( candidates.size() == 1 )
-	return candidates[0];
-
-    // Solve the tie by looking at the best performer, case-sensitive
-    int midx;
-    for ( int idx=0; idx<candidates.size(); idx++ )
-    {
-	const int curdist = getMatchDist( get(candidates[idx]), s, true );
-	if ( idx == 0 || curdist < mindist  )
-	    { mindist = curdist; midx = idx; }
-    }
-
-    return candidates[midx];
+    return minidx;
 }
 
 
