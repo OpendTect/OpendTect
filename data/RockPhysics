@@ -1,6 +1,50 @@
 dTect V4.3
 Rock Physics
-Thu Feb 2 12:54:10 2012
+Fri Apr 13 17:06:18 2012
+!
+Net Pay: Classification
+Description: Compute Net Pay from porosity, saturation, Vshale
+Formula: phi >= c0 && vsh <= c1 && sw <= c2 ? 1 : 0
+Variable.0.Type: Volumetrics
+Variable.0.Name: Phi
+Variable.0.Description: Porosity
+Variable.0.Unit: Fraction
+Variable.1.Type: Volumetrics
+Variable.1.Name: Vsh
+Variable.1.Description: Volume of Shale
+Variable.1.Unit: Fraction
+Variable.2.Type: Volumetrics
+Variable.2.Name: Sw
+Variable.2.Description: Water saturation
+Variable.2.Unit: Fraction
+Constant.0.Name: Phi0
+Constant.0.Default: 0.12
+Constant.1.Name: Vsh0
+Constant.1.Default: 0.30
+Constant.2.Name: Sw0
+Constant.2.Default: 0.50
+!
+Reservoir: Classification
+Description: Compute Net Pay from porosity, saturation, Vshale
+Formula: phi >= c0 || vsh <= c1 || sw <= c2 ? 1 : 0
+Variable.0.Type: Volumetrics
+Variable.0.Name: Phi
+Variable.0.Description: Porosity
+Variable.0.Unit: Fraction
+Variable.1.Type: Volumetrics
+Variable.1.Name: Vsh
+Variable.1.Description: Volume of Shale
+Variable.1.Unit: Fraction
+Variable.2.Type: Volumetrics
+Variable.2.Name: Sw
+Variable.2.Description: Water saturation
+Variable.2.Unit: Fraction
+Constant.0.Name: Phi0
+Constant.0.Default: 0.12
+Constant.1.Name: Vsh0
+Constant.1.Default: 0.30
+Constant.2.Name: Sw0
+Constant.2.Default: 0.50
 !
 Gardner equation - Sonic: Density
 Description: Compute density from sonic
@@ -43,7 +87,7 @@ Constant.1.Description: The average density of the fluid.`Therefore, the density
 Constant.1.Default: 1.09
 Constant.1.Typical Range: 0.5`1.2
 !
-Extended elastic density: Density
+Extended elastic density using CHI angle: Density
 Description: Compute elastic density from Density, P-wave velocity and S-wave velocity
 Formula: (c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180))))/velp
 Unit: Kg/m3
@@ -223,7 +267,7 @@ Variable.1.Name: Rhob
 Variable.1.Description: Density
 Variable.1.Unit: Kg/m3
 !
-Shear Impedance from P-wave velocity: Impedance
+Shear Impedance from S-wave velocity: Impedance
 Description: Compute shear impedance from S-wave velocity and density
 Formula: vels * den
 Unit: Kg/m2s
@@ -236,7 +280,7 @@ Variable.1.Name: Rhob
 Variable.1.Description: Density
 Variable.1.Unit: Kg/m3
 !
-Extended elastic impedance: Impedance
+Extended elastic impedance using CHI angle: Impedance
 Description: Compute elastic impedance from Density, P-wave velocity and S-wave velocity
 Formula: c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180)))
 Unit: Kg/m2s
@@ -305,11 +349,11 @@ Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Ip
 Variable.0.Description: Acoustic Impedance
-Variable.0.Unit: G/cm2s
+Variable.0.Unit: Kg/m2s
 Variable.1.Type: Impedance
 Variable.1.Name: Is
 Variable.1.Description: Shear Impedance
-Variable.1.Unit: G/cm2s
+Variable.1.Unit: Kg/m2s
 Constant.0.Name: a
 Constant.0.Default: 2
 Constant.0.Typical Range: 2`2.5
@@ -321,7 +365,7 @@ Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Is
 Variable.0.Description: Shear Impedance
-Variable.0.Unit: G/cm2s
+Variable.0.Unit: Kg/m2s
 !
 Sonic from velocity: Sonic travel time
 Description: Conversion from velocity to sonic travel time
@@ -354,9 +398,10 @@ Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
 Variable.0.Unit: Km/second
 Constant.0.Name: a
-Constant.0.Description: Default values:`Wet sandstone: a=0.452, b=-1.743`Gas sandstone: a=0.438, b=-0.395`Shaly sandstone: a=0.492, b=-2.407`Limestone (chalk): a=0.348, b=-0.959`Beware that the default values may vary considerably`Best parameters should be obtained by crossplotting on-site measured data
+Constant.0.Description: Default values:`Wet sandstone: a=0.452`Gas sandstone: a=0.438`Shaly sandstone: a=0.492`Limestone (chalk): a=0.348`Beware that the default values may vary considerably`Best parameters should be obtained by crossplotting on-site measured data
 Constant.0.Default: 0.452
 Constant.1.Name: b
+Constant.1.Description: Default values:`Wet sandstone: b=-1.743`Gas sandstone: b=-0.395`Shaly sandstone: b=-2.407`Limestone (chalk): b=-0.959`Beware that the default values may vary considerably`Best parameters should be obtained by crossplotting on-site measured data
 Constant.1.Default: -1.743
 !
 Faust's equation: Velocity
@@ -461,4 +506,30 @@ Constant.1.Name: Fluid density
 Constant.1.Description: The average density of the fluid.`Therefore, the density for 100% porosity.
 Constant.1.Default: 1.09
 Constant.1.Typical Range: 0.5`1.2
+!
+Porosity from Density and Resistivity: Volumetrics
+Description: Porosity from density and resistivity log
+Formula: ( 0.9 * sqrt(c0/res) * ( c1 - c2 ) + ( c3 - den  ) ) / ( c3 - c2 )
+Unit: Fraction
+Variable.0.Type: Resistivity
+Variable.0.Name: Rt
+Variable.0.Description: Measured resistivity log
+Variable.0.Unit: OhmMeter
+Variable.1.Type: Density
+Variable.1.Name: Rhob
+Variable.1.Description: Measured density log
+Variable.1.Unit: Gram/cm3
+Constant.0.Name: Rw
+Constant.0.Description: The resistivity of the bounding water.
+Constant.0.Default: 0.04
+Constant.1.Name: Rho_brine
+Constant.1.Description: The average density of the brine water.`Therefore, the density for 100% porosity and no hydrocarbon.`Brine water: 1.09`Fresh water: 1
+Constant.1.Default: 1.09
+Constant.2.Name: Rho_hydrocarbon
+Constant.2.Description: The average density of the hydrocarbon fluid.`Therefore, the density for 100% porosity and no water.`Oil: 0.75`Gas: 0.1
+Constant.2.Default: 0.75
+Constant.3.Name: Rho_matrix
+Constant.3.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
+Constant.3.Default: 2.65
+Constant.3.Typical Range: 2.2`2.9
 !
