@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.39 2012-04-13 14:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.40 2012-04-13 14:20:43 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -420,7 +420,7 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
     int mindist; int minidx;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int curdist = getMatchDist( get(idx), s, caseinsens );
+	const int curdist = getMatchDist( get(idx), s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = idx; }
     }
