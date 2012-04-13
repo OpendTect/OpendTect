@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.41 2011-12-14 15:30:37 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.42 2012-04-13 09:34:28 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -27,10 +27,8 @@ static const char* rcsID = "$Id: visannot.cc,v 1.41 2011-12-14 15:30:37 cvskris 
 #include "SoOD.h"
 #include "SoOneSideRender.h"
 
-#ifdef __have_osg__
 #include <osg/Geode>
 #include <osg/Geometry>
-#endif
 
 mCreateFactoryEntry( visBase::Annotation );
 
@@ -50,9 +48,7 @@ Annotation::Annotation()
     , gridlineswitch_(new SoSwitch)
     , pickstyle_(PickStyle::create())
     , texts_(0)
-#ifdef __have_osg__
     , geode_( doOsg() ? new osg::Geode : 0 )
-#endif
 {
     annotscale_[0] = annotscale_[1] = annotscale_[2] = 1;
 
@@ -63,7 +59,6 @@ Annotation::Annotation()
 
     addChild( coords_ );
 
-#ifdef __have_osg__
     if ( doOsg() )
     {
 	 float pos[8][3] =
@@ -87,7 +82,6 @@ Annotation::Annotation()
 	geode_->addDrawable( geometry );
 	addChild( geode_ );
     }
-#endif
     float pos[8][3] =
     {
 	{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },
@@ -329,7 +323,6 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {
-#ifdef __have_osg__
     if ( geode_ && geode_->getNumDrawables() )
     {
 	 osg::ref_ptr<osg::Geometry> geometry =
@@ -341,7 +334,6 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 	 coord = osg::Vec3f( x, y, z );
     }
 
-#endif
 
     float c[3] = { x, y, z };
     coords_->point.setValues( idx, 1, &c );
