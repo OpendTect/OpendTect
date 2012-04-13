@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.50 2012-04-12 14:34:26 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.51 2012-04-13 05:08:57 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -159,9 +159,10 @@ FOREACH( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
     FILE( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*.o )
     LIST( APPEND OD_STATIC_OUTFILES ${STATIC_LIB_FILES} )
 
-    add_custom_target( ${STATIC_LIB_NAME} ${SHARED_LIB_COMMAND}
+    add_custom_command( OUTPUT ${STATIC_LIB_FILES}
+	        COMMAND ${SHARED_LIB_COMMAND}
                 WORKING_DIRECTORY ${STATIC_LIB_DIR}
-                SOURCES ${STATIC_LIB}
+		DEPENDS ${STATIC_LIB}
                 COMMENT "Extracting shared library ${STATIC_LIB_NAME}" )
 
     FOREACH ( STATIC_LIB_FILE ${STATIC_LIB_FILES} )
@@ -191,10 +192,6 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
 	 )
-
-    FOREACH ( DEP ${STATIC_TARGETS} )
-	ADD_DEPENDENCIES( ${OD_MODULE_NAME} ${DEP} )
-    ENDFOREACH()
 
     SET_TARGET_PROPERTIES( ${OD_MODULE_NAME}
 	    PROPERTIES 
