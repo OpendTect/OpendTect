@@ -101,11 +101,11 @@ Aliases: vsvp
 Color: 200`150`150
 Range: 2`10
 !
-LambdaRho: PresWt
+LambdaRho: Pressure-Weight
 Color: 100`150`255
 Range: 5`80`GPa.g/cm3
 !
-MuRho: PresWt
+MuRho: Pressure-Weight
 Color: 100`255`150
 Range: 5`60`GPa.g/cm3
 !
