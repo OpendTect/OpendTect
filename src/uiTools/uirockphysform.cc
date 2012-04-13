@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.15 2012-04-03 09:15:29 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.16 2012-04-13 14:07:32 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -31,6 +31,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    			PropertyRef::StdTypeNames(), "Property Type" );
     typfld_ = lcb->box();
+    typfld_->setHSzPol( uiObject::Medium);
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
 
     createFlds( lcb->attachObj() );
@@ -49,6 +50,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 void uiRockPhysForm::createFlds( uiObject* attobj )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
+    lcb->box()->setHSzPol( uiObject::Wide );
     lcb->label()->setPrefWidthInChar( 35 );
     lcb->label()->setAlignment( Alignment::Right );
 
@@ -272,8 +274,7 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     rangelbl_->attach( rightOf, valfld_ );
 
     CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
-    descbutton_ = new uiPushButton( this, "", ioPixmap("contexthelp.png"),
-	    			    cb, true );
+    descbutton_ = new uiPushButton( this, "", ioPixmap("info.png"), cb, true );
     descbutton_->setPrefWidthInChar( 5 );
     descbutton_->attach( rightOf, rangelbl_ );
 }
@@ -302,6 +303,9 @@ void uiRockPhysCstFld::updField( BufferString nm, Interval<float> range,
     BufferString suffix = "Typical range is ["; suffix += range.start;
     suffix += ","; suffix += range.stop; suffix += "]";
     rangelbl_->setText( suffix.buf() );
+
+    rangelbl_->display( !range.isUdf() );
+    descbutton_->display( !desc_.isEmpty() );
 }
 
 

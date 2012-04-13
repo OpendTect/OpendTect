@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.2 2012-03-28 13:35:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.3 2012-04-13 14:07:32 cvshelene Exp $";
 
 
 #include "uiwelllogcalcinpdata.h"
@@ -40,6 +40,7 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     inpfld_->box()->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
 
     udfbox_ = new uiCheckBox( this, "Fill empty sections" );
+    udfbox_->setChecked();
     udfbox_->attach( rightOf, unfld_ ? unfld_ : inpfld_ );
 }
 
