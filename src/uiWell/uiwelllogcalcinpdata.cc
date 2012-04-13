@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.3 2012-04-13 14:07:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.4 2012-04-13 14:21:38 cvsbert Exp $";
 
 
 #include "uiwelllogcalcinpdata.h"
@@ -34,7 +34,6 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
     : uiFormInputSel(inpgrp,p->lognms_,fieldnr)
     , wls_(&p->wls_)
-    , lognmsettodef_(false)
     , convertedlog_(0)
 {
     inpfld_->box()->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
@@ -64,15 +63,9 @@ void uiWellLogCalcInpData::use( MathExpression* expr )
     display( true );
     BufferString inplbl = "For '"; inplbl += varnm; inplbl += "' use";
     inpfld_->label()->setText( inplbl.buf() );
-    if ( !lognmsettodef_ )
-    {
-	const int nearidx = posinpnms_.nearestMatch( varnm );
-	if ( nearidx >= 0 )
-	{
-	    inpfld_->box()->setCurrentItem( nearidx );
-	    lognmsettodef_ = true;
-	}
-    }
+    const int nearidx = posinpnms_.nearestMatch( varnm );
+    if ( nearidx >= 0 )
+	inpfld_->box()->setCurrentItem( nearidx );
 }
 
 
