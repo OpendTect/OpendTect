@@ -19,6 +19,7 @@ Microseconds/foot: Sonic travel time`us/ft`3.28084e-6
 Microseconds/meter: Sonic travel time`us/m`1e-6
 Seconds/meter: Sonic travel time`s/m`1
 Kg/m2s: Impedance`kg/m2s`1
+G/cm2s: Impedance`g/cm2s`1000
 Kg/m2us: Impedance`kg/m2us`1000000
 G/ft2s: Impedance`g/ft2s`0.0107639
 Percent: Volumetrics`%`0.01
@@ -28,12 +29,19 @@ mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
 OhmMeter: Resistivity`ohmm`1
-Ratio: Poisson's Ratio``1
+Ratio: Elastic Ratio``1
+Percent: Elastic Ratio`%`0.01
+Pascal.Kg/m3: Pressure-Weight`Pa.Kg/m3`1
+Pascal.g/cm3: Pressure-Weight`Pa.g/cm3`1e3
+GigaPascal.Kg/m3: Pressure-Weight`GPa.Kg/m3`1e9
+GigaPascal.g/cm3: Pressure-Weight`GPa.g/cm3`1e12
 1/Pascal: Compressibility`1/Pa`1
 Degrees Celcius: Temperature`deg.C`1`273.15
 Degrees Fahrenheit: Temperature`deg.F`0.5555555`255.3722222222222222
 Kelvin: Temperature`K`1
 Pascal: Pressure`Pa`1
+KiloPascal: Pressure`kPa`1e3
+GigaPascal: Pressure`GPa`1e6
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
 Ratio: Anisotropy``1
