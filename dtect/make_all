@@ -88,8 +88,11 @@ if ( $shallow == no ) then
 	ln -s ../*.a .
     else
 	cdw
+	echo "Cleaning $oddir ..."
 	make clean
-	cd ../$dgbdir; make clean
+	cd ../$dgbdir;
+	echo "Cleaning $dgbdir ..."
+	make clean
 	cdw
     endif
 endif
@@ -105,13 +108,15 @@ if ( $doupd == yes ) then
     cdw
 endif
 
+if ( $cmake == yes ) then
+    set dodeps=no
+endif
+
 if ( $dodeps == yes ) then
-    if ( $cmake == no ) then
-	make $flags dep MODS=$mods
-	cd plugins ; make $flags dep
-	cd ../spec ; make $flags dep
-	cd ..
-    endif
+    make $flags dep MODS=$mods
+    cd plugins ; make $flags dep
+    cd ../spec ; make $flags dep
+    cd ..
 endif
 
 if ( $cmake == no ) then
