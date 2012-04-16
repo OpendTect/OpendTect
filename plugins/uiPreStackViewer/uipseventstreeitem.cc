@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.12 2011-12-20 05:38:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.13 2012-04-16 17:49:52 cvsnanne Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -166,11 +166,10 @@ bool PSEventsTreeItem::init()
     mnu->getItem(midx)->checked = true; \
     items.erase(); \
 
-void PSEventsTreeItem::createMenuCB( CallBacker* cb )
+void PSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( !eventdisplay_ || menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !eventdisplay_ || !menu || menu->menuID()!=displayID() )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
