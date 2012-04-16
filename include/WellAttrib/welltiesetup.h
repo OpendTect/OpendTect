@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.26 2012-04-12 14:47:01 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.27 2012-04-16 10:31:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,6 @@ public:
 				    , useexistingd2tm_(setup.useexistingd2tm_)
 				    , corrtype_(setup.corrtype_) 
 				    , replacevel_(setup.replacevel_)
-				    , veluom_(setup.veluom_)
-				    , denuom_(setup.denuom_)  
 				    {}	
 		
     MultiID			wellid_;
@@ -69,8 +67,6 @@ public:
     BufferString        	seisnm_;
     BufferString        	vellognm_;
     BufferString          	denlognm_;
-    BufferString		veluom_;
-    BufferString		denuom_;
     bool                	issonic_;
     bool                	is2d_;
     bool 			useexistingd2tm_;

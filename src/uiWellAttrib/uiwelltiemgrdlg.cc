@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.60 2012-04-12 14:47:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.61 2012-04-16 10:31:23 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -306,8 +306,9 @@ bool uiTieWinMGRDlg::initSetup()
 	return false;
 
     bool isvel = false;
-    logsfld_->getDenLog( wtsetup_.denlognm_, wtsetup_.denuom_ );
-    logsfld_->getVelLog(wtsetup_.vellognm_,wtsetup_.veluom_,isvel );
+    BufferString veluom, denuom;
+    logsfld_->getDenLog( wtsetup_.denlognm_, denuom );
+    logsfld_->getVelLog(wtsetup_.vellognm_, veluom, isvel );
     wtsetup_.issonic_  = !isvel ;
     
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
@@ -318,12 +319,17 @@ bool uiTieWinMGRDlg::initSetup()
     }
 
     WellTie::UnitFactors units;
-    Well::Log* s = wd_->logs().getLog( wtsetup_.vellognm_ ); 
-    Well::Log* d = wd_->logs().getLog( wtsetup_.denlognm_ );
+    Well::Data* loadedwd =  Well::MGR().get( wtsetup_.wellid_, false );
+    if ( !loadedwd ) loadedwd = wd_;
+    Well::Log* s = loadedwd->logs().getLog( wtsetup_.vellognm_ ); 
+    Well::Log* d = loadedwd->logs().getLog( wtsetup_.denlognm_ );
     if ( !s || !d ) mErrRet( "No valid log selected" );
 
-    if ( wtsetup_.veluom_.isEmpty() || wtsetup_.denuom_.isEmpty() )
+    if ( veluom.isEmpty() || denuom.isEmpty() )
 	mErrRet( "invalid log units, please check your input logs" );
+
+    s->setUnitMeasLabel( veluom );
+    d->setUnitMeasLabel( denuom );
 
     if ( is2d_ )
     {
@@ -376,6 +382,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
     if ( !ioobj ) return false;
+
     const BufferString fname( ioobj->fullUserExpr(true) );
     WellTie::Reader wtr( fname );
     IOPar* par= wtr.getIOPar( uiTieWin::sKeyWinPar() );
