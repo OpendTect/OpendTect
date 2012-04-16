@@ -2,10 +2,13 @@
 #
 #	Makefile : 	Coin Extensions
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-03-29 11:26:26 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-04-16 10:38:01 cvsdgb Exp $
 #_______________________________________________________________________________
 
-SET(OD_USECOIN 1)
+SET( OD_USECOIN 1 )
+OD_SETUP_COIN() #Gets name of SIMVoleon (needed below)
+SET( OD_USECOIN )
+
 SET(OD_USEQT OpenGL )
 SET(OD_MODULE_SOURCES
 		initsood.cc
