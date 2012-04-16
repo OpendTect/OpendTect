@@ -123,9 +123,12 @@ if ( $cmake == no ) then
     cd ../spec
     make
 else
+    if ( ! -e CMakeCache.txt ) then
+	cmake .
+    endif
     make $flags
     cd ../$dgbdir
-    if ( -e CMakeCache.txt ) then
+    if ( ! -e CMakeCache.txt ) then
 	cmake .
     endif
     make $flags
