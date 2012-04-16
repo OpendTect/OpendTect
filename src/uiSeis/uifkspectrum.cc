@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uifkspectrum.cc,v 1.2 2012-04-10 21:38:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifkspectrum.cc,v 1.3 2012-04-16 17:55:36 cvsnanne Exp $";
 
 #include "uifkspectrum.h"
 
@@ -54,7 +54,7 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     const DataPack* datapack = dpman.obtain( dpid );
     if ( datapack )
 	setCaption( !datapack ? "No data" 
-	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
+	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::CubeID() )
     {
@@ -74,7 +74,6 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
 {
     const int sz0 = array.info().getSize( 0 );
     const int sz1 = array.info().getSize( 1 );
-
     initFFT( sz0, sz1 );
     if ( !fft_ )
     {
@@ -107,6 +106,7 @@ void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
     input_->setAll( float_complex(0,0) );
     output_ = new Array2DImpl<float_complex>( xsz, zsz );
     output_->setAll( float_complex(0,0) );
+
     spectrum_ = new Array2DImpl<float>( xsz, zsz );
     spectrum_->setAll( 0 );
 }
@@ -140,12 +140,15 @@ bool uiFKSpectrum::view( Array2D<float>& array )
     MapDataPack* datapack = new MapDataPack( "Attribute", "F-K", &array );
     const int sz0 = array.info().getSize( 0 );
     const int sz1 = array.info().getSize( 1 );
-    StepInterval<double> frg( 0, sz0-1, 1 );
-    StepInterval<double> krg( 0, sz1-1, 1 );
-    datapack->posData().setRange( true, frg );
-    datapack->posData().setRange( false, krg );
+    // TODO: Get dk and df from input data
+    const float dk = fft_->getDf( SI().crlDistance(), sz0 );
+    const float df = fft_->getDf( SI().zStep(), sz1 );
+    StepInterval<double> frg( 0, df*(sz0-1), df );
+    StepInterval<double> krg( 0, dk*(sz1-1), dk );
+    datapack->posData().setRange( true, krg );
+    datapack->posData().setRange( false, frg );
     datapack->setPosCoord( false );
-    datapack->setDimNames( "F", "K", true );
+    datapack->setDimNames( "K", "Freq", true );
     DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
     dpman.add( datapack );
     viewer().setPack( false, datapack->id(), false, false );
