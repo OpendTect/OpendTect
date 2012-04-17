@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: seis2dlinemerge.h,v 1.4 2009-12-18 14:41:29 cvsbert Exp $
+ RCS:		$Id: seis2dlinemerge.h,v 1.5 2012-04-17 09:18:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ protected:
     Seis2DLineSet*	ls_;
     PosInfo::Line2DData& l2dd1_;
     PosInfo::Line2DData& l2dd2_;
+    PosInfo::Line2DData& outl2dd_;
     SeisTrcBuf&		tbuf1_;
     SeisTrcBuf&		tbuf2_;
     SeisTrcBuf&		outbuf_;

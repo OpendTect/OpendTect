@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.12 2012-03-28 12:54:00 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.13 2012-04-17 09:18:13 cvssatyaki Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -116,6 +116,7 @@ Seis2DLineMerger::Seis2DLineMerger( const MultiID& lsky )
     , tbuf2_(*new SeisTrcBuf(false))
     , l2dd1_(*new PosInfo::Line2DData)
     , l2dd2_(*new PosInfo::Line2DData)
+    , outl2dd_(*new PosInfo::Line2DData)
     , attrnms_(*new BufferStringSet)
     , opt_(MatchTrcNr)
     , numbering_(1,1)
@@ -282,7 +283,16 @@ int Seis2DLineMerger::doWork()
 		mErrRet(putter_->errMsg())
 	    delete putter_; putter_ = 0;
 #	    define mRetNextAttr \
-	    return nextAttr() ? Executor::MoreToDo() : Executor::Finished()
+	    { \
+		if ( nextAttr() ) \
+		    return Executor::MoreToDo(); \
+		else \
+		{ \
+		    outl2dd_.setLineName( outlnm_ ); \
+		    PosInfo::POS2DAdmin().setGeometry( outl2dd_ ); \
+		    return Executor::Finished(); \
+		} \
+	    }	
 	    mRetNextAttr;
 	}
 
@@ -290,6 +300,9 @@ int Seis2DLineMerger::doWork()
 	if ( !putter_->put(trc) )
 	    mErrRet(putter_->errMsg())
 
+	PosInfo::Line2DPos pos( trc.info().nr );
+	pos.coord_ = trc.info().coord;
+	outl2dd_.add( pos );
 	nrdone_++;
 	return Executor::MoreToDo();
     }
