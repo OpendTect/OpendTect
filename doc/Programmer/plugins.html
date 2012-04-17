@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.50 2012-03-26 12:11:11 cvsbert Exp $
+  - RCS:	$Id: plugins.html,v 1.51 2012-04-17 13:32:44 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V4.1]</title>
@@ -41,10 +41,7 @@ environment, it should be much easier to convince the opendtect.org
 people to take over or even implement those things themselves. </p>
 
 <p> One thing you <i>cannot</i> do, is use another compiler than
-<b>gcc/g++</b>. OpendTect is built with it, if you want to use another
-compiler (why?) you'll have to make all libs and supporting libs (Qt,
-COIN, fftw) yourself. The make itself should be pretty easy to get
-started, but there will probably be some porting to do, too.</p>
+<b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, COIN, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
 
 <br><br>
 <a name=concept><h2>The concept</h2>
@@ -157,9 +154,26 @@ Makefile needs to change. We need change the module dependency:
 
 <pre><code>SET(OD_MODULE_DEPS uiODMain)</code></pre>
 
-<p>If you really want to see this simple thing working, make sure you add:
-<code>OWNC++FLAGS := -DPLAN_A</code>
-to the make file (or specify make <code>OWNC++FLAGS=-DPLAN_A</code> on the command line).</p>
+<p>If you really want to see this simple thing working, make sure you add <code>OWNC++FLAGS=-DPLAN_A</code> to the make command line.</p>
+
+<a name=pifnmacros><h3>Macros to define the required functions</h3>
+
+As of version 4.2, there are macros available to define the plugin functions. They make it easier to read and maintain these functions. They are in odplugin.h. You'll use 2 of them for late (UI) plugins, 3 for early:
+<ul>
+<li><code>mDefODPluginEarlyLoad(PluginName)</code>
+<li><code>mDefODPluginInfo(PluginName)</code>
+<li><code>mDefODInitPlugin(PluginName)</code>
+</ul>
+</code>
+uiHello can be changed to:
+<pre><code>#include "uimsg.h"
+mDefODInitPlugin(uiHello)
+{
+    uiMSG().message( "Hello world" );
+    return 0; // All OK - no error messages
+}
+</code></pre>
+
 
 <br>
 <a name=real><h2>Realistic examples</h2>
@@ -175,24 +189,20 @@ some beauty in it and start to like it.</p>
 <p>Look in uihellopi.cc - the else of the PLAN_A part. First of all,
 we nicely define the other standard plugin functions:
 
-<pre><code>extern "C" int GetuiHelloPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-extern "C" PluginInfo* GetuiHelloPluginInfo()
+<pre><code>
+mDefODPluginInfo(uiHello)
 {
     static PluginInfo retpi = {
-        "uiHello plugin - plan B",
-        "Bert",
-        "1.1.1",
-        "This is the more extensive variant of the uiHello example.\n"
-        "See the plugin manual for details." };
+	"uiHello plugin - plan B",
+	"Bert",
+	"1.1.1",
+	"This is the more extensive variant of the uiHello example.\n"
+   	"See the plugin manual for details." };
     return &retpi;
 }
 </pre></code>
 
-The plugin will now <a href=#autoload>auto-load</a> when added to the auto-loaded plugins.</p>
+The plugin will now <a href=#autoload>auto-load</a> late when added to the auto-loaded plugins, and show up in the Utilties-Plugins window with a proper name and description.</p>
 
 <p> The idea is to add a menu item 'Display Hello Message ...' to the
 'Utilities' menu of OpendTect. The CMakeLists.txt and the example code are
@@ -221,7 +231,7 @@ any object you need.</p>
 <p> To see where things start, go to the InituiHelloPlugin
 function at the bottom of uihellopi.cc to find: </p>
 
-<pre><code>extern "C" const char* InituiHelloPlugin( int, char** )
+<pre><code>mDefODInitPlugin(uiHello)
 {
     (void)new uiHelloMgr( ODMainWin() );
     return 0; // All OK - no error messages
@@ -335,44 +345,39 @@ In the process, we'll see how to:
 <li>Work in the COIN 'vis' world
 <li>Work with DataPack's and create flat displays
 </ul>
+</p>
 
 
 <a name=tutgui><h4>The <code>uiTut</code> plugin</h4>
 
-<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation<p>
+<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation</p>
 
-<p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).<p>
+<p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).</p>
 
-<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
+<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.</p>
 
-<p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.<p>
+<p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
 
-<p>Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place.<p>
+<p>Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
 
-<code><pre>extern "C" int GetuiTutPluginType()
+<p> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.</p>
+
+<code><pre>
+mDefODPluginInfo(uiTut)
 {
-    return PI_AUTO_INIT_LATE;
-}
-
-</pre></code>
-
-<p> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.<p>
-
-<code><pre>extern "C" PluginInfo* GetuiTutPluginInfo()
-{
-    static PluginInfo retpi = { 
-        "Tutorial plugin development",
-        "dGB (Raman/Bert)",
-        "4.1",
-        "Shows some simple plugin basics." }; 
+    static PluginInfo retpi = {
+	"Tutorial plugin",
+	"dGB (Raman/Bert)",
+	"3.2",
+    	"Shows some simple plugin development basics."
+	    "\nCan be loaded into od_main only." };
     return &retpi;
 }
-
 </pre></code>
 
-<p> And the last 'special' function is the one which gets things going:<p>
+<p> And the last 'special' function is the one which gets things going:</p>
 
-<code><pre>extern "C" const char* InituiTutPlugin( int, char** )
+<code><pre>mDefODInitPlugin(uiTut)
 {
     static uiTutMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiTutMgr( ODMainWin() );
@@ -385,49 +390,47 @@ In the process, we'll see how to:
 
 <a name=tut><h4>The <code>Tut</code> plugin</h4>
 
-<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters. The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical
-for UI plugins that want to start working when all objects have already been created.<p>
-
-<code><pre>extern "C" int GetTutPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-</pre></code>
+<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters. The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is very uncommon) and LATE, which is typical
+for UI plugins that want to start working when all objects have already been created. In this case, we need to specify that we have an EARLY plugin:
+<pre><code>
+mDefODPluginEarlyLoad(Tut)
+</pre></code></p>
 
 <a name=seistools><h5>SeisTools</h5>
 
-<p> Let us first look at the direct seismic operations, that are handled by the class <code>SeisTools</code>, which in turn is a subclass of class <code>Executor</code>. 'Real work' is done by the function <code>nextStep()</code> which is typical of class <code>Executor</code>. Here, three different operations are possible: Scaling, where you can multiply the data values by a certain factor and apply a shift; Squaring, where as the name suggests, you can take a square of the data values; and Smoothening, where you can take the arithmatic average of 3 or 5 samples depending on the filter strength. Traces are read one-by-one by a <code>SeisTrcReader</code> and supplied to the function <code>handleTrace()</code> where the actual computation is done. Then a SeisTrcWriter writes the output traces on-by-one to the output cube.<p>
+<p> Let us first look at the direct seismic operations, that are handled by the class <code>SeisTools</code>, which in turn is a subclass of class <code>Executor</code>. 'Real work' is done by the function <code>nextStep()</code> which is typical of class <code>Executor</code>. Here, three different operations are possible: Scaling, where you can multiply the data values by a certain factor and apply a shift; Squaring, where as the name suggests, you can take a square of the data values; and Smoothening, where you can take the arithmatic average of 3 or 5 samples depending on the filter strength. Traces are read one-by-one by a <code>SeisTrcReader</code> and supplied to the function <code>handleTrace()</code> where the actual computation is done. Then a SeisTrcWriter writes the output traces on-by-one to the output cube.</p>
 
 <code><pre>int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
-        return createReader() ? Executor::MoreToDo : Executor::ErrorOccurred;
+	return createReader() ? Executor::MoreToDo()
+	    		      : Executor::ErrorOccurred();
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
-        { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
     else if ( rv == 0 )
-        return Executor::Finished;
+	return Executor::Finished();
     else if ( rv == 1 )
     {
-        if ( !rdr_->get(trcin_) )
-            { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+	if ( !rdr_->get(trcin_) )
+	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
 
-        trcout_ = trcin_;
-        handleTrace();
+	trcout_ = trcin_;
+	handleTrace();
 
-        if ( !wrr_ && !createWriter() )
-            return Executor::ErrorOccurred;
-        if ( !wrr_->put(trcout_) )
-            { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+	if ( !wrr_ && !createWriter() )
+	    return Executor::ErrorOccurred();
+	if ( !wrr_->put(trcout_) )
+	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
+
 </pre></code>
 
-<p> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.<p>
+<p> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.</p>
 
 <code><pre>void Tut::SeisTools::handleTrace()
 {
@@ -483,7 +486,7 @@ for UI plugins that want to start working when all objects have already been cre
 
 <p><a name=hortools><h5>HorTool</h5>
 
-<p> Similar to <code>SeisTools, HorTool</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTool</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTool</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessCalculator</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessCalculator</code> to see how the data values are accessed in a <code>Horizon3D</code>:<p>
+<p> Similar to <code>SeisTools, HorTool</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTool</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTool</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessCalculator</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessCalculator</code> to see how the data values are accessed in a <code>Horizon3D</code>:</p>
 
 <code><pre>int Tut::ThicknessCalculator::nextStep()
 {
@@ -511,13 +514,13 @@ for UI plugins that want to start working when all objects have already been cre
     nrdone_++;
     return Executor::MoreToDo();
 }</pre></code>
-<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessCalculator</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.<p>
+<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessCalculator</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.</p>
 <p>
 <a name=tutattrib><h4>The Tutorial Attribute</h4>
 
 <p> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.<p> 
 
-<p> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.<p>
+<p> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.</p>
 
 <a name=steer><h4>Steering</h4>
 
@@ -566,7 +569,7 @@ by the user</p>
 </p>
 
 <a name=initsteer><h5>initSteering()</h5>
-<p> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.<p>
+<p> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.</p>
 <code><pre>void Tutorial::initSteering()
 {
     if ( inputs[1] && inputs[1]->getDesc().isSteering() )
@@ -738,7 +741,7 @@ named 'z0_' in the corresponding DataHolders.</p>
                               "Specify process parameters",
                               "tut:105.0.1") )
 </pre></code>  
-In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
+In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.</p>
 
 <h3>The 'credits' documentation</h3>
 <p>From 3.3.2, OpendTect has the 'Credits' documentation, for aknowledging
@@ -754,36 +757,22 @@ If you want to add credits, you should at least make an <code>index.html</code>.
 
 <p> Once you have made your own plugin, you probably would like it to
 be loaded automatically whenever OpendTect is started. OpendTect
-provides some facilities that do just that. </p>
+    provides some facilities that do just that. </p>
 
 <h3>Preparing a plugin for auto-load</h3>
 
-<p>If you want to prepare your plugin for auto-loading at startup, you
-basically just have to define when it should be loaded. This is done
-by implementing the GetxxxxPluginType() function, for example: </p>
-
-<p><pre><code>
-#include "plugins.h"
-
-extern "C" int GetTutPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-</code></pre></p>
-
-<p><code>#include "plugins.h"</code> is needed for the PluginInfo
+<p><code>#include "odplugin.h"</code> is needed for the PluginInfo
 structure and the PI_AUTO_INIT_xxx defines. </p>
 
 <p>
-
 The GetxxxxPluginType() specifies when a plugin is loaded: 
-
+<ul>
 <li>PI_AUTO_INIT_EARLY : Plugin is loaded before construction of main
 window</li>
-
 <li>PI_AUTO_INIT_LATE : Plugin is loaded after construction of main
 window</li>
-
+</ul>
+The default is PI_AUTO_INIT_LATE, so you only have to define anything if the plugin needs to be loaded early: then use mDefODPluginEarlyLoad(YourPluginName).
 </p>
 
 <h3>Installing plugins for auto-load</h3>
@@ -805,8 +794,6 @@ documentation. </p>
 
 <h4>Using .alo files</h4>
 
-<p>Once you have located (and/or made) the directory where the plugins should be stored, you have to make a subdir 'libs' to contain the plugins and use .alo files.</p>
-
 <p>Auto LOad files are simple text files that tell a program which
 plugins it is supposed to load from the 'libs' directory. Since
 OpendTect contains multiple programs, each program has its own set of
@@ -822,7 +809,7 @@ odmain.dgb.alo. This way, each vendor can make his own .alo files,
 without interfering with others.</p>
 
 <p>A .alo file is nothing more then a simple list of plugins, without
-extensions. For example, here is part of the odmain.base.alo file:
+extensions. For example, this could be in an odmain.base.alo file:
 </p>
 
 <pre><code>

@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.16 2012-03-26 12:11:11 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.17 2012-04-17 13:32:44 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -18,11 +18,9 @@
 <br>
 <img src="hr.png" border=0>
 
-<h1>TODO: NEEDS BIG REWORK</h1>
-
 <a name=intro><h2>Intro</h2></a>
 <p>
-In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>). Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development because the same environment is used for making the entire Opendtect.
+In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>). Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development.
 </p><p>
 For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
 </p><p>
@@ -37,25 +35,15 @@ to be installed.
 The following programs should be available:
 </p>
 <ul>
-<li>GNU make
-<li>GNU gcc 3.4.x, including g++
-<li>perl (for header file dependencies)
-</ul>
-<p>Recommended but fully optional are:</p>
-<ul>
-<li>CVS
-<li>tcsh
-<li>gdb
-<li>GNU Binutils
-<li>Doxygen
-<li>GNU awk (gawk)
+<li><a href="http://cmake.org">CMake</a>
+<li><a href="http://gcc.gnu.org">GNU gcc/g++ >= 3.4.x</a>
+<li>csh (any, as long as you have one installed)
 </ul>
 
 <a name=setup><h2>Setting up the environment</h2></a>
 
 <p>
-<a href="http://cmake.org">CMake</a> is used to build both the entire system aswell as plugins. For smooth work, set a few environment variables and use a
-certain directory structure in your OpendTect Work directory.
+<a href="http://cmake.org">CMake</a> is used to build both the entire system aswell as plugins.
 </p>
 
 
@@ -63,12 +51,11 @@ certain directory structure in your OpendTect Work directory.
 
 <p>
 It is strongly recommended to make sure that there are no spaces in the path
-to your ODWork directory. A good place for your ODWork directory is your
-home directory. 
+to your ODWork directory. A good place for your ODWork directory may be a subdirectory of your home directory. 
 </p>
 
 <p>
-The only environment variable besides the one you may want to use for your own CMake setteings is $WORK. Set it to the root of your development tree (which itself contains 'include' and 'src' subdirectories).
+The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
 </p><p>
 For CMake to work easily, try linking the Qt, COIN and OSG installations immediately in $WORK. CMake will automatically configure from this. Example:
 <pre><code>ln -s /apps/qt/inst_453 $WORK/qt
@@ -81,49 +68,7 @@ ln -s /apps/osg/inst_rel $WORK/osg
 <h4>Testing the installation</h4>
 
 <p>
-After 'cmake .' (ceemake dot) you can simply build OpendTect from source. Then, as a test, try to make some changes in plugins/Hello
-</p>
-<pre>
-% cd plugins/Hello
-% make
-Making Hello / Linux (Jan 16 09:37:18) DEBUG=yes.
-Compiling hellopi.cc ...
-Ranlib on libHello.a ...
-Creating /users/bert/ODWork/lib/lux/G/libHello.so ...
-  Done !
-%</pre>
-If this doesn't give similar output but errors, try the command 'make -n', which shows what make will do without actually doing it:
-<pre>
-% make -n
-rm -f lslux
-echo "  Making Hello / Linux (Jan 16 09:41:52) DEBUG=yes." | tee -a lslux
-echo "Compiling hellopi.cc ... " | tee -a lslux
-g++ -c -ggdb3  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV -D__debug__ -Dlux -D__shared__ -fsigned-char -Wconversion -Wimplicit -Wmissing-prototypes -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I/users/bert/ODWork/include   -I. hellopi.cc -o /tmp/hellopi.o 1&gt;&gt;lslux 2&gt;&amp;1
-ar rv /users/bert/ODWork/lib/lux/G/libHello.a /tmp/hellopi.o 1&gt;&gt;lslux 2&gt;&amp;1
-rm -f /tmp/hellopi.o
-echo "Ranlib on libHello.a ... " | tee -a lslux
-ranlib /users/bert/ODWork/lib/lux/G/libHello.a
-echo "Creating /users/bert/ODWork/lib/lux/G/libHello.so ..." | tee -a lslux
-/users/bert/ODWork/Pmake/base/bin/mkshobjlib /users/bert/ODWork/lib/lux/G/libHello.a --output /users/bert/ODWork/lib/lux/G/libHello.so \
-g++ -L/users/bert/ODWork/lib/lux/G  -shared -ggdb3  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV -D__debug__ -Dlux -D__shared__ -fsigned-char -Wconversion -Wimplicit -Wmissing-prototypes -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I/users/bert/ODWork/include   -I. 1&gt;&gt;lslux 2&gt;&amp;1
-echo "  Done !" | tee -a lslux
-%
-</pre>
-Anyway, when you have the 'Hello world' thing going, try a more 'demanding' plugin. For example the simple file seismic import:
-<pre>
-% cd ../uiSeisIOSimple
-% make
-  Making uiSeisIOSimple / Linux (Jan 16 09:38:13) DEBUG=yes.
-Compiling seisiosimple.cc ...
-Compiling uiseisiosimple.cc ...
-Compiling uiseisiosimplepi.cc ...
-Ranlib on libuiSeisIOSimple.a ...
-Creating /users/bert/ODWork/lib/lux/G/libuiSeisIOSimple.so ...
-  Done !
-%</pre>
-<p>
-The libraries should now be created in $WORK/lib/$HDIR (in the example case /users/bert/ODWork/lib/lux/G). If anything goes wrong during compile and/or link, the error messages are sent to a file lslux (or lssun5 or lssgi depending on your OS) in the source directory. If you want to see these immediately, set the environment variable OUTSTDOUT to yes. You can also add this for each make run, then type:
-<pre>make OUTSTDOUT=yes</pre>
+After 'cmake .' (ceemake dot) in the root of your development environment you can simply use make in each plugin directory. Then, as a test, try to make some changes in plugins/Hello and run make.
 </p>
 
 <h4>Testing the newly compiled plugins</h4>
@@ -143,7 +88,7 @@ This is the same on Unix and Windows, so please consult the plugins <a href="plu
 
 <p>
 The distribution of plugins is basically the same for Unix and windows. 
-Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the libs subdirectory.
+Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the <code>bin/$DIR</code> subdirectory, where all shared libs reside.
 </p>
 <p>
 For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix. For all details on what exactly should be packaged and how, we'd recommend contacting support at opendtect.org.
@@ -155,7 +100,7 @@ For distribution to the outside world, you'll need to package your plugins, docu
 If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.
 
 <h4>Qt = http://www.trolltech.no</h4>
-Any recent Qt distribution will do. We configure with:
+Use Qt 4.5 or lower. We configured with:
 <code>
 ./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
 </code>
@@ -165,17 +110,15 @@ You need the main COIN library ('Coin-2') and SoQt. For the volume rendering plu
 <code>
 ./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
 </code>
-</p>
-Once this is done, you have to make sure:
-<ul>
-<li>your shared libs are used, not the distribution's. Replace libqt-mt.so.3, libCoin.so.xx, libSoQt.so.xx etc. in $WORK/bin/$HDIR/so.
-<li>the header files can be found by Pmake. Look in $WORK/Pmake/make.od.Dirs. You can either edit this file, or create an 'APPMANROOT' directory with links to your COIN and Qt installations - then set APPMANROOT_OVERRULE to that directory.
-</ul>
-Now, you can make all directories. This can be a lot of work going in and out of all source directories, so you may want a Makefile in your $WORK. You may even want to use our root make file, e.g. by linking our 'RootMakefile', as in
-<code>cd $WORK; ln -s Pmake/RootMakefile ./Makefile</code>
-Similarly, in the plugins directory use Makefile.od . But in this case you'd probably rather want to include that file in your own Makefile, see comments in Makefile.od for details.
+</p><p>
+Once this is done, link your Qt and Coin installation directories to $WORK, as in:
+<code>
+cd $WORK
+ln -s /apps/qt/inst_dir ./qt
+ln -s /apps/coin/inst_dir ./coin
+</code>
+Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
 <p>
-
 
 <br>
 <img src="hr.png" border=0>
