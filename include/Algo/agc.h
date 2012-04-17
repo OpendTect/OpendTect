@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.8 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: agc.h,v 1.9 2012-04-17 12:49:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ const Interval<int>& AGC<T>::getSampleGate() const
 template <class T> inline
 bool AGC<T>::doPrepare( int nrthreads )
 {
-    if ( !input_ || !output_ || output_->setSize(size_) )
+    if ( !input_ || !output_ || !output_->setSize(size_) )
 	return false;
 
     energies_.setSize( size_, mUdf(T) );
