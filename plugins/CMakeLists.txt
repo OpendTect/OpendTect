@@ -6,7 +6,8 @@
 #_______________________________________________________________________________
 
 SET(PLUGINS
-	Tut )
+	Tut
+	My_Plugin_Name)
 
 INCLUDE ( ODdGBPlugins.cmake OPTIONAL )
 
