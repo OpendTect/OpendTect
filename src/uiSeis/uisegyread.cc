@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.48 2012-02-24 14:12:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.49 2012-04-17 12:06:46 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -323,7 +323,7 @@ static const char* rev1info =
 static const char* rev1txts[] =
 {
     "[&No]: The file is NOT SEG-Y Rev.1 - treat as legacy (i.e. Rev. 0)",
-    "[&Almost]: It's Rev. 1 but I may need to overrule some things",
+    "[&Mostly]: It's Rev. 1 but I may need to overrule some things",
     "[&Yes]: I know the file is 100% correct SEG-Y Rev.1",
     0
 };
@@ -411,7 +411,8 @@ void uiSEGYRead::basicOptsGot()
     bool needimmediatedet = true;
     if ( rev_ != Rev0 )
     {
-	SI().pars().get( sKeySEGYRev1Pol, revpolnr_ );
+	if ( !SI().pars().get(sKeySEGYRev1Pol,revpolnr_) )
+	    revpolnr_ = 2;
 	if ( revpolnr_ < 0 )
 	    revpolnr_ = -revpolnr_ - 1;
 	else
