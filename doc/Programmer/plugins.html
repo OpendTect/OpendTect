@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.51 2012-04-17 13:32:44 cvsbert Exp $
+  - RCS:	$Id: plugins.html,v 1.52 2012-04-17 14:00:02 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V4.1]</title>
@@ -829,12 +829,12 @@ supported on all platforms. </p>
 
 
 <br>
-<a name=dist><h2>Distributing your plugins:</h2>
+<a name=dist><h2>Distributing your plugins</h2>
 
 <p> The publishing and distribution of OpendTect plugins is pretty
 straightforward. The .alo files can be installed in the plugins/platform
 (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual
-plugins come in the 'libs' sub-directory. </p>
+plugins go in the normal bin sub-directory. </p>
 
 <p> On Unix, this means that you can make a .tar.gz file containing
 the plugins in a directory structure as described above, which can be
@@ -843,6 +843,8 @@ extracted into the existing OpendTect installation directory. </p>
 <p> On Windows this is also possible, but it is more common to use an
 auto-extracting installer to do this. For more info on this, see the
 <a href="windows.html#dist">windows</a> documentation. </p>
+
+<p>If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described above. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
 
 <br>
 <img src="hr.png" border=0>

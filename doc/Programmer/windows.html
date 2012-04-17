@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.34 2012-03-26 12:11:11 cvsbert Exp $ 
+  - RCS:        $Id: windows.html,v 1.35 2012-04-17 14:00:02 cvsbert Exp $ 
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
@@ -30,10 +30,52 @@ you like. </p>
 
 <p>OpendTect 4.3 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from Microsoft's official web site <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express"> here </a> </p>
 
-<h3>Vim editor</h3>
-<p>Visual Studio comes with it's own editor. For real coding, vim is still superiour and is our preferred editor. The Windows version can be downloaded from:
-http://www.vim.org/ </p>
+<h3>CMake</h3>
+CMake can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html"> here </a>.
 
+<h3> Building Tutorial plugin </h3>
+* Install developers package from the installation manager. 
+<p> * start OpendTect and then from Utilities->tools->Create Devel Envionment launch the create work environment tool. This will prompt the user to specify a folder(WORK) to copy plugin building materials there, it could be any folder with names like "D:\WORK" or "D:\ODWORK" but "PLEASE DO NOT PUT IT IN THE INSTALLATION FOLDER". once done press OK. The WORK environment will be created with a success message. </p>
+
+<p> * Now start cmake. and specify the full path of the newly created work(D:\WORK folder) environmnet both in the "source" and "output" options in the CMake window"
+press configure </P>
+<p> * If configure fails due to missing OpendTect-DIR, then specify OpendTect-DIR in cmake, which will be actually your OpendTect installation dir e.g C:\Program files\OpendTect\4.3.1. press configure again. </P>
+* If everything succeeds press generate. 
+CMake will generate the projects and solution file for your plugin. Now start Visual studio and load OpendTect_Tutorial_Plugin.sln which has just been created by CMake.
+
+
+<h3> Debugging Tutorial plugin </h3>
+Once you load the plugin solution in Visual Studio, you will notice the "od_main" project. This is the launcher project to launch od_main debug executable that came with the developers package. Right click on this project and set to "Set as stratup project", which means when you press F5 for debugging this project will be started. This will launch od_main.exe. At this pont Visual studio will show couple of warning messages because this is a dbug executable, please ignore all of them and continue. Once od_main is launched you will see the OpendTect Window. Now from the utlities ->plugin menu of OpendTect try to load your plugin by browsing to the WORK(D:\WORK)bin\win32 folder in your plugin directory and just set a break point to your code. So when the control comes to the break-point it will stop there and you can debug your code.  Please note you can only debug your own code and cannot step in to any OpendTect library functions, as this is being used as an external library.
+
+<h3> Building your own plugin </h3>
+The above example shows how to build the tutorail plugin. If you want to create your own plugin, we have a nice example called "My_Plugin_Name" which comes along with the Tutorial plugins. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you.
+
+<p> * Rename My_Plugin_Name folder with a name of your chice e.g "My_Inversion".  </P>
+
+<p> * Do the same in ODWork\CMakeLists.txt. </p>
+
+<p> * Rename my_plugin_name_pi.cc to a different name like "my_inv_plugin_pi.cc" as shown earlier. </p>
+
+<p> * Edit my_inv_plugin_pi.cc and replace every occurences of "My_Plugin_Name" with your plugin name like "my_plugin_name" for example. </p>
+
+<p> * Add your code  to my_inv_plugin_pi.cc file or if needed add some of your source files to ODWORK\my_inv_plugin and also make sure to add the entries to  ODWORK\my_inv_plugin\CMakeLists.txt. </p>
+
+
+<p> * Proceed with CMake as before. </p>
+
+<p> *If you manage to make the the projects and successfully built them, then start od_main project and load the plugin binaries form ODWork\bin\win32/64\debug in to OpendTect and enjoy the results of your work. </p>
+
+<h3> Debugging your own plugin </h3>
+The process is exactly similar as described above, 1)start Visual Stidio 2) build the plugin 3) start "od_main" project 4) load and debug your plugin.
+
+
+<h3> Distributing your own plugins</h3>
+Your plugin can be distributed with the new installation manager and OpendTect download site. You have to ship the plugin binaries and documentation to opendtect.org, where it will be available for download.
+
+
+
+<h3> Building OpendTect ( not recommended unless really needed )</h3>
+The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt anc Coin directory location, slect them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.  
 
 <h3>Qt</h3>
 A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/"> Qt website </a>. 
@@ -42,150 +84,6 @@ A Qt installation is only necessary when you want to build a plugin which is dir
 <h3>Coin and friends</h3>
 <p>A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from <a href="http://coin3d.org/">Coin website </a>. Or get the source code from <a href="http://tortoisehg.bitbucket.org/">Mercurial</a> repositories and build yourself using Visual Studio. Check this <a href="http://www.coin3d.org/doc/mercurial_access/">link</a> for more details</p>
 <br>
-
-<a name=setup><h3>Setup ODWork dir</h3>
-
-<p> Before you can build anything, you have to setup a work directory
-(usually called 'ODWork'). The easiest way to do this is from within
-OpendTect, menu 'Utilities-Tools-Create
-Devel Env', but make sure you have downloaded and installed the developer package in the same location where OpendTect is already installed. Note that the OpendTect application window will freeze while the development environment is created. The developer package could also be installed right in to the ODWork folder, in that case the ODWork immediatly becomes the "WORK" directory and you won't have to use OpendTect ->menu -> 'Utilities-Tools-Create
-Devel Env'  </p>
-
-
-<h3>Setup environment variables</h3>
-
-<div class='vspace'></div><ul><li>For launching OpendTect solution in visual studio, we use batch files to pre-configure the environment variable and then build it with msvc compiler. The idea is to set environment variables before launching the visual studio IDE, so that when it comes in memory it will know where to look for the dependecy files.
-<div class='vspace'></div><ul><li>Please refer to our odvars_example.bat file under msvc10 folder in the od directory.
-</li><li>Create a new batch file form odvars_example.bat and rename it to &ldquo;odvars.bat&rdquo; ( these two files will be exactly similar except the local variable path names )
-</li><li>Start editing this new batch file and add the necessary variables as they are on your local system.
-</li><li>We have to setup WORK, OD_QTDIR, OD_COINDIR and OD_FFTWDIR based upon their installation directories on local machine, naturully it will vary from machine to machine.
-</li><li>Set up these variables according to the directory locations on your current working system. for e.g. if your od folder is at C:\odwork\od then you have to add this line in your batch file &ldquo;set WORK=C:\odwork\od &ldquo;
-</li><li>Save the file and double click on it to launch Visual studio.
-</li><li>Start building OpendTect. 
-
-</p>
-<br>
-
-<h3>Building your own plugins</h3>
-
-<h4>Testing the installation</h4>
-
-<p> After you setup your environment, goto the plugins\msvc10 folder and open the Tutorial solution. When openened, build the solution from the Build menu, the toolbar, or the Solution right-click menu.</p>
-
-<p> The libraries should now be ready in $WORK\plugins\msvc10\Win32|x64\debug|release.
-</p>
-
-
-<h4>Testing the newly compiled plugins</h4>
-
-<p>
-You can test your newly compiled plugins by loading them using the
-Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll"
-plugin, you should see "Hello World" on the OpendTect console window. Notes:
-<ul>
-
-<li>For some reason the manual loading of plugins can fail on the very
-first attempt with an error message from windows that it is not able
-to find the plugin. Maybe someone with knowledge about the dark
-corners of Windows can explain us why. In any case, if you try again
-it works. </li>
-
-<li>If you want to load one of the 'ui' plugins, you have to load the
-corresponding non-ui one first. </li>
-
-<li>You cannot re-load a plugin. Even more so: once loaded, the DLL
-remains locked by windows until you exit OpendTect. Thus, if you
-change any code you'd better exit OpendTect before trying to re-build
-the plugin. If you don't exit OpendTect you'll get an error message
-like: 'cannot overwrite .... Permission denied'. </li>
-
-<li>By default Visual Studio creates the "Debug" versions of the Dlls which cannot be directly loaded in to OpendTect. If you want to load your plugin in OpendTect, change the project configuration to release and build your code in release mode, now it will be possible to load the plugin. </li>
-
-
-</ul>
-</p>
-<br>
-
-<a name=installplugins><h4>Installing your plugins</h4>
-
-<p> 'Installing' a plugin would be making the plugin auto-load at
-OpendTect startup. Basically, this is done by copying the plugin to
-the correct plugin subdirectory in either your personal '.od' settings
-directory or in the program installation directory. After that, you
-need to create a new ".alo" file, or add the plugin to an existing
-".alo" file.  The procedure is the same on Unix and Windows, so please
-consult the plugins <a href="plugins.html#autoload">auto-load and
-installation</a> documentation for more details. </p>
-
-<p> There are a few remarks about the location of your personal
-directory on windows though. Your 'Personal directory' is located at
-$HOME if this is defined, which is normally taken care of by the
-cygwin tcsh shell. Otherwise, the location of $USERPROFILE or
-eventually $APPDATA is used. This takes place in the
-"bin/init_dtect_user" script, which sets the environment variable
-"DTECT_SETTINGS" which on its turn is used internally in OpendTect,
-unless overridden by "DTECT_WINSETTINGS"</p>
-
-<p> If you want your personal '.od' settings directory to be somewhere
-else, you can set the "DTECT_WINHOME" and or the "DTECT_WINSETTINGS"
-environment variable. The first overrides $HOME and thus also 
-specifies a new location for the '.od' settings directory; the latter
-specifies the '.od' directory itself -- you should even be able to
-give it another name, although this is not recommended.</p>
-
-<p> You can set environment variables using  "My Computer - properties
-- advanced - Environment Variables", but you can also edit the
-start_dtect.bat file or a copy of it.</p>
-
-<br>
-
-<a name=dist><h2>Distributing your plugins:</h2>
-
-<p> The distribution of plugins is basically the same for Unix and
-windows.  Just copy the .alo files into the plugins/platform directory    
-(<code>$DTECT_APPL/plugins/$HDIR</code>, default <code>C:\Program
-Files\OpendTect\plugins\win</code> on windows) and copy the actual
-plugins into the libs subdirectory. </p>
-
-
-<p> In order to do this, we use .tar.gz files on Unix and inno-setup on
-windows, which can be obtained for free at:  <a
-href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>. </p>
-
-<p> Because we internally treat Windows as much like Unix as we can, we
-actually make a .tar.gz file for our windows plugins too, which is
-extracted to "d:\users\admin\rel\plugins\opendtect-4.x.y\", which forms
-the "Source" for Inno-Setup. </p>
-
-<p> As an example, here is the Inno-setup file "dgbsetup.iss" that we
-use for our own dgb plugins. Note that the OpendTect installation
-directory is stored in the registry and used as 'DefaultDirName':</p>
-
-<pre>
-[Setup]
-AppName=OpendTect
-AppVerName=OpendTect 4.x.y
-AppPublisher=De Groot-Bril Earth Sciences
-AppPublisherURL=http://www.opendtect.org
-AppSupportURL=http://www.opendtect.org
-AppUpdatesURL=http://www.opendtect.org
-DefaultDirName={reg:HKLM\OpendTect\Base\Settings,Path|{pf}\OpendTect}
-DisableDirPage=yes
-DefaultGroupName=OpendTect
-AllowNoIcons=yes
-OutputBaseFilename=myplugin-opendtect-4.x.y
-LicenseFile=d:\users\admin\rel\opendtect-4.x.y\LICENSE.txt
-
-
-[Files]
-Source: d:\users\admin\rel\plugins\opendtect-4.x.y\*; DestDir: {app}; Flags: recursesubdirs
-</pre>
-<br>
-
-<a name=buildod><h2>Building OpendTect</h2></a>
-<p>
-OpendTect solution and OpendTect plugins solution can be found in $WORK\msvc10. From these solutions it should be quite easy to build OpendTect from scratch. Note that it requires an installation of Qt and Coin. The currently used versions can be found in: $DTECT_APPL\doc\ReleaseInfo\RELEASEINFO.txt
-</p>
 
 
 <br>

@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.17 2012-04-17 13:32:44 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.18 2012-04-17 14:00:02 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -71,11 +71,31 @@ ln -s /apps/osg/inst_rel $WORK/osg
 After 'cmake .' (ceemake dot) in the root of your development environment you can simply use make in each plugin directory. Then, as a test, try to make some changes in plugins/Hello and run make.
 </p>
 
-<h4>Testing the newly compiled plugins</h4>
+<h3>Building the Tutorial plugins : Tut, uiTut</h3>
 
 <p>
 You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "libHello.so" plugin, you should see "Hello World" on the OpendTect console window. Note that when plugins depend on other plugins, the order of loading matters.
-</p><p>
+</p>
+<p>After you setup your environment, open a new shell and go to your ODWork directory. Run<br>
+<code>cmake .</code><br>
+This should configure cmake and generate Makefiles needed to compile the example plugins. Please note that normally you will need to run cmake explicitly only once. After that, make takes care of it. Then simply use<br>
+<code>make</code><br>
+to build the plugins. The libraries will be stored in ODWORK/bin/<plfdir> where <plfdir> is lux32, lux64 or mac depending on your platform. Now you can load these plugins (.so file) into OpendTect using Utilities->Plugins.<p>
+
+<h3>Building your own plugins</h3>
+<p>As a first step towards OpendTect plugin development you can actually replace the name 'My_Plugin_Name' with a name of your choice and start playing with the plugin by adding your own code to it. Make sure the plugin name contains NO SPACES. For example, Here is how to rename My_Plugin_Name to NewGeoPhyTool:<br>
+
+<ul>
+<li>Replace all occurrences of My_Plugin_Name in the file my_plugin_name_pi.cc<br>
+<li>Rename the folder My_Plugin_Name to NewGeoPhyTool<br>
+<li>Replace all occurrences of My_Plugin_Name with NewGeoPhyTool in the file ODWORK/CMakeLists.txt<br>
+<li>Add your own code to the existing sorce files in ODWORK/plugins/NewGeoPhyTool and optionally add your own sorce files in which case you need to add them to ODWORK/NewGeoPhyTool/CMakeLists.txt as well<br>
+<li>Run make in ODWORK
+<li>If all goes well, you will have your plugin library NewGeoPhyTool.so in ODWORK/bin/<plfdir><br>
+<li>Now load the new plugin library into OpendTect and enjoy the results of your work!<br>
+</ul>
+<p>
+
 There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile).
 </p>
 
@@ -100,13 +120,13 @@ For distribution to the outside world, you'll need to package your plugins, docu
 If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.
 
 <h4>Qt = http://www.trolltech.no</h4>
-Use Qt 4.5 or lower. We configured with:
+<a href="http://www.trolltech.no">Qt from TrollTech</a> (now Nokia) is used for the GUI. Use Qt 4.5 or lower. We configured with:<br>
 <code>
 ./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
 </code>
 
-<h4>COIN = http://www.sim.no</h4>
-You need the main COIN library ('Coin-2') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:
+<h4>COIN</h4>
+You need the main <a href="http://www.sim.no">COIN</a> library ('Coin-2') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:<br>
 <code>
 ./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
 </code>
