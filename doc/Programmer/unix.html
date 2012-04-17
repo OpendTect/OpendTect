@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.18 2012-04-17 14:00:02 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.19 2012-04-17 15:20:18 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -20,7 +20,7 @@
 
 <a name=intro><h2>Intro</h2></a>
 <p>
-In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>). Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development.
+In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>. Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development.
 </p><p>
 For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
 </p><p>
@@ -37,7 +37,7 @@ The following programs should be available:
 <ul>
 <li><a href="http://cmake.org">CMake</a>
 <li><a href="http://gcc.gnu.org">GNU gcc/g++ >= 3.4.x</a>
-<li>csh (any, as long as you have one installed)
+<li>csh (just make sure you have one installed)
 </ul>
 
 <a name=setup><h2>Setting up the environment</h2></a>
@@ -50,14 +50,16 @@ The following programs should be available:
 <h3>Setup ODWork dir</h3>
 
 <p>
-It is strongly recommended to make sure that there are no spaces in the path
-to your ODWork directory. A good place for your ODWork directory may be a subdirectory of your home directory. 
+First of all, we strongly recommended no to have no spaces in the path
+to your ODWork directory. A good place for your ODWork directory may be your home directory. 
 </p>
 
 <p>
 The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
 </p><p>
-For CMake to work easily, try linking the Qt, COIN and OSG installations immediately in $WORK. CMake will automatically configure from this. Example:
+As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:
+<pre><code>ln -s /apps/OpendTect/4.3.1/include .</code></pre>
+Another thing may be handy. If you have your own Qt, COIN or OSG installation, then try linking the Qt, COIN and OSG installations immediately in $WORK. CMake will automatically configure from this. Example:
 <pre><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin
 ln -s /apps/osg/inst_rel $WORK/osg
@@ -65,38 +67,32 @@ ln -s /apps/osg/inst_rel $WORK/osg
 </p>
 
 <h3>Building your own plugins</h3>
+
 <h4>Testing the installation</h4>
 
 <p>
-After 'cmake .' (ceemake dot) in the root of your development environment you can simply use make in each plugin directory. Then, as a test, try to make some changes in plugins/Hello and run make.
+After "<code>cmake .</code>" (ceemake dot) in the root of your development environment you can simply use <code>make</code> in each plugin directory. As a test try to make plugins/Tut. The result is libTut.so in bin/platfor_dir of your WORK. You can load this into OpendTect (menu Utilities-Plugins). You'll see it goes by default to the bin/platform_dir of the installation. The libTut.so there is the one we pre-cooked. You'll need to go to bin/platfom_dir of your own WORK, and load that plugin. After that, you can make and load uiTut (libuiTut.so). You should now see these plugins in the list of the plugin manager, and there should be a new submenu in Utilities-Tools.
 </p>
-
-<h3>Building the Tutorial plugins : Tut, uiTut</h3>
-
+<h4>Your own plugin</h4>
 <p>
-You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "libHello.so" plugin, you should see "Hello World" on the OpendTect console window. Note that when plugins depend on other plugins, the order of loading matters.
-</p>
-<p>After you setup your environment, open a new shell and go to your ODWork directory. Run<br>
-<code>cmake .</code><br>
-This should configure cmake and generate Makefiles needed to compile the example plugins. Please note that normally you will need to run cmake explicitly only once. After that, make takes care of it. Then simply use<br>
-<code>make</code><br>
-to build the plugins. The libraries will be stored in ODWORK/bin/<plfdir> where <plfdir> is lux32, lux64 or mac depending on your platform. Now you can load these plugins (.so file) into OpendTect using Utilities->Plugins.<p>
+To create your very own plugin, we added a directory 'My_Plugin_Name'. Change that directory name to how you want to name your plugin. No spaces please. Example: 'PsychicFreqEst'. You want to get this name in all details now. So:
+<pre><code>
+mv My_Plugin_Name PsychicFreqEst
+cd PsychicFreqEst
+mv my_plugin_name_pi.cc psychicfreqest_pi.cc
+</code></pre><br>
+Now edit both the CMakeLists.txt and psychicfreqest_pi.cc, as in:
+<pre><code>vi CMakeLists.txt psychicfreqest_pi.cc</code></pre>
+</p><p>
+CMakelists will need the changed file name, 'psychicfreqest_pi' instead of 'my_plugin_name_pi'. Then go through the psychicfreqest_pi.cc file and change everything appropriate, at least 'My_Plugin_Name' to 'PsychicFreqEst'. Then .. first go back to $WORK to change CMakeLists.txt there, change 'My_Plugin_Name' to 'PsychicFreqEst'. Because you have changed a directory name ... Then run <code>cmake .</code>  ... or just 'make' (nice tool, cmake). You can imagine having to add other plugins, there, later.</p>
+After that 'global' cmake reconfiguration, you can go to your plugin directory (i.c. plugins/PsychicFreqEst) and do 'make'. Again you can load the plugin (libPsychicFreqEst.so), and a message 'Hello world' should be the result.
+</p><p>
+To change the implementation, you would want to change some more stuff, like the message. Look in my_first_separate_source.cc and change "Hello world!" to "I sense your frequencies!". And so forth. For useful changes, take a peek at the Tut plugins and <a href="plugins.html">the documentation</a>.
+</p><br>
 
-<h3>Building your own plugins</h3>
-<p>As a first step towards OpendTect plugin development you can actually replace the name 'My_Plugin_Name' with a name of your choice and start playing with the plugin by adding your own code to it. Make sure the plugin name contains NO SPACES. For example, Here is how to rename My_Plugin_Name to NewGeoPhyTool:<br>
+<a name=installplugins><h4>Unloading plugins (NOT)</h4>
 
-<ul>
-<li>Replace all occurrences of My_Plugin_Name in the file my_plugin_name_pi.cc<br>
-<li>Rename the folder My_Plugin_Name to NewGeoPhyTool<br>
-<li>Replace all occurrences of My_Plugin_Name with NewGeoPhyTool in the file ODWORK/CMakeLists.txt<br>
-<li>Add your own code to the existing sorce files in ODWORK/plugins/NewGeoPhyTool and optionally add your own sorce files in which case you need to add them to ODWORK/NewGeoPhyTool/CMakeLists.txt as well<br>
-<li>Run make in ODWORK
-<li>If all goes well, you will have your plugin library NewGeoPhyTool.so in ODWORK/bin/<plfdir><br>
-<li>Now load the new plugin library into OpendTect and enjoy the results of your work!<br>
-</ul>
-<p>
-
-There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile).
+There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile). It's nice to have auto-load in place, therefore (read on). Also interesting may be the usage of the <a href=http://opendtect.org/links/command_driver.html>Command Driver</a>.
 </p>
 
 <a name=installplugins><h4>Installing your plugins</h4>
@@ -121,22 +117,22 @@ If you're really into it, you can build the entire OpendTect from source after y
 
 <h4>Qt = http://www.trolltech.no</h4>
 <a href="http://www.trolltech.no">Qt from TrollTech</a> (now Nokia) is used for the GUI. Use Qt 4.5 or lower. We configured with:<br>
-<code>
+<pre><code>
 ./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
-</code>
+</code></pre>
 
 <h4>COIN</h4>
 You need the main <a href="http://www.sim.no">COIN</a> library ('Coin-2') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:<br>
-<code>
+<pre><code>
 ./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
-</code>
+</code></pre>
 </p><p>
 Once this is done, link your Qt and Coin installation directories to $WORK, as in:
-<code>
+<pre><code>
 cd $WORK
 ln -s /apps/qt/inst_dir ./qt
 ln -s /apps/coin/inst_dir ./coin
-</code>
+</code></pre>
 Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
 <p>
 
