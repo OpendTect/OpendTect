@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.16 2012-04-13 14:07:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.17 2012-04-18 13:12:13 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -50,7 +50,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 void uiRockPhysForm::createFlds( uiObject* attobj )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
-    lcb->box()->setHSzPol( uiObject::Wide );
+    lcb->box()->setHSzPol( uiObject::WideMax );
     lcb->label()->setPrefWidthInChar( 35 );
     lcb->label()->setAlignment( Alignment::Right );
 
