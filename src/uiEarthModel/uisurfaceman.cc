@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.93 2012-03-20 10:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.94 2012-04-18 17:31:49 cvsyuancheng Exp $";
 
 
 #include "uisurfaceman.h"
@@ -32,21 +32,22 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.93 2012-03-20 10:08:50 cvsk
 
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
-#include "uitaskrunner.h"
-#include "uitoolbutton.h"
+#include "uiimpbodycaldlg.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
+#include "uilistbox.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uisplitter.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitable.h"
+#include "uitaskrunner.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 
 
 #define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d,  body ) \
@@ -145,6 +146,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
 	manipgrp->addButton( "set_implicit.png", "Create region body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
+	manipgrp->addButton( "bodyvolume.png", "Volume estimate",
+		mCB(this,uiSurfaceMan,calVolCB) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -219,16 +222,32 @@ void uiSurfaceMan::merge3dCB( CallBacker* )
 void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
     uiBodyOperatorDlg dlg( this );
+    if ( dlg.go() )
+    	selgrp_->fullUpdate( dlg.getBodyMid() );
+}
+
+
+void uiSurfaceMan::calVolCB( CallBacker* )
+{
+    RefMan<EM::EMObject> emo = 
+	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
+    mDynamicCastGet( EM::Body*, emb, emo.ptr() );
+    if ( !emb ) 
+    {
+	uiMSG().error( "Body is empty" );
+	return;
+    }
+
+    uiImplBodyCalDlg dlg( this, *emb );
     dlg.go();
-    selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
 void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
     uiBodyRegionDlg dlg( this );
-    dlg.go();
-    selgrp_->fullUpdate( dlg.getBodyMid() );
+    if ( dlg.go() )
+    	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
