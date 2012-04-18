@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.13 2011-04-28 07:00:12 cvsbert Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.14 2012-04-18 11:15:56 cvskris Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -31,37 +31,41 @@ const char* Light::isonstr()  { return "Is On"; }
 const char* Light::intensitystr()  { return "Intensity"; }
 
 
-Light::Light( SoLight* light_ )
-    : light( light_ )
-{ light->ref(); }
+Light::Light( SoLight* light )
+    : light_( light )
+    , ison_( true )
+    , intensity_( 1 )
+{ light_->ref(); }
 
 
 Light::~Light()
-{ light->unref(); }
+{ light_->unref(); }
 
 
 void Light::turnOn(bool n)
 {
-    light->on.setValue( n );
+    ison_ = n;
+    light_->intensity.setValue( ison_ ? intensity_ : 0 );
 }
 
 
 bool Light::isOn() const
-{ return light->on.getValue(); }
+{ return ison_; }
 
 
 void Light::setIntensity(float n)
 {
-    light->intensity.setValue( n );
+    intensity_ = n;
+    light_->intensity.setValue( ison_ ? intensity_ : 0 );
 }
 
 
 float Light::intensity() const
-{ return light->intensity.getValue(); }
+{ return intensity_; }
 
 
 SoNode* Light::gtInvntrNode()
-{ return light; }
+{ return light_; }
 
 
 void Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
@@ -102,13 +106,13 @@ PointLight::PointLight()
 
 void PointLight::setPosition(float x, float y, float z )
 {
-    ((SoPointLight*) light)->location.setValue( x, y, z );
+    ((SoPointLight*) light_)->location.setValue( x, y, z );
 }
 
 
 float PointLight::position( int dim ) const
 {
-    return ((SoPointLight*) light)->location.getValue()[dim];
+    return ((SoPointLight*) light_)->location.getValue()[dim];
 }
 
 
@@ -144,13 +148,13 @@ DirectionalLight::DirectionalLight()
 
 void DirectionalLight::setDirection(float x, float y, float z )
 {
-    ((SoDirectionalLight*) light)->direction.setValue( x, y, z );
+    ((SoDirectionalLight*) light_)->direction.setValue( x, y, z );
 }
 
 
 float DirectionalLight::direction( int dim ) const
 {
-    return ((SoDirectionalLight*) light)->direction.getValue()[dim];
+    return ((SoDirectionalLight*) light_)->direction.getValue()[dim];
 }
 
 
@@ -188,49 +192,49 @@ SpotLight::SpotLight()
 
 void SpotLight::setDirection(float x, float y, float z )
 {
-    ((SoSpotLight*) light)->direction.setValue( x, y, z );
+    ((SoSpotLight*) light_)->direction.setValue( x, y, z );
 }
 
 
 float SpotLight::direction( int dim ) const
 {
-    return ((SoSpotLight*) light)->direction.getValue()[dim];
+    return ((SoSpotLight*) light_)->direction.getValue()[dim];
 }
 
 
 void SpotLight::setPosition(float x, float y, float z )
 {
-    ((SoSpotLight*) light)->location.setValue( x, y, z );
+    ((SoSpotLight*) light_)->location.setValue( x, y, z );
 }
 
 
 float SpotLight::position( int dim ) const
 {
-    return ((SoSpotLight*) light)->location.getValue()[dim];
+    return ((SoSpotLight*) light_)->location.getValue()[dim];
 }
 
 
 void SpotLight::setConeAngle(float n)
 {
-    ((SoSpotLight*) light)->cutOffAngle.setValue(n);
+    ((SoSpotLight*) light_)->cutOffAngle.setValue(n);
 }
 
 
 float SpotLight::coneAngle() const
 {
-    return ((SoSpotLight*) light)->cutOffAngle.getValue();
+    return ((SoSpotLight*) light_)->cutOffAngle.getValue();
 }
 
 
 void SpotLight::setDropOffRate(float n)
 {
-    ((SoSpotLight*) light)->dropOffRate.setValue(n);
+    ((SoSpotLight*) light_)->dropOffRate.setValue(n);
 }
 
 
 float SpotLight::dropOffRate() const
 {
-    return ((SoSpotLight*) light)->dropOffRate.getValue();
+    return ((SoSpotLight*) light_)->dropOffRate.getValue();
 }
 
 

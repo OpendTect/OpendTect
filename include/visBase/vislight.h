@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.12 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vislight.h,v 1.13 2012-04-18 11:15:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,9 @@ protected:
     			Light(SoLight* light_);
     virtual		~Light();
 
-    SoLight*		light;	
+    SoLight*		light_;	
+    bool		ison_;
+    float		intensity_;
 
     static const char*	isonstr();
     static const char*	intensitystr();
