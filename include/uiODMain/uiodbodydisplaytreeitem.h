@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.16 2012-04-09 22:15:05 cvsnanne Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.17 2012-04-18 17:32:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -56,15 +56,17 @@ protected:
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
     EM::ObjectID			emid_;
+    visSurvey::MarchingCubesDisplay*	mcd_;
+    visSurvey::PolygonBodyDisplay*	plg_;
+    visSurvey::RandomPosBodyDisplay*	rpb_;
+    
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
     MenuItem				displaybodymnuitem_;
     MenuItem				displaypolygonmnuitem_;
     MenuItem				displayintersectionmnuitem_;
     MenuItem				singlecolormnuitem_;
-    visSurvey::MarchingCubesDisplay*	mcd_;
-    visSurvey::PolygonBodyDisplay*	plg_;
-    visSurvey::RandomPosBodyDisplay*	rpb_;
+    MenuItem				volcalmnuitem_;
 };
 
 
