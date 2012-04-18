@@ -9,10 +9,13 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID = "$Id: bodyvolumecalc.cc,v 1.1 2012-04-12 16:43:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: bodyvolumecalc.cc,v 1.2 2012-04-18 15:16:19 cvsyuancheng Exp $";
 
 
 #include "bodyvolumecalc.h"
+
+#include "arraynd.h"
+#include "cubesampling.h"
 #include "survinfo.h"
 
 
@@ -26,6 +29,10 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
     zfactor_ = SI().zIsTime() ? velocityinmeter : 
 	(SI().zInFeet() ? mFromFeetFactor : 1);
 }
+
+
+od_int64 BodyVolumeCalculator::nrIterations() const
+{ return cs_.nrZ()-1; }
 
 
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )

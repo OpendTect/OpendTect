@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		April 2012
- RCS:		$Id: bodyvolumecalc.h,v 1.1 2012-04-12 16:43:49 cvsyuancheng Exp $
+ RCS:		$Id: bodyvolumecalc.h,v 1.2 2012-04-18 15:16:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "arraynd.h"
-#include "cubesampling.h"
 #include "task.h"
 
+class CubeSampling;
+template <class T> class Array3D;
 namespace Threads { class Mutex; }
 
 /*!Volume estimate for implicit body in meter. */ 
+
 
 mClass BodyVolumeCalculator: public ParallelTask
 {
@@ -29,10 +30,11 @@ public:
    					     float threshold,
    					     float velocityinmeter);
 float 			getVolume() const	{ return volsum_; }
+			//unit in meter^3
 
 protected:
 
-od_int64		nrIterations() const	{ return cs_.nrZ()-1; }
+od_int64		nrIterations() const;
 bool			doWork(od_int64 start,od_int64 stop,int threadid);
 
 const CubeSampling&	cs_;
@@ -42,5 +44,6 @@ float			zfactor_;
 float			volsum_;
 Threads::Mutex		lock_;
 };
+
 
 #endif
