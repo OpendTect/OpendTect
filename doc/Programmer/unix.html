@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.19 2012-04-17 15:20:18 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.20 2012-04-18 11:02:23 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -59,10 +59,9 @@ The only environment variable besides the one you may want to use for your own C
 </p><p>
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:
 <pre><code>ln -s /apps/OpendTect/4.3.1/include .</code></pre>
-Another thing may be handy. If you have your own Qt, COIN or OSG installation, then try linking the Qt, COIN and OSG installations immediately in $WORK. CMake will automatically configure from this. Example:
+Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:
 <pre><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin
-ln -s /apps/osg/inst_rel $WORK/osg
 </code></pre>
 </p>
 

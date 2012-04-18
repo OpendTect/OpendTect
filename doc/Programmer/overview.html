@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Overview of programmer doc
-  - RCS:	$Id: overview.html,v 1.24 2012-04-17 14:00:02 cvsbert Exp $
+  - RCS:	$Id: overview.html,v 1.25 2012-04-18 11:02:23 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Overview [OpendTect Programmer's manual V4.1]</title>
@@ -53,9 +53,9 @@ The last two are, [cough] of our own making. <a name=dif>DIF</a> ensures that th
 You may also want to look at the <a href="rules.html">design/coding rules</a>.
 <a name="isolation"><h3>Isolation of external services</h3></a>
 <p>
-When services from another package (Qt, COIN, FFTW, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
+When services from another package (Qt, COIN, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
 </p><p>
-There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. And, we may not like the form in which the services are presented (e.g. the FFTW stuff is in C); moreover, the data structures used in the external package seldomly fit nicely with ours.
+There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. And, we may not like the form in which the services are presented; moreover, the data structures used in the external package seldomly fit nicely with ours.
 </p><p>
 To overcome all this, and get a nice insulation at the same time, all external services are embedded in service layers that:
 <ul>
@@ -71,8 +71,8 @@ OpendTect is based on a couple of external packages, which are mostly open sourc
 <ul>
 <li>Qt from <a href="http://www.trolltech.no">TrollTech</a>
 <li>Coin from <a href="http://www.sim.no">SIM</a>
-<li>FFTW from <a href="http://www.mit.edu">MIT</a>
-<li>GNU tools (gmake, gcc, bison/flex) from <a href="http://www.fsf.org">FSF</a>
+<li>GNU tools (gmake, gcc) from <a href="http://www.fsf.org">FSF</a>
+<li>CMake from <a href="http://cmake.org">CMake.org</a>
 <li>Doxygen from <a href="http://www.doxygen.org">Doxygen</a>
 </ul>
 </p>
@@ -138,7 +138,7 @@ Along the way, you'll have to do some digging in the include directory or the cl
 | <a href="plugins.html">Plugins</a>
 | <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
-| <a href="http://www.opendtect.org">opendtect.org</a>
+| <a href="http://opendtect.org">opendtect.org</a>
 </center>
 </p>
 
