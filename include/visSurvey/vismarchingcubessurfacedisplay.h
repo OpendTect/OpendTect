@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.30 2012-01-25 19:32:21 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.31 2012-04-18 17:30:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,7 @@ public:
 
     bool			canRemoveSelection() const	{ return true; }    void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);    
+    EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
 
 protected:
 
