@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirockphysform.cc,v 1.17 2012-04-18 13:12:13 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.18 2012-04-18 13:28:59 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -58,7 +58,7 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
 
     formulafld_ = new uiTextEdit( this, "Formula", true );
-    formulafld_->setPrefHeightInChar( 1 );
+    formulafld_->setPrefHeightInChar( 2 );
     formulafld_->setPrefWidthInChar( 100 );
     formulafld_->setStretch(2,0);
     formulafld_->attach( ensureBelow, lcb->attachObj() );
