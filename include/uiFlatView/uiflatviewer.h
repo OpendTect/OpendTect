@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.53 2012-04-05 12:20:32 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.54 2012-04-18 14:38:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ public:
 
     uiRGBArray&		rgbArray();
     uiRGBArrayCanvas&	rgbCanvas()			{ return canvas_; }
+    uiRect		getDisplayWorldRect() const;
 
     void		setView(const uiWorldRect&);
     const uiWorldRect&	curView() const			{ return wr_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.134 2012-04-05 12:20:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.135 2012-04-18 14:38:49 cvskris Exp $";
 
 #include "uiflatviewer.h"
 
@@ -169,6 +169,10 @@ uiRGBArray& uiFlatViewer::rgbArray()
 {
     return canvas_.rgbArray();
 }
+
+
+uiRect uiFlatViewer::getDisplayWorldRect() const
+{ return canvas_.arrArea(); }
 
 
 Color uiFlatViewer::color( bool foreground ) const
