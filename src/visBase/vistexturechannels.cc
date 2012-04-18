@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.43 2012-02-20 10:11:27 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.44 2012-04-18 11:16:59 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -80,7 +80,7 @@ public:
     BoolTypeSet					ownsunmappeddata_;
     ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
-    TextureChannels&				owner_;
+    TextureChannels&				texturechannels_;
     TypeSet<float>				histogram_;
     int						size_[3];
 
@@ -90,7 +90,7 @@ public:
 
 
 ChannelInfo::ChannelInfo( TextureChannels& nc )
-    : owner_( nc )
+    : texturechannels_( nc )
     , currentversion_( 0 )
     , histogram_( mNrColors, 0 )
 {
@@ -239,7 +239,7 @@ void ChannelInfo::removeCaches()
 
     removeImages();
 
-    owner_.update( this, true );
+    texturechannels_.update( this, true );
 
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
@@ -378,13 +378,13 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 
     if ( !unmappeddata_[version] )
     {
-	owner_.update( this, true );
+	texturechannels_.update( this, true );
 	removeImages();
 	return true;
     }
 
     const od_int64 nrelements = nrElements( false );
-    const unsigned char spacing = owner_.doOsg() ? 2 : 1;
+    const unsigned char spacing = texturechannels_.doOsg() ? 2 : 1;
 
     if ( !mappeddata_[version] )
     {
@@ -399,7 +399,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], nrelements,
 	    mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
-	    owner_.doOsg() ? mappeddata_[version]+1 : 0, spacing  );
+	    texturechannels_.doOsg() ? mappeddata_[version]+1 : 0, spacing  );
 
     if ( ( tr && tr->execute(maptask) ) || maptask.execute() )
     {
@@ -421,7 +421,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	    memset( histogram_.arr(), 0, histogram_.size()*sizeof(float) );
 	}
 
-	owner_.update( this, true );
+	texturechannels_.update( this, true );
 	return true;
     }
 
@@ -471,7 +471,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	ownsmappeddata_[version] = true;
     }
 
-    owner_.update( this, true );
+    texturechannels_.update( this, true );
     return true;
 }
 
@@ -488,7 +488,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
     }
 
     currentversion_ = nidx;
-    owner_.update( this, true );
+    texturechannels_.update( this, true );
 }
 
 
