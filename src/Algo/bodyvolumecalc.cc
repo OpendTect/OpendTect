@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID = "$Id: bodyvolumecalc.cc,v 1.2 2012-04-18 15:16:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: bodyvolumecalc.cc,v 1.3 2012-04-18 17:30:03 cvsyuancheng Exp $";
 
 
 #include "bodyvolumecalc.h"
@@ -26,8 +26,12 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
     , threshold_(threshold)
     , volsum_(0)  
 {
-    zfactor_ = SI().zIsTime() ? velocityinmeter : 
+    const float zfactor = SI().zIsTime() ? velocityinmeter : 
 	(SI().zInFeet() ? mFromFeetFactor : 1);
+    const float xyfactor = SI().xyInFeet() ? mFromFeetFactor : 1;
+    unitvol_ = cs_.hrg.step.inl * SI().inlDistance() * xyfactor * 
+	       cs_.hrg.step.crl * SI().crlDistance() * xyfactor *
+	       cs_.zrg.step * zfactor;
 }
 
 
@@ -182,12 +186,8 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 	}
     }
     
-    const float ufactor = SI().xyInFeet() ? mFromFeetFactor : 1;
-    const float unitsvol = cs_.hrg.step.inl * SI().inlDistance() * ufactor * 
-			   cs_.hrg.step.crl * SI().crlDistance() * ufactor *
-			   cs_.zrg.step * zfactor_;
     lock_.lock();
-    volsum_ += unitsvol;
+    volsum_ += unitvol_*nrunits;
     lock_.unLock();   
    
     return true;

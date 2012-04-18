@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		April 2012
- RCS:		$Id: bodyvolumecalc.h,v 1.2 2012-04-18 15:16:19 cvsyuancheng Exp $
+ RCS:		$Id: bodyvolumecalc.h,v 1.3 2012-04-18 17:30:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ bool			doWork(od_int64 start,od_int64 stop,int threadid);
 const CubeSampling&	cs_;
 const Array3D<float>&	arr_;
 float			threshold_;
-float			zfactor_;
+float			unitvol_;
 float			volsum_;
 Threads::Mutex		lock_;
 };
