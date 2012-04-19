@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.39 2012-04-12 15:20:48 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.40 2012-04-19 08:45:24 cvsdgb Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -41,7 +41,7 @@ IF(UNIX) #Apple an Linux
 	    ADD_DEFINITIONS("-Dlux64")
 	ELSE()
 	    SET ( OD_PLFSUBDIR "lux32" )
-	    ADD_DEFINITIONS("-Dlux32")
+	    ADD_DEFINITIONS("-Dlux32 -march=pentium4")
 	ENDIF()
         ADD_DEFINITIONS("-Dlux")
 	
