@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.14 2012-03-28 15:20:45 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.15 2012-04-19 07:14:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,9 @@ public:
 	float			cliprate_;
 	Color			col_;
 	bool			drawascurve_;
+	int		 	curvesz_;	
 	bool			drawaspoints_;
+	int		 	pointsz_;	
 
 	//Get these
 	Interval<float>         zrg_;
