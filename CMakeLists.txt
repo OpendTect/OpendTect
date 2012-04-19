@@ -56,7 +56,6 @@ SET( OD_PLUGINS
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
-	My_Plugin_Name
 	VoxelConnectivityFilter
 	uiBouncy
 	uiDPSDemo
