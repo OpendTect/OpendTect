@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.52 2012-04-03 09:03:27 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.53 2012-04-19 09:11:45 cvsdgb Exp $
 ________________________________________________________________________
 
 */
@@ -24,14 +24,6 @@ class QWaitCondition;
 #include "windows.h"
 #define mHasAtomic
 #define mAtomicWithMutex
-#else
-#if __GNUC__<4 
-#define mAtomicWithMutex
-#elif __GNUC__==4
-#if __GNUC_MINOR__==0
-#define mAtomicWithMutex
-#endif
-#endif //Gcc<4
 #endif
 
 /*!\brief interface to threads that should be portable.
