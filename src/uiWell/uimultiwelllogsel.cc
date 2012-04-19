@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.12 2012-04-12 12:00:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.13 2012-04-19 07:28:59 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -82,7 +82,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     attach_ = zchoicefld_;
 
-    getFromScreen(0);
+    uiWellZRangeSelector::getFromScreen(0);
 }
 
 
