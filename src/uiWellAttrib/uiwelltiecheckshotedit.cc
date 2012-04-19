@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.13 2012-03-20 10:08:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.14 2012-04-19 07:12:46 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -84,6 +84,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
     dsu.symetricalxaxis_ = true;
     driftdisplay_ = new uiWellDahDisplay( this, dsu );
+    driftdisplay_->setToolTip( "Pick to edit drift curve");
 
     uiWellDahDisplay::Data data;
     data.wd_ = &wd_;
@@ -104,11 +105,21 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func) )
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
     mAddButton( "z2t.png", editCSPushed, "View/Edit Model" );
+    toolbar_->addSeparator();
     editbut_ = new uiToolButton( toolbar_, "seedpickmode.png","Edit mode",
 				mCB(this,uiCheckShotEdit,editCB) );
     toolbar_->addButton( editbut_ );
     editbut_->setToggleButton( true );
 
+    undobut_ = new uiToolButton( toolbar_, "undo.png", "Undo",
+				mCB(this,uiCheckShotEdit,undoCB) );
+    toolbar_->addButton( undobut_ ); 
+    undobut_->setSensitive( false );
+    redobut_ = new uiToolButton( toolbar_, "redo.png", "Undo",
+				mCB(this,uiCheckShotEdit,redoCB) );
+    toolbar_->addButton( redobut_ ); 
+    redobut_->setSensitive( false );
+				
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
@@ -151,27 +162,20 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 
 void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
-
     const uiWellDahDisplay* disp = control_->selDahDisplay();
     const bool iscs = disp == d2tdisplay_;
     Well::DahObj* curve = iscs ? (Well::DahObj*)(cs_)
 			       : (Well::DahObj*)(&newdriftcurve_);
-
     if ( isedit_ ) 
     {
 	const float dah = control_->depth();
 	const float val = control_->xPos();
-	if ( control_->isCtrlPressed() )
-	{
-	    const int dahidx = curve->indexOf( dah );
-	    if ( dahidx >= 0 ) curve->remove( dahidx );
-	}
-	else
-	{
-	    iscs ? cs_->insertAtDah( dah, val ) 
-		 : newdriftcurve_.insertAtDah( dah, val );
-	}
+	undo_.addEvent( 
+		new DahObjUndoEvent(dah,val,*curve,!control_->isCtrlPressed()));
     }
+    undobut_->setSensitive( undo_.canUnDo() );
+    redobut_->setSensitive( undo_.canReDo() );
+    driftdisplay_->setToolTip("");
     draw();
 }
 
@@ -190,6 +194,22 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
 void uiCheckShotEdit::editCB( CallBacker* )
 {
     isedit_ = editbut_->isOn();
+}
+
+
+void uiCheckShotEdit::undoCB( CallBacker* )
+{
+    undo_.unDo();
+    undobut_->setSensitive( undo_.canUnDo() );
+    redobut_->setSensitive( undo_.canReDo() );
+}
+
+
+void uiCheckShotEdit::redoCB( CallBacker* )
+{
+    undo_.reDo();
+    undobut_->setSensitive( undo_.canUnDo() );
+    redobut_->setSensitive( undo_.canReDo() );
 }
 
 
@@ -303,5 +323,48 @@ bool uiCheckShotEdit::rejectOK( CallBacker* )
     return true; 
 }
 
+
+
+DahObjUndoEvent::DahObjUndoEvent( float dah, float val, 
+				Well::DahObj& dahobj, bool isadd )
+    : dah_(dah) 
+    , val_(val) 
+    , dahobj_(dahobj)
+    , isadd_(isadd)
+{}
+
+
+const char* DahObjUndoEvent::getStandardDesc() const
+{ return "Add/Remove point in drift curve"; }
+
+
+bool DahObjUndoEvent::unDo()
+{
+    if ( !isadd_ ) 
+    {
+	const int dahidx = dahobj_.indexOf( dah_ );
+	if ( dahidx >= 0 ) dahobj_.remove( dahidx );
+    }
+    else
+    {
+	dahobj_.insertAtDah( dah_, val_ ); 
+    }
+    return true;
 }
 
+
+bool DahObjUndoEvent::reDo()
+{
+    if ( isadd_ ) 
+    {
+	const int dahidx = dahobj_.indexOf( dah_ );
+	if ( dahidx >= 0 ) dahobj_.remove( dahidx );
+    }
+    else
+    {
+	dahobj_.insertAtDah( dah_, val_ ); 
+    }
+    return true;
+}
+
+} //namespace

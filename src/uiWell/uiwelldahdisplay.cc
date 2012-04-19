@@ -45,6 +45,8 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     , cliprate_(0)
     , valrg_(mUdf(float),mUdf(float))
     , col_(Color::Black())
+    , pointsz_(5)
+    , curvesz_(1)
     , drawascurve_(true)
     , drawaspoints_(false)
     , xaxprcts_(0)
@@ -294,6 +296,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     {
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem() );
 	pli->setPolyLine( pts );
+	ls.width_ = ld.curvesz_; 
 	pli->setPenStyle( ls );
 	pli->setZValue( ld.zoverlayval_ );
 	ld.curveitms_.add( pli );
@@ -305,6 +308,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 	{
 	    uiCircleItem* ci = scene().addItem(new uiCircleItem( pts[idx], 1) );
 	    ld.curveitms_.add( ci );
+	    ls.width_ = ld.pointsz_; 
 	    ci->setPenStyle( ls );
 	    ci->setZValue( ld.zoverlayval_+1 );
 	}
