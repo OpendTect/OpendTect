@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.44 2012-02-09 09:47:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.45 2012-04-19 18:30:13 cvsyuancheng Exp $";
 
 #include "prestackgather.h"
 
@@ -208,7 +208,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
     }
 
     int nrsamples = zrg.nrSteps()+1;
-    if ( zrg.atIndex(nrsamples-1)<zrg.stop )
+    if ( (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) && zrg.step>0 )
 	nrsamples++;
 
     const Array2DInfoImpl newinfo( tbuf.size(), nrsamples );
