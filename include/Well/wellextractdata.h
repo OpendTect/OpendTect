@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.36 2012-04-12 14:46:40 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.37 2012-04-19 07:26:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,6 +304,13 @@ public:
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const BufferStringSet& lognms);
+
+			LogSampler(const Well::D2TModel* d2t,
+				const Interval<float>& zrg, bool zrgintime,
+				float zstep, bool extractintime,
+				Stats::UpscaleType samppol,
+				const ObjectSet<const Well::Log>& logs);
+
 			~LogSampler();
 
     //avalaible after execution
@@ -315,7 +322,13 @@ public:
     const char*		errMsg() const 
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
+    int 		nrZSamples() const;
+
 protected:
+    void 		init (const Well::D2TModel* d2t,
+			    const Interval<float>& zrg, bool zrgintime,
+			    float zstep, bool extractintime,
+			    Stats::UpscaleType samppol);
 
     od_int64            	nrIterations() const;
 
@@ -323,7 +336,8 @@ protected:
     bool 			doWork(od_int64,od_int64,int);
     bool			doLog(int logidx);
 
-    const Well::Data&		wd_;
+    const Well::D2TModel*	wd_;
+    ObjectSet<const Well::Log>	logset_;
     Array2DImpl<float>*		data_;
 
     const Well::D2TModel* 	d2t_;
@@ -331,7 +345,7 @@ protected:
     float			zstep_; 
 
     bool 			extrintime_;
-    const BufferStringSet& 	lognms_;
+    BufferStringSet 		lognms_;
     bool			zrgisintime_;
 
     BufferString		errmsg_;
