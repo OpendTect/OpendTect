@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.16 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: welltrack.h,v 1.17 2012-04-19 07:10:51 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,9 @@ public:
     			// If you know what you're doing:
     Coord3		coordAfterIdx(float d_ah,int) const;
     			//!< Beware: no bounds check on index.
+
+    bool		insertAtDah(float dah,float zpos);
+    			//!< will interpolate x,y coords
 
     bool		alwaysDownward() const;
     void		toTime(const D2TModel&);

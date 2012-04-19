@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.24 2011-11-28 16:03:13 cvsbruno Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.25 2012-04-19 07:10:51 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }
-    bool		insertAtDah(float d_ah,float t,bool ascendingonly=true);
+    bool		insertAtDah(float d_ah,float t);
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.12 2010-02-10 14:02:18 cvsbruno Exp $
+ RCS:		$Id: welldahobj.h,v 1.13 2012-04-19 07:10:51 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
     inline int		size() const			{ return dah_.size(); }
     inline float	dah(int idx) const		{ return dah_[idx]; }
     virtual float	value(int idx) const		= 0;
+    virtual bool	insertAtDah(float dah, float val) = 0;
     int			indexOf(float dah) const;	
     virtual void	remove( int idx )
 			{ dah_.remove(idx); removeAux(idx); }

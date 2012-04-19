@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.91 2012-03-01 12:54:51 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.92 2012-04-19 07:10:51 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -434,12 +434,6 @@ void Well::Log::removeTopBottomUdfs()
     dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
 }
 
-bool Well::D2TModel::insertAtDah( float dh, float val, bool ascendingonly  )
-{
-    mInsertAtDah( dh, val, t_, ascendingonly  );
-    return true;
-}
-
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
@@ -668,6 +662,39 @@ int Well::Track::insertPoint( const Coord& c, float z )
 
     insertAfterIdx( minidx, cnew );
     return minidx+1;
+}
+
+
+bool Well::Track::insertAtDah( float dh, float zpos )
+{
+    if ( dah_.isEmpty() )
+	return false;
+
+    if ( dh < dah_[0] )
+    {
+	dah_.insert( 0, dh );
+	Coord3 crd( pos_[0] ); crd.z = zpos;	
+	pos_.insert( 0, crd );
+    }
+    if ( dh > dah_[size()-1] )
+    {
+	dah_ += dh;
+	Coord3 crd( pos_[size()-1] ); crd.z = zpos;	
+	pos_ += crd;
+    }
+
+    const int insertidx = indexOf( dh );
+    if ( insertidx<0 ) 
+	return false;
+    Coord3 prevcrd( pos_[insertidx] );
+    Coord3 nextcrd( pos_[insertidx+1] ); 
+    Coord3 crd( ( prevcrd + nextcrd )/2 ); 
+    crd.z = zpos;	
+    
+    dah_.insert( insertidx+1, dh ); 
+    pos_.insert( insertidx+1, crd );
+
+    return true;
 }
 
 
@@ -900,6 +927,13 @@ float Well::D2TModel::getDah( float time ) const
 
 float Well::D2TModel::getVelocity( float dh ) const
 { return TimeDepthModel::getVelocity( dah_.arr(), t_.arr(), size(), dh ); }
+
+
+bool Well::D2TModel::insertAtDah( float dh, float val )
+{
+    mInsertAtDah( dh, val, t_, true  );
+    return true;
+}
 
 
 #define mName "Well name"
