@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.6 2010-10-13 15:14:51 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.7 2012-04-20 16:00:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "menuhandler.h"
 #include "uidialog.h"
-#include "uigroup.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -23,56 +22,30 @@ class uiGenInput;
 class uiListBox;
 class uiMenuHandler;
 class uiPushButton;
+class uiToolButton;
 class uiWellDisplayControl;
 
 namespace Well { class Marker; class MarkerSet; class Data; }
 
 
-mStruct WellDispMarkerParams
-{
-				WellDispMarkerParams()
-				    : dah_(0)
-				    {}
-
-    float 			time_;
-    float 			dah_;
-    Color               	col_;
-    BufferString        	name_;
-    bool                	isstrat_;
-
-    void			getFromMarker(const Well::Marker&);
-    void			putToMarker(Well::Marker&);
-};
-
-
-mClass uiWellDispMarkerEditGrp : public uiGroup
+mClass uiAddEditMrkrDlg : public uiDialog
 {
 public :
-    				uiWellDispMarkerEditGrp(uiParent*,
-							WellDispMarkerParams&);
+    				uiAddEditMrkrDlg(uiParent*,Well::Marker&);
 
-    bool			checkPars();
-    void			setDefault();
-    void			setFldsSensitive(bool yn);
     void			putToScreen();
-
-    void			setPos(float,float);
-
-    Notifier<uiWellDispMarkerEditGrp> dispparchg;
 
 protected :
 
-    WellDispMarkerParams&	par_;
-
-    bool			istime_;
-
-    void			getFromScreen(CallBacker*);
+    Well::Marker&		marker_;
 
     uiGenInput* 		modefld_;
     uiGenInput* 		namefld_;
     uiGenInput*			posfld_;
     uiColorInput*		colorfld_;
     uiCheckBox*			stratmrkfld_;
+
+    bool			acceptOK(CallBacker*);
 };
 
 
@@ -83,8 +56,6 @@ public:
 				uiWellDispEditMarkerDlg(uiParent*);
 				~uiWellDispEditMarkerDlg();
 
-
-    uiWellDispMarkerEditGrp&	grp() 			{ return *mrkgrp_; }
 
     void			setMode(bool);
     bool 			isAddMode() const;
@@ -101,30 +72,40 @@ protected:
     ObjectSet<Well::Data> 	wds_;
 
     uiWellDispEditMarkerDlg*	editdlg_;
-    WellDispMarkerParams	par_;
 
     uiWellDisplayControl*	curctrl_;
     Well::Data*			curwd_;
     Well::Marker*		curmrk_;
 
+    float			time_;
+    float			dah_;
+
+    uiToolButton*		rembut_;
+    uiToolButton*		editbut_;
+    uiToolButton*		addbut_;
+
     bool			needsave_;
 
     ObjectSet<Well::MarkerSet>	orgmarkerssets_;
-    uiWellDispMarkerEditGrp*	mrkgrp_;
     uiGenInput*			modefld_;
 
     uiListBox*			mrklist_;
-    ObjectSet<Well::Marker>	tmplist_;
+    ObjectSet<Well::Marker>	tobeadded_;
     TypeSet<Color>		colors_;
 
     bool 			hasedited_;
     bool 			ismarkerhit_;
     bool 			ispressed_;
     
-    void			addNewMarker();
+    void			addNewMrkr();
+    void			editMrkr();
+    void			removeMrkr();
+
+    void			addMoveMarker();
+    void			removeMarker();
+
     void                        changeMarkerPos(Well::Marker&);
     void			handleEditMarker();
-    void			removeMarker();
     void			setParsFromMarker(const Well::Marker&);
     void			setParsToMarker(Well::Marker&);
 
@@ -132,19 +113,17 @@ protected:
     void 			activateSensors(uiWellDisplayControl&,
 						    Well::Data&,bool);
 
-    void			modeChg(CallBacker*);
-
     bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    void			buttonPushedCB(CallBacker*);
     void			editDlgClosedCB(CallBacker*);
-     void                       editMarkerCB(CallBacker*);
+    void                        editMarkerCB(CallBacker*);
+    void			fillMarkerList(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
-    void			posChgCB(CallBacker*);
-
-    void			listLClickCB(CallBacker*);
+    void			modeChg(CallBacker*);
     void			listRClickCB(CallBacker*);
-    void			fillMarkerList(CallBacker*);
+    bool			rejectOK(CallBacker*);
+    void			posChgCB(CallBacker*);
 };
 
 #endif

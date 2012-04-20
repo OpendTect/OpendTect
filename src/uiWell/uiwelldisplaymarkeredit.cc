@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.22 2011-04-14 09:55:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.23 2012-04-20 16:00:12 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.22 2011-04-14 09
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uitoolbutton.h"
 #include "uiwelllogdisplay.h"
 
 #include "keyboardevent.h"
@@ -33,121 +34,55 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.22 2011-04-14 09
 #include "wellmarker.h"
 #include "welldata.h"
 
-
-
-void WellDispMarkerParams::getFromMarker( const Well::Marker& mrk )
-{
-    name_ = mrk.name();
-    col_ = mrk.color();
-    dah_ = mrk.dah();
-    isstrat_ = ( mrk.levelID() > 0 );
-}
-
-
-void WellDispMarkerParams::putToMarker( Well::Marker& mrk )
-{
-    mrk.setName( name_ );
-    mrk.setDah( dah_ );
-    mrk.setColor( col_ );
-    if ( isstrat_ )
-    {
-	Strat::LevelSet& lvls = Strat::eLVLS();
-	const bool ispresent = Strat::LVLS().isPresent( name_.buf() ); 
-	const Strat::Level* lvl = ispresent ? lvls.get( name_.buf() )
-					    : lvls.add( name_.buf(), col_ );
-	mrk.setLevelID( lvl ? lvl->id() : -1 ); 
-    }
-}
-
-
-
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
-uiWellDispMarkerEditGrp::uiWellDispMarkerEditGrp( uiParent* p, 
-						  WellDispMarkerParams& par )
-	: uiGroup(p,"Edit Markers Group")
-	, par_(par) 
-	, istime_(SI().zIsTime())
-	, dispparchg(this)	   
+uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk )
+    : uiDialog(p,uiDialog::Setup("Edit Markers",mNoDlgTitle,mNoHelpID))
+    , marker_(mrk) 
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
 
     bool istime = SI().zIsTime();
-    posfld_ = new uiGenInput( this, istime ? "Time" : "Depth", FloatInpSpec(0));
-    posfld_->attach( alignedBelow, namefld_ );
-    posfld_->setSensitive( false );
     uiColorInput::Setup csu( getRandStdDrawColor() );
     csu.lbltxt( "Color" ).withdesc(false);
     colorfld_ = new uiColorInput( this, csu, "Color" );
-    colorfld_->attach( alignedBelow, posfld_ );
+    colorfld_->attach( alignedBelow, namefld_ );
 
     stratmrkfld_ = new uiCheckBox( this, "Set as regional marker" );
     stratmrkfld_->attach( rightOf, colorfld_ );
     stratmrkfld_->setChecked( true );
 
-    CallBack parchgcb = mCB(this, uiWellDispMarkerEditGrp, getFromScreen );
-    namefld_->valuechanged.notify( parchgcb );
-    colorfld_->colorChanged.notify( parchgcb );
-    posfld_->valuechanged.notify( parchgcb ); 
-    stratmrkfld_->activated.notify( parchgcb );
-}
-
-
-void uiWellDispMarkerEditGrp::setDefault()
-{
-    par_.name_ = "Marker";
-    par_.dah_ = 0;
-    par_.time_= 0;
-    par_.col_ = getRandStdDrawColor();
-    par_.isstrat_ = true;
-
     putToScreen();
 }
 
 
-void uiWellDispMarkerEditGrp::getFromScreen( CallBacker* )
+bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 {
-    par_.name_ = namefld_->text();
-    par_.time_ = posfld_->getfValue();
-    par_.col_ = colorfld_->color();
-    par_.isstrat_ = stratmrkfld_->isChecked();
-    dispparchg.trigger();
-}
+    BufferString nm = namefld_->text();
+    if ( nm.isEmpty() )
+	mErrRet( "Please specify a marker name", return false );
 
+    marker_.setName( nm );
+    marker_.setColor( colorfld_->color() );
 
-bool uiWellDispMarkerEditGrp::checkPars()
-{
-    if ( !strcmp( par_.name_, "" ) )
-	mErrRet( "Please specify a marker name", return false )
-    if ( mIsUdf( par_.dah_ ) )
-	mErrRet( "No valid position entered", return false )
+    if ( stratmrkfld_->isChecked() )
+    {
+	Strat::LevelSet& lvls = Strat::eLVLS();
+	const bool ispresent = Strat::LVLS().isPresent( nm.buf() ); 
+	const Strat::Level* lvl = ispresent ? 
+	    lvls.get( nm.buf() ) : lvls.add( nm.buf(), colorfld_->color() );
+	marker_.setLevelID( lvl ? lvl->id() : -1 ); 
+    }
+
     return true;
 }
 
 
-void uiWellDispMarkerEditGrp::putToScreen()
+void uiAddEditMrkrDlg::putToScreen()
 {
-    namefld_->setText( par_.name_ );
-    colorfld_->setColor( par_.col_ );
-    posfld_->setValue( par_.time_ );
-    stratmrkfld_->setChecked( par_.isstrat_ );
+    namefld_->setText( marker_.name() );
+    colorfld_->setColor( marker_.color() );
+    stratmrkfld_->setChecked( marker_.levelID() > 0 );
 }
-
-
-void uiWellDispMarkerEditGrp::setPos( float time, float depth )
-{
-    par_.dah_ = depth;
-    par_.time_ = time;
-    posfld_->setValue( istime_ ? time : depth );
-}
-
-
-void uiWellDispMarkerEditGrp::setFldsSensitive( bool yn )
-{
-    namefld_->setSensitive( yn );
-    colorfld_->setSensitive( yn );
-    stratmrkfld_->setSensitive( yn);
-}
-
 
 
 
@@ -163,24 +98,26 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 {
     setOkText( "Ok/Save" );
 
-    modefld_ = new uiGenInput( this, "Select mode", 
-					BoolInpSpec(true,"Add","Remove") );
+    modefld_ = new uiGenInput( this, "Select picking mode", 
+			BoolInpSpec(true,"Add/Move","Remove") );
     modefld_->valuechanged.notify( mCB(this,uiWellDispEditMarkerDlg,modeChg) );
 
     uiSeparator* modesep = new uiSeparator( this, "Mode Sep" );
     modesep->attach( stretchedBelow, modefld_ );
 
-    mrkgrp_ = new uiWellDispMarkerEditGrp( this, par_ );
-    mrkgrp_->attach( ensureBelow, modefld_ );
-    mrkgrp_->attach( ensureBelow, modesep );
-    grp().dispparchg.notify(mCB(this,uiWellDispEditMarkerDlg,editMarkerCB));
-
     mrklist_ = new uiListBox( this, "Markers", false );
-    mrklist_->attach( ensureBelow, mrkgrp_ );
+    mrklist_->attach( ensureBelow, modefld_ );
+    mrklist_->attach( ensureBelow, modesep );
     mrklist_->rightButtonClicked.notify( 
 			    mCB(this,uiWellDispEditMarkerDlg,listRClickCB) );
-    mrklist_->selectionChanged.notify( 
-			    mCB(this,uiWellDispEditMarkerDlg,listLClickCB) );
+
+    CallBack butcb( mCB(this,uiWellDispEditMarkerDlg,buttonPushedCB) );
+    addbut_ = new uiToolButton( this, "plus.png", "Add Marker", butcb );
+    addbut_->attach( rightOf, mrklist_ );
+    editbut_ = new uiToolButton( this, "edit.png", "Edit Marker", butcb );
+    editbut_->attach( alignedBelow, addbut_ );
+    rembut_ = new uiToolButton(this, "trashcan.png", "Remove Marker", butcb);
+    rembut_->attach( alignedBelow, editbut_ );
 
     windowClosed.notify( mCB(this,uiWellDispEditMarkerDlg,editDlgClosedCB) );
     setMode( true );
@@ -189,7 +126,7 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 
 uiWellDispEditMarkerDlg::~uiWellDispEditMarkerDlg()
 {
-    deepErase( tmplist_ );
+    deepErase( tobeadded_ );
     deepErase( orgmarkerssets_ );
 }
 
@@ -204,8 +141,6 @@ void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
 void uiWellDispEditMarkerDlg::modeChg( CallBacker* )
 {
     bool isaddmode = isAddMode();
-    mrkgrp_->setDefault();
-    mrkgrp_->setFldsSensitive( isaddmode );
 
     if ( isaddmode )
     {
@@ -294,9 +229,6 @@ void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
 {
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent()  ) return;
-
-    if ( curctrl_ && isAddMode()  )
-	grp().setPos( curctrl_->time(), curctrl_->depth() );
 }
 
 
@@ -309,9 +241,9 @@ void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
 
     if ( isaddmode )
-	addNewMarker();
+	addNewMrkr();
     else if ( curmrk_ )
-	removeMarker();
+	removeMrkr();
 
     mevh->setHandled( true);
     hasedited_ = true; 
@@ -319,23 +251,22 @@ void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
 }
 
 
-void uiWellDispEditMarkerDlg::addNewMarker()
+void uiWellDispEditMarkerDlg::addMoveMarker()
 {
     if ( curwd_ && curwd_->haveD2TModel() )
-	par_.dah_ =  curwd_->d2TModel()->getDah( par_.time_*0.001 );
+	dah_ =  curwd_->d2TModel()->getDah( time_*0.001 );
 
-    const char* mrknm = par_.name_.buf();
+    const char* mrknm = mrklist_->getText();
     bool ispresent = curwd_->markers().isPresent( mrknm ); 
     Well::Marker* mrk = ispresent ? curwd_->markers().getByName( mrknm  )
-				  : new Well::Marker( mrknm, par_.dah_ );
+				  : new Well::Marker( mrknm, dah_ );
     if ( !mrk ) return;
-    par_.putToMarker( *mrk );
     curwd_->markers().insertNew( mrk );
 
-    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    for ( int idx=0; idx<tobeadded_.size(); idx++ )
     {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.remove( idx );
+	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
+	    delete tobeadded_.remove( idx );
     }
 }
 
@@ -387,90 +318,135 @@ bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
 }
 
 
-mClass addNewMrkDlg : public uiDialog
+void uiWellDispEditMarkerDlg::buttonPushedCB( CallBacker* cb )
 {
-public:
-    addNewMrkDlg( uiParent* p, Well::Marker& mrk )
-	: uiDialog(this, uiDialog::Setup("Properties",0,mNoHelpID) )
-	, marker_(mrk)
+    mDynamicCastGet(uiToolButton*,tb,cb);
+    if ( tb == addbut_ )
+	addNewMrkr();
+    else if ( tb == editbut_ )
+	editMrkr();
+    else if ( tb == rembut_ ) 
+	removeMrkr();
+}
+
+
+void uiWellDispEditMarkerDlg::addNewMrkr()
+{
+    Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
+    mrk->setColor( getRandStdDrawColor() );
+    uiAddEditMrkrDlg dlg( this, *mrk );
+    if ( dlg.go() )
     {
-	nmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
-	colfld_ = new uiColorInput( this,
-			uiColorInput::Setup( mrk.color() ).lbltxt("Color") );
-	colfld_->attach( alignedBelow, nmfld_ );
+	tobeadded_ += mrk;
+	fillMarkerList(0);
+	if ( mrklist_->isPresent( mrk->name() ) )
+	    mrklist_->setSelected( mrklist_->indexOf( mrk->name() ) );
     }
+    else
+	delete mrk;
+}
 
-    bool acceptOK( CallBacker* )
+
+void uiWellDispEditMarkerDlg::editMrkr()
+{
+    const int selidx = mrklist_->currentItem();
+    if ( selidx < 0 ) 
+	return;
+
+    Well::Marker* mrk = new Well::Marker( mrklist_->getText(), 0 ); 
+    mrk->setColor( mrklist_->getColor( selidx ) );
+    const Strat::Level* lvl = Strat::LVLS().get( mrklist_->getText() );
+    mrk->setLevelID( lvl ? lvl->id() : -1 );
+
+    uiAddEditMrkrDlg dlg( this, *mrk );
+
+    if ( !dlg.go() )
+	return;
+
+    BufferString mrknm = mrk->name();
+    Well::Marker* wdmrk = 0;
+
+#define mSetMrkFromMrk()\
+    wdmrk->setName( mrk->name() );\
+    wdmrk->setColor( mrk->color() );\
+    wdmrk->setLevelID( mrk->levelID() );
+    for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
-	marker_.setName( nmfld_->text() );
-	marker_.setColor( colfld_->color() );
-	return true;
-    }	
+	Well::MarkerSet& mrkset = wds_[idwd]->markers();
+	wdmrk = mrkset.getByName( mrknm );
+	if ( wdmrk )
+	{
+	    mSetMrkFromMrk();
+	    wds_[idwd]->markerschanged.trigger();
+	}
+    }
+    for ( int idx=0; idx<tobeadded_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
+	{
+	    mSetMrkFromMrk();
+	}
+    }
+    if ( wdmrk )
+    {	
+	mrklist_->setCurrentItem( wdmrk->name() );
+	hasedited_ = true; 
+    }
+    delete mrk;
+}
 
-protected: 
 
-    Well::Marker&	marker_;
-    uiGenInput*         nmfld_;
-    uiColorInput*       colfld_;
-};
+void uiWellDispEditMarkerDlg::removeMrkr()
+{
+    BufferString mrknm = mrklist_->getText();
+    BufferString msg = "This will remove "; 
+		 msg += mrknm; 
+		 msg += " from all the wells \n ";
+		 msg += "Do you want to continue ? ";
+
+    if ( uiMSG().askContinue( msg ) )
+    {
+	for ( int idx=0; idx<wds_.size(); idx++ )
+	{
+	    Well::MarkerSet& mrkset = wds_[idx]->markers();
+	    if ( mrkset.isPresent( mrknm ) )
+	    {
+		delete mrkset.remove( mrkset.indexOf( mrknm ),true );
+		wds_[idx]->markerschanged.trigger();
+	    }
+	}
+	hasedited_ = true; 
+    }
+}
 
 
 void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
     uiPopupMenu mnu( this, "Action" );
+
+    const bool nomrkr = mrklist_->isEmpty();
+
     mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
-    mnu.insertItem( new uiMenuItem("Remove ..."), 1 );
+    if ( !nomrkr )
+    {
+	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Remove ..."), 2 );
+    }
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) 
 	return;
     else if ( mnuid == 0 )
     {
-	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
-	mrk->setColor( getRandStdDrawColor() );
-	addNewMrkDlg dlg( this, *mrk );
-	if ( dlg.go() )
-	{
-	    tmplist_ += mrk;
-	    fillMarkerList(0);
-	    if ( mrklist_->isPresent( mrk->name() ) )
-		mrklist_->setSelected( mrklist_->indexOf( mrk->name() ) );
-	}
-	else
-	    delete mrk;
+	addNewMrkr();
     }
     else if ( mnuid == 1 )
     {
-	BufferString mrknm = mrklist_->getText();
-	BufferString msg = "This will remove "; 
-		     msg += mrknm; 
-		     msg += " from all the wells \n ";
-		     msg += "Do you want to continue ? ";
-	if ( uiMSG().askContinue( msg ) )
-	{
-	    for ( int idx=0; idx<wds_.size(); idx++ )
-	    {
-		Well::MarkerSet& mrkset = wds_[idx]->markers();
-		if ( mrkset.isPresent( mrknm ) )
-		{
-		    delete mrkset.remove( mrkset.indexOf( mrknm ),true );
-		    wds_[idx]->markerschanged.trigger();
-		}
-	    }
-	    hasedited_ = true; 
-	}
+	editMrkr();
     }
-}
-
-
-void uiWellDispEditMarkerDlg::listLClickCB( CallBacker* )
-{
-    int curit = mrklist_->currentItem();
-    if ( curit < 0 || curit >= colors_.size() ) 
-	return;
-    par_.name_ = mrklist_->getText(); 
-    par_.col_ = colors_[curit];
-    par_.dah_ = 0; 
-    grp().putToScreen();
+    else if ( mnuid ==2 )
+    {
+	removeMrkr();
+    }
 }
 
 
@@ -497,9 +473,9 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 	    mAddMrkToList( mrk )
 	}
     }
-    for ( int idmrk=0; idmrk<tmplist_.size(); idmrk++ )
+    for ( int idmrk=0; idmrk<tobeadded_.size(); idmrk++ )
     {
-	const Well::Marker& mrk = *tmplist_[idmrk];
+	const Well::Marker& mrk = *tobeadded_[idmrk];
 	mAddMrkToList( mrk )
     }
     TypeSet<int> idxs;
@@ -517,7 +493,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     {
 	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
 	mrk->setColor( getRandStdDrawColor() );
-	    tmplist_ += mrk;
+	    tobeadded_ += mrk;
     }
     if ( isAddMode() )
     {
@@ -527,21 +503,4 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     }
 }
 
-
-void uiWellDispEditMarkerDlg::editMarkerCB( CallBacker* )
-{
-    BufferString mrknm = mrklist_->getText();
-    for ( int idwd=0; idwd<wds_.size(); idwd++ )
-    {
-	Well::MarkerSet& mrkset = wds_[idwd]->markers();
-	Well::Marker* mrk = mrkset.getByName( mrknm );
-	if ( mrk )
-	{
-	    mrk->setName( par_.name_ );
-	    mrk->setColor( par_.col_ );
-	    wds_[idwd]->markerschanged.trigger();
-	    mrklist_->setCurrentItem( par_.name_ );
-	}
-    }
-}
 
