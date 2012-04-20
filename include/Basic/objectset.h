@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.9 2012-03-31 07:32:25 cvskris Exp $
+ RCS:		$Id: objectset.h,v 1.10 2012-04-20 13:42:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,16 +183,40 @@ inline T* find( ObjectSet<T>& os, const S& val )
     return idx == -1 ? 0 : os[idx];
 }
 
+//! Sort ObjectSet when nulls are allowed no need to call.
+template <class T>
+inline void _ObjectSet_sortWithNull( ObjectSet<T>& os )
+{
+    const int sz = os.size();
+    for ( int d=sz/2; d>0; d=d/2 )
+    {
+	for ( int i=d; i<sz; i++ )
+	{
+	    for ( int j=i-d; j>=0; j-=d )
+	    {
+		T* o1 = os[j]; T* o2 = os[j+d];
+		if ( !o2 || o1 == o2 || (o1 && !(*o1 > *o2) ) )
+		    break;
+		os.swap( j, j+d );
+	    }
+	}
+    }
+}
 
 //! Sort ObjectSet. Must have operator > defined for elements
 template <class T>
 inline void sort( ObjectSet<T>& os )
 {
-    T* tmp; const int sz = os.size();
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d; j>=0 && *os[j]>*os[j+d]; j-=d )
-		os.swap( j, j+d );
+    if ( os.nullAllowed() )
+	_ObjectSet_sortWithNull(os);
+    else
+    {
+	const int sz = os.size();
+	for ( int d=sz/2; d>0; d=d/2 )
+	    for ( int i=d; i<sz; i++ )
+		for ( int j=i-d; j>=0 && *os[j]>*os[j+d]; j-=d )
+		    os.swap( j, j+d );
+    }
 }
 
 
