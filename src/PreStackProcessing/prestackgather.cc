@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.45 2012-04-19 18:30:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.46 2012-04-20 15:04:17 cvsyuancheng Exp $";
 
 #include "prestackgather.h"
 
@@ -178,7 +178,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
     tbuf.sort( true, SeisTrcInfo::Offset );
 
     bool isset = false;
-    StepInterval<double> zrg;
+    StepInterval<float> zrg;
     Coord crd( coord_ );
     for ( int idx=tbuf.size()-1; idx>-1; idx-- )
     {
@@ -207,8 +207,10 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
 	return false;
     }
 
+    SI().snapZ(zrg.start);
+    SI().snapZ(zrg.stop);
     int nrsamples = zrg.nrSteps()+1;
-    if ( (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) && zrg.step>0 )
+    if ( zrg.step>0 && (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) )
 	nrsamples++;
 
     const Array2DInfoImpl newinfo( tbuf.size(), nrsamples );
@@ -242,7 +244,8 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
     if ( !offsets )
 	return false;
     posData().setX1Pos( offsets, tbuf.size(), offset );
-    posData().setRange( false, zrg );
+    StepInterval<double> pzrg(zrg.start, zrg.stop, zrg.step);
+    posData().setRange( false, pzrg );
 
     zit_ = SI().zIsTime();
     coord_ = crd;
