@@ -7,10 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.64 2012-04-09 22:15:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.65 2012-04-23 17:48:10 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
+#include "uiamplspectrum.h"
+#include "uifkspectrum.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -18,10 +20,10 @@ static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.64 2012-04-09 22:15:06 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
-#include "uivispartserv.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uiamplspectrum.h"
+#include "uivispartserv.h"
+
 #include "attribsel.h"
 #include "pixmap.h"
 
@@ -46,7 +48,8 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , removemnuitem_("&Remove",-1000)
     , changetransparencyitem_("Change &transparency ...")
     , statisticsitem_("Show &Histogram ...")
-    , amplspectrumitem_("Show &Amplitude Spectrum...")
+    , amplspectrumitem_("Show &Amplitude Spectrum ...")
+    , fkspectrumitem_("Show &F-K Spectrum ...")
     , addto2dvieweritem_("Display in a &2D Viewer as")
     , view2dwvaitem_("&Wiggle")
     , view2dvditem_("&VD")
@@ -244,8 +247,12 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &statisticsitem_ )
 
     if ( hasdatapack && isvert )
+    {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
 			  true, false )
+	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
+			  true, false )
+    }
     else
 	mResetMenuItem( &amplspectrumitem_ )
 
@@ -367,26 +374,32 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	dwin->show();
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==amplspectrumitem_.id )
+    else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
     {
-	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
-							  attribNr() );
+	const DataPack::ID dpid =
+	    visserv->getDataPackID( displayID(), attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	const bool isselmodeon = visserv->isSelectionModeOn();
-
 	if ( !isselmodeon )
 	{
-	    uiAmplSpectrum* asd = new uiAmplSpectrum(
+	    if ( mnuid==amplspectrumitem_.id )
+	    {
+		uiAmplSpectrum* asd = new uiAmplSpectrum(
 					applMgr()->applService().parent() );
-	    asd->setDeleteOnClose( true );
-	    asd->setDataPackID( dpid, dmid );
-	    asd->show();
+		asd->setDeleteOnClose( true );
+		asd->setDataPackID( dpid, dmid );
+		asd->show();
+	    }
+	    else
+	    {
+		uiFKSpectrum* fks = new uiFKSpectrum(
+					applMgr()->applService().parent() );
+		fks->setDeleteOnClose( true );
+		fks->setDataPackID( dpid, dmid );
+		fks->show();
+	    }
 	}
-	else
-	{
 
-	}
-	
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
