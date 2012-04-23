@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.61 2012-04-16 10:31:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.62 2012-04-23 15:43:10 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -261,7 +261,7 @@ bool uiTieWinMGRDlg::getDefaults()
     }
 
     if ( !wtsetup_.vellognm_.isEmpty() )
-	logsfld_->setVelLog( wtsetup_.vellognm_, 0, !wtsetup_.issonic_ );
+	logsfld_->setVelLog( wtsetup_.vellognm_, 0, wtsetup_.issonic_ );
 
     if ( !wtsetup_.denlognm_.isEmpty() )
 	logsfld_->setDenLog( wtsetup_.denlognm_, 0 );
@@ -305,11 +305,11 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !logsfld_->isOK() ) 
 	return false;
 
-    bool isvel = false;
+    bool issonic = false;
     BufferString veluom, denuom;
     logsfld_->getDenLog( wtsetup_.denlognm_, denuom );
-    logsfld_->getVelLog(wtsetup_.vellognm_, veluom, isvel );
-    wtsetup_.issonic_  = !isvel ;
+    logsfld_->getVelLog(wtsetup_.vellognm_, veluom, issonic );
+    wtsetup_.issonic_  = issonic ;
     
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
