@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.7 2012-04-20 16:00:11 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.8 2012-04-23 13:13:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,7 @@ protected :
 
     Well::Marker&		marker_;
 
-    uiGenInput* 		modefld_;
     uiGenInput* 		namefld_;
-    uiGenInput*			posfld_;
     uiColorInput*		colorfld_;
     uiCheckBox*			stratmrkfld_;
 
@@ -56,15 +54,12 @@ public:
 				uiWellDispEditMarkerDlg(uiParent*);
 				~uiWellDispEditMarkerDlg();
 
-
-    void			setMode(bool);
-    bool 			isAddMode() const;
-
     void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
-    
-    void			startEdit();
 
-    bool 			needSave() 	{ return needsave_; }
+    bool 			isPicking() const 	{ return ispicking_; }
+    bool 			needSave() const 	{ return needsave_; }
+
+    Notifier<uiWellDispEditMarkerDlg> pickmodechanged;
 
 protected:
 
@@ -80,11 +75,13 @@ protected:
     float			time_;
     float			dah_;
 
+    uiToolButton*		pickbut_;
     uiToolButton*		rembut_;
     uiToolButton*		editbut_;
     uiToolButton*		addbut_;
 
     bool			needsave_;
+    bool			ispicking_;
 
     ObjectSet<Well::MarkerSet>	orgmarkerssets_;
     uiGenInput*			modefld_;
@@ -97,17 +94,15 @@ protected:
     bool 			ismarkerhit_;
     bool 			ispressed_;
     
-    void			addNewMrkr();
-    void			editMrkr();
-    void			removeMrkr();
+    void			addNewMrkrList();
+    void			editMrkrList();
+    void			removeMrkrList();
 
     void			addMoveMarker();
     void			removeMarker();
 
-    void                        changeMarkerPos(Well::Marker&);
-    void			handleEditMarker();
-    void			setParsFromMarker(const Well::Marker&);
-    void			setParsToMarker(Well::Marker&);
+    void			getMarkerFromAll(ObjectSet<Well::Marker>&,
+	    					const char* nm); 
 
     void 			activateSensors(bool yn);
     void 			activateSensors(uiWellDisplayControl&,
