@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalebaritem.cc,v 1.2 2012-04-12 20:48:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiscalebaritem.cc,v 1.3 2012-04-23 17:49:38 cvsnanne Exp $";
 
 
 #include "treeitem.h"
