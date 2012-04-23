@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.135 2011-12-21 10:42:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.136 2012-04-23 20:09:31 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -138,7 +138,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
 
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey selection",
-	       "Select and setup survey","0.3.1"))
+	       "Select and setup survey","0.3.1").nrstatusflds(1))
     , initialdatadir_(GetBaseDataDir())
     , initialsurvey_(GetSurveyName())
     , survinfo_(0)
@@ -595,6 +595,10 @@ void uiSurvey::mkInfo()
     editbut_->setSensitive( anysvy );
     for ( int idx=0; idx<utilbuts_.size(); idx++ )
 	utilbuts_[idx]->setSensitive( anysvy );
+
+    FilePath fp( si.datadir_, si.dirname_ );
+    fp.makeCanonical();
+    toStatusBar( fp.fullPath() );
 }
 
 
