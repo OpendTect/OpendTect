@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.12 2012-03-09 12:45:26 cvsbert Exp $
+ RCS:		$Id: file.h,v 1.13 2012-04-23 17:41:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ namespace File
     mGlobal bool	isLink(const char*);
     mGlobal const char*	linkTarget(const char* linkname);
 
+    mGlobal bool	isHidden(const char*);
     mGlobal bool	isWritable(const char*);
     mGlobal bool	makeWritable(const char*,bool yesno,bool recursive);
     mGlobal bool	setPermissions(const char*,const char* perms,

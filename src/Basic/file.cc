@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.33 2012-03-30 06:10:18 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.34 2012-04-23 17:41:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,19 @@ bool isLink( const char* fnm )
     return qfi.isSymLink();
 #else
     pFreeFnErrMsg(not_implemented_str,"isLink");
-    return 0;
+    return false;
+#endif
+}
+
+
+bool isHidden( const char* fnm )
+{
+#ifndef OD_NO_QT
+    QFileInfo qfi( fnm );
+    return qfi.isHidden();
+#else
+    pFreeFnErrMsg(not_implemented_str,"isHidden");
+    return false;
 #endif
 }
 
