@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.33 2011-03-10 07:11:40 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.34 2012-04-24 06:14:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ public:
 	mDefSetupMemb(float,epsaroundzero)
 
 	Setup&		drawline( bool yn )
-			{ drawliney_ = drawliney_ = yn; return *this; }
+			{ drawliney_ = drawliney2_ = yn; return *this; }
 	Setup&		drawgridlines( bool yn )
 			{ noxgridline_ = noygridline_ = noy2gridline_ = !yn;
 			  return *this; }
