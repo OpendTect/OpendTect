@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.65 2012-04-23 17:48:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.66 2012-04-24 15:04:43 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -50,9 +50,8 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statisticsitem_("Show &Histogram ...")
     , amplspectrumitem_("Show &Amplitude Spectrum ...")
     , fkspectrumitem_("Show &F-K Spectrum ...")
-    , addto2dvieweritem_("Display in a &2D Viewer as")
-    , view2dwvaitem_("&Wiggle")
-    , view2dvditem_("&VD")
+    , view2dwvaitem_("2D Viewer - &Wiggle")
+    , view2dvditem_("2D Viewer - &VD")
 {
     statisticsitem_.iconfnm = "histogram.png";
     removemnuitem_.iconfnm = "stop.png";
@@ -277,19 +276,16 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	const bool hasattrib =
 	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 	if ( isvert )
-	    mAddMenuOrTBItem( istb, menu, &addto2dvieweritem_, &view2dwvaitem_,
+	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
 			      hasattrib, false)
 	else
 	    mResetMenuItem( &view2dwvaitem_ );
 
-	mAddMenuOrTBItem( istb, menu, &addto2dvieweritem_, &view2dvditem_,
-			  hasattrib, false )
-	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &addto2dvieweritem_,
+	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )
     }
     else
     {
-	mResetMenuItem( &addto2dvieweritem_ );
 	mResetMenuItem( &view2dwvaitem_ );
 	mResetMenuItem( &view2dvditem_ );
     }
