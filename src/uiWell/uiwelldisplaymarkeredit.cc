@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.25 2012-04-24 14:19:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.26 2012-04-24 17:47:13 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -240,9 +240,10 @@ void uiWellDispEditMarkerDlg::addMoveMarker()
 
     const float dah = curctrl_->depth();
     const char* mrknm = mrklist_->getText();
-    bool ispresent = curwd_->markers().isPresent( mrknm ); 
+    bool ispresent = curwd_->markers().isPresent( mrknm );
+    const Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
     Well::Marker* mrk = ispresent ? curwd_->markers().getByName( mrknm  )
-				  : new Well::Marker( mrknm, dah );
+				  : tmpmrk ? new Well::Marker(*tmpmrk) : 0;
     if ( !mrk ) return;
 
     if ( !ispresent )
@@ -390,11 +391,8 @@ void uiWellDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 	if ( mrk )
 	    mrks += mrk;
     }
-    for ( int idx=0; idx<tobeadded_.size(); idx++ )
-    {
-	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
-	    mrks += tobeadded_[idx];
-    }
+    Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
+    if ( tmpmrk ) mrks += tmpmrk;
 }
 
 
@@ -502,7 +500,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     {
 	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
 	mrk->setColor( getRandStdDrawColor() );
-	    tobeadded_ += mrk;
+	tobeadded_ += mrk;
     }
     if ( isPicking() )
     {
@@ -513,3 +511,12 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 }
 
 
+Well::Marker* uiWellDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
+{
+    for ( int idx=0; idx<tobeadded_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
+	    return tobeadded_[idx];
+    }
+    return 0;
+}

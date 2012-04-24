@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.8 2012-04-23 13:13:11 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.9 2012-04-24 17:47:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ protected:
 
     void			getMarkerFromAll(ObjectSet<Well::Marker>&,
 	    					const char* nm); 
+    Well::Marker*		getMarkerFromTmpList(const char* nm); 
 
     void 			activateSensors(bool yn);
     void 			activateSensors(uiWellDisplayControl&,
