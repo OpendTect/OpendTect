@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.49 2012-04-09 22:15:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.50 2012-04-24 17:49:39 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -321,7 +321,11 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     , saveasmnuitem_("&Save As ...")
     , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
-{ displayid_ = id; } 
+{
+    editnodesmnuitem_.iconfnm = "orientation64.png";
+    saveasmnuitem_.iconfnm = "saveas.png";
+    displayid_ = id;
+}
 
 
 bool uiODRandomLineTreeItem::init()
@@ -365,8 +369,8 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject(displayid_));
     if (  rtd->nrKnots() <= 0 ) return;
     const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
-    mAddMenuItem( menu, &editnodesmnuitem_, !islocked, false );
-    mAddMenuItem( menu, &insertnodemnuitem_, !islocked, false );
+    mAddMenuItem( &displaymnuitem_, &editnodesmnuitem_, !islocked, false );
+    mAddMenuItem( &displaymnuitem_, &insertnodemnuitem_, !islocked, false );
     insertnodemnuitem_.removeItems();
 
     for ( int idx=0; !islocked && idx<=rtd->nrKnots(); idx++ )
