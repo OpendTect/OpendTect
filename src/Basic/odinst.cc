@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.8 2012-04-24 12:08:56 cvsbert Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.9 2012-04-24 12:18:42 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -23,6 +23,19 @@ static const char* rcsID = "$Id: odinst.cc,v 1.8 2012-04-24 12:08:56 cvsbert Exp
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
 #define mRelRootDir GetSoftwareDir(1)
 
+#ifdef __win__
+#include <direct.h>
+static BufferString getInstDir()
+{
+    BufferString dirnm( _getcwd(NULL,0) );
+    const int len = dirnm.size() - 10;
+    if ( len > 0 )
+	dirnm[len] = '\0';
+    return dirnm;
+}
+#undef mRelRootDir
+#define mRelRootDir getInstDir()
+#endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
@@ -91,14 +104,18 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd() \
-    BufferString cmd( "@", FilePath(GetBinPlfDir(),"od_instmgr").fullPath() ); \
-    cmd.add( " --instdir " ).add( mRelRootDir )
+    BufferString cmd( __iswin__ ? "" : "@", FilePath(GetBinPlfDir(),"od_instmgr").fullPath() ); \
+    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" );
 
 
 void ODInst::startInstManagement()
 {
     mDefCmd();
-    StreamProvider( cmd ).executeCommand( true );
+#ifndef __win__
+    StreamProvider( cmd ).executeCommand( true, true );
+#else
+    ExecOSCmd( cmd, true, true );
+#endif
 }
 
 bool ODInst::updatesAvailable()
