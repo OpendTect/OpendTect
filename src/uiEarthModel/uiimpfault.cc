@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.44 2012-03-27 20:15:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.45 2012-04-24 10:24:23 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -154,6 +154,7 @@ void uiImportFault::typeSel( CallBacker* )
     if ( !typefld_ ) return;
 
     const int tp = typefld_->getIntValue();
+    typefld_->display( typefld_->nrElements()>1 );
     formatfld_->display( tp == 1 );
     dataselfld_->display( tp == 0 );
     sortsticksfld_->display( tp == 0 );
