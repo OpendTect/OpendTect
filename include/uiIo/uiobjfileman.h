@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.14 2010-11-09 04:41:37 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.15 2012-04-24 19:49:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ protected:
 					     const IOObjContext&);
 
     uiTextEdit*			infofld_;
+    uiTextEdit*			userinfofld_;
     uiIOObjSelGrp*		selgrp_;
     uiToolButton*		mkdefbut_;
     uiGroup*			listgrp_;
@@ -52,6 +53,8 @@ protected:
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
+    void			saveUserInfo();
+    void			readUserInfo();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false);

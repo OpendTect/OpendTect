@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.38 2011-04-18 15:00:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.39 2012-04-24 19:49:52 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -27,6 +27,8 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.38 2011-04-18 15:00:57 cvsb
 #include "ioman.h"
 #include "keystrs.h"
 #include "streamconn.h"
+#include "strmdata.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "transl.h"
@@ -70,6 +72,10 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
+    userinfofld_ = new uiTextEdit( infogrp_, "User info" );
+    userinfofld_->attach( alignedBelow, infofld_ );
+    userinfofld_->setPrefHeightInChar( 3 );
+    userinfofld_->setStretch( 2, 2 );
     setPrefWidth( cPrefWidth );
 
     uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
@@ -92,8 +98,48 @@ void uiObjFileMan::addTool( uiButton* but )
 }
 
 
+void uiObjFileMan::saveUserInfo()
+{
+    BufferString txt = userinfofld_->text();
+    if ( !curioobj_ || txt.isEmpty() )
+	return;
+
+    FilePath fp( curioobj_->fullUserExpr() );
+    fp.setExtension( "info" );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
+    if ( !sd.usable() )
+	return;
+
+    *sd.ostrm << txt << '\n';
+}
+
+
+void uiObjFileMan::readUserInfo()
+{
+    if ( !curioobj_ )
+    {
+	userinfofld_->setText( "" );
+	return;
+    }
+
+    FilePath fp( curioobj_->fullUserExpr() );
+    fp.setExtension( "info" );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+    if ( !sd.usable() )
+    {
+	userinfofld_->setText( "" );
+	return;
+    }
+
+    BufferString txt;
+    *sd.istrm >> txt;
+    userinfofld_->setText( txt );
+}
+
+
 void uiObjFileMan::selChg( CallBacker* cb )
 {
+    saveUserInfo();
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
@@ -105,6 +151,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     else
 	setInfo( "" );
 
+    readUserInfo();
     BufferString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
