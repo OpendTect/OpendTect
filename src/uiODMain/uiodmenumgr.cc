@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.246 2012-04-12 14:04:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.247 2012-04-24 17:57:03 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -423,7 +423,13 @@ void uiODMenuMgr::fillProcMenu()
 	csoitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes.png"));
+	mInsertItem( csoitm, "Create 2D from 3D ...", m2DFrom3DMnuItem );
     }
+    if ( SI().has2D() )
+    {
+	mInsertItem( csoitm, "Create 3D from 2D ...", m3DFrom2DMnuItem );
+    }
+
     create2D3DMnu( csoitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm, "betweenhors.png" );
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
@@ -1014,6 +1020,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
+    case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
+    case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
