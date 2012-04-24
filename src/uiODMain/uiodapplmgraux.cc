@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.45 2012-02-21 10:52:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.46 2012-04-24 17:46:15 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -62,6 +62,8 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.45 2012-02-21 10:52:18 cv
 #include "uiimppvds.h"
 #include "uiseisbayesclass.h"
 #include "uisurvmap.h"
+#include "uiseis2dto3d.h"
+#include "uicreate2dgrid.h"
 
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
@@ -472,3 +474,12 @@ void uiODApplMgrDispatcher::setFonts()
 { uiSetFonts dlg( par_, "Set font types" ); dlg.go(); }
 void uiODApplMgrDispatcher::resortSEGY()
 { am_.seisserv_->resortSEGY(); }
+
+void uiODApplMgrDispatcher::process2D3D( bool to2d )
+{
+    if ( to2d )
+    { uiCreate2DGrid dlg( par_, 0 ); dlg.go(); }
+    else
+    { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
+}
+

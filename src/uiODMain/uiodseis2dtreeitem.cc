@@ -7,13 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.113 2012-04-09 22:15:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.114 2012-04-24 17:46:15 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
 #include "uiattribpartserv.h"
 #include "uiattr2dsel.h"
-#include "uicreate2dgrid.h"
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -25,7 +24,6 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.113 2012-04-09 22:15:
 #include "uiodapplmgr.h"
 #include "uiodeditattribcolordlg.h"
 #include "uiodscenemgr.h"
-#include "uiseis2dto3d.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uivispartserv.h"
@@ -77,15 +75,9 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
 	newitm->selectAddLines();
     }
     else if ( mnuid == 1 )
-    {
-	uiCreate2DGrid dlg( ODMainWin(), 0 );
-	dlg.go();
-    }
+	ODMainWin()->applMgr().create2Dfrom3D();
     else if ( mnuid == 2 )
-    {
-	uiSeis2DTo3D dlg( ODMainWin() );
-	dlg.go();
-    }
+	ODMainWin()->applMgr().create3Dfrom2D();
     else
 	return false;
 
@@ -597,6 +589,8 @@ uiOD2DLineSetSubItem::uiOD2DLineSetSubItem( const char* nm, int displayid )
 {
     name_ = nm;
     displayid_ = displayid;
+
+    positionitm_.iconfnm = "orientation64.png";
     linenmitm_.checkable = true;
 }
 
@@ -704,7 +698,7 @@ void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
     if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
 
     mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
-    mAddMenuItem( menu, &positionitm_, true, false );
+    mAddMenuItem( &displaymnuitem_, &positionitm_, true, false );
 }
 
 

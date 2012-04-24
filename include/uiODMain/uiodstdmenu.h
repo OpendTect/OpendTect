@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.76 2012-02-15 16:24:31 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.77 2012-04-24 17:46:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,8 @@ ________________________________________________________________________
 #define mSeisOutMnuItm		(mProcMnu + 20)
 #define mSeisOut2DMnuItm	(mProcMnu + 21)
 #define mSeisOut3DMnuItm	(mProcMnu + 22)
+#define m2DFrom3DMnuItem	(mProcMnu + 23)
+#define m3DFrom2DMnuItem	(mProcMnu + 24)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
 #define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)
