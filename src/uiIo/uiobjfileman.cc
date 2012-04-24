@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.39 2012-04-24 19:49:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.40 2012-04-24 21:22:57 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -72,15 +72,19 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
-    userinfofld_ = new uiTextEdit( infogrp_, "User info" );
-    userinfofld_->attach( alignedBelow, infofld_ );
-    userinfofld_->setPrefHeightInChar( 3 );
-    userinfofld_->setStretch( 2, 2 );
+
+    uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
+    notesfld_ = new uiTextEdit( notesgrp, "User info" );
+    notesfld_->setPrefHeightInChar( 3 );
+    notesfld_->setStretch( 2, 2 );
+    notesfld_->setToolTip( "Notes" );
+
     setPrefWidth( cPrefWidth );
 
     uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
+    sep->addGroup( notesgrp );
 }
 
 
@@ -98,48 +102,61 @@ void uiObjFileMan::addTool( uiButton* but )
 }
 
 
-void uiObjFileMan::saveUserInfo()
+static BufferString getFileName( const IOObj& ioobj )
 {
-    BufferString txt = userinfofld_->text();
+    FilePath fp( ioobj.fullUserExpr() );
+    fp.setExtension( "note" );
+    return fp.fullPath();
+}
+
+
+void uiObjFileMan::saveNotes()
+{
+    BufferString txt = notesfld_->text();
     if ( !curioobj_ || txt.isEmpty() )
 	return;
 
-    FilePath fp( curioobj_->fullUserExpr() );
-    fp.setExtension( "info" );
-    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
+    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeOStream();
     if ( !sd.usable() )
 	return;
 
     *sd.ostrm << txt << '\n';
+    sd.close();
 }
 
 
-void uiObjFileMan::readUserInfo()
+void uiObjFileMan::readNotes()
 {
     if ( !curioobj_ )
     {
-	userinfofld_->setText( "" );
+	notesfld_->setText( "" );
 	return;
     }
 
-    FilePath fp( curioobj_->fullUserExpr() );
-    fp.setExtension( "info" );
-    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeIStream();
     if ( !sd.usable() )
     {
-	userinfofld_->setText( "" );
+	notesfld_->setText( "" );
 	return;
     }
 
-    BufferString txt;
-    *sd.istrm >> txt;
-    userinfofld_->setText( txt );
+    BufferString note;
+    char buf[1024];
+    while ( sd.istrm->getline(buf,1024) )
+    {
+	if ( !note.isEmpty() )
+	    note += "\n";
+	note += buf;
+    }
+
+    sd.close();
+    notesfld_->setText( note );
 }
 
 
 void uiObjFileMan::selChg( CallBacker* cb )
 {
-    saveUserInfo();
+    saveNotes();
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
@@ -151,7 +168,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     else
 	setInfo( "" );
 
-    readUserInfo();
+    readNotes();
     BufferString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
