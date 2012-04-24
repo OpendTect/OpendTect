@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.19 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.20 2012-04-24 16:51:41 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ public:
 			, dah_(dh)
 			, levelid_(-1)		{}
 			Marker(int lvlid,float dh);
+			Marker(const Marker&);
 
     float		dah() const		{ return dah_; }
     void		setDah( float v )	{ dah_ = v; }

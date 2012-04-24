@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.93 2012-04-24 09:48:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.94 2012-04-24 16:51:41 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -450,6 +450,14 @@ Well::Marker::Marker( int lvlid, float dh )
 {
 }
 
+
+Well::Marker::Marker( const Well::Marker& mrk )
+{
+    setName( mrk.name() );
+    dah_ = mrk.dah();
+    levelid_ = mrk.levelID();
+    color_ = mrk.color();
+}
 
 const BufferString& Well::Marker::name() const
 {
