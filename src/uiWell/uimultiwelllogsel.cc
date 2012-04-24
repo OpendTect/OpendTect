@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.13 2012-04-19 07:28:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.14 2012-04-24 16:37:52 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -135,6 +135,8 @@ void uiWellZRangeSelector::putToScreen()
     }
     else
 	zselectionflds_[selidx_]->setValue( params_.zrg_ );
+
+    updateDisplayFlds();
 }
 
 
@@ -156,6 +158,12 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     else
 	params_.zrg_ = zselectionflds_[selidx_]->getFInterval();
 
+    updateDisplayFlds();
+}
+
+
+void uiWellZRangeSelector::updateDisplayFlds()
+{
     for ( int idx=0; idx<zselectionflds_.size(); idx++ )
 	zselectionflds_[idx]->display( idx == selidx_ );
 
