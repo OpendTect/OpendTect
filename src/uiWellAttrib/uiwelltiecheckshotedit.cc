@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.14 2012-04-19 07:12:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecheckshotedit.cc,v 1.15 2012-04-24 14:18:54 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -45,15 +45,32 @@ bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
     if ( mIsUdf(v) ) return false;
     if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
 	{ dah_ += dh; val_ += v; }
-    if ( dh < dah_[0] )
+    else if ( dh < dah_[0] )
 	{ dah_.insert( 0, dh ); val_.insert( 0, v ); }
-
-    const int insertidx = indexOf( dh );
-    if ( insertidx>=0 )
-	{ dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
+    else
+    {
+	const int insertidx = indexOf( dh );
+	if ( insertidx>=0 )
+	    { dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
+    }
     return true;
 }
 
+
+int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
+{
+    for ( int idx=0; idx<size(); idx ++ )
+    {
+	const float nddah = dah( idx );
+	if ( mIsEqual(dh,nddah,10) )
+	{
+	    const float ndval = value( idx );
+	    if ( mIsEqual(val,ndval,5) )
+		return idx;
+	}
+    }
+    return -1;
+}
 
 
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
@@ -66,7 +83,8 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , d2t_(wd_.d2TModel())
     , cs_(wd_.checkShotModel())
     , orgcs_(0)
-    , isedit_(false)			 
+    , isedit_(false)
+    , movingpointidx_(-1)  
 {
     if ( !cs_ ) 
 	mErrRet( "No checkshot provided", return );
@@ -123,21 +141,27 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
+    control_->posChanged.notify( mCB(this,uiCheckShotEdit,mouseMovedCB) );
     control_->mousePressed.notify( mCB(this,uiCheckShotEdit,mousePressedCB));
+    control_->mouseReleased.notify( mCB(this,uiCheckShotEdit,mouseReleasedCB));
+
+    viewcorrd2t_ = new uiCheckBox( this, "View corrected Depth/Time model");
+    viewcorrd2t_->attach( alignedBelow, d2tdisplay_ );
+    viewcorrd2t_->attach( ensureBelow, driftdisplay_ );
+    viewcorrd2t_->setChecked( true );
 
     uiLabeledComboBox* lbl = new uiLabeledComboBox( this, 
 				    "Compute Depth/Time model from: " );
     driftchoicefld_ = lbl->box();
-    lbl->attach( ensureBelow, d2tdisplay_ );
-    lbl->attach( ensureBelow, driftdisplay_ );
+    lbl->attach( ensureBelow, viewcorrd2t_ );
     driftchoicefld_->addItem( "Original drift curve" );
     driftchoicefld_->addItem( "User defined drift curve" );
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply", 
-		    mCB(this,uiCheckShotEdit,applyPushed), true );
-    applybut->attach( rightOf, lbl );
+    CallBack applycb( mCB(this,uiCheckShotEdit,applyCB) );
+    driftchoicefld_->selectionChanged.notify( applycb );
+    viewcorrd2t_->activated.notify( applycb );
 
-    draw();
+    applyCB(0);
 }
 
 
@@ -162,21 +186,78 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 
 void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
+    const float dah = control_->depth();
+    const float val = control_->xPos();
+    movingpointidx_ = isedit_ ? newdriftcurve_.indexOfCurrentPoint(dah,val) :-1;
+}
+
+
+void uiCheckShotEdit::mouseMovedCB( CallBacker* )
+{
+    if ( movingpointidx_ >= 0 && isedit_ )
+	movePt();
+}
+
+
+void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
+{
+    if ( movingpointidx_ < 0 && isedit_ )
+	doInsertRemovePt();
+
+    movingpointidx_ = -1;
+}
+
+
+void uiCheckShotEdit::movePt()
+{
+    if ( movingpointidx_ < 0 ) 
+	return;
+
+    const float dah = control_->depth();
+
+    if ( movingpointidx_ > 1 )
+    {
+	const float prevdah = newdriftcurve_.dah( movingpointidx_-1 );
+	if ( dah < prevdah )
+	    return;
+    }
+    if ( newdriftcurve_.size() >  movingpointidx_+1 )
+    {
+	const float nextdah = newdriftcurve_.dah( movingpointidx_+1 );
+	if ( dah > nextdah  )
+	    return;
+    }
+
+    newdriftcurve_.remove( movingpointidx_ );
+    doInsertRemovePt();
+}
+
+
+void uiCheckShotEdit::doInsertRemovePt()
+{ 
     const uiWellDahDisplay* disp = control_->selDahDisplay();
     const bool iscs = disp == d2tdisplay_;
-    Well::DahObj* curve = iscs ? (Well::DahObj*)(cs_)
-			       : (Well::DahObj*)(&newdriftcurve_);
+
     if ( isedit_ ) 
     {
 	const float dah = control_->depth();
 	const float val = control_->xPos();
-	undo_.addEvent( 
-		new DahObjUndoEvent(dah,val,*curve,!control_->isCtrlPressed()));
+
+	const bool isadd = !control_->isCtrlPressed();
+	if ( isadd ) 
+	{
+	    if ( newdriftcurve_.isEmpty() && !driftcurve_.isEmpty() )
+		newdriftcurve_.add( driftcurve_.dah(0), driftcurve_.value(0) );
+
+	    newdriftcurve_.insertAtDah( dah, val ); 
+	}
+	undo_.addEvent( new DahObjUndoEvent(dah,val,newdriftcurve_,isadd) );
     }
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
     driftdisplay_->setToolTip("");
-    draw();
+
+    applyCB(0); 
 }
 
 
@@ -199,17 +280,19 @@ void uiCheckShotEdit::editCB( CallBacker* )
 
 void uiCheckShotEdit::undoCB( CallBacker* )
 {
-    undo_.unDo();
+    undo_.unDo(1,false);
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
+    draw();
 }
 
 
 void uiCheckShotEdit::redoCB( CallBacker* )
 {
-    undo_.reDo();
+    undo_.reDo(1,false);
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
+    draw();
 }
 
 
@@ -251,6 +334,12 @@ void uiCheckShotEdit::drawDrift()
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift ); 
     }
+    drawDahObj( &driftcurve_, true, false );
+    drawDahObj( &newdriftcurve_, false, false );
+
+    if ( !viewcorrd2t_->isChecked() )
+	return;
+
     for ( int idx=0; idx<sz2; idx++ )
     {
 	const float dah = cs_->dah( idx );
@@ -262,13 +351,10 @@ void uiCheckShotEdit::drawDrift()
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
-
-    drawDahObj( &driftcurve_, true, false );
-    drawDahObj( &newdriftcurve_, false, false );
 }
 
 
-void uiCheckShotEdit::applyPushed( CallBacker* )
+void uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
     const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_; 
@@ -303,6 +389,8 @@ void uiCheckShotEdit::applyPushed( CallBacker* )
     d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     d2tlineitm_->setPenStyle( ls );
+
+    draw();
 }
 
 
@@ -340,10 +428,11 @@ const char* DahObjUndoEvent::getStandardDesc() const
 
 bool DahObjUndoEvent::unDo()
 {
-    if ( !isadd_ ) 
+    if ( isadd_ ) 
     {
 	const int dahidx = dahobj_.indexOf( dah_ );
-	if ( dahidx >= 0 ) dahobj_.remove( dahidx );
+	if ( dahidx >= 0 && dahidx < dahobj_.size() ) 
+	    dahobj_.remove( dahidx );
     }
     else
     {
@@ -357,12 +446,13 @@ bool DahObjUndoEvent::reDo()
 {
     if ( isadd_ ) 
     {
-	const int dahidx = dahobj_.indexOf( dah_ );
-	if ( dahidx >= 0 ) dahobj_.remove( dahidx );
+	dahobj_.insertAtDah( dah_, val_ ); 
     }
     else
     {
-	dahobj_.insertAtDah( dah_, val_ ); 
+	const int dahidx = dahobj_.indexOf( dah_ );
+	if ( dahidx >= 0 && dahidx < dahobj_.size() ) 
+	    dahobj_.remove( dahidx );
     }
     return true;
 }

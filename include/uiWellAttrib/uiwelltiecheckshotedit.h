@@ -64,6 +64,8 @@ public:
 	float  		value( int idx ) const      { return val_[idx]; }
 	bool		insertAtDah(float dh,float v);
 
+	int 		indexOfCurrentPoint(float dah,float val) const;
+
     protected:
 	TypeSet<float>	val_;
 
@@ -86,6 +88,7 @@ protected:
     uiToolButton*		editbut_;
     uiToolButton*		undobut_;
     uiToolButton*		redobut_;
+    uiCheckBox*			viewcorrd2t_;
 
     uiComboBox*			driftchoicefld_;
 
@@ -97,18 +100,22 @@ protected:
     uiPolyLineItem*		d2tlineitm_;
 
     Undo			undo_;
+    int				movingpointidx_;
 
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
+    void			movePt();
+    void			doInsertRemovePt();
 
-    void			applyPushed(CallBacker*);
+    void			applyCB(CallBacker*);
     void			editCSPushed(CallBacker*);
     void			editCB(CallBacker*);
     void			undoCB(CallBacker*);
     void			redoCB(CallBacker*);
     void			mousePressedCB(CallBacker*);
     void			mouseReleasedCB(CallBacker*);
+    void			mouseMovedCB(CallBacker*);
     void			setInfoMsg(CallBacker*);
 
     bool			acceptOK(CallBacker*);
