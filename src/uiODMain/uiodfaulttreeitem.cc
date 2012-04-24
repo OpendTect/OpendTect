@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.56 2012-04-09 22:15:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.57 2012-04-24 18:18:21 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -196,8 +196,8 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     , faultdisplay_(0)
     mCommonInit
 {
-    mCommonInit2
     displayid_ = id;
+    mCommonInit2
 }
 
 
@@ -467,11 +467,17 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 
 
 #undef mCommonInit
+#undef mCommonInit2
 #define mCommonInit \
     , faultsticksetdisplay_(0) \
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save &as ...") \
     , onlyatsectmnuitem_("&Only at sections")
+
+#define mCommonInit2 \
+    onlyatsectmnuitem_.checkable = true; \
+    savemnuitem_.iconfnm = "save.png"; \
+    saveasmnuitem_.iconfnm = "saveas.png";
 
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
@@ -479,9 +485,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     mCommonInit
 {
-    onlyatsectmnuitem_.checkable = true;
-    savemnuitem_.iconfnm = "save.png";
-    saveasmnuitem_.iconfnm = "saveas.png";
+    mCommonInit2
 }
 
 
@@ -491,9 +495,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
     mCommonInit
 {
     displayid_ = id;
-    onlyatsectmnuitem_.checkable = true;
-    savemnuitem_.iconfnm = "save.png";
-    saveasmnuitem_.iconfnm = "saveas.png";
+    mCommonInit2
 }
 
 
