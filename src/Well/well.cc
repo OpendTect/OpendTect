@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.92 2012-04-19 07:10:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.93 2012-04-24 09:48:54 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -415,21 +415,21 @@ void Well::Log::removeTopBottomUdfs()
 #define mInsertAtDah(dh,v,vals,ascendingvalonly)\
 {\
     if ( mIsUdf(v) ) return false;\
-    if ( dah_.isEmpty() || dh > dah_[dah_.size()-1] )\
+    if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )\
     {\
-	if ( ascendingvalonly && v < vals[dah_.size()-1] )\
+	if ( ascendingvalonly && v <= vals[dah_.size()-1] )\
 	    return false;\
 	dah_ += dh; vals += val;\
     }\
     if ( dh < dah_[0] )\
     {\
-	if ( ascendingvalonly && v > vals[0] )\
+	if ( ascendingvalonly && v >= vals[0] )\
 	    return false;\
 	dah_.insert( 0, dh ); vals.insert( 0, v );\
     }\
     const int insertidx = indexOf( dh );\
     if ( insertidx<0 ) return false;\
-    if ( ascendingvalonly && (v < vals[insertidx] || v > vals[insertidx+1]) )\
+    if ( ascendingvalonly && (v <= vals[insertidx] || v >= vals[insertidx+1]) )\
 	return false;\
     dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
 }
