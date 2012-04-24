@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.10 2011-06-21 10:48:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.11 2012-04-24 07:07:53 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -57,7 +57,10 @@ float WellHorIntersectFinder::findZIntersection() const
 	const float horz = intersectPosHor( crd );
 
 	if ( mIsUdf( horz ) ) 
+	{
+	    zval += zstep;
 	    continue;
+	}
 
 	if ( !firstvalidzfound )
 	{
