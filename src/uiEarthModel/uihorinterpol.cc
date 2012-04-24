@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.22 2011-04-22 20:09:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.23 2012-04-24 19:48:06 cvsnanne Exp $";
 
 #include "uihorinterpol.h"
 
@@ -37,14 +37,17 @@ static const char* rcsID = "$Id: uihorinterpol.cc,v 1.22 2011-04-22 20:09:47 cvs
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   "104.0.16") )
+				   "104.0.16").modal(false) )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
     , interpol2dsel_( 0 )
     , interpol1dsel_( 0 )
-    , savefldgrp_( 0 )		       
+    , savefldgrp_( 0 )
+    , finished(this)
 {
+    setCtrlStyle( DoAndStay );
+
     if ( horizon_ )
 	horizon_->ref();
     else
@@ -311,7 +314,12 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 	    return false;
     }
 
-    return savefldgrp_->saveHorizon();
+    const bool res = savefldgrp_->saveHorizon();
+    if ( res )
+    {
+	finished.trigger();
+	uiMSG().message( "Horizon successfully gridded/interpolated" );
+    }
+
+    return false;
 }
-
-

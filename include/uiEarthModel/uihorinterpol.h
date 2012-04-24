@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.7 2009-12-16 06:03:19 cvssatyaki Exp $
+ RCS:		$Id: uihorinterpol.h,v 1.8 2012-04-24 19:48:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 
     const char*		helpID() const;
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
+
+    Notifier<uiHorizonInterpolDlg> finished;
 
 protected:
 
