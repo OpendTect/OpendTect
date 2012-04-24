@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.9 2012-04-04 14:26:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.10 2012-04-24 12:52:09 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -88,7 +88,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     TypeSet<BinID> bids;
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
-    BinID curbid;
+    BinID curbid = startbid;
     while ( iterator.next( curbid ) && shouldContinue() )
     {
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
