@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.71 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.72 2012-04-24 22:04:41 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
 
 #include "uiaction.h"
 #include "uibody.h"
+#include "uimain.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
 #include "pixmap.h"
@@ -231,7 +232,7 @@ bool uiMenuItem::isEnabled() const
 void uiMenuItem::setEnabled( bool yn )
 {
     enabled_ = yn;
-    if ( qaction_ ) qaction_->setEnabled( yn );
+    if ( qaction_ && isMainThreadCurrent() ) qaction_->setEnabled( yn );
 }
 
 
