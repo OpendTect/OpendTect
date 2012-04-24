@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.12 2011-04-21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.13 2012-04-24 21:21:50 cvsnanne Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -25,8 +25,8 @@ static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.12 2011-04-21 13:09:14 
 static const int cPrefWidth = 75;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("PDF file management",
-				     "Manage probability density functions",
+    : uiObjFileMan(p,uiDialog::Setup("Manage Probability Density Functions",
+				     mNoDlgTitle,
 				     "112.1.0").nrstatusflds(1),
 	           ProbDenFuncTranslatorGroup::ioContext())
 {

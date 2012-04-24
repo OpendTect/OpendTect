@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.71 2012-03-20 10:08:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.72 2012-04-24 21:21:50 cvsnanne Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -42,8 +42,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
-                                     "Manage wavelets",
+    : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
     , curid_(DataPack::cNoID())

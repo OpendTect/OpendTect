@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.19 2011-09-16 10:01:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.20 2012-04-24 21:21:49 cvsnanne Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -28,8 +28,7 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
-				     "Manage picksets",
+    : uiObjFileMan(p,uiDialog::Setup("Manage PickSets/Polygons",mNoDlgTitle,
 				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
 {

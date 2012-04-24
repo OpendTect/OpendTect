@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.13 2011-05-11 05:36:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.14 2012-04-24 21:21:49 cvsnanne Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.13 2011-05-11 05:36:23 cvssa
 static const char* remmsg = "All the related 2D lines & horizons will become invalid. Do you want to go ahead?";
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("2D Geometry management", "Manage 2D lines",
+    : uiDialog(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
 				 "103.1.14"))
 {
     setCtrlStyle( LeaveOnly );

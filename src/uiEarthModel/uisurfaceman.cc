@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.94 2012-04-18 17:31:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.95 2012-04-24 21:21:49 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -66,8 +66,8 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.94 2012-04-18 17:31:49 cvsy
 	       EMBodyTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
-    mGet( typ, "Manage 2D horizons", "Manage 3D horizons", "Manage horizons", \
-	       "Manage faultStickSets", "Manage faults", "Manage bodies" )
+    mGet( typ, "Manage 2D Horizons", "Manage 3D Horizons", "Manage Horizons", \
+	       "Manage FaultStickSets", "Manage Faults", "Manage Bodies" )
 
 #define mGetCopyStr(typ) \
     mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
@@ -76,19 +76,13 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.94 2012-04-18 17:31:49 cvsy
 #define mGetHelpID(typ) \
     mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5", "104.2.6")
 
-#define mGetWinTittle(typ) \
-    mGet( typ, "2D Horizons management", "3D Horizons management",\
-	  "Horizons management", "FaultStickSets management",\
-	  "Faults management", "Bodies management" )
-
 using namespace EM;
 
 mDefineInstanceCreatedNotifierAccess(uiSurfaceMan)
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
-    : uiObjFileMan(p,uiDialog::Setup(mGetWinTittle(typ),
-                                     mGetManageStr(typ),
+    : uiObjFileMan(p,uiDialog::Setup(mGetManageStr(typ),mNoDlgTitle,
                                      mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
     , attribfld_(0)

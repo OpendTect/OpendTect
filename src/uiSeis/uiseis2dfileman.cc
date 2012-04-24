@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.21 2011-11-23 11:35:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.22 2012-04-24 21:21:50 cvsnanne Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -44,8 +44,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup("Seismic line data management",
-				 "Manage 2D seismic lines",
+    : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
 				 "103.1.3"))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))

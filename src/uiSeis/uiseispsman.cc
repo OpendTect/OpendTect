@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.24 2011-10-07 12:27:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.25 2012-04-24 21:21:50 cvsnanne Exp $";
 
 
 #include "uiseispsman.h"
@@ -29,10 +29,12 @@ static const char* rcsID = "$Id: uiseispsman.cc,v 1.24 2011-10-07 12:27:39 cvsbe
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
+#define mCapt \
+    is2d ? "Manage 2D Pre-stack seismics" : "Manage 3D Pre-stack seismics"
+#define mHelpID is2d ? "103.4.1" : "103.4.0"
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup("Pre-stack seismics management",
-				 "Manage Pre-stack seismics",
-				 is2d ? "103.4.1" : "103.4.0").nrstatusflds(1),
+    : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
+		     .nrstatusflds(1),
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)

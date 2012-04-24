@@ -27,8 +27,7 @@ static const char* rcsID = "$";
 static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("CrossPlot data file management",
-				     "Manage cross plots",
+    : uiObjFileMan(p,uiDialog::Setup("Manage Cross-plot Data",mNoDlgTitle,
 				     mTODOHelpID).nrstatusflds(1),
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
