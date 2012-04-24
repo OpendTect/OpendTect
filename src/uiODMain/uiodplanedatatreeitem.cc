@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.61 2012-04-09 22:15:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.62 2012-04-24 15:04:09 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -147,9 +147,7 @@ bool uiODPlaneDataTreeItem::init()
 			cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
 
 		    pdd->setCubeSampling( cs );
-		    const bool ddd = uiMSG().askGoOn( "Display default data?" );
-		    if ( ddd )
-			displayDefaultData();
+		    displayDefaultData();
 		}
 	    }
 	}
