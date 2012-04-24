@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.32 2012-04-24 16:15:15 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.33 2012-04-24 19:38:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
 
     bool			isOffsetAngle() const	{return offsetisangle_;}
     bool			isCorrected() const	{ return iscorr_; }
+    void			setCorrected(bool yn)	{ iscorr_ = yn; }
     bool			zIsTime() const		{ return zit_; }
 
 
