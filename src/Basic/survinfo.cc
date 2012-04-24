@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.161 2012-02-27 14:41:36 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.162 2012-04-24 12:57:22 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -183,6 +183,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     astream.next();
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
+    si->setName( FilePath(survdir).fileName() ); // good default
 
     //Read params here, so we can look at the pars below
     fp = fpsurvdir; fp.add( sKeyDefsFile );
