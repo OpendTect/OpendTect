@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odinst.cc,v 1.7 2012-03-30 04:20:28 cvsraman Exp $";
+static const char* rcsID = "$Id: odinst.cc,v 1.8 2012-04-24 12:08:56 cvsbert Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -104,7 +104,7 @@ void ODInst::startInstManagement()
 bool ODInst::updatesAvailable()
 {
     mDefCmd(); cmd.add( " --updcheck_report" );
-    return StreamProvider( cmd ).executeCommand( false );
+    return !StreamProvider( cmd ).executeCommand( false );
 }
 
 
