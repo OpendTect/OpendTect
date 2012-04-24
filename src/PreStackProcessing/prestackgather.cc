@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.46 2012-04-20 15:04:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.47 2012-04-24 16:15:15 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -147,7 +147,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
-    if ( !setFromTrcBuf( *tbuf, comp ) )
+    if ( !setFromTrcBuf( *tbuf, comp, true ) )
        return false;	
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
@@ -173,7 +173,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 }
 
 
-bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
+bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 { 
     tbuf.sort( true, SeisTrcInfo::Offset );
 
@@ -207,8 +207,11 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp )
 	return false;
     }
 
-    SI().snapZ(zrg.start);
-    SI().snapZ(zrg.stop);
+    if ( snapzrgtosi )
+    {
+	SI().snapZ(zrg.start);
+	SI().snapZ(zrg.stop);
+    }
     int nrsamples = zrg.nrSteps()+1;
     if ( zrg.step>0 && (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) )
 	nrsamples++;

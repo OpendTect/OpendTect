@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.31 2012-02-06 11:01:19 cvsbruno Exp $
+ RCS:		$Id: prestackgather.h,v 1.32 2012-04-24 16:15:15 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -122,7 +122,8 @@ protected:
     BufferString		linename_;
 
 public:
-    bool			setFromTrcBuf(SeisTrcBuf&,int comp);
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					    bool snapzrangetosi=false);
 };
 
 
