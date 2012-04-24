@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.17 2011-06-20 11:54:22 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.18 2012-04-24 12:51:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,7 @@ mClass WellStratUnitGen : public CallBacker
 {
 public:
 				WellStratUnitGen(StratDispData&,
-						const ObjectSet<Well::Marker>&,
-						const Well::D2TModel*);
+						const Well::Data&);
 				~WellStratUnitGen();
 
     const StratDispData&	stratData() const { return data_; }
@@ -42,6 +41,7 @@ protected:
     StratDispData&		data_;
     const ObjectSet<Well::Marker>& markers_;
     const Well::D2TModel*	d2tmodel_;
+    const Well::Track& 		track_;
 
     void 			assignTimesToLeavedUnits();
     void 			assignTimesToAllUnits();

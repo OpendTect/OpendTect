@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.34 2011-10-27 08:54:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.35 2012-04-24 12:51:53 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -49,7 +49,7 @@ void uiWellStratDisplay::gatherInfo()
     if ( zdata_.mrks() )
     {
 	delete stratgen_;
-	stratgen_ = new WellStratUnitGen(data_,*zdata_.mrks(),zdata_.d2T());
+	stratgen_ = zdata_.wd_ ? new WellStratUnitGen(data_,*zdata_.wd_) : 0;
     }
 }
 
@@ -77,11 +77,11 @@ void uiWellStratDisplay::draw()
 
 
 WellStratUnitGen::WellStratUnitGen( StratDispData& data, 
-				    const ObjectSet<Well::Marker>& mrs, 
-				    const Well::D2TModel* d2t )
+				    const Well::Data& wd )
     : data_(data)
-    , markers_(mrs)
-    , d2tmodel_(d2t)
+    , track_(wd.track())  
+    , markers_(wd.markers())
+    , d2tmodel_(wd.d2TModel())
 {
     uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
     uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
@@ -134,6 +134,8 @@ void WellStratUnitGen::gatherLeavedUnits()
 		float pos = mrk->dah();
 		if ( SI().zIsTime() && d2tmodel_ ) 
 		    pos = d2tmodel_->getTime( pos )*1000; 
+		else
+		    pos = track_.getPos( pos ).z;
 		posset_ += pos;
 	    }
 	}
