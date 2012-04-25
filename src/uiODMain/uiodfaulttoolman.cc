@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.36 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.37 2012-04-25 22:11:17 cvsnanne Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -458,6 +458,9 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 
 void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* cb )
 {
+    if ( curemid_ == -1 )
+	return;
+
     if ( !EM::EMM().getObject(curemid_) )
 	deseltimer_.start( 100, true );
 }
