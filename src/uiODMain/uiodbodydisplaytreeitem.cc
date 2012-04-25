@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.42 2012-04-18 17:32:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.43 2012-04-25 17:07:49 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -344,6 +344,8 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+    if ( !mcd && !plg && !rpb )
+	return;
 	
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -356,8 +358,6 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
 		!mcd->usesTexture() );
 	mAddMenuItem( menu, &volcalmnuitem_, true, true );
-	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
-	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
 
     if ( plg )
@@ -368,17 +368,11 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      plg_->arePolygonsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		      plg_->areIntersectionsDisplayed() );
-	
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
-	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
 
-    if ( rpb )
-    {
-	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
-	mAddMenuItem( menu, &saveasmnuitem_, true, false );
-    }
+    mAddMenuItem( menu, &savemnuitem_, enablesave, false );
+    mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
 
 
