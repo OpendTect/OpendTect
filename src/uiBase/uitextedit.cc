@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.51 2012-02-23 09:32:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.52 2012-04-25 19:07:37 cvskris Exp $";
 
 
 #include "uitextedit.h"
@@ -353,14 +353,21 @@ void uiTextBrowser::setText( const char* txt )
 void uiTextBrowser::setHtmlText( const char* txt )
 {
     body_->setHtml( txt );
-    body_->setOpenExternalLinks(true);
-    body_->setOpenLinks(true);
 }
+
+
+void  uiTextBrowser::setLinkBehavior( uiTextBrowser::LinkBehavior lb )
+{
+    body_->setOpenExternalLinks( lb==FollowAll );
+    body_->setOpenLinks( lb!=None );
+}
+
 
 const char* uiTextBrowser::source() const
 { 
     if ( forceplaintxt_ )
 	return textsrc_;
+
 
     result_ = body_->source().path().toAscii().data();
     return result_.buf();
