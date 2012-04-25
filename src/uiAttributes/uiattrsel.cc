@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.76 2012-02-22 12:35:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.77 2012-04-25 10:54:13 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -125,6 +125,7 @@ mImplInitVar
 void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 				 bool isinp4otherattrib )
 {
+    //TODO: steering will never be displayed: on purpose?
     attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
 	    		    is2D(), ignoreid );
     if ( dpfids_.size() )
@@ -151,7 +152,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     createSelectionButtons();
     createSelectionFields();
 
-    int seltyp = havenlaouts ? 2 : (haveattribs ? 1 : 0);
+    int seltyp = 0;
     int storcur = -1, attrcur = -1, nlacur = -1;
     if ( attrdata_.nlamodel_ && attrdata_.outputnr_ >= 0 )
     {
@@ -165,7 +166,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 2;
-	    if ( seltyp == 1 )
+	    if ( seltyp == 2 )
 		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
 	    {
@@ -184,7 +185,10 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 		if ( ad.isStored() && storcur == -1 )
 		    storcur = attrinf_->ioobjnms_.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )
+		{
 		    attrcur = attrinf_->attrnms_.indexOf( ad.userRef() );
+		    seltyp = 2;
+		}
 		if ( storcur != -1 && attrcur != -1 ) break;
 	    }
 	}
