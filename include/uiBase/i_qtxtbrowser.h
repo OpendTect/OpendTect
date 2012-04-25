@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.8 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.9 2012-04-25 19:14:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ private slots:
 
     void		anchorClicked( const QUrl& lnk )
 			{
-			    receiver_->lastlink_ = lnk.path().toAscii().data();
+			    receiver_->lastlink_ = lnk.toString().toAscii().data();
 			    receiver_->linkClicked.trigger(*receiver_);
 			}
 };
