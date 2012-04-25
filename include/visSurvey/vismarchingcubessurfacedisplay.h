@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.31 2012-04-18 17:30:51 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.32 2012-04-25 21:13:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,7 @@ public:
 	    				TaskRunner*);
     void                   	setSelSpec(int,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
+    void			setDepthAsAttrib(int);
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,
@@ -112,7 +113,7 @@ protected:
     visBase::MarchingCubesSurface*		displaysurface_;
     EM::MarchingCubesSurface*			emsurface_;
     Attrib::SelSpec				selspec_;
-    const DataPointSet*				cache_;
+    ObjectSet<DataPointSet>			cache_;
 
     EM::ImplicitBody*				impbody_;
     bool					displayintersections_;
