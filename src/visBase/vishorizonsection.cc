@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.124 2012-02-24 10:20:42 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.125 2012-04-25 22:24:51 cvsnanne Exp $";
 
 #include "vishorizonsection.h"
 
@@ -49,6 +49,7 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.124 2012-02-24 10:20:4
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 
 #include <osgGeo/Horizon3D>
+#include <osgGeo/LayeredTexture>
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
