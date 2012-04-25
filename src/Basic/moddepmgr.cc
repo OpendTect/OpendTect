@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: moddepmgr.cc,v 1.11 2012-03-29 13:51:30 cvskris Exp $";
+static const char* rcsID = "$Id: moddepmgr.cc,v 1.12 2012-04-25 10:11:52 cvsranojay Exp $";
 
 
 #include "moddepmgr.h"
@@ -131,6 +131,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     devfp.add( isdebug ? "debug" : "release" );
 #endif
     devbindir_ = devfp.fullPath();
+    relbindir_ = isdebug ? devbindir_ : relbindir_;
     if ( !File::exists(devbindir_) )
     {
 	devbindir_ = "";
