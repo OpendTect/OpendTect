@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.7 2011-06-21 10:48:05 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.8 2012-04-25 12:18:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,7 @@ public:
     void			setHorizon(const EM::ObjectID& emid);
 
     float			findZIntersection() const;
-   				//return undef if not found else z pos (in s)
-    				//of the intersect.
+   				//return undef if not found
 
 protected:
 
