@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.75 2012-03-16 11:15:49 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.76 2012-04-25 10:14:07 cvsraman Exp $";
 
 
 #include "plugins.h"
@@ -34,10 +34,19 @@ static const char* rcsID = "$Id: plugins.cc,v 1.75 2012-03-16 11:15:49 cvsbert E
 
 static const char* sPluginDir = "plugins";
 #ifndef __cmake__
+
+#ifndef __win__
     static const char* sPluginBinDir = sPluginDir;
 #else
     static const char* sPluginBinDir = "bin";
 #endif
+
+#else
+
+    static const char* sPluginBinDir = "bin";
+
+#endif
+
 static const char* sKeyNoDispName = "??";
 
 extern "C" {
@@ -216,6 +225,11 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
+#ifdef __win__
+#ifdef __debug__
+    fp.add( "debug" );
+#endif
+#endif
     applibdir_ = fp.fullPath();
 
     fromenv = false;
@@ -230,6 +244,11 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
+#ifdef __win__
+#ifdef __debug__
+    fp.add( "debug" );
+#endif
+#endif
     userlibdir_ = fp.fullPath();
 
     if( DBG::isOn(DBG_PROGSTART) )
@@ -277,7 +296,9 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 	ret = FilePath(
 		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
 #ifndef __cmake__
+#ifndef __win__
 		"libs",
+#endif
 #endif
 		data.name_ ).fullPath();
     return ret.buf();
