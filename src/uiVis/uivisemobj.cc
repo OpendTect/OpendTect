@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.95 2011-11-30 23:32:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.96 2012-04-25 21:14:26 cvsyuancheng Exp $";
 
 #include "uivisemobj.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uivisemobj.cc,v 1.95 2011-11-30 23:32:58 cvsnan
 #include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
+#include "vismarchingcubessurfacedisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
@@ -172,15 +173,18 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	emod = visSurvey::Horizon2DDisplay::create();
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
-    emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    emod->setZAxisTransform( scene->getZAxisTransform(),0 );
-
-    uiTaskRunner dlg( uiparent_ );
-    if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
-
-    visserv_->addObject( emod, sceneid, true );
-    displayid_ = emod->id();
-    setDepthAsAttrib( 0 );
+    if ( emod )
+    {
+     	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+    	emod->setZAxisTransform( scene->getZAxisTransform(),0 );
+	
+    	uiTaskRunner dlg( uiparent_ );
+    	if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
+	    
+	    visserv_->addObject( emod, sceneid, true );
+    	displayid_ = emod->id();
+    	setDepthAsAttrib( 0 );
+    }
 
     setUpConnections();
 }
@@ -316,6 +320,8 @@ void uiVisEMObject::setDepthAsAttrib( int attrib )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     if ( hordisp ) hordisp->setDepthAsAttrib( attrib );
+    mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcdisp, getDisplay() );
+    if ( mcdisp ) mcdisp->setDepthAsAttrib( attrib );
 }
 
 
