@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.5 2012-04-13 12:44:56 cvsbert Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.6 2012-04-25 22:31:52 cvsnanne Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -34,7 +34,7 @@ bool OD::haveMemInfo()
 #ifdef mac
     return true;
 #endif
-#ifdef win
+#ifdef __win__
     return false;
 #endif
 }
