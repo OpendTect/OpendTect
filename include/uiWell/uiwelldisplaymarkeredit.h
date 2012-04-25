@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.9 2012-04-24 17:47:13 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.10 2012-04-25 12:58:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,8 @@ namespace Well { class Marker; class MarkerSet; class Data; }
 mClass uiAddEditMrkrDlg : public uiDialog
 {
 public :
-    				uiAddEditMrkrDlg(uiParent*,Well::Marker&);
+    				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
+							bool edit);
 
     void			putToScreen();
 
@@ -87,7 +88,7 @@ protected:
     uiGenInput*			modefld_;
 
     uiListBox*			mrklist_;
-    ObjectSet<Well::Marker>	tobeadded_;
+    ObjectSet<Well::Marker>	tmplist_;
     TypeSet<Color>		colors_;
 
     bool 			hasedited_;

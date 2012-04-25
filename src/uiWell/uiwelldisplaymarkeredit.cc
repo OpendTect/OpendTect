@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.26 2012-04-24 17:47:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.27 2012-04-25 12:58:39 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -35,8 +35,9 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.26 2012-04-24 17
 #include "welldata.h"
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
-uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk )
-    : uiDialog(p,uiDialog::Setup("Edit Markers",mNoDlgTitle,mNoHelpID))
+uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
+    : uiDialog(p,uiDialog::Setup(edit ? "Edit Marker": "Add Marker",
+					mNoDlgTitle,mNoHelpID))
     , marker_(mrk) 
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
@@ -88,8 +89,7 @@ void uiAddEditMrkrDlg::putToScreen()
 
 uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
-			    mNoDlgTitle,"dgb:107.0.3")
-			    .modal(false))
+			    mNoDlgTitle,"dgb:107.0.3").modal(false))
     , curmrk_(0)
     , curctrl_(0)
     , curwd_(0)	 
@@ -129,7 +129,7 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 
 uiWellDispEditMarkerDlg::~uiWellDispEditMarkerDlg()
 {
-    deepErase( tobeadded_ );
+    deepErase( tmplist_ );
     deepErase( orgmarkerssets_ );
 }
 
@@ -240,20 +240,28 @@ void uiWellDispEditMarkerDlg::addMoveMarker()
 
     const float dah = curctrl_->depth();
     const char* mrknm = mrklist_->getText();
-    bool ispresent = curwd_->markers().isPresent( mrknm );
-    const Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
-    Well::Marker* mrk = ispresent ? curwd_->markers().getByName( mrknm  )
-				  : tmpmrk ? new Well::Marker(*tmpmrk) : 0;
-    if ( !mrk ) return;
+    const bool ispresentinwd = curwd_->markers().isPresent( mrknm );
 
-    if ( !ispresent )
-	curwd_->markers().insertNew( mrk );
-    mrk->setDah( dah );
-
-    for ( int idx=0; idx<tobeadded_.size(); idx++ )
+    Well::Marker* mrk = 0;
+    if ( ispresentinwd )
     {
-	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
-	    delete tobeadded_.remove( idx );
+	mrk = curwd_->markers().getByName( mrknm  );
+	mrk->setDah( dah );
+    }
+    else
+    {
+	const Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
+	if ( !tmpmrk ) return;
+
+	mrk = new Well::Marker(*tmpmrk);
+	mrk->setDah( dah );
+	curwd_->markers().insertNew( mrk );
+    }
+
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    delete tmplist_.remove( idx );
     }
 }
 
@@ -321,10 +329,10 @@ void uiWellDispEditMarkerDlg::addNewMrkrList()
 {
     Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
     mrk->setColor( getRandStdDrawColor() );
-    uiAddEditMrkrDlg dlg( this, *mrk );
+    uiAddEditMrkrDlg dlg( this, *mrk, false );
     if ( dlg.go() )
     {
-	tobeadded_ += mrk;
+	tmplist_ += mrk;
 	fillMarkerList(0);
 	if ( mrklist_->isPresent( mrk->name() ) )
 	    mrklist_->setSelected( mrklist_->indexOf( mrk->name() ) );
@@ -340,27 +348,19 @@ void uiWellDispEditMarkerDlg::editMrkrList()
     if ( selidx < 0 ) 
 	return;
 
-    const char* mrknm = mrklist_->getText();
-    Well::Marker* mrk = new Well::Marker( mrknm, 0 ); 
+    BufferString mrknm = mrklist_->getText();
     ObjectSet<Well::Marker> mrks;
     getMarkerFromAll( mrks, mrknm );
     if ( mrks.isEmpty() )
 	mErrRet( "No marker found", return );
 
-    const Color& col = mrks[0]->color();
-    mrk->setColor( col );
-    const Strat::Level* lvl = Strat::LVLS().get( mrklist_->getText() );
-    mrk->setLevelID( lvl ? lvl->id() : -1 );
-
-    uiAddEditMrkrDlg dlg( this, *mrk );
-
+    Well::Marker* mrk = new Well::Marker( *mrks[0] ); 
+    uiAddEditMrkrDlg dlg( this, *mrk, true );
     if ( !dlg.go() )
 	return;
 
-    mrknm = mrk->name();
     mrks.erase();
     getMarkerFromAll( mrks, mrknm );
-
     if ( mrks.isEmpty() )
 	{ delete mrk; return; }
 
@@ -374,7 +374,7 @@ void uiWellDispEditMarkerDlg::editMrkrList()
     for ( int idx=0; idx<wds_.size(); idx ++ )
 	wds_[idx]->markerschanged.trigger();
 
-    mrklist_->setCurrentItem( mrknm );
+    mrklist_->setCurrentItem( mrk->name() );
     hasedited_ = true; 
 
     delete mrk;
@@ -399,10 +399,10 @@ void uiWellDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 void uiWellDispEditMarkerDlg::removeMrkrList()
 {
     BufferString mrknm = mrklist_->getText();
-    for ( int idx=0; idx<tobeadded_.size(); idx++ )
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
     {
-	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
-	    delete tobeadded_.remove( idx );
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    delete tmplist_.remove( idx );
 	fillMarkerList(0);
 	return;
     }
@@ -480,9 +480,9 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 	    mAddMrkToList( mrk )
 	}
     }
-    for ( int idmrk=0; idmrk<tobeadded_.size(); idmrk++ )
+    for ( int idmrk=0; idmrk<tmplist_.size(); idmrk++ )
     {
-	const Well::Marker& mrk = *tobeadded_[idmrk];
+	const Well::Marker& mrk = *tmplist_[idmrk];
 	mAddMrkToList( mrk )
     }
     TypeSet<int> idxs;
@@ -500,7 +500,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     {
 	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
 	mrk->setColor( getRandStdDrawColor() );
-	tobeadded_ += mrk;
+	tmplist_ += mrk;
     }
     if ( isPicking() )
     {
@@ -513,10 +513,10 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 
 Well::Marker* uiWellDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
 {
-    for ( int idx=0; idx<tobeadded_.size(); idx++ )
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
     {
-	if ( !strcmp( mrknm, tobeadded_[idx]->name() ) )
-	    return tobeadded_[idx];
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    return tmplist_[idx];
     }
     return 0;
 }
