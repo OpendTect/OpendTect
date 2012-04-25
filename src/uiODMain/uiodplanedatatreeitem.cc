@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.62 2012-04-24 15:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.63 2012-04-25 17:12:04 cvsyuancheng Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -280,6 +280,18 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     }
 
     return res;
+}
+
+
+void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+	return;
+    
+    mAddMenuItem( tb, &positionmnuitem_, !visserv_->isLocked(displayid_),
+	    false );
+    uiODDisplayTreeItem::addToToolBarCB( cb );
 }
 
 
