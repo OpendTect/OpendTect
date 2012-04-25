@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.43 2012-04-25 17:07:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.44 2012-04-25 21:15:23 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.43 2012-04-25 17
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
+#include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "marchingcubes.h"
@@ -155,7 +156,7 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
-    , emid_( oid )
+    , emid_(oid)
     mCommonInit
 {
     mCommonInit2
@@ -194,6 +195,19 @@ uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	rpb_->unRef();
     }
+}
+
+
+uiODDataTreeItem* uiODBodyDisplayTreeItem::createAttribItem(
+	const Attrib::SelSpec* as ) const
+{
+    const char* parenttype = typeid(*this).name();
+    uiODDataTreeItem* res = as
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
+    if ( !res ) 
+	res = new uiODBodyDisplayDataTreeItem( parenttype );
+
+    return res;
 }
 
 
@@ -283,7 +297,7 @@ bool uiODBodyDisplayTreeItem::init()
 	rpb_->materialChange()->notify(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
     }
-    
+ 
     return uiODDisplayTreeItem::init();
 }
 
@@ -467,3 +481,60 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	mcd_->useTexture( !mcd_->usesTexture() );
     }
 }
+
+
+uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
+    : uiODAttribTreeItem( ptype )
+    , depthattribmnuitem_("Z values")
+    , changed_(false)
+{}
+
+
+void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
+{
+    uiODAttribTreeItem::createMenu( menu, istb );
+    if ( istb ) return;
+
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    const bool islocked = visserv->isLocked( displayID() );
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
+	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+}
+
+
+void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
+{
+    uiODAttribTreeItem::handleMenuCB(cb);
+
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+    
+    mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
+	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+    if ( !mcd )
+	return;
+
+    if ( mnuid==depthattribmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	mcd->setDepthAsAttrib( attribNr() );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	changed_ = false;
+    }
+}
+
+
+BufferString uiODBodyDisplayDataTreeItem::createDisplayName() const
+{
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    
+    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+	return BufferString("Z values");
+    
+    return uiODAttribTreeItem::createDisplayName();
+}
+

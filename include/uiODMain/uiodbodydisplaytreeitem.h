@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.17 2012-04-18 17:32:50 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.18 2012-04-25 21:15:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
 #include "emposid.h"
@@ -50,6 +51,8 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    bool		createUiVisObj();
 
     bool		init();
     const char*		parentType() const
@@ -68,6 +71,21 @@ protected:
     MenuItem				singlecolormnuitem_;
     MenuItem				volcalmnuitem_;
 };
+
+
+mClass uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
+{
+public:
+    			uiODBodyDisplayDataTreeItem(const char* parenttype);
+protected:
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
+    BufferString	createDisplayName() const;
+    
+    MenuItem		depthattribmnuitem_;
+    bool                changed_;
+};
+
 
 
 #endif
