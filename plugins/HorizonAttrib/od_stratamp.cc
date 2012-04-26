@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- RCS:		$Id: od_stratamp.cc,v 1.4 2011-08-23 14:51:33 cvsbert Exp $
+ RCS:		$Id: od_stratamp.cc,v 1.5 2012-04-26 12:22:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ bool BatchProgram::go( std::ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EMAttrib" );
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    OD::ModDeps().ensureLoaded( "Attributes" );
 
     HorSampling hs;
     if ( !getHorsampling( pars(), hs ) )
