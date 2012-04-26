@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.11 2012-04-24 16:37:52 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.12 2012-04-26 10:15:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     };
 
 			uiWellZRangeSelector(uiParent*,const Setup&);
+			~uiWellZRangeSelector();
 
     virtual void	clear();
 
@@ -54,10 +55,10 @@ public:
     void		addMarkers(const BufferStringSet&);
 
     void		setRangeSel( const Well::ZRangeSelector& sel )
-			{ params_ = sel;  putToScreen(); }
+			{ *params_ = sel;  putToScreen(); }
     void		setRange(Interval<float> rg, bool istime);
 
-    Well::ZRangeSelector& zRangeSel() { return params_; }
+    Well::ZRangeSelector& zRangeSel() { return *params_; }
 
 protected:
 
@@ -72,10 +73,10 @@ protected:
     uiGroup*		attach_;
 
     int			selidx_;
-    Well::ZRangeSelector params_;	
+    Well::ZRangeSelector* params_;	
 
-    virtual void	putToScreen();
-    virtual void	getFromScreen(CallBacker*);
+    void		putToScreen();
+    void		getFromScreen(CallBacker*);
     void		updateDisplayFlds();
 };
 
@@ -100,7 +101,7 @@ public:
 			uiWellExtractParams(uiParent*,const Setup&);
 
     Well::ExtractParams& params() 
-    			{ return static_cast<Well::ExtractParams&>(params_); }
+    			{ return static_cast<Well::ExtractParams&>(*params_); }
 
 protected:
 
