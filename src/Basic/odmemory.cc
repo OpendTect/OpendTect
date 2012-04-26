@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.8 2012-04-26 10:35:50 cvsbert Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.9 2012-04-26 10:37:20 cvsbert Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -27,10 +27,6 @@ static float swapfree;
 #include "iopar.h" 
 #include "string2.h" 
 
-bool OD::haveMemInfo()
-{
-    return true;
-}
 
 void OD::dumpMemInfo( IOPar& res )
 {
