@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.27 2012-04-25 12:58:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.28 2012-04-26 07:29:36 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -256,9 +256,10 @@ void uiWellDispEditMarkerDlg::addMoveMarker()
 	mrk = new Well::Marker(*tmpmrk);
 	mrk->setDah( dah );
 	curwd_->markers().insertNew( mrk );
+	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
     }
 
-    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
 	    delete tmplist_.remove( idx );
@@ -335,7 +336,7 @@ void uiWellDispEditMarkerDlg::addNewMrkrList()
 	tmplist_ += mrk;
 	fillMarkerList(0);
 	if ( mrklist_->isPresent( mrk->name() ) )
-	    mrklist_->setSelected( mrklist_->indexOf( mrk->name() ) );
+	    mrklist_->setCurrentItem( mrk->name() );
     }
     else
 	delete mrk;
@@ -399,7 +400,7 @@ void uiWellDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 void uiWellDispEditMarkerDlg::removeMrkrList()
 {
     BufferString mrknm = mrklist_->getText();
-    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
 	    delete tmplist_.remove( idx );
