@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.25 2012-04-02 13:44:23 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.26 2012-04-26 12:24:23 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -63,8 +63,10 @@ public:
     SeisTrc*		remove( int idx )
 			{ SeisTrc* t = trcs[idx]; if ( t ) trcs -= t; return t;}
 
-    SeisTrc*		first()			{ return isEmpty()?0:get(0); }
-    const SeisTrc*	first() const		{ return isEmpty()?0:get(0); }
+    SeisTrc*		first()		{ return isEmpty()?0:get(0); }
+    const SeisTrc*	first() const	{ return isEmpty()?0:get(0); }
+    SeisTrc*		last()		{ return isEmpty()?0:get(size()-1); }
+    const SeisTrc*	last() const	{ return isEmpty()?0:get(size()-1); }
 
     void		revert();
     void		fill(SeisPacketInfo&) const;
