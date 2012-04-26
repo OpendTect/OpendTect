@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.6 2012-04-25 22:31:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.7 2012-04-26 10:07:48 cvsranojay Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -28,15 +28,7 @@ static const char* rcsID = "$Id: odmemory.cc,v 1.6 2012-04-25 22:31:52 cvsnanne 
 
 bool OD::haveMemInfo()
 {
-#ifdef lux
     return true;
-#endif
-#ifdef mac
-    return true;
-#endif
-#ifdef __win__
-    return false;
-#endif
 }
 
 void OD::dumpMemInfo( IOPar& res )
@@ -100,5 +92,12 @@ void OD::getSystemMemory( float& total, float& free )
 	    vm_info.free_count + vm_info.wire_count) * vm_page_size;
     free = vm_info.free_count * vm_page_size;
 
+#endif
+#ifdef __win__
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx(&status);
+    total = status.ullTotalPhys;
+    free = status.ullAvailPhys;
 #endif
 }
