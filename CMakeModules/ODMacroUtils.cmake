@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.52 2012-04-13 08:39:54 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.53 2012-04-26 04:58:01 cvsranojay Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -209,7 +209,7 @@ IF ( OD_MODULE_HAS_LIBRARY )
 ENDIF ( OD_MODULE_HAS_LIBRARY )
 
 #Setup common things for batch-programs
-IF( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS )
+IF( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS OR OD_MODULE_GUI_PROGS )
     SET ( OD_RUNTIMELIBS ${OD_MODULE_DEPS})
     IF ( OD_MODULE_HAS_LIBRARY )
 	LIST ( APPEND OD_RUNTIMELIBS ${OD_MODULE_NAME} )
@@ -227,6 +227,10 @@ IF( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 	LIST ( FIND OD_MODULE_GUI_PROGS ${EXEC} INDEX )
 	IF ( NOT ${INDEX} EQUAL -1 )
 	    SET( OD_EXEC_GUI_SYSTEM ${OD_GUI_SYSTEM} )
+	ENDIF()
+
+	IF ( ${TARGET_NAME} MATCHES od_main_console )
+	SET( EXEC od_main )
 	ENDIF()
 
 	ADD_EXECUTABLE( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
