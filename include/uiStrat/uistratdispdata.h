@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.16 2010-10-08 07:33:16 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.17 2012-04-26 13:13:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ public:
 protected:
 
     StratDispData& 	data_;
-    Strat::RefTree&	tree_;
+    Strat::RefTree*	tree_;
 
     bool 		withauxs_; //lithologies & descriptions
     bool 		withlevels_;
@@ -180,6 +180,7 @@ protected:
     void 		readFromTree();				
 
     void		triggerDataChange(CallBacker*);
+    void		treeDel(CallBacker*);
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.24 2011-04-07 11:41:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.25 2012-04-26 13:13:09 cvsbert Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -24,20 +24,21 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.24 2011-04-07 11:41:19 c
 
 
 #define mAskStratNotif(obj,nm,act)\
-    obj.nm.act(mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+    (obj)->nm.act(mCB(this,uiStratTreeToDispTransl,triggerDataChange));
 
 uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad, 
 					bool witauxs, bool withlvls  ) 
     : data_(ad)
-    , tree_(Strat::eRT()) 
+    , tree_(&Strat::eRT()) 
     , withauxs_(witauxs)		  
     , withlevels_(withlvls)  
     , newtreeRead(this)
 {
+    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDispTransl,treeDel));
     mAskStratNotif(tree_,unitAdded,notify)
     mAskStratNotif(tree_,unitChanged,notify)
     mAskStratNotif(tree_,unitToBeDeleted,notify)
-    mAskStratNotif(Strat::eLVLS(),levelChanged,notify)
+    mAskStratNotif(&Strat::eLVLS(),levelChanged,notify)
 
     readFromTree();
 }
@@ -45,10 +46,19 @@ uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad,
 
 uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
 {
-    mAskStratNotif(tree_,unitAdded,remove)
-    mAskStratNotif(tree_,unitChanged,remove)
-    mAskStratNotif(tree_,unitToBeDeleted,remove)
-    mAskStratNotif(Strat::eLVLS(),levelChanged,remove)
+    mAskStratNotif(&Strat::eLVLS(),levelChanged,remove)
+    if ( tree_ )
+    {
+	mAskStratNotif(tree_,unitAdded,remove)
+	mAskStratNotif(tree_,unitChanged,remove)
+	mAskStratNotif(tree_,unitToBeDeleted,remove)
+    }
+}
+
+
+void uiStratTreeToDispTransl::treeDel( CallBacker* )
+{
+    tree_ = 0;
 }
 
 
@@ -89,7 +99,9 @@ void uiStratTreeToDispTransl::readFromTree()
 
 void uiStratTreeToDispTransl::readUnits()
 {
-    Strat::UnitRefIter it( tree_, Strat::UnitRefIter::AllNodes );
+    if ( !tree_ ) return;
+
+    Strat::UnitRefIter it( *tree_, Strat::UnitRefIter::AllNodes );
     while ( it.next() )
     {
 	const Strat::NodeUnitRef* un = (Strat::NodeUnitRef*)it.unit();
@@ -132,7 +144,9 @@ void uiStratTreeToDispTransl::addDescs( const Strat::LeavedUnitRef& ur )
 
 void uiStratTreeToDispTransl::addLithologies( const Strat::LeavedUnitRef& ur )
 {
-    const Strat::LithologySet& lithos = tree_.lithologies();
+    if ( !tree_ ) return;
+
+    const Strat::LithologySet& lithos = tree_->lithologies();
     BufferString lithnm; 
     for ( int idx=0; idx<ur.nrRefs(); idx++ )
     {
