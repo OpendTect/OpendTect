@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.59 2011-09-27 09:17:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.60 2012-04-26 14:37:34 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.59 2011-09-27 09:17:56 
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "fftfilter.h"
+#include "fourier.h"
 #include "genericnumer.h"
 #include "timeser.h"
 #include "transform.h"
@@ -24,11 +25,6 @@ static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.59 2011-09-27 09:17:56 
 #include "survinfo.h"
 
 #include <math.h>
-
-
-#define mFilterLowPass          0
-#define mFilterHighPass         1
-#define mFilterBandPass         2
 
 
 #define mMINNRSAMPLES 		100
@@ -45,10 +41,10 @@ void FreqFilter::initClass()
 
     //Note: Ordering must be the same as numbering!
     EnumParam* filtertype_ = new EnumParam( filtertypeStr() );
-    filtertype_->addEnum( filterTypeNamesStr(mFilterLowPass) );
-    filtertype_->addEnum( filterTypeNamesStr(mFilterHighPass) );
-    filtertype_->addEnum( filterTypeNamesStr(mFilterBandPass) );
-    filtertype_->setDefaultValue( mFilterLowPass );
+    static const char** filtertypes = FFTFilter::TypeNames();
+    for ( int idx=0; filtertypes[idx]; idx++ )
+	filtertype_->addEnum( filtertypes[idx] );
+    filtertype_->setDefaultValue( FFTFilter::LowPass );
     desc->addParam( filtertype_ );
 
     FloatParam* minfreq_ = new FloatParam( minfreqStr() );
@@ -127,10 +123,11 @@ void FreqFilter::updateDesc( Desc& desc )
 
     const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();
-    desc.setParamEnabled( minfreqStr(),
-	    		  type != filterTypeNamesStr(mFilterLowPass) );
+
+    desc.setParamEnabled( minfreqStr(), 
+		      type != FFTFilter::getTypeString( FFTFilter::LowPass ) );
     desc.setParamEnabled( maxfreqStr(),
-	    		  type != filterTypeNamesStr(mFilterHighPass) );
+		      type != FFTFilter::getTypeString( FFTFilter::HighPass ) );
 
     const bool isfft = desc.getValParam(isfftfilterStr())->getBoolValue();
     desc.setParamEnabled( nrpolesStr(), !isfft );
@@ -138,25 +135,14 @@ void FreqFilter::updateDesc( Desc& desc )
 }
 
 
-const char* FreqFilter::filterTypeNamesStr( int type )
-{
-    if ( type==mFilterLowPass ) return "LowPass";
-    if ( type==mFilterHighPass ) return "HighPass";
-    return "BandPass";
-}
-
 
 FreqFilter::FreqFilter( Desc& ds )
     : Provider( ds )
     , fftsz_(-1)
-    , fft_(Fourier::CC::createDefault())
-    , fftinv_(Fourier::CC::createDefault())
     , minfreq_(0)		   
     , maxfreq_(0)		   
     , signal_(0)
     , timedomain_(0)
-    , freqdomain_(0)
-    , tmpfreqdomain_(0)
     , timecplxoutp_(0)
     , window_(0)
     , windowtype_(0)
@@ -168,11 +154,11 @@ FreqFilter::FreqFilter( Desc& ds )
 
     mGetEnum( filtertype_, filtertypeStr() );
     
-    if ( filtertype_==mFilterLowPass )
+    if ( filtertype_ == FFTFilter::LowPass )
     {
 	mGetFloat( maxfreq_, maxfreqStr() );
     }
-    else if ( filtertype_==mFilterHighPass )
+    else if ( filtertype_ == FFTFilter::HighPass )
     {
 	mGetFloat( minfreq_, minfreqStr() );
     }
@@ -205,8 +191,6 @@ FreqFilter::FreqFilter( Desc& ds )
 FreqFilter::~FreqFilter()
 {
     delete window_;
-    delete fft_;
-    delete fftinv_;
 }
 
 
@@ -267,7 +251,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 			      : getInputValue( *redata_, realidx_, reidx, z0 );
     }
 
-    if ( filtertype_ == mFilterLowPass )
+    if ( filtertype_ == FFTFilter::LowPass )
     {
 	float cutoff = refstep_ * maxfreq_;
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, outp );
@@ -275,7 +259,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
 	reverseArray( outp.ptr(), nrsamp );
     }
-    else if ( filtertype_ == mFilterHighPass )
+    else if ( filtertype_ == FFTFilter::HighPass )
     {
 	float cutoff = refstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, data, outp );
@@ -323,16 +307,12 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	z0safe = z0 - mNINT(nrsamp/2) + mNINT(nrsamples/2);
     }
     
-    if ( nrsamp>signal_.info().getSize(0) || !fft_->getInputInfo().getTotalSz())
+    if ( nrsamp>signal_.info().getSize(0) )
     {
-	fftsz_ = fft_->getFastSize(nrsamp*3);
-	fft_->setInputInfo( Array1DInfoImpl(fftsz_) );
-	fft_->setDir(true);
+	//can not accces static FFT::CC1D directly ??
+	PtrMan<Fourier::CC> dummyfft = Fourier::CC::createDefault(); 
+	fftsz_ = dummyfft->getFastSize(nrsamp*3);
 
-	fftinv_->setInputInfo( Array1DInfoImpl(fftsz_) );
-	fftinv_->setDir(false);
-	fftinv_->setNormalization( true );
-	
 	setSz(nrsamp);
 
 	if ( strcmp(windowtype_,"None") )
@@ -384,11 +364,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain_.set( sz+idy, signal_.get(idy) );
 
-    fft_->setInput( timedomain_.getData() );
-    fft_->setOutput( freqdomain_.getData() );
-    fft_->run( true );
-    
-    const int datasz = (int)( fft_->getNyqvist( SI().zStep()) ); 
+    const int datasz = (int)( Fourier::CC::getNyqvist( SI().zStep()) ); 
     int winsz1 = 2*( (int)minfreq_ );
     if ( mIsZero( minfreq_ - highfreqvariable_, 0.5 ) )
 	winsz1 = 0;
@@ -409,31 +385,19 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    float* winvals = window.getValues();\
 	    for ( int idx=0; idx<winsz/2 && winvals; idx++ )\
 		win.set(idx, islow ? 1-winvals[idx] : 1-winvals[winsz/2+idx]);\
-	    if ( islow )\
-		filter.setLowFreqBorderWindow( win.getData(), winsz/2 );\
-	    else\
-		filter.setHighFreqBorderWindow( win.getData(), winsz/2 );\
+	    filter.setFreqBorderWindow( win.getData(), winsz/2, islow );\
 	}\
     }
 
     Array1DImpl<float> lwin( winsz2/2 ), hwin( winsz1/2 );
     mApplyFreqWin( winsz2, true, lwin )
     mApplyFreqWin( winsz1, false, hwin )
-    if ( filtertype_ == mFilterLowPass )
-	filter.FFTFreqFilter( df, maxfreq_, true, freqdomain_, tmpfreqdomain_ );
-    else if ( filtertype_ == mFilterHighPass)
-	filter.FFTFreqFilter( df, minfreq_, false, freqdomain_, tmpfreqdomain_);
-    else
-	filter.FFTBandPassFilter( df, minfreq_, maxfreq_, freqdomain_, 
-				  tmpfreqdomain_ );
-
-    fftinv_->setInput( tmpfreqdomain_.getData() );
-    fftinv_->setOutput( timecplxoutp_.getData() );
-    fftinv_->run( true );
+    filter.set( df, minfreq_, maxfreq_, FFTFilter::Type( filtertype_ ), false );
+    filter.apply( timedomain_.getData(), timecplxoutp_.getData(), fftsz_ ); 
 
     const int firstidx = nrsamples < mMINNRSAMPLES ? fftsz_/2 - nrsamples/2: sz;
-    bool needrestorebias = filtertype_==mFilterLowPass
-			    || ( filtertype_==mFilterBandPass && minfreq_==0 );
+    bool needrestorebias = filtertype_==FFTFilter::LowPass
+			|| ( filtertype_==FFTFilter::BandPass && minfreq_==0 );
     const float correctbias = needrestorebias ? avg : 0;
     for ( int idx=0; idx<undefvalidxs.size(); idx++ )
 	timecplxoutp_.set( firstidx + undefvalidxs[idx], mUdf(float) );
@@ -447,8 +411,6 @@ void FreqFilter::setSz( int sz )
 {
     signal_.setInfo( Array1DInfoImpl( sz ) );
     timedomain_.setInfo( Array1DInfoImpl( fftsz_ ) );
-    freqdomain_.setInfo( Array1DInfoImpl( fftsz_ ) );
-    tmpfreqdomain_.setInfo( Array1DInfoImpl( fftsz_ ) );
     timecplxoutp_.setInfo( Array1DInfoImpl( fftsz_ ) );
 }
 

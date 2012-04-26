@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.13 2010-11-29 21:37:17 cvskris Exp $
+RCS:           $Id: fftfilter.cc,v 1.14 2012-04-26 14:37:34 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -15,12 +15,20 @@ ________________________________________________________________________
 
 #include <complex>
 
+
+
+DefineEnumNames(FFTFilter,Type,0,"Filter type")
+{ "LowPass", "HighPass", "BandPass", 0 };
+
+
 FFTFilter::FFTFilter()
-    : fft_( Fourier::CC::createDefault() )	      
+    : fft_( Fourier::CC::createDefault() )	    
     , timewindow_(0)	      	      
     , hfreqwindow_(0)	      	      
     , lfreqwindow_(0)	      	      
-{} 
+{
+    minfreq_ = maxfreq_ = df_ = mUdf( float );
+}
 
     
 FFTFilter::~FFTFilter()
@@ -37,84 +45,66 @@ FFTFilter::~FFTFilter()
     fft_->setInputInfo(Array1DInfoImpl(sz));\
     fft_->setDir(isstraight);\
     fft_->setNormalization(!isstraight); \
-    fft_->setInput(inp.getData());\
-    fft_->setOutput(outp.getData());\
+    fft_->setInput(inp);\
+    fft_->setOutput(outp);\
     fft_->run(true);\
 }
 
 
-void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
-				  const Array1DImpl<float>& input,
-				  Array1DImpl<float>& output )
+void FFTFilter::set( float df, float minf, float maxf, Type tp, bool zeropadd )
 {
-    const int arraysize = input.info().getSize(0);
-    Array1DImpl<float_complex> cfreqinput( arraysize ), 
-			       cfreqoutput( arraysize ), 
-			       coutvals( arraysize );
-    initFilter( input, cfreqinput );
-
-    FFTFreqFilter( df, cutfreq, islowpass, cfreqinput, cfreqoutput );
-    mDoFFT( false, cfreqoutput, coutvals, arraysize );
-
-    for ( int idx=0; idx<arraysize; idx++ )
-    {
-	float val = coutvals.get(idx).real();
-	if ( mIsUdf(val) )
-	    val = 0;
-	output.set( idx, val );
-    }
+    df_ = df;
+    type_ = tp;
+    maxfreq_ = maxf;
+    minfreq_ = minf;
+    iszeropadd_ = zeropadd;
 }
 
 
-void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
-				      const Array1DImpl<float>& input,
-				      Array1DImpl<float>& output )
+void FFTFilter::apply( const float* input, float* output, int sz ) const
 {
-    const int arraysize = input.info().getSize(0);
-    Array1DImpl<float_complex> cfreqinput( arraysize ), 
-			       cfreqoutput( arraysize ), 
-			       coutvals( arraysize );
-    initFilter( input, cfreqinput );
-    
-    FFTBandPassFilter( df, minfreq, maxfreq, cfreqinput, cfreqoutput );
-    mDoFFT( false, cfreqoutput, coutvals, arraysize );
+    mAllocVarLenArr( float_complex, cinput, sz );
+    for ( int idx=0; idx<sz; idx++ )
+	cinput[idx] = input[idx];
 
-    for ( int idx=0; idx<arraysize; idx++ )
-    {
-	float val = coutvals.get(idx).real();
-	if ( mIsUdf(val) )
-	    val = 0;
-	output.set( idx, val );
-    }
+    mAllocVarLenArr( float_complex, coutput, sz );
+    apply( cinput, coutput, sz );
+
+    for ( int idx=0; idx<sz; idx++ )
+	output[idx] = coutput[idx].real();
 }
 
 
-void FFTFilter::initFilter( const Array1DImpl<float>& timeinput,
-			       Array1DImpl<float_complex>& cfreqoutput )
+void FFTFilter::apply(const float_complex* inp,float_complex* outp,int sz) const
 {
-    const int arraysize = timeinput.info().getSize(0);
-    Array1DImpl<float_complex> ctimeinput( arraysize );
-    for ( int idx=0; idx<arraysize; idx++ )
-	ctimeinput.set( idx, timeinput.get( idx ) );
+    mAllocVarLenArr( float_complex, ctimeinput, sz );
+    mAllocVarLenArr( float_complex, cfreqinput, sz );
+    mAllocVarLenArr( float_complex, cfreqoutput, sz );
+
+    for ( int idx=0; idx<sz; idx++ )
+	ctimeinput[idx] = inp[idx];
 
     if ( timewindow_ )
     {
 	for( int idx=0; idx<timewindow_->size_; idx++ )
-	    ctimeinput.set( idx, timewindow_->win_[idx]*ctimeinput.get( idx ) );
+	    ctimeinput[idx] *= timewindow_->win_[idx];
     }
 
-    for ( int idx=0; idx<arraysize; idx++ )
-	ctimeinput.set( idx, ctimeinput.get( idx) );
+    mDoFFT( true, ctimeinput, cfreqoutput, sz );
 
-    mDoFFT( true, ctimeinput, cfreqoutput, arraysize );
+    if ( type_ == BandPass )
+	FFTBandPassFilter( df_, minfreq_, maxfreq_, cfreqinput, cfreqoutput,sz);
+    else if ( type_ == HighPass )
+	FFTFreqFilter( df_,minfreq_,type_==LowPass,cfreqinput,cfreqoutput,sz );
+
+    mDoFFT( false, cfreqoutput, outp, sz );
 }
 
 
 void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
-			   const Array1DImpl<float_complex>& input,
-			   Array1DImpl<float_complex>& output )
+			   const float_complex* input,
+			   float_complex* output, int sz ) const
 {
-    const int arraysize = input.info().getSize(0);
     const Window* window = islowpass ? lfreqwindow_ : hfreqwindow_;
     const int bordersz = window ? window->size_ : 0;
 
@@ -128,38 +118,49 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 	supposthreshold += (int)(bordersz/df) - 1;
 
     float idborder = 0;
-    for ( int idx=0 ; idx<arraysize/2 ; idx++ )
+    for ( int idx=0 ; idx<sz/2 ; idx++ )
     {
 	float_complex outpval = 0;
 	float_complex revoutpval = 0;
-	const int revidx = arraysize-idx-1;
+	const int revidx = sz-idx-1;
         	
 	if ( (islowpass && idx < infposthreshold) 
 		|| (!islowpass && idx > supposthreshold) )
 	{
-	    outpval = input.get( idx );
-	    revoutpval = input.get( revidx );
+	    outpval = input[idx];
+	    revoutpval = input[revidx];
 	}
 	else if ( window && idx <=supposthreshold && idx >= infposthreshold )
 	{
 	    float winval = window->win_[(int)idborder];
-	    outpval = input.get( idx )*winval;
-	    revoutpval = input.get( revidx )*winval;
+	    outpval = input[idx]*winval;
+	    revoutpval = input[revidx]*winval;
 	    idborder += df;
 	}
-	output.set( idx,outpval );
-	output.set( arraysize-idx-1, revoutpval );
+	output[idx] = outpval;
+	output[revidx] = revoutpval;
     }
 }
 
 
 void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
-				const Array1DImpl<float_complex>& input,
-				Array1DImpl<float_complex>& output )
+				const float_complex* input,
+				float_complex* output, int sz ) const
 {
-    Array1DImpl<float_complex> intermediateoutput( input.info().getTotalSz() );
-    FFTFreqFilter( df, minfreq, false, input, intermediateoutput );
-    FFTFreqFilter( df, maxfreq, true, intermediateoutput, output );
+    mAllocVarLenArr( float_complex, intermediateoutput, sz );
+    FFTFreqFilter( df, minfreq, false, input, intermediateoutput, sz );
+    FFTFreqFilter( df, maxfreq, true, intermediateoutput, output, sz );
 }
 
 
+void FFTFilter::setFreqBorderWindow( float* win, int sz, bool forlowpass )
+{
+    if ( forlowpass )
+    {
+	delete hfreqwindow_; hfreqwindow_=new Window(win,sz);
+    }
+    else
+    {
+	delete lfreqwindow_; lfreqwindow_=new Window(win,sz);
+    }
+}

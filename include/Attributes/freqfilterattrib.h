@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.16 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.17 2012-04-26 14:37:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arrayndutils.h"
 #include "arrayndimpl.h"
-#include "fourier.h"
 #include <complex>
 
 
@@ -78,8 +77,6 @@ protected:
     float                       maxfreq_;
     int				nrpoles_;
     bool			isfftfilter_;
-    Fourier::CC*		fft_;
-    Fourier::CC*		fftinv_;
     int                         fftsz_;
 
     ArrayNDWindow*              window_;
@@ -92,8 +89,6 @@ protected:
 
     Array1DImpl<float_complex>  signal_;
     Array1DImpl<float_complex>  timedomain_;
-    Array1DImpl<float_complex>  freqdomain_;
-    Array1DImpl<float_complex>  tmpfreqdomain_;
     Array1DImpl<float_complex>  timecplxoutp_;
     
     const DataHolder*		redata_;
