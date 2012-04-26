@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.52 2012-04-25 19:07:37 cvskris Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.53 2012-04-26 14:20:40 cvskris Exp $";
 
 
 #include "uitextedit.h"
@@ -51,6 +51,19 @@ const char* uiTextEditBase::text() const
 
 bool uiTextEditBase::isModified() const
 { return qte().document()->isModified(); }
+
+
+void uiTextEditBase::allowTextSelection( bool yn )
+{
+    const Qt::TextInteractionFlags selflag = Qt::TextSelectableByMouse;
+    const Qt::TextInteractionFlags mask = ~selflag;
+    Qt::TextInteractionFlags flags = qte().textInteractionFlags() & mask;
+    
+    if ( yn )
+        flags |= selflag;
+    
+    qte().setTextInteractionFlags( flags );
+}
 
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
