@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.112 2011-12-15 14:35:55 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.113 2012-04-26 09:39:50 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -497,6 +497,8 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     if ( outids.size() == 1 ) return outids[0];
 
     Desc* desc = PF().createDescCopy( "Evaluate" );
+    if ( !desc ) return DescID::undef();
+
     desc->setDescSet( &descset );
     desc->setNrOutputs( Seis::UnknowData, outids.size() );
 
