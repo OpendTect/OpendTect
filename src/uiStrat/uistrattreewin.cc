@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.68 2012-02-13 16:11:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.69 2012-04-26 13:13:44 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -95,6 +95,7 @@ void uiStratTreeWin::initRT()
 
     uiSelectFromList::Setup su( "Stratigraphy: select initial", opts );
     uiSelectFromList dlg( this, su );
+    dlg.setButtonText( uiDialog::CANCEL, "" );
     bool havenewrt = false;
     if ( dlg.go() && dlg.selection() > 0 )
     {
