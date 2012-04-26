@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: tableposprovider.cc,v 1.5 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: tableposprovider.cc,v 1.6 2012-04-26 06:50:24 cvsbert Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -62,7 +62,9 @@ bool Pos::TableProvider3D::includes( const BinID& bid, float z ) const
 
     while ( true )
     {
-	const float zdiff = *bvs_.getVals( pos ) - z;
+	const float* val = bvs_.getVals( pos );
+	if ( !val ) return false;
+	const float zdiff = *val - z;
 	if ( mIsZero(zdiff,mDefEps) )
 	    return true;
 	if ( !bvs_.next(pos,false) )
@@ -126,7 +128,11 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		{
 		    BinIDValueSet::Pos p;
 		    while ( bvs.next(p) )
-			*bvs.getVals(p) *= zfac;
+		    {
+			float* val = bvs.getVals( p );
+			if ( !val ) break;
+			*val *= zfac;
+		    }
 		}
 	    }
 	}
@@ -193,7 +199,11 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
     if ( !p.valid() )
 	{ zrg.start = zrg.stop = 0; return; }
 
-    zrg.start = zrg.stop = *bvs_.getVals(p);
+    const float* val = bvs_.getVals( p );
+    if ( !val )
+	{ zrg = SI().zRange(false); return; }
+
+    zrg.start = zrg.stop = *val;
     while ( bvs_.next(p) )
     {
 	const float z = *bvs_.getVals(p);
