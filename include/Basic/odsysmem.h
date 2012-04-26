@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		April 2012
- RCS:		$Id: odsysmem.h,v 1.1 2012-04-12 14:04:26 cvsbert Exp $
+ RCS:		$Id: odsysmem.h,v 1.2 2012-04-26 10:35:49 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -16,9 +16,10 @@ class IOPar;
 
 namespace OD
 {
-    mGlobal bool	haveMemInfo();
     mGlobal void	getSystemMemory(float& total,float& free);
     mGlobal void	dumpMemInfo(IOPar&);
+
+    mGlobal bool	haveMemInfo(); //!< legacy: returns true on all plfs now
 }
 
 

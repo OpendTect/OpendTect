@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.153 2012-04-13 12:43:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.154 2012-04-26 10:35:50 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -132,11 +132,10 @@ int ODMain( int argc, char** argv )
 
 
 #define mMemStatusFld 4
-#define mNrStatusFlds OD::haveMemInfo() ? 5 : 4
 
 
 uiODMain::uiODMain( uicMain& a )
-    : uiMainWin(0,"OpendTect Main Window",mNrStatusFlds,true)
+    : uiMainWin(0,"OpendTect Main Window",5,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
@@ -145,7 +144,7 @@ uiODMain::uiODMain( uicMain& a )
     , ctabed_(0)
     , ctabwin_(0)
     , timer_(*new Timer("Session restore timer"))
-    , memtimer_(OD::haveMemInfo()?new Timer("Memory display timer"):0)
+    , memtimer_(new Timer("Memory display timer"))
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
@@ -172,14 +171,12 @@ uiODMain::uiODMain( uicMain& a )
 
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
-    if ( memtimer_ )
-    {
-	statusBar()->setToolTip( mMemStatusFld,
-				 "System memory: Free/Available" );
-	statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
-	memtimer_->tick.notify( mCB(this,uiODMain,memTimerCB) );
-	memtimer_->start( 1000 );
-    }
+
+    statusBar()->setToolTip( mMemStatusFld,
+			     "System memory: Free/Available" );
+    statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
+    memtimer_->tick.notify( mCB(this,uiODMain,memTimerCB) );
+    memtimer_->start( 1000 );
 }
 
 
@@ -594,8 +591,6 @@ void uiODMain::timerCB( CallBacker* )
 
 void uiODMain::memTimerCB( CallBacker* )
 {
-    if ( !memtimer_ ) return;
-
     float tot, av;
     OD::getSystemMemory( tot, av );
     const float ratiofree = av / tot;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.7 2012-04-26 10:07:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.8 2012-04-26 10:35:50 cvsbert Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: odmemory.cc,v 1.7 2012-04-26 10:07:48 cvsranoja
 #ifdef lux
 #include "strmoper.h" 
 #include <fstream>
+static float swapfree;
 #endif
 #ifdef mac
 #include <unistd.h>
@@ -39,6 +40,10 @@ void OD::dumpMemInfo( IOPar& res )
     int itot = mNINT(total); int ifree = mNINT(free);
     res.set( "Total memory (MB)", itot );
     res.set( "Free memory (MB)", ifree );
+#ifdef lux
+    free = swapfree; free /= 1024 * 1024; ifree = mNINT(free);
+    res.set( "Available swap space (MB)", ifree );
+#endif
 }
 
 
@@ -77,6 +82,7 @@ void OD::getSystemMemory( float& total, float& free )
     total = getMemFromStr( filecont.buf(), "MemTotal:" );
     free = getMemFromStr( filecont.buf(), "MemFree:" );
     free += getMemFromStr( filecont.buf(), "Cached:" );
+    swapfree = getMemFromStr( filecont.buf(), "SwapFree:" );
 
 #endif
 #ifdef mac
