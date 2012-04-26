@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.69 2012-02-29 08:00:00 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.70 2012-04-26 06:49:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,19 +17,10 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "fixedstring.h"
 
-#undef mImpl
 
-
-#ifdef KEYSTRS_IMPL
-# define mImpl(s) = s
-#ifdef __msvc__
-#define mExt mBasicExtern
-#else 
-# define mExt
-#endif
-#else
-# define mImpl(s) /* empty */
-# define mExt mBasicExtern
+#ifndef OD_EXT_KEYSTR_EXPAND
+# define mKeyStrsNameSpace(ns) namespace ns
+# define mKeyStrsDecl(nm,str) mBasicExtern FixedString nm
 #endif
 
 
@@ -42,116 +33,117 @@ to this namespace.
 
 */
 
-namespace sKey
+mKeyStrsNameSpace(sKey)
 {
 
-    mExt FixedString	Ascii		mImpl("Ascii");
-    mExt FixedString	Attribute 	mImpl("Attribute");
-    mExt FixedString	Attributes	mImpl("Attributes");
-    mExt FixedString	Azimuth		mImpl("Azimuth");
-    mExt FixedString	Binary		mImpl("Binary");
-    mExt FixedString	Body		mImpl("Body");
-    mExt FixedString	Color		mImpl("Color");
-    mExt FixedString	Component	mImpl("Component");
-    mExt FixedString	Content		mImpl("Content");
-    mExt FixedString	Crossline	mImpl("Cross-line");
-    mExt FixedString	Cube		mImpl("Cube");
-    mExt FixedString	DataRoot	mImpl("Data Root");
-    mExt FixedString	DataStorage	mImpl("Data storage");
-    mExt FixedString	DataType	mImpl("DataType");
-    mExt FixedString	Date		mImpl("Date");
-    mExt FixedString	Depth		mImpl("Depth");
-    mExt FixedString	Desc		mImpl("Description");
-    mExt FixedString	EmptyString	mImpl("");
-    mExt FixedString	Factor		mImpl("Factor");
-    mExt FixedString	FileName	mImpl("File name");
-    mExt FixedString	Filter		mImpl("Filter");
-    mExt FixedString	FloatUdf	mImpl("1e30");
-    mExt FixedString	Geometry	mImpl("Geometry");
-    mExt FixedString	ID		mImpl("ID");
-    mExt FixedString	IOSelection	mImpl("I/O Selection");
-    mExt FixedString	Inline		mImpl("In-line");
-    mExt FixedString	Keys		mImpl("Keys");
-    mExt FixedString	LineKey		mImpl("Line key");
-    mExt FixedString	LineName	mImpl("Line name");
-    mExt FixedString	Log		mImpl("Log");
-    mExt FixedString	LogFile		mImpl("Log file");
-    mExt FixedString	Name		mImpl("Name");
-    mExt FixedString	No		mImpl("No");
-    mExt FixedString	None		mImpl("None");
-    mExt FixedString	Offset		mImpl("Offset");
-    mExt FixedString	Output		mImpl("Output");
-    mExt FixedString	Pars		mImpl("Parameters");
-    mExt FixedString	Polygon		mImpl("Polygon");
-    mExt FixedString	Position	mImpl("Position");
-    mExt FixedString	Property	mImpl("Property");
-    mExt FixedString	Random		mImpl("Random");
-    mExt FixedString	Range		mImpl("Range");
-    mExt FixedString	Sampling	mImpl("Sampling");
-    mExt FixedString	Scale		mImpl("Scale");
-    mExt FixedString	Selection	mImpl("Selection");
-    mExt FixedString	Subsample	mImpl("Subsample");
-    mExt FixedString	Shortcuts	mImpl("Shortcuts");
-    mExt FixedString	Size		mImpl("Size");
-    mExt FixedString	SpaceString	mImpl(" ");
-    mExt FixedString	Steering	mImpl("Steering");
-    mExt FixedString	Stored		mImpl("Stored");
-    mExt FixedString	StratRef	mImpl("Strat Level");
-    mExt FixedString	Subsel		mImpl("Subsel");
-    mExt FixedString	Surface		mImpl("Surface");
-    mExt FixedString	Survey		mImpl("Survey");
-    mExt FixedString	Table		mImpl("Table");
-    mExt FixedString	Target		mImpl("Target");
-    mExt FixedString	Time		mImpl("Time");
-    mExt FixedString	Title		mImpl("Title");
-    mExt FixedString    TraceNr		mImpl("Trace number");
-    mExt FixedString	Type		mImpl("Type");
-    mExt FixedString	Undef		mImpl("Undefined");
-    mExt FixedString	Unit		mImpl("Unit");
-    mExt FixedString	Value		mImpl("Value");
-    mExt FixedString	Version		mImpl("Version");
-    mExt FixedString	Well		mImpl("Well");
-    mExt FixedString	XCoord		mImpl("X-Coord");
-    mExt FixedString	YCoord		mImpl("Y-Coord");
-    mExt FixedString	Yes		mImpl("Yes");
+    mKeyStrsDecl(Ascii,		"Ascii");
+    mKeyStrsDecl(Attribute, 	"Attribute");
+    mKeyStrsDecl(Attributes,	"Attributes");
+    mKeyStrsDecl(Azimuth,	"Azimuth");
+    mKeyStrsDecl(Binary,	"Binary");
+    mKeyStrsDecl(Body,		"Body");
+    mKeyStrsDecl(Color,		"Color");
+    mKeyStrsDecl(Component,	"Component");
+    mKeyStrsDecl(Content,	"Content");
+    mKeyStrsDecl(Crossline,	"Cross-line");
+    mKeyStrsDecl(Cube,		"Cube");
+    mKeyStrsDecl(DataRoot,	"Data Root");
+    mKeyStrsDecl(DataStorage,	"Data storage");
+    mKeyStrsDecl(DataType,	"DataType");
+    mKeyStrsDecl(Date,		"Date");
+    mKeyStrsDecl(Depth,		"Depth");
+    mKeyStrsDecl(Desc,		"Description");
+    mKeyStrsDecl(EmptyString,	"");
+    mKeyStrsDecl(Factor,	"Factor");
+    mKeyStrsDecl(FileName,	"File name");
+    mKeyStrsDecl(Filter,	"Filter");
+    mKeyStrsDecl(FloatUdf,	"1e30");
+    mKeyStrsDecl(Geometry,	"Geometry");
+    mKeyStrsDecl(ID,		"ID");
+    mKeyStrsDecl(IOSelection,	"I/O Selection");
+    mKeyStrsDecl(Inline,	"In-line");
+    mKeyStrsDecl(Keys,		"Keys");
+    mKeyStrsDecl(LineKey,	"Line key");
+    mKeyStrsDecl(LineName,	"Line name");
+    mKeyStrsDecl(Log,		"Log");
+    mKeyStrsDecl(LogFile,	"Log file");
+    mKeyStrsDecl(Name,		"Name");
+    mKeyStrsDecl(No,		"No");
+    mKeyStrsDecl(None,		"None");
+    mKeyStrsDecl(Offset,	"Offset");
+    mKeyStrsDecl(Output,	"Output");
+    mKeyStrsDecl(Pars,		"Parameters");
+    mKeyStrsDecl(Polygon,	"Polygon");
+    mKeyStrsDecl(Position,	"Position");
+    mKeyStrsDecl(Property,	"Property");
+    mKeyStrsDecl(Random,	"Random");
+    mKeyStrsDecl(Range,		"Range");
+    mKeyStrsDecl(Sampling,	"Sampling");
+    mKeyStrsDecl(Scale,		"Scale");
+    mKeyStrsDecl(Selection,	"Selection");
+    mKeyStrsDecl(Subsample,	"Subsample");
+    mKeyStrsDecl(Shortcuts,	"Shortcuts");
+    mKeyStrsDecl(Size,		"Size");
+    mKeyStrsDecl(SpaceString,	" ");
+    mKeyStrsDecl(Steering,	"Steering");
+    mKeyStrsDecl(Stored,	"Stored");
+    mKeyStrsDecl(StratRef,	"Strat Level");
+    mKeyStrsDecl(Subsel,	"Subsel");
+    mKeyStrsDecl(Surface,	"Surface");
+    mKeyStrsDecl(Survey,	"Survey");
+    mKeyStrsDecl(Table,		"Table");
+    mKeyStrsDecl(Target,	"Target");
+    mKeyStrsDecl(Time,		"Time");
+    mKeyStrsDecl(Title,		"Title");
+    mKeyStrsDecl(TraceNr,	"Trace number");
+    mKeyStrsDecl(Type,		"Type");
+    mKeyStrsDecl(Undef,		"Undefined");
+    mKeyStrsDecl(Unit,		"Unit");
+    mKeyStrsDecl(Value,		"Value");
+    mKeyStrsDecl(Version,	"Version");
+    mKeyStrsDecl(Well,		"Well");
+    mKeyStrsDecl(XCoord,	"X-Coord");
+    mKeyStrsDecl(YCoord,	"Y-Coord");
+    mKeyStrsDecl(Yes,		"Yes");
 
-    mExt FixedString	Average		mImpl("Average");
-    mExt FixedString	Maximum		mImpl("Maximum");
-    mExt FixedString	Median		mImpl("Median");
-    mExt FixedString	Minimum		mImpl("Minimum");
-    mExt FixedString	StdDev		mImpl("StdDev");
-    mExt FixedString	Sum		mImpl("Sum");
+    mKeyStrsDecl(Average,	"Average");
+    mKeyStrsDecl(Maximum,	"Maximum");
+    mKeyStrsDecl(Median,	"Median");
+    mKeyStrsDecl(Minimum,	"Minimum");
+    mKeyStrsDecl(StdDev,	"StdDev");
+    mKeyStrsDecl(Sum,		"Sum");
 
-    mExt FixedString	BinIDSel	mImpl("BinID selection");
-    mExt FixedString	InlRange	mImpl("In-line range");
-    mExt FixedString	FirstInl	mImpl("First In-line");
-    mExt FixedString	LastInl		mImpl("Last In-line");
-    mExt FixedString	StepInl		mImpl("Step In-line");
-    mExt FixedString	StepOutInl	mImpl("Stepout In-line");
-    mExt FixedString	CrlRange	mImpl("Cross-line range");
-    mExt FixedString	FirstCrl	mImpl("First Cross-line");
-    mExt FixedString	LastCrl		mImpl("Last Cross-line");
-    mExt FixedString	StepCrl		mImpl("Step Cross-line");
-    mExt FixedString	StepOutCrl	mImpl("Stepout Cross-line");
-    mExt FixedString	ZRange		mImpl("Z range");
-    mExt FixedString    FirstTrc	mImpl("First Trace");
-    mExt FixedString	LastTrc		mImpl("Last Trace");
-    mExt FixedString    TrcRange        mImpl("Trace Range");
+    mKeyStrsDecl(BinIDSel,	"BinID selection");
+    mKeyStrsDecl(InlRange,	"In-line range");
+    mKeyStrsDecl(FirstInl,	"First In-line");
+    mKeyStrsDecl(LastInl,	"Last In-line");
+    mKeyStrsDecl(StepInl,	"Step In-line");
+    mKeyStrsDecl(StepOutInl,	"Stepout In-line");
+    mKeyStrsDecl(CrlRange,	"Cross-line range");
+    mKeyStrsDecl(FirstCrl,	"First Cross-line");
+    mKeyStrsDecl(LastCrl,	"Last Cross-line");
+    mKeyStrsDecl(StepCrl,	"Step Cross-line");
+    mKeyStrsDecl(StepOutCrl,	"Stepout Cross-line");
+    mKeyStrsDecl(ZRange,	"Z range");
+    mKeyStrsDecl(FirstTrc,	"First Trace");
+    mKeyStrsDecl(LastTrc,	"Last Trace");
+    mKeyStrsDecl(TrcRange,	"Trace Range");
 
-    mExt FixedString	TmpStor		mImpl("Temporary storage location");
+    mKeyStrsDecl(TmpStor,	"Temporary storage location");
 
-    mExt FixedString	Default		mImpl("Default");
-    mExt FixedString	DefCube		mImpl("Default.Cube");
-    mExt FixedString	DefLineSet	mImpl("Default.LineSet");
-    mExt FixedString	DefLine		mImpl("Default.Line");
-    mExt FixedString	DefAttribute	mImpl("Default.Attribute");
-    mExt FixedString	DefPS3D		mImpl("Default.PS3D Data Store");
-    mExt FixedString	DefPS2D		mImpl("Default.PS2D Data Store");
-    mExt FixedString	DefWavelet	mImpl("Default.Wavelet");
+    mKeyStrsDecl(Default,	"Default");
+    mKeyStrsDecl(DefCube,	"Default.Cube");
+    mKeyStrsDecl(DefLineSet,	"Default.LineSet");
+    mKeyStrsDecl(DefLine,	"Default.Line");
+    mKeyStrsDecl(DefAttribute,	"Default.Attribute");
+    mKeyStrsDecl(DefPS3D,	"Default.PS3D Data Store");
+    mKeyStrsDecl(DefPS2D,	"Default.PS2D Data Store");
+    mKeyStrsDecl(DefWavelet,	"Default.Wavelet");
 
 };
 
-#undef mExt
-#undef mImpl
+#undef mKeyStrsNameSpace
+#undef mKeyStrsDecl
+
 
 #endif

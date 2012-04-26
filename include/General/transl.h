@@ -8,13 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.39 2011-04-28 11:30:53 cvsbert Exp $
+RCS:		$Id: transl.h,v 1.40 2012-04-26 06:49:35 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
-specific details about e.g. vendor specific file transls. A Translator is member
-of a group, e.g. the Grid Translator group. Translator groups have a
-description of IOObj context.
+specific details about how to interpret/write a certain format.
+
+A Translator is member of a group, e.g. the Wavelet Translator group.
+Translator groups have a description of IOObj context needed to select an
+object of that type.
 
 */
 
@@ -110,10 +112,7 @@ protected:
 mClass Translator : public CallBacker
 {
 public:
-    				Translator( const char* nm, const char* unm )
-				: typname_(nm)
-				, usrname_(unm)
-				, group_(0)		{}
+    				Translator(const char* nm,const char* usr_nm);
     virtual			~Translator()		{}
 
     const BufferString&		typeName() const	{ return typname_; }

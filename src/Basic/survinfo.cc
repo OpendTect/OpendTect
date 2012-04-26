@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.162 2012-04-24 12:57:22 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.163 2012-04-26 06:49:35 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -23,11 +23,9 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.162 2012-04-24 12:57:22 cvsbert
 #include "iopar.h"
 #include "errh.h"
 #include "zdomain.h"
+#include "keystrs.h"
 #include <math.h>
 #include <iostream>
-
-#define KEYSTRS_IMPL 1
-#include "keystrs.h"
 
 
 static const char* sKeySI = "Survey Info";

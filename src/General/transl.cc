@@ -16,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.31 2011-04-28 11:30:53 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.32 2012-04-26 06:49:35 cvsbert Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
@@ -224,6 +224,22 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
     }
 
     return tr;
+}
+
+
+extern "C" void od_Basic_initStdClasses();
+
+Translator::Translator( const char* nm, const char* unm )
+    : typname_(nm)
+    , usrname_(unm)
+    , group_(0)
+{
+    static bool init_done = false;
+    if ( !init_done )
+    {
+	od_Basic_initStdClasses();
+	init_done = true;
+    }
 }
 
 
