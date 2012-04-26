@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.27 2012-01-26 13:20:17 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.28 2012-04-26 13:12:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
 
     static void		getStdNames(BufferStringSet&);
     static RefTree*	createStd(const char*);
+
+    Notifier<RefTree>	deleteNotif;
 
 protected:
 

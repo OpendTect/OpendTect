@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.15 2012-01-26 13:20:17 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.16 2012-04-26 13:12:59 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -22,6 +22,7 @@ static const char* sKeyTree = "Tree";
 
 Strat::RefTree::RefTree()
     : NodeOnlyUnitRef(0,"","Contains all units")
+    , deleteNotif(this)
     , unitAdded(this)
     , unitChanged(this)
     , unitToBeDeleted(this)
@@ -42,6 +43,7 @@ void Strat::RefTree::initTree()
 
 Strat::RefTree::~RefTree()
 {
+    deleteNotif.trigger();
     delete &udfleaf_;
 } 
 
