@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.99 2011-04-15 11:56:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.100 2012-04-26 06:51:05 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -166,14 +166,15 @@ bool SeisTrcTranslator::commitSelections()
     outsd = insd; outnrsamples = innrsamples;
     if ( seldata && !mIsUdf(seldata->zRange().start) )
     {
-	const Interval<float> selzrg( seldata->zRange() );
+	Interval<float> selzrg( seldata->zRange() );
 	const Interval<float> sizrg( SI().sampling(false).zrg );
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
+	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
 	    outsd.start = selzrg.start;
-	    outnrsamples = (int)(((selzrg.stop-selzrg.start)
-				  / outsd.step) + .5) + 1;
+	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd.step;
+	    outnrsamples = mNINT(fnrsteps) + 1;
 	}
     }
 
