@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.81 2012-01-10 21:33:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.82 2012-04-26 06:51:33 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -373,8 +373,6 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
 		    ioobjinfo.provideUserInfo();
-    if ( rv )
-	uiMSG().message( "Import successful" );
 
     rmTmpIOObj();
     return false;
