@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.52 2012-04-17 14:00:02 cvsbert Exp $
+  - RCS:	$Id: plugins.html,v 1.53 2012-04-26 10:05:35 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V4.1]</title>
@@ -834,17 +834,45 @@ supported on all platforms. </p>
 <p> The publishing and distribution of OpendTect plugins is pretty
 straightforward. The .alo files can be installed in the plugins/platform
 (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual
-plugins go in the normal bin sub-directory. </p>
+plugins (the .DLL, .so or .dylib files) go in the normal bin sub-directory. </p>
 
-<p> On Unix, this means that you can make a .tar.gz file containing
+<p> On Unix, this means that you can make a tar.gz or zip file containing
 the plugins in a directory structure as described above, which can be
 extracted into the existing OpendTect installation directory. </p>
 
 <p> On Windows this is also possible, but it is more common to use an
 auto-extracting installer to do this. For more info on this, see the
-<a href="windows.html#dist">windows</a> documentation. </p>
+<a href="windows.html#dist">windows</a> documentation.</p>
 
-<p>If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described above. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
+<p>If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
+
+<a name=instmgr><h3>Preparing for the intstallation manager</h3>
+<p>
+It is important that you make the packages nicely modular. Even if you have only two platforms yet, still it's a good idea to split the stuff in platform-independent and platform-dependent stuff. And separate documentation. In that case there would be 4 packages:
+<ul>
+<li>The platform-independent part (hidden for the user)
+<li>Part for platform 1
+<li>Part for platform 2
+<li>Documentation
+</ul>
+The user will see only two: the plugin itself and the documentation.
+</p><p>
+Then the naming of the packages. Let's not make a big specification document; you can guess this by looking at what is now already on the <a href="ftp://ftp.opendtect.org/pub/relman">relman part of the ftp site</a>. Specifics:
+<ul>
+<li>In the directory 'defs' you'll see the definition files. That is the sort of info we need. Don't worry about the codes you see in there, just the basic info like descriptions and dependencies. That would allow us to make a defs/your_name.txt. You can deliver the whole file if you want to, but we can also maintain it.
+<li>Provide an image for each package you deliver and put it in a zip file, for the images/ subdirectory. The target size would be around 120x120.
+<li>Make sure every package contains a file:
+<version>/relinfo/ver.<package_name>[_plf].txt
+Like:<br>
+<code>4.3.1/relinfo/ver.jimsinversion_lux64.txt</code><br>
+<code>4.4.0/relinfo/ver.pppraytrace.txt</code><br>
+</ul>
+You can have your own version numbering, but it has to have this form:<br>
+<code>number.number.number[optional_free_text_without_dots_starting_with_non_digit]</code><br>
+You are completely free in your numbering, and the optional text. The installer uses the '<code>&gt;</code>' operator for every part. The numbers have to be integer numbers, and will be compared as integers.
+</p><p>
+Users cannot update a packages without also updating the packages that these are dependent on. This circumvents the need to specify exactly the dependencies on which versions on what other packages. 
+</p>
 
 <br>
 <img src="hr.png" border=0>
@@ -854,7 +882,7 @@ auto-extracting installer to do this. For more info on this, see the
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
 | <a href="unix.html">UNIX</a>
-| <a href="windows.html">MS Windows</a>
+| <a href="windows.html">M$ Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
 </p>

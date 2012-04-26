@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.21 2012-04-19 09:24:02 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.22 2012-04-26 10:05:35 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -102,11 +102,11 @@ This is the same on Unix and Windows, so please consult the plugins <a href="plu
 <a name=dist><h2>Distributing your plugins</h2>
 
 <p>
-The distribution of plugins is basically the same for Unix and windows. 
+The distribution of plugins is basically the same for Unix and windows, see the <a href="plugins.html#dist">plugins page</a>. 
 Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the <code>bin/$DIR</code> subdirectory, where all shared libs reside.
 </p>
 <p>
-For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix. For all details on what exactly should be packaged and how, we'd recommend contacting support at opendtect.org.
+For distribution to the outside world, you'll need to package your plugins, documentation, etc. into zip files. If you're in the mood for really going public, you'd want to be in the installation manager. Then read the <a href="plugins.html#dist">plugins page</a> and then contact support at opendtect.org.
 </p>
 
 
