@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.27 2011-09-02 12:58:08 cvskris Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.28 2012-04-26 06:50:02 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -384,6 +384,7 @@ void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
     else
     {
 	//This delivers an enormous table - usually for nothing
+	pErrMsg( "Not impl" );
     }
 }
 
@@ -474,7 +475,7 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
     }
     else
     {
-	// pErrMsg( "Not impl" );
+	pErrMsg( "Not impl" );
     }
 }
 
