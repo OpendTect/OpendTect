@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.5 2012-03-09 14:12:20 cvsbruno Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.6 2012-04-26 14:38:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiSpinBox;
 class uiWellLogDisplay;
 
 
-namespace Well { class Data; class Log; class LogSet; }
+namespace Well { class Data; class Log; class LogSet; class D2TModel; }
 
 
 mClass uiWellLogToolWin : public uiMainWin
@@ -38,7 +38,8 @@ public:
 
     mStruct LogData
     {
-				LogData(const Well::LogSet&);
+				LogData(const Well::LogSet&,
+					const Well::D2TModel*);
 				~LogData();
 
 	MultiID			wellid_;
@@ -52,8 +53,10 @@ public:
 
 	Well::LogSet&		logs_;
 
-	ObjectSet<Well::Log>	inplogs_;
+	ObjectSet<const Well::Log> inplogs_;
 	ObjectSet<Well::Log>	outplogs_;
+
+	const Well::D2TModel* 	d2t_;
 
 	friend class		uiWellLogToolWin;
     };
