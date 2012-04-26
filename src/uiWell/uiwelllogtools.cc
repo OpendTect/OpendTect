@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.16 2012-04-26 14:38:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.17 2012-04-26 15:34:44 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.16 2012-04-26 14:38:45 cv
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uifreqfilter.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -197,6 +198,9 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     applybut_ = new uiPushButton( actiongrp, "Apply", cb, true );
     applybut_->attach( rightOf, llc );
 
+    freqfld_ = new uiFreqFilterSelFreq( this );
+    freqfld_->attach( alignedBelow, llc );
+
     uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, "Window size" );
     spbgt->attach( alignedBelow, llc );
     gatefld_ = spbgt->box();
@@ -271,6 +275,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     thresholdfld_->display( act == 0 );
     replacespikevalfld_->display( act == 0 );
     replacespikefld_->display( act == 0 );
+    freqfld_->display( act == 2 );
 
     gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size" );
     StepInterval<int> sp = act > 1 ? StepInterval<int>(0,100,10) 
@@ -408,7 +413,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    }
 	    else if ( act == 3 )
 	    {
-		float step = 1; //TODO take user step ...
+		const float step = SI().zStep(); //TODO take user step ...
 		const Interval<float> dahrg = outplog->dahRange();
 		ObjectSet<const Well::Log> reslogs;
 		reslogs += outplog;
@@ -417,12 +422,13 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 					step, SI().zIsTime(), 
 					ut, reslogs );
 
-		//TODO 1) make a FFTLogFilter
-		//TODO 2) 2D FFT on the output array ... 
 		const int size = ls.nrZSamples();
 		const float df = Fourier::CC::getDf( step, size );
+
+		const Interval<float>& freqrg = freqfld_->freqRange();
 		FFTFilter filter; 
-		filter.set( df, 50, 0, FFTFilter::LowPass, false );
+		filter.set( df, freqrg.start, freqrg.stop, 
+			    freqfld_->filterType(), false );
 		mAllocVarLenArr( float, outplogarr, size );
 		mAllocVarLenArr( float, inplogarr, size );
 

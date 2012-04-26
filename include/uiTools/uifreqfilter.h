@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2012
- RCS:           $Id: uifreqfilter.h,v 1.1 2012-04-26 14:32:10 cvsbruno Exp $
+ RCS:           $Id: uifreqfilter.h,v 1.2 2012-04-26 15:34:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,22 +22,29 @@ mClass uiFreqFilterSelFreq : public uiGroup
 {
 public:
     			uiFreqFilterSelFreq(uiParent*);
-    			~uiFreqFilterSelFreq();
-    mStruct Params
-    {
-	FFTFilter::Type filtertype_;
-	float 		minfreq_;
-	float 		maxfreq_;
-    };
-    const Params&	params() const 		{ return params_; }
+
+    const Interval<float>& freqRange() const 		{ return freqrg_; }
+    FFTFilter::Type	filterType() const 		{ return filtertype_; }
+
+    void 		setFreqRange(Interval<float> rg) 
+    			{ freqrg_ = rg; putToScreen(); }
+    void 		setFilterType(FFTFilter::Type tp) 
+    			{ filtertype_ = tp; putToScreen(); }
+    void		setMinFreq(float f) { freqrg_.start = f; }
+    void		setMaxFreq(float f) { freqrg_.stop = f; }
+
+    Notifier<uiFreqFilterSelFreq> parchanged;
 
 protected:
     uiGenInput*		typefld_;
     uiGenInput*		freqfld_;
-    Params		params_;
+
+    FFTFilter::Type 	filtertype_;
+    Interval<float>	freqrg_;
 
     virtual void	putToScreen();
     virtual void	getFromScreen(CallBacker*);
+    void		parChgCB(CallBacker*);
     virtual void	typeSel(CallBacker*);
 };
 

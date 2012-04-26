@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.13 2009-11-17 13:02:26 cvsbruno Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.14 2012-04-26 15:34:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 namespace Attrib { class Desc; };
 
+class uiFreqFilterSelFreq;
 class uiImagAttrSel;
 class uiGenInput;
 class uiCheckBox;
@@ -36,8 +37,7 @@ protected:
 
     uiImagAttrSel*      inpfld;
     uiGenInput*         isfftfld;
-    uiGenInput*		typefld;
-    uiGenInput*		freqfld;
+    uiFreqFilterSelFreq* freqfld;
     uiLabeledSpinBox*	polesfld;
     uiCheckBox*		freqwinselfld;
     ObjectSet<uiWindowFunctionSel> winflds;

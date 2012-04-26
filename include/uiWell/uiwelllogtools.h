@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.6 2012-04-26 14:38:45 cvsbruno Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.7 2012-04-26 15:34:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 
-class uiListBox;
-class uiComboBox;
-class uiGenInput;
 class uiCheckBox;
+class uiComboBox;
+class uiFreqFilterSelFreq;
+class uiGenInput;
+class uiMultiWellLogSel;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
-class uiMultiWellLogSel;
+class uiListBox;
 class uiPushButton;
 class uiSpinBox;
 class uiWellLogDisplay;
@@ -79,6 +80,7 @@ protected:
     uiLabeledSpinBox*		thresholdfld_;
     uiLabeledComboBox*		replacespikefld_;
     uiGenInput*			replacespikevalfld_;
+    uiFreqFilterSelFreq*	freqfld_;
     uiPushButton*		applybut_;
     uiPushButton*               okbut_;
     uiPushButton*               cancelbut_;

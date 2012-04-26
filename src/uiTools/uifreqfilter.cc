@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilter.cc,v 1.1 2012-04-26 14:32:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilter.cc,v 1.2 2012-04-26 15:34:44 cvsbruno Exp $";
 
 
 #include "uifreqfilter.h"
@@ -17,23 +17,29 @@ static const char* rcsID = "$Id: uifreqfilter.cc,v 1.1 2012-04-26 14:32:10 cvsbr
 static const char* minmaxtxt = "Min/max frequency(Hz)";
 
 uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
-    : uiGroup( this, "Frequency Filter Selection")
+    : uiGroup( p, "Frequency Filter Selection")
+    , parchanged(this)  
 {
     static const char** typestrs = FFTFilter::TypeNames();
     typefld_ = new uiGenInput( this, "Filter type", 
 	    		      StringListInpSpec(typestrs) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
+    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
+    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
     freqfld_ = new uiGenInput( this, minmaxtxt, 
 	    FloatInpSpec().setName("Min frequency"),
 	    FloatInpSpec().setName("Max frequency") );
     freqfld_->setElemSzPol( uiObject::Small );
     freqfld_->attach( alignedBelow, typefld_ );
+    freqfld_->valuechanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
+    freqfld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 }
 
 
-uiFreqFilterSelFreq::~uiFreqFilterSelFreq()
+void uiFreqFilterSelFreq::parChgCB( CallBacker* )
 {
+    parchanged.trigger();
 }
 
 
@@ -49,17 +55,16 @@ void uiFreqFilterSelFreq::typeSel( CallBacker* )
 
 void uiFreqFilterSelFreq::putToScreen()
 {
-    typefld_->setValue( params_.filtertype_ );
-    freqfld_->setValue( params_.minfreq_, 0 );
-    freqfld_->setValue( params_.maxfreq_, 1 );
+    typefld_->setValue( filtertype_ );
+    freqfld_->setValue( freqrg_.start, 0 );
+    freqfld_->setValue( freqrg_.stop, 1 );
 }
 
 
 void uiFreqFilterSelFreq::getFromScreen( CallBacker* )
 {
-    params_.filtertype_ = (FFTFilter::Type)typefld_->getIntValue();
-    params_.minfreq_ = freqfld_->getfValue(0);
-    params_.maxfreq_ = freqfld_->getfValue(1);
+    filtertype_ = (FFTFilter::Type)typefld_->getIntValue();
+    freqrg_ = freqfld_->getFInterval();
 }
 
 
