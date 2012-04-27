@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.18 2012-04-25 21:15:23 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.19 2012-04-27 19:55:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ protected:
     BufferString	createDisplayName() const;
     
     MenuItem		depthattribmnuitem_;
-    bool                changed_;
+    MenuItem		isopatchmnuitem_;
 };
 
 

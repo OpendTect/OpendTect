@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.44 2012-04-25 21:15:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.45 2012-04-27 19:55:05 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -486,7 +486,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_("Z values")
-    , changed_(false)
+    , isopatchmnuitem_("Isopach")  
 {}
 
 
@@ -498,8 +498,10 @@ void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     const bool islocked = visserv->isLocked( displayID() );
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+    const bool yn = as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt();
+
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked, yn );
+    mAddMenuItem( &selattrmnuitem_, &isopatchmnuitem_, !islocked, yn );
 }
 
 
@@ -521,9 +523,14 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	mcd->setDepthAsAttrib( attribNr() );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	changed_ = false;
     }
+    else if ( mnuid==isopatchmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	mcd->setIsoPatch( attribNr() );
+    }
+	
+    updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 
@@ -533,7 +540,7 @@ BufferString uiODBodyDisplayDataTreeItem::createDisplayName() const
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return BufferString("Z values");
+	return as->userRef();
     
     return uiODAttribTreeItem::createDisplayName();
 }
