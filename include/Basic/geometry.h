@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.40 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:           $Id: geometry.h,v 1.41 2012-04-27 10:55:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ class Point2D
 {
 public:
 				Point2D(T xx=0,T yy=0);
-    virtual			~Point2D()				{}
 
     template <class TT>
     Point2D<T>&			setFrom(const Point2D<TT>&);
@@ -35,8 +34,8 @@ public:
     inline Point2D<T>&		zero();
     inline Point2D<T>		operator-();
 
-    virtual inline T&		operator[](int idx);
-    virtual inline T		operator[](int idx) const;
+    inline T&			operator[](int idx);
+    inline T			operator[](int idx) const;
 
     inline bool			operator==(const Point2D<T>&) const;
     inline bool			operator!=(const Point2D<T>&) const;
@@ -50,11 +49,11 @@ public:
     inline Point2D<T>		operator*(const T factor) const;
     inline Point2D<T>		operator/(const T den) const;
 
-    virtual inline bool		isDefined() const;
-    virtual inline double	abs() const;
-    virtual inline T		sqAbs() const;
-    virtual inline double	distTo(const Point2D<T>&) const;
-    virtual inline T		sqDistTo(const Point2D<T>&) const;
+    inline bool			isDefined() const;
+    inline double		abs() const;
+    inline T			sqAbs() const;
+    inline double		distTo(const Point2D<T>&) const;
+    inline T			sqDistTo(const Point2D<T>&) const;
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
     
