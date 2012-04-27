@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.39 2012-04-26 15:34:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.40 2012-04-27 09:44:03 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -50,17 +50,17 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 			       BoolInpSpec(true,"FFT","ButterWorth") );
     isfftfld->attach( alignedBelow, inpfld );
     isfftfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
-	
+
     freqfld = new uiFreqFilterSelFreq( this );    
     freqfld->parchanged.notify( mCB(this,uiFreqFilterAttrib,typeSel) );
     freqfld->parchanged.notify(mCB(this,uiFreqFilterAttrib,freqChanged) );
     freqfld->parchanged.notify(mCB(this,uiFreqFilterAttrib,updateTaperFreqs));
-    freqfld->attach( centeredBelow, isfftfld );
+    freqfld->attach( alignedBelow, isfftfld );
 
     polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
     polesfld->box()->setMinValue( 2 );
     polesfld->attach( ensureBelow, freqfld );
-    polesfld->attach( alignedBelow, inpfld );
+    polesfld->attach( alignedBelow, isfftfld );
 
     uiWindowFunctionSel::Setup su; 
     su.label_ = "Window/Taper"; 

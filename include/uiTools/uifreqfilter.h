@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2012
- RCS:           $Id: uifreqfilter.h,v 1.2 2012-04-26 15:34:44 cvsbruno Exp $
+ RCS:           $Id: uifreqfilter.h,v 1.3 2012-04-27 09:44:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ public:
     			{ freqrg_ = rg; putToScreen(); }
     void 		setFilterType(FFTFilter::Type tp) 
     			{ filtertype_ = tp; putToScreen(); }
-    void		setMinFreq(float f) { freqrg_.start = f; }
-    void		setMaxFreq(float f) { freqrg_.stop = f; }
+    void		setMinFreq(float f) { freqrg_.start = f; putToScreen();}
+    void		setMaxFreq(float f) { freqrg_.stop = f; putToScreen(); }
 
     Notifier<uiFreqFilterSelFreq> parchanged;
 

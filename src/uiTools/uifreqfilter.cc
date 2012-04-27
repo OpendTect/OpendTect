@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilter.cc,v 1.2 2012-04-26 15:34:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilter.cc,v 1.3 2012-04-27 09:44:03 cvsbruno Exp $";
 
 
 #include "uifreqfilter.h"
@@ -23,8 +23,8 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     static const char** typestrs = FFTFilter::TypeNames();
     typefld_ = new uiGenInput( this, "Filter type", 
 	    		      StringListInpSpec(typestrs) );
-    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
+    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
     freqfld_ = new uiGenInput( this, minmaxtxt, 
@@ -34,6 +34,10 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     freqfld_->attach( alignedBelow, typefld_ );
     freqfld_->valuechanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
     freqfld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
+
+    setMinFreq( 15 );
+    setMaxFreq( 50 );
+    setHAlignObj( freqfld_ );
 }
 
 
@@ -58,7 +62,9 @@ void uiFreqFilterSelFreq::putToScreen()
     typefld_->setValue( filtertype_ );
     freqfld_->setValue( freqrg_.start, 0 );
     freqfld_->setValue( freqrg_.stop, 1 );
+    typeSel(0);
 }
+
 
 
 void uiFreqFilterSelFreq::getFromScreen( CallBacker* )

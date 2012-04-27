@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.17 2012-04-26 15:34:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.18 2012-04-27 09:44:03 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.17 2012-04-26 15:34:44 cv
 #include "statgrubbs.h"
 #include "smoother1d.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -121,8 +122,8 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls, 
 				    const Well::D2TModel* d2t )
     : logs_(*new Well::LogSet)
-    , d2t_(d2t)  
 {
+    d2t_ = d2t ? new Well::D2TModel(*d2t) : 0;
     for ( int idx=0; idx<ls.size(); idx++ )
 	logs_.add( new Well::Log( ls.getLog( idx ) ) );
 }
@@ -132,6 +133,7 @@ uiWellLogToolWin::LogData::~LogData()
 {
     deepErase( outplogs_ );
     delete &logs_;
+    delete d2t_;
 }
 
 
@@ -189,7 +191,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiGroup* actiongrp = new uiGroup( this, "Action" );
     actiongrp->attach( hCentered );
     actiongrp->attach( ensureBelow, displaygrp );
-    const char* acts[] = { "Remove Spikes" "Filter", "Clip", 0 };
+    const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
     uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, "Action" );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
@@ -198,7 +200,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     applybut_ = new uiPushButton( actiongrp, "Apply", cb, true );
     applybut_->attach( rightOf, llc );
 
-    freqfld_ = new uiFreqFilterSelFreq( this );
+    freqfld_ = new uiFreqFilterSelFreq( actiongrp );
     freqfld_->attach( alignedBelow, llc );
 
     uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, "Window size" );
@@ -275,10 +277,11 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     thresholdfld_->display( act == 0 );
     replacespikevalfld_->display( act == 0 );
     replacespikefld_->display( act == 0 );
-    freqfld_->display( act == 2 );
-
-    gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size" );
-    StepInterval<int> sp = act > 1 ? StepInterval<int>(0,100,10) 
+    freqfld_->display( act == 1 );
+    gatefld_->display( act != 1 );
+    gatelbl_->display( act != 1 );
+    gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size" );
+    StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10) 
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
     gatefld_->setValue( 300 );
@@ -290,7 +293,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
 void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 {
     const int act = replacespikefld_->box()->currentItem();
-    replacespikevalfld_->display( act == 2 );
+    replacespikevalfld_->display( act == 3 );
 }
 
 
@@ -349,7 +352,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    ld.outplogs_ += outplog;
 	    const float* inp = inplog.valArr();
 	    float* outp = outplog->valArr();
-	    if ( act == 1 )
+	    if ( act == 2 )
 	    {
 		Smoother1D<float> sm;
 		sm.setInput( inp, sz );
@@ -398,7 +401,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    }
 		}
 	    }
-	    else if ( act == 2 )
+	    else if ( act == 3 )
 	    {
 		Interval<float> rg;
 		float rate = gate/(float)100;
@@ -411,7 +414,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
 		}
 	    }
-	    else if ( act == 3 )
+	    else if ( act == 1)
 	    {
 		const float step = SI().zStep(); //TODO take user step ...
 		const Interval<float> dahrg = outplog->dahRange();
@@ -421,7 +424,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, dahrg, false, 
 					step, SI().zIsTime(), 
 					ut, reslogs );
-
+		ls.execute();
 		const int size = ls.nrZSamples();
 		const float df = Fourier::CC::getDf( step, size );
 
