@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.28 2012-04-26 07:29:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.29 2012-04-27 06:51:02 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -250,10 +250,12 @@ void uiWellDispEditMarkerDlg::addMoveMarker()
     }
     else
     {
-	const Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
-	if ( !tmpmrk ) return;
+	ObjectSet<Well::Marker> mrks;
+	getMarkerFromAll( mrks, mrknm );
+	if ( mrks.isEmpty() )
+	    mErrRet( "No marker found", return );
 
-	mrk = new Well::Marker(*tmpmrk);
+	mrk = new Well::Marker( *mrks[0] ); 
 	mrk->setDah( dah );
 	curwd_->markers().insertNew( mrk );
 	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
