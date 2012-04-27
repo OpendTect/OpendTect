@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.53 2012-04-26 04:58:01 cvsranojay Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.54 2012-04-27 06:41:29 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -118,6 +118,15 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	LIST(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 	    ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
     ENDIF(OD_IS_PLUGIN)
+
+    #Add all headerfiles to be included in the library (nice in IDEs)
+    FOREACH ( INCDIR ${OD_${OD_MODULE_NAME}_INCLUDEPATH} )
+	FILE ( GLOB INCFILES ${INCDIR}/*.h )
+	IF ( INCFILES )
+	    LIST ( APPEND OD_MODULE_INCFILES ${INCFILES} )
+	ENDIF( INCFILES )
+    ENDFOREACH()
+
 ENDIF ( OD_MODULE_HAS_LIBRARY )
 
 
@@ -185,6 +194,7 @@ ENDIF()
 IF ( OD_MODULE_HAS_LIBRARY )
     ADD_LIBRARY( ${OD_MODULE_NAME} SHARED ${OD_MODULE_SOURCES}
 		 ${QT_MOC_OUTFILES}
+		 ${OD_MODULE_INCFILES}
 		 ${OD_STATIC_OUTFILES} )
     TARGET_LINK_LIBRARIES(
 	    ${OD_MODULE_NAME}
