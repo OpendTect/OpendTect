@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.69 2012-01-16 14:05:33 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.70 2012-04-27 08:36:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class Interval
 {
 public:
     inline		Interval();
+    inline virtual	~Interval()		{}
     inline		Interval(const T& start,const T& stop);
     inline Interval<T>&	operator=(const Interval<T>&);
     virtual bool inline	isUdf() const;
