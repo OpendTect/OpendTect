@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.39 2012-04-27 19:55:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.40 2012-04-27 20:55:22 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -252,21 +252,17 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     mSetDataPointSet("Isopach");
 
     if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
-    if ( !impbody_ ) return;
+    if ( !impbody_ || !impbody_->arr_ ) return;
 
     const int inlsz = impbody_->cs_.nrInl();
     const int crlsz = impbody_->cs_.nrCrl();
     const int zsz = impbody_->cs_.nrZ();
     Array2DImpl<float> isoval( inlsz, crlsz );
     isoval.setAll(0);
-    BinID curbid;
     for ( int idx=0; idx<inlsz; idx++ )
     {
-	curbid.inl = impbody_->cs_.hrg.inlRange().atIndex( idx );
 	for ( int idy=0; idy<crlsz; idy++ )
 	{
-	    curbid.crl = impbody_->cs_.hrg.crlRange().atIndex( idx );
-
 	    bool found = false;
 	    float minz, maxz;
 	    for ( int idz=0; idz<zsz; idz++ )
@@ -292,17 +288,19 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	}
     }
 
-    const float* isovals = isoval.getData();
-    const int totalsz = isoval.info().getTotalSz();
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos,true) )
     {
 	BinID bid = bivs.getBinID(pos);
-	const int pidx = impbody_->cs_.hrg.globalIdx( bid );
-
 	float* vals = bivs.getVals(pos);
-	vals[valcol] = (pidx<0 || pidx>=totalsz) ? 0 : isovals[pidx];
+	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl);
+	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl);
+	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
+	    vals[valcol] = 0;
+	else
+	    vals[valcol] = isoval.get( inlidx, crlidx );
     }
+
     setRandomPosData( attrib, &data, 0 );
 
     BufferString seqnm;
