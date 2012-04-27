@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.32 2012-04-25 21:13:15 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.33 2012-04-27 19:55:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,6 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
 
-
     bool			setVisSurface(visBase::MarchingCubesSurface*);
     				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&,TaskRunner*);
@@ -75,6 +74,7 @@ public:
     void                   	setSelSpec(int,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
     void			setDepthAsAttrib(int);
+    void			setIsoPatch(int);
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,

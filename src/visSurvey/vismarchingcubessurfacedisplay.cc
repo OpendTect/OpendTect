@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.38 2012-04-25 21:13:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.39 2012-04-27 19:55:46 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -231,45 +231,103 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 }
 
 
-void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
+#define mSetDataPointSet(nm) \
+    selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
+    TypeSet<DataPointSet::DataRow> pts; \
+    ObjectSet<DataColDef> defs; \
+    DataColDef isovdef( nm ); \
+    defs += &isovdef; \
+    DataPointSet data( pts, defs, false, true ); \
+    getRandomPos( data, 0 ); \
+    BinIDValueSet& bivs = data.bivSet(); \
+    if ( !data.size() || bivs.nrVals()!=3 ) return;\
+    int valcol = data.dataSet().findColDef( isovdef, \
+	    PosVecDataSet::NameExact ); \
+    if ( valcol==-1 ) \
+	valcol = 1
+
+
+void MarchingCubesDisplay::setIsoPatch( int attrib )
 {
-    selspec_.set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
+    mSetDataPointSet("Isopach");
 
-    TypeSet<DataPointSet::DataRow> pts;
-    ObjectSet<DataColDef> defs;
-    DataColDef depthdef( "Depth" );
-    defs += &depthdef;
-    DataPointSet positions( pts, defs, false, true );
-    getRandomPos( positions, 0 );
+    if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
+    if ( !impbody_ ) return;
 
-    if ( !positions.size() ) return;
-
-    BinIDValueSet& bivs = positions.bivSet();
-    if ( bivs.nrVals()!=3 )
+    const int inlsz = impbody_->cs_.nrInl();
+    const int crlsz = impbody_->cs_.nrCrl();
+    const int zsz = impbody_->cs_.nrZ();
+    Array2DImpl<float> isoval( inlsz, crlsz );
+    isoval.setAll(0);
+    BinID curbid;
+    for ( int idx=0; idx<inlsz; idx++ )
     {
-	pErrMsg( "Hmm" );
-	return;
-    }
-    
-    int depthcol = 
-	positions.dataSet().findColDef( depthdef, PosVecDataSet::NameExact );
-    if ( depthcol==-1 )
-	depthcol = 1;
+	curbid.inl = impbody_->cs_.hrg.inlRange().atIndex( idx );
+	for ( int idy=0; idy<crlsz; idy++ )
+	{
+	    curbid.crl = impbody_->cs_.hrg.crlRange().atIndex( idx );
 
+	    bool found = false;
+	    float minz, maxz;
+	    for ( int idz=0; idz<zsz; idz++ )
+	    {
+		if ( impbody_->arr_->get(idx,idy,idz)>impbody_->threshold_ )
+		    continue;
+
+		const float curz = impbody_->cs_.zrg.atIndex(idz);
+		if ( !found )
+		{
+		    found = true;
+		    minz = maxz = curz;
+		}
+		else
+		{
+		    if ( minz>curz ) minz = curz;
+		    if ( maxz<curz ) maxz = curz;
+		}
+	    }
+
+	    if ( found )
+    		isoval.set( idx, idy, maxz-minz );
+	}
+    }
+
+    const float* isovals = isoval.getData();
+    const int totalsz = isoval.info().getTotalSz();
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos,true) )
     {
-	float* vals = bivs.getVals(pos);
-	vals[depthcol] = vals[0];
-    }
+	BinID bid = bivs.getBinID(pos);
+	const int pidx = impbody_->cs_.hrg.globalIdx( bid );
 
-    setRandomPosData( attrib, &positions, 0 );
+	float* vals = bivs.getVals(pos);
+	vals[valcol] = (pidx<0 || pidx>=totalsz) ? 0 : isovals[pidx];
+    }
+    setRandomPosData( attrib, &data, 0 );
 
     BufferString seqnm;
     Settings::common().get( "dTect.Color table.Horizon", seqnm );
     ColTab::Sequence seq( seqnm );
     setColTabSequence( attrib, seq, 0 );
+}
 
+
+void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
+{
+    mSetDataPointSet("Depth");
+    BinIDValueSet::Pos pos;
+    while ( bivs.next(pos,true) )
+    {
+	float* vals = bivs.getVals(pos);
+	vals[valcol] = vals[0];
+    }
+
+    setRandomPosData( attrib, &data, 0 );
+
+    BufferString seqnm;
+    Settings::common().get( "dTect.Color table.Horizon", seqnm );
+    ColTab::Sequence seq( seqnm );
+    setColTabSequence( attrib, seq, 0 );
 }
 
 
@@ -287,14 +345,14 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( attrib<0 )
 	return;
 
+    DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( !attrib && dps && displaysurface_ )
     {
-	displaysurface_->getShape()->setAttribData( *dps, tr );
+	displaysurface_->getShape()->setAttribData( *ndps, tr );
 	useTexture( true );
 	materialChangeCB( 0 );
     }
 
-    DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( cache_.validIdx(attrib) )
     {
     	if ( cache_[attrib] )
@@ -730,6 +788,7 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
     {
     	if ( !impbody_ )
     	    impbody_ = emsurface_->createImplicitBody(0,false);
+	if ( !impbody_ ) return;
 	
     	for ( int idx=0; idx<intsinfo_.size(); idx++ )
     	{
