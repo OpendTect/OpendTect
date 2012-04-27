@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.17 2011-11-14 07:39:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.18 2012-04-27 11:25:37 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -207,6 +207,9 @@ void Pos::RangeProvider2D::reset()
 
 bool Pos::RangeProvider2D::toNextPos()
 {
+    if ( geomids_.isEmpty() )
+	return false;
+
     const bool hasgeom = geomids_.validIdx( curlineidx_ );
     PosInfo::Line2DData l2d;
     
