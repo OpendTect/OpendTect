@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.21 2012-04-05 12:54:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.22 2012-04-27 06:50:43 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -86,22 +86,25 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     setDahData();
     setDisplayProperties();
 
-    wd_.d2tchanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
-    wd_.markerschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+    CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
+    wd_.d2tchanged.notify( wdcb );
+    wd_.markerschanged.notify( wdcb );
     if ( is3ddisp_ )
-	wd_.disp3dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+	wd_.disp3dparschanged.notify( wdcb );
     else
-	wd_.disp2dparschanged.notify(mCB(this,uiWellDisplay,applyWDChanges) );
+	wd_.disp2dparschanged.notify( wdcb );
 }
 
 
 uiWellDisplay::~uiWellDisplay()
 {
-    wd_.d2tchanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+    CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
+    wd_.d2tchanged.remove( wdcb );
+    wd_.markerschanged.remove( wdcb );
     if ( is3ddisp_ )
-	wd_.disp3dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+	wd_.disp3dparschanged.remove( wdcb );
     else
-	wd_.disp2dparschanged.remove(mCB(this,uiWellDisplay,applyWDChanges) );
+	wd_.disp2dparschanged.remove( wdcb );
     if ( control_ )
 	{ delete control_; control_ = 0; }
 }
