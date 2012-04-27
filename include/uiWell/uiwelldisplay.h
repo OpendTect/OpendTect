@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.13 2012-03-28 15:20:46 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.14 2012-04-27 06:56:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ protected:
     Interval<float>		zrg_;
     bool			dispzinft_;
     bool			zistime_;
-    bool			is3ddisp_;
+    bool			use3ddisp_;
     uiSize			size_;
     const Setup 		setup_;
 

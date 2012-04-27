@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.22 2012-04-27 06:50:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.23 2012-04-27 06:56:12 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -28,11 +28,11 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
     , zistime_(w.haveD2TModel() && SI().zIsTime())
-    , is3ddisp_(s.takedisplayfrom3d_)				
+    , use3ddisp_(s.takedisplayfrom3d_)				
     , control_(0)
     , stratdisp_(0) 
 {
-    Well::DisplayProperties& disp = wd_.displayProperties( !is3ddisp_ );
+    Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
     for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
 	if ( !wd_.markers()[idx] ) continue;
@@ -89,7 +89,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
     wd_.d2tchanged.notify( wdcb );
     wd_.markerschanged.notify( wdcb );
-    if ( is3ddisp_ )
+    if ( use3ddisp_ )
 	wd_.disp3dparschanged.notify( wdcb );
     else
 	wd_.disp2dparschanged.notify( wdcb );
@@ -101,7 +101,7 @@ uiWellDisplay::~uiWellDisplay()
     CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
     wd_.d2tchanged.remove( wdcb );
     wd_.markerschanged.remove( wdcb );
-    if ( is3ddisp_ )
+    if ( use3ddisp_ )
 	wd_.disp3dparschanged.remove( wdcb );
     else
 	wd_.disp2dparschanged.remove( wdcb );
@@ -162,7 +162,7 @@ void uiWellDisplay::setDahData()
 
 void uiWellDisplay::setDisplayProperties() 
 {
-    const Well::DisplayProperties& dpp = wd_.displayProperties( !is3ddisp_ );
+    const Well::DisplayProperties& dpp = wd_.displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
