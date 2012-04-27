@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.14 2012-01-17 16:09:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.15 2012-04-27 07:57:22 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -42,13 +42,12 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     rsu.doreflectivity_ = false;
     raytracerfld_ = new uiRayTracerSel( this, rsu );
     raytracerfld_->usePar( pars.raypar_ );
-    raytracerfld_->attach( ensureBelow, velfuncsel_ );
+    raytracerfld_->attach( alignedBelow, velfuncsel_ );
     raytracerfld_->attach( ensureBelow, sep );
 
     cutofffld_ = new uiGenInput( this, "Mute cutoff angle (degree)", 
 	    FloatInpSpec(false) );
-    cutofffld_->attach( ensureBelow, raytracerfld_ );
-    cutofffld_->attach( alignedBelow, velfuncsel_ );
+    cutofffld_->attach( alignedBelow, raytracerfld_ );
     cutofffld_->setValue( params_.mutecutoff_ );
 
     blockfld_ = new uiCheckBox( this, "Block (bend points)" );

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.12 2012-01-17 16:09:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.13 2012-04-27 07:57:22 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -30,8 +30,8 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
 	raytracerselfld_->box()->selectionChanged.notify( 
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
-	raytracerselfld_->attach( hCentered );
     }
+    setHAlignObj( raytracerselfld_ ); 
 
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
