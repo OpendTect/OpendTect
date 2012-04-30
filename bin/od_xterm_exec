@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_xterm_exec,v 1.9 2006-05-11 12:54:54 cvsbert Exp $
+# $Id: od_xterm_exec,v 1.10 2012-04-30 20:00:21 cvsnanne Exp $
 #
 # script to run in xterm for od_exec
 #_______________________________________________________________________________
@@ -26,7 +26,10 @@ endif
 
 set DTECT_APPL="$1"
 shift
-source $DTECT_APPL/bin/init_dtect
+
+if ( -e "$DTECT_APPL/bin/init_dtect" ) then                                     
+    source "$DTECT_APPL/bin/init_dtect"                                         
+endif
 
 if ( "$1" == "--askclose" ) then
     set askclose=1
