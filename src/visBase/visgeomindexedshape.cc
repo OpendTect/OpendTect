@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.33 2012-04-27 18:51:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.34 2012-04-30 20:45:27 cvsyuancheng Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -516,7 +516,7 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tr)
     {
 	const float* ptr = vals.getVals( pos );
 	const int coordidx = mNINT(ptr[col]);
-	const float val = ptr[col-1];
+	const float val = ptr[col+1];
 
 	if ( coordidx>=cache.size() )
 	{
