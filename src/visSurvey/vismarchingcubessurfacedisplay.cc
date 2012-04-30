@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.41 2012-04-30 20:53:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.42 2012-04-30 21:45:05 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -234,11 +234,13 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 #define mSetDataPointSet(nm) \
     selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
+    DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
     getRandomPos( *data, 0 ); \
     DataColDef* isovdef = new DataColDef("Depth"); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
-    if ( !data->size() || bivs.nrVals()!=3 ) return; \
+    if ( !data->size() || bivs.nrVals()!=3 ) \
+    { DPM( DataPackMgr::PointID() ).release( data->id() ); return;} \
     int valcol = data->dataSet().findColDef( *isovdef, \
 	    PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
@@ -286,7 +288,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     }
 
     BinIDValueSet::Pos pos;
-    while ( bivs.next(pos,true) )
+    while ( bivs.next(pos) )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
@@ -304,6 +306,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     Settings::common().get( "dTect.Color table.Horizon", seqnm );
     ColTab::Sequence seq( seqnm );
     setColTabSequence( attrib, seq, 0 );
+    DPM( DataPackMgr::PointID() ).release( data->id() );
 }
 
 
@@ -311,7 +314,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 {
     mSetDataPointSet("Depth");
     BinIDValueSet::Pos pos;
-    while ( bivs.next(pos,true) )
+    while ( bivs.next(pos) )
     {
 	float* vals = bivs.getVals(pos);
 	vals[valcol] = vals[0];
@@ -323,6 +326,8 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
     Settings::common().get( "dTect.Color table.Horizon", seqnm );
     ColTab::Sequence seq( seqnm );
     setColTabSequence( attrib, seq, 0 );
+
+    DPM( DataPackMgr::PointID() ).release( data->id() );
 }
 
 
