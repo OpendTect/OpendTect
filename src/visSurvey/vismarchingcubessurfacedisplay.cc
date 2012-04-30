@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.40 2012-04-27 20:55:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.41 2012-04-30 20:53:12 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -233,18 +233,15 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 
 #define mSetDataPointSet(nm) \
     selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
-    TypeSet<DataPointSet::DataRow> pts; \
-    ObjectSet<DataColDef> defs; \
-    DataColDef isovdef( nm ); \
-    defs += &isovdef; \
-    DataPointSet data( pts, defs, false, true ); \
-    getRandomPos( data, 0 ); \
-    BinIDValueSet& bivs = data.bivSet(); \
-    if ( !data.size() || bivs.nrVals()!=3 ) return;\
-    int valcol = data.dataSet().findColDef( isovdef, \
+    DataPointSet* data = new DataPointSet(false,true); \
+    getRandomPos( *data, 0 ); \
+    DataColDef* isovdef = new DataColDef("Depth"); \
+    data->dataSet().add( isovdef ); \
+    BinIDValueSet& bivs = data->bivSet();  \
+    if ( !data->size() || bivs.nrVals()!=3 ) return; \
+    int valcol = data->dataSet().findColDef( *isovdef, \
 	    PosVecDataSet::NameExact ); \
-    if ( valcol==-1 ) \
-	valcol = 1
+    if ( valcol==-1 ) valcol = 1
 
 
 void MarchingCubesDisplay::setIsoPatch( int attrib )
@@ -301,7 +298,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	    vals[valcol] = isoval.get( inlidx, crlidx );
     }
 
-    setRandomPosData( attrib, &data, 0 );
+    setRandomPosData( attrib, data, 0 );
 
     BufferString seqnm;
     Settings::common().get( "dTect.Color table.Horizon", seqnm );
@@ -320,7 +317,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	vals[valcol] = vals[0];
     }
 
-    setRandomPosData( attrib, &data, 0 );
+    setRandomPosData( attrib, data, 0 );
 
     BufferString seqnm;
     Settings::common().get( "dTect.Color table.Horizon", seqnm );
