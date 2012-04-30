@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.248 2012-04-26 10:35:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.249 2012-04-30 21:52:37 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -503,6 +503,8 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
     mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
     mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
+
+    mInsertItem( scenemnu_, "&Properties ...", mScenePropMnuItm );
     scenemnu_->insertSeparator();
 
     updateSceneMenu();
@@ -1028,6 +1030,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
+    case mScenePropMnuItm:	sceneMgr().setSceneProperties(); break;
     case mBaseMapMnuItm:	applMgr().showBaseMap(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZStretch(); break;

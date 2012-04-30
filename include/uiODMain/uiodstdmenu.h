@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.77 2012-04-24 17:46:15 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.78 2012-04-30 21:52:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ ________________________________________________________________________
 #define mReStartMnuItm		(mProcMnu + 50)
 
 
-/* 'Windows' menu */
+/* 'Scenes' menu */
 
 #define mAddSceneMnuItm		(mWinMnu + 10)
 #define mAddTmeDepthMnuItm	(mWinMnu + 11)
@@ -153,6 +153,7 @@ ________________________________________________________________________
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)
 #define mTileVerMnuItm		(mWinMnu + 32)
+#define mScenePropMnuItm	(mWinMnu + 35)
 #define mSceneSelMnuItm		(mWinMnu + 40)
 
 

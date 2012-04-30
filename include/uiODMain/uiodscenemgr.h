@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.87 2012-01-10 22:46:10 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.88 2012-04-30 21:52:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 
     void			getScenePars(IOPar&);
     void			useScenePars(const IOPar&);
+    void			setSceneProperties();
 
     void			setToViewMode(bool yn=true);
     void			setToWorkMode(uiVisPartServer::WorkMode wm);

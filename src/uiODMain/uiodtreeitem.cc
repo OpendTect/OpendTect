@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.217 2011-12-16 09:27:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.218 2012-04-30 21:52:37 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -272,7 +272,6 @@ bool uiODSceneTreeItem::showSubMenu()
     {
 	ObjectSet<ui3DViewer> viewers;
 	ODMainWin()->sceneMgr().getSoViewers( viewers );
-
 	uiScenePropertyDlg dlg( getUiParent(), viewers, 
 			viewers.indexOf( viewer() ) );
 	dlg.go();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.228 2012-03-26 17:05:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.229 2012-04-30 21:52:37 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.228 2012-03-26 17:05:33 cvs
 #include "uiprintscenedlg.h"
 #include "uislider.h"
 #include "ui3dviewer.h"
+#include "uiscenepropdlg.h"
 #include "uistatusbar.h"
 #include "uithumbwheel.h"
 #include "uitoolbar.h"
@@ -383,6 +384,31 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
     }
     rebuildTrees();
+}
+
+
+void uiODSceneMgr::setSceneProperties()
+{
+    ObjectSet<ui3DViewer> vwrs;
+    getSoViewers( vwrs );
+    if ( vwrs.isEmpty() )
+    {
+	uiMSG().error( "No scenes available" );
+	return;
+    }
+
+    int curvwridx = 0;
+    if ( vwrs.size() > 1 )
+    {
+	const int sceneid = askSelectScene();
+	const ui3DViewer* vwr = getSoViewer( sceneid );
+	if ( !vwr ) return;
+
+	curvwridx = vwrs.indexOf( vwr );
+    }
+
+    uiScenePropertyDlg dlg( &appl_, vwrs, curvwridx );
+    dlg.go();
 }
 
 
