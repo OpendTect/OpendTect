@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.36 2012-01-31 11:01:34 cvskris Exp $
+ RCS:		$Id: vistexturerect.h,v 1.37 2012-05-01 12:29:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,9 @@ public:
     				//!<One dim must be 0
     Coord3			getWidth() const;
     Coord3			getCenter() const;
+
+    void			swapTextureAxes(bool yn=true);
+    bool			areTextureAxesSwapped() const;
 
 protected:
     				~TextureRectangle();

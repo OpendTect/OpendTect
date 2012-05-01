@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.44 2012-04-18 11:16:59 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.45 2012-05-01 12:29:38 cvsjaap Exp $";
 
 #include "vistexturechannels.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vistexturechannels.cc,v 1.44 2012-04-18 11:16:5
 
 #include <osg/Image>
 #include <osgGeo/LayeredTexture>
+
 #define mNrColors	255
 
 
@@ -223,7 +224,7 @@ void ChannelInfo::removeImages()
 {
     mObjectSetApplyToAll( osgimages_,
 	    { if ( osgimages_[idx] ) osgimages_[idx]->unref();
-	      osgimages_.replace( idx, 0 ) ); }
+	      osgimages_.replace( idx, 0 ); } );
 }
 
 
@@ -511,11 +512,12 @@ void ChannelInfo::updateOsgImages()
 	}
 
 	const od_int64 offset = idx * componentsize*2;
-	osgimages_[idx]->setImage( size_[0], size_[1],
-			     size_[2], GL_LUMINANCE_ALPHA,
-			     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
-			     mappeddata_[currentversion_]+offset,
-			     osg::Image::NO_DELETE, 1 );
+
+	osgimages_[idx]->setImage( size_[2], size_[1],
+			    size_[0], GL_LUMINANCE_ALPHA,
+			    GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+			    mappeddata_[currentversion_]+offset,
+			    osg::Image::NO_DELETE, 1 );
     }
 }
 
@@ -532,6 +534,7 @@ TextureChannels::TextureChannels()
     if ( doOsg() )
     {
 	osgtexture_ = new osgGeo::LayeredTexture;
+	osgtexture_->invertUndefLayers();
 	osgtexture_->ref();
     }
 
@@ -606,7 +609,22 @@ int TextureChannels::nrChannels() const
 int TextureChannels::addChannel()
 {
     TypeSet<int> osgids;
-    osgids += osgtexture_ ? osgtexture_->addDataLayer() : -1;
+
+    int id = -1;
+    if ( osgtexture_ )
+    {
+	id = osgtexture_->addDataLayer();
+	osgGeo::LayerProcess* layerprocess =
+	    		new osgGeo::IdentityLayerProcess( *osgtexture_, id );
+	layerprocess->setNewUndefColor( osg::Vec4f(0.6,0.8,0.6,1.0) );
+	osgtexture_->setDataLayerUndefLayerID( id, id );
+	osgtexture_->setDataLayerUndefChannel( id, 3 );
+	osgtexture_->setDataLayerImageUndefColor( id, osg::Vec4f(1.0,1.0,1.0,0.0) );
+	osgtexture_->addProcess( layerprocess );
+    }
+
+    osgids += id;
+
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
     const int res = channelinfo_.size();
