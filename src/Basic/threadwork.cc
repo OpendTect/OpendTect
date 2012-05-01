@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.43 2012-04-03 10:08:04 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.44 2012-05-01 12:31:07 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -409,7 +409,8 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
 
 
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
-	CallBack* cb, int queueid, bool firstinline )
+	CallBack* cb, int queueid, bool firstinline,
+	bool ignoreduplicates )
        					  
 {
     const int nrthreads = threads_.size();
@@ -436,6 +437,9 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
+    if ( ignoreduplicates && workload_.indexOf( newtask ) !=-1 )
+	return;
+ 
     const int nrfreethreads = freethreads_.size();
     if ( queuetypes_[queueidx]!=Manual && nrfreethreads )
     {

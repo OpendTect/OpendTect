@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.34 2012-04-03 10:08:04 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.35 2012-05-01 12:31:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,8 @@ public:
 				    queues */
 
     void			addWork(const Work&,CallBack* finished,
-	    				int queueid, bool putfirstinline);
+	    				int queueid, bool putfirstinline,
+					bool discardduplicates=false);
     				//!< Managed by caller if manage flag is false
 
     bool			addWork(TypeSet<Work>&, int queueid,
@@ -170,7 +171,7 @@ protected:
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
-    bool			takeover_;
+    bool		takeover_;
 };
 
 #define mSTFN(clss,fn) ((::TaskFunction)(&clss::fn))
