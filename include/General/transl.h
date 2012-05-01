@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.40 2012-04-26 06:49:35 cvsbert Exp $
+RCS:		$Id: transl.h,v 1.41 2012-05-01 12:40:32 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -158,6 +158,7 @@ protected: \
 public: \
     static TranslatorGroup& theInst();  \
     static int selector(const char*); \
+    static void initClass() {} \
     static const IOObjContext& ioContext(); \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
@@ -174,6 +175,7 @@ public: \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
+    static void initClass() {} \
     static int listID()	; \
 
   //! In the source file of a TranslatorGroup class
