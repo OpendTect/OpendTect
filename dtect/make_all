@@ -16,10 +16,8 @@ endif
 
 if ( $?OD_PMAKE_NR_PROCESSORS ) then
 	set nrcpus=$OD_PMAKE_NR_PROCESSORS
-else if ( -x $WORK/bin/$PLFSUBDIR/GetNrProc ) then
-	set nrcpus=`$WORK/bin/$PLFSUBDIR/GetNrProc`
-else if ( -x $WORK/Pmake/base/bin/$HDIR/GetNrProc ) then
-	set nrcpus=`$WORK/Pmake/base/bin/$HDIR/GetNrProc`
+else 
+	set nrcpus=`$WORK/dtect/GetNrProc`
 endif
 
 parse_args:
