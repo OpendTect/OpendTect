@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissingtrcdisp.cc,v 1.1 2012-05-01 11:39:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissingtrcdisp.cc,v 1.2 2012-05-01 14:14:29 cvsbert Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -18,15 +18,15 @@ static const char* rcsID = "$Id: uiseissingtrcdisp.cc,v 1.1 2012-05-01 11:39:45 
 #include "survinfo.h"
 
 
-uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p, bool annot )
+uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     : uiFlatViewer(p)
     , compnr_(0)
     , curid_(DataPack::cNoID())
 {
     FlatView::Appearance& app = appearance();
-    app.annot_.x1_.name_ = "Amplitude";
-    app.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
-    app.annot_.setAxesAnnot( annot );
+    app.annot_.x1_.name_ = " ";
+    app.annot_.x2_.name_ = " ";
+    app.annot_.setAxesAnnot( true );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
@@ -37,13 +37,21 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p, bool annot )
     app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
 
-    setExtraBorders( uiRect(2,5,2,5) );
+    setExtraBorders( uiRect(-10,5,2,5) );
+}
+
+
+void uiSeisSingleTraceDisplay::cleanUp()
+{
+    removePack( curid_ ); curid_ = DataPack::cNoID();
+    while ( nrAuxData() ) removeAuxData( 0 );
 }
 
 
 void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 {
-    removePack( curid_ ); curid_ = DataPack::cNoID();
+    cleanUp();
+
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
@@ -61,13 +69,16 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     }
 
     setPack( true, curid_, false );
+    setRefZ( 0 );
+
     handleChange( All );
 }
 
 
 void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 {
-    removePack( curid_ ); curid_ = DataPack::cNoID();
+    cleanUp();
+
     if ( trc )
     {
 	const int trcsz = trc->size();
@@ -88,5 +99,25 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     }
 
     setPack( true, curid_, false );
+
+    if ( trc )
+    {
+	float refz = trc->info().zref;
+	if ( mIsZero(refz,1e-8) || mIsUdf(refz) )
+	    refz = trc->info().pick;
+	if ( !mIsZero(refz,1e-8) && !mIsUdf(refz) )
+	    setRefZ( refz );
+    }
+
     handleChange( All );
+}
+
+
+void uiSeisSingleTraceDisplay::setRefZ( float zref )
+{
+    FlatView::AuxData* ad = createAuxData( "Ref Z" );
+    ad->poly_ += FlatView::Point( 0, zref );
+    ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 10,
+	    				Color::DgbColor() );
+    addAuxData( ad );
 }
