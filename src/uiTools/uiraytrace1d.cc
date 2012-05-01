@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.13 2012-04-27 07:57:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.14 2012-05-01 17:01:32 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -46,6 +46,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    if ( raytracerselfld_ ) 
 	    {
 		raytracerselfld_->box()->addItem( usernm );
+		raytracerselfld_->box()->setCurrentItem( usernm );
 		grp->attach( alignedBelow, raytracerselfld_ );
 		grp->setName( facnm );
 	    }
