@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.72 2012-04-24 21:21:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.73 2012-05-01 11:39:24 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.72 2012-04-24 21:21:50 cvs
 #include "wavelet.h"
 
 #include "uibutton.h"
-#include "uiflatviewer.h"
+#include "uiseissingtrcdisp.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
@@ -45,7 +45,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
-    , curid_(DataPack::cNoID())
     , wvltext_(0)
     , wvltpropdlg_(0)			 
 {
@@ -81,25 +80,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     extractbut->setPrefWidthInChar( 12 );
     butgrp_->attach( centeredBelow, selgrp_ );
 
-    wvltfld_ = new uiFlatViewer( listgrp_ );
-    FlatView::Appearance& app = wvltfld_->appearance();
-    app.annot_.x1_.name_ = "Amplitude";
-    app.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
-    app.annot_.setAxesAnnot( false );
-    app.setGeoDefaults( true );
-    app.ddpars_.show( true, false );
-    app.ddpars_.wva_.overlap_ = 0;
-    app.ddpars_.wva_.mappersetup_.cliprate_ = Interval<float>(0,0);
-    app.ddpars_.wva_.left_ = Color::NoColor();
-    app.ddpars_.wva_.right_ = Color::Black();
-    app.ddpars_.wva_.mid_ = Color::Black();
-    app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
-    app.setDarkBG( false );
-
-    wvltfld_->setPrefWidth( 60 );
-    wvltfld_->attach( ensureRightOf, selgrp_ );
-    wvltfld_->setStretch( 1, 2 );
-    wvltfld_->setExtraBorders( uiRect(2,5,2,5) );
+    trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_, false );
+    trcdisp_->setPrefWidth( 60 );
+    trcdisp_->attach( ensureRightOf, selgrp_ );
+    trcdisp_->setStretch( 1, 2 );
 
     selChg( this );
     mTriggerInstanceCreatedNotifier();
@@ -189,13 +173,10 @@ void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
+    trcdisp_->setData( wvlt );
 
-    wvltfld_->removePack( curid_ );
-    curid_ = DataPack::cNoID();
     if ( wvlt )
     {
-	setViewerData( wvlt );
-
 	const float zfac = SI().zDomain().userFactor();
 
 	BufferString tmp;
@@ -224,29 +205,8 @@ void uiSeisWvltMan::mkFileInfo()
 	}
     }
 
-    wvltfld_->setPack( true, curid_, false );
-    wvltfld_->handleChange( uiFlatViewer::All );
-
-
     txt += getFileInfo();
     setInfo( txt );
-}
-
-
-void uiSeisWvltMan::setViewerData( const Wavelet* wvlt )
-{
-    const int wvltsz = wvlt->size();
-    const float zfac = SI().zDomain().userFactor();
-
-    Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-    FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-    memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
-    dp->setName( wvlt->name() );
-    DPM( DataPackMgr::FlatID() ).add( dp );
-    curid_ = dp->id();
-    StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( zfac );
-    dp->posData().setRange( false, posns );
 }
 
 
@@ -318,7 +278,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     if ( !wvlt ) return;
     
     uiSeisWvltRotDlg dlg( this, *wvlt );
-    dlg.acting.notify( mCB(this,uiSeisWvltMan,updateViewer) );
+    dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
     {	
 	if ( !wvlt->put(curioobj_) )
@@ -327,7 +287,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	    selgrp_->fullUpdate( curioobj_->key() );
     }
 
-    dlg.acting.remove( mCB(this,uiSeisWvltMan,updateViewer) );
+    dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     mkFileInfo();
 
     delete wvlt;
@@ -351,7 +311,8 @@ void uiSeisWvltMan::taper( CallBacker* )
 
 
 #define mErr() mErrRet("Cannot draw wavelet");
-void uiSeisWvltMan::updateViewer( CallBacker* cb )
+
+void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
     if ( !dlg ) mErr();
@@ -359,8 +320,6 @@ void uiSeisWvltMan::updateViewer( CallBacker* cb )
     const Wavelet* wvlt = dlg->getWavelet();
     if ( !wvlt ) mErr();
 
-    setViewerData( wvlt );
-    wvltfld_->setPack( true, curid_, false );
-    wvltfld_->handleChange( uiFlatViewer::All );
+    trcdisp_->setData( wvlt );
 }
 
