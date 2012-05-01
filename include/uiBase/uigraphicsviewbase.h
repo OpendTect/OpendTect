@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.18 2012-03-28 10:14:38 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.19 2012-05-01 12:34:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     Notifier<uiGraphicsViewBase> reDrawNeeded;
     Notifier<uiGraphicsViewBase> reDrawn;
     				//!< In practice, this happens only after reSize
+    Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
 
 

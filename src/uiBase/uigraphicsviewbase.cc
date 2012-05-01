@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.35 2012-03-28 10:14:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.36 2012-05-01 12:34:54 cvskris Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -67,6 +67,7 @@ protected:
 
     void			wheelEvent(QWheelEvent*);
     void			resizeEvent(QResizeEvent*);
+    void			paintEvent(QPaintEvent*);
     void			mouseMoveEvent(QMouseEvent*);
     void			mouseReleaseEvent(QMouseEvent*);
     void			mousePressEvent(QMouseEvent*);
@@ -168,6 +169,13 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
 }
 
 
+void uiGraphicsViewBody::paintEvent( QPaintEvent* ev )
+{
+    handle_.preDraw.trigger();
+    QGraphicsView::paintEvent( ev );
+}
+
+
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 {
     if ( !ev ) return;
@@ -243,6 +251,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , reDrawNeeded(this)
     , reSize(this)
     , reDrawn(this)
+    , preDraw(this)
     , rubberBandUsed(this)
     , scrollBarUsed(this) 
     , scene_(0)
