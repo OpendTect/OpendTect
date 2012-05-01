@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.42 2012-04-30 21:45:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.43 2012-05-01 14:50:55 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -256,48 +256,56 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     const int inlsz = impbody_->cs_.nrInl();
     const int crlsz = impbody_->cs_.nrCrl();
     const int zsz = impbody_->cs_.nrZ();
-    Array2DImpl<float> isoval( inlsz, crlsz );
-    isoval.setAll(0);
-    for ( int idx=0; idx<inlsz; idx++ )
-    {
-	for ( int idy=0; idy<crlsz; idy++ )
-	{
-	    bool found = false;
-	    float minz, maxz;
-	    for ( int idz=0; idz<zsz; idz++ )
-	    {
-		if ( impbody_->arr_->get(idx,idy,idz)>impbody_->threshold_ )
-		    continue;
 
-		const float curz = impbody_->cs_.zrg.atIndex(idz);
-		if ( !found )
-		{
-		    found = true;
-		    minz = maxz = curz;
-		}
-		else
-		{
-		    if ( minz>curz ) minz = curz;
-		    if ( maxz<curz ) maxz = curz;
-		}
-	    }
-
-	    if ( found )
-    		isoval.set( idx, idy, maxz-minz );
-	}
-    }
-
+    int cnt=0;
+    Interval<int>irg,crg;;
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos) )
     {
+	cnt++;
 	BinID bid = bivs.getBinID(pos);
+	if ( cnt==1 )
+	{
+	    irg.start=irg.stop=bid.inl;
+	    crg.start=crg.stop=bid.crl;
+	}
+	else
+	{
+	    irg.include(bid.inl);
+	    crg.include(bid.crl);
+	}
 	float* vals = bivs.getVals(pos);
 	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl);
 	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl);
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
+	{
 	    vals[valcol] = 0;
-	else
-	    vals[valcol] = isoval.get( inlidx, crlidx );
+	    continue;
+	}
+
+	bool found = false;
+	float minz=0, maxz=0;
+	for ( int idz=0; idz<zsz; idz++ )
+	{
+	    if ( impbody_->arr_->get(inlidx,crlidx,idz)>impbody_->threshold_ )
+		continue;
+
+	    const float curz = impbody_->cs_.zrg.atIndex(idz);
+	    if ( !found )
+	    {
+		found = true;
+		minz = maxz = curz;
+	    }
+	    else
+	    {
+		if ( minz>curz ) 
+		    minz = curz;
+		else if ( maxz<curz ) 
+		    maxz = curz;
+	    }
+	}
+	    
+	vals[valcol] = maxz-minz;
     }
 
     setRandomPosData( attrib, data, 0 );
