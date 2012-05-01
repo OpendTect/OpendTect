@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.135 2012-04-18 14:38:49 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.136 2012-05-01 14:15:23 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 
@@ -679,7 +679,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
     const int ynameannpos = datarect.bottom() - 2;
     ArrowStyle arrowstyle( 1 );
     arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
-    if ( showanyx1annot && !ad1.name_.isEmpty() )
+    if ( showanyx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
     {
 	uiPoint from( datarect.right()-12, ynameannpos + 15 );
 	uiPoint to( datarect.right()-2, ynameannpos  + 15);
@@ -706,7 +706,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	axis1nm_->setPos( uiPoint(datarect.right()-20,ynameannpos) );
     }
 
-    if ( showanyx2annot && !ad2.name_.isEmpty() )
+    if ( showanyx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
     {
 	const int left = datarect.left();
 	uiPoint from( left , ynameannpos + 15 );

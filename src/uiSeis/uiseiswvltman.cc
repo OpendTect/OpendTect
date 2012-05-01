@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.73 2012-05-01 11:39:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.74 2012-05-01 14:15:23 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -80,8 +80,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     extractbut->setPrefWidthInChar( 12 );
     butgrp_->attach( centeredBelow, selgrp_ );
 
-    trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_, false );
-    trcdisp_->setPrefWidth( 60 );
+    trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_ );
+    trcdisp_->setPrefWidth( 100 );
     trcdisp_->attach( ensureRightOf, selgrp_ );
     trcdisp_->setStretch( 1, 2 );
 
