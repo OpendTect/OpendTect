@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui3dviewer.cc,v 1.10 2012-02-10 15:43:30 cvskris Exp $";
+static const char* rcsID = "$Id: ui3dviewer.cc,v 1.11 2012-05-01 07:29:11 cvsjaap Exp $";
 
 #include "ui3dviewer.h"
 
@@ -280,16 +280,23 @@ void ui3DViewerBody::setSceneID( int sceneid )
 	view->setCamera( osgcamera );
 	view->setSceneData( newscene->osgNode() );
 	view->addEventHandler( new osgViewer::StatsHandler );
-	osg::ref_ptr<osgGA::CameraManipulator> manip =
-	    new osgGA::TrackballManipulator( 
+
+	osg::ref_ptr<osgGA::TrackballManipulator> manip =
+	    new osgGA::TrackballManipulator(
 		osgGA::StandardManipulator::DEFAULT_SETTINGS |
 		osgGA::StandardManipulator::SET_CENTER_ON_WHEEL_FORWARD_MOVEMENT
 	    );
 
 	manip->setAutoComputeHomePosition( false );
-	view->setCameraManipulator( manip.get() );
 
+	view->setCameraManipulator( manip.get() );
 	view_.setOsgView( view );
+
+	// To put exaggerated bounding sphere radius offside
+	manip->setMinimumDistance( 0 );
+
+	// Camera projection must be initialized before computing home position
+	reSizeEvent( 0 );
     }
 
     scene_ = newscene;
@@ -358,11 +365,6 @@ void ui3DViewerBody::viewAll()
 {
     if ( !view_.getOsgView() )
 	return;
-    osg::ref_ptr<osg::Node> node = scene_->osgNode();
-    if ( !node )
-	return;
-
-    osg::BoundingSphere sphere = node ->getBound();
 
     osg::ref_ptr<osgGA::CameraManipulator> manip =
 	static_cast<osgGA::CameraManipulator*>(
