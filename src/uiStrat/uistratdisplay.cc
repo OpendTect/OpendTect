@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.41 2012-02-13 16:11:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.42 2012-05-01 15:14:41 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -58,6 +58,12 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 uiStratDisplay::~uiStratDisplay()
 {
     delete uidatagather_;
+}
+
+
+void uiStratDisplay::setTree()
+{
+    uidatagather_->setTree();
 }
 
 

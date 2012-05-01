@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.30 2012-02-13 16:11:49 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.31 2012-05-01 15:14:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,10 +106,11 @@ public:
     
     void			display(bool,bool shrk=false,bool max=false);
     void			setZRange(Interval<float>);
-    void			setTree(Strat::RefTree&);
     
     void			addControl(uiToolBar*);
     uiStratViewControl*		control() 	{ return uicontrol_; }
+
+    void			setTree();
 
 protected :
 

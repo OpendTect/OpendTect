@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.69 2012-04-26 13:13:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.70 2012-05-01 15:14:41 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -70,7 +70,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( RT().isEmpty() )
-	initRT();
+	setNewRT();
 
     createMenu();
     createToolBar();
@@ -87,15 +87,19 @@ uiStratTreeWin::~uiStratTreeWin()
 }
 
 
-void uiStratTreeWin::initRT()
+void uiStratTreeWin::setNewRT()
 {
     BufferStringSet opts;
     opts.add( "<Build from scratch>" );
     Strat::RefTree::getStdNames( opts );
 
-    uiSelectFromList::Setup su( "Stratigraphy: select initial", opts );
+    const bool nortpresent = RT().isEmpty();
+    BufferString dlgmsg( "Stratigraphy: " ); 
+    dlgmsg += nortpresent ? "select initial" : "select new"; 
+    uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
-    dlg.setButtonText( uiDialog::CANCEL, "" );
+    if ( nortpresent )
+	dlg.setButtonText( uiDialog::CANCEL, "" );
     bool havenewrt = false;
     if ( dlg.go() && dlg.selection() > 0 )
     {
@@ -117,7 +121,9 @@ void uiStratTreeWin::initRT()
 		const Repos::Source dest = Repos::Survey;
 		Strat::LVLS().store( dest );
 		Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
+		uistratdisp_->setTree();
 		havenewrt = true;
+		newbut_->setSensitive( true );
 	    }
 	}
     }
@@ -186,6 +192,8 @@ void uiStratTreeWin::createToolBar()
     mDefBut(moveunitupbut_,"uparrow.png",moveUnitCB,"Move unit up");
     mDefBut(moveunitdownbut_,"downarrow.png",moveUnitCB,"Move unit down");
     tb_->addSeparator();
+    mDefBut(newbut_,"newset.png",newCB,"New");
+    newbut_->setSensitive( !RT().isEmpty() );
     mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
@@ -245,6 +253,15 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 void uiStratTreeWin::unitSelCB(CallBacker*)
 {
     moveUnitCB(0);
+}
+
+
+void uiStratTreeWin::newCB( CallBacker* )
+{
+    BufferString msg( "This will overwrite the current tree. \n" );
+    msg += "Your work will be lost. Continue anyway ?";
+    if ( uiMSG().askGoOn( msg ) )
+	setNewRT();
 }
 
 

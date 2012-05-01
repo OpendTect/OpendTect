@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.25 2012-04-26 13:13:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.26 2012-05-01 15:14:41 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -29,18 +29,11 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.25 2012-04-26 13:13:09 c
 uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad, 
 					bool witauxs, bool withlvls  ) 
     : data_(ad)
-    , tree_(&Strat::eRT()) 
     , withauxs_(witauxs)		  
     , withlevels_(withlvls)  
     , newtreeRead(this)
 {
-    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDispTransl,treeDel));
-    mAskStratNotif(tree_,unitAdded,notify)
-    mAskStratNotif(tree_,unitChanged,notify)
-    mAskStratNotif(tree_,unitToBeDeleted,notify)
-    mAskStratNotif(&Strat::eLVLS(),levelChanged,notify)
-
-    readFromTree();
+    setTree();
 }
 
 
@@ -53,6 +46,22 @@ uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
 	mAskStratNotif(tree_,unitChanged,remove)
 	mAskStratNotif(tree_,unitToBeDeleted,remove)
     }
+}
+
+
+void uiStratTreeToDispTransl::setTree()
+{
+    tree_ = &Strat::eRT();
+    if ( !tree_ ) 
+	return;
+
+    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDispTransl,treeDel));
+    mAskStratNotif(tree_,unitAdded,notify)
+    mAskStratNotif(tree_,unitChanged,notify)
+    mAskStratNotif(tree_,unitToBeDeleted,notify)
+    mAskStratNotif(&Strat::eLVLS(),levelChanged,notify)
+
+    readFromTree();
 }
 
 

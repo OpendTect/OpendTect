@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.42 2012-01-26 13:20:17 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.43 2012-05-01 15:14:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     uiToolButton*		colexpbut_;
     uiToolButton*		lockbut_;
     uiToolButton*		openbut_;
+    uiToolButton*		newbut_;
     uiToolButton*		savebut_;
     uiToolButton*		moveunitupbut_;
     uiToolButton*		moveunitdownbut_;
@@ -66,11 +67,12 @@ protected:
     bool			needsave_;
     bool			istreedisp_;
 
-    void			initRT();
     void			createMenu();
     void			createToolBar();
     void			createGroups();
+    void			setNewRT();
 
+    void			newCB(CallBacker*);
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
