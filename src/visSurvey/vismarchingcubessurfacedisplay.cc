@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.43 2012-05-01 14:50:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.44 2012-05-01 14:51:51 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -257,23 +257,10 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     const int crlsz = impbody_->cs_.nrCrl();
     const int zsz = impbody_->cs_.nrZ();
 
-    int cnt=0;
-    Interval<int>irg,crg;;
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos) )
     {
-	cnt++;
 	BinID bid = bivs.getBinID(pos);
-	if ( cnt==1 )
-	{
-	    irg.start=irg.stop=bid.inl;
-	    crg.start=crg.stop=bid.crl;
-	}
-	else
-	{
-	    irg.include(bid.inl);
-	    crg.include(bid.crl);
-	}
 	float* vals = bivs.getVals(pos);
 	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl);
 	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl);
