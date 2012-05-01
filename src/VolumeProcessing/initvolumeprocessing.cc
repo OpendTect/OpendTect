@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.11 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.12 2012-05-01 13:59:38 cvskris Exp $";
 
 
 #include "moddepmgr.h"
@@ -18,11 +18,15 @@ static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.11 2011-08-23 14:51
 #include "volprocsmoother.h"
 #include "volprocbodyfiller.h"
 #include "volprocvolreader.h"
+#include "volproctrans.h"
 
 
 mDefModInitFn(VolumeProcessing)
 {
     mIfNotFirstTime( return );
+    
+    VolProcessingTranslatorGroup::initClass();
+    dgbVolProcessingTranslator::initClass();
 
     VolProc::HorInterFiller::initClass();
     VolProc::LateralSmoother::initClass();

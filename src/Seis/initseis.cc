@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.12 2012-05-01 12:38:17 cvskris Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.13 2012-05-01 13:59:38 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "timedepthconv.h"
@@ -17,6 +17,9 @@ static const char* rcsID = "$Id: initseis.cc,v 1.12 2012-05-01 12:38:17 cvskris 
 #include "seis2dlineio.h"
 #include "seispscubetr.h"
 #include "segydirecttr.h"
+#include "wavelet.h"
+#include "seismulticubeps.h"
+
 
 #define sKeySeisTrcTranslatorGroup "Seismic Data"
 defineTranslatorGroup(SeisTrc,sKeySeisTrcTranslatorGroup);
@@ -34,11 +37,22 @@ mDefModInitFn(Seis)
     mIfNotFirstTime( return );
 
     SeisTrcTranslatorGroup::initClass();
+    SeisPS3DTranslatorGroup::initClass();
+    SeisPS2DTranslatorGroup::initClass();
+    WaveletTranslatorGroup::initClass();
+    dgbWaveletTranslator::initClass();
+    
     SEGYSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
     CBVSSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
+    SEGYDirectSeisPS3DTranslator::initClass();
+    SEGYDirectSeisPS2DTranslator::initClass();
     SeisPSCubeSeisTrcTranslator::initClass();
+    CBVSSeisPS3DTranslator::initClass();
+    CBVSSeisPS2DTranslator::initClass();
+    MultiCubeSeisPS3DTranslator::initClass();
+
     
     LinearT2DTransform::initClass();
     LinearD2TTransform::initClass();

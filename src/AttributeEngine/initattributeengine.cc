@@ -7,14 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributeengine.cc,v 1.6 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributeengine.cc,v 1.7 2012-05-01 13:59:38 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "attribstorprovider.h"
+#include "attribdescsettr.h"
+
 
 mDefModInitFn(AttributeEngine)
 {
     mIfNotFirstTime( return );
 
+    AttribDescSetTranslatorGroup::initClass();
+    dgbAttribDescSetTranslator::initClass();
+    
     Attrib::StorageProvider::initClass();
 }
