@@ -4,10 +4,11 @@
  * DATE     : July 2007
 -*/
 
-static const char* rcsID = "$Id: madpi.cc,v 1.6 2012-03-15 14:43:01 cvsbert Exp $";
+static const char* rcsID = "$Id: madpi.cc,v 1.7 2012-05-01 14:00:44 cvskris Exp $";
 
 #include "maddefs.h"
 #include "odplugin.h"
+#include "madprocflowtr.h"
 
 mDefODPluginEarlyLoad(Madagascar)
 mDefODPluginInfo(Madagascar)
@@ -23,6 +24,9 @@ mDefODPluginInfo(Madagascar)
 
 mDefODInitPlugin(Madagascar)
 {
+    ODMadProcFlowTranslatorGroup::initClass();
+    dgbODMadProcFlowTranslator::initClass();
+    
     static BufferString prescanmsg = ODMad::PI().errMsg();
     return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
 }
