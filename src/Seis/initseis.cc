@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.11 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.12 2012-05-01 12:38:17 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "timedepthconv.h"
@@ -33,6 +33,13 @@ mDefModInitFn(Seis)
 {
     mIfNotFirstTime( return );
 
+    SeisTrcTranslatorGroup::initClass();
+    SEGYSeisTrcTranslator::initClass();
+    TwoDSeisTrcTranslator::initClass();
+    CBVSSeisTrcTranslator::initClass();
+    SEGYDirectSeisTrcTranslator::initClass();
+    SeisPSCubeSeisTrcTranslator::initClass();
+    
     LinearT2DTransform::initClass();
     LinearD2TTransform::initClass();
     Time2DepthStretcher::initClass();
