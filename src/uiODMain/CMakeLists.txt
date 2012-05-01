@@ -2,7 +2,7 @@
 #
 #	Makefile: 	uiODMain
 # 	Nov 2005:	Nanne Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-04-26 04:58:01 cvsranojay Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-05-01 13:59:01 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS
@@ -13,6 +13,7 @@ SET(OD_MODULE_DEPS
 	    uiEMAttrib 
 	    uiViewer2D )
 SET(OD_MODULE_SOURCES
+	    inituiodmain.cc
 	    odsession.cc
 	    uiodapplmgr.cc
 	    uiodapplmgraux.cc
