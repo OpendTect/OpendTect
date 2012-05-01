@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.45 2012-04-27 19:55:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.46 2012-05-01 15:02:54 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -486,7 +486,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_("Z values")
-    , isopatchmnuitem_("Isopach")  
+    , isopatchmnuitem_("Z isopach")  
 {}
 
 
