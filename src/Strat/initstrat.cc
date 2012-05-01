@@ -7,14 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initstrat.cc,v 1.3 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id: initstrat.cc,v 1.4 2012-05-01 14:41:13 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "stratsinglaygen.h"
+#include "strattransl.h"
 
 mDefModInitFn(Strat)
 {
     mIfNotFirstTime( return );
-
+    
+    StratLayerSequenceAttribSetTranslatorGroup::initClass();
+    StratLayerSequenceGenDescTranslatorGroup::initClass();
+    
+    odStratLayerSequenceGenDescTranslator::initClass();
+    odStratLayerSequenceAttribSetTranslator::initClass();
+    
     Strat::SingleLayerGenerator::initClass();
 }
