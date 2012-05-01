@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.6 2012-01-17 16:09:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.7 2012-05-01 17:04:35 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -68,7 +68,9 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 	return false;
     }
     HorSampling hrg;
-    subsel_->getSampling( hrg );
+    if ( !subsel_->isAll() )
+	subsel_->getSampling( hrg );
+
     processor_->params().hrg_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
 
