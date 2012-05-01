@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: raytrace1d.cc,v 1.40 2012-01-19 09:52:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.41 2012-05-01 16:24:46 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -401,7 +401,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
     for ( int layer=start; layer<=stop; layer++ )
     {
 	const ElasticLayer& ellayer = model_[layer];
-	const float depth = depths_[layer];
+	const float depth = 2*depths_[layer];
 	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
