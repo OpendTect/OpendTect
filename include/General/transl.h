@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.41 2012-05-01 12:40:32 cvskris Exp $
+RCS:		$Id: transl.h,v 1.42 2012-05-02 07:28:06 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -77,11 +77,12 @@ public:
 
     static const ObjectSet<TranslatorGroup>& groups()	{ return getGroups(); }
     static TranslatorGroup&	getGroup(const char* nm,bool usr=true);
+    static bool			hasGroup(const char* nm,bool usr=true);
 
     				// Called from macros
-    int				add(Translator*);
+    bool			add(Translator*);
     static TranslatorGroup&	addGroup(TranslatorGroup*);
-
+    
 protected:
 
     BufferString		clssname_;
@@ -139,33 +140,62 @@ public:
     virtual bool		isReadDefault() const		{ return true; }
     				//!< If true, objs are for 'normal' use, not
     				//!< just import
-
+    
 protected:
 
     BufferString		typname_;
     BufferString		usrname_;
     TranslatorGroup*		group_;
-
 };
 
 
+
+
 // Essential macros for implementing the concept
+#define mImplTranslatorInitClass( spec, clss, usrnm ) \
+{ \
+    if ( !TranslatorGroup::hasGroup( #clss , false ) )\
+    { \
+	pFreeFnErrMsg( #clss "TranslatorGroup::initClass() is missing", "" ); \
+	clss##TranslatorGroup::initClass(); \
+    } \
+\
+    spec##clss##Translator* tr = new spec##clss##Translator( #spec, usrnm ); \
+    TranslatorGroup::getGroup( #clss, false).add( tr ); \
+}
+
+#define mImplTranslatorGroupTheInst( clss, usrnm ) \
+{ \
+    static RefMan<TranslatorGroup> inst = \
+	&TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
+    return *inst; \
+}
+
+
 
   //! In the class definition of a TranslatorGroup class
-#define isTranslatorGroup(clss) \
+#define isTranslatorGroupBody(clss) \
 protected: \
     ~clss##TranslatorGroup() {} \
 public: \
-    static TranslatorGroup& theInst();  \
     static int selector(const char*); \
-    static void initClass() {} \
+    static void initClass() { theInst(); } \
     static const IOObjContext& ioContext(); \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
+    static TranslatorGroup& theInst()
+
+
+#define isTranslatorGroup( clss ) \
+isTranslatorGroupBody(clss);
+
+#define isTranslatorGroupWithInst( clss, usrnm ) \
+isTranslatorGroupBody( clss ) \
+mImplTranslatorGroupTheInst( clss, usrnm )
 
 
   //! In the class definition of a Translator class
-#define isTranslator(spec,clss) \
+#define isTranslatorBody(spec,clss) \
 public: \
     Translator* getNew() const \
     { \
@@ -175,27 +205,28 @@ public: \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
-    static void initClass() {} \
-    static int listID()	; \
+    static void initClass()
+
+
+#define isTranslator( spec, clss ) \
+isTranslatorBody( spec, clss );
+
+#define mIsTranslatorWithInitClass( spec, clss, usrnm ) \
+isTranslatorBody(spec, clss) \
+mImplTranslatorInitClass(spec, clss, usrnm )
 
   //! In the source file of a TranslatorGroup class
 #define defineTranslatorGroup(clss,usrnm) \
-static RefMan<TranslatorGroup> clss##inst = \
-    &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
 TranslatorGroup& clss##TranslatorGroup::theInst() \
-{ return *clss##inst; }
+mImplTranslatorGroupTheInst( clss, usrnm )
 
-
-  //! In the source file of a Translator class
+//! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
-static int spec##clss##listid_ \
-    = TranslatorGroup::getGroup( #clss , false ).add( \
-	    new spec##clss##Translator( #spec, usrnm ) ); \
-int spec##clss##Translator::listID()    { return spec##clss##listid_; }\
 spec##clss##Translator* spec##clss##Translator::getInstance() \
 { return new spec##clss##Translator(#clss,usrnm); } \
-const char* spec##clss##Translator::translKey() { return usrnm; }
-
+const char* spec##clss##Translator::translKey() { return usrnm; } \
+void spec##clss##Translator::initClass() \
+mImplTranslatorInitClass( spec, clss, usrnm )
 
 
   //! Convenience when the TranslatorGroup is not interesting 4 u.

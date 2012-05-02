@@ -6,6 +6,7 @@
 -*/
 
 #include "transl.h"
+#include "preloads.h"
 #include "streamconn.h"
 #include "ctxtioobj.h"
 #include "fixedstring.h"
@@ -13,10 +14,10 @@
 #include "iopar.h"
 #include "errh.h"
 #include "debugmasks.h"
-#include "preloads.h"
+
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.32 2012-04-26 06:49:35 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.33 2012-05-02 07:28:06 cvskris Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
@@ -56,10 +57,12 @@ ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 }
 
 
-int TranslatorGroup::add( Translator* tr )
+bool TranslatorGroup::add( Translator* tr )
 {
-    if ( !tr ) return -1;
-
+    if ( !tr ) return false;
+    
+    bool res = false;
+    
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
 	const Translator* oldtr = templs_[idx];
@@ -72,14 +75,16 @@ int TranslatorGroup::add( Translator* tr )
 		msg += "' - replacing old.";
 		DBG::message( msg );
 	    }
-	    templs_ -= oldtr; break;
+	    res = true;
+	    	    templs_ -= oldtr; break;
+	    
 	}
     }
 
     tr->setGroup( this );
     templs_ += tr;
-
-    return templs_.size() - 1;
+   
+    return res;
 }
 
 
@@ -133,6 +138,13 @@ TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
     if ( !ret ) mRetEG
     return *ret;
 }
+
+
+bool TranslatorGroup::hasGroup( const char* nm, bool user )
+{
+    return findGroup( groups(), nm, user, false );
+}
+
 
 
 TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
