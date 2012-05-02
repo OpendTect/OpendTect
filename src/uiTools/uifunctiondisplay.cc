@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uifunctiondisplay.cc,v 1.61 2012-05-02 11:53:57 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uifunctiondisplay.cc,v 1.62 2012-05-02 13:53:02 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -346,8 +346,6 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 
 void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 {
-    //TODO removing of all items not perfirmance effective,
-        // some other method should be applied
     if ( isy2 ? !y2markeritems_ : !ymarkeritems_ )
     {
 	if ( isy2 )
@@ -382,19 +380,14 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 			     isy2 ? setup_.y2col_ : setup_.ycol_ );
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
-	if ( idx < curitmgrp->size() )
-	{
-	    uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
-	    itm->setPos( ptlist[idx].x, ptlist[idx].y );
-	    itm->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
-	}
-	else
+	if ( idx >= curitmgrp->size() )
 	{
 	    uiMarkerItem* markeritem = new uiMarkerItem( mst, false );
-	    markeritem->setPos( ptlist[idx].x, ptlist[idx].y );
-	    markeritem->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
 	    curitmgrp->add( markeritem );
 	}
+	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
+	itm->setPos( ptlist[idx].x, ptlist[idx].y );
+	itm->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
     }
 
     if ( ptlist.size() < curitmgrp->size() )
@@ -412,21 +405,16 @@ void uiFunctionDisplay::drawBorder()
     {
 	const int scwidth = (int)scene().width();
 	const int scheight = (int)scene().height();
+	const uiRect r( xAxis()->pixBefore(), yAxis(false)->pixAfter(),
+		scwidth -xAxis()->pixAfter()-xAxis()->pixBefore(),
+		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );
+
 	if ( !borderrectitem_ )
-	{
-	    borderrectitem_ = scene().addRect( xAxis()->pixBefore(),
-		    yAxis(false)->pixAfter(),
-		    scwidth-yAxis(false)->pixAfter()-yAxis(false)->pixBefore(),
-		    scheight-xAxis()->pixAfter()-xAxis()->pixBefore() );
-	}
+	    borderrectitem_ = scene().addRect( r.left(), r.top(), 
+					       r.right(), r.bottom() ); 
 	else
-	    borderrectitem_->setRect( xAxis()->pixBefore(),
-		    		      yAxis(false)->pixAfter(),
-		    		      scwidth -xAxis()->pixAfter()
-					      -xAxis()->pixBefore(),
-		    		      scheight -yAxis(false)->pixAfter()
-					       -yAxis(false)->pixBefore() );
-	borderrectitem_->setPos(xAxis()->pixBefore(),yAxis(false)->pixAfter());
+	    borderrectitem_->setRect( r.left(), r.top(), 
+				      r.right(), r.bottom() );
 	borderrectitem_->setPenStyle( setup_.borderstyle_ );
     }
     if ( borderrectitem_ )
