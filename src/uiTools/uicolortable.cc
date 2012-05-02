@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.46 2012-02-20 10:08:56 cvskris Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.47 2012-05-02 07:05:23 cvsbert Exp $";
 
 #include "uicolortable.h"
 
@@ -144,7 +144,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 	canvas_->attach( rightOf, minfld_ );
 	maxfld_->attach( rightOf, canvas_ );
 	selfld_->attach( rightOf, maxfld_ );
-	setHAlignObj(minfld_); setHCentreObj(minfld_);
+	setHAlignObj(minfld_); setHCenterObj(minfld_);
     }
 }
 
@@ -169,7 +169,7 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, vert ? 1 : 0 );
     selfld_->setCurrent( coltabseq_ );
-    setHAlignObj(canvas_); setHCentreObj(canvas_);
+    setHAlignObj(canvas_); setHCenterObj(canvas_);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.74 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.75 2012-05-02 07:05:23 cvsbert Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -117,8 +117,8 @@ public:
 
     uiObject*		hAlignObj()			{ return halignobj; }
     void		setHAlignObj( uiObject* o );
-    uiObject*		hCentreObj()			{ return hcentreobj; }
-    void		setHCentreObj( uiObject* o );
+    uiObject*		hCenterObj()			{ return hcentreobj; }
+    void		setHCenterObj( uiObject* o );
 
 
     void		setIsMain( bool yn ) 
@@ -187,7 +187,7 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
 }
 
 
-void uiGroupParentBody::setHCentreObj( uiObject* obj )
+void uiGroupParentBody::setHCenterObj( uiObject* obj )
 { 
     if( !obj ||( loMngr && loMngr->isChild(obj)) ) { hcentreobj = obj; return; }
 
@@ -206,7 +206,7 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
 #endif
 
 /*
-    Ok. So, someone is trying to set an object as HCentreObj, which is not
+    Ok. So, someone is trying to set an object as HCenterObj, which is not
     a child of this group.
     Let's try to see if the parent of the object is a child and solve the 
     problem.
@@ -215,10 +215,10 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
     if( objpar && loMngr && loMngr->isChild(objpar->mainObject()) )
     { // good. the object's parent is a child of this group ;-))
-	if( !objpar->hCentreObj() )
-	    objpar->setHCentreObj(obj);
+	if( !objpar->hCenterObj() )
+	    objpar->setHCenterObj(obj);
 
-	if( obj == objpar->hCentreObj() )
+	if( obj == objpar->hCenterObj() )
 	{
 	    hcentreobj = objpar->mainObject();
 	    return;
@@ -539,12 +539,12 @@ void uiGroup::setHAlignObj( uiObject* o )
     { body_->setHAlignObj(o); }
 
 
-uiObject* uiGroup::hCentreObj()
-    { return body_->hCentreObj(); }
+uiObject* uiGroup::hCenterObj()
+    { return body_->hCenterObj(); }
 
 
-void uiGroup::setHCentreObj( uiObject* o )
-    { body_->setHCentreObj( o ); }
+void uiGroup::setHCenterObj( uiObject* o )
+    { body_->setHCenterObj( o ); }
 
 
 void uiGroup::setNoBackGround()

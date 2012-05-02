@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.39 2011-05-10 10:14:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.40 2012-05-02 07:05:23 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -98,7 +98,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 					mCB(this,uiSelLineStyle,changeCB) );
     }
 
-    setHAlignObj( alobj ); setHCentreObj( alobj );
+    setHAlignObj( alobj ); setHCenterObj( alobj );
 }
 
 

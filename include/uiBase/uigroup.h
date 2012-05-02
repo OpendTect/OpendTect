@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.43 2012-01-10 16:44:22 cvsbert Exp $
+ RCS:           $Id: uigroup.h,v 1.44 2012-05-02 07:05:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,10 +85,10 @@ public:
     void		setHAlignObj( uiObject* o );
     void		setHAlignObj( uiGroup* o )
 			    { setHAlignObj(o->mainObject()); }
-    uiObject*		hCentreObj();
-    void		setHCentreObj( uiObject* o );
-    void		setHCentreObj( uiGroup* o )
-			    { setHCentreObj(o->mainObject()); }
+    uiObject*		hCenterObj();
+    void		setHCenterObj( uiObject* o );
+    void		setHCenterObj( uiGroup* o )
+			    { setHCenterObj(o->mainObject()); }
 
     //! internal use only. Tells the layout manager it's a toplevel mngr.
     void		setIsMain( bool ); 
