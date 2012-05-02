@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: odgraphicsitem.cc,v 1.26 2012-05-02 11:53:35 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: odgraphicsitem.cc,v 1.27 2012-05-02 13:19:09 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -180,6 +180,8 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	case MarkerStyle2D::Arrow:
 	    drawMarker( painter, MarkerStyle2D::VLine, 2*szx, 2*szy );
 	    drawMarker( painter, MarkerStyle2D::Triangle, -szx, -szy );
+	    break;
+	case MarkerStyle2D::None:
 	    break;
     }
 }
