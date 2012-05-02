@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiobjbody.cc,v 1.36 2012-05-02 11:53:37 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiobjbody.cc,v 1.37 2012-05-02 13:17:29 cvskris Exp $";
 
 
 #include "uiobjbody.h"
@@ -300,6 +300,8 @@ int uiObjectBody::prefHNrPics() const
 
 		case uiObject::WideMax:
 		case uiObject::WideVar:  pwc=4*baseFldSz+3; var=true; break;
+		default:
+		    break;
 	    }
 
 	    if ( !pwc )
@@ -412,6 +414,8 @@ int uiObjectBody::prefVNrPics() const
 		    case uiObject::WideMax:
 		    case uiObject::WideVar:
 			    lines=4*baseFldSz+3; var=true; break;
+		    default:
+			break;
 		}
 
 
