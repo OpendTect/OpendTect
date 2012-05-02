@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.43 2012-05-02 11:52:41 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.44 2012-05-02 12:06:33 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -84,7 +84,7 @@ IF(WIN32)
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
     ADD_DEFINITIONS("/W1 /Ob1 /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
-    ADD_DEFINITIONS( "-DmUnusedVar")
+    ADD_DEFINITIONS(  "\"-DmUnusedVar=\"")
     SET(OD_STATIC_EXTENSION ".lib")
     SET(OD_EXECUTABLE_EXTENSION ".exe" )
     IF ( OD_64BIT )
