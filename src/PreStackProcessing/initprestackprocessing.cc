@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initprestackprocessing.cc,v 1.9 2012-05-01 13:59:38 cvskris Exp $";
+static const char* rcsID = "$Id: initprestackprocessing.cc,v 1.10 2012-05-02 08:52:49 cvsbruno Exp $";
 
 #include "moddepmgr.h"
 #include "prestackagc.h"
@@ -27,7 +27,7 @@ mDefModInitFn(PreStackProcessing)
     PreStackProcTranslatorGroup::initClass();
     
     dgbPSEventTranslator::initClass();
-    dgbPSEventTranslator::initClass();
+    dgbMuteDefTranslator::initClass();
     dgbPreStackProcTranslator::initClass();
 
     PreStack::Mute::initClass();
