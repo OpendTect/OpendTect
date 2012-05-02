@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uimain.cc,v 1.74 2012-05-02 11:53:37 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uimain.cc,v 1.75 2012-05-02 13:03:29 cvskris Exp $";
 
 #include "uimain.h"
 
@@ -548,6 +548,11 @@ void myMessageOutput( QtMsgType type, const char *msg )
 	    break;
 	case QtFatalMsg:
 	    ErrMsg( msg );
+	    break;
+	case QtCriticalMsg:
+	    ErrMsg( msg );
+	    break;
+	default:
 	    break;
     }
 }
