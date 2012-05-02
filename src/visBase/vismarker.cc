@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: vismarker.cc,v 1.35 2012-05-02 11:54:08 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: vismarker.cc,v 1.36 2012-05-02 13:17:02 cvskris Exp $";
 
 #include "vismarker.h"
 
@@ -143,9 +143,7 @@ void Marker::setType( MarkerStyle3D::Type type )
 {
     switch ( type )
     {
-    case MarkerStyle3D::None: {
-	removeChild(shape);
-	} break;
+    
     case MarkerStyle3D::Cube: {
 	setMarkerShape(new SoCube);
 	setRotation( Coord3(0,0,1), 0 );
@@ -193,6 +191,10 @@ void Marker::setType( MarkerStyle3D::Type type )
 	plane->setWidth( Coord3(6,5,1) );
 	setMarkerShape( plane->getInventorNode() ); 
 	setDip( inldip_, crldip_ );
+	} break;
+    case MarkerStyle3D::None:
+    default:{
+	    removeChild(shape);
 	} break;
     }
 
