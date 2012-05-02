@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bufstring.cc,v 1.42 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: bufstring.cc,v 1.43 2012-05-02 15:23:15 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -377,7 +377,6 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
     const int len2 = strlen( s2 );
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
-    int ret = 0;
 
     Array2DImpl<int> d( len1+1, len2+1 );
 
