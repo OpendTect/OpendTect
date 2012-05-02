@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: iodraw.cc,v 1.54 2012-05-02 11:53:35 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: iodraw.cc,v 1.55 2012-05-02 13:09:10 cvskris Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -332,6 +332,25 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 	drawLine( pt.x-mstyle.size_, pt.y+mstyle.size_,
 		  pt.x+mstyle.size_, pt.y-mstyle.size_ );
     break;
+	case MarkerStyle2D::Plus:
+	    drawLine( pt.x, pt.y-mstyle.size_,
+		     pt.x, pt.y+mstyle.size_ );
+	    drawLine( pt.x-mstyle.size_, pt.y,
+		     pt.x+mstyle.size_, pt.y );
+	    break;
+	case MarkerStyle2D::HLine:
+	    drawLine( pt.x-mstyle.size_, pt.y,
+		     pt.x+mstyle.size_, pt.y );
+	    break;
+	case MarkerStyle2D::VLine:
+	    drawLine( pt.x, pt.y-mstyle.size_,
+		     pt.x, pt.y+mstyle.size_ );
+	    break;
+	case MarkerStyle2D::None:
+	    break;
+	default:
+	    pErrMsg("Shape not supported");
+	    break;
     }
 }
 
