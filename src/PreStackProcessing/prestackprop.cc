@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: prestackprop.cc,v 1.7 2012-05-02 11:53:20 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: prestackprop.cc,v 1.8 2012-05-02 13:20:06 cvskris Exp $";
 
 #include "prestackprop.h"
 
@@ -202,6 +202,7 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 	case PropCalc::Exp:	vals[idx] = Math::Exp( val );	break;
 	case PropCalc::Sqrt:	vals[idx] = Math::Sqrt( val );	break;
 	case PropCalc::Abs:	vals[idx] = fabs( val );	break;
+	default:						break;
 	}
     }
 }
