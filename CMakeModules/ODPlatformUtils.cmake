@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.41 2012-04-26 04:58:01 cvsranojay Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.42 2012-05-02 10:58:23 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -47,7 +47,7 @@ IF(UNIX) #Apple an Linux
 	
     ENDIF()
 
-    ADD_DEFINITIONS("'-DmDeclareRcsID=static const char* __attribute__ ((unused)) rcsID'")
+    ADD_DEFINITIONS("'-DmRcsID=static const char* __attribute__ ((unused)) rcsID'")
     SET(OD_STATIC_EXTENSION ".a")
     IF( OD_DEBUG )
         ADD_DEFINITIONS("-D__debug__")
@@ -84,7 +84,7 @@ IF(WIN32)
     SET(OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
     ADD_DEFINITIONS("/W1 /Ob1 /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
-    ADD_DEFINITIONS( "\"-DmDeclareRcsID=static const char* rcsID\"")
+    ADD_DEFINITIONS( "\"-DmRcsID=static const char* rcsID\"")
     SET(OD_STATIC_EXTENSION ".lib")
     SET(OD_EXECUTABLE_EXTENSION ".exe" )
     IF ( OD_64BIT )
