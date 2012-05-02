@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.36 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.37 2012-05-02 07:01:37 cvsbert Exp $";
 
 #include "uiconvpos.h"
 #include "survinfo.h"
@@ -53,12 +53,12 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     yfld->attach( alignedBelow, xfld );
 
     uiGroup* butgrp = new uiGroup( mangrp, "Buttons" );
-    uiToolButton* dobinidbut = new uiToolButton( butgrp, "back.xpm",
-					"Convert (X,Y) to Inl/Crl",
-	   				mCB(this,uiConvertPos,getBinID) );
-    uiToolButton* docoordbut = new uiToolButton( butgrp, "forward.xpm",
-	    			"Convert Inl/Crl to (X,Y)",
-				mCB(this,uiConvertPos,getCoord) );
+    uiToolButton* dobinidbut = new uiToolButton( butgrp,
+			uiToolButton::LeftArrow, "Convert (X,Y) to Inl/Crl",
+			mCB(this,uiConvertPos,getBinID) );
+    uiToolButton* docoordbut = new uiToolButton( butgrp,
+	    		uiToolButton::RightArrow, "Convert Inl/Crl to (X,Y)",
+			mCB(this,uiConvertPos,getCoord) );
     docoordbut->attach( rightTo, dobinidbut );
     butgrp->attach( centeredRightOf, inlcrlgrp );
     xygrp->attach( centeredRightOf, butgrp );
