@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.106 2012-05-02 12:23:57 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.107 2012-05-02 12:28:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,8 @@ public:
     const char*		getXYUnitString(bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
-    inline int		showZ2UserFactor() const
-			{ return zDomain().userFactor(); }
+    inline float	showZ2UserFactor() const
+			{ return (float)zDomain().userFactor(); }
 
     bool		depthsInFeetByDefault() const { return depthsInFeet(); }
     			//!<Legacy, don't use. Use depthsInFeet().
