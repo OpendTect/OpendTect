@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: initearthmodel.cc,v 1.14 2012-05-02 11:53:07 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: initearthmodel.cc,v 1.15 2012-05-02 14:38:16 cvskris Exp $";
 
 
 #include "moddepmgr.h"
@@ -25,7 +25,6 @@ static const char* mUnusedVar rcsID = "$Id: initearthmodel.cc,v 1.14 2012-05-02 
 #include "emsurfaceposprov.h"
 #include "lmkemfaulttransl.h"
 #include "embodytr.h"
-#include "emsticksettransl.h"
 
 
 mDefModInitFn(EarthModel)
