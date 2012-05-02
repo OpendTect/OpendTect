@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.38 2012-05-02 15:11:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.39 2012-05-02 15:31:22 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -212,11 +212,9 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	def = owndef.ptr();
     }
 
-    bool initialstate = true;
-
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
 	    		    nrcells_ );
-    const bool res = tr ? tr->execute(setter) : setter.execute();
+    tr ? tr->execute(setter) : setter.execute();
 
     if ( filltype_==ConvexHull )
     {
@@ -1394,7 +1392,6 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
     if ( !triangleinterpolator_ )
 	return false;
 
-    int dupid = -1;
     TypeSet<od_int64> currenttask;
     TypeSet<od_int64> definedidices;
 
@@ -1518,7 +1515,6 @@ void A2DIntExtenExecutor::createStateArr()
     
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
     {
-	bool havedef = false;
 	for ( int icol=0; icol<aie_.nrcols_; icol++ )
 	{
 	    const float val = aie_.arr_->get( irow, icol );
@@ -1570,7 +1566,6 @@ bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
 
 bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
 {
-    static const float sqrt2 = Math::Sqrt( 2.0 );
     float defs[12]; float wts[12]; int nrdefs = 0;
     if ( irow )
     {

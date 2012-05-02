@@ -83,7 +83,6 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 	return false;
 
     const float df = Fourier::CC::getDf( sampling_.step, sz_ );
-    const float nyqfreq = Fourier::CC::getNyqvist( sampling_.step  );
 
     Array1D<float_complex>& interpvals = *arrs_[thread];
 
@@ -170,9 +169,6 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 
     const float dfx = Fourier::CC::getDf( xsampling_.step, szx_ );
     const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
-
-    const float nyqxfreq = Fourier::CC::getNyqvist( xsampling_.step  );
-    const float nyqyfreq = Fourier::CC::getNyqvist( ysampling_.step );
 
     Array2D<float_complex>& interpvals = *arrs_[thread];
 
@@ -277,10 +273,6 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
     const float dfx = Fourier::CC::getDf( xsampling_.step, szx_ );
     const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
     const float dfz = Fourier::CC::getDf( zsampling_.step, szz_ );
-
-    const float nyqxfreq = Fourier::CC::getNyqvist( xsampling_.step  );
-    const float nyqyfreq = Fourier::CC::getNyqvist( ysampling_.step );
-    const float nyqzfreq = Fourier::CC::getNyqvist( zsampling_.step );
 
     Array3DImpl<float_complex>& interpvals = *arrs_[thread];
 
