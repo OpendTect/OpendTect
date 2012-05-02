@@ -4,7 +4,7 @@
  * DATE     : December 2009
 -*/
 
-static const char* rcsID = "$Id: array1dinterpol.cc,v 1.2 2009-12-16 08:55:32 cvsbruno Exp $";
+mRcsID = "$Id: array1dinterpol.cc,v 1.3 2012-05-02 11:01:15 cvskris Exp $";
 
 #include "array1dinterpol.h"
 
