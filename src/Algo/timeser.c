@@ -9,53 +9,13 @@
 
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: timeser.c,v 1.4 2012-05-02 12:20:04 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: timeser.c,v 1.5 2012-05-02 12:32:44 cvskris Exp $";
 
 
 #include "timeser.h"
 #include "mallocdefs.h"
 #include <math.h>
 #include <string.h>
-
-
-static float PowerOf( float x, float y )
-{
-    int isneg = x < 0 ? 1 : 0;
-     float ret ;
-
-    if ( x == 0 ) return y ? 0 : 1;
-    if ( isneg ) x = -x;
-
-     ret = exp( y * log(x) );
-    return isneg ? -ret : ret;
-}
-
-static void designBF( float fpass, float apass, float fstop, float astop,
-		      int* npoles, float* f3db )
-{
-    double wpass, wstop, fnpoles, w3db;
-
-    wpass = 2 * tan( M_PI * fpass );
-    wstop = 2 * tan( M_PI * fstop );
-
-    if ( fstop>fpass )
-    {
-	fnpoles = log( (1.0/(apass*apass)-1.0) / (1.0/(astop*astop)-1.0) )
-		/ log( wpass*wpass / (wstop*wstop) );
-	w3db = wpass / PowerOf( (double)(1.0/(apass*apass)-1.0),
-				(double)(0.5/fnpoles) );
-    }
-    else
-    {
-	fnpoles = log( (1.0/(apass*apass)-1.0) / (1.0/(astop*astop)-1.0) )
-		/ log( wstop*wstop / (wpass*wpass) );
-	w3db = wpass * PowerOf( (double)(1.0/(apass*apass)-1.0),
-				(double)(0.5/fnpoles) );
-    }
-
-    *npoles = 1 + (int)fnpoles;
-    *f3db = atan(0.5*w3db) / M_PI;
-}
 
 
 void BFhighpass( int npoles, float f3db,
@@ -151,7 +111,6 @@ void BFlowpass( int npoles, float f3db,
 void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 {
     int iwt, ival, istart, width, hwidth, inpidx;
-    float h;
     float* wts;
 
     if ( frac < 0 ) frac = -frac;
