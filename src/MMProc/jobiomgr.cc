@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.41 2011-06-27 06:16:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.42 2012-05-02 07:11:15 cvskris Exp $";
 
 #include "jobiomgr.h"
 
@@ -583,7 +583,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     FilePath riopfp( remote ? machine.convPath( HostData::Data, iopfp )
 			     : iopfp );
    
-    bool winstyle = machine.isWin() && rshcomm == "rcmd";
+    bool winstyle = machine.isWin() && rshcomm == FixedString("rcmd");
     
     cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
 
