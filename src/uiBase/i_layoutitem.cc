@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: i_layoutitem.cc,v 1.17 2012-05-02 11:53:35 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: i_layoutitem.cc,v 1.18 2012-05-02 13:00:52 cvskris Exp $";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -178,6 +178,8 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 		mPos.setVNrPics( pref_v_nr_pics );
 		preferred_pos_inited = true;
 	    }
+	    break;
+	case all:
 	    break;
     } 
 
