@@ -4,7 +4,7 @@
  * DATE     : Jan 2011
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: enums.cc,v 1.2 2012-05-02 11:53:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: enums.cc,v 1.3 2012-05-02 15:11:25 cvskris Exp $";
 
 #include "enums.h"
 

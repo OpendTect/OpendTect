@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* mUnusedVar rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.10 2012-05-02 11:53:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoIndexedTriangleFanSet.cc,v 1.11 2012-05-02 15:11:50 cvskris Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 

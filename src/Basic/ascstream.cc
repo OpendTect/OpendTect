@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: ascstream.cc,v 1.37 2012-05-02 11:53:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.38 2012-05-02 15:11:24 cvskris Exp $";
 
 #include "ascstream.h"
 #include "string2.h"

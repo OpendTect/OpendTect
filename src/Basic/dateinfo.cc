@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* mUnusedVar rcsID = "$Id: dateinfo.cc,v 1.22 2012-05-02 11:53:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dateinfo.cc,v 1.23 2012-05-02 15:11:24 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"

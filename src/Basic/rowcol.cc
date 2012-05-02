@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: rowcol.cc,v 1.21 2012-05-02 11:53:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: rowcol.cc,v 1.22 2012-05-02 15:11:26 cvskris Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"

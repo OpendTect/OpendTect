@@ -4,7 +4,7 @@
  * SOURCE   : http://support.microsoft.com/kb/178893
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: winterminate.cc,v 1.7 2012-05-02 11:53:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: winterminate.cc,v 1.8 2012-05-02 15:11:28 cvskris Exp $";
 #include "commondefs.h"
 #ifdef __win__
 #include "winterminate.h"

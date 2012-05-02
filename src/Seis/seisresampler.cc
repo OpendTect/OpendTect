@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: seisresampler.cc,v 1.13 2012-05-02 11:53:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisresampler.cc,v 1.14 2012-05-02 15:11:48 cvskris Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"

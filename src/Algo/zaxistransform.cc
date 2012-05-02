@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: zaxistransform.cc,v 1.26 2012-05-02 11:52:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.27 2012-05-02 15:11:20 cvskris Exp $";
 
 #include "zaxistransform.h"
 

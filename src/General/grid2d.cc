@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: grid2d.cc,v 1.2 2012-05-02 11:53:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: grid2d.cc,v 1.3 2012-05-02 15:11:34 cvskris Exp $";
 
 #include "grid2d.h"
 

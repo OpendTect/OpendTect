@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.19 2012-05-02 11:53:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibatchtime2depthsetup.cc,v 1.20 2012-05-02 15:12:15 cvskris Exp $";
 
 #include "uibatchtime2depthsetup.h"
 

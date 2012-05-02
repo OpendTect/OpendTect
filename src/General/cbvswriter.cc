@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: cbvswriter.cc,v 1.58 2012-05-02 11:53:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvswriter.cc,v 1.59 2012-05-02 15:11:32 cvskris Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"

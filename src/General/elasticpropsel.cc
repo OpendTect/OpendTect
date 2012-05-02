@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: elasticpropsel.cc,v 1.17 2012-05-02 11:53:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.18 2012-05-02 15:11:33 cvskris Exp $";
 
 
 #include "elasticpropsel.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uisplashscreen.cc,v 1.7 2012-05-02 11:53:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisplashscreen.cc,v 1.8 2012-05-02 15:12:02 cvskris Exp $";
 
 
 #include "uisplashscreen.h"

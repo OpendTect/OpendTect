@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: coltabsequence.cc,v 1.39 2012-05-02 11:53:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.40 2012-05-02 15:11:32 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"

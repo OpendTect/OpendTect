@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiattribcrossplot.cc,v 1.59 2012-05-02 11:53:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribcrossplot.cc,v 1.60 2012-05-02 15:11:56 cvskris Exp $";
 
 #include "uiattribcrossplot.h"
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.47 2012-05-02 11:53:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodbodydisplaytreeitem.cc,v 1.48 2012-05-02 15:12:12 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 

@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: visdetail.cc,v 1.9 2012-05-02 11:54:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdetail.cc,v 1.10 2012-05-02 15:12:31 cvskris Exp $";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>

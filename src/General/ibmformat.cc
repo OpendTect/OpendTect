@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: ibmformat.cc,v 1.6 2012-05-02 11:53:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ibmformat.cc,v 1.7 2012-05-02 15:11:34 cvskris Exp $";
 
 #include "ibmformat.h"
 #include <string.h>

@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpsselgrpdlg.cc,v 1.4 2012-05-02 11:53:45 cvskris Exp $: 
+ RCS:           $Id: uidpsselgrpdlg.cc,v 1.5 2012-05-02 15:12:08 cvskris Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "";
+static const char* rcsID mUnusedVar = "";
 
 #include "uidpsselgrpdlg.h"
 

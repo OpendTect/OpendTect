@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: keyenum.cc,v 1.6 2012-05-02 11:53:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: keyenum.cc,v 1.7 2012-05-02 15:11:34 cvskris Exp $";
 
 
 #include "keyenum.h"

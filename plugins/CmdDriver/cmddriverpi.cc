@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: cmddriverpi.cc,v 1.35 2012-05-02 11:52:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cmddriverpi.cc,v 1.36 2012-05-02 15:11:07 cvskris Exp $";
 
 #include "uimain.h"
 #include "uiodmenumgr.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$";
+static const char* rcsID mUnusedVar = "$";
 
 #include "uidatapointsetman.h"
 

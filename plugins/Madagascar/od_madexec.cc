@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: od_madexec.cc,v 1.18 2012-05-02 11:52:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_madexec.cc,v 1.19 2012-05-02 15:11:11 cvskris Exp $";
 
 #include "batchprog.h"
 #include "iopar.h"

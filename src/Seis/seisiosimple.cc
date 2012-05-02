@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: seisiosimple.cc,v 1.26 2012-05-02 11:53:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.27 2012-05-02 15:11:47 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"

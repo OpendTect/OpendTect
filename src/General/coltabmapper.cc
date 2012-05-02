@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: coltabmapper.cc,v 1.33 2012-05-02 11:53:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.34 2012-05-02 15:11:32 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: initgmt.cc,v 1.16 2012-05-02 11:52:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initgmt.cc,v 1.17 2012-05-02 15:11:09 cvskris Exp $";
 
 #include "gmtarray2dinterpol.h"
 #include "gmtbasemap.h"

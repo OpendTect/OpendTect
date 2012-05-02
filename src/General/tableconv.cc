@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: tableconv.cc,v 1.21 2012-05-02 11:53:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableconv.cc,v 1.22 2012-05-02 15:11:36 cvskris Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"

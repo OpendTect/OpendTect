@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: strmoper.cc,v 1.39 2012-05-02 11:53:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: strmoper.cc,v 1.40 2012-05-02 15:11:27 cvskris Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"

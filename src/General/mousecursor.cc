@@ -4,7 +4,7 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: mousecursor.cc,v 1.6 2012-05-02 11:53:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: mousecursor.cc,v 1.7 2012-05-02 15:11:35 cvskris Exp $";
 
 #include "mousecursor.h"
 

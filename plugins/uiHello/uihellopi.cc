@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: uihellopi.cc,v 1.17 2012-05-02 11:52:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihellopi.cc,v 1.18 2012-05-02 15:11:15 cvskris Exp $";
 
 #include "odplugin.h"
 #include "uimsg.h"

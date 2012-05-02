@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: spectrogram.cc,v 1.4 2012-05-02 11:52:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: spectrogram.cc,v 1.5 2012-05-02 15:11:19 cvskris Exp $";
 
 #include "spectrogram.h"
 #include "arrayndimpl.h"

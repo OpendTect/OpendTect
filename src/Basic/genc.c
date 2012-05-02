@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: genc.c,v 1.120 2012-05-02 12:20:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.121 2012-05-02 15:11:25 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"

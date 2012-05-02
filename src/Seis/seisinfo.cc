@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: seisinfo.cc,v 1.65 2012-05-02 11:53:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.66 2012-05-02 15:11:47 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"

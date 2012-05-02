@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: keybindings.cc,v 1.14 2012-05-02 12:34:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: keybindings.cc,v 1.15 2012-05-02 15:12:02 cvskris Exp $";
 
 #include "keybindings.h"
 #include "settings.h"

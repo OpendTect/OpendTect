@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: survinfo.cc,v 1.164 2012-05-02 11:53:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.165 2012-05-02 15:11:27 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"

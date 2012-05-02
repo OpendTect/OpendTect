@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: stickseteditor.cc,v 1.4 2012-05-02 11:53:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stickseteditor.cc,v 1.5 2012-05-02 15:11:38 cvskris Exp $";
 
 #include "stickseteditor.h"
 

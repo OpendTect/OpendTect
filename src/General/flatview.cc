@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: flatview.cc,v 1.71 2012-05-02 11:53:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.72 2012-05-02 15:11:33 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"

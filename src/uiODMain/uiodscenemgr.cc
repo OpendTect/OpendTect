@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiodscenemgr.cc,v 1.230 2012-05-02 11:53:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.231 2012-05-02 15:12:13 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"

@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: uitutpi.cc,v 1.23 2012-05-02 11:52:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitutpi.cc,v 1.24 2012-05-02 15:11:17 cvskris Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"

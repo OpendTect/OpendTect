@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* mUnusedVar rcsID = "$Id: LegendKit.cc,v 1.10 2012-05-02 11:53:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: LegendKit.cc,v 1.11 2012-05-02 15:11:49 cvskris Exp $";
 
 
 #include "LegendKit.h"

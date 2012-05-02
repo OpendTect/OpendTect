@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: odftp.cc,v 1.11 2012-05-02 11:53:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odftp.cc,v 1.12 2012-05-02 15:11:43 cvskris Exp $";
 
 #include "odftp.h"
 #include "qftpconn.h"

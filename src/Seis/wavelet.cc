@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: wavelet.cc,v 1.43 2012-05-02 11:53:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.44 2012-05-02 15:11:48 cvskris Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"

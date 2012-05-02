@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: stratlith.cc,v 1.9 2012-05-02 11:53:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlith.cc,v 1.10 2012-05-02 15:11:52 cvskris Exp $";
 
 #include "stratlith.h"
 #include "stratcontent.h"

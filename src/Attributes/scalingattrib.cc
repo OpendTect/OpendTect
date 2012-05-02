@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: scalingattrib.cc,v 1.46 2012-05-02 11:52:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: scalingattrib.cc,v 1.47 2012-05-02 15:11:23 cvskris Exp $";
 
 #include "scalingattrib.h"
 

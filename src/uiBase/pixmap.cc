@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: pixmap.cc,v 1.49 2012-05-02 11:53:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: pixmap.cc,v 1.50 2012-05-02 15:11:59 cvskris Exp $";
 
 #include "pixmap.h"
 

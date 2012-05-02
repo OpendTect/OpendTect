@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: od_usage_monitor.cc,v 1.4 2012-05-02 11:53:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_usage_monitor.cc,v 1.5 2012-05-02 15:11:52 cvskris Exp $";
 
 #include "batchprog.h"
 #include "odusgserver.h"

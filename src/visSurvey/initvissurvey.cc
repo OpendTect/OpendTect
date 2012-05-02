@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: initvissurvey.cc,v 1.10 2012-05-02 11:54:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initvissurvey.cc,v 1.11 2012-05-02 15:12:35 cvskris Exp $";
 
 
 #include "moddepmgr.h"

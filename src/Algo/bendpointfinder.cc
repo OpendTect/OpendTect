@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* mUnusedVar rcsID = "$Id: bendpointfinder.cc,v 1.6 2012-05-02 11:52:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: bendpointfinder.cc,v 1.7 2012-05-02 15:11:18 cvskris Exp $";
 
 #include "bendpointfinder.h"
 #include "sorting.h"

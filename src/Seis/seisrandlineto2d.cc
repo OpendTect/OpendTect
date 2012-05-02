@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: seisrandlineto2d.cc,v 1.17 2012-05-02 11:53:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisrandlineto2d.cc,v 1.18 2012-05-02 15:11:48 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"

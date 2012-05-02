@@ -4,7 +4,7 @@
  * DATE     : June 2006
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: vispolygonoffset.cc,v 1.4 2012-05-02 11:54:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolygonoffset.cc,v 1.5 2012-05-02 15:12:33 cvskris Exp $";
 
 #include "vispolygonoffset.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: surfacecutter.cc,v 1.16 2012-05-02 11:53:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: surfacecutter.cc,v 1.17 2012-05-02 15:12:10 cvskris Exp $";
 
 #include "surfacecutter.h"
 #include "emmanager.h"

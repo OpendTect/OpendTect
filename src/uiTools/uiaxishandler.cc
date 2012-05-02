@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiaxishandler.cc,v 1.61 2012-05-02 11:53:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.62 2012-05-02 15:12:20 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"

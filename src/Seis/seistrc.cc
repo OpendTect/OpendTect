@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: seistrc.cc,v 1.54 2012-05-02 11:53:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seistrc.cc,v 1.55 2012-05-02 15:11:48 cvskris Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"

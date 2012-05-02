@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: stratlayer.cc,v 1.35 2012-05-02 11:53:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.36 2012-05-02 15:11:52 cvskris Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"

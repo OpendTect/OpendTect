@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: madprocexec.cc,v 1.18 2012-05-02 11:52:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.19 2012-05-02 15:11:10 cvskris Exp $";
 
 #include "envvars.h"
 #include "filepath.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiwelllogdisplay.cc,v 1.92 2012-05-02 11:54:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.93 2012-05-02 15:12:28 cvskris Exp $";
 
 
 

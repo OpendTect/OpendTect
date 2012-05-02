@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: cbvsreadmgr.cc,v 1.65 2012-05-02 11:53:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvsreadmgr.cc,v 1.66 2012-05-02 15:11:32 cvskris Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"

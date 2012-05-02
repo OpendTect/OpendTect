@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: googletranslator.cc,v 1.12 2012-05-02 11:52:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: googletranslator.cc,v 1.13 2012-05-02 15:11:10 cvskris Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"

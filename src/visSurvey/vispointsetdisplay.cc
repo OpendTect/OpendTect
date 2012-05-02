@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: vispointsetdisplay.cc,v 1.17 2012-05-02 11:54:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispointsetdisplay.cc,v 1.18 2012-05-02 15:12:36 cvskris Exp $";
 
 #include "randcolor.h"
 #include "selector.h"

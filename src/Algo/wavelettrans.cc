@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: wavelettrans.cc,v 1.22 2012-05-02 11:52:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelettrans.cc,v 1.23 2012-05-02 15:11:20 cvskris Exp $";
 
 #include <iostream>
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: inituiearthmodel.cc,v 1.7 2012-05-02 11:53:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: inituiearthmodel.cc,v 1.8 2012-05-02 15:12:04 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"

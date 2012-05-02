@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* mUnusedVar rcsID = "$Id: uiwindowgrabber.cc,v 1.20 2012-05-02 11:54:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwindowgrabber.cc,v 1.21 2012-05-02 15:12:24 cvskris Exp $";
 
 #include "uiwindowgrabber.h"
 

@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: cubicbeziercurve.cc,v 1.13 2012-05-02 11:53:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cubicbeziercurve.cc,v 1.14 2012-05-02 15:11:36 cvskris Exp $";
 
 #include "cubicbeziercurve.h"
 

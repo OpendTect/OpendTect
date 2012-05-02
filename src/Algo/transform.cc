@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: transform.cc,v 1.14 2012-05-02 11:52:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: transform.cc,v 1.15 2012-05-02 15:11:20 cvskris Exp $";
 
 #include "transform.h"
 #include "arraynd.h"

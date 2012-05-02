@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* mUnusedVar rcsID = "$Id: basemap.cc,v 1.4 2012-05-02 11:53:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: basemap.cc,v 1.5 2012-05-02 15:11:32 cvskris Exp $";
 
 #include "basemapimpl.h"
 #include "position.h"
