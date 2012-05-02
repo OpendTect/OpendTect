@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.29 2012-02-17 23:11:12 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: uihorattribpi.cc,v 1.30 2012-05-02 11:52:51 cvskris Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"

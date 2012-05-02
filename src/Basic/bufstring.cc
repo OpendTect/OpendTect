@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.40 2012-04-13 14:20:43 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: bufstring.cc,v 1.41 2012-05-02 11:53:00 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"

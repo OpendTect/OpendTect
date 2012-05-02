@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.17 2011-05-30 03:21:38 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: linekey.cc,v 1.18 2012-05-02 11:53:10 cvskris Exp $";
 
 #include "linekey.h"
 #include "iopar.h"

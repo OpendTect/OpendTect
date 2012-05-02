@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributeengine.cc,v 1.7 2012-05-01 13:59:38 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: initattributeengine.cc,v 1.8 2012-05-02 11:52:58 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "attribstorprovider.h"

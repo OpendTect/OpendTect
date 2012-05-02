@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.35 2011-08-22 11:56:07 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: drawaxis2d.cc,v 1.36 2012-05-02 11:53:56 cvskris Exp $";
 
 #include "drawaxis2d.h"
 

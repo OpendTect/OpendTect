@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.20 2011-06-02 10:32:05 cvsumesh Exp $";
+static const char* mUnusedVar rcsID = "$Id: horizon3dextender.cc,v 1.21 2012-05-02 11:53:17 cvskris Exp $";
 
 #include "horizon3dextender.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.60 2012-04-26 14:37:34 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: freqfilterattrib.cc,v 1.61 2012-05-02 11:52:59 cvskris Exp $";
 
 
 #include "freqfilterattrib.h"

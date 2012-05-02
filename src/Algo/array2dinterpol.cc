@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.36 2012-02-13 15:42:21 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: array2dinterpol.cc,v 1.37 2012-05-02 11:52:54 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 

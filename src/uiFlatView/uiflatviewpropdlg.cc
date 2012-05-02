@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.62 2012-04-02 15:06:17 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiflatviewpropdlg.cc,v 1.63 2012-05-02 11:53:43 cvskris Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"

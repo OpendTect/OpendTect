@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: geeditorimpl.cc,v 1.2 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: geeditorimpl.cc,v 1.3 2012-05-02 11:53:13 cvskris Exp $";
 
 #include "geeditorimpl.h"
 

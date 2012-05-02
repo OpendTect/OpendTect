@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "";
+static const char* mUnusedVar rcsID = "";
 
 #include "uiimpexpselgrp.h"
 

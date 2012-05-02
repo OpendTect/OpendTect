@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.9 2011-04-19 11:28:26 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: segyresorter.cc,v 1.10 2012-05-02 11:53:21 cvskris Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"

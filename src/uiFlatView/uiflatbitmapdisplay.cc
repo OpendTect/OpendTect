@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatbitmapdisplay.cc,v 1.3 2012-04-06 13:03:31 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiflatbitmapdisplay.cc,v 1.4 2012-05-02 11:53:43 cvskris Exp $";
 
 #include "uiflatbitmapdisplay.h"
 

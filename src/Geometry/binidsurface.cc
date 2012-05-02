@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.28 2012-02-01 09:43:14 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: binidsurface.cc,v 1.29 2012-05-02 11:53:13 cvskris Exp $";
 
 #include "binidsurface.h"
 

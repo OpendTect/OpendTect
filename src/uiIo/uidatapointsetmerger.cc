@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$";
+static const char* mUnusedVar rcsID = "$";
 
 #include "uidatapointsetmerger.h"
 

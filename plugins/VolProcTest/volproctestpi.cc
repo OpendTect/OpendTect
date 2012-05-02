@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: volproctestpi.cc,v 1.4 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: volproctestpi.cc,v 1.5 2012-05-02 11:52:48 cvskris Exp $";
 
 
 #include "volumeprocessingattribute.h"

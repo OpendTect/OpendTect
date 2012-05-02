@@ -5,7 +5,7 @@
  * FUNCTION : Multi-machine batch communicator.
 -*/
  
-static const char* rcsID = "$Id: jobcommunic.cc,v 1.5 2011-07-04 04:37:27 cvsranojay Exp $";
+static const char* mUnusedVar rcsID = "$Id: jobcommunic.cc,v 1.6 2012-05-02 11:53:19 cvskris Exp $";
 
 #include "jobcommunic.h"
 

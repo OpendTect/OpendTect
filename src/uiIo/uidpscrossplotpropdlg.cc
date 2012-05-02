@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.23 2012-01-05 06:28:17 cvssatyaki Exp $";
+static const char* mUnusedVar rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.24 2012-05-02 11:53:44 cvskris Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"

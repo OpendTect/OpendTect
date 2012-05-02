@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: localsocket.cc,v 1.1 2009-10-27 03:22:20 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: localsocket.cc,v 1.2 2012-05-02 11:53:19 cvskris Exp $";
 
 #include "localsocket.h"
 #include "qlocalsocketcomm.h"

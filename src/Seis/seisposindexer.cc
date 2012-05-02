@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.16 2011-09-02 09:21:48 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: seisposindexer.cc,v 1.17 2012-05-02 11:53:23 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"

@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: fontdata.cc,v 1.8 2011-02-04 17:49:38 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: fontdata.cc,v 1.9 2012-05-02 11:53:01 cvskris Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"

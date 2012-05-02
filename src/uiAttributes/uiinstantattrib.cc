@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.14 2011-11-18 11:11:05 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiinstantattrib.cc,v 1.15 2012-05-02 11:53:34 cvskris Exp $";
 
 
 #include "uiinstantattrib.h"

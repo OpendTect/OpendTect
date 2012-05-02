@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.8 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: inituiattributes.cc,v 1.9 2012-05-02 11:53:32 cvskris Exp $";
 
 
 #include "moddepmgr.h"

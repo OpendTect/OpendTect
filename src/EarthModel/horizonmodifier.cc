@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonmodifier.cc,v 1.9 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* mUnusedVar rcsID = "$Id: horizonmodifier.cc,v 1.10 2012-05-02 11:53:07 cvskris Exp $";
 
 
 #include "horizonmodifier.h"

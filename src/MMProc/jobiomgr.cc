@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.42 2012-05-02 07:11:15 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: jobiomgr.cc,v 1.43 2012-05-02 11:53:15 cvskris Exp $";
 
 #include "jobiomgr.h"
 

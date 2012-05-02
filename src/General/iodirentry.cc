@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.25 2010-12-13 12:34:11 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: iodirentry.cc,v 1.26 2012-05-02 11:53:10 cvskris Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"

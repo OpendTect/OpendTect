@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: histequalizer.cc,v 1.5 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: histequalizer.cc,v 1.6 2012-05-02 11:52:55 cvskris Exp $";
 
 #include "histequalizer.h"
 #include "dataclipper.h"

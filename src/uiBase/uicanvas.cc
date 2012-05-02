@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicanvas.cc,v 1.50 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uicanvas.cc,v 1.51 2012-05-02 11:53:35 cvskris Exp $";
 
 #include "uicanvas.h"
 #include "i_uidrwbody.h"

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.46 2012-03-20 09:59:08 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: datapointset.cc,v 1.47 2012-05-02 11:53:09 cvskris Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"

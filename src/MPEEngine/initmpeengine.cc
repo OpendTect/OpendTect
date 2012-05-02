@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initmpeengine.cc,v 1.14 2012-05-01 13:59:38 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: initmpeengine.cc,v 1.15 2012-05-02 11:53:18 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "faulteditor.h"

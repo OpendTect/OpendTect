@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.24 2012-01-31 11:01:34 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: initvisbase.cc,v 1.25 2012-05-02 11:54:06 cvskris Exp $";
 
 
 

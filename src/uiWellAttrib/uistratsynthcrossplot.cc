@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.38 2011-10-13 12:41:46 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: uistratsynthcrossplot.cc,v 1.39 2012-05-02 11:54:05 cvskris Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"

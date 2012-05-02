@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.13 2011-11-23 11:35:55 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiposfilterset.cc,v 1.14 2012-05-02 11:53:46 cvskris Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"

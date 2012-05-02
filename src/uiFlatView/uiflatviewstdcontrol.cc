@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.43 2012-02-17 11:21:37 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.44 2012-05-02 11:53:43 cvskris Exp $";
 
 #include "uiflatviewstdcontrol.h"
 

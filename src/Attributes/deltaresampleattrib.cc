@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: deltaresampleattrib.cc,v 1.4 2012-03-20 09:59:07 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: deltaresampleattrib.cc,v 1.5 2012-05-02 11:52:58 cvskris Exp $";
 
 #include "deltaresampleattrib.h"
 #include "attribdataholder.h"

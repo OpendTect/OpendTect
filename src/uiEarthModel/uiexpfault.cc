@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.21 2011-10-28 11:29:35 cvsjaap Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiexpfault.cc,v 1.22 2012-05-02 11:53:40 cvskris Exp $";
 
 #include "uiexpfault.h"
 

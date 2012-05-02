@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID = "$Id: vispseventdisplay.cc,v 1.14 2012-02-22 19:10:39 cvsyuancheng Exp $";
+static const char* mUnusedVar rcsID = "$Id: vispseventdisplay.cc,v 1.15 2012-05-02 11:52:53 cvskris Exp $";
 
 #include "vispseventdisplay.h"
 

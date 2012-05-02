@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.25 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: convolveattrib.cc,v 1.26 2012-05-02 11:52:58 cvskris Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"

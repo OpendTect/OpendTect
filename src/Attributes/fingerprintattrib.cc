@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.19 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: fingerprintattrib.cc,v 1.20 2012-05-02 11:52:59 cvskris Exp $";
 
 #include "fingerprintattrib.h"
 

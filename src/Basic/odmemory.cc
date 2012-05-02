@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odmemory.cc,v 1.9 2012-04-26 10:37:20 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: odmemory.cc,v 1.10 2012-05-02 11:53:02 cvskris Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"

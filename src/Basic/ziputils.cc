@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ziputils.cc,v 1.14 2012-04-10 04:47:00 cvsranojay Exp $";
+static const char* mUnusedVar rcsID = "$Id: ziputils.cc,v 1.15 2012-05-02 11:53:04 cvskris Exp $";
 
 #include "ziputils.h"
 

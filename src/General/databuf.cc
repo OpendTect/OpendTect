@@ -4,7 +4,7 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID = "$Id: databuf.cc,v 1.22 2010-02-15 09:56:14 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: databuf.cc,v 1.23 2012-05-02 11:53:09 cvskris Exp $";
 
 
 #include "tracedata.h"

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.59 2011-10-19 20:09:15 cvsyuancheng Exp $";
+static const char* mUnusedVar rcsID = "$Id: trigonometry.cc,v 1.60 2012-05-02 11:52:56 cvskris Exp $";
 
 #include "trigonometry.h"
 

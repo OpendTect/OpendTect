@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.95 2012-03-20 10:08:50 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: segyhdr.cc,v 1.96 2012-05-02 11:53:21 cvskris Exp $";
 
 
 #include "segyhdr.h"

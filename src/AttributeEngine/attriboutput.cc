@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.110 2011-09-02 09:00:42 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: attriboutput.cc,v 1.111 2012-05-02 11:52:58 cvskris Exp $";
 
 #include "attriboutput.h"
 

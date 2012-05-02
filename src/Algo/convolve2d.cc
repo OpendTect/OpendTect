@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: convolve2d.cc,v 1.5 2012-04-13 07:33:45 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: convolve2d.cc,v 1.6 2012-05-02 11:52:54 cvskris Exp $";
 
 #include "convolve2d.h"
 

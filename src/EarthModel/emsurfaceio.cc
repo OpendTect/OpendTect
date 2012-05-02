@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.150 2012-01-09 11:22:05 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: emsurfaceio.cc,v 1.151 2012-05-02 11:53:07 cvskris Exp $";
 
 #include "emsurfaceio.h"
 

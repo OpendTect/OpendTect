@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratsynth.cc,v 1.28 2012-03-30 13:20:08 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: stratsynth.cc,v 1.29 2012-05-02 11:53:31 cvskris Exp $";
 
 
 #include "stratsynth.h"

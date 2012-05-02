@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicompparsel.cc,v 1.9 2012-05-02 07:05:23 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uicompparsel.cc,v 1.10 2012-05-02 11:53:57 cvskris Exp $";
 
 #include "uicompoundparsel.h"
 #include "uigeninput.h"

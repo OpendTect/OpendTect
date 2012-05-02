@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.7 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: horizonrelation.cc,v 1.8 2012-05-02 11:53:07 cvskris Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"

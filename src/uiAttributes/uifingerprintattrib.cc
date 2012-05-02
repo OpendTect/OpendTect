@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.72 2012-03-20 10:08:50 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uifingerprintattrib.cc,v 1.73 2012-05-02 11:53:33 cvskris Exp $";
 
 -*/
 

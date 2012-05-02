@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.20 2012-02-16 15:18:20 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uicoltabtools.cc,v 1.21 2012-05-02 11:53:57 cvskris Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"

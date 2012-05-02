@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3.cc,v 1.34 2009-08-27 11:29:36 cvsraman Exp $";
+static const char* mUnusedVar rcsID = "$Id: vistexture3.cc,v 1.35 2012-05-02 11:54:11 cvskris Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"

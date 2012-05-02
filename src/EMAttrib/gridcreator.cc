@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gridcreator.cc,v 1.4 2010-12-03 12:10:44 cvssatyaki Exp $";
+static const char* mUnusedVar rcsID = "$Id: gridcreator.cc,v 1.5 2012-05-02 11:53:04 cvskris Exp $";
 
 
 #include "gridcreator.h"

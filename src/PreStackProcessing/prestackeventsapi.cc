@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventsapi.cc,v 1.1 2009-09-14 16:23:58 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: prestackeventsapi.cc,v 1.2 2012-05-02 11:53:20 cvskris Exp $";
 
 #include "prestackeventsapi.h"
 

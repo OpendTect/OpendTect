@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.68 2012-05-02 07:05:23 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiiosel.cc,v 1.69 2012-05-02 11:53:58 cvskris Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"

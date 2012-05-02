@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.14 2011-09-02 09:13:25 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: faultstickset.cc,v 1.15 2012-05-02 11:53:13 cvskris Exp $";
 
 #include "faultstickset.h"
 #include <math.h>

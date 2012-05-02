@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_remoteservice.cc,v 1.3 2011-05-18 11:34:47 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: od_remoteservice.cc,v 1.4 2012-05-02 11:53:16 cvskris Exp $";
 
 #include <QCoreApplication>
 

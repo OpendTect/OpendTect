@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.30 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uifont.cc,v 1.31 2012-05-02 11:53:36 cvskris Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.8 2011-03-22 22:00:18 cvsyuancheng Exp $";
+static const char* mUnusedVar rcsID = "$Id: velocityfunctioninterval.cc,v 1.9 2012-05-02 11:53:29 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 

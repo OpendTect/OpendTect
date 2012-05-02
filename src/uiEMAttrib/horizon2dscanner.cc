@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.22 2011-09-02 13:03:42 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: horizon2dscanner.cc,v 1.23 2012-05-02 11:53:39 cvskris Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"

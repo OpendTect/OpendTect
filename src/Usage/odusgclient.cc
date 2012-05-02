@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgclient.cc,v 1.7 2009-11-25 16:09:21 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: odusgclient.cc,v 1.8 2012-05-02 11:53:28 cvskris Exp $";
 
 #include "odusgclient.h"
 #include "odusginfo.h"

@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.25 2012-04-10 04:47:00 cvsranojay Exp $";
+static const char* mUnusedVar rcsID = "$Id: winutils.cc,v 1.26 2012-05-02 11:53:04 cvskris Exp $";
 
 
 #include "winutils.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.60 2012-03-20 09:59:07 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: similarityattrib.cc,v 1.61 2012-05-02 11:53:00 cvskris Exp $";
 
 #include "similarityattrib.h"
 

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tutpi.cc,v 1.8 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: tutpi.cc,v 1.9 2012-05-02 11:52:47 cvskris Exp $";
 
 #include "tutseistools.h"
 #include "tutorialattrib.h"

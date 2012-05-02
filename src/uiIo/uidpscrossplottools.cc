@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.7 2012-02-10 11:54:49 cvskris Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.8 2012-05-02 11:53:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.7 2012-02-10 11:54:49 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uidpscrossplottools.cc,v 1.8 2012-05-02 11:53:44 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 

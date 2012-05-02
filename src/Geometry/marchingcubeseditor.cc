@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.16 2010-09-10 14:07:47 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: marchingcubeseditor.cc,v 1.17 2012-05-02 11:53:14 cvskris Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"

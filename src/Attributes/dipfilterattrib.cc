@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.35 2011-09-02 09:03:22 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: dipfilterattrib.cc,v 1.36 2012-05-02 11:52:59 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"

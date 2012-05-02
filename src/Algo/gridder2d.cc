@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.33 2011-09-16 10:54:03 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: gridder2d.cc,v 1.34 2012-05-02 11:52:55 cvskris Exp $";
 
 #include "gridder2d.h"
 

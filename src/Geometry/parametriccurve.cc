@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.17 2012-02-01 09:44:27 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: parametriccurve.cc,v 1.18 2012-05-02 11:53:14 cvskris Exp $";
 
 #include "parametriccurve.h"
 

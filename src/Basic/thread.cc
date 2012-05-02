@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.59 2012-04-03 09:03:28 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: thread.cc,v 1.60 2012-05-02 11:53:03 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"

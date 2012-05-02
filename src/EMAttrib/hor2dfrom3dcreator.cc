@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.8 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* mUnusedVar rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.9 2012-05-02 11:53:04 cvskris Exp $";
 
 #include "hor2dfrom3dcreator.h"
 

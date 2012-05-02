@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.22 2012-03-12 15:27:43 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: unitofmeasure.cc,v 1.23 2012-05-02 11:53:12 cvskris Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"

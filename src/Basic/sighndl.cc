@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.32 2009-07-22 16:01:31 cvsbert Exp $
+ RCS:           $Id: sighndl.cc,v 1.33 2012-05-02 11:53:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.32 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: sighndl.cc,v 1.33 2012-05-02 11:53:03 cvskris Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"

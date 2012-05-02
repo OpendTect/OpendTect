@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.48 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: settings.cc,v 1.49 2012-05-02 11:53:03 cvskris Exp $";
 
 #include "settings.h"
 

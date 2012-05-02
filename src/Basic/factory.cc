@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer
  Date:          Mar 2009
- RCS:           $Id: factory.cc,v 1.3 2009-07-22 16:01:30 cvsbert Exp $
+ RCS:           $Id: factory.cc,v 1.4 2012-05-02 11:53:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: factory.cc,v 1.3 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: factory.cc,v 1.4 2012-05-02 11:53:01 cvskris Exp $";
 
 #include "factory.h"
 

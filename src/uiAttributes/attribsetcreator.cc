@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.20 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: attribsetcreator.cc,v 1.21 2012-05-02 11:53:32 cvskris Exp $";
 
 
 #include "attribsetcreator.h"

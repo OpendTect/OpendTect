@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.32 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: coherencyattrib.cc,v 1.33 2012-05-02 11:52:58 cvskris Exp $";
 
 
 #include "coherencyattrib.h"

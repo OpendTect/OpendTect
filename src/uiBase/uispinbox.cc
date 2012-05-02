@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.49 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uispinbox.cc,v 1.50 2012-05-02 11:53:38 cvskris Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"

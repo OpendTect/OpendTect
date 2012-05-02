@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: mmproc.cc,v 1.4 2010-09-13 08:22:46 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: mmproc.cc,v 1.5 2012-05-02 11:53:16 cvskris Exp $";
 
 #include "mmassetmgr.h"
 #include "mmprogspec.h"

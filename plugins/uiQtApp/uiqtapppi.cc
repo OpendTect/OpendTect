@@ -5,7 +5,7 @@
  * DATE     : Jan 2009
 -*/
 
-static const char* rcsID = "$Id: uiqtapppi.cc,v 1.3 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uiqtapppi.cc,v 1.4 2012-05-02 11:52:53 cvskris Exp $";
 
 #include "qtclss.h"
 

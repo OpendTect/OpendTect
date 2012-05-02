@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* rcsID = "$Id: oib2a.cc,v 1.4 2011-08-23 14:51:33 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: oib2a.cc,v 1.5 2012-05-02 11:53:28 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

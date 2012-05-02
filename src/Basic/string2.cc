@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.16 2012-02-29 07:38:34 cvsranojay Exp $";
+static const char* mUnusedVar rcsID = "$Id: string2.cc,v 1.17 2012-05-02 11:53:03 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"

@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.35 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: segydirect.cc,v 1.36 2012-05-02 11:53:21 cvskris Exp $";
 
 #include "segydirectdef.h"
 

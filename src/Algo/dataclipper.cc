@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.33 2012-03-07 15:31:27 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: dataclipper.cc,v 1.34 2012-05-02 11:52:54 cvskris Exp $";
 
 
 #include "dataclipper.h"

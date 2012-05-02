@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.11 2012-01-31 10:49:20 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: geomelement.cc,v 1.12 2012-05-02 11:53:14 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"

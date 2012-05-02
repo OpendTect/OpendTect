@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoGridSurfaceDragger.cc,v 1.6 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: SoGridSurfaceDragger.cc,v 1.7 2012-05-02 11:53:25 cvskris Exp $";
 
 
 #include "SoGridSurfaceDragger.h"

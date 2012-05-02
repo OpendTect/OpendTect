@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.106 2011-03-16 16:19:47 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: seisread.cc,v 1.107 2012-05-02 11:53:23 cvskris Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"

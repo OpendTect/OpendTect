@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.17 2010-12-28 22:23:52 cvsyuancheng Exp $";
+static const char* mUnusedVar rcsID = "$Id: polygonsurface.cc,v 1.18 2012-05-02 11:53:14 cvskris Exp $";
 
 #include "polygonsurface.h"
 

@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.21 2011-12-15 08:46:07 cvsraman Exp $";
+static const char* mUnusedVar rcsID = "$Id: maddefs.cc,v 1.22 2012-05-02 11:52:46 cvskris Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"

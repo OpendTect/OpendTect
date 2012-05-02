@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.14 2012-04-02 22:39:38 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: annotationspi.cc,v 1.15 2012-05-02 11:52:41 cvskris Exp $";
 
 #include "measuretoolman.h"
 #include "odplugin.h"

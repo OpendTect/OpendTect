@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.9 2012-04-04 08:07:29 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uivirtualkeyboard.cc,v 1.10 2012-05-02 11:53:39 cvskris Exp $";
 
 #include "uivirtualkeyboard.h"
 

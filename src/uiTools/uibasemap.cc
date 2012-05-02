@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.10 2011-10-04 13:44:59 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: uibasemap.cc,v 1.11 2012-05-02 11:53:56 cvskris Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"

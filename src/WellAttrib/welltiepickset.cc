@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.37 2012-01-12 09:22:14 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: welltiepickset.cc,v 1.38 2012-05-02 11:53:31 cvskris Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"

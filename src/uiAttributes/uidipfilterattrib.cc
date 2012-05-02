@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.24 2010-11-22 18:28:28 cvshelene Exp $";
+static const char* mUnusedVar rcsID = "$Id: uidipfilterattrib.cc,v 1.25 2012-05-02 11:53:33 cvskris Exp $";
 
 #include "uidipfilterattrib.h"
 #include "dipfilterattrib.h"

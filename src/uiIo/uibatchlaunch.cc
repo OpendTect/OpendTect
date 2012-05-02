@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.99 2012-04-10 18:22:45 cvsnanne Exp $";
+static const char* mUnusedVar rcsID = "$Id: uibatchlaunch.cc,v 1.100 2012-05-02 11:53:44 cvskris Exp $";
 
 #include "uibatchlaunch.h"
 

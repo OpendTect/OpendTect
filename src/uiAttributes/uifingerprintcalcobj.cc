@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.19 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: uifingerprintcalcobj.cc,v 1.20 2012-05-02 11:53:33 cvskris Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"

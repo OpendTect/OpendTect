@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.10 2010-06-18 12:23:27 cvskris Exp $";
+static const char* mUnusedVar rcsID = "$Id: faultadjuster.cc,v 1.11 2012-05-02 11:53:16 cvskris Exp $";
 
 #include "faultadjuster.h"
 

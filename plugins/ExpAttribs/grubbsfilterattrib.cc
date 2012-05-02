@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.6 2011-10-26 14:20:13 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: grubbsfilterattrib.cc,v 1.7 2012-05-02 11:52:45 cvskris Exp $";
 
 #include "grubbsfilterattrib.h"
 

@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: voxelconnectivityfilter.cc,v 1.11 2012-01-13 07:58:38 cvsbruno Exp $";
+static const char* mUnusedVar rcsID = "$Id: voxelconnectivityfilter.cc,v 1.12 2012-05-02 11:52:48 cvskris Exp $";
 
 #include "voxelconnectivityfilter.h"
 

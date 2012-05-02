@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: uivoxelconnectivityfilterpi.cc,v 1.3 2012-03-27 10:25:34 cvsbert Exp $";
+static const char* mUnusedVar rcsID = "$Id: uivoxelconnectivityfilterpi.cc,v 1.4 2012-05-02 11:52:54 cvskris Exp $";
 
 #include "odplugin.h"
 
