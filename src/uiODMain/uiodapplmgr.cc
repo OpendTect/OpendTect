@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.435 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.436 2012-05-03 11:21:33 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -57,6 +57,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.435 2012-05-02 15
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
+#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "errh.h"
 #include "externalattrib.h"
@@ -956,9 +957,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 		    		     (const char*) emserv_->getName(emid) );
 	}
 
-	if ( emserv_->getType(emid)=="Horizon" || 
-		emserv_->getType(emid)=="2D Horizon" )
+	if ( emserv_->getType(emid)==EMHorizon3DTranslatorGroup::keyword() || 
+	    emserv_->getType(emid)==EMHorizon2DTranslatorGroup::keyword() )
+	{
 	    mpeserv_->saveSetup( mid );
+	}
 
 	sceneMgr().updateTrees();
     }
