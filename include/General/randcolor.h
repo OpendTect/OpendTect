@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: randcolor.h,v 1.4 2012-05-03 05:14:18 cvskris Exp $
+ RCS:		$Id: randcolor.h,v 1.5 2012-05-03 07:39:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ inline Color getRandomColor( bool withtransp=false )
 }
 
 
-mGlobal Color getRandStdDrawColor()
+inline Color getRandStdDrawColor()
 {
     static int curidx = -1;
     if ( curidx == -1 )
