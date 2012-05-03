@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimathattrib.cc,v 1.43 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimathattrib.cc,v 1.44 2012-05-03 11:23:25 cvskris Exp $";
 
 
 #include "uimathattrib.h"
@@ -150,6 +150,8 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
 		cstnms.add( varnm );
 		break;
 	    }
+	    default:
+		break;
 	}
     }
 }
