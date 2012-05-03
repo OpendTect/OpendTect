@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.62 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.63 2012-05-03 11:56:12 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -525,6 +525,15 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 void uiAxisHandler::drawGridLine( int pix )
 {
     if ( setup_.nogridline_ ) return;
+    uiLineItem* lineitem = getFullLine( pix );
+    lineitem->setPenStyle( setup_.style_ );
+    gridlineitmgrp_->add( lineitem );
+    gridlineitmgrp_->setVisible( setup_.style_.isVisible() );
+}
+
+
+uiLineItem* uiAxisHandler::getFullLine( int pix )
+{
     const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
     int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
     if ( hndlr )
@@ -548,9 +557,8 @@ void uiAxisHandler::drawGridLine( int pix )
 	lineitem->setLine( endpix, pix, width_ - startpix, pix );
 	break;
     }
-    lineitem->setPenStyle( setup_.style_ );
-    gridlineitmgrp_->add( lineitem );
-    gridlineitmgrp_->setVisible( setup_.style_.isVisible() );
+
+    return lineitem;
 }
 
 

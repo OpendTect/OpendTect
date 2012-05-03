@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.32 2012-03-28 15:20:14 cvsbruno Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.33 2012-05-03 11:56:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ public:
 
     void		createAnnotItems();
     void		createGridLines();
-    void		drawGridLine(int); //!< Already called by plotAxis
+    uiLineItem*		getFullLine(int pix);
 
 protected:
 
@@ -165,6 +165,7 @@ protected:
 
     int			ticSz() const;
     void		drawAxisLine();
+    void		drawGridLine(int);
     void		annotPos(int,const char*,const LineStyle&);
     void		drawName();
 
