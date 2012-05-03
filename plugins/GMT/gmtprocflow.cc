@@ -4,7 +4,7 @@
  * DATE     : Sept 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gmtprocflow.cc,v 1.4 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtprocflow.cc,v 1.5 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "gmtdef.h"
 #include "gmtprocflow.h"
@@ -14,7 +14,7 @@ static const char* rcsID mUnusedVar = "$Id: gmtprocflow.cc,v 1.4 2012-05-02 15:1
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
-					ctxt->selkey = ODGMT::sKeyGMTSelKey)
+					ctxt->selkey = ODGMT::sKeyGMTSelKey())
 
 
 ODGMT::ProcFlow::ProcFlow( const char* nm )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtadv.cc,v 1.8 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtadv.cc,v 1.9 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "uigmtadv.h"
 
@@ -57,14 +57,14 @@ bool uiGMTAdvGrp::fillPar( IOPar& par ) const
     if ( !comm || !*comm )
 	mErrRet("Please enter a valid GMT command")
 
-    par.set( ODGMT::sKeyCustomComm, comm );
+    par.set( ODGMT::sKeyCustomComm(), comm );
     return true;
 }
 
 
 bool uiGMTAdvGrp::usePar( const IOPar& par )
 {
-    const char* comm = par.find( ODGMT::sKeyCustomComm );
+    const char* comm = par.find( ODGMT::sKeyCustomComm() );
     inpfld_->setvalue_( comm );
     return true;
 }

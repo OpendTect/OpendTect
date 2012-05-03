@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.16 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.17 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "uigmtbasemap.h"
 
@@ -212,7 +212,7 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 {
     BufferString maptitle = titlefld_->text();
-    par.set( ODGMT::sKeyMapTitle, maptitle );
+    par.set( ODGMT::sKeyMapTitle(), maptitle );
 
     const Interval<int> xrg = xrgfld_->getIInterval();
     const Interval<int> yrg = yrgfld_->getIInterval();
@@ -222,17 +222,17 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 	return false;
     }
 
-    par.set( ODGMT::sKeyXRange, xrg );
-    par.set( ODGMT::sKeyYRange, yrg );
+    par.set( ODGMT::sKeyXRange(), xrg );
+    par.set( ODGMT::sKeyYRange(), yrg );
 
     const float mapwidth = xdimfld_->getfValue();
     const float mapheight = ydimfld_->getfValue();
-    par.set( ODGMT::sKeyMapDim, Interval<float>(mapwidth,mapheight) );
+    par.set( ODGMT::sKeyMapDim(), Interval<float>(mapwidth,mapheight) );
 
-    par.set( ODGMT::sKeyMapScale, scalefld_->getIntValue() );
+    par.set( ODGMT::sKeyMapScale(), scalefld_->getIntValue() );
     const Interval<float> lblintv = lebelintvfld_->getFInterval();
-    par.set( ODGMT::sKeyLabelIntv, lblintv );
-    par.setYN( ODGMT::sKeyDrawGridLines, gridlinesfld_->isChecked() );
+    par.set( ODGMT::sKeyLabelIntv(), lblintv );
+    par.setYN( ODGMT::sKeyDrawGridLines(), gridlinesfld_->isChecked() );
     const char* remarks = remarkfld_->text();
     if ( !remarks || !*remarks )
 	return true;
@@ -254,7 +254,7 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 	}
     }
 
-    par.set( ODGMT::sKeyRemarks, remset );
+    par.set( ODGMT::sKeyRemarks(), remset );
 
     return true;
 }
@@ -262,33 +262,33 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 
 bool uiGMTBaseMapGrp::usePar( const IOPar& par )
 {
-    const char* maptitle = par.find( ODGMT::sKeyMapTitle );
+    const char* maptitle = par.find( ODGMT::sKeyMapTitle() );
     titlefld_->setText( maptitle );
 
     Interval<int> xrg, yrg;
-    if ( par.get(ODGMT::sKeyXRange,xrg) )
+    if ( par.get(ODGMT::sKeyXRange(),xrg) )
 	xrgfld_->setValue( xrg );
-    if ( par.get(ODGMT::sKeyYRange,yrg) )
+    if ( par.get(ODGMT::sKeyYRange(),yrg) )
 	yrgfld_->setValue( yrg );
 
     Interval<float> mapdim, lblintv;
-    if ( par.get(ODGMT::sKeyMapDim,mapdim) )
+    if ( par.get(ODGMT::sKeyMapDim(),mapdim) )
     {
 	xdimfld_->setValue( mapdim.start );
 	ydimfld_->setValue( mapdim.stop );
     }
 
     int scaleval = 1;
-    if ( par.get(ODGMT::sKeyMapScale,scaleval) )
+    if ( par.get(ODGMT::sKeyMapScale(),scaleval) )
 	scalefld_->setValue( scaleval );
-    if ( par.get(ODGMT::sKeyLabelIntv,lblintv) )
+    if ( par.get(ODGMT::sKeyLabelIntv(),lblintv) )
 	lebelintvfld_->setValue( lblintv );
 
     bool dogrdlines = false;
-    par.getYN( ODGMT::sKeyDrawGridLines, dogrdlines );
+    par.getYN( ODGMT::sKeyDrawGridLines(), dogrdlines );
     gridlinesfld_->setChecked( dogrdlines );
     BufferStringSet remset;
-    par.get( ODGMT::sKeyRemarks, remset );
+    par.get( ODGMT::sKeyRemarks(), remset );
     BufferString remarks;
     for ( int idx=0; idx<remset.size(); idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.26 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.27 2012-05-03 09:06:19 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -41,14 +41,14 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop )
 bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
-    FixedString maptitle = find( ODGMT::sKeyMapTitle );
+    FixedString maptitle = find( ODGMT::sKeyMapTitle() );
     Interval<float> lblintv;
-    if ( !get(ODGMT::sKeyLabelIntv,lblintv) )
+    if ( !get(ODGMT::sKeyLabelIntv(),lblintv) )
 	mErrStrmRet("Incomplete data for basemap creation")
 
     bool closeps = false, dogrid = false;
-    getYN( ODGMT::sKeyClosePS, closeps );
-    getYN( ODGMT::sKeyDrawGridLines, dogrid );
+    getYN( ODGMT::sKeyClosePS(), closeps );
+    getYN( ODGMT::sKeyDrawGridLines(), dogrid );
 
     BufferString comm = "psbasemap ";
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
@@ -90,11 +90,11 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     *sd.ostrm << "H 16 4 " << maptitle << std::endl;
     *sd.ostrm << "G 0.5l" << std::endl;
     int scaleval = 1;
-    get( ODGMT::sKeyMapScale, scaleval );
+    get( ODGMT::sKeyMapScale(), scaleval );
     *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << std::endl;
     *sd.ostrm << "D 0 1p" << std::endl;
     BufferStringSet remset;
-    get( ODGMT::sKeyRemarks, remset );
+    get( ODGMT::sKeyRemarks(), remset );
     for ( int idx=0; idx<remset.size(); idx++ )
 	*sd.ostrm << "L 12 4 C " << remset.get(idx) << std::endl;
 
@@ -130,7 +130,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	IOPar* par = subselect( idx );
 	if ( !par ) break;
 
-	if ( par->find(ODGMT::sKeyPostColorBar) )
+	if ( par->find(ODGMT::sKeyPostColorBar()) )
 	    parwithcolorbar = idx;
 
 	parset += par;
@@ -142,7 +142,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	hascolbar = true;
 	const IOPar* par = parset[parwithcolorbar];
 	StepInterval<float> rg;
-	par->get( ODGMT::sKeyDataRange, rg );
+	par->get( ODGMT::sKeyDataRange(), rg );
 	FilePath fp( fnm );
 	fp.setExtension( "cpt" );
 	BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=12 ";
@@ -154,7 +154,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	colbarcomm += fileName( fp.fullPath() ); colbarcomm += " -B";
 	colbarcomm += rg.step * 5; colbarcomm += ":\"";
 	colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
-	colbarcomm += par->find( ODGMT::sKeyAttribName );
+	colbarcomm += par->find( ODGMT::sKeyAttribName() );
 	colbarcomm += ": -K 1>> "; colbarcomm += fileName( fnm );
 	if ( !execCmd(colbarcomm,strm) )
 	    mErrStrmRet("Failed to post color bar")
@@ -184,15 +184,15 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	float sz = 1;
 	BufferString symbstr, penstr;
 	bool usewellsymbol = false;
-	par->getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbol );
-	FixedString shapestr = par->find( ODGMT::sKeyShape );
+	par->getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbol );
+	FixedString shapestr = par->find( ODGMT::sKeyShape() );
 	if ( !usewellsymbol && !shapestr ) continue;
 	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
-	symbstr = ODGMT::sShapeKeys[(int)shape];
+	symbstr = ODGMT::sShapeKeys()[(int)shape];
 	par->get( sKey::Size, sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
 	{
-	    const char* lsstr = par->find( ODGMT::sKeyLineStyle );
+	    const char* lsstr = par->find( ODGMT::sKeyLineStyle() );
 	    if ( !lsstr ) continue;
 
 	    LineStyle ls;
@@ -214,7 +214,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	}
 
 	bool dofill;
-	par->getYN( ODGMT::sKeyFill, dofill );
+	par->getYN( ODGMT::sKeyFill(), dofill );
 	BufferString legendstring = "S 0.6c ";
 
 	if ( !usewellsymbol )
@@ -222,7 +222,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	else
 	{
 	    BufferString symbolname;
-	    par->get( ODGMT::sKeyWellSymbolName, symbolname );
+	    par->get( ODGMT::sKeyWellSymbolName(), symbolname );
 	    BufferString deffilenm = GMTWSR().get( symbolname )->deffilenm_;
 	    legendstring += "k"; legendstring += deffilenm;
 	    par->get( sKey::Size, sz );
@@ -236,7 +236,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	{
 	    BufferString fillcolstr;
 	    Color fillcol;
-	    par->get( ODGMT::sKeyFillColor, fillcol );
+	    par->get( ODGMT::sKeyFillColor(), fillcol );
 	    mGetColorString( fillcol, fillcolstr );
 	    legendstring += fillcolstr;
 	}
@@ -279,7 +279,7 @@ GMTPar* GMTCommand::createInstance( const IOPar& iop )
 const char* GMTCommand::userRef() const
 {
     BufferString* str = new BufferString( "GMT Command: " );
-    const char* res = find( ODGMT::sKeyCustomComm );
+    const char* res = find( ODGMT::sKeyCustomComm() );
     *str += res;
     *( str->buf() + 25 ) = '\0';
     return str->buf();
@@ -289,7 +289,7 @@ const char* GMTCommand::userRef() const
 bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Executing custom command" << std::endl;
-    const char* res = find( ODGMT::sKeyCustomComm );
+    const char* res = find( ODGMT::sKeyCustomComm() );
     if ( !res || !*res )
 	mErrStrmRet("No command to execute")
 

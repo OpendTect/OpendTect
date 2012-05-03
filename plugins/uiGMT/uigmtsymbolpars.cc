@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.12 2012-05-02 15:11:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.13 2012-05-03 09:06:21 cvskris Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -99,19 +99,19 @@ void uiGMTSymbolPars::fillShapes()
 
 bool uiGMTSymbolPars::fillPar( IOPar& par ) const
 {
-    par.setYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols_ );
+    par.setYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbols_ );
     if ( !usewellsymbols_ )
     {
 	const int shp = shapefld_->currentItem();
 	BufferString shapestr = ODGMT::ShapeNames()[shp];
-	par.set( ODGMT::sKeyShape, shapestr );
-	par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
-	par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
+	par.set( ODGMT::sKeyShape(), shapestr );
+	par.setYN( ODGMT::sKeyFill(), fillcolfld_->doDraw() );
+	par.set( ODGMT::sKeyFillColor(), fillcolfld_->color() );
     }
     else
     {
 	const int selitem = shapefld_->currentItem();
-	par.set( ODGMT::sKeyWellSymbolName, shapefld_->textOfItem(selitem) );
+	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->textOfItem(selitem) );
     }
 
     par.set( sKey::Size, sizefld_->getfValue() );
@@ -125,19 +125,19 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     if ( usewellsymbols_ )
     {
 	BufferString wellname;
-	par.get( ODGMT::sKeyWellSymbolName, wellname );
+	par.get( ODGMT::sKeyWellSymbolName(), wellname );
 	shapefld_->setCurrentItem( wellname );
     }
     else
     {
 	ODGMT::Shape shp;
-	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape ), shp ) )
+	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape() ), shp ) )
 	    shapefld_->setCurrentItem( shp );
 
 	Color col;
-	bool dofill = false; par.getYN( ODGMT::sKeyFill, dofill );
+	bool dofill = false; par.getYN( ODGMT::sKeyFill(), dofill );
 	fillcolfld_->setDoDraw( dofill );
-	if ( dofill && par.get(ODGMT::sKeyFillColor,col) )
+	if ( dofill && par.get(ODGMT::sKeyFillColor(),col) )
 	    fillcolfld_->setColor( col );
     }
 

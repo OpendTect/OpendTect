@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtwells.cc,v 1.14 2012-05-02 15:11:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtwells.cc,v 1.15 2012-05-03 09:06:21 cvskris Exp $";
 
 #include "uigmtwells.h"
 
@@ -123,11 +123,11 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 
     BufferStringSet selnames;
     welllistfld_->getSelectedItems( selnames );
-    par.set( ODGMT::sKeyWellNames, selnames );
+    par.set( ODGMT::sKeyWellNames(), selnames );
     symbfld_->fillPar( par );
-    par.setYN( ODGMT::sKeyPostLabel, lebelfld_->isChecked() );
-    par.set( ODGMT::sKeyLabelAlignment, lebelalignfld_->text() );
-    par.set( ODGMT::sKeyFontSize, labelfontszfld_->getValue() );
+    par.setYN( ODGMT::sKeyPostLabel(), lebelfld_->isChecked() );
+    par.set( ODGMT::sKeyLabelAlignment(), lebelalignfld_->text() );
+    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getValue() );
     return true;
 }
 
@@ -136,7 +136,7 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
 {
     namefld_->setText( par.find(sKey::Name) );
     BufferStringSet selnames;
-    par.get( ODGMT::sKeyWellNames, selnames );
+    par.get( ODGMT::sKeyWellNames(), selnames );
     welllistfld_->clearSelection();
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
@@ -149,11 +149,11 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
 
     symbfld_->usePar( par );
     bool postlabel = false;
-    par.getYN( ODGMT::sKeyPostLabel, postlabel );
+    par.getYN( ODGMT::sKeyPostLabel(), postlabel );
     lebelfld_->setChecked( postlabel );
-    lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment) );
+    lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment()) );
     int fontsize = 10;
-    par.get( ODGMT::sKeyFontSize, fontsize );
+    par.get( ODGMT::sKeyFontSize(), fontsize );
     labelfontszfld_->setValue( fontsize );
     choiceSel( 0 );
     return true;

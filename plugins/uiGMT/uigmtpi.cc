@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtpi.cc,v 1.37 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtpi.cc,v 1.38 2012-05-03 09:06:21 cvskris Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -163,10 +163,10 @@ mDefODInitPlugin(uiGMT)
     static uiGMTMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiGMTMgr( ODMainWin() );
 
-    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey, ODGMT::sKeyGMT,
+    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
 	    		      "GMT data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
-    if ( id != ODGMT::sKeyGMTSelKey )
+    if ( id != ODGMT::sKeyGMTSelKey() )
 	return "Cannot create 'GMT' directory in survey";
 
     uiGMTContourGrp::initClass();

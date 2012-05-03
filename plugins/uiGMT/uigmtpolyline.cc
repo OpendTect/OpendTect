@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtpolyline.cc,v 1.15 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtpolyline.cc,v 1.16 2012-05-03 09:06:21 cvskris Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -93,9 +93,9 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
     par.set( sKey::Name, namefld_->text() );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
-    par.set( ODGMT::sKeyLineStyle, lskey );
-    par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
-    par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
+    par.set( ODGMT::sKeyLineStyle(), lskey );
+    par.setYN( ODGMT::sKeyFill(), fillcolfld_->doDraw() );
+    par.set( ODGMT::sKeyFillColor(), fillcolfld_->color() );
     return true;
 }
 
@@ -106,7 +106,7 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
     FixedString nm = par.find( sKey::Name );
     if ( nm ) namefld_->setText( nm );
 
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( !lskey.isEmpty() )
     {
 	LineStyle ls; ls.fromString( lskey.str() );
@@ -114,11 +114,11 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
     }
 
     bool dofill = false;
-    par.getYN( ODGMT::sKeyFill, dofill );
+    par.getYN( ODGMT::sKeyFill(), dofill );
     fillcolfld_->setDoDraw( dofill );
     if ( dofill )
     {
-	Color fillcol; par.get( ODGMT::sKeyFillColor, fillcol );
+	Color fillcol; par.get( ODGMT::sKeyFillColor(), fillcol );
 	fillcolfld_->setColor( fillcol );
     }
 

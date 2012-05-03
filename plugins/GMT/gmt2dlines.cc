@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.21 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.22 2012-05-03 09:06:19 cvskris Exp $";
 
 #include "gmt2dlines.h"
 
@@ -55,10 +55,10 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 {
     FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
-    par.set( ODGMT::sKeyShape, "Line" );
+    par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size, 1 );
-    str = find( ODGMT::sKeyLineStyle );
-    par.set( ODGMT::sKeyLineStyle, str );
+    str = find( ODGMT::sKeyLineStyle() );
+    par.set( ODGMT::sKeyLineStyle(), str );
     return true;
 }
 
@@ -74,14 +74,14 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     get( sKey::Attribute, attribnm );
 
     BufferStringSet linenms;
-    get( ODGMT::sKeyLineNames, linenms );
+    get( ODGMT::sKeyLineNames(), linenms );
     strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
 
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
     ls.fromString( lsstr );
     bool postlabel = false;
-    getYN( ODGMT::sKeyPostLabel, postlabel );
+    getYN( ODGMT::sKeyPostLabel(), postlabel );
 
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
@@ -124,7 +124,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     }
 
     int sz = 10;
-    get( ODGMT::sKeyFontSize, sz );
+    get( ODGMT::sKeyFontSize(), sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
@@ -155,7 +155,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	float perpangle = angle > 0 ? angle - 90 : angle + 90;
 	BufferString al = fabs(angle) > 90 ? "ML " : "MR ";
 	bool poststart = true;
-	getYN( ODGMT::sKeyPostStart, poststart );
+	getYN( ODGMT::sKeyPostStart(), poststart );
 	const float distfactor = xrg.width() / 100;
 	if ( poststart )
 	{
@@ -166,7 +166,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	}
 
 	bool poststop = false;
-	getYN( ODGMT::sKeyPostStop, poststop );
+	getYN( ODGMT::sKeyPostStop(), poststop );
 	if ( poststop )
 	{
 	    pos = posns[nrtrcs-1].coord_;
@@ -184,11 +184,11 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	}
 
 	bool postnrs = true;
-	getYN( ODGMT::sKeyPostTraceNrs, postnrs );
+	getYN( ODGMT::sKeyPostTraceNrs(), postnrs );
 	if ( postnrs )
 	{
 	    int labelintv = 100;
-	    get( ODGMT::sKeyLabelIntv, labelintv );
+	    get( ODGMT::sKeyLabelIntv(), labelintv );
 	    for ( int tdx=0; tdx<posns.size(); tdx+=labelintv )
 	    {
 		BufferString lbl = "- "; lbl += posns[tdx].nr_;
@@ -241,10 +241,10 @@ bool GMTRandLines::fillLegendPar( IOPar& par ) const
 {
     FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
-    par.set( ODGMT::sKeyShape, "Line" );
+    par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size, 1 );
-    str = find( ODGMT::sKeyLineStyle );
-    par.set( ODGMT::sKeyLineStyle, str );
+    str = find( ODGMT::sKeyLineStyle() );
+    par.set( ODGMT::sKeyLineStyle(), str );
     return true;
 }
 
@@ -257,7 +257,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     if ( !ioobj ) mErrStrmRet("Cannot find lineset")
 
     BufferStringSet linenms;
-    get( ODGMT::sKeyLineNames, linenms );
+    get( ODGMT::sKeyLineNames(), linenms );
     strm << "Posting Random Lines " << ioobj->name() << " ...  ";
 
     Geometry::RandomLineSet inprls; BufferString msg;
@@ -265,10 +265,10 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Cannot read random lines")
 	
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
     ls.fromString( lsstr );
     bool postlabel = false;
-    getYN( ODGMT::sKeyPostLabel, postlabel );
+    getYN( ODGMT::sKeyPostLabel(), postlabel );
 
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
@@ -303,7 +303,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     }
 
     int sz = 10;
-    get( ODGMT::sKeyFontSize, sz );
+    get( ODGMT::sKeyFontSize(), sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;

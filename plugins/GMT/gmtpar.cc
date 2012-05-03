@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtpar.cc,v 1.9 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtpar.cc,v 1.10 2012-05-03 09:06:20 cvskris Exp $";
 
 
 #include "gmtpar.h"
@@ -48,7 +48,7 @@ int GMTParFactory::add( const char* nm, GMTParCreateFunc fn )
 
 GMTPar* GMTParFactory::create( const IOPar& iop ) const
 {
-    const char* grpname = iop.find( ODGMT::sKeyGroupName );
+    const char* grpname = iop.find( ODGMT::sKeyGroupName() );
     if ( !grpname || !*grpname ) return 0;
 
     Entry* entry = getEntry( grpname );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.31 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.32 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -217,7 +217,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 	par.set( sKey::FileName, fnm );
 
     IOPar basemappar;
-    basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
+    basemappar.set( ODGMT::sKeyGroupName(), "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
 	 return;
 
@@ -296,7 +296,7 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
     }
 
-    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName );
+    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
     {
 	if ( tabname == overlaygrps_[idx]->name() )
@@ -322,7 +322,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     if ( !gmtgrp ) return;
 
     IOPar iop;
-    iop.set( ODGMT::sKeyGroupName, gmtgrp->name() );
+    iop.set( ODGMT::sKeyGroupName(), gmtgrp->name() );
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
@@ -350,7 +350,7 @@ void uiGMTMainWin::editCB( CallBacker* )
     if ( !gmtgrp ) return;
 
     IOPar iop;
-    iop.set( ODGMT::sKeyGroupName, gmtgrp->name() );
+    iop.set( ODGMT::sKeyGroupName(), gmtgrp->name() );
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
@@ -446,23 +446,23 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
     IOPar basemappar;
-    basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
+    basemappar.set( ODGMT::sKeyGroupName(), "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
 	 return false;
 
-    basemappar.setYN( ODGMT::sKeyClosePS, !pars_.size() );
-    basemappar.get( ODGMT::sKeyMapDim, mapdim );
-    basemappar.get( ODGMT::sKeyXRange, xrg );
-    basemappar.get( ODGMT::sKeyYRange, yrg );
+    basemappar.setYN( ODGMT::sKeyClosePS(), !pars_.size() );
+    basemappar.get( ODGMT::sKeyMapDim(), mapdim );
+    basemappar.get( ODGMT::sKeyXRange(), xrg );
+    basemappar.get( ODGMT::sKeyYRange(), yrg );
     BufferString numkey( "", idx++ );
     par.mergeComp( basemappar, numkey );
     bool isclippingon = false;
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;
-	pars_[ldx]->set( ODGMT::sKeyMapDim, mapdim );
-	pars_[ldx]->set( ODGMT::sKeyXRange, xrg );
-	pars_[ldx]->set( ODGMT::sKeyYRange, yrg );
+	pars_[ldx]->set( ODGMT::sKeyMapDim(), mapdim );
+	pars_[ldx]->set( ODGMT::sKeyXRange(), xrg );
+	pars_[ldx]->set( ODGMT::sKeyYRange(), yrg );
 	par.mergeComp( *pars_[ldx], numkey );
 	mDynamicCastGet(const GMTClip*,gmtclip,pars_[ldx])
 	if ( gmtclip )
@@ -482,7 +482,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( isclippingon )
     {
 	IOPar termclippingpar;
-	termclippingpar.set( ODGMT::sKeyGroupName, "Clipping" );
+	termclippingpar.set( ODGMT::sKeyGroupName(), "Clipping" );
 	uiGMTClipGrp::getTerminatingPars( termclippingpar );
 	numkey = idx;
 	par.mergeComp( termclippingpar, numkey );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtrandlines.cc,v 1.11 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtrandlines.cc,v 1.12 2012-05-03 09:06:21 cvskris Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -129,13 +129,13 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 
     inpfld_->fillPar( par );
     par.set( sKey::Name, namefld_->text() );
-    par.set( ODGMT::sKeyLineNames, linenms_ );
+    par.set( ODGMT::sKeyLineNames(), linenms_ );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
-    par.set( ODGMT::sKeyLineStyle, lskey );
+    par.set( ODGMT::sKeyLineStyle(), lskey );
     const bool dolabel = labelfld_->isChecked();
-    par.setYN( ODGMT::sKeyPostLabel, dolabel );
-    par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
+    par.setYN( ODGMT::sKeyPostLabel(), dolabel );
+    par.set( ODGMT::sKeyFontSize(), labelfontfld_->getValue() );
 
     return true;
 }
@@ -148,8 +148,8 @@ bool uiGMTRandLinesGrp::usePar( const IOPar& par )
     if ( nm ) namefld_->setText( nm );
 
     linenms_.erase();
-    par.get( ODGMT::sKeyLineNames, linenms_ );
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
+    par.get( ODGMT::sKeyLineNames(), linenms_ );
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {
 	LineStyle ls; ls.fromString( lskey.str() );
@@ -157,10 +157,10 @@ bool uiGMTRandLinesGrp::usePar( const IOPar& par )
     }
 
     bool postlabel = false;
-    par.getYN( ODGMT::sKeyPostLabel, postlabel );
+    par.getYN( ODGMT::sKeyPostLabel(), postlabel );
     labelfld_->setChecked( postlabel );
     int size = 10;
-    par.get( ODGMT::sKeyFontSize, size );
+    par.get( ODGMT::sKeyFontSize(), size );
     labelfontfld_->setValue( size );
     labelSel( 0 );
     return true;

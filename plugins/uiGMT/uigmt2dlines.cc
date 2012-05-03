@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmt2dlines.cc,v 1.15 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmt2dlines.cc,v 1.16 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -140,22 +140,22 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     par.set( sKey::Name, namefld_->text() );
     BufferStringSet linenms;
     linelistfld_->getSelectedItems( linenms );
-    par.set( ODGMT::sKeyLineNames, linenms );
+    par.set( ODGMT::sKeyLineNames(), linenms );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
-    par.set( ODGMT::sKeyLineStyle, lskey );
+    par.set( ODGMT::sKeyLineStyle(), lskey );
     const bool dolabel = labelfld_->isChecked();
-    par.setYN( ODGMT::sKeyPostLabel, dolabel );
+    par.setYN( ODGMT::sKeyPostLabel(), dolabel );
     if ( dolabel )
     {
-	par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
+	par.set( ODGMT::sKeyFontSize(), labelfontfld_->getValue() );
 	const int pos = labelposfld_->getIntValue();
-	par.setYN( ODGMT::sKeyPostStart, pos == 0 || pos == 2 );
-	par.setYN( ODGMT::sKeyPostStop, pos == 1 || pos == 2 );
+	par.setYN( ODGMT::sKeyPostStart(), pos == 0 || pos == 2 );
+	par.setYN( ODGMT::sKeyPostStop(), pos == 1 || pos == 2 );
 	const bool dotrc = trclabelfld_->isChecked();
-	par.setYN( ODGMT::sKeyPostTraceNrs, dotrc );
+	par.setYN( ODGMT::sKeyPostTraceNrs(), dotrc );
 	if ( dotrc )
-	    par.set( ODGMT::sKeyLabelIntv, trcstepfld_->getIntValue() );
+	    par.set( ODGMT::sKeyLabelIntv(), trcstepfld_->getIntValue() );
     }
 
     return true;
@@ -170,13 +170,13 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     if ( nm ) namefld_->setText( nm );
 
     BufferStringSet linenms;
-    par.get( ODGMT::sKeyLineNames, linenms );
+    par.get( ODGMT::sKeyLineNames(), linenms );
     linelistfld_->clearSelection();
     for ( int idx=0; idx<linelistfld_->size(); idx++ )
 	if ( linenms.indexOf(linelistfld_->textOfItem(idx)) >= 0 )
 	    linelistfld_->setSelected( idx, true );
 
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {
 	LineStyle ls; ls.fromString( lskey.str() );
@@ -184,21 +184,21 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     }
 
     bool postlabel = false;
-    par.getYN( ODGMT::sKeyPostLabel, postlabel );
+    par.getYN( ODGMT::sKeyPostLabel(), postlabel );
     labelfld_->setChecked( postlabel );
     int size = 10;
-    par.get( ODGMT::sKeyFontSize, size );
+    par.get( ODGMT::sKeyFontSize(), size );
     labelfontfld_->setValue( size );
     labelSel( 0 );
     bool poststart = false, poststop = false, dotrc = false;
-    par.getYN( ODGMT::sKeyPostStart, poststart );
-    par.getYN( ODGMT::sKeyPostStop, poststop );
-    par.getYN( ODGMT::sKeyPostTraceNrs, dotrc );
+    par.getYN( ODGMT::sKeyPostStart(), poststart );
+    par.getYN( ODGMT::sKeyPostStop(), poststop );
+    par.getYN( ODGMT::sKeyPostTraceNrs(), dotrc );
     const int pos = poststart ? ( poststop ? 2 : 0 ) : 1;
     labelposfld_->setValue( pos );
     trclabelfld_->setChecked( dotrc );
     int labelstep = 100;
-    par.get( ODGMT::sKeyLabelIntv, labelstep );
+    par.get( ODGMT::sKeyLabelIntv(), labelstep );
     trcstepfld_->setValue( labelstep );
     return true;
 }

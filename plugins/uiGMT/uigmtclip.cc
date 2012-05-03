@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtclip.cc,v 1.4 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtclip.cc,v 1.5 2012-05-03 09:06:20 cvskris Exp $";
 
 #include "uigmtclip.h"
 
@@ -76,7 +76,7 @@ void uiGMTClipGrp::actionSel( CallBacker* )
 bool uiGMTClipGrp::fillPar( IOPar& par ) const
 {
     const bool isstartofclipping = actionfld_->getBoolValue();
-    par.setYN( ODGMT::sKeyStartClipping, isstartofclipping );
+    par.setYN( ODGMT::sKeyStartClipping(), isstartofclipping );
     if ( !isstartofclipping )
 	return true;
 
@@ -84,7 +84,7 @@ bool uiGMTClipGrp::fillPar( IOPar& par ) const
 	return false;
 
     polygonfld_->fillPar( par );
-    par.setYN( ODGMT::sKeyClipOutside, optionfld_->getBoolValue() );
+    par.setYN( ODGMT::sKeyClipOutside(), optionfld_->getBoolValue() );
     return true;
 }
 
@@ -92,13 +92,13 @@ bool uiGMTClipGrp::fillPar( IOPar& par ) const
 bool uiGMTClipGrp::usePar( const IOPar& par )
 {
     bool isstartofclipping = false;
-    par.getYN( ODGMT::sKeyStartClipping, isstartofclipping );
+    par.getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
     actionfld_->setValue( isstartofclipping );
     if ( isstartofclipping )
     {
 	polygonfld_->usePar( par );
 	bool clipoutside = true;
-	par.getYN( ODGMT::sKeyClipOutside, clipoutside );
+	par.getYN( ODGMT::sKeyClipOutside(), clipoutside );
 	optionfld_->setValue( clipoutside );
     }
 
@@ -109,7 +109,7 @@ bool uiGMTClipGrp::usePar( const IOPar& par )
 
 bool uiGMTClipGrp::getTerminatingPars( IOPar& par )
 {
-    par.setYN( ODGMT::sKeyStartClipping, false );
+    par.setYN( ODGMT::sKeyStartClipping(), false );
     return true;
 }
 
