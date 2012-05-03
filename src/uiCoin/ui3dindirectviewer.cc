@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dindirectviewer.cc,v 1.5 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dindirectviewer.cc,v 1.6 2012-05-03 07:37:35 cvskris Exp $";
 
 
 #include "ui3dindirectviewer.h"
@@ -236,6 +236,7 @@ public:
 
     QWidget*	getWidget() { return qwidget_; }
     void	removeWidget() { qwidget_ = 0; }
+    void	requestRedraw() { qwidget_->update(); }
 
 protected:
 
