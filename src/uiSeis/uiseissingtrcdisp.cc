@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.4 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.5 2012-05-03 09:07:58 cvsbert Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -43,8 +43,9 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 
 void uiSeisSingleTraceDisplay::cleanUp()
 {
-    removePack( curid_ ); curid_ = DataPack::cNoID();
-    while ( nrAuxData() ) removeAuxData( 0 );
+    removeRefs();
+    removePack( curid_ );
+    curid_ = DataPack::cNoID();
 }
 
 
@@ -69,7 +70,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     }
 
     setPack( true, curid_, false );
-    setRefZ( 0 );
+    addRefZ( 0 );
 
     handleChange( All );
 }
@@ -106,18 +107,27 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	if ( mIsZero(refz,1e-8) || mIsUdf(refz) )
 	    refz = trc->info().pick;
 	if ( !mIsZero(refz,1e-8) && !mIsUdf(refz) )
-	    setRefZ( refz );
+	    addRefZ( refz );
     }
 
     handleChange( All );
 }
 
 
-void uiSeisSingleTraceDisplay::setRefZ( float zref )
+void uiSeisSingleTraceDisplay::removeRefs()
 {
-    FlatView::AuxData* ad = createAuxData( "Ref Z" );
+    removeAllAuxData();
+}
+
+
+void uiSeisSingleTraceDisplay::addRefZ( float zref )
+{
+    const int curnraux = nrAuxData();
+    FlatView::AuxData* ad = createAuxData(
+	    			BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
-    ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 10,
-	    				Color::DgbColor() );
+    ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
+				Color::stdDrawColor(curnraux) );
+    ad->zvalue_ = 100;
     addAuxData( ad );
 }
