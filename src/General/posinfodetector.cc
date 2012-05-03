@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.19 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.20 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -310,7 +310,6 @@ void PosInfo::Detector::addLine()
 {
     if ( curline_ > -1 )
     {
-	mDefCurLineAndSegment;
 	double distsq = curlnstart_.coord_.sqDistTo( prevcbo_.coord_ );
 	if ( distsq > llnstart_.coord_.sqDistTo( llnstop_.coord_ ) )
 	    { llnstart_ = curlnstart_; llnstop_ = prevcbo_; }

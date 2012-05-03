@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ioobj.cc,v 1.41 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ioobj.cc,v 1.42 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "iostrm.h"
 #include "iosubdir.h"
@@ -145,8 +145,6 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
-    IOObj* objptr = 0;
-
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
     if ( ky.isEmpty() && IOM().dirPtr() )
@@ -159,6 +157,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 	if ( prod.canMake(typ) )
 	    return prod.make( nm, ky, gendef );
     }
+
     return 0;
 }
 

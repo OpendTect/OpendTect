@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvsreader.cc,v 1.87 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvsreader.cc,v 1.88 2012-05-03 05:14:16 cvskris Exp $";
 
 /*!
 
@@ -260,7 +260,7 @@ bool CBVSReader::readComps()
 	    info_.sd_.start = finterp_.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );
 	    info_.sd_.step = finterp_.get( ucbuf, 0 );
-	int nrsamples;
+
 	strm_.read( ucbuf, integersize ); // nr samples
 	    info_.nrsamples_ = iinterp_.get( ucbuf, 0 );
 	strm_.read( ucbuf, 2*sizeof(float) );

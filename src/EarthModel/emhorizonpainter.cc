@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.24 2012-04-02 15:06:16 cvskris Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.25 2012-05-03 05:14:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -329,8 +329,6 @@ void HorizonPainter::enableHorizonLine( const EM::ObjectID& oid, bool enabled )
 
 void HorizonPainter::enableHorizonSeed( const EM::ObjectID& oid, bool enabled )
 {
-    mDynamicCastGet(EM::Horizon*,hor,EM::EMM().getObject( oid ));
-
     int horpos = -1;
     for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
 	    if ( horizoninfos_[idx]->id_ == oid )

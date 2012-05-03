@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.35 2012-05-01 12:31:07 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.36 2012-05-03 05:14:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,14 +59,12 @@ public:
     void			addWork(const Work&,CallBack* finished,
 	    				int queueid, bool putfirstinline,
 					bool discardduplicates=false);
-    				//!< Managed by caller if manage flag is false
 
     bool			addWork(TypeSet<Work>&, int queueid,
 	    				bool firstinline = false);
     bool			removeWork(const Work&);	
     				/*!< Removes the task from queue
-				     and stop it if allready running. If
-				     task is managed, it will be deleted.
+				     and stop it if allready running.
 				    \returns true if the task was removed
 				    before it had started.*/
 

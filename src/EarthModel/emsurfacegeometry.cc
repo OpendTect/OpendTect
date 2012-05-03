@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.58 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.59 2012-05-03 05:14:16 cvskris Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -30,12 +30,6 @@ static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.58 2012-05-
 #include "survinfo.h"
 
 namespace EM {
-
-
-static const char* sDbInfo = "DB Info";
-static const char* sRange = "Range";
-static const char* sValnms = "Value Names";
-static const char* sSections = "Patches";
 
 
 class SurfaceSectionUndoEvent : public UndoEvent

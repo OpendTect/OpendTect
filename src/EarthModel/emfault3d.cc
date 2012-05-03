@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.25 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.26 2012-05-03 05:14:16 cvskris Exp $";
 
 #include "emfault3d.h"
 
@@ -467,7 +467,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
+	    fss->geometry().insertStick( sid, sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					linesetmid, stick->lnm_, false );
 	}

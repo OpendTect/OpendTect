@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: poly2horvol.cc,v 1.5 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: poly2horvol.cc,v 1.6 2012-05-03 05:14:16 cvskris Exp $";
 
 #include "poly2horvol.h"
 
@@ -64,7 +64,6 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     ODPolygon<float> poly;
     HorSampling hs;
-    const Pick::Location& pl0( (*ps_)[0] );
     TypeSet<Coord> pts; TypeSet<float> zvals;
     for ( int idx=0; idx<ps_->size(); idx++ )
     {

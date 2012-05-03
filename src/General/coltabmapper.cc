@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.34 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.35 2012-05-03 05:14:16 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -401,7 +401,7 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
     }
 
     Interval<float> intv( -1, 1 );
-    bool res = mIsUdf(setup_.symmidval_) ?
+    mIsUdf(setup_.symmidval_) ?
 	       clipper_.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
 		       		  intv )
 	     : clipper_.getSymmetricRange( setup_.cliprate_.start,

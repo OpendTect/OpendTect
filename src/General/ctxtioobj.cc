@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ctxtioobj.cc,v 1.55 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ctxtioobj.cc,v 1.56 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -19,8 +19,6 @@ static const char* rcsID mUnusedVar = "$Id: ctxtioobj.cc,v 1.55 2012-05-02 15:11
 #include "filepath.h"
 #include "survinfo.h"
 #include "keystrs.h"
-
-static const char* sKeySelConstr = "Selection.Constraints";
 
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 

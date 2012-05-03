@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.8 2011-08-11 16:06:16 cvsyuancheng Exp $
+RCS:           $Id: arraytesselator.h,v 1.9 2012-05-03 05:14:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,6 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
     const int glastrowidx = datarowsize_ - 1;
     const int glastcolidx = datacolsize_ - 1;
     const int colsz = colrange_.nrSteps()+1;
-    const int startidx = rowrange_.start * datacolsize_ + colrange_.start;
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ioman.cc,v 1.114 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ioman.cc,v 1.115 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -218,7 +218,6 @@ bool IOMan::isReady() const
 static void clearSelHists()
 {
     const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
-    const int sz = grps.size();
     for ( int idx=0; idx<grps.size(); idx++ )
 	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
 }

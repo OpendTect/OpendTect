@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dline.cc,v 1.24 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dline.cc,v 1.25 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "horizon2dline.h"
 
@@ -108,7 +108,6 @@ void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
     }
 
     const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
-    const int nrtraces = posns.size();
     for ( int tridx=posns.size()-1; tridx>=0; tridx-- )
     {
 	int colidx = colsampling_[rowidx].nearestIndex( posns[tridx].nr_ );

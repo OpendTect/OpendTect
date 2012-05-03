@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.40 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.41 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -563,7 +563,7 @@ const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 	errmsg_ += hdrinf.form_.name();
     }
     if ( hdrinf.form_.specs_.size() > 1 )
-	{ errmsg_ += " (field "; hdrinf.specnr_; errmsg_ += ")"; }
+	{ errmsg_ += " (field "; errmsg_ += hdrinf.specnr_; errmsg_ += ")"; }
     if ( diffnms )
 	errmsg_ += "]";
 

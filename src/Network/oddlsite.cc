@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.19 2012-05-02 15:11:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.20 2012-05-03 05:14:17 cvskris Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -253,7 +253,6 @@ int ODDLSiteMultiFileGetter::nextStep()
     {
 	dlsite_.odhttp_->setASynchronous( true );
 	dlsite_.odhttp_->get( inpfnm, outfnm );
-	bool res = false;
 	while ( dlsite_.odhttp_->state() == ODHttp::Reading );
 	curidx_++;
 	/*{

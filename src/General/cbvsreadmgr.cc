@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvsreadmgr.cc,v 1.66 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvsreadmgr.cc,v 1.67 2012-05-03 05:14:16 cvskris Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -45,7 +45,6 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	return;
     }
 
-    bool alreadyfailed = false;
     for ( int fnr=0; ; fnr++ )
     {
 	BufferString fname = single_file ? fnm : getFileName(fnr).buf();
