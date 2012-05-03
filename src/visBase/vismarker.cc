@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vismarker.cc,v 1.37 2012-05-02 15:12:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismarker.cc,v 1.38 2012-05-03 06:26:24 cvskris Exp $";
 
 #include "vismarker.h"
 
@@ -295,7 +295,7 @@ void Marker::setDip( float inldip, float crldip )
     
     const float inldepth = (inldip/1000000) * zstretch_;
     const float crldepth = (crldip/1000000) * zstretch_;
-    const float inlangle = atan( 2 * SI().isClockWise() ? -inldepth : inldepth );
+    const float inlangle = atan( 2 * (SI().isClockWise() ? -inldepth : inldepth) );
     const float crlangle = atan( 2 * crldepth ); 
 
     SbRotation inlrot( SbVec3f(1,0,0), inlangle );
