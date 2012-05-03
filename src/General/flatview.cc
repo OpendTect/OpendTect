@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.73 2012-05-03 08:40:01 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.74 2012-05-03 08:55:17 cvsbert Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -482,8 +482,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 
 void FlatView::Viewer::removeAllAuxData()
 {
-    for ( int idx=nrAuxData()-1; idx>=0; idx-- )
-	removeAuxData( idx );
+    while ( nrAuxData() ) removeAuxData( 0 );
 }
 
 
