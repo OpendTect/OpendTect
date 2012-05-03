@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.46 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.47 2012-05-03 04:46:59 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -290,7 +290,6 @@ bool Threads::WorkManager::executeQueue( int queueid )
     {
 	::Threads::Work task;
 	CallBack cb(0,0);
-	bool manage = false;
 	for ( int idx=0; idx<workload_.size(); idx++ )
 	{
 	    if ( workqueueid_[idx]==queueid )
@@ -445,7 +444,6 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
     {
 	if ( queuetypes_[queueidx]==MultiThread || !queueworkload_[queueidx] )
 	{
-	    const int threadidx = nrfreethreads-1;
 	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
 	    queueworkload_[queueidx]++;
 

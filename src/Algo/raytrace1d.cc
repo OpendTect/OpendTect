@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.43 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.44 2012-05-03 04:47:00 cvskris Exp $";
 
 
 #include "raytrace1d.h"
@@ -224,7 +224,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const ElasticLayer& ellayer = model_[layer];
     const float downvel = setup().pdown_ ? ellayer.vel_ : ellayer.svel_;
-    const float upvel = setup().pup_ ? ellayer.vel_ : ellayer.svel_;
 
     const float sini = downvel * rayparam;
     sini_->set( layer, offsetidx, sini );
@@ -273,11 +272,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     return true;
 }
-
-
-
-
-
 
 
 float RayTracer1D::getSinAngle( int layer, int offset ) const
@@ -334,7 +328,6 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
 	return false;
 
-    const int nrtimes = twt_->info().getSize(0);
     const int layersize = nrIterations();
 
     TypeSet<float> times, depths;
@@ -356,7 +349,6 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	return false;
 
     const int layersize = nrIterations();
-    const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
 
     TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
     for ( int idx=firstlayer_; idx<layersize; idx++ )

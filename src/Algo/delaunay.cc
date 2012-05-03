@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.53 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.54 2012-05-03 04:47:00 cvskris Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -289,7 +289,7 @@ bool DAGTriangleTree::getTriangle( const Coord& pt, int& dupid,
     dupid = cNoVertex();
     vertices.erase();
     int ti0;
-    const char res = searchTriangle( pt, 0, ti0, dupid );
+    searchTriangle( pt, 0, ti0, dupid );
     if ( dupid!=cNoVertex() )
 	return true;
 

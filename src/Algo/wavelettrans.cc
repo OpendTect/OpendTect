@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wavelettrans.cc,v 1.23 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelettrans.cc,v 1.24 2012-05-03 04:47:00 cvskris Exp $";
 
 #include <iostream>
 
@@ -541,7 +541,6 @@ bool CWT::init()
 {
     if ( inited_ ) return true;
     
-    const int ndim = info_->getNDim();
     const int nrsamp = info_->getSize( 0 );
     const int nrsteps = freqrg_.nrSteps()+1;
     

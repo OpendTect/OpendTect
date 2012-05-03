@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.34 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.35 2012-05-03 04:46:59 cvskris Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -615,7 +615,7 @@ void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
     {
 	const PosInfo::LineData& ld2 = *pd2[iln2];
 	const int iln = indexOf( ld2.linenr_ );
-	if ( iln2 < 0 )
+	if ( iln < 0 )
 	    *this += new PosInfo::LineData(ld2);
     }
 }

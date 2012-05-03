@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.29 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.30 2012-05-03 04:46:59 cvskris Exp $";
 
 #include "surv2dgeom.h"
 
@@ -385,7 +385,6 @@ int PosInfo::Survey2D::getNewID( IOPar& iop )
     int savedmeaxid = -mUdf(int);
     iop.get( sKeyMaxID, savedmeaxid );
     int newlineidx = 0;
-    bool parisok = false;
     
     if ( !iop.size() )
 	return 0;
@@ -717,7 +716,6 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
 void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 {
     if ( !oldlsnm || !*oldlsnm ) return;
-    const bool iscurls = lsnm_ == oldlsnm;
     const int lsidx = lsindex_.indexOf( oldlsnm );
     if ( lsidx < 0 ) return;
 
@@ -774,7 +772,7 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
     if ( !geomid.isOK() )
 	return 0;
-    return FilePath(basefp_,cllsnm,cllnm).fullPath();
+    return fnm = FilePath(basefp_,cllsnm,cllnm).fullPath();
 }
 
 

@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.5 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.6 2012-05-03 04:46:59 cvskris Exp $";
 
 
 #include "bodyvolumecalc.h"
@@ -56,7 +56,6 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 	for ( int idy=0; idy<crlsz-1; idy++ )
 	{
 	    const BinID bid = cs_.hrg.atIndex(idx,idy);
-	    const int bididx = cs_.hrg.globalIdx( bid );
 
 	    for ( int idz=start; idz<stop; idz++ )
 	    {
