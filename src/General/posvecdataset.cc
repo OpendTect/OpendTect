@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posvecdataset.cc,v 1.26 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posvecdataset.cc,v 1.27 2012-05-03 06:14:42 cvskris Exp $";
 
 #include "posvecdataset.h"
 
@@ -262,7 +262,6 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
 	mErrRet("Cannot open input file")
     std::string buf; *sd.istrm >> buf;
     sd.istrm->seekg( 0, std::ios::beg );
-    char c = sd.istrm->peek();
     tabstyle = buf != "dTect" && buf != "dGB-GDI"; // For legacy data
     if ( !tabstyle )
     {
