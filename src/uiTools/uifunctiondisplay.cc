@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.63 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.64 2012-05-03 12:05:31 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -24,8 +24,10 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , setup_(su)
     , xax_(0)
     , yax_(0)
-    , xmarkval_(mUdf(float))
-    , ymarkval_(mUdf(float))
+    , xmarklineval_(mUdf(float))
+    , ymarklineval_(mUdf(float))
+    , xmarkline2val_(mUdf(float))
+    , ymarkline2val_(mUdf(float))
     , selpt_(0)
     , ypolyitem_(0)
     , y2polyitem_(0)
@@ -35,6 +37,10 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , y2polylineitem_(0)
     , ymarkeritems_(0)
     , y2markeritems_(0)
+    , xmarklineitem_(0)
+    , ymarklineitem_(0)
+    , xmarkline2item_(0)
+    , ymarkline2item_(0)
     , borderrectitem_(0)
     , pointSelected(this)
     , pointChanged(this)
@@ -166,7 +172,13 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 
 void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 {
-    (is_x ? xmarkval_ : ymarkval_) = val;
+    (is_x ? xmarklineval_ : ymarklineval_) = val;
+}
+
+
+void uiFunctionDisplay::setMark2Value( float val, bool is_x )
+{
+    (is_x ? xmarkline2val_ : ymarkline2val_) = val;
 }
 
 
@@ -443,19 +455,25 @@ void uiFunctionDisplay::draw()
 	y2markeritems_->setVisible( false );
     drawBorder();
 
-    LineStyle ls;
-    if ( !mIsUdf(xmarkval_) )
-    {
-	ls.color_ = setup_.xmarkcol_;
-	xax_->setup().style_ = ls;
-	xax_->drawGridLine( xax_->getPix(xmarkval_) );
-    }
-    if ( !mIsUdf(ymarkval_) )
-    {
-	ls.color_ = setup_.ymarkcol_;
-	yax_->setup().style_ = ls;
-	yax_->drawGridLine( yax_->getPix(ymarkval_) );
-    }
+#define mDrawMarkLine(xy,nr,colnr) \
+    if ( !mIsUdf(xy##markline##nr##val_) ) \
+	drawMarkLine( xy##ax_, xy##markline##nr##val_, \
+		      Color::stdDrawColor(colnr), xy##markline##nr##item_)
+    mDrawMarkLine(x,,0);
+    mDrawMarkLine(y,,0);
+    mDrawMarkLine(x,2,1);
+    mDrawMarkLine(y,2,1);
+}
+
+
+void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
+       				  uiLineItem*& itm )
+{
+    delete itm;
+    itm = ah->getFullLine( ah->getPix(val) );
+    itm->setPenColor( col );
+    itm->setZValue( 100 );
+    scene().addItem( itm );
 }
 
 

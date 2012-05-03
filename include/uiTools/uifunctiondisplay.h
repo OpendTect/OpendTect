@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.34 2012-04-24 06:14:49 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.35 2012-05-03 12:05:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,10 @@ ________________________________________________________________________
 class uiGraphicsScene;
 class uiGraphicsItem;
 class uiAxisHandler;
+class uiRectItem;
+class uiLineItem;
 class uiPolygonItem;
 class uiPolyLineItem;
-class uiRectItem;
 class uiGraphicsItemGroup;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
@@ -44,8 +45,6 @@ public:
 				    , bgcol_(Color::White())
 				    , ycol_(0,0,150)
 				    , y2col_(0,200,0)
-				    , xmarkcol_(150,0,0)
-				    , ymarkcol_(150,0,0)
 				    , ywidth_(2)			
 				    , y2width_(2)			
 				    , canvaswidth_(400)
@@ -83,8 +82,6 @@ public:
 	mDefSetupMemb(Color,bgcol)		//!< Canvas background
 	mDefSetupMemb(Color,ycol)
 	mDefSetupMemb(Color,y2col)
-	mDefSetupMemb(Color,xmarkcol)
-	mDefSetupMemb(Color,ymarkcol)
 	mDefSetupMemb(int,ywidth)
 	mDefSetupMemb(int,y2width)
 	mDefSetupMemb(int,canvaswidth)
@@ -142,6 +139,7 @@ public:
     void			setY2Vals(const Interval<float>&,
 	    				const float* yvals,int sz);
     void			setMarkValue(float,bool is_x);
+    void			setMark2Value(float,bool is_x);
 
     const TypeSet<float>&	xVals() const	{ return xvals_; }
     const TypeSet<float>&	yVals() const	{ return yvals_; }
@@ -175,12 +173,18 @@ protected:
     uiRectItem*			borderrectitem_;
     uiGraphicsItemGroup*	ymarkeritems_;
     uiGraphicsItemGroup*	y2markeritems_;
+    uiLineItem*			xmarklineitem_;
+    uiLineItem*			ymarklineitem_;
+    uiLineItem*			xmarkline2item_;
+    uiLineItem*			ymarkline2item_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
     TypeSet<float>		y2yvals_;
     TypeSet<float>		y2xvals_;
-    float			xmarkval_;
-    float			ymarkval_;
+    float			xmarklineval_;
+    float			ymarklineval_;
+    float			xmarkline2val_;
+    float			ymarkline2val_;
     int				selpt_;
     bool			mousedown_;
 
@@ -196,6 +200,8 @@ protected:
     void			drawY2Curve(const TypeSet<uiPoint>&,bool havy2);
     void			drawMarker(const TypeSet<uiPoint>&,
 	    				   bool y2=false);
+    void			drawMarkLine(uiAxisHandler*,float,Color,
+	                                      uiLineItem*&);
     void			drawBorder();
     bool			setSelPt();
     void			reSized( CallBacker* );
