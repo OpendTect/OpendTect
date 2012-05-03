@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.39 2012-04-16 10:16:33 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.40 2012-05-03 09:41:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,14 @@ namespace Well
 
 /*!\brief Display properties of a well */
 
-static const char* sKey2DDispProp = "2D Display";
-static const char* sKey3DDispProp = "3D Display";
+inline const char* sKey2DDispProp()  { return "2D Display"; }
+inline const char* sKey3DDispProp() { return "3D Display"; }
 
 mClass DisplayProperties
 {
 public:
 
-			DisplayProperties(const char* subj = sKey3DDispProp);
+			DisplayProperties(const char* subj = sKey3DDispProp());
 			DisplayProperties(const Well::DisplayProperties& dp)
 			{ *this = dp;}			   
 

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.96 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.97 2012-05-03 09:41:29 cvskris Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -121,8 +121,8 @@ Well::Data::Data( const char* nm )
     : info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
-    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp))
-    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp))
+    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
+    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
     , d2tmodel_(0)
     , csmodel_(0)
     , markers_(*new MarkerSet)
