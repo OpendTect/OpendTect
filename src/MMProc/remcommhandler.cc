@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: remcommhandler.cc,v 1.14 2012-05-02 15:11:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: remcommhandler.cc,v 1.15 2012-05-03 09:42:48 cvskris Exp $";
 
 #include "remcommhandler.h"
 
@@ -55,7 +55,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 	mErrRet( "Could not read any parameters from server" );
 
     BufferString tmpcmd;
-    bool res = mkCommand( par, tmpcmd );
+    mkCommand( par, tmpcmd );
     BufferString cmd( "@", tmpcmd );
     StreamProvider sp( cmd );
     if ( !sp.executeCommand( true ) )

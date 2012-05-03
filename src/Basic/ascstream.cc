@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.38 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.39 2012-05-03 09:42:48 cvskris Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -259,8 +259,6 @@ ascistream& ascistream::next()
     if ( linebuf[0] == mAscStrmParagraphMarker[0] )
 	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
-    bool found_separ = linebuf[0] == mAscStrmKeyValSep;
-    bool found_unescaped_separ = found_separ;
     const int sz = lineread.size();
     char* separptr = 0;
     for ( int ich=1; ich<sz; ich++ )

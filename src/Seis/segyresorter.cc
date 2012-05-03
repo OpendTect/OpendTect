@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segyresorter.cc,v 1.11 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyresorter.cc,v 1.12 2012-05-03 09:42:06 cvskris Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -265,7 +265,6 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
 bool SEGY::ReSorter::createOutput( const BinID& bid )
 {
     const bool is2d = Seis::is2D( setup_.geom_ );
-    const bool isps = Seis::isPS( setup_.geom_ );
 
     if ( nrdone_ < 1 )
     {

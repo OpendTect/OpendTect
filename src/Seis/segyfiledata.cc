@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.30 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.31 2012-05-03 09:42:06 cvskris Exp $";
 
 #include "segyfiledata.h"
 
@@ -30,7 +30,6 @@ static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.30 2012-05-02 15
 static const char* sKeyNrFiles = "Number of files";
 
 static const char* sKeyTraceSize = "Trace size";
-static const char* sKeyFormat = "SEG-Y sample format";
 static const char* sKeySampling = "Z sampling";
 static const char* sKeyRev1Marked = "File marked as REV. 1";
 static const char* sKeyNrStanzas = "Nr REV.1 Text stanzas";
