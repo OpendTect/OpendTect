@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.20 2012-04-24 17:46:15 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.21 2012-05-03 13:22:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ mClass uiODApplMgrDispatcher : public CallBacker
     void		setAutoUpdatePol();
     void		setFonts();
     void		openXPlot();
+    void		createCubeFromWells();
 
     void		showBaseMap();
     uiSurveyMap*	basemap_;

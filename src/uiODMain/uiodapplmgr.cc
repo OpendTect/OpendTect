@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.436 2012-05-03 11:21:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.437 2012-05-03 13:22:30 cvsbruno Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1747,6 +1747,8 @@ void uiODApplMgr::processPreStack( CallBacker* )
 { dispatcher_.processPreStack(); }
 void uiODApplMgr::genAngleMuteFunction( CallBacker* )
 { dispatcher_.genAngleMuteFunction(); }
+void uiODApplMgr::createCubeFromWells( CallBacker* )
+{ dispatcher_.createCubeFromWells(); }
 void uiODApplMgr::bayesClass2D( CallBacker* )
 { dispatcher_.bayesClass(true); }
 void uiODApplMgr::bayesClass3D( CallBacker* )

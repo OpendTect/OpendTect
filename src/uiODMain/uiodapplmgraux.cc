@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.49 2012-05-03 11:23:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.50 2012-05-03 13:22:30 cvsbruno Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -66,6 +66,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.49 2012-05-03 
 #include "uicreate2dgrid.h"
 
 #include "uiattribpartserv.h"
+#include "uicreatelogcubedlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uinlapartserv.h"
@@ -478,6 +479,8 @@ void uiODApplMgrDispatcher::setFonts()
 { uiSetFonts dlg( par_, "Set font types" ); dlg.go(); }
 void uiODApplMgrDispatcher::resortSEGY()
 { am_.seisserv_->resortSEGY(); }
+void uiODApplMgrDispatcher::createCubeFromWells()
+{ uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
 
 void uiODApplMgrDispatcher::process2D3D( bool to2d )
 {

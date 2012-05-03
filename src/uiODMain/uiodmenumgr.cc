@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.251 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.252 2012-05-03 13:22:30 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -423,6 +423,9 @@ void uiODMenuMgr::fillProcMenu()
 	csoitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes.png"));
+	csoitm->insertItem(
+	    new uiMenuItem("Create from &wells ...",
+			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
 	mInsertItem( csoitm, "Create 2D from 3D ...", m2DFrom3DMnuItem );
     }
     if ( SI().has2D() )
