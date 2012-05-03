@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.233 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.234 2012-05-03 11:24:42 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -1200,7 +1200,9 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    FixedString groupstr = is2d ? "2D Horizon" : "Horizon";
+    FixedString groupstr = is2d
+    	? EMHorizon2DTranslatorGroup::keyword()
+        : EMHorizon3DTranslatorGroup::keyword();
     ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
