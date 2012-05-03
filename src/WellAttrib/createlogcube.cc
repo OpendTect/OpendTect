@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.11 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.12 2012-05-03 07:30:08 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -39,6 +39,7 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
+    extractparams_.setFixedRange( SI().zRange( true ), true );
 }
 
 
@@ -52,7 +53,16 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
 {
     while ( !lcds.isEmpty() )
 	logdatas_ += lcds.remove(0);
+
     nrduplicatetrcs_ = nrdupltrcs;
+}
+
+
+void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
+			const Well::ExtractParams& pars )
+{
+    setInput( lcds, nrdupltrcs );
+    extractparams_ = pars;
 }
 
 
@@ -70,6 +80,9 @@ bool LogCubeCreator::doPrepare( int )
     hrg_.stop += bidvar;
     hrg_.start -= bidvar;
     hrg_.snapToSurvey();
+
+    extractparams_.zstep_ = SI().zRange( true ).step;
+    extractparams_.extractzintime_ = true;
     
     return true;
 }
@@ -82,7 +95,6 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( int idx=start; idx<=stop; idx++ )
     {
-
 	if ( !shouldContinue() )
 	    return false;
 
@@ -103,8 +115,7 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler ls( wd_, SI().zRange(true), true, SI().zRange(true).step,
-			    true, Stats::TakeNearest, lognms );
+    Well::LogSampler ls( wd_, extractparams_, lognms );
     if ( !ls.execute( false ) )
 	return false;
 

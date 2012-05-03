@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "task.h"
 #include "horsampling.h"
+#include "wellextractdata.h"
 
 class BinID;
 class CtxtIOObj;
@@ -25,20 +26,20 @@ mClass LogCubeCreator : public ParallelTask
 public:
 				LogCubeCreator(const Well::Data&);
 				~LogCubeCreator();
-
-
     mStruct LogCubeData
     {
-				LogCubeData(const BufferString& l,CtxtIOObj& c)
-				    : seisctio_(c), lognm_(l) {}
+				LogCubeData(const char* log,CtxtIOObj& c)
+				    : seisctio_(c), lognm_(log) {}
 			        ~LogCubeData();	
 
 	CtxtIOObj& 		seisctio_;  
-	const BufferString&	lognm_;
+	BufferString		lognm_;
     };
 
+				//LogCubeDatas become mine
     void			setInput(ObjectSet<LogCubeData>&,int nrtrcs);
-    				//LogCubeDatas become mine
+    void			setInput(ObjectSet<LogCubeData>&,int nrtrcs,
+	    				const Well::ExtractParams&);
 
     const char* 		errMsg() const;
 
@@ -52,6 +53,7 @@ protected:
     HorSampling			hrg_;
     int				nrduplicatetrcs_;
     ObjectSet<LogCubeData>	logdatas_;
+    Well::ExtractParams		extractparams_;
 
     od_int64                    nrIterations() const { return logdatas_.size();}
     od_int64            	nrdone_;

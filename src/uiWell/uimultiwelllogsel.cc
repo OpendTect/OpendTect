@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.17 2012-05-02 15:12:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.18 2012-05-03 07:30:08 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -81,7 +81,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valuechanged.notify( cb );
 
-    attach_ = zchoicefld_;
+    setHAlignObj( zchoicefld_ );
 
     uiWellZRangeSelector::getFromScreen(0);
 }
@@ -141,7 +141,7 @@ void uiWellZRangeSelector::putToScreen()
 	belowfld_->setValue( params_->below_, 0 ); 
     }
     else
-	zselectionflds_[selidx_]->setValue( params_->zrg_ );
+	zselectionflds_[selidx_]->setValue( params_->fixedzrg_ );
 
     updateDisplayFlds();
 }
@@ -163,7 +163,7 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
 	params_->below_ = belowfld_->getfValue(0,0); 
     }
     else
-	params_->zrg_ = zselectionflds_[selidx_]->getFInterval();
+	params_->fixedzrg_ = zselectionflds_[selidx_]->getFInterval();
 
     updateDisplayFlds();
 }
@@ -288,17 +288,39 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 
 uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s ) 
     : uiWellExtractParams(p,s)
+    , singlewid_(0)  
 {
-    uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
-    wellsfld_ = llbw->box();
-    uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
-						   uiLabeledListBox::RightTop );
-    logsfld_ = llbl->box();
-    llbl->attach( rightTo, llbw );
-    welllslblfld_ = llbw;
+    init();
+}
 
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s, 
+					const MultiID& singlewid )
+    : uiWellExtractParams(p,s)
+    , singlewid_(&singlewid)  
+{
+    init();
+}
+
+
+void uiMultiWellLogSel::init()
+{
+    uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
+	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
+    logsfld_ = llbl->box();
+
+    welllslblfld_ = 0;
+    wellsfld_ = 0;
     zchoicefld_->attach( ensureBelow, llbl );
-    attach_->attach( alignedBelow, llbw );
+
+    if ( !singlewid_ )
+    {
+	uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
+	wellsfld_ = llbw->box();
+	llbl->attach( rightTo, llbw );
+	welllslblfld_ = llbw;
+    }
+    zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
+
 
     postFinalise().notify(mCB(this,uiMultiWellLogSel,onFinalise));
 }
@@ -312,6 +334,8 @@ void uiMultiWellLogSel::onFinalise( CallBacker* )
     }
     belowfld_->display( true  );
     abovefld_->display( true );
+
+    update();
 }
 
 
@@ -325,7 +349,9 @@ void uiMultiWellLogSel::update()
 {
     clear();
 
-    wellsfld_->setEmpty(); logsfld_->setEmpty();
+    if ( wellsfld_ )
+	wellsfld_->setEmpty(); logsfld_->setEmpty();
+
     deepErase( wellobjs_ );
 
     Well::InfoCollector wic;
@@ -338,10 +364,10 @@ void uiMultiWellLogSel::update()
     {
 	const MultiID& mid = *wic.ids()[iid];
 	IOObj* ioobj = IOM().get( mid );
-	if ( !ioobj ) continue;
+	if ( !ioobj || ( singlewid_ && mid != *singlewid_ ) ) 
+	    continue;
+
 	wellobjs_ += ioobj;
-	wellids_ += mid;
-	wellsfld_->addItem( ioobj->name() );
 
 	const BufferStringSet& logs = *wic.logs()[iid];
 	for ( int ilog=0; ilog<logs.size(); ilog++ )
@@ -349,6 +375,9 @@ void uiMultiWellLogSel::update()
 
 	const Well::MarkerSet& mrkrs = *wic.markers()[iid];
 	addMarkers( mrkrs );
+
+	if ( wellsfld_ )
+	    wellsfld_->addItem( ioobj->name() );
     }
 
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -358,16 +387,28 @@ void uiMultiWellLogSel::update()
 
 void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 {
-    for ( int idx=0; idx<wellsfld_->size(); idx++ )
+    if ( singlewid_ && !wellobjs_.isEmpty() ) 
     {
-	if ( wellsfld_->isSelected(idx) )
-	    wids.add( wellobjs_[idx]->key() );
+	wids.add( wellobjs_[0]->key() );
+    }
+    else
+    {
+	for ( int idx=0; idx<wellsfld_->size(); idx++ )
+	{
+	    if ( wellsfld_->isSelected(idx) )
+		wids.add( wellobjs_[idx]->key() );
+	}
     }
 } 
 
 
 void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
-{ wellsfld_->getSelectedItems( wellnms ); }
+{ 
+    if ( singlewid_ && !wellobjs_.isEmpty() ) 
+	wellnms.add( wellobjs_[0]->name() );
+    else
+	wellsfld_->getSelectedItems( wellnms ); 
+}
 
 
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& lognms ) const

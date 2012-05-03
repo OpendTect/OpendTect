@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.78 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.79 2012-05-03 07:30:08 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -136,7 +136,7 @@ bool Well::ZRangeSelector::isOK( BufferString* errmsg ) const
     const bool usemrkr = zselection_ == Markers;
     if ( ( usemrkr && topmrkr_.isEqual(botmrkr_) 
 		&& mIsEqual(above_,below_,SI().zStep()) ) 
-		    || ( !usemrkr && zrg_.width() < SI().zStep()) )
+		    || ( !usemrkr && fixedzrg_.width() < SI().zStep()) )
     {
 	mErrRet( "Top distance is equal to bottom distance" );
     }
@@ -152,7 +152,7 @@ Well::ZRangeSelector::ZRangeSelector( const Well::ZRangeSelector& p )
     above_ = p.above_;
     below_ = p.below_;
     zselection_ = p.zselection_;
-    zrg_ = p.zrg_;
+    fixedzrg_ = p.fixedzrg_;
 }
 
 
@@ -162,7 +162,7 @@ void Well::ZRangeSelector::setEmpty()
     botmrkr_ = sKeyDataEnd();
     above_ = below_ = 0;
     zselection_ = Markers;
-    zrg_ = Interval<float>( mUdf(float), mUdf(float) );
+    fixedzrg_ = Interval<float>( mUdf(float), mUdf(float) );
 }
 
 
@@ -171,7 +171,7 @@ void Well::ZRangeSelector::usePar( const IOPar& pars )
     pars.get( sKeyTopMrk(), topmrkr_ );
     pars.get( sKeyBotMrk(), botmrkr_ );
     pars.get( sKeyLimits(), above_, below_ );
-    pars.get( sKeyZRange(), zrg_ );
+    pars.get( sKeyZRange(), fixedzrg_ );
     parseEnumZSelection( pars.find( sKeyZSelection() ), zselection_ );
 }
 
@@ -181,9 +181,25 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
     pars.set( sKeyTopMrk(), topmrkr_ );
     pars.set( sKeyBotMrk(), botmrkr_ );
     pars.set( sKeyLimits(), above_, below_ );
-    pars.set( sKeyZRange(), zrg_ );
+    pars.set( sKeyZRange(), fixedzrg_ );
     pars.set( sKeyZSelection(), getZSelectionString( zselection_ ) );
 }
+
+
+void Well::ZRangeSelector::setFixedRange( Interval<float> zrg, bool isintime )
+{
+    fixedzrg_ = zrg; zselection_ = isintime ? Times : Depths;
+}
+
+
+void Well::ZRangeSelector::setMarker( bool top, BufferString nm, float offset )
+{
+    if ( top )
+	{ topmrkr_ = nm; above_ = offset; }
+    else
+	{ botmrkr_ = nm; below_ = offset; }
+}
+
 
 
 #define mGetTrackRg(rg)\
@@ -203,7 +219,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
 			    const BufferStringSet& lognms, bool todah ) const 
 {
     if ( zselection_ == Times )
-	return zrg_;
+	return fixedzrg_;
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
@@ -217,11 +233,11 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     const Well::Track& track = wd.track();
     if ( zselection_ == Depths )
     {
-	dahrg = zrg_;
+	dahrg = fixedzrg_;
 	if ( todah )
 	{
-	    dahrg.start = track.getDahForTVD( zrg_.start );
-	    dahrg.stop = track.getDahForTVD( zrg_.stop );
+	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
+	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
 	}
 	return dahrg;
     }
@@ -255,18 +271,18 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 			    const BufferStringSet& lognms, bool todah ) const 
 {
     if ( zselection_ == Times )
-	return zrg_;
+	return fixedzrg_;
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
     const Well::Track& track = wd.track();
     if (  zselection_ == Depths )
     {
-	dahrg = zrg_;
+	dahrg = fixedzrg_;
 	if ( todah )
 	{
-	    dahrg.start = track.getDahForTVD( zrg_.start );
-	    dahrg.stop = track.getDahForTVD( zrg_.stop );
+	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
+	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
 	}
 	return dahrg;
     }
@@ -929,7 +945,7 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 			    const BufferStringSet& lognms )
     : lognms_(lognms)
 {
-    init( wd.d2TModel(), pars.calcFrom(wd,lognms), pars.isZRangeInTime(), 
+    init( wd.d2TModel(), pars.calcFrom(wd,lognms), pars.isInTime(), 
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
     for ( int idx=0; idx<lognms.size(); idx++ ) 
 	logset_ += wd.logs().getLog( lognms_.get( idx ) );

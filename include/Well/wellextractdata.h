@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.37 2012-04-19 07:26:32 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.38 2012-05-03 07:30:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public :
     			ZRangeSelector() { setEmpty(); }
     			ZRangeSelector(const ZRangeSelector&);
 
+
     enum		ZSelection { Markers, Depths, Times };
 			DeclareEnumUtils(ZSelection);
 
@@ -64,26 +65,29 @@ public :
     virtual void	fillPar(IOPar&) const;
 
     virtual void	setEmpty();
+    void		setMarker(bool top,BufferString nm,float offset);
+    void		setFixedRange(Interval<float>,bool istime);
     virtual bool	isOK(BufferString* errmsg=0) const;
 
+    bool		isInTime() const 	{ return zselection_ == Times; }
+    Interval<float> 	getFixedRange() const 	{ return fixedzrg_; }
+    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
+	    				bool todah=true) const;
+    Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
+	    				bool todah=true) const;
+
+    Interval<float>	fixedzrg_; 
     BufferString	topmrkr_;
     BufferString	botmrkr_;
     float		above_;
     float		below_;
 
-    bool		isZRangeInTime() const { return zselection_ == Times; }
 
-    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
-	    				bool todah=true) const;
-    Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
-	    				bool todah=true) const;
-    Interval<float>	zrg_; /*! raw zrg, can be in time if selection is time. 
-				  In principle should not be used. 
-				  Use calcFrom instead !*/ 
 protected:
     void		getMarkerRange(const Data&,Interval<float>&) const;
     void		getLimitPos(const MarkerSet&,bool,float&,
 	    			const Interval<float>&) const;
+
 };
 
 

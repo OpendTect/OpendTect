@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.12 2012-04-26 10:15:29 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.13 2012-05-03 07:30:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,6 @@ protected:
     ObjectSet<uiLabel> 	zlabelflds_;
     uiGenInput*         zchoicefld_;
 
-    uiGroup*		attach_;
-
     int			selidx_;
     Well::ZRangeSelector* params_;	
 
@@ -121,6 +119,8 @@ mClass uiMultiWellLogSel : public uiWellExtractParams
 {
 public:
 			uiMultiWellLogSel(uiParent*,const Setup&);
+			uiMultiWellLogSel(uiParent*,const Setup&,
+					const MultiID& singlewid);
 			~uiMultiWellLogSel();
 
     void		getSelLogNames(BufferStringSet&) const;
@@ -129,15 +129,17 @@ public:
 
     void		update(); //call this when data changed
 
-protected :
+protected:
 
     ObjectSet<IOObj>	wellobjs_;
-    TypeSet<MultiID>	wellids_;
+
+    const MultiID*	singlewid_;
 
     uiListBox*		wellsfld_;
     uiListBox*		logsfld_;
     uiLabeledListBox*	welllslblfld_;
 
+    void		init();
     void		onFinalise( CallBacker* );
 };
 

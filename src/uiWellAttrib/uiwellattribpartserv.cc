@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribpartserv.cc,v 1.32 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribpartserv.cc,v 1.33 2012-05-03 07:30:08 cvsbruno Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -148,12 +148,7 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
 
 bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
-    if ( !wd ) 
-	mErrRet("Cannot read well data");
-
-    uiCreateLogCubeDlg dlg( parent(), *wd );
-
+    uiCreateLogCubeDlg dlg( parent(), &wellid );
     return dlg.go();
 }
 
