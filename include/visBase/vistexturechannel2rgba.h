@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.27 2012-02-16 20:17:15 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.28 2012-05-03 15:11:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ class SoRGBATextureChannel2RGBA;
 class SoTextureComposerInfo;
 
 namespace ColTab { class Sequence; }
+namespace osgGeo { class ColorSequence; }
 
 namespace visBase
 { 
@@ -136,6 +137,7 @@ protected:
     void			notifyChannelChange()	{ update(); }
     void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
+    void			updateOsgTexture() const;
 
     					~ColTabTextureChannel2RGBA();
 
@@ -146,6 +148,9 @@ protected:
     mutable ObjectSet<ColTab::Sequence>	coltabs_;
     mutable BoolTypeSet			enabled_;
     mutable TypeSet<unsigned char>	opacity_;
+
+    mutable ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
+    mutable ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
 
     SoSwitch*				shaderswitch_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.22 2012-02-20 10:11:27 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.23 2012-05-03 15:11:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -91,6 +91,7 @@ public:
     void			touchMappedData();
 
     osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
+    const TypeSet<int>*		getOsgIDs(int channel) const;
     
 protected:
     friend			class ChannelInfo;

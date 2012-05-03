@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.47 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.48 2012-05-03 15:11:21 cvsjaap Exp $";
 
 #include "vistexturechannels.h"
 
@@ -614,13 +614,10 @@ int TextureChannels::addChannel()
     if ( osgtexture_ )
     {
 	id = osgtexture_->addDataLayer();
-	osgGeo::LayerProcess* layerprocess =
-	    		new osgGeo::IdentityLayerProcess( *osgtexture_, id );
-	layerprocess->setNewUndefColor( osg::Vec4f(0.6,0.8,0.6,1.0) );
 	osgtexture_->setDataLayerUndefLayerID( id, id );
 	osgtexture_->setDataLayerUndefChannel( id, 3 );
-	osgtexture_->setDataLayerImageUndefColor( id, osg::Vec4f(1.0,1.0,1.0,0.0) );
-	osgtexture_->addProcess( layerprocess );
+	const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
+	osgtexture_->setDataLayerImageUndefColor( id, imageudfcolor );
     }
 
     osgids += id;
@@ -686,6 +683,13 @@ void TextureChannels::removeChannel( int channel )
 	return;
 
     PtrMan<ChannelInfo> info = channelinfo_[channel];
+
+    if ( osgtexture_ )
+    {
+	for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
+	    osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
+    }
+
     channelinfo_.remove(channel);
 
     bool oldenable = tc_->enableNotify( false );
@@ -969,6 +973,15 @@ void TextureChannels::update( int channel, bool tc2rgba )
 void TextureChannels::touchMappedData()
 {
     tc_->touch();
+}
+
+
+const TypeSet<int>* TextureChannels::getOsgIDs( int channel ) const
+{
+    if ( channel<0 || channel>=channelinfo_.size() )
+	return 0;
+
+    return &channelinfo_[channel]->getOsgIDs();
 }
 
 
