@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.24 2012-05-03 06:40:58 cvskris Exp $
+ RCS:           $Id: uicolor.h,v 1.25 2012-05-03 07:52:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,6 @@ mGlobal bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
 
 // To be used by cmddriver to select a color while closing the QColorDialog
 mGlobal void		setExternalColor( const Color& );
-mGlobal Color*		externalcolor = 0;
 
 
 /*! \brief small element for color selection. Has no text label.
