@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.48 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.49 2012-05-03 11:23:57 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -207,6 +207,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 
 	break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;
+	default:					break;
 	}
     break;
     mCase(Attr):
@@ -300,6 +301,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiSessionMan mandlg( par_ );
     	    mandlg.go();
 	}
+    mCase(NLA):
+	    pErrMsg("NLA event occurred");
+    break;
     }
 }
 
