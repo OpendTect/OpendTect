@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2010 (org 2005 / 2008)
- RCS:		$Id: posinfo2d.h,v 1.2 2010-08-19 11:28:24 cvsbert Exp $
+ RCS:		$Id: posinfo2d.h,v 1.3 2012-05-04 15:40:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,17 +26,27 @@ mClass Line2DPos
 {
 public:
 
-		Line2DPos( int n=0 ) : nr_(n)            {}
-    bool	operator ==( const Line2DPos& p ) const { return nr_ == p.nr_; }
-    bool	operator !=( const Line2DPos& p ) const { return nr_ != p.nr_; }
-    bool	operator >( const Line2DPos& p ) const  { return nr_ > p.nr_; }
-    bool	operator <( const Line2DPos& p ) const  { return nr_ < p.nr_; }
-    bool	operator >=( const Line2DPos& p ) const  { return nr_>=p.nr_; }
-    bool	operator <=( const Line2DPos& p ) const  { return nr_<=p.nr_; }
+		Line2DPos( int n=0 ) : nr_(n)		{}
+    bool	operator ==( const Line2DPos& p ) const	{ return nr_ == p.nr_; }
+    bool	operator !=( const Line2DPos& p ) const	{ return nr_ != p.nr_; }
+    bool	operator >( const Line2DPos& p ) const	{ return nr_ > p.nr_; }
+    bool	operator <( const Line2DPos& p ) const	{ return nr_ < p.nr_; }
+    bool	operator >=( const Line2DPos& p ) const	{ return nr_>=p.nr_; }
+    bool	operator <=( const Line2DPos& p ) const	{ return nr_<=p.nr_; }
 
     int		nr_;
     Coord	coord_;
 
+};
+
+
+mClass Line2DPos3D : public Line2DPos
+{
+public:
+		Line2DPos3D( int n=0, float z=mUdf(float) )
+		    : Line2DPos(n), z_(z)		{}
+
+    float	z_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.11 2012-02-16 04:50:21 cvssatyaki Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.12 2012-05-04 15:40:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
     int		lineid_;
 
     bool	isOK() const;
+    void	setUndef();
+
     bool	operator ==( const GeomID& a ) const
     		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
     bool	operator !=( const GeomID& a ) const

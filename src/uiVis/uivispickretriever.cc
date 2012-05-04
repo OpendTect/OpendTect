@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispickretriever.cc,v 1.14 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispickretriever.cc,v 1.15 2012-05-04 15:40:16 cvsnanne Exp $";
 
 #include "uivispickretriever.h"
 
 #include "visevent.h"
+#include "visseis2ddisplay.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "uivispartserv.h"
@@ -103,6 +104,18 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     }
 
     pickedobjids_ = eventinfo.pickedobjids;
+    for ( int idx=0; idx<pickedobjids_.size(); idx++ )
+    {
+	visBase::DataObject* dataobj =
+		visBase::DM().getObject( pickedobjids_[idx] );
+	if ( !dataobj ) continue;
+
+	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2dd,dataobj);
+	if ( !s2dd || !s2dd->isOn() )
+	    continue;
+
+	geomid_ = s2dd->getGeomID();
+    }
 
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
@@ -110,6 +123,8 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 
     if ( status_ != Waiting )
 	status_ = Idle;
+
+    resetPickedPos();
 }
 
 
@@ -119,4 +134,14 @@ void uiVisPickRetriever::reset()
     allowedscenes_.erase();
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
+    resetPickedPos();
+}
+
+
+void uiVisPickRetriever::resetPickedPos()
+{
+    geomid_.setUndef();
+    pickedpos_ = Coord3::udf();
+    pickedscene_ = -1;
+    pickedobjids_.erase();
 }
