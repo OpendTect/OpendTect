@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.28 2012-02-01 16:16:51 cvskris Exp $
+ RCS:		$Id: plfdefs.h,v 1.29 2012-05-04 19:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -31,6 +31,7 @@ Then you get:
 OS type:
 
 	__unix__	Unix
+	__lux__		Linux
 	__win__		Windows
 
 Machine:
@@ -90,6 +91,7 @@ Always defined:
 
 #ifdef lux
 # define __unix__ 1
+# define __lux__ 1
 # ifdef lux64
 #  define __lux64__ 1
 # else

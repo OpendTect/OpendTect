@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.90 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.91 2012-05-04 19:16:51 cvsnanne Exp $";
 
 #include "filegen.h"
 #include "string2_c.h"
@@ -37,7 +37,7 @@ static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.90 2012-05-02 15:11:25
 
 # include <unistd.h>
 
-# ifdef lux
+# ifdef __lux__
 
 #  include <sys/statfs.h>
 #  define mStatFS statfs
@@ -102,12 +102,12 @@ int File_isRemote( const char* fname )
       || mStatFS(fname,&fsstatbuf) )
 	return mC_False;
 
-# ifdef lux
+# ifdef __lux__
     /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
 	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
     return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
 # else
-#  ifdef mac
+#  ifdef __mac__
 #ifdef __debug__
 	fprintf(stderr,"File_IsRemote untested. Please verify");
 #endif
@@ -148,10 +148,10 @@ int File_getFreeMBytes( const char* dirnm )
 
     res = fac * fac		/* to MB */
 	* fsstatbuf.f_bavail	/* available blocks */
-#ifdef lux
+#ifdef __lux__
 	* fsstatbuf.f_bsize;	/* block size */
 #else
-# ifdef mac
+# ifdef __mac__
 	* fsstatbuf.f_bsize;	/* fundamental file system block size */
 # else
 	* fsstatbuf.f_frsize;	/* 'real' block size */

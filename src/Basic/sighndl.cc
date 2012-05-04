@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.34 2012-05-02 15:11:27 cvskris Exp $
+ RCS:           $Id: sighndl.cc,v 1.35 2012-05-04 19:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: sighndl.cc,v 1.34 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: sighndl.cc,v 1.35 2012-05-04 19:16:51 cvsnanne Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -176,7 +176,7 @@ void SignalHandling::doKill( int signalnr )
     if ( signalnr != SIGTERM )
     { 
 	BufferString msg;
-#ifdef lux
+#ifdef __lux__
  	msg = "Stopped by Linux";
 # ifdef __debug__
 	msg += ", received signal: ";

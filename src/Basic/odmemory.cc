@@ -7,21 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.11 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.12 2012-05-04 19:16:51 cvsnanne Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
 
-#ifdef lux
-#include "strmoper.h" 
-#include <fstream>
+#ifdef __lux__
+# include "strmoper.h" 
+# include <fstream>
 static float swapfree;
 #endif
-#ifdef mac
-#include <unistd.h>
-#include <mach/mach_init.h>
-#include <mach/mach_host.h>
-#include <mach/host_info.h>
+
+#ifdef __mac__
+# include <unistd.h>
+# include <mach/mach_init.h>
+# include <mach/mach_host.h>
+# include <mach/host_info.h>
 #endif
 
 #include "iopar.h" 
@@ -36,14 +37,14 @@ void OD::dumpMemInfo( IOPar& res )
     int itot = mNINT(total); int ifree = mNINT(free);
     res.set( "Total memory (MB)", itot );
     res.set( "Free memory (MB)", ifree );
-#ifdef lux
+#ifdef __lux__
     free = swapfree; free /= 1024 * 1024; ifree = mNINT(free);
     res.set( "Available swap space (MB)", ifree );
 #endif
 }
 
 
-#ifdef lux
+#ifdef __lux__
 static float getMemFromStr( char* str, const char* ky )
 {
     char* ptr = strstr( str, ky );
@@ -68,7 +69,7 @@ static float getMemFromStr( char* str, const char* ky )
 
 void OD::getSystemMemory( float& total, float& free )
 {
-#ifdef lux
+#ifdef __lux__
 
     std::ifstream strm( "/proc/meminfo" );
     BufferString filecont;
@@ -81,7 +82,7 @@ void OD::getSystemMemory( float& total, float& free )
     swapfree = getMemFromStr( filecont.buf(), "SwapFree:" );
 
 #endif
-#ifdef mac
+#ifdef __mac__
     vm_statistics_data_t vm_info;
     mach_msg_type_number_t info_count;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: systeminfo.cc,v 1.12 2012-05-02 15:11:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: systeminfo.cc,v 1.13 2012-05-04 19:16:51 cvsnanne Exp $";
 
 
 #include "systeminfo.h"
@@ -25,7 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: systeminfo.cc,v 1.12 2012-05-02 15:1
 #include <QHostInfo>
 #include <QNetworkInterface>
 
-#ifdef lux
+#ifdef __lux__
 # include <sys/statfs.h>
 #endif
 
