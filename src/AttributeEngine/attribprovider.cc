@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.141 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.142 2012-05-04 22:20:26 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -224,6 +224,10 @@ Provider::Provider( Desc& nd )
     inputs_.allowNull(true);
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
+
+
+    if ( !desc_.descSet() )
+	errmsg_ = "No attribute set specified";
 }
 
 
@@ -392,6 +396,9 @@ mGetMargin( type, var, req##var, req##funcPost )
 
 bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
+    if ( !getDesc().descSet() )
+	return false;
+
     CubeSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
