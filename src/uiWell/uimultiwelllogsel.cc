@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.18 2012-05-03 07:30:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.19 2012-05-04 13:31:55 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -135,13 +135,13 @@ void uiWellZRangeSelector::putToScreen()
 
     if ( selidx_ == 0 )
     {
-	zselectionflds_[0]->setText(params_->topmrkr_,0);
-	zselectionflds_[0]->setText(params_->botmrkr_,1);
-	abovefld_->setValue( params_->above_, 0 ); 
-	belowfld_->setValue( params_->below_, 0 ); 
+	zselectionflds_[0]->setText(params_->topMarker(),0);
+	zselectionflds_[0]->setText(params_->botMarker(),1);
+	abovefld_->setValue( params_->topOffset(), 0 ); 
+	belowfld_->setValue( params_->botOffset(), 0 ); 
     }
     else
-	zselectionflds_[selidx_]->setValue( params_->fixedzrg_ );
+	zselectionflds_[selidx_]->setValue( params_->getFixedRange() );
 
     updateDisplayFlds();
 }
@@ -157,13 +157,14 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
 
     if ( selidx_ == 0 )
     {
-	params_->topmrkr_ = zselectionflds_[0]->text(0);
-	params_->botmrkr_ = zselectionflds_[0]->text(1);
-	params_->above_ = abovefld_->getfValue(0,0); 
-	params_->below_ = belowfld_->getfValue(0,0); 
+	params_->setTopMarker( zselectionflds_[0]->text(0), 
+			       abovefld_->getfValue(0,0) );
+	params_->setBotMarker( zselectionflds_[0]->text(1), 
+			       belowfld_->getfValue(0,0) );
     }
     else
-	params_->fixedzrg_ = zselectionflds_[selidx_]->getFInterval();
+	params_->setFixedRange( zselectionflds_[selidx_]->getFInterval(), 
+				selidx_ == 2 );
 
     updateDisplayFlds();
 }

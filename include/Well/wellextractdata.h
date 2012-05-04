@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.38 2012-05-03 07:30:07 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.39 2012-05-04 13:31:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,29 +65,36 @@ public :
     virtual void	fillPar(IOPar&) const;
 
     virtual void	setEmpty();
-    void		setMarker(bool top,BufferString nm,float offset);
-    void		setFixedRange(Interval<float>,bool istime);
     virtual bool	isOK(BufferString* errmsg=0) const;
 
-    bool		isInTime() const 	{ return zselection_ == Times; }
+    void		setTopMarker(const char* nm,float offset)
+			{ setMarker( true, nm, offset); } 
+    void		setBotMarker(const char* nm,float offset)
+			{ setMarker( false, nm, offset); } 
+    void		setFixedRange(Interval<float>,bool istime);
+
+    float		topOffset() const 	{ return above_; }
+    float		botOffset() const 	{ return below_; }
+    const char*		topMarker() const 	{ return topmrkr_; }
+    const char*		botMarker() const	{ return botmrkr_; }
     Interval<float> 	getFixedRange() const 	{ return fixedzrg_; }
+    bool		isInTime() const 	{ return zselection_ == Times; }
+
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
 	    				bool todah=true) const;
     Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
 	    				bool todah=true) const;
+protected:
+    void		setMarker(bool top,BufferString nm,float offset);
+    void		getMarkerRange(const Data&,Interval<float>&) const;
+    void		getLimitPos(const MarkerSet&,bool,float&,
+	    			const Interval<float>&) const;
 
     Interval<float>	fixedzrg_; 
     BufferString	topmrkr_;
     BufferString	botmrkr_;
     float		above_;
     float		below_;
-
-
-protected:
-    void		getMarkerRange(const Data&,Interval<float>&) const;
-    void		getLimitPos(const MarkerSet&,bool,float&,
-	    			const Interval<float>&) const;
-
 };
 
 
