@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.46 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.47 2012-05-04 21:54:24 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -95,6 +95,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
 
     lsnm_ = newlsnm;
     lnm_ = lnms.get( dlg.selection() );
+    geomid_ = S2DPOS().getGeomID( lsnm_, lnm_ );
 }
 
 
@@ -104,6 +105,19 @@ void uiSeis2DLineSel::set( const char* lsnm, const char* lnm )
     lnm_ = lnm;
     updateSummary();
 }
+
+
+void uiSeis2DLineSel::set( const PosInfo::GeomID& geomid )
+{
+    geomid_ = geomid;
+    lsnm_ = S2DPOS().getLineSet( geomid.lsid_ );
+    lnm_ = S2DPOS().getLineName( geomid.lineid_ );
+    updateSummary();
+}
+
+
+const PosInfo::GeomID& uiSeis2DLineSel::getGeomID() const
+{ return geomid_; }
 
 
 MultiID uiSeis2DLineSel::lineSetID() const

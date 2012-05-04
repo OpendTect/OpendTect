@@ -7,17 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.25 2010-07-28 10:42:24 cvsnageswara Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.26 2012-05-04 21:54:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicompoundparsel.h"
 #include "uidialog.h"
+
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "ranges.h"
 #include "multiid.h"
+#include "ranges.h"
+#include "surv2dgeom.h"
 
 class uiComboBox;
 class uiLabeledSpinBox;
@@ -41,11 +43,15 @@ public:
     MultiID		lineSetID() const;
     void		set(const char* lsnm,const char* lnm=0);
 
+    const PosInfo::GeomID& getGeomID() const;
+    void		set(const PosInfo::GeomID&);
+
 protected:
 
     BufferString	lnm_;
     BufferString	lsnm_;
     bool		fixedlsname_;
+    PosInfo::GeomID	geomid_;
 
     BufferString	getSummary() const;
 
