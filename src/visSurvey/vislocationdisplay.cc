@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vislocationdisplay.cc,v 1.72 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vislocationdisplay.cc,v 1.73 2012-05-04 17:29:56 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -87,6 +87,12 @@ LocationDisplay::~LocationDisplay()
     setSceneEventCatcher( 0 );
     removeChild( group_->getInventorNode() );
     group_->unRef();
+
+    if ( polyline_ )
+    {
+	removeChild( polyline_->getInventorNode() );
+	polyline_->unRef();
+    }
 
     if ( transformation_ ) transformation_->unRef();
     setSetMgr( 0 );
@@ -208,6 +214,7 @@ void LocationDisplay::createLine()
 	addChild( polyline_->getInventorNode() );
 	polyline_->setDisplayTransformation( transformation_ );
 	polyline_->setMaterial( 0 );
+	polyline_->ref();
     }
 
     int pixsize = set_->disp_.pixsize_;

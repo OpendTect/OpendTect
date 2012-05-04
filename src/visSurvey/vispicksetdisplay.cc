@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.108 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.109 2012-05-04 17:29:56 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -41,9 +41,6 @@ PickSetDisplay::PickSetDisplay()
 
 PickSetDisplay::~PickSetDisplay()
 {
-    if ( polyline_ ) 
-	removeChild( polyline_->getInventorNode() );
-
     if ( bodydisplay_ ) 
 	bodydisplay_->unRef();
     if ( scene_ )
