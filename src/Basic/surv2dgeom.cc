@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.30 2012-05-03 04:46:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.31 2012-05-04 17:20:22 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
 
@@ -39,6 +39,9 @@ void doDel( CallBacker* ) { delete theinst; theinst = 0; }
 
 bool PosInfo::GeomID::isOK() const
 { return S2DPOS().hasLine( lineid_, lsid_ ); }
+
+void PosInfo::GeomID::setUndef()
+{ lineid_ = lsid_ = -1; }
 
 BufferString PosInfo::GeomID::toString() const
 {
