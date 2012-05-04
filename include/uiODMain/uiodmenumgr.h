@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.59 2011-10-31 16:11:25 cvsyuancheng Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.60 2012-05-04 14:49:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     uiPopupMenu*	fileMnu()		{ return surveymnu_; }
     uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
     uiPopupMenu*	analMnu()		{ return analmnu_; }
+    uiPopupMenu*	analWellMnu()		{ return analwellmnu_; }
     uiPopupMenu*	procMnu()		{ return procmnu_; }
     uiPopupMenu*	sceneMnu()		{ return scenemnu_; }
     uiPopupMenu*	viewMnu()		{ return viewmnu_; }
@@ -88,6 +89,7 @@ protected:
 
     uiPopupMenu*	surveymnu_;
     uiPopupMenu*	analmnu_;
+    uiPopupMenu*	analwellmnu_;
     uiPopupMenu*	procmnu_;
     uiPopupMenu*	scenemnu_;
     uiPopupMenu*	viewmnu_;

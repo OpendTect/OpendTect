@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.69 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.70 2012-05-04 14:49:13 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -32,6 +32,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.69 2012-05-02 
 #include "uiwelldisppropdlg.h"
 #include "uiwelldlgs.h"
 #include "uiwellimpasc.h"
+#include "uiwelllogtools.h"
 #include "uiwellman.h"
 
 #include "arrayndimpl.h"
@@ -241,6 +242,13 @@ void uiWellPartServer::createSimpleWells()
     crwellids_ = dlg.createdWellIDs();
     if ( dlg.wantDisplay() )
 	sendEvent( evDisplayWell() );
+}
+
+
+void uiWellPartServer::doLogTools()
+{
+    uiWellLogToolWinMgr tooldlg( parent() );
+    tooldlg.go();
 }
 
 

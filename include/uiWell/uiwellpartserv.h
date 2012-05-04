@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.40 2011-11-03 09:22:54 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.41 2012-05-04 14:49:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,6 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
-    void			rdmlnDlgClosed(CallBacker*);
-    void			wellPropDlgClosed(CallBacker*);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -69,6 +67,8 @@ public:
     void			createSimpleWells();
     const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
     
+    void			doLogTools();
+
     void			createWellFromPicks();
     const char*			askWellName();
     bool			setupNewWell(BufferString&, Color&);
@@ -99,6 +99,8 @@ protected:
     bool			allapplied_;
     bool			isdisppropopened_;
 
+    void			rdmlnDlgClosed(CallBacker*);
+    void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveWellDispProps(const Well::Data&,
 						  const MultiID&);

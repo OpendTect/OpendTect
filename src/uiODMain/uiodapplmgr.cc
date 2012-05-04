@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.437 2012-05-03 13:22:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.438 2012-05-04 14:49:13 cvsbruno Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1700,7 +1700,8 @@ void uiODApplMgr::storeEMObject()
 
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
-
+void uiODApplMgr::doWellLogTools( CallBacker* )
+{ wellserv_->doLogTools(); }
 void uiODApplMgr::doVolProcCB( CallBacker* )
 { attrserv_->doVolProc( 0 ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )

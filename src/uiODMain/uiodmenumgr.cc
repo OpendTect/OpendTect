@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.252 2012-05-03 13:22:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.253 2012-05-04 14:49:13 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -485,9 +485,14 @@ void uiODMenuMgr::fillAnalMenu()
     mInsertItem( crsplot, "&Open Crossplot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( crsplot );
 
+    analwellmnu_ = new uiPopupMenu( &appl_, "&Wells", "" );
+    analwellmnu_->insertItem( new uiMenuItem( "&Log Tools ...", 
+	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props.png" ) );
     if (  SI().zIsTime() )
-	analmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
-	    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie.png" ) );
+	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...", 
+	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie.png" ) );
+
+    analmnu_->insertItem( analwellmnu_ );
 }
 
 
