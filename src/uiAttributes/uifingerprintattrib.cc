@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.75 2012-05-04 21:55:12 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.76 2012-05-04 22:20:04 cvsnanne Exp $";
 
 -*/
 
@@ -264,7 +264,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetBinID( FingerPrint::refposStr(), refpos,
-		 refposfld_->setValue(refpos) )
+		 is2d_ ? refposfld_->setValue(refpos.crl)
+		       : refposfld_->setValue(refpos) )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
@@ -300,8 +301,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 		values += param.getfValue(0);
 	}
 	calcobj_->setValues( values );
-	if ( valueset->size() > cInitNrRows )
-	    nrvals = valueset->size();
+
+	nrvals = valueset->isEmpty() ? cInitNrRows : valueset->size();
     }
 
     table_->clearTable();
