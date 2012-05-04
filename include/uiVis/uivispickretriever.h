@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.8 2012-05-04 15:40:16 cvsnanne Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.9 2012-05-04 21:53:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
     bool		success() const		{ return status_==Success; }
     bool		waiting() const		{ return status_==Waiting; }
     const Coord3&	getPos() const		{ return pickedpos_; }
-    const PosInfo::GeomID& getGeomID() const	{ return geomid_; }
+    int			getTrcNr() const	{ return pickedtrcnr_; }
+    const PosInfo::GeomID& getGeomID() const	{ return pickedgeomid_; }
     int			getSceneID() const	{ return pickedscene_; }
     const TypeSet<int>&	getPickedObjIDs() const	{ return pickedobjids_; }
     			
@@ -48,7 +49,8 @@ protected:
 
     enum Status			{ Idle, Waiting, Failed, Success } status_;
     Coord3			pickedpos_;
-    PosInfo::GeomID		geomid_;
+    int				pickedtrcnr_;
+    PosInfo::GeomID		pickedgeomid_;
 
     int				pickedscene_;
     Notifier<uiVisPickRetriever> finished_;

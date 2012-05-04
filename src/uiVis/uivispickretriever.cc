@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispickretriever.cc,v 1.15 2012-05-04 15:40:16 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispickretriever.cc,v 1.16 2012-05-04 21:53:40 cvsnanne Exp $";
 
 #include "uivispickretriever.h"
 
@@ -22,7 +22,9 @@ uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
     , finished_( this )    
-{}
+{
+    resetPickedPos();
+}
 
 
 uiVisPickRetriever::~uiVisPickRetriever()
@@ -114,7 +116,12 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	geomid_ = s2dd->getGeomID();
+	pickedgeomid_ = s2dd->getGeomID();
+	PosInfo::Line2DPos pos2d;
+	const bool res =
+	    s2dd->getGeometry().getPos( pickedpos_, pos2d, mUdf(double) );
+	if ( res )
+	    pickedtrcnr_ = pos2d.nr_;
     }
 
     MouseCursorManager::restoreOverride();
@@ -140,7 +147,8 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    geomid_.setUndef();
+    pickedgeomid_.setUndef();
+    pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();
     pickedscene_ = -1;
     pickedobjids_.erase();

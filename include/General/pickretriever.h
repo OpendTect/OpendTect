@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: pickretriever.h,v 1.7 2012-05-04 15:40:15 cvsnanne Exp $
+ RCS:           $Id: pickretriever.h,v 1.8 2012-05-04 21:53:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     virtual bool		waiting() const				= 0;
     virtual const Coord3&	getPos() const				= 0;
     virtual const PosInfo::GeomID& getGeomID() const			= 0;
+    virtual int			getTrcNr() const			= 0;
     virtual int			getSceneID() const			= 0;
     virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;
 
