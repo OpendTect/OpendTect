@@ -7,39 +7,42 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.84 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.85 2012-05-04 22:21:19 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attriboutput.h"
-#include "attribengman.h"
+
 #include "uiattrsel.h"
-#include "uimultoutsel.h"
-#include "uiseissel.h"
-#include "uiseissubsel.h"
-#include "uiseisfmtscale.h"
-#include "uiseistransf.h"
-#include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "seisioobjinfo.h"
-#include "seistrc.h"
-#include "seistrctr.h"
-#include "seisselection.h"
+#include "uimultoutsel.h"
+#include "uiseisfmtscale.h"
+#include "uiseisioobjinfo.h"
+#include "uiseissel.h"
+#include "uiseissubsel.h"
+#include "uiseistransf.h"
+
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribengman.h"
+#include "attriboutput.h"
+#include "attribsel.h"
 #include "ctxtioobj.h"
+#include "cubesampling.h"
+#include "errh.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "attribsel.h"
-#include "errh.h"
-#include "nlamodel.h"
+#include "keystrs.h"
 #include "nladesign.h"
-#include "survinfo.h"
+#include "nlamodel.h"
 #include "ptrman.h"
 #include "scaler.h"
-#include "cubesampling.h"
-#include "keystrs.h"
+#include "seisioobjinfo.h"
+#include "seisselection.h"
+#include "seistrc.h"
+#include "seistrctr.h"
+#include "survinfo.h"
 
 using namespace Attrib;
 
@@ -366,11 +369,16 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( usecs )
     {
 	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
-	iop.set(sKeyMaxInlRg(),cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
-	iop.set(sKeyMaxCrlRg(),cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
+	iop.set( sKeyMaxInlRg(),
+		 cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
+	iop.set( sKeyMaxCrlRg(),
+		 cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
     }
     delete clonedset;
 
+    FilePath fp( ctio.ioobj->fullUserExpr() );
+    fp.setExtension( "proc" );
+    iop.write( fp.fullPath(), sKey::Pars );
     return true;
 }
 
