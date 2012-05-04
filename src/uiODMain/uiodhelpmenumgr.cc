@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.22 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.23 2012-05-04 12:02:54 cvsraman Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -114,11 +114,13 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
 	if ( !sd.usable() || !di->getFrom(*sd.istrm,fulldirnm) )
 	{
+	    fp.setFileName( "LinkFileTable.txt" );
+	    const bool haslinkfile = File::exists( fp.fullPath() );
 	    fp.setFileName( "index.htm" );
 	    if ( !File::exists(fp.fullPath()) )
 	    {
 		fp.setFileName( "index.html" );
-		if ( !File::exists(fp.fullPath()) )
+		if ( !File::exists(fp.fullPath()) && !haslinkfile )
 		    { delete di; sd.close(); continue; }
 	    }
 	    di->starturl = fp.fullPath();
@@ -288,5 +290,7 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
 
     }
 
+    if ( !File::exists(helpurl.buf()) )
+	helpurl = HelpViewer::getWebUrlFromLocal( helpurl.buf() );
     uiDesktopServices::openUrl( helpurl );
 }
