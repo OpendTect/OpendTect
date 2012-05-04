@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.74 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.75 2012-05-04 21:55:12 cvsnanne Exp $";
 
 -*/
 
@@ -461,10 +461,18 @@ void uiFingerPrintAttrib::getPosPush(CallBacker*)
 
 void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
 {
-    // TODO: Check 2D pos
     Coord3 crd = pickretriever_->getPos();
-    const BinID bid = SI().transform( crd );
-    refposfld_->setValue( bid );
+    if ( !is2d_ )
+    {
+	const BinID bid = SI().transform( crd );
+	refposfld_->setValue( bid );
+    }
+    else
+    {
+	refposfld_->setValue( pickretriever_->getTrcNr() );
+	linefld_->set( pickretriever_->getGeomID() );
+    }
+
     refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
 }
@@ -592,8 +600,8 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
     S2DPOS().setCurLineSet( lineset.name() );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
-	const int lineindex = lineset.indexOfFirstOccurrence(
-							linefld_->lineName() );
+	const int lineindex =
+	    lineset.indexOfFirstOccurrence( linefld_->lineName() );
 	if ( lineindex > -1 )
 	{
 	    PosInfo::Line2DData* geometry =
@@ -603,7 +611,8 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 
 	    const int trcnr = refposfld_->getBinID().crl;
 	    const int trcidx = geometry->indexOf( trcnr );
-	    return SI().transform( geometry->positions()[trcidx].coord_ );
+	    if ( geometry->positions().validIdx(trcidx) )
+		return SI().transform( geometry->positions()[trcidx].coord_ );
 	}
     }
 
