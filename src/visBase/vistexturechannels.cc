@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.48 2012-05-03 15:11:21 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.49 2012-05-04 07:54:28 cvsjaap Exp $";
 
 #include "vistexturechannels.h"
 
@@ -634,6 +634,10 @@ int TextureChannels::addChannel()
     newchannel->setOsgIDs( osgids );
 
     update ( res, false );
+
+    if ( tc2rgba_ )
+	tc2rgba_->notifyChannelInsert( res );
+
     return res;
 }
 
@@ -671,7 +675,7 @@ int TextureChannels::insertChannel( int channel )
 	update( idy, false );
 
     if ( tc2rgba_ )
-	tc2rgba_->notifyChannelChange();
+	tc2rgba_->notifyChannelInsert( channel );
     
     return channel;
 }
@@ -701,7 +705,7 @@ void TextureChannels::removeChannel( int channel )
     tc_->touch();
 
     if ( tc2rgba_ )
-	tc2rgba_->notifyChannelChange();
+	tc2rgba_->notifyChannelRemove( channel );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.28 2012-05-03 15:11:20 cvsjaap Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.29 2012-05-04 07:54:28 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,8 @@ public:
 
     virtual void		setChannels(TextureChannels*);
     virtual void		notifyChannelChange()			{}
+    virtual void		notifyChannelInsert(int ch)		{}
+    virtual void		notifyChannelRemove(int ch)		{}
     virtual void		enableInterpolation(bool);
     virtual bool		interpolationEnabled() const;
     virtual bool		createRGBA(SbImagei32&) const		= 0;
@@ -135,6 +137,9 @@ public:
     bool			canUseShading() const;
 protected:
     void			notifyChannelChange()	{ update(); }
+    void			notifyChannelInsert(int ch);
+    void			notifyChannelRemove(int ch);
+
     void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
     void			updateOsgTexture() const;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.64 2012-05-03 15:11:21 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.65 2012-05-04 07:54:28 cvsjaap Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -394,6 +394,32 @@ void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
     coltabs_.swap( ch0, ch1 );
     enabled_.swap( ch0, ch1 );
     opacity_.swap( ch0, ch1 );
+
+    update();
+}
+
+
+void ColTabTextureChannel2RGBA::notifyChannelInsert( int ch )
+{
+    if ( ch<0 && ch>coltabs_.size() )
+	return;
+
+    coltabs_.insertAt( new ColTab::Sequence(ColTab::defSeqName()), ch );
+    enabled_.insert( ch, true );
+    opacity_.insert( ch, 255 );
+
+    update();
+}
+
+
+void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
+{
+    if ( ch<0 && ch>=coltabs_.size() )
+	return;
+
+    delete coltabs_.remove( ch );
+    enabled_.remove( ch );
+    opacity_.remove( ch );
 
     update();
 }
