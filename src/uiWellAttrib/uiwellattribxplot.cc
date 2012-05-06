@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.50 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.51 2012-05-06 17:18:36 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -59,7 +59,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     attrsfld_ = llba->box();
 
     welllogselfld_ = new uiMultiWellLogSel( this, 
-	    	uiWellExtractParams::Setup().withsampling(true) );
+	    uiWellExtractParams::Setup().withsampling(true).withzstep(true));
     welllogselfld_->attach( ensureBelow, llba );
 
     const float inldist = SI().inlDistance();
