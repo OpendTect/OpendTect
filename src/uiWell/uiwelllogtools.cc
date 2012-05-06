@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.20 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.21 2012-05-06 17:17:36 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -82,7 +82,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	    { delete ldata; continue; }
 	ldata->wellid_ = wid; 
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms );
+	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
 	ldata->wellname_ = wellnms[idx]->buf();
 
 	logdatas += ldata;
