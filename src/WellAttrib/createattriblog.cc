@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createattriblog.cc,v 1.6 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: createattriblog.cc,v 1.7 2012-05-06 17:14:50 cvsbruno Exp $";
 
 #include "createattriblog.h"
 
@@ -34,10 +34,12 @@ bool AttribLogCreator::doWork( Well::Data& wd, BufferString& errmsg )
 
     BufferStringSet dummy;
     StepInterval<float> dahrg = setup_.extractparams_->calcFrom( wd, dummy );
+    if ( !mIsUdf( setup_.extractparams_->zstep_ ) )
+	dahrg.step = setup_.extractparams_->zstep_;
 
     AttribLogExtractor ale( wd );
     if ( !ale.fillPositions(dahrg) )
-    { mErrRet( "No positions extracted" ) }
+    { mErrRet( "No positions extracted " ) }
 
     if ( !ale.extractData( aem, setup_.tr_ ) )
     { mErrRet( "No data extracted" ) }
