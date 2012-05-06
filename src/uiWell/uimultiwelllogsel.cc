@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.19 2012-05-04 13:31:55 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.20 2012-05-06 17:15:43 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -219,6 +219,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     {
 	const float defstep =  zinft ? 0.5 : 0.15;
 	stepfld_ = new uiGenInput( this, "Step (ms) ", FloatInpSpec(defstep) );
+	stepfld_->setElemSzPol( uiObject::Small );
 	if ( zistimefld_ )
 	    stepfld_->attach( rightOf, zistimefld_ );
 	else
@@ -247,7 +248,13 @@ void uiWellExtractParams::putToScreen()
 
     NotifyStopper ns1( stepfld_->valuechanged );
     if ( stepfld_ )
-	stepfld_->setValue( params().zstep_ );
+    {
+	const float ztimefac = SI().showZ2UserFactor();
+	float step = params().zstep_; 
+	if ( params().extractzintime_ ) 
+	    step *= ztimefac;
+	stepfld_->setValue( step );
+    }
 
     NotifyStopper ns2( sampfld_->valuechanged );
     if ( sampfld_ )
@@ -262,10 +269,11 @@ void uiWellExtractParams::extrInTimeCB( CallBacker* )
 
     const bool zinft = SI().depthsInFeetByDefault();
     const bool intime = zistimefld_->isChecked();
-    const float defstep = intime ? SI().zStep() : zinft ? 0.5 : 0.15;
+    const float ztimefac = SI().showZ2UserFactor();
+    const float defstep = intime ? ztimefac*SI().zStep() : zinft ? 0.5 : 0.15;
     NotifyStopper ns( stepfld_->valuechanged );
     BufferString steplbl( "Step" );
-    steplbl += intime ? " (ms)" : zinft ? " (ft)" : " (meters) ";
+    steplbl += intime ? " (ms)" : zinft ? " (ft)" : " (m ) ";
     stepfld_->setTitleText( steplbl );
     stepfld_->setValue( defstep );
 }
@@ -279,7 +287,14 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 	params().extractzintime_ = zistimefld_->isChecked();
 
     if ( stepfld_ )
-	params().zstep_ = stepfld_->getfValue();
+    {
+	const float ztimefac = SI().showZ2UserFactor();
+	float step = stepfld_->getfValue();
+	if ( params().extractzintime_ ) 
+	    step /= ztimefac;
+
+	params().zstep_ = step;
+    }
 
     if ( sampfld_ )
 	params().samppol_ = (Stats::UpscaleType)(sampfld_->getIntValue());
