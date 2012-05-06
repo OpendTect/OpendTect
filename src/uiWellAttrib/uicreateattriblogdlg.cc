@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.34 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.35 2012-05-06 17:19:17 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -67,8 +67,10 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     if ( !wd )
 	{ uiMSG().error( "First well not valid" ); return; }
 
-    zrangeselfld_ = new uiWellExtractParams(this,
-			uiWellExtractParams::Setup().withzstep(true)); 
+    uiWellExtractParams::Setup wsu; 
+    wsu.withzstep_ = true; wsu.withzintime_ = false;
+    wsu.withextractintime_ = false;
+    zrangeselfld_ = new uiWellExtractParams( this, wsu );
     zrangeselfld_->addMarkers( wd->markers() );
 
     datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
