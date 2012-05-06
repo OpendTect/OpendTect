@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.5 2012-05-03 09:07:58 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.6 2012-05-06 17:45:36 cvsbruno Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -122,6 +122,10 @@ void uiSeisSingleTraceDisplay::removeRefs()
 
 void uiSeisSingleTraceDisplay::addRefZ( float zref )
 {
+    const float zfac = SI().zDomain().userFactor();
+    if ( SI().zIsTime() ) 
+	zref *= zfac;
+
     const int curnraux = nrAuxData();
     FlatView::AuxData* ad = createAuxData(
 	    			BufferString("Ref Z ",curnraux) );
