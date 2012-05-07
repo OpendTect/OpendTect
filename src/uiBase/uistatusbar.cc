@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistatusbar.cc,v 1.22 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistatusbar.cc,v 1.23 2012-05-07 17:24:08 cvsnanne Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -137,7 +137,7 @@ uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm,
 {
     body_= new uiStatusBarBody( *this, parnt, nm, sb );
 
-#ifndef mac //TODO: Bugfix for gripper on Mac
+#ifndef __mac__ //TODO: Bugfix for gripper on Mac
     sb.setSizeGripEnabled( false ); 
 #endif
 
