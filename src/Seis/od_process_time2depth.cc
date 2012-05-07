@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_time2depth.cc,v 1.12 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_time2depth.cc,v 1.13 2012-05-07 11:34:06 cvskris Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -18,11 +18,14 @@ static const char* rcsID mUnusedVar = "$Id: od_process_time2depth.cc,v 1.12 2012
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
+#include "moddepmgr.h"
 
 #include "prog.h"
 
 bool BatchProgram::go( std::ostream& strm )
-{ 
+{
+    OD::ModDeps().ensureLoaded("Seis");
+    
     CubeSampling outputcs;
     if ( !outputcs.hrg.usePar( pars() ) )
     { outputcs.hrg.init( true ); }
