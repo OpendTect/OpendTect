@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.132 2012-02-16 12:51:36 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.133 2012-05-07 11:59:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,6 +150,8 @@ public:
 
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
+
+    void			setDisplayTransformation(const mVisTrans*) {}
 
 protected:
 
