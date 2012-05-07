@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.11 2011-07-22 09:14:50 cvshelene Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.12 2012-05-07 12:18:50 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -56,7 +56,7 @@ public:
 
 protected:
 
-    void		init(const IOObj& in,const IOObj& out,const IOObj*);
+    void		init(const IOObj& in,const IOObj& out);
     bool		doPrepare(int);
     bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
@@ -82,7 +82,7 @@ protected:
     HorSampling				curhrg_;
     ZAxisTransform*			ztransform_;
     int 				voiid_;
-    bool				forward_;
+    bool				ist2d_;
     bool				is2d_;
     bool				stretchz_;
 

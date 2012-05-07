@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.21 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.22 2012-05-07 12:18:50 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -41,10 +41,11 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , outcs_( outcs )
     , ztransform_( &ztf )
     , voiid_( -1 )
-    , forward_( forward )
+    , ist2d_( forward )
     , stretchz_( stretchz )
+    , isvrms_(false)
 {
-    init( in, out, 0 );
+    init( in, out );
 }
 
 
@@ -64,33 +65,27 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , outcs_( outcs )
     , ztransform_( 0 )
     , voiid_( -1 )
-    , forward_( forward )
+    , ist2d_( forward )
     , stretchz_( stretchz )
+    , isvrms_(false)
 {
-    PtrMan<IOObj> tdmodel = 0;
-    if ( stretchz_ )
-	tdmodel = IOM().get( tdmodelmid );
-    else
-    {
-	ztransform_ = forward_
+    ztransform_ = ist2d_
 	    		? (VelocityStretcher*) new Time2DepthStretcher
 			: (VelocityStretcher*) new Depth2TimeStretcher;
 
-	mDynamicCastGet( VelocityStretcher*, vstrans, ztransform_ )
-	if ( !vstrans->setVelData( tdmodelmid ) || !ztransform_->isOK() )
-	    return;       
-    }
+    mDynamicCastGet( VelocityStretcher*, vstrans, ztransform_ )
+    if ( !vstrans->setVelData( tdmodelmid ) || !ztransform_->isOK() )
+	return;       
 
-    init( in, out, tdmodel );
+    init( in, out );
 }
 
 
-void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out,
-			       const IOObj* tdmodel )
+void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 {
-    if ( (stretchz_ && !tdmodel) || (!stretchz_ && !ztransform_) )
+    if ( !ztransform_ )
 	return;
-
+    
     SeisIOObjInfo info( in );
     is2d_ = info.is2D();
 
@@ -104,18 +99,6 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out,
 	delete seisreader_;
 	seisreader_ = 0;
 	return;
-    }
-
-    if ( tdmodel )
-    {
-	seisreadertdmodel_ = new SeisTrcReader( tdmodel );
-	if ( !seisreadertdmodel_->prepareWork(Seis::Scan) ||
-	     !seisreadertdmodel_->seisTranslator())
-	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
-	    return;
-	}
     }
 
     if ( !is2d_ )
@@ -218,15 +201,15 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
     SeisTrc intrc;
     SeisTrc modeltrc;
-    PtrMan<FloatMathFunction> trcfunc = 0;
+    PtrMan<FloatMathFunction> intrcfunc = 0;
     PtrMan<ZAxisTransformSampler> sampler = 0;
+    
     if ( !stretchz_ )
     {
-	sampler = new ZAxisTransformSampler( *ztransform_, forward_, sd, is2d_);
+	sampler = new ZAxisTransformSampler( *ztransform_, is2d_, sd, is2d_ );
+	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
-	trcfunc = new SeisTrcFunction( intrc, 0 );
-
-	if ( !trcfunc )
+	if ( !intrcfunc )
 	    return false;
     }
 
@@ -238,8 +221,10 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	SeisTrc* outtrc = new SeisTrc( outsz );
 	outtrc->info().sampling = sd;
 
-	if ( stretchz_ && ( forward_ || getModelTrace( modeltrc, curbid ) ) )
+	if ( stretchz_ )
 	{
+	    bool usevint = isvint_;
+	    
 	    if ( isvrms_ )                                                      
 	    {                                                                   
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
@@ -252,69 +237,120 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		for ( int ids=0; ids<insz; ids++ )
 		    intrc.set( ids, vintarr[ids], 0 );
 
-		isvint_ = true;
+		usevint = true;
 	    }
 
-	    SeisTrcValueSeries seistrcvsin( intrc, 0 );
-	    if ( forward_ ) modeltrc = intrc;
-	    SeisTrcValueSeries seistrcvsmodel( modeltrc, 0 );
-
-	    // wanteddimvals = z computed from model, wanted dimension
-	    mAllocVarLenArr( float, wanteddimvals, insz );
-
-	    //truez and truezsampled = initial dimension
-	    mAllocVarLenArr( float, truez, insz );		
-	    mAllocVarLenArr( float, truezsampled, outsz );
-
-	    if ( !wanteddimvals || !truez || !truezsampled
-		    || modeltrc.size()<insz )
-		return false;
-
-	    truez[0] = 0;
-	    SamplingData<double> modelsd( modeltrc.info().sampling );
-	    if ( isvint_ )
+	    //Computed from the input trace, not the model
+	    mAllocVarLenArr(float, twt, insz);
+	    mAllocVarLenArr(float, depths, insz);
+	    
+	    SamplingData<double> inputsd( intrc.info().sampling );
+	    SeisTrcValueSeries inputvs( intrc, 0 );
+	    
+	    
+	    ztransform_->transform( curbid, inputsd, insz,
+				    ist2d_ ? depths : twt 	);
+	    
+	    
+	    if ( ist2d_ )
 	    {
-		if ( forward_ )
-		    TimeDepthConverter::calcDepths( seistrcvsmodel, insz,
-						    modelsd, wanteddimvals );
-		else
-		    TimeDepthConverter::calcTimes( seistrcvsmodel, insz,
-			    			   modelsd, wanteddimvals );
-
-		for ( int idx=1; idx<insz; idx++ )
+		//Fill twt using depth array and input-values
+	    	if ( usevint )
 		{
-		    float difftwt = wanteddimvals[idx]-wanteddimvals[idx-1];
-		    truez[idx] = truez[idx-1] + difftwt
-				 * mOpInverse( seistrcvsin.value(idx),forward_);
+		    twt[0] = 2*depths[0]/inputvs[0];
+		    for ( int idx=1; idx<insz; idx++)
+		    {
+			twt[idx] = twt[idx-1] +
+		    		(depths[idx]-depths[idx-1])*2/inputvs[idx];
+		    }
+		}
+		else //Vavg
+		{
+		    for ( int idx=0; idx<insz; idx++ )
+		    {
+			twt[idx] = depths[idx]*2/inputvs[idx];
+		    }
+		    
 		}
 	    }
-	    else //should be Vavg logically
+	    else
+	    {
+		//Fill depth using twt array and input-values
+		if ( usevint )
+		{
+		    depths[0] = twt[0] * inputvs[0] / 2;
+		    for ( int idx=1; idx<insz; idx++ )
+		    {
+			depths[idx] = depths[idx-1] +
+		    		(twt[idx]-twt[idx-1]) * inputvs[idx]/2;
+		    }
+		}
+		else //Vavg
+		{
+		    for ( int idx=0; idx<insz; idx++ )
+		    {
+			depths[idx] = twt[idx] * inputvs[idx]/2;
+		    }
+		}
+
+	    }
+	    
+	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,true);
+	    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,true);
+	    float prevdepth;
+	    float prevtwt;
+
+	    if ( ist2d_ )
+	    {
+	    	for ( int idx=0; idx<insz; idx++ )
+		    dtfunc.add( depths[idx], twt[idx] );
+		
+		prevdepth = sd.atIndex( 0 );
+		prevtwt = dtfunc.getValue( prevdepth );
+	    }
+	    else
 	    {
 		for ( int idx=0; idx<insz; idx++ )
-		{
-		    wanteddimvals[idx] = modelsd.atIndex(idx)
-			    * mOpInverse( 2.0, forward_ )
-			    * mOpInverse( seistrcvsmodel.value(idx), !forward_);
-		    if ( !idx ) continue;
-		    truez[idx] = wanteddimvals[idx]
-			    * mOpInverse( seistrcvsin.value(idx), forward_ );
-		}
+		    tdfunc.add( twt[idx], depths[idx] );
+		
+		prevtwt = sd.atIndex( 0 );
+		prevdepth = tdfunc.getValue( prevtwt );
 	    }
-
-	    resampleZ( truez, wanteddimvals, insz, sd, outsz, truezsampled );
-	    outtrc->set( 0, seistrcvsin.value(0), 0 );
+		
+	    
 	    for ( int idx=1; idx<outsz; idx++ )
 	    {
-		const float val = forward_
-		    ? isvint_
-			? sd.step / (truezsampled[idx] - truezsampled[idx-1])
-			: sd.atIndex(idx) / truezsampled[idx]
-		    : isvint_
-			? (truezsampled[idx] - truezsampled[idx-1])/(sd.step/2)
-			: truezsampled[idx] / sd.atIndex(idx);
+		float curdepth;
+	    	float curtwt;
 
-		outtrc->set( idx, val, 0 );
+		if ( ist2d_ )
+		{
+		    curdepth = sd.atIndex( idx );
+		    curtwt = dtfunc.getValue( curdepth );
+		}
+		else
+		{
+		    curtwt = sd.atIndex( idx );
+		    curdepth = tdfunc.getValue( curtwt );
+		}
+		
+	    	float vel;
+		if ( usevint )
+		{
+		    vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
+		    prevtwt = curtwt;
+		    prevdepth = curdepth;
+		}
+		else
+		{
+		    vel = curdepth/curtwt * 2;
+		}
+		    
+		outtrc->set( idx, vel, 0 );
+		    
 	    }
+	    	    
+	    outtrc->set( 0, outtrc->get( 1, 0 ), 0 );
 	}
 	else
 	{
@@ -327,7 +363,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    interpol->udfval_ = mUdf(float);
 	    intrc.setInterpolator( interpol );
 
-	    reSample( *trcfunc, *sampler, outputptr, outtrc->size() );
+	    reSample( *intrcfunc, *sampler, outputptr, outtrc->size() );
 	    for ( int idx=outtrc->size()-1; idx>=0; idx-- )
 		outtrc->set( idx, outputptr[idx], 0 );
 	}
@@ -497,9 +533,9 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
     if ( ztransform_ )
     {
 	if ( voiid_<0 )
-	    voiid_ = ztransform_->addVolumeOfInterest( cs, forward_ );
+	    voiid_ = ztransform_->addVolumeOfInterest( cs, true );
 	else
-	    ztransform_->setVolumeOfInterest( voiid_, cs, forward_ );
+	    ztransform_->setVolumeOfInterest( voiid_, cs, true );
 
 	res = ztransform_->loadDataIfMissing( voiid_ );
     }
