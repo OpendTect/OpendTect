@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.25 2011-08-11 12:30:58 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.26 2012-05-07 11:17:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
+#include "staticstring.h"
 #include "ptrman.h"
 #include "errh.h"
 
@@ -28,12 +29,19 @@ public:
 				//!<or -1 for none
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
+    
+    BufferString&		errMsg() const { return errmsgs_.getString(); }
+    				//!<Threadsafe, as each thread will have
+    				//!<a different string returned.
+    
 protected:
     int				indexOf(const char*) const;
     void			addNames(const char*,const char*);
     void			setNames(int,const char*,const char*);
 
 private:
+    mutable StaticStringManager	errmsgs_;
+    
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     BufferStringSet		aliases_;
@@ -126,7 +134,16 @@ public:
 class B : public A
 {
 public:
-    static A*		createFunc(C* param) { return new B(param); }
+    static A*		createFunc(C* param)
+			{
+			    A* res = new B;
+ 			    if ( res->setParam( param ) );
+ 				return res;
+ 
+			    thefactory.errMsg() = "Could not set param";
+			    delete res;
+			    return 0;
+ 			}
     static void		initClass()
     			{ thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
 			    
@@ -252,7 +269,14 @@ static baseclss*	createInstance() { return new clss; } \
     if ( donames ) \
     { \
 	const int idx = indexOf( name ); \
-	return idx==-1 ? 0 : createfunc; \
+	if ( idx==-1 ) \
+	{ \
+	    errMsg() = "Name "; \
+	    errMsg().add( name ).add(" not found.\n" ) \
+		    .add( "Perhaps all plugins are not loaded\n" ); \
+	    return 0; \
+	} \
+	return createfunc; \
     } \
  \
     for ( int idx=0; idx<creators_.size(); idx++ ) \
