@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.117 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.118 2012-05-07 11:58:46 cvskris Exp $";
 
 #include "batchprog.h"
 #include "envvars.h"
@@ -332,13 +332,9 @@ bool BatchProgram::initOutput()
 
     if ( hasviewprogress && res && res=="window" )
     {
-	BufferString cmd( "@od_ProgressViewer " );
-
-#ifdef __msvc__ 
-	cmd = "@";
+	BufferString cmd = "@";
 	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += " ";
-#endif
 
 	cmd += GetPID();
 	StreamProvider sp( cmd );
