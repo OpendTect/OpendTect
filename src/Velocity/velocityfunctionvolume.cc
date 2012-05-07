@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionvolume.cc,v 1.20 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionvolume.cc,v 1.21 2012-05-07 12:00:56 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -177,7 +177,11 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 
     PtrMan<IOObj> velioobj = IOM().get( velid );
     if ( !velioobj )
+    {
+	errmsg_ = "Velocity volume with id: ";
+	errmsg_.add( velid ).add(" is not found." );
 	return false;
+    }
 
     if ( !desc_.usePar( velioobj->pars() ) )
         return false;
@@ -300,6 +304,7 @@ FunctionSource* VolumeFunctionSource::create(const MultiID& mid)
     VolumeFunctionSource* res = new VolumeFunctionSource;
     if ( !res->setFrom( mid ) )
     {
+	FunctionSource::factory().errMsg() = res->errMsg();
 	delete res;
 	return 0;
     }
