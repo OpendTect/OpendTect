@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.36 2012-05-08 12:48:56 cvsbert Exp $
+ RCS:		$Id: task.h,v 1.37 2012-05-08 13:08:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,7 @@ interp.execute();
 	    od_int64	sz_; \
 	    T1 		v1##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_ ) \
-		: sz_(_sz_) v1##_(_##v1##_) 		{} \
+		: sz_(_sz_), v1##_(_##v1##_) 		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc2Pars(clss,T1,v1,T2,v2) \
@@ -313,7 +313,7 @@ interp.execute();
 	    T1 v1##_; T2 v2##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) 			{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc3Pars(clss,T1,v1,T2,v2,T3,v3) \
@@ -325,8 +325,7 @@ interp.execute();
 	    clss( od_int64 _sz_, \
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) \
-		, v3##_(_##v3##_)			{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) , v3##_(_##v3##_)	{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc4Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4) \
