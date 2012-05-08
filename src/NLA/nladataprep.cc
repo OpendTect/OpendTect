@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.10 2012-05-02 15:11:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.11 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -88,7 +88,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     }
 
     Stats::RandGen::init();
-    bvs_.empty();
+    bvs_.setEmpty();
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
 	BinIDValueSet& bvs = *bvss[idx];

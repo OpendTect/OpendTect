@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: binidvalset.cc,v 1.40 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: binidvalset.cc,v 1.41 2012-05-08 10:55:11 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -52,7 +52,7 @@ BinIDValueSet::BinIDValueSet( const BinIDValueSet& s )
 
 BinIDValueSet::~BinIDValueSet()
 {
-    empty();
+    setEmpty();
 }
 
 
@@ -60,7 +60,7 @@ BinIDValueSet& BinIDValueSet::operator =( const BinIDValueSet& bvs )
 {
     if ( &bvs == this ) return *this;
 
-    empty(); copyStructureFrom( bvs );
+    setEmpty(); copyStructureFrom( bvs );
 
     for ( int iinl=0; iinl<bvs.inls_.size(); iinl++ )
     {
@@ -73,7 +73,7 @@ BinIDValueSet& BinIDValueSet::operator =( const BinIDValueSet& bvs )
 }
 
 
-void BinIDValueSet::empty()
+void BinIDValueSet::setEmpty()
 {
     inls_.erase();
     deepErase( crlsets_ );
@@ -138,11 +138,11 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
     if ( orgsz <= maxsz )
 	return;
     if ( maxsz == 0 )
-	{ empty(); return; }
+	{ setEmpty(); return; }
 
     mGetIdxArr(od_int64,idxs,orgsz);
     if ( !idxs )
-	{ empty(); return; }
+	{ setEmpty(); return; }
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
     Stats::RandGen::subselect( idxs, orgsz, maxsz );
@@ -177,7 +177,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 
 bool BinIDValueSet::getFrom( std::istream& strm )
 {
-    empty();
+    setEmpty();
     if ( !setNrVals( 0, false ) )
 	return false;
 
@@ -355,7 +355,7 @@ Interval<float> BinIDValueSet::valRange( int valnr ) const
 
 void BinIDValueSet::copyStructureFrom( const BinIDValueSet& bvs )
 {
-    empty();
+    setEmpty();
     const_cast<int&>(nrvals_) = bvs.nrvals_;
     allowdup_ = bvs.allowdup_;
 }
@@ -704,7 +704,7 @@ void BinIDValueSet::remove( const TypeSet<BinIDValueSet::Pos>& poss )
 	rmbvs.add( BinID(poss[idx].i,poss[idx].j) );
 
     BinIDValueSet bvs( *this );
-    empty();
+    setEmpty();
 
     Pos pos; BinID bid;
     while ( bvs.next(pos) )
@@ -1159,7 +1159,7 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
     const char* res = iop.find( key );
     if ( res && *res )
     {
-	empty();
+	setEmpty();
 	fms = res;
 	setNrVals( toInt(fms[0]), false );
 	allowdup_ = *fms[1] == 'D';

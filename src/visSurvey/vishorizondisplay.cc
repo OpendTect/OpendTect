@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.162 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.163 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -776,7 +776,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
-    data.bivSet().empty();
+    data.clearData();
     for ( int idx=0; idx<userrefs_[channel]->size(); idx++ )
 	data.dataSet().add( new DataColDef(userrefs_[channel]->get(idx)) );
 

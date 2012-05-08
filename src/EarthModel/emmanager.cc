@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.101 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.102 2012-05-08 10:55:11 cvsbert Exp $";
 
 #include "emmanager.h"
 
@@ -58,12 +58,12 @@ EMManager::EMManager()
 
 EMManager::~EMManager()
 {
-    empty();
+    setEmpty();
     delete &undo_;
 }
 
 
-void EMManager::empty()
+void EMManager::setEmpty()
 {   
     for ( int idx=0; idx<objects_.size(); idx++ )
     {

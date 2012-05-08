@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.30 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.31 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -435,7 +435,7 @@ void Seis::TableSelData::fillPar( IOPar& iop ) const
 
 void Seis::TableSelData::usePar( const IOPar& iop )
 {
-    bvs_.empty();
+    bvs_.setEmpty();
     Seis::SelData::usePar( iop );
     if ( isall_ ) return;
 

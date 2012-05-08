@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.234 2012-05-03 11:24:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.235 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "uiempartserv.h"
 
@@ -116,7 +116,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 
 uiEMPartServer::~uiEMPartServer()
 {
-    em_.empty();
+    em_.setEmpty();
     deepErase( variodlgs_ );
 }
 
@@ -1218,7 +1218,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
 				    const HorSampling& hs ) const
 {
-    bivs.empty(); bivs.setNrVals( 2, false );
+    bivs.setEmpty(); bivs.setNrVals( 2, false );
 
     const EM::ObjectID& id = selhorids[0]; 
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(id))

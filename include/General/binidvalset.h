@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.28 2011-10-12 07:24:39 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.29 2012-05-08 10:55:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,8 @@ public:
 
     inline void		allowDuplicateBids( bool yn )
 			{ allowdup_ = yn; if ( !yn ) removeDuplicateBids(); }
-    void		empty();
+    void		setEmpty();
+    // void		empty(); //!< don't use, legacy
     bool		append(const BinIDValueSet&);
     void		remove(const BinIDValueSet&);
     void		copyStructureFrom(const BinIDValueSet&);

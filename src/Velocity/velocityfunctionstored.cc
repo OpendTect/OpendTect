@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.14 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.15 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -177,7 +177,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	 !desc_.usePar( pickset.pars_ ) )
 	return false;
 
-    veldata_.empty();
+    veldata_.setEmpty();
     veldata_.setNrVals( 2, false );
     float vals[2];
     
@@ -200,7 +200,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
 void StoredFunctionSource::getAvailablePositions( BinIDValueSet& binvals) const
 {
-    binvals.empty();
+    binvals.setEmpty();
     BinIDValueSet::Pos pos;
     while ( veldata_.next(pos, true) )
 	binvals.add( veldata_.getBinID(pos) );

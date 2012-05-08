@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.17 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.18 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "prestackevents.h"
 
@@ -370,7 +370,7 @@ EventManager::getDipSource( bool primary ) const
 
 Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 {
-    reloadbids_->empty();
+    reloadbids_->setEmpty();
     storageid_ = mid;
     if ( !reload )
 	return 0;
@@ -606,7 +606,7 @@ void EventManager::blockChange( bool yn, bool sendnow )
 		reportChange( notificationqueue_->getBinID( pos ) );
 	}
 
-	notificationqueue_->empty();
+	notificationqueue_->setEmpty();
     }
 }
 
@@ -790,17 +790,17 @@ bool EventManager::DipSource::operator==(const EventManager::DipSource& b) const
 
 void EventManager::DipSource::fill( BufferString& buf ) const
 {
-    buf.empty();
-    SeparString sep( buf, '`' );
-    sep += TypeDef().convert( (int) type_ );
-    sep += mid_;
+    FileMultiString fms;
+    fms += TypeDef().convert( (int) type_ );
+    fms += mid_;
+    buf = fms;
 }
 
 
 bool EventManager::DipSource::use( const char* str )
 {
-    const SeparString sep( str, '`' );
-    const char* type = sep[0];
+    const FileMultiString fms( str );
+    const char* type = fms[0];
     if ( !type || !type )
 	return false;
 
@@ -810,7 +810,7 @@ bool EventManager::DipSource::use( const char* str )
 
     if ( typeenum==SteeringVolume )
     {
-	const char* midstr = sep[1];
+	const char* midstr = fms[1];
 	if ( !midstr )
 	    return false;
 

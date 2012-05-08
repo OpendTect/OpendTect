@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionascio.cc,v 1.12 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionascio.cc,v 1.13 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -90,7 +90,7 @@ int FunctionAscIO::nextStep()
     {
 	first_ = false;
 	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
-	output_->empty();
+	output_->setEmpty();
 	output_->setNrVals( hasanisotropy ? 2 : 3, false );
     }
 

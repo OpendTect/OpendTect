@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.49 2012-05-08 10:20:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.50 2012-05-08 10:55:11 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -356,7 +356,7 @@ void DataPointSet::setEmpty()
 
 void DataPointSet::clearData()
 {
-    bivSet().empty();
+    bivSet().setEmpty();
 }
 
 

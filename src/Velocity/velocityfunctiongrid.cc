@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.27 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.28 2012-05-08 10:55:12 cvsbert Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -406,7 +406,7 @@ bool GriddedSource::initGridder()
 
     gridder_->setGridArea( xrg, yrg );
 
-    sourcepos_.empty();
+    sourcepos_.setEmpty();
     gridsourcecoords_.erase();
     gridsourcebids_.erase();
 
