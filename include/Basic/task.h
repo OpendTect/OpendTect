@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.35 2012-03-13 09:18:09 cvsranojay Exp $
+ RCS:		$Id: task.h,v 1.36 2012-05-08 12:48:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,7 +287,7 @@ interp.execute();
  
  */
 
-#define mDefParallelCalcNoPars(clss,sz) \
+#define mDefParallelCalcNoPars(clss) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -295,7 +295,7 @@ interp.execute();
 	    clss( od_int64 _sz_ ) : sz_(_sz_)  		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
-#define mDefParallelCalc1Par(clss,sz,T1,v1) \
+#define mDefParallelCalc1Par(clss,T1,v1) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -305,7 +305,7 @@ interp.execute();
 		: sz_(_sz_) v1##_(_##v1##_) 		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
-#define mDefParallelCalc2Pars(clss,sz,T1,v1,T2,v2) \
+#define mDefParallelCalc2Pars(clss,T1,v1,T2,v2) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -316,7 +316,7 @@ interp.execute();
 		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
-#define mDefParallelCalc3Pars(clss,sz,T1,v1,T2,v2,T3,v3) \
+#define mDefParallelCalc3Pars(clss,T1,v1,T2,v2,T3,v3) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -329,7 +329,7 @@ interp.execute();
 		, v3##_(_##v3##_)			{} \
 	    od_int64 nrIterations() const { return sz_; }
 
-#define mDefParallelCalc4Pars(clss,sz,T1,v1,T2,v2,T3,v3,T4,v4) \
+#define mDefParallelCalc4Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
