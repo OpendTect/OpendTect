@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.41 2011-11-18 13:37:34 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.42 2012-05-08 10:20:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,6 +145,7 @@ public:
     bool		isMinimal() const	{ return minimal_; }
     bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
     void		setEmpty();
+    void		clearData(); //!< Keeps structure
 
     int			nrCols() const;
     int			nrFixedCols() const	{ return nrfixedcols_; }
