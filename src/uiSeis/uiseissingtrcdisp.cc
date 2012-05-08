@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.6 2012-05-06 17:45:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.7 2012-05-08 09:46:07 cvsbert Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -134,4 +134,6 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
 				Color::stdDrawColor(curnraux) );
     ad->zvalue_ = 100;
     addAuxData( ad );
+
+    handleChange( Annot );
 }
