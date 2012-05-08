@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.58 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.59 2012-05-08 09:45:50 cvsbert Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -15,6 +15,9 @@ static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.58 2012-05-02 15:11:
 #include "separstr.h"
 #include "errh.h"
 #include <typeinfo>
+
+static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
+static const ValueProperty depthprop( depthpropref, 0 );
 
 
 const char* Property::name() const
@@ -303,6 +306,10 @@ static bool isMathMatch( const BufferString& reqnm, const char* str )
 const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 					 bool mainname ) const
 {
+    if ( !nm || !*nm || caseInsensitiveEqual(nm,"depth")
+	    	     || caseInsensitiveEqual(nm,"z") )
+	return &depthprop;
+
     BufferString reqnm( nm ); ensureGoodVariableName( reqnm.buf() );
     for ( int idx=0; idx<ps.size(); idx++ )
     {
@@ -442,6 +449,8 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	const Property* p = inps_[idx];
 	if ( !p )
 	    return mUdf(float);
+	else if ( p == &depthprop )
+	    return eo.curz_;
 
 	const float v = p->value(eo);
 	if ( mIsUdf(v) )

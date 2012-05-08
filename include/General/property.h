@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.30 2012-02-01 13:54:40 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.31 2012-05-08 09:45:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -67,12 +67,14 @@ public:
 
 			EvalOpts( ValOpt vo=New, float relpos=0.5 )
 			    : valopt_(vo)
-			    , relpos_(relpos)		{}
+			    , relpos_(relpos)
+			    , curz_(0)		{}
 	ValOpt		valopt_;
 	float		relpos_;
+	float		curz_;
 
-	inline bool	isAvg() const			{ return valopt_==Avg; }
-	inline bool	isPrev() const			{ return valopt_==Prev;}
+	inline bool	isAvg() const		{ return valopt_==Avg; }
+	inline bool	isPrev() const		{ return valopt_==Prev;}
 #	define mPropertyEvalAvg Property::EvalOpts(Property::EvalOpts::Avg)
 #	define mPropertyEvalPrev Property::EvalOpts(Property::EvalOpts::Prev)
 #	define mPropertyEvalNew(pos) \
