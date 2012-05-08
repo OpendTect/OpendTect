@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.20 2012-05-06 17:15:43 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.21 2012-05-08 07:36:39 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -218,7 +218,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     if ( s.withzstep_ )
     {
 	const float defstep =  zinft ? 0.5 : 0.15;
-	stepfld_ = new uiGenInput( this, "Step (ms) ", FloatInpSpec(defstep) );
+	stepfld_ = new uiGenInput( this, "Step (m ) ", FloatInpSpec(defstep) );
 	stepfld_->setElemSzPol( uiObject::Small );
 	if ( zistimefld_ )
 	    stepfld_->attach( rightOf, zistimefld_ );
