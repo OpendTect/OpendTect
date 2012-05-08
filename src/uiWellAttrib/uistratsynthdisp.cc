@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.89 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.90 2012-05-08 14:36:52 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -472,8 +472,8 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     while ( vwr.nrAuxData() )
 	vwr.removeAuxData( 0 );
 
-    vwr.setPack( false, gdp->id(), false, false ); 
-    vwr.setPack( true, gdp->id(), false , false); 
+    vwr.setPack( false, gdp->id(), false ); 
+    vwr.setPack( true, gdp->id(), false ); 
 }
 
 
