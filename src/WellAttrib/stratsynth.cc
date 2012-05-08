@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.30 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.31 2012-05-08 14:36:31 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -173,7 +173,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     }
 
     PreStack::GatherSetDataPack* gdp = 
-	    new PreStack::GatherSetDataPack( "Pre-Stack Gather", gatherset );
+	new PreStack::GatherSetDataPack("Pre-Stack Gather-Synthetic",gatherset);
     SyntheticData* sd = new SyntheticData( "Synthetic", *gdp );
 
     ObjectSet<TimeDepthModel> tmpd2ts;
