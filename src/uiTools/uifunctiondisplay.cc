@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.64 2012-05-03 12:05:31 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.65 2012-05-09 13:17:32 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -113,10 +113,11 @@ void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
 				 int sz )
 {
     xvals_.erase(); yvals_.erase();
-    if ( sz < 2 ) return;
-
-    for ( int idx=0; idx<sz; idx++ )
-	{ xvals_ += xvals[idx]; yvals_ += yvals[idx]; }
+    if ( sz > 0 )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    { xvals_ += xvals[idx]; yvals_ += yvals[idx]; }
+    }
 
     gatherInfo(); draw();
 }
@@ -126,11 +127,12 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
 				 int sz )
 {
     xvals_.erase(); yvals_.erase();
-    if ( sz < 2 ) return;
-
-    const float dx = (xrg.stop-xrg.start) / (sz-1);
-    for ( int idx=0; idx<sz; idx++ )
-	{ xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx]; }
+    if ( sz > 0 )
+    {
+	const float dx = (xrg.stop-xrg.start) / (sz-1);
+	for ( int idx=0; idx<sz; idx++ )
+	    { xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx]; }
+    }
 
     gatherInfo(); draw();
 }
@@ -140,12 +142,13 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
 				   int sz )
 {
     y2xvals_.erase(); y2yvals_.erase();
-    if ( sz < 2 ) return;
-
-    for ( int idx=0; idx<sz; idx++ )
+    if ( sz > 0 )
     {
-	y2xvals_ += xvals[idx];
-	y2yvals_ += yvals[idx];
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    y2xvals_ += xvals[idx];
+	    y2yvals_ += yvals[idx];
+	}
     }
 
     gatherInfo(); draw();
@@ -157,13 +160,14 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 				   int sz )
 {
     y2xvals_.erase(); y2yvals_.erase();
-    if ( sz < 2 ) return;
-
-    const float dx = (xrg.stop-xrg.start) / (sz-1);
-    for ( int idx=0; idx<sz; idx++ )
-    { 
-	y2xvals_ += xrg.start + idx * dx; 
-	y2yvals_ += yvals[idx]; 
+    if ( sz > 0 )
+    {
+	const float dx = (xrg.stop-xrg.start) / (sz-1);
+	for ( int idx=0; idx<sz; idx++ )
+	{ 
+	    y2xvals_ += xrg.start + idx * dx; 
+	    y2yvals_ += yvals[idx]; 
+	}
     }
 
     gatherInfo(); draw();
@@ -179,6 +183,15 @@ void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 void uiFunctionDisplay::setMark2Value( float val, bool is_x )
 {
     (is_x ? xmarkline2val_ : ymarkline2val_) = val;
+}
+
+
+void uiFunctionDisplay::setEmpty()
+{
+    xmarklineval_ = ymarklineval_ =
+    xmarkline2val_ = ymarkline2val_ = mUdf(float);
+    setVals( 0, 0, 0 );
+    setY2Vals( 0, 0, 0 );
 }
 
 
