@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolortable.cc,v 1.49 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicolortable.cc,v 1.50 2012-05-09 09:46:11 cvsbert Exp $";
 
 #include "uicolortable.h"
 
@@ -203,8 +203,14 @@ void uiColorTable::updateRgFld()
 {
     if ( !minfld_ ) return;
 
-    minfld_->setValue( mapsetup_.range_.start );
-    maxfld_->setValue( mapsetup_.range_.stop );
+#define mSetLE(fld,v) \
+    if ( mIsUdf(v) ) \
+	fld->setText( "" ); \
+    else \
+	fld->setValue( v ); \
+
+    mSetLE( minfld_, mapsetup_.range_.start );
+    mSetLE( maxfld_, mapsetup_.range_.stop );
 }
 
 
