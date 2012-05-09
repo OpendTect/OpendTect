@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui2dsip.cc,v 1.13 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui2dsip.cc,v 1.14 2012-05-09 10:53:32 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"
@@ -31,11 +31,11 @@ ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
 				 dlgtitle,"0.3.8"))
 {
-    trcdistfld = new uiGenInput( this, "Approximate average trace distance",
+    grdspfld = new uiGenInput( this, "Default grid spacing for horizons",
 	    			 FloatInpSpec() );
     DoubleInpSpec dis;
     xrgfld = new uiGenInput( this, "X-coordinate range", dis, dis );
-    xrgfld->attach( alignedBelow, trcdistfld );
+    xrgfld->attach( alignedBelow, grdspfld );
     yrgfld = new uiGenInput( this, "Y-coordinate range", dis, dis );
     yrgfld->attach( alignedBelow, xrgfld );
     ismfld = new uiGenInput( this, "Above values are in",
@@ -43,7 +43,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
     ismfld->attach( alignedBelow, yrgfld );
 }
 
-    uiGenInput*		trcdistfld;
+    uiGenInput*		grdspfld;
     uiGenInput*		xrgfld;
     uiGenInput*		yrgfld;
     uiGenInput*		ismfld;
@@ -67,17 +67,17 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
 
-    double tdist = dlg->trcdistfld->getdValue();
+    double grdsp = dlg->grdspfld->getdValue();
     Coord c0( dlg->xrgfld->getdValue(0), dlg->yrgfld->getdValue(0) );
     Coord c1( dlg->xrgfld->getdValue(1), dlg->yrgfld->getdValue(1) );
-    if ( tdist < 0 ) tdist = -tdist;
+    if ( grdsp < 0 ) grdsp = -grdsp;
     if ( c0.x > c1.x ) Swap( c0.x, c1.x );
     if ( c0.y > c1.y ) Swap( c0.y, c1.y );
     const Coord d( c1.x - c0.x, c1.y - c0.y );
-    if ( tdist < 0.1 )
-	mErrRet("Trace distance should be > 0.1")
-    const int nrinl = (int)(d.x / tdist + 1.5);
-    const int nrcrl = (int)(d.y / tdist + 1.5);
+    if ( grdsp < 0.1 )
+	mErrRet("Grid spacing should be > 0.1")
+    const int nrinl = (int)(d.x / grdsp + 1.5);
+    const int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
 	mErrRet("Coordinate ranges are less than one trace distance")
 
@@ -85,7 +85,7 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     cs.hrg.step.inl = cs.hrg.step.crl = 1;
     cs.hrg.stop.inl = 10000 + nrinl - 1; cs.hrg.stop.crl = 10000 + nrcrl - 1;
 
-    Coord cmax( c0.x + tdist*(nrinl-1), c0.y + tdist*(nrcrl-1) );
+    Coord cmax( c0.x + grdsp*(nrinl-1), c0.y + grdsp*(nrcrl-1) );
     if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );
     if ( cmax.y < c0.y ) Swap( cmax.y, c0.y );
     crd[0] = c0;
