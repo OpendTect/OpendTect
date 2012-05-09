@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.9 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.10 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -270,7 +270,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
     propfld_->setItemsCheckable( true );
     fillList();
 
-    uiToolButton* manpropsbut = new uiToolButton( this, "man_props.png",
+    uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
 	    				"Manage available properties",
 					mCB(this,uiSelectPropRefs,manPROPS) );
     if ( llb )

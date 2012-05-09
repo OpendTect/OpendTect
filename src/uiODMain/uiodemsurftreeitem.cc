@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.97 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.98 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -67,8 +67,8 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , treeitemwasenabled_(true)
     , prevtrackstatus_(true)
 {
-    savemnuitem_.iconfnm = "save.png";
-    saveasmnuitem_.iconfnm = "saveas.png";
+    savemnuitem_.iconfnm = "save";
+    saveasmnuitem_.iconfnm = "saveas";
     enabletrackingmnuitem_.checkable = true;
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
@@ -440,7 +440,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , emid_(objid)
     , uivisemobj_(uv)
 {
-    horvariogrammnuitem_.iconfnm = "variogram.png";
+    horvariogrammnuitem_.iconfnm = "variogram";
 }
 
 

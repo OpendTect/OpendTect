@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.90 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.91 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -77,20 +77,20 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,renameLogPush) );
     butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
 			mCB(this,uiWellMan,removeLogPush) );
-    butgrp->addButton( "export.png", "Export log",
+    butgrp->addButton( "export", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
-    butgrp->addButton( "unitsofmeasure.png", "View/edit unit of measure",
+    butgrp->addButton( "unitsofmeasure", "View/edit unit of measure",
 	    		mCB(this,uiWellMan,logUOMPush) );
-    logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
+    logupbut_ = butgrp->addButton( "uparrow", "Move up",
 	    		mCB(this,uiWellMan,moveLogsPush) );
-    logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
+    logdownbut_ = butgrp->addButton( "downarrow", "Move down",
 	    		mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
     selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack.png",
+    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
 	    	"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
@@ -99,20 +99,20 @@ uiWellMan::uiWellMan( uiParent* p )
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot.png",
+	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot",
 			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "z2t.png", "Edit Depth/Time Model",
+	d2tbut = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
 				   mCB(this,uiWellMan, edD2T));
 	d2tbut->attach( rightOf, csbut );
     }
 
-    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers.png",
+    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
 	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 
-    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools.png",
+    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
 	    		"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;

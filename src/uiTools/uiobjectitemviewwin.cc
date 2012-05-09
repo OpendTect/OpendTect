@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.19 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -113,7 +113,7 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->attach( centeredBelow, dummylbl );
     versliderfld_->setStretch( 0, 0 );
 
-    fittoscreenbut_ = new uiToolButton( this, "exttofullsurv.png",
+    fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
 		    "Fit to screen", mCB(this,uiObjectItemViewWin,fitToScreen));
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
@@ -434,7 +434,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 
 void uiObjectItemViewControl::setToolButtons()
 {
-    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
 }
 
 
@@ -452,7 +452,7 @@ void uiObjectItemViewControl::changeStatus()
 	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
 
     if ( manipdrawbut_ ) 
-	manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+	manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
 
     mainviewer_.setDragMode( mode );
     mainviewer_.scene().setMouseEventActive( true );

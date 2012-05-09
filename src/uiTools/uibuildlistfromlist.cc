@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.8 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.9 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uilistbox.h"
@@ -82,20 +82,19 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 	lbl->attach( centeredAbove, deffld_ );
     }
 
-    edbut_ = new uiToolButton( this, "edit.png",
-		    setup_.edtt_, mCB(this,uiBuildListFromList,edCB) );
+    edbut_ = new uiToolButton( this, "edit", setup_.edtt_,
+	    		mCB(this,uiBuildListFromList,edCB) );
     edbut_->attach( rightOf, deffld_ );
-    rmbut_ = new uiToolButton( this, "trashcan.png",
-		    setup_.rmtt_, mCB(this,uiBuildListFromList,rmCB) );
+    rmbut_ = new uiToolButton( this, "trashcan", setup_.rmtt_,
+	    		mCB(this,uiBuildListFromList,rmCB) );
     rmbut_->attach( alignedBelow, edbut_ );
 
     if ( setup_.withio_ )
     {
-	uiToolButton* openbut = new uiToolButton( this, "openset.png",
-				"Open stored set",
-				mCB(this,uiBuildListFromList,openCB) );
+	uiToolButton* openbut = new uiToolButton( this, "openset",
+		"Open stored set", mCB(this,uiBuildListFromList,openCB) );
 	openbut->attach( alignedBelow, rmbut_ );
-	savebut_ = new uiToolButton( this, "save.png", "Save set",
+	savebut_ = new uiToolButton( this, "save", "Save set",
 		mCB(this,uiBuildListFromList,saveCB) );
 	savebut_->attach( alignedBelow, openbut );
     }

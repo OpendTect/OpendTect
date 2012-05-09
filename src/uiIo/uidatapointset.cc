@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.93 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.94 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -182,24 +182,24 @@ void uiDataPointSet::mkToolBars()
     if ( !setup_.isconst_ )
     {
 	iotb_ = new uiToolBar( this, "I/O Tool bar" );
-	mAddButton( "saveset.png", save, "Save data" );
+	mAddButton( "saveset", save, "Save data" );
 	if ( setup_.allowretrieve_ )
-	    mAddButton( "openset.png", retrieve, "Retrieve stored data" );
+	    mAddButton( "openset", retrieve, "Retrieve stored data" );
     }
 #undef mAddButton
 
     maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
-    mAddButton( "axis-x.png", selXCol, "Set data for X" );
-    mAddButton( "axis-add-y.png", selYCol, "Select as Y data" );
-    mAddButton( "axis-rm-y.png", unSelCol, "UnSelect as Y data" );
-    mAddButton( "delselrows.png", delSelRows, "Remove selected rows" );
-    mAddButton( "axis-prev.png", colStepL, "Set Y one column left" );
-    mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
-    mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
-    mAddButton( "plus.png", addColumn, "Add column.." );
-    mAddButton( "minus.png", removeColumn, "Remove column" );
+    mAddButton( "axis-x", selXCol, "Set data for X" );
+    mAddButton( "axis-add-y", selYCol, "Select as Y data" );
+    mAddButton( "axis-rm-y", unSelCol, "UnSelect as Y data" );
+    mAddButton( "delselrows", delSelRows, "Remove selected rows" );
+    mAddButton( "axis-prev", colStepL, "Set Y one column left" );
+    mAddButton( "axis-next", colStepR, "Set Y one column right" );
+    mAddButton( "sortcol", setSortCol, "Set sorted column to current" );
+    mAddButton( "plus", addColumn, "Add column.." );
+    mAddButton( "minus", removeColumn, "Remove column" );
 #undef mAddButton
 
     disptb_ = new uiToolBar( this, "Display Tool bar" );
@@ -215,16 +215,16 @@ void uiDataPointSet::mkToolBars()
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
-    dispxytbid_ = mAddButton( "toggxy.png", toggleXYZ,
+    dispxytbid_ = mAddButton( "toggxy", toggleXYZ,
 			      "Toggle show X and Y columns", true );
-    dispztbid_ = mAddButton( "toggz.png", toggleXYZ,
+    dispztbid_ = mAddButton( "toggz", toggleXYZ,
 			     "Toggle show Z column", true );
-    mAddButton( "statsinfo.png", showStatsWin,
+    mAddButton( "statsinfo", showStatsWin,
 			     "Show histogram and stats for column", false );
     if ( dps_.group(0) < mUdf(od_uint16) && SI().zIsTime() )
-	mAddButton( "variogram.png", compVertVariogram,
+	mAddButton( "variogram", compVertVariogram,
 		    "Compute variogram for column", false );
-    xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
+    xplottbid_ = mAddButton( "xplot", showCrossPlot,
 	    		     "Show crossplot", false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
@@ -1116,7 +1116,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
-    seldlg.selGrp()->getManipGroup()->addButton( "manxplot.png",
+    seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
 	    	"Manage cross-plot data", mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();

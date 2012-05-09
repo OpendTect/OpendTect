@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiscalebaritem.cc,v 1.5 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiscalebaritem.cc,v 1.6 2012-05-09 07:51:23 cvsbert Exp $";
 
 
 #include "treeitem.h"
@@ -118,7 +118,7 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
 
-    propmnuitem_.iconfnm = "disppars.png";
+    propmnuitem_.iconfnm = "disppars";
 }
 
 

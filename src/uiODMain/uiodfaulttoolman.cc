@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodfaulttoolman.cc,v 1.39 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodfaulttoolman.cc,v 1.40 2012-05-09 07:51:26 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -233,10 +233,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , flashcolor_( Color(0,0,0) )
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
-    editbutidx_ = toolbar_->addButton( "editsticks.png", "Edit sticks",
+    editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
-    selbutidx_ = toolbar_->addButton( "selectsticks.png", "Select sticks",
+    selbutidx_ = toolbar_->addButton( "selectsticks", "Select sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     toolbar_->addSeparator();
@@ -304,28 +304,27 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
 
-    settingsbutidx_ = toolbar_->addButton( "tools.png",
-	    			"More transfer settings",
+    settingsbutidx_ = toolbar_->addButton( "tools", "More transfer settings",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
-    gobutidx_ = toolbar_->addButton( "gobutton.png", "Transfer selected sticks",
+    gobutidx_ = toolbar_->addButton( "gobutton", "Transfer selected sticks",
 	    			mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
-    removalbutidx_ = toolbar_->addButton( "removesticks.png",
+    removalbutidx_ = toolbar_->addButton( "removesticks",
 	    			"Remove selected sticks",
 	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
     toolbar_->addSeparator();
 
 
-    undobutidx_ = toolbar_->addButton( "undo.png", "Undo",
+    undobutidx_ = toolbar_->addButton( "undo", "Undo",
 	    			mCB(this,uiODFaultToolMan,undoCB), false );
 
-    redobutidx_ = toolbar_->addButton( "redo.png", "Redo",
+    redobutidx_ = toolbar_->addButton( "redo", "Redo",
 	    			mCB(this,uiODFaultToolMan,redoCB), false );
 
     toolbar_->addSeparator();

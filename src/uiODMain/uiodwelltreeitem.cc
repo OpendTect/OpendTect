@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodwelltreeitem.cc,v 1.67 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodwelltreeitem.cc,v 1.68 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -51,7 +51,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&Add ..."), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem(
-	    new uiMenuItem("&Tie Well to Seismic ...","well_tie.png"), cTieIdx);
+	    new uiMenuItem("&Tie Well to Seismic ...","well_tie"), cTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),cAttribIdx);
@@ -230,10 +230,10 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
-    propertiesmnuitem_.iconfnm = "disppars.png";
+    propertiesmnuitem_.iconfnm = "disppars";
     logviewermnuitem_.text = "&2D Log Viewer ...";
     gend2tmmnuitem_.text = "&Tie Well to Seismic ...";
-    gend2tmmnuitem_.iconfnm = "well_tie.png";
+    gend2tmmnuitem_.iconfnm = "well_tie";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -244,7 +244,7 @@ void uiODWellTreeItem::initMenuItems()
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
-    storemnuitem_.iconfnm = "save.png";
+    storemnuitem_.iconfnm = "save";
     amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 
     nametopmnuitem_.checkable = true;

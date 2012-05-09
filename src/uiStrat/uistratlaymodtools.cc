@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.9 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.10 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -26,14 +26,14 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , genReq(this)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
-    uiToolButton* opentb = new uiToolButton( leftgrp, "open.png",
+    uiToolButton* opentb = new uiToolButton( leftgrp, "open",
 				"Open stored generation description",
 				mCB(this,uiStratGenDescTools,openCB) );
-    savetb_ = new uiToolButton( leftgrp, "save.png",
+    savetb_ = new uiToolButton( leftgrp, "save",
 	    			"Save generation description",
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
-    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops.png",
+    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
 	    			"Manage layer properties",
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
@@ -45,7 +45,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
     nrmodlsfld_->updateRequested.notify( gocb );
-    uiToolButton* gotb = new uiToolButton( rightgrp, "go.png",
+    uiToolButton* gotb = new uiToolButton( rightgrp, "go",
 	    			"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
@@ -102,12 +102,12 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 	    			mCB(this,uiStratLayModEditTools,selContentCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
-    lithtb_ = new uiToolButton( rightgrp, "lithologies.png",
+    lithtb_ = new uiToolButton( rightgrp, "lithologies",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
     lithtb_->setOn( true );
-    zoomtb_ = new uiToolButton( rightgrp, "toggzooming.png",
+    zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
 			"Do not zoom into models when on",
 			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
     zoomtb_->setToggleButton( true );

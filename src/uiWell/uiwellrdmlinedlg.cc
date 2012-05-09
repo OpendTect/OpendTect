@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.39 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.40 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -92,11 +92,11 @@ void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiWellSelGrp,selButPush);
-    toselect_ = new uiToolButton( selbuttons, "rightarrow.png",
+    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
 					"Move right", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, "leftarrow.png",
+    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
 	    				"Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
@@ -108,10 +108,11 @@ void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
 {
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWellSelGrp,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, "uparrow.png", "Move Up", cb );
+    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
+	    			    "Move Up", cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, "downarrow.png",
+    movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
 	    				"Move Down", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );

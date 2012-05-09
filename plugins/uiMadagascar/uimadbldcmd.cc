@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadbldcmd.cc,v 1.26 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimadbldcmd.cc,v 1.27 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uitoolbutton.h"
@@ -232,7 +232,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     srchfld_->setToolTip( "Search expression" );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiToolButton* srchbut = new uiToolButton( infogrp, "search.png", "Search",
+    uiToolButton* srchbut = new uiToolButton( infogrp, "search", "Search",
 				  mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 

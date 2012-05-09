@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.19 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -535,6 +535,6 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
 void uiVisDataPointSetDisplayMgr::getIconInfo( BufferString& fnm,
 					       BufferString& tooltip ) const
 {
-    fnm = "picks.png";
+    fnm = "picks";
     tooltip = "Show points in 3D scene";
 }

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.65 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.66 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -80,7 +80,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
     , gridlinesmnuitem_("&Gridlines ...",cGridLinesIdx)
 {
     displayid_ = did;
-    positionmnuitem_.iconfnm = "orientation64.png";
+    positionmnuitem_.iconfnm = "orientation64";
 }
 
 

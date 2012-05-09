@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.58 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.59 2012-05-09 07:51:23 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -316,8 +316,8 @@ SubItem::SubItem( Pick::Set& set, int displayid )
     name_ = set_->name();
     displayid_ = displayid;
 
-    storemnuitem_.iconfnm = "save.png";
-    storeasmnuitem_.iconfnm = "saveas.png";
+    storemnuitem_.iconfnm = "save";
+    storeasmnuitem_.iconfnm = "saveas";
 }
 
 
@@ -826,7 +826,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
 
-    propmnuitem_.iconfnm = "disppars.png";
+    propmnuitem_.iconfnm = "disppars";
 }
 
 

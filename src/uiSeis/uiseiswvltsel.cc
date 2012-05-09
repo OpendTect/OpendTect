@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltsel.cc,v 1.10 2012-05-02 15:12:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltsel.cc,v 1.11 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -28,7 +28,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
 	    					seltxt ? seltxt : "Wavelet" );
     nmfld_ = lcb->box();
 
-    uiToolButton* tb = new uiToolButton( this, "man_wvlt.png",
+    uiToolButton* tb = new uiToolButton( this, "man_wvlt",
 	    "Manage wavelets", mCB(this,uiSeisWaveletSel,startMan) );
 
     tb->attach( rightOf, lcb );

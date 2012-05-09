@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.27 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.28 2012-05-09 07:51:28 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -43,11 +43,11 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
-	manipgrp->addButton( "copyobj.png", "Copy data store",
+	manipgrp->addButton( "copyobj", "Copy data store",
 			     mCB(this,uiSeisPreStackMan,copyPush) );
-	manipgrp->addButton( "mergeseis.png", "Merge data stores",
+	manipgrp->addButton( "mergeseis", "Merge data stores",
 			     mCB(this,uiSeisPreStackMan,mergePush) );
-	manipgrp->addButton( "mkmulticubeps.png","Create Multi-Cube data store",
+	manipgrp->addButton( "mkmulticubeps","Create Multi-Cube data store",
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
     }
 

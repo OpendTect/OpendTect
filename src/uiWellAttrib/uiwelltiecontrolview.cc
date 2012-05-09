@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.40 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.41 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -64,15 +64,15 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 	tb_->display(false);
     toolbar_->addSeparator();
     toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton(toolbar_) );
-    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
-    mDefBut(zoominbut_,"zoomforward.png",altZoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
-    mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
+    mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
+    mDefBut(zoominbut_,"zoomforward",altZoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward",altZoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
+    mDefBut(editbut_,"seedpickmode",editCB,"Pick mode (P)");
 
     toolbar_->addSeparator();
-    mDefBut(horbut_,"loadhoronseis.png",loadHorizons,"Load Horizon(s)");
-    mDefBut(hormrkdispbut_,"drawhoronseis.png",dispHorMrks,
+    mDefBut(horbut_,"loadhoronseis",loadHorizons,"Load Horizon(s)");
+    mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
 	    					"Marker display properties");
     editbut_->setToggleButton( true );
 

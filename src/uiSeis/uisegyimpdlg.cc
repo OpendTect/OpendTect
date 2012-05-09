@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.32 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.33 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -83,7 +83,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     if ( !optsgrp_ )
     {
-	uiToolButton* tb = new uiToolButton( this, "prescan.png",
+	uiToolButton* tb = new uiToolButton( this, "prescan",
 				"Pre-scan file(s)",
 				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );

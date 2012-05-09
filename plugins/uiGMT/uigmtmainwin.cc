@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.32 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.33 2012-05-09 07:51:23 cvsbert Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -98,7 +98,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 	    			"Move current item up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 	    			 "Move current item down", butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
+    rmbut_ = new uiToolButton( bgrp, "trashcan",
 	    			"Remove current item from flow", butpushcb );
     bgrp->attach( centeredBelow, llb );
 
@@ -125,11 +125,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     setParFileNmDef( "GMT_Proc" );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
-    toolbar->addButton( "newflow.png", "New flow",
+    toolbar->addButton( "newflow", "New flow",
 	    		mCB(this,uiGMTMainWin,newFlow) );
-    toolbar->addButton( "openflow.png", "Open Flow",
+    toolbar->addButton( "openflow", "Open Flow",
 	    		mCB(this,uiGMTMainWin,openFlow) );
-    toolbar->addButton( "saveflow.png", "Save Current Flow",
+    toolbar->addButton( "saveflow", "Save Current Flow",
 			mCB(this,uiGMTMainWin,saveFlow) );
 
     tabSel(0);

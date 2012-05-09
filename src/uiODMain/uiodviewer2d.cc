@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.54 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.55 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -265,23 +265,23 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 {
     if ( !tb ) return;
 
-    polyseltbid_ = tb->addButton( "polygonselect.png", "Polygon Selection mode",
+    polyseltbid_ = tb->addButton( "polygonselect", "Polygon Selection mode",
 	    			  mCB(this,uiODViewer2D,selectionMode), true );
     uiPopupMenu* polymnu = new uiPopupMenu( tb, "PoluMenu" );
 
     uiMenuItem* polyitm = new uiMenuItem( "Polygon",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
-    polyitm->setPixmap( ioPixmap("polygonselect.png") );
+    polyitm->setPixmap( ioPixmap("polygonselect") );
 
     uiMenuItem* rectitm = new uiMenuItem( "Rectangle",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
-    rectitm->setPixmap( ioPixmap("rectangleselect.png") );
+    rectitm->setPixmap( ioPixmap("rectangleselect") );
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
-    tb->addButton( "trashcan.png", "Remove PolySelection",
+    tb->addButton( "trashcan", "Remove PolySelection",
 			mCB(this,uiODViewer2D,removeSelected), false );
 }
 
@@ -368,7 +368,7 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
 	return;
 
     viewstdcontrol_->toolBar()->setPixmap( polyseltbid_, isPolySelect_ ?
-	    			"polygonselect.png" : "rectangleselect.png" );
+	    			"polygonselect" : "rectangleselect" );
     viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, isPolySelect_ ?
 	    		"Polygon Selection mode" : "Rectangle Selection mode" );
 

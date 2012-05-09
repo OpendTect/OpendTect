@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkerdlg.cc,v 1.49 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkerdlg.cc,v 1.50 2012-05-09 07:51:30 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -87,7 +87,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
     
-    uiToolButton* stratbut = new uiToolButton( this, "man_strat.png",
+    uiToolButton* stratbut = new uiToolButton( this, "man_strat",
 	    			"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.68 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.69 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -53,16 +53,16 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , view2dwvaitem_("2D Viewer - &Wiggle")
     , view2dvditem_("2D Viewer - &VD")
 {
-    statisticsitem_.iconfnm = "histogram.png";
-    removemnuitem_.iconfnm = "stop.png";
-    view2dwvaitem_.iconfnm = "wva.png";
-    view2dvditem_.iconfnm = "vd.png";
-    amplspectrumitem_.iconfnm = "amplspectrum.png";
+    statisticsitem_.iconfnm = "histogram";
+    removemnuitem_.iconfnm = "stop";
+    view2dwvaitem_.iconfnm = "wva";
+    view2dvditem_.iconfnm = "vd";
+    amplspectrumitem_.iconfnm = "amplspectrum";
 
-     movetotopmnuitem_.iconfnm = "totop.png";
-     moveupmnuitem_.iconfnm = "uparrow.png";
-     movedownmnuitem_.iconfnm = "downarrow.png";
-     movetobottommnuitem_.iconfnm = "tobottom.png";
+     movetotopmnuitem_.iconfnm = "totop";
+     moveupmnuitem_.iconfnm = "uparrow";
+     movedownmnuitem_.iconfnm = "downarrow";
+     movetobottommnuitem_.iconfnm = "tobottom";
 }
 
 

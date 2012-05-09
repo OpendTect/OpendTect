@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.77 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.78 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -235,8 +235,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
-    storemnuitem_.iconfnm = "save.png";
-    storeasmnuitem_.iconfnm = "saveas.png";
+    storemnuitem_.iconfnm = "save";
+    storeasmnuitem_.iconfnm = "saveas";
 }
 
 

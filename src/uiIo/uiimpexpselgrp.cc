@@ -232,16 +232,15 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 	nmfld_->setStretch( 2, 0 );
     }
 
-    infobut_ = new uiToolButton( this, "info.png", "Info",
+    infobut_ = new uiToolButton( this, "info", "Info",
 	    			 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
-    delbut_ = new uiToolButton( this, "trashcan.png", "Delete Selection-Groups",
+    delbut_ = new uiToolButton( this, "trashcan", "Delete Selection-Groups",
 	    		        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
 
-    renamebut_ = new uiToolButton( this, "renameobj.png",
-	    			   "Rename Selection-Groups",
+    renamebut_ = new uiToolButton( this, "renameobj", "Rename Selection-Groups",
 	    			   mCB(this,uiSGSelGrp,renameSelGrps) );
     renamebut_->attach( alignedBelow, delbut_ );
 

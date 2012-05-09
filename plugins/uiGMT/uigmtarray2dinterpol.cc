@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtarray2dinterpol.cc,v 1.6 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtarray2dinterpol.cc,v 1.7 2012-05-09 07:51:23 cvsbert Exp $";
 
 #include "uigmtarray2dinterpol.h"
 
@@ -52,7 +52,7 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
     BufferString msg( "To use this GMT algorithm you need to install GMT.", \
 	    	      "\nClick on GMT-button for more information" ); \
     uiLabel* lbl = new uiLabel( this, msg ); \
-    uiPushButton* gmtbut = new uiPushButton( this, "", "gmt_logo.png", \
+    uiPushButton* gmtbut = new uiPushButton( this, "", "gmt_logo", \
 	    				mCB(this,classname,function), true ); \
     gmtbut->setToolTip( "GMT info" ); \
     gmtbut->attach( alignedBelow, lbl ); \

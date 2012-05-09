@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.35 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.36 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -67,7 +67,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
-    uiToolButton* tb = new uiToolButton( txtgrp, "saveset.png",
+    uiToolButton* tb = new uiToolButton( txtgrp, "saveset",
 	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
     tb->attach( rightBorder );
@@ -79,7 +79,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "viewflat.png", "Display traces",
+    tb = new uiToolButton( tblgrp, "viewflat", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );

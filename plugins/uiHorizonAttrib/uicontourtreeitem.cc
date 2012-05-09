@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.32 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.33 2012-05-09 07:51:23 cvsbert Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -212,7 +212,7 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , color_(0,0,0)
     , showlabels_(true)
 {
-    optionsmenuitem_.iconfnm = "disppars.png";
+    optionsmenuitem_.iconfnm = "disppars";
 
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );

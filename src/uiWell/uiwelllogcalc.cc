@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.28 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.29 2012-05-09 07:51:29 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -84,7 +84,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     mesu.withsetbut( true ).fnsbelow( false );
     formfld_ = new uiMathExpression( inpgrp, mesu );
     formfld_->formSet.notify( formsetcb );
-    uiToolButtonSetup tbsu( "rockphys.png", "Choose rockphysics formula",
+    uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 	    		    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );

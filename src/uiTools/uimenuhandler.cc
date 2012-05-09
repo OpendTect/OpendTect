@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.26 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.27 2012-05-09 07:51:29 cvsbert Exp $";
 
 
 #include "uimenuhandler.h"
@@ -151,7 +151,7 @@ void uiTreeItemTBHandler::handleEmpty()
     if ( nrItems() > 0 )
 	return;
 
-    tb_->addButton( "base_icon.png", "No tools available", CallBack() );
+    tb_->addButton( "base_icon", "No tools available", CallBack() );
 }
 
 

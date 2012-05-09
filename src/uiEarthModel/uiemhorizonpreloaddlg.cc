@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.8 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.9 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -45,11 +45,11 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     listfld_ = new uiListBox( this, "Loaded entries", true );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiToolButton* opentb = new uiToolButton( this, "openpreload.png",
+    uiToolButton* opentb = new uiToolButton( this, "openpreload",
 	    "Retrieve pre-loads", mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftAlignedBelow, listfld_ );
 
-    savebut_ = new uiToolButton( this, "savepreload.png", "Save pre-loads",
+    savebut_ = new uiToolButton( this, "savepreload", "Save pre-loads",
 		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 

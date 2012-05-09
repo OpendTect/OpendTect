@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.90 2012-05-08 14:36:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.91 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -68,11 +68,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
 
-    uiToolButton* layertb = new uiToolButton( topgrp_, "defraytraceprops.png", 
+    uiToolButton* layertb = new uiToolButton( topgrp_, "defraytraceprops", 
 				    "Specify synthetic layers properties", 
 				    mCB(this,uiStratSynthDisp,layerPropsPush) );
 
-    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace.png", 
+    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace", 
 				    "Specify ray tracer parameters", 
 				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
     rttb->attach( rightOf, layertb );
@@ -125,7 +125,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
     offsetposfld_->attach( rightOf, stackbox_ );
 
-    prestackbut_ = new uiToolButton( datagrp_, "nonmocorr64.png", 
+    prestackbut_ = new uiToolButton( datagrp_, "nonmocorr64", 
 				"View Offset Direction", 
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
@@ -705,10 +705,10 @@ uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
     slicestepbox_ = new uiSpinBox( this, 0, "Slice step" );
     slicestepbox_->attach( rightOf, steplabel );
 
-    prevbut_ = new uiToolButton( this, "prevpos.png", "Previous position",
+    prevbut_ = new uiToolButton( this, "prevpos", "Previous position",
 				mCB(this,uiSynthSlicePos,prevCB) );
     prevbut_->attach( rightOf, slicestepbox_ );
-    nextbut_ = new uiToolButton( this, "nextpos.png", "Next position",
+    nextbut_ = new uiToolButton( this, "nextpos", "Next position",
 				 mCB(this,uiSynthSlicePos,nextCB) );
     nextbut_->attach( rightOf, prevbut_ );
 }

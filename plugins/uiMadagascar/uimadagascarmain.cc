@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadagascarmain.cc,v 1.44 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimadagascarmain.cc,v 1.45 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -86,10 +86,10 @@ uiMadagascarMain::~uiMadagascarMain()
 void uiMadagascarMain::createToolBar()
 {
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
-    mAddButton( "newflow.png", newFlow, "Empty this flow" );
-    mAddButton( "openflow.png", openFlow, "Open saved flow" );
-    mAddButton( "save.png", saveFlow, "Save flow" );
-    mAddButton( "export.png", exportFlow, "Export flow" );
+    mAddButton( "newflow", newFlow, "Empty this flow" );
+    mAddButton( "openflow", openFlow, "Open saved flow" );
+    mAddButton( "save", saveFlow, "Save flow" );
+    mAddButton( "export", exportFlow, "Export flow" );
 }
 
 
@@ -110,7 +110,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 	    			"Move current command up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 	    			"Move current command down", butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
+    rmbut_ = new uiToolButton( bgrp, "trashcan",
 	    			"Remove current command from flow", butpushcb );
     bgrp->attach( centeredBelow, pfld );
 

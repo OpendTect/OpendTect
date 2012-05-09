@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitoolbar.cc,v 1.64 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitoolbar.cc,v 1.65 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uitoolbar.h"
 
@@ -25,11 +25,11 @@ static const char* rcsID mUnusedVar = "$Id: uitoolbar.cc,v 1.64 2012-05-02 15:12
 #include "i_qtoolbut.h"
 #include "i_qtoolbar.h"
 
-const char* uiIcon::save()		{ return "save.png"; }
-const char* uiIcon::saveAs()		{ return "saveas.png"; }
-const char* uiIcon::openObject()	{ return "openstorage.png"; }
-const char* uiIcon::newObject()		{ return "newstorage.png"; }
-const char* uiIcon::removeObject()	{ return "trashcan.png"; }
+const char* uiIcon::save()		{ return "save"; }
+const char* uiIcon::saveAs()		{ return "saveas"; }
+const char* uiIcon::openObject()	{ return "openstorage"; }
+const char* uiIcon::newObject()		{ return "newstorage"; }
+const char* uiIcon::removeObject()	{ return "trashcan"; }
 const char* uiIcon::None()		{ return "-"; }
 
 

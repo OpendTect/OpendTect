@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.48 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.49 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -301,7 +301,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "openset.png", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+      "openset", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep )
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
@@ -566,7 +566,7 @@ bool getVals()
     mDefRetrTB(uiSEGYFileOpts,grp); \
 \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-			     "prescan.png","Pre-scan the file(s)", \
+			     "prescan","Pre-scan the file(s)", \
 				    mCB(this,uiSEGYFileOpts,preScanPush) );\
     stb->attach( alignedBelow, rtb ); \
 \

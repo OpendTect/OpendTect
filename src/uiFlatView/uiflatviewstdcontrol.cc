@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.45 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.46 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -52,7 +52,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
     if ( setup.withstates_ )
     {
-	mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
+	mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode");
 	vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
 		mCB(this,uiFlatViewStdControl,keyPressCB) );
     }
@@ -61,17 +61,17 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withedit_ )
     {
-	mDefBut(editbut_,"seedpickmode.png",editCB,"Edit mode");
+	mDefBut(editbut_,"seedpickmode",editCB,"Edit mode");
 	editbut_->setToggleButton( true );
     }
 
-    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
-    uiToolButton* mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
+    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
+    uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,"Flip left/right");
     tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
 
     tb_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
+    mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
 
     if ( setup.withcoltabed_ )
     {
@@ -83,13 +83,13 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( !setup.helpid_.isEmpty() )
     {
-	uiToolButton* mDefBut(helpbut,"contexthelp.png",helpCB,"Help");
+	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,"Help");
 	helpid_ = setup.helpid_;
     }
 
     if ( TrMgr().tr() && TrMgr().tr()->enabled() )
     {
-	uiToolButton* mDefBut(trlbut,"google.png",translateCB,"Translate");
+	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
@@ -340,7 +340,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( 

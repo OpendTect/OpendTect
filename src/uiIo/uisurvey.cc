@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.138 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.139 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -63,9 +63,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
     if ( !utils )
     {
 	utils = new ObjectSet<uiSurvey::Util>;
-	*utils += new uiSurvey::Util( "xy2ic.png", "Convert (X,Y) to/from I/C",
+	*utils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
 				      CallBack() );
-	*utils += new uiSurvey::Util( "spherewire.png",
+	*utils += new uiSurvey::Util( "spherewire",
 				"Setup geographical coordinates",
 				      CallBack() );
     }

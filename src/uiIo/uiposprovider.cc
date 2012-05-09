@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposprovider.cc,v 1.34 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposprovider.cc,v 1.35 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -80,7 +80,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	selfld_->valuechanged.notify( selcb );
 	if ( !setup_.is2d_ )
 	{
-	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv.png",
+	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
 		    		"Set ranges to full survey",
 				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );

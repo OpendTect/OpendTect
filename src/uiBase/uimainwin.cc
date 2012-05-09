@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.241 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.242 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1552,7 +1552,7 @@ uiObject* uiDialogBody::createChildren()
     if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
-	    savebut_tb = new uiToolButton( centralWidget_, "save.png",
+	    savebut_tb = new uiToolButton( centralWidget_, "save",
 			  setup.savetext_, CallBack() );
 	else
 	{
@@ -1568,7 +1568,7 @@ uiObject* uiDialogBody::createChildren()
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut = new uiToolButton( centralWidget_, "contexthelp.png",
+	helpbut = new uiToolButton( centralWidget_, "contexthelp",
 			shwhid ? hid.buf() : "Help on this window",
 	       		mCB(this,uiDialogBody,provideHelp) );
 	helpbut->setPrefWidthInChar( 5 );
@@ -1581,11 +1581,10 @@ uiObject* uiDialogBody::createChildren()
 	}
 	if ( dlg.haveCredits() )
 	{
-	    const ioPixmap pixmap( "credits.png" );
-	    creditsbut = new uiToolButton( centralWidget_, "credits.png",
+	    creditsbut = new uiToolButton( centralWidget_, "credits",
 		    "Show credits", mCB(this,uiDialogBody,showCredits) );
 	    creditsbut->setPrefWidthInChar( 5 );
-	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut );
+	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut);
 	}
     }
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.116 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.117 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -590,7 +590,7 @@ uiOD2DLineSetSubItem::uiOD2DLineSetSubItem( const char* nm, int displayid )
     name_ = nm;
     displayid_ = displayid;
 
-    positionitm_.iconfnm = "orientation64.png";
+    positionitm_.iconfnm = "orientation64";
     linenmitm_.checkable = true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.23 2012-05-04 12:02:54 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.24 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -124,7 +124,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 		    { delete di; sd.close(); continue; }
 	    }
 	    di->starturl = fp.fullPath();
-	    di->iconfnm = FilePath(docdir,"defhelpicon.png").fullPath();
+	    di->iconfnm = FilePath(docdir,"defhelpicon").fullPath();
 	    di->nm = dirnm;
 	}
 	sd.close();

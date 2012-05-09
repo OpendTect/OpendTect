@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.478 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.479 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -125,7 +125,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , selectionmode_( Polygon )
     , selectionmodechange(this)
 {
-    changematerialmnuitem_.iconfnm = "disppars.png";
+    changematerialmnuitem_.iconfnm = "disppars";
 
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -1255,7 +1255,7 @@ uiWorkAreaDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Set work volume","","0.3.4"))
 {
     selfld_ = new uiSelSubvol( this, false );
-    fullbut_ = new uiToolButton( this, "exttofullsurv.png",
+    fullbut_ = new uiToolButton( this, "exttofullsurv",
 	    			"Set ranges to full survey",
 				 mCB(this,uiWorkAreaDlg,fullPush) );
     fullbut_->attach( rightOf, selfld_ );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodrandlinetreeitem.cc,v 1.52 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodrandlinetreeitem.cc,v 1.53 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -322,8 +322,8 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
 {
-    editnodesmnuitem_.iconfnm = "orientation64.png";
-    saveasmnuitem_.iconfnm = "saveas.png";
+    editnodesmnuitem_.iconfnm = "orientation64";
+    saveasmnuitem_.iconfnm = "saveas";
     displayid_ = id;
 }
 

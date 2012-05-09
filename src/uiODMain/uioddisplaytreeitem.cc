@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.57 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.58 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -77,9 +77,9 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
 {
-    removemnuitem_.iconfnm = "stop.png";
-    histogrammnuitem_.iconfnm = "histogram.png";
-    lockmnuitem_.iconfnm = "lock_small.png";
+    removemnuitem_.iconfnm = "stop";
+    histogrammnuitem_.iconfnm = "histogram";
+    lockmnuitem_.iconfnm = "lock_small";
 }
 
 
@@ -188,14 +188,14 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
     PtrMan<ioPixmap> pixmap = 0;
     if ( islocked )
-	pixmap = new ioPixmap( "lock_small.png" );
+	pixmap = new ioPixmap( "lock_small" );
     else
 	pixmap = new ioPixmap();
 
     uilistviewitem_->setPixmap( 0, *pixmap );
 
     lockmnuitem_.text = getLockMenuText(); 
-    lockmnuitem_.iconfnm = islocked ? "unlock.png" : "lock_small.png";
+    lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
 }
 
 

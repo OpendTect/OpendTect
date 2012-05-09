@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.219 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.220 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uimpeman.h"
 
@@ -102,7 +102,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools.png", showSettingsCB, "Settings", false );
+    mAddButton( "tools", showSettingsCB, "Settings", false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( "Seed connect mode" );
@@ -111,66 +111,66 @@ void uiMPEMan::addButtons()
     toolbar->addObject( seedconmodefld );
     toolbar->addSeparator();
 
-    seedidx = mAddButton( "seedpickmode.png", addSeedCB, 
+    seedidx = mAddButton( "seedpickmode", addSeedCB, 
 	    		  "Create seed ( key: 'Tab' )", true );
     toolbar->setShortcut( seedidx, "Tab" );
 
-    trackinvolidx = mAddButton( "autotrack.png", trackFromSeedsAndEdges,
+    trackinvolidx = mAddButton( "autotrack", trackFromSeedsAndEdges,
     				"Auto-track", false );
 
-    trackwithseedonlyidx = mAddButton( "trackfromseeds.png", trackFromSeedsOnly,
+    trackwithseedonlyidx = mAddButton( "trackfromseeds", trackFromSeedsOnly,
 	    			       "Track From Seeds Only", false );
 
-    retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
+    retrackallinx = mAddButton( "retrackhorizon", retrackAllCB,
 	    			"Retrack All", false );
     toolbar->addSeparator();
 
-    showcubeidx = mAddButton( "trackcube.png", showCubeCB,
+    showcubeidx = mAddButton( "trackcube", showCubeCB,
 	    		      "Show track area", true );
 
-    moveplaneidx = mAddButton( "QCplane-inline.png", movePlaneCB,
+    moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
 			       "Display QC plane", true );
     uiPopupMenu* mnu = new uiPopupMenu( toolbar, "Menu" );
     mAddMnuItm( mnu, "Inline", handleOrientationClick, 
-	    	"QCplane-inline.png", 0 );
+	    	"QCplane-inline", 0 );
     mAddMnuItm( mnu, "CrossLine", handleOrientationClick, 
-	    	"QCplane-crossline.png", 1 );
-    mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z.png", 2 );
+	    	"QCplane-crossline", 1 );
+    mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z", 2 );
     toolbar->setButtonMenu( moveplaneidx, mnu );
 
-    displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
+    displayatsectionidx = mAddButton( "sectiononly", displayAtSectionCB,
 	    			      "Display at section only", true );
 
     nrstepsbox = new uiSpinBox( toolbar, 0, "QC plane step" );
     nrstepsbox->setToolTip( "QC plane step" );
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
-    trackforwardidx = mAddButton( "prevpos.png", moveBackward,
+    trackforwardidx = mAddButton( "prevpos", moveBackward,
 	    			  "Move QC plane backward (key: '[')", false );
     toolbar->setShortcut(trackforwardidx,"[");
-    trackbackwardidx = mAddButton( "nextpos.png", moveForward,
+    trackbackwardidx = mAddButton( "nextpos", moveForward,
 	    			   "Move QC plane forward (key: ']')", false );
     toolbar->setShortcut(trackbackwardidx,"]");
-    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
+    clrtabidx = mAddButton( "colorbar", setColorbarCB,
 			    "Set QC plane colortable", false );
     toolbar->addSeparator();
 
-    polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
+    polyselectidx =  mAddButton( "polygonselect", selectionMode,
 	    			 "Polygon Selection mode", true );
     uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect.png", 0 );
-    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
+    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect", 0 );
+    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect", 1 );
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
-    removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
+    removeinpolygon = mAddButton( "trashcan", removeInPolygon,
 	    			  " Remove PolySelection", false );
     toolbar->addSeparator();
 
-    undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
-    redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
+    undoidx = mAddButton( "undo", undoPush, "Undo", false );
+    redoidx = mAddButton( "redo", redoPush, "Redo", false );
 
     toolbar->addSeparator();
-    mAddButton( "save.png", savePush, "Save", false );
+    mAddButton( "save", savePush, "Save", false );
 }
 
 
@@ -1145,7 +1145,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
     }
 
     toolbar->setPixmap( polyselectidx, sIsPolySelect ?
-			"polygonselect.png" : "rectangleselect.png" );
+			"polygonselect" : "rectangleselect" );
     toolbar->setToolTip( polyselectidx, sIsPolySelect ?
 			"Polygon Selection mode" : "Rectangle Selection mode" );
 
@@ -1487,11 +1487,11 @@ static void updateQCButton( uiToolBar* tb, int butidx, int dim )
 {
     BufferString pm, tooltip;
     if ( dim == 0 )
-    { pm = "QCplane-inline.png"; tooltip = "Display QC plane Inline"; }
+	{ pm = "QCplane-inline"; tooltip = "Display QC plane Inline"; }
     else if ( dim == 1 )
-    { pm = "QCplane-crossline.png"; tooltip = "Display QC plane Crossline"; }
+	{ pm = "QCplane-crossline"; tooltip = "Display QC plane Crossline"; }
     else
-    { pm = "QCplane-z.png"; tooltip = "Display QC plane Z-dir"; }
+	{ pm = "QCplane-z"; tooltip = "Display QC plane Z-dir"; }
 
     tb->setPixmap( butidx, pm );
     tb->setToolTip( butidx, tooltip );

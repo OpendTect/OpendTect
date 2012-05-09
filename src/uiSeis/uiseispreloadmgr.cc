@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.31 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.32 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -74,10 +74,10 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     }
     mAddBut("Unload Selected",unloadPush);
 
-    uiToolButton* opentb = new uiToolButton( topgrp, "openpreload.png",
+    uiToolButton* opentb = new uiToolButton( topgrp, "openpreload",
 	    "Retrieve pre-loads", mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftAlignedBelow, listfld_ );
-    uiToolButton* savetb = new uiToolButton( topgrp, "savepreload.png",
+    uiToolButton* savetb = new uiToolButton( topgrp, "savepreload",
 	    "Save pre-loads", mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedBelow, listfld_ );
 

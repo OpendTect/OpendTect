@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.17 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.18 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -272,9 +272,9 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
 
-    mDefBut(posbut_,"orientation64.png",gatherPosCB,"Set positions");
-    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set seismic display properties");
-    mDefBut(databut_,"gatherdisplaysettings64.png",gatherDataCB,"Set gather data");
+    mDefBut(posbut_,"orientation64",gatherPosCB,"Set positions");
+    mDefBut(parsbut_,"2ddisppars",parsCB,"Set seismic display properties");
+    mDefBut(databut_,"gatherdisplaysettings64",gatherDataCB,"Set gather data");
 }
 
 

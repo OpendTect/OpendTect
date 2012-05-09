@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodbodydisplaytreeitem.cc,v 1.48 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodbodydisplaytreeitem.cc,v 1.49 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -150,8 +150,8 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
     displaypolygonmnuitem_.checkable = true; \
     displayintersectionmnuitem_.checkable = true; \
     singlecolormnuitem_.checkable = true; \
-    savemnuitem_.iconfnm = "save.png"; \
-    saveasmnuitem_.iconfnm = "saveas.png";
+    savemnuitem_.iconfnm = "save"; \
+    saveasmnuitem_.iconfnm = "saveas";
 
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )

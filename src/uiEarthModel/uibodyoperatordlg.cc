@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibodyoperatordlg.cc,v 1.9 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyoperatordlg.cc,v 1.10 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uibodyoperatordlg.h"
 
@@ -92,12 +92,12 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    unionbut_ = new uiToolButton( this, "set_union.png", "Union", CallBack() );
+    unionbut_ = new uiToolButton( this, "set_union", "Union", CallBack() );
     unionbut_->attach( rightOf, oprselfld_ );
-    intersectbut_ = new uiToolButton( this, "set_intersect.png", "Intersect",
+    intersectbut_ = new uiToolButton( this, "set_intersect", "Intersect",
 	    				CallBack() );
     intersectbut_->attach( rightOf, oprselfld_ );
-    minusbut_ = new uiToolButton( this, "set_minus.png", "Minus", CallBack() );
+    minusbut_ = new uiToolButton( this, "set_minus", "Minus", CallBack() );
     minusbut_->attach( rightOf, oprselfld_ );
 
     outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
@@ -132,21 +132,21 @@ void uiBodyOperatorDlg::turnOffAll()
  	intersectbut_->display( true ); \
 	listinfo_[curidx].act = sKeyIntSect(); \
 	tree_->selectedItem()->setText( "Intersection", 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_intersect.png" ); \
+	tree_->selectedItem()->setPixmap( 1, "set_intersect" ); \
     } \
     else if ( item==sKeyMinus() )  \
     { \
 	minusbut_->display( true ); \
 	listinfo_[curidx].act = sKeyMinus(); \
 	tree_->selectedItem()->setText( "Minus", 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_minus.png" ); \
+	tree_->selectedItem()->setPixmap( 1, "set_minus" ); \
     } \
     else \
     { \
 	unionbut_->display( true ); \
 	listinfo_[curidx].act = sKeyUnion(); \
 	tree_->selectedItem()->setText( "Union", 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_union.png" ); \
+	tree_->selectedItem()->setPixmap( 1, "set_union" ); \
     } 
 
 

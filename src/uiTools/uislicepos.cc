@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicepos.cc,v 1.19 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicepos.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uislicepos.h"
 
@@ -43,9 +43,9 @@ uiSlicePos::uiSlicePos( uiParent* p )
     slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
 
-    prevbut_ = new uiToolButton( toolbar_, "prevpos.png", "Previous position",
+    prevbut_ = new uiToolButton( toolbar_, "prevpos", "Previous position",
 				mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( toolbar_, "nextpos.png", "Next position",
+    nextbut_ = new uiToolButton( toolbar_, "nextpos", "Next position",
 				mCB(this,uiSlicePos,nextCB) );
 
     toolbar_->addObject( label_ );

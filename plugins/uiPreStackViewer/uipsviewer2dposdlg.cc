@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.7 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.8 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -201,11 +201,13 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 
     uiLabel* sellbl = new uiLabel( this, "Select" );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
-    toselect_ = new uiToolButton( this, "rightarrow.png", "Move right", cb );
+    toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
+				"Move right", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->attach( centeredRightOf, allgatherfld_ );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( this, "leftarrow.png", "Move left", cb );
+    fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
+	    			"Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );

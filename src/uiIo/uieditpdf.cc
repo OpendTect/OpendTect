@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.23 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.24 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -117,10 +117,10 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp );
-    new uiToolButton( bgrp, nrdims_ == 1 ? "viewprdf1d.png" : "viewprdf.png",
+    new uiToolButton( bgrp, nrdims_ == 1 ? "viewprdf1d" : "viewprdf",
 	    "View function", mCB(this,uiEditProbDenFunc,viewPDF) );
     if ( editable_ )
-	new uiToolButton( bgrp, "smoothcurve.png", "Smooth values",
+	new uiToolButton( bgrp, "smoothcurve", "Smooth values",
 				mCB(this,uiEditProbDenFunc,smoothReq) );
     if ( nrdims_ > 2 )
     {

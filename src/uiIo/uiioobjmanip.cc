@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiioobjmanip.cc,v 1.47 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiioobjmanip.cc,v 1.48 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -44,17 +44,12 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const char* tooltip,
     const char* pm = 0;
     switch ( tp )
     {
-	case FileLocation:
-	    pm = "filelocation.png"; break;
-	case Rename:
-	    pm = "renameobj.png"; break;
-	case Remove:
-	    pm = "trashcan.png"; break;
-	case ReadOnly:
-	    pm = "readonly.png"; break;
-	default:
-	    pErrMsg("Unknown toolbut typ");
-	    pm = "home.png";
+	case FileLocation:	pm = "filelocation";	break;
+	case Rename:		pm = "renameobj";	break;
+	case Remove:		pm = "trashcan";	break;
+	case ReadOnly:		pm = "readonly";	break;
+	default:		pm = "home";
+				pErrMsg("Unknown toolbut typ");
     }
 
     return addButton( pm, tooltip, cb );
@@ -119,7 +114,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
 	locbut = addButton( FileLocation, "Change location on disk", cb );
     renbut = addButton( Rename, "Rename this object", cb );
     robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
-    setAlternative( robut, "unlock.png", "Toggle Read only : editable" );
+    setAlternative( robut, "unlock", "Toggle Read only : editable" );
     rembut = addButton( Remove, "Remove this object", cb );
     attach( rightOf, subj_.obj_ );
 }

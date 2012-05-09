@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.44 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.45 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uistratdisplay.h"
 
@@ -600,9 +600,9 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	if ( mw )
 	    mw->addToolBar( tb_ );
     }
-    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode")
+    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode")
 
     viewer_.getKeyboardEventHandler().keyPressed.notify(
 				mCB(this,uiStratViewControl,keyPressed) );
@@ -680,7 +680,7 @@ void uiStratViewControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
     viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 			         : uiGraphicsViewBase::ScrollHandDrag);
     viewer_.scene().setMouseEventActive( true );

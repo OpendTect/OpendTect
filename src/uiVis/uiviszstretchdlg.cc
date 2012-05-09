@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.5 2012-05-02 15:12:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.6 2012-05-09 07:51:29 cvsbert Exp $";
 
 #include "uiviszstretchdlg.h"
 
@@ -77,13 +77,13 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     uiGroup* grp = new uiGroup( this, "icons" );
     if ( vwallcb.willCall() )
     {
-	ioPixmap vwallpm( "view_all.png" );
+	ioPixmap vwallpm( "view_all" );
 	vwallbut = new uiPushButton( grp, "&Fit to scene", vwallpm, true );
 	vwallbut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
     }
     if ( homecb.willCall() )
     {
-	ioPixmap homepm( "home.png" );
+	ioPixmap homepm( "home" );
 	uiButton* homebut = new uiPushButton( grp, "To &Home", homepm, true );
 	homebut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
 	if ( vwallbut )

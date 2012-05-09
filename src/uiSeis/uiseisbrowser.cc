@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.64 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.65 2012-05-09 07:51:28 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -224,14 +224,14 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, "Tool Bar" );
-    mAddButton( "gotopos.png",goToPush,"Goto position",false );
-    mAddButton( "info.png",infoPush,"Information",false );
+    mAddButton( "gotopos",goToPush,"Goto position",false );
+    mAddButton( "info",infoPush,"Information",false );
     if ( !is2d_ )
-	crlwisebutidx_ = mAddButton( "crlwise.png",switchViewTypePush,
+	crlwisebutidx_ = mAddButton( "crlwise",switchViewTypePush,
 				     "Switch to Crossline",true );
-    mAddButton( "leftarrow.png",leftArrowPush,"Move left",false );
-    mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
-    showwgglbutidx_ = mAddButton( "viewflat.png",dispTracesPush,
+    mAddButton( "leftarrow",leftArrowPush,"Move left",false );
+    mAddButton( "rightarrow",rightArrowPush,"Move right",false );
+    showwgglbutidx_ = mAddButton( "viewflat",dispTracesPush,
 	    			  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )

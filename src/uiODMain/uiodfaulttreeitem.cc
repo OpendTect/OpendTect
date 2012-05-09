@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodfaulttreeitem.cc,v 1.59 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodfaulttreeitem.cc,v 1.60 2012-05-09 07:51:26 cvsbert Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -176,8 +176,8 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
     displayintersectionmnuitem_.checkable = true; \
     displayintersecthorizonmnuitem_.checkable = true; \
     singlecolmnuitem_.checkable = true; \
-    savemnuitem_.iconfnm = "save.png"; \
-    saveasmnuitem_.iconfnm = "saveas.png"; \
+    savemnuitem_.iconfnm = "save"; \
+    saveasmnuitem_.iconfnm = "saveas"; \
 
 
 
@@ -476,8 +476,8 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 
 #define mCommonInit2 \
     onlyatsectmnuitem_.checkable = true; \
-    savemnuitem_.iconfnm = "save.png"; \
-    saveasmnuitem_.iconfnm = "saveas.png";
+    savemnuitem_.iconfnm = "save"; \
+    saveasmnuitem_.iconfnm = "saveas";
 
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )

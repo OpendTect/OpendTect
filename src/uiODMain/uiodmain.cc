@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.156 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.157 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -100,7 +100,7 @@ int ODMain( int argc, char** argv )
     uiDialog::setTitlePos( -1 );
 
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
-    ioPixmap pm( mGetSetupFileName("splash.png") );
+    ioPixmap pm( mGetSetupFileName("splash") );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );

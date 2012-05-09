@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpexppdf.cc,v 1.5 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimpexppdf.cc,v 1.6 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uiimpexppdf.h"
 
@@ -68,7 +68,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     ynrbinfld_->attach( rightOf, yrgfld_ );
     grp->setHAlignObj( xrgfld_ );
     grp->attach( alignedBelow, varnmsfld_ );
-    uiToolButton* extendbut = new uiToolButton( this, "extendpdf.png",
+    uiToolButton* extendbut = new uiToolButton( this, "extendpdf",
 	    "Extend one row/col outward", mCB(this,uiImpRokDocPDF,extPDF) );
     extendbut->attach( centeredRightOf, grp );
 

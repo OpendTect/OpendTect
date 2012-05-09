@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui2dgeomman.cc,v 1.16 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui2dgeomman.cc,v 1.17 2012-05-09 07:51:25 cvsbert Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -47,7 +47,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linesetfld_->setPrefWidth( 200 );
     
 	uiToolButton* removelsgeombut =
-	new uiToolButton( this, "trashcan.png", "Reemove LineSet Geometry",
+	new uiToolButton( this, "trashcan", "Reemove LineSet Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
     removelsgeombut->attach( centeredRightOf, lslb );
 	
@@ -62,12 +62,12 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linenamefld_->setPrefWidth( 200 );
     
     uiToolButton* mangeombut =
-	new uiToolButton( this, "browse2dgeom.png", "Manage Line Geometry",
+	new uiToolButton( this, "browse2dgeom", "Manage Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
     mangeombut->attach( centeredRightOf, lnlb );
 
 	uiToolButton* remgeombut =
-	new uiToolButton( this, "trashcan.png", "Remove Line Geometry",
+	new uiToolButton( this, "trashcan", "Remove Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineGeom) );
     remgeombut->attach( alignedBelow, mangeombut );
 

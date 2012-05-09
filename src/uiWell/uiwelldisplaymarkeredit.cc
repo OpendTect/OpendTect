@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.31 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.32 2012-05-09 07:51:29 cvsbert Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -105,7 +105,7 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 			    mCB(this,uiWellDispEditMarkerDlg,listRClickCB) );
 
     CallBack butcb( mCB(this,uiWellDispEditMarkerDlg,buttonPushedCB) );
-    pickbut_ = new uiToolButton( this, "seedpickmode.png", 
+    pickbut_ = new uiToolButton( this, "seedpickmode", 
 	"Pick marker on display", mCB(this,uiWellDispEditMarkerDlg,modeChg) );
     pickbut_->attach( rightOf, mrklist_ );
     pickbut_->setToggleButton( true );
@@ -115,12 +115,12 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     modesep->attach( stretchedBelow, pickbut_ );
     modesep->attach( ensureRightOf, mrklist_ );
 
-    addbut_ = new uiToolButton( this, "plus.png", "Add Marker", butcb );
+    addbut_ = new uiToolButton( this, "plus", "Add Marker", butcb );
     addbut_->attach( ensureBelow, modesep );
     addbut_->attach( alignedBelow, pickbut_ ); 
-    editbut_ = new uiToolButton( this, "edit.png", "Edit Marker", butcb );
+    editbut_ = new uiToolButton( this, "edit", "Edit Marker", butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(this, "trashcan.png", "Remove Marker", butcb);
+    rembut_ = new uiToolButton(this, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
 
     windowClosed.notify( mCB(this,uiWellDispEditMarkerDlg,editDlgClosedCB) );

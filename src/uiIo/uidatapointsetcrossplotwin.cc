@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.42 2012-05-02 15:12:08 cvskris Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.43 2012-05-09 07:51:25 cvsbert Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.42 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.43 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -92,10 +92,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     uiLabel* eachlabel = new uiLabel( dispgrp, "% points displayed", eachfld_ );
     disptb_.addObject( dispgrp->attachObj() );
     
-    densityplottbid_ = disptb_.addButton( "densityplot.png","Show density plot",
+    densityplottbid_ = disptb_.addButton( "densityplot","Show density plot",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot), true );
 
-    showy2tbid_ = disptb_.addButton( "showy2.png", "Toggle show Y2",
+    showy2tbid_ = disptb_.addButton( "showy2", "Toggle show Y2",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2), true );
     disptb_.turnOn( showy2tbid_, false );
 
@@ -122,7 +122,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     selfld_->setSensitive( false );
     seltb_.addObject( selgrp->attachObj() );
 
-    setselecttbid_ = seltb_.addButton( "altview.png", "Set selectable",
+    setselecttbid_ = seltb_.addButton( "altview", "Set selectable",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
     seltb_.turnOn( setselecttbid_, true );
 
@@ -136,42 +136,40 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     
     seltb_.turnOn( setselecttbid_, false );
 
-    selmodechgtbid_ = seltb_.addButton( "rectangleselect.png", "Selection mode",
+    selmodechgtbid_ = seltb_.addButton( "rectangleselect", "Selection mode",
 	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    clearseltbid_ = seltb_.addButton( "clearselection.png",
-	    "Remove all selections",
+    clearseltbid_ = seltb_.addButton( "clearselection", "Remove all selections",
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
     
-    seldeltbid_ = seltb_.addButton( "trashcan.png", "Delete all selected",
+    seldeltbid_ = seltb_.addButton( "trashcan", "Delete all selected",
 	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
 
-    seltabletbid_ = seltb_.addButton( "seltable.png",
-	    "Show selections in table",
+    seltabletbid_ = seltb_.addButton( "seltable", "Show selections in table",
 	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel) ); 
  
-    manseltbid_ = seltb_.addButton( "selsettings.png",
-	"Manage Selections..",mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
+    manseltbid_ = seltb_.addButton( "selsettings", "Manage selections",
+	    mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
 
-    refineseltbid_ = seltb_.addButton( "refinesel.png", "Refine selection",
+    refineseltbid_ = seltb_.addButton( "refinesel", "Refine selection",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
 
 
     maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
 
-    maniptb_.addButton( "xplotprop.png", "Properties",
+    maniptb_.addButton( "xplotprop", "Properties",
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
-    maniptb_.addButton( "prdfs.png", "Create Probability Density Function",
+    maniptb_.addButton( "prdfs", "Create Probability Density Function",
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
-    overlayproptbid_ = maniptb_.addButton( "overlayattr.png",
+    overlayproptbid_ = maniptb_.addButton( "overlayattr",
 	    "Select Overlay Attribute", mCB(this,uiDataPointSetCrossPlotWin,
 					    overlayAttrCB) );
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
 	uiPopupMenu* mnu = new uiPopupMenu( &maniptb_, "View Menu" );
-	multicolcodtbid_ = maniptb_.addButton( "colorbar.png",
+	multicolcodtbid_ = maniptb_.addButton( "colorbar",
 		"Turn on multicolor coding",
 		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB), true );
 	uiMenuItem* itm = new uiMenuItem( "Change color",
@@ -232,7 +230,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
 
     disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
 	    				       : "Show density plot" );
-    disptb_.setPixmap( densityplottbid_,ison ? "xplot.png" : "densityplot.png");
+    disptb_.setPixmap( densityplottbid_,ison ? "xplot" : "densityplot" );
     eachfld_->setSensitive( !ison );
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( "Y2 cannot be displayed in density plot" );
@@ -324,8 +322,8 @@ void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
 {
     plotter_.setRectSelection( !plotter_.isRectSelection() );
     seltb_.setPixmap( selmodechgtbid_,
-	   	       plotter_.isRectSelection() ? "rectangleselect.png"
-			      			  : "polygonselect.png" );
+	   	       plotter_.isRectSelection() ? "rectangleselect"
+			      			  : "polygonselect" );
     plotter_.setDragMode( plotter_.isRectSelection() ?
 	    			uiGraphicsView::RubberBandDrag :
 	    			uiGraphicsView::NoDrag );
@@ -417,7 +415,7 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 {
     const bool isoff = !seltb_.isOn(setselecttbid_ );
-    seltb_.setPixmap( setselecttbid_, !isoff ? "altview.png" : "altpick.png");
+    seltb_.setPixmap( setselecttbid_, !isoff ? "altview" : "altpick");
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     seltb_.setSensitive( selmodechgtbid_, isoff );

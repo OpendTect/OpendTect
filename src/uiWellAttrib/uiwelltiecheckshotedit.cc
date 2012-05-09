@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.17 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.18 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -122,18 +122,18 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 #define mAddButton(pm,func,tip) \
 	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func) )
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
-    mAddButton( "z2t.png", editCSPushed, "View/Edit Model" );
+    mAddButton( "z2t", editCSPushed, "View/Edit Model" );
     toolbar_->addSeparator();
-    editbut_ = new uiToolButton( toolbar_, "seedpickmode.png","Edit mode",
+    editbut_ = new uiToolButton( toolbar_, "seedpickmode","Edit mode",
 				mCB(this,uiCheckShotEdit,editCB) );
     toolbar_->addButton( editbut_ );
     editbut_->setToggleButton( true );
 
-    undobut_ = new uiToolButton( toolbar_, "undo.png", "Undo",
+    undobut_ = new uiToolButton( toolbar_, "undo", "Undo",
 				mCB(this,uiCheckShotEdit,undoCB) );
     toolbar_->addButton( undobut_ ); 
     undobut_->setSensitive( false );
-    redobut_ = new uiToolButton( toolbar_, "redo.png", "Undo",
+    redobut_ = new uiToolButton( toolbar_, "redo", "Undo",
 				mCB(this,uiCheckShotEdit,redoCB) );
     toolbar_->addButton( redobut_ ); 
     redobut_->setSensitive( false );

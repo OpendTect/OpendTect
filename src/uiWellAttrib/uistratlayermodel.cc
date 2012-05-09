@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.61 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.62 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -139,7 +139,7 @@ void theCB( CallBacker* cb )
 
 void addToTreeWin()
 {
-    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling.png",
+    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
 			    "Start layer/synthetics modeling",
 			    mCB(this,uiStratLayerModelLauncher,theCB) );
     uiStratTreeWin::addTool( su );
@@ -195,7 +195,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     synthdisp_ = new uiStratSynthDisp( topgrp, modl_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
-    uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
+    uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibutton.cc,v 1.76 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibutton.cc,v 1.77 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -490,10 +490,10 @@ void uiToolButton::setArrowType( ArrowType type )
 #ifdef __win__
     switch ( type )
     {
-	case UpArrow: setPixmap( "uparrow.png" ); break;
-	case DownArrow: setPixmap( "downarrow.png" ); break;
-	case LeftArrow: setPixmap( "leftarrow.png" ); break;
-	case RightArrow: setPixmap( "rightarrow.png" ); break;
+	case UpArrow: setPixmap( "uparrow" ); break;
+	case DownArrow: setPixmap( "downarrow" ); break;
+	case LeftArrow: setPixmap( "leftarrow" ); break;
+	case RightArrow: setPixmap( "rightarrow" ); break;
     }
 #else
     body_->setArrowType( (Qt::ArrowType)(int)type );

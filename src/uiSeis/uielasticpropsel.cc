@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.10 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.11 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -343,10 +343,10 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
     uiGroup* gengrp = new uiGroup( this, "buttons" );
     gengrp->attach( ensureBelow, ts_ );
-    uiToolButton* opentb = new uiToolButton( gengrp, "open.png",
+    uiToolButton* opentb = new uiToolButton( gengrp, "open",
 				"Open stored property selection",
 				mCB(this,uiElasticPropSelDlg,openPropSelCB) );
-    uiToolButton* stb = new uiToolButton( gengrp, "save.png",
+    uiToolButton* stb = new uiToolButton( gengrp, "save",
 				"Save property selection",
 				mCB(this,uiElasticPropSelDlg,savePropSelCB) );
     stb->attach( rightOf, opentb );

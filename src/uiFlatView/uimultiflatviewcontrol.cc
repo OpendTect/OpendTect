@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.11 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.12 2012-05-09 07:51:25 cvsbert Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -77,7 +77,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
     zoommgrs_ += new FlatView::ZoomMgr;
 
-    parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars.png",
+    parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
 	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
 
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.24 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.25 2012-05-09 07:51:28 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -64,10 +64,10 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
 			mCB(this,uiSeis2DFileMan,renameLine) );
-    linegrp_->addButton( "mergelines.png", "Merge lines",
+    linegrp_->addButton( "mergelines", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
-	linegrp_->addButton( "extr3dseisinto2d.png", "Extract from 3D cube",
+	linegrp_->addButton( "extr3dseisinto2d", "Extract from 3D cube",
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_ );
 
@@ -82,7 +82,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 	    	       mCB(this,uiSeis2DFileMan,renameAttrib) );
     attrgrp_->addButton( uiManipButGrp::Remove, "Remove selected attribute(s)",
 	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
-    browsebut_ = attrgrp_->addButton( "browseseis.png", "Browse/edit this line",
+    browsebut_ = attrgrp_->addButton( "browseseis", "Browse/edit this line",
 	    	       mCB(this,uiSeis2DFileMan,browsePush) );
     attrgrp_->attach( rightOf, attrfld_ );
 

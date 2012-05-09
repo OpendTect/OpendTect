@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltiewavelet.cc,v 1.49 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiewavelet.cc,v 1.50 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -106,15 +106,15 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 {
     viewer_ = new uiFlatViewer( this );
     
-    wvltbuts_ += new uiToolButton( this, "info.png", "Properties",
+    wvltbuts_ += new uiToolButton( this, "info", "Properties",
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
-    wvltbuts_ += new uiToolButton( this, "phase.png", "Rotate phase",
+    wvltbuts_ += new uiToolButton( this, "phase", "Rotate phase",
 	    mCB(this,uiWavelet,rotatePhase) );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "wavelet_taper.png", "Taper Wavelet",
+    wvltbuts_ += new uiToolButton( this, "wavelet_taper", "Taper Wavelet",
 	    mCB(this,uiWavelet,taper) );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 

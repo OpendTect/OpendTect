@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadpi.cc,v 1.26 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimadpi.cc,v 1.27 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -94,7 +94,7 @@ uiMadagascarLink::~uiMadagascarLink()
 
 void uiMadagascarLink::updateToolBar( CallBacker* )
 {
-    mnumgr.dtectTB()->addButton( "madagascar.png", "Madagascar link",
+    mnumgr.dtectTB()->addButton( "madagascar", "Madagascar link",
 	    			 mCB(this,uiMadagascarLink,doMain) );
 }
 
@@ -104,7 +104,7 @@ void uiMadagascarLink::updateMenu( CallBacker* )
     delete madwin_; madwin_ = 0; ishidden_ = false;
     uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
 	    				  mCB(this,uiMadagascarLink,doMain),
-	   				  "madagascar.png" );
+	   				  "madagascar" );
     mnumgr.procMnu()->insertItem( newitem );
 }
 

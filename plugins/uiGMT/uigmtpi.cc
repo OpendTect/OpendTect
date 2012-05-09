@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtpi.cc,v 1.38 2012-05-03 09:06:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtpi.cc,v 1.39 2012-05-09 07:51:23 cvsbert Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -123,7 +123,7 @@ uiGMTMgr::~uiGMTMgr()
 
 void uiGMTMgr::updateToolBar( CallBacker* )
 {
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png", "GMT Mapping Tool",
+    appl_->menuMgr().dtectTB()->addButton( "gmt_logo", "GMT Mapping Tool",
 	    				   mCB(this,uiGMTMgr,createMap) );
 }
 
@@ -133,7 +133,7 @@ void uiGMTMgr::updateMenu( CallBacker* )
     delete dlg_; dlg_ = 0;
     uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...",
 	    				  mCB(this,uiGMTMgr,createMap),
-	   				  "gmt_logo.png" );
+	   				  "gmt_logo" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }
 

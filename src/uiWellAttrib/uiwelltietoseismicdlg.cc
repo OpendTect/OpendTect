@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.106 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.107 2012-05-09 07:51:30 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -178,8 +178,8 @@ void uiTieWin::reDrawAll( CallBacker* )
 void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
-    mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
-    mAddButton( "save.png", saveDataPushed, "Save Data" );
+    mAddButton( "z2t", editD2TPushed, "View/Edit Model" );
+    mAddButton( "save", saveDataPushed, "Save Data" );
 }    
 
 
@@ -219,7 +219,7 @@ void uiTieWin::drawFields()
 	      		mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    uiToolButton* helpbut = new uiToolButton( this, "contexthelp.png", "Help",
+    uiToolButton* helpbut = new uiToolButton( this, "contexthelp", "Help",
 			mCB(this,uiTieWin,provideWinHelp) );
     helpbut->setPrefWidthInChar( 5 );
     helpbut->attach( rightOf, infobut );

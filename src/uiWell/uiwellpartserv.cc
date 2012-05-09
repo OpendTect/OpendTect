@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.70 2012-05-04 14:49:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.71 2012-05-09 07:51:30 cvsbert Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -221,7 +221,7 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
-    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell.png",
+    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
 					 "Create multiple simple wells",
 					 mCB(this,uiWellPartServer,simpImp) );
     dlg.addTool( tb );

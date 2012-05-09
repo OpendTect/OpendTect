@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.125 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.126 2012-05-09 07:51:24 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -123,17 +123,17 @@ void uiAttribDescSetEd::createMenuBar()
     if( !menu )		{ pErrMsg("huh?"); return; }
 
     uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
-    mInsertItem( "&New set ...", newSet, "newset.png" );
-    mInsertItem( "&Open set ...", openSet, "openset.png" );
-    mInsertItem( "&Save set ...", savePush, "save.png" );
-    mInsertItem( "&Save set as ...", saveAsPush, "saveas.png" );
+    mInsertItem( "&New set ...", newSet, "newset" );
+    mInsertItem( "&Open set ...", openSet, "openset" );
+    mInsertItem( "&Save set ...", savePush, "save" );
+    mInsertItem( "&Save set as ...", saveAsPush, "saveas" );
     mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
     mInsertItemNoIcon( "&Change input ...", changeInput );
     filemnu->insertSeparator();
-    mInsertItem( "Open &Default set ...", defaultSet, "defset.png" );
-    mInsertItem( "&Import set ...", importSet, "impset.png" );
+    mInsertItem( "Open &Default set ...", defaultSet, "defset" );
+    mInsertItem( "&Import set ...", importSet, "impset" );
     mInsertItemNoIcon( "Import set from &file ...", importFile );
-    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set.png" );
+    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set" );
 
     menu->insertItem( filemnu );
 }
@@ -145,20 +145,20 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, "AttributeSet tools" );
-    mAddButton( "newset.png", newSet, "New attribute set" );
-    mAddButton( "openset.png", openSet, "Open attribute set" );
-    mAddButton( "defset.png", defaultSet, "Open default attribute set" );
-    mAddButton( "impset.png", importSet, 
+    mAddButton( "newset", newSet, "New attribute set" );
+    mAddButton( "openset", openSet, "Open attribute set" );
+    mAddButton( "defset", defaultSet, "Open default attribute set" );
+    mAddButton( "impset", importSet, 
 	    	"Import attribute set from other survey" );
-    mAddButton( "job2set.png", job2Set, "Reconstruct set from job file" );
-    mAddButton( "save.png", savePush, "Save attribute set" );
-    mAddButton( "saveas.png", saveAsPush, "Save attribute set as" );
+    mAddButton( "job2set", job2Set, "Reconstruct set from job file" );
+    mAddButton( "save", savePush, "Save attribute set" );
+    mAddButton( "saveas", saveAsPush, "Save attribute set as" );
     toolbar_->addSeparator();
-    mAddButton( "showattrnow.png", directShow, 
+    mAddButton( "showattrnow", directShow, 
 	    	"Redisplay element with current attribute");
-    mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
-    mAddButton( "evalcrossattr.png",crossEvalAttrs,"Cross attributes evaluate");
-    mAddButton( "xplot.png", crossPlot, "Cross-Plot attributes" );
+    mAddButton( "evalattr", evalAttribute, "Evaluate attribute" );
+    mAddButton( "evalcrossattr",crossEvalAttrs,"Cross attributes evaluate");
+    mAddButton( "xplot", crossPlot, "Cross-Plot attributes" );
 }
 
 
@@ -180,10 +180,10 @@ void uiAttribDescSetEd::createGroups()
     movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, "Down",
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
-    sortbut_ = new uiToolButton( leftgrp, "sort.png", "Sort attributes",
+    sortbut_ = new uiToolButton( leftgrp, "sort", "Sort attributes",
 	    			 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( alignedBelow, movedownbut_ );
-    rmbut_ = new uiToolButton( leftgrp, "trashcan.png", "Remove selected",
+    rmbut_ = new uiToolButton( leftgrp, "trashcan", "Remove selected",
 				mCB(this,uiAttribDescSetEd,rmPush) );
     rmbut_->attach( alignedBelow, sortbut_ );
 
@@ -221,7 +221,7 @@ void uiAttribDescSetEd::createGroups()
     attrtypefld_->update();
     degrp->setHAlignObj( attrtypefld_ );
 
-    helpbut_ = new uiToolButton( degrp, "contexthelp.png", "Help",
+    helpbut_ = new uiToolButton( degrp, "contexthelp", "Help",
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 

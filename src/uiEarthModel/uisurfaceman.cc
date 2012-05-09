@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.97 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.98 2012-05-09 07:51:25 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -92,18 +92,18 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     if ( strcmp(typ,EMBodyTranslatorGroup::sKeyword()) )
-    	manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
+    	manipgrp->addButton( "copyobj", mGetCopyStr(typ),
 		mCB(this,uiSurfaceMan,copyCB) );
 
     if ( mGet(typ,true,false,true,false,false,false) )
     {
-	man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
+	man2dbut_ = manipgrp->addButton( "man2d", "Manage 2D Horizons",
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
 
     if ( mGet(typ,false,true,false,false,false,false) )
-	manipgrp->addButton( "mergehorizons.png", "Merge 3D Horizons",
+	manipgrp->addButton( "mergehorizons", "Merge 3D Horizons",
 			     mCB(this,uiSurfaceMan,merge3dCB) );
 
     if ( mGet(typ,false,true,true,false,false,false) )
@@ -136,11 +136,11 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
     if ( mGet(typ,false,false,false,false,false,true) )
     {
-	manipgrp->addButton( "set_union.png", "Merge bodies",
+	manipgrp->addButton( "set_union", "Merge bodies",
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
-	manipgrp->addButton( "set_implicit.png", "Create region body",
+	manipgrp->addButton( "set_implicit", "Create region body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	manipgrp->addButton( "bodyvolume.png", "Volume estimate",
+	manipgrp->addButton( "bodyvolume", "Volume estimate",
 		mCB(this,uiSurfaceMan,calVolCB) );
     }
 
@@ -468,7 +468,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
 
-    uiToolButton* sb = new uiToolButton( this, "man_strat.png",
+    uiToolButton* sb = new uiToolButton( this, "man_strat",
 	    				"Edit Stratigraphy to define Markers",
 					mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );

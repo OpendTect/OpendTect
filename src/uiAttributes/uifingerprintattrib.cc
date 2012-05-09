@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.76 2012-05-04 22:20:04 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.77 2012-05-09 07:51:24 cvsbert Exp $";
 
 -*/
 
@@ -123,8 +123,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
     
-    getposbut_ = new uiToolButton( this, "pick.png",
-	    			   "Point in 3D scene",
+    getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
     pickretriever_ = PickRetriever::getInstance();

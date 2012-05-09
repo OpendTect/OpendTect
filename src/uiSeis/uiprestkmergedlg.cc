@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprestkmergedlg.cc,v 1.31 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprestkmergedlg.cc,v 1.32 2012-05-09 07:51:27 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -86,10 +86,10 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, "rightarrow.png", "", cb );
+    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, "", cb);
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, "leftarrow.png", "", cb );
+    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow, "",cb);
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -100,10 +100,11 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n Priority" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, "uparrow.png","", cb );
+    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,"",cb);
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, "downarrow.png", "", cb );
+    movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
+	    					"", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.13 2012-05-03 09:06:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.14 2012-05-09 07:51:23 cvsbert Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -88,7 +88,6 @@ void uiGMTSymbolPars::fillShapes()
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.buf()[0] = tolower( shapekey.buf()[0] );
-	    shapekey += ".png";
 	    shapefld_->insertItem( ioPixmap(shapekey), "", idx );
 	}
     }
