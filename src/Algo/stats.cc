@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stats.cc,v 1.17 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stats.cc,v 1.18 2012-05-09 14:05:18 cvsbruno Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -27,7 +27,7 @@ DefineNameSpaceEnumNames(Stats,Type,0,"Statistic type")
 DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 {
 	"Take Nearest Sample",
-	"Use Average", "Use Median", "Use RMS",
+	"Use Average", "Use Median", "Use RMS", "Use Most Frequent", 
 	0
 };
 
