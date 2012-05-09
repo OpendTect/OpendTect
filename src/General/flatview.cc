@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.74 2012-05-03 08:55:17 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.75 2012-05-09 09:50:12 cvsbert Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -41,7 +41,7 @@ const char* DataDispPars::sKeyDispRg()  { return "Range"; }
 const char* DataDispPars::sKeyColTab()  { return "Color Table"; }
 const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }
 const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
-const char* DataDispPars::sKeyAutoScale(){ return "Auto Scale"; }
+const char* DataDispPars::sKeyAutoScale(){ return "Auto scale"; }
 const char* DataDispPars::sKeyClipPerc() { return "Percentage Clip"; }
 const char* DataDispPars::sKeyWiggCol()  { return "Wiggle color"; }
 const char* DataDispPars::sKeyMidCol()	 { return "Mid color"; }
@@ -352,7 +352,8 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
-    bool autoscale;
+    bool autoscale = true;
+    mIOPDoVD( getYN, "Auto Scale", autoscale ); // legacy
     mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
     vd_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
 				       : ColTab::MapperSetup::Fixed;
@@ -371,6 +372,8 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoWVA( get, sKeyDispRg(), range );
     wva_.mappersetup_.range_ = range;
     mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
+    autoscale = true;
+    mIOPDoWVA( getYN, "Auto Scale", autoscale ); // legacy
     mIOPDoWVA( getYN, sKeyAutoScale(), autoscale );
     wva_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
 					: ColTab::MapperSetup::Fixed;
