@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.65 2012-05-09 13:17:32 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.66 2012-05-09 13:58:25 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -93,9 +93,23 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 
 uiFunctionDisplay::~uiFunctionDisplay()
 {
+    cleanUp();
     delete xax_; delete yax_; delete y2ax_;
-    delete ypolyitem_; delete y2polyitem_;
+}
+
+
+void uiFunctionDisplay::cleanUp()
+{
+    delete ypolylineitem_; delete y2polylineitem_;
+    delete ypolygonitem_; delete y2polygonitem_;
     delete ymarkeritems_; delete y2markeritems_;
+    delete xmarklineitem_; delete ymarklineitem_;
+    delete xmarkline2item_; delete ymarkline2item_;
+    ypolylineitem_ = y2polylineitem_ = 0;
+    ypolygonitem_ = y2polygonitem_ = 0;
+    ymarkeritems_ = y2markeritems_ = 0;
+    xmarklineitem_ = ymarklineitem_ = xmarkline2item_ = ymarkline2item_ = 0;
+    ypolyitem_ = y2polyitem_ = 0;
 }
 
 
@@ -192,6 +206,7 @@ void uiFunctionDisplay::setEmpty()
     xmarkline2val_ = ymarkline2val_ = mUdf(float);
     setVals( 0, 0, 0 );
     setY2Vals( 0, 0, 0 );
+    cleanUp();
 }
 
 

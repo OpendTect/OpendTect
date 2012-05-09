@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.36 2012-05-09 13:17:32 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.37 2012-05-09 13:58:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,12 +189,12 @@ protected:
     int				selpt_;
     bool			mousedown_;
 
-
     void			mousePress(CallBacker*);
     void			mouseRelease(CallBacker*);
     void			mouseMove(CallBacker*);
     void			mouseDClick(CallBacker*);
 
+    void			cleanUp();
     void			setUpAxis(bool y2);
     void			getPointSet(TypeSet<uiPoint>&,bool y2);
     void			drawYCurve(const TypeSet<uiPoint>&);
