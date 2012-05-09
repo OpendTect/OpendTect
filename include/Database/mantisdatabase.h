@@ -7,16 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.23 2012-02-21 11:43:09 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.24 2012-05-09 11:41:35 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sqldatabase.h"
 #include "sqlquery.h"
-#include "bufstringset.h"
-#include "typeset.h"
-
 
 namespace SqlDB
 {
@@ -49,7 +46,8 @@ mClass MantisDBMgr
 {
 public:
 
-    				MantisDBMgr(const ConnectionData* cd=0);
+    				MantisDBMgr(const ConnectionData* cd=0,
+					    const char* username=0);
     				~MantisDBMgr();
 
     inline MantisAccess&	access() 	{ return acc_; }
@@ -60,10 +58,12 @@ public:
     const char*			errMsg() const;
 
     int				getUserID(bool isdeveloper) const;
+    int				getUserID() const;
     int				getMaxBugIDFromBugTable() const;
     int				getMaxBugIDFromBugTextTable() const;
     int				getMaxNoteIDFromBugNoteTable() const;
     int				getMaxNoteIDFromBugNoteTextTable() const;
+    const BugTableEntry*	getBugTableForRead(int tableidx) const;
     BugTableEntry*		getBugTableEntry(int tableidx);
     BugTextTableEntry*		getBugTextTableEntry(int tableidx);
     inline int			nrBugs() const		{ return bugs_.size(); }
@@ -178,6 +178,7 @@ protected:
 
     mutable BufferString errmsg_;
     ObjectSet<BufferStringSet>	versionsbyproject_;
+    const BufferString username_;
 };
 
 

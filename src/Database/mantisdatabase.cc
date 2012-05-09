@@ -4,13 +4,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.45 2012-02-21 11:43:09 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.46 2012-05-09 11:41:35 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "mantisdatabase.h"
 
+#include "bufstring.h"
 #include "bufstringset.h"
 #include "convert.h"
 #include "envvars.h"
@@ -78,16 +79,20 @@ bool SqlDB::MantisQuery::updateTables( BugTableEntry& bugtable,
 
 
 //MantisDBMgr
-SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd )
+SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd, const char* usernm )
+      :username_( BufferString(usernm) )
 {
     if ( cd ) acc_.connectionData() = *cd;
     const bool isopen = acc_.open();
     if ( !isopen )
     {
-	const char* username = GetUserNm();
-	BufferString errmsg( "Please check parameters in 'settings_DB' file " );
-	errmsg.add( "in '/users/" ).add( username ).add( "/.od/'" );
-	errmsg.add( "\nOR \nPlease check network connection" );
+	errmsg_ = "Unable to open database please check network connection";
+       	errmsg_.add ( " or cosult database administrator" );
+    }
+
+    if ( username_.isEmpty() )
+    {
+	BufferString errmsg( "Undefined username" );
 	errmsg_ = errmsg;
     }
 
@@ -289,19 +294,33 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
 	userids_.add( toInt(query().data(1).buf()) );
     }
 
-    const char* usrnm = GetUserNm();
-    if ( !usrnm || !*usrnm )
+    if ( username_.isEmpty() )
+    {
+	errmsg_ = "Unable to retrieve data from mantis_user_table";
 	return false;
+    }
 
-    if ( !usernames_.isPresent( usrnm ) )
+    bool isexist = false;
+    for ( int idx=0; idx<usernames_.size(); idx++ )
+    {
+	BufferString unm = usernames_.get( idx );
+	if ( username_.isEqual( unm, true ) )
+	{
+	    isexist = true;
+	    break;
+	}
+    }
+
+    if ( !isexist )
     {
 	developers_.erase();
 	usernames_.erase();
 	userids_.erase();
 
-	BufferString msg( "User '",usrnm,"'" );
+	BufferString msg( "User '",username_,"'" );
 	msg.add( " is not existed in database. OR \n" )
-	   .add( "He/She did not have permission to work on mantis issues" );
+	   .add( "He/She did not have permission " )
+	   .add( "to work on mantis issues" );
 	errmsg_ = msg;
 	return false;
     }
@@ -347,8 +366,9 @@ void SqlDB::MantisDBMgr::getProjnm( int projid, BufferString& projnm ) const
 
 bool SqlDB::MantisDBMgr::fillVersionsByProject()
 {
-    const char* vers = GetFullODVersion();
-    const float ver = toFloat( vers ) - 1;
+//    const char* vers = GetFullODVersion();
+//    const float ver = toFloat( vers ) - 1;
+    const float ver = 4.5 - 1;
     errmsg_.setEmpty();
     for ( int pidx=0; pidx<projectIDs().size(); pidx++ )
     {
@@ -568,6 +588,13 @@ void SqlDB::MantisDBMgr::removeBugTextTableEntryFromSet( int tableidx )
 }
 
 
+const SqlDB::BugTableEntry* SqlDB::MantisDBMgr::getBugTableForRead( int idx ) const
+{
+    if ( idx == -1 ) return bugtable_;
+    return bugs_.validIdx( idx ) ? bugs_[idx] : 0;
+}
+
+
 SqlDB::BugTableEntry* SqlDB::MantisDBMgr::getBugTableEntry( int idx )
 {
     if ( idx == -1 ) return bugtable_;
@@ -637,7 +664,7 @@ bool SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
     if ( !history.size() )
 	return true;
 
-    const int userid = getUserID( false );
+    const int userid = getUserID();
     if ( userid < 0 )
     {
 	errmsg_ = "User not existed";
@@ -680,7 +707,7 @@ void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int bidx )
 	    continue;
 
 	bhte->bugid_ = bugtable->id_;
-	const int usrid = getUserID( false );
+	const int usrid = getUserID();
 	if ( usrid < 0 )
 	    return;
 
@@ -779,7 +806,7 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     if ( !addToBugNoteTextTable( note ) )
 	mErrRet( "Problem while updating bug note text table");
 
-    int reporterid = getUserID( false );
+    int reporterid = getUserID();
     if ( reporterid < 0 )
 	return false;
 
@@ -834,7 +861,7 @@ bool SqlDB::MantisDBMgr::editBug( BugTableEntry& bugtable,
     if ( !isedit )
 	return false;
 
-    if ( !*note )
+    if ( !note || !*note )
 	return true;
 
     return addToBugNoteTable( note, bugtable.id_ );
@@ -888,7 +915,7 @@ bool SqlDB::MantisDBMgr::getNotesInfo( int bugid, TypeSet<int>& noteids,
     {
 	BufferString msg( "There are no notes attached to selected Bug:",
 			  bugid );
-	mErrRet( msg );
+	errmsg_ = msg;
     }
 
     return true;
@@ -1023,29 +1050,48 @@ bool SqlDB::MantisDBMgr::deleteBugTableInfo( int id )
 }
 
 
-int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
+int SqlDB::MantisDBMgr::getUserID() const
 {
-    const char* username = GetUserNm();
-    if ( !username || !*username )
+    if ( username_.isEmpty() )
 	return -1;
 
-    const bool ispresent = developers().isPresent( username );
+    if ( !usernames_.isPresent( username_ ) )
+    {
+	UsrMsg( BufferString("User ",username_," does not exist in Mantis") );
+	return -1;
+    }
+
+    const TypeSet<int>& userids = userIDs();
+    const int uid = usernames_.indexOf( username_ );
+    if ( !userids.validIdx( uid ) )
+	return -1;
+
+    return userids[uid];
+}
+
+
+int SqlDB::MantisDBMgr::getUserID( bool isdeveloper ) const
+{
+    if ( username_.isEmpty() )
+	return -1;
+
+    const bool ispresent = developers().isPresent( username_ );
     if ( isdeveloper && !ispresent )
     {
-	BufferString msg( "'", username );
+	BufferString msg( "'", username_ );
 	msg.add ( "' does not existed in mantis developers list" );
 	UsrMsg( msg );
 	return -1;
     }
 
-    if ( !usernames_.isPresent(username) )
+    if ( !usernames_.isPresent(username_) )
     {
-	UsrMsg( BufferString("User ",username," does not exist in Mantis") );
+	UsrMsg( BufferString("User ",username_," does not exist in Mantis") );
 	return -1;
     }
 
     const TypeSet<int>& userids = userIDs();
-    const int uid = usernames_.indexOf( username );
+    const int uid = usernames_.indexOf( username_ );
     if ( !userids.validIdx( uid ) )
 	return -1;
 
