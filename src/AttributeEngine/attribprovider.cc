@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.142 2012-05-04 22:20:26 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.143 2012-05-09 13:09:41 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -730,11 +730,24 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	bool needmscp2 = true;
 	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
 	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
-	int compres = seismscprov1 && seismscprov2
-	    		? seismscprov1->comparePos( *seismscprov2 )
-			: (!needmscp1 || !needmscp2) &&
-			  input1->getCurrentPosition() ==
-			  input2->getCurrentPosition() ? 0 : -1;
+	int compres = -1;
+	
+	if ( seismscprov1 && seismscprov2 )
+	    compres = seismscprov1->comparePos( *seismscprov2 );
+	else if ( !needmscp1 || !needmscp2 )
+	{
+	    const BinID inp1pos = input1->getCurrentPosition();
+	    const BinID inp2pos = input2->getCurrentPosition();
+	    if ( inp1pos == inp2pos )
+		compres = 0;
+	    else if ( !desc_.is2D() )
+	    {
+		if ( inp1pos.inl != inp2pos.inl )
+		    compres = inp1pos.inl > inp2pos.inl ? 1 : -1;
+		else
+		    compres = inp1pos.crl > inp2pos.crl ? 1 : -1;
+	    }
+	}
 
 	if ( compres == 0 )
 	    break;
