@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.15 2012-04-05 13:52:41 cvsbert Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.16 2012-05-09 12:08:37 cvsbert Exp $
 _______________________________________________________________________
 
 -*/
@@ -34,10 +34,10 @@ public:
     			~uiSeisTrcBufViewer();
 
     void		setTrcBuf(const SeisTrcBuf*,Seis::GeomType,
-	                          const char*,const char* nm,int compnr=0);
+			      const char* dp_cat,const char* nm,int compnr=0);
     			//!< This uses the buf in-place
     void		setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
-	    			  const char*,const char* nm,int compnr=0);
+			      const char* dp_cat,const char* nm,int compnr=0);
     			//!< This makes a copy of the buf
 
     SeisTrcBufDataPack*	dataPack()		{ return dp_; }
