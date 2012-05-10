@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.66 2012-05-09 13:58:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.67 2012-05-10 10:01:10 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -191,12 +191,14 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 {
     (is_x ? xmarklineval_ : ymarklineval_) = val;
+    drawMarkLines();
 }
 
 
 void uiFunctionDisplay::setMark2Value( float val, bool is_x )
 {
     (is_x ? xmarkline2val_ : ymarkline2val_) = val;
+    drawMarkLines();
 }
 
 
@@ -482,7 +484,12 @@ void uiFunctionDisplay::draw()
     else if ( y2markeritems_ )
 	y2markeritems_->setVisible( false );
     drawBorder();
+    drawMarkLines();
+}
 
+
+void uiFunctionDisplay::drawMarkLines()
+{
 #define mDrawMarkLine(xy,nr,colnr) \
     if ( !mIsUdf(xy##markline##nr##val_) ) \
 	drawMarkLine( xy##ax_, xy##markline##nr##val_, \

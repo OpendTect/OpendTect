@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.37 2012-05-09 13:58:25 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.38 2012-05-10 10:01:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,6 +204,7 @@ protected:
     void			drawMarkLine(uiAxisHandler*,float,Color,
 	                                      uiLineItem*&);
     void			drawBorder();
+    void			drawMarkLines();
     bool			setSelPt();
     void			reSized( CallBacker* );
     void			saveImageAs( CallBacker* );
