@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.56 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.57 2012-05-10 11:16:54 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -26,23 +26,23 @@ static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.56 2012-05-02 15:11:4
 
 void SeisTrcBuf::deepErase()
 {
-    ::deepErase(trcs);
+    ::deepErase(trcs_);
 }
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 {
-    for ( int idx=insidx; idx<trcs.size(); idx++ )
-	t = trcs.replace( idx, t );
-    trcs += t;
+    for ( int idx=insidx; idx<trcs_.size(); idx++ )
+	t = trcs_.replace( idx, t );
+    trcs_ += t;
 }
 
 
 void SeisTrcBuf::copyInto( SeisTrcBuf& buf ) const
 {
-    for ( int idx=0; idx<trcs.size(); idx++ )
+    for ( int idx=0; idx<trcs_.size(); idx++ )
     {
-	const SeisTrc* trc = trcs[idx];
+	const SeisTrc* trc = trcs_[idx];
 	buf.add( buf.owner_ ? new SeisTrc(*trc) : const_cast<SeisTrc*>(trc) );
     }
 }
@@ -94,7 +94,7 @@ void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
 	SeisTrc* trc = tb.get( idx );
 	add( trc );
     }
-    tb.trcs.erase();
+    tb.trcs_.erase();
 }
 
 
@@ -128,21 +128,21 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 
     mAllocVarLenArr( int, idxs, sz );
     mAllocVarLenArr( float, vals, sz );
-    const double offs = trcs[0]->info().getValue( fld );
+    const double offs = trcs_[0]->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = (float)(trcs[idx]->info().getValue( fld ) - offs);
+	vals[idx] = (float)(trcs_[idx]->info().getValue( fld ) - offs);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
     for ( int idx=0; idx<sz; idx++ )
-	tmp += trcs[idxs[idx]];
+	tmp += trcs_[idxs[idx]];
 
-    trcs.erase();
+    trcs_.erase();
 
     for ( int idx=0; idx<sz; idx++ )
-	trcs += tmp[ascending ? idx : sz - idx - 1];
+	trcs_ += tmp[ascending ? idx : sz - idx - 1];
 }
 
 
@@ -205,10 +205,10 @@ float* SeisTrcBuf::getHdrVals( SeisTrcInfo::Fld fld, double& offs )
 
 void SeisTrcBuf::revert()
 {
-    int sz = trcs.size();
+    int sz = trcs_.size();
     int hsz = sz / 2;
     for ( int idx=0; idx<hsz; idx++ )
-	trcs.swap( sz-idx-1, idx );
+	trcs_.swap( sz-idx-1, idx );
 }
 
 
@@ -238,7 +238,7 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
     if ( !trc ) return -1;
 
     int tryidx = probableIdx( trc->info().binid, is2d );
-    if ( trcs[tryidx] == trc ) return tryidx;
+    if ( trcs_[tryidx] == trc ) return tryidx;
 
     // Bugger. brute force then
     for ( int idx=0; idx<size(); idx++ )
@@ -254,13 +254,13 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    BinID start = trcs[0]->info().binid;
-    BinID stop = trcs[sz-1]->info().binid;
+    BinID start = trcs_[0]->info().binid;
+    BinID stop = trcs_[sz-1]->info().binid;
     if ( is2d )
     {
 	start.inl = stop.inl = 0;
-	start.crl = trcs[0]->info().nr;
-	stop.crl = trcs[sz-1]->info().nr;
+	start.crl = trcs_[0]->info().nr;
+	stop.crl = trcs_[sz-1]->info().nr;
     }
 
     BinID dist( start.inl - stop.inl, start.crl - stop.crl );
