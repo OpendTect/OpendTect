@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisresampler.cc,v 1.14 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisresampler.cc,v 1.15 2012-05-10 08:14:35 cvsbert Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"
@@ -72,9 +72,7 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 
     if ( nrtrcs == 0 )
     {
-	const StepInterval<float> trczrg( intrc.info().sampling.start,
-					  intrc.samplePos(intrc.size()-1),
-					  intrc.info().sampling.step );
+	const StepInterval<float> trczrg( intrc.zRange() );
 	StepInterval<float> reqzrg( cs.zrg );
 	if ( reqzrg.step < 1e-8 )
 	    reqzrg.step = trczrg.step;

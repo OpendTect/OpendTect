@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.17 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.18 2012-05-10 08:14:34 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -424,10 +424,10 @@ float SeisBayesClass::getPDFValue( int ipdf, int isamp, int icomp,
 	const int idim = (*pdfxtbls_[ipdf])[idim0];
 	const SeisTrc& inptrc = *inptrcs_.get( idim );
 	const float z = outtrc.samplePos( isamp );
-	if ( z < inptrc.samplePos(0) - eps )
-	    pdfinpvals_[idim] = inptrc.get( 0, icomp );
-	else if ( z > inptrc.samplePos(inptrc.size()-1) + eps )
-	    pdfinpvals_[idim] = inptrc.get( inptrc.size()-1, icomp );
+	if ( z < inptrc.startPos() - eps )
+	    pdfinpvals_[idim] = inptrc.getFirst( icomp );
+	else if ( z > inptrc.endPos() + eps )
+	    pdfinpvals_[idim] = inptrc.getLast( icomp );
 	else
 	    pdfinpvals_[idim] = inptrc.getValue( z, icomp );
     }

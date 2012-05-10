@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.21 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.22 2012-05-10 08:14:35 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -252,7 +252,7 @@ void uiWellImportSEGYVSP::use( const SeisTrc& trc )
     if ( isdpth_ )
     {
 	outzrgfld_->setValue( dispinpsamp_.start, 0 );
-	outzrgfld_->setValue( trc.samplePos(trc.size()-1), 1 );
+	outzrgfld_->setValue( trc.endPos(), 1 );
     }
 }
 

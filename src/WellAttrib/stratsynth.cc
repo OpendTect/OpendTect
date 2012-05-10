@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.31 2012-05-08 14:36:31 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.32 2012-05-10 08:14:35 cvsbert Exp $";
 
 
 #include "stratsynth.h"
@@ -238,7 +238,7 @@ void StratSynth::snapLevelTimes( SeisTrcBuf& trcs,
 	{
 	    Interval<float> tg( z, trc.startPos() );
 	    mFlValSerEv ev1 = stp.find( level_->snapev_, tg, 1 );
-	    tg.start = z; tg.stop = trc.samplePos( trc.size()-1 );
+	    tg.start = z; tg.stop = trc.endPos();
 	    mFlValSerEv ev2 = stp.find( level_->snapev_, tg, 1 );
 	    float tmpz = ev2.pos;
 	    const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;

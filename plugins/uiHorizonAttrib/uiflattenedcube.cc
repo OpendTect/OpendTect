@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.13 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.14 2012-05-10 08:14:34 cvsbert Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -146,8 +146,7 @@ int nextStep()
     if ( outtrc_.size() < 1 )
     {
 	outtrc_ = intrc_; // get all components + info
-	const Interval<float> inzrg( intrc_.samplePos( 0 ),
-					intrc_.samplePos( intrc_.size() - 1 ) );
+	const Interval<float> inzrg( intrc_.zRange() );
 	const StepInterval<float> outzrg( zval_ + inzrg.start - horzrg_.stop,
 					  zval_ + inzrg.stop - horzrg_.start,
 					  intrc_.info().sampling.step );

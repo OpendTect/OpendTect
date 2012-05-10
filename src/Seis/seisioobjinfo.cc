@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.49 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.50 2012-05-10 08:14:35 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -211,12 +211,7 @@ bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
     {
 	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl,icrl) );
 	if ( trc )
-	{
-	    cs.zrg.start = trc->info().sampling.start;
-	    cs.zrg.stop = trc->samplePos(trc->size()-1);
-	    cs.zrg.step = trc->info().sampling.step;
-	    delete trc; break;
-	}
+	    { cs.zrg = trc->zRange(); delete trc; break; }
     }
     delete rdr;
     return true;
