@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.42 2012-02-21 15:12:23 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.43 2012-05-10 06:29:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,10 @@ public:
 			{ data_.setValue( idx, v, icomp ); }
     inline float	get( int idx, int icomp ) const
 			{ return data_.getValue(idx,icomp); }
+    inline float	getFirst( int icomp=0 ) const
+			{ return isEmpty() ? 0 : get(0,icomp); }
+    inline float	getLast( int icomp=0 ) const
+			{ return isEmpty() ? 0 : get(size()-1,icomp); }
 
     inline int		size() const
 			{ return data_.size(0); }
@@ -77,6 +81,8 @@ public:
 
     inline float	startPos() const
 			{ return info_.sampling.start; }
+    inline float	endPos() const
+			{ return info_.sampling.atIndex( size()-1 ); }
     inline float	samplePos( int idx ) const
 			{ return info_.samplePos(idx); }
     inline int		nearestSample( float pos ) const
