@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.26 2012-01-11 23:19:08 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.27 2012-05-10 19:56:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,7 +170,6 @@ void uiHistogramDisplay::setData( const float* array, int sz )
 
 void uiHistogramDisplay::updateAndDraw()
 {
-    setup().xrg( Interval<float>(rc_.min(),rc_.max()) );
     updateHistogram();
     draw();
 }
