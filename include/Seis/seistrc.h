@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.43 2012-05-10 06:29:23 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.44 2012-05-10 06:35:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,9 @@ public:
 			{ return info_.sampling.start; }
     inline float	endPos() const
 			{ return info_.sampling.atIndex( size()-1 ); }
+    inline StepInterval<float> zRange() const
+			{ return StepInterval<float>(startPos(),endPos(),
+					info_.sampling.step ); }
     inline float	samplePos( int idx ) const
 			{ return info_.samplePos(idx); }
     inline int		nearestSample( float pos ) const
