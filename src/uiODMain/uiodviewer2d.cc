@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.55 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.56 2012-05-10 08:19:45 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -317,9 +317,6 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
     if ( slicepos_ )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
-
-    if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
-	viewstdcontrol_->propDialog()->close();
 
     viewstdcontrol_ = 0;
     viewwin_ = 0;
