@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.135 2012-05-02 15:12:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.136 2012-05-10 18:54:13 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -252,12 +252,13 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 {
     if ( !datatransform_ ) return;
 
-    if ( csfromsession_ != SI().sampling(true) )
+    const CubeSampling defcs( true );
+    if ( csfromsession_ != defcs )
 	setCubeSampling( csfromsession_ );
     else
     {
-	CubeSampling csin = scene_ ? scene_->getCubeSampling()
-				   : getCubeSampling( 0 );
+	const CubeSampling csin = scene_ ? scene_->getCubeSampling()
+					 : getCubeSampling( 0 );
 	CubeSampling cs = getInitCubeSampling( csin );
 	setCubeSampling( cs );
     }
