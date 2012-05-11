@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitygridder.cc,v 1.23 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitygridder.cc,v 1.24 2012-05-11 12:12:09 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -568,9 +568,9 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	    Vel::FunctionSource::factory().create( sourcetype.buf(), mid );
 	if ( !source )
 	{
-	    errmsg_ = "Cannot create a velocoty source of type ";
-	    errmsg_ += sourcetype.buf();
-	    errmsg_ += ". Perhaps all plugins are not loaded.\n";
+	    errmsg_ = "Cannot create a velocity source of type ";
+	    errmsg_.add( sourcetype.buf() ).add( ". " )
+	    	   .add( Vel::FunctionSource::factory().errMsg() );
 	    return false;
 	}
 
@@ -578,7 +578,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
 
 	if ( !source->usePar( *sourcepar ) )
 	{
-	    errmsg_ = "Cannot parse velocoty source's paramters (";
+	    errmsg_ = "Cannot parse velocity source's paramters (";
 	    errmsg_ += sourcetype.buf();
 	    errmsg_ += " ).";
 
