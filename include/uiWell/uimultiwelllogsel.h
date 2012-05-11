@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.13 2012-05-03 07:30:08 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.14 2012-05-11 14:21:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,10 @@ public:
     void		addMarkers(const Well::MarkerSet&);
     void		addMarkers(const BufferStringSet&);
 
+    void		setTopMarker(const char* mrk,float shift)
+			{ params_->setTopMarker(mrk,shift); putToScreen(); }
+    void		setBotMarker(const char* mrk,float shift)
+			{ params_->setBotMarker(mrk,shift); putToScreen(); }
     void		setRangeSel( const Well::ZRangeSelector& sel )
 			{ *params_ = sel;  putToScreen(); }
     void		setRange(Interval<float> rg, bool istime);
@@ -71,11 +75,13 @@ protected:
     uiGenInput*         zchoicefld_;
 
     int			selidx_;
+    float		ztimefac_;
     Well::ZRangeSelector* params_;	
 
-    void		putToScreen();
-    void		getFromScreen(CallBacker*);
-    void		updateDisplayFlds();
+    virtual void	putToScreen();
+    virtual void	getFromScreen(CallBacker*);
+    virtual void	updateDisplayFlds();
+    virtual void	onFinalise(CallBacker*);
 };
 
 
@@ -87,6 +93,7 @@ public:
 	public:
 				Setup()
 				    : withzstep_(false)
+				    , defmeterstep_(1)
 				    , withsampling_(false)
 				    , withextractintime_(SI().zIsTime())
 				    {}
@@ -94,6 +101,7 @@ public:
 	mDefSetupMemb(bool,withzstep) 
 	mDefSetupMemb(bool,withsampling) 
 	mDefSetupMemb(bool,withextractintime) 
+	mDefSetupMemb(float,defmeterstep) 
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);
@@ -103,14 +111,17 @@ public:
 
 protected:
 
+    bool		dostep_;
 
-    uiGenInput*		stepfld_;
+    uiGenInput*		depthstepfld_;
+    uiGenInput*		timestepfld_;
     uiCheckBox*		zistimefld_;
     uiGenInput*		sampfld_;
 
+    virtual void	updateDisplayFlds();
     virtual void	putToScreen();
     virtual void	getFromScreen(CallBacker*);
-    void 		extrInTimeCB(CallBacker*);
+    virtual void	onFinalise(CallBacker*);
 };
 
 

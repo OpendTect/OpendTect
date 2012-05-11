@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.21 2012-05-08 07:36:39 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.22 2012-05-11 14:21:14 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -30,6 +30,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     , zchoicefld_(0)
     , abovefld_(0)
     , params_(new Well::ZRangeSelector()) 
+    , ztimefac_(SI().showZ2UserFactor())
 {
     const bool withzintime = s.withzintime_ && SI().zIsTime();
     const char** zchoice = Well::ExtractParams::ZSelectionNames();	
@@ -83,13 +84,19 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     setHAlignObj( zchoicefld_ );
 
-    uiWellZRangeSelector::getFromScreen(0);
+    postFinalise().notify(mCB(this,uiWellZRangeSelector,onFinalise));
 }
 
 
 uiWellZRangeSelector::~uiWellZRangeSelector()
 {
     delete params_;
+}
+
+
+void uiWellZRangeSelector::onFinalise( CallBacker* )
+{
+    putToScreen();
 }
 
 
@@ -123,8 +130,6 @@ void uiWellZRangeSelector::addMarkers( const BufferStringSet& mrkrs )
     zselectionflds_[0]->newSpec( slis, 1 );
     zselectionflds_[0]->setText( uimarkernms.get(0).buf(), 0 );
     zselectionflds_[0]->setText(uimarkernms.get(uimarkernms.size()-1).buf(), 1);
-
-    uiWellZRangeSelector::getFromScreen(0);
 }
 
 
@@ -140,8 +145,16 @@ void uiWellZRangeSelector::putToScreen()
 	abovefld_->setValue( params_->topOffset(), 0 ); 
 	belowfld_->setValue( params_->botOffset(), 0 ); 
     }
-    else
+    else if ( selidx_ == 1 )
+    {
 	zselectionflds_[selidx_]->setValue( params_->getFixedRange() );
+    }
+    else
+    {
+	Interval<float> zrg( params_->getFixedRange() );
+	zrg.scale( ztimefac_ );
+	params_->setFixedRange( zrg, true );
+    }
 
     updateDisplayFlds();
 }
@@ -162,9 +175,16 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
 	params_->setBotMarker( zselectionflds_[0]->text(1), 
 			       belowfld_->getfValue(0,0) );
     }
+    else if ( selidx_ == 1 )
+    {
+	params_->setFixedRange( zselectionflds_[selidx_]->getFInterval(),false);
+    }
     else
-	params_->setFixedRange( zselectionflds_[selidx_]->getFInterval(), 
-				selidx_ == 2 );
+    {
+	Interval<float> zrg( zselectionflds_[selidx_]->getFInterval() );
+	zrg.scale( 1/ztimefac_ );
+	params_->setFixedRange( zrg, true );
+    }
 
     updateDisplayFlds();
 }
@@ -194,9 +214,11 @@ void uiWellZRangeSelector::setRange( Interval<float> zrg, bool istime )
 
 uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     : uiWellZRangeSelector( p, s )
-    , stepfld_(0)  
+    , depthstepfld_(0)  
+    , timestepfld_(0)  
     , sampfld_(0)  
     , zistimefld_(0) 
+    , dostep_(s.withzstep_)  
 {
     delete params_;
     params_ = new Well::ExtractParams();
@@ -207,24 +229,39 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     {
 	zistimefld_ = new uiCheckBox( this, "Extract in time" );
 	zistimefld_->attach( rightOf, zchoicefld_ );
-	zistimefld_->activated.notify( 
-				mCB(this,uiWellExtractParams,extrInTimeCB) );
 	zistimefld_->activated.notify( cb );
     }
 
-    const bool zinft = SI().depthsInFeetByDefault();
-    BufferString dptlbl = zinft ? "(ft)":"(m)";
 
-    if ( s.withzstep_ )
+    if ( dostep_ )
     {
-	const float defstep =  zinft ? 0.5 : 0.15;
-	stepfld_ = new uiGenInput( this, "Step (m ) ", FloatInpSpec(defstep) );
-	stepfld_->setElemSzPol( uiObject::Small );
+	const bool zinft = SI().depthsInFeetByDefault();
+	const float dptstep = zinft ? s.defmeterstep_*mToFeetFactor 
+				    : s.defmeterstep_;
+	const float timestep = SI().zStep()*ztimefac_;
+	params().zstep_ = dptstep;
+	BufferString stpbuf( "Step "); 
+	BufferString dptstpbuf( stpbuf ); dptstpbuf += zinft ? "(ft)" : "(m )";
+	BufferString timestpbuf( stpbuf ); timestpbuf += "(ms)";
+
+	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(dptstep));
+	timestepfld_ = new uiGenInput(this, timestpbuf, FloatInpSpec(timestep));
+	depthstepfld_->setElemSzPol( uiObject::Small );
+	timestepfld_->setElemSzPol( uiObject::Small );
+
 	if ( zistimefld_ )
-	    stepfld_->attach( rightOf, zistimefld_ );
+	{
+	    depthstepfld_->attach( rightOf, zistimefld_ );
+	    timestepfld_->attach( rightOf, zistimefld_ );
+	}
 	else
-	    stepfld_->attach( rightOf, zchoicefld_ ); 
-	stepfld_->valuechanged.notify( cb );
+	{
+	    depthstepfld_->attach( rightOf, zchoicefld_ ); 
+	    timestepfld_->attach( rightOf, zchoicefld_ );
+	}
+
+	depthstepfld_->valuechanged.notify( cb );
+	timestepfld_->valuechanged.notify( cb );
     }
 
     if ( s.withsampling_ )
@@ -234,48 +271,47 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	sampfld_->valuechanged.notify( cb );
 	sampfld_->attach( alignedBelow, abovefld_ );
     }
-    postFinalise().notify( mCB(this,uiWellExtractParams,extrInTimeCB) );
+}
+
+
+void uiWellExtractParams::onFinalise( CallBacker* )
+{
+    putToScreen();
 }
 
 
 void uiWellExtractParams::putToScreen()
 {
-    NotifyStopper ns( zistimefld_->activated );
     if ( zistimefld_ )
 	zistimefld_->setChecked( params().extractzintime_ );
 
     uiWellZRangeSelector::putToScreen();
 
-    NotifyStopper ns1( stepfld_->valuechanged );
-    if ( stepfld_ )
+    if ( dostep_ )
     {
-	const float ztimefac = SI().showZ2UserFactor();
 	float step = params().zstep_; 
 	if ( params().extractzintime_ ) 
-	    step *= ztimefac;
-	stepfld_->setValue( step );
+	{
+	    step *= ztimefac_;
+	    timestepfld_->setValue( step );
+	}
+	else
+	    depthstepfld_->setValue( step );
     }
 
-    NotifyStopper ns2( sampfld_->valuechanged );
     if ( sampfld_ )
 	sampfld_->setValue( (int)params().samppol_ );
 }
 
 
-void uiWellExtractParams::extrInTimeCB( CallBacker* )
+void uiWellExtractParams::updateDisplayFlds()
 {
-    if ( !zistimefld_ || !stepfld_ )
-	return;
-
-    const bool zinft = SI().depthsInFeetByDefault();
-    const bool intime = zistimefld_->isChecked();
-    const float ztimefac = SI().showZ2UserFactor();
-    const float defstep = intime ? ztimefac*SI().zStep() : zinft ? 0.5 : 0.15;
-    NotifyStopper ns( stepfld_->valuechanged );
-    BufferString steplbl( "Step" );
-    steplbl += intime ? " (ms)" : zinft ? " (ft)" : " (m ) ";
-    stepfld_->setTitleText( steplbl );
-    stepfld_->setValue( defstep );
+    uiWellZRangeSelector::updateDisplayFlds();
+    if ( dostep_ )
+    {
+	depthstepfld_->display( !params().extractzintime_ );
+	timestepfld_->display( params().extractzintime_ );
+    }
 }
 
 
@@ -286,14 +322,18 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
     if ( zistimefld_ ) 
 	params().extractzintime_ = zistimefld_->isChecked();
 
-    if ( stepfld_ )
+    if ( dostep_ )
     {
-	const float ztimefac = SI().showZ2UserFactor();
-	float step = stepfld_->getfValue();
+	float step = depthstepfld_->getfValue();
 	if ( params().extractzintime_ ) 
-	    step /= ztimefac;
-
+	{
+	    step = timestepfld_->getfValue();
+	    step /= ztimefac_;
+	}
 	params().zstep_ = step;
+
+	depthstepfld_->display( !params().extractzintime_ );
+	timestepfld_->display( params().extractzintime_ );
     }
 
     if ( sampfld_ )
@@ -336,22 +376,13 @@ void uiMultiWellLogSel::init()
 	welllslblfld_ = llbw;
     }
     zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
-
-
-    postFinalise().notify(mCB(this,uiMultiWellLogSel,onFinalise));
 }
 
 
 void uiMultiWellLogSel::onFinalise( CallBacker* )
 {
-    for ( int idx=0; idx<zselectionflds_.size(); idx++ )
-    {
-	zselectionflds_[idx]->display( true );
-    }
-    belowfld_->display( true  );
-    abovefld_->display( true );
-
     update();
+    putToScreen();
 }
 
 
