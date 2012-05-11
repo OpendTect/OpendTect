@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.79 2012-05-03 07:30:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.80 2012-05-11 13:42:28 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -375,7 +375,7 @@ Well::ExtractParams::ExtractParams( const ExtractParams& ep )
 void Well::ExtractParams::setEmpty()
 {
     ZRangeSelector::setEmpty();
-    zstep_ = mUdf( float );
+    zstep_ = SI().depthsInFeetByDefault() ? mToFeetFactor : 1;
     extractzintime_ = false;
     samppol_ = Stats::TakeNearest;
 }
@@ -483,40 +483,41 @@ int Well::TrackSampler::nextStep()
 
 void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 {
-    float dahincr = SI().zStep() * .5;
-    if ( SI().zIsTime() )
-	dahincr = 2000 * dahincr; //As dx = v * dt, Using v = 2000 m/s
-
-    BinIDValue biv; 
     const Well::D2TModel* d2t = wd.d2TModel();
     const bool zrgistime = params_.zselection_ == ZRangeSelector::Times && d2t;
     const bool extractintime = params_.extractzintime_ && d2t && SI().zIsTime();
+
+    float zincr = params_.zstep_;
+    if ( mIsUdf( zincr ) )
+    {	
+	zincr = SI().zStep();
+	if ( !extractintime )
+	{
+	    zincr *= .5;
+	    if ( SI().zIsTime() )
+		zincr *= 2000; //As dx = v * dt, Using v = 2000 m/s
+	}
+    }
+
     Interval<float> dahrg; 
     dahrg.start = zrgistime ? d2t->getDah( zrg_.start ) : zrg_.start;
     dahrg.stop = zrgistime ? d2t->getDah( zrg_.stop ) : zrg_.stop;
-    float dah = dahrg.start;
-    float time = mUdf(float);
-    float timeincr = SI().zStep();
+
+    float zpos = dahrg.start;
     if ( extractintime )
     {
-	time = zrgistime ? zrg_.start : d2t->getTime( dah );
-	time -= timeincr;
+	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos );
     }
-    else
-	dah -= dahincr;
+    zpos -= zincr;
 
     int trackidx = 0; Coord3 precisepos;
+    BinIDValue biv; 
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
     while ( true )
     {
-	if ( extractintime )
-	{
-	    time += timeincr;
-	    dah = d2t->getDah( time ); 
-	}
-	else
-	    dah += dahincr;
+	zpos += zincr;
+	const float dah = extractintime ? d2t->getDah( zpos ) : zpos;
 
 	if ( mIsUdf(dah) || !dahrg.includes( dah, true ) )
 	    return;
