@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.35 2012-05-06 17:19:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.36 2012-05-11 14:22:10 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -54,24 +54,11 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     , attribfld_(0)
     , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
 {
-    int nrmarkers = -1; int wellidx = -1;
-    for ( int idx=0; idx<wellnames_.size(); idx++ )
-    {
-	int wdidx = getWellIndex( wellnames_.get(idx) );
-	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
-	if ( wdtmp->markers().size() > nrmarkers )
-	    { nrmarkers = wdtmp->markers().size(); wellidx = wdidx; }
-    }
-
-    Well::Data* wd = wellidx<0 ? 0 : Well::MGR().wells()[wellidx];
-    if ( !wd )
-	{ uiMSG().error( "First well not valid" ); return; }
-
     uiWellExtractParams::Setup wsu; 
     wsu.withzstep_ = true; wsu.withzintime_ = false;
+    wsu.defmeterstep_ = 0.15;
     wsu.withextractintime_ = false;
     zrangeselfld_ = new uiWellExtractParams( this, wsu );
-    zrangeselfld_->addMarkers( wd->markers() );
 
     datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
     datasetup_.nlamodel_ = mdl;
@@ -107,6 +94,20 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     lognmfld_ = new uiGenInput( this, "Log name" );
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
+
+    postFinalise().notify( mCB(this, uiCreateAttribLogDlg, init ) );
+}
+
+
+void uiCreateAttribLogDlg::init( CallBacker* )
+{
+    for ( int idx=0; idx<wellnames_.size(); idx++ )
+    {
+	int wdidx = getWellIndex( wellnames_.get(idx) );
+	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
+	if ( wdtmp )
+	    zrangeselfld_->addMarkers( wdtmp->markers() );
+    }
 }
 
 

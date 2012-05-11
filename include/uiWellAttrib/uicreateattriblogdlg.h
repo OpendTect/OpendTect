@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.9 2012-03-01 13:01:02 cvsbruno Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.10 2012-05-11 14:22:10 cvsbruno Exp $
  _______________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ protected:
 
     bool                        inputsOK(int);
     bool			acceptOK(CallBacker*);
+    void			init(CallBacker*);
     void			selDone(CallBacker*);
 };
 

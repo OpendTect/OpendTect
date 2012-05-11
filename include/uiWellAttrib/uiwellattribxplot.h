@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.13 2012-01-05 06:28:17 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.14 2012-05-11 14:22:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ protected:
     bool		extractAttribData(DataPointSet&,int);
 
     bool		acceptOK(CallBacker*);
-    void		initWin(CallBacker*);
 };
 
 

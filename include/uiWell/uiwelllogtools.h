@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.7 2012-04-26 15:34:44 cvsbruno Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.8 2012-05-11 14:22:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,6 @@ protected:
     uiMultiWellLogSel*	welllogselfld_;
 
     bool		acceptOK(CallBacker*);
-    void		initWin(CallBacker*);
     void		winClosed(CallBacker*);
 };
 
