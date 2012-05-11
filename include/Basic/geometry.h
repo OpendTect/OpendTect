@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.41 2012-04-27 10:55:03 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.42 2012-05-11 11:59:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ public:
     inline Point2D<T>		operator-(const Point2D<T>&) const;
     inline Point2D<T>		operator*(const T factor) const;
     inline Point2D<T>		operator/(const T den) const;
+    
+    inline void			swapXY();
 
     inline bool			isDefined() const;
     inline double		abs() const;
@@ -336,6 +338,14 @@ Point2D<T> Point2D<T>::operator /( const T den ) const
 template <class T> inline
 bool Point2D<T>::isDefined() const
 { return !mIsUdf(x) && !mIsUdf(y); }
+    
+    
+template <class T> inline
+void Point2D<T>::swapXY()
+{
+    T tmp;
+    mSWAP( x, y, tmp );
+}
 
 
 template <class T> inline
