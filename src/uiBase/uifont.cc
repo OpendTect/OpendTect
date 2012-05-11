@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifont.cc,v 1.32 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifont.cc,v 1.33 2012-05-11 12:11:03 cvskris Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -85,11 +85,17 @@ FontData uiFont::fontData() const
 
 void uiFont::setFontData( const FontData& fData )
 {
-    qfont_->setFamily( fData.family() );
-    qfont_->setPointSize( fData.pointSize() );
-    qfont_->setWeight( fData.weight() );
-    qfont_->setItalic( fData.isItalic() );
+    setFontData( *qfont_, fData );
     updateMetrics();
+}
+
+
+void uiFont::setFontData( QFont& qfont, const FontData& fData )
+{
+    qfont.setFamily( fData.family() );
+    qfont.setPointSize( fData.pointSize() );
+    qfont.setWeight( fData.weight() );
+    qfont.setItalic( fData.isItalic() );
 }
 
 
