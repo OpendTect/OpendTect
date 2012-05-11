@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.80 2012-05-11 13:42:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.81 2012-05-11 14:46:39 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -231,6 +231,9 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     wr.getMarkers();
 
     const Well::Track& track = wd.track();
+    if ( track.isEmpty() )
+	return dahrg;
+
     if ( zselection_ == Depths )
     {
 	dahrg = fixedzrg_;
@@ -276,6 +279,9 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
     const Well::Track& track = wd.track();
+    if ( track.isEmpty() )
+	return dahrg;
+
     if (  zselection_ == Depths )
     {
 	dahrg = fixedzrg_;
