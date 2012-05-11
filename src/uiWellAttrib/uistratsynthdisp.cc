@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.91 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.92 2012-05-11 14:03:46 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -467,10 +467,8 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 
     vwr.appearance() = vwr_->appearance();
 
-    //Not sure what to do here, delete? Old code commented out.
-    //vwr.appearance().annot_.auxdata_.erase();
     while ( vwr.nrAuxData() )
-	vwr.removeAuxData( 0 );
+	delete vwr.removeAuxData( 0 );
 
     vwr.setPack( false, gdp->id(), false ); 
     vwr.setPack( true, gdp->id(), false ); 
