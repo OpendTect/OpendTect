@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.107 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.108 2012-05-11 14:02:16 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -981,18 +981,22 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
 
     const char* curruom = log_.unitMeasLabel();
     const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
-    if ( uom )
-	unfld_->setCurrentItem( uom->name() );
-    else
-	unfld_->setCurrentItem( 0 );
+    unfld_->setCurrentItem( uom ? uom->name() : 0 );
 }
 
 
 bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
-    const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( unfld_->text() );
-    if ( newuom )
-	log_.setUnitMeasLabel( newuom->symbol() );
+    BufferString uiunit = unfld_->text();
+    BufferString curlogunit = log_.unitMeasLabel();
+
+    if ( uiunit.isEqual( "-" ) )
+	curlogunit.setEmpty();
+
+    const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( uiunit );
+    if ( newuom ) curlogunit = newuom->symbol();
+
+    log_.setUnitMeasLabel( curlogunit );
 
     return true;
 }

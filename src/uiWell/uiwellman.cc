@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.91 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.92 2012-05-11 14:02:17 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -377,14 +377,16 @@ void uiWellMan::logUOMPush( CallBacker* )
     if ( curlogidx < 0 ) 
 	mErrRet( "Cannot read selected log" )
 
-    uiWellLogUOMDlg dlg( this, wls.getLog( curlogidx ) );
+    Well::Log& wl = wls.getLog( curlogidx );
+    uiWellLogUOMDlg dlg( this, wl );
     if ( !dlg.go() ) return;
 
+    BufferString uomlbl = wl.unitMeasLabel();
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
 	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
-	if ( log ) log->setUnitMeasLabel(wls.getLog(curlogidx).unitMeasLabel());
+	if ( log ) log->setUnitMeasLabel( uomlbl );
     }
     writeLogs();
 }
