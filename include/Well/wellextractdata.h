@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.39 2012-05-04 13:31:54 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.40 2012-05-11 08:24:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,7 +326,6 @@ public:
 
     //avalaible after execution
     float		getDah(int idz) const;
-
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(const char* lognm,int idx) const;
 
@@ -343,22 +342,18 @@ protected:
 
     od_int64            	nrIterations() const;
 
+    bool			doLog(int logidx);
     bool 			doPrepare(int);
     bool 			doWork(od_int64,od_int64,int);
-    bool			doLog(int logidx);
 
-    const Well::D2TModel*	wd_;
-    ObjectSet<const Well::Log>	logset_;
-    Array2DImpl<float>*		data_;
-
+    BufferStringSet 		lognms_;
     const Well::D2TModel* 	d2t_;
     Interval<float>		zrg_;
     float			zstep_; 
-
     bool 			extrintime_;
-    BufferStringSet 		lognms_;
     bool			zrgisintime_;
-
+    ObjectSet<const Well::Log>	logset_;
+    Array2DImpl<float>*		data_;
     BufferString		errmsg_;
     Stats::UpscaleType 		samppol_;
 };
