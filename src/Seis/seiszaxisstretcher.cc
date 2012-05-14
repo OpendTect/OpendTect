@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.22 2012-05-07 12:18:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.23 2012-05-14 12:26:41 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -254,96 +254,162 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    
 	    if ( ist2d_ )
 	    {
+		int idx=0;
+		for ( ; idx<insz; idx++ )
+		{
+		    if ( !mIsUdf(depths[idx]) && !mIsUdf(inputvs[idx]) )
+			break;
+		    twt[idx] = mUdf(float);
+		}
+		
 		//Fill twt using depth array and input-values
 	    	if ( usevint )
 		{
-		    twt[0] = 2*depths[0]/inputvs[0];
-		    for ( int idx=1; idx<insz; idx++)
+		    if ( idx!=insz )
 		    {
-			twt[idx] = twt[idx-1] +
-		    		(depths[idx]-depths[idx-1])*2/inputvs[idx];
+			float prevdepth = depths[idx];
+		    	float prevtwt = twt[idx] = 2*prevdepth/inputvs[idx];
+		    	idx++;
+		    	for ( ; idx<insz; idx++)
+		    	{
+			    if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+				twt[idx] = mUdf(float);
+			    else
+			    {
+			        prevtwt = twt[idx] = prevtwt +
+				    (depths[idx]-prevdepth)*2/inputvs[idx];
+				prevdepth = depths[idx];
+			    }
+			}
 		    }
 		}
 		else //Vavg
 		{
-		    for ( int idx=0; idx<insz; idx++ )
+		    for ( ; idx<insz; idx++ )
 		    {
-			twt[idx] = depths[idx]*2/inputvs[idx];
+			if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+			    twt[idx] = mUdf(float);
+			else
+			    twt[idx] = depths[idx]*2/inputvs[idx];
 		    }
 		    
 		}
 	    }
 	    else
 	    {
+		int idx=0;
+		for ( ; idx<insz; idx++ )
+		{
+		    if ( !mIsUdf(twt[idx]) && !mIsUdf(inputvs[idx]) )
+			break;
+		    depths[idx] = mUdf(float);
+		}
+
 		//Fill depth using twt array and input-values
 		if ( usevint )
 		{
-		    depths[0] = twt[0] * inputvs[0] / 2;
-		    for ( int idx=1; idx<insz; idx++ )
+		    if ( idx!=insz )
 		    {
-			depths[idx] = depths[idx-1] +
-		    		(twt[idx]-twt[idx-1]) * inputvs[idx]/2;
+			float prevtwt = twt[idx];
+		    	float prevdepth = depths[idx] = prevtwt * inputvs[idx] / 2;
+			idx++;
+		    	for ( ; idx<insz; idx++ )
+		    	{
+			    if ( mIsUdf(twt[idx]) || mIsUdf(inputvs[idx] ) )
+				depths[idx] = mUdf(float);
+			    else
+			    {
+			    	prevdepth = depths[idx] = prevdepth +
+		    		    (twt[idx]-prevtwt) * inputvs[idx]/2;
+				prevtwt = twt[idx];
+			    }
+		    	}
 		    }
 		}
 		else //Vavg
 		{
-		    for ( int idx=0; idx<insz; idx++ )
+		    for ( ; idx<insz; idx++ )
 		    {
-			depths[idx] = twt[idx] * inputvs[idx]/2;
+			if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+			    twt[idx] = mUdf(float);
+			else
+			    depths[idx] = twt[idx] * inputvs[idx]/2;
 		    }
 		}
-
 	    }
 	    
-	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,true);
-	    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,true);
+	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,
+				PointBasedMathFunction::ExtraPolGradient );
+	    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,
+				PointBasedMathFunction::ExtraPolGradient );
 	    float prevdepth;
 	    float prevtwt;
 
 	    if ( ist2d_ )
 	    {
 	    	for ( int idx=0; idx<insz; idx++ )
+		{
+		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
+			continue;
+				
 		    dtfunc.add( depths[idx], twt[idx] );
+		}
 		
 		prevdepth = sd.atIndex( 0 );
-		prevtwt = dtfunc.getValue( prevdepth );
+		prevtwt = dtfunc.size()
+		    ? dtfunc.getValue( prevdepth )
+		    : mUdf(float); 
 	    }
 	    else
 	    {
 		for ( int idx=0; idx<insz; idx++ )
+		{
+		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
+			continue;
+		    
 		    tdfunc.add( twt[idx], depths[idx] );
+		}
 		
 		prevtwt = sd.atIndex( 0 );
-		prevdepth = tdfunc.getValue( prevtwt );
+		prevdepth = tdfunc.size()
+		    ? tdfunc.getValue( prevtwt )
+		    : mUdf(float);
 	    }
 		
-	    
+	    const bool alludf = ist2d_ ? dtfunc.isEmpty() : tdfunc.isEmpty();
 	    for ( int idx=1; idx<outsz; idx++ )
 	    {
-		float curdepth;
-	    	float curtwt;
-
-		if ( ist2d_ )
-		{
-		    curdepth = sd.atIndex( idx );
-		    curtwt = dtfunc.getValue( curdepth );
-		}
-		else
-		{
-		    curtwt = sd.atIndex( idx );
-		    curdepth = tdfunc.getValue( curtwt );
-		}
+		float vel;
 		
-	    	float vel;
-		if ( usevint )
-		{
-		    vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
-		    prevtwt = curtwt;
-		    prevdepth = curdepth;
-		}
+		if ( alludf )
+		    vel = mUdf(float);
 		else
 		{
-		    vel = curdepth/curtwt * 2;
+		    float curdepth;
+		    float curtwt;
+
+		    if ( ist2d_ )
+		    {
+		    	curdepth = sd.atIndex( idx );
+		    	curtwt = dtfunc.getValue( curdepth );
+		    }
+		    else
+		    {
+		    	curtwt = sd.atIndex( idx );
+		    	curdepth = tdfunc.getValue( curtwt );
+		    }
+		
+	    	
+		    if ( usevint )
+		    {
+		    	vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
+		    	prevtwt = curtwt;
+		    	prevdepth = curdepth;
+		    }
+		    else
+		    {
+		    	vel = curdepth/curtwt * 2;
+		    }
 		}
 		    
 		outtrc->set( idx, vel, 0 );
