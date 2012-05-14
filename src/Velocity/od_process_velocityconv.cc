@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_velocityconv.cc,v 1.6 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_velocityconv.cc,v 1.7 2012-05-14 12:22:14 cvskris Exp $";
 
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
@@ -13,6 +13,7 @@ static const char* rcsID mUnusedVar = "$Id: od_process_velocityconv.cc,v 1.6 201
 #include "iopar.h"
 #include "ioobj.h"
 #include "multiid.h"
+#include "moddepmgr.h"
 #include "progressmeter.h"
 
 #include "prog.h"
@@ -24,7 +25,9 @@ static const char* rcsID mUnusedVar = "$Id: od_process_velocityconv.cc,v 1.6 201
 }
 
 bool BatchProgram::go( std::ostream& strm )
-{ 
+{
+    OD::ModDeps().ensureLoaded("Velocity");
+    
     HorSampling hrg;
     if ( !hrg.usePar( pars() ) )
 	hrg.init( true );
