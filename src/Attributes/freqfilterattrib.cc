@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.62 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.63 2012-05-14 10:02:27 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -374,7 +374,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	winsz2 = 0;
 
     FFTFilter filter;
-#define mApplyFreqWin( winsz, islow, win )\
+#define mSetFilterFreqWin( winsz, islow, win )\
     if ( winsz > 0 )\
     {\
 	float var = islow ? 1-(lowfreqvariable_-maxfreq_) / (datasz - maxfreq_)\
@@ -390,8 +390,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
     }
 
     Array1DImpl<float> lwin( winsz2/2 ), hwin( winsz1/2 );
-    mApplyFreqWin( winsz2, true, lwin )
-    mApplyFreqWin( winsz1, false, hwin )
+    mSetFilterFreqWin( winsz2, true, lwin )
+    mSetFilterFreqWin( winsz1, false, hwin )
     filter.set( df, minfreq_, maxfreq_, FFTFilter::Type( filtertype_ ), false );
     filter.apply( timedomain_.getData(), timecplxoutp_.getData(), fftsz_ ); 
 
