@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.16 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.17 2012-05-14 16:07:11 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -30,8 +30,8 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
 	raytracerselfld_->box()->selectionChanged.notify( 
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
+
     }
-    setHAlignObj( raytracerselfld_ ); 
 
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
@@ -52,6 +52,9 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    }
 	}
     }
+    if ( !grps_.isEmpty() )
+	setHAlignObj( grps_[0] );
+
     selRayTraceCB( 0 );
 }
 
