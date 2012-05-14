@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.30 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.31 2012-05-14 11:46:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,14 +152,16 @@ mClass PointBasedMathFunction : public FloatMathFunction
 public:
 
     enum InterpolType	{ Linear, Poly, Snap };
+    enum ExtrapolType   { None, EndVal, ExtraPolGradient };
 
     			PointBasedMathFunction( InterpolType t=Linear,
-			       			bool extr=true )
+			       			ExtrapolType extr=EndVal )
 			    : itype_(t)
 			    , extrapol_(extr)	{}
 
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
+    bool		isEmpty() const		{ return x_.isEmpty(); }
     void		add(float x,float y);
     void		remove(int idx);
     float		getValue( float x ) const
@@ -172,12 +174,12 @@ public:
     InterpolType	interpolType() const	{ return itype_; }
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
-    void		setExtrapolate( bool yn ) { extrapol_ = yn; }
+    void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
 
 protected:
 
     InterpolType	itype_;
-    bool		extrapol_;
+    ExtrapolType	extrapol_;
     TypeSet<float>	x_;
     TypeSet<float>	y_;
 
