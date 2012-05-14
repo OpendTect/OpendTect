@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.8 2012-04-26 14:37:33 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.9 2012-05-14 10:00:33 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -34,7 +34,10 @@ public:
 			enum Type		{ LowPass, HighPass, BandPass };
 			DeclareEnumUtils(Type)
 
-    void  		set(float d_f,float minf,float maxf,Type,bool zeropadd); 
+    void  		setLowPass(float df,float cutf,bool zeropad); 
+    void  		setHighPass(float df,float cutf,bool zeropad); 
+    void  		setBandPass(float df,float cutf1,float cutf2,bool pad); 
+    void  		set(float df,float cutf1,float cutf2,Type,bool zeropad); 
     void		apply(const float*,float*,int sz) const;
     void		apply(const float_complex*,float_complex*,int sz) const;
 
@@ -64,8 +67,8 @@ protected:
 
     float		df_;
     Type		type_;
-    float		maxfreq_;
-    float		minfreq_;
+    float		cutfreq1_;
+    float		cutfreq2_;
     bool		iszeropadd_;
 
     Fourier::CC*	fft_; 

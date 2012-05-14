@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.14 2012-04-26 14:37:34 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.15 2012-05-14 10:00:32 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -27,7 +27,7 @@ FFTFilter::FFTFilter()
     , hfreqwindow_(0)	      	      
     , lfreqwindow_(0)	      	      
 {
-    minfreq_ = maxfreq_ = df_ = mUdf( float );
+    cutfreq1_ = cutfreq2_ = df_ = mUdf( float );
 }
 
     
@@ -51,12 +51,30 @@ FFTFilter::~FFTFilter()
 }
 
 
-void FFTFilter::set( float df, float minf, float maxf, Type tp, bool zeropadd )
+void FFTFilter::setLowPass( float df, float cutf, bool zeropadd )
+{
+    set( df, 0, cutf, LowPass, zeropadd );
+}
+
+
+void FFTFilter::setHighPass( float df, float cutf, bool zeropadd )
+{
+    set( df, cutf, 0, HighPass, zeropadd );
+}
+
+
+void FFTFilter::setBandPass( float df, float cutf1, float cutf2, bool zeropadd )
+{
+    set( df, cutf1, cutf2, BandPass, zeropadd );
+}
+
+
+void FFTFilter::set( float df, float cutf1, float cutf2, Type tp, bool zeropadd)
 {
     df_ = df;
     type_ = tp;
-    maxfreq_ = maxf;
-    minfreq_ = minf;
+    cutfreq1_ = cutf1;
+    cutfreq2_ = cutf2;
     iszeropadd_ = zeropadd;
 }
 
@@ -90,12 +108,15 @@ void FFTFilter::apply(const float_complex* inp,float_complex* outp,int sz) const
 	    ctimeinput[idx] *= timewindow_->win_[idx];
     }
 
-    mDoFFT( true, ctimeinput, cfreqoutput, sz );
+    mDoFFT( true, ctimeinput, cfreqinput, sz );
 
     if ( type_ == BandPass )
-	FFTBandPassFilter( df_, minfreq_, maxfreq_, cfreqinput, cfreqoutput,sz);
-    else if ( type_ == HighPass )
-	FFTFreqFilter( df_,minfreq_,type_==LowPass,cfreqinput,cfreqoutput,sz );
+	FFTBandPassFilter(df_,cutfreq1_,cutfreq2_,cfreqinput,cfreqoutput,sz);
+    else
+    {
+	const bool lp = type_ == LowPass;
+	FFTFreqFilter(df_,lp?cutfreq2_:cutfreq1_,lp,cfreqinput,cfreqoutput,sz);
+    }
 
     mDoFFT( false, cfreqoutput, outp, sz );
 }
@@ -157,10 +178,10 @@ void FFTFilter::setFreqBorderWindow( float* win, int sz, bool forlowpass )
 {
     if ( forlowpass )
     {
-	delete hfreqwindow_; hfreqwindow_=new Window(win,sz);
+	delete lfreqwindow_; lfreqwindow_=new Window(win,sz);
     }
     else
     {
-	delete lfreqwindow_; lfreqwindow_=new Window(win,sz);
+	delete hfreqwindow_; hfreqwindow_=new Window(win,sz);
     }
 }
