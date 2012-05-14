@@ -2,13 +2,13 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          July 2001
+ Author:        Bruno
+ Date:          April 2012
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uifreqfilter.cc,v 1.5 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifreqfilter.cc,v 1.6 2012-05-14 10:01:21 cvsbruno Exp $";
 
 
 #include "uifreqfilter.h"
@@ -21,8 +21,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     , parchanged(this)  
 {
     static const char** typestrs = FFTFilter::TypeNames();
-    typefld_ = new uiGenInput( this, "Filter type", 
-	    		      StringListInpSpec(typestrs) );
+    typefld_ = new uiGenInput(this, "Filter type", StringListInpSpec(typestrs));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
@@ -35,9 +34,10 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     freqfld_->valuechanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
     freqfld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
+    setHAlignObj( freqfld_ );
+
     setMinFreq( 15 );
     setMaxFreq( 50 );
-    setHAlignObj( freqfld_ );
 }
 
 
