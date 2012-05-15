@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.63 2012-05-14 10:02:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.64 2012-05-15 10:44:35 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -301,6 +301,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
 {
     int nrsamp = nrsamples;
     int z0safe = z0;
+    FFTFilter filter;
+    fftsz_ = filter.getFFTFastSize(nrsamp*3);
     if ( nrsamples < mMINNRSAMPLES )
     {
 	nrsamp = mMINNRSAMPLES;
@@ -309,10 +311,6 @@ void FreqFilter::fftFilter( const DataHolder& output,
     
     if ( nrsamp>signal_.info().getSize(0) )
     {
-	//can not accces static FFT::CC1D directly ??
-	PtrMan<Fourier::CC> dummyfft = Fourier::CC::createDefault(); 
-	fftsz_ = dummyfft->getFastSize(nrsamp*3);
-
 	setSz(nrsamp);
 
 	if ( strcmp(windowtype_,"None") )
@@ -373,7 +371,6 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    mIsZero( maxfreq_ - lowfreqvariable_, 0.5 ) )
 	winsz2 = 0;
 
-    FFTFilter filter;
 #define mSetFilterFreqWin( winsz, islow, win )\
     if ( winsz > 0 )\
     {\

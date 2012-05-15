@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.15 2012-05-14 10:00:32 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.16 2012-05-15 10:44:35 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -37,6 +37,12 @@ FFTFilter::~FFTFilter()
     delete timewindow_;
     delete hfreqwindow_;
     delete lfreqwindow_;
+}
+
+
+int FFTFilter::getFFTFastSize( int nrsamps ) const
+{
+    return fft_ ? fft_->getFastSize( nrsamps ) : 0;
 }
 
 

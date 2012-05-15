@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.9 2012-05-14 10:00:33 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.10 2012-05-15 10:44:35 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -52,6 +52,8 @@ public:
 
 			//optional cut-off the frequency with a window
     void		setFreqBorderWindow(float* win,int sz,bool forlowpass);
+
+    int			getFFTFastSize(int nrsamps) const;
 
 protected:
 
