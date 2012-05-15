@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.24 2012-05-09 11:41:35 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.25 2012-05-15 12:52:07 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
     bool			deleteSelBugNote(int noteid);
     bool			updateBugNote(int noteid,
 	    				      const BufferString& note);
+    bool		addToBugNoteTable(const char*,int);
 
     static const char* 	sKeyAll();
     static const char* 	sKeyUnAssigned();
@@ -138,7 +139,6 @@ protected:
 
     bool		addToBugTable(BugTableEntry&);
     bool		addToBugTextTable(BugTextTableEntry&);
-    bool		addToBugNoteTable(const char*,int);
     bool		addToBugNoteTextTable(const char*);
     bool		fillCategories();
     bool		fillBugTableEntries();
