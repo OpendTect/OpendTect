@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.62 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.63 2012-05-15 13:10:26 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -132,10 +132,29 @@ void theCB( CallBacker* cb )
 	    Settings::common().write( false );
 	modnm = newmodnm;
     }
+    doLayerModel( par, modnm );
+}
 
-    uiStratLayerModel dlg( par, modnm );
+
+void doBasicLayerModel( uiParent* p )
+{
+    const BufferStringSet& nms =
+			uiLayerSequenceGenDesc::factory().getNames( true );
+    if ( nms.isEmpty() ) return;
+
+    doLayerModel( p, nms.get( 0 ) );
+}
+
+
+void doLayerModel( uiParent* p, const char* modnm )
+{
+    if ( Strat::RT().isEmpty() )
+	return;
+
+    uiStratLayerModel dlg( p, modnm );
     dlg.go();
 }
+
 
 void addToTreeWin()
 {
@@ -151,6 +170,22 @@ void uiStratLayerModel::initClass()
 {
     static uiStratLayerModelLauncher launcher;
     launcher.addToTreeWin();
+}
+
+
+void uiStratLayerModel::doBasicLayerModel()
+{
+    StratTWin().popUp(); 
+    uiStratLayerModelLauncher launcher;
+    launcher.doBasicLayerModel( &StratTreeWin() );
+}
+
+
+void uiStratLayerModel::doLayerModel( const char* modnm )
+{
+    StratTWin().popUp(); 
+    uiStratLayerModelLauncher launcher;
+    launcher.doLayerModel( &StratTreeWin(), modnm );
 }
 
 

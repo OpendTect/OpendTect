@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.255 2012-05-15 12:19:42 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.256 2012-05-15 13:10:26 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -492,9 +492,11 @@ void uiODMenuMgr::fillAnalMenu()
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
     analmnu_->insertItem( analwellmnu_ );
 
-    layermodelmnu_ = new uiPopupMenu( &appl_, "&Layer Modeling", "" ); 
+    layermodelmnu_ = new uiPopupMenu( 
+	    		&appl_, "&Layer Modeling", "stratlayermodeling" ); 
     layermodelmnu_->insertItem( new uiMenuItem( "&Basic ...", 
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
+    analmnu_->insertItem( layermodelmnu_ );
 }
 
 

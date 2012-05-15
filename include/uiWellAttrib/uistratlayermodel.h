@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.28 2012-04-11 15:01:32 cvsbruno Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.29 2012-05-15 13:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,9 @@ public:
     Notifier<uiStratLayerModel>	waveletChanged;
 
     bool			checkUnscaledWavelet();
+
+    static void			doBasicLayerModel();
+    static void			doLayerModel(const char* modnm);
 
 protected:
 
