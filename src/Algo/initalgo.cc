@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initalgo.cc,v 1.26 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initalgo.cc,v 1.27 2012-05-15 08:13:46 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"
@@ -16,10 +16,13 @@ static const char* rcsID mUnusedVar = "$Id: initalgo.cc,v 1.26 2012-05-02 15:11:
 #include "windowfunction.h"
 #include "fourier.h"
 #include "raytrace1d.h"
+#include "statrand.h"
 
 mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
+
+    Stats::RandGen::init();
 
     WindowFunction::addAllStdClasses();
 
