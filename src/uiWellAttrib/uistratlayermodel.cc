@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.63 2012-05-15 13:10:26 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.64 2012-05-15 15:16:14 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -138,11 +138,7 @@ void theCB( CallBacker* cb )
 
 void doBasicLayerModel( uiParent* p )
 {
-    const BufferStringSet& nms =
-			uiLayerSequenceGenDesc::factory().getNames( true );
-    if ( nms.isEmpty() ) return;
-
-    doLayerModel( p, nms.get( 0 ) );
+    doLayerModel( p, uiBasicLayerSequenceGenDesc::typeStr() );
 }
 
 
