@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmuteasciio.cc,v 1.13 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmuteasciio.cc,v 1.14 2012-05-15 06:13:21 cvskris Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -80,8 +80,13 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
    	    binid.crl = getIntValue(1);
 	}
 
+	const PointBasedMathFunction::ExtrapolType et = extrapol
+	    ? PointBasedMathFunction::EndVal
+	    : PointBasedMathFunction::None;
+	
+	
 	if ( mutedef.indexOf(binid) < 0 )
-	    mutedef.add( new PointBasedMathFunction(iptype,extrapol), binid );
+	    mutedef.add( new PointBasedMathFunction(iptype, et ), binid );
 
 	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(2), getfValue(3) );
     }
@@ -93,8 +98,15 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 			    PointBasedMathFunction::InterpolType iptype)
 {
+    
     if ( mutedef.indexOf(binid) < 0 )
-	mutedef.add( new PointBasedMathFunction(iptype,extrapol), binid );
+    {
+	const PointBasedMathFunction::ExtrapolType et = extrapol
+	    ? PointBasedMathFunction::EndVal
+	    : PointBasedMathFunction::None;
+	
+	mutedef.add( new PointBasedMathFunction(iptype,et), binid );
+    }
 
     while ( true )
     {

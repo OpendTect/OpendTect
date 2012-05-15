@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.12 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.13 2012-05-15 06:13:21 cvskris Exp $";
 
 #include "prestackmutedeftransl.h"
 
@@ -136,7 +136,10 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    astrm.next();
 	}
 
-	PointBasedMathFunction* fn = new PointBasedMathFunction( it, extrapol );
+	const PointBasedMathFunction::ExtrapolType et = extrapol
+	    ? PointBasedMathFunction::EndVal
+	    : PointBasedMathFunction::None;
+	PointBasedMathFunction* fn = new PointBasedMathFunction( it, et );
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
