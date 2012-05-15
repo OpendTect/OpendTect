@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.123 2012-05-04 14:49:13 cvsbruno Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.124 2012-05-15 12:19:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,6 +174,7 @@ public:
     void			doVolProc(const MultiID&);
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);
+    void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
 
