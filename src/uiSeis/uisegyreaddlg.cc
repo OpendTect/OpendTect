@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyreaddlg.cc,v 1.15 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyreaddlg.cc,v 1.16 2012-05-16 09:34:57 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -106,8 +106,8 @@ bool uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns,
 {
     if ( warns.isEmpty() ) return true;
 
-    BufferString msg( "Warning" ); if ( warns.size() > 1 ) msg += "s";
-    msg += " during read:";
+    BufferString msg( "The operation was successful, but there " );
+    msg.add( warns.size() > 1 ? "were warnings" : "was a warning" ).add(":");
     for ( int idx=0; idx<warns.size(); idx++ )
     {
 	msg += "\n\n";
