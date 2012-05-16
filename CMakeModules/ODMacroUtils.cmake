@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.55 2012-05-10 11:00:16 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.56 2012-05-16 05:39:11 cvsranojay Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -205,7 +205,7 @@ IF ( OD_MODULE_HAS_LIBRARY )
     SET_TARGET_PROPERTIES( ${OD_MODULE_NAME}
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
-	    ARCHIVE_OUTPUT_DIRECTORY "lib"
+	    ARCHIVE_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}" 
 	    LIBRARY_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}"
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
 
