@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.55 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.56 2012-05-16 06:29:52 cvskris Exp $";
 
 
 #include "uitextedit.h"
@@ -367,6 +367,14 @@ void uiTextBrowser::setHtmlText( const char* txt )
 {
     body_->setHtml( txt );
 }
+
+
+void uiTextBrowser::getHtmlText( BufferString& res ) const
+{
+    const QString str = body_->toHtml();
+    res = str.toAscii().data();
+}
+
 
 
 void  uiTextBrowser::setLinkBehavior( uiTextBrowser::LinkBehavior lb )

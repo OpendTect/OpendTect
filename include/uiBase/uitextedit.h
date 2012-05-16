@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.28 2012-04-26 14:20:40 cvskris Exp $
+ RCS:           $Id: uitextedit.h,v 1.29 2012-05-16 06:29:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ public:
 
     void		setText(const char*);
     void		setHtmlText(const char*);
+    void		getHtmlText(BufferString&) const;
     const char*		source() const;
     void		setSource(const char*); 
     void		setMaxLines(int);
