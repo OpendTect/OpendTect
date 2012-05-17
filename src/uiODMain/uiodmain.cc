@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.157 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.158 2012-05-17 06:21:13 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -144,7 +144,7 @@ uiODMain::uiODMain( uicMain& a )
     , ctabed_(0)
     , ctabwin_(0)
     , timer_(*new Timer("Session restore timer"))
-    , memtimer_(new Timer("Memory display timer"))
+    , memtimer_(*new Timer("Memory display timer"))
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
@@ -175,8 +175,8 @@ uiODMain::uiODMain( uicMain& a )
     statusBar()->setToolTip( mMemStatusFld,
 			     "System memory: Free/Available" );
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
-    memtimer_->tick.notify( mCB(this,uiODMain,memTimerCB) );
-    memtimer_->start( 1000 );
+    memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
+    memtimer_.start( 1000 );
 }
 
 
@@ -188,7 +188,7 @@ uiODMain::~uiODMain()
     delete ctabwin_;
     delete &lastsession_;
     delete &timer_;
-    delete memtimer_;
+    delete &memtimer_;
 
     delete menumgr_;
     delete viewer2dmgr_;
