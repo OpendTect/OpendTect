@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.38 2012-04-06 12:17:38 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.39 2012-05-18 12:17:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class uiGroup;
 class uiObject;
 class uiSize;
 class uiRGBArray;
+class FontData;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
@@ -120,7 +121,10 @@ public:
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end,
 	    			bool abspos=true);
-    void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
+    void		setLine(float x1,float y1,float x2,float y2,
+				bool =true);
+    void		setLine(const Geom::Point2D<float>&,
+				const Geom::Point2D<float>&,bool abspos=true);
     void		setStartPos(const uiPoint&,bool abspos);
     void		setEndPos(const uiPoint&,bool abspos);
     uiRect		lineRect() const;
@@ -248,6 +252,7 @@ public:
 			~uiTextItem();
 
     void 		setFont(const uiFont&);
+    void		setFontData(const FontData&);
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 

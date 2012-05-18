@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.60 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.61 2012-05-18 12:17:26 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -222,7 +222,14 @@ void uiLineItem::setLine( const uiPoint& start, const uiPoint& end, bool abs )
 }
 
 
-void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
+void uiLineItem::setLine( const Geom::Point2D<float>& start,
+			  const Geom::Point2D<float>& end, bool abs )
+{
+    setLine( start.x, start.y, end.x, end.y, abs );
+}
+
+
+void uiLineItem::setLine( float x1, float y1, float x2, float y2, bool abs )
 {
     if ( !abs )
 	qlineitem_->setLine( x1, y1, x2, y2 );
@@ -584,6 +591,15 @@ void uiTextItem::setHtmlText( const char* txt )
 void uiTextItem::setFont( const uiFont& font )
 {
     qtextitem_->setFont( font.qFont() );
+}
+
+
+
+void uiTextItem::setFontData( const FontData& fd )
+{
+    QFont font = qtextitem_->font();
+    uiFont::setFontData( font, fd );
+    qtextitem_->setFont( font );
 }
 
 
