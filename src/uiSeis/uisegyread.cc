@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.51 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.52 2012-05-18 06:22:06 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -232,10 +232,10 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     SEGY::FileSpec fs; fs.usePar( pars );
     BufferString fnm( fs.fname_ );
     replaceCharacter( fnm.buf(), '*', 'x' );
-    FilePath fp( fnm );
-    fp.setExtension( "txt" );
-    saveasfld_ = new uiFileInput( this, "Save report as",
-	    			  GetProcFileName(fp.fileName()) );
+    FilePath fp( fnm ); fp.setExtension( "txt" );
+    uiFileInput::Setup fisu( GetProcFileName(fp.fileName()) );
+    fisu.forread( false );
+    saveasfld_ = new uiFileInput( this, "Save report as", fisu );
     saveasfld_->setWithCheck( true );
     saveasfld_->attach( alignedBelow, nrtrcsfld_ );
     saveasfld_->setChecked( true );
