@@ -6,7 +6,12 @@
 #_______________________________________________________________________________
 
 cmake_minimum_required (VERSION 2.6)
-PROJECT(OpendTect)
+
+SET (OpendTect_VERSION_MAJOR 4)
+SET (OpendTect_VERSION_MINOR 5)
+SET (OpendTect_VERSION_DETAIL 0)
+
+PROJECT( "OpendTect ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 
 SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 SET( OD_BINARY_BASEDIR ${OpendTect_DIR} )
@@ -18,9 +23,6 @@ ENDIF()
 
 SET(OD_DGB_DIR "" CACHE PATH
 	"Place where closed source part is found")
-
-SET (OpendTect_VERSION_MAJOR 4)
-SET (OpendTect_VERSION_MINOR 3)
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
