@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.39 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.40 2012-05-18 12:16:09 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -95,6 +95,11 @@ void uiGraphicsItem::setPos( const uiPoint& p )
 
 void uiGraphicsItem::setPos( const uiWorldPoint& p )
 { stPos( p.x, p.y ); }
+
+
+void uiGraphicsItem::setPos( const Geom::Point2D<float>& p )
+{ stPos(p.x, p.y); }
+
 
 
 void uiGraphicsItem::stPos( float x, float y )

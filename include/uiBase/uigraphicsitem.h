@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.35 2012-04-04 08:10:52 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.36 2012-05-18 12:16:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     uiPoint		getPos() const;
     void		setPos( const uiWorldPoint&);
     void		setPos( const uiPoint& p );
+    void		setPos( const Geom::Point2D<float>& );
     void		setPos( float x, float y );
     void		moveBy(float x,float y);
     void		setRotation(float angle);
@@ -124,7 +125,7 @@ public:
     bool		isOwner() const		{ return owner_; }
 
     void		add(uiGraphicsItem*);
-    void		remove(uiGraphicsItem*,bool);
+    void		remove(uiGraphicsItem*,bool withdelete);
     void		removeAll(bool);
     bool		isEmpty() const		{ return items_.isEmpty(); }
     int			size() const		{ return items_.size(); }
