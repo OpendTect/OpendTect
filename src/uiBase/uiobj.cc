@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.106 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.107 2012-05-18 12:14:06 cvskris Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -31,6 +31,8 @@ CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
 
 CmdRecStopper::~CmdRecStopper()
 { cmdrecstopperstack_.pop(); }
+
+
 
 
 DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
@@ -87,6 +89,10 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
     cmdrecorder_->doCall( &caps );
     return cmdrecrefnr_;
 }
+
+
+const QWidget* uiBaseObject::getWidget() const
+{ return const_cast<uiBaseObject*>(this)->getWidget(); }
 
 
 void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
