@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 if ( ! $?DGB_CVS_DIR ) then
     echo "Please source $WORK/dvs/set_dvs_env.csh"

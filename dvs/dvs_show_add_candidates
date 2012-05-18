@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 if ( $#argv < 2 ) then
 	echo "Usage: $0 file-extension sub-dir [subdir ...]"

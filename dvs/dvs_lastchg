@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 if ( $#argv != 1 ) then
     echo "Usage : $0 file_to_see_last_change_of"

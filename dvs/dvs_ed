@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 set exit_status=0
 onintr goto finish_off
