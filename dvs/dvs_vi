@@ -6,4 +6,4 @@ if ( "$1" == "--upd" ) then
 endif
 
 dvs_ed $*
-vi $*
+vim $*
