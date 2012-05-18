@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.18 2012-05-02 15:11:26 cvskris Exp $
+ RCS:           $Id: odver.cc,v 1.19 2012-05-18 10:06:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odver.cc,v 1.18 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odver.cc,v 1.19 2012-05-18 10:06:49 cvskris Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -62,6 +62,8 @@ extern "C" const char* GetFullODVersion()
 void GetSpecificODVersion( const char* typ, BufferString& res )
 {
     res = ODInst::getPkgVersion( typ ? typ : "basedata" );
+    if ( res.matches( "*error*" ) )
+	res.setEmpty();
 }
 
 
