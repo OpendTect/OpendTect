@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.257 2012-05-15 16:14:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.258 2012-05-21 21:55:42 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -443,7 +443,7 @@ void uiODMenuMgr::fillProcMenu()
 
     procmnu_->insertItem( csoitm );
 
-    uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create &Surface Output");
+    uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create &Horizon Output");
     create2D3DMnu( grditm, "&Attribute", mCreateSurf2DMnuItm,
 		   mCreateSurf3DMnuItm, "ongrid" );
     procmnu_->insertItem( grditm );
