@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.71 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.72 2012-05-21 12:13:13 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -72,6 +72,10 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 
     lv_->clear();
     addNode( 0, *((NodeUnitRef*)tree_), true );
+
+    if  ( !haveTimes() )
+	setEntranceDefaultTimes();
+
 }
 
 

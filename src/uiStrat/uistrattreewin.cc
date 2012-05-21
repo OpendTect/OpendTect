@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.73 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.74 2012-05-21 12:13:13 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -100,32 +100,36 @@ void uiStratTreeWin::setNewRT()
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
 	dlg.setButtonText( uiDialog::CANCEL, "" );
-    bool havenewrt = false;
-    if ( dlg.go() && dlg.selection() > 0 )
+    if ( dlg.go() )
     {
 	const char* nm = opts.get( dlg.selection() );
-	Strat::LevelSet* ls = Strat::LevelSet::createStd( nm );
-	if ( !ls )
-	    pErrMsg( "Cannot read LevelSet from Std!" );
-	else
+	Strat::LevelSet* ls = 0;
+	Strat::RefTree* rt = 0;
+
+	if ( dlg.selection() > 0 )
 	{
-	    Strat::setLVLS( ls );
-	    Strat::RefTree* rt = Strat::RefTree::createStd( nm );
-	    if ( !rt )
-		pErrMsg( "Cannot read RefTree from Std!" );
+	    ls = Strat::LevelSet::createStd( nm );
+	    if ( !ls )
+		{ pErrMsg( "Cannot read LevelSet from Std!" ); return; }
 	    else
 	    {
-		Strat::setRT( rt );
-		if ( tb_ )
-		    resetCB( 0 );
-		const Repos::Source dest = Repos::Survey;
-		Strat::LVLS().store( dest );
-		Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
-		uistratdisp_->setTree();
-		havenewrt = true;
-		newbut_->setSensitive( true );
+		rt = Strat::RefTree::createStd( nm );
+		if ( !rt )
+		    { pErrMsg( "Cannot read RefTree from Std!" ); return; }
 	    }
 	}
+	else
+	{
+	    rt = new RefTree(); 
+	    ls = new LevelSet();
+	}
+	Strat::setLVLS( ls );
+	Strat::setRT( rt );
+	const Repos::Source dest = Repos::Survey;
+	Strat::LVLS().store( dest );
+	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
+	if ( tb_ )
+	    resetCB( 0 );
     }
 }
 
@@ -193,7 +197,6 @@ void uiStratTreeWin::createToolBar()
     mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,"Move unit down");
     tb_->addSeparator();
     mDefBut(newbut_,"newset",newCB,"New");
-    newbut_->setSensitive( !RT().isEmpty() );
     mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
@@ -287,6 +290,8 @@ void uiStratTreeWin::resetCB( CallBacker* )
     bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
+    uistratdisp_->setTree();
+    lvllist_->setLevels();
 }
 
 
