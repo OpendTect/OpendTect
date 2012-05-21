@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlvllist.cc,v 1.12 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlvllist.cc,v 1.13 2012-05-21 12:12:33 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -23,10 +23,18 @@ static const char* sNoLevelTxt      = "--- None ---";
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
 {
-    Strat::LevelSet& levelset = Strat::eLVLS();
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
     box()->rightButtonClicked.notify( mCB(this,uiStratLvlList,rClickLvlCB));
+
+    setLevels();
+}
+
+
+void uiStratLvlList::setLevels()
+{
+    Strat::LevelSet& levelset = Strat::eLVLS();
+
     levelset.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
     levelset.levelAdded.notify( mCB(this,uiStratLvlList,fill) );
     levelset.levelToBeRemoved.notify( mCB(this,uiStratLvlList,removeLvl) );

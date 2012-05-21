@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck / Bruno
  Date:          July 2007 /Sept 2010
- RCS:           $Id: uistratlvllist.h,v 1.5 2010-10-07 15:51:39 cvsbruno Exp $
+ RCS:           $Id: uistratlvllist.h,v 1.6 2012-05-21 12:12:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ public:
 
 				uiStratLvlList(uiParent*);
 				~uiStratLvlList();
+
+    void			setLevels();
 protected:
 
     void                        editLevel(bool);
