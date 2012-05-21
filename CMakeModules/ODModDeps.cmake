@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.9 2012-04-12 14:48:17 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.10 2012-05-21 07:55:20 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -73,7 +73,7 @@ FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	STRING( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
 			${OD_${MODULE}_INCLUDEPATH} )
 	FILE(APPEND ${OD_FIND_OD_FILE}
-	   "SET( OD_${MODULE}_INCLUDEPATH \${${PROJECT_NAME}_DIR}${INCLUDEPATH} )\n" )
+	   "SET( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )\n" )
     ENDIF()
     #IF ( OD_${MODULE}_RUNTIMEPATH )
 	#STRING( REPLACE ${CMAKE_SOURCE_DIR} "" RUNTIMEPATH
