@@ -11,6 +11,8 @@ SET (OpendTect_VERSION_MAJOR 4)
 SET (OpendTect_VERSION_MINOR 5)
 SET (OpendTect_VERSION_DETAIL 0)
 
+ENABLE_TESTING()
+
 PROJECT( "OpendTect ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 
 SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
@@ -71,7 +73,7 @@ SET( OD_PLUGINS
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
-	uiQtApp
+	#uiQtApp
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
