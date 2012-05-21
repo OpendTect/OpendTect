@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.19 2012-04-12 14:34:26 cvskris Exp $
+#	RCS :		$Id: ODUtils.cmake,v 1.20 2012-05-21 19:10:27 cvskris Exp $
 #_______________________________________________________________________________
 
 IF ( CMAKE_BUILD_TYPE STREQUAL "" )
@@ -35,7 +35,7 @@ MACRO ( OD_ADD_MODULES )
     SET( DIR ${ARGV0} )
 
     FOREACH( OD_MODULE_NAME ${ARGV} )
-	IF ( NOT ${OD_MODULE_NAME} MATCHES ${DIR} )
+	IF ( NOT ${OD_MODULE_NAME} STREQUAL ${DIR} )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} )
 	ENDIF()
     ENDFOREACH()
