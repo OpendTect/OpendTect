@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.158 2012-05-17 06:21:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.159 2012-05-21 08:22:49 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -182,6 +182,7 @@ uiODMain::uiODMain( uicMain& a )
 
 uiODMain::~uiODMain()
 {
+    memtimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
 
@@ -591,6 +592,10 @@ void uiODMain::timerCB( CallBacker* )
 
 void uiODMain::memTimerCB( CallBacker* )
 {
+    static bool multiple_access = false;
+    if ( multiple_access ) return;
+    multiple_access = true;
+
     float tot, av;
     OD::getSystemMemory( tot, av );
     const float ratiofree = av / tot;
@@ -605,11 +610,7 @@ void uiODMain::memTimerCB( CallBacker* )
 	.add( ingb ? "G" : "M" );
     statusBar()->message( txt, mMemStatusFld );
 
-    float redval = (1-ratiofree)*255;
-    float greenval = (ratiofree-0.1)*255; if ( greenval < 0 ) greenval = 0;
-    Color bgcol( mNINT(redval), mNINT(greenval), 0 );
-    bgcol.lighter( 2 );
-    statusBar()->setBGColor( mMemStatusFld, bgcol );
+    multiple_access = false;
 }
 
 
