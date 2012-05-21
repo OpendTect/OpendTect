@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.21 2012-05-21 08:24:03 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.20 2012-0
 #include "uibutton.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
+#include "uigraphicsview.h"
 #include "uilabel.h"
 #include "uirgbarraycanvas.h"
 #include "uiprogressbar.h"
@@ -26,6 +27,7 @@ static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.20 2012-0
 
 #define mSldUnits 250
 #define mMaxObjectSize 10 //6 x object size
+#define mScrollBarSize 15
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
@@ -47,18 +49,27 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
-    infobar_->setPrefWidth( startwidth_ );
+    infobar_->setPrefWidth( startwidth_ - mScrollBarSize );
     infobar_->setPrefHeight( su.infoheight_ );
     infobar_->setSceneLayoutPos( su.layoutpos_ );
     infobar_->setStretch( 2, 0 );
     infobar_->disableScrollZoom();
 
+    uiGraphicsView* dummyview = new uiGraphicsView( this, "Dummy view" );
+    dummyview->setNoBackGround();
+    dummyview->setPrefWidth( mScrollBarSize );
+    dummyview->setPrefHeight( su.infoheight_ );
+    dummyview->attach( rightOf, infobar_, 0 );
+    dummyview->setStretch( 0, 0 );
+
     mainviewer_->attach( ensureBelow, infobar_, 0 );
+    mainviewer_->attach( ensureBelow, dummyview, 0 );
 
     mainviewer_->setSceneBorder(0);
     infobar_->setSceneBorder(0);
 
     makeSliders();
+    versliderfld_->attach( ensureRightOf, dummyview );
 }
 
 
@@ -248,14 +259,9 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
     const uiRect& mainrect = mainviewer_->getViewArea();
     const uiRect& inforect = infobar_->getViewArea();
     const int x = mainrect.left();
-    const int y = mainrect.right();
-    const int top = inforect.top();
-    const int bot = inforect.bottom();
-    const int w = abs( y - x ); 
-    const int h = abs( top - bot ); 
-    infobar_->setViewArea( x, top, w, h );
-    infobar_->updateItemsPos();
-    mainviewer_->resetViewArea(0);
+    const int y = inforect.top();
+    const int w = mainrect.width();
+    infobar_->centreOn( uiPoint( x + ( w - mScrollBarSize )/(float)2, y  ) );
 }
 
 

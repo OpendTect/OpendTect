@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemview.cc,v 1.23 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemview.cc,v 1.24 2012-05-21 08:24:03 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -28,7 +28,9 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
     setScene( *newscene );
     setSceneAlignment( Alignment::HCenter );
 
-    reSize.notify( mCB(this,uiObjectItemView,resetViewArea) );
+    CallBack resetareacb( mCB(this,uiObjectItemView,resetViewArea) );
+    reSize.notify( resetareacb );
+    scrollBarUsed.notify( resetareacb );
     getMouseEventHandler().buttonReleased.notify(
 	                mCB(this,uiObjectItemView,rubberBandCB) );
 } 
