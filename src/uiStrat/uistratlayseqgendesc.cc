@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.43 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.44 2012-05-21 13:48:40 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -81,6 +81,8 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 	int pidx = PROPS().indexOf( PropertyRef::Den );
 	if ( pidx >= 0 ) prs += PROPS()[pidx];
 	pidx = PROPS().indexOf( PropertyRef::Vel );
+	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	pidx = PROPS().indexOf( PropertyRef::Imp );
 	if ( pidx >= 0 ) prs += PROPS()[pidx];
 	desc_.setPropSelection( prs );
     }
