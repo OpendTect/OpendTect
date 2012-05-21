@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.61 2012-05-14 12:20:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.62 2012-05-21 15:49:55 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -1364,16 +1364,17 @@ void sampleIntvThomsenPars( const float* inarr, const float* t_in, int nr_in,
 }
 
 
-void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels )
+void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels, 
+			TypeSet<int>* remidxs )
 {
     if ( dpts.size() != vels.size() ) 
 	return;
 
-    TypeSet<Coord> velsc; velsc.setCapacity( vels.size() );
-    for ( int idvel=0; idvel<velsc.size(); idvel++ )
+    TypeSet<Coord> velsc; 
+    for ( int idvel=0; idvel<vels.size(); idvel++ )
 	velsc += Coord( dpts[idvel], vels[idvel] );
 
-    BendPointFinder2D finder( velsc, 1e-5 );
+    BendPointFinder2D finder( velsc, 1 );
     if ( !finder.execute() ||  finder.bendPoints().isEmpty() )
 	return;
 
@@ -1392,4 +1393,6 @@ void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels )
 	vels.remove( torem[idvel] );
 	dpts.remove( torem[idvel] );
     }
+    if ( remidxs )
+	*remidxs = torem;
 }
