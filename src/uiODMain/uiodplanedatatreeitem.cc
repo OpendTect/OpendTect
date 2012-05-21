@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.66 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.67 2012-05-21 21:31:02 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -81,6 +81,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
 {
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
+    gridlinesmnuitem_.iconfnm = "gridlines";
 }
 
 
@@ -302,15 +303,10 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
-    if ( istb )
-    {
-	mAddMenuItem( menu, &positionmnuitem_, !islocked, false );
-	return;
-    }
-
-    mAddMenuItem( &displaymnuitem_, &positionmnuitem_,
-		  !islocked, false );
-    mAddMenuItem( &displaymnuitem_, &gridlinesmnuitem_, true, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
+		      !islocked, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &gridlinesmnuitem_,
+		      true, false );
 }
 
 
