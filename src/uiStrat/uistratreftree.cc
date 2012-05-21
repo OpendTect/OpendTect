@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.72 2012-05-21 12:13:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.73 2012-05-21 21:56:12 cvsnanne Exp $";
 
 #include "uistratreftree.h"
 
@@ -54,6 +54,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     lv_->mouseButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
     lv_->rightButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
 
+    tree_ = 0;
     setTree( Strat::eRT() );
 }
 
