@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.98 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.99 2012-05-21 20:55:45 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -109,15 +109,15 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     if ( mGet(typ,false,true,true,false,false,false) )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-		"Calculated attributes", true, uiLabeledListBox::AboveLeft );
+		"Horizon Data", true, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
-	attribfld_->setToolTip( "Calculated attributes" );
+	attribfld_->setToolTip( "Horizon Data (Attributes stored in Horizon format)" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	butgrp->addButton( uiManipButGrp::Remove,"Remove selected attribute(s)",
+	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Horizon Data",
 			   mCB(this,uiSurfaceMan,removeAttribCB) );
-	butgrp->addButton( uiManipButGrp::Rename, "Rename selected attribute",
+	butgrp->addButton( uiManipButGrp::Rename, "Rename selected Horizon Data",
 			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
@@ -258,15 +258,15 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->implReadOnly() )
     {
-	uiMSG().error( "Could not remove attributes. Surface is read-only" );
+	uiMSG().error( "Could not remove Horizon Data. Surface is read-only" );
 	return;
     }
 
     BufferStringSet attrnms;
     attribfld_->getSelectedItems( attrnms );
     if ( attrnms.isEmpty() || 
-	    !uiMSG().askRemove("All selected attributes will be removed.\n"
-			     "Do you want to continue?") )
+	    !uiMSG().askRemove("All selected Horizon Data will be removed.\n"
+			       "Do you want to continue?") )
 	return;
 
     for ( int ida=0; ida<attrnms.size(); ida++ )
@@ -294,19 +294,19 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     const BufferString filename =
 		SurfaceAuxData::getFileName( *curioobj_, attribnm );
     if ( File::isEmpty(filename) )
-	mErrRet( "Cannot find attribute file" )
+	mErrRet( "Cannot find Horizon Data file" )
     else if ( !File::isWritable(filename) )
-	mErrRet( "The attribute data file is not writable" )
+	mErrRet( "The Horizon Data file is not writable" )
 
     StreamData sdin( StreamProvider(filename).makeIStream() );
     if ( !sdin.usable() )
-	mErrRet( "Cannot open attribute file for read" )
+	mErrRet( "Cannot open Horizon Data file for read" )
     BufferString ofilename( filename ); ofilename += "_new";
     StreamData sdout( StreamProvider(ofilename).makeOStream() );
     if ( !sdout.usable() )
     {
 	sdin.close();
-	mErrRet( "Cannot open new attribute file for write" )
+	mErrRet( "Cannot open new Horizon Data file for write" )
     }
 
     ascistream aistrm( *sdin.istrm );

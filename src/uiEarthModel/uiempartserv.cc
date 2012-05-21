@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.235 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.236 2012-05-21 20:55:44 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -594,7 +594,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
     if ( removeold )
 	hor3d->auxdata.removeAll();
 
-    ExecutorGroup exgrp( "Surface data loader" );
+    ExecutorGroup exgrp( "Horizon Data loader" );
     exgrp.setNrDoneText( "Nr done" );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
@@ -640,7 +640,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     EM::IOObjInfo eminfo( mid );
     BufferStringSet atrrnms;
     eminfo.getAttribNames( atrrnms );
-    uiSelectFromList::Setup setup( "Surface data", atrrnms );
+    uiSelectFromList::Setup setup( "Horizon Data", atrrnms );
     setup.dlgtitle( "Select one or more attributes to be displayed\n"
 	    	    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll.\n"
@@ -656,7 +656,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     if ( selattribs.isEmpty() ) return false;
 
     hor3d->auxdata.removeAll();
-    ExecutorGroup exgrp( "Loading surface data" );
+    ExecutorGroup exgrp( "Loading Horizon Data" );
     exgrp.setNrDoneText( "Nr done" );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
@@ -1023,7 +1023,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( "Interpolate horizon data",
+		uiDialog::Setup( "Interpolate horizon Data",
 				 "Interpolation parameters",
 				  (const char*) 0 ) );
 
@@ -1138,7 +1138,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );
     obj->ref();
     uiTaskRunner exdlg( parent() );
-    if ( exdlg.execute(*exec) <= 0 )
+    if ( !exdlg.execute(*exec) )
     {
 	obj->unRef();
 	return false;

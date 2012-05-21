@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizonattrib.cc,v 1.24 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizonattrib.cc,v 1.25 2012-05-21 20:55:44 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -29,7 +29,7 @@ static const char* rcsID mUnusedVar = "$Id: uihorizonattrib.cc,v 1.24 2012-05-02
 
 using namespace Attrib;
 
-static const char* sDefHorOut[] = { "Z", "Surface Data", 0 };
+static const char* sDefHorOut[] = { "Z", "Horizon Data", 0 };
 static const char* sDefHorNoSurfdtOut[] = { "Z", 0 };
 
 mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
@@ -54,7 +54,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     isrelbox_ = new uiCheckBox( this, "Relative" );
     isrelbox_->attach( rightOf, typefld_ );
 
-    surfdatafld_ = new uiGenInput( this, "Select surface data",
+    surfdatafld_ = new uiGenInput( this, "Select Horizon Data",
 	    			   StringListInpSpec() );
     surfdatafld_->attach( alignedBelow, typefld_ );
     

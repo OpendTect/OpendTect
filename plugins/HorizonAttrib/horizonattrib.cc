@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizonattrib.cc,v 1.24 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonattrib.cc,v 1.25 2012-05-21 20:55:44 cvsnanne Exp $";
 
 #include "horizonattrib.h"
 
@@ -88,7 +88,7 @@ Horizon::Horizon( Desc& dsc )
 
     if ( !isOK() )
     {
-	errmsg_ = "Selected surface data name does not exist";
+	errmsg_ = "Selected Horizon Data name does not exist";
 	return;
     }
 }
@@ -116,7 +116,7 @@ bool Horizon::isOK() const
 
 const char* Horizon::outTypeNamesStr( int type )
 {
-    return type == mOutTypeZ ? "Z" : "Surface Data";
+    return type == mOutTypeZ ? "Z" : "Horizon Data";
 }
 
 
@@ -171,7 +171,7 @@ void Horizon::prepareForComputeData()
     PtrMan<Executor> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
     if ( !adl || !adl->execute() )
     {
-	BufferString msg = "Loading surface data ";
+	BufferString msg = "Loading Horizon Data ";
 	msg += surfdatanm_;
 	msg += " failed.";
 	errmsg_ =  msg;

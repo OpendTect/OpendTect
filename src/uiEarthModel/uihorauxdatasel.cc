@@ -4,7 +4,7 @@
  *  DATE     : April 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uihorauxdatasel.cc,v 1.7 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorauxdatasel.cc,v 1.8 2012-05-21 20:55:44 cvsnanne Exp $";
 
 
 #include "uihorauxdatasel.h"
@@ -172,7 +172,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 	horfld_->setText( obj->name() );
     }    
     
-    auxfld_ = new uiGenInput( this, "Surface Data", str ); 
+    auxfld_ = new uiGenInput( this, "Horizon Data", str ); 
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(

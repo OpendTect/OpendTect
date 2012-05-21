@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.86 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.87 2012-05-21 20:55:45 cvsnanne Exp $";
 
 #include "uiiosurface.h"
 
@@ -296,7 +296,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( "Output Stickset" );
     else
-	mkObjFld( "Output Surface" );
+	mkObjFld( BufferString("Output ",setup.typ_) );
 
 
     if ( rgfld_ )
@@ -363,7 +363,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( "Output Stickset" );
     else
-	mkObjFld( "Output Surface" );
+	mkObjFld( BufferString("Output ",setup.typ_) );
 
     if ( rgfld_ )
     {
@@ -395,7 +395,7 @@ bool uiSurfaceWrite::processInput()
     if ( !objfld_->commitInput() )
     {
 	if ( objfld_->isEmpty() )
-	    uiMSG().error( "Please select an output surface" );
+	    uiMSG().error( "Please select Output" );
 	return false;
     }
 
@@ -462,7 +462,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( "Input Stickset" );
     else
-	mkObjFld( "Input Surface" );
+	mkObjFld( BufferString("Input ",setup.typ_) );
 
     uiGroup* attachobj = objfld_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrsurfout.cc,v 1.36 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrsurfout.cc,v 1.37 2012-05-21 20:55:44 cvsnanne Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -35,7 +35,7 @@ using namespace Attrib;
 
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
-    : uiAttrEMOut( p, ad, n, mid, "Create surface output" )
+    : uiAttrEMOut( p, ad, n, mid, "Calculate Horizon Data" )
     , interpol_(0)
 {
     setHelpID( "104.4.0" );
@@ -54,7 +54,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->attach( rightOf, filludffld_ );
 
     objfld_ = new uiIOObjSel( uppgrp_, mIOObjContext(EMHorizon3D),
-			      "Calculate on surface" );
+			      "Calculate on Horizon" );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
 
@@ -127,7 +127,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
 {
     if ( !objfld_->commitInput() )
     {
-	uiMSG().error( "Please select surface" );
+	uiMSG().error( "Please select Horizon" );
 	return false;
     }
 
@@ -155,7 +155,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
     if ( !attrfnm.isEmpty() )
     {
-	const int val = uiMSG().askOverwrite("Surface data with this attribute"
+	const int val = uiMSG().askOverwrite("Horizon data with this attribute"
 		" name already exists. Do you want to overwrite?");
 	if ( val==0 )
 	    return false;
@@ -167,7 +167,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	    EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, attrnm );
 	if ( !res )
 	{
-	    uiMSG().error( "Cannot save surface data to: ", attrfnm );
+	    uiMSG().error( "Cannot save Horizon data to: ", attrfnm );
 	    return false;
 	}
     }

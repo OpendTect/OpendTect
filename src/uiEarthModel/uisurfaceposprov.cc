@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisurfaceposprov.cc,v 1.15 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceposprov.cc,v 1.16 2012-05-21 20:55:45 cvsnanne Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -40,15 +40,15 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	new uiLabel( this, "Not implemented for 2D" );
 	return;
     }
-    surf1fld_ = new uiIOObjSel( this, ctio1_, "Surface" );
+    surf1fld_ = new uiIOObjSel( this, ctio1_, "Horizon" );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, "Select",
-	    		BoolInpSpec(true,"On surface","To a 2nd surface") );
+	    		BoolInpSpec(true,"On Horizon","To a 2nd Horizon") );
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
 
-    surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom surface" );
+    surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom Horizon" );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     BufferString txt;
@@ -147,7 +147,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     else
     {
 	if ( !surf2fld_->commitInput() )
-	    mErrRet("Please select the bottom surface")
+	    mErrRet("Please select the bottom horizon")
 	 if (  ctio2_.ioobj->key() ==  ctio1_.ioobj->key() )
 	     mErrRet("Please select two different horizons")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
@@ -170,7 +170,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 {
     if ( !surf1fld_ ) return;
-    txt += issingfld_->getBoolValue() ? "On surface" : "Between surfaces";
+    txt += issingfld_->getBoolValue() ? "On Horizon" : "Between Horizons";
 }
 
 

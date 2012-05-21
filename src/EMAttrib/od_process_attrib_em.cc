@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.88 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.89 2012-05-21 20:55:44 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -134,7 +134,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	midset += mid;
 	BufferString newattrnm;
 	iopar.get( sKey::Target, newattrnm );
-	strm << "Calculating surface data '" << newattrnm << "'." << std::endl;
+	strm << "Calculating Horizon Data '" << newattrnm << "'." << std::endl;
 	strm.flush();
     }
     else

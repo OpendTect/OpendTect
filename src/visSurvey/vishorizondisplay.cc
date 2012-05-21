@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.163 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.164 2012-05-21 20:55:45 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -740,7 +740,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     BinID step( SI().inlStep(), SI().crlStep() );
     mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
 	    		BIDValSetArrAdapter(*cache,isz?0:2,step));
-    const char* catnm = isz ? "Geometry" : "Surface Data";
+    const char* catnm = isz ? "Geometry" : "Horizon Data";
     const char* dpnm = isz ? "Depth"
 			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
     mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));

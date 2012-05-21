@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.98 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.99 2012-05-21 20:55:45 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -397,7 +397,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
     {
 	const bool res = uiMSG().askSave(
-		"Geometry has been changed. Saved 'Surface Data' is\n"
+		"Geometry has been changed. Saved 'Horizon Data' is\n"
 		"not valid anymore and will be removed now.\n"
 		"Continue saving?" );
 	if ( !res )
@@ -429,8 +429,8 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
        							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_("Z values")
-    , savesurfacedatamnuitem_("Save as Surface data ...")
-    , loadsurfacedatamnuitem_("Surface data ...")
+    , savesurfacedatamnuitem_("Save as Horizon Data ...")
+    , loadsurfacedatamnuitem_("Horizon Data ...")
     , algomnuitem_("&Tools")
     , filtermnuitem_("&Filtering ...")
     , fillholesmnuitem_("&Gridding ...")
@@ -456,7 +456,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 
     const bool islocked = visserv->isLocked( displayID() );
     const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
-    BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
+    BufferString itmtxt = "Horizon Data ("; itmtxt += nrsurfdata;
     itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
@@ -511,7 +511,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		    name_, validx, shift );
 	    if ( auxnr<0 )
 	    {
-		pErrMsg( "Cannot find data." );
+		pErrMsg( "Cannot find Horizon Data." );
 		return;
 	    }
 
@@ -564,7 +564,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	    uiMSG().error( "This algorithm can only be applied on Surface data."
+	    uiMSG().error( "This algorithm can only be applied on 'Horizon Data'."
 		    	   "\nPlease save attribute first" );
 	    return;
 	}

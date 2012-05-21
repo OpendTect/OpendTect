@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.134 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.135 2012-05-21 20:55:45 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -1251,10 +1251,10 @@ void uiMPEPartServer::saveUnsaveEMObject()
 
 	if ( EM::EMM().getMultiID(objid).isEmpty() )
 	{
-	    BufferString msg = "Surface ";
-	    msg += EM::EMM().getObject( objid )->name();
-	    msg += " is not saved.\n Click Save to save ";
-	    msg += " to disk or\n click Remove to remove permanently. ";
+	    BufferString msg = EM::EMM().getObject(objid)->getTypeStr();
+	    msg.add( " " ).add( EM::EMM().getObject( objid )->name() );
+	    msg += " is not saved.\n Click 'Save' to save ";
+	    msg += " to disk or\n click 'Remove' to remove permanently. ";
 
 	    if ( uiMSG().askGoOn(msg, "Save", "Remove") )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
