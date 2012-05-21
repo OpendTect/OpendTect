@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.37 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.38 2012-05-21 07:32:30 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -108,6 +108,7 @@ void WellStratUnitGen::gatherLeavedUnits()
     if ( markers_.isEmpty() ) return;
     posset_.erase(); leaveddispunits_.erase(); leavedunits_.erase();
     units_.erase(); dispunits_.erase();
+    TypeSet<float> absunitpos;
     for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
     {
 	data_.getCol( idcol )->isdisplayed_ = false;
@@ -129,14 +130,22 @@ void WellStratUnitGen::gatherLeavedUnits()
 	    const Well::Marker* mrk = getMarkerFromLvlID( lur->levelID() );
 	    if ( mrk )
 	    {
-		leavedunits_ += lur; 
-		leaveddispunits_ += &unit;
 		float pos = mrk->dah();
 		if ( SI().zIsTime() && d2tmodel_ ) 
-		    pos = d2tmodel_->getTime( pos )*1000; 
+		    pos = d2tmodel_->getTime(pos)*SI().zDomain().userFactor(); 
 		else
 		    pos = track_.getPos( pos ).z;
-		posset_ += pos;
+
+		int idunit = 0;
+		for ( idunit; idunit<posset_.size(); idunit ++ )
+		{
+		    if ( unit.zrg_.stop < absunitpos[idunit] )
+			break;
+		}
+		leaveddispunits_.insertAt( &unit, idunit );
+		leavedunits_.insertAt( lur, idunit ); 
+		absunitpos.insert( idunit, unit.zrg_.stop ); 
+		posset_.insert( idunit, pos );
 	    }
 	}
     }
@@ -165,8 +174,6 @@ void WellStratUnitGen::assignTimesToLeavedUnits()
 {
     for ( int idx=0; idx<leavedunits_.size()-1; idx++ )
     {
-	const Strat::LeavedUnitRef& lur1 = *leavedunits_[idx];
-	const Strat::LeavedUnitRef& lur2 = *leavedunits_[idx+1];
 	StratDispData::Unit& unit = *leaveddispunits_[idx];
 	unit.zrg_.set( posset_[idx], posset_[idx+1] );
 	unit.zrg_.sort();
