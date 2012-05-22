@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.41 2012-05-04 14:49:13 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.42 2012-05-22 16:41:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,9 @@ public:
     bool			importTrack();
     bool			importLogs();
     bool			importMarkers();
+    bool			bulkImportTrack();
+    bool			bulkImportLogs();
+    bool			bulkImportMarkers();
 
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.71 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.72 2012-05-22 16:41:58 cvsnanne Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -69,6 +69,26 @@ uiWellPartServer::~uiWellPartServer()
     delete rdmlinedlg_;
     deepErase( Well::MGR().wells() );
     deepErase( Well::MGR().keys() );
+}
+
+
+bool uiWellPartServer::bulkImportTrack()
+{
+    uiBulkWellImport dlg( parent() );
+    return dlg.go();
+}
+
+
+bool uiWellPartServer::bulkImportLogs()
+{
+    uiBulkLogImport dlg( parent() );
+    return dlg.go();
+}
+
+bool uiWellPartServer::bulkImportMarkers()
+{
+    uiBulkMarkerImport dlg( parent() );
+    return dlg.go();
 }
 
 

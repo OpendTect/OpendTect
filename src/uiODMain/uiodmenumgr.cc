@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.258 2012-05-21 21:55:42 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.259 2012-05-22 16:41:57 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -276,6 +276,12 @@ void uiODMenuMgr::fillImportMenu()
     impwell->insertItem( impwellasc );
     mInsertItem( impwell, "&VSP (SEG-Y) ...", mImpWellSEGYVSPMnuItm );
     mInsertItem( impwell, "Simple &Multi-Well ...", mImpWellSimpleMnuItm );
+
+    uiPopupMenu* impwellbulk = new uiPopupMenu( &appl_, "&Bulk" );
+    mInsertItem( impwellbulk, "Track ... ", mImpBulkWellTrackItm );
+    mInsertItem( impwellbulk, "Logs ...", mImpBulkWellLogsItm );
+    mInsertItem( impwellbulk, "Markers ...", mImpBulkWellMarkersItm );
+    impwell->insertItem( impwellbulk );
 
     impmnus_.erase();
     impmnus_.allowNull();
@@ -983,6 +989,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
     case mImpWellSEGYVSPMnuItm:		mDoOp(Imp,Wll,3); break;
     case mImpWellSimpleMnuItm:		mDoOp(Imp,Wll,4); break;
+    case mImpBulkWellTrackItm:		mDoOp(Imp,Wll,5); break;
+    case mImpBulkWellLogsItm:		mDoOp(Imp,Wll,6); break;
+    case mImpBulkWellMarkersItm:	mDoOp(Imp,Wll,7); break;
     case mImpPickAsciiMnuItm:		mDoOp(Imp,Pick,0); break;
     case mExpPickAsciiMnuItm:		mDoOp(Exp,Pick,0); break;
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;

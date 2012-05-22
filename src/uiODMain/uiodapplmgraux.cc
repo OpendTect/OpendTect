@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.50 2012-05-03 13:22:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.51 2012-05-22 16:41:57 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -205,6 +205,12 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellattrserv_->importSEGYVSP();
 	    else if ( opt == 4 )
 		am_.wellserv_->createSimpleWells();
+	    else if ( opt == 5 )
+		am_.wellserv_->bulkImportTrack();
+	    else if ( opt == 6 )
+		am_.wellserv_->bulkImportLogs();
+	    else if ( opt == 6 )
+		am_.wellserv_->bulkImportMarkers();
 
 	break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;

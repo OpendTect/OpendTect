@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.78 2012-04-30 21:52:37 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.79 2012-05-22 16:41:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,9 @@ ________________________________________________________________________
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
 #define mImpWellSEGYVSPMnuItm	(mFileImpMnu + 45)
 #define mImpWellSimpleMnuItm	(mFileImpMnu + 46)
+#define mImpBulkWellTrackItm	(mFileImpMnu + 47)
+#define mImpBulkWellLogsItm	(mFileImpMnu + 48)
+#define mImpBulkWellMarkersItm	(mFileImpMnu + 49)
 #define mImpFaultMnuItm		(mFileImpMnu + 50)
 #define mImpFaultSSMnuItm	(mFileImpMnu + 51)
 #define mImpFaultSSAscii3DMnuItm (mFileImpMnu + 52)
