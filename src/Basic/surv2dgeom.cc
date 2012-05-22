@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.31 2012-05-04 17:20:22 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.32 2012-05-22 04:33:41 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 
@@ -624,12 +624,19 @@ void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
     BufferString cleannm( newlnm );
     cleanupString( cleannm.buf(), false, false, false );
 
-    const int lidx = lineindex_.indexOf( oldlnm );
+    int lidx = lineindex_.indexOf( oldlnm );
     if ( lidx < 0 ) return;
 
     FileMultiString oldfms( lineindex_.getValue(lidx) );
     const FilePath oldfp( lsfp_ , oldfms[0] );
     const FilePath newfp( lsfp_ , cleannm.buf() );
+    
+    if ( hasLine(newlnm) )
+	removeLine( newlnm );
+
+    lidx = lineindex_.indexOf( oldlnm );
+    if ( lidx < 0 ) return;
+
     if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
 	return;
 
@@ -719,9 +726,14 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
 void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 {
     if ( !oldlsnm || !*oldlsnm ) return;
-    const int lsidx = lsindex_.indexOf( oldlsnm );
+    int lsidx = lsindex_.indexOf( oldlsnm );
     if ( lsidx < 0 ) return;
 
+    if ( hasLineSet(newlsnm) )
+	removeLineSet( newlsnm );
+
+    lsidx = lsindex_.indexOf( oldlsnm );
+    if ( lsidx < 0 ) return;
     FileMultiString fms( lsindex_.getValue(lsidx) );
     FilePath fp( basefp_, fms[0] );
     const BufferString dirnm( fp.fullPath() );
