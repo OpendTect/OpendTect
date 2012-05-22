@@ -3,8 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-
-static const char* rcsID mUnusedVar = "$Id: segydirect.cc,v 1.38 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segydirect.cc,v 1.39 2012-05-22 22:05:17 cvsnanne Exp $";
 
 #include "segydirectdef.h"
 
@@ -541,7 +540,7 @@ int SEGY::FileIndexer::nextStep()
 
     if ( !directdef_ )
     {
-	BufferString outfile = ioobj_->fullUserExpr( Conn::Write );
+	BufferString outfile = ioobj_->fullUserExpr( true );
 	if ( outfile.isEmpty() )
 	    { msg_ = "Output filename empty"; return ErrorOccurred(); }
 
