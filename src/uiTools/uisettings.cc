@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.43 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.44 2012-05-22 11:56:28 cvsbert Exp $";
 
 #include "uisettings.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.43 2012-05-02 15:1
 #include "survinfo.h"
 #include "posimpexppars.h"
 #include "envvars.h"
+#include "oddirs.h"
+#include "dirlist.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -24,18 +26,60 @@ static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.43 2012-05-02 15:1
 #include "uimsg.h"
 #include "uiselsimple.h"
 
+static const char* sKeyCommon = "<general>";
+
+
+static void getGrps( BufferStringSet& grps )
+{
+    grps.add( sKeyCommon );
+    BufferString msk( "settings*" );
+    const char* dtectuser = GetSoftwareUser();
+    const bool needdot = dtectuser && *dtectuser;
+    if ( needdot ) msk += ".*";
+    DirList dl( GetSettingsDir(), DirList::FilesOnly, msk );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	BufferString fnm( dl.get(idx) );
+	char* dotptr = strrchr( fnm.buf(), '.' );
+	if ( (needdot && !dotptr) || (!needdot && dotptr) )
+	    continue;
+	if ( dotptr )
+	{
+	    BufferString usr( dotptr + 1 );
+	    if ( usr != dtectuser )
+		continue;
+	    *dotptr = '\0';
+	}
+	const char* underscoreptr = strchr( fnm.buf(), '_' );
+	if ( !underscoreptr || !*underscoreptr )
+	    continue;
+	grps.add( underscoreptr + 1 );
+    }
+}
+
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value","0.2.1"))
         , issurvdefs_(settskey && !strcmp(settskey,sKeySurveyDefs()))
-	, setts_(issurvdefs_ ? SI().getPars() : Settings::fetch(settskey))
+	, setts_(&SI().getPars())
+    	, grpfld_(0)
 {
     if ( issurvdefs_ )
     {
 	setTitleText( "Set Survey default value" );
 	setHelpID( "0.2.8" );
     }
+    else
+    {
+	grpChg( 0 );
+	BufferStringSet grps; getGrps( grps );
+	grpfld_ = new uiGenInput( this, "Settings group",
+				  StringListInpSpec(grps) );
+	grpfld_->valuechanged.notify( mCB(this,uiSettings,grpChg) );
+    }
     keyfld_ = new uiGenInput( this, "Settings keyword", StringInpSpec() );
+    if ( grpfld_ )
+	keyfld_->attach( alignedBelow, grpfld_ );
     uiButton* pb = new uiPushButton( this, "&Select existing",
 	    			     mCB(this,uiSettings,selPush), false );
     pb->setName( "Select Keyword" );
@@ -51,11 +95,21 @@ uiSettings::~uiSettings()
 }
 
 
+void uiSettings::grpChg( CallBacker* )
+{
+    const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
+    if ( grp == sKeyCommon )
+	setts_ = &Settings::common();
+    else
+	setts_ = &Settings::fetch( grp );
+}
+
+
 void uiSettings::selPush( CallBacker* )
 {
     BufferStringSet keys;
-    for ( int idx=0; idx<setts_.size(); idx++ )
-	keys.add( setts_.getKey(idx) );
+    for ( int idx=0; idx<setts_->size(); idx++ )
+	keys.add( setts_->getKey(idx) );
     keys.sort();
     uiSelectFromList::Setup listsetup( "Setting selection", keys );
     listsetup.dlgtitle( keyfld_->text() );
@@ -67,7 +121,7 @@ void uiSettings::selPush( CallBacker* )
 
     const char* key = keys.get( selidx ).buf();
     keyfld_->setText( key );
-    valfld_->setText( setts_.find(key) );
+    valfld_->setText( setts_->find(key) );
 }
 
 
@@ -80,7 +134,12 @@ bool uiSettings::acceptOK( CallBacker* )
 	return false;
     }
 
-    setts_.set( ky, valfld_->text() );
+    const BufferString val( valfld_->text() );
+    if ( val.isEmpty() )
+	setts_->removeWithKey( ky );
+    else
+	setts_->set( ky, valfld_->text() );
+
     if ( issurvdefs_ )
     {
 	SI().savePars();
@@ -88,8 +147,8 @@ bool uiSettings::acceptOK( CallBacker* )
     }
     else
     {
-	mDynamicCastGet(Settings&,setts,setts_)
-	if ( !setts.write() )
+	mDynamicCastGet(Settings*,setts,setts_)
+	if ( !setts->write() )
 	{
 	    uiMSG().error( "Cannot write user settings" );
 	    return false;

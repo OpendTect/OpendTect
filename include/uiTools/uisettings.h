@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.18 2010-11-18 19:16:04 cvskarthika Exp $
+ RCS:		$Id: uisettings.h,v 1.19 2012-05-22 11:56:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,12 +35,14 @@ public:
 protected:
 
     bool		issurvdefs_; // must be before decl of setts_
-    IOPar&		setts_;
+    IOPar*		setts_;
 
     uiGenInput*		keyfld_;
     uiGenInput*		valfld_;
+    uiGenInput*		grpfld_;
 
     void		selPush(CallBacker*);
+    void		grpChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
