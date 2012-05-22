@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyexp.cc,v 1.46 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyexp.cc,v 1.47 2012-05-22 10:17:24 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -399,25 +399,29 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
-    bool rv;
+    bool needinfo = false;
     if ( morebox_ && morebox_->isChecked() )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj, attrnm );
-	rv = dlg.go();
+	dlg.go();
     }
     else
     {
-	rv = doWork( *inioobj, *outioobj, lnm, attrnm );
-	if ( manipbox_ && manipbox_->isChecked() )
+	bool result = doWork( *inioobj, *outioobj, lnm, attrnm );
+	if ( !result || !manipbox_ || !manipbox_->isChecked() )
+	    needinfo = result;
+	else
 	{
 	    uiSEGYFileManip dlg( this, outioobj->fullUserExpr(false) );
 	    dlg.go();
 	}
     }
 
-    rv &= selcomp_ < 0;
+    if ( needinfo )
+	uiMSG().message( "Successful export of:\n", sfs.fname_ );
+
     selcomp_ = -1;
-    return rv;
+    return false;
 }
 
 
