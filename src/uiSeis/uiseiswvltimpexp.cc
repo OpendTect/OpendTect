@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltimpexp.cc,v 1.8 2012-05-02 15:12:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltimpexp.cc,v 1.9 2012-05-22 10:17:51 cvsbert Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -33,8 +33,6 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
-    setCtrlStyle( DoAndStay );
-
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );

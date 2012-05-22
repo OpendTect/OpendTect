@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.38 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.39 2012-05-22 10:17:51 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -80,8 +80,6 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     	, isimp_(imp)
     	, geom_(gt)
 {
-    setCtrlStyle( DoAndStay );
-
     data().clear( survChanged() );
     const bool is2d = is2D();
     const bool isps = isPS();
