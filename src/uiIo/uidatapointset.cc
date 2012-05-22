@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.94 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.95 2012-05-22 04:34:30 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -97,6 +97,9 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, statswin_(0)
 	, dpsdispmgr_(dpsmgr)
 	, iotb_(0)
+	, disptb_(0)
+	, maniptb_(0)
+	, percfld_(0)
 	, timer_(new Timer())
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
@@ -177,18 +180,24 @@ void uiDataPointSet::closeNotify( CallBacker* )
 
 void uiDataPointSet::mkToolBars()
 {
+    if ( iotb_) iotb_->clear();
+    if ( disptb_ ) disptb_->clear();
+    if ( maniptb_ ) maniptb_->clear();
+
 #define mAddButton(fnm,func,tip) \
     iotb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
     if ( !setup_.isconst_ )
     {
-	iotb_ = new uiToolBar( this, "I/O Tool bar" );
-	mAddButton( "saveset", save, "Save data" );
+	if ( !iotb_ )
+	    iotb_ = new uiToolBar( this, "I/O Tool bar" );
+	mAddButton( "saveset.png", save, "Save data" );
 	if ( setup_.allowretrieve_ )
 	    mAddButton( "openset", retrieve, "Retrieve stored data" );
     }
 #undef mAddButton
 
-    maniptb_ = new uiToolBar( this, "Manip Tool bar" );
+    if ( !maniptb_ )
+	maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
     mAddButton( "axis-x", selXCol, "Set data for X" );
@@ -202,7 +211,8 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "minus", removeColumn, "Remove column" );
 #undef mAddButton
 
-    disptb_ = new uiToolBar( this, "Display Tool bar" );
+    if ( !disptb_ )
+	disptb_ = new uiToolBar( this, "Display Tool bar" );
 
     uiGroup* grp = new uiGroup( disptb_, "Each grp" );
     percfld_ = new uiSpinBox( grp, 1, "Each" );
@@ -920,6 +930,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_ = new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
+
     //statswin_->setData( rc );
     statswin_->setDataName( txt );
     statswin_->show();
@@ -1151,6 +1162,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     percfld_->setValue( percentage_ );
 
     redoAll();
+    mkToolBars();
     MouseCursorManager::restoreOverride();
 }
 
