@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.85 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.86 2012-05-22 16:44:14 cvsnanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -181,6 +181,8 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 		lfi.wellnm = val1;
 		if ( val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
 	    }
+	    if ( mIsKey("UWI") || mIsKey("API") )
+		lfi.uwi = val1;
 	break;
 	default:
 	break;
@@ -265,7 +267,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 
     if ( lfi.depthcolnr < 0 )
 	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
-    const int addstartidx = wd.logs().size();
+    const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.lognms.size(), false );
 
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
@@ -275,7 +277,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
-	if ( wd.logs().getLog( lognm ) )
+	if ( wd_->logs().getLog( lognm ) )
 	{
 	    BufferString msg( lognm );
 	    msg += " already exists, will be ignored.";
@@ -293,7 +295,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
 	newlog->setUnitMeasLabel( unlbl );
-	wd.logs().add( newlog );
+	wd_->logs().add( newlog );
     }
 
     return getLogData( strm, issel, lfi, istvd, addstartidx,
@@ -359,11 +361,11 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	if ( selvals.isEmpty() ) continue;
 
 	float z = dpth;
-	if ( istvd && !convToDah(wd.track(),z,prevdpth) )
+	if ( istvd && !convToDah(wd_->track(),z,prevdpth) )
 	    continue;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    wd.logs().getLog(addstartidx+idx).addValue( z, selvals[idx] );
+	    wd_->logs().getLog(addstartidx+idx).addValue( z, selvals[idx] );
 
 	nradded++; prevdpth = dpth;
     }
@@ -371,8 +373,8 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
     if ( nradded == 0 )
 	return "No matching log data found";
 
-    wd.logs().updateDahIntvs();
-    wd.logs().removeTopBottomUdfs();
+    wd_->logs().updateDahIntvs();
+    wd_->logs().removeTopBottomUdfs();
     return 0;
 }
 

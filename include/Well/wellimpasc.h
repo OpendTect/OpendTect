@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.25 2010-06-03 12:56:24 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.26 2012-05-22 16:44:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ mClass LASImporter
 {
 public:
 
-			LASImporter( Data& d ) : wd(d), useconvs_(false) {}
+			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
+			LASImporter()	       : wd_(0), useconvs_(false)   {}
 			~LASImporter();
 
     mClass FileInfo
@@ -54,8 +55,10 @@ public:
 	BufferString	zunitstr;
 
 	BufferString	wellnm; //!< only info; not used by getLogs
+	BufferString	uwi; //!< only info, not used by getLogs
     };
 
+    void		setData( Data* wd )	    { wd_ = wd; }
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(std::istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
@@ -70,7 +73,7 @@ public:
 
 protected:
 
-    Data&		wd;
+    Data*		wd_;
 
     mutable BufferStringSet	unitmeasstrs_;
     mutable ObjectSet<const UnitOfMeasure>	convs_;
