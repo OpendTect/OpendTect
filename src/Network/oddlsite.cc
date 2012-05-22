@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.20 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.21 2012-05-22 14:23:01 cvskris Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -110,7 +110,12 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	odhttp_->get( getFileName(relfnm), outfnm );
 	HttpTask task( *odhttp_ );
 	task.setName( nicename );
-	tr ? tr->execute( task ) : task.execute();
+	if ( !(tr ? tr->execute( task ) : task.execute() ) )
+	{
+	    errmsg_ = task.message();
+	    return false;
+	}
+	    
     }
     else
     {
