@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.16 2012-04-12 14:34:26 cvskris Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.17 2012-05-22 10:07:00 cvsnageswara Exp $
 #_______________________________________________________________________________
 
 SET(QTDIR "" CACHE PATH "QT Location" )
@@ -51,7 +51,7 @@ MACRO(OD_SETUP_QT)
     IF( QT_MOC_HEADERS )
         FOREACH( HEADER ${QT_MOC_HEADERS} )
             LIST(APPEND QT_MOC_INPUT
-                ${OpendTect_SOURCE_DIR}/include/${OD_MODULE_NAME}/${HEADER})
+                ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME}/${HEADER})
         ENDFOREACH()
 
         QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
