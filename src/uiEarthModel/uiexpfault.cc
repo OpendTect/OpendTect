@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexpfault.cc,v 1.23 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexpfault.cc,v 1.24 2012-05-22 10:16:01 cvsbert Exp $";
 
 #include "uiexpfault.h"
 
@@ -49,7 +49,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {
-    setCtrlStyle( DoAndStay );
     setModal( false );
     setDeleteOnClose( false );
 
