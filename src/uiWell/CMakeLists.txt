@@ -2,12 +2,13 @@
 #
 #	Makefile : 	uiWell
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-23 09:26:36 cvsbruno Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-05-22 21:52:18 cvsnanne Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiStrat Well)
 SET(OD_MODULE_SOURCES
 		inituiwell.cc
+		uibulkwellimp.cc
 		uid2tmodelgrp.cc
 		uimultiwelllogsel.cc
 		uisimplemultiwell.cc

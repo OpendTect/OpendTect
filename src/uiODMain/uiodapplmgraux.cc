@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.51 2012-05-22 16:41:57 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.52 2012-05-22 21:52:18 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -209,7 +209,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->bulkImportTrack();
 	    else if ( opt == 6 )
 		am_.wellserv_->bulkImportLogs();
-	    else if ( opt == 6 )
+	    else if ( opt == 7 )
 		am_.wellserv_->bulkImportMarkers();
 
 	break;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.72 2012-05-22 16:41:58 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.73 2012-05-22 21:52:18 cvsnanne Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -23,6 +23,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.72 2012-05-22 
 #include "wellwriter.h"
 
 #include "uiamplspectrum.h"
+#include "uibulkwellimp.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
@@ -74,7 +75,7 @@ uiWellPartServer::~uiWellPartServer()
 
 bool uiWellPartServer::bulkImportTrack()
 {
-    uiBulkWellImport dlg( parent() );
+    uiBulkTrackImport dlg( parent() );
     return dlg.go();
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.86 2012-05-22 16:44:14 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.87 2012-05-22 21:52:18 cvsnanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -179,7 +179,7 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 	    if ( mIsKey("WELL") )
 	    {
 		lfi.wellnm = val1;
-		if ( val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
+		if ( val2 && *val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
 	    }
 	    if ( mIsKey("UWI") || mIsKey("API") )
 		lfi.uwi = val1;
