@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.140 2012-05-22 15:20:52 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.141 2012-05-22 21:52:46 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -465,6 +465,8 @@ void uiSurvey::archButPushed( CallBacker* )
 	uiFileInput::Setup().directories(true) );
     if ( !dlg.go() )
 	return;
+
+    uiMSG().error( "Not implemented yet" );
 }
 
 
