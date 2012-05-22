@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.26 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.27 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -26,7 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.26 2012-05-02 15:11
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	ctxt->toselect.require_.set( sKey::Type, "PickSet``Polygon" )	)
+	ctxt->toselect.require_.set( sKey::Type(), "PickSet``Polygon" )	)
 
 int PickSetTranslatorGroup::selector( const char* key )
 {
@@ -99,12 +99,12 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	for ( int ips=0; !atEndOfSection(astrm); ips++ )
 	{
 	    astrm.next();
-	    if ( astrm.hasKeyword(sKey::Color) )
+	    if ( astrm.hasKeyword(sKey::Color()) )
 	    {
 		ps.disp_.color_.use( astrm.value() );
 		astrm.next();
 	    }
-	    if ( astrm.hasKeyword(sKey::Size) )
+	    if ( astrm.hasKeyword(sKey::Size()) )
 	    {
 		ps.disp_.pixsize_ = astrm.getIValue();
 		astrm.next();

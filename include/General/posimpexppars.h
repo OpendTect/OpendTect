@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.5 2009-08-27 03:05:34 cvsnanne Exp $
+ RCS:		$Id: posimpexppars.h,v 1.6 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,10 +101,10 @@ public:
     void		survChg( CallBacker* )	{ getFromSI(); }
 
     static const char*	sKeyBase()		{ return "ImpExp"; }
-    static const char*	sKeyOffset();		// sKey::Offset
-    static const char*	sKeyScale();		// sKey::Scale
+    static const char*	sKeyOffset();		// sKey::Offset()
+    static const char*	sKeyScale();		// sKey::Scale()
     static const char*	sKeyBinID()		{ return "BinID"; }
-    static const char*	sKeyTrcNr();		//!< sKey::TraceNr
+    static const char*	sKeyTrcNr();		//!< sKey::TraceNr()
     static const char*	sKeyCoord()		{ return "Coord"; }
     static const char*	sKeyZ()			{ return "Z"; }
 

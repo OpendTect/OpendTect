@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odsession.cc,v 1.31 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odsession.cc,v 1.32 2012-05-22 14:48:39 cvskris Exp $";
 
 #include "odsession.h"
 
@@ -95,7 +95,7 @@ bool ODSession::operator==( const ODSession& sess ) const
 }
    
 #define mAddVersionNr(iopar) \
-    iopar.add( sKey::Version, versionnr_ );
+    iopar.add( sKey::Version(), versionnr_ );
 
 bool ODSession::usePar( const IOPar& par )
 {

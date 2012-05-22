@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: emhorizon.h,v 1.7 2012-04-04 10:14:45 cvsbert Exp $
+ RCS:		$Id: emhorizon.h,v 1.8 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,12 +50,12 @@ public:
     virtual void	fillPar( IOPar& par ) const
 			{
 			    Surface::fillPar( par );
-			    par.set( sKey::StratRef, stratlevelid_ );
+			    par.set( sKey::StratRef(), stratlevelid_ );
 			}
 
     virtual bool	usePar( const IOPar& par )
 			{
-			    par.get( sKey::StratRef, stratlevelid_ );
+			    par.get( sKey::StratRef(), stratlevelid_ );
 			    return Surface::usePar( par );
 			}
 

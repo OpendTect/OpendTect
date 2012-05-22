@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.19 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.20 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -90,7 +90,7 @@ bool ODMad::ProcExec::init()
 		const char* rsfroot = GetEnvVar( "RSFROOT" );
 		cmd = FilePath( rsfroot, "bin", "sfsu2rsf" ).fullPath();
 		cmd += " "; cmd += "tape=";
-		cmd += inpar->find( sKey::FileName );
+		cmd += inpar->find( sKey::FileName() );
 		cmd += " | "; cmd += comm + 1;
 	    }
 
@@ -129,7 +129,7 @@ bool ODMad::ProcExec::init()
 #ifdef __win__
     #define mAddNewExec \
         BufferString fname = FilePath::getTempName( "par" ); \
-	pars_.write( fname, sKey::Pars ); \
+	pars_.write( fname, sKey::Pars() ); \
 	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | "; \
 	ret += FilePath(GetBinPlfDir()).add("od_madexec").fullPath(); \
@@ -137,7 +137,7 @@ bool ODMad::ProcExec::init()
 #else
     #define mAddNewExec \
 	BufferString fname = FilePath::getTempName( "par" ); \
-	pars_.write( fname, sKey::Pars ); \
+	pars_.write( fname, sKey::Pars() ); \
 	ret += GetExecScript( false ); ret += " "; \
 	ret += "od_madexec"; ret += " "; ret += fname
 #endif
@@ -165,13 +165,13 @@ const char* ODMad::ProcExec::getProcString()
     if ( !hasprocessing )
     {
 	if ( outtyp == ODMad::ProcFlow::Madagascar )
-	    ret = procflow.output().find( sKey::FileName );
+	    ret = procflow.output().find( sKey::FileName() );
 	else if ( outtyp == ODMad::ProcFlow::None )
 	    return 0;
 	else
 	{
 	    pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
-	    pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
+	    pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 	    mAddNewExec;
 	}
 
@@ -208,11 +208,11 @@ const char* ODMad::ProcExec::getProcString()
 	{
 	    FlowStage newstage = endproc && nooutput ? Finish : Intermediate;
 	    pars_.set( sKeyCurProc(), pidx + 1 );
-	    pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
-	    pars_.set( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),sKey::Type ),
+	    pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
+	    pars_.set( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),sKey::Type() ),
 		       "Madagascar" );
 	    pars_.remove( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
-					 sKey::FileName) );
+					 sKey::FileName()) );
 	    pars_.set( sKeyFlowStage(), getFlowStageString(newstage) );
 	    ret += " | ";
 	    if ( endproc && nooutput )
@@ -231,12 +231,12 @@ const char* ODMad::ProcExec::getProcString()
 	    if ( outtyp == ODMad::ProcFlow::Madagascar )
 	    {
 		ret += " out=stdout > ";
-		ret += procflow.output().find( sKey::FileName );
+		ret += procflow.output().find( sKey::FileName() );
 	    }
 	    else
 	    {	    
 		pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
-		pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
+		pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 		ret += " | ";
 		mAddNewExec;
 	    }

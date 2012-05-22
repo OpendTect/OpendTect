@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.89 2012-05-21 20:55:44 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.90 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -70,8 +70,8 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     if ( !initialset.usePar( *attribs, vnr ) )
 	mErrRet( initialset.errMsg() )
 
-    const BufferString tmpoutstr( IOPar::compKey( sKey::Output, 0 ) );
-    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes, 0 ) );
+    const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
+    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
     const char* res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
 						  tmpattribstr.buf() ) );
     if ( !res )
@@ -122,7 +122,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 		     bool iscubeoutp, MultiID& outpid  )
 {
     strm << "Preparing processing\n"; strm.flush();
-    BufferString lpartstr = IOPar::compKey( sKey::Output, 0 );
+    BufferString lpartstr = IOPar::compKey( sKey::Output(), 0 );
     BufferString outstr( IOPar::compKey( lpartstr.buf(), idstr ) );
 
     BufferString objidstr;
@@ -133,7 +133,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	MultiID* mid = new MultiID(objidstr.buf());
 	midset += mid;
 	BufferString newattrnm;
-	iopar.get( sKey::Target, newattrnm );
+	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << std::endl;
 	strm.flush();
     }
@@ -146,7 +146,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	strm << "Calculating '" << ioobj->name() << "'." << std::endl;
 	strm.flush();
 	BufferString basehorstr(
-	    IOPar::compKey(sKey::Geometry,LocationOutput::surfidkey()) );
+	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
 	BufferString hor1str = IOPar::compKey(basehorstr,0);
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
 	    return false;
@@ -294,7 +294,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	return;
 
     BufferString gridmethodnm;
-    gridpar->get( sKey::Name, gridmethodnm );
+    gridpar->get( sKey::Name(), gridmethodnm );
     PtrMan<Array2DInterpol> arr2dint =
 	Array2DInterpol::factory().create( gridmethodnm );
     arr2dint->usePar( *gridpar );
@@ -336,7 +336,7 @@ bool BatchProgram::go( std::ostream& strm )
 				  SeisJobExecProv::sKeyWorkLS() );
 
     BufferString type;
-    pars().get( IOPar::compKey( sKey::Output, sKey::Type ), type );
+    pars().get( IOPar::compKey( sKey::Output(), sKey::Type() ), type );
    
     const bool iscubeoutp = !strcmp( type, Output::tskey() );
 
@@ -349,17 +349,17 @@ bool BatchProgram::go( std::ostream& strm )
 		   midset, errmsg, iscubeoutp, outpid ) )
 	mErrRetNoProc(errmsg);
 
-    PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
+    PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
     HorSampling hsamp;
     BufferString linename;
     if ( iscubeoutp && geompar )
     {
-	geompar->get( sKey::LineKey, linename );
+	geompar->get( sKey::LineKey(), linename );
 	hsamp = getHorSamp( *geompar );
     }
 
     PtrMan<IOPar> mmprocrange =
-	pars().subselect( IOPar::compKey(sKey::Output,sKey::Subsel) );
+	pars().subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     if ( iscubeoutp && mmprocrange )
     {
 	HorSampling mmrange;
@@ -411,14 +411,14 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     DescSet attribset( false );
-    PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
+    PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes() );
     if ( !attribset.usePar(*attribs,vnr) )
 	mErrRetNoProc( attribset.errMsg() )
 
-    PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output,0) );
+    PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !output ) mErrRetNoProc( "No output specified" );
     
-    PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes );
+    PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes() );
     if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
@@ -445,7 +445,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     BufferString newattrnm;
-    pars().get( sKey::Target, newattrnm );
+    pars().get( sKey::Target(), newattrnm );
     if ( newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 

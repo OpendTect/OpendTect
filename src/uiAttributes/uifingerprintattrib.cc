@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.77 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.78 2012-05-22 14:48:36 cvskris Exp $";
 
 -*/
 
@@ -113,7 +113,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     lbl->attach( centeredLeftOf, refgrp_ );
 
     refposfld_ = new uiGenInput( this,
-			is2d_ ? sKey::TraceNr : "Position (Inl/Crl)",
+			is2d_ ? sKey::TraceNr() : "Position (Inl/Crl)",
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
 	   		.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );

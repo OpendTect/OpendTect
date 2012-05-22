@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.119 2012-05-07 14:01:47 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.120 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "batchprog.h"
 #include "envvars.h"
@@ -150,7 +150,7 @@ void BatchProgram::init( int* pac, char** av )
     }
  
     ascistream aistrm( *sd.istrm, true );
-    if ( aistrm.fileType()!=sKey::Pars )
+    if ( aistrm.fileType()!=sKey::Pars() )
     {
 	errorMsg( BufferString("Input file ",fn," is not a parameter file") );
 	std::cerr << aistrm.fileType() << std::endl;
@@ -167,15 +167,15 @@ void BatchProgram::init( int* pac, char** av )
     }
 
 
-    BufferString res = iopar->find( sKey::LogFile ).str();
+    BufferString res = iopar->find( sKey::LogFile() ).str();
     if ( !res )
-	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
+	iopar->set( sKey::LogFile(), StreamProvider::sStdErr() );
 
-    res = iopar->find( sKey::DataRoot ).str();
+    res = iopar->find( sKey::DataRoot() ).str();
     if ( !res.isEmpty() && File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    res = iopar->find( sKey::Survey ).str();
+    res = iopar->find( sKey::Survey() ).str();
     if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
@@ -320,7 +320,7 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    BufferString res = pars().find( sKey::LogFile ).str();
+    BufferString res = pars().find( sKey::LogFile() ).str();
     if ( res == "stdout" ) res.setEmpty();
  
     bool hasviewprogress = true;

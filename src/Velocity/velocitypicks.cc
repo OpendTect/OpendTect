@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.25 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.26 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -184,7 +184,7 @@ void Picks::getColorKey( BufferString& key ) const
     key = "dTect.VelPick.";
     key += getPickTypeString(picktype_);
     key += ".";
-    key += sKey::Color;
+    key += sKey::Color();
 }
 
 
@@ -418,7 +418,7 @@ bool Picks::store( const IOObj* ioobjarg )
     }
 
     fillPar( ps.pars_ );
-    ps.pars_.set( sKey::Version, 2 );
+    ps.pars_.set( sKey::Version(), 2 );
 
     if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
 	return false;
@@ -442,7 +442,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
 
-    par.set( sKey::Type, sKeyVelocityPicks() );
+    par.set( sKey::Type(), sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
     par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
     par.set( ZDomain::sKey(), zDomain() );
@@ -451,7 +451,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
 bool Picks::useIOObjPar( const IOPar& par ) 
 {
-    const char* res = par.find( sKey::Type );
+    const char* res = par.find( sKey::Type() );
     if ( !res || strcmp(res,sKeyVelocityPicks()) )
 	return false;
 
@@ -796,7 +796,7 @@ bool Picks::load( const IOObj* ioobj )
     }
 
     int version = 1;
-    pickset.pars_.get( sKey::Version, version );
+    pickset.pars_.get( sKey::Version(), version );
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
@@ -1057,7 +1057,7 @@ const IOObjContext& Picks::getStorageContext()
     {
 	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ret->setName( "Velocity picks" );
-	ret->toselect.require_.set( sKey::Type, sKeyVelocityPicks() );
+	ret->toselect.require_.set( sKey::Type(), sKeyVelocityPicks() );
     }
     return *ret;
 }

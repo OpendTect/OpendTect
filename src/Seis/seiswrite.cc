@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID mUnusedVar = "$Id: seiswrite.cc,v 1.71 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiswrite.cc,v 1.72 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -237,7 +237,7 @@ bool SeisTrcWriter::next2DLine()
     lk.fillPar( *lineiopar, true );
 
     if ( !datatype_.isEmpty() )
-	lineiopar->set( sKey::DataType, datatype_.buf() );
+	lineiopar->set( sKey::DataType(), datatype_.buf() );
 
     lineiopar->merge( lineauxiopar_ );
     putter_ = lset->linePutter( lineiopar );

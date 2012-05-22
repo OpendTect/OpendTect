@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewwin.cc,v 1.30 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewwin.cc,v 1.31 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -79,17 +79,17 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
-    const char* valstr = pars.find( sKey::Offset );
+    const char* valstr = pars.find( sKey::Offset() );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
-    valstr = pars.find( sKey::Azimuth );
+    valstr = pars.find( sKey::Azimuth() );
     if ( valstr && *valstr && strcmp(valstr,"0") )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
     valstr = pars.find( "Z" );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Z="; mesg += valstr; }
-    valstr = pars.find( sKey::Position );
+    valstr = pars.find( sKey::Position() );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
     else
@@ -103,7 +103,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 	if ( valstr && *valstr )
 	    { mAddSep(); mesg += "Y="; mesg += valstr; }
 
-	valstr = pars.find( sKey::TraceNr );
+	valstr = pars.find( sKey::TraceNr() );
 	if ( valstr && *valstr )
 	    {
 		mAddSep(); mesg += "TrcNr="; mesg += valstr;

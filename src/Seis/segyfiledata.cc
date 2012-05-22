@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.31 2012-05-03 09:42:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.32 2012-05-22 14:48:33 cvskris Exp $";
 
 #include "segyfiledata.h"
 
@@ -186,7 +186,7 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	    return false;
 
 	BufferString filenm;
-	if ( !filepars->get( sKey::FileName, filenm ) )
+	if ( !filepars->get( sKey::FileName(), filenm ) )
 	    return false;
 
 	FilePath filepath( filenm );
@@ -200,7 +200,7 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	}
 
 	od_int64 filesz;
-	if ( !filepars->get( sKey::Size, filesz ) )
+	if ( !filepars->get( sKey::Size(), filesz ) )
 	    return false;
 
 	filenames_.add( filenm );
@@ -239,13 +239,13 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     for ( int ifile=0; ifile<nrfiles; ifile++ )
     {
 	IOPar filepars;
-	filepars.set( sKey::FileName, fileName( ifile ) );
+	filepars.set( sKey::FileName(), fileName( ifile ) );
 	const od_int64 nextsize = ifile<nrfiles-1
 	    ? cumsizes_[ifile+1]
 	    : totalsz_;
 
 	const od_int64 filesz = nextsize-cumsizes_[ifile];
-	filepars.set( sKey::Size, filesz );
+	filepars.set( sKey::Size(), filesz );
 
 	BufferString key("File ");
 	key += ifile;
@@ -257,7 +257,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 FixedString SEGY::FileDataSet::fileName( int idx ) const
 {
     if ( !filenames_.validIdx(idx) )
-	return sKey::EmptyString;
+	return sKey::EmptyString();
 
     return filenames_[idx]->buf();
 }
@@ -377,9 +377,9 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
     bool isrich = false;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::FileName) )
+	if ( astrm.hasKeyword(sKey::FileName()) )
 	    fname = astrm.value();
-	if ( astrm.hasKeyword(sKey::Geometry) )
+	if ( astrm.hasKeyword(sKey::Geometry()) )
 	{
 	    const Seis::GeomType geom = Seis::geomTypeOf( astrm.value() );
 	    if ( filenames_.size()==0 )

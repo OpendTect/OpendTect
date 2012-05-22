@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.23 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.24 2012-05-22 14:48:46 cvskris Exp $";
 
 #include "uistratamp.h"
 
@@ -232,8 +232,8 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
     hs.limitTo( inhs );
     IOPar subselpar;
     hs.fillPar( subselpar );
-    subselpar.set( sKey::ZRange, SI().zRange(false) );
-    iop.mergeComp( subselpar, IOPar::compKey(sKey::Output,sKey::Subsel) );
+    subselpar.set( sKey::ZRange(), SI().zRange(false) );
+    iop.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
     const Attrib::DescID targetid = inpfld_->attribID();
     Attrib::DescSet* clonedset = Attrib::DSHolder().getDescSet(
@@ -259,6 +259,6 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
 	    IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
     iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()), 1 );
     iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
-    iop.set( IOPar::compKey(sKey::Output, sKey::Type), sKey::Cube );
+    iop.set( IOPar::compKey(sKey::Output(), sKey::Type()), sKey::Cube() );
     return true;
 }

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvsps.cc,v 1.59 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscbvsps.cc,v 1.60 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seiscbvsps.h"
 
@@ -203,7 +203,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 
 void SeisCBVSPSIO::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::DataStorage );
+    const char* res = iopar.find( sKey::DataStorage() );
     if ( res && *res )
 	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }

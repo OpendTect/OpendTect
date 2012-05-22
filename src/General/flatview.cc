@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.76 2012-05-11 07:29:01 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.77 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -212,10 +212,10 @@ FlatView::Annotation::~Annotation()
 
 void FlatView::Annotation::fillPar( IOPar& iop ) const
 {
-    mIOPDoAxes( set, sKey::Color, color_ );
+    mIOPDoAxes( set, sKey::Color(), color_ );
     mIOPDoAxes( set, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( set, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( set, sKey::Name, x1_.name_, x2_.name_ );
+    mIOPDoAxes2( set, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( setYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( setYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
     mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
@@ -227,10 +227,10 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
 
 void FlatView::Annotation::usePar( const IOPar& iop )
 {
-    mIOPDoAxes( get, sKey::Color, color_ );
+    mIOPDoAxes( get, sKey::Color(), color_ );
     mIOPDoAxes( get, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( get, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
+    mIOPDoAxes2( get, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,
 	    	 x2_.showgridlines_);

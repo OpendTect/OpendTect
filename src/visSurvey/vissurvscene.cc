@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.159 2012-05-02 15:12:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.160 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -658,8 +658,8 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     if ( datatransform_ && coord.isDefined() )
     {
 	BufferString linenm; int trcnr = -1;
-	infopar_.get( sKey::LineKey, linenm );
-	infopar_.get( sKey::TraceNr, trcnr );
+	infopar_.get( sKey::LineKey(), linenm );
+	infopar_.get( sKey::TraceNr(), trcnr );
 	if ( !linenm.isEmpty() && trcnr>=0 )
 	{
 	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
@@ -827,7 +827,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( datatransform_ )
     {
 	IOPar transpar;
-	transpar.set( sKey::Name, datatransform_->factoryKeyword() );
+	transpar.set( sKey::Name(), datatransform_->factoryKeyword() );
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
@@ -836,7 +836,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	zdomaininfo_->def_.set( par );
 	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
 	cs_.fillPar( par );
-	par.set( sKey::Scale, zscale_ );
+	par.set( sKey::Scale(), zscale_ );
     }
 
     par.set( sKeyTopImageID(), topimg_->id() );
@@ -902,7 +902,7 @@ int Scene::usePar( const IOPar& par )
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
-	const char* nm = transpar->find( sKey::Name );
+	const char* nm = transpar->find( sKey::Name() );
 	RefMan<ZAxisTransform> transform =
 	    ZAxisTransform::factory().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
@@ -911,7 +911,7 @@ int Scene::usePar( const IOPar& par )
     else
     {
 	CubeSampling cs; float zscale;
-	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
+	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
 	{
 	    setCubeSampling( cs );
 	    setZScale( zscale );

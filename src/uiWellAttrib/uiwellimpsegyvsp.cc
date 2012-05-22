@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.22 2012-05-10 08:14:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.23 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -81,7 +81,7 @@ void selPush( CallBacker* )
     delete defdlg;
     if ( !dlgok ) return;
 
-    FilePath fp( imp_.sgypars_.find(sKey::FileName) );
+    FilePath fp( imp_.sgypars_.find(sKey::FileName()) );
     fnm_ = fp.fileName();
     uiSEGYExamine::Setup exsu( nrexam );
     exsu.modal( false ); exsu.usePar( imp_.sgypars_ );
@@ -356,7 +356,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( wlidx >= 0 )
 	delete wd->logs().remove( wlidx );
     Well::Log* wl = new Well::Log( lognm );
-    wl->pars().set( sKey::FileName, sgypars_.find(sKey::FileName) );
+    wl->pars().set( sKey::FileName(), sgypars_.find(sKey::FileName()) );
 
     Interval<float> outzrg( ozr ); outzrg.sort();
     const bool havestartout = !mIsUdf(outzrg.start);

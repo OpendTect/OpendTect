@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmuteasciio.cc,v 1.14 2012-05-15 06:13:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmuteasciio.cc,v 1.15 2012-05-22 14:48:33 cvskris Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -38,7 +38,7 @@ void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
     if ( haveposinfo )
 	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
-    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset, FloatInpSpec(),
+    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset(), FloatInpSpec(),
 					    Table::Required );
 
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );

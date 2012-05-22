@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.144 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.145 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -93,7 +93,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     setTitleText( multihost ? "Multi-Machine Processing"
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
-    FixedString res = iop.find( sKey::Target );
+    FixedString res = iop.find( sKey::Target() );
     caption = "Processing";
     if ( res )
 	{ caption += " '"; caption += res; caption += "'"; }
@@ -109,7 +109,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iop.find(sKey::TmpStor).str();
+	BufferString tmpstordir = iop.find(sKey::TmpStor()).str();
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
@@ -120,7 +120,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 
 	if ( isrestart )
 	{
-	    BufferString msg( sKey::TmpStor ); msg += ": ";
+	    BufferString msg( sKey::TmpStor() ); msg += ": ";
 	    uiLabel* tmpstorloc = new uiLabel( this, msg );
 
 	    inlperjobattach = new uiLabel( this, tmpstordir );
@@ -129,7 +129,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	else
 	{
 	    tmpstordirfld = new uiIOFileSelect( this,
-			    sKey::TmpStor, false, tmpstordir );
+			    sKey::TmpStor(), false, tmpstordir );
 	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory() );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
@@ -290,14 +290,14 @@ void uiSeisMMProc::startWork( CallBacker* )
 {
     BufferString tmpstordir;
     if ( !tmpstordirfld )
-	iop.get( sKey::TmpStor, tmpstordir );
+	iop.get( sKey::TmpStor(), tmpstordir );
     else
     {
 	tmpstordir = tmpstordirfld->getInput();
 	if ( !File::isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
-	const_cast<IOPar&>(iop).set( sKey::TmpStor, tmpstordir );
+	const_cast<IOPar&>(iop).set( sKey::TmpStor(), tmpstordir );
 	tmpstordirfld->setSensitive( false );
     }
 
@@ -319,7 +319,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 
     if ( !is2d )
     {
-	iop.get( sKey::TmpStor, tmpstordir );
+	iop.get( sKey::TmpStor(), tmpstordir );
 	if ( !File::isDirectory(tmpstordir) )
 	{
 	    if ( File::exists(tmpstordir) )
@@ -330,7 +330,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 	    mErrRet("Cannot create temporary storage directory")
     }
 
-    jobprov->pars().write( parfnm, sKey::Pars );
+    jobprov->pars().write( parfnm, sKey::Pars() );
 
     setOkText( "Finish Now" );
     setCancelText( "Abort" );
@@ -680,7 +680,7 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
 	jobprov->preparePreSet( jobrunner->curJobIOPar(),
 				SeisJobExecProv::sKeyOutputLS() );
 	jobrunner->curJobIOPar().set(
-		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName),
+		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName()),
 		    lsfnm );
     }
 }

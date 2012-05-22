@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.59 2012-05-08 09:45:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.60 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -38,15 +38,15 @@ bool Property::isEqualTo( const Property& oth ) const
 
 void Property::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Name, name() );
-    iop.set( sKey::Type, type() );
-    iop.set( sKey::Value, def() );
+    iop.set( sKey::Name(), name() );
+    iop.set( sKey::Type(), type() );
+    iop.set( sKey::Value(), def() );
 }
 
 
 void Property::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Value );
+    const char* res = iop.find( sKey::Value() );
     if ( res && *res )
 	setDef( res );
 }
@@ -54,7 +54,7 @@ void Property::usePar( const IOPar& iop )
 
 Property* Property::get( const IOPar& iop )
 {
-    const char* nm = iop.find( sKey::Name );
+    const char* nm = iop.find( sKey::Name() );
     if ( !nm || !*nm ) return 0;
 
     const PropertyRef* ref = PROPS().find( nm );
@@ -62,7 +62,7 @@ Property* Property::get( const IOPar& iop )
 	ref = &PropertyRef::thickness();
     if ( !ref ) return 0;
 
-    const char* typ = iop.find( sKey::Type );
+    const char* typ = iop.find( sKey::Type() );
     if ( !typ || !*typ ) typ = ValueProperty::typeStr();
     Property* prop = factory().create( typ, *ref );
     if ( prop )

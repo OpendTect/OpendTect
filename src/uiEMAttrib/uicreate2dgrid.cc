@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.10 2011-11-23 11:35:55 cvsbert Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.11 2012-05-22 14:48:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,24 +295,24 @@ bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 {
     if ( inlmodefld_->getBoolValue() )
     {
-	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Range );
-	par.set( sKey::InlRange, inlrgfld_->getRange() );
+	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Range() );
+	par.set( sKey::InlRange(), inlrgfld_->getRange() );
     }
     else
     {
-	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Selection );
-	par.set( sKey::InlRange, inlsfld_->text() );
+	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Selection() );
+	par.set( sKey::InlRange(), inlsfld_->text() );
     }
 
     if ( crlmodefld_->getBoolValue() )
     {
-	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Range );
-	par.set( sKey::CrlRange, crlrgfld_->getRange() );
+	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Range() );
+	par.set( sKey::CrlRange(), crlrgfld_->getRange() );
     }
     else
     {
-	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Selection );
-	par.set( sKey::CrlRange, crlsfld_->text() );
+	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Selection() );
+	par.set( sKey::CrlRange(), crlsfld_->text() );
     }
 
     return ui2DGridLines::fillPar( par );
@@ -492,7 +492,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     uiGroup* grp = new uiGroup( uppgrp_, "Seis group" );
 
     IOObjContext ctxt = mIOObjContext( SeisTrc );
-    ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     ctxt.forread = true;
     infld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Vol) );
     infld_->selectionDone.notify( mCB(this,uiCreate2DGrid,inpSelCB) );
@@ -644,7 +644,7 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 {
     par.set( Seis2DGridCreator::sKeyInput(), infld_->key() );
     par.set( Seis2DGridCreator::sKeyOutput(), outfld_->key() );
-    par.set( sKey::Attribute, outfld_->attrNm() );
+    par.set( sKey::Attribute(), outfld_->attrNm() );
 
     const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
 					  : false;
@@ -668,7 +668,7 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 
     par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );
-    par.set( sKey::Attribute, outfld_->attrNm() );
+    par.set( sKey::Attribute(), outfld_->attrNm() );
     par.set( Horizon2DGridCreator::sKeyPrefix(), hornmfld_->text() );
 }
 

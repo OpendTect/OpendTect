@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribengman.cc,v 1.115 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribengman.cc,v 1.116 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "attribengman.h"
 
@@ -92,7 +92,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     TypeSet<DescID> ids;
     while ( true )
     {    
-	BufferString outpstr = IOPar::compKey( sKey::Output, outputidx );
+	BufferString outpstr = IOPar::compKey( sKey::Output(), outputidx );
 	PtrMan<IOPar> outputpar = iopar.subselect( outpstr );
 	if ( !outputpar )
 	{
@@ -106,7 +106,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	while ( true )
 	{
 	    BufferString attribidstr = 
-			IOPar::compKey( sKey::Attributes, attribidx );
+			IOPar::compKey( sKey::Attributes(), attribidx );
 	    int attribid;
 	    if ( !outputpar->get(attribidstr,attribid) )
 		break;
@@ -132,7 +132,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	proc->ensureNonDestructiveBorders( ndestbord );*/
     
     PtrMan<IOPar> outpar = iopar.subselect(
-	    			IOPar::compKey(sKey::Output,sKey::Subsel) );
+	    			IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     if ( !outpar || !cs_.usePar( *outpar ) )
     {
 	if ( attribset.is2D() )
@@ -229,8 +229,8 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    const LineKey& lkey,
        					    BufferString& errmsg )
 {
-    const char* typestr = pars.find( IOPar::compKey(sKey::Output,sKey::Type) );
-    if ( typestr && !strcmp(typestr,sKey::Cube) )
+    const char* typestr = pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
+    if ( typestr && !strcmp(typestr,sKey::Cube()) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
@@ -1027,10 +1027,10 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  float outval,
        					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output,"0") );
-    const char* linename = output->find(sKey::LineKey);
+    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output(),"0") );
+    const char* linename = output->find(sKey::LineKey());
     if ( !linename )
-	linename = pars.find( IOPar::compKey(sKey::Geometry,sKey::LineKey) );
+	linename = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()) );
 
     setLineKey( linename );
 

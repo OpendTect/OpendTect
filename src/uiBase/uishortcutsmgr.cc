@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uishortcutsmgr.cc,v 1.19 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uishortcutsmgr.cc,v 1.20 2012-05-22 14:48:36 cvskris Exp $";
 
 
 #include "uishortcutsmgr.h"
@@ -225,15 +225,15 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
     for ( int idx=0; idx<names_.size(); idx++ )
     {
 	BufferString basekey = IOPar::compKey(selkey_,idx);
-	iop.set( IOPar::compKey(basekey,sKey::Name), names_.get(idx) );
-	iop.set( IOPar::compKey(basekey,sKey::Keys),
+	iop.set( IOPar::compKey(basekey,sKey::Name()), names_.get(idx) );
+	iop.set( IOPar::compKey(basekey,sKey::Keys()),
 			keydescs_[idx]->stateStr(), keydescs_[idx]->keyStr() );
 	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(keydescs_[idx]);
 	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
 	if ( eikd )
 	{
-	    iop.set( IOPar::compKey(basekey,sKey::Property), eikd->getLabel());
-	    iop.set( IOPar::compKey(basekey,sKey::Value), eikd->getIntValue() );
+	    iop.set( IOPar::compKey(basekey,sKey::Property()), eikd->getLabel());
+	    iop.set( IOPar::compKey(basekey,sKey::Value()), eikd->getIntValue() );
 	}
     }
 }
@@ -243,7 +243,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 				    BufferString& val1,
 				    BufferString& val2 ) const
 {
-    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys() );
     return par.get( key.buf(), val1, val2 );
 }
 
@@ -252,8 +252,8 @@ bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
 				       BufferString& proplbl,
 				       int& propval) const
 {                                                                               
-    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property );
-    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value );
+    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );
+    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value() );
     return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );
 }
 
@@ -299,7 +299,7 @@ int uiShortcutsList::valueOf( const uiKeyDesc& kd ) const
 bool uiShortcutsList::getSCNames( const IOPar& par, int scutidx,
 				  BufferString& name ) const
 {
-    BufferString key = IOPar::compKey( toString(scutidx), sKey::Name );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Name() );
     return par.get( key.buf(), name );
 }
 

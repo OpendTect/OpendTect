@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprestkmergedlg.cc,v 1.32 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprestkmergedlg.cc,v 1.33 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -197,7 +197,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     }
 
     BufferString storage = "";
-    static const char* storagekey = sKey::DataStorage;
+    static const char* storagekey = sKey::DataStorage();
     bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )
     {

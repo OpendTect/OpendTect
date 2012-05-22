@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.10 2011-11-14 07:39:14 cvssatyaki Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.11 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ public:
 			RangeProvider3D(const RangeProvider3D&);
 			~RangeProvider3D();
     RangeProvider3D&	operator =(const RangeProvider3D&);
-    const char*		type() const;	//!< sKey::Range
+    const char*		type() const;	//!< sKey::Range()
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
 
@@ -83,7 +83,7 @@ public:
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
     RangeProvider2D&	operator =(const RangeProvider2D&);
-    const char*		type() const;	//!< sKey::Range
+    const char*		type() const;	//!< sKey::Range()
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
 

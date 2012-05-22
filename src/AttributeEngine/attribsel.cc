@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.63 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.64 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "attribsel.h"
 
@@ -288,9 +288,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	const char* res = ioobj.pars().find( sKey::Type );
-	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering) )
-	         || ( steerdata && strcmp(res,sKey::Steering) ) ) )
+	const char* res = ioobj.pars().find( sKey::Type() );
+	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering()) )
+	         || ( steerdata && strcmp(res,sKey::Steering()) ) ) )
 	    continue;
 
 	if ( !res && steerdata && !is2d ) continue;

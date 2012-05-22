@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volproclateralsmoother.cc,v 1.17 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volproclateralsmoother.cc,v 1.18 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -356,8 +356,8 @@ void LateralSmoother::fillPar( IOPar& pars ) const
     pars.setYN( sKeyIsMedian(), pars_.type_==Stats::Median );
     pars.setYN( sKeyIsWeighted(),
 	    pars_.type_!=Stats::Median && !mIsUdf(pars_.rowdist_) );
-    pars.set( sKey::StepOutInl, pars_.stepout_.row );
-    pars.set( sKey::StepOutCrl, pars_.stepout_.col );
+    pars.set( sKey::StepOutInl(), pars_.stepout_.row );
+    pars.set( sKey::StepOutCrl(), pars_.stepout_.col );
 }
 
 
@@ -372,8 +372,8 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
     bool ismedian, isweighted;
     if ( !pars.getYN( sKeyIsMedian(), ismedian ) || 
-	 !pars.get( sKey::StepOutInl, pars_.stepout_.row ) ||
-	 !pars.get( sKey::StepOutCrl, pars_.stepout_.col ) ||
+	 !pars.get( sKey::StepOutInl(), pars_.stepout_.row ) ||
+	 !pars.get( sKey::StepOutCrl(), pars_.stepout_.col ) ||
 	 !pars.getYN( sKeyIsWeighted(), isweighted ) )
     {
 	return false;

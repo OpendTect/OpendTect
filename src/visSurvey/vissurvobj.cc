@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.65 2012-05-02 15:12:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.66 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -143,7 +143,7 @@ void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 	    IOPar seqpar;
 	    const ColTab::Sequence* seq = getColTabSequence( attrib );
 	    if ( seq->isSys() )
-		seqpar.set( sKey::Name, seq->name() );
+		seqpar.set( sKey::Name(), seq->name() );
 	    else
 		seq->fillPar( seqpar );
 
@@ -234,7 +234,7 @@ int SurveyObject::useSOPar( const IOPar& par )
 	    if ( !seq.usePar( *seqpar ) )
 	    {
 		BufferString seqname;
-		if ( seqpar->get( sKey::Name, seqname ) ) //Sys
+		if ( seqpar->get( sKey::Name(), seqname ) ) //Sys
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
 	}

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gmtclip.cc,v 1.4 2012-05-03 09:06:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtclip.cc,v 1.5 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "gmtclip.h"
 
@@ -80,7 +80,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
     }
 
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find polygon")
 

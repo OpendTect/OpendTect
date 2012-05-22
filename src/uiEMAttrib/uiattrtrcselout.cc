@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.64 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.65 2012-05-22 14:48:37 cvskris Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -293,7 +293,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
 	    		      uiSeisSel::Setup(ads_.is2D(),false)
 			      .selattr(true).allowlinesetsel(false) );
@@ -391,16 +391,16 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	const char* outputnm = outpfld_->getInput();
 	outnm = LineKey( outputnm ).attrName();
     }
-    iopar.set( sKey::Target, outnm );
+    iopar.set( sKey::Target(), outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
-    BufferString key = IOPar::compKey( sKey::Geometry, tmpkey );
+    BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
     iopar.set( key, ctio_.ioobj->key() );
 
     if ( !usesinglehor_ )
     {
 	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
-	key = IOPar::compKey( sKey::Geometry, tmpkey );
+	key = IOPar::compKey( sKey::Geometry(), tmpkey );
 	iopar.set( key, ctio2_.ioobj->key() );
     }
 
@@ -412,27 +412,27 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	getComputableSurf( horsamp );
 
     BufferString typestr;
-    subselpar->get( sKey::Type, typestr );
-    const bool issubsel = strcmp( typestr.buf(), sKey::None );
+    subselpar->get( sKey::Type(), typestr );
+    const bool issubsel = strcmp( typestr.buf(), sKey::None() );
     const bool usesamp = !is2d || issubsel;
     if ( !issubsel && !is2d )
-	subselpar->set( sKey::Type, sKey::Range );
+	subselpar->set( sKey::Type(), sKey::Range() );
     
     if ( usesamp )
     {
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
 	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
 	{
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey());
+	    key = IOPar::compKey(sKey::Geometry(),SeisTrcStorOutput::inlrangekey());
 	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey());
+	    key = IOPar::compKey(sKey::Geometry(),SeisTrcStorOutput::crlrangekey());
 	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
 	}
     }
 
     CubeSampling::removeInfo( *subselpar );
-    iopar.mergeComp( *subselpar, sKey::Geometry );
+    iopar.mergeComp( *subselpar, sKey::Geometry() );
 
     Interval<float> zinterval;
     if ( gatefld_ )
@@ -443,10 +443,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	zinterval.stop = extrazbotfld_->getfValue();
     }
 
-    key = IOPar::compKey( sKey::Geometry, "ExtraZInterval" );
+    key = IOPar::compKey( sKey::Geometry(), "ExtraZInterval" );
     iopar.set( key, zinterval );
 
-    key = IOPar::compKey( sKey::Geometry, "Outside Value" );
+    key = IOPar::compKey( sKey::Geometry(), "Outside Value" );
     iopar.set( key, outsidevalfld_->getfValue() );
 
     int nrsamp = 0;
@@ -454,15 +454,15 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	nrsamp = interpfld_->getBoolValue() ? mUdf(int) 
 	    				   : nrsampfld_->getIntValue();
     
-    key = IOPar::compKey( sKey::Geometry, "Interpolation Stepout" );
+    key = IOPar::compKey( sKey::Geometry(), "Interpolation Stepout" );
     iopar.set( key, nrsamp );
 
     if ( !usesinglehor_ && addwidthfld_ && addwidthfld_->getBoolValue() )
     {
-	key = IOPar::compKey( sKey::Geometry, "Artificial Width" );
+	key = IOPar::compKey( sKey::Geometry(), "Artificial Width" );
 	iopar.set( key, widthfld_->getfValue() );
 	
-	key = IOPar::compKey( sKey::Geometry, "Leading Horizon" );
+	key = IOPar::compKey( sKey::Geometry(), "Leading Horizon" );
 	iopar.set( key, mainhorfld_->getBoolValue()? 1 : 2 );
     }
     
@@ -472,7 +472,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 				: Interval<float>( mUdf(float), mUdf(float) );
     if ( !mIsUdf(cubezbounds.start) )
     {
-	key = IOPar::compKey( sKey::Geometry, "Z Boundaries" );
+	key = IOPar::compKey( sKey::Geometry(), "Z Boundaries" );
 	iopar.set( key, cubezbounds );
     }
     

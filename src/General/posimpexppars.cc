@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posimpexppars.cc,v 1.7 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posimpexppars.cc,v 1.8 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "posimpexppars.h"
 #include "survinfo.h"
@@ -14,9 +14,9 @@ static const char* rcsID mUnusedVar = "$Id: posimpexppars.cc,v 1.7 2012-05-02 15
 #include "staticstring.h"
 
 
-const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset; }
-const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale; }
-const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr; }
+const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }
+const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale(); }
+const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
 
 
 const PosImpExpPars& PosImpExpPars::SVY()

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbayesclass.cc,v 1.25 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbayesclass.cc,v 1.26 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -61,7 +61,7 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     , outdlg_(0)
 {
     prepUsgStart( "Definition" ); sendUsgInfo();
-    pars_.set( sKey::Type, is2d_ ? "2D" : "3D" );
+    pars_.set( sKey::Type(), is2d_ ? "2D" : "3D" );
 
     state_ = mInpPDFs;
     nextAction();
@@ -242,7 +242,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 			"[2] Normalization/Scaling",
 			 mGetNormHelpID), pars,Middle)
-    , is2d_(*pars[sKey::Type] == '2')
+    , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)
     , nrpdfs_(0)
 {
@@ -409,7 +409,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 			"[3] Specify Seismic input",
 			 mInpSeisHelpID), pars,Middle)
     , lsfld_(0)
-    , is2d_(*pars[sKey::Type] == '2')
+    , is2d_(*pars[sKey::Type()] == '2')
 {
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
@@ -502,7 +502,7 @@ public:
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 		    "[4] Select and specify output",mOutputHelpID), pars,End)
-    , is2d_(*pars[sKey::Type] == '2')
+    , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }

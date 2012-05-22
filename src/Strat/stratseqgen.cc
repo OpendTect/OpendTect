@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.39 2012-05-02 15:11:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.40 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -73,7 +73,7 @@ int Strat::LayerModelGenerator::nextStep()
 Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 						const Strat::RefTree& rt )
 {
-    Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type) );
+    Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type()) );
     if ( !ret ) return 0;
     if ( ret->usePar(iop,rt) )
 	return ret;
@@ -89,7 +89,7 @@ bool Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
 
 void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type, factoryKeyword() );
+    iop.set( sKey::Type(), factoryKeyword() );
 }
 
 
@@ -358,14 +358,14 @@ void Strat::SingleLayerGenerator::updateUsedProps(
 bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
     unit_ = 0;
-    const char* res = iop.find( sKey::Unit );
+    const char* res = iop.find( sKey::Unit() );
     if ( res && *res )
     {
 	const UnitRef* ur = rt.find( res );
 	if ( ur && ur->isLeaf() )
 	    unit_ = static_cast<const LeafUnitRef*>( ur );
     }
-    res = iop.find( sKey::Content );
+    res = iop.find( sKey::Content() );
     if ( res && *res )
     {
 	content_ = rt.contents().getByName( res );
@@ -376,7 +376,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     for ( int pidx=0; ; pidx++ )
     {
 	PtrMan<IOPar> proppar = iop.subselect(
-				IOPar::compKey(sKey::Property,pidx) );
+				IOPar::compKey(sKey::Property(),pidx) );
 	if ( !proppar || proppar->isEmpty() )
 	    break;
 
@@ -393,17 +393,17 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     LayerGenerator::fillPar( iop );
-    iop.set( sKey::Unit, unit().fullCode() );
+    iop.set( sKey::Unit(), unit().fullCode() );
 
     if ( content().isUnspecified() )
-	iop.removeWithKey( sKey::Content );
+	iop.removeWithKey( sKey::Content() );
     else
-	iop.set( sKey::Content, content().name() );
+	iop.set( sKey::Content(), content().name() );
 
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {
 	IOPar subpar; props_.get(pidx).fillPar( subpar );
-	const BufferString ky( IOPar::compKey(sKey::Property,pidx) );
+	const BufferString ky( IOPar::compKey(sKey::Property(),pidx) );
 	iop.mergeComp( subpar, ky );
     }
 }

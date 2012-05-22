@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.131 2012-05-22 04:26:40 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.132 2012-05-22 14:48:40 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -103,7 +103,7 @@ uiSeisFileMan::~uiSeisFileMan()
 const char* uiSeisFileMan::getDefKey() const
 {
     const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
-    return is2d ? sKey::DefLineSet : sKey::DefCube;
+    return is2d ? sKey::DefLineSet() : sKey::DefCube();
 }
 
 

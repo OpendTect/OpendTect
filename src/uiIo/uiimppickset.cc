@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimppickset.cc,v 1.52 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimppickset.cc,v 1.53 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -172,12 +172,12 @@ bool uiImpExpPickSet::doImport()
     if ( ispolygon )
     {
 	ps.disp_.connect_ = Pick::Set::Disp::Close;
-	ioobj->pars().set( sKey::Type, sKey::Polygon );
+	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
     }
     else
     {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
-	ioobj->pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
+	ioobj->pars().set( sKey::Type(), PickSetTranslatorGroup::sKeyPickSet() );
     }
 
     IOM().commitChanges( *ioobj );

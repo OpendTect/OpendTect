@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.44 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.45 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -284,7 +284,7 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 	    wv->reSize( astream.getIValue() );
         else if ( astream.hasKeyword( sIndex ) )
 	    iw = astream.getIValue();
-        else if ( astream.hasKeyword(sKey::Name) )
+        else if ( astream.hasKeyword(sKey::Name()) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
 	    sr = astream.getFValue();
@@ -306,7 +306,7 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) ) return false;
 
-    if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
+    if ( *(const char*)wv->name() ) astream.put( sKey::Name(), wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
     astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );

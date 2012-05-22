@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.13 2012-05-02 15:11:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.14 2012-05-22 14:48:33 cvskris Exp $";
    
 
 #include "trackplane.h"
@@ -24,7 +24,7 @@ namespace MPE
 {
 
 DefineEnumNames( TrackPlane, TrackMode, 0, "Tracking modes" )
-{ sKey::None, "Extend", "Retrack", "Erase", "Move", 0 };
+{ sKey::None(), "Extend", "Retrack", "Erase", "Move", 0 };
 
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )

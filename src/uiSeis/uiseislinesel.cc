@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.47 2012-05-04 21:54:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.48 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiseislinesel.h"
 
@@ -550,18 +550,18 @@ bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
 
     par.set( "LineSet.ID", ctio_.ioobj->key() );
     if ( !attrnm_.isEmpty() )
-	par.set( sKey::Attribute, attrnm_ );
+	par.set( sKey::Attribute(), attrnm_ );
 
     if ( setup_.withz_ )
-	par.set( sKey::ZRange, zrg_ );
+	par.set( sKey::ZRange(), zrg_ );
 
     BufferString mergekey;
     IOPar lspar;
     for ( int idx=0; idx<sellines_.size(); idx++ )
     {
 	IOPar linepar;
-	linepar.set( sKey::Name, sellines_[idx]->buf() );
-	linepar.set( sKey::TrcRange, trcrgs_[idx] );
+	linepar.set( sKey::Name(), sellines_[idx]->buf() );
+	linepar.set( sKey::TrcRange(), trcrgs_[idx] );
 	mergekey = idx;
 	lspar.mergeComp( linepar, mergekey );
     }
@@ -579,8 +579,8 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 
     delete ctio_.ioobj;
     ctio_.ioobj = IOM().get( lsetkey );
-    par.get( sKey::Attribute, attrnm_ );
-    par.get( sKey::ZRange, zrg_ );
+    par.get( sKey::Attribute(), attrnm_ );
+    par.get( sKey::ZRange(), zrg_ );
 
     deepErase( sellines_ );
     trcrgs_.erase();
@@ -593,9 +593,9 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	if ( !linepar )
 	    break;
 
-	FixedString lnm = linepar->find( sKey::Name );
+	FixedString lnm = linepar->find( sKey::Name() );
 	StepInterval<int> trcrg;
-	if ( !lnm || !linepar->get(sKey::TrcRange,trcrg) )
+	if ( !lnm || !linepar->get(sKey::TrcRange(),trcrg) )
 	    continue;
 
 	sellines_.add( lnm );

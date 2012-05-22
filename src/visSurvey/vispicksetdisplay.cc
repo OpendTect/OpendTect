@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.109 2012-05-04 17:29:56 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.110 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -324,7 +324,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 	newps->disp_.color_ = getMaterial()->getColor();
 
 	BufferString psname;
-	par.get( sKey::Name, psname );
+	par.get( sKey::Name(), psname );
 	newps->setName( psname );
 	setSet( newps );
 

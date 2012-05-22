@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.14 2011-09-19 12:24:56 cvskris Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.15 2012-05-22 14:48:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,9 +365,9 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	FilePath fp( ioobj->fullUserExpr(true) );
 	fp.setExtension( "par" );
 	IOPar iop;
-	if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
 	{
-	    const char* ctname = iop.find( sKey::Name );
+	    const char* ctname = iop.find( sKey::Name() );
 	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );

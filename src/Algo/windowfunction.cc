@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.7 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.8 2012-05-22 14:48:28 cvskris Exp $";
 
 #include "windowfunction.h"
 
@@ -28,7 +28,7 @@ void WindowFunction::addAllStdClasses()
 
 void WindowFunction::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name, name() );
+    par.set( sKey::Name(), name() );
     if ( !hasVariable() )
 	return;
 

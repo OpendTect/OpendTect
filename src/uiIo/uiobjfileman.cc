@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.43 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.44 2012-05-22 14:48:38 cvskris Exp $";
 
 
 #include "uiobjfileman.h"
@@ -189,7 +189,7 @@ const char* uiObjFileMan::getDefKey() const
 {
     static BufferString ret;
     ctxt_.fillTrGroup();
-    ret = IOPar::compKey(sKey::Default,ctxt_.trgroup->userName());
+    ret = IOPar::compKey(sKey::Default(),ctxt_.trgroup->userName());
     return ret.buf();
 }
 

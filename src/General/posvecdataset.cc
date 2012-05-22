@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posvecdataset.cc,v 1.27 2012-05-03 06:14:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posvecdataset.cc,v 1.28 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "posvecdataset.h"
 
@@ -395,7 +395,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 		    delete cd;
 		}
 	    }
-	    else if ( strm.hasKeyword( sKey::Name ) )
+	    else if ( strm.hasKeyword( sKey::Name() ) )
 		setName( strm.value() );
 	}
 	if ( !atEndOfSection(strm.next()) )
@@ -464,7 +464,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	    mErrRet("Cannot write header to output file")
 
 	if ( *name() )
-	    strm.put( sKey::Name, name() );
+	    strm.put( sKey::Name(), name() );
 	strm.put( "--\n-- Column definitions:" );
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{

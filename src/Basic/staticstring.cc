@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: staticstring.cc,v 1.8 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: staticstring.cc,v 1.9 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "staticstring.h"
 
@@ -20,7 +20,7 @@ BufferString& StaticStringManager::getString()
     {
 	idx = threadids_.size();
 	threadids_ += threadid;
-	strings_.add( sKey::EmptyString );
+	strings_.add( sKey::EmptyString() );
     }
 
     return *strings_[idx];

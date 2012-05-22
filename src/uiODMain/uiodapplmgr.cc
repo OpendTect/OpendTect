@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.441 2012-05-22 04:35:00 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.442 2012-05-22 14:48:39 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -326,7 +326,7 @@ void uiODApplMgr::addTimeDepthScene()
     dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
-    BufferString snm( SI().zIsTime() ? sKey::Depth : sKey::Time );
+    BufferString snm( SI().zIsTime() ? sKey::Depth() : sKey::Time() );
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;

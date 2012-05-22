@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtlocations.cc,v 1.20 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtlocations.cc,v 1.21 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "gmtlocations.h"
 
@@ -40,7 +40,7 @@ const char* GMTWellSymbol::sKeyDefFileName()	{ return "Def File Name"; }
 
 bool GMTWellSymbol::usePar( const IOPar& par )
 {
-    FixedString namestr = par.find( sKey::Name );
+    FixedString namestr = par.find( sKey::Name() );
     if ( !namestr )
 	return false;
 
@@ -142,7 +142,7 @@ GMTPar* GMTLocations::createInstance( const IOPar& iop )
 const char* GMTLocations::userRef() const
 {
     BufferString* str = new BufferString( "Locations: " );
-    const char* nm = find( sKey::Name );
+    const char* nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -150,14 +150,14 @@ const char* GMTLocations::userRef() const
 
 bool GMTLocations::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    FixedString str = find( sKey::Name() );
+    par.set( sKey::Name(), str );
     str = find( ODGMT::sKeyShape() );
     par.set( ODGMT::sKeyShape(), str );
-    str = find( sKey::Size );
-    par.set( sKey::Size, str );
-    str = find( sKey::Color );
-    par.set( sKey::Color, str );
+    str = find( sKey::Size() );
+    par.set( sKey::Size(), str );
+    str = find( sKey::Color() );
+    par.set( sKey::Color(), str );
     str = find( ODGMT::sKeyFill() );
     par.set( ODGMT::sKeyFill(), str );
     str = find( ODGMT::sKeyFillColor() );
@@ -171,7 +171,7 @@ bool GMTLocations::fillLegendPar( IOPar& par ) const
 bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
@@ -181,14 +181,14 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
-    Color outcol; get( sKey::Color, outcol );
+    Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
     bool dofill;
     getYN( ODGMT::sKeyFill(), dofill );
 
     float sz;
-    get( sKey::Size, sz );
+    get( sKey::Size(), sz );
     const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape()) );
 
     BufferString comm = "@psxy ";
@@ -237,7 +237,7 @@ GMTPar* GMTPolyline::createInstance( const IOPar& iop )
 const char* GMTPolyline::userRef() const
 {
     BufferString* str = new BufferString( "Polyline: " );
-    const char* nm = find( sKey::Name );
+    const char* nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -245,10 +245,10 @@ const char* GMTPolyline::userRef() const
 
 bool GMTPolyline::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    FixedString str = find( sKey::Name() );
+    par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Polygon" );
-    par.set( sKey::Size, 1 );
+    par.set( sKey::Size(), 1 );
     str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     str = find( ODGMT::sKeyFill() );
@@ -264,7 +264,7 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
@@ -338,7 +338,7 @@ const char* GMTWells::userRef() const
 {
     BufferString* str = new BufferString( "Wells: " );
     BufferStringSet nms;
-    get( sKey::Name, nms );
+    get( sKey::Name(), nms );
     if ( nms.size() )
     {
 	*str += nms.get( 0 );
@@ -351,12 +351,12 @@ const char* GMTWells::userRef() const
 
 bool GMTWells::fillLegendPar( IOPar& par ) const
 {
-    par.set( sKey::Name, find(sKey::Name) );
+    par.set( sKey::Name(), find(sKey::Name()) );
 
-    FixedString str = find( sKey::Color );
-    par.set( sKey::Color, str );
-    str = find( sKey::Size );
-    par.set( sKey::Size, str );
+    FixedString str = find( sKey::Color() );
+    par.set( sKey::Color(), str );
+    str = find( sKey::Size() );
+    par.set( sKey::Size(), str );
 
     bool usewellsymbols = false;
     getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbols );
@@ -389,7 +389,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     if ( !get(ODGMT::sKeyWellNames(),wellnms) || !wellnms.size() )
 	mErrStrmRet("No wells to post")
 
-    Color outcol; get( sKey::Color, outcol );
+    Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
 
@@ -413,7 +413,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     }
 
     float sz;
-    get( sKey::Size, sz );
+    get( sKey::Size(), sz );
     comm += " -W"; comm+=sz; comm += "p,"; comm += outcolstr;
     bool dofill;
     getYN( ODGMT::sKeyFill(), dofill );

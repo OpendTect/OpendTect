@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.40 2012-05-21 15:49:55 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.41 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ public:
 		{
 		    switch ( idx ) 
 		    {
-			case 0: return sKey::Depth;
+			case 0: return sKey::Depth();
 			case 1: return "RMO";
 			case 2: return "Reference offset";
 		    };
@@ -174,7 +174,7 @@ public:
 		{
 		    switch ( idx ) 
 		    {
-			case 0: return sKey::Time;
+			case 0: return sKey::Time();
 			case 1: return "Vrms";
 			case 2: return "Effective anisotrophy";
 		    };

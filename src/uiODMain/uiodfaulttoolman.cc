@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodfaulttoolman.cc,v 1.40 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodfaulttoolman.cc,v 1.41 2012-05-22 14:48:39 cvskris Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -832,7 +832,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		else
 		    EM::EMM().readPars( mid, iopar );
 
-		if ( emobj || iopar.get(sKey::Color,curcolor) )
+		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{
 		    auxcolorinput_->setColor( curcolor );
 		    colorbut_->setToolTip( currentColor() ?

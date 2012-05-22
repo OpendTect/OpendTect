@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.18 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.19 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -63,7 +63,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     headerfld_->attach( alignedBelow, llbox );
 
     udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
-	    		     StringInpSpec(sKey::FloatUdf) );
+	    		     StringInpSpec(sKey::FloatUdf()) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.94 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.95 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -100,7 +100,7 @@ const char* Seis2DLineSet::lineName( int idx ) const
 const char* Seis2DLineSet::attribute( int idx ) const
 {
     const char* res = idx >= 0 && idx < pars_.size()
-		    ? pars_[idx]->find(sKey::Attribute) : 0;
+		    ? pars_[idx]->find(sKey::Attribute()) : 0;
     return res ? res : LineKey::sKeyDefAttrib();
 }
 
@@ -108,7 +108,7 @@ const char* Seis2DLineSet::attribute( int idx ) const
 const char* Seis2DLineSet::datatype( int idx ) const
 {
     const char* res = idx >=0 && idx < pars_.size()
-		    ? pars_[idx]->find(sKey::DataType) : 0;
+		    ? pars_[idx]->find(sKey::DataType()) : 0;
     return res;
 }
 
@@ -199,9 +199,9 @@ void Seis2DLineSet::getFrom( std::istream& strm, BufferString* typestr )
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::Name) )
+	if ( astrm.hasKeyword(sKey::Name()) )
 	    setName( astrm.value() );
-	if ( astrm.hasKeyword(sKey::Type) && typestr )
+	if ( astrm.hasKeyword(sKey::Type()) && typestr )
 	    *typestr = astrm.value();
     }
 
@@ -210,7 +210,7 @@ void Seis2DLineSet::getFrom( std::istream& strm, BufferString* typestr )
 	IOPar* newpar = new IOPar;
 	while ( !atEndOfSection(astrm.next()) )
 	{
-	    if ( astrm.hasKeyword(sKey::Name) )
+	    if ( astrm.hasKeyword(sKey::Name()) )
 		newpar->setName( astrm.value() );
 	    else if ( !astrm.hasValue("") )
 		newpar->set( astrm.keyWord(), astrm.value() );
@@ -243,15 +243,15 @@ void Seis2DLineSet::putTo( std::ostream& strm ) const
     if ( !astrm.putHeader(sKeyFileType) )
 	return;
 
-    astrm.put( sKey::Name, name() );
-    astrm.put( sKey::Type, type() );
+    astrm.put( sKey::Name(), name() );
+    astrm.put( sKey::Type(), type() );
     astrm.put( "Number of lines", pars_.size() );
     astrm.newParagraph();
 
     for ( int ipar=0; ipar<pars_.size(); ipar++ )
     {
 	const IOPar& iopar = *pars_[ipar];
-	astrm.put( sKey::Name, iopar.name() );
+	astrm.put( sKey::Name(), iopar.name() );
 	for ( int idx=0; idx<iopar.size(); idx++ )
 	{
 	    const char* val = iopar.getValue(idx);
@@ -420,13 +420,13 @@ bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
     }
 
     IOPar iop( *pars_[0] ); iop.setName( ls.name() );
-    iop.removeWithKey( sKey::FileName );
+    iop.removeWithKey( sKey::FileName() );
     for ( int idx=0; idx<lkstoadd.size(); idx++ )
     {
 	IOPar* newiop = new IOPar( iop );
 	lkstoadd[idx]->fillPar( *newiop, true );
 	if ( dtyp )
-	    newiop->set( sKey::DataType, dtyp );
+	    newiop->set( sKey::DataType(), dtyp );
 
 	const IOPar* previop = ls.pars_.size() ? ls.pars_[ls.pars_.size()-1]
 	    					: 0;
@@ -562,7 +562,7 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
     if ( !pars_.size() )
 	return false;
 
-    pars_[0]->get( sKey::FileName, oldlsnm );
+    pars_[0]->get( sKey::FileName(), oldlsnm );
     int index = 0;
     while ( true )
     {
@@ -577,7 +577,7 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
     for ( int idx=0; idx<nrLines(); idx++ )
     {
 	BufferString filenm, oldfilenm;
-	pars_[idx]->get( sKey::FileName, filenm );
+	pars_[idx]->get( sKey::FileName(), filenm );
 	oldfilenm = filenm;
 	replaceString( filenm.buf(), oldlsnm.buf(), cleannm.buf() );
 	FilePath newfp( fp.pathOnly(), filenm );
@@ -595,7 +595,7 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
 	oldfp.setExtension( "par" );
 	File::rename( oldfp.fullPath(), newfp.fullPath() );
 
-	pars_[idx]->set( sKey::FileName, filenm );
+	pars_[idx]->set( sKey::FileName(), filenm );
     }
 
     PosInfo::POS2DAdmin().renameLineSet( oldlsnm, newlsnm );
@@ -801,7 +801,7 @@ bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 void Seis2DLineSet::preparePreSet( IOPar& iop, const char* reallskey ) const
 {
     FilePath fp( fname_ );
-    iop.set( IOPar::compKey(reallskey,sKey::FileName), fp.fileName() );
+    iop.set( IOPar::compKey(reallskey,sKey::FileName()), fp.fileName() );
 }
 
 
@@ -809,11 +809,11 @@ void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
 				   const char* worklskey )
 {
     const char* reallsfnm = iop.find(
-	    			IOPar::compKey(reallskey,sKey::FileName) );
+	    			IOPar::compKey(reallskey,sKey::FileName()) );
     if ( !reallsfnm ) return;
 
     const char* worklsfnm = iop.find(
-	    			IOPar::compKey(worklskey,sKey::FileName) );
+	    			IOPar::compKey(worklskey,sKey::FileName()) );
     if ( !worklsfnm ) return;
 
     Seis2DLineSet ls( worklsfnm );

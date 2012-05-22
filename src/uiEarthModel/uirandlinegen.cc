@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.26 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.27 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uirandlinegen.h"
 
@@ -45,7 +45,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 {
     IOM().to( horctio_.ctxt.getSelKey() );
     rlsctio_.ctxt.forread = false;
-    polyctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    polyctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
     infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
     uiIOObjSel::Setup osu( "Within polygon" ); osu.optional( true );
@@ -293,7 +293,7 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     outctio_.ctxt.forread = false;
-    inctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    inctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
     infld_ = new uiIOObjSel( this, inctio_, "Input Polygon" );
     zrgfld_ = new uiSelZRange( this, true );

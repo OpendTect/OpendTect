@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitutodmad.cc,v 1.8 2012-05-02 15:11:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitutodmad.cc,v 1.9 2012-05-22 14:48:46 cvskris Exp $";
 
 #include "uitutodmad.h"
 
@@ -43,7 +43,7 @@ uiTutODMad::uiTutODMad( uiParent* p )
 bool uiTutODMad::acceptOK( CallBacker* )
 {
     iop_.setEmpty();
-    iop_.set( IOPar::compKey("Input",sKey::Type), ODMad::sKeyMadagascar() );
+    iop_.set( IOPar::compKey("Input",sKey::Type()), ODMad::sKeyMadagascar() );
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
@@ -51,7 +51,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
 	return false;
     }
 
-    iop_.set( IOPar::compKey("Input",sKey::FileName), fnm );
+    iop_.set( IOPar::compKey("Input",sKey::FileName()), fnm );
     ODMad::MadStream madstream_( iop_ );
     if ( !madstream_.isOK() )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.27 2012-05-03 09:06:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.28 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -153,7 +153,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	colbarcomm += xmargin / 2; colbarcomm += "c -O -C";
 	colbarcomm += fileName( fp.fullPath() ); colbarcomm += " -B";
 	colbarcomm += rg.step * 5; colbarcomm += ":\"";
-	colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
+	colbarcomm += par->find( sKey::Name() ); colbarcomm += "\":/:";
 	colbarcomm += par->find( ODGMT::sKeyAttribName() );
 	colbarcomm += ": -K 1>> "; colbarcomm += fileName( fnm );
 	if ( !execCmd(colbarcomm,strm) )
@@ -177,7 +177,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar* par = parset[idx];
-	FixedString namestr = par->find( sKey::Name );
+	FixedString namestr = par->find( sKey::Name() );
 	if ( namestr.isEmpty() )
 	    continue;
 
@@ -189,7 +189,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	if ( !usewellsymbol && !shapestr ) continue;
 	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
 	symbstr = ODGMT::sShapeKeys()[(int)shape];
-	par->get( sKey::Size, sz );
+	par->get( sKey::Size(), sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
 	{
 	    const char* lsstr = par->find( ODGMT::sKeyLineStyle() );
@@ -207,7 +207,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	else
 	{
 	    Color pencol;
-	    par->get( sKey::Color, pencol );
+	    par->get( sKey::Color(), pencol );
 	    BufferString colstr;
 	    mGetColorString( pencol, colstr );
 	    penstr = "1p,"; penstr += colstr;
@@ -225,7 +225,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    par->get( ODGMT::sKeyWellSymbolName(), symbolname );
 	    BufferString deffilenm = GMTWSR().get( symbolname )->deffilenm_;
 	    legendstring += "k"; legendstring += deffilenm;
-	    par->get( sKey::Size, sz );
+	    par->get( sKey::Size(), sz );
 	}
 
 	legendstring += " ";

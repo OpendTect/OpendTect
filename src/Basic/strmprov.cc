@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: strmprov.cc,v 1.121 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: strmprov.cc,v 1.122 2012-05-22 14:48:30 cvskris Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -285,7 +285,7 @@ StreamProviderPreLoadDataPack( char* b, od_int64 s,
 void dumpInfo( IOPar& iop ) const
 {
     BufferDataPack::dumpInfo( iop );
-    iop.set( IOPar::compKey("Object",sKey::ID), keyid_ );
+    iop.set( IOPar::compKey("Object",sKey::ID()), keyid_ );
 }
 
     BufferString	keyid_;

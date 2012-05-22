@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.142 2012-05-02 15:12:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.143 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -724,14 +724,14 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 				     IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::XCoord, evinfo.worldpickedpos.x );
-    par.set( sKey::YCoord, evinfo.worldpickedpos.y );
-    par.set( sKey::LineKey, name() );
+    par.set( sKey::XCoord(), evinfo.worldpickedpos.x );
+    par.set( sKey::YCoord(), evinfo.worldpickedpos.y );
+    par.set( sKey::LineKey(), name() );
 
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
-	par.set( sKey::TraceNr, geometry_.positions()[dataidx].nr_ );
+	par.set( sKey::TraceNr(), geometry_.positions()[dataidx].nr_ );
 
 }
 

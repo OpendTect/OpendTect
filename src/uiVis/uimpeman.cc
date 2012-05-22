@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.220 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.221 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uimpeman.h"
 
@@ -1373,7 +1373,7 @@ void uiPropertiesDialog::updateSelectedAttrib()
 
 	userref = displays_[0]->getSelSpecUserRef();
     }
-    else if ( userref == sKey::None )
+    else if ( userref == sKey::None() )
 	userref = mpeman_->sKeyNoAttrib();
     
     if ( userref )  	

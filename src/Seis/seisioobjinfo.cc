@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.50 2012-05-10 08:14:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.51 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -295,8 +295,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     { \
 	const char* lndt = lset->datatype(idx); \
 	const char* attrnm = lset->attribute(idx); \
-	const bool issteer = (lndt && !strcmp(lndt,sKey::Steering)) || \
-				(!lndt && !strcmp(attrnm,sKey::Steering)); \
+	const bool issteer = (lndt && !strcmp(lndt,sKey::Steering())) || \
+				(!lndt && !strcmp(attrnm,sKey::Steering())); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
@@ -442,7 +442,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
 	return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    ctxt.toselect.require_.set( sKey::Type, typ );
+    ctxt.toselect.require_.set( sKey::Type(), typ );
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );

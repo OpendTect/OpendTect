@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uit2dconvsel.cc,v 1.7 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uit2dconvsel.cc,v 1.8 2012-05-22 14:48:39 cvskris Exp $";
 
 #include "uit2dconvsel.h"
 
@@ -84,7 +84,7 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
 
 bool uiT2DConvSel::usePar( const IOPar& iop )
 {
-    const char* typ = iop.find( sKey::Type );
+    const char* typ = iop.find( sKey::Type() );
     if ( !typ || !*typ || !choicefld_->isPresent(typ) )
 	return false;
 
@@ -104,7 +104,7 @@ bool uiT2DConvSel::fillPar( IOPar& iop, bool typeonly ) const
 {
     BufferString typestr = choicefld_->text();
     typestr += setup_.ist2d_ ? "T2D" : "D2T";
-    iop.set( sKey::Name, typestr );
+    iop.set( sKey::Name(), typestr );
     if ( typeonly )
 	return true;
 

@@ -2,11 +2,11 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-03-05 10:42:24 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-05-22 14:48:31 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Algo )
-SET(OD_MODULE_SOURCES arrayndutils.cc
+SET ( OD_MODULE_DEPS Algo )
+SET ( OD_MODULE_SOURCES arrayndutils.cc
 	    array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc

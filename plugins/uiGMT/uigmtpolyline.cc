@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtpolyline.cc,v 1.16 2012-05-03 09:06:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtpolyline.cc,v 1.17 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -45,7 +45,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Polyline")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     inpfld_ = new uiIOObjSel( this, ctio_,"Polygon" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
@@ -90,7 +90,7 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select a polygon")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name, namefld_->text() );
+    par.set( sKey::Name(), namefld_->text() );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
     par.set( ODGMT::sKeyLineStyle(), lskey );
@@ -103,7 +103,7 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 bool uiGMTPolylineGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    FixedString nm = par.find( sKey::Name );
+    FixedString nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visdata.cc,v 1.39 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdata.cc,v 1.40 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -88,11 +88,11 @@ void DataObject::setDisplayTransformation( const mVisTrans* trans )
 
 void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
-    par.set( sKey::Type, getClassName() );
+    par.set( sKey::Type(), getClassName() );
 
     const char* nm = name();
     if ( nm )
-	par.set( sKey::Name, nm );
+	par.set( sKey::Name(), nm );
 }
 
 
@@ -119,7 +119,7 @@ bool DataObject::serialize( const char* filename, bool binary )
 
 int DataObject::usePar( const IOPar& par )
 {
-    const char* nm = par.find( sKey::Name );
+    const char* nm = par.find( sKey::Name() );
     if ( nm )
 	setName( nm );
 

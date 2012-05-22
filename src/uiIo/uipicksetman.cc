@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipicksetman.cc,v 1.23 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipicksetman.cc,v 1.24 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -61,8 +61,8 @@ void uiPickSetMan::mkFileInfo()
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	const char* typ = curioobj_->pars().find( sKey::Type );
-	const bool ispoly = typ && !strcmp( typ, sKey::Polygon ); 
+	const char* typ = curioobj_->pars().find( sKey::Type() );
+	const bool ispoly = typ && !strcmp( typ, sKey::Polygon() ); 
 	const bool havetype = typ && *typ;
 	if ( havetype )
 	    txt.add( "Type: " ).add( typ );

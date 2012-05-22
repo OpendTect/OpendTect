@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2012
- RCS:           $Id: wellposprovider.h,v 1.3 2012-02-08 23:14:37 cvsnanne Exp $
+ RCS:           $Id: wellposprovider.h,v 1.4 2012-05-22 14:48:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
 			~WellProvider3D();
 
     WellProvider3D&	operator=(const WellProvider3D&);
-    const char*		type() const;	//!< sKey::Well
+    const char*		type() const;	//!< sKey::Well()
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const	{ return new WellProvider3D(*this); }
 

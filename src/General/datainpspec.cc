@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datainpspec.cc,v 1.36 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datainpspec.cc,v 1.37 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -230,7 +230,7 @@ DataInpSpec* FileNameInpSpec::clone() const
 BoolInpSpec::BoolInpSpec( bool yesno, const char* truetxt,
 			  const char* falsetxt, bool setyn )
     : DataInpSpec( DataTypeImpl<bool>() )
-    , truetext(truetxt ? truetxt : (const char*) sKey::Yes )
+    , truetext(truetxt ? truetxt : (const char*) sKey::Yes() )
     , yn(yesno)
     , defaultyn(true)
     , isset(setyn)

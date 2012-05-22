@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.17 2012-05-14 16:07:11 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.18 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -69,7 +69,7 @@ void uiRayTracerSel::selRayTraceCB( CallBacker* )
 
 void uiRayTracerSel::usePar( const IOPar& par )
 {
-    BufferString type; par.get( sKey::Type, type );
+    BufferString type; par.get( sKey::Type(), type );
     int igrp = 0;
     for ( igrp; igrp<grps_.size(); igrp++ )
     {
@@ -90,7 +90,7 @@ void uiRayTracerSel::fillPar( IOPar& par ) const
     if ( grps_.validIdx( selidx ) )
     {
 	grps_[selidx]->fillPar( par );
-	par.set( sKey::Type, grps_[selidx]->name() );
+	par.set( sKey::Type(), grps_[selidx]->name() );
     }
 }
 

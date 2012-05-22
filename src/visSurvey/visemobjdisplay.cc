@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visemobjdisplay.cc,v 1.141 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visemobjdisplay.cc,v 1.142 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -569,7 +569,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyEdit(), isEditingEnabled() );
     par.setYN( sKeyOnlyAtSections(), getOnlyAtSectionsDisplay() );
-    par.set( sKey::Color, (int)getColor().rgb() );
+    par.set( sKey::Color(), (int)getColor().rgb() );
 
     if ( lineStyle() )
     {
@@ -616,7 +616,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     par.getYN( sKeyEdit(), enableedit_ );
 
-    nontexturecolisset_ = par.get(sKey::Color,(int&)nontexturecol_.rgb() );
+    nontexturecolisset_ = par.get(sKey::Color(),(int&)nontexturecol_.rgb() );
 
     bool filter = false;
     par.getYN( sKeyOnlyAtSections(), filter );

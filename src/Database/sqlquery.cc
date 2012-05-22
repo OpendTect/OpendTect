@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.15 2012-03-12 16:16:52 cvskris Exp $
+ RCS:           $Id: sqlquery.cc,v 1.16 2012-05-22 14:48:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,7 +265,7 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() );
-	querystr.add( idx != nrvals-1 ? "," : sKey::SpaceString );
+	querystr.add( idx != nrvals-1 ? "," : sKey::SpaceString() );
     }
 
     querystr.add( "FROM " ).add( tablenm );
@@ -309,8 +309,8 @@ BufferString SqlDB::ValueCondition::getStr() const
 {
     BufferString res( paranstart );
     res.add ( col_ );
-    res.add( sKey::SpaceString).add( toString( op_ ) )
-        .add( sKey::SpaceString ).add( val_ ).add( paranend );
+    res.add( sKey::SpaceString()).add( toString( op_ ) )
+        .add( sKey::SpaceString() ).add( val_ ).add( paranend );
     return res;
 }
 

@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocsmoother.cc,v 1.10 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocsmoother.cc,v 1.11 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -94,8 +94,8 @@ void Smoother::fillPar( IOPar& pars ) const
     Step::fillPar( pars );
     pars.set( smoother_->sKeyWinFunc(), getOperatorName() );
     pars.set( smoother_->sKeyWinParam(), getOperatorParam() );
-    pars.set( sKey::StepOutInl, inlSz()*SI().inlStep()*SI().inlDistance()/2 );
-    pars.set( sKey::StepOutCrl, crlSz()*SI().crlStep()*SI().crlDistance()/2 );
+    pars.set( sKey::StepOutInl(), inlSz()*SI().inlStep()*SI().inlDistance()/2 );
+    pars.set( sKey::StepOutCrl(), crlSz()*SI().crlStep()*SI().crlDistance()/2 );
     pars.set( sKeyZStepout(), zSz()*SI().zStep()/2 );
 }
 
@@ -110,8 +110,8 @@ bool Smoother::usePar( const IOPar& pars )
 
     if ( !pars.get( smoother_->sKeyWinFunc(), opname ) ||
 	 !pars.get( smoother_->sKeyWinParam(), winparam ) ||
-	 !pars.get( sKey::StepOutInl, inlstepout ) ||
-	 !pars.get( sKey::StepOutCrl, crlstepout ) ||
+	 !pars.get( sKey::StepOutInl(), inlstepout ) ||
+	 !pars.get( sKey::StepOutCrl(), crlstepout ) ||
 	 !pars.get( sKeyZStepout(), zstepout ) )
     {
 	return false;

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibodyoperatordlg.cc,v 1.10 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyoperatordlg.cc,v 1.11 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uibodyoperatordlg.h"
 
@@ -325,9 +325,9 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 	    
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type ) )
+    if ( !ioobj->pars().find( sKey::Type() ) )
     {
-	ioobj->pars().set( sKey::Type, emcs->getTypeStr() );
+	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	    mRetErr("Writing body to disk failed, no permision?")
     }

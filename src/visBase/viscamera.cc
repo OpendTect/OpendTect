@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscamera.cc,v 1.28 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscamera.cc,v 1.29 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -24,7 +24,7 @@ mCreateFactoryEntry( visBase::Camera );
 namespace visBase
 {
 
-const char* Camera::sKeyPosition() 	{ return sKey::Position; }
+const char* Camera::sKeyPosition() 	{ return sKey::Position(); }
 const char* Camera::sKeyOrientation() 	{ return "Orientation"; }
 const char* Camera::sKeyAspectRatio() 	{ return "Aspect ratio"; }
 const char* Camera::sKeyNearDistance() 	{ return "Near Distance"; }

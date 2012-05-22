@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposfilterset.cc,v 1.15 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposfilterset.cc,v 1.16 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -128,9 +128,9 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
     for ( int ipar=0; ; ipar++ )
     {
-	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter,ipar));
+	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter(),ipar));
 	if ( !subiop || !subiop->size() ) break;
-	const char* typ = subiop->find( sKey::Type );
+	const char* typ = subiop->find( sKey::Type() );
 	if ( !typ ) continue;
 
 	for ( int igrp=0; igrp<grps_.size(); igrp++ )
@@ -156,10 +156,10 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
 bool uiPosFilterSet::fillPar( IOPar& iop ) const
 {
-    iop.removeWithKey( IOPar::compKey(sKey::Filter,"*") );
+    iop.removeWithKey( IOPar::compKey(sKey::Filter(),"*") );
     if ( grps_.isEmpty() ) return true;
 
-    iop.set( sKey::Type, Pos::FilterSet::typeStr() );
+    iop.set( sKey::Type(), Pos::FilterSet::typeStr() );
     int ipar = 0;
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
@@ -167,9 +167,9 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
 	     (selfld_ && !selfld_->isItemChecked(igrp) ) )
 	    continue;
 
-	const BufferString keybase( IOPar::compKey(sKey::Filter,ipar) );
+	const BufferString keybase( IOPar::compKey(sKey::Filter(),ipar) );
 	IOPar subiop;
-	subiop.set( sKey::Type, grps_[igrp]->name() );
+	subiop.set( sKey::Type(), grps_[igrp]->name() );
 	grps_[igrp]->fillPar( subiop );
 	iop.mergeComp( subiop, keybase );
 

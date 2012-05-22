@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.50 2012-05-08 10:55:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.51 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -315,7 +315,7 @@ void DataPointSet::initPVDS()
 	data_.add( new DataColDef("Selection status") );
     }
     if ( is2d_ )
-	data_.add( new DataColDef(sKey::TraceNr) );
+	data_.add( new DataColDef(sKey::TraceNr()) );
 }
 
 
@@ -591,7 +591,7 @@ void DataPointSet::dumpInfo( IOPar& iop ) const
     BufferString typstr( "PointSet (" );
     typstr += is2d_ ? "2D" : "3D";
     typstr += minimal_ ? ",minimal)" : ")";
-    iop.set( sKey::Type, typstr );
+    iop.set( sKey::Type(), typstr );
     iop.set( "Number of rows", bivSet().totalSize() );
     const int nrcols = nrCols();
     iop.set( "Number of cols", nrcols );

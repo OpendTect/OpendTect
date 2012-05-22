@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: iopar.cc,v 1.96 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: iopar.cc,v 1.97 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -299,7 +299,7 @@ FixedString IOPar::operator[]( const char* keyw ) const
     if ( res )
 	return res;
 
-    return sKey::EmptyString;
+    return sKey::EmptyString();
 }
 
 

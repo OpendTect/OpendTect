@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegydefdlg.cc,v 1.24 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegydefdlg.cc,v 1.25 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -141,7 +141,7 @@ void uiSEGYDefDlg::fillPar( IOPar& iop ) const
     filespecfld_->fillPar( iop );
     fileparsfld_->fillPar( iop );
     iop.set( uiSEGYExamine::Setup::sKeyNrTrcs, nrTrcExamine() );
-    iop.set( sKey::Geometry, Seis::nameOf(geomType()) );
+    iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
 }
 
 
@@ -160,7 +160,7 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
     int nrex = nrTrcExamine();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
     nrtrcexfld_->setValue( nrex );   
-    const char* res = iop.find( sKey::Geometry );
+    const char* res = iop.find( sKey::Geometry() );
     if ( res && *res && geomfld_ )
     {
 	geomfld_->setCurrentItem( res );

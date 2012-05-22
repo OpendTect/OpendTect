@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.112 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.113 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -38,22 +38,22 @@ static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.112 2012-05-02 1
 namespace Attrib
 {
 
-const char* Output::outputstr()	    { return sKey::Output; }
-const char* Output::cubekey()	    { return sKey::Cube; }
-const char* Output::surfkey()	    { return sKey::Surface; }
+const char* Output::outputstr()	    { return sKey::Output(); }
+const char* Output::cubekey()	    { return sKey::Cube(); }
+const char* Output::surfkey()	    { return sKey::Surface(); }
 const char* Output::tskey()	    { return "Trace Selection"; }
-const char* Output::scalekey()	    { return sKey::Scale; }
+const char* Output::scalekey()	    { return sKey::Scale(); }
 const char* Output::varzlinekey()   { return "Variable Z Line"; }
 
 const char* SeisTrcStorOutput::seisidkey()	{ return "Seismic.ID"; }
-const char* SeisTrcStorOutput::attribkey()	{ return sKey::Attributes; }
+const char* SeisTrcStorOutput::attribkey()	{ return sKey::Attributes(); }
 const char* SeisTrcStorOutput::inlrangekey()	{ return "In-line range"; }
 const char* SeisTrcStorOutput::crlrangekey()	{ return "Cross-line range"; }
 const char* SeisTrcStorOutput::depthrangekey()	{ return "Depth range"; }
 
 const char* LocationOutput::filenamekey()	{ return "Output.File name"; }
 const char* LocationOutput::locationkey()	{ return "Locations"; }
-const char* LocationOutput::attribkey()		{ return sKey::Attribute; }
+const char* LocationOutput::attribkey()		{ return sKey::Attribute(); }
 const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
 
@@ -356,8 +356,8 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg_ = "";
-    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output,0) );
-    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output,1) );
+    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
+    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
     if ( !outppar )
     {
         errmsg_ = "Could not find Output keyword in parameter file";
@@ -438,7 +438,7 @@ bool SeisTrcStorOutput::isDataType( const char* reqdatatype) const
 {
     BufferString datatypeinques;
 
-    if ( !strcmp(reqdatatype, sKey::Steering) )
+    if ( !strcmp(reqdatatype, sKey::Steering()) )
 	datatypeinques += "Dip";
     else
 	datatypeinques += reqdatatype;

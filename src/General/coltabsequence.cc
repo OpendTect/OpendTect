@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.40 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.41 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -391,7 +391,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColTab::Sequence::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::Name, name() );
+    iopar.set( sKey::Name(), name() );
     FileMultiString fms;
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
@@ -425,7 +425,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
     ColTab::Sequence backup = *this;
-    FixedString res = iopar.find( sKey::Name );
+    FixedString res = iopar.find( sKey::Name() );
     if ( !res )
 	return false;
 

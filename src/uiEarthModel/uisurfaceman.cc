@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.99 2012-05-21 20:55:45 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.100 2012-05-22 14:48:37 cvskris Exp $";
 
 
 #include "uisurfaceman.h"
@@ -166,7 +166,7 @@ const char* uiSurfaceMan::getDefKey() const
     if ( !curioobj_ )
 	return uiObjFileMan::getDefKey();
 
-    return IOPar::compKey( sKey::Default, curioobj_->group() );
+    return IOPar::compKey( sKey::Default(), curioobj_->group() );
 }
 
 
@@ -313,7 +313,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     ascostream aostrm( *sdout.ostrm );
     aostrm.putHeader( aistrm.fileType() );
     IOPar iop( aistrm );
-    iop.set( sKey::Attribute, newnm );
+    iop.set( sKey::Attribute(), newnm );
     iop.putTo( aostrm );
 
     char c;
@@ -480,14 +480,14 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	EM::EMM().readPars( *ids[idx], par );
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
 	Color col( Color::White() );
-	par.get( sKey::Color, col );
+	par.get( sKey::Color(), col );
 	tbl_->setColor( RowCol(idx,1), col );
 
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
 	int lvlid = -1;
-	par.get( sKey::StratRef, lvlid );
+	par.get( sKey::StratRef(), lvlid );
 	levelsel->setID( lvlid );
     }
 }
@@ -518,12 +518,12 @@ bool acceptOK( CallBacker* )
     {
 	IOPar par;
 	Color col = tbl_->getColor( RowCol(idx,1) );
-	par.set( sKey::Color, col );
+	par.set( sKey::Color(), col );
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			tbl_->getCellGroup(RowCol(idx,2)))
 	const int lvlid = levelsel ? levelsel->getID() : -1;
-	par.set( sKey::StratRef, lvlid );
+	par.set( sKey::StratRef(), lvlid );
 	EM::EMM().writePars( *objids_[idx], par );
     }
 
@@ -592,9 +592,9 @@ void uiSurface2DMan::lineSel( CallBacker* )
     if ( trcranges.validIdx(curitm) )
     {
 	StepInterval<int> trcrg = trcranges[ curitm ];
-	txt += BufferString( sKey::FirstTrc, ": " ); txt += trcrg.start;
+	txt += BufferString( sKey::FirstTrc(), ": " ); txt += trcrg.start;
 	txt += "\n";
-	txt += BufferString( sKey::LastTrc, ": " ); txt += trcrg.stop;
+	txt += BufferString( sKey::LastTrc(), ": " ); txt += trcrg.stop;
 	txt += "\n";
 	txt += BufferString( "Trace Step: " ); txt += trcrg.step;
     }

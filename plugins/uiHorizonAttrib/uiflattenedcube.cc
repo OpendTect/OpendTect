@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.14 2012-05-10 08:14:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.15 2012-05-22 14:48:46 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -46,7 +46,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     	, seisselin_(0)
 {
     IOPar iop;
-    iop.set( IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider::id1Key()),
+    iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
 	     hormid_ );
     pp_.usePar( iop );
     uiTaskRunner tr( p );

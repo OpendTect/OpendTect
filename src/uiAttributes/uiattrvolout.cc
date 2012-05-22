@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.85 2012-05-04 22:21:19 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.86 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uiattrvolout.h"
 
@@ -77,7 +77,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	transffld->selFld2D()->singLineSel.notify(
 				mCB(this,uiAttrVolOut,singLineSel) );
 
-    ctio.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+    ctio.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
     
@@ -202,7 +202,7 @@ bool uiAttrVolOut::prepareProcessing()
 
     if ( todofld->is3D() )
     {
-	ctio.ioobj->pars().set( sKey::Type, sKey::Attribute );
+	ctio.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
 	IOM().commitChanges( *ctio.ioobj );
     }
 
@@ -266,7 +266,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		 attrpar.getValue(idx) );
     }
 
-    iop.set( IOPar::compKey(sKey::Output,sKey::Type), "Cube" );
+    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     const BufferString keybase = IOPar::compKey( Output::outputstr(), 0 );
     const BufferString attribkey =
 	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey() );
@@ -301,14 +301,14 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     transffld->selfld->fillPar( tmpiop );
     BufferString typestr;
     //Subselection type and geometry will have an extra level key: 'Subsel
-    if ( tmpiop.get( sKey::Type, typestr ) )
-	tmpiop.removeWithKey( sKey::Type );
+    if ( tmpiop.get( sKey::Type(), typestr ) )
+	tmpiop.removeWithKey( sKey::Type() );
     
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
     tmpiop.setEmpty();
     if ( strcmp( typestr.buf(), "" ) )
-	tmpiop.set( sKey::Type, typestr );
+	tmpiop.set( sKey::Type(), typestr );
     
     bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
@@ -323,12 +323,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    const BufferString subkey = IOPar::compKey( sKey::Output, sKey::Subsel );
+    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
-    subselpar.removeWithKey( sKey::Type );
-    iop.mergeComp( subselpar, sKey::Output );
+    subselpar.removeWithKey( sKey::Type() );
+    iop.mergeComp( subselpar, sKey::Output() );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
@@ -343,7 +343,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	const char* outputnm = objfld->getInput();
 	attrnm = LineKey( outputnm ).attrName();
     }
-    iop.set( sKey::Target, attrnm.buf() );
+    iop.set( sKey::Target(), attrnm.buf() );
     BufferString linename;
     if ( todofld->is2D() )
     {
@@ -378,7 +378,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     FilePath fp( ctio.ioobj->fullUserExpr() );
     fp.setExtension( "proc" );
-    iop.write( fp.fullPath(), sKey::Pars );
+    iop.write( fp.fullPath(), sKey::Pars() );
     return true;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.28 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.29 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -587,7 +587,7 @@ void GriddedSource::fillPar( IOPar& par ) const
 
     IOPar gridpar;
     gridder_->fillPar( gridpar );
-    gridpar.set( sKey::Name, gridder_->factoryKeyword() );
+    gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
     par.mergeComp( gridpar, sKeyGridder() );
 }
 
@@ -599,7 +599,7 @@ bool GriddedSource::usePar( const IOPar& par )
 	return true; //For now. Change later.
 
     BufferString nm;
-    gridpar->get( sKey::Name, nm );
+    gridpar->get( sKey::Name(), nm );
     Gridder2D* gridder = Gridder2D::factory().create( nm.buf() );
     if ( !gridder )
 	return false;

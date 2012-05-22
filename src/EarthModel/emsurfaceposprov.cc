@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.35 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.36 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -83,7 +83,7 @@ void Pos::EMSurfaceProvider::copyFrom( const Pos::EMSurfaceProvider& pp )
 
 const char* Pos::EMSurfaceProvider::type() const
 {
-    return sKey::Surface;
+    return sKey::Surface();
 }
 
 
@@ -229,7 +229,7 @@ float Pos::EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
 }
 
 
-#define mGetSurfKey(k) IOPar::compKey(sKey::Surface,k)
+#define mGetSurfKey(k) IOPar::compKey(sKey::Surface(),k)
 
 
 void Pos::EMSurfaceProvider::usePar( const IOPar& iop )
@@ -361,7 +361,7 @@ void Pos::EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::EMSurfaceProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Surface );
+    Pos::Provider3D::factory().addCreator( create, sKey::Surface() );
 }
 
 
@@ -473,7 +473,7 @@ void Pos::EMSurfaceProvider2D::getExtent( Interval<int>& intv, int lidx ) const
 
 void Pos::EMSurfaceProvider2D::initClass()
 {
-    Pos::Provider2D::factory().addCreator( create, sKey::Surface );
+    Pos::Provider2D::factory().addCreator( create, sKey::Surface() );
 }
 
 
@@ -679,7 +679,7 @@ bool Pos::EMImplicitBodyProvider::toNextZ()
 }
 
 
-#define mGetBodyKey(k) IOPar::compKey(sKey::Body,k)
+#define mGetBodyKey(k) IOPar::compKey(sKey::Body(),k)
 
 void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
 {
@@ -802,7 +802,7 @@ int Pos::EMImplicitBodyProvider::estNrZPerPos() const
 
 void Pos::EMImplicitBodyProvider::initClass()
 { 
-    Pos::Provider3D::factory().addCreator( create, sKey::Body ); 
+    Pos::Provider3D::factory().addCreator( create, sKey::Body() ); 
 }
 
 

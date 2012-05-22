@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.16 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.17 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -171,7 +171,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     horfld_->attach( alignedBelow, seisfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    polyctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     uiIOObjSel::Setup polysu( "Within Polygon" ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, horfld_ );

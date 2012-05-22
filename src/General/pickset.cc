@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.77 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.78 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -490,10 +490,10 @@ void Pick::Set::fillPar( IOPar& par ) const
     if ( disp_.color_ != Color::NoColor() )
     {
 	disp_.color_.fill( colstr.buf() );
-	par.set( sKey::Color, colstr.buf() );
+	par.set( sKey::Color(), colstr.buf() );
     }
 
-    par.set( sKey::Size, disp_.pixsize_ );
+    par.set( sKey::Size(), disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
     par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
     par.merge( pars_ );
@@ -503,11 +503,11 @@ void Pick::Set::fillPar( IOPar& par ) const
 bool Pick::Set::usePar( const IOPar& par )
 {
     BufferString colstr;
-    if ( par.get(sKey::Color,colstr) )
+    if ( par.get(sKey::Color(),colstr) )
 	disp_.color_.use( colstr.buf() );
 
     disp_.pixsize_ = 3;
-    par.get( sKey::Size, disp_.pixsize_ );
+    par.get( sKey::Size(), disp_.pixsize_ );
     par.get( sKeyMarkerType(), disp_.markertype_ );
 
     bool doconnect;
@@ -520,8 +520,8 @@ bool Pick::Set::usePar( const IOPar& par )
     }
 
     pars_ = par;
-    pars_.removeWithKey( sKey::Color );
-    pars_.removeWithKey( sKey::Size );
+    pars_.removeWithKey( sKey::Color() );
+    pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
     return true;

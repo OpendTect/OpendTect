@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.70 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.71 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -148,7 +148,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
-	if ( !iopar.find( IOPar::compKey(sKey::IOSelection,lastidx+1)) )
+	if ( !iopar.find( IOPar::compKey(sKey::IOSelection(),lastidx+1)) )
 	    break;
     }
 
@@ -160,7 +160,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
-	iopar.set( IOPar::compKey(sKey::IOSelection,lastidx), key );
+	iopar.set( IOPar::compKey(sKey::IOSelection(),lastidx), key );
     }
 }
 
@@ -172,7 +172,7 @@ void uiIOSelect::getHistory( const IOPar& iopar )
     bool havenew = false; BufferString bs;
     for ( int idx=1; ; idx++ )
     {
-	if ( !iopar.get( IOPar::compKey(sKey::IOSelection,idx), bs ) )
+	if ( !iopar.get( IOPar::compKey(sKey::IOSelection(),idx), bs ) )
 	    break;
 
 	const char* key = bs;

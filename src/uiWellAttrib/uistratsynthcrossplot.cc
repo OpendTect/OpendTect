@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.40 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.41 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -105,7 +105,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup());
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return false; }
-    dps->dataSet().add( new DataColDef(sKey::Depth) );
+    dps->dataSet().add( new DataColDef(sKey::Depth()) );
     const int depthcol = dps->nrCols() - 1;
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(

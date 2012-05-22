@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.49 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.50 2012-05-22 14:48:33 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -260,7 +260,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
 const char* Gather::dimName( bool dim0 ) const
 { 
-    return dim0 ? sKey::Offset : (SI().zIsTime() ? sKey::Time : sKey::Depth);
+    return dim0 ? sKey::Offset() : (SI().zIsTime() ? sKey::Time() : sKey::Depth());
 }
 
 
@@ -271,14 +271,14 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     float z = posData().position( false, idim1 );
     if ( zit_ ) z *= 1000;
     par.set( "Z", z );
-    par.set( sKey::Offset, getOffset(idim0) );
-    par.set( sKey::Azimuth, getAzimuth(idim0) );
+    par.set( sKey::Offset(), getOffset(idim0) );
+    par.set( sKey::Azimuth(), getAzimuth(idim0) );
     if ( !is3D() )
-	par.set( sKey::TraceNr, binid_.crl );
+	par.set( sKey::TraceNr(), binid_.crl );
     else
     {
 	BufferString str( 128, false ); binid_.fill( str.buf() );
-	par.set( sKey::Position, str );
+	par.set( sKey::Position(), str );
     }
 }
 

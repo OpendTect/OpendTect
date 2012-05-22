@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.27 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.28 2012-05-22 14:48:28 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -19,7 +19,7 @@ mImplFactory( ZAxisTransform, ZAxisTransform::factory );
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )
 {
-    const FixedString str = par.find( sKey::Name );
+    const FixedString str = par.find( sKey::Name() );
     if ( !str )
 	return 0;
 
@@ -160,15 +160,15 @@ const char* ZAxisTransform::toZDomainKey() const
 
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name, factoryKeyword() );
+    par.set( sKey::Name(), factoryKeyword() );
 }
 
 
 bool ZAxisTransform::usePar( const IOPar& par )
 {
-    const char* res = par.find( sKey::ID );
+    const char* res = par.find( sKey::ID() );
     if ( !res || !*res )
-	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID) );
+	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID()) );
     if ( !res || !*res )
 	res = par.find( "ZDomain ID" );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.80 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.81 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uiexphorizon.h"
 
@@ -43,7 +43,7 @@ static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.80 2012-05-02 15
 #include <stdio.h>
 
 
-static const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
+static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
@@ -90,7 +90,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, "Undefined value",
-	    		      StringInpSpec(sKey::FloatUdf) );
+	    		      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
@@ -215,7 +215,7 @@ bool uiExportHorizon::writeAscii()
     }
 
     BufferString udfstr = udffld_->text();
-    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf;
+    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf();
 
     BufferString basename = outfld_->fileName();
 

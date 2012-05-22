@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.14 2012-05-09 07:51:23 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.15 2012-05-22 14:48:46 cvskris Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -113,8 +113,8 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
 	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->textOfItem(selitem) );
     }
 
-    par.set( sKey::Size, sizefld_->getfValue() );
-    par.set( sKey::Color, outcolfld_->color() );
+    par.set( sKey::Size(), sizefld_->getfValue() );
+    par.set( sKey::Color(), outcolfld_->color() );
     return true;
 }
 
@@ -141,11 +141,11 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     }
 
     float size;
-    if ( par.get(sKey::Size,size) )
+    if ( par.get(sKey::Size(),size) )
 	sizefld_->setValue( size );
 
     Color col;
-    if ( par.get(sKey::Color,col) )
+    if ( par.get(sKey::Color(),col) )
 	outcolfld_->setColor( col );
 
     return true;

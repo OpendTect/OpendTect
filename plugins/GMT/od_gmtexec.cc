@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_gmtexec.cc,v 1.17 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_gmtexec.cc,v 1.18 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
@@ -38,7 +38,7 @@ bool BatchProgram::go( std::ostream& strm )
     OD::ModDeps().ensureLoaded( "EarthModel" );
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
-    const char* psfilenm = pars().find( sKey::FileName );
+    const char* psfilenm = pars().find( sKey::FileName() );
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
 

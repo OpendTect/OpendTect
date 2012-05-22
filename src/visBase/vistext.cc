@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.25 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.26 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "vistext.h"
 
@@ -32,7 +32,7 @@ namespace visBase
 const char* Text::sKeyString() 		{ return "Text"; }
 const char* Text::sKeyFontData() 	{ return "Font data"; }
 const char* Text::sKeyJustification() 	{ return "Justification"; }
-const char* Text::sKeyPosition() 	{ return sKey::Position; }
+const char* Text::sKeyPosition() 	{ return sKey::Position(); }
 
 
 Text::Text()

@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.8 2012-05-02 15:11:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.9 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -17,7 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.8 2012-05-02
 #include "survinfo.h"
 #include <math.h>
 
-#define mGetTableKey(k) IOPar::compKey(sKey::Table,k)
+#define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
 
 
 Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
@@ -31,7 +31,7 @@ Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
 Pos::TableProvider3D::TableProvider3D( const char* fnm )
     : bvs_(1,true)
 {
-    IOPar iop; iop.set( mGetTableKey(sKey::FileName), fnm );
+    IOPar iop; iop.set( mGetTableKey(sKey::FileName()), fnm );
     usePar( iop );
 }
 
@@ -50,7 +50,7 @@ Pos::TableProvider3D& Pos::TableProvider3D::operator =(
 
 const char* Pos::TableProvider3D::type() const
 {
-    return sKey::Table;
+    return sKey::Table();
 }
 
 
@@ -98,7 +98,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 
     if ( bvs.isEmpty() )
     {
-	res = iop.find( mGetTableKey(sKey::FileName) );
+	res = iop.find( mGetTableKey(sKey::FileName()) );
 	if ( res && *res )
 	{
 	    StreamData sd( StreamProvider(res).makeIStream() );
@@ -215,5 +215,5 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 
 void Pos::TableProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Table );
+    Pos::Provider3D::factory().addCreator( create, sKey::Table() );
 }

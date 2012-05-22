@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.41 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.42 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -130,8 +130,8 @@ void FileFormatRepository::set( const char* grp, const char* nm,
 	{ Entry* entry = entries_[idx]; entries_.remove( idx ); delete entry; }
     if ( !iop ) return;
 
-    if ( iop->find(sKey::Name) )
-	iop->removeWithKey(sKey::Name);
+    if ( iop->find(sKey::Name()) )
+	iop->removeWithKey(sKey::Name());
     iop->setName( nm );
     iop->set( sKeyGroup, grp );
     entries_ += new Entry( src, iop );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmt2dlines.cc,v 1.16 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmt2dlines.cc,v 1.17 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -137,7 +137,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select at least one line")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name, namefld_->text() );
+    par.set( sKey::Name(), namefld_->text() );
     BufferStringSet linenms;
     linelistfld_->getSelectedItems( linenms );
     par.set( ODGMT::sKeyLineNames(), linenms );
@@ -166,7 +166,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
     objSel( 0 );
-    FixedString nm = par.find( sKey::Name );
+    FixedString nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
     BufferStringSet linenms;

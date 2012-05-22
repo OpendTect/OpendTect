@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visdataman.cc,v 1.54 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdataman.cc,v 1.55 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -134,7 +134,7 @@ int DataManager::usePar( const IOPar& par )
 		    continue;
 		}
 
-		const char* type = iopar->find( sKey::Type );
+		const char* type = iopar->find( sKey::Type() );
 		RefMan<DataObject> obj = factory().create( type );
 		if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 

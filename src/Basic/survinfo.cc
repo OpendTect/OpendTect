@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.165 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.166 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -198,7 +198,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     while ( !atEndOfSection(astream) )
     {
 	keyw = astream.keyWord();
-	if ( keyw == sKey::Name )
+	if ( keyw == sKey::Name() )
 	    si->setName( astream.value() );
 	else if ( keyw == sKeyWSProjName() )
 	    si->wsprojnm_ = astream.value();
@@ -785,7 +785,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    astream.put( sKey::Name, name() );
+    astream.put( sKey::Name(), name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;

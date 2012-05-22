@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.39 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.40 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -70,7 +70,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     {
 	propflds_[idx]->propChanged.notify(
 					mCB(this,uiWellDispPropDlg,propChg) );
-	if ( !strcmp( sKey::Log, propflds_[idx]->props().subjectName() ) )
+	if ( !strcmp( sKey::Log(), propflds_[idx]->props().subjectName() ) )
 	{
 	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log" 
 		    			    : is2d ? "Log 1" : "Left Log" );

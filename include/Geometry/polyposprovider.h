@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.11 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.12 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ public:
 			PolyProvider3D(const PolyProvider3D&);
 			~PolyProvider3D();
     PolyProvider3D&	operator =(const PolyProvider3D&);
-    const char*		type() const;	//!< sKey::Polygon
+    const char*		type() const;	//!< sKey::Polygon()
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const	{ return new PolyProvider3D(*this); }
 

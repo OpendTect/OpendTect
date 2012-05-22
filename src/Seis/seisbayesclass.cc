@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.18 2012-05-10 08:14:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.19 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -51,7 +51,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 {
     aprdrs_.allowNull( true );
 
-    const char* res = pars_.find( sKey::Type );
+    const char* res = pars_.find( sKey::Type() );
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }

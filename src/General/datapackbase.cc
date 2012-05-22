@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.12 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.13 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -196,7 +196,7 @@ float FlatDataPack::nrKBytes() const
 void FlatDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
-    iop.set( sKey::Type, "Flat" );
+    iop.set( sKey::Type(), "Flat" );
     const int sz0 = size(true); const int sz1 = size(false);
     for ( int idim=0; idim<2; idim++ )
     {

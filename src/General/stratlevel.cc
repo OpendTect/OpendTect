@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlevel.cc,v 1.13 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlevel.cc,v 1.14 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -197,23 +197,23 @@ void Strat::Level::setPars( const IOPar& iop )
 
 void Strat::Level::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::ID, id_ );
-    iop.set( sKey::Name, name() );
-    iop.set( sKey::Color, color_ );
+    iop.set( sKey::ID(), id_ );
+    iop.set( sKey::Name(), name() );
+    iop.set( sKey::Color(), color_ );
     iop.merge( pars_ );
 }
 
 
 void Strat::Level::usePar( const IOPar& iop )
 {
-    iop.get( sKey::ID, id_ );
-    BufferString nm; iop.get( sKey::Name, nm ); setName( nm );
-    iop.get( sKey::Color, color_ );
+    iop.get( sKey::ID(), id_ );
+    BufferString nm; iop.get( sKey::Name(), nm ); setName( nm );
+    iop.get( sKey::Color(), color_ );
 
     pars_.merge( iop );
-    pars_.removeWithKey( sKey::Name );
-    pars_.removeWithKey( sKey::Color );
-    pars_.removeWithKey( sKey::ID );
+    pars_.removeWithKey( sKey::Name() );
+    pars_.removeWithKey( sKey::Color() );
+    pars_.removeWithKey( sKey::ID() );
 }
 
 

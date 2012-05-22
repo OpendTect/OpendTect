@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.13 2012-05-15 06:13:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.14 2012-05-22 14:48:33 cvskris Exp $";
 
 #include "prestackmutedeftransl.h"
 
@@ -115,7 +115,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	bool rejectpt = false;
 	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
 
-	if ( astrm.hasKeyword(sKey::Position) )
+	if ( astrm.hasKeyword(sKey::Position()) )
 	{
 	    bid.use( astrm.value() );
 	    if ( !bid.inl || !bid.crl )
@@ -218,7 +218,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
 
 	char buf[80]; md.getPos(imd).fill( buf );
-	astrm.put( sKey::Position, buf );
+	astrm.put( sKey::Position(), buf );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap
 	 ? 'S' : (pbmf.interpolType() == PointBasedMathFunction::Poly

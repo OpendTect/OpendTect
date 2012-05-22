@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.126 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.127 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -93,7 +93,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
-    setctio_.ctxt.toselect.dontallow_.set( sKey::Type,
+    setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
 	    				   adsm->is2D() ? "3D" : "2D" );
 
     createMenuBar();
@@ -967,7 +967,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     {
 	FilePath fp( dirnm, attrdl.get(idx), "index" );
 	IOPar iopar("AttributeSet Table");
-	iopar.read( fp.fullPath(), sKey::Pars, false );
+	iopar.read( fp.fullPath(), sKey::Pars(), false );
 	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
 	if ( !subpar ) continue;
 

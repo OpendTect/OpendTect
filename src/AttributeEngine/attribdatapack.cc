@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.50 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.51 2012-05-22 14:48:28 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -35,8 +35,8 @@ static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {
     static BufferString vret;
-    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute,"V" );
-    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute;
+    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute(),"V" );
+    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute();
 }
 
 
@@ -44,7 +44,7 @@ void DataPackCommon::dumpInfo( IOPar& iop ) const
 {
     iop.set( "Source type", sourceType() );
     iop.set( "Attribute.ID", descID().asInt() );
-    BufferString isstoredstr = IOPar::compKey( sKey::Attribute, sKey::Stored );
+    BufferString isstoredstr = IOPar::compKey( sKey::Attribute(), sKey::Stored() );
     iop.set( isstoredstr.buf(), descID().isStored() );
     iop.set( "Vertical", isVertical() );
 }

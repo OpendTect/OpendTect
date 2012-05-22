@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.33 2012-05-09 07:51:23 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.34 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -214,7 +214,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 
     BufferString fnm = filefld_->fileName();
     if ( !fnm.isEmpty() )
-	par.set( sKey::FileName, fnm );
+	par.set( sKey::FileName(), fnm );
 
     IOPar basemappar;
     basemappar.set( ODGMT::sKeyGroupName(), "Basemap" );
@@ -442,7 +442,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( File::exists(fnm.buf()) && !File::isWritable(fnm.buf()) )
 	mErrRet("Output file already exists and is read only")
 
-    par.set( sKey::FileName, fnm );
+    par.set( sKey::FileName(), fnm );
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
     IOPar basemappar;
@@ -494,7 +494,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
 bool uiGMTMainWin::usePar( const IOPar& par )
 {
-    FixedString fnm = par.find( sKey::FileName );
+    FixedString fnm = par.find( sKey::FileName() );
     if ( fnm )
 	filefld_->setFileName( fnm );
 

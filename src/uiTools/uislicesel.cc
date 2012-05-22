@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.65 2012-05-09 11:03:40 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.66 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uislicesel.h"
 
@@ -531,20 +531,20 @@ void uiSliceSel::usePar( const IOPar& par )
 {
     if ( !is2d_ )
     {
-	int inlnr; par.get( sKey::FirstInl, inlnr );
+	int inlnr; par.get( sKey::FirstInl(), inlnr );
 	inl0fld_->box()->setValue( inlnr );
 
-	int inl1; par.get( sKey::LastInl, inl1 );
+	int inl1; par.get( sKey::LastInl(), inl1 );
 	if ( inl1fld_->isDisplayed() ) inl1fld_->setValue( inl1 );
     }
 
-    int crl0; par.get( sKey::FirstCrl, crl0 );
+    int crl0; par.get( sKey::FirstCrl(), crl0 );
     crl0fld_->box()->setValue( crl0 );
-    int crl1; par.get( sKey::LastCrl, crl1 );
+    int crl1; par.get( sKey::LastCrl(), crl1 );
     if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
 
     StepInterval<float> zrg;
-    par.get( sKey::ZRange, zrg ); 
+    par.get( sKey::ZRange(), zrg ); 
     z0fld_->box()->setValue( zrg.start );
     if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
 }

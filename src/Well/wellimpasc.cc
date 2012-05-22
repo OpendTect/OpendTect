@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.84 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.85 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -555,7 +555,7 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf),
+	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf()),
 				Table::Required );
     createDescBody( fd, withunitfld );
     return fd;

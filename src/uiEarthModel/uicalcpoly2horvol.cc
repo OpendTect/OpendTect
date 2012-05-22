@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.14 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.15 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -193,7 +193,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	{ new uiLabel( this, "Invalid horizon" ); return; }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 

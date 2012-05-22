@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.191 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.192 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1648,7 +1648,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
     {
 	BufferStringSet errmsgs;
 	BufferString versionstr;
-	float versionnr = iopar.get( sKey::Version, versionstr )
+	float versionnr = iopar.get( sKey::Version(), versionstr )
 	    			? toFloat( versionstr.buf() ) : 0 ;
 	if ( isstored && versionnr<4.05 )	//backward compatibility v<4.1.1
 	{

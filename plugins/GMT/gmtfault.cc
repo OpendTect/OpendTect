@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.13 2012-05-03 09:06:20 cvskris Exp $
+RCS:		$Id: gmtfault.cc,v 1.14 2012-05-22 14:48:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,17 +52,17 @@ GMTPar* GMTFault::createInstance( const IOPar& iop )
 const char* GMTFault::userRef() const
 {
     static BufferString userref;
-    userref = BufferString( "Fault: ", find(sKey::Name) );
+    userref = BufferString( "Fault: ", find(sKey::Name()) );
     return userref.buf();
 }
 
 
 bool GMTFault::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    FixedString str = find( sKey::Name() );
+    par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
-    par.set( sKey::Size, 1 );
+    par.set( sKey::Size(), 1 );
     str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     return true;

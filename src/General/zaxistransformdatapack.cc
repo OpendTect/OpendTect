@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: zaxistransformdatapack.cc,v 1.13 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransformdatapack.cc,v 1.14 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "zaxistransformdatapack.h"
 
@@ -63,7 +63,7 @@ void ZAxisTransformDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
     FlatDataPack::dumpInfo( iop );
-    iop.set( sKey::Type, "Flat ZAxis Transformed" );
+    iop.set( sKey::Type(), "Flat ZAxis Transformed" );
 }
 
 

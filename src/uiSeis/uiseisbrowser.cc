@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.65 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.66 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -186,13 +186,13 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
 	const int index = seislineset.indexOf( su.linekey_ );
 	IOPar par( seislineset.getInfo(index) );
-	FixedString fname = par.find( sKey::FileName );
+	FixedString fname = par.find( sKey::FileName() );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(su.geom_), &emsg );
-	if ( su.linekey_.attrName() == sKey::Steering )
+	if ( su.linekey_.attrName() == sKey::Steering() )
 	    compnr_ = 1;
     }
     else
@@ -826,7 +826,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 	   			coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
-    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position );
+    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );
     IntInpSpec iis; FloatInpSpec fis;
     DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
     trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), iis, *pdis );

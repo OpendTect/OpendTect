@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.67 2012-05-21 21:31:02 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.68 2012-05-22 14:48:39 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -175,7 +175,7 @@ bool uiODPlaneDataTreeItem::init()
 
 bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 {
-    BufferString keystr( SI().pars().find(sKey::DefCube) );
+    BufferString keystr( SI().pars().find(sKey::DefCube()) );
     if ( keystr.isEmpty() )
     {
 	const IODir* iodir = IOM().dirPtr();

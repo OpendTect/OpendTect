@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtcoastline.cc,v 1.12 2012-05-03 09:06:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtcoastline.cc,v 1.13 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "gmtcoastline.h"
 
@@ -50,7 +50,7 @@ const char* GMTCoastline::userRef() const
 
 bool GMTCoastline::fillLegendPar( IOPar& par ) const
 {
-    par.set( sKey::Name, "Coastline" );
+    par.set( sKey::Name(), "Coastline" );
     const char* str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     par.set( ODGMT::sKeyShape(), "Line" );

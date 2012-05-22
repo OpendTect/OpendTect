@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibodyposprovgroup.cc,v 1.6 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyposprovgroup.cc,v 1.7 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uibodyposprovgroup.h"
 #include "uigeninput.h"
@@ -62,7 +62,7 @@ uiPosProvGroup* uiBodyPosProvGroup::create( uiParent* p,
 
 void uiBodyPosProvGroup::usePar( const IOPar& iop )
 {
-    bodyfld_->usePar( iop, sKey::Body );
+    bodyfld_->usePar( iop, sKey::Body() );
     
     bool useinside;
     iop.getYN( Pos::EMImplicitBodyProvider::sKeyUseInside(), useinside );
@@ -88,8 +88,8 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 
 bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type, sKey::Body );
-    if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body) )
+    iop.set( sKey::Type(), sKey::Body() );
+    if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
 	mErrRet("Please select the body");
 
     iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(), 
@@ -123,6 +123,6 @@ bool uiBodyPosProvGroup::getID( MultiID& ky ) const
 
 void uiBodyPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Body );
+    uiPosProvGroup::factory().addCreator( create, sKey::Body() );
 }
 

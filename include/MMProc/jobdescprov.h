@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.9 2010-08-19 06:36:50 cvsranojay Exp $
+ RCS:		$Id: jobdescprov.h,v 1.10 2012-05-22 14:48:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ protected:
 inlines in the IOPar.
 
 The keying is either:
-1) Standard style with the keys in keystrs.h sKey::FirstInl etc.
+1) Standard style with the keys in keystrs.h sKey::FirstInl() etc.
 2) Single key FileMultiString type first`last`step
 
  */

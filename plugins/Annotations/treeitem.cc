@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.59 2012-05-09 07:51:23 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.60 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -281,7 +281,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.toselect.require_.set( sKey::Type, managerName(), oldSelKey() );
+    ctio->ctxt.toselect.require_.set( sKey::Type(), managerName(), oldSelKey() );
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -428,7 +428,7 @@ void SubItem::store() const
 	return;
     }
 
-    ioobj->pars().set( sKey::Type, managerName() );
+    ioobj->pars().set( sKey::Type(), managerName() );
     IOM().commitChanges( *ioobj );
 
     fillStoragePar( set_->pars_ );
@@ -456,7 +456,7 @@ char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
-    ctio.ctxt.toselect.require_.set( sKey::Type, mannm );
+    ctio.ctxt.toselect.require_.set( sKey::Type(), mannm );
     ctio.setName( nm );
     ctio.fillObj();
     if ( !ctio.ioobj )
@@ -491,7 +491,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
 	ctio.ctxt.forread = false;
-	ctio.ctxt.toselect.require_.set( sKey::Type, managerName() );
+	ctio.ctxt.toselect.require_.set( sKey::Type(), managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
@@ -988,14 +988,14 @@ bool ImageSubItem::init()
 			mCB(this,ImageSubItem,retrieveFileName) );
 
     BufferString filename;
-    set_->pars_.get( sKey::FileName, filename );
+    set_->pars_.get( sKey::FileName(), filename );
     if ( filename.isEmpty() )
     {
 	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	const int setidx = mgr.indexOf( *set_ );
 	PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
 	if ( ioobj )
-	    ioobj->pars().get(sKey::FileName, filename );
+	    ioobj->pars().get(sKey::FileName(), filename );
     }
 
     if ( !filename.isEmpty() )
@@ -1014,7 +1014,7 @@ void ImageSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
     mDynamicCastGet(ImageDisplay*,id,visserv_->getObject(displayid_))
-    par.set( sKey::FileName, id->getFileName() );
+    par.set( sKey::FileName(), id->getFileName() );
 }
 
 

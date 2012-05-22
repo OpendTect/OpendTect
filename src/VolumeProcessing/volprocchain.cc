@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.22 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.23 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -527,7 +527,7 @@ void Step::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyEnabled(), enabled_ );
     if ( !username_.isEmpty() )
-	par.set( sKey::Name, username_.buf() );
+	par.set( sKey::Name(), username_.buf() );
 }
 
 
@@ -535,7 +535,7 @@ bool Step::usePar( const IOPar& par )
 {
     par.getYN( sKeyEnabled(), enabled_ );
     username_.empty();
-    par.get( sKey::Name, username_ );
+    par.get( sKey::Name(), username_ );
     return true;
 }
 

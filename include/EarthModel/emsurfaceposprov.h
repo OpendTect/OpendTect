@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.19 2011-12-15 21:45:41 cvsyuancheng Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.20 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ mClass EMSurfaceProvider : public virtual Filter
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
-    const char*		type() const;	//!< sKey::Surface
+    const char*		type() const;	//!< sKey::Surface()
 
     virtual bool	initialize(TaskRunner* tr=0);
     virtual void	reset();
@@ -247,7 +247,7 @@ public:
 				{ return new EMImplicitBodyProvider(*this); }
 
     EMImplicitBodyProvider&	operator =(const EMImplicitBodyProvider&);
-    const char*			type() const		{ return sKey::Body; }
+    const char*			type() const		{ return sKey::Body(); }
     const char*			factoryKeyword() const	{ return type(); }
 
     virtual bool		initialize(TaskRunner* tr=0);

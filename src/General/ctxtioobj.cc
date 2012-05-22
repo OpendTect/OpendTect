@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ctxtioobj.cc,v 1.56 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ctxtioobj.cc,v 1.57 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -341,8 +341,8 @@ void CtxtIOObj::fillDefault( bool oone2 )
 	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
 		&& ctxt.deftransl == "2D" )
 	    is3d = false;
-	keystr = is3d ? sKey::DefCube : sKey::DefLineSet;
-	FixedString typestr = ctxt.toselect.require_.find( sKey::Type );
+	keystr = is3d ? sKey::DefCube() : sKey::DefLineSet();
+	FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
 	if ( is3d && !typestr.isEmpty() )
 	    keystr = IOPar::compKey(keystr,typestr);
     }
@@ -352,7 +352,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 		&& SI().survDataType() != SurveyInfo::Only2D )
 	    keystr = "PS3D Data Store";
 	
-	keystr = IOPar::compKey(sKey::Default,keystr);
+	keystr = IOPar::compKey(sKey::Default(),keystr);
     }
 
     return fillDefaultWithKey( keystr, oone2 );

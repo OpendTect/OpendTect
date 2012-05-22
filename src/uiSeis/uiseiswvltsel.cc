@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltsel.cc,v 1.11 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltsel.cc,v 1.12 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -137,7 +137,7 @@ void uiSeisWaveletSel::rebuildList()
     if ( curwvlt.isEmpty() || newidx < 0 )
     {
 	const char* res = SI().pars().find(
-		IOPar::compKey(sKey::Default,ctxt.trgroup->userName()) );
+		IOPar::compKey(sKey::Default(),ctxt.trgroup->userName()) );
 	if ( res && *res )
 	{
 	    IOObj* ioobj = IOM().get( MultiID(res) );

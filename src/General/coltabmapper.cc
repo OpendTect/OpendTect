@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.35 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.36 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -187,7 +187,7 @@ bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 
 void ColTab::MapperSetup::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type, TypeNames()[(int)type_] );
+    par.set( sKey::Type(), TypeNames()[(int)type_] );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );
@@ -199,7 +199,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
-    const char* typestr = par.find( sKey::Type );
+    const char* typestr = par.find( sKey::Type() );
     if ( !parseEnumType( typestr, type_ ) )
 	return false;
 

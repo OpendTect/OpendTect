@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.9 2012-05-02 15:12:08 cvskris Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.10 2012-05-22 14:48:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.9 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.10 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -230,10 +230,10 @@ BufferStringSet SelectionArea::getAxisNames() const
 
 void SelectionGrp::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name, name().buf() );
+    par.set( sKey::Name(), name().buf() );
     BufferString color;
     col_.fill( color.buf() );
-    par.set( sKey::Color, color.buf() );
+    par.set( sKey::Color(), color.buf() );
     par.set( sKeyNrAreas, selareas_.size() );
 
     for ( int selidx=0; selidx < selareas_.size(); selidx++ )
@@ -247,7 +247,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 	attributes.add(  selarea.yaxisnm_ );
 	if ( selarea.axistype_ == SelectionArea::Both )
 	    attributes.add( selarea.altyaxisnm_ );
-	par.set( IOPar::compKey(selkey,sKey::Attributes), attributes );
+	par.set( IOPar::compKey(selkey,sKey::Attributes()), attributes );
 	
 	if ( selarea.isrectangle_ )
 	{
@@ -297,7 +297,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 
 void SelectionGrp::usePar( const IOPar& par )
 {
-    if ( !par.get(sKey::Name,*name_) || !par.get(sKey::Color,col_) )
+    if ( !par.get(sKey::Name(),*name_) || !par.get(sKey::Color(),col_) )
 	return;
 
     int nrselareas = 0;
@@ -308,7 +308,7 @@ void SelectionGrp::usePar( const IOPar& par )
 	BufferString selkey;
 	selkey.add( selidx );
 	BufferStringSet nms;
-	par.get( IOPar::compKey(selkey,sKey::Attributes), nms );
+	par.get( IOPar::compKey(selkey,sKey::Attributes()), nms );
 
 	BufferString rectstr = IOPar::compKey( selkey.str(), sKeyRect );
 	BufferString polygonstr = IOPar::compKey( selkey.str(), sKeyPoly );

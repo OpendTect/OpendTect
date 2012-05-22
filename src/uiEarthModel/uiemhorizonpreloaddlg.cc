@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.9 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.10 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -203,7 +203,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !multiidpar )
 	    continue;
 
-	const char* id = multiidpar->find( sKey::ID );
+	const char* id = multiidpar->find( sKey::ID() );
 	if ( !id || !*id )
 	    continue;
 

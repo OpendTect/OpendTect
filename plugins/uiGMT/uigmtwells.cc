@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtwells.cc,v 1.15 2012-05-03 09:06:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtwells.cc,v 1.16 2012-05-22 14:48:46 cvskris Exp $";
 
 #include "uigmtwells.h"
 
@@ -119,7 +119,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     const char* namestr = namefld_->text();
     if ( !namestr || !*namestr )
 	mErrRet(" Please enter name")
-    par.set( sKey::Name, namefld_->text() );
+    par.set( sKey::Name(), namefld_->text() );
 
     BufferStringSet selnames;
     welllistfld_->getSelectedItems( selnames );
@@ -134,7 +134,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 
 bool uiGMTWellsGrp::usePar( const IOPar& par )
 {
-    namefld_->setText( par.find(sKey::Name) );
+    namefld_->setText( par.find(sKey::Name()) );
     BufferStringSet selnames;
     par.get( ODGMT::sKeyWellNames(), selnames );
     welllistfld_->clearSelection();

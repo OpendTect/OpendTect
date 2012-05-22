@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseistransf.cc,v 1.51 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseistransf.cc,v 1.52 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
@@ -161,7 +161,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     else if ( setup_.is2d_ )
     {
 	LineKey lk( linenm2d, attrnm2d );
-	iop.set( sKey::LineKey, lk );
+	iop.set( sKey::LineKey(), lk );
     }
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,

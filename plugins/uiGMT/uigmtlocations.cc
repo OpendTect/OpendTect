@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtlocations.cc,v 1.12 2012-05-02 15:11:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtlocations.cc,v 1.13 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtlocations.h"
 
@@ -81,7 +81,7 @@ bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select a pickset")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name, namefld_->text() );
+    par.set( sKey::Name(), namefld_->text() );
     return symbfld_->fillPar( par );
 }
 
@@ -89,7 +89,7 @@ bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 bool uiGMTLocationsGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* nm = par.find( sKey::Name );
+    const char* nm = par.find( sKey::Name() );
     if ( nm && *nm ) namefld_->setText( nm );
 
     return symbfld_->usePar( par );

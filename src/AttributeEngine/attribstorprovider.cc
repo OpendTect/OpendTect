@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.111 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.112 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -95,7 +95,7 @@ void StorageProvider::updateDesc( Desc& desc )
 	}
 
 	BufferStringSet steernms;
-	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering );
+	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
 	const bool issteering = steernms.indexOf( attrnm ) >= 0;
 	if ( !issteering )
 	{
@@ -130,10 +130,10 @@ void StorageProvider::updateDesc( Desc& desc )
 	}
 
 	BufferString type;
-	ioobj->pars().get( sKey::Type, type );
+	ioobj->pars().get( sKey::Type(), type );
 
 	const int nrattribs = transl->componentInfo().size();
-	if ( type == sKey::Steering )
+	if ( type == sKey::Steering() )
 	    desc.setNrOutputs( Seis::Dip, nrattribs );
 	else
 	{

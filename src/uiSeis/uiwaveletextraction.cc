@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.29 2012-05-02 15:12:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.30 2012-05-22 14:48:41 cvskris Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -58,7 +58,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     if ( !is2d )
     {
 	seisctio_.ctxt.forread = true;
-	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
 
 	seissel3dfld_ = new uiSeisSel( this, seisctio_,
 	    			     uiSeisSel::Setup(false,false) );
@@ -98,7 +98,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     zrangefld_ = new uiSelZRange( this, false, false, "Z Range " );
     zrangefld_->attach( alignedBelow, zextraction_ );
 
-    surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface, this,
+    surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface(), this,
 	   		 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
@@ -379,20 +379,20 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 					      const IOPar& surfacepar,
 					      Seis::TableSelData& tsd )
 {
-    const char* extrazkey = IOPar::compKey( sKey::Surface,
+    const char* extrazkey = IOPar::compKey( sKey::Surface(),
 	    			  	  Pos::EMSurfaceProvider::extraZKey() );
     Interval<float> extz( 0, 0 );
     if ( surfacepar.get(extrazkey,extz) )
 	tsd.extendZ( extz );
 
     Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
-    BufferString surfkey = IOPar::compKey( sKey::Surface,
+    BufferString surfkey = IOPar::compKey( sKey::Surface(),
 	    				   Pos::EMSurfaceProvider::id1Key() );
     MultiID surf1mid, surf2mid;
     if ( !surfacepar.get( surfkey.buf(), surf1mid ) )
 	return false;
 
-    surfkey = IOPar::compKey( sKey::Surface,
+    surfkey = IOPar::compKey( sKey::Surface(),
 			      Pos::EMSurfaceProvider::id2Key() );
     const bool betweenhors = surfacepar.get( surfkey.buf(), surf2mid );
 

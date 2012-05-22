@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.102 2012-05-08 10:55:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.103 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -112,7 +112,7 @@ const char* EMManager::objectType( const MultiID& mid ) const
     if ( !ioobj ) 
 	return 0;
 
-    FixedString typenm = ioobj->pars().find( sKey::Type );
+    FixedString typenm = ioobj->pars().find( sKey::Type() );
     if ( !typenm )
 	typenm = ioobj->group();
 
@@ -292,7 +292,7 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	FixedString typenm = ioobj->pars().find( sKey::Type );
+	FixedString typenm = ioobj->pars().find( sKey::Type() );
 	if ( !typenm )
 	    typenm = ioobj->group();
 
@@ -482,10 +482,10 @@ bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
     {
 	IOPar* surfpar = getSurfacePars( *ioobj );
 	int icol;
-	if ( surfpar && surfpar->get(sKey::Color,icol) )
+	if ( surfpar && surfpar->get(sKey::Color(),icol) )
 	{
 	    Color col; col.setRgb( icol );
-	    par.set( sKey::Color, col );
+	    par.set( sKey::Color(), col );
 	}
     }
     return res;

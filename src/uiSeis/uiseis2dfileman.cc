@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.25 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.26 2012-05-22 14:48:40 cvskris Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -226,7 +226,7 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
 	{ txt += "\nNumber of components: "; txt += nrcomp; }
 
     const IOPar& iopar = lineset_->getInfo( lineidx );
-    BufferString fname(iopar.find(sKey::FileName) );
+    BufferString fname(iopar.find(sKey::FileName()) );
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
 	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );

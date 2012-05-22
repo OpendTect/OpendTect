@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.79 2011-09-02 08:51:57 cvskris Exp $
+ RCS:           $Id: datainpspec.h,v 1.80 2012-05-22 14:48:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -594,8 +594,8 @@ It does not change the underlying true/false texts.
 mClass BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes,
-				    const char* falsetxt=sKey::No,
+			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
+				    const char* falsetxt=sKey::No(),
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 

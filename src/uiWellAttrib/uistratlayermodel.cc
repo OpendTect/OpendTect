@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.64 2012-05-15 15:16:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.65 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -198,7 +198,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 {
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
-    descctio_.ctxt.toselect.require_.set( sKey::Type, edtyp );
+    descctio_.ctxt.toselect.require_.set( sKey::Type(), edtyp );
 
     uiGroup* gengrp = new uiGroup( this, "Gen group" );
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );

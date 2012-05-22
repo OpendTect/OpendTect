@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.22 2012-05-03 09:06:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.23 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "gmt2dlines.h"
 
@@ -45,7 +45,7 @@ GMTPar* GMT2DLines::createInstance( const IOPar& iop )
 const char* GMT2DLines::userRef() const
 {
     BufferString* str = new BufferString( "2D Lines: " );
-    const char* nm = find( sKey::Name );
+    const char* nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -53,10 +53,10 @@ const char* GMT2DLines::userRef() const
 
 bool GMT2DLines::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    FixedString str = find( sKey::Name() );
+    par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
-    par.set( sKey::Size, 1 );
+    par.set( sKey::Size(), 1 );
     str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     return true;
@@ -66,12 +66,12 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     const IOObj* ioobj = IOM().get( id );
     if ( !ioobj ) mErrStrmRet("Cannot find lineset")
 
     BufferString attribnm;
-    get( sKey::Attribute, attribnm );
+    get( sKey::Attribute(), attribnm );
 
     BufferStringSet linenms;
     get( ODGMT::sKeyLineNames(), linenms );
@@ -231,7 +231,7 @@ GMTPar* GMTRandLines::createInstance( const IOPar& iop )
 const char* GMTRandLines::userRef() const
 {
     BufferString* str = new BufferString( "Random Lines: " );
-    const char* nm = find( sKey::Name );
+    const char* nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -239,10 +239,10 @@ const char* GMTRandLines::userRef() const
 
 bool GMTRandLines::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    FixedString str = find( sKey::Name() );
+    par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
-    par.set( sKey::Size, 1 );
+    par.set( sKey::Size(), 1 );
     str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     return true;
@@ -252,7 +252,7 @@ bool GMTRandLines::fillLegendPar( IOPar& par ) const
 bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     const IOObj* ioobj = IOM().get( id );
     if ( !ioobj ) mErrStrmRet("Cannot find lineset")
 

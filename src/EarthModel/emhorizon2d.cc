@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.53 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.54 2012-05-22 14:48:30 cvskris Exp $";
 
 #include "emhorizon2d.h"
 
@@ -619,7 +619,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;

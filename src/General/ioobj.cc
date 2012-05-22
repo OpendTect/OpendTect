@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ioobj.cc,v 1.42 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ioobj.cc,v 1.43 2012-05-22 14:48:31 cvskris Exp $";
 
 #include "iostrm.h"
 #include "iosubdir.h"
@@ -259,7 +259,7 @@ bool IOObj::isReadDefault() const
 
 bool IOObj::isSurveyDefault( const MultiID& ky )
 {
-    IOPar* dpar = SI().pars().subselect( sKey::Default );
+    IOPar* dpar = SI().pars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
 	ret = dpar->findKeyFor( ky );

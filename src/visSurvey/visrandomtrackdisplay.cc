@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.132 2012-05-02 15:12:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.133 2012-05-22 14:48:43 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -857,7 +857,7 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, getKnotPos(idx) );
     }
 
-    par.set( sKey::Version, 3 );
+    par.set( sKey::Version(), 3 );
     par.setYN( sKeyLockGeometry(), lockgeometry_ );
 }
 

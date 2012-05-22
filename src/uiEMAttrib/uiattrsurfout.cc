@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrsurfout.cc,v 1.37 2012-05-21 20:55:44 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrsurfout.cc,v 1.38 2012-05-22 14:48:36 cvskris Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -98,7 +98,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 
     IOPar iop;
     interpolsel->fillPar( iop );
-    iop.get( sKey::Name, methodname_ );
+    iop.get( sKey::Name(), methodname_ );
 
     if ( interpol_ ) delete interpol_;
 
@@ -172,7 +172,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	}
     }
 
-    iopar.set( sKey::Target, attrnm );
+    iopar.set( sKey::Target(), attrnm );
     return true;
 }
 
@@ -182,7 +182,7 @@ void uiAttrSurfaceOut::fillGridPar( IOPar& par ) const
     IOPar gridpar, iopar;
     if ( interpol_ )
     {
-	gridpar.set( sKey::Name, methodname_ );
+	gridpar.set( sKey::Name(), methodname_ );
 	interpol_->fillPar( gridpar );
     }
 

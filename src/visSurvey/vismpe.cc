@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.117 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.118 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -267,7 +267,7 @@ const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
 const char* MPEDisplay::getSelSpecUserRef() const
 {
     if ( as_.id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return sKey::None;
+	return sKey::None();
     else if ( as_.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	return 0;
 

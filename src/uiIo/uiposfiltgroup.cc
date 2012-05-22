@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposfiltgroup.cc,v 1.9 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposfiltgroup.cc,v 1.10 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uiposfiltgroupstd.h"
 #include "posfilterstd.h"
@@ -51,7 +51,7 @@ void uiRandPosFiltGroup::usePar( const IOPar& iop )
 
 bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type, sKey::Random );
+    iop.set( sKey::Type(), sKey::Random() );
     const float perc = percpassfld_->getfValue();
     iop.set( Pos::RandomFilter::ratioStr(), perc*0.01 );
     return true;
@@ -66,7 +66,7 @@ void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 
 void uiRandPosFiltGroup::initClass()
 {
-    uiPosFiltGroup::factory().addCreator( create, sKey::Random );
+    uiPosFiltGroup::factory().addCreator( create, sKey::Random() );
 }
 
 
@@ -91,7 +91,7 @@ void uiSubsampPosFiltGroup::usePar( const IOPar& iop )
 
 bool uiSubsampPosFiltGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type, sKey::Subsample );
+    iop.set( sKey::Type(), sKey::Subsample() );
     iop.set( Pos::SubsampFilter::eachStr(), eachfld_->getValue() );
     return true;
 }
@@ -106,5 +106,5 @@ void uiSubsampPosFiltGroup::getSummary( BufferString& txt ) const
 
 void uiSubsampPosFiltGroup::initClass()
 {
-    uiPosFiltGroup::factory().addCreator( create, sKey::Subsample );
+    uiPosFiltGroup::factory().addCreator( create, sKey::Subsample() );
 }

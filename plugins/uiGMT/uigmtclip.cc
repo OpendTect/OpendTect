@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtclip.cc,v 1.5 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtclip.cc,v 1.6 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtclip.h"
 
@@ -44,7 +44,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
 						       "Stop clipping",true) );
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
-    ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     polygonfld_ = new uiIOObjSel( this, ctxt, "Polygon" );
     polygonfld_->attach( alignedBelow, actionfld_ );
 

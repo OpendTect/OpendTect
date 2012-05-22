@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.cc,v 1.5 2011-05-25 04:50:26 cvsraman Exp $
+ RCS:		$Id: prestackeventascio.cc,v 1.6 2012-05-22 14:48:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ Table::FormatDesc* EventAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PreStack Event" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
     createDescBody( fd );
     return fd;
 }

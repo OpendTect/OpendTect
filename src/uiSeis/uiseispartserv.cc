@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseispartserv.cc,v 1.133 2012-05-02 15:12:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispartserv.cc,v 1.134 2012-05-22 14:48:40 cvskris Exp $";
 
 #include "uiseispartserv.h"
 
@@ -66,7 +66,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    SeisIOObjInfo::initDefault( sKey::Steering );
+    SeisIOObjInfo::initDefault( sKey::Steering() );
 }
 
 

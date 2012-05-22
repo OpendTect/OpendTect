@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vislight.cc,v 1.16 2012-05-02 15:12:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vislight.cc,v 1.17 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -97,7 +97,7 @@ int Light::usePar( const IOPar& par )
 }
 
 
-const char* PointLight::positionstr() { return sKey::Position; }
+const char* PointLight::positionstr() { return sKey::Position(); }
 
 PointLight::PointLight()
     : Light( new SoPointLight )
@@ -181,7 +181,7 @@ int DirectionalLight::usePar( const IOPar& par )
 
 
 const char* SpotLight::directionstr()  { return "Direction"; }
-const char* SpotLight::positionstr()   { return sKey::Position; }
+const char* SpotLight::positionstr()   { return sKey::Position(); }
 const char* SpotLight::coneanglestr()  { return "Cone Angle"; }
 const char* SpotLight::dropoffratestr(){ return "Drop Off Rate"; }
 

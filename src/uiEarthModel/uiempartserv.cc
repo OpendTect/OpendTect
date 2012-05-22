@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.236 2012-05-21 20:55:44 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.237 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -732,9 +732,9 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type ) )
+    if ( !ioobj->pars().find( sKey::Type() ) )
     {
-	ioobj->pars().set( sKey::Type, object->getTypeStr() );
+	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	{
 	    uiMSG().error( "Could not write to database" );

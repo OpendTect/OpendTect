@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapack.cc,v 1.11 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapack.cc,v 1.12 2012-05-22 14:48:29 cvskris Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -294,7 +294,7 @@ void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 void DataPack::dumpInfo( IOPar& iop ) const
 {
     iop.set( sKeyCategory(), category() );
-    iop.set( sKey::Name, name() );
+    iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrusers_ );
     iop.set( "Memory consumption (KB)", nrKBytes() );

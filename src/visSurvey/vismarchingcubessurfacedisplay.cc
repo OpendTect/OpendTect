@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.46 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.47 2012-05-22 14:48:42 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -379,7 +379,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
  			    Coord3& xyzpos, BufferString& val,
  			    BufferString& info) const
 {
-    val = sKey::EmptyString;
+    val = sKey::EmptyString();
     info = "Body: ";
     info += name();
 
@@ -523,7 +523,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	IOPar seqpar;
 	const ColTab::Sequence* seq = getColTabSequence( 0 );
 	if ( seq->isSys() )
-	    seqpar.set( sKey::Name, seq->name() );
+	    seqpar.set( sKey::Name(), seq->name() );
 	else
 	    seq->fillPar( seqpar );
 	
@@ -574,7 +574,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 	    if ( !seq.usePar( *seqpar ) )
 	    {
 		BufferString seqname;
-		if ( seqpar->get( sKey::Name, seqname ) ) 
+		if ( seqpar->get( sKey::Name(), seqname ) ) 
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
 	    

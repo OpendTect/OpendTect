@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.7 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.8 2012-05-22 14:48:42 cvskris Exp $";
 
 
 #include "vistopbotimage.h"
@@ -29,7 +29,7 @@ namespace visBase
 
     const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
     const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; } 
-    const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName; } 	
+    const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); } 	
 
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)

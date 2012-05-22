@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgrattrvis.cc,v 1.20 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgrattrvis.cc,v 1.21 2012-05-22 14:48:39 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -285,9 +285,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 
     fp.setExtension( "par" );
     IOPar iop;
-    if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+    if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
     {
-	const char* ctname = iop.find( sKey::Name );
+	const char* ctname = iop.find( sKey::Name() );
 	seq = ColTab::Sequence( ctname );
 	mapper.usePar( iop );
     }
@@ -318,8 +318,8 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
     const ColTab::MapperSetup* mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
     if ( ctseq )
-	iop.set( sKey::Name, ctseq->name() );
+	iop.set( sKey::Name(), ctseq->name() );
     if ( mapper )
 	mapper->fillPar( iop );
-    iop.write( fp.fullPath(), sKey::Pars );
+    iop.write( fp.fullPath(), sKey::Pars() );
 }

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.44 2012-05-03 04:47:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.45 2012-05-22 14:48:28 cvskris Exp $";
 
 
 #include "raytrace1d.h"
@@ -55,7 +55,7 @@ RayTracer1D::~RayTracer1D()
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
 {
     BufferString type;
-    par.get( sKey::Type, type );
+    par.get( sKey::Type(), type );
 
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
@@ -86,7 +86,7 @@ bool RayTracer1D::usePar( const IOPar& par )
 
 void RayTracer1D::fillPar( IOPar& par ) const 
 {
-    par.set( sKey::Type, factoryKeyword() );
+    par.set( sKey::Type(), factoryKeyword() );
     par.set( sKeyOffset(), offsets_ );
     setup().fillPar( par );
 }

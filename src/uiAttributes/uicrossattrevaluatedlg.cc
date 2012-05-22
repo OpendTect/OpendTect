@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicrossattrevaluatedlg.cc,v 1.12 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicrossattrevaluatedlg.cc,v 1.13 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -221,10 +221,10 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	IOPar newpar;
 	attrset_.fillPar( newpar );
 	for ( int idx=0; idx<srcspecids_.size(); idx++ )
-	    newpar.set( IOPar::compKey(sKey::Output,idx),
+	    newpar.set( IOPar::compKey(sKey::Output(),idx),
 		        srcspecids_[idx].asInt() );
 
-	newpar.write( FilePath::getTempName("par"), sKey::Attributes );
+	newpar.write( FilePath::getTempName("par"), sKey::Attributes() );
     }
 
     calccb.trigger();

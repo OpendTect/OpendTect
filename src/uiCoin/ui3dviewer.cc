@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.13 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.14 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -79,7 +79,7 @@ static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.13 2012-05-02 15:1
 #include "visdatagroup.h"
 
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
-{ sKey::None.str(), "RedCyan", "QuadBuffer", 0 };
+{ sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
 
 
 class uiDirectViewBody : public ui3DViewerBody
@@ -1557,7 +1557,7 @@ void ui3DViewer::saveHomePos()
 
     TypeSet<int> dummy;
     camera->fillPar( homepos_, dummy );
-    homepos_.removeWithKey( sKey::Type );
+    homepos_.removeWithKey( sKey::Type() );
     SI().getPars().mergeComp( homepos_, sKeyHomePos() );
     SI().savePars();
 }

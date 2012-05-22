@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.10 2010-07-14 16:54:12 cvskris Exp $
+ RCS:           $Id: seispreload.h,v 1.11 2012-05-22 14:48:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]
     static void		loadObj(const IOPar&,TaskRunner* tr=0);
-    			//!< sKey::ID and optional subselections
+    			//!< sKey::ID() and optional subselections
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();

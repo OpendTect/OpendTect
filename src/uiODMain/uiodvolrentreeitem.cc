@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.66 2012-05-02 15:12:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.67 2012-05-22 14:48:39 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -237,7 +237,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString fnm = fp.fullPath();
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
-	iop.write( fnm, sKey::Pars );
+	iop.write( fnm, sKey::Pars() );
     }
     else if ( mnuid==positionmnuitem_.id )
     {

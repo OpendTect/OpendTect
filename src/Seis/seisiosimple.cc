@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.27 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.28 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -176,8 +176,8 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 
     if ( !data_.linekey_.isEmpty() )
     {
-	data_.subselpars_.set( sKey::LineKey, data_.linekey_ );
-	data_.subselpars_.set( sKey::Attribute, data_.linekey_.attrName());
+	data_.subselpars_.set( sKey::LineKey(), data_.linekey_ );
+	data_.subselpars_.set( sKey::Attribute(), data_.linekey_.attrName());
 	    // Needed because attrnm can disappear from line key
     }
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );

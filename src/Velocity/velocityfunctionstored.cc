@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.15 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.16 2012-05-22 14:48:35 cvskris Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -46,7 +46,7 @@ IOObjContext& StoredFunctionSource::ioContext()
     {
 	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ret->setName( "RMO picks" );
-	ret->toselect.require_.set( sKey::Type, sKeyVelocityFunction() );
+	ret->toselect.require_.set( sKey::Type(), sKeyVelocityFunction() );
     }
 
     return *ret;
@@ -158,7 +158,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::Type, sKeyVelocityFunction() );
+    par.set( sKey::Type(), sKeyVelocityFunction() );
     par.set( sKeyVelocityType(), VelocityDesc::TypeNames()[(int)desc_.type_] );
 }
 

@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.10 2012-05-07 11:34:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.11 2012-05-22 14:48:33 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -32,13 +32,13 @@ bool BatchProgram::go( std::ostream& strm )
     const bool isvol = task == SEGY::IO::sKeyIndex3DVol();
     bool is2d = !isvol; MultiID mid;
     pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
-    pars().get( sKey::Output, mid );
+    pars().get( sKey::Output(), mid );
 
     if ( isps || isvol )
     {
 	if ( mid.isEmpty() )
 	{
-	    strm << "Parameter file lacks the '" << sKey::Output << " key."
+	    strm << "Parameter file lacks the '" << sKey::Output() << " key."
 		 << std::endl;
 	    return false;
 	}
@@ -68,7 +68,7 @@ bool BatchProgram::go( std::ostream& strm )
 		    replaceCharacter( relpath.buf(), '\\', '/' );  
 		    filespec.fname_ = relpath;
 		}
-		pars().set( sKey::FileName, filespec.fname_ );
+		pars().set( sKey::FileName(), filespec.fname_ );
 	    }
 	}
 

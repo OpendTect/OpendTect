@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.95 2012-05-22 04:34:30 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.96 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -1178,7 +1178,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 {
     ctio_.ctxt.forread = false;
     if ( !type_.isEmpty() )
-	ctio_.ctxt.toselect.require_.set( sKey::Type, typ );
+	ctio_.ctxt.toselect.require_.set( sKey::Type(), typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
@@ -1223,7 +1223,7 @@ bool acceptOK( CallBacker* )
 	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
 	if ( !type_.isEmpty() )
 	{
-	    ctio_.ioobj->pars().set( sKey::Type, type_ );
+	    ctio_.ioobj->pars().set( sKey::Type(), type_ );
 	    IOM().commitChanges( *ctio_.ioobj );
 	}
 	fname_ = ctio_.ioobj->fullUserExpr(false);
@@ -1252,7 +1252,7 @@ bool uiDataPointSet::doSave()
 {
     if ( dps_.nrActive() < 1 ) return true;
 
-    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type) );
+    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );

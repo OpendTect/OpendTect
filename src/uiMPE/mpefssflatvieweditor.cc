@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.21 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.22 2012-05-22 14:48:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -334,7 +334,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     {
 	IOPar infopar;
 	dp->getAuxInfo( ix.nearest_, iy.nearest_, infopar );
-	infopar.get( sKey::TraceNr, *trcnr );
+	infopar.get( sKey::TraceNr(), *trcnr );
     }
 
     return true;

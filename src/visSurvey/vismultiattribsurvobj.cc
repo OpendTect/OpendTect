@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.67 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.68 2012-05-22 14:48:43 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -610,7 +610,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 	    IOPar seqpar;
 	    const ColTab::Sequence* seq = getColTabSequence( attrib );
 	    if ( seq->isSys() )
-		seqpar.set( sKey::Name, seq->name() );
+		seqpar.set( sKey::Name(), seq->name() );
 	    else
 		seq->fillPar( seqpar );
 

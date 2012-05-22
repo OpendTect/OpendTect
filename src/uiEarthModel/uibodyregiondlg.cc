@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.16 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.17 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -734,9 +734,9 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     MultiID key = emcs->multiID(); 
     PtrMan<IOObj> ioobj = IOM().get( key ); 
-    if ( !ioobj->pars().find( sKey::Type ) ) 
+    if ( !ioobj->pars().find( sKey::Type() ) ) 
     { 
-	ioobj->pars().set( sKey::Type, emcs->getTypeStr() ); 
+	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() ); 
 	if ( !IOM().commitChanges( *ioobj ) ) 
 	    mRetErr( "Writing body to disk failed, no permision?" ) 
     } 

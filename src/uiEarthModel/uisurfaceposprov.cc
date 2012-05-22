@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisurfaceposprov.cc,v 1.16 2012-05-21 20:55:45 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceposprov.cc,v 1.17 2012-05-22 14:48:37 cvskris Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -100,7 +100,7 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 #define mGetSurfKey(k) \
-    IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider3D::k##Key())
+    IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider3D::k##Key())
 
 
 void uiSurfacePosProvGroup::usePar( const IOPar& iop )
@@ -162,7 +162,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 
     if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
     iop.set( mGetSurfKey(extraZ), ez );
-    iop.set( sKey::Type, sKey::Surface );
+    iop.set( sKey::Type(), sKey::Surface() );
     return true;
 }
 
@@ -176,5 +176,5 @@ void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 
 void uiSurfacePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Surface );
+    uiPosProvGroup::factory().addCreator( create, sKey::Surface() );
 }

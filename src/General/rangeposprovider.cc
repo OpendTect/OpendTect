@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.20 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.21 2012-05-22 14:48:32 cvskris Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -49,7 +49,7 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
 
 const char* Pos::RangeProvider3D::type() const
 {
-    return sKey::Range;
+    return sKey::Range();
 }
 
 
@@ -149,7 +149,7 @@ int Pos::RangeProvider3D::estNrZPerPos() const
 
 void Pos::RangeProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Range );
+    Pos::Provider3D::factory().addCreator( create, sKey::Range() );
 }
 
 
@@ -185,7 +185,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 
 const char* Pos::RangeProvider2D::type() const
 {
-    return sKey::Range;
+    return sKey::Range();
 }
 
 
@@ -362,7 +362,7 @@ void Pos::RangeProvider2D::getZRange( Interval<float>& zrg, int lidx ) const
 
 void Pos::RangeProvider2D::usePar( const IOPar& iop )
 {
-    if ( !iop.hasKey(sKey::TrcRange) )
+    if ( !iop.hasKey(sKey::TrcRange()) )
     {
 	CubeSampling cs(false); cs.set2DDef();
 	if ( cs.usePar(iop) )
@@ -373,13 +373,13 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
     {
 	int lineidx =0;
 	StepInterval<int> trcrg;
-	while( iop.get(IOPar::compKey(sKey::TrcRange,lineidx),trcrg) )
+	while( iop.get(IOPar::compKey(sKey::TrcRange(),lineidx),trcrg) )
 	{
 	    trcrgs_ += trcrg;
 	    lineidx++;
 	}
 
-	iop.get( sKey::ZRange, zrg_);
+	iop.get( sKey::ZRange(), zrg_);
     }
 }
 
@@ -387,8 +387,8 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
     for ( int lidx=0; lidx<trcrgs_.size(); lidx++ )
-	iop.set( IOPar::compKey(sKey::TrcRange,lidx), trcrgs_[lidx] );
-    iop.set( sKey::ZRange, zrg_ );
+	iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
+    iop.set( sKey::ZRange(), zrg_ );
 }
 
 
@@ -446,5 +446,5 @@ void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 
 void Pos::RangeProvider2D::initClass()
 {
-    Pos::Provider2D::factory().addCreator( create, sKey::Range );
+    Pos::Provider2D::factory().addCreator( create, sKey::Range() );
 }

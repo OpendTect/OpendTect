@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.66 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.67 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -72,9 +72,9 @@ public:
 
 DefineEnumNames(SeisEnum,SelType,0,"Selection type")
 {
-	sKey::Range,
-	sKey::Table,
-	sKey::Polygon,
+	sKey::Range(),
+	sKey::Table(),
+	sKey::Polygon(),
 	0
 };
 
@@ -129,7 +129,7 @@ Seis::GeomType Seis::geomTypeOf( const char* s )
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
-    if ( s && !strcmp(s,sKey::Steering) )
+    if ( s && !strcmp(s,sKey::Steering()) )
 	return Seis::Dip;
     SeisEnum::DataType res; SeisEnum::parseEnumDataType(s,res); return res;
 }
@@ -154,12 +154,12 @@ bool Seis::isAngle( Seis::DataType dt )
 
 void Seis::putInPar( Seis::GeomType gt, IOPar& iop )
 {
-    iop.set( sKey::Geometry, Seis::nameOf(gt) );
+    iop.set( sKey::Geometry(), Seis::nameOf(gt) );
 }
 
 bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
 {
-    const char* res = iop.find( sKey::Geometry );
+    const char* res = iop.find( sKey::Geometry() );
     if ( !res || !*res ) return false;
     gt = geomTypeOf( res );
     return true;
@@ -284,7 +284,7 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 	mIOIOPar( set, BinIDInl, binid.inl );
 	mIOIOPar( set, BinIDCrl, binid.crl );
 	BufferString str( 120, false ); binid.fill( str.buf() );
-	iopar.set( sKey::Position, str );
+	iopar.set( sKey::Position(), str );
     }
 
     mIOIOPar( set, CoordX, coord.x );

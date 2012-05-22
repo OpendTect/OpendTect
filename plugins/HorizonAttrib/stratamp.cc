@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratamp.cc,v 1.17 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratamp.cc,v 1.18 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "stratamp.h"
 
@@ -99,10 +99,10 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( !attribs || !descset_->usePar( *attribs, vsn ) )
 	return -1;
 
-    BufferString outpstr = IOPar::compKey( sKey::Output, 0 );
+    BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
     if ( !outputpar ) return -1;
-    BufferString attribidstr = IOPar::compKey( sKey::Attributes, 0 );
+    BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
     int attribid;
     if ( !outputpar->get(attribidstr,attribid) ) return -1;
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisstor.cc,v 1.51 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisstor.cc,v 1.52 2012-05-22 14:48:34 cvskris Exp $";
 
 #include "seisseqio.h"
 #include "seiscbvs.h"
@@ -146,17 +146,17 @@ bool SeisStoreAccess::close()
 
 void SeisStoreAccess::fillPar( IOPar& iopar ) const
 {
-    if ( ioobj ) iopar.set( sKey::ID, ioobj->key() );
+    if ( ioobj ) iopar.set( sKey::ID(), ioobj->key() );
 }
 
 
 void SeisStoreAccess::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::ID );
+    const char* res = iopar.find( sKey::ID() );
     BufferString tmp;
     if ( !res )
     {
-	res = iopar.find( sKey::Name );
+	res = iopar.find( sKey::Name() );
 	if ( res && *res )
 	{
 	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.117 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.118 2012-05-22 14:48:28 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -84,10 +84,10 @@ DescID DescSet::ensureDefStoredPresent() const
     BufferString idstr; DescID retid;
 
     if ( is2d_ )
-	idstr = LineKey( SI().pars().find(sKey::DefLineSet),
-			 SI().pars().find(sKey::DefAttribute) );
+	idstr = LineKey( SI().pars().find(sKey::DefLineSet()),
+			 SI().pars().find(sKey::DefAttribute()) );
     else
-	idstr = SI().pars().find( sKey::DefCube );
+	idstr = SI().pars().find( sKey::DefCube() );
 
     if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
 	return defattribid_;
@@ -330,7 +330,7 @@ void DescSet::fillPar( IOPar& par ) const
 	apar.set( userRefStr(), userref );
 
 	apar.setYN( hiddenStr(), dsc.isHidden() );
-	apar.set( sKey::DataType, Seis::nameOf(dsc.dataType()) );
+	apar.set( sKey::DataType(), Seis::nameOf(dsc.dataType()) );
 
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
@@ -347,7 +347,7 @@ void DescSet::fillPar( IOPar& par ) const
 
     par.set( highestIDStr(), maxid );
     if ( descs_.size() > 0 )
-	par.set( sKey::Type, couldbeanydim_ ? "AnyD" : is2D() ? "2D" : "3D" );
+	par.set( sKey::Type(), couldbeanydim_ ? "AnyD" : is2D() ? "2D" : "3D" );
 }
 
 
@@ -510,7 +510,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	const char* type = descpar.find( sKey::DataType );
+	const char* type = descpar.find( sKey::DataType() );
 	if ( type && !strcmp( type, "Dip" ) )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
@@ -607,7 +607,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     if ( mIsUdf(versionnr) )
 	versionnr = mODVersion * 0.01;
 
-    const char* typestr = par.find( sKey::Type );
+    const char* typestr = par.find( sKey::Type() );
     if ( typestr )
     {
 	is2d_ = *typestr == '2';
@@ -728,7 +728,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  BufferStringSet* errmsgs )
 {
-    FixedString steeringtype = steeringpar.find( sKey::Type );
+    FixedString steeringtype = steeringpar.find( sKey::Type() );
     BufferString steeringdef = steeringtype.str();
     if ( steeringtype == "ConstantSteering" )
     {

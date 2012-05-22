@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.27 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.28 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -365,12 +365,12 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select a Horizon")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name, ctio_.ioobj->name() );
+    par.set( sKey::Name(), ctio_.ioobj->name() );
     const int attribidx = attribfld_->currentItem();
     par.set( ODGMT::sKeyAttribName(), attribfld_->textOfItem(attribidx) );
     IOPar subpar;
     subselfld_->fillPar( subpar );
-    par.mergeComp( subpar, sKey::Selection );
+    par.mergeComp( subpar, sKey::Selection() );
     StepInterval<float> rg = rgfld_->getFStepInterval();
     if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
 	mErrRet("Invalid data range")
@@ -404,7 +404,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     if ( attribname && *attribname )
 	attribfld_->setCurrentItem( attribname );
 
-    PtrMan<IOPar> subpar = par.subselect( sKey::Selection );
+    PtrMan<IOPar> subpar = par.subselect( sKey::Selection() );
     if ( !subpar )
 	return false;
 

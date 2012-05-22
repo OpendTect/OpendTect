@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtrandlines.cc,v 1.12 2012-05-03 09:06:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtrandlines.cc,v 1.13 2012-05-22 14:48:45 cvskris Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -128,7 +128,7 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select the Random line(set)")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name, namefld_->text() );
+    par.set( sKey::Name(), namefld_->text() );
     par.set( ODGMT::sKeyLineNames(), linenms_ );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
@@ -144,7 +144,7 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 bool uiGMTRandLinesGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    FixedString nm = par.find( sKey::Name );
+    FixedString nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
     linenms_.erase();

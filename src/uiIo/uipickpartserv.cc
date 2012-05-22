@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.71 2012-05-02 15:12:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.72 2012-05-22 14:48:38 cvskris Exp $";
 
 #include "uipickpartserv.h"
 
@@ -82,7 +82,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
     if ( poly )
-	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;

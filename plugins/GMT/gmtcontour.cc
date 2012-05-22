@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtcontour.cc,v 1.23 2012-05-21 20:55:44 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtcontour.cc,v 1.24 2012-05-22 14:48:44 cvskris Exp $";
 
 #include "gmtcontour.h"
 
@@ -44,7 +44,7 @@ GMTPar* GMTContour::createInstance( const IOPar& iop )
 const char* GMTContour::userRef() const
 {
     BufferString* str = new BufferString( "Contour: " );
-    const char* nm = find( sKey::Name );
+    const char* nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -52,7 +52,7 @@ const char* GMTContour::userRef() const
 
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
-    par.set( sKey::Name, find(sKey::Name) );
+    par.set( sKey::Name(), find(sKey::Name()) );
     FixedString attrnm = find( ODGMT::sKeyAttribName() );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals() )
@@ -65,7 +65,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     if ( drawcontour )
     {
 	par.set( ODGMT::sKeyShape(), "Line" );
-	par.set( sKey::Size, 1 );
+	par.set( sKey::Size(), 1 );
 	str = find( ODGMT::sKeyLineStyle() ).str();
 	par.set( ODGMT::sKeyLineStyle(), str );
     }
@@ -86,17 +86,17 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 bool GMTContour::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID, id );
+    get( sKey::ID(), id );
     bool drawcontour=false, dofill=false;
     getYN( ODGMT::sKeyDrawContour(), drawcontour );
     getYN( ODGMT::sKeyFill(), dofill );
 
-    const char* hornm = find( sKey::Name );
+    const char* hornm = find( sKey::Name() );
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
     EM::EMM().getSurfaceData( id, sd );
-    PtrMan<IOPar> subpar = subselect( sKey::Selection );
+    PtrMan<IOPar> subpar = subselect( sKey::Selection() );
     if ( !subpar )
 	mErrStrmRet("Missing subselection")
 
