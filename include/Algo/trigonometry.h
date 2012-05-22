@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.50 2011-05-03 19:46:29 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.51 2012-05-22 04:33:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -322,6 +322,7 @@ public:
 			/*!<Gives a parallel line at a distance dist */
     bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
     			/*!<Gives a perpendicular line through point pt*/
+    bool		isOnLine(const Coord& pt) const;
 
     double		slope_;
     double		yintcpt_;

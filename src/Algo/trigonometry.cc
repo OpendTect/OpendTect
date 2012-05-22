@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.61 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.62 2012-05-22 04:33:08 cvssatyaki Exp $";
 
 #include "trigonometry.h"
 
@@ -295,6 +295,9 @@ Coord Line2::closestPoint( const Coord& point ) const
 Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 {
     Coord pos( mUdf(double), mUdf(double) );
+    if ( line.start_==line.stop_ && !isOnLine(line.start_) )
+	mRetUdf;
+
     if ( mIsUdf(slope_) )
     {
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
@@ -360,6 +363,12 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	mRetUdf;
 
     return pos;
+}
+
+
+bool Line2::isOnLine( const Coord& pt ) const
+{
+    return pt.y == slope_*pt.x + yintcpt_;
 }
 
 
