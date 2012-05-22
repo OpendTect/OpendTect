@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.1 2012-05-22 21:52:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.2 2012-05-22 22:03:40 cvsnanne Exp $";
 
 
 #include "uibulkwellimp.h"
@@ -182,7 +182,10 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     }
 
     if ( errors.isEmpty() )
+    {
+	uiMSG().message( "All tracks imported succesfully" );
 	return true;
+    }
 
     uiMSG().errorWithDetails( errors,
 		"Could not import all wells (see details)" );
@@ -248,7 +251,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	if ( !errmsg.isEmpty() )
 	    errors.add( BufferString(fnm,": ",errmsg) );
 
-	Well::Writer wtr( fnm, *wd );
+	BufferString wellfnm = ioobj->fullUserExpr( true );
+	Well::Writer wtr( wellfnm, *wd );
 	wtr.putLogs();
 	if ( !isloaded )
 	    delete Well::MGR().release( ioobj->key() );
