@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.52 2012-05-18 06:22:06 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.53 2012-05-22 09:25:15 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -80,6 +80,8 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 	usePar( *iop );
 
     state_ = (int)su.initialstate_;
+    if ( setup_.purpose_ == Import )
+	afterfinishedstate_ = state_;
     nextAction();
 }
 
