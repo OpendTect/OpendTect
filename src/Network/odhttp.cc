@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.20 2012-05-02 15:11:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.21 2012-05-22 14:10:08 cvskris Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -54,13 +54,20 @@ int _setHost( const char* host, int port )
     return id;
 }
 
-int _get( const char* path, const char* dest )
+int _get( const char* path, const char* dest, BufferString& errmsg )
 {
     QFile* qfile = 0;
     if ( dest && *dest )
     {
 	qfile = new QFile( dest );
-	qfile->open( QIODevice::WriteOnly );
+	if ( !qfile->open( QIODevice::WriteOnly ) )
+	{
+	    errmsg = "Cannot open ";
+	    errmsg.add( dest ).add( " for writing." );
+	    delete qfile;
+	    return -1;
+	}
+
     }
 
     qfiles_ += qfile;
@@ -151,7 +158,13 @@ ODHttp::State ODHttp::state() const
 { return (ODHttp::State)(int)qhttp_->state(); }
 
 int ODHttp::get( const char* path, const char* dest )
-{ return qhttp_->_get( path, dest ); }
+{
+    int res = qhttp_->_get( path, dest, message_ );
+    if ( res==-1 )
+	error_ = true;
+    
+    return res;
+}
 
 
 void ODHttp::forceAbort()
