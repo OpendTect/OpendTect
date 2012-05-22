@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizard.h,v 1.3 2011-09-22 05:16:11 cvsbert Exp $
+ RCS:           $Id: uivarwizard.h,v 1.4 2012-05-22 08:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ protected:
     uiParent*		parent_;
     IOPar		pars_;
     int			state_;
+    int			afterfinishedstate_; //! default -1 meaning: close down
 
     virtual void	doPart()		= 0;
     virtual void	closeDown();

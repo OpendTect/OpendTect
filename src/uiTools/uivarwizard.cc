@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivarwizard.cc,v 1.5 2012-05-02 15:12:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivarwizard.cc,v 1.6 2012-05-22 08:51:39 cvsbert Exp $";
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
@@ -21,6 +21,7 @@ const char* uiVarWizardDlg::sBackButTxt()	{ return "&<< Back"; }
 
 uiVarWizard::uiVarWizard( uiParent* p )
     : state_(-1)
+    , afterfinishedstate_(-1)
     , parent_(p)
     , processEnded(this)
 {
@@ -36,8 +37,13 @@ void uiVarWizard::closeDown()
 void uiVarWizard::nextAction()
 {
     if ( state_ <= cFinished() )
-	{ closeDown(); return; }
-    else if ( state_ != cWait4Dialog() )
+    {
+	if ( state_ == cCancelled() || afterfinishedstate_ < 0 )
+	    { closeDown(); return; }
+	state_ = afterfinishedstate_;
+    }
+
+    if ( state_ != cWait4Dialog() )
 	doPart();
 }
 
