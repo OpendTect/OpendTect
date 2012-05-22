@@ -13,7 +13,7 @@ SET (OpendTect_VERSION_DETAIL 0)
 
 ENABLE_TESTING()
 
-PROJECT( "OpendTect ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+PROJECT( "OpendTect_${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
 SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 SET( OD_BINARY_BASEDIR ${OpendTect_DIR} )
