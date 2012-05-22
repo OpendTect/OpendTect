@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.440 2012-05-15 13:10:26 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.441 2012-05-22 04:35:00 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -127,6 +127,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 
 uiODApplMgr::~uiODApplMgr()
 {
+    visdpsdispmgr_->clearDisplays();
+    dispatcher_.survChg(true); attrvishandler_.survChg(true);
     IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
     delete mpeserv_;
     delete pickserv_;
