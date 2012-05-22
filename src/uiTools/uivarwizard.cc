@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivarwizard.cc,v 1.6 2012-05-22 08:51:39 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivarwizard.cc,v 1.7 2012-05-22 09:21:25 cvsbert Exp $";
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
@@ -62,9 +62,14 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
 {
     setModal( false );
 
-    if ( pos_ != End )
+    if ( pos_ == End )
+	setOkText( "&Go" );
+    else
 	setOkText( sProceedButTxt() );
-    if ( pos_ != Start )
+
+    if ( pos_ == Start )
+	setCancelText( "&Quit" );
+    else
 	setCancelText( sBackButTxt() );
 }
 
