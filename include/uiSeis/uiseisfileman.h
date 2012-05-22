@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.27 2011-09-16 10:01:23 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.28 2012-05-22 04:26:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ protected:
     double		getFileSize(const char*,int&) const;
 
     const char*		getDefKey() const;
+    void		man2DGeom(CallBacker*);
 
 };
 

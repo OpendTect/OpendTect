@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.130 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.131 2012-05-22 04:26:40 cvssatyaki Exp $";
 
 
 #include "uiseisfileman.h"
@@ -26,6 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.130 2012-05-09 
 #include "zdomain.h"
 #include "separstr.h"
 
+#include "ui2dgeomman.h"
 #include "uitoolbutton.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
@@ -74,6 +75,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				mCB(this,uiSeisFileMan,man2DPush) );
 	manipgrp->addButton( "dumpgeom", "Dump geometry",
 				mCB(this,uiSeisFileMan,dump2DPush) );
+	manipgrp->addButton( "man2dgeom.png", "Mange 2D geometry",
+				mCB(this,uiSeisFileMan,man2DGeom) );
     }
     else
     {
@@ -240,6 +243,13 @@ void uiSeisFileMan::dump2DPush( CallBacker* )
     if ( !curioobj_ ) return;
 
     uiSeisDump2DGeom dlg( this, curioobj_ );
+    dlg.go();
+}
+
+
+void uiSeisFileMan::man2DGeom( CallBacker* )
+{
+    ui2DGeomManageDlg dlg( this );
     dlg.go();
 }
 
