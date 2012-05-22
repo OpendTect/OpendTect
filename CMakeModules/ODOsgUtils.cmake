@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.11 2012-04-12 14:34:26 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.12 2012-05-22 14:17:21 cvsjaap Exp $
 #_______________________________________________________________________________
 
 
@@ -44,6 +44,7 @@ MACRO(OD_SETUP_OSG)
 		OSGGA
 		OSGUTIL
 		OSGQT
+		OSGMANIPULATOR
 		OSGWIDGET
 		OSGVIEWER
 		OSGVOLUME
