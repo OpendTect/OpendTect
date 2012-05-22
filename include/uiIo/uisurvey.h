@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.37 2011-05-26 07:07:21 cvsnanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.38 2012-05-22 15:20:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ protected:
     uiPushButton*	rmbut_;
     uiPushButton*	datarootbut_;
     uiPushButton*	copybut_;
+    uiPushButton*	archbut_;
     ObjectSet<uiToolButton> utilbuts_;
     uiLabel*		inllbl_;
     uiLabel*		crllbl_; 
@@ -92,6 +93,7 @@ protected:
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		copyButPushed(CallBacker*);
+    void		archButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.139 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.140 2012-05-22 15:20:52 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -54,7 +54,6 @@ static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.139 2012-05-09 07:51
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
-
 
 
 static ObjectSet<uiSurvey::Util>& getUtils()
@@ -188,6 +187,11 @@ uiSurvey::uiSurvey( uiParent* p )
 	    			 mCB(this,uiSurvey,copyButPushed), false );
     copybut_->attach( alignedBelow, editbut_ );
     copybut_->setPrefWidthInChar( 12 );
+
+    archbut_ = new uiPushButton( leftgrp, "&Archive",
+				 mCB(this,uiSurvey,archButPushed), false );
+    archbut_->attach( alignedBelow, copybut_ );
+    archbut_->setPrefWidthInChar( 12 );
 
     ObjectSet<uiSurvey::Util>& utils = getUtils();
     uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
@@ -430,7 +434,6 @@ void uiSurvey::rmButPushed( CallBacker* )
     msg += "\nFull path: "; msg += truedirnm;
     if ( !uiMSG().askRemove( msg ) ) return;
 
-
     MouseCursorManager::setOverride( MouseCursor::Wait );
     bool rmres = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
@@ -451,6 +454,17 @@ void uiSurvey::rmButPushed( CallBacker* )
         writeSurveyName( newsel );
 	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
     }
+}
+
+
+void uiSurvey::archButPushed( CallBacker* )
+{
+    uiDialog dlg( this,
+	uiDialog::Setup("Archive survey",mNoDlgTitle,mTODOHelpID) );
+    uiFileInput* dirfld = new uiFileInput( &dlg, "Destination",
+	uiFileInput::Setup().directories(true) );
+    if ( !dlg.go() )
+	return;
 }
 
 
