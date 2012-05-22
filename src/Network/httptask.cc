@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Oct 2011
- RCS:		$Id: httptask.cc,v 1.5 2012-05-22 13:57:03 cvskris Exp $
+ RCS:		$Id: httptask.cc,v 1.6 2012-05-22 14:22:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,10 @@ HttpTask::~HttpTask()
 int HttpTask::nextStep()
 {
     if ( !http_.isOK() )
-	return ErrorOccurred();
+    {
+	msg_ = http_.message();
+	state_ = ErrorOccurred();
+    }
 
     return state_;
 }
@@ -60,4 +63,15 @@ void HttpTask::progressCB( CallBacker* )
 
 
 void HttpTask::doneCB( CallBacker* )
-{ state_ = http_.isOK() ? Finished() : ErrorOccurred(); }
+{
+    if ( http_.isOK() )
+    {
+	state_ = Finished();
+    }
+    else
+    {
+	state_ = ErrorOccurred();
+	msg_ = http_.message();
+    }
+}
+
