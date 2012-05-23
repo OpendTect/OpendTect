@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID mUnusedVar = "$Id: genericnumer.cc,v 1.26 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genericnumer.cc,v 1.27 2012-05-23 07:27:55 cvskris Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
@@ -252,7 +252,7 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
     float x2 = (x1+x3)/2;
 
     int iter;
-    float a,b,d,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
+    float a,b,d=0.0,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
     float e=0.0;
     
     a=((x1 < x2) ? x1 : x2);
