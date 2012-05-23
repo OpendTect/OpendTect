@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.42 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.43 2012-05-23 15:12:18 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -310,7 +310,8 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     const float midratio = (midval - scalerg_.start) / scalewidth_;
     const float offs = (midratio-0.5) * stripwidth_;
     const float middim0pos = dim0pos_[idim0] + (pars_.fliplr_ ? -offs : offs);
-    const float dim1fac = (szdim1_ - 1) / dim1pos_.width();
+    const float dim1wdth = dim1pos_.width();
+    const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
@@ -575,7 +576,8 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
     }
 
     const Array2D<float>& inpdata = data_.data();
-    const float dim1fac = (szdim1_ - 1) / dim1pos_.width();
+    const float dim1wdth = dim1pos_.width();
+    const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);
     int previdim1 = mUdf(int);
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
