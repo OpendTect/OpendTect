@@ -7,16 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.13 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.14 2012-05-23 12:26:09 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "ranges.h"
 #include "visobject.h"
 
 
-template <class T> class Interval;
+namespace osgManipulator { class TabPlaneDragger; }
+namespace osg { class Switch; }
+
 
 class SoDepthTabPlaneDragger;
 class SoDragger;
@@ -26,12 +29,16 @@ class IOPar;
 namespace visBase
 {
 
+class PlaneDraggerCallbackHandler;
+
 /*!\brief
 
 */
 
 mClass DepthTabPlaneDragger : public VisualObjectImpl
 {
+    friend class PlaneDraggerCallbackHandler;
+
 public:
     static DepthTabPlaneDragger*	create()
 					mCreateDataObj(DepthTabPlaneDragger);
@@ -80,6 +87,8 @@ public:
 
     void			setOwnShape( SoNode* );
 
+    void			showPlane(bool yn=true);
+    bool			isPlaneShown() const;
 
     void			setTransDragKeys(bool depth,int keys);
     				/*!<\param depth specifies wheter the depth or
@@ -107,6 +116,8 @@ protected:
     Coord3			world2Dragger( const Coord3&, bool pos) const;
     Coord3			dragger2World( const Coord3&, bool pos) const;
 
+    void			initOsgDragger();
+
     SoDepthTabPlaneDragger*	dragger_;
 
     int				dim_;
@@ -115,6 +126,13 @@ protected:
     TypeSet<Coord3>		sizes_;
 
     const mVisTrans*		transform_;
+
+    osgManipulator::TabPlaneDragger*	osgdragger_;
+    osg::Switch*			osgdraggerplane_;
+    PlaneDraggerCallbackHandler*	osgcallbackhandler_;
+
+    Interval<float>		widthranges_[3];
+    Interval<float>		spaceranges_[3];
 
 private:
     static void			startCB( void*, SoDragger* );

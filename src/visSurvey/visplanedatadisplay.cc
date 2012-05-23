@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.267 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.268 2012-05-23 12:26:09 cvsjaap Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -151,6 +151,8 @@ PlaneDataDisplay::PlaneDataDisplay()
 	texturerect_ = visBase::TextureRectangle::create();
 	inl2displaytrans_->addObject( texturerect_ );
 	texturerect_->setTextureChannels( channels_ );
+
+	inl2displaytrans_->addObject( dragger_ );
     }
 
     volumecache_.allowNull( true );
@@ -484,6 +486,9 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 	    ? visBase::DrawStyle::Filled
 	    : visBase::DrawStyle::Lines );
     draggermaterial_->setTransparency( showplane ? 0.5 : 0 );
+
+    if ( doOsg() )
+	dragger_->showPlane( showplane );
 }
 
 
