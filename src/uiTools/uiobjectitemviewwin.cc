@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.22 2012-05-23 08:34:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.23 2012-05-23 09:01:15 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -163,14 +163,22 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	NotifyStopper nsl( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
-    const uiRect& screct = mainviewer_->getViewArea();
+    const uiRect& mainrect = mainviewer_->getViewArea();
+    const int x = mainrect.left();
+    const int y = mainrect.top();
+    const int width = mainrect.width();
+    const int height = mainrect.height();
+    float xcenter = x + width/(float)2;
+    float ycenter = y + height/(float)2;
 
     reSizeItems();
 
     const float hfac = hslval_/prevhslval;
     const float vfac = vslval_/prevvslval;
-    mainviewer_->setViewArea( screct.left()*hfac, screct.top()*vfac,
-			      screct.width()*hfac, screct.height()*vfac );
+    xcenter *= hfac;
+    ycenter *= vfac;
+
+    mainviewer_->centreOn( uiPoint( mNINT(xcenter), mNINT(ycenter) ) );
 }
 
 
