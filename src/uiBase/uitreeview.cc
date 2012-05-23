@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.74 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.75 2012-05-23 22:32:20 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -246,6 +246,13 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
 {
     mouseButtonClicked.notify( mCB(this,uiListView,cursorSelectionChanged) );
     setRootDecorated( dec );
+}
+
+
+uiListView::~uiListView()
+{
+    for ( int idx=0; idx<nrItems(); idx++ )
+	delete getItem( idx );
 }
 
 
@@ -633,8 +640,13 @@ void uiListViewItem::init( const Setup& setup )
 
 uiListViewItem::~uiListViewItem()
 {
+    for ( int idx=0; idx<nrChildren(); idx++ )
+	delete getChild( idx );
+
     odqtobjects_.remove( *this );
-    delete qtreeitem_;
+//  Not sure whether the qtreeitem_ should be delete here.
+//  When enabled od crashes, so commented for now
+//    delete qtreeitem_;
 }
 
 

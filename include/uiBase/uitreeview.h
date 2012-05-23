@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.47 2012-03-09 15:41:51 cvskris Exp $
+ RCS:           $Id: uitreeview.h,v 1.48 2012-05-23 22:32:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
 
-    virtual		~uiListView()			{}
+    virtual		~uiListView();
 
 			// 0: use nr itms in list
     uiListViewBody& 	mkbody(uiParent*,const char*,int);
