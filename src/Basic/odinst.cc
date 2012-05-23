@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.11 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.12 2012-05-23 06:27:18 cvsraman Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -162,7 +162,7 @@ ODInst::AutoInstType ODInst::getAutoInstType()
     mDeclEnvVarVal;
     const char* res = envvarval && *envvarval ? envvarval
 			: userSettings().find( sKeyAutoInst() ).str();
-    return res && *res ? parseEnumAutoInstType( res ) : ODInst::UseManager;
+    return res && *res ? parseEnumAutoInstType( res ) : ODInst::InformOnly;
 }
 
 
