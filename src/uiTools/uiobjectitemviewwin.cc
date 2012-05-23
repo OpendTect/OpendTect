@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.21 2012-05-21 08:24:03 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.22 2012-05-23 08:34:59 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -260,8 +260,8 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
     const uiRect& inforect = infobar_->getViewArea();
     const int x = mainrect.left();
     const int y = inforect.top();
-    const int w = mainrect.width();
-    infobar_->centreOn( uiPoint( x + ( w - mScrollBarSize )/(float)2, y  ) );
+    const int w = mainrect.width() - mScrollBarSize;
+    infobar_->centreOn( uiPoint( x + (int)(w/(float)2), y  ) );
 }
 
 
