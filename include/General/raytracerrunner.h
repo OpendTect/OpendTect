@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: raytracerrunner.h,v 1.8 2012-05-21 15:49:55 cvsbruno Exp $
+ RCS:           $Id: raytracerrunner.h,v 1.9 2012-05-23 14:47:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "task.h"
 #include "ranges.h"
 #include "raytrace1d.h"
-#include "velocitycalc.h"
 
 mClass RayTracerRunner : public ParallelTask
 {
@@ -49,22 +48,5 @@ protected:
     TypeSet<ElasticModel> aimodels_;
     ObjectSet<RayTracer1D> 	raytracers_;
 };
-
-
-static void blockElasticModel( ElasticModel& mdl )
-{
-    TypeSet<float> dpts, vels;
-    for ( int idx=0; idx<mdl.size(); idx++ )
-    {
-	dpts += mdl[idx].thickness_;
-	if ( idx ) dpts[idx] += dpts[idx-1];
-	vels += mdl[idx].vel_;
-    }
-    TypeSet<int> torem;
-    BendPointVelBlock( dpts, vels, &torem );
-    for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
-	mdl.remove( torem[idvel] );
-}
-
 
 #endif
