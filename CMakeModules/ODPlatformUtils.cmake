@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.45 2012-05-03 11:48:22 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.46 2012-05-23 10:58:05 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -58,7 +58,7 @@ IF(UNIX) #Apple an Linux
 		"-Wno-char-subscripts -Wno-sign-compare" )
 	IF ( CMAKE_CXX_FLAGS STREQUAL "" )
 	    SET( CMAKE_CXX_FLAGS
-		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder -Wno-unused"
+		"-Wno-non-template-friend  -Woverloaded-virtual -Wno-reorder"
 		 CACHE STRING "CC flags" FORCE )
 	ENDIF()
 	IF ( CMAKE_C_FLAGS STREQUAL "" )
