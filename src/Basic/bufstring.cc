@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bufstring.cc,v 1.43 2012-05-02 15:23:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: bufstring.cc,v 1.44 2012-05-23 10:44:59 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -502,7 +502,7 @@ void BufferStringSet::sort( bool caseinsens, bool asc )
 }
 
 
-void BufferStringSet::useIndexes( int* idxs )
+void BufferStringSet::useIndexes( const int* idxs )
 {
     const int sz = size();
     if ( !idxs || sz < 2 ) return;

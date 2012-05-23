@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.23 2012-04-13 14:17:25 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.24 2012-05-23 10:44:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     void		sort(bool caseinsens=true,bool asc=true);
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
     			//!< returns new int [size()] for you to 'delete []'
-    void		useIndexes(int*);
+    void		useIndexes(const int*);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
