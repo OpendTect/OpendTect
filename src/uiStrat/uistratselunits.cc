@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.9 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.10 2012-05-23 22:31:52 cvsnanne Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -56,6 +56,13 @@ uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
 	mkBoxFld();
     else
 	mkTreeFld();
+}
+
+
+uiStratSelUnits::~uiStratSelUnits()
+{
+    for ( int idx=0; idx<lvitms_.size(); idx++ )
+	lvitms_[idx]->stateChanged.remove( mCB(this,uiStratSelUnits,selChg) );
 }
 
 

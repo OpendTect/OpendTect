@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.5 2011-12-22 12:38:15 cvsbert Exp $
+ RCS:           $Id: uistratselunits.h,v 1.6 2012-05-23 22:31:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
 			uiStratSelUnits(uiParent*,
 					const Strat::NodeUnitRef&,
 					const Setup&);
+			~uiStratSelUnits();
 
     bool		isSelected(const Strat::UnitRef&) const;
     bool		isPresent(const Strat::UnitRef&) const;
