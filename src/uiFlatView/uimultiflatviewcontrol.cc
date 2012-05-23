@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.12 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.13 2012-05-23 14:40:24 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -26,9 +26,12 @@ static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.12 201
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
-    , iszoomcoupled_(true)  
+    , iszoomcoupled_(true)
+    , drawzoomboxes_(false)			  
     , activevwr_(0)  
 {
+    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
+    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
     parsbuts_ += parsbut_;
     toolbars_ += tb_;
     zoommgrs_ += &zoommgr_;
@@ -86,6 +89,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
     vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
     vwr.appearance().annot_.editable_ = false;
+    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
 
     reInitZooms();
@@ -165,7 +169,7 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 }
 
 
-void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
+void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 {
     if ( !iszoomcoupled_ || !activeVwr() ) return;
 
@@ -202,5 +206,45 @@ void uiMultiFlatViewControl::parsCB( CallBacker* cb )
     const int idx = parsbuts_.indexOf( but ); 
     if ( idx >= 0 )
 	doPropertiesDialog( idx );
+}
+
+
+void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
+{
+    for ( int idx=0; idx<zoomboxes_.size(); idx++ )
+	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
+    deepErase( zoomboxes_ );
+
+    if ( iszoomcoupled_ || !activeVwr() && !drawzoomboxes_ ) 
+	return;
+
+    const uiWorldRect& masterbbox = activeVwr()->boundingBox();
+    const uiWorldRect& wr = activeVwr()->curView();
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
+	vwrs_[idx]->addAuxData( ad );
+	zoomboxes_ += ad;
+	ad->linestyle_ = LineStyle( LineStyle::Dash, 3, Color::Black() );
+	ad->zvalue_ = 5;
+
+	if ( vwrs_[idx] == activeVwr() || wr == masterbbox )
+	    continue;
+
+	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
+	LinScaler sclr( masterbbox.left(), bbox.left(),
+		        masterbbox.right(), bbox.right() );
+	LinScaler sctb( masterbbox.top(), bbox.top(),
+		        masterbbox.bottom(), bbox.bottom() );
+	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
+			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
+	ad->poly_ += newwr.topLeft(); 
+	ad->poly_ += newwr.topRight();
+	ad->poly_ += newwr.bottomRight();
+	ad->poly_ += newwr.bottomLeft(); 
+	ad->poly_ += newwr.topLeft(); 
+	vwrs_[idx]->handleChange( FlatView::Viewer::Annot ); 
+    }
 }
 

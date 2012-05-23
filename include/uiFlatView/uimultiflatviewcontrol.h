@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2012
- RCS:           $Id: uimultiflatviewcontrol.h,v 1.8 2012-04-11 15:00:49 cvsbruno Exp $
+ RCS:           $Id: uimultiflatviewcontrol.h,v 1.9 2012-05-23 14:40:24 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 /*! brief : a control for FlatViewers with different zoom properties and settings !*/
 
 #include "uiflatviewstdcontrol.h"
+#include "flatview.h"
 
 mClass uiMultiFlatViewControl : public uiFlatViewStdControl
 {
@@ -29,21 +30,25 @@ public:
     uiFlatViewer*	activeVwr() const   { return activevwr_; }
 
     void		setZoomCoupled( bool yn ) { iszoomcoupled_ = yn; }
+    void		setDrawZoomBoxes( bool yn ) { drawzoomboxes_ = yn; }
 
 protected:
     ObjectSet<FlatView::ZoomMgr> zoommgrs_;
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiToolButton> parsbuts_;
+    ObjectSet<FlatView::AuxData> zoomboxes_;
 
     bool		handleUserClick();
     void		reInitZooms();
     bool		iszoomcoupled_;
+    bool		drawzoomboxes_;
 
     uiFlatViewer*	activevwr_;
 
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		dataChangeCB(CallBacker*);
+    void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*);
