@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrinpdlg.cc,v 1.31 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrinpdlg.cc,v 1.32 2012-05-23 10:18:42 cvshelene Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -161,6 +161,13 @@ const char* uiAttrInpDlg::getSeisKey() const
     lk.setLineName( ctio_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( seisinpfld_->attrNm() );
+    else
+    {
+	static BufferString buf;
+	buf = lk.lineName();
+	return buf;
+    }
+
     return lk;
 }
 
@@ -171,5 +178,12 @@ const char* uiAttrInpDlg::getSteerKey() const
     lk.setLineName( ctiosteer_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( steerinpfld_->attrNm() );
+    else
+    {
+	static BufferString buf;
+	buf = lk.lineName();
+	return buf;
+    }
+
     return lk;
 }
