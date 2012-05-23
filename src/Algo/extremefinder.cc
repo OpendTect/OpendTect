@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: extremefinder.cc,v 1.19 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: extremefinder.cc,v 1.20 2012-05-23 07:28:09 cvskris Exp $";
 
 #include "extremefinder.h"
 #include "mathfunc.h"
@@ -26,7 +26,7 @@ BisectionExtremeFinder1D::BisectionExtremeFinder1D(
     , func( func_ )
     , itermax( itermax_ )
     , tol( tol_ )
-    , limits( 0 )
+    , limits_( 0 )
 {
     reStart( sinterval, linterval );
 }
@@ -46,13 +46,13 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
     float funcval;
     if ( linterval )
     {
-	if ( limits ) *limits = *linterval;
-	else limits = new Interval<float>(*linterval);
+	if ( limits_ ) *limits_ = *linterval;
+	else limits_ = new Interval<float>(*linterval);
     }
-    else if ( limits )
+    else if ( limits_ )
     {
-	delete limits;
-	limits = 0;
+	delete limits_;
+	limits_ = 0;
     }
 
 //Bracket the interval
@@ -67,7 +67,7 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 	if ( startfuncval<stopfuncval )
 	{
 	    current.start -= halfwidth;
-	    if ( limits && !limits->includes(current.start,true) )
+	    if ( limits_ && !limits_->includes(current.start,true) )
 	    { isok = false; return; }
 
 	    current.stop -= halfwidth;
@@ -79,7 +79,7 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 	else
 	{
 	    current.stop += halfwidth;
-	    if ( limits && !limits->includes(current.stop,true) )
+	    if ( limits_ && !limits_->includes(current.stop,true) )
 	    { isok = false; return; }
 
 	    current.start += halfwidth;
@@ -97,7 +97,7 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 
 BisectionExtremeFinder1D::~BisectionExtremeFinder1D()
 {
-    delete limits;
+    delete limits_;
 }
 
 
@@ -167,109 +167,112 @@ int BisectionExtremeFinder1D::nextStep()
 #define GLIMIT 100.0
 
 
-ExtremeFinder1D::ExtremeFinder1D( const FloatMathFunction& func_, bool max_,
-		  int itermax_, float tol_, const Interval<float>& sinterval,
+ExtremeFinder1D::ExtremeFinder1D( const FloatMathFunction& func, bool max,
+		  int itermax, float tol, const Interval<float>& sinterval,
 		  const Interval<float>* linterval )
-    : max( max_ )
-    , func( func_ )
-    , itermax( itermax_ )
-    , tol( tol_ )
-    , limits( 0 )
+    : max_( max )
+    , func_( func )
+    , itermax_( itermax )
+    , tol_( tol )
+    , limits_( 0 )
 {
     reStart( sinterval, linterval );
 }
 
+#undef mGetFuncVal
+#define mGetFuncVal( xpos ) \
+( max_ ? -func_.getValue( xpos ) : func_.getValue( xpos ) )
+
 
 #define mInitReturn \
-    a = mMIN(ax,cx); \
-    b = mMAX(ax,cx); \
-    x=w=v=bx; \
-    fw=fv=fx= max ? -func.getValue( x ) : func.getValue( x ); \
+    a_ = mMIN(ax_,cx_); \
+    b_ = mMAX(ax_,cx_); \
+    x_=w_=v_=bx_; \
+    fw_=fv_=fx_= mGetFuncVal( x_ ); \
     return
+
+
 
 void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
        			       const Interval<float>* linterval )
 {
     if ( linterval )
     {
-	if ( limits ) *limits = *linterval;
-	else limits = new Interval<float>(*linterval);
+	if ( limits_ ) *limits_ = *linterval;
+	else limits_ = new Interval<float>(*linterval);
     }
-    else if ( limits )
+    else if ( limits_ )
     {
-	delete limits;
-	limits = 0;
+	delete limits_;
+	limits_ = 0;
     }
 
-    ax = sinterval.start;
-    bx = sinterval.center();
-    cx = sinterval.stop;
-    iter = 0;
-    e = 0;
+    ax_ = sinterval.start;
+    bx_ = sinterval.center();
+    cx_ = sinterval.stop;
+    iter_ = 0;
+    e_ = 0;
 
-    float fa = max ? -func.getValue( ax ) : func.getValue( ax );
-    float fb = max ? -func.getValue( bx ) : func.getValue( bx );
-
+    float fa = mGetFuncVal( ax_ );
+    float fb = mGetFuncVal( bx_ );
     if ( fb>fa )
     {
 	float ddummy;
-	mSWAP( ax, bx, ddummy );
+	mSWAP( ax_, bx_, ddummy );
 	float fdummy;
 	mSWAP(fb,fa,fdummy);
     }
 
-    cx=bx+GOLD*(bx-ax);
-    float fc = max ? -func.getValue( cx ) : func.getValue( cx );
+    cx_=bx_+GOLD*(bx_-ax_);
+    float fc = mGetFuncVal( cx_ );
     while ( fb>fc )
     {
-	const float r =(bx-ax)*(fb-fc);
-	const float s =(bx-cx)*(fb-fa);
-	float q = (bx)-((bx-cx)*s-(bx-ax)*r)/
+	const float r =(bx_-ax_)*(fb-fc);
+	const float s =(bx_-cx_)*(fb-fa);
+	float q = (bx_)-((bx_-cx_)*s-(bx_-ax_)*r)/
 				    (2.0*SIGN(mMAX(fabs(s-r),TINY),s-r));
-	const float ulim = bx+GLIMIT*(cx-bx);
+	const float ulim = bx_+GLIMIT*(cx_-bx_);
 	float fq;
-	if ( (bx-q)*(q-cx) > 0.0 )
+	if ( (bx_-q)*(q-cx_) > 0.0 )
 	{
-	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    fq = mGetFuncVal( q );
 	    if ( fq<fc )
 	    {
-		ax = bx;
-		bx = q;
-		fa=fb;
-		fb=fq;
+		ax_ = bx_;
+		bx_ = q;
+
 		mInitReturn;
 	    }
 	    else if ( fq>fb )
 	    {
-		cx = q;
-		fc = fq;
+		cx_ = q;
 		mInitReturn;
 	    }
 
-	    q = cx+GOLD*(cx-bx);
-	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    q = cx_+GOLD*(cx_-bx_);
+	    fq = mGetFuncVal( q );
 	}
-	else if ( (cx-q)*(q-ulim) > 0.0 )
+	else if ( (cx_-q)*(q-ulim) > 0.0 )
 	{
-	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    fq = mGetFuncVal( q );
 	    if ( fq<fc)
 	    {
-		SHIFT(bx,cx,q,cx+GOLD*(cx-bx));
-		SHIFT(fb,fc,fq,max ? -func.getValue(q):func.getValue(q) );
+		SHIFT(bx_,cx_,q,cx_+GOLD*(cx_-bx_));
+		SHIFT(fb,fc,fq, mGetFuncVal( q ) );
 	    }
 	}
-	else if ( (q-ulim)*(ulim-cx)>=0.0 )
+	else if ( (q-ulim)*(ulim-cx_)>=0.0 )
 	{
 	    q = ulim;
-	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    fq = mGetFuncVal( q );
 	}
 	else
 	{
-	    q = cx+GOLD*(cx-bx);
-	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    q = cx_+GOLD*(cx_-bx_);
+	    fq = mGetFuncVal( q );
 	}
 
-	SHIFT(ax,bx,cx,q);
+	SHIFT(ax_,bx_,cx_,q);
 	SHIFT(fa,fb,fc,fq);
     }
 
@@ -279,25 +282,25 @@ void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
 
 ExtremeFinder1D::~ExtremeFinder1D()
 {
-    delete limits;
+    delete limits_;
 }
 
 
 float ExtremeFinder1D::extremePos() const
 {
-    return x;
+    return x_;
 }
 
 
 float ExtremeFinder1D::extremeVal() const
 {
-    return max ? -fx : fx;
+    return max_ ? -fx_ : fx_;
 }
 
 
 int ExtremeFinder1D::nrIter() const
 {
-    return iter;
+    return iter_;
 }
 
 
@@ -305,203 +308,205 @@ int ExtremeFinder1D::nextStep()
 {
     while ( true )
     {
-	const float xm = 0.5*(a+b);
-	const float tol1 = tol*fabs(x)*mDefEps;   
+	const float xm = 0.5*(a_+b_);
+	const float tol1 = tol_*fabs(x_)*mDefEps;   
 	const float tol2 = 2*tol1;
-	if ( fabs(x-xm)<= (tol2-0.5*(b-a)))
+	if ( fabs(x_-xm)<= (tol2-0.5*(b_-a_)))
 	    return 0;
 
-	if ( fabs(e)>tol1 )
+	if ( fabs(e_)>tol1 )
 	{
-	    const float r = (x-w)*(fx-fv);
-	    float q = (x-v)*(fx-fw);
-	    float p = (x-v)*q-(x-w)*r;
+	    const float r = (x_-w_)*(fx_-fv_);
+	    float q = (x_-v_)*(fx_-fw_);
+	    float p = (x_-v_)*q-(x_-w_)*r;
 	    q = 2*(q-r);
 	    if ( q>0 ) p = -p;
 	    q = fabs( q );
-	    const float etemp = e;
-	    e = d;
+	    const float etemp = e_;
+	    e_ = d_;
 
-	    if ( fabs(p)>fabs(0.5*q*etemp) || p<=q*(a-x) || p>=q*(b-x))
+	    if ( fabs(p)>fabs(0.5*q*etemp) || p<=q*(a_-x_) || p>=q*(b_-x_))
 	    {
-		e = x>=xm ? a-x : b-x;
-		d = CGOLD*e;
+		e_ = x_>=xm ? a_-x_ : b_-x_;
+		d_ = CGOLD*e_;
 	    }
 	    else
 	    {
-		d = p/q;
-		u = x+d;
-		if ( u-a < tol2 || b-u<tol2 )
-		    d = SIGN(tol1, xm-x );
+		d_ = p/q;
+		u_ = x_+d_;
+		if ( u_-a_ < tol2 || b_-u_<tol2 )
+		    d_ = SIGN(tol1, xm-x_ );
 	    }
 	}
 	else
 	{
-	    e = x>=xm ? a-x : b-x;
-	    d = CGOLD*e;
+	    e_ = x_>=xm ? a_-x_ : b_-x_;
+	    d_ = CGOLD*e_;
 	}
 
-	u = fabs(d)>=tol1 ? x+d : x+SIGN(tol1,d);
-	const float fu = max ? -func.getValue( u ) : func.getValue( u );
-	if ( fu<fx )
+	u_ = fabs(d_)>=tol1 ? x_+d_ : x_+SIGN(tol1,d_);
+	const float fu = mGetFuncVal( u_ );
+	if ( fu<fx_ )
 	{
-	    if ( u>=x )
-		a=x;
+	    if ( u_>=x_ )
+		a_=x_;
 	    else
-		b=x;
-	    SHIFT(v,w,x,u);
-	    SHIFT(fv,fw,fx,fu);
+		b_=x_;
+	    SHIFT(v_,w_,x_,u_);
+	    SHIFT(fv_,fw_,fx_,fu);
 	    //We have a new estimate - return
-	    return limits && limits->includes(x,true) ? 1 : 0;
+	    return limits_ && limits_->includes(x_,true) ? 1 : 0;
 	}
 	else
 	{
-	    if ( u<x )
-		a=u;
+	    if ( u_<x_ )
+		a_=u_;
 	    else
-		b=u;
+		b_=u_;
 
-	    if ( fu<=fw || w==x )
+	    if ( fu<=fw_ || w_==x_ )
 	    {
-		v = w;
-		w = u;
-		fv = fw;
-		fw = fu;
+		v_ = w_;
+		w_ = u_;
+		fv_ = fw_;
+		fw_ = fu;
 	    }
-	    else if ( fu<=fv || v==x || v ==w )
+	    else if ( fu<=fv_ || v_==x_ || v_==w_ )
 	    {
-		v = u;
-		fv = fu;
+		v_ = u_;
+		fv_ = fu;
 	    }
 	}
 
-	if ( iter++>itermax )
+	if ( iter_++>itermax_ )
 	    return -1;
     }
 }
 
    
-ExtremeFinderND::ExtremeFinderND( const FloatMathFunctionND& func_, bool max_,
-				  int itermax_ )
-    : p( new float[func.getNrDim()] )
-    , iter( 0 )
-    , ftol( 1e-3 )
-    , pt( 0 )
-    , max( max_ )
-    , func( func_ )
-    , itermax( itermax_ )
+ExtremeFinderND::ExtremeFinderND( const FloatMathFunctionND& func, bool max,
+				  int itermax )
+    : p_( new float[func.getNrDim()] )
+    , iter_( 0 )
+    , ftol_( 1e-3 )
+    , pt_( 0 )
+    , max_( max )
+    , func_( func )
+    , itermax_( itermax )
+    , n_( func.getNrDim() )
 {
-    for ( int idx=0; idx<n; idx++ )
+    for ( int idx=0; idx<n_; idx++ )
     {
-	float* x = new float[n];
-	for ( int idy=0; idy<n; idy++ )
+	float* x = new float[n_];
+	for ( int idy=0; idy<n_; idy++ )
 	{
 	    x[idy] = idy==idx ? 1 : 0;
 	}
 
-	xi += x;
+	xi_ += x;
     }
 }
 
 
 ExtremeFinderND::~ExtremeFinderND()
 {
-    delete [] p;
-    delete [] pt;
-    for ( int idx=0; idx<n; idx++ )
+    delete [] p_;
+    delete [] pt_;
+    for ( int idx=0; idx<n_; idx++ )
     {
-	delete [] xi[idx];
+	delete [] xi_[idx];
     }
 }
 
 
 int ExtremeFinderND::nextStep()
 {
-    if ( !iter )
+    if ( !iter_ )
     {
-	fret = max ? -func.getValue( p ) : func.getValue( p );
-	pt = new float[n];
-	for ( int idx=0; idx<n; idx++ )
+	fret_ = mGetFuncVal( p_ );
+	pt_ = new float[n_];
+	for ( int idx=0; idx<n_; idx++ )
 	{
-	    pt[idx]=p[idx];
+	    pt_[idx]=p_[idx];
 	}
     }
 
-    const float fp = fret;
+    const float fp = fret_;
     int ibig = 0;
     float del = 0.0;
 
-    for ( int dir=0; dir<n; dir++ )
+    for ( int dir=0; dir<n_; dir++ )
     {
-	ArrPtrMan<float> xit = new float [n];
-	for ( int idy=0; idy<n; idy++ )
-	    xit[idy] = xi[dir][idy];
+	ArrPtrMan<float> xit = new float [n_];
+	for ( int idy=0; idy<n_; idy++ )
+	    xit[idy] = xi_[dir][idy];
 
-	const float fptt=fret;
-	fret = linExtreme(xit);
-	if ( fptt-fret> del )
+	const float fptt=fret_;
+	fret_ = linExtreme(xit);
+	if ( fptt-fret_> del )
 	{
-	    del = fptt-fret;
+	    del = fptt-fret_;
 	    ibig = dir;
 	}
     }
 
-    if ( 2.0*(fp-fret) <= ftol*(fabs(fp)+fabs(fret))+TINY)
+    if ( 2.0*(fp-fret_) <= ftol_*(fabs(fp)+fabs(fret_))+TINY)
 	return 0;
 
-    if ( iter==itermax )
+    if ( iter_==itermax_ )
 	return -1;
 
-    ArrPtrMan<float> xit = new float [n];
-    ArrPtrMan<float> ptt = new float [n];
-    for ( int idx=0; idx<n; idx++ )
+    ArrPtrMan<float> xit = new float [n_];
+    ArrPtrMan<float> ptt = new float [n_];
+    for ( int idx=0; idx<n_; idx++ )
     {
-	ptt[idx] = 2.0*p[idx]-pt[idx];
-	xit[idx] = p[idx]-pt[idx];
-	pt[idx] = p[idx];
+	ptt[idx] = 2.0*p_[idx]-pt_[idx];
+	xit[idx] = p_[idx]-pt_[idx];
+	pt_[idx] = p_[idx];
     }
 
-    float fptt = fret = max ? -func.getValue( p ) : func.getValue( p );
+    float fptt = fret_ = mGetFuncVal( p_ );
     if ( fptt<fp )
     {
 	const float t =
-	    2.0*(fp-2.0*fret+fptt)*Math::Sqrt(fp-fret-del)-del*Math::Sqrt(fp-fptt);
+	    2.0*(fp-2.0*fret_+fptt)*Math::Sqrt(fp-fret_-del)-
+		del*Math::Sqrt(fp-fptt);
 	if ( t<0 )
 	{
-	    fret = linExtreme( xit );
-	    for ( int idx=0; idx<n; idx++ )
+	    fret_ = linExtreme( xit );
+	    for ( int idx=0; idx<n_; idx++ )
 	    {
-		xi[ibig][idx]=xi[n-1][idx];
-		xi[n-1][idx] = xit[idx];
+		xi_[ibig][idx]=xi_[n_-1][idx];
+		xi_[n_-1][idx] = xit[idx];
 	    }
 	}
     }
 
-    iter++;
+    iter_++;
     return 1;
 }
 
 
 int ExtremeFinderND::nrIter() const
 {
-    return iter;
+    return iter_;
 }
 
 
 float ExtremeFinderND::linExtreme( float* vec )
 {
-    AlongVectorFunction<float,float> vecfunc( func, p, vec );
-    ExtremeFinder1D finder( vecfunc, max, 100, 1e-4, Interval<float>(0,1), 0 );
+    AlongVectorFunction<float,float> vecfunc( func_, p_, vec );
+    ExtremeFinder1D finder( vecfunc, max_, 100, 1e-4, Interval<float>(0,1), 0 );
 
     int res = 1;
     while ( res==1 ) res = finder.doStep();
 
     const float lambdamin = finder.extremePos();
 
-    for ( int idx=0; idx<n; idx++ )
+    for ( int idx=0; idx<n_; idx++ )
     {
 	vec[idx] *= lambdamin;
-	p[idx] += vec[idx];
+	p_[idx] += vec[idx];
     }
 
     return finder.extremeVal();
