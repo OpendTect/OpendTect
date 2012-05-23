@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.32 2012-05-10 08:14:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.33 2012-05-23 14:47:34 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.32 2012-05-10 08:1
 #include "flatposdata.h"
 #include "prestackgather.h"
 #include "propertyref.h"
+#include "raytracerrunner.h"
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
@@ -23,7 +24,6 @@ static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.32 2012-05-10 08:1
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "synthseis.h"
-#include "velocitycalc.h"
 #include "wavelet.h"
 
 
@@ -214,6 +214,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	aimodel += ail;
     }
+    blockElasticModel( aimodel );
     return true;
 }
 
