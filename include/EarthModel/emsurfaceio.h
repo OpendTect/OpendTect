@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.38 2012-01-06 13:25:17 cvsbruno Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.39 2012-05-24 11:39:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -104,6 +104,7 @@ public:
     BufferString		lineName(int) const;
     BufferString		lineSet(int) const;
     StepInterval<int>		lineTrcRanges( int idx ) const;
+    int				stratLevelID() const;
     const IOPar*		pars() const;
 
     virtual od_int64		nrDone() const;

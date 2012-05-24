@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.152 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.153 2012-05-24 11:39:13 cvsbert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -413,6 +413,15 @@ int dgbSurfaceReader::nrSections() const
 SectionID dgbSurfaceReader::sectionID( int idx ) const
 {
     return sectionids_[idx];
+}
+
+
+int dgbSurfaceReader::stratLevelID() const
+{
+    int ret = -1;
+    if ( pars() )
+	pars()->get( sKey::StratRef(), ret );
+    return ret;
 }
 
 
