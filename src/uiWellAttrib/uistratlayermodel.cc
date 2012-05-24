@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.65 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.66 2012-05-24 11:30:37 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -136,12 +136,6 @@ void theCB( CallBacker* cb )
 }
 
 
-void doBasicLayerModel( uiParent* p )
-{
-    doLayerModel( p, uiBasicLayerSequenceGenDesc::typeStr() );
-}
-
-
 void doLayerModel( uiParent* p, const char* modnm )
 {
     if ( Strat::RT().isEmpty() )
@@ -171,15 +165,12 @@ void uiStratLayerModel::initClass()
 
 void uiStratLayerModel::doBasicLayerModel()
 {
-    StratTWin().popUp(); 
-    uiStratLayerModelLauncher launcher;
-    launcher.doBasicLayerModel( &StratTreeWin() );
+    doLayerModel( uiBasicLayerSequenceGenDesc::typeStr() );
 }
 
 
 void uiStratLayerModel::doLayerModel( const char* modnm )
 {
-    StratTWin().popUp(); 
     uiStratLayerModelLauncher launcher;
     launcher.doLayerModel( &StratTreeWin(), modnm );
 }
