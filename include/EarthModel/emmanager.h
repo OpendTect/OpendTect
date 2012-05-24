@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.53 2012-05-08 10:55:11 cvsbert Exp $
+ RCS:		$Id: emmanager.h,v 1.54 2012-05-24 11:39:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,10 +38,8 @@ class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
-/*!\brief
 
-
-*/
+/*!\brief Manages the loaded/half loaded EM objects in OpendTect. */
 
 mClass EMManager : public CallBacker
 {
@@ -49,53 +47,25 @@ public:
 			EMManager();
 			~EMManager();
 
-    void		setEmpty();
-
-    Undo&		undo();
-    const Undo&		undo() const;
-
-    bool		objectExists( const EMObject* obj ) const;
-
-    int			nrLoadedObjects() const	{ return objects_.size(); }
+    inline int		nrLoadedObjects() const	{ return objects_.size(); }
+    inline int		size() const		{ return nrLoadedObjects(); }
     EM::ObjectID	objectID(int idx) const;
-    Executor*		objectLoader(const MultiID&,
-	    			     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const TypeSet<MultiID>&,
-	    			     const SurfaceIODataSelection* =0);
+    bool		objectExists(const EMObject*) const;
+
     EMObject*		loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
-    EM::ObjectID	createObject(const char* type,const char* name);
-    			/*!< Creates a new object, saves it and loads it into
-			     mem.
-			     \note If an object already exist with that name,
-			     it will be removed!! Check in advance with
-			     findObject().
-			*/
 
-    Notifier<EMManager>				addRemove;
+    EMObject*		getObject(const ObjectID&);
+    const EMObject*	getObject(const ObjectID&) const;
+    EMObject*		createTempObject(const char* type);
 
-    void		sendRemovalSignal(const ObjectID&);
     BufferString	objectName(const MultiID&) const;
     			/*!<\returns the name of the object */
     const char*		objectType(const MultiID&) const;
     			/*!<\returns the type of the object */
-
-    EMObject*		getObject(const ObjectID&);
-    const EMObject*	getObject(const ObjectID&) const;
-
-    EMObject*		createTempObject(const char* type);
-
-    const char*		getSurfaceData(const MultiID&,SurfaceIOData&);
-    			//!<\returns err msg or null if OK
-    void		get2DHorizons(const MultiID& lineset,const char* linenm,
-	    			      TypeSet<MultiID>&) const;
-
-    			/*Interface from EMObject to report themselves */
-    void		addObject(EMObject*);
-    void		removeObject(const EMObject*);
 
     ObjectID		getObjectID(const MultiID&) const;
     			/*!<\note that the relationship between storage id 
@@ -108,23 +78,44 @@ public:
 
     void		burstAlertToAll(bool yn);
 
-    bool		sortHorizonsList(const TypeSet<MultiID>&,
-	    				 TypeSet<MultiID>&,bool is2d) const;
-
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
 	    			       TaskRunner*);
-    
-    IOPar*		getSurfacePars(const IOObj&) const;
-
     bool		readPars(const MultiID&,IOPar&) const;
     bool		writePars(const MultiID&,const IOPar&) const;
+    void		getSurfaceData(const MultiID&,SurfaceIOData&) const;
 
-    void		levelToBeRemoved(CallBacker*);
+    Notifier<EMManager>	addRemove;
 
 protected:
+
     Undo&			undo_;
 
     ObjectSet<EMObject>		objects_;
+
+    void		levelToBeRemoved(CallBacker*);
+
+public:
+
+    // Don't use unless you know what you are doing
+
+    void		setEmpty();
+
+    Executor*		objectLoader(const MultiID&,
+	    			     const SurfaceIODataSelection* =0);
+    Executor*		objectLoader(const TypeSet<MultiID>&,
+	    			     const SurfaceIODataSelection* =0);
+
+    EM::ObjectID	createObject(const char* type,const char* name);
+    			/*!< Creates a new object, saves it and loads it.
+			     Removes any loaded object with the same name!  */
+
+    			/*Interface from EMObject to report themselves */
+    void		addObject(EMObject*);
+    void		removeObject(const EMObject*);
+
+    Undo&		undo();
+    const Undo&		undo() const;
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.19 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.20 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.19 2012-05-
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
+#include "emioobjinfo.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
@@ -273,8 +274,8 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;
 
-    EM::SurfaceIOData emdata;
-    BufferString errmsg = em.getSurfaceData( ioobj->key(), emdata );
+    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
+    BufferString errmsg = oi.getSurfaceData( emdata );
     if ( !errmsg.isEmpty() ) return;
 
     linenmfld_->addItems( emdata.linenames );

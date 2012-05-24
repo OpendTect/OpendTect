@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.87 2012-05-21 20:55:45 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.88 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.87 2012-05-21 20:
 #include "embodytr.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "iodirentry.h"
@@ -117,7 +118,8 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 
     if ( forread_ )
     {
-	const char* res = EM::EMM().getSurfaceData( id, sd );
+	EM::IOObjInfo oi( id );
+	const char* res = oi.getSurfaceData( sd );
 	if ( res )
 	{
 	    if ( showerrmsg )

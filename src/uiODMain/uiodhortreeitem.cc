@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.78 2012-05-02 15:12:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.79 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.78 2012-05-02
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
 #include "selector.h"
@@ -171,7 +172,7 @@ void uiODHorizonParentTreeItem::sort()
 	mids += EM::EMM().getMultiID( emid );
     }
 
-    EM::EMM().sortHorizonsList( mids, sortedmids, false );
+    EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
@@ -627,7 +628,7 @@ void uiODHorizon2DParentTreeItem::sort()
 	mids += EM::EMM().getMultiID( emid );
     }
 
-    EM::EMM().sortHorizonsList( mids, sortedmids, true );
+    EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {

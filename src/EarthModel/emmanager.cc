@@ -4,32 +4,26 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.103 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.104 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
-#include "emfault3d.h"
-#include "emfaultstickset.h"
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
-#include "emhorizonztransform.h"
 #include "emobject.h"
-#include "emsurfaceio.h"
+#include "emhorizon.h"
+#include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "emsurfacetr.h"
+#include "emioobjinfo.h"
 #include "errh.h"
 #include "executor.h"
 #include "filepath.h"
-#include "horizonrelation.h"
-#include "iodirentry.h"
 #include "iopar.h"
 #include "ioman.h"
-#include "mousecursor.h"
 #include "ptrman.h"
 #include "undo.h"
 #include "selector.h"
 #include "stratlevel.h"
+#include "keystrs.h"
 
 
 EM::EMManager& EM::EMM()
@@ -108,13 +102,14 @@ const char* EMManager::objectType( const MultiID& mid ) const
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->getTypeStr();
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) 
+    IOObjInfo ioobjinfo( mid );
+    if ( !ioobjinfo.isOK() )
 	return 0;
 
-    FixedString typenm = ioobj->pars().find( sKey::Type() );
+    const IOObj& ioobj = *ioobjinfo.ioObj();
+    FixedString typenm = ioobj.pars().find( sKey::Type() );
     if ( !typenm )
-	typenm = ioobj->group();
+	typenm = ioobj.group();
 
     const int idx = EMOF().getNames().indexOf( typenm );
     if ( idx<0 )
@@ -142,22 +137,6 @@ ObjectID EMManager::createObject( const char* type, const char* name )
     object->setFullyLoaded( true );
     return object->id();
 }
-
-/*
-MultiID EMManager::findObject( const char* type, const char* name ) const
-{
-    const IOObjContext* context = getContext(type);
-    if ( IOM().to(context->getSelKey()) )
-    {
-	PtrMan<IOObj> ioobj = IOM().getLocal( name );
-	IOM().back();
-	if ( ioobj && !strcmp(ioobj->group(),type) )
-	    return ioobj->key();
-    }
-
-    return -1;
-}
-*/
 
 
 EMObject* EMManager::getObject( const ObjectID& id )
@@ -359,67 +338,6 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
 }
 
 
-const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
-{
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj )
-	return id.isEmpty() ? 0 : "Object Manager cannot find surface";
-
-    const char* grpname = ioobj->group();
-    if ( !strcmp(grpname,EMHorizon2DTranslatorGroup::keyword()) ||
-	 !strcmp(grpname,EMHorizon3DTranslatorGroup::keyword()) ||
-	 !strcmp(grpname,EMFaultStickSetTranslatorGroup::keyword()) ||
-         !strcmp(grpname,EMFault3DTranslatorGroup::keyword()) )
-    {
-	PtrMan<EMSurfaceTranslator> tr = 
-	    		(EMSurfaceTranslator*)ioobj->getTranslator();
-	if ( !tr )
-	{ return "Cannot create translator"; }
-
-	if ( !tr->startRead(*ioobj) )
-	{
-	    static BufferString msg;
-	    msg = tr->errMsg();
-	    if ( msg.isEmpty() )
-	    { 
-		msg = "Cannot read '"; 
-		msg += ioobj->name().buf(); 
-		msg += "'"; 
-	    }
-
-	    return msg.buf();
-	}
-
-	const SurfaceIOData& newsd = tr->selections().sd;
-	sd.rg = newsd.rg;
-	sd.zrg = newsd.zrg;
-	sd.sections = newsd.sections;
-	sd.valnames = newsd.valnames;
-	sd.valshifts_ = newsd.valshifts_;
-	sd.linenames = newsd.linenames;
-	sd.linesets = newsd.linesets;
-	sd.trcranges = newsd.trcranges;
-	return 0;
-    }
-
-    pErrMsg("(read surface): unknown tr group");
-    return 0;
-}
-
-
-void EMManager::get2DHorizons( const MultiID& linesetid, const char* linenm,
-			       TypeSet<MultiID>& ids ) const
-{
-    IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
-    IOM().to( ctxt.getSelKey() );
-    IODirEntryList list( IOM().dirPtr(), ctxt );
-    for ( int idx=0; idx<list.size(); idx++ )
-    {
-//	dgbSurfaceReader reader( list[idx] );
-    }
-}
-
-
 void EMManager::burstAlertToAll( bool yn )
 {
     for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
@@ -431,14 +349,6 @@ void EMManager::burstAlertToAll( bool yn )
 }
 
 
-bool EMManager::sortHorizonsList( const TypeSet<MultiID>& list,
-				  TypeSet<MultiID>& sorted, bool is2d ) const
-{
-    EM::RelationTree reltree( is2d );
-    return reltree.getSorted( list, sorted );
-}
-
-
 void EMManager::removeSelected( const ObjectID& id, 
 				const Selector<Coord3>& selector,
        				TaskRunner* tr )
@@ -447,65 +357,42 @@ void EMManager::removeSelected( const ObjectID& id,
     if ( !emobj ) return;
 
     emobj->ref();
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     emobj->removeSelected( selector, tr );
     emobj->unRef();
 }
 
 
-IOPar* EMManager::getSurfacePars( const IOObj& ioobj ) const
+bool EMManager::readPars( const MultiID& mid, IOPar& outpar ) const
 {
-    PtrMan<dgbSurfaceReader> rdr = new dgbSurfaceReader( ioobj, ioobj.group() );
-    return rdr.ptr() && rdr->pars() ? new IOPar(*rdr->pars()) : 0;
+    outpar.setEmpty();
+    IOPar* par = IOObjInfo(mid).getPars();
+    if ( !par )
+	return false;
+
+    outpar = *par;
+    delete par;
+    return true;
 }
 
 
-bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
+bool EMManager::writePars( const MultiID& mid, const IOPar& inpar ) const
 {
-    const char* objtype = objectType( mid );
-    if ( !objtype )
+    IOObjInfo ioobjinfo( mid );
+    if ( !ioobjinfo.isOK() || !ioobjinfo.isHorizon() )
 	return false;
 
-    if ( strcmp(objtype,Horizon2D::typeStr()) &&
-	 strcmp(objtype,Horizon3D::typeStr()) &&
-	 strcmp(objtype,Fault3D::typeStr()) &&
-	 strcmp(objtype,FaultStickSet::typeStr()) )
-	return false;
-
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return false;
-
-    const BufferString filenm = Surface::getParFileName( *ioobj );
-    const bool res = par.read( filenm.buf(), "Surface parameters" );
-
-    if ( !res )
-    {
-	IOPar* surfpar = getSurfacePars( *ioobj );
-	int icol;
-	if ( surfpar && surfpar->get(sKey::Color(),icol) )
-	{
-	    Color col; col.setRgb( icol );
-	    par.set( sKey::Color(), col );
-	}
-    }
-    return res;
+    IOPar* rdpar = ioobjinfo.getPars();
+    IOPar wrpar( *rdpar ); delete rdpar;
+    wrpar.merge( inpar );
+    const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
+    return wrpar.write( filenm.buf(), "Surface parameters" );
 }
 
 
-bool EMManager::writePars( const MultiID& mid, const IOPar& newpar ) const
+void EMManager::getSurfaceData( const MultiID& mid, SurfaceIOData& sd ) const
 {
-    const char* objtype = objectType( mid );
-    if ( strcmp(objtype,Horizon2D::typeStr()) &&
-	 strcmp(objtype,Horizon3D::typeStr()) ) return false;
-
-    IOPar par;
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return false;
-
-    readPars( mid, par );
-    par.merge( newpar );
-    const BufferString filenm = Surface::getParFileName( *ioobj );
-    return par.write( filenm.buf(), "Surface parameters" );
+    EM::IOObjInfo oi( mid );
+    oi.getSurfaceData( sd );
 }
 
 

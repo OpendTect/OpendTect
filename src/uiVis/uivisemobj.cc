@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.98 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.99 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "uivisemobj.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.98 2012-05-02 15:1
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "mousecursor.h"
@@ -68,8 +69,11 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     if ( !EM::EMM().getObject(emid) )
     {
 	Executor* exec = 0;
-	EM::SurfaceIOData sd;
-	if ( !EM::EMM().getSurfaceData(mid,sd) )
+	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
+	const char* rdres = oi.getSurfaceData( sd );
+	if ( rdres )
+	    exec = EM::EMM().objectLoader( mid );
+	else
 	{
 	    EM::SurfaceIODataSelection sel( sd );
 	    sel.setDefault();
@@ -105,8 +109,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	    exec = EM::EMM().objectLoader( mid, &sel );
 	}
-	else
-	    exec = EM::EMM().objectLoader( mid );
 
 	if ( exec )
 	{

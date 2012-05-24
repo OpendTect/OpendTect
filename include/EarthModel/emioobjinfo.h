@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		April 2010
- RCS:		$Id: emioobjinfo.h,v 1.1 2010-04-27 05:32:14 cvssatyaki Exp $
+ RCS:		$Id: emioobjinfo.h,v 1.2 2012-05-24 11:39:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ namespace EM
 {
 
 class dgbSurfaceReader;
+class SurfaceIOData;
 
 mClass IOObjInfo
 {
@@ -38,15 +39,16 @@ public:
 			IOObjInfo(const char* ioobjnm);
 			IOObjInfo(const IOObjInfo&);
 			~IOObjInfo();
-
-    enum ObjectType	{ Horizon3D, Horizon2D, FaultStickSet, Fault, Body };
     IOObjInfo&		operator =(const IOObjInfo&);
 
-    bool		isOK() const;
+    enum ObjectType	{ Horizon3D, Horizon2D, FaultStickSet, Fault, Body };
+    static void		getIDs(ObjectType,TypeSet<MultiID>&);
+				//!< Does not erase the IDs at start
 
-    ObjectType		type() const		{ return type_; }
-    const IOObj*	ioObj() const		{ return ioobj_; }
+    bool		isOK() const;
+    inline const IOObj*	ioObj() const		{ return ioobj_; }
     const char*		name() const;
+    inline ObjectType	type() const		{ return type_; }
 
     bool		getSectionIDs(TypeSet<SectionID>&) const;
     bool		getSectionNames(BufferStringSet&) const;
@@ -54,6 +56,25 @@ public:
     Interval<float>	getZRange() const;
     StepInterval<int>	getInlRange() const;
     StepInterval<int>	getCrlRange() const;
+    IOPar*		getPars() const;
+
+    // Surface
+    inline bool		isSurface() const	{ return type_ != Body; }
+    const char*		getSurfaceData(SurfaceIOData&) const;
+    			//!<\returns err msg or null if OK
+
+    // Horizon
+    inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
+    inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
+    int			levelID() const;
+    static void		getTiedToLevelID(int lvlid,TypeSet<MultiID>&,bool is2d);
+    static bool		sortHorizonsOnZValues(const TypeSet<MultiID>&,
+					      TypeSet<MultiID>&);
+
+    // 2D Horizons
+    bool		getLineSets(BufferStringSet&) const;
+    bool		getLineNames(BufferStringSet&) const;
+    bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
 
     // Body
 
@@ -63,10 +84,9 @@ public:
 
     int 		nrSticks() const;
 
-    // 2D Horizons
-    bool		getLineSets(BufferStringSet&) const;
-    bool		getLineNames(BufferStringSet&) const;
-    bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
+
+    // Helpful stuff
+    static ObjectType	objectTypeOfIOObjGroup(const char*);
 
 protected:
 

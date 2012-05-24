@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emioobjinfo.cc,v 1.9 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emioobjinfo.cc,v 1.10 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -14,6 +14,7 @@ static const char* rcsID mUnusedVar = "$Id: emioobjinfo.cc,v 1.9 2012-05-02 15:1
 #include "iodir.h"
 #include "iopar.h"
 #include "survinfo.h"
+#include "horizonrelation.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
 
@@ -53,6 +54,7 @@ IOObjInfo::IOObjInfo( const char* ioobjnm )
 {
     mGoToEMDir();
     ioobj_ = IOM().getLocal( ioobjnm );
+    setType();
 }
 
 
@@ -64,20 +66,17 @@ IOObjInfo::IOObjInfo( const IOObjInfo& sii )
 }
 
 
+void IOObjInfo::setType()
+{
+    if ( ioobj_ )
+	type_ = objectTypeOfIOObjGroup( ioobj_->group() );
+}
+
+
 IOObjInfo::~IOObjInfo()
 {
     delete ioobj_;
     delete reader_;
-}
-
-
-const char* IOObjInfo::name() const
-{ return ioobj_ ? ioobj_->name() : 0; }
-
-
-bool IOObjInfo::isOK() const
-{
-    return ioobj_ && ioobj_->implExists(true);
 }
 
 
@@ -93,23 +92,15 @@ IOObjInfo& IOObjInfo::operator =( const IOObjInfo& sii )
 }
 
 
-void IOObjInfo::setType()
+bool IOObjInfo::isOK() const
 {
-    if ( !ioobj_ )
-	return;
-
-    const BufferString trgrpnm( ioobj_->group() );
-    if ( trgrpnm == EMHorizon3DTranslatorGroup::keyword() )
-	type_ = IOObjInfo::Horizon3D;
-    else if ( trgrpnm == EMHorizon2DTranslatorGroup::keyword() )
-	type_ = IOObjInfo::Horizon2D;
-    else if ( trgrpnm == EMFaultStickSetTranslatorGroup::keyword() )
-	type_ = IOObjInfo::FaultStickSet;
-    else if ( trgrpnm == EMFault3DTranslatorGroup::keyword() )
-	type_ = IOObjInfo::Fault;
-    else if( trgrpnm == EMBodyTranslatorGroup::sKeyword() )
-	type_ = IOObjInfo::Horizon2D;
+    return ioobj_ && ioobj_->implExists(true);
 }
+
+
+const char* IOObjInfo::name() const
+{ return ioobj_ ? ioobj_->name() : 0; }
+
 
 
 #define mGetReader \
@@ -175,14 +166,10 @@ StepInterval<int> IOObjInfo::getCrlRange() const
 }
 
 
-bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
+IOPar* IOObjInfo::getPars() const
 {
-    if ( type_ != IOObjInfo::Body )
-	return false;
-
-    // TODO: implement
     mGetReader
-    return reader_;
+    return reader_ && reader_->pars() ? new IOPar(*reader_->pars()) : 0;
 }
 
 
@@ -206,16 +193,6 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 }
 
 
-int IOObjInfo::nrSticks() const
-{
-    mGetReaderRet
-
-    Interval<float> rowrange;
-    reader_->pars()->get( "Row range", rowrange );
-    return (int)rowrange.width();
-}
-
-
 bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 {
     mGetReaderRet
@@ -223,6 +200,140 @@ bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
 	trcranges.add( reader_->lineTrcRanges(idx) );
     return true;
+}
+
+
+const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
+{
+    if ( !isOK() )
+	return "Cannot find surface in object database";
+
+    if ( !isSurface() )
+    {
+	pErrMsg("getSurfaceData called on non-surface");
+	return "Internal: Trying to get surface data from a non-surface";
+    }
+
+    Translator* tr = ioobj_->getTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,tr)
+    PtrMan<EMSurfaceTranslator> ptrman_tr = str;
+    if ( !str )
+    {
+	if ( !tr )
+	    pErrMsg("No Translator for IOObj" );
+	else
+	    pErrMsg("Created Translator is not a EMSurfaceTranslator");
+	return "Internal: Unknown Surface interpreter encountered";
+    }
+
+    if ( !str->startRead(*ioobj_) )
+    {
+	static BufferString msg;
+	msg = str->errMsg();
+	if ( msg.isEmpty() )
+	    msg = BufferString( "Cannot read '", ioobj_->name(), "'" );
+	return msg.buf();
+    }
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    sd.rg = newsd.rg; sd.zrg = newsd.zrg;
+    sd.sections = newsd.sections;
+    sd.valnames = newsd.valnames;
+    sd.valshifts_ = newsd.valshifts_;
+    sd.linenames = newsd.linenames;
+    sd.linesets = newsd.linesets;
+    sd.trcranges = newsd.trcranges;
+
+    return 0;
+}
+
+
+IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
+{
+    static const char* grpnms[] =
+    {
+	EMHorizon3DTranslatorGroup::keyword(),
+	EMHorizon2DTranslatorGroup::keyword(),
+	EMFaultStickSetTranslatorGroup::keyword(),
+	EMFault3DTranslatorGroup::keyword(),
+	EMBodyTranslatorGroup::sKeyword(),
+	0
+    };
+    static BufferStringSet grpnmsbss( grpnms );
+    const int typ = grpnmsbss.indexOf( grpname );
+    return typ < 0 ? Body : (ObjectType)typ;
+}
+
+
+void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
+{
+    mGoToEMDir();
+    const IODir& iodir = *IOM().dirPtr();
+    for ( int idx=0; idx<iodir.size(); idx++ )
+    {
+	const IOObj* ioobj = iodir[idx];
+	if ( objectTypeOfIOObjGroup(ioobj->group()) == reqtyp )
+	    ids += ioobj->key();
+    }
+}
+
+
+int IOObjInfo::levelID() const
+{
+    mGetReader
+    return reader_ ? reader_->stratLevelID() : -1;
+}
+
+
+void IOObjInfo::getTiedToLevelID( int lvlid, TypeSet<MultiID>& ids, bool is2d )
+{
+    ids.erase();
+    TypeSet<MultiID> candidates;
+    if ( is2d )
+	getIDs( Horizon2D, candidates );
+    else
+	getIDs( Horizon3D, candidates );
+
+    for ( int idx=0; idx<candidates.size(); idx++ )
+    {
+	IOObjInfo ioobjinfo( candidates[idx] );
+	if ( ioobjinfo.levelID() == lvlid )
+	    ids += candidates[idx];
+    }
+}
+
+
+bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
+				       TypeSet<MultiID>& sorted )
+{
+    sorted.erase();
+    if ( list.isEmpty() )
+	return true;
+
+    EM::RelationTree reltree( IOObjInfo(list[0]).is2DHorizon() );
+    return reltree.getSorted( list, sorted );
+}
+
+
+bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
+{
+    if ( type_ != IOObjInfo::Body )
+	return false;
+
+    // TODO: implement
+    pErrMsg( "TODO: implement IOObjInfo::getBodyRange" );
+    mGetReader
+    return reader_;
+}
+
+
+int IOObjInfo::nrSticks() const
+{
+    mGetReaderRet
+
+    Interval<float> rowrange;
+    reader_->pars()->get( "Row range", rowrange );
+    return (int)rowrange.width();
 }
 
 } // namespace EM

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizonmerger.cc,v 1.8 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonmerger.cc,v 1.9 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "horizonmerger.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: horizonmerger.cc,v 1.8 2012-05-02 15
 #include "binidsurface.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "statruncalc.h"
 
@@ -31,16 +32,16 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     , ownsarray_(true)
     , hs_(false)
 {
-    SurfaceIOData sd;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(ids[idx]))
+	const ObjectID& objid( ids[idx] );
+	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(objid))
+	if ( !hor ) continue;
 	inputhors_ += hor;
-	if ( hor && !EM::EMM().getSurfaceData(hor->multiID(),sd) )
-	{
-	    hs_.include( sd.rg );
-	    hs_.step = sd.rg.step;
-	}
+	IOObjInfo oi( EMM().getMultiID(objid) );
+	SurfaceIOData sd;
+	if ( oi.getSurfaceData(sd) )
+	    { hs_.include( sd.rg ); hs_.step = sd.rg.step; }
     }
 
     deepRef( inputhors_ );

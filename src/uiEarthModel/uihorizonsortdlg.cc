@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizonsortdlg.cc,v 1.24 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizonsortdlg.cc,v 1.25 2012-05-24 11:39:50 cvsbert Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID mUnusedVar = "$Id: uihorizonsortdlg.cc,v 1.24 2012-05-0
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "emioobjinfo.h"
 #include "executor.h"
 #include "horizonrelation.h"
 #include "horizonsorter.h"
@@ -117,9 +118,10 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     {
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
-	    EM::SurfaceIOData sd;
-	    if ( EM::EMM().getSurfaceData(horids[idx],sd) )
-		return false;
+	    EM::IOObjInfo oi( horids[idx] ); EM::SurfaceIOData sd;
+	    const char* res = oi.getSurfaceData( sd );
+	    if ( res )
+		{ uiMSG().error(res); return false; }
 
 	    if ( !idx )
 		bbox_.hrg = sd.rg;
