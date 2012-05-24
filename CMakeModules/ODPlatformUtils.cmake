@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.46 2012-05-23 10:58:05 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.47 2012-05-24 11:27:04 cvsraman Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -27,6 +27,9 @@ IF(UNIX) #Apple an Linux
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         SET(EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	SET(OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
+	IF(!OD_DEBUG)
+	    SET ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
+	ENDIF()
 
 	#NEEDED AS LONG AS WE HAVE COIN
 	SET(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
