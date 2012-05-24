@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.65 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.66 2012-05-24 13:38:20 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -198,7 +198,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !hor ) continue;
 	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
-	const float zval = whfinder.findZIntersection()*1000;
+	const float zval = 
+	    whfinder.findZIntersection()*SI().zDomain().userFactor();
 	if ( !mIsUdf( zval ) )
 	{
 	    Marker hd( zval );
@@ -229,7 +230,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
-		pc.z1_ = dtm->getTime(mrk.dah())*1000; 
+		pc.z1_ = dtm->getTime(mrk.dah())*SI().zDomain().userFactor(); 
 		pc.z2_ = hd.zpos_;
 	    }
 	}
