@@ -7,7 +7,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.12 2012-05-23 06:27:18 cvsraman Exp $";
+
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.13 2012-05-24 10:18:00 cvsranojay Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -104,7 +105,8 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd() \
-    BufferString cmd( __iswin__ ? "" : "@", FilePath(GetBinPlfDir(),"od_instmgr").fullPath() ); \
+    BufferString cmd( __iswin__ ? "" : "@",\
+    FilePath(GetBinPlfDir(), __iswin__ ? "od_runinst" :"od_instmgr").fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" );
 
 
