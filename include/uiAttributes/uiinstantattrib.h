@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.h,v 1.8 2011-08-29 12:57:10 cvsbruno Exp $
+ RCS:           $Id: uiinstantattrib.h,v 1.9 2012-05-25 12:07:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		outputSelCB(CallBacker*);
+    void		getEvalParams( TypeSet<EvalParam>& params ) const;
 
     			mDeclReqAttribUIFns
 };

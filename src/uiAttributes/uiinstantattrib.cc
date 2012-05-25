@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiinstantattrib.cc,v 1.16 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiinstantattrib.cc,v 1.17 2012-05-25 12:07:57 cvshelene Exp $";
 
 
 #include "uiinstantattrib.h"
@@ -121,4 +121,11 @@ bool uiInstantaneousAttrib::getOutput( Desc& desc )
 void uiInstantaneousAttrib::outputSelCB( CallBacker* )
 {
     phaserotfld->display( !strcmp(rotphase,outstrs[outpfld->getIntValue()] ) );
+}
+
+
+void uiInstantaneousAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{                                                                               
+    params += EvalParam( Instantaneous::rotateAngle(),
+	    		 Instantaneous::rotateAngle() );   
 }
