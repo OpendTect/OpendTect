@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.21 2012-05-22 14:10:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.22 2012-05-25 19:13:10 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
+#include "settings.h"
 
 #include <QByteArray>
 #include <QEventLoop>
@@ -104,6 +105,10 @@ protected:
 };
 
 
+const char* ODHttp::sKeyUseProxy()	{ return "Use Proxy"; }
+const char* ODHttp::sKeyProxyHost()	{ return "Http Proxy Host"; }
+const char* ODHttp::sKeyProxyPort()	{ return "Http Proxy Port"; }
+
 
 ODHttp::ODHttp()
     : qhttp_(new MyHttp)
@@ -142,11 +147,36 @@ int ODHttp::setProxy( const char* host, int port,
 		      const char* usrnm, const char* pwd )
 { return qhttp_->setProxy( host, port ); }
 
+
+void ODHttp::useProxySettings()
+{
+    Settings& setts = Settings::common();
+    bool useproxy = false;
+    setts.getYN( ODHttp::sKeyUseProxy(), useproxy );
+    if ( !useproxy ) return;
+
+    BufferString host;
+    setts.get( ODHttp::sKeyProxyHost(), host );
+
+    int port = 1;
+    setts.get( ODHttp::sKeyProxyPort(), port );
+
+    setProxy( host, port );
+}
+
+
 int ODHttp::setHttpsHost( const char* host, int port )
-{ return qhttp_->setHost( host, QHttp::ConnectionModeHttps ); }
+{
+    useProxySettings();
+    return qhttp_->setHost( host, QHttp::ConnectionModeHttps );
+}
+
 
 int ODHttp::setHost( const char* host, int port )
-{ return qhttp_->_setHost( host, port ); }
+{
+    useProxySettings();
+    return qhttp_->_setHost( host, port );
+}
 
 int ODHttp::close()
 { return qhttp_->close(); }

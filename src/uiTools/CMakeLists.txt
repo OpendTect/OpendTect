@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.11 2012-05-02 07:02:00 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-05-25 19:13:10 cvsnanne Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -56,6 +56,7 @@ SET(OD_MODULE_SOURCES
 		uipluginman.cc	
 		uipluginsel.cc	
 		uipositiontable.cc
+		uiproxydlg.cc
 		uiraytrace1d.cc	
 		uirgbarraycanvas.cc
 		uirockphysform.cc

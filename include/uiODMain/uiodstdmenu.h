@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.79 2012-05-22 16:41:57 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.80 2012-05-25 19:13:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,6 +187,7 @@ ________________________________________________________________________
 #define mShwLogFileMnuItm	(mUtilMnu + 40)
 #define mInstMgrMnuItem		(mUtilMnu + 50)
 #define mInstAutoUpdPolMnuItm	(mUtilMnu + 51)
+#define mInstConnSettsMnuItm	(mUtilMnu + 52)
 #define mDisplayMemoryMnuItm	(mUtilMnu + 98)
 #define mDumpDataPacksMnuItm	(mUtilMnu + 99)
 #define mSettFontsMnuItm	(mUtilSettingMnu + 10)

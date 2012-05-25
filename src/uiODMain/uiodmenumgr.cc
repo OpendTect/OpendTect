@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.259 2012-05-22 16:41:57 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.260 2012-05-25 19:13:10 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -22,6 +22,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.259 2012-05-22 16
 #include "uiodhelpmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
+#include "uiproxydlg.h"
 #include "uisettings.h"
 #include "ui3dviewer.h"
 #include "uitextfile.h"
@@ -660,18 +661,16 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
-    uiPopupMenu* instmgrmnu = utilmnu_;
+    uiPopupMenu* instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
+    utilmnu_->insertItem( instmgrmnu );
     const ODInst::AutoInstType ait = ODInst::getAutoInstType();
     const bool aitfixed = ODInst::autoInstTypeIsFixed();
-    if ( !aitfixed )
-    {
-	instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
-	utilmnu_->insertItem( instmgrmnu );
-	mInsertItem( instmgrmnu, "&Auto-update policy ...",
-			mInstAutoUpdPolMnuItm );
-    }
     if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
 	mInsertItem( instmgrmnu, "Installation &Manager ...", mInstMgrMnuItem );
+    if ( !aitfixed )
+	mInsertItem( instmgrmnu, "&Auto-update policy ...",
+		     mInstAutoUpdPolMnuItm );
+    mInsertItem( instmgrmnu, "&Connection Settings ...", mInstConnSettsMnuItm );
 
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
@@ -1058,12 +1057,15 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;	
-    case mInstMgrMnuItem:	applMgr().startInstMgr(); break;	
-    case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;	
+    case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
+    case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm: 	showLogFile(); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
+
+    case mInstConnSettsMnuItm: {
+	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
 
     case mSettLkNFlMnuItm: {
 	uiLooknFeelSettings dlg( &appl_, "Set Look and Feel Settings" );
