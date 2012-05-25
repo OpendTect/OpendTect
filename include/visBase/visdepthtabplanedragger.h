@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.14 2012-05-23 12:26:09 cvsjaap Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.15 2012-05-25 13:39:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,9 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     void			setOwnShape( SoNode* );
+
+    void			showDraggerBorder(bool yn=true);
+    bool			isDraggerBorderShown() const;
 
     void			showPlane(bool yn=true);
     bool			isPlaneShown() const;

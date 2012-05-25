@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.29 2012-05-23 12:26:09 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.30 2012-05-25 13:39:53 cvsjaap Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.29 20
 #include <osg/Switch>
 #include <osg/LightModel>
 #include <osg/BlendFunc>
+#include <osg/Version>
 
 mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
@@ -243,8 +244,11 @@ void DepthTabPlaneDragger::initOsgDragger()
     if ( !doOsg() || osgdragger_ )
 	return;
 
-    // TODO: osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
+#if OSG_MIN_VERSION_REQUIRED(3,1,3)
+    osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
+#else
     osgdragger_ = new osgManipulator::TabPlaneDragger();
+#endif
 
     addChild( osgdragger_ );
 
@@ -304,9 +308,10 @@ void DepthTabPlaneDragger::initOsgDragger()
 
     osgdraggerplane_ = new osg::Switch();
     osgdraggerplane_->addChild( geode.get() );
-    showPlane( false );
+    osgdragger_->addChild( osgdraggerplane_ );
 
-    osgdragger_->addChild(  osgdraggerplane_ );
+    showPlane( false );
+    showDraggerBorder( false );
 }
 
 
@@ -771,26 +776,48 @@ void DepthTabPlaneDragger::finishCB( void* obj, SoDragger* )
 }
 
 
-void DepthTabPlaneDragger::showPlane( bool yn )
+void DepthTabPlaneDragger::showDraggerBorder( bool yn )
 {
-    if ( osgdragger_ && osgdraggerplane_ )
+    if ( osgdragger_ )
     {
-	osgdraggerplane_->setValue( 0, yn );
-
-	const float borderlineopacity = yn ? 0.0 : 1.0;
+	const float borderopacity = yn ? 1.0 : 0.0;
 	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
 	{
 	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, tpd,
 			     osgdragger_->getDragger(idx) );
 	    if ( tpd )
 	    {
-		osgManipulator::Translate2DDragger* t2dd =
-						tpd->getTranslate2DDragger();
-		t2dd->setColor( osg::Vec4(0.5,0.5,0.5,borderlineopacity) );
-		t2dd->setPickColor( osg::Vec4(1.0,1.0,1.0,borderlineopacity) );
+		tpd->getTranslate2DDragger()->setColor(
+					osg::Vec4(0.5,0.5,0.5,borderopacity) );
+		tpd->getTranslate2DDragger()->setPickColor(
+					osg::Vec4(1.0,1.0,1.0,borderopacity) );
 	    }
 	}
     }
+}
+
+
+bool DepthTabPlaneDragger::isDraggerBorderShown() const
+{
+    if ( osgdragger_ )
+    {
+	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
+	{
+	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, tpd,
+			     osgdragger_->getDragger(idx) );
+	    if ( tpd )
+		return tpd->getTranslate2DDragger()->getColor()[3];
+	}
+    }
+
+    return false;
+}
+
+
+void DepthTabPlaneDragger::showPlane( bool yn )
+{
+    if ( osgdragger_ && osgdraggerplane_ )
+	osgdraggerplane_->setValue( 0, yn );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.268 2012-05-23 12:26:09 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.269 2012-05-25 13:39:53 cvsjaap Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -488,7 +488,10 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     draggermaterial_->setTransparency( showplane ? 0.5 : 0 );
 
     if ( doOsg() )
+    {
 	dragger_->showPlane( showplane );
+	dragger_->showDraggerBorder( !showplane );
+    }
 }
 
 
@@ -562,6 +565,12 @@ void PlaneDataDisplay::resetManipulation()
     setDraggerPos( cs );
     draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
     draggermaterial_->setTransparency( 0 );
+
+    if ( doOsg() )
+    {
+	dragger_->showPlane( false );
+	dragger_->showDraggerBorder( false );
+    }
 }
 
 
@@ -571,6 +580,12 @@ void PlaneDataDisplay::acceptManipulation()
     setCubeSampling( cs );
     draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
     draggermaterial_->setTransparency( 0 );
+
+    if ( doOsg() )
+    {
+	dragger_->showPlane( false );
+	dragger_->showDraggerBorder( false );
+    }
 }
 
 
