@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.71 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.72 2012-05-25 13:18:21 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -156,7 +156,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     const int nrentries = entries_.size();
     for ( int idx=0; idx<nrentries; idx++ )
     {
-	const char* key = *entries_[idx];
+	const char* key = entries_.get( idx ).buf();
 	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
@@ -168,20 +168,38 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 void uiIOSelect::getHistory( const IOPar& iopar )
 {
     checkState();
-    bool haveold = inp_->size();
-    bool havenew = false; BufferString bs;
+    BufferStringSet bss;
     for ( int idx=1; ; idx++ )
     {
-	if ( !iopar.get( IOPar::compKey(sKey::IOSelection(),idx), bs ) )
+	BufferString bs;
+	if ( iopar.get( IOPar::compKey(sKey::IOSelection(),idx), bs ) )
+	    bss.add( bs );
+	else
 	    break;
-
-	const char* key = bs;
-	if ( haveEntry(key) || !userNameFromKey(key) ) continue;
-
-	havenew = true;
-	entries_ += new BufferString( key );
     }
+    addToHistory( bss );
+}
 
+
+void uiIOSelect::addToHistory( const char* key )
+{
+    BufferStringSet bss; bss.add( key );
+    addToHistory( bss );
+}
+
+
+void uiIOSelect::addToHistory( const BufferStringSet& bss )
+{
+    const bool haveold = !inp_->isEmpty();
+    bool havenew = false;
+    for ( int idx=0; idx<bss.size(); idx++ )
+    {
+	const char* key = bss.get(idx).buf();
+	if ( haveEntry(key) || !userNameFromKey(key) )
+	    continue;
+	havenew = true;
+	entries_.add( key );
+    }
     if ( havenew )
     {
 	updateFromEntries();
@@ -222,13 +240,13 @@ const char* uiIOSelect::getKey() const
     if ( curit < 0 ) return "";
     if ( curit < nrspec ) return specialitems.getKey(curit);
 
-    return entries_.size() ? (const char*)(*entries_[curit-nrspec]) : "";
+    return entries_.isEmpty() ? "" : entries_.get(curit-nrspec).buf();
 }
 
 
 void uiIOSelect::checkState() const
 {
-    if ( inp_->size() != specialitems.size() + entries_.size() )
+    if ( inp_->size() != nrItems() )
 	const_cast<uiIOSelect*>(this)->updateFromEntries();
 }
 
@@ -251,7 +269,7 @@ void uiIOSelect::setInput( const char* key )
     for ( int idx=0; idx<nrentries; idx++ )
     {
 	const int boxidx = idx + nrspec;
-	if ( *entries_[idx] == key )
+	if ( entries_.get(idx) == key )
 	{
 	    inp_->setItemText( boxidx, usrnm );
 	    inp_->setCurrentItem( boxidx );
@@ -259,9 +277,10 @@ void uiIOSelect::setInput( const char* key )
 	}
     }
 
-    entries_ += new BufferString( key );
-    inp_->addItem( usrnm );
-    inp_->setCurrentItem( nrspec + nrentries );
+    entries_.addIfNew( key );
+    if ( !inp_->isPresent(usrnm) )
+	inp_->addItem( usrnm );
+    inp_->setCurrentItem( usrnm );
 }
 
 
@@ -304,7 +323,7 @@ const char* uiIOSelect::getItem( int idx ) const
     const int nrentries = entries_.size();
     return idx < nrspec
 	 ? (idx < 0 ? "" : specialitems.getValue(idx))
-	 : (idx < nrentries + nrspec ? (const char*)*entries_[idx-nrspec] : "");
+	 : (idx < nrentries + nrspec ? entries_.get(idx-nrspec).buf() : "");
 }
 
 
@@ -355,10 +374,7 @@ void uiIOSelect::selDone( CallBacker* )
 void uiIOSelect::setEmpty( bool withclear )
 {
     inp_->setEmpty();
-
-    if ( entries_.size() ) 
-	entries_.erase();
-
+    entries_.erase();
     if ( withclear ) addSpecialItem( "" );
 }
 

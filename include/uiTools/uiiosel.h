@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.45 2010-11-10 15:26:43 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.46 2012-05-25 13:18:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,8 @@ public:
 
     virtual void	updateHistory(IOPar&) const;
     virtual void	getHistory(const IOPar&);
+    void		addToHistory(const char*);
+    void		addToHistory(const BufferStringSet&);
 
     void		clear()			{ setCurrentItem( 0 ); }
     void		setEmpty(bool withclear=false);
