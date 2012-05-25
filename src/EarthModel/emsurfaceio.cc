@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.153 2012-05-24 11:39:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.154 2012-05-25 12:38:26 cvsbert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -37,6 +37,8 @@ static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.153 2012-05-24 11
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "strmoper.h"
+#include "strmprov.h"
+#include "filepath.h"
 
 #include <fstream>
 
@@ -154,33 +156,11 @@ void dgbSurfaceReader::setOutput( Array3D<float>& cube )
     cube_ = &cube;
 }
 
-bool dgbSurfaceReader::readHeaders( const char* filetype )
+
+bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
+					const char* horfnm )
 {
-    std::istream& strm = ((StreamConn*)conn_)->iStream();
-    ascistream astream( strm );
-    if ( !astream.isOfFileType( filetype ))
-    {
-	msg_ = "Invalid filetype";
-	return false;
-    }
-
-    astream.next();
-
-    IOPar par( astream );
-    version_ = 1;
-    par.get( sKeyVersion(), version_ );
-
-    BufferString dc;
-#define mGetDataChar( type, str, interpr ) \
-    delete interpr; \
-    interpr = DataInterpreter<type>::create( par, str, true )
-
-    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
-    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
-    mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
-    mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
-
-    if ( version_==3 )
+    if ( version_ == 3 )
     {
 	const od_int64 nrsectionsoffset = readInt64( strm );
 	if ( !strm || !nrsectionsoffset )
@@ -209,8 +189,8 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     else
     {
 	int nrsections;
-	if ( !par.get( sKeyNrSections() , nrsections ) &&
-	     !par.get( sKeyNrSectionsV1(), nrsections ) )
+	if ( !toppar.get( sKeyNrSections() , nrsections ) &&
+	     !toppar.get( sKeyNrSectionsV1(), nrsections ) )
 	{
 	    msg_ = sMsgParseError();
 	    return false;
@@ -220,31 +200,35 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	{
 	    int sectionid = idx;
 	    BufferString key = sSectionIDKey( idx );
-	    par.get(key.buf(), sectionid);
+	    toppar.get(key.buf(), sectionid);
 	    sectionids_+= sectionid;
 
 	}
 
-	par_ = new IOPar( par );
+	par_ = new IOPar( toppar );
     }
 
-    for ( int idx=0; idx<sectionids_.size(); idx++ )
-    {
-	const BufferString key = sSectionNameKey( idx );
-	BufferString sectionname;
-	par_->get(key.buf(),sectionname);
-		    
-	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
-    }
+    mergeExternalPar( horfnm );
+    return true;
+}
 
-    par_->get( sKeyRowRange(), rowrange_ );
-    par_->get( sKeyColRange(), colrange_ );
-    par_->get( sKeyZRange(), zrange_ );
-    par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-    TypeSet<int> lineids;
-    TypeSet< StepInterval<int> > trcranges;
-    bool is2d = false;
+void dgbSurfaceReader::mergeExternalPar( const char* horfnm )
+{
+    FilePath fp( horfnm ); fp.setExtension( "par" );
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() ) return;
+    IOPar par;
+    if ( par.read(*sd.istrm,"Surface parameters") )
+	const_cast<IOPar*>(par_)->merge( par );
+    sd.close();
+}
+
+
+int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
+{
+    TypeSet<int> lineids; bool is2d = false;
+
     if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
     {
 	is2d = true;
@@ -279,10 +263,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     {
 	is2d = true;
 	if ( linenames_.size() != lineids.size() )
-	{
-	    msg_ = "Inconsistency in file header";
-	    return false;
-	}
+	    { msg_ = "Inconsistency in horizon file header"; return -1; }
 
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
@@ -314,12 +295,57 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	    idx++;
 	}
     }
+    return is2d ? 1 : 0;
+}
 
+
+bool dgbSurfaceReader::readHeaders( const char* filetype )
+{
+    StreamConn& sconn( *((StreamConn*)conn_) );
+    std::istream& strm = sconn.iStream();
+    ascistream astream( strm );
+    if ( !astream.isOfFileType( filetype ))
+	{ msg_ = "Invalid filetype"; return false; }
+
+    version_ = 1;
+    astream.next();
+    IOPar toppar( astream );
+    toppar.get( sKeyVersion(), version_ );
+
+    BufferString dc;
+#define mGetDataChar( type, str, interpr ) \
+    delete interpr; \
+    interpr = DataInterpreter<type>::create( toppar, str, true )
+    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
+    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
+    mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
+    mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
+
+    if ( !readParData(strm,toppar,sconn.fileName()) )
+	return false;
+
+    for ( int idx=0; idx<sectionids_.size(); idx++ )
+    {
+	const BufferString key = sSectionNameKey( idx );
+	BufferString sectionname;
+	par_->get(key.buf(),sectionname);
+		    
+	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
+    }
+
+    par_->get( sKeyRowRange(), rowrange_ );
+    par_->get( sKeyColRange(), colrange_ );
+    par_->get( sKeyZRange(), zrange_ );
+    par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
+
+    TypeSet< StepInterval<int> > trcranges;
+    const int res = scanFor2DGeom( trcranges );
+    if ( res < 0 ) return false;
+    const bool is2d = res;
     setLinesTrcRngs( trcranges );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
-
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel_ += idx;
 
