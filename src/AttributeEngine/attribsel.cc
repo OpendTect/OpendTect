@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.64 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.65 2012-05-25 20:48:49 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -173,6 +173,17 @@ void SelSpec::setRefFromID( const DescSet& ds )
     ref_ = "";
     if ( desc )
     {
+	if ( desc->isStored() )
+	{
+	    MultiID mid( desc->getStoredID(false) );
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    if ( ioobj )
+	    {
+		Desc* ncdesc = const_cast<Desc*>( desc );
+		ncdesc->setUserRef( ioobj->name() );
+	    }
+	}
+
 	ref_ = desc->userRef();
 	desc->getDefStr( defstring_ );
 	setZDomainKey( *desc );
