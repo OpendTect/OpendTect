@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.13 2012-05-23 14:40:24 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.14 2012-05-28 08:34:10 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -215,7 +215,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
     deepErase( zoomboxes_ );
 
-    if ( iszoomcoupled_ || !activeVwr() && !drawzoomboxes_ ) 
+    if ( iszoomcoupled_ || !activeVwr() || !drawzoomboxes_ ) 
 	return;
 
     const uiWorldRect& masterbbox = activeVwr()->boundingBox();
