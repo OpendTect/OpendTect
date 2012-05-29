@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiproxydlg.cc,v 1.1 2012-05-25 19:13:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiproxydlg.cc,v 1.2 2012-05-29 16:57:16 cvshelene Exp $";
 
 
 #include "uiproxydlg.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uiproxydlg.cc,v 1.1 2012-05-25 19:13:10 cvsnann
 
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,"0.4.7"))
 {
     useproxyfld_ = new uiGenInput( this, "Use proxy", BoolInpSpec(true) );
     useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
