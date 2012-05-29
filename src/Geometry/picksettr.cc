@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.27 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.28 2012-05-29 03:32:43 cvsraman Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -133,9 +133,9 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
-	    if ( !loc.fromString( astrm.keyWord(), true, checkdir ) )
-		break;
-	    ps += loc;
+	    if ( loc.fromString( astrm.keyWord(), true, checkdir ) )
+		ps += loc;
+
 	    astrm.next();
 	}
     }
