@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.11 2012-05-29 16:38:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.12 2012-05-29 16:40:17 cvshelene Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -210,7 +210,7 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties",
-				"Define possible layer properties",mTODOHelpID))
+				"Define possible layer properties","1110.1.0"))
 {
     setCtrlStyle( LeaveOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS() );
@@ -252,7 +252,7 @@ bool uiManPROPS::haveUserChange() const
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 			      const char* lbl )
     : uiDialog(p,uiDialog::Setup("Layer Properties",
-				"Select layer properties to use",mTODOHelpID))
+				"Select layer properties to use","110.1.2"))
     , props_(PROPS())
     , prsel_(prs)
     , thref_(&PropertyRef::thickness())
