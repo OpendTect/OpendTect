@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.11 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.12 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -308,7 +308,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 					ElasticPropSelection& elsel )
     : uiDialog(p,uiDialog::Setup("Synthetic layers property selection",
 		"Select quantities to compute density, p-wave and s-wave"
-		,mTODOHelpID))
+		,"110.1.3"))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection)) 
     , elpropsel_(elsel)
     , orgelpropsel_(elsel)

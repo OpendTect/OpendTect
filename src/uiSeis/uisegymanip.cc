@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegymanip.cc,v 1.23 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegymanip.cc,v 1.24 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -47,7 +47,7 @@ class uiSEGYBinHdrEdDlg : public uiDialog
 public:
 
 uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
-    : uiDialog(p,Setup("SEG-Y Binary Header",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("SEG-Y Binary Header",mNoDlgTitle,"103.0.20"))
     , hdr_(h)
     , def_(SEGY::BinHeader::hdrDef())
     , orgns_(h.nrSamples())
@@ -188,7 +188,7 @@ void doDlg( CallBacker* )
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     : uiDialog(p,uiDialog::Setup("Manipulate SEG-Y File",
 				  BufferString("Manipulate '",fnm,"'"),
-				  mTODOHelpID) )
+				  "103.0.19") )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
     , binhdr_(*new SEGY::BinHeader)
@@ -424,7 +424,7 @@ public:
 
 uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     : uiDialog( p, Setup("Header Calculation",cs.indexOf(hc.he_.name()) < 0 ?
-	    "Add header calculation":"Edit header calculation",mTODOHelpID) )
+	    "Add header calculation":"Edit header calculation","103.0.21") )
     , hc_(hc)
     , calcset_(cs)
 {

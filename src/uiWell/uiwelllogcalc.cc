@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.29 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.30 2012-05-29 16:38:39 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -159,7 +159,7 @@ public:
 
 uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup("Rock Physics",
-				 "Use a rock physics formula", mTODOHelpID))
+				 "Use a rock physics formula", "107.1.12"))
 {
     formgrp_ = new uiRockPhysForm( this );
 }

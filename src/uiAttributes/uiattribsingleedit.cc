@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribsingleedit.cc,v 1.8 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribsingleedit.cc,v 1.9 2012-05-29 16:38:38 cvshelene Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
@@ -20,7 +20,7 @@ static const char* rcsID mUnusedVar = "$Id: uiattribsingleedit.cc,v 1.8 2012-05-
 
 uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     : uiDialog(p,Setup(isnew ? "Add attribute" : "Edit attribute",
-		    "Define attribute parameters",mTODOHelpID))
+		    "Define attribute parameters","110.3.1"))
     , desc_(ad)
     , setman_(new Attrib::DescSetMan(ad.is2D(),ad.descSet(),false))
     , nmchgd_(false)

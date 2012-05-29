@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilayseqattribed.cc,v 1.10 2012-05-02 15:12:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilayseqattribed.cc,v 1.11 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -35,7 +35,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_?"Add attribute":"Edit attribute",
-		    gtDlgTitle(lsa,edsu.isnew_),mTODOHelpID))
+		    gtDlgTitle(lsa,edsu.isnew_),"110.3.2"))
     , attr_(lsa)
     , reftree_(rt)
     , nmchgd_(false)

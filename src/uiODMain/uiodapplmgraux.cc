@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.52 2012-05-22 21:52:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.53 2012-05-29 16:38:38 cvshelene Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -455,7 +455,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 {
     const ODInst::AutoInstType curait = ODInst::getAutoInstType();
     uiGetChoice dlg( par_, ODInst::autoInstTypeUserMsgs(),
-	    		"Select policy for auto-update", true, mTODOHelpID );
+	    		"Select policy for auto-update", true, "0.4.5" );
     dlg.setDefaultChoice( (int)curait );
     if ( !dlg.go() )
 	return;

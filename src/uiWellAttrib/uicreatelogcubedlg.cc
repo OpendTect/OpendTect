@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.7 2012-05-03 07:30:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.8 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uicreatelogcubedlg.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.7 2012-05-
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     : uiDialog(p,uiDialog::Setup("Create Log Cube",
 				 "Select logs to create new cubes",
-				 mTODOHelpID) )
+				 "103.2.25") )
 {
     uiWellExtractParams::Setup su; 
     su.withzstep(false).withsampling(true).withextractintime(false);

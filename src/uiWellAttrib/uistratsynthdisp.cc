@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.92 2012-05-11 14:03:46 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.93 2012-05-29 16:38:40 cvshelene Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -786,7 +786,7 @@ void uiStackGrp::setLimitRange( Interval<float> rg )
 uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par ) 
     : uiDialog(p,uiDialog::Setup(
 		"Specify ray tracer parameters",mNoDlgTitle,
-		mTODOHelpID).modal(false))
+		"103.4.4").modal(false))
     , raypars_(par)
 {
     setCtrlStyle( DoAndStay );

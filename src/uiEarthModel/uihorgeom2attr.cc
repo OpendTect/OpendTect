@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.6 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.7 2012-05-29 16:38:38 cvshelene Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -103,7 +103,7 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
        				const DataPointSet& dps, int colid )
     : uiDialog(p, Setup("Set horizon Z values",
 		  BufferString("Set Z values from '",
-		      dps.dataSet().colDef(colid).name_,"'"),mTODOHelpID))
+		      dps.dataSet().colDef(colid).name_,"'"),"104.4.7"))
     , hor_(hor)
     , dps_(dps)
     , colid_(colid-dps.nrFixedCols())

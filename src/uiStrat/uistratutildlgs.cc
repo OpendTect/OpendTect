@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.55 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.56 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -397,7 +397,7 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Contents",
-		"Define special layer contents",mTODOHelpID))
+		"Define special layer contents","110.0.5"))
 {
     const Strat::ContentSet& conts = Strat::RT().contents();
     int nrrows = conts.size();

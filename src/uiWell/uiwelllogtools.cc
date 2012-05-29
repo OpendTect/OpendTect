@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.22 2012-05-11 14:22:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.23 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -42,7 +42,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.22 2012-05-11 
 
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
-	: uiDialog( p, Setup( "Well log tools", "Select logs", mTODOHelpID ) )
+	: uiDialog( p, Setup( "Well log tools", "Select logs", "107.3.1" ) )
 {
     setCtrlStyle( DoAndStay );
     uiWellExtractParams::Setup su;

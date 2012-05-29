@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.11 2012-05-22 14:48:37 cvskris Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.12 2012-05-29 16:38:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -460,7 +460,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , cs_(*new CubeSampling(true))
 {
-    setHelpID( "103.0.18" );
+    setHelpID( "103.2.23" );
     setParFileNmDef( "seis2dgrid" );
     uiGroup* seisgrp = createSeisGroup( rdl );
 

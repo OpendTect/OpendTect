@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.44 2012-05-21 13:48:40 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.45 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -537,7 +537,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
-				"Define layer generation",mTODOHelpID))
+				"Define layer generation","110.2.0"))
     , inpun_(inpun)
     , rt_(rt)
     , anychg_(true) //TODO really keep track of changes

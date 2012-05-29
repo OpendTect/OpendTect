@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.17 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.18 2012-05-29 16:38:40 cvshelene Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -140,7 +140,7 @@ void drawMarkerLine( float val )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
     : uiDialog(p,Setup("Scale synthetics","Determine scaling for synthetics",
-			mTODOHelpID))
+			"110.2.1"))
     , is2d_(is2d)
     , synth_(tb)
     , inpwvltid_(wid)

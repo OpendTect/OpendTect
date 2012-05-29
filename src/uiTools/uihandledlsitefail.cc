@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.4 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.5 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uihandledlsitefail.h"
 #include "uilabel.h"
@@ -40,7 +40,7 @@ static BufferString gtCaption( const ODDLSite& dlsite, bool isfatal )
 uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 				    bool isfatal, const BufferStringSet* sites )
 	: uiDialog(p,Setup(gtWinTitle(dlsite),gtCaption(dlsite,isfatal),
-						mTODOHelpID))
+						"0.4.6"))
 	, isfatal_(isfatal)
 	, site_(dlsite.host())
 	, dlsitefld_(0)

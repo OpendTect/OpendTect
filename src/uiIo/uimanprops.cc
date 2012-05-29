@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.10 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.11 2012-05-29 16:38:38 cvshelene Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -94,7 +94,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     : uiDialog(p,uiDialog::Setup("Property definition",
 		BufferString(isadd?"Add '":"Edit '",
 		    PropertyRef::toString(pr.stdType()),"' property"),
-		mTODOHelpID))
+		"110.1.1"))
     , pr_(pr)
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec(pr.name()) );

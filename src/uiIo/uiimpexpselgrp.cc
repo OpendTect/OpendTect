@@ -965,7 +965,7 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup("Save Selection Area",
-				 "Specify parameters",mTODOHelpID))
+				 "Specify parameters","111.0.9"))
     , selgrps_(selgrps)
     , setup_(su)
 {

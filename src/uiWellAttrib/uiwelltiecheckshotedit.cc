@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.18 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.19 2012-05-29 16:38:40 cvshelene Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -76,7 +76,7 @@ int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
     : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
 		"Edit depth/time model based on checkshot",
-		mTODOHelpID).nrstatusflds(1))
+		"107.4.4").nrstatusflds(1))
     , server_(server)					     
     , wd_(*server.wd())   
     , d2tlineitm_(0)	     

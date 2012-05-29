@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uihorizonmergedlg.cc,v 1.6 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizonmergedlg.cc,v 1.7 2012-05-29 16:38:38 cvshelene Exp $";
 
 
 #include "uihorizonmergedlg.h"
@@ -29,7 +29,7 @@ static const char* rcsID mUnusedVar = "$Id: uihorizonmergedlg.cc,v 1.6 2012-05-0
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Merge 3D Horizons","",mTODOHelpID))
+    : uiDialog(p,Setup("Merge 3D Horizons","","104.2.10"))
 {
     horselfld_ = new uiHorizon3DSel( this );
 

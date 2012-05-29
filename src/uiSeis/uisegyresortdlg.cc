@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyresortdlg.cc,v 1.11 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyresortdlg.cc,v 1.12 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -29,7 +29,7 @@ static const char* sKeySEGYDirect = "SEGYDirect";
 
 uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Re-sort SEG-Y scanned",
-		"Produce new SEG-Y file from scanned data",mTODOHelpID) )
+		"Produce new SEG-Y file from scanned data","103.2.21") )
     , geomfld_(0)
     , volfld_(0)
     , ps3dfld_(0)

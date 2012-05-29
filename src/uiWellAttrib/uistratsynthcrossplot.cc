@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.41 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.42 2012-05-29 16:38:40 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -47,7 +47,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
 			const ObjectSet<SyntheticData>& synths)
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
-			mNoDlgTitle,mTODOHelpID))
+			mNoDlgTitle,"110.3.0"))
     , lm_(lm)
     , synthdatas_(synths)	     
 {

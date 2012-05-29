@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.17 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.18 2012-05-29 16:38:39 cvshelene Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -36,7 +36,7 @@ static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters", mTODOHelpID))
+			"Specify import parameters", "103.0.22"))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     , import_(0)							

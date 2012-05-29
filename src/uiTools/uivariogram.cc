@@ -38,7 +38,7 @@ static const char* rcsID mUnusedVar = "$Id Exp $";
 uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     : uiDialog(p,uiDialog::Setup("Semi-variogram parameters",
 				 "Specify semi-variogram parameters",
-				 mTODOHelpID ) )
+				 "111.0.12" ) )
 {
     int dxmin = SI().inlDistance() <= SI().crlDistance() ?
        		(int)SI().inlDistance() : (int)SI().crlDistance();
@@ -125,7 +125,7 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 					 BufferStringSet* labels,
 					 int maxrg, bool ishor )
     	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
-		    		     mTODOHelpID ).modal(false))
+		    		     "111.0.13" ).modal(false))
 	, maxrg_(maxrg)
 {
     if ( !data || ! axes || !labels ) return;
