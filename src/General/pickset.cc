@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.78 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.79 2012-05-29 03:13:49 cvsraman Exp $";
 
 #include "pickset.h"
 
@@ -589,8 +589,12 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 	if ( iszreq )
 	{
 	    zread = getfValue( 2 );
+	    if ( mIsUdf(zread) )
+		continue;
+
 	    mPIEPAdj(Z,zread,true);
 	}
+
 	Pick::Location ploc( pos, zread );
 	ps += ploc;
     }
