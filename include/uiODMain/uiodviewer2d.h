@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.30 2011-09-13 13:47:47 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.31 2012-05-30 08:03:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ public:
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
     static const char*		sKeyPos() 	 { return "Position"; }
+
+    Notifier<uiODViewer2D>	winClosed;
 
 protected:
 

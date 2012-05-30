@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.56 2012-05-10 08:19:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.57 2012-05-30 08:03:54 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -54,6 +54,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , treetp_(0)
     , polyseltbid_(-1)
     , isPolySelect_(true)
+    , winClosed(this)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -318,6 +319,8 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     if ( slicepos_ )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
 
+    winClosed.trigger();
+
     viewstdcontrol_ = 0;
     viewwin_ = 0;
 }
@@ -369,7 +372,7 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
     viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, isPolySelect_ ?
 	    		"Polygon Selection mode" : "Rectangle Selection mode" );
 
-    if ( !auxdataeditors_.size() )
+    if ( auxdataeditors_.isEmpty() )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
@@ -396,7 +399,7 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
     if ( !viewstdcontrol_->toolBar()->isOn(polyseltbid_) )
 	return;
 
-    if ( !auxdataeditors_.size() )
+    if ( auxdataeditors_.isEmpty() )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
@@ -408,6 +411,8 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 
 void uiODViewer2D::usePar( const IOPar& iop )
 {
+    if ( !viewwin() ) return;
+
     IOPar* vdselspecpar = iop.subselect( sKeyVDSelSpec() );
     if ( vdselspecpar ) vdselspec_.usePar( *vdselspecpar );
     IOPar* wvaselspecpar = iop.subselect( sKeyWVASelSpec() );

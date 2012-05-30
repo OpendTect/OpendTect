@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.h,v 1.5 2012-05-30 08:03:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,6 @@ protected:
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(int visid);
-
     ObjectSet<uiODViewer2D>     viewers2d_;
 
     uiTreeFactorySet*		tifs2d_;
@@ -55,6 +54,8 @@ protected:
 
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
+
+    void			viewer2DWinClosedCB(CallBacker*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
