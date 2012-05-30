@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.137 2012-05-30 09:04:19 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.138 2012-05-30 13:29:42 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -74,8 +74,8 @@ static CubeSampling getInitCubeSampling( const CubeSampling& csin )
     cs.hrg.start.crl = (5*csin.hrg.start.crl+3*csin.hrg.stop.crl)/8;
     cs.hrg.stop.inl = (3*csin.hrg.start.inl+5*csin.hrg.stop.inl)/8;
     cs.hrg.stop.crl = (3*csin.hrg.start.crl+5*csin.hrg.stop.crl)/8;
-    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8;
-    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8;
+    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.;
+    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
     float z0 = csin.zrg.snap( cs.zrg.start ); cs.zrg.start = z0;
@@ -925,8 +925,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = center_.z - width_.z / 2;
-	res.zrg.stop = center_.z + width_.z / 2;
+	res.zrg.start = center_.z - width_.z / 2.;
+	res.zrg.stop = center_.z + width_.z / 2.;
     }
     else
     {
@@ -940,8 +940,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 			       mNINT(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = transl.z+scale.z/2;
-	res.zrg.stop = transl.z-scale.z/2;
+	res.zrg.start = transl.z+scale.z/2.;
+	res.zrg.stop = transl.z-scale.z/2.;
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
