@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.88 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.89 2012-05-30 13:24:08 cvsnanne Exp $";
 
 #include "uiiosurface.h"
 
@@ -422,6 +422,10 @@ int uiSurfaceWrite::getStratLevelID() const
 {
     return stratlvlfld_ ? stratlvlfld_->getID() : -1;
 }
+
+
+void uiSurfaceWrite::setColor( const Color& col )
+{ if ( colbut_ ) colbut_->setColor( col ); }
 
 
 Color uiSurfaceWrite::getColor() const
