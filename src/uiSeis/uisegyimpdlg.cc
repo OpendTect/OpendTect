@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.33 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.34 2012-05-30 07:31:20 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -256,7 +256,12 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
+    {
 	retval = impFile( *useinioobj, outioobj, lnm, attrnm );
+	if ( is2d && retval )
+	    uiMSG().message( "Successfully loaded ",
+		    		useinioobj->fullUserExpr() );
+    }
     else
     {
 	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj, attrnm );
