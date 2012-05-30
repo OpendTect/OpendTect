@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.28 2012-05-24 10:18:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.29 2012-05-30 05:32:23 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -203,7 +203,7 @@ static int initialise_Co( void )
 }
 
 
-bool winCopy( const char* from, const char* to, bool isfile )
+bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 {
     if ( isfile && File::getKbSize(from) < 1024 )
     {
@@ -223,7 +223,7 @@ bool winCopy( const char* from, const char* to, bool isfile )
     frm[sz+1] = '\0';
      
     ZeroMemory( &fileop, sizeof(fileop) );
-    fileop.hwnd = NULL; fileop.wFunc = FO_COPY;
+    fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
     fileop.pFrom = frm; fileop.pTo = to; 
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
 			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION

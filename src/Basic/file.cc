@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.36 2012-05-24 10:18:00 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.37 2012-05-30 05:32:23 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,6 +281,15 @@ bool copy( const char* from, const char* to )
     pFreeFnErrMsg(not_implemented_str,"copy");
     return false;
 #endif
+}
+
+
+bool move( const char* from, const char* to )
+{
+#ifdef __win__
+    return winCopy( from, to, isFile(from), true );
+#endif
+    return true;
 }
 
 
