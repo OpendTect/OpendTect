@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.64 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.65 2012-05-30 08:47:53 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -590,7 +590,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     x1_ = new AxesGroup( this, annot_.x1_, annots, 
 				annot_.allowuserchangereversedaxis_ );
     x1_->attach( alignedBelow, colfld_ );
-    x2_ = new AxesGroup( this, annot_.x2_, annots,
+    x2_ = new AxesGroup( this, annot_.x2_, 0,
 				annot_.allowuserchangereversedaxis_ );
     x2_->attach( alignedBelow, x1_ );
 
