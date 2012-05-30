@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.65 2012-05-30 08:47:53 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.66 2012-05-30 12:53:44 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -785,7 +785,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     vwr_.fillAppearancePar( initialpar_ );
 
     const bool wva = vwr_.appearance().ddpars_.wva_.allowuserchange_;
-    const bool vd = vwr_.appearance().ddpars_.wva_.allowuserchange_;
+    const bool vd = vwr_.appearance().ddpars_.vd_.allowuserchange_;
     const bool annot = vwr_.appearance().annot_.allowuserchange_;
 
     if ( wva )
