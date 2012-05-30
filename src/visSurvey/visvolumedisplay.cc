@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.136 2012-05-10 18:54:13 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.137 2012-05-30 09:04:19 cvsjaap Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -678,9 +678,9 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
 			   cs.hrg.stop.crl - cs.hrg.start.crl,
 			   cs.zrg.stop - cs.zrg.start );
     boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
-			    (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
-			    (cs.zrg.stop + cs.zrg.start) / 2 );
+    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
+			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
+			    0.5*(cs.zrg.stop + cs.zrg.start) );
     boxdragger_->setCenter( newcenter );
 }
 

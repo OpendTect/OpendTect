@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.118 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.119 2012-05-30 09:04:19 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -404,9 +404,9 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 			   cs.hrg.stop.crl - cs.hrg.start.crl,
 			   cs.zrg.stop - cs.zrg.start );
     boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
-			    (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
-			    (cs.zrg.stop + cs.zrg.start) / 2 );
+    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
+			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
+			    0.5*(cs.zrg.stop + cs.zrg.start) );
     boxdragger_->setCenter( newcenter );
 
     manipulated_ = true;
@@ -614,8 +614,8 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     boxdragger_->setWidth( newwidth );
 
-    const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
-			    (cube.hrg.stop.crl+cube.hrg.start.crl)/2,
+    const Coord3 newcenter( 0.5*(cube.hrg.stop.inl+cube.hrg.start.inl),
+			    0.5*(cube.hrg.stop.crl+cube.hrg.start.crl),
 			    cube.zrg.center());
 
     boxdragger_->setCenter( newcenter );
