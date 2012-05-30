@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.66 2012-05-24 11:30:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.67 2012-05-30 11:36:15 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -362,6 +362,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
     uiGetChoice dlg( this, opts,
 	    "The wavelet seems to be unscaled.\n"
 	    "For most purposes, you will need a scaled wavelet.\n", true );
+    dlg.setHelpID( "110.2.2" );
     dlg.go(); const int choice = dlg.choice();
     if ( choice < 0 )
 	return false;

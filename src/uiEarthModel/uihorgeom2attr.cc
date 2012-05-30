@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.7 2012-05-29 16:38:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.8 2012-05-30 11:36:15 cvsbert Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -42,6 +42,7 @@ uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
     , msfld_(0)
 {
     hor_.ref();
+    setHelpID( "104.4.8" );
 
     mAddMSFld("Store in",inpfld_)
 }

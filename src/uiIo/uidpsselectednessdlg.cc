@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsselectednessdlg.cc,v 1.3 2012-05-02 15:12:08 cvskris Exp $: 
+ RCS:           $Id: uidpsselectednessdlg.cc,v 1.4 2012-05-30 11:36:15 cvsbert Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     capt += curgrp->name();
     capt += "'";
     setCaption( capt );
+    setHelpID( "111.0.11" );
 
     BufferString msg( "A new column will be added with selectedness values.\n"
 	    	      "Specify the name of the new column." );
