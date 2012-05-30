@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.9 2012-05-29 16:38:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.10 2012-05-30 13:25:24 cvsnanne Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -38,8 +38,8 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     , okpushed_(this)
     , is2d_(is2d)		     
 {
-    uiSliceSel::Type tp = cs.defaultDir() == is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()== CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
+    uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
+	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
     setCtrlStyle( DoAndStay );
     
     sliceselfld_ = new uiGatherPosSliceSel( this, tp );
