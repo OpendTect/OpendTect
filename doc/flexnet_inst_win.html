@@ -1,0 +1,66 @@
+<html>
+<!--
+- CopyRight:  (C) dGB Earth Sciences
+- Author:     A.H. Bril
+- Date:       June 2008
+- Contents:   FlexNet usage and installation
+- RCS:        $Id: flexnet_inst_win.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+-->
+
+<body><title>FlexNet installation and usage</title>
+<a name=top></a>
+
+<center>
+| <a href=#intro>Introduction</a>
+| <a href=#install>Installation</a>
+| <a href=#expert>Experts</a>
+</center>
+<div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<h4><a name="intro">Introduction</a></h4>
+<p>
+On Windows, installation of the license file and startup of the license manager daemon (as a Windows service) is quite a bit more difficult than on UNIX variants. We therefore recommend, if you have the chance, to use a UNIX server for licensing.
+<p>
+The installation starts by putting the license file in a good, stable, safe position on your system. This is <b>not</b> in the installation directory (which is typically \Program Files\OpendTect). A directory like \Licenses and a filename showing the plugin vendor name seems to be a good choice. We recommend not to use spaces or special characters in the directory or file name. Later, when you get a new license file, you simply replace the old one with the new one under the same name, and if the licnese is floating use the 'ReRead License File' button in the 'Start/Stop/ReRead' tab of the license manager tools program.
+</p>
+
+<h4><a name="install">Installation</a></h4>
+<p>If you are upgrading, i.e. replacing a license file with a new version, then the easiest way to do it is to replace only the contents of the old file, i.e. keeping the same name. For server-based licenses, first stop the service. In any case, don't keep old copies in existence because FlexNet may sneakily use them rather than trying the new one.
+<p>
+For new installations: on first usage of a plugin, you will see a popup of a window asking for the license file. If this method succeeds, everything should be OK. You can stop reading now.<br<br>
+</p><p>
+Unfortunately, in many cases you have to set up the license in a different way. For this, you need to use the 'License Manager Tools' program, which can be started from the Windows start menu for OpendTect.<br><br>
+<img src="pics/win_startmenu.png"><br><br>
+</p><p>
+The first thing you need to be sure of, is that FlexNet is looking at the right file for the right license feature. For this, go to the Utilities tab and check by using the 'List all vendor paths' button whether there is a path to your license file - for the vendor in question. For example, for dGB, the vendor name is 'lm_dgb', for ArkCls, it's 'arkclsld'. You can find your vendor's name in the license file.
+</p><p>
+In case you see a wrong path displayed, you can overrule it using the overrule button. Below an example for the dGB daemon ('lm_dgb'), for other vendors you need to use other names (e.g. 'arkclsld'):<br><br>
+<img src="pics/override_path.png"><br><br>
+</p><p>
+If you have a node-locked or demo license, you should now be able to use the plugins. For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor, for dGB it is in the bin\win\lm.dgb directory of the OpendTect installation directory. The debug log file is traditionally given the license file's name with extension '.log'. Below example is for dGB (for ARK CLS you'd need to use something like arkcls\bin\Windows\5.1\i686\lmgrd.exe):<br><br>
+<img src="pics/config_services.png"><br><br>
+Press 'Save service' and go to the Start/Stop/Reread tab. After starting the server, the licenses are ready to use.
+</p><p>
+If for some reason the license fails to be granted, you should examine:
+<ul>
+<li>The OpendTect console messages
+<li>The debug log file (when you started a service)
+<li>The plugin management window (Utilities-plugins)
+</ul>
+You can also take a look at the <a href=#expert">expert approach</a>.
+</p>
+<p>If you are using the Windows firewall, the following may be necessary (reported by Curtis A. Link from MontanaTech). In the Windows Firewall interface (Control Panel), under the Exceptions tab, use Add Program and Browse to point to lmgrd.exe and click Open. Next do the same thing for the vendor daemon lm_dgb.exe. Finally, a reboot (this was key).</p>
+
+<h4><a name="expert">Expert approach</a></h4>
+More advanced ways of managing license files, services and so forth are
+possible. Two approaches were described by power-users:
+
+<ol>
+<li>
+<b>David Epelboim</b> of <a href="http://www.geoinfo.com.ar">GeoInfo Argentina</a> describes <a href=flexnet_inst_win_expert.html#david>a full procedure of installing on Windows</a>.
+
+<li>
+<b>Julien Moreau</b> of the <a href="http://www.seismo.helsinki.fi">University of Helsinki</a> describes <a href=flexnet_inst_win_expert.html#julien>a way to run multipe license managers under one service</a>.
+
+
+</html>

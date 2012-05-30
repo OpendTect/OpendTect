@@ -1,0 +1,264 @@
+<html>
+<!--
+- CopyRight:  (C) dGB Earth Sciences
+- Author:     A.H. Bril
+- Date:       July 2011
+- Contents:   FlexNet experts comments
+- RCS:        $Id: flexnet_inst_win_expert.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+-->
+
+<body><title>FlexNet installation - expert experiencese</title>
+<a name=top></a>
+<div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<center>
+| <a href=#david>[David Epelboim]Full installation</a>
+| <a href=#julien>[Julien Moreau]Working with a single service</a>
+</center>
+
+<h1><a name="intro">Disclaimer</a></h1>
+<p>
+Needless to say that these contributions are given 'as is', they don't imply that the contributors give any guarantees about what works and what not; they are just sharing their experiences with us.
+</p>
+
+<br><br><hr><br>
+
+<a name=david><h2>A full procedure of installing on Windows</h2></a>
+By <b>David Epelboim</b> of <a href="http://www.geoinfo.com.ar">GeoInfo Argentina</a><br>
+
+
+<ol>
+<li>Create a directory with FlexNet executables for this vendor only. It can be copied from an installation, or got from <a href=ftp://ftp.opendtect.org/pub/lic/Vendors>this ftp link</a>.
+
+<li>Open the license file and verify that it says
+<pre>SERVER my_server HOSTID</pre>
+That the ending date has not expired, the version is correct, and that I have the licenses I should. my_server might be a hostname, a fully qualified hostname, or an IP address.
+
+<li>Launch LMTOOLS from the vendor's folder. Note: On a computer with DEP (Data Execution Prevention or xD), if you execute LMTOOLS.EXE on a computer, it works. However the "System Information" tab on the LMTOOLS will make it crash without notice. At reboot, you get a message that says it had an issue, and will give you the "Change Settings" button, and will add an exception checkbox you must check in order for it to execute properly. It seems it uses some anti-debugging technique or something weird that intentionally executes instructions from a data segment or page. Another way to deal with this is to use the right mouse button over My Computer icon click the 'Advanced' tab, use 'Settings' button under 'Performance' box. In the 'Data Execution Prevention' tab set 'Turn on DEP for essential Windows programs and services only', or click 'Add' button and select lmtools.exe - and check the checkbox.
+
+<li>Select "Configuration Using Services"
+
+<li>Go to "Config Services" tab and type in the name of the service (for excample 'dGB') and point the paths for each file to the corresponding vendor's directory (I normally put the license and log there too, and they will not mix with the others)
+
+<li>Check "Start Server at Power Up" and "Use Services" options.
+
+<li>Click the "Save Service" button.
+
+<li>Go to "Start/Stop/Reread" tab and start the service. (Might not work, then reboot and service will start automatically because of step 5)
+
+<li>Go to "Server Status" and click on "Perform Status Enquiry".<br>
+
+Doing so you get all or filtered list of daemons that are checked to be working. Be aware that this may fail even if the licensing system might work. Try to launch the software even if this has a bad result.
+<br>
+You should get this output (for each license):
+<pre>
+--------
+Status
+--------
+Flexible License Manager status on Fri 6/20/2008 11:42
+
+[Detecting lmgrd processes...]
+License server status: 27000@SERVER2
+   License file(s) on SERVER2: C:\Program Files\OpendTect\license.dat:
+
+  SERVER2: license server UP (MASTER) v9.2
+
+Vendor daemon status (on SERVER2):
+
+   lm_dgb: UP v9.2
+
+Feature usage info:
+
+Users of dTect:  (Total of 4 licenses issued;  Total of 0 licenses in use)
+</pre>
+
+<li>Go to "Server Diags" tab, and click "Perform Diagnostics"
+
+This should look like this for each license:
+
+<pre>
+--------
+Diagnostics
+--------
+FlexNet diagnostics on Fri 6/20/2008 11:45
+
+-----------------------------------------------------
+License file: C:\Program Files\OpendTect\license.dat
+-----------------------------------------------------
+"dGB_GDI" v3.400, vendor: lm_dgb
+ License server: SERVER2
+ floating license  expires: 1-aug-2008
+ Requests from the same DISPLAY do not consume a new license
+
+This license can be checked out
+</pre>
+
+<li> Launch the software and when it asks for the server, point to it.
+</ol>
+
+<h5><a name="expert_problems">Possible problems</a></h5>
+
+If all seems to be OK but the log or the "Server Status" show it can't connect to the server:
+
+<ul>
+<li>It might not be running. Verify the daemon is listed on the Task Manager
+
+<li>The PORT might be interfered by a Firewall, or another daemon (FlexNet or not). If another daemon is using the default port, then, you will have to manually add the port number to the license file (maybe, for safety, for each daemon on the server). That is explained in the FlexNet manual, but this change should work:
+<pre>SERVER my_server HOSTID port_number</pre>
+You will have to restart each server or even the computer. Also, if you forced an unusual port, you will have to put the changed license file on the client computers too, so the client knows where to connect.
+
+
+<br><br><hr><br>
+<a name=julien><h2>A way to run multipe license managers under one service</h2></a>
+By <b>Julien Moreau</b> of the <a href="http://www.seismo.helsinki.fi">University of Helsinki</a><br>
+
+<h4>Introduction</h4>
+
+<p>
+This help file intends to use an unique FlexNet client for all the licenses. 
+Each license file will be set as a different service in the server and the client side. Meaning for the server opening a different port and running a different process for each license, and for the client calling a different port and service for each license.
+</p><p>
+
+On the OpendTect ftp site there is an archive containing the last versions of the FlexNet clients including at least (lmgrd.exe, lmtools and lmutils):<br>
+<a href=ftp://ftp.opendtect.org/pub/lic>ftp://ftp.opendtect.org/pub/lic</a><br>
+In addition, it is assumed that the license files contain the right information concerning the external network port that your FlexNet service is using as well as the client-side path to your deamons /vendors.
+
+In this example, licences are distributed by LIC-SERV which runs the FlexNet server.
+The network address of LIC-SERV is 123.456.789.123	LIC-SERV.somewhere.net
+To read the license, you need to have a FlexNet license **client** installed in your machine. They usually come with the software you download. Beware of the version of the client and the compatibility with your software pool. 
+  Avoid installing a local license as a server (service) on your machine or FlexNet will certainely be confused.
+</p><p>
+
+  Attention! The FlexNet tools have to be disinstalled independently of the software which installed it (if several ones are on the system).
+</p><p>
+
+
+The LIC-SERV server is distributing the licences through different **external** ports:
+<pre>
+12345	OpendTect
+12346	ArkCls
+</pre>
+</p>
+
+
+<h4>Client Side installation</h4>
+
+<p>
+Create a folder within a safe place of your computer. Preferably not a data repository nor a program or bin folder. Think about other users which might not have access to all the computer, they might have not a full access. 
+</p><p>
+
+Within this folder, copy the license files (.lic) file and the appropriate FlexNet archive version (32 or 64 bits). Unpack the FlexNet archived files  within a subfolder.
+</p><p>
+
+Your folder should look like:
+<pre>
+..\safe_place\Licensing	|Licence 1.lic
+			|Licence n.lic
+			|\flexnet*	|debug.log (will be generated here)
+					|lmgrd.exe
+					|lmtools.exe
+					|lmutils.exe
+</pre>
+
+</p><p>
+Go to C:\Program Files\OpendTect-4.2.0\bin\win32\lm.dgb\<br>
+Except from lm_dgb.exe, remove lmgrd.exe, lmtools.exe and lmutils.exe. These are old version of flexnet (9.6) which are not compatible with other flexnet-licensed programs.
+</p><p>
+Within this folder, do a shortcut or alias to
+<pre>
+..\safe_place\Licensing\flexnet*\
+	lmgrd.exe
+	lmtools.exe
+	lmutils.exe
+</pre>
+Repeat the operation within the folder of Arkcls:
+C:\Program Files\OpendTect-4.2.0\arkcls\bin\Windows\5.1\i686\
+</p><p>
+
+This operation might not be needed for other flexnet-licensed programs. However, it is preferable to do it so that there is no conflict and the software always go to the right lmgrd.
+</p><p>
+
+From the shortcuts or the root file, open lmtools.exe. In theory the service license file should be blank if it is the first time you use it.
+</p><p>
+
+<h5>Setting up OpendTect Licence Client</h5>
+
+<ul>
+<li>Tick "Configuration using Services". It means you will use a license server.
+<li>Go to "Config Services". 
+<li>Fill in "Service Name". For OpendTect write e.g. "OpendTect"
+<li>Fill in "Path to the lmgrd.exe file". It should be in:
+..\safe_place\Licensing\flexnet*\lmgrd.exe
+<li>Fill in "Path to the license file" with the place you put the lic files:
+..\safe_place\Licensing\opendtect.lic
+<li>Fill in "Path to the debug log file" with the correct path, usually:
+..\safe_place\Licensing\flexnet*\debug.log
+<li>Go to the Utilities tab to set the vendor name and path (avoid many many licensing problems!)
+<li>Type in vendor name "lm_dgb" (The real name of the deamon for the opendtect License)
+<li>Type the path "12345@LIC-SERV.somewhere.net"
+<li>Click add Vendor path
+</ul>
+
+<h5>Setting up Arkcls Licence Client</h5>
+<ul>
+<li>Go to "Config Services". 
+<li>Fill in "Service Name". For OpendTect write "Arkcls"
+<li>Fill in "Path to the lmgrd.exe file". It should be in:
+..\safe_place\Licensing\flexnet*\lmgrd.exe
+<li>Fill in "Path to the license file" with the place you put the lic files:
+..\safe_place\Licensing\arkcls.lic
+<li>Fill in "Path to the debug log file" with the correct path, usually:
+..\safe_place\Licensing\flexnet*\debug.log
+<li>Go to the Utilities tab to set the vendor name and path 
+<li>Type in vendor name "arkclsld" (The real name of the deamon for the akcls License)
+<li>Type the path "12346@LIC-SERV.somewhere.net"
+<li>Click add Vendor path
+</ul>
+
+<p>
+
+At the end you can do a test and under the utilities tab, select List All Vendor Paths.  It should look like this:
+<pre>
+lm_dgb:        12345@LIC-SERV.somewhere.net
+arkclsld:      12346@LIC-SERV.somewhere.net
+</pre>
+</p><p>
+
+If a local file path appear something is wrong. In case you do not obtain your licenses, you should then go within Opendtect and use the utility to erase licenses. And do it all again.
+</p>
+
+
+
+<h4>TroubleShooting</h4>
+<p>
+In a windows x64 installation, please check in your license file:
+<ul>
+<li>the port to access to your license on the server is specified. 
+Line 1 should be for OpendTect.lic(in this example):
+SERVER LIC-SERV 000000000000 12345
+Line 1 should be for arkcls.lic(in this example):
+SERVER LIC-SERV 000000000000 12346
+
+<li>the path of your deamon within the license file line 2 is specified. Usually it is:
+C:\Program Files\OpendTect-4.2.0\bin\win32\lm.dgb\lm_dgb.exe
+C:\Program Files\OpendTect-4.2.0\arkcls\bin\Windows\5.1\i686\arkclsld.exe
+
+<li>In case the licensing system is messed up with some old local FlexNet installation, you can try to follow this:
+<ul>
+<li>in Lmtools.exe go to "Utilities" and check List all Vendor Paths
+<li>recognise the eroneous vendor names and their respective paths.
+<li>Override the path with the file of the opendTect License file, e.g. safeplace\*.lic
+<li>The best solution remains is to erase the paths within the registry. you can use the opendtect utility for the dGB parts. If there are multiple eroneous license paths, it is very fastidious. You will have to restart from scratch.
+</ul>
+
+N.B.: after some license removal, restarting permits to **really** refresh the license list for the client side.
+
+</p>
+
+<br><br>
+<hr>
+<br>
+<center>
+<a href=flexnet_inst_win.html>Back to Windows installation</a>
+
+</html>

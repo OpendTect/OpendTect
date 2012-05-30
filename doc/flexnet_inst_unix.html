@@ -1,0 +1,40 @@
+<html>
+<!--
+- CopyRight:  (C) dGB Earth Sciences
+- Author:     A.H. Bril
+- Date:       June 2008
+- Contents:   FlexNet usage and installation
+- RCS:        $Id: flexnet_inst_unix.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+-->
+
+<body><title>FlexNet installation on UNIX-type systems</title>
+<a name=top></a>
+<div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<h4><a name="unix">Installation on Linux, Mac, and Solaris</a></h4>
+<p>
+In the following we will explain installation for people with no prior knowledge of FlexNet, or at least have no existing procedures to handle FlexNet licenses. System administrators who do will want to find what they need directly on <a href=ftp://ftp.opendtect.org/pub/lic/Vendors>ftp://ftp.opendtect.org/pub/lic/Vendors</a>. The packages there contain the binaries you need.
+</p><p>
+Installation on UNIX variants (Linux, Mac and Solaris) is done on the command line. OpendTect will generate, during installation, a couple of scripts to install the license and start the license server (if needed).
+</p><p>
+You can install the license file with a script 'install.xxx.license', where xxx would be your plugin vendor's name. For example: 'install.dgb.license'. These scripts are located in the root of your installation directory. Such a script will ask you where the license file you obtained is located. It will then install this file in your OpendTect installation.
+</p><p>
+For floating licenses (i.e. license files containing a 'SERVER' line), you will have to start the license manager daemon on the server. For this, there are the 'start.xxx.lmgrd' scripts. You can run this script after installation of the license file. All output from the license manager daemon will be sent to the log file, which is by default 'license.xxx.log'.
+</p><p>
+If for some reason the license fails to be granted, you should examine:
+<ul>
+<li>The OpendTect log file (Utilities-Show log file)
+<li>The 'license.xxx.log' file
+<li>The plugin management window (Utilities-plugins)
+</ul>
+</p><p>
+When you get an upgrade for one of your license files, you can again use the scripts. The 'start.xxx.lmgrd' script can be used to stop the daemon with:
+<br><code>start.xxx.lmgrd stop</code><br>
+After that, use install.xxx.license and start.xxx.lmgrd again as if you have obtained a new license. For the advanced users a warning: Windows clients usually have an own copy of the license file. Don't forget to replace those with the new license file, too (or bad juju will happen).
+</p><p>
+You should be happy you are fortunate enough to not be working on Windows. The nice Windows GUI tools obscure the simplicity of everything. In doubt, never choose Windows for your license server.
+</p>
+
+
+</body>
+</html>

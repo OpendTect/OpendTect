@@ -1,0 +1,94 @@
+<html>
+<!--
+- CopyRight:  (C) dGB Earth Sciences
+- Author:     A.H. Bril
+- Date:       Apr 2004
+- Contents:   FlexNet primer
+- RCS:        $Id: flexnet_explained.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+-->
+
+<body><title>FlexNet Licenses explained</title>
+<a name=top></a>
+
+<center>
+  <a href=#manager>Manager's summary</a>
+| <a href=#server>Server side</a>
+| <a href=#client>Client side</a>
+| <a href=#nonfloat>Non-floating licenses</a>
+| <a href=#hostid>Host identification</a>
+</center>
+<div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<h2>FlexNet Licenses explained</h2>
+
+<p>
+Let us suppose you have received a 2-user license for a module. Normally you will have obtained a <i>floating</i> license, meaning that you will be able to use the module from any machine, and two users can be busy with it at the same time.
+</p>
+
+<h4><a name="server">Server side</a>: The License Manager Daemon</h4>
+
+<p>
+To be able to enforce the license, there must be a piece of software somewhere that keeps track of who is using the module. That is the <i>License Manager Daemon</i> (<b>LMD</b>). The LMD can run on any machine, also on machines that you will never use the module itself on. Good candidates are stable UNIX servers.
+</p><p>
+When the LMD is started, it looks at a file containing the information about what should be supported. This file is called the <i>License File</i>. Actually, the LMD can only be started on the machine indicated in the license file. The license file could look like this:
+
+<pre><code>
+SERVER licserv 000347e8b845
+DAEMON lm_dgb /apps/opendtect/4.4.0/bin/lux64/lm/lm_dgb
+FEATURE dTect lm_dgb 4.400 1-jan-2013 2 6592FDC619EA DUP_GROUP=D
+FEATURE dTectDS lm_dgb 4.400 1-jan-2013 2 011D5153D870 DUP_GROUP=D
+</code></pre>
+
+The first line tells us that the LMD must be started on the machine <code>licserv</code>, with FlexNet ID <code>000347e8b845</code>. The second line is interesting for the LMD only but then you see two actual license <code>FEATURE</code> lines (<code>dTect</code> and <code>dTectDS</code>). These licenses are valid for versions 4.4 and lower, until the 1st of January 2013, for two users (<code>4.400 1-jan-2013 2</code>).
+</p>
+
+<h4><a name="client">The Client</a> side: Your program</h4>
+<p>
+Now let's look at the machine that you run your software on. The program will at some point in time need to check whether there is a license for what you are trying to do. For this, the program looks at the same license file. It sees that it has to contact the machine 'licserv' to ask for permission. The LMD keeps track of the number of users already using the license feature. If a license is granted, your program will go on, otherwise you'll get an error message.
+</p>
+
+<h4><a name="nonfloat">Non-floating</a> licenses</h4>
+<p>
+In some cases the software will never be used other than on a certain machine. In that case a <i>node-locked</i> license can be issued. For such a license you do not need to start a license manager daemon - an unlimited number of users can use the module at the same time provided they work on that particular machine. A special case is the unlimited demo license, which grants unlimited access for any number of users on any machine. It goes without saying that this kind of license is always for short periods.
+</p>
+
+<h4><a name="hostid">Host</a> identification</h4>
+<p>
+For the above schemes to work, the license server or the running machine must be uniquely identified. Therefore, you will be asked to provide a unique host ID and a hostname when you want to obtain a license. Different operating systems require different ways to obtain this information:
+<ul>
+<li><b>Windows</b><br>
+On windows, there is a FlexNet utility that delivers both in a simple file that can be sent by e-mail. It is delivered together with commercial plugins so you need to install one of those first. From the Start menu, select <a href="pics/win_startmenu.png">Programs-OpendTect-License Manager Tools</a>. Select the tab 'System Settings'. Then push the <a href="pics/system_settings.png">'Save HOSTID Info to a File'</a> button.
+
+
+<li><b>UNIX</b><br>
+The hostname is obtained with the unix command <code>hostname</code>. The host ID differs per UNIX flavor, but can always be obtained by the 'lmhostid' tool. This tool is delivered with OpendTect, and can be run from the Utitlities-Batch Programs dialog.
+</ul>
+If you need to obtain the host ID before OpendTect is installed:
+<ul>
+<li><b>Windows</b><br>
+Open a 'command prompt' (For example, by running 'cmd') and issue a command like:
+<code>ipconfig /all > c:\Temp\ipcfg.txt</code>
+You can send ipcfg.txt or look for the 'Physical address'.
+<li><b>Linux</b><br>
+<code>/sbin/ifconfig | grep HWaddr | awk '{ print $5; }'</code>
+<li><b>Mac OS X</b><br>
+<code>/sbin/ifconfig | grep ether | head -1 | awk '{ print $2; }'</code>
+<li><b>Solaris</b><br>
+<code>hostid</code>
+</ul>
+If for some reason one of these commands does not work, try finding the MAC address of the main network card. Sending the IP address of a machine is never helpful.
+</p>
+
+<h4><a name="manager">Conclusion</a> (Manager's summary)</h4>
+<p>
+The FlexNet license system is based upon internet technology. Therefore you can run your software on any machine, using any operating system, to get licenses from any other machine regardless of operating system or physical location. Thus, a Solaris license server in Houston can manage the licenses for Windows, Linux and Mac OS X  machines in Houston, Caracas and Paris. The only restriction is the number of users actually using the 'feature' at a certain time, but that is what you pay for.
+</p>
+
+<center>
+<a href=#top>To top</a>
+| <a href="http://opendtect.org/lic/doc/endusermanual/index.html">FlexNet end-user manual</a>
+| <a href="http://opendtect.org">OpendTect</a>
+| <a href="http://dgbes.com">dGB</a>
+</center>
+
+</body>
+</html>

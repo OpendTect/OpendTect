@@ -1,0 +1,93 @@
+<html>
+<!--
+- CopyRight:  (C) dGB Earth Sciences
+- Author:     A.H. Bril
+- Date:       June 2008
+- Contents:   FlexNet usage and installation
+- RCS:        $Id: flexnet_installation_guide.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+-->
+
+<body><title>FlexNet installation and usage</title>
+<a name=top></a>
+
+<center>
+  <a href=#general>General</a>
+| <a href=#hostid>Host identification</a>
+| <a href="flexnet_inst_unix.html">UNIX installation</a>
+| <a href="flexnet_inst_win.html">Windows installation</a>
+| <a href=#licfil>License files</a>
+| <a href=#newfile>Upgrading to a new license file</a>
+| <a href=#firewall>Firewall issues</a>
+</center>
+<div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<h2><a name="general">General</a></h2>
+
+<p>
+Commercial plugins for OpendTect are often protected by FlexNet licenses.
+The FlexNet system is based on text files with coded keys. Basically, before a certain action is done the plugin will request permission from the FlexNet system. FlexNet in turn consults the license file, and will contact a license manager daemon on a server if necessary.
+</p><p>
+The FlexNet licensing system allows a variety of licensing options. The most important license types are:
+<ul>
+<li>Demo licenses
+<li>Node-locked licenses
+<li>Floating licenses
+</ul>
+Demo and Node-locked licenses are the easiest to install but more difficult to maintain. Demo licenses because they are valid for a limited period of time, node-locked because they will only allow usage on one or more computers explicitly named in the license file. Node-locked licenses can be recognised by lines with the 'HOSTID=' in it, like:
+<pre>
+FEATURE dTect lm_dgb 4.2000 1-jan-2012 uncounted 023E2CE466C7 \
+        HOSTID="00146c37f273 00167600d558"
+</pre>
+</p><p>
+Floating licenses are managed by a license server. When the plugin needs a license, FlexNet will contact this server machine. You have a floating license if the first actual line of the license file contains 'SERVER', like:
+<pre>
+SERVER houserv001 00146d37ec2a
+</pre>
+A more extensive introduction can be found in the <a href="http://opendtect.org/lic/doc/flexnet_explained.html">'FlexNet licenses explained'</a> page.
+</p>
+
+<h2><a name="hostid">Host identification</a></h2>
+<p>
+For a licensing scheme to work, there must be a unique identifier for the server or (in case of a node-locked license) the working computer. In most cases, this identification will be tied to the address of your network card. How to obtain this 'FlexNet Host ID' is dependent on the operating system. The different ways to obtain it are described in <a href="http://opendtect.org/lic/doc/flexnet_explained.html#hostid">the host ID section</a> of the 'FlexNet licenses explained' page.
+</p><p>
+Note that the FlexNet host ID is <b>never</b> the IP address of the computer.
+</p>
+
+<h2><a name="install">Installation</a></h2>
+FlexNet offers a lot of mechanisms to make sure that the licenses are granted to the users that need them. In case you don't have the experience needed to handle this yourself, OpendTect plugin packages come with tools to install the license. How to go about depends largely on the Operating systems involved:
+<ul>
+<li><a href=flexnet_inst_unix.html>UNIX (Linux and Mac)</a>
+<li><a href=flexnet_inst_win.html>Windows</a>
+</ul>
+
+<h2><a name="licfil">The license files</a></h2>
+<p>
+It is possible to use, for example, a Linux server to give out licenses on Windows systems. In general, it doesn't matter what Operating system you have on your license server. The OpendTect program will take a look at the local license file and try to contact the host denoted in the 'SERVER' line. For this to work, the computer running OpendTect must be able to 'see' the license file. This can be done by putting the license file on a shared network disk, or putting a copy of the file on each computer.
+</p><p>
+Sometimes the server host name, as found in the SERVER line is unknown to the client computer (the computer running OpendTect). In that case you can simply edit the copy of the license file to match something that the client computer does understand. For example:
+<pre>SERVER houserv001 00146d37ec2a</pre>
+can be changed in:
+<pre>SERVER 133.44.22.11 00146d37ec2a</pre>
+Note that you cannot change the host ID; that will invalidate the licenses.
+</p>
+
+<h2><a name=newfile>Upgrading to a new license file</a></h2>
+
+<p>When you obtain an upgrade for your current license file, then you have to make sure that:
+<ol>
+<li>All license files are replaced with the new version. So, the server's license file needs to be replaced, but also all copies that you may have made - local copies.
+<li>The server(s) is/are re-started (if you have floating licenses). This can be done by using a 'reread' or just by stopping and starting. On Linux and Mac, the script that starts the daemon also stops it if you add 'stop' to the command line.
+</ol>
+</p><p>
+Quite annoying is the problem of FlexNet 'helping' you by remebering the location of old license files and using those rather than new ones that you have specified. Therefore, it is usually a good idea to remove all old license files that you can find, or at least renaming them just so FlexNet cannot find them.
+</p>
+
+<h2><a name="firewall">Firewall issues</a></h2>
+<p>
+You can, at some point in time, be confronted with a firewall blocking communication between a client and the server computer. Before starting to change firewall settings, it may be interesting to know that you can specify the port that FlexNet uses to communicate through. This is done on the SERVER line, as follows:
+<pre>SERVER houserv001 00146d37ec2a 54321</pre>
+In the above case you specify that FlexNet needs to use port 54321, rather than the default 27000 (and up). Note that this needs to be done for both the server's and the client(s) license file(s).
+</p>
+
+</body>
+</html>
