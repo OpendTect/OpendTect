@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.58 2012-05-30 10:11:50 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.59 2012-05-30 14:24:40 cvsnanne Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -169,7 +169,7 @@ FOREACH( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 	COMMAND ${SHARED_LIB_COMMAND}
 	WORKING_DIRECTORY ${STATIC_LIB_DIR} )
 
-    FILE( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*{CMAKE_C_OUTPUT_EXTENSION} )
+    FILE( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*${CMAKE_C_OUTPUT_EXTENSION} )
     LIST( APPEND OD_STATIC_OUTFILES ${STATIC_LIB_FILES} )
 
     add_custom_command( OUTPUT ${STATIC_LIB_FILES}
