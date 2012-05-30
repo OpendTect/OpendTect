@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.9 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.10 2012-05-30 10:03:30 cvshelene Exp $";
 
 #include "prestackprop.h"
 
@@ -212,15 +212,43 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 			      TypeSet<float>& vals, TypeSet<float>& offs )
 {
     transformAxis( vals, su.valaxis_ );
+
+    if ( su.calctype_ == Stats && !vals.size() )
+	return 0;
+
+    Stats::CalcSetup rcs;
+    if ( su.calctype_ == Stats )
+	rcs.require( su.stattype_ );
+    else
+	rcs.require( Stats::StdDev );
+
+    Stats::RunCalc<float> rc( rcs );
+
     if ( su.calctype_ == Stats )
     {
-	if ( !vals.size() )
-	    return 0;
-
-	Stats::CalcSetup rcs; rcs.require( su.stattype_ );
-	Stats::RunCalc<float> rc( rcs );
 	rc.addValues( vals.size(), vals.arr() );
 	return rc.getValue( su.stattype_ );
+    }
+
+    rc.addValues( offs.size(), offs.arr() );
+
+    if ( vals.size()>0 && mIsZero( rc.getValue( Stats::StdDev ), 1e-3 ) )
+    {
+	Stats::CalcSetup rcsvals;
+	rcsvals.require( Stats::StdDev );
+	Stats::RunCalc<float> rcvals( rcsvals );
+	rcvals.addValues( vals.size(), vals.arr() );
+	if ( mIsZero( rcvals.getValue( Stats::StdDev ), 1e-9 ) )
+	{
+	    switch ( su.lsqtype_ )
+	    {
+		case A0:		return vals[0];
+		case Coeff:		return 0;
+		case StdDevA0:		return 0;
+		case StdDevCoeff:	return 0;
+		default:		return 1;
+	    }
+	}
     }
 
     transformAxis( offs, su.offsaxis_ );
