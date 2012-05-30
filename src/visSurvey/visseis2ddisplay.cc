@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.143 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.144 2012-05-30 09:13:48 cvsbert Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -39,7 +39,6 @@ static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.143 2012-05-
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
-#include "seisinfo.h"
 #include "survinfo.h"
 #include "task.h"
 #include "zaxistransform.h"
@@ -746,16 +745,13 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(pos,dataidx,mindist) )
-    {
-	info += "   Tracenr: ";
-	info += geometry_.positions()[dataidx].nr_;
-    }
+	info.add( " [" ).add( geometry_.positions()[dataidx].nr_ ).add( "]" );
 }
 
 
 void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 {
-    info = "Line: "; info += getLineName();
+    info = "Line: "; info.add( getLineName() );
 }
 
 
