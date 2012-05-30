@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewwin.cc,v 1.31 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewwin.cc,v 1.32 2012-05-30 09:01:26 cvsbert Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -105,13 +105,15 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 
 	valstr = pars.find( sKey::TraceNr() );
 	if ( valstr && *valstr )
-	    {
-		mAddSep(); mesg += "TrcNr="; mesg += valstr;
-
-		valstr = pars.find( "Z-Coord" );
-		if ( valstr && *valstr )
+	{
+	    mAddSep(); mesg += "TrcNr="; mesg += valstr;
+	    valstr = pars.find( "Reference position" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
+	    valstr = pars.find( "Z-Coord" );
+	    if ( valstr && *valstr )
 		{ mAddSep(); mesg += "Z="; mesg += valstr; }
-	    }
+	}
 	else
 	{
 	    valstr = pars.find( "Inline" );
