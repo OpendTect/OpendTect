@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.14 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.15 2012-05-30 15:22:42 cvsjaap Exp $";
 
 #include "ui3dviewer.h"
 
@@ -673,26 +673,21 @@ SbBool uiSoViewerBody::processMouseEvent( const SoMouseButtonEvent* event )
     if ( zoomfactor_<=0 )
 	return false;
 
-    if ( event->getButton() == SoMouseButtonEvent::BUTTON4 )
-    {
-	//Zoom out is always backwards
-	uiZoom( 0.1*zoomfactor_, 0 );
-    }
-    else if ( event->getButton() == SoMouseButtonEvent::BUTTON5 )
-    {
-	//Zoom in goas in direction of mouse
-	SbVec2s mousepos = event->getPosition();
-	SoCamera* cam = getCamera();
-	const SbViewVolume vv = cam->getViewVolume();
+    SbVec2s mousepos = event->getPosition();
+    SoCamera* cam = getCamera();
+    const SbViewVolume vv = cam->getViewVolume();
 
-	const SbVec2f normmousepos =
-	    event->getNormalizedPosition(getViewportRegion());
-	SbVec3f startpos, stoppos;
-	vv.projectPointToLine( normmousepos, startpos, stoppos );
-	SbVec3f direction = stoppos-startpos;
-	direction.normalize();
+    const SbVec2f normmousepos =
+		  event->getNormalizedPosition(getViewportRegion());
+    SbVec3f startpos, stoppos;
+    vv.projectPointToLine( normmousepos, startpos, stoppos );
+    SbVec3f direction = stoppos-startpos;
+    direction.normalize();
+
+    if ( event->getButton() == SoMouseButtonEvent::BUTTON4 )
+	uiZoom( 0.1*zoomfactor_, &direction );
+    else if ( event->getButton() == SoMouseButtonEvent::BUTTON5 )
 	uiZoom( -0.1*zoomfactor_, &direction );
-    }
 
     return true;
 }
@@ -1042,11 +1037,11 @@ void uiSoViewerBody::uiZoom( float rel, const SbVec3f* extdir )
 	const float newfocaldist = oldfocaldist * multiplicator;
 	float movement = newfocaldist - oldfocaldist;
 	const float minmovement = cam->getViewVolume().getDepth()*0.01;
+
 	if ( fabs(movement)<minmovement )
 	{
 	    if ( movement<0 ) //zoom in
 		return;
-
 	    movement = minmovement;
 	}
 
