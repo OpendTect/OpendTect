@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.57 2012-05-21 15:30:35 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.58 2012-05-30 10:11:50 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -156,7 +156,11 @@ FOREACH( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
     GET_FILENAME_COMPONENT( STATIC_LIB_NAME ${STATIC_LIB} NAME )
     SET( STATIC_LIB_DIR
          ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${OD_MODULE_NAME}.dir/${STATIC_LIB_NAME}.dir )
-    SET ( SHARED_LIB_COMMAND ${CMAKE_AR} x ${STATIC_LIB} )
+    IF ( WIN32 )
+   	SET ( SHARED_LIB_COMMAND "lib.exe ${STATIC_LIB}" )
+    ELSE()
+	SET ( SHARED_LIB_COMMAND ${CMAKE_AR} x ${STATIC_LIB} )
+    ENDIF()
     IF ( NOT EXISTS ${STATIC_LIB_DIR} )
 	FILE( MAKE_DIRECTORY ${STATIC_LIB_DIR} )
     ENDIF()
@@ -165,7 +169,7 @@ FOREACH( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 	COMMAND ${SHARED_LIB_COMMAND}
 	WORKING_DIRECTORY ${STATIC_LIB_DIR} )
 
-    FILE( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*.o )
+    FILE( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*{CMAKE_C_OUTPUT_EXTENSION} )
     LIST( APPEND OD_STATIC_OUTFILES ${STATIC_LIB_FILES} )
 
     add_custom_command( OUTPUT ${STATIC_LIB_FILES}
