@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.124 2012-05-15 12:19:42 cvsbruno Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.125 2012-05-30 15:18:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,8 @@ public:
     // Survey menu operations
     int				manageSurvey();
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
-				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,Body};
+				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom, 
+				  Body, Props };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!

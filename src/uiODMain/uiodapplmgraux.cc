@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.53 2012-05-29 16:38:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.54 2012-05-30 15:18:41 cvsbruno Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -54,6 +54,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodapplmgraux.cc,v 1.53 2012-05-29 
 #include "uiprestackimpmute.h"
 #include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
+#include "uimanprops.h"
 #include "uiprestackanglemutecomputer.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
@@ -301,6 +302,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Body):
   	if ( at == uiODApplMgr::Man )
 	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::sKeyword() );
+    break;
+    mCase(Props):
+	if ( at == uiODApplMgr::Man )
+	{
+	    uiManPROPS mandlg( par_ );
+	    mandlg.go();
+	}
     break;
     mCase(Sess):
 	if ( at == uiODApplMgr::Man )

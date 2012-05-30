@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.61 2012-05-15 12:19:42 cvsbruno Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.62 2012-05-30 15:18:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,7 @@ protected:
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
     void		manBody(CallBacker*);
+    void		manProps(CallBacker*);
     void		manFlt(CallBacker*);
     void		manWll(CallBacker*);
     void		manPick(CallBacker*);

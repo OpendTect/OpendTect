@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.260 2012-05-25 19:13:10 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.261 2012-05-30 15:18:41 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -347,14 +347,18 @@ void uiODMenuMgr::fillExportMenu()
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm,
-	    	 "man_attrs" );
+    mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
+    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm, 
+	    		"man_attrs" );
+    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body" );
+    mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
+	    		"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
-    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
-	    			"man_fltss" );
+    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm, 
+	    		"man_fltss" );
     if ( SI().survDataType() == SurveyInfo::No2D )
-	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
-			   "man_hor" )
+	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm, 
+			"man_hor" )
     else
     {
 	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons", "man_hor");
@@ -363,19 +367,17 @@ void uiODMenuMgr::fillManMenu()
 	manmnu_->insertItem( mnu );
     }
 
+    mInsertPixmapItem( manmnu_, "&Layer properties ...", mManPropsMnuItm,
+			"man_props" );
     mInsertPixmapItem( manmnu_, "&PickSets/Polygons ...", mManPickMnuItm,
-		       "man_picks" );
-    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body" );
+	    		"man_picks" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs" );
-    mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
-    mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
-	    	"manxplot" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
-		   "man_seis" );
+	    		"man_seis" );
     mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, "" )
     mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
-	    	       "man_strat" )
+	    		"man_strat" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt" )
     mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll"  )
 }
@@ -1011,6 +1013,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
     case mManBodyMnuItm:		mDoOp(Man,Body,0); break;		
+    case mManPropsMnuItm:		mDoOp(Man,Props,0); break;		
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
@@ -1186,6 +1189,7 @@ mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
 mDefManCBFn(Body)    
+mDefManCBFn(Props)    
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
 mDefManCBFn(PDF)
