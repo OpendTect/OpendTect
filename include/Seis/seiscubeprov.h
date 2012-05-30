@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.16 2011-05-13 09:07:22 cvsraman Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.17 2012-05-30 13:17:33 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -149,6 +149,7 @@ public:
 	    			 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
+    const SeisTrc*	getTrace(int trcnr) const;
     const char*		errMsg() const;
 
 protected:

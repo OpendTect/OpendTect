@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscubeprov.cc,v 1.25 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscubeprov.cc,v 1.26 2012-05-30 13:17:33 cvsnanne Exp $";
 
 #include "seiscubeprov.h"
 
@@ -580,6 +580,9 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 }
 
 
+const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
+{ return getTrace( BinID(0,trcnr) ); }
+
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
     if ( !data_ || !cs_.hrg.includes(bid) )
@@ -587,5 +590,3 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 
     return data_->get( cs_.inlIdx(bid.inl), cs_.crlIdx(bid.crl) );
 }
-
-
