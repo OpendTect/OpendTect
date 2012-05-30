@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.78 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.79 2012-05-30 13:27:21 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -156,34 +156,35 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid<0 )
 	return false;
-    else if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
+
+    if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
     {
 	display_on_add = true;
 	TypeSet<MultiID> mids;
 	bool res = applMgr()->pickServer()->loadSets(mids,mnuid==mLoadPolyIdx);
 	display_on_add = false;
 	if ( !res )
-	    return -1;
+	    return false;
     }
     else if ( mnuid==mGen3DIdx )
     {
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->create3DGenSet() )
-	    return -1;
+	    return false;
 	display_on_add = false;
     }
     else if ( mnuid==mRandom2DIdx )
     {
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->createRandom2DSet() )
-	    return -1;
+	    return false;
 	display_on_add = false;
     }
     else if ( mnuid==mEmptyIdx || mnuid==mPolygonIdx )
     {
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->createEmptySet(mnuid==mPolygonIdx) )
-	    return -1;
+	    return false;
 	display_on_add = false;
     }
     else if ( mnuid==mSaveIdx )
