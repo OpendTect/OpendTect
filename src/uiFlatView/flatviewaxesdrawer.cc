@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.17 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.18 2012-05-30 09:16:30 cvsbruno Exp $";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
@@ -55,7 +55,8 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
     IndexInfo idxinfo( pd.indexInfo( true, pos ) );
     pos = pd.position( true, idxinfo.nearest_ );
 
-    if ( txt )
-	*txt = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
+    const double altdimval = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
+    if ( txt && !mIsUdf(altdimval) )
+	*txt = altdimval;
     return pos;
 }
