@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       Apr 2004
 - Contents:   FlexNet primer
-- RCS:        $Id: flexnet_explained.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+- RCS:        $Id: flexnet_explained.html,v 1.2 2012-05-30 11:53:26 cvsbert Exp $
 -->
 
 <body><title>FlexNet Licenses explained</title>
@@ -33,9 +33,9 @@ When the LMD is started, it looks at a file containing the information about wha
 
 <pre><code>
 SERVER licserv 000347e8b845
-DAEMON lm_dgb /apps/opendtect/4.4.0/bin/lux64/lm/lm_dgb
-FEATURE dTect lm_dgb 4.400 1-jan-2013 2 6592FDC619EA DUP_GROUP=D
-FEATURE dTectDS lm_dgb 4.400 1-jan-2013 2 011D5153D870 DUP_GROUP=D
+DAEMON dgbld /apps/opendtect/4.4.0/bin/lux64/lm.dgb/dgbld
+FEATURE dTect dgbld 4.400 1-jan-2013 2 6592FDC619EA DUP_GROUP=D
+FEATURE dTectDS dgbld 4.400 1-jan-2013 2 011D5153D870 DUP_GROUP=D
 </code></pre>
 
 The first line tells us that the LMD must be started on the machine <code>licserv</code>, with FlexNet ID <code>000347e8b845</code>. The second line is interesting for the LMD only but then you see two actual license <code>FEATURE</code> lines (<code>dTect</code> and <code>dTectDS</code>). These licenses are valid for versions 4.4 and lower, until the 1st of January 2013, for two users (<code>4.400 1-jan-2013 2</code>).

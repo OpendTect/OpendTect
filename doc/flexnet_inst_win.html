@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       June 2008
 - Contents:   FlexNet usage and installation
-- RCS:        $Id: flexnet_inst_win.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+- RCS:        $Id: flexnet_inst_win.html,v 1.2 2012-05-30 11:53:26 cvsbert Exp $
 -->
 
 <body><title>FlexNet installation and usage</title>
@@ -32,9 +32,9 @@ For new installations: on first usage of a plugin, you will see a popup of a win
 Unfortunately, in many cases you have to set up the license in a different way. For this, you need to use the 'License Manager Tools' program, which can be started from the Windows start menu for OpendTect.<br><br>
 <img src="pics/win_startmenu.png"><br><br>
 </p><p>
-The first thing you need to be sure of, is that FlexNet is looking at the right file for the right license feature. For this, go to the Utilities tab and check by using the 'List all vendor paths' button whether there is a path to your license file - for the vendor in question. For example, for dGB, the vendor name is 'lm_dgb', for ArkCls, it's 'arkclsld'. You can find your vendor's name in the license file.
+The first thing you need to be sure of, is that FlexNet is looking at the right file for the right license feature. For this, go to the Utilities tab and check by using the 'List all vendor paths' button whether there is a path to your license file - for the vendor in question. For example, for dGB, the vendor name is 'dgbld', for ArkCls, it's 'arkclsld'. You can find your vendor's name in the license file.
 </p><p>
-In case you see a wrong path displayed, you can overrule it using the overrule button. Below an example for the dGB daemon ('lm_dgb'), for other vendors you need to use other names (e.g. 'arkclsld'):<br><br>
+In case you see a wrong path displayed, you can overrule it using the overrule button. Below an example for the dGB daemon ('dgbld'), for other vendors you need to use other names (e.g. 'arkclsld'):<br><br>
 <img src="pics/override_path.png"><br><br>
 </p><p>
 If you have a node-locked or demo license, you should now be able to use the plugins. For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor, for dGB it is in the bin\win\lm.dgb directory of the OpendTect installation directory. The debug log file is traditionally given the license file's name with extension '.log'. Below example is for dGB (for ARK CLS you'd need to use something like arkcls\bin\Windows\5.1\i686\lmgrd.exe):<br><br>
@@ -49,7 +49,7 @@ If for some reason the license fails to be granted, you should examine:
 </ul>
 You can also take a look at the <a href=#expert">expert approach</a>.
 </p>
-<p>If you are using the Windows firewall, the following may be necessary (reported by Curtis A. Link from MontanaTech). In the Windows Firewall interface (Control Panel), under the Exceptions tab, use Add Program and Browse to point to lmgrd.exe and click Open. Next do the same thing for the vendor daemon lm_dgb.exe. Finally, a reboot (this was key).</p>
+<p>If you are using the Windows firewall, the following may be necessary (reported by Curtis A. Link from MontanaTech). In the Windows Firewall interface (Control Panel), under the Exceptions tab, use Add Program and Browse to point to lmgrd.exe and click Open. Next do the same thing for the vendor daemon dgbld.exe. Finally, a reboot (this was key).</p>
 
 <h4><a name="expert">Expert approach</a></h4>
 More advanced ways of managing license files, services and so forth are

@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       July 2011
 - Contents:   FlexNet experts comments
-- RCS:        $Id: flexnet_inst_win_expert.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+- RCS:        $Id: flexnet_inst_win_expert.html,v 1.2 2012-05-30 11:53:26 cvsbert Exp $
 -->
 
 <body><title>FlexNet installation - expert experiencese</title>
@@ -65,7 +65,7 @@ License server status: 27000@SERVER2
 
 Vendor daemon status (on SERVER2):
 
-   lm_dgb: UP v9.2
+   dgbld: UP v11.10
 
 Feature usage info:
 
@@ -161,8 +161,8 @@ Your folder should look like:
 </pre>
 
 </p><p>
-Go to C:\Program Files\OpendTect-4.2.0\bin\win32\lm.dgb\<br>
-Except from lm_dgb.exe, remove lmgrd.exe, lmtools.exe and lmutils.exe. These are old version of flexnet (9.6) which are not compatible with other flexnet-licensed programs.
+Go to C:\Program Files\OpendTect\4.4.0\bin\win32\lm.dgb\<br>
+Except from dgbld.exe, remove lmgrd.exe, lmtools.exe and lmutils.exe. These are old version of flexnet (9.6) which are not compatible with other flexnet-licensed programs.
 </p><p>
 Within this folder, do a shortcut or alias to
 <pre>
@@ -172,7 +172,7 @@ Within this folder, do a shortcut or alias to
 	lmutils.exe
 </pre>
 Repeat the operation within the folder of Arkcls:
-C:\Program Files\OpendTect-4.2.0\arkcls\bin\Windows\5.1\i686\
+C:\Program Files\OpendTect\4.4.0\arkcls\bin\Windows\5.1\i686\
 </p><p>
 
 This operation might not be needed for other flexnet-licensed programs. However, it is preferable to do it so that there is no conflict and the software always go to the right lmgrd.
@@ -194,7 +194,7 @@ From the shortcuts or the root file, open lmtools.exe. In theory the service lic
 <li>Fill in "Path to the debug log file" with the correct path, usually:
 ..\safe_place\Licensing\flexnet*\debug.log
 <li>Go to the Utilities tab to set the vendor name and path (avoid many many licensing problems!)
-<li>Type in vendor name "lm_dgb" (The real name of the deamon for the opendtect License)
+<li>Type in vendor name "dgbld" (The real name of the deamon for the opendtect License)
 <li>Type the path "12345@LIC-SERV.somewhere.net"
 <li>Click add Vendor path
 </ul>
@@ -219,8 +219,8 @@ From the shortcuts or the root file, open lmtools.exe. In theory the service lic
 
 At the end you can do a test and under the utilities tab, select List All Vendor Paths.  It should look like this:
 <pre>
-lm_dgb:        12345@LIC-SERV.somewhere.net
-arkclsld:      12346@LIC-SERV.somewhere.net
+dgbld:        12345@LIC-SERV.somewhere.net
+arkclsld:     12346@LIC-SERV.somewhere.net
 </pre>
 </p><p>
 
@@ -240,8 +240,8 @@ Line 1 should be for arkcls.lic(in this example):
 SERVER LIC-SERV 000000000000 12346
 
 <li>the path of your deamon within the license file line 2 is specified. Usually it is:
-C:\Program Files\OpendTect-4.2.0\bin\win32\lm.dgb\lm_dgb.exe
-C:\Program Files\OpendTect-4.2.0\arkcls\bin\Windows\5.1\i686\arkclsld.exe
+C:\Program Files\OpendTect\4.4.0\bin\win32\lm.dgb\dgbld.exe
+C:\Program Files\OpendTect\4.4.0\arkcls\bin\Windows\5.1\i686\arkclsld.exe
 
 <li>In case the licensing system is messed up with some old local FlexNet installation, you can try to follow this:
 <ul>
