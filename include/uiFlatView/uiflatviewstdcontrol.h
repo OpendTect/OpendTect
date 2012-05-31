@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.29 2012-02-17 14:37:08 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.30 2012-05-31 14:34:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ protected:
 
     virtual void	coltabChg(CallBacker*);
     void		dispChgCB(CallBacker*);
-    void		editCB(CallBacker*);
+    virtual void	editCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
