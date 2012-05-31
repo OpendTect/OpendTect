@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.62 2012-05-22 04:33:08 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.63 2012-05-31 10:42:52 cvssatyaki Exp $";
 
 #include "trigonometry.h"
 
@@ -368,7 +368,7 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 
 bool Line2::isOnLine( const Coord& pt ) const
 {
-    return pt.y == slope_*pt.x + yintcpt_;
+    return mIsEqual(pt.y,slope_*pt.x+yintcpt_,0.0001);
 }
 
 
