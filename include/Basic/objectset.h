@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.10 2012-04-20 13:42:06 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.11 2012-05-31 13:16:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ public:
 
 
 #define mObjectSetApplyToAll( os, op ) \
-    for ( int idx=0; idx<os.size(); idx++ ) \
+    for ( int idx=os.size()-1; idx>=0; idx-- ) \
 	op
 
 #define mObjectSetApplyToAllFunc( fn, op, extra ) \
@@ -104,11 +104,11 @@ inline void fn( ObjectSet<T>& os ) \
 
 
 //! empty the ObjectSet deleting all objects pointed to.
-mObjectSetApplyToAllFunc( deepErase, delete os[idx], os.plainErase() )
+mObjectSetApplyToAllFunc( deepErase, delete os.remove(idx),  )
 
 
 //! empty the ObjectSet deleting all objects pointed to.
-mObjectSetApplyToAllFunc( deepEraseArr, delete [] os[idx], os.plainErase() )
+mObjectSetApplyToAllFunc( deepEraseArr, delete [] os.remove(idx), )
 
 
 //! append copies of one set's objects to another ObjectSet.
