@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.49 2012-05-22 04:34:05 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.50 2012-05-31 10:43:25 cvssatyaki Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -615,9 +615,11 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    Coord3 seed2 = emobj->getPos( seedlist_[vtx] );
 	    BinID seed1bid = SI().transform( seed1 );
 	    BinID seed2bid = SI().transform( seed2 );
-	    if ( seed1bid!=seed2bid &&
+	    if ( seed1bid!=seed2bid && (
+		 fltdataprov_->isOnFault(seed1bid,seed1.z,1.0) ||
+		 fltdataprov_->isOnFault(seed2bid,seed2.z,1.0) ||
 		 fltdataprov_->isCrossingFault(seed1bid,seed1.z,
-					       seed2bid,seed2.z) )
+					       seed2bid,seed2.z) ) )
 		continue;
 	}
 	for ( int idx=step; idx<diff; idx+=step ) 
