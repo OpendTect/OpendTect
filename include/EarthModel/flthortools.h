@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.28 2012-03-22 12:15:02 cvsbruno Exp $
+ RCS:		$Id: flthortools.h,v 1.29 2012-05-31 10:42:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,9 @@ protected:
     TypeSet<Line2>	tracesegs_;
 
     Threads::Mutex	mutex_;
+public:
+    bool		isOnFault(const BinID&,float z,float threshold) const;
+    				// threshold dist in measured in BinID units
 };
 
 
@@ -182,6 +185,8 @@ protected:
     TypeSet<MultiID> 			multiids_;
     PosInfo::GeomID			geomid_;
     BufferString			errmsg_;
+public:
+    bool		isOnFault(const BinID&,float z,float threshold) const;
 
 };
 

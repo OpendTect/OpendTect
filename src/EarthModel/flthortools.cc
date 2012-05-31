@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.55 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.56 2012-05-31 10:42:20 cvssatyaki Exp $";
 
 #include "flthortools.h"
 
@@ -454,6 +454,13 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
     for ( int idx=0; idx<tracesegs_.size(); idx++ )
     {
 	const Line2& fltseg = tracesegs_[idx];
+	if ( line.start_ == line.stop_ )
+	{
+	    if ( fltseg.isOnLine(line.start_) )
+		return line.start_;
+	    continue;
+	}
+
 	Coord interpos = line.intersection( fltseg );
 	if ( interpos != Coord::udf() )
 	{
@@ -483,6 +490,28 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
     bid.crl = isinl_ ? trcnr : nr_;
     z = intersection.y;
     return !intv || intv->includes( trcnr, true );
+}
+
+
+bool FaultTrace::isOnFault( const BinID& bid, float z,
+			    float thresholddist ) const
+{
+    const int trcnr = isinl_ ? bid.inl : bid.crl;
+    const int alttrcnr = !isinl_ ? bid.inl : bid.crl;
+    if ( trcnr != nr_ || !trcrange_.includes(alttrcnr,false) ) return false;
+    BinID startbid( isinl_ ? nr_ : trcrange_.start,
+	    	    isinl_ ? trcrange_.start : nr_ );
+
+    BinID stopbid( isinl_ ? nr_ : trcrange_.stop,
+	    	   isinl_ ? trcrange_.stop : nr_ );
+    Coord intersection = getIntersection( bid, z, startbid, z );
+    if ( !intersection.isDefined() )
+	intersection = getIntersection( bid, z, stopbid, z );
+    if ( !intersection.isDefined() )
+	return false;
+    Coord pt( isinl_ ? bid.crl : bid.inl, z );
+    const double dist = pt.distTo( intersection );
+    return mIsEqual(dist,0.0,thresholddist);
 }
 
 
@@ -981,6 +1010,39 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
     for ( int idx=0; idx<flths_.size(); idx++ )
 	if ( flths_[idx].includes(bid) )
 	    return true;
+
+    return false;
+}
+
+
+bool FaultTrcDataProvider::isOnFault( const BinID& bid, float z,
+				      float thresholddist ) const
+{
+    if ( is2d_ )
+    {
+    	for ( int idx=0; idx<nrFaults(); idx++ )
+	{
+	    const int nrsticks = nrSticks( idx );
+	    for ( int idy=0; idy<nrsticks; idy++ )
+	    {
+		const FaultTrace* flt = getFaultTrace2D( idx, idy );
+		if ( flt && flt->isOnFault(bid,z,thresholddist) )
+		    return true;
+	    }
+	}
+
+	return false;
+    }
+    
+    for ( int idx=0; idx<nrFaults(); idx++ )
+    {
+	const FaultTrace* flt = getFaultTrace( idx, bid.inl, true );
+	if ( !flt )
+	    flt = getFaultTrace( idx, bid.crl, false );
+	
+	if ( flt && flt->isOnFault(bid,z,thresholddist) )
+	    return true;
+    }
 
     return false;
 }
