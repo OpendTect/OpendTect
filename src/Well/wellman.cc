@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellman.cc,v 1.13 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellman.cc,v 1.14 2012-05-31 13:17:35 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "wellman.h"
@@ -25,28 +25,29 @@ Well::Man& Well::MGR()
 
 Well::Man::~Man()
 {
-    deepErase( wells_ );
-    deepErase( keys_ );
+    removeAll();
+}
+
+
+void Well::Man::removeAll()
+{
+    ObjectSet<Well::Data> wellcopy = wells_;
+    wells_.erase();
+    deepErase( wellcopy );
 }
 
 
 void Well::Man::add( const MultiID& key, Well::Data* wll )
 {
+    wll->setMultiID( key );
     wells_ += wll;
-    keys_ += new MultiID( key );
 }
 
 
 Well::Data* Well::Man::release( const MultiID& key )
 {
-    const int idx = indexOf( keys_, key );
-    if ( idx < 0 ) return 0;
-
-    delete keys_[idx];
-    keys_.remove( idx );
-    Well::Data* w = wells_[idx];
-    wells_.remove( idx );
-    return w;
+    const int idx = gtByKey( key );
+    return idx < 0 ? 0 : wells_.remove( idx );
 }
 
 
@@ -56,7 +57,7 @@ Well::Data* Well::Man::release( const MultiID& key )
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
     msg_ = "";
-    int wllidx = indexOf( keys_, key );
+    int wllidx = gtByKey( key );
     bool mustreplace = false;
     if ( wllidx >= 0 )
     {
@@ -92,10 +93,7 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 
 
 bool Well::Man::isLoaded( const MultiID& key ) const
-{
-    const int wllidx = indexOf( keys_, key );
-    return wllidx >= 0;
-}
+{ return gtByKey( key ) >= 0; }
 
 
 bool Well::Man::reload( const MultiID& key )
@@ -104,4 +102,15 @@ bool Well::Man::reload( const MultiID& key )
     if ( isLoaded(key) )
 	wd = get( key, true );
     return wd;
+}
+
+
+int Well::Man::gtByKey( const MultiID& key ) const
+{
+    for ( int idx=0; idx<wells_.size(); idx++ )
+    {
+	if ( wells_[idx]->multiID() == key )
+	    return idx;
+    }
+    return -1;
 }

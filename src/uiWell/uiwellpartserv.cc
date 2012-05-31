@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.73 2012-05-22 21:52:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.74 2012-05-31 13:17:35 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -68,8 +68,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
-    deepErase( Well::MGR().wells() );
-    deepErase( Well::MGR().keys() );
+    Well::MGR().removeAll();
 }
 
 
@@ -177,17 +176,17 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 	Well::Data& curwd = *wds[iwll];
 	if ( wd && &curwd != wd )
 	   continue;
-	saveWellDispProps( curwd, *Well::MGR().keys()[iwll] );
+	saveWellDispProps( curwd, wd->multiID() );
     }
 }
 
 
-void uiWellPartServer::saveWellDispProps( const Well::Data& wd, const MultiID& key )
+void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
 {
-    Well::Writer wr( Well::IO::getMainFileName(key), wd );
+    Well::Writer wr( Well::IO::getMainFileName(key), w );
     if ( !wr.putDispProps() )
     uiMSG().error( "Could not write display properties for \n",
-    wd.name() );
+    w.name() );
 }
 
 

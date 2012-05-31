@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.23 2011-05-19 15:02:05 cvsbruno Exp $
+ RCS:		$Id: welldata.h,v 1.24 2012-05-31 13:17:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "multiid.h"
 #include "position.h"
 #include "namedobj.h"
 #include "callback.h"
@@ -75,6 +76,10 @@ public:
 				Data(const char* nm=0);
 				~Data();
 
+    const MultiID&		multiID() const		{ return mid_; }
+    void			setMultiID(const MultiID& mid) 
+    							{ mid_ = mid; }
+
     const char*			name() const		{ return info_.name(); }
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
@@ -115,6 +120,7 @@ public:
 protected:
 
     Info		info_;
+    MultiID		mid_;
     Track&		track_;
     LogSet&		logs_;
     D2TModel*		d2tmodel_;
