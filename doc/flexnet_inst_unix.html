@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       June 2008
 - Contents:   FlexNet usage and installation
-- RCS:        $Id: flexnet_inst_unix.html,v 1.1 2012-05-30 11:47:16 cvsbert Exp $
+- RCS:        $Id: flexnet_inst_unix.html,v 1.2 2012-05-31 13:26:50 cvsbert Exp $
 -->
 
 <body><title>FlexNet installation on UNIX-type systems</title>
@@ -13,13 +13,16 @@
 
 <h4><a name="unix">Installation on Linux, Mac, and Solaris</a></h4>
 <p>
+First of all: you have to make sure your systems comply with the <a href="http://opendtect.org/links/hardware_requirements.html">hardware requirements</a>. Specifically, FlexNET requires Linux distros to be LSB compliant. To check whether you distro is LSB compliant try running the command 'lsb_release'. If that command is not available on your system, then there is a high chance that FlexNET licensing is impossible on that computer. OpendTect itself does not have that restriction BTW.
+</p>
+<p>
 In the following we will explain installation for people with no prior knowledge of FlexNet, or at least have no existing procedures to handle FlexNet licenses. System administrators who do will want to find what they need directly on <a href=ftp://ftp.opendtect.org/pub/lic/Vendors>ftp://ftp.opendtect.org/pub/lic/Vendors</a>. The packages there contain the binaries you need.
 </p><p>
 Installation on UNIX variants (Linux, Mac and Solaris) is done on the command line. OpendTect will generate, during installation, a couple of scripts to install the license and start the license server (if needed).
 </p><p>
 You can install the license file with a script 'install.xxx.license', where xxx would be your plugin vendor's name. For example: 'install.dgb.license'. These scripts are located in the root of your installation directory. Such a script will ask you where the license file you obtained is located. It will then install this file in your OpendTect installation.
 </p><p>
-For floating licenses (i.e. license files containing a 'SERVER' line), you will have to start the license manager daemon on the server. For this, there are the 'start.xxx.lmgrd' scripts. You can run this script after installation of the license file. All output from the license manager daemon will be sent to the log file, which is by default 'license.xxx.log'.
+For floating licenses (i.e. license files containing a 'SERVER' line), you will have to start the license manager daemon on the server. For this, there are the 'start.xxx.lmgrd' scripts. You can run this script after installation of the license file. All output from the license manager daemon will be sent to the log file, which is by default 'license.xxx.log'. Errors like './lmgrd: Command not found' can point towards non-LSB compliance (see the start of this chapter).
 </p><p>
 If for some reason the license fails to be granted, you should examine:
 <ul>
