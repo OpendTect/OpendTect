@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribcrossplot.cc,v 1.60 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribcrossplot.cc,v 1.61 2012-05-31 10:55:19 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -73,9 +73,9 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	    new uiLabeledListBox( attrgrp, "Line names", true,
 		    		  uiLabeledListBox::AboveMid ); 
 	lnmfld_ = lnmlb->box();
-	lnmfld_->setItemsCheckable( true );
 	lnmlb->attach( rightTo, llb );
-	lnmfld_->itemChecked.notify( mCB(this,uiAttribCrossPlot,lineChecked) );
+	lnmfld_->selectionChanged.notify(
+		mCB(this,uiAttribCrossPlot,lineChecked) );
     }
 
     uiGroup* provgrp = new uiGroup( this, "Attribute group" );
@@ -187,14 +187,11 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
     const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
     if ( selitem < 0 ) return;
 
-    const bool ischked = lnmfld_->isItemChecked( lnmfld_->currentItem() );
-    if ( ischked )
-	linenmsset_[selitem].add( lnmfld_->getText() );
-    else
+    linenmsset_[selitem].erase();
+    for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
     {
-	const int idxof = linenmsset_[selitem].indexOf( lnmfld_->getText() );
-	if ( idxof >= 0 )
-	    linenmsset_[selitem].remove( idxof );
+	if ( lnmfld_->isSelected(lidx) )
+	    linenmsset_[selitem].addIfNew( lnmfld_->textOfItem(lidx) );
     }
 }
 
@@ -207,6 +204,12 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
     {
 	selids_ += selid;
 	linenmsset_ += BufferStringSet();
+	const int lsidx = linenmsset_.size()-1;
+	for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
+	{
+	    lnmfld_->setSelected( lidx, true );
+	    linenmsset_[lsidx].add( lnmfld_->textOfItem(lidx) );
+	}
     }
     else if ( !ischked )
     {
@@ -215,6 +218,9 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	{
 	    selidxs_.remove( selitem );
 	    selids_.remove( selitem );
+	    for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
+		lnmfld_->setSelected( lidx, false );
+
 	    linenmsset_.remove( selitem );
 	}
     }
@@ -228,6 +234,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     MultiID mid = getSelectedID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const int idxof = selidxs_.indexOf( attrsfld_->currentItem() );
+    NotifyStopper notifystop( lnmfld_->selectionChanged );
 
     lnmfld_->setEmpty();
     SeisIOObjInfo seisinfo( mid );
@@ -241,7 +248,9 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     {
 	lnmfld_->addItem( linenames.get(lidx) );
 	if ( idxof >= 0 && linenmsset_[idxof].isPresent(linenames.get(lidx)) )
-	    lnmfld_->setItemChecked( lidx, true );
+	    lnmfld_->setSelected( lidx, true );
+	else
+	    lnmfld_->setSelected( lidx, false );
     }
 }
 
