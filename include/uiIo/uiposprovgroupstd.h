@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.13 2011-11-14 07:39:14 cvssatyaki Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.14 2012-05-31 11:08:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
 
     uiSelHRange*	hrgfld_;
     uiSelZRange*	zrgfld_;
+    uiSelNrRange*	nrrgfld_;
 
     uiPosProvGroup::Setup setup_;
 

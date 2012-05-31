@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.21 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.22 2012-05-31 11:08:10 cvssatyaki Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -156,7 +156,7 @@ void Pos::RangeProvider3D::initClass()
 Pos::RangeProvider2D::RangeProvider2D()
     : zrg_(SI().zRange(false))
 {
-    trcrgs_ += StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
+    trcrgs_ += StepInterval<int>(1,mUdf(int),1);
     reset();
 }
 
@@ -215,32 +215,32 @@ bool Pos::RangeProvider2D::toNextPos()
     
     while ( true )
     {
-	StepInterval<int> trcrg;
+	StepInterval<int> trcrg =
+	    trcrgs_.validIdx(curlineidx_) ? trcrgs_[curlineidx_]
+	    				  : trcrgs_[0];
 	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
-	trcrg = l2d.trcNrRange();
-	if ( !hasgeom )
-	    curidx_ += trcrgs_[curlineidx_].step;
-	else
+	StepInterval<int> linetrcrg = l2d.trcNrRange();
+	trcrg.limitTo( linetrcrg );
+	curidx_ += trcrg.step;
+	
+	if ( curidx_ >= l2d.positions().size() )
 	{
-	    curidx_++;
-	    if ( curidx_ >= l2d.positions().size() )
-	    {
-		curlineidx_++;
-		if ( !geomids_.validIdx(curlineidx_) )
-		    return false;
-		S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
-		trcrg = l2d.trcNrRange();
-		curidx_ =  trcrg.start - trcrg.step;
-	    }
+	    curlineidx_++;
+	    if ( !geomids_.validIdx(curlineidx_) )
+		return false;
+	    S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
+	    linetrcrg = l2d.trcNrRange();
+	    trcrg = trcrgs_.validIdx(curlineidx_) ? trcrgs_[curlineidx_]
+						  : trcrgs_[0];
+	    trcrg.limitTo( linetrcrg );
+	    curidx_ =  linetrcrg.start - linetrcrg.step;
+	    continue;
 	}
 
 	const int curnr = curNr();
-	if ( curnr < trcrg.start )
+	if ( curnr < trcrg.start || curnr > trcrg.stop )
 	    continue;
-	if ( curnr > trcrg.stop )
-	    return false;
-	if ( (curnr-trcrg.start)%trcrg.step == 0 )
-	    break;
+	break;
     }
 
     curz_ = zrg_.start;
@@ -304,7 +304,9 @@ bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
     if ( !geomids_.validIdx(lidx) || mIsUdf(z) ) 
 	return false;
 
-    return z < zrg_.stop+mZrgEps && z > zrg_.start - mZrgEps;
+    const bool inrg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx].includes(nr,false)
+					     : trcrgs_[0].includes(nr,false);
+    return inrg && (z < zrg_.stop+mZrgEps && z > zrg_.start - mZrgEps);
 }
 
 
