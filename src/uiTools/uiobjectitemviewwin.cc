@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.23 2012-05-23 09:01:15 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.24 2012-05-31 13:17:55 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -50,7 +50,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ - mScrollBarSize );
-    infobar_->setPrefHeight( su.infoheight_ );
+    infobar_->setMinimumHeight( su.infoheight_ );
     infobar_->setSceneLayoutPos( su.layoutpos_ );
     infobar_->setStretch( 2, 0 );
     infobar_->disableScrollZoom();
@@ -58,7 +58,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     uiGraphicsView* dummyview = new uiGraphicsView( this, "Dummy view" );
     dummyview->setNoBackGround();
     dummyview->setPrefWidth( mScrollBarSize );
-    dummyview->setPrefHeight( su.infoheight_ );
+    dummyview->setMinimumHeight( su.infoheight_ );
     dummyview->attach( rightOf, infobar_, 0 );
     dummyview->setStretch( 0, 0 );
 
