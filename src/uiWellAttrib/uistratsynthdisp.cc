@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.93 2012-05-29 16:38:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.94 2012-06-01 13:04:46 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -113,26 +113,28 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				mCB(this,uiStratSynthDisp,levelSnapChanged) );
     levelsnapselfld_->box()->addItems( VSEvent::TypeNames() );
 
-    stackbox_ = new uiCheckBox( datagrp_, "Stack" );
-    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-    stackbox_->attach( rightOf, levelsnapselfld_, 20 );
+    prestackgrp_ = new uiGroup( datagrp_, "Pre-Stack View Group" );
+    prestackgrp_->attach( rightOf, levelsnapselfld_, 20 );
 
-    stackfld_ = new uiStackGrp( datagrp_ );
+    stackbox_ = new uiCheckBox( prestackgrp_, "Stack" );
+    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
+
+    stackfld_ = new uiStackGrp( prestackgrp_ );
     stackfld_->attach( rightOf, stackbox_ );
     stackfld_->rangeChg.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
 
-    offsetposfld_ = new uiSynthSlicePos( datagrp_, "Offset" );
+    offsetposfld_ = new uiSynthSlicePos( prestackgrp_, "Offset" );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
     offsetposfld_->attach( rightOf, stackbox_ );
 
-    prestackbut_ = new uiToolButton( datagrp_, "nonmocorr64", 
+    prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64", 
 				"View Offset Direction", 
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
 
     cleanSynthetics();
 
-    vwr_ = new uiFlatViewer( this );
+    vwr_ = new uiFlatViewer( this, true );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
@@ -528,6 +530,8 @@ void uiStratSynthDisp::doModelChange()
 	limits.step = 100;
 	offsetposfld_->setLimitSampling( limits );
 	stackfld_->setLimitRange( limits );
+	const bool hasoffset = limits.width() > 0;
+	prestackgrp_->setSensitive( hasoffset );
 	currentsynthetic_->setPostStack( limits.start );
     }
     if ( stratsynth_.errMsg() )
