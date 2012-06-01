@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.57 2012-05-10 11:16:54 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.58 2012-06-01 12:33:22 cvsbruno Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -348,11 +348,11 @@ int getSize( int dim ) const
 bool setSize( int, int ) { return false; }
 // Are these really necessary?
 od_uint64 getMemPos( const int* ) const { return 0; }
-bool validPos( const int* ) const { return false; }
+bool validPos( const int* pos ) const { return Array2DInfo::validPos(pos); }
 od_uint64 getMemPos( int ) const { return 0; }
 bool validPos( int ) const { return false; }
 od_uint64 getMemPos( int, int ) const { return 0; }
-bool validPos( int, int ) const { return false; }
+bool validPos( int p0, int p1 ) const { return Array2DInfo::validPos(p0,p1); }
 
     const SeisTrcBuf&	buf_;
 
