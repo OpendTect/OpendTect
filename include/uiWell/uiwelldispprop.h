@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.30 2012-03-23 08:10:11 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.31 2012-06-04 10:00:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,6 @@ protected:
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
-    BufferStringSet&	selmarkernms_;
     bool		is2d_;
 };
 
@@ -148,6 +147,7 @@ public:
     void 		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
     void		disableSeisStyle(bool);
+    void		disableLogWidth(bool);
 
 protected:
 

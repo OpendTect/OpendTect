@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldispprop.cc,v 1.63 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldispprop.cc,v 1.64 2012-06-04 10:00:59 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -160,7 +160,6 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				Well::DisplayProperties::Markers& mp,
 				const BufferStringSet& allmarkernms, bool is2d )
     : uiWellDispProperties(p,su,mp)
-    , selmarkernms_(mp.selmarkernms_)
     , is2d_(is2d)				     
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
@@ -203,7 +202,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     displaymarkersfld_ = new uiListBox( this, lbl->text() );
     displaymarkersfld_->addItems( allmarkernms );
     displaymarkersfld_->setItemsCheckable( true );
-    displaymarkersfld_->attach( alignedBelow, checkallfld_ );
+    displaymarkersfld_->attach( alignedBelow, checkallfld_ ); 
 
     doPutToScreen();
     markerFldsChged(0);
@@ -241,11 +240,11 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
 void uiWellMarkersDispProperties::getSelNames()
 {
-    selmarkernms_.erase();
+    mrkprops().selmarkernms_.erase();
     for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
     {
 	if ( displaymarkersfld_->isItemChecked( idx ) )
-	    selmarkernms_.add( displaymarkersfld_->textOfItem( idx ) );
+	    mrkprops().selmarkernms_.add( displaymarkersfld_->textOfItem(idx) );
     }
 }
 
@@ -253,10 +252,11 @@ void uiWellMarkersDispProperties::getSelNames()
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChecked );
-    for ( int idx=0; idx<selmarkernms_.size(); idx++ )
+    for ( int idx=0; idx<displaymarkersfld_->size(); idx ++ ) 
     {
-	const int selidx = displaymarkersfld_->indexOf( selmarkernms_.get(idx));
-	displaymarkersfld_->setItemChecked( selidx, true );
+	BufferString mrknm = displaymarkersfld_->textOfItem(idx);
+	const bool ispresent = mrkprops().selmarkernms_.isPresent( mrknm );
+	displaymarkersfld_->setItemChecked( idx, ispresent );
     }
 }
 
@@ -767,4 +767,10 @@ void uiWellLogDispProperties::disableSeisStyle( bool yn )
     ovlapfld_->display( !yn ); 
     repeatfld_->display( !yn );
     stylefld_->setValue( yn );
+}
+
+
+void uiWellLogDispProperties::disableLogWidth( bool yn )
+{
+    logwidthfld_->display( !yn );
 }
