@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.64 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.65 2012-06-04 10:57:59 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -326,7 +326,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !s || !d ) mErrRet( "No valid log selected" );
 
     if ( veluom.isEmpty() || denuom.isEmpty() )
-	mErrRet( "invalid log units, please check your input logs" );
+	mErrRet( "Invalid log units, please check your input logs" );
 
     s->setUnitMeasLabel( veluom );
     d->setUnitMeasLabel( denuom );
