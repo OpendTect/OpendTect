@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.40 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.41 2012-06-04 10:05:16 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -49,18 +49,16 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     if ( !is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
-    propflds_ += new uiWellLogDispProperties( tgs[0],
+    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->left_, &(wd_->logs()) );
-    propflds_ += new uiWellLogDispProperties( tgs[1],
+    wlp1->disableLogWidth( is2d );
+    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->right_, &(wd_->logs()) );
+    wlp2->disableLogWidth( is2d );
 
-    BufferStringSet allmarkernms;
-    for ( int idx=0; idx<wd_->markers().size(); idx++ )
-	allmarkernms.add( wd_->markers()[idx]->name() );
+    propflds_ += wlp1;
+    propflds_ += wlp2;
 
-    propflds_ += new uiWellMarkersDispProperties( tgs[2],
-		    uiWellDispProperties::Setup( "Marker size", "Marker color" )
-		    , props.markers_, allmarkernms, is2d );
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
 		    uiWellDispProperties::Setup(), props.track_ );
