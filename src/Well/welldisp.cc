@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: welldisp.cc,v 1.29 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welldisp.cc,v 1.30 2012-06-04 09:54:24 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -22,6 +22,7 @@ static const char* sKeyMarkerNmFont = "Marker Name Font";
 static const char* sKeyMarkerNmColor = "Marker Name Color";
 static const char* sKeyMarkerNmSameColor = "Marker Name Color Same as Marker";
 static const char* sKeyMarkerSingleColor = "Single Marker Color";
+static const char* sKeyMarkerSelected = "Selected Markers";
 static const char* sKeyLeftColor = "Left Log Color";
 static const char* sKeyLeftSize = "Left Log Size";
 static const char* sKeyLeftStyle = "Left Log Style";
@@ -63,7 +64,6 @@ static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Right Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
-static const char* sKeySelMarkers = "Display markers";
 
 
 Well::DisplayProperties::DisplayProperties( const char* subjname )
@@ -166,6 +166,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 	     cylinderheight_ );
     par.getYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.get( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
+    par.get( IOPar::compKey(subjectName(),sKeyMarkerSelected), selmarkernms_ );
 
     const FixedString fontdata =
 	par.find( IOPar::compKey(subjectName(),sKeyMarkerNmFont ) );
@@ -190,7 +191,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmFont), fontdata );
     par.setYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
-
+    par.set( IOPar::compKey(subjectName(),sKeyMarkerSelected), selmarkernms_ );
 }
 
 
