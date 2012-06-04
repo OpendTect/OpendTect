@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.80 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.81 2012-06-04 10:02:09 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -32,6 +32,7 @@ namespace WellTie
 {
 static const int cDefTimeResampFac = 20;
 
+#define mErrRet(msg) { errmsg_ = msg; return false; }
 #define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
     : data_(data)		    
@@ -48,7 +49,12 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
 
 bool DataPlayer::computeAll()
 {
-    mGetWD()
+    mGetWD();
+
+    d2t_ = wd_->d2TModel(); 
+    if ( d2t_ )
+	mErrRet( "No depth/time model computed" );
+
 
     bool success = setAIModel() && doFullSynthetics() && extractSeismics(); 
     copyDataToLogSet();
@@ -59,7 +65,6 @@ bool DataPlayer::computeAll()
 }
 
 
-#define mErrRet(msg) { errmsg_ = msg; return false; }
 bool DataPlayer::processLog( const Well::Log* log, 
 			     Well::Log& outplog, const char* nm ) 
 {
@@ -110,13 +115,10 @@ bool DataPlayer::setAIModel()
     if ( data_.isSonic() )
 	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
 
-    if ( !wd_->d2TModel() )
-	mErrRet( "No depth/time model computed" );
-
     for ( int idx=0; idx<worksz_; idx++ )
     {
-	const float dah0 = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
-	const float dah1 = wd_->d2TModel()->getDah( workrg_.atIndex( idx+1 ) );
+	const float dah0 = d2t_->getDah( workrg_.atIndex( idx ) );
+	const float dah1 = d2t_->getDah( workrg_.atIndex( idx+1 ) );
 	const bool inside = data_.dahrg_.includes( dah1, true );
 	const float vel = inside ? pslog.getValue( dah1, true ) : mUdf(float);
 	const float den = inside ? pdlog.getValue( dah1, true ) : mUdf(float);
@@ -143,10 +145,13 @@ bool DataPlayer::doFullSynthetics()
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    StepInterval<float> reflrg = disprg_;
-    reflrg.step  = workrg_.step;
-    reflrg.start = wd_->d2TModel()->getTime( data_.dahrg_.start );
-    reflrg.stop  = wd_->d2TModel()->getTime( data_.dahrg_.stop );
+    StepInterval<float> reflrg = workrg_;
+    reflrg.start = d2t_->getTime( data_.dahrg_.start );
+    reflrg.stop  = d2t_->getTime( data_.dahrg_.stop );
+    if ( disprg_.start > reflrg.start )
+	reflrg.start = workrg_.start; 
+    if ( disprg_.stop < reflrg.stop )
+	reflrg.stop = workrg_.stop; 
     rm.forceReflTimes( reflrg );
 
     if ( !gen.doSynthetics() )
@@ -186,7 +191,7 @@ bool DataPlayer::doFastSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
+    Well::SimpleTrackSampler wtextr( wd_->track(), d2t_, true, true);
     wtextr.setSampling( disprg_ );
     data_.trunner_->execute( wtextr ); 
 
@@ -224,14 +229,16 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
-	const float dh = wd_->d2TModel()->getDah( workrg_.atIndex(workidx) );
+	const float dh = d2t_->getDah( workrg_.atIndex(workidx) );
+
+	const bool insidedahrg = data_.dahrg_.includes( dh, true );
 
 	dahseis += dh;
-	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : 0;
+	refs += insidedahrg && reflvals_.validIdx(idx) ? reflvals_[idx] : 0;
 	synth += data_.seistrc_.size() > idx ? data_.seistrc_.get(idx,0) 
 					     : mUdf(float);
 
-	if ( !data_.dahrg_.includes( dh, true ) )
+	if ( !insidedahrg )
 	    continue;
 
 	const AILayer& layer = aimodel_[workidx];
@@ -329,9 +336,8 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 
 	mGetWD()
 
-	const Well::D2TModel* d2t = wd_->d2TModel();
 	for ( int idx=0; idx<nrsamps; idx++ )
-	    refarr[idx]= log->getValue(d2t->getDah(zrg.atIndex(idx,step)),true);
+	    refarr[idx]= log->getValue(d2t_->getDah(zrg.atIndex(idx,step)),true);
 
 	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
 	for ( int idx=0; idx<wvltsz; idx++ )
