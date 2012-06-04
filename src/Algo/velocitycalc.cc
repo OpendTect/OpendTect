@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.62 2012-05-21 15:49:55 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.63 2012-06-04 09:53:50 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -1374,7 +1374,7 @@ void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels,
     for ( int idvel=0; idvel<vels.size(); idvel++ )
 	velsc += Coord( dpts[idvel], vels[idvel] );
 
-    BendPointFinder2D finder( velsc, 1 );
+    BendPointFinder2D finder( velsc, 5 );
     if ( !finder.execute() ||  finder.bendPoints().isEmpty() )
 	return;
 
