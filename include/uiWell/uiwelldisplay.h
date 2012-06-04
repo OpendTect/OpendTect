@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.14 2012-04-27 06:56:12 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.15 2012-06-04 10:58:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ public:
 				    , noyannot_(false)
 				    , xaxisinpercents_(false)
 				    , withcontrol_(true)
-				    , preflogsz_(uiSize(150,600))
 				    , takedisplayfrom3d_(false)
 				    {}
 
@@ -50,7 +49,6 @@ public:
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
-	mDefSetupMemb(uiSize,preflogsz) //base log size  
 	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
 
 	void copyFrom(const Setup& su)
@@ -58,7 +56,6 @@ public:
 	    nobackground_ 	= su.nobackground_;
 	    nologborder_  	= su.nologborder_;
 	    withcontrol_  	= su.withcontrol_;
-	    preflogsz_ 	  	= su.preflogsz_;
 	    noxannot_	  	= su.noxannot_;
 	    noyannot_	  	= su.noyannot_;
 	    xaxisinpercents_ 	= su.xaxisinpercents_;
@@ -82,9 +79,10 @@ public:
     uiWellDisplayControl*	control() 	{ return control_; }
     const uiWellDisplayControl*	control() const	{ return control_; }
     const Setup&		setup() const	{ return setup_; }
-    const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
 
-    const uiSize&		size() const 	{ return size_; }
+    const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
+    bool			hasStrat() const { return stratdisp_; }
+    int				nrLogDisps() const { return logdisps_.size(); }
 
 protected:
 
@@ -101,7 +99,6 @@ protected:
     uiWellDisplayControl*	control_;
     uiWellStratDisplay*		stratdisp_; 
 
-    void			setInitialSize();
     void			setDahData();
     void			setDisplayProperties();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplay.cc,v 1.25 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplay.cc,v 1.26 2012-06-04 10:58:40 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -81,7 +81,6 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 
     setHSpacing( 0 );
     setStretch( 2, 2 );
-    setInitialSize();
 
     setDahData();
     setDisplayProperties();
@@ -107,30 +106,6 @@ uiWellDisplay::~uiWellDisplay()
 	wd_.disp2dparschanged.remove( wdcb );
     if ( control_ )
 	{ delete control_; control_ = 0; }
-}
-
-
-void uiWellDisplay::setInitialSize()
-{
-    int initwidth = setup_.preflogsz_.width();
-    int initheight = setup_.preflogsz_.height();
-
-    int newwidth = logdisps_.size()*initwidth;
-    if ( stratdisp_ && stratdisp_ )
-    {
-	stratdisp_->setPrefWidth( initwidth );
-	stratdisp_->setPrefHeight( initheight );
-	newwidth += initwidth;
-    }
-    for ( int idx=0; idx<logdisps_.size(); idx++ )
-    {
-	logdisps_[idx]->setPrefWidth( initwidth );
-	logdisps_[idx]->setPrefHeight( initheight );
-    }
-    setPrefWidth( newwidth ); 
-    setPrefHeight( initheight );
-
-    size_ = uiSize( newwidth, initheight );  
 }
 
 
