@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.81 2012-06-04 10:02:09 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.82 2012-06-05 12:04:28 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -52,7 +52,7 @@ bool DataPlayer::computeAll()
     mGetWD();
 
     d2t_ = wd_->d2TModel(); 
-    if ( d2t_ )
+    if ( !d2t_ )
 	mErrRet( "No depth/time model computed" );
 
 
