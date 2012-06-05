@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.36 2012-05-31 11:08:10 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.37 2012-06-05 08:37:50 cvsbruno Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -39,6 +39,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , hrgfld_(0)
+    , nrrgfld_(0)
     , zrgfld_(0)
     , setup_(su)
 {
