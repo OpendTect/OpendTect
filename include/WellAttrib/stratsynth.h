@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.16 2012-02-16 15:39:59 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.17 2012-06-05 13:14:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseriesevent.h"
 
+class TaskRunner;
 class TimeDepthModel;
 class SeisTrcBufDataPack;
 class SeisTrc;
@@ -98,6 +99,8 @@ public:
     void			snapLevelTimes(SeisTrcBuf&,
 				    const ObjectSet<const TimeDepthModel>&);
 
+    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+
 protected:
 
     const Strat::LayerModel& 	lm_;
@@ -106,11 +109,12 @@ protected:
 
     BufferString		errmsg_;
     IOPar			raypars_;
+    TaskRunner*			tr_;
 
     ObjectSet<SyntheticData> 	synthetics_;
     SyntheticData* 		generateSD(const Strat::LayerModel&,
-	    					const IOPar* raypar=0);
-
+					const IOPar* raypar=0,
+					TaskRunner* tr=0);
     bool			fillElasticModel(const Strat::LayerModel&,
 					    ElasticModel&,int seqidx);
 };

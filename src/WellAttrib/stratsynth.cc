@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.33 2012-05-23 14:47:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.34 2012-06-05 13:14:10 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -30,7 +30,8 @@ static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.33 2012-05-23 14:4
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
-    , level_(0)     
+    , level_(0)  
+    , tr_(0)		 
 {}
 
 
@@ -64,7 +65,7 @@ void StratSynth::clearSynthetics()
 
 void StratSynth::addSynthetics()
 {
-    synthetics_ += synthetics_.replace( 0, generateSD( lm_, &raypars_ ) );
+    synthetics_ += synthetics_.replace( 0, generateSD( lm_, &raypars_, tr_ ) );
 }
 
 
@@ -75,7 +76,7 @@ SyntheticData* StratSynth::getSynthetic( int selid )
 	if ( !synthetics_.isEmpty() )
 	    delete synthetics_.remove(0);
 
-	synthetics_.insertAt( generateSD( lm_, &raypars_ ), 0 );
+	synthetics_.insertAt( generateSD( lm_, &raypars_, tr_ ), 0 );
     }
     if ( synthetics_.validIdx( selid ) )
 	return synthetics_[selid];
@@ -104,7 +105,7 @@ bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
 
 
 SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm, 
-				    const IOPar* raypars )
+				    const IOPar* raypars, TaskRunner* tr )
 {
     errmsg_.setEmpty(); 
 
@@ -113,6 +114,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
+    synthgen.setTaskRunner( tr );
     if ( raypars )
 	synthgen.usePar( *raypars );
 
@@ -136,7 +138,6 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     }
     if ( maxsz == 0 )
 	return false;
-	/* mErrRet( "Model has no lay2er, please add some layers to the model.",	return false; ); */
 
     if ( maxsz == 1 )
 	mErrRet( "Model has only one layer, please add an other layer.", 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.94 2012-06-01 13:04:46 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.95 2012-06-05 13:14:10 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -64,6 +64,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , prestackwin_(0)		      
     , currentsynthetic_(0)
 {
+    uiTaskRunner* tr = new uiTaskRunner( this );
+    stratsynth_.setTaskRunner( tr );
+
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
