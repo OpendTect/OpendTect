@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.41 2012-06-04 10:05:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.42 2012-06-05 09:25:04 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -59,9 +59,17 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     propflds_ += wlp1;
     propflds_ += wlp2;
 
+    BufferStringSet allmarkernms;
+    for ( int idx=0; idx<wd_->markers().size(); idx++ )
+	allmarkernms.add( wd_->markers()[idx]->name() );
+
+    propflds_ += new uiWellMarkersDispProperties( tgs[2],
+	uiWellDispProperties::Setup( "Marker size", "Marker color" )
+	, props.markers_, allmarkernms, is2d );
+
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
-		    uiWellDispProperties::Setup(), props.track_ );
+			    uiWellDispProperties::Setup(), props.track_ );
 
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
