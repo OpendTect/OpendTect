@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.95 2012-06-05 13:14:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.96 2012-06-06 14:32:47 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -798,18 +798,21 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par )
 {
     setCtrlStyle( DoAndStay );
 
+    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
+    if ( !facnms.isEmpty() )
+	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
+    TypeSet<float> emptyset; emptyset += 0;
+    raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
+
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( this, rsu );
     rtsel_->usePar( raypars_ ); 
-
-    bool isnmo = true;
-    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
 
     uiSeparator* sep = new uiSeparator( this, "NMO corr separator" );
     sep->attach( stretchedBelow, rtsel_ );
 
     nmobox_ = new uiCheckBox( this, "NMO corrections" );
-    nmobox_->setChecked( isnmo );
+    nmobox_->setChecked( true );
     nmobox_->attach( centeredBelow, rtsel_ );
     nmobox_->attach( ensureBelow, sep );
 }
