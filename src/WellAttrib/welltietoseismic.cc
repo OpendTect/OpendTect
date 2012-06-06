@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.82 2012-06-05 12:04:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.83 2012-06-06 11:21:43 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -307,8 +307,8 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 #define mGetIdx data_.timeintv_.getIndex( zrg.atIndex( idx, step ) ) 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data_.seistrc_.get( mGetIdx, 0 );
-	seisarr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
+	syntharr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
+	seisarr[idx] = data_.seistrc_.get( mGetIdx, 0 );
     }
     GeoCalculator gc;
     cd.coeff_ = gc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
