@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.83 2012-06-06 11:21:43 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.84 2012-06-07 08:57:11 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -133,18 +133,6 @@ bool DataPlayer::doFullSynthetics()
     refmodel_.erase();
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
-    Seis::RaySynthGenerator gen;
-    gen.addModel( aimodel_ );
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.setOutSampling( disprg_ );
-    IOPar par; 
-    par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
-    gen.usePar( par ); 
-    gen.setTaskRunner( data_.trunner_ );
-    if ( !gen.doRayTracing() )
-	mErrRet( gen.errMsg() )
-
-    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     StepInterval<float> reflrg = workrg_;
     reflrg.start = d2t_->getTime( data_.dahrg_.start );
     reflrg.stop  = d2t_->getTime( data_.dahrg_.stop );
@@ -152,11 +140,20 @@ bool DataPlayer::doFullSynthetics()
 	reflrg.start = workrg_.start; 
     if ( disprg_.stop < reflrg.stop )
 	reflrg.stop = workrg_.stop; 
-    rm.forceReflTimes( reflrg );
 
-    if ( !gen.doSynthetics() )
+    Seis::RaySynthGenerator gen;
+    gen.addModel( aimodel_ );
+    gen.forceReflTimes( reflrg );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( disprg_ );
+    IOPar par; 
+    par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
+    gen.usePar( par ); 
+    TaskRunner* tr = data_.trunner_;
+    if ( tr && !tr->execute( gen ) || !gen.execute() )
 	mErrRet( gen.errMsg() )
 
+    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     data_.synthtrc_ = *rm.stackedTrc();
     rm.getSampledRefs( reflvals_ );
     for ( int idx=0; idx<reflvals_.size(); idx++ )

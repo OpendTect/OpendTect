@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.31 2012-03-05 16:19:20 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.32 2012-06-07 08:57:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,7 +169,7 @@ protected:
 
 
 
-mClass RaySynthGenerator : public SynthGenBase
+mClass RaySynthGenerator : public ParallelTask, public SynthGenBase 
 {
 public:
 			RaySynthGenerator();
@@ -180,10 +180,7 @@ public:
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
-    //execute functions
-    bool		doRayTracing();
-    bool		doSynthetics(); 
-    bool		doWork() { return doRayTracing() && doSynthetics(); }
+    const char*         message() const { return "Generating synthetics..."; }
 
     mStruct RayModel
     {
@@ -203,10 +200,10 @@ public:
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	TypeSet<float>  			sampledrefs_;
 
+	friend class 				RaySynthGenerator;
+
     public:
 	void		forceReflTimes(const StepInterval<float>&);
-
-	friend class 				RaySynthGenerator;
     };
 
     //available after execution
@@ -216,13 +213,21 @@ public:
     const Interval<float>&	raySampling() const { return raysampling_; }
 
 protected:
+    od_int64            	nrIterations() const;
+    bool                        doPrepare(int);
+    bool        		doWork(od_int64,od_int64,int);
 
     TypeSet<ElasticModel>	aimodels_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;
     IOPar 			raysetup_;
-
     ObjectSet<RayModel>		raymodels_;
+
+    StepInterval<float>		forcedrefltimes_;
+    bool			forcerefltimes_;
+
+public:
+    void			forceReflTimes(const StepInterval<float>&);
 };
 
 } //namespace

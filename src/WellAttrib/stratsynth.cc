@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.34 2012-06-05 13:14:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.35 2012-06-07 08:57:10 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -114,7 +114,6 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.setTaskRunner( tr );
     if ( raypars )
 	synthgen.usePar( *raypars );
 
@@ -143,7 +142,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	mErrRet( "Model has only one layer, please add an other layer.", 
 		return false; );
 
-    if ( !synthgen.doWork() )
+    if ( (tr && !tr->execute( synthgen ) ) || !synthgen.execute() )
     {
 	const char* errmsg = synthgen.errMsg();
 	mErrRet( errmsg ? errmsg : "", return 0 ) ;
