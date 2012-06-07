@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.52 2012-06-07 09:05:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.53 2012-06-07 14:04:08 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -444,7 +444,7 @@ bool RaySynthGenerator::doPrepare( int )
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
     RayTracerRunner rtr( aimodels_, raysetup_ );
-    if ( tr_ && !tr_->execute( rtr ) || !rtr.execute() ) 
+    if ( ( tr_ && !tr_->execute( rtr ) ) || !rtr.execute() ) 
 	mErrRet( rtr.errMsg() )
 
     ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
@@ -507,7 +507,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 
-	if ( tr_ && !tr_->execute( multitracegen ) || !multitracegen.execute() )
+	if ( (tr_ && !tr_->execute(multitracegen)) || !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg() )
 
 	multitracegen.getResult( rm.outtrcs_ );
