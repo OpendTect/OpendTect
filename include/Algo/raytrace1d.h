@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.34 2012-05-23 14:47:21 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.35 2012-06-07 13:47:49 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -84,6 +84,8 @@ public:
     static const char*	sKeySRDepth()	   { return "Source/Receiver Depths"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
+    static const char*  sKeyVelBlock()     { return "Block velocities"; }
+    static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
 
 protected:
 			RayTracer1D();
@@ -134,7 +136,7 @@ protected:
 
 
 
-static void blockElasticModel( ElasticModel& mdl )
+static void blockElasticModel( ElasticModel& mdl, float blockval )
 {
     TypeSet<float> dpts, vels;
     for ( int idx=0; idx<mdl.size(); idx++ )
@@ -144,7 +146,7 @@ static void blockElasticModel( ElasticModel& mdl )
 	    vels += mdl[idx].vel_;
     }
     TypeSet<int> torem;
-    BendPointVelBlock( dpts, vels, &torem );
+    BendPointVelBlock( dpts, vels, blockval, &torem );
     for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
     {
 	const int toremidx = torem[idvel];

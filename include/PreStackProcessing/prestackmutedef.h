@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.6 2011-10-14 15:42:43 cvskris Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.7 2012-06-07 13:47:49 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,12 @@ public:
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
 					//!< positions
+    void				computeIntervals(float offs,
+					    const BinID&,
+					    TypeSet<Interval<float> >&) const;
+					/*!<Interpolates between 
+					  defined positions. */
+
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 

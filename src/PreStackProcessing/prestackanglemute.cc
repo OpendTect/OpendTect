@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.20 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.21 2012-06-07 13:47:49 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -49,7 +49,6 @@ void AngleMuteBase::fillPar( IOPar& par ) const
     IOPar rtracepar;
     par.merge( params_->raypar_ );
     par.set( sKeyMuteCutoff(), params_->mutecutoff_ );
-    par.setYN( sKeyVelBlock(), params_->dovelblock_ );
 }
 
 
@@ -58,7 +57,6 @@ bool AngleMuteBase::usePar( const IOPar& par  )
     params_->raypar_.merge( par );
     par.get( sKeyVelVolumeID(), params_->velvolmid_ );
     par.get( sKeyMuteCutoff(), params_->mutecutoff_ );
-    par.getYN( sKeyVelBlock(), params_->dovelblock_ );
 
     return true;
 }
@@ -124,9 +122,12 @@ bool AngleMuteBase::getLayers(const BinID& bid,
 	    depths[il] = zrg.atIndex( il );
     }
 
-    if ( params_->dovelblock_ )
+    bool dovelblock = false; float blockthreshold;
+    params_->raypar_.getYN( RayTracer1D::sKeyVelBlock(), dovelblock );
+    params_->raypar_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
+    if ( dovelblock )
     {
-	BendPointVelBlock( depths, vels );
+	BendPointVelBlock( depths, vels, blockthreshold );
 	nrlayers = vels.size();
     }
 

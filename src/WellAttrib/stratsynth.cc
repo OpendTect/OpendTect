@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.35 2012-06-07 08:57:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.36 2012-06-07 13:47:49 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -214,7 +214,12 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	aimodel += ail;
     }
-    blockElasticModel( aimodel );
+
+    bool dovelblock = false; float blockthreshold;
+    raypars_.getYN( RayTracer1D::sKeyVelBlock(), dovelblock );
+    raypars_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
+    if ( dovelblock )
+	blockElasticModel( aimodel, blockthreshold );
     return true;
 }
 

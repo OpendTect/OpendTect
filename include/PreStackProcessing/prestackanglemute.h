@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.12 2012-01-17 16:09:27 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.13 2012-06-07 13:47:49 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -35,12 +35,10 @@ public:
     {
 			    Params()
 				: mutecutoff_(30)
-				, dovelblock_(true)
 				, velvolmid_(MultiID::udf())
 				{}	
 
 	float 			mutecutoff_;
-	bool			dovelblock_;
 	MultiID			velvolmid_;   
 	IOPar			raypar_;
     };
@@ -51,7 +49,6 @@ public:
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
-    static const char*  sKeyVelBlock()		{ return "Block velocities"; }
 
 protected:
     			AngleMuteBase();

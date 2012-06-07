@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.11 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.12 2012-06-07 13:47:49 cvsbruno Exp $";
 
 #include "prestackmutedef.h"
 
@@ -117,6 +117,37 @@ float MuteDef::value( float offs, const BinID& pos ) const
     }
 
     return calc.average();
+}
+
+
+void MuteDef::computeIntervals( float offs, const BinID& bid,
+			       TypeSet<Interval<float> >& res) const
+{
+    /*
+    const float d0 = computeStartZ( bid );
+    const float d1 = computeStopZ( bid );
+
+    const Coord si00 = SI().transform(
+	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+    const Coord si11 = SI().transform(
+	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+
+    const double normalweight = si00.sqDistTo( si11 );
+
+    const Coord centercrd( SI().transform(pos) );
+    Stats::CalcSetup rcsetup( true ); //weighted
+    Stats::RunCalc<float> calc( rcsetup.require(Stats::Average) );
+
+    TypeSet<float> weights;
+    for ( int iloc=0; iloc<fns_.size(); iloc++ )
+    {
+	const Coord crd( SI().transform(pos_[iloc]) );
+	const float val = fns_[iloc]->getValue( offs );
+	const double sqdist = crd.sqDistTo( centercrd );
+
+	weights += normalweight / sqdist;
+    }
+    */
 }
 
 

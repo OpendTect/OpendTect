@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.41 2012-05-22 14:48:43 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.42 2012-06-07 13:47:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,6 +326,6 @@ mGlobal void resampleContinuousData(const float* inarr,const float* t_in,
 
 /* Block velocities and resamples depths and vel arrays at bend points */
 mGlobal void BendPointVelBlock(TypeSet<float>& dpts,TypeSet<float>& vels,
-			       TypeSet<int>* remidxs=0); 
+				float threshold,TypeSet<int>* remidxs=0); 
 
 #endif

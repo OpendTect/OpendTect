@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiprestackanglemute.h,v 1.5 2011-10-12 11:32:33 cvsbruno Exp $
+ RCS:		$Id: uiprestackanglemute.h,v 1.6 2012-06-07 13:47:49 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,6 @@ protected:
     uiRayTracerSel*	raytracerfld_;
     uiVelSel*		velfuncsel_;
     uiGenInput*		cutofffld_;
-    uiCheckBox*		blockfld_;
 };
 
 
