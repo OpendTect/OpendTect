@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.51 2012-06-07 08:57:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.52 2012-06-07 09:05:04 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -491,8 +491,11 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	mErrRet( "no wavelet found" )
 
     IOPar par; fillPar( par );
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
+	if ( !shouldContinue() )
+	    return false;
+
 	RayModel& rm = *raymodels_[idx];
 	deepErase( rm.outtrcs_ );
 
