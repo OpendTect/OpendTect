@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.24 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.25 2012-06-07 12:45:48 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -251,6 +251,9 @@ void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
 	highlightMarker( *mrk, true );
 
     selmarker_ = mrk;
+
+    if ( seldisp_ )
+	seldisp_->setToolTip( mrk ? mrk->name() : 0 );
 
     if ( lastselmarker_ != mrk )
 	lastselmarker_ = mrk;
