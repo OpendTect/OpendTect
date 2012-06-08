@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplay.cc,v 1.26 2012-06-04 10:58:40 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplay.cc,v 1.27 2012-06-08 14:15:10 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -179,6 +179,8 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     setPrefHeight( 600 );
 
     welldisp_ = new uiWellDisplay( this, wd, su );
+    welldisp_->setPrefWidth( 60 );
+    welldisp_->setPrefHeight( 600 );
     welldisp_->control()->posChanged.notify(
 				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
     wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
