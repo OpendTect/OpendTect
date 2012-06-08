@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.4 2012-01-24 16:40:14 cvsbert Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.5 2012-06-08 14:24:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,8 @@ public:
     int		selLevelIdx() const;		//!< May return -1
     const Strat::Level*	selStratLevel() const; 	//!< May return null
     Color	selLevelColor() const;		//!< May return NoColor
+
+    uiToolButton* lithButton() 		{ return lithtb_; }
 
 protected:
 
