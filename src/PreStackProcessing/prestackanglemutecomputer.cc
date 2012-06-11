@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemutecomputer.cc,v 1.12 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemutecomputer.cc,v 1.13 2012-06-11 19:17:34 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -107,17 +107,29 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float zpos = 0;
 	int lastioff =0;
 	float lastvalidmutelayer = 0;
+	TypeSet< Interval<float> > mutelayeritvs;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    const float mutelayer = 
-		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
-				    nrlayers, ioff, true );
-	    if ( !mIsUdf( mutelayer ) )
+	    getOffsetMuteLayers( *rtrunner->rayTracers()[0], 
+				nrlayers, ioff, true, mutelayeritvs );
+	    while ( !mutelayeritvs.isEmpty() )
 	    {
-		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
+		Interval<float> mlitv = mutelayeritvs[0]; 
+		mutelayeritvs.remove( 0 );
+
+		float mutelayer = mlitv.start;
+		const float offset = offsets[ioff];
+		zpos = offset== 0 ? 0 : sd.start + sd.step*mutelayer;
+		mutefunc->add( offset, zpos );
 		lastvalidmutelayer = mutelayer;
-		mutefunc->add( offsets[ioff], zpos );
 		lastioff = ioff;
+
+		mutelayer = mlitv.stop;
+		if ( !mIsUdf( mutelayer ) )
+		{
+		    zpos = offset == 0 ? 0 : sd.start + sd.step*mutelayer;
+		    mutefunc->add( offset, zpos );
+		}
 	    }
 	}
 	if ( lastioff != offsets.size()-1 )

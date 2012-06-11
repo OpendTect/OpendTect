@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.21 2012-06-07 13:47:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.22 2012-06-11 19:16:28 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -143,7 +143,8 @@ bool AngleMuteBase::getLayers(const BinID& bid,
 
 
 float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers, 
-					    int ioff, bool tail ) const 
+					int ioff, bool tail, int startlayer, 
+					bool belowcutoff ) const 
 {
     float mutelayer = mUdf(float);
     const float cutoffsin = sin( params_->mutecutoff_ * M_PI / 180 );
@@ -151,13 +152,15 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
     {
 	float prevsin = mUdf(float);
 	int previdx = -1;
-	for ( int il=0; il<nrlayers; il++ )
+	for ( int il=startlayer; il<nrlayers; il++ )
 	{
 	    const float sini = rt.getSinAngle(il,ioff);
 	    if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && il<nrlayers/2) )
 		continue; //Ordered down, get rid of edge 0.
 
-	    if ( sini<cutoffsin )
+	    bool ismuted = ( sini < cutoffsin && belowcutoff ) || 
+				( sini > cutoffsin && !belowcutoff );
+	    if ( ismuted )
 	    {
 		if ( previdx != -1 && !mIsZero(sini-prevsin,1e-5) )
 		{
@@ -177,13 +180,15 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
     {
 	float prevsin = mUdf(float);
 	int previdx = -1;
-	for ( int il=nrlayers-1; il>=0; il-- )
+	for ( int il=nrlayers-1; il>=startlayer; il-- )
 	{
 	    const float sini = rt.getSinAngle(il,ioff);
 	    if ( mIsUdf(sini) )
 		continue;
 
-	    if ( sini>cutoffsin ) 
+	    bool ismuted = ( sini > cutoffsin && belowcutoff ) || 
+				( sini < cutoffsin && !belowcutoff );
+	    if ( ismuted ) 
 	    {
 		if ( previdx!=-1 && !mIsZero(sini-prevsin,1e-5) )
 		{
@@ -202,6 +207,38 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
     return mutelayer;
 }
 
+
+float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers, 
+					    int ioff, bool tail ) const 
+{
+    return getOffsetMuteLayer( rt, nrlayers, ioff, tail, 0, true );
+}
+
+
+void AngleMuteBase::getOffsetMuteLayers( const RayTracer1D& rt, int nrlayers, 
+					int ioff, bool tail, 
+					TypeSet< Interval<float> >& res ) const 
+{
+    int lid = 0;
+    while ( true )
+    {
+	Interval<float> ires( mUdf(float), mUdf(float) );
+	ires.start = getOffsetMuteLayer( rt, nrlayers, ioff, tail, lid, true );
+        if ( mIsUdf( ires.start ) )
+	    break;
+
+	res += ires;
+
+	lid = (int)ires.start;
+	if ( lid <= 0 || lid >= nrlayers )
+	    break;
+
+	lid ++;
+	ires.stop = getOffsetMuteLayer( rt, nrlayers, ioff, tail, lid, false );
+        if ( mIsUdf( ires.stop ) )
+	   break;
+    }
+}
 
 
 
