@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.14 2012-05-28 08:34:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.15 2012-06-11 12:16:18 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
@@ -182,6 +182,7 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 	    continue;
 
 	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
+	const uiWorldRect& oldwr = vwrs_[idx]->curView();
 	LinScaler sclr( masterbbox.left(), bbox.left(),
 		        masterbbox.right(), bbox.right() );
 	LinScaler sctb( masterbbox.top(), bbox.top(),
@@ -190,6 +191,10 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
 	NotifyStopper ns( vwrs_[idx]->viewChanged );
 	vwrs_[idx]->setView( newwr );
+
+	const bool havezoom = haveZoom( oldwr.size(), newwr.size() );
+	if ( havezoom )
+	    zoommgr_.add( newwr.size() );
     }
 }
 
