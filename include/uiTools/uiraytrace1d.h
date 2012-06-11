@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.9 2012-06-07 13:47:49 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.10 2012-06-11 07:50:16 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -57,13 +57,10 @@ protected:
 
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
-    uiCheckBox*		blockfld_;
-    uiGenInput* 	blockvalfld_;
+    uiGenInput*		blockfld_;
 
     uiGenInput*		lastfld_;
     bool		doreflectivity_;
-
-    void		blockCB(CallBacker*);
 };
 
 
