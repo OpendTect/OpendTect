@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.7 2011-08-10 15:03:51 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.8 2012-06-11 13:48:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "commondefs.h"
 #include "sets.h"
+
 
 mClass AILayer
 {
@@ -61,5 +62,25 @@ public:
 /*!\brief A table of elastic prop layers */
 
 typedef TypeSet<ElasticLayer> ElasticModel;
+
+
+static void blockElasticModel( ElasticModel& mdl, float threshold )
+{
+    for ( int idx=mdl.size()-1; idx>=1; idx-- )
+    {
+	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
+	if ( abs( veldiff ) < threshold )
+	{
+	    const float thk = mdl[idx].thickness_;
+	    if ( idx == mdl.size() -1 )
+		mdl[idx-1].thickness_ += thk;
+	    else
+		mdl[idx+1].thickness_ += thk;
+
+	    mdl.remove( idx );
+	}
+    }
+}
+
 
 #endif

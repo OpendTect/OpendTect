@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.35 2012-06-07 13:47:49 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.36 2012-06-11 13:48:05 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -133,36 +133,6 @@ protected:
 
     RayTracer1D::Setup		setup_;
 };
-
-
-
-static void blockElasticModel( ElasticModel& mdl, float blockval )
-{
-    TypeSet<float> dpts, vels;
-    for ( int idx=0; idx<mdl.size(); idx++ )
-    {
-	dpts += mdl[idx].thickness_;
-	if ( idx ) dpts[idx] += dpts[idx-1];
-	    vels += mdl[idx].vel_;
-    }
-    TypeSet<int> torem;
-    BendPointVelBlock( dpts, vels, blockval, &torem );
-    for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
-    {
-	const int toremidx = torem[idvel];
-	if ( !mdl.validIdx( toremidx ) )
-	    return;
-
-	const float thk = mdl[toremidx].thickness_;
-	if ( toremidx == mdl.size() -1 )
-	    mdl[toremidx-1].thickness_ += thk;
-	else
-	    mdl[toremidx+1].thickness_ += thk;
-
-	mdl.remove( toremidx );
-    }
-}
-
 
 
 #endif
