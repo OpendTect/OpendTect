@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.67 2012-05-10 10:01:10 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.68 2012-06-11 21:29:35 cvsyuancheng Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -254,6 +254,9 @@ void uiFunctionDisplay::getRanges(
 	    if ( yvals[idx] > yrg.stop ) yrg.stop = yvals[idx];
 	}
     }
+
+    if ( !setup_.fixdrawrg_ ) 
+	return;
 
     if ( !mIsUdf(setupxrg.start) ) xrg.start = setupxrg.start;
     if ( !mIsUdf(setupyrg.start) ) yrg.start = setupyrg.start;
