@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.84 2012-06-07 08:57:11 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.85 2012-06-11 13:35:00 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -150,7 +150,7 @@ bool DataPlayer::doFullSynthetics()
     par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
     gen.usePar( par ); 
     TaskRunner* tr = data_.trunner_;
-    if ( tr && !tr->execute( gen ) || !gen.execute() )
+    if ( ( tr && !tr->execute( gen ) ) || !gen.execute() )
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
