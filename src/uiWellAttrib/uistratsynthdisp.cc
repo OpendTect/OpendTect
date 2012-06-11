@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.97 2012-06-11 09:31:38 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.98 2012-06-11 13:49:14 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -799,14 +799,6 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par )
     , raypars_(par)
 {
     setCtrlStyle( DoAndStay );
-
-    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
-    if ( !facnms.isEmpty() )
-	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
-    TypeSet<float> emptyset; emptyset += 0;
-    raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
-    raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( this, rsu );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.36 2012-06-07 13:47:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.37 2012-06-11 13:49:14 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -32,7 +32,17 @@ StratSynth::StratSynth( const Strat::LayerModel& lm )
     , wvlt_(0)
     , level_(0)  
     , tr_(0)		 
-{}
+{
+    const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
+    if ( !facnms.isEmpty() )
+	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
+
+    TypeSet<float> emptyset; emptyset += 0;
+    raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
+    raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
+    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
+}
+
 
 
 StratSynth::~StratSynth()
@@ -220,6 +230,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     raypars_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
     if ( dovelblock )
 	blockElasticModel( aimodel, blockthreshold );
+
     return true;
 }
 
