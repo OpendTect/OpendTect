@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.96 2012-06-06 14:32:47 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.97 2012-06-11 09:31:38 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -415,6 +415,8 @@ void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
 
 void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 {
+    const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
+
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
     while ( vwr_->nrAuxData() )
@@ -446,8 +448,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
 
-    vwr_->setPack( true, dp->id(), false );
-    vwr_->setPack( false, dp->id(), false );
+    vwr_->setPack( true, dp->id(), false, !hadpack );
+    vwr_->setPack( false, dp->id(), false, !hadpack );
 }
 
 
@@ -803,6 +805,8 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par )
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
     TypeSet<float> emptyset; emptyset += 0;
     raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
+    raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
+    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( this, rsu );
