@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.8 2012-06-11 13:48:05 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.9 2012-06-11 19:14:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ static void blockElasticModel( ElasticModel& mdl, float threshold )
 	    else
 		mdl[idx+1].thickness_ += thk;
 
-	    mdl.remove( idx );
+	    mdl.remove( idx -1 );
 	}
     }
 }
