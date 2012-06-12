@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.42 2012-05-11 11:59:59 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.43 2012-06-12 07:45:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,7 @@ public:
 
     inline void		include(const Rectangle<T>&);
     inline void		limitTo(const Rectangle<T>&);
+    inline void		translate(const Point2D<T>&);
 
     inline bool		operator >(const Rectangle<T>&) const;
 
@@ -838,6 +839,14 @@ inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
     }
 }
 
+    
+template <class T>
+inline void Rectangle<T>::translate(const Point2D<T> & trans )
+{
+    topleft_ += trans;
+    bottomright_ += trans;
+}
+    
 
 template <class T>
 inline void Rectangle<T>::include( const Rectangle<T>& r )
