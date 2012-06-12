@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.9 2012-06-11 19:14:35 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.10 2012-06-12 10:02:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 /*!\brief Acoustic Impedance layer.  */
 
 #include "commondefs.h"
+#include "math.h"
 #include "sets.h"
 
 
@@ -69,7 +70,7 @@ static void blockElasticModel( ElasticModel& mdl, float threshold )
     for ( int idx=mdl.size()-1; idx>=1; idx-- )
     {
 	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
-	if ( abs( veldiff ) < threshold )
+	if ( fabs( veldiff ) < threshold )
 	{
 	    const float thk = mdl[idx].thickness_;
 	    if ( idx == mdl.size() -1 )
