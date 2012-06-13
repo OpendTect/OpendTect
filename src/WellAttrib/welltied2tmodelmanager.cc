@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltied2tmodelmanager.cc,v 1.40 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltied2tmodelmanager.cc,v 1.41 2012-06-13 08:25:59 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -39,9 +39,8 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
 
     Well::D2TModel* d2t = 0;
     WellTie::GeoCalculator gc;
-    d2t = wts.useexistingd2tm_ ? wd.d2TModel() 
-			       : gc.getModelFromVelLog( wd, wts.vellognm_, 
-					    wts.issonic_, wts.replacevel_);
+    d2t = wts.useexistingd2tm_ ? 
+	wd.d2TModel() : gc.getModelFromVelLog( wd, wts.vellognm_, wts.issonic_);
     if ( !d2t )
 	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
 
@@ -143,8 +142,9 @@ bool D2TModelMgr::commitToWD()
 
 void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
 {
+    const WellTie::Setup& wts = data_.setup();
     if ( wd_ )
-	calc_.ensureValidD2TModel( d2t, *wd_ );
+	calc_.ensureValidD2TModel( d2t, *wd_, wts.replacevel_ );
 }
 
 

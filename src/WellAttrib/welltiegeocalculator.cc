@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.68 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.69 2012-06-13 08:25:59 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -46,15 +46,14 @@ float GeoCalculator::getSRDElevation( const Well::Data& wd ) const
 
 
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
-					    const char* sonlog, bool issonic, 
-					    float replacevel ) const
+					const char* sonlog, bool issonic ) const
 {
     const Well::Log* log = wd.logs().getLog( sonlog );
-    const float srdel = getSRDElevation( wd );
-    if ( !log || mIsUdf( srdel ) || srdel < 0 ) return 0; 
+    if ( !log ) return 0; 
 
     Well::Log proclog = Well::Log( *log );
     
+    const float srdel = getSRDElevation( wd );
     if ( issonic )
 	son2TWT( proclog, true, srdel );
     else
@@ -70,10 +69,6 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     }
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    const float kbtime = 2*srdel/replacevel;
-    d2tnew->add( 0, -kbtime ); //set KB 
-    d2tnew->add( srdel, 0 );  //set SRD 
-
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
 
@@ -83,7 +78,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 
 
 void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
-					const Well::Data& wd ) const
+					const Well::Data& wd,
+       					float replacevel ) const
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
@@ -98,7 +94,9 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     d2t.erase();
 
     const float srdel = getSRDElevation( wd );
-    d2t.add( srdel, 0 );
+    const float kbtime = 2*srdel/replacevel;
+    d2t.add( 0, -kbtime ); //set KB 
+    d2t.add( srdel, 0 ); // set SRD
     if ( dahs[zidxs[0]] > srdel && times[zidxs[0]] > 0 )
 	d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
 
@@ -106,9 +104,10 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     {
 	int idx0 = zidxs[idx-1]; 
 	int idx1 = zidxs[idx];
-	if ( dahs[idx1] > dahs[idx0] && dahs[idx1] > dahs[0] 
-		&& times[idx1] > times[idx0] && times[idx1] > times[0]
-		&& times[idx1]>0 && dahs[idx0] > srdel )
+	const float dh = dahs[idx1] - dahs[idx0];
+	const float dt = times[idx1] - times[idx0];
+	if ( dh > 0 && dh > 1e-1 && dahs[idx1] > dahs[0] && dahs[idx0] > srdel
+	    && dt > 0 && dt > 1e-6 && times[idx1] > times[0] && times[idx1] > 0)
 	    d2t.add( dahs[idx1], times[idx1] );
     }
 }
