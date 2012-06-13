@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.33 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.34 2012-06-13 13:24:34 cvskris Exp $";
 
 #include "task.h"
 
@@ -367,9 +367,10 @@ bool ParallelTask::execute( bool parallel )
     if ( !size ) return true;
 
     ArrPtrMan<ParallelTaskRunner> runners = new ParallelTaskRunner[nrthreads];
+    mAllocVarLenArr( Threads::Work, tasks, nrthreads );
 
     od_int64 start = 0;
-    TypeSet<Threads::Work> tasks;
+    int nrtasks = 0;
     for ( int idx=nrthreads-1; idx>=0; idx-- )
     {
 	if ( start>=size )
@@ -380,23 +381,25 @@ bool ParallelTask::execute( bool parallel )
 	    continue;
 
 	const int stop = start + threadsize-1;
-	runners[idx].set( this, start, stop, idx );
-	tasks += mWMT(&runners[idx],ParallelTaskRunner,doRun);
+	runners[nrtasks].set( this, start, stop, idx );
+	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
+	
+	nrtasks++;
 	start = stop+1;
     }
 
-    if ( !doPrepare( tasks.size() ) )
+    if ( !doPrepare( nrtasks ) )
 	return false;
 
     bool res;
-    if ( tasks.size()<2 )
+    if ( nrtasks<2 )
 	res = doWork( 0, nriterations-1, 0 );
     else
     {
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm.addWork( tasks, twm.cDefaultQueueID() );
+	res = twm.executeWork( tasks, nrtasks );
     }
 
     res = doFinish( res );
