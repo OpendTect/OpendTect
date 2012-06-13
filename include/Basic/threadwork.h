@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.36 2012-05-03 05:14:17 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.37 2012-06-13 13:14:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,8 +60,12 @@ public:
 	    				int queueid, bool putfirstinline,
 					bool discardduplicates=false);
 
-    bool			addWork(TypeSet<Work>&, int queueid,
+    bool			addWork(TypeSet<Work>&, int queueid = -1,
 	    				bool firstinline = false);
+    
+    bool			executeWork( Work*, int sz, int queueid = -1,
+					bool firstinline = false );
+    				//!<Returns when finished with all
     bool			removeWork(const Work&);	
     				/*!< Removes the task from queue
 				     and stop it if allready running.

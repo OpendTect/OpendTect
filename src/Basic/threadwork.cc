@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.47 2012-05-03 04:46:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.48 2012-06-13 13:14:07 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -412,6 +412,9 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	bool ignoreduplicates )
        					  
 {
+    if ( queueid<0 )
+	queueid = cDefaultQueueID();
+    
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
@@ -546,17 +549,25 @@ protected:
 bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
 				    int queueid, bool firstinline )
 {
-    if ( work.isEmpty() )
+    return executeWork( work.arr(), work.size(), queueid, firstinline );
+}
+
+
+bool Threads::WorkManager::executeWork( Threads::Work* workload,
+				    int workloadsize,
+				    int queueid, bool firstinline )
+{
+
+    if ( !workloadsize )
 	return true;
 
-    const int nrwork = work.size();
     const int nrthreads = threads_.size();
     bool res = true;
     if ( nrthreads==1 )
     {
-	for ( int idx=0; idx<nrwork; idx++ )
+	for ( int idx=0; idx<workloadsize; idx++ )
 	{
-	    if ( work[idx].doRun() )
+	    if ( workload[idx].doRun() )
 		continue;
 
 	    res = false;
@@ -565,14 +576,14 @@ bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
     }
     else
     {
-	WorkResultManager resultman( nrwork-1 );
+	WorkResultManager resultman( workloadsize-1 );
 
 	CallBack cb( mCB( &resultman, WorkResultManager, imFinished ));
 
-	for ( int idx=1; idx<nrwork; idx++ )
-	    addWork( work[idx], &cb, queueid, firstinline );
+	for ( int idx=1; idx<workloadsize; idx++ )
+	    addWork( workload[idx], &cb, queueid, firstinline );
 
-	res = work[0].doRun();
+	res = workload[0].doRun();
 
 	resultman.rescond_.lock();
 	while ( !resultman.isFinished() )
