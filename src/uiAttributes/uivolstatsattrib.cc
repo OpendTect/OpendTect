@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolstatsattrib.cc,v 1.33 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivolstatsattrib.cc,v 1.34 2012-06-14 08:23:19 cvsnanne Exp $";
 
 
 
@@ -150,7 +150,7 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
     mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );
     mSetBool( VolStats::steeringStr(), steerfld_->willSteer() );
     mSetInt( VolStats::optstackstepStr(), optstackstepfld_->box()->getValue() );
-    mSetEnum( VolStats::optstackdirStr(), stackdirfld_->getBoolValue() );
+    mSetEnum( VolStats::optstackdirStr(), (int)stackdirfld_->getBoolValue() );
 
     mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
     mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
