@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.49 2012-06-14 13:17:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.50 2012-06-14 13:58:07 cvsbruno Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -24,13 +24,35 @@ Threads::WorkManager& WorkManager::twm()
 }
 
 
+class SimpleWorker : public CallBacker
+{
+public:
+    			SimpleWorker() : retval_( false )	{}
+    virtual		~SimpleWorker()				{}
+
+    void		runWork(Work& w,CallBack* cb)
+    			{
+			    retval_ = w.doRun();
+			    if ( cb ) cb->doCall( this );
+			}
+
+    bool		getRetVal() const 	{ return retval_; }
+    			/*!< Do only call when task is finished,
+			     i.e. from the cb or
+			     Threads::WorkManager::imFinished()
+			*/
+protected:
+    bool		retval_;
+};
+
+
 
 /*!\brief
 is the worker that actually does the job and is the link between the manager
 and the tasks to be performed.
 */
 
-class WorkThread : public CallBacker
+class WorkThread : public SimpleWorker
 {
 public:
     			WorkThread( WorkManager& );
@@ -40,11 +62,6 @@ public:
     void		assignTask(const ::Threads::Work&,
 	    			   const CallBack& finishedcb, int queueid );
 
-    bool		getRetVal() const 	{ return retval_; }
-    			/*!< Do only call when task is finished,
-			     i.e. from the cb or
-			     Threads::WorkManager::imFinished()
-			*/
 
     void		cancelWork( const ::Threads::Work* );
     			//!< If working on this task, cancel it and continue.
@@ -62,7 +79,6 @@ protected:
     WorkManager&	manager_;
 
     ConditionVar&	controlcond_;	//Dont change this order!
-    bool		retval_;	//Lock before reading or writing
 
     bool		exitflag_;	//Set only from destructor
     bool		cancelflag_;	//Cancel current work and continue
@@ -406,13 +422,10 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
     return res;
 }
 
-
-
-#define mRunNewTask \
-	::Threads::Work taskcopy = newtask;\
-	taskcopy.doRun();\
-	if ( cb )\
-	    cb->doCall( 0 )
+#define mRunTask \
+    ::Threads::Work taskcopy = newtask; \
+    SimpleWorker sw; \
+    sw.runWork( taskcopy, cb )
 
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	CallBack* cb, int queueid, bool firstinline,
@@ -425,7 +438,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
-	mRunNewTask;
+	mRunTask;
 	return;
     }
 
@@ -464,7 +477,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 		queueworkload_[queueidx]++;
 		lock.unLock();
 
-		mRunNewTask;
+		mRunTask;
 
 		lock.lock();
 		queueidx = queueids_.indexOf( queueid );
@@ -544,8 +557,8 @@ public:
 
     void	    imFinished(CallBacker* cb )
 		    {
-			Threads::WorkThread* worker =
-				    dynamic_cast<Threads::WorkThread*>( cb );
+			Threads::SimpleWorker* worker =
+				    dynamic_cast<Threads::SimpleWorker*>( cb );
 			rescond_.lock();
 			if ( error_ || !worker->getRetVal() )
 			    error_ = true;
@@ -564,8 +577,8 @@ protected:
 };
 
 
-bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
-				    int queueid, bool firstinline )
+bool Threads::WorkManager::executeWork( TypeSet<Threads::Work>& work,
+					int queueid, bool firstinline )
 {
     return executeWork( work.arr(), work.size(), queueid, firstinline );
 }
