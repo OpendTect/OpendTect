@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.30 2012-04-04 10:14:46 cvsbert Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.31 2012-06-14 08:24:20 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -78,7 +78,7 @@ protected:
 
     bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg,
-					bool mergewithdouble=false);
+					bool mergewithdouble);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
