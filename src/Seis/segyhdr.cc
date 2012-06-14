@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.97 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.98 2012-06-14 09:27:47 cvsraman Exp $";
 
 
 #include "segyhdr.h"
@@ -615,7 +615,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.nr = (int)entryVal( EntryTracl() );
 
 #define mGetFloatVal(memb,fac) \
-    if ( hdef_.memb##_.isUdf() ) \
+    if ( !hdef_.memb##_.isUdf() ) \
     {\
 	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
 	ti.memb = ftemp * fac; \

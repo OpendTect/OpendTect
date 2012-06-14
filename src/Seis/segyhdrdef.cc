@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdrdef.cc,v 1.9 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdrdef.cc,v 1.10 2012-06-14 09:27:47 cvsraman Exp $";
 
 
 #include "segythdef.h"
@@ -446,8 +446,8 @@ void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
     offs_.usePar( iopar, mSgyKey(Offs) );
     azim_.usePar( iopar, mSgyKey(Azim) );
     trnr_.usePar( iopar, mSgyKey(TrNr) );
-    refnr_.usePar( iopar, mSgyKey(Pick) );
-    pick_.usePar( iopar, mSgyKey(RefNr) );
+    refnr_.usePar( iopar, mSgyKey(RefNr) );
+    pick_.usePar( iopar, mSgyKey(Pick) );
 }
 
 
@@ -473,6 +473,6 @@ void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* ky ) const
     offs_.fillPar( iopar, mSgyKey(Offs) );
     azim_.fillPar( iopar, mSgyKey(Azim) );
     trnr_.fillPar( iopar, mSgyKey(TrNr) );
-    refnr_.fillPar( iopar, mSgyKey(Pick) );
-    pick_.fillPar( iopar, mSgyKey(RefNr) );
+    refnr_.fillPar( iopar, mSgyKey(RefNr) );
+    pick_.fillPar( iopar, mSgyKey(Pick) );
 }
