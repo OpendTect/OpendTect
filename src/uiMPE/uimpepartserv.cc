@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.135 2012-05-21 20:55:45 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.136 2012-06-14 08:08:16 cvsbruno Exp $";
 
 #include "uimpepartserv.h"
 
@@ -516,7 +516,7 @@ void uiMPEPartServer::noTrackingRemoval()
 	    pErrMsg( "Could not remove object" );
     }
 
-    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+    MPE::engine().trackeraddremove.disable();
 
     if ( (trackercurrentobject_!= -1) && (cursceneid_!=-1) )
 	sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
@@ -535,6 +535,7 @@ void uiMPEPartServer::noTrackingRemoval()
 	setupgrp_ = 0;
     }
 
+    MPE::engine().trackeraddremove.enable();
     MPE::engine().trackeraddremove.trigger();
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
