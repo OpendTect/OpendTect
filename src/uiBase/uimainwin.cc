@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.242 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.243 2012-06-14 08:32:13 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -168,6 +168,7 @@ private:
     uiSize		prefsz_;
     uiPoint		prefpos_;
     bool		moved_;
+    bool		createtbmenu_;
 
     bool		deletefrombody_;
     bool		deletefromod_;
@@ -193,6 +194,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, prefpos_(uiPoint::udf())
 	, nractivated_(0)
 	, moved_(false)
+	, createtbmenu_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -203,6 +205,8 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     setIconSize( QSize(iconsz_,iconsz_) );
 
     setWindowModality( p && modal ? Qt::WindowModal : Qt::NonModal );
+
+    setDockOptions( VerticalTabs | AnimatedDocks | ForceTabbedDocks );
 
     deletefrombody_ = deletefromod_ = false;
 }
@@ -375,7 +379,7 @@ bool uiMainWinBody::touch()
 
 
 QMenu* uiMainWinBody::createPopupMenu()
-{ return menubar ? 0 : QMainWindow::createPopupMenu(); }
+{ return createtbmenu_ ? QMainWindow::createPopupMenu() : 0; }
 
 
 void uiMainWinBody::popTimTick( CallBacker* )
