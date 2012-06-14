@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.13 2012-04-02 15:06:17 cvskris Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.14 2012-06-14 08:31:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -353,6 +353,8 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
 		    	 trackedatsel->defString()) )
 	{
 	    LineKey lk( trackedatsel->userRef() );
+	    if ( lk.attrName().isEmpty() )
+		lk.setAttrName( LineKey::sKeyDefAttrib() );
 	    newatsel.setUserRef( lk.attrName().isEmpty()
 		    		 ? LineKey::sKeyDefAttrib()
 				 : lk.attrName().buf() );
