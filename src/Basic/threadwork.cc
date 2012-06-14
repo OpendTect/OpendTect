@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.50 2012-06-14 13:58:07 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.51 2012-06-14 14:08:37 cvsbruno Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -577,8 +577,8 @@ protected:
 };
 
 
-bool Threads::WorkManager::executeWork( TypeSet<Threads::Work>& work,
-					int queueid, bool firstinline )
+bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
+				    int queueid, bool firstinline )
 {
     return executeWork( work.arr(), work.size(), queueid, firstinline );
 }
