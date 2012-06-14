@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.48 2012-06-13 13:14:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.49 2012-06-14 13:17:37 cvsbruno Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -407,6 +407,13 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
 }
 
 
+
+#define mRunNewTask \
+	::Threads::Work taskcopy = newtask;\
+	taskcopy.doRun();\
+	if ( cb )\
+	    cb->doCall( 0 )
+
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	CallBack* cb, int queueid, bool firstinline,
 	bool ignoreduplicates )
@@ -418,19 +425,14 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
-	while ( true )
-	{
-	    ::Threads::Work taskcopy = newtask;
-	    taskcopy.doRun();
-	    if ( cb ) cb->doCall( 0 );
-	    return;
-	}
+	mRunNewTask;
+	return;
     }
 
     const CallBack thecb( cb ? *cb : CallBack(0,0) );
 
     Threads::MutexLocker lock(workloadcond_);
-    int const queueidx = queueids_.indexOf( queueid );
+    int queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 || queueisclosing_[queueidx] )
     {
 	pErrMsg("Queue does not exist or is closing. Task rejected." );
@@ -443,16 +445,32 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
  
     const int nrfreethreads = freethreads_.size();
-    if ( queuetypes_[queueidx]!=Manual && nrfreethreads )
+    if ( queuetypes_[queueidx]!=Manual )
     {
-	if ( queuetypes_[queueidx]==MultiThread || !queueworkload_[queueidx] )
+	if ( queuetypes_[queueidx]==MultiThread ||
+	     !queueworkload_[queueidx] )
 	{
-	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
-	    queueworkload_[queueidx]++;
+	    if ( nrfreethreads )
+	    {
+		WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
+		queueworkload_[queueidx]++;
 
-	    lock.unLock();
-	    thread->assignTask( newtask, thecb, queueid );
-	    return;
+		lock.unLock();
+		thread->assignTask( newtask, thecb, queueid );
+		return;
+	    }
+	    else if ( isWorkThread() )
+	    {
+		queueworkload_[queueidx]++;
+		lock.unLock();
+
+		mRunNewTask;
+
+		lock.lock();
+		queueidx = queueids_.indexOf( queueid );
+		queueworkload_[queueidx]--;
+		return;
+	    }
 	}
     }
 
