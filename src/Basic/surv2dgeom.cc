@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.32 2012-05-22 04:33:41 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.33 2012-06-14 10:19:15 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
 
@@ -437,14 +437,13 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 }
 
 
-
 void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 {
     if ( !hasLineSet(lsid) )
 	return;
 
     int lsidx = getLineSetIdx( lsid );
-    if ( lsid < 0 || mIsUdf(lsidx) )
+    if ( lsidx < 0 || mIsUdf(lsidx) )
 	return;
     
     BufferString maxidkey( sKeyMaxID );
