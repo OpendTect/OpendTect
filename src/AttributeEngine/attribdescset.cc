@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.118 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.119 2012-06-14 08:29:52 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -294,7 +294,8 @@ void DescSet::sortDescSet()
     ids_.erase();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	descs_ += descscopy[ sortindexes[idx] ];
+	Attrib::Desc* desc = descscopy[ sortindexes[idx] ];
+	descs_ += desc;
 	ids_ += idscopy[ sortindexes[idx] ];
     }
 
@@ -331,6 +332,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	apar.setYN( hiddenStr(), dsc.isHidden() );
 	apar.set( sKey::DataType(), Seis::nameOf(dsc.dataType()) );
+	apar.set( indexStr(), idx );
 
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
@@ -621,6 +623,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     IOPar copypar(par);
     bool res = true;
 
+    TypeSet<int> indexes;
     for ( int id=0; id<=maxid; id++ )
     {
 	PtrMan<IOPar> descpar = par.subselect( toString(id) );
@@ -655,12 +658,17 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	     res = false; 
 	     continue;
 	 }
-	
+
+	int idx=-1;
+	descpar->get( indexStr(), idx );
+	indexes += idx;
+
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,storedattronly_) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
-    
+ 
+    // sort_coupled();
     ObjectSet<Desc> newsteeringdescs;
     useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
 
