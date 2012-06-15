@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.12 2012-06-07 13:47:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.13 2012-06-15 13:16:04 cvsbruno Exp $";
 
 #include "prestackmutedef.h"
 
+#include "genericnumer.h"
 #include "mathfunc.h"
 #include "statruncalc.h"
 #include "survinfo.h"
@@ -120,12 +121,11 @@ float MuteDef::value( float offs, const BinID& pos ) const
 }
 
 
-void MuteDef::computeIntervals( float offs, const BinID& bid,
+void MuteDef::computeIntervals( float offs, const BinID& pos,
 			       TypeSet<Interval<float> >& res) const
 {
-    /*
-    const float d0 = computeStartZ( bid );
-    const float d1 = computeStopZ( bid );
+    if ( pos.inl<0 || pos.crl<0 || fns_.isEmpty() )
+	return;
 
     const Coord si00 = SI().transform(
 	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
@@ -133,21 +133,53 @@ void MuteDef::computeIntervals( float offs, const BinID& bid,
 	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
 
     const double normalweight = si00.sqDistTo( si11 );
-
     const Coord centercrd( SI().transform(pos) );
-    Stats::CalcSetup rcsetup( true ); //weighted
-    Stats::RunCalc<float> calc( rcsetup.require(Stats::Average) );
 
-    TypeSet<float> weights;
+    float zstep = SI().zStep();
+    Stats::CalcSetup rcsetup( true ); //weighted
+    ObjectSet< Stats::RunCalc<float> > calcs;
     for ( int iloc=0; iloc<fns_.size(); iloc++ )
     {
+	if ( fns_[iloc]->isEmpty() )
+	    continue;
+
+	TypeSet<float> zvals;
+	float z0 = fns_[iloc]->yVals()[0];
+	const float z1 = fns_[iloc]->yVals()[fns_[iloc]->size()-1];
+	while ( z0 < z1 )
+	{
+	    float z = z0;
+	    if ( !findValue(*fns_[iloc],z0,z1,z,offs,1) )
+		break;
+
+	    //TODO handle constant offset on a better way
+	    if ( mIsEqual( z, z0, zstep ) )
+	    {
+		z0 += zstep;
+		continue;
+	    }
+	    z0 = z;
+	    zvals += z;
+	}
 	const Coord crd( SI().transform(pos_[iloc]) );
-	const float val = fns_[iloc]->getValue( offs );
 	const double sqdist = crd.sqDistTo( centercrd );
 
-	weights += normalweight / sqdist;
+	for ( int idzval=0; idzval<zvals.size(); idzval ++ )
+	{
+	    if ( calcs.size() <= idzval )
+		calcs += new Stats::RunCalc<float>( 
+				rcsetup.require(Stats::Average));
+
+	    calcs[idzval]->addValue( zvals[idzval], normalweight / sqdist );
+	}
     }
-    */
+    for ( int idc=0; idc<calcs.size(); idc+=2 )
+    {
+	int nextidc = calcs.validIdx( idc+1 ) ? idc+1 : idc;
+	const float start = calcs[idc]->average();
+	const float stop = calcs[nextidc]->average();
+	res += Interval<float>( start, stop );
+    }
 }
 
 
