@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.64 2012-05-10 19:56:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.65 2012-06-18 09:29:45 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -564,44 +564,41 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
 
 void uiAxisHandler::drawName() 
 {
-    uiPoint pt;
     if ( !nameitm_ )
 	nameitm_ = scene_->addItem( new uiTextItem(name()) );
     else
 	nameitm_->setText( name() );
-    nameitm_->setZValue( setup_.zval_ );
-    Color& col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
-						     : setup_.nmcolor_;
-    nameitm_->setTextColor( col );
-    const int fontheight = FontList().get().height();
+
+    Alignment al( Alignment::HCenter, Alignment::VCenter );
+    float namepos = pixToEdge() - ticSz() - calcwdth_;
+    uiPoint pt;
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	const int x = pixBefore() + axsz_ / 2;
-	const int yshift = pixToEdge() - ticSz() - calcwdth_ + fontheight;
-	const int y = istop ? yshift : height_ - yshift;
-	const Alignment al( Alignment::HCenter,
-			    istop ? Alignment::Bottom : Alignment::Top );
-	nameitm_->setPos( uiPoint(x,y) );
-	nameitm_->setAlignment( al );
+	pt.x = pixBefore() + axsz_ / 2;
+	pt.y = istop ? namepos : height_ - namepos;
+	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int xshift = pixToEdge() - ticSz() - calcwdth_;
-	const int x = isleft ? xshift : width_ - xshift;
-	const int y = ( height_+nameitm_->getTextSize().width() ) / 2;
-	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
-			    Alignment::VCenter );
-	nameitm_->setPos( uiPoint(x,y) );
-	nameitm_->setAlignment( al );
+	namepos -= FontList().get().height()/2; //shift due to rotation
+	pt.x = isleft ? namepos : width_ - namepos;
+	pt.y = ( height_+nameitm_->getTextSize().width() ) / 2;
+	al.set( isleft ? Alignment::Left : Alignment::Left );
+
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( isleft ? -90 : 90 );
 	ynmtxtvertical_ = true;
     }
+    nameitm_->setPos( pt );
+    nameitm_->setAlignment( al );
+    nameitm_->setZValue( setup_.zval_ );
+    Color col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
+						    : setup_.nmcolor_;
+    nameitm_->setTextColor( col );
 }
 
+
 int uiAxisHandler::ticSz() const
-{
-    return setup_.noaxisannot_ ? 0 : ticsz_;
-}
+{ return setup_.noaxisannot_ ? 0 : ticsz_; }
