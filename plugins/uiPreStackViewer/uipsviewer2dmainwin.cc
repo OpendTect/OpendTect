@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.18 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.19 2012-06-18 14:05:35 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -282,8 +282,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    if ( vwrs_.size() <= 0 ) return;
-    FlatView::Appearance& app0 = vwrs_[0]->appearance();
+    FlatView::Appearance& app0 = propdlg_->viewer().appearance();
     const int selannot = propdlg_->selectedAnnot();
 
     for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
@@ -334,5 +333,16 @@ void uiViewer2DControl::gatherDataCB( CallBacker* )
     datadlgcalled_.trigger();
 }
 
+
+void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
+{
+    int ivwr = 0;
+    for ( ivwr=0; ivwr<vwrs_.size(); ivwr++ )
+    {
+	if ( vwrs_[ivwr]->pack( true ) || vwrs_[ivwr]->pack( false ) )
+	    break;
+    }
+    return uiFlatViewControl::doPropertiesDialog( ivwr, dowva );
+}
 
 }; //namepsace
