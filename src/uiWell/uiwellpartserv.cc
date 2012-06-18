@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.74 2012-05-31 13:17:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.75 2012-06-18 14:33:17 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -176,7 +176,7 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 	Well::Data& curwd = *wds[iwll];
 	if ( wd && &curwd != wd )
 	   continue;
-	saveWellDispProps( curwd, wd->multiID() );
+	saveWellDispProps( curwd, curwd.multiID() );
     }
 }
 
