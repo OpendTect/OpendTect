@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.10 2012-06-19 10:19:25 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.11 2012-06-19 12:29:36 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -291,11 +291,13 @@ bool Seis2DTo3D::writeTmpTrcs()
     int curinl = tmpseisbuf_.get( 0 )->info().binid.inl;
     int previnl = curinl;
     SeisTrcBuf tmpbuf(true); 
+    bool isbufempty = false;
     while ( !tmpseisbuf_.isEmpty() )
     {
 	SeisTrc* trc = tmpseisbuf_.remove(0);
 	curinl = trc->info().binid.inl;
-	if ( previnl != curinl )
+	isbufempty = tmpseisbuf_.isEmpty();
+	if ( previnl != curinl || isbufempty )
 	{
 	    tmpbuf.sort( true, SeisTrcInfo::BinIDCrl );
 	    int curcrl = tmpbuf.get(0)->info().binid.crl;
