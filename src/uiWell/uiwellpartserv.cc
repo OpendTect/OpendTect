@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.75 2012-06-18 14:33:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.76 2012-06-19 09:01:44 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -133,14 +133,14 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
     
-    if (isdisppropopened_ == false )
+    if ( isdisppropopened_ == false )
     {
 	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), wd );
+	uiwellpropdlg_->applyAllReq.notify( 
+			    mCB(this,uiWellPartServer,applyAll) );
+	uiwellpropdlg_->windowClosed.notify(
+			    mCB(this,uiWellPartServer, wellPropDlgClosed) );
 	isdisppropopened_ = true;
-	uiwellpropdlg_->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
-	uiwellpropdlg_->windowClosed.notify(mCB(this,uiWellPartServer,
-		    				wellPropDlgClosed));
-
 	bool rv = uiwellpropdlg_->go();    
     }
     return true;
@@ -156,6 +156,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
+    dlg->disableWDNotifiers();
     if ( dlg->savedefault_ == true )
     {
 	edprops.defaults() = edprops;

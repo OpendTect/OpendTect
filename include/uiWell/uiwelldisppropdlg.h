@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.18 2011-06-10 12:34:39 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.19 2012-06-19 09:01:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     const Well::Data*		wellData() const	{ return wd_; }
 
     bool 			savedefault_;
+    void			disableWDNotifiers()
+				{ setWDNotifiers( false ); }
  
 protected:
 

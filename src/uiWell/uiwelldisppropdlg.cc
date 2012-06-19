@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.42 2012-06-05 09:25:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisppropdlg.cc,v 1.43 2012-06-19 09:01:44 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -95,14 +95,14 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
-{
-    if ( wd_ )
-	setWDNotifiers( false );
-}
+{}
 
 
 void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
 {
+    if ( !wd_ )
+	return;
+
     if ( yn )
     {
 	mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
@@ -153,7 +153,7 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
 
 void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
-    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+    windowClosed.trigger();
     wd_ = 0;
     uiOBJDISP()->go( this );
 }
@@ -161,10 +161,7 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
-    if ( saveButtonChecked() )
-	savedefault_ = true;
-    else 
-	savedefault_ = false;
+    savedefault_ = saveButtonChecked();
     return true;
 }
 
