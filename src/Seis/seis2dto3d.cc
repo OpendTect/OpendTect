@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.9 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.10 2012-06-19 10:19:25 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -46,6 +46,14 @@ Seis2DTo3D::Seis2DTo3D()
 Seis2DTo3D::~Seis2DTo3D()
 {
     clear();
+}
+
+
+void Seis2DTo3D::setIsNearestTrace( bool yn )
+{
+    nearesttrace_ = yn;
+    if ( yn )
+    cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 }
 
 
@@ -171,68 +179,100 @@ int Seis2DTo3D::nextStep()
 	prevbid_ = curbid_;
     }
 
-    const int inl = curbid_.inl; const int crl = curbid_.crl;
-    Interval<int> inlrg( inl-mInterpInlWin/2, inl+mInterpInlWin/2 );
-    Interval<int> crlrg( crl-mInterpCrlWin/2, crl+mInterpCrlWin/2 );
-    inlrg.limitTo( SI().inlRange(true) );
-    crlrg.limitTo( SI().crlRange(true) );
-    HorSampling hrg; hrg.set( inlrg, crlrg );
-    hrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
-    HorSamplingIterator localhsit( hrg );
-    BinID binid;
-    ObjectSet<const SeisTrc> trcs;
-    SeisTrcReader rdr( outioobj_ );
-    SeisTrcBuf outtrcbuf(false);
-    SeisBufReader sbrdr( rdr, outtrcbuf );
-    sbrdr.execute();
-    while ( localhsit.next(binid) )
+    float mindist = mUdf(float);
+    if ( nearesttrace_ )
     {
-	const int idtrc = seisbuf_.find( binid  );
-	if ( idtrc >= 0 )
-	    trcs += seisbuf_.get( idtrc ); 
-	else if ( reusetrcs_ && !tmpseisbuf_.isEmpty() )
+	const SeisTrc* nearesttrc = 0;
+	for( int idx=0; idx<seisbuf_.size(); idx++ )
 	{
-	    const int idinterptrc = tmpseisbuf_.find( binid  );
-	    if ( idinterptrc >= 0 )
-		trcs += tmpseisbuf_.get( idinterptrc );
+	    const SeisTrc* trc = seisbuf_.get( idx );
+	    BinID b = trc->info().binid;
+
+	    if ( b == curbid_ )
+	    {
+		nearesttrc = trc;
+		break;
+	    }
+
+	    int xx0 = b.inl-curbid_.inl;     xx0 *= xx0;
+	    int yy0 = b.crl-curbid_.crl;     yy0 *= yy0;
+
+	    if ( (  xx0 + yy0  ) < mindist || mIsUdf(mindist) )
+	    {
+		nearesttrc = trc;
+		mindist = xx0 + yy0;
+	    }
 	}
-	else if ( reusetrcs_ && !outtrcbuf.isEmpty() ) 
-	{
-	    const int outidtrc = outtrcbuf.find( binid  );
-	    if ( outidtrc >= 0 )
-		trcs += outtrcbuf.get( outidtrc );
-	}
+
+	SeisTrc* newtrc = new SeisTrc( *nearesttrc );
+	newtrc->info().binid = curbid_;
+	tmpseisbuf_.add( newtrc );
     }
-    interpol_.setInput( trcs );
-    interpol_.setParams( hrg, maxvel_);
-    if ( !trcs.isEmpty() && !interpol_.execute() )
-	{ errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
-
-    Interval<int> wininlrg( inl-inlstep_/2, inl+inlstep_/2);
-    Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
-    wininlrg.limitTo( SI().inlRange(true) );
-    wincrlrg.limitTo( SI().crlRange(true) );
-    HorSampling winhrg; winhrg.set( wininlrg, wincrlrg );
-    winhrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
-    ObjectSet<SeisTrc> outtrcs;
-    interpol_.getOutTrcs( outtrcs, winhrg );
-
-    if ( outtrcs.isEmpty() )
+    else
     {
-	BinID bid;
-	HorSamplingIterator hsit( winhrg );
-	while ( hsit.next( bid ) )
+	const int inl = curbid_.inl; const int crl = curbid_.crl;
+	Interval<int> inlrg( inl-mInterpInlWin/2, inl+mInterpInlWin/2 );
+	Interval<int> crlrg( crl-mInterpCrlWin/2, crl+mInterpCrlWin/2 );
+	inlrg.limitTo( SI().inlRange(true) );
+	crlrg.limitTo( SI().crlRange(true) );
+	HorSampling hrg; hrg.set( inlrg, crlrg );
+	hrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
+	HorSamplingIterator localhsit( hrg );
+	BinID binid;
+	ObjectSet<const SeisTrc> trcs;
+	SeisTrcReader rdr( outioobj_ );
+	SeisTrcBuf outtrcbuf(false);
+	SeisBufReader sbrdr( rdr, outtrcbuf );
+	sbrdr.execute();
+	while ( localhsit.next(binid) )
 	{
-	    SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
-	    trc->info().sampling = seisbuf_.get( 0 )->info().sampling;
-	    trc->info().binid = bid; 
+	    const int idtrc = seisbuf_.find( binid  );
+	    if ( idtrc >= 0 )
+		trcs += seisbuf_.get( idtrc ); 
+	    else if ( reusetrcs_ && !tmpseisbuf_.isEmpty() )
+	    {
+		const int idinterptrc = tmpseisbuf_.find( binid  );
+		if ( idinterptrc >= 0 )
+		    trcs += tmpseisbuf_.get( idinterptrc );
+	    }
+	    else if ( reusetrcs_ && !outtrcbuf.isEmpty() ) 
+	    {
+		const int outidtrc = outtrcbuf.find( binid  );
+		if ( outidtrc >= 0 )
+		    trcs += outtrcbuf.get( outidtrc );
+	    }
 	}
-    }
+	interpol_.setInput( trcs );
+	interpol_.setParams( hrg, maxvel_);
+	if ( !trcs.isEmpty() && !interpol_.execute() )
+	    { errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
 
-    for ( int idx=0; idx<outtrcs.size(); idx ++ )
-    {
-	sc_->scaleTrace( *outtrcs[idx] );
-	tmpseisbuf_.add( outtrcs[idx] );
+	Interval<int> wininlrg( inl-inlstep_/2, inl+inlstep_/2);
+	Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
+	wininlrg.limitTo( SI().inlRange(true) );
+	wincrlrg.limitTo( SI().crlRange(true) );
+	HorSampling winhrg; winhrg.set( wininlrg, wincrlrg );
+	winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
+	ObjectSet<SeisTrc> outtrcs;
+	interpol_.getOutTrcs( outtrcs, winhrg );
+
+	if ( outtrcs.isEmpty() )
+	{
+	    BinID bid;
+	    HorSamplingIterator hsit( winhrg );
+	    while ( hsit.next( bid ) )
+	    {
+		SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
+		trc->info().sampling = seisbuf_.get( 0 )->info().sampling;
+		trc->info().binid = bid; 
+	    }
+	}
+
+	for ( int idx=0; idx<outtrcs.size(); idx ++ )
+	{
+	    sc_->scaleTrace( *outtrcs[idx] );
+	    tmpseisbuf_.add( outtrcs[idx] );
+	}
     } 
 
     nrdone_ ++;

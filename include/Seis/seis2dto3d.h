@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: seis2dto3d.h,v 1.5 2011-07-08 13:03:43 cvsbruno Exp $
+ RCS:           $Id: seis2dto3d.h,v 1.6 2012-06-19 10:19:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ public:
     void		setOutput(IOObj& cube,const CubeSampling& outcs);
 
     void		setParams(int inl,int crl,float maxvel,bool reuse);
+    void		setIsNearestTrace( bool yn );
 
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
@@ -145,6 +146,7 @@ protected:
     bool		read_;	
     int			nrdone_;
     mutable int		totnr_;
+    bool		nearesttrace_;
 
     void		clear();
     bool		writeTmpTrcs();

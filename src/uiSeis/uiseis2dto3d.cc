@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.8 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.9 2012-06-19 10:19:25 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -35,10 +35,14 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 	, seis2dto3d_(*new Seis2DTo3D)	 
 {
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
-    
+    interpoltypefld_ = new uiGenInput( this, "Type of interpolation",
+			     BoolInpSpec(true,"Nearest trace","FFT based") );
+    interpoltypefld_->attach( alignedBelow, inpfld_ );
+    interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
+
     winfld_ = new uiGenInput( this,"Interpolation window (Inl/Crl)", 
 							IntInpIntervalSpec() );
-    winfld_->attach( alignedBelow, inpfld_ );
+    winfld_->attach( alignedBelow, interpoltypefld_ );
     winfld_->setValue( Interval<float>(150,150) );
 
     reusetrcsbox_ = new uiCheckBox( this, "Re-use interpolated traces" );
@@ -54,6 +58,8 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 
     outsubselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
     outsubselfld_->attachObj()->attach( alignedBelow, outfld_ );
+
+    typeChg( 0 );
 }
 
 
@@ -89,6 +95,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 
     seis2dto3d_.setParams( wininlstep, wincrlstep, maxvel, reusetrcs );
     seis2dto3d_.setOutput( *outctio_.ioobj, cs );
+    seis2dto3d_.setIsNearestTrace( interpoltypefld_->getBoolValue() );
 
     if ( seis2dto3d_.errMsg() )
 	uiMSG().error( seis2dto3d_.errMsg() );
@@ -100,3 +107,12 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     return true;
 }
 
+
+
+void uiSeis2DTo3D::typeChg( CallBacker* )
+{ 
+    bool isfft = !interpoltypefld_->getBoolValue();
+    winfld_->display( isfft );
+    reusetrcsbox_->display( isfft );
+    velfiltfld_->display( isfft );
+}
