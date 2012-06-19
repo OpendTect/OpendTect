@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.22 2012-05-25 19:13:10 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.23 2012-06-19 12:05:59 cvskris Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -50,6 +50,7 @@ void stopEventLoop()
 
 int _setHost( const char* host, int port )
 {
+    host_ = host;
     const int id = setHost( host, port );
     startEventLoop();
     return id;
@@ -74,7 +75,36 @@ int _get( const char* path, const char* dest, BufferString& errmsg )
     qfiles_ += qfile;
     QUrl qurl( path );
     const int id = get( qurl.toEncoded(), qfile );
-    getids_ += id;
+    requestids_ += id;
+    startEventLoop();
+    return id;
+}
+    
+    
+    
+int _post( const char* path, const IOPar& postvars, BufferString& errmsg )
+{
+    qfiles_ += 0;
+    QUrl qurl( path );
+    QString postarr;
+    for ( int idx=0; idx<postvars.size(); idx++ )
+    {
+	BufferString varstr = postvars.getKey( idx );
+	varstr.add( "=" ).add( postvars.getValue( idx ) );
+	if ( idx!=postvars.size()-1 )
+	    varstr.add( "&" );
+			      
+	postarr.append( varstr );
+    }
+    
+    
+    QHttpRequestHeader header("POST", qurl.toEncoded() );
+    header.setValue( "Host", host_.buf() );
+
+    header.setContentType("application/x-www-form-urlencoded");
+    const int id = request(header,postarr.toUtf8() );
+    
+    requestids_ += id;
     startEventLoop();
     return id;
 }
@@ -82,14 +112,14 @@ int _get( const char* path, const char* dest, BufferString& errmsg )
 
 void handleFinishedRequest( int reqid )
 {
-    const int reqidx = getids_.indexOf( reqid );
+    const int reqidx = requestids_.indexOf( reqid );
     if ( qfiles_.validIdx(reqidx) )
     {
 	QFile* qfile = qfiles_[reqidx];
 	if ( qfile )
 	    qfile->close();
 	delete qfiles_.remove( reqidx );
-	getids_.remove( reqidx );
+	requestids_.remove( reqidx );
     }
 
     stopEventLoop();
@@ -100,8 +130,9 @@ void handleFinishedRequest( int reqid )
 protected:
     QEventLoop	qeventloop_;
 
-    TypeSet<int>	getids_;
+    TypeSet<int>	requestids_;
     ObjectSet<QFile>	qfiles_;
+    BufferString	host_;
 };
 
 
@@ -190,6 +221,16 @@ ODHttp::State ODHttp::state() const
 int ODHttp::get( const char* path, const char* dest )
 {
     int res = qhttp_->_get( path, dest, message_ );
+    if ( res==-1 )
+	error_ = true;
+    
+    return res;
+}
+
+
+int ODHttp::post( const char* path, const IOPar&postvars )
+{
+    int res = qhttp_->_post( path, postvars, message_ );
     if ( res==-1 )
 	error_ = true;
     

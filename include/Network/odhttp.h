@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.16 2012-05-25 19:13:10 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.17 2012-06-19 12:05:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,9 @@ public:
     int			get(const char* cmd,const char* dest=0);
     			//!<When dest=0, read from buffer
 			//!<Returns -1 on error
+    int			post( const char* cmd,
+			      const IOPar& postvars );
+    			//!<Returns -1 on error
     BufferString	readBuffer() const;
     wchar_t*		readWCharBuffer() const; //!< Buffer becomes yours
     const char*		readCharBuffer() const;
