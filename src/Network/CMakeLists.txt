@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-06-19 12:07:05 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
@@ -28,4 +28,5 @@ SET(OD_MODULE_SOURCES
 		systeminfo.cc
 		tcpserver.cc
 		tcpsocket.cc)
+SET ( OD_MODULE_PROGS od_ReportIssue.cc )
 OD_INIT_MODULE()
