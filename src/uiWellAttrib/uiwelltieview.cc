@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.103 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.104 2012-06-19 09:00:03 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -171,7 +171,8 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    Interval<float> zrg( zrange_.start*1000, zrange_.stop*1000 );
+    const float zfac = SI().zDomain().userFactor();
+    Interval<float> zrg( zrange_.start*zfac, zrange_.stop*zfac );
     setLogsRanges( zrg );
 }
 
@@ -198,7 +199,7 @@ void uiTieView::drawTraces()
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
 	trc->info().sampling = data_.seistrc_.info().sampling;
-	trc->info().sampling.scale( 1000 );
+	trc->info().sampling.scale( SI().zDomain().userFactor() );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
 	if ( udf ) 
@@ -316,7 +317,7 @@ void uiTieView::drawViewerWellMarkers()
 
 	wellmarkerauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
-	zpos *= 1000;	
+	zpos *= SI().zDomain().userFactor();
 	const int shapeint = mrkdisp.shapeint_;
 	const int drawsize = mrkdisp.size_;
 	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
@@ -361,7 +362,7 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
 	const Marker& pick = pickset[idx];
-	float zpos = pick.zpos_*1000; 
+	float zpos = pick.zpos_* SI().zDomain().userFactor();
 	LineStyle ls = LineStyle( LineStyle::Solid, pick.size_, pick.color_ );
 	userpickauxdatas_[idx]->linestyle_ = ls;
 	drawMarker(userpickauxdatas_[idx], issynth, zpos );
@@ -457,7 +458,7 @@ void uiCrossCorrView::draw()
     TypeSet<float> xvals, yvals;
     for ( int idx=-halfsz; idx<halfsz; idx++)
     {
-	float xaxistime = idx*data_.timeintv_.step*1000;
+	float xaxistime = idx*data_.timeintv_.step*SI().zDomain().userFactor();
 	if ( fabs( xaxistime ) > lag_ )
 	    continue;
 	xvals += xaxistime;
