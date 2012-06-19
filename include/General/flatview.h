@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.65 2012-05-23 11:33:19 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.66 2012-06-19 19:04:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,7 +200,7 @@ public:
 			: wigg_(Color::Black())
 			, mid_(Color::NoColor())
 			, left_(Color::NoColor())
-			, right_(Color::DgbColor())
+			, right_(Color::Black())
 			, overlap_(1)		{ midlinevalue_ = 0; }
 
 	Color		wigg_;
