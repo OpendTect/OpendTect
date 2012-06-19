@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.141 2012-05-22 21:52:46 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.142 2012-06-19 06:32:05 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -658,11 +658,6 @@ bool uiSurvey::rejectOK( CallBacker* )
 	    return false;
 	}
     }
-
-    IOMan::setSurvey( initialsurvey_ );
-    SI().setInvalid();
-    SurveyInfo::read(
-	FilePath(initialdatadir_).add(initialsurvey_).fullPath() );
 
     return true;
 }
