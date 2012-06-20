@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.28 2011-09-29 15:59:37 cvsjaap Exp $
+ RCS:		$Id: visevent.h,v 1.29 2012-06-20 13:12:12 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,9 @@ ________________________________________________________________________
 class SoEventCallback;
 class TabletInfo;
 
+namespace osg { class Node; }
+
+
 namespace visBase
 {
 
@@ -29,6 +32,7 @@ namespace visBase
 
 */
 
+class EventCatchHandler;
 class Detail;
 
 
@@ -47,41 +51,44 @@ public:
 
     OD::ButtonState		buttonstate_;
 
+    Coord			mousepos;
+
     Line3			mouseline;
     				/*!< The line projected from the mouse-position
-    						into the scene. The line is
-						in world coordinates.
+				     into the scene. Line is in worldcoords.
 				*/
+
     bool			pressed;
-				/*!< Only set if type==MouseClick or
-				     type==Keyboard
-				     If it is false, the button has been
-				     released.
+				/*!< Only set if type == MouseClick or Keyboard
+				     If false, the button has been released.
 				*/
+    bool			dragging;
+    				//!< Only set if type == MouseMovement
+
+    int				key;
+    				//!< Only set if type == Keyboard
 
     TypeSet<int>		pickedobjids;
-    Coord3			displaypickedpos;	//display space
-    Coord3			localpickedpos; 	//object space
-    Coord3			worldpickedpos; 	//world space
 
-    Detail*			detail;
-    void			setDetail(const Detail*);
+    Coord3			displaypickedpos;	// display space
+    Coord3			localpickedpos; 	// object space
+    Coord3			worldpickedpos; 	// world space
 
     TabletInfo*			tabletinfo;
     void			setTabletInfo(const TabletInfo*);
-
     
-    int				key;
-    				/*!< Only set if type==Keyboard */
 
-    				// These are always set
-    Coord			mousepos;
-
+    // No current need to support Detail class with OSG.
+    // Only used by obsolete EdgeLineSetDisplay class.
+    Detail*			detail;
+    void			setDetail(const Detail*);
 };
 
 
 mClass EventCatcher : public DataObject
 {
+    friend class EventCatchHandler;
+
 public:
 
     static EventCatcher*	create()
@@ -91,7 +98,6 @@ public:
     int				eventType() const { return type_; }
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
-
     CNotifier<EventCatcher, const EventInfo&>		nothandled;
 
     bool			isHandled() const;
@@ -122,7 +128,10 @@ protected:
     bool			rehandled_;
 
     virtual SoNode*		gtInvntrNode();
+    virtual osg::Node*		gtOsgNode();
 
+    osg::Node*			osgnode_;
+    EventCatchHandler*		eventcatchhandler_;
 };
 
 }; // Namespace

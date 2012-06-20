@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visdata.cc,v 1.40 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdata.cc,v 1.41 2012-06-20 13:12:12 cvsjaap Exp $";
 
 #include "visdata.h"
 
@@ -32,6 +32,23 @@ void DataObject::setOsg()
 
 bool DataObject::doOsg()
 { return doosg_; }
+
+
+void DataObject::enableTraversal( TraversalType tt, bool yn )
+{
+    if ( osgNode() )
+    {
+	unsigned int mask = osgNode()->getNodeMask();
+	osgNode()->setNodeMask( yn ? (mask | tt) : (mask & ~tt) );
+    }
+}
+
+
+bool DataObject::isTraversalEnabled( TraversalType tt ) const
+{
+    return osgNode() && (osgNode()->getNodeMask() & tt);
+}
+
 
 const char* DataObject::name() const
 {

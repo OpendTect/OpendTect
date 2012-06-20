@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.62 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.63 2012-06-20 13:12:12 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,15 @@ class SelectionManager;
 class DataManager;
 class Scene;
 
+
+// OSG traversal bitmasks defined by OpendTect
+enum TraversalType
+{
+    EventTraversal		=	0x00000001,
+    IntersectionTraversal	=	0x00000002
+}; 
+
+
 /*!\brief
 DataObject is the base class off all objects that are used in Visualisation and
 ought to be shared in visBase::DataManager. The DataManager owns all the
@@ -66,6 +75,10 @@ public:
     const osg::Node*		osgNode() const
 				    { return const_cast<DataObject*>(this)->
 							gtOsgNode(); }
+
+    void			enableTraversal(TraversalType,bool yn=true); 
+    bool			isTraversalEnabled(TraversalType) const;
+
     inline SoNode*		getInventorNode()	{return gtInvntrNode();}
     inline const SoNode*	getInventorNode() const
 				{ return const_cast<DataObject*>(this)->

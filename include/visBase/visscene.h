@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.24 2011-09-23 13:17:17 cvskris Exp $
+ RCS:		$Id: visscene.h,v 1.25 2012-06-20 13:12:12 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ ________________________________________________________________________
 class SoEnvironment;
 class SoAction;
 class SoCallback;
+
+namespace osg { class Group; }
 
 namespace visBase
 {
@@ -76,6 +78,7 @@ protected:
     void		fillOffsetPar( IOPar& ) const;
 
     virtual SoNode*	gtInvntrNode();
+    virtual osg::Node*	gtOsgNode();
 
     static void		firstRender(void*,SoAction*);
 
@@ -91,6 +94,7 @@ private:
     SoGroup*		selroot_;
     SoCallback*		callback_;
     bool		blockmousesel_;
+    osg::Group*		osgsceneroot_;
 };
 
 }

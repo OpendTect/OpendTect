@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.14 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.15 2012-06-20 13:12:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ protected:
     bool			righthandsystem_;
 
     virtual SoNode*		gtInvntrNode();
-    osg::Node*			gtOsgNode();
+    virtual osg::Node*		gtOsgNode();
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.269 2012-05-25 13:39:53 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.270 2012-06-20 13:12:12 cvsjaap Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -546,6 +546,8 @@ void PlaneDataDisplay::showManipulator( bool yn )
     dragger_->turnOn( yn );
     rectanglepickstyle_->setStyle( yn ? visBase::PickStyle::Unpickable
 				      : visBase::PickStyle::Shape );
+    if ( doOsg() )
+	texturerect_->enableTraversal( visBase::IntersectionTraversal, !yn );
 }
 
 

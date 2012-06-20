@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visscene.cc,v 1.48 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visscene.cc,v 1.49 2012-06-20 13:12:12 cvsjaap Exp $";
 
 #include "visscene.h"
 
 #include "settings.h"
 #include "iopar.h"
+#include "mouseevent.h"
 #include "visobject.h"
 #include "visdataman.h"
 #include "visselman.h"
@@ -27,6 +28,8 @@ static const char* rcsID mUnusedVar = "$Id: visscene.cc,v 1.48 2012-05-02 15:12:
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTextureMatrixTransform.h>
 #include <Inventor/nodes/SoCallback.h>
+
+#include <osg/Group>
 
 #define mDefaultFactor	1
 #define mDefaultUnits	200
@@ -47,6 +50,7 @@ Scene::Scene()
     , blockmousesel_( false )
     , nameChanged(this)
     , callback_( 0 )
+    , osgsceneroot_( 0 )
 {
     directionallight_->ref();
     directionallight_->turnOn( false );
@@ -88,6 +92,14 @@ Scene::Scene()
     selroot_->addChild( events_.getInventorNode() );
     selroot_->addChild( DataObjectGroup::gtInvntrNode() );
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
+
+    if ( doOsg() )
+    {
+	osgsceneroot_ = new osg::Group;
+	osgsceneroot_->addChild( DataObjectGroup::gtOsgNode() );
+	osgsceneroot_->addChild( events_.osgNode() );
+	osgsceneroot_->ref();
+    }
 }
 
 
@@ -100,6 +112,9 @@ bool Scene::saveCurrentOffsetAsDefault() const
 
 Scene::~Scene()
 {
+    if ( osgsceneroot_ )
+	osgsceneroot_->unref();
+
     removeAll();
     events_.nothandled.remove( mCB(this,Scene,mousePickCB) );
     events_.unRef();
@@ -176,6 +191,12 @@ SoNode* Scene::gtInvntrNode()
 }
 
 
+osg::Node* Scene::gtOsgNode()
+{
+    return osgsceneroot_;
+}
+
+
 EventCatcher& Scene::eventCatcher() { return events_; }
 
 
@@ -189,6 +210,17 @@ void Scene::mousePickCB( CallBacker* cb )
     {
 	if ( eventinfo.type==MouseClick )
 	    mousedownid_ = -1;
+	return;
+    }
+
+    if ( doOsg() && eventinfo.dragging )
+    {
+	const TabletInfo* ti = TabletInfo::currentState();
+	if ( ti && ti->maxPostPressDist()<5 )
+	    events_.setHandled();
+	else
+	    mousedownid_ = -1;
+
 	return;
     }
 
@@ -224,6 +256,7 @@ void Scene::mousePickCB( CallBacker* cb )
 		 !OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    {
 		DM().selMan().deSelectAll();
+		if ( doOsg() ) events_.setHandled();
 	    }
 	}
 
@@ -247,17 +280,24 @@ void Scene::mousePickCB( CallBacker* cb )
 			continue;
 		    }
 		    dataobj->triggerRightClick(&eventinfo);
+		    if ( doOsg() ) events_.setHandled();
 		}
 		else if ( dataobj->selectable() )
 		{
 		    if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
+		    {
 			DM().selMan().select( mousedownid_, true );
+			if ( doOsg() ) events_.setHandled();
+		    }
 		    else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
+		    {
 			DM().selMan().select( mousedownid_, false );
+			if ( doOsg() ) events_.setHandled();
+		    }
 		}
 
 		break;
@@ -265,8 +305,9 @@ void Scene::mousePickCB( CallBacker* cb )
 	}
     }
 
-    //Note:
+    //Note: 
     //Don't call setHandled, since that will block all other event-catchers
+    //(Does not apply for OSG. Every scene has only one EventCatcher. JCG)
 }
 
 
