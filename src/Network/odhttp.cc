@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odhttp.cc,v 1.23 2012-06-19 12:05:59 cvskris Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.24 2012-06-20 11:19:59 cvsranojay Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -69,7 +69,6 @@ int _get( const char* path, const char* dest, BufferString& errmsg )
 	    delete qfile;
 	    return -1;
 	}
-
     }
 
     qfiles_ += qfile;
@@ -136,9 +135,13 @@ protected:
 };
 
 
+
 const char* ODHttp::sKeyUseProxy()	{ return "Use Proxy"; }
+const char* ODHttp::sKeyUseAuthentication() { return "Use Authentication"; }
 const char* ODHttp::sKeyProxyHost()	{ return "Http Proxy Host"; }
 const char* ODHttp::sKeyProxyPort()	{ return "Http Proxy Port"; }
+const char* ODHttp::sKeyProxyUserName()	{ return "Http Proxy User Name"; }
+const char* ODHttp::sKeyProxyPassword()	{ return "Http Proxy Password"; }
 
 
 ODHttp::ODHttp()
@@ -176,7 +179,7 @@ void ODHttp::setASynchronous( bool yn )
 // ToDo: support username and passwd
 int ODHttp::setProxy( const char* host, int port,
 		      const char* usrnm, const char* pwd )
-{ return qhttp_->setProxy( host, port ); }
+{ return qhttp_->setProxy( host, port, usrnm, pwd ); }
 
 
 void ODHttp::useProxySettings()
@@ -192,7 +195,20 @@ void ODHttp::useProxySettings()
     int port = 1;
     setts.get( ODHttp::sKeyProxyPort(), port );
 
-    setProxy( host, port );
+    bool auth = false;
+    setts.getYN( sKeyUseAuthentication(), auth );
+
+    if ( auth )
+    {
+	BufferString username;
+	setts.get( ODHttp::sKeyProxyUserName(), username );
+
+	BufferString password;
+	setts.get( ODHttp::sKeyProxyPassword(), password );
+	setProxy( host, port, username, password );
+    }
+    else
+	setProxy( host, port );
 }
 
 
@@ -209,6 +225,7 @@ int ODHttp::setHost( const char* host, int port )
     return qhttp_->_setHost( host, port );
 }
 
+
 int ODHttp::close()
 { return qhttp_->close(); }
 
@@ -218,23 +235,14 @@ void ODHttp::abort()
 ODHttp::State ODHttp::state() const
 { return (ODHttp::State)(int)qhttp_->state(); }
 
+
 int ODHttp::get( const char* path, const char* dest )
 {
-    int res = qhttp_->_get( path, dest, message_ );
-    if ( res==-1 )
+    const int reqid = qhttp_->_get( path, dest, message_ );
+    if ( reqid==-1 )
 	error_ = true;
-    
-    return res;
-}
 
-
-int ODHttp::post( const char* path, const IOPar&postvars )
-{
-    int res = qhttp_->_post( path, postvars, message_ );
-    if ( res==-1 )
-	error_ = true;
-    
-    return res;
+    return reqid;
 }
 
 

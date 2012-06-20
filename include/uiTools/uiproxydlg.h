@@ -7,15 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2012
- RCS:		$Id: uiproxydlg.h,v 1.1 2012-05-25 19:13:10 cvsnanne Exp $
+ RCS:		$Id: uiproxydlg.h,v 1.2 2012-06-20 11:19:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class uiCheckBox;
 class uiGenInput;
+class uiLabel;
 class uiLabeledSpinBox;
+class uiLineEdit;
 
 mClass uiProxyDlg : public uiDialog
 {
@@ -35,6 +38,10 @@ protected:
     void		useProxyCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    uiCheckBox*		authenticationfld_;
+    uiGenInput*		usernamefld_;
+    uiLineEdit*		pwdfld_;
+    uiLabel*		pwdlabel_;
     uiGenInput*		useproxyfld_;
     uiGenInput*		hostfld_;
     uiLabeledSpinBox*	portfld_;

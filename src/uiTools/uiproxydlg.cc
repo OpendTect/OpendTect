@@ -8,20 +8,23 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiproxydlg.cc,v 1.2 2012-05-29 16:57:16 cvshelene Exp $";
+static const char* rcsID = "$Id: uiproxydlg.cc,v 1.3 2012-06-20 11:19:59 cvsranojay Exp $";
 
 
 #include "uiproxydlg.h"
 
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uilabel.h"
+#include "uilineedit.h"
 #include "uispinbox.h"
 #include "odhttp.h"
 #include "settings.h"
 
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,"0.4.7"))
+    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,mNoHelpID))
 {
     useproxyfld_ = new uiGenInput( this, "Use proxy", BoolInpSpec(true) );
     useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
@@ -32,6 +35,22 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     portfld_ = new uiLabeledSpinBox( this, "Port" );
     portfld_->attach( rightTo, hostfld_ );
     portfld_->box()->setInterval( 1, 65535 );
+
+    authenticationfld_ =
+	new uiCheckBox( this, "Use uthentication" );
+    authenticationfld_->activated.notify( 
+				    mCB(this,uiProxyDlg,useProxyCB) );
+    authenticationfld_->attach( alignedBelow, hostfld_ );
+
+    usernamefld_ = new uiGenInput( this, "User name", StringInpSpec() );
+    usernamefld_->attach( alignedBelow, authenticationfld_ );
+    pwdfld_ = new uiLineEdit( this, "Password" );
+    pwdfld_->setToolTip( "Password is case sensitive" );
+    pwdfld_->attach( alignedBelow, usernamefld_ );
+    pwdfld_->setPrefWidthInChar( 23.0 );
+    pwdfld_->setPasswordMode();
+    pwdlabel_ = new uiLabel( this, "Password" );
+    pwdlabel_->attach( leftOf, pwdfld_ );
 
     initFromSettings();
     useProxyCB(0);
@@ -56,6 +75,14 @@ void uiProxyDlg::initFromSettings()
     int port = 1;
     setts.get( ODHttp::sKeyProxyPort(), port );
     portfld_->box()->setValue( port );
+
+    BufferString username;
+    setts.get( ODHttp::sKeyProxyUserName(), username );
+    usernamefld_->setText( username );
+
+    BufferString password;
+    setts.get( ODHttp::sKeyProxyPassword(), password );
+    pwdfld_->setText( password );
 }
 
 
@@ -71,14 +98,30 @@ bool uiProxyDlg::saveInSettings()
     const int port = useproxy ? portfld_->box()->getValue() : 1;
     setts.set( ODHttp::sKeyProxyPort(), port );
 
+    const bool needauth = useproxy ? authenticationfld_->isChecked() : false;
+    setts.setYN( ODHttp::sKeyUseAuthentication(), needauth );
+    if ( needauth )
+    {
+	BufferString username = useproxy ? usernamefld_->text() : "";
+	setts.set( ODHttp::sKeyProxyUserName(), username );
+	BufferString password = useproxy ? pwdfld_->text() : "";
+	setts.set( ODHttp::sKeyProxyPassword(), password );
+    }
+
     return setts.write();
 }
 
 
 void uiProxyDlg::useProxyCB( CallBacker* )
 {
-    hostfld_->setSensitive( useproxyfld_->getBoolValue() );
-    portfld_->setSensitive( useproxyfld_->getBoolValue() );
+    const bool ison = useproxyfld_->getBoolValue();
+    hostfld_->setSensitive( ison );
+    portfld_->setSensitive( ison );
+    authenticationfld_->setSensitive( ison );
+    const bool needauth = authenticationfld_->isChecked();
+    usernamefld_->setSensitive( ison && needauth );
+    pwdfld_->setSensitive( ison && needauth );
+    pwdlabel_->setSensitive( ison && needauth );
 }
 
 
