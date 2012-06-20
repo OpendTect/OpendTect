@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.24 2012-06-20 11:19:59 cvsranojay Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.25 2012-06-20 11:43:18 cvsranojay Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -243,6 +243,16 @@ int ODHttp::get( const char* path, const char* dest )
 	error_ = true;
 
     return reqid;
+}
+
+
+int ODHttp::post( const char* path, const IOPar&postvars )
+{
+    int res = qhttp_->_post( path, postvars, message_ );
+    if ( res==-1 )
+	error_ = true;
+    
+    return res;
 }
 
 
