@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.44 2012-05-22 11:56:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.45 2012-06-20 15:17:08 cvsbert Exp $";
 
 #include "uisettings.h"
 
@@ -19,12 +19,10 @@ static const char* rcsID mUnusedVar = "$Id: uisettings.cc,v 1.44 2012-05-22 11:5
 #include "oddirs.h"
 #include "dirlist.h"
 
-#include "uibutton.h"
 #include "uigeninput.h"
-#include "uilistbox.h"
+#include "uitable.h"
 #include "uicombobox.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
 
 static const char* sKeyCommon = "<general>";
 
@@ -61,9 +59,9 @@ static void getGrps( BufferStringSet& grps )
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value","0.2.1"))
         , issurvdefs_(settskey && !strcmp(settskey,sKeySurveyDefs()))
-	, setts_(&SI().getPars())
     	, grpfld_(0)
 {
+    setCurSetts();
     if ( issurvdefs_ )
     {
 	setTitleText( "Set Survey default value" );
@@ -71,88 +69,176 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     }
     else
     {
-	grpChg( 0 );
 	BufferStringSet grps; getGrps( grps );
 	grpfld_ = new uiGenInput( this, "Settings group",
 				  StringListInpSpec(grps) );
 	grpfld_->valuechanged.notify( mCB(this,uiSettings,grpChg) );
     }
-    keyfld_ = new uiGenInput( this, "Settings keyword", StringInpSpec() );
-    if ( grpfld_ )
-	keyfld_->attach( alignedBelow, grpfld_ );
-    uiButton* pb = new uiPushButton( this, "&Select existing",
-	    			     mCB(this,uiSettings,selPush), false );
-    pb->setName( "Select Keyword" );
-    pb->attach( rightOf, keyfld_ );
 
-    valfld_ = new uiGenInput( this, "Value", StringInpSpec() );
-    valfld_->attach( alignedBelow, keyfld_ );
+    tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
+	    			"Settings editor" );
+    tbl_->setColumnLabel( 0, "Keyword" );
+    tbl_->setColumnLabel( 1, "Value" );
+    // tbl_->setColumnResizeMode( uiTable::Interactive );
+    tbl_->setStretch( 2, 2 );
+    tbl_->setPrefWidth( 400 );
+    tbl_->setPrefHeight( 300 );
+    if ( grpfld_ )
+	tbl_->attach( ensureBelow, grpfld_ );
+
+    postFinalise().notify( mCB(this,uiSettings,dispNewGrp) );
 }
 
 
 uiSettings::~uiSettings()
 {
+    deepErase( chgdsetts_ );
+}
+
+
+int uiSettings::getChgdSettIdx( const char* nm ) const
+{
+    for ( int idx=0; idx<chgdsetts_.size(); idx++ )
+    {
+	if ( chgdsetts_[idx]->name() == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+const IOPar& uiSettings::orgPar() const
+{
+    const IOPar* iop = &SI().getPars();
+    if ( !issurvdefs_ )
+    {
+	const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
+	iop = grp == sKeyCommon ? &Settings::common() : &Settings::fetch(grp);
+    }
+    return *iop;
+}
+
+
+void uiSettings::setCurSetts()
+{
+    const IOPar* iop = &orgPar();
+    if ( !issurvdefs_ )
+    {
+	const int chgdidx = getChgdSettIdx( iop->name() );
+	if ( chgdidx >= 0 )
+	    iop = chgdsetts_[chgdidx];
+    }
+    cursetts_ = iop;
+}
+
+
+void uiSettings::getChanges()
+{
+    IOPar* workpar = 0;
+    const int chgdidx = getChgdSettIdx( cursetts_->name() );
+    if ( chgdidx >= 0 )
+	workpar = chgdsetts_[chgdidx];
+    const bool alreadyinset = workpar;
+    if ( alreadyinset )
+	workpar->setEmpty();
+    else
+	workpar = new IOPar( cursetts_->name() );
+
+    const int sz = tbl_->nrRows();
+    for ( int irow=0; irow<sz; irow++ )
+    {
+	BufferString kybuf = tbl_->text( RowCol(irow,0) );
+	char* ky = kybuf.buf();
+	mTrimBlanks(ky); if ( !*ky ) continue;
+	BufferString valbuf = tbl_->text( RowCol(irow,1) );
+	char* val = valbuf.buf();
+	mTrimBlanks(val); if ( !*val ) continue;
+	workpar->set( ky, val );
+    }
+
+    if ( !orgPar().isEqual(*workpar,true) )
+    {
+	if ( !alreadyinset )
+	    chgdsetts_ += workpar;
+    }
+    else
+    {
+	if ( alreadyinset )
+	    chgdsetts_ -= workpar;
+	delete workpar;
+    }
+}
+
+
+bool uiSettings::commitSetts( const IOPar& iop )
+{
+    Settings& setts = Settings::fetch( iop.name() );
+    setts.IOPar::operator =( iop );
+    if ( !setts.write(false) )
+    {
+	uiMSG().error( "Cannot write ", setts.name() );
+	return false;
+    }
+    return true;
 }
 
 
 void uiSettings::grpChg( CallBacker* )
 {
-    const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
-    if ( grp == sKeyCommon )
-	setts_ = &Settings::common();
-    else
-	setts_ = &Settings::fetch( grp );
+    getChanges();
+    setCurSetts();
+    dispNewGrp( 0 );
 }
 
 
-void uiSettings::selPush( CallBacker* )
+void uiSettings::dispNewGrp( CallBacker* )
 {
-    BufferStringSet keys;
-    for ( int idx=0; idx<setts_->size(); idx++ )
-	keys.add( setts_->getKey(idx) );
-    keys.sort();
-    uiSelectFromList::Setup listsetup( "Setting selection", keys );
-    listsetup.dlgtitle( keyfld_->text() );
-    uiSelectFromList dlg( this, listsetup );
-    dlg.selFld()->setHSzPol( uiObject::Wide );
-    if ( !dlg.go() ) return;
-    const int selidx = dlg.selection();
-    if ( selidx < 0 ) return;
+    BufferStringSet keys, vals;
+    for ( int idx=0; idx<cursetts_->size(); idx++ )
+    {
+	keys.add( cursetts_->getKey(idx) );
+	vals.add( cursetts_->getValue(idx) );
+    }
+    int* idxs = keys.getSortIndexes();
+    keys.useIndexes(idxs); vals.useIndexes(idxs);
+    delete [] idxs;
 
-    const char* key = keys.get( selidx ).buf();
-    keyfld_->setText( key );
-    valfld_->setText( setts_->find(key) );
+    const int sz = keys.size();
+    tbl_->clearTable();
+    tbl_->setNrRows( sz + 5 );
+    for ( int irow=0; irow<sz; irow++ )
+    {
+	tbl_->setText( RowCol(irow,0), keys.get(irow) );
+	tbl_->setText( RowCol(irow,1), vals.get(irow) );
+    }
+
+    tbl_->resizeColumnToContents( 1 );
+    tbl_->resizeColumnToContents( 2 );
 }
 
 
 bool uiSettings::acceptOK( CallBacker* )
 {
-    const BufferString ky = keyfld_->text();
-    if ( ky.isEmpty() )
-    {
-	uiMSG().error( "Please enter a keyword to set" );
-	return false;
-    }
-
-    const BufferString val( valfld_->text() );
-    if ( val.isEmpty() )
-	setts_->removeWithKey( ky );
-    else
-	setts_->set( ky, valfld_->text() );
+    getChanges();
+    if ( chgdsetts_.isEmpty() )
+	return true;
 
     if ( issurvdefs_ )
     {
+	SI().getPars() = *chgdsetts_[0];
 	SI().savePars();
 	PosImpExpPars::refresh();
     }
     else
     {
-	mDynamicCastGet(Settings*,setts,setts_)
-	if ( !setts->write() )
+	for ( int idx=0; idx<chgdsetts_.size(); idx++ )
 	{
-	    uiMSG().error( "Cannot write user settings" );
-	    return false;
+	    IOPar* iop = chgdsetts_[idx];
+	    if ( commitSetts(*iop) )
+		{ chgdsetts_.remove( idx ); delete iop; idx--; }
 	}
+	if ( !chgdsetts_.isEmpty() )
+	    return false;
     }
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.19 2012-05-22 11:56:28 cvsbert Exp $
+ RCS:		$Id: uisettings.h,v 1.20 2012-06-20 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class IOPar;
 class Settings;
+class uiTable;
 class uiGenInput;
 class uiLabeledComboBox;
 struct LooknFeelSettings;
@@ -34,15 +35,21 @@ public:
 
 protected:
 
-    bool		issurvdefs_; // must be before decl of setts_
-    IOPar*		setts_;
+    bool		issurvdefs_;
+    const IOPar*	cursetts_;
+    ObjectSet<IOPar>	chgdsetts_;
 
-    uiGenInput*		keyfld_;
-    uiGenInput*		valfld_;
     uiGenInput*		grpfld_;
+    uiTable*		tbl_;
 
-    void		selPush(CallBacker*);
+    void		setCurSetts();
+    void		getChanges();
+    bool		commitSetts(const IOPar&);
+
+    const IOPar&	orgPar() const;
+    int			getChgdSettIdx(const char*) const;
     void		grpChg(CallBacker*);
+    void		dispNewGrp(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
