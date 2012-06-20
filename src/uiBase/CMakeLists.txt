@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic UI-classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-29 11:26:26 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-06-20 11:15:51 cvsranojay Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS General)
@@ -81,5 +81,5 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitextedit.cc
 		uitoolbar.cc
 		uivirtualkeyboard.cc)
-SET(OD_MODULE_PROGS od_DispMsg )
+SET(OD_MODULE_GUI_PROGS od_DispMsg )
 OD_INIT_MODULE()
