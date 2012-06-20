@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.29 2012-05-29 03:41:56 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.30 2012-06-20 17:34:55 cvsnanne Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -91,16 +91,53 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     ps.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
 
     Pick::Location loc;
-    IOPar iopar; iopar.getFrom( astrm );
-    ps.usePar( iopar );
 
-    astrm.next();
-    while ( !atEndOfSection(astrm) )
+    if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
-	if ( loc.fromString( astrm.keyWord(), true, checkdir ) )
-	    ps += loc;
+	// In old format we can find mulitple pick sets. Just gather them all
+	// in the pick set
+	for ( int ips=0; !atEndOfSection(astrm); ips++ )
+	{
+	    astrm.next();
+	    if ( astrm.hasKeyword(sKey::Color()) )
+	    {
+		ps.disp_.color_.use( astrm.value() );
+		astrm.next();
+	    }
+	    if ( astrm.hasKeyword(sKey::Size()) )
+	    {
+		ps.disp_.pixsize_ = astrm.getIValue();
+		astrm.next();
+	    }
+	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
+	    {
+		ps.disp_.markertype_ = astrm.getIValue();
+		astrm.next();
+	    }
+	    while ( !atEndOfSection(astrm) )
+	    {
+		if ( !loc.fromString( astrm.keyWord() ) )
+		    break;
+		ps += loc;
+		astrm.next();
+	    }
+	    while ( !atEndOfSection(astrm) ) astrm.next();
+	    astrm.next();
+	}
+    }
+    else // New format
+    {
+	IOPar iopar; iopar.getFrom( astrm );
+	ps.usePar( iopar );
 
 	astrm.next();
+	while ( !atEndOfSection(astrm) )
+	{
+	    if ( loc.fromString( astrm.keyWord(), true, checkdir ) )
+		ps += loc;
+
+	    astrm.next();
+	}
     }
 
     return ps.size() ? 0 : "No valid picks found";
