@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.15 2012-05-30 15:22:42 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.16 2012-06-20 13:10:56 cvsjaap Exp $";
 
 #include "ui3dviewer.h"
 
@@ -226,7 +226,7 @@ void uiDirectViewBody::updateActModeCursor()
 
 bool ui3DViewerBody::isViewing() const
 {
-    return false;
+    return scene_ && !scene_->isTraversalEnabled( visBase::EventTraversal );
 }
 
 
@@ -242,6 +242,8 @@ void ui3DViewerBody::setViewing( bool yn )
 
 void ui3DViewerBody::uisetViewing( bool yn )
 {
+    if ( scene_ )
+	scene_->enableTraversal( visBase::EventTraversal, !yn );
 //    SoQtExaminerViewer::setViewing( yn );
 }
 

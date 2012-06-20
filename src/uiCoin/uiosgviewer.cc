@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiosgviewer.cc,v 1.7 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiosgviewer.cc,v 1.8 2012-06-20 13:10:56 cvsjaap Exp $";
 
 #include "uiosgviewer.h"
 
@@ -82,6 +82,7 @@ uiOsgViewer::uiOsgViewer()
 {
     osgviewer_->ref();
     osgviewer_->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
+    osgviewer_->getEventVisitor()->setTraversalMask( visBase::EventTraversal );
     osgQt::setViewer( osgviewer_.get() );
 }
 
