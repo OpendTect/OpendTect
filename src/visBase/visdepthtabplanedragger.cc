@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.30 2012-05-25 13:39:53 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.31 2012-06-20 13:10:15 cvsjaap Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -246,6 +246,10 @@ void DepthTabPlaneDragger::initOsgDragger()
 
 #if OSG_MIN_VERSION_REQUIRED(3,1,3)
     osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
+    osgdragger_->setIntersectionMask( IntersectionTraversal );
+    osgdragger_->setActivationMouseButtonMask(
+	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
+
 #else
     osgdragger_ = new osgManipulator::TabPlaneDragger();
 #endif
@@ -647,9 +651,15 @@ void DepthTabPlaneDragger::setTransDragKeys( bool depth, int ns )
 			     osgdragger_->getDragger(idx) );
 
 	    if ( tpd && depth )
+	    {
+		//tpd->getTranslate1DDragger()->setActivationMouseButtonMask( osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
 		tpd->getTranslate1DDragger()->setActivationModKeyMask( mask );
+	    }
 	    if ( tpd && !depth )
+	    {
+		//tpd->getTranslate1DDragger()->setActivationMouseButtonMask( osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
 		tpd->getTranslate2DDragger()->setActivationModKeyMask( mask );
+	    }
 	}
     }
 }
