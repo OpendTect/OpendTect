@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.37 2012-06-11 13:49:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.38 2012-06-20 13:15:14 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -75,7 +75,9 @@ void StratSynth::clearSynthetics()
 
 void StratSynth::addSynthetics()
 {
-    synthetics_ += synthetics_.replace( 0, generateSD( lm_, &raypars_, tr_ ) );
+    SyntheticData* sd = generateSD( lm_, &raypars_, tr_ );
+    if ( sd )
+	synthetics_ += synthetics_.replace( 0, sd );
 }
 
 
@@ -86,7 +88,9 @@ SyntheticData* StratSynth::getSynthetic( int selid )
 	if ( !synthetics_.isEmpty() )
 	    delete synthetics_.remove(0);
 
-	synthetics_.insertAt( generateSD( lm_, &raypars_, tr_ ), 0 );
+	SyntheticData* sd = generateSD( lm_, &raypars_, tr_ );
+	if ( sd ) 
+	    synthetics_.insertAt( sd, 0 );
     }
     if ( synthetics_.validIdx( selid ) )
 	return synthetics_[selid];
