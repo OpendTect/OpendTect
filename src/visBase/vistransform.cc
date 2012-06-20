@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.31 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.32 2012-06-20 13:09:53 cvsjaap Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -261,7 +261,7 @@ Coord3 Transformation::transformBack( const Coord3& pos ) const
     if ( node_ )
     {
 	osg::Vec3d res( pos.x, pos.y, pos.z );
-	transform( res );
+	transformBack( res );
 	return Coord3( res[0], res[1], res[2] );
     }
     SbVec3f res( pos.x, pos.y, pos.z );
