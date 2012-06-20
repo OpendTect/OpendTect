@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.243 2012-06-14 08:32:13 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.244 2012-06-20 11:21:21 cvsraman Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1594,13 +1594,7 @@ uiObject* uiDialogBody::createChildren()
 
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
-	BufferString titl;
-	if ( uiDialog::titlePos() >= 0 )
-	    titl = setup.dlgtitle_;
-	else
-	    titl.add( "- " ).add( setup.dlgtitle_ );
-	title = new uiLabel( centralWidget_, titl );
-
+	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
 	uiObject* obj = setup.separator_ 
 			    ? (uiObject*) new uiSeparator(centralWidget_)
 			    : (uiObject*) title;
