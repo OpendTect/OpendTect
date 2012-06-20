@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.78 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.79 2012-06-20 18:14:17 cvsnanne Exp $";
 
 -*/
 
@@ -575,6 +575,13 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	BufferStringSet ioobjids;
 	ioobjids.add( ioobj->key() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
+	if ( values.isEmpty() )
+	{
+	    errmsg = "Cannot extract values at PickSet locations."
+		     " PickSet might be empty.";
+	    return 0;
+	}
+
 	BinIDValueSet* pickvals = new BinIDValueSet( *(values[0]) );
 	deepErase( values );
 	return pickvals;
