@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.86 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.87 2012-06-21 13:59:51 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 
@@ -25,7 +25,9 @@ static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.86 2012-05-22 14
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attriboutput.h"
+#include "attribparam.h"
 #include "attribsel.h"
+#include "attribstorprovider.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "errh.h"
@@ -127,7 +129,23 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	transffld->selfld->setInput( cs );
 
     const Attrib::Desc* desc = ads.getDesc( todofld->attribID() );
-    if ( !desc ) mSetObjFld("")
+    if ( !desc )
+    {
+	mSetObjFld("")
+	if ( is2d )	//it could be 2D neural network
+	{
+	    Desc* firststoreddsc = ads.getFirstStored();
+	    if ( firststoreddsc )
+	    {
+		const LineKey lk( firststoreddsc->getValParam(
+			Attrib::StorageProvider::keyStr())->getStringValue(0) );
+		BufferString linenm = lk.lineName();
+		if ( !linenm.isEmpty() && *linenm.buf() != '#' )
+		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
+				todofld->getInput()) )
+	    }
+	}
+    }
     else if ( !is2d )
 	mSetObjFld( desc->isStored() ? "" : todofld->getInput() )
     else
