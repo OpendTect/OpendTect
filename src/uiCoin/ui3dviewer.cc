@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.16 2012-06-20 13:10:56 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.17 2012-06-21 14:58:35 cvsjaap Exp $";
 
 #include "ui3dviewer.h"
 
@@ -1037,6 +1037,7 @@ void uiSoViewerBody::uiZoom( float rel, const SbVec3f* extdir )
     {
 	const float oldfocaldist = cam->focalDistance.getValue();
 	const float newfocaldist = oldfocaldist * multiplicator;
+
 	float movement = newfocaldist - oldfocaldist;
 	const float minmovement = cam->getViewVolume().getDepth()*0.01;
 
@@ -1047,15 +1048,12 @@ void uiSoViewerBody::uiZoom( float rel, const SbVec3f* extdir )
 	    movement = minmovement;
 	}
 
-	cam->focalDistance = oldfocaldist+movement;
+	SbVec3f olddir;
+	cam->orientation.getValue().multVec(SbVec3f(0, 0, -1), olddir);
+	const SbVec3f& newdir = extdir ? *extdir : olddir;
 
-	SbVec3f direction;
-	if ( extdir )
-	    direction = *extdir;
-	else
-	    cam->orientation.getValue().multVec(SbVec3f(0, 0, -1), direction);
-
-	cam->position = cam->position.getValue() + movement * -direction;
+	cam->position = cam->position.getValue() - movement * newdir;
+	cam->focalDistance = oldfocaldist + movement * olddir.dot( newdir );
     } 
     else 
     {
