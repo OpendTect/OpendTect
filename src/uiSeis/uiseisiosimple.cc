@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.39 2012-05-22 10:17:51 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.40 2012-06-21 14:04:53 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -437,13 +437,13 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( is2D() )
     {
 	BufferString linenm;
-	if ( lnmfld_ )
-	{
+	if ( !lnmfld_ )
+	    linenm = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedLine();
+	else
 	    linenm = lnmfld_->getInput();
-	    if ( linenm.isEmpty() )
-		mErrRet( "Please enter a line name" )
-	    data().linekey_.setLineName( linenm );
-	}
+	if ( linenm.isEmpty() )
+	    mErrRet( "Please enter a line name" )
+	data().linekey_.setLineName( linenm );
 	data().linekey_.setAttrName( seisfld_->attrNm() );
     }
 
