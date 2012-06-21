@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimphorizon2d.cc,v 1.35 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimphorizon2d.cc,v 1.36 2012-06-21 17:07:36 cvsnanne Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -296,7 +296,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     if ( IOM().getLocal(hornm) )
     {
-	uiMSG().error( "Failed to add: a surface already exists with name ",
+	uiMSG().error( "Failed to add: a Horizon already exists with name ",
 			hornm );
 	return;
     }

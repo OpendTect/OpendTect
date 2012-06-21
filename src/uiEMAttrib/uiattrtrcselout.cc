@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.65 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.66 2012-06-21 17:07:36 cvsnanne Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -80,7 +80,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 void uiAttrTrcSelOut::createSingleHorUI()
 {
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along surface" );
+    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along Horizon" );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -107,11 +107,11 @@ void uiAttrTrcSelOut::createTwoHorUI()
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
     
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top surface:");
+    objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top Horizon:");
     objfld_->attach( alignedBelow, attrfld_ );
     
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom surface:" );
+    obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom Horizon:" );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -163,7 +163,7 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 
 void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
-    const char* gatelabel = "Z Interval required around surfaces";
+    const char* gatelabel = "Z Interval required around Horizons";
     gatefld_ = new uiGenInput( prnt, gatelabel,
 	    		FloatInpIntervalSpec().setName("Z Interval Start",0)
 	   				      .setName("Z Interval Stop",1) );
@@ -219,7 +219,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 {
-    const char* interplbl = "Interpolate surfaces";
+    const char* interplbl = "Interpolate Horizons";
     const char* flbl = "Full interpolation";
     const char* plbl = "Partial interpolation";
     interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
@@ -264,7 +264,7 @@ void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
-    const char* mainhorlabel = "Main surface";
+    const char* mainhorlabel = "Main Horizon";
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel, 
 	    			 BoolInpSpec(true,"Top","Bottom") );
     mainhorfld_->attach( alignedBelow, widthfld_ );
@@ -308,13 +308,13 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
     if ( !objfld_->commitInput() )
     {
-	uiMSG().error( "Please select first surface" );
+	uiMSG().error( "Please select first Horizon" );
 	return false;
     }
 
     if ( !usesinglehor_ && !obj2fld_->commitInput() )
     {
-	uiMSG().error( "Please select second surface" );
+	uiMSG().error( "Please select second Horizon" );
 	return false;
     }
 
@@ -508,9 +508,9 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 
 BufferString uiAttrTrcSelOut::createAddWidthLabel()
 {
-    BufferString zlabel = "Add fixed interval length to main surface \n";
+    BufferString zlabel = "Add fixed interval length to main Horizon \n";
     BufferString ifinterp = "in case of interpolation conflict";
-    BufferString ifnointerp = "in case of holes in second surface";
+    BufferString ifnointerp = "in case of holes in second Horizon";
     BufferString text = zlabel;
     text += interpfld_->isChecked()? ifinterp : ifnointerp;
     return text;

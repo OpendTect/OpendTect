@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihor2dfrom3ddlg.cc,v 1.20 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihor2dfrom3ddlg.cc,v 1.21 2012-06-21 17:07:36 cvsnanne Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -124,7 +124,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
     if ( linesetinpsel_->getSummary().isEmpty() )
 	mErrRet( "Pease select a valid Lineset. " )
     if ( !out2dfld_->getObjSel()->commitInput() )
-	mErrRet( "Enter the output surface where you want to write. " )
+	mErrRet( "Enter the output Horizon where you want to write. " )
     return true;
 }
 
