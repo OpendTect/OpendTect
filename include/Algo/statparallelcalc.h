@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.5 2011-11-11 10:13:32 cvsbruno Exp $
+RCS:           $Id: statparallelcalc.h,v 1.6 2012-06-21 19:51:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ template <class T>
 inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
-	{ errmsg_ = "No data given to compute statitistics"; return false; }
+	{ errmsg_ = "No data given to compute statistics"; return false; }
     if ( nradded_ < 1 )
 	{ errmsg_ = "Data array is empty"; return false; }
 
