@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo2d.cc,v 1.7 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfo2d.cc,v 1.8 2012-06-21 19:17:14 cvsnanne Exp $";
 
 #include "posinfo2d.h"
 #include "math2.h"
@@ -156,6 +156,7 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 	strm << zrg_.start << '\t' << zrg_.stop << '\t' << zrg_.step << '\n';
     else
     {
+	strm << lnm_ << '\n';
 	const float fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
