@@ -7,26 +7,24 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dgeom.cc,v 1.26 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dgeom.cc,v 1.27 2012-06-21 19:17:37 cvsnanne Exp $";
 
 #include "uiseis2dgeom.h"
+
 #include "bufstringset.h"
-#include "seistrctr.h"
-#include "seisselection.h"
-#include "seis2dline.h"
-#include "uiseissel.h"
-#include "uigeninput.h"
-#include "uifileinput.h"
-#include "uiseisioobjinfo.h"
-#include "uitaskrunner.h"
-#include "uimsg.h"
 #include "ctxtioobj.h"
-#include "executor.h"
+#include "ioobj.h"
+#include "seisselection.h"
+#include "seistrctr.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
-#include "strmprov.h"
-#include "oddirs.h"
-#include "ioobj.h"
+
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uiseisioobjinfo.h"
+#include "uiseissel.h"
 
 static const BufferStringSet emptylnms;
 
@@ -43,7 +41,9 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	ctio.setObj( ioobj->clone() );
 	preFinalise().notify( cb );
     }
-    seisfld = new uiSeisSel( this, ctio, uiSeisSel::Setup(Seis::Line) );
+
+    uiSeisSel::Setup ss( Seis::Line ); ss.selattr( false );
+    seisfld = new uiSeisSel( this, ctio, ss );
     seisfld->selectionDone.notify( cb );
 
     lnmsfld = new uiGenInput( this, "One line only",
@@ -51,19 +51,9 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     lnmsfld->setWithCheck( true );
     lnmsfld->attach( alignedBelow, seisfld );
 
-    incnrfld = new uiGenInput( this, "Start with trace number",
-	    		       BoolInpSpec(true) );
-    incnrfld->attach( alignedBelow, lnmsfld );
-
-    BufferString txt( "Add Z value" ); txt += SI().getZUnitString(true);
-    const float zval = SI().zRange(true).start * SI().zDomain().userFactor();
-    zfld = new uiGenInput( this, txt, FloatInpSpec(zval) );
-    zfld->setWithCheck( true );
-    zfld->attach( alignedBelow, incnrfld );
-
     outfld = new uiFileInput( this, "Output file",
 	    			uiFileInput::Setup().forread(false) );
-    outfld->attach( alignedBelow, zfld );
+    outfld->attach( alignedBelow, lnmsfld );
 }
 
 
@@ -73,15 +63,19 @@ uiSeisDump2DGeom::~uiSeisDump2DGeom()
 }
 
 
+static void getLineNames( const IOObj& ioobj, BufferStringSet& lnms )
+{
+    uiSeisIOObjInfo oinf( ioobj );
+    oinf.ioObjInfo().getLineNames( lnms );
+}
+
+
 void uiSeisDump2DGeom::seisSel( CallBacker* )
 {
     seisfld->commitInput();
     BufferStringSet lnms;
     if ( ctio.ioobj )
-    {
-	uiSeisIOObjInfo oinf( *ctio.ioobj );
-	oinf.ioObjInfo().getLineNames( lnms );
-    }
+	getLineNames( *ctio.ioobj, lnms );
 
     lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
 }
@@ -94,12 +88,14 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         uiMSG().error( "Please enter the input line set" );
         return false;
     }
+
     BufferString fnm( outfld->fileName() );
     if ( fnm.isEmpty() )
     {
         uiMSG().error( "Please enter the output file name" );
         return false;
     }
+
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )
     {
@@ -107,19 +103,22 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    float zval = zfld->isChecked() ? zfld->getfValue() : mUdf(float);
-    if ( !mIsUdf(zval) ) zval /= SI().zDomain().userFactor();
-    const bool incnr = incnrfld->getBoolValue();
-    LineKey lk;
-    if ( lnmsfld->isChecked() )
-	lk.setLineName( lnmsfld->text() );
-    lk.setAttrName( seisfld->attrNm() );
-    Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
+    BufferString lsnm( ctio.ioobj->name() );
+    S2DPOS().setCurLineSet( lsnm );
 
-    S2DPOS().setCurLineSet( ls.name() );
-    PosInfo::Line2DData l2dd( lk.lineName() );
-    S2DPOS().getGeometry( l2dd );
-    l2dd.write( *sd.ostrm, true );
+    BufferStringSet lnms;
+    if ( lnmsfld->isChecked() )
+	lnms.add( lnmsfld->text() );
+    else
+	getLineNames( *ctio.ioobj, lnms );
+
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	PosInfo::Line2DData l2dd( lnms.get(idx) );
+	S2DPOS().getGeometry( l2dd );
+	l2dd.dump( *sd.ostrm, true );
+	*sd.ostrm << "\n\n";
+    }
 
     sd.close();
     return true;
