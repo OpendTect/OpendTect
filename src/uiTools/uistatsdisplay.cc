@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.34 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.35 2012-06-21 20:00:23 cvsnanne Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -140,7 +140,26 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !array ) 
 		return false;
 
-	    rc.setValues( array->getData(), array->info().getTotalSz() );
+	    if ( array->getData() )
+		rc.setValues( array->getData(), array->info().getTotalSz() );
+	    else
+	    {
+		const int sz2d0 = array->info().getSize( 0 );
+		const int sz2d1 = array->info().getSize( 1 );
+		TypeSet<float> valarr;
+		for ( int idx0=0; idx0<sz2d0; idx0++ )
+		{
+		    for ( int idx1=0; idx1<sz2d1; idx1++ )
+		    {
+			const float val = array->get( idx0, idx1 );
+			if ( mIsUdf(val) ) continue;
+
+			valarr += val;
+		    }
+		}
+
+		rc.setValues( valarr.arr(), valarr.size() );
+	    }
 	}
 	else if ( dmid == DataPackMgr::SurfID() )
 	{
