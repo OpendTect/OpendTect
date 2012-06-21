@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.21 2012-06-21 15:30:29 cvsnanne Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -90,8 +90,8 @@ uiSetSizeDlg( uiParent * p, int sz )
 void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( !menu )
-	return;
+    if ( !menu ) return;
+
     const int displayid = menu->menuID();
     visBase::DataObject* dataobj = visserv_.getObject( displayid );
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
@@ -111,10 +111,10 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 
     if ( !dispcorrect ) return;
 
-     mAddMenuItem( menu, &createbodymnuitem_, true, false );
-     mAddMenuItem( menu, &storepsmnuitem_, true, false );
-     mAddMenuItem( menu, &removemnuitem_, true, false );
-     mAddMenuItem( menu, &sizemnuitem_, true, false );
+    mAddMenuItem( menu, &createbodymnuitem_, true, false );
+    mAddMenuItem( menu, &storepsmnuitem_, true, false );
+    mAddMenuItem( menu, &removemnuitem_, true, false );
+    mAddMenuItem( menu, &sizemnuitem_, true, false );
 }
 
 
@@ -150,10 +150,13 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 }
 
 int selGrpIdx() const
-{ return selfld_->currentItem(); }
+{ return selfld_ ? selfld_->currentItem() : -1; }
 
-Interval<float> geValRange() const
-{ return rgfld_->getFInterval(); }
+Interval<float> getValRange() const
+{
+    return rgfld_ ? rgfld_->getFInterval()
+		  : Interval<float>(mUdf(float),mUdf(float));
+}
 
     uiComboBox*		selfld_;
     uiGenInput*		rgfld_;
@@ -196,10 +199,13 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 }
 
 int selGrpIdx() const
-{ return selfld_->currentItem(); }
+{ return selfld_ ? selfld_->currentItem() : -1; }
 
-Interval<float> geValRange() const
-{ return rgfld_->getFInterval(); }
+Interval<float> getValRange() const
+{
+    return rgfld_ ? rgfld_->getFInterval()
+		  : Interval<float>(mUdf(float),mUdf(float));
+}
 
     uiComboBox*		selfld_;
     uiGenInput*		rgfld_;
@@ -249,7 +255,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 		emps->copyFrom( *data, dlg.selGrpIdx() );
 	    else
 		emps->copyFrom( *data, dispprop_->dpsColID(),
-				dlg.geValRange() );
+				dlg.getValRange() );
 	    treeToBeAdded.trigger( emps->id() );
 	}
     }
@@ -264,12 +270,16 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	const DataPointSet* data = display->getDataPack();
 	for ( int rid=0; rid<data->size(); rid++ )
 	{
-	    if ( ((dispprop_->showSelected()) &&
-		  (data->selGroup(rid) == dlg.selGrpIdx())) ||
-		 (dlg.geValRange().includes(
-		      data->value(dispprop_->dpsColID(),rid),true)) )
-		pickset += Pick::Location(
-				Coord3(data->coord(rid),data->z(rid)));
+	    bool useloc = false;
+	    if ( dispprop_->showSelected() )
+		useloc = data->selGroup(rid) == dlg.selGrpIdx();
+	    else
+		useloc = dlg.getValRange().includes(
+		      data->value(dispprop_->dpsColID(),rid),true);
+
+	    if ( useloc )
+		pickset +=
+		    Pick::Location( Coord3(data->coord(rid),data->z(rid)) );
 	}
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
