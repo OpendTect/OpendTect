@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.38 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.39 2012-06-21 13:47:00 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -19,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.38 2012-05
 
 #include <QApplication>
 #include <QGraphicsView>
+#include <QScrollBar>
 #include <QWheelEvent>
 
 static const int cDefaultWidth  = 1;
@@ -497,4 +498,14 @@ void uiGraphicsViewBase::setSceneBorder( int border )
 int uiGraphicsViewBase::getSceneBorder() const
 {
     return sceneborder_;
+}
+
+
+uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
+{
+    const QScrollBar* sb = hor ? body_->horizontalScrollBar() 
+			       : body_->verticalScrollBar();
+    return sb ? uiSize( (int)sb->sizeHint().width(), 
+	    		(int)sb->sizeHint().height()) 
+	      : uiSize(0,0);
 }

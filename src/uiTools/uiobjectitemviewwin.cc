@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.24 2012-05-31 13:17:55 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.25 2012-06-21 13:47:00 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.24 2012-0
 
 #define mSldUnits 250
 #define mMaxObjectSize 10 //6 x object size
-#define mScrollBarSize 15
+#define mScrollBarSize mainviewer_->scrollBarSize(false).width()
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)

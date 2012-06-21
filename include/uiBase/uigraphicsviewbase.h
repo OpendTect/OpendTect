@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.19 2012-05-01 12:34:54 cvskris Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.20 2012-06-21 13:46:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ public:
     void			disableScrollZoom() { enabscrollzoom_ = false; }
     bool			scrollZoomEnabled()
     				{ return enabscrollzoom_; }
+    uiSize			scrollBarSize(bool horizontal) const;
     
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )
