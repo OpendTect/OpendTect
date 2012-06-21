@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.68 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.69 2012-06-21 18:03:24 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -220,7 +220,13 @@ bool MultiTextureSurveyObject::addAttrib()
     BufferStringSet* aatrnms = new BufferStringSet();
     aatrnms->allowNull();
     userrefs_ += aatrnms;
-    as_ += new Attrib::SelSpec;
+    Attrib::SelSpec* as = new Attrib::SelSpec;
+    as_ += as;
+    if ( getAllowedDataType() == Only2D )
+    {
+	as->set2DFlag( true );
+	as->setObjectRef( getMultiID() );
+    }
     addCache();
 
     if ( texture_ )

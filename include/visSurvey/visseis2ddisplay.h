@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.56 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.57 2012-06-21 18:03:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
     PosInfo::GeomID		getGeomID() const;
+    MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }

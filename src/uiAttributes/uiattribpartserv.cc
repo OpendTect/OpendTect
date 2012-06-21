@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.193 2012-06-01 10:13:53 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.194 2012-06-21 18:03:24 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -57,6 +57,7 @@ static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.193 2012-06-
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
 #include "uiattrsel.h"
+#include "uiattr2dsel.h"
 #include "uiattrvolout.h"
 #include "uiattribcrossplot.h"
 #include "uievaluatedlg.h"
@@ -355,21 +356,47 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 				       const ZDomain::Info* zdominfo, bool is2d)
 {
-    const DescSetMan* adsman = DSHolder().getDescSetMan( is2d );
+    DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
+    if ( !adsman->descSet() )
+	return false;
+
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid_ = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr_ = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel_ = getNLAModel(is2d);
     attrdata.zdomaininfo_ = zdominfo;
-    uiAttrSelDlg::Setup setup( "View Data" );
-    setup.showsteeringdata(true);
-    uiAttrSelDlg dlg( parent(), attrdata, setup );
-    if ( !dlg.go() )
-	return false;
 
-    attrdata.attribid_.asInt() = dlg.attribID().asInt();
-    attrdata.outputnr_ = dlg.outputNr();
-    attrdata.setAttrSet( &dlg.getAttrSet() );
+    if ( is2d )
+    {
+	MultiID mid( selspec.objectRef() );
+	uiAttr2DSelDlg dlg( parent(), adsman->descSet(),
+			    mid, attrdata.nlamodel_ );
+	if ( !dlg.go() )
+	    return false;
+
+
+	if ( dlg.getSelType() == 0 )
+	{
+	    LineKey lk( mid, dlg.getStoredAttrName() );
+	    attrdata.attribid_ = adsman->descSet()->getStoredID( lk, 0, true );
+	}
+	else
+	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
+
+    }
+    else
+    {
+	uiAttrSelDlg::Setup setup( "View Data" );
+	setup.showsteeringdata(true);
+	uiAttrSelDlg dlg( parent(), attrdata, setup );
+	if ( !dlg.go() )
+	    return false;
+
+	attrdata.attribid_.asInt() = dlg.attribID().asInt();
+	attrdata.outputnr_ = dlg.outputNr();
+	attrdata.setAttrSet( &dlg.getAttrSet() );
+    }
+
     const bool isnla = !attrdata.attribid_.isValid() && attrdata.outputnr_ >= 0;
     const Desc* desc = attrdata.attrSet().getDesc( attrdata.attribid_ );
     const bool isstored = desc && desc->isStored();

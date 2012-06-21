@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.144 2012-05-30 09:13:48 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.145 2012-06-21 18:03:24 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -901,6 +901,9 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 
 
 const MultiID& Seis2DDisplay::lineSetID() const
+{ return linesetid_; }
+
+MultiID Seis2DDisplay::getMultiID() const
 { return linesetid_; }
 
 
