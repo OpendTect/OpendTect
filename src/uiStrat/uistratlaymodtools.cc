@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.10 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.11 2012-06-21 15:06:58 cvsbruno Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -34,7 +34,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
     uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
-	    			"Manage layer properties",
+	    			"Select layer properties",
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
 
