@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.110 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.111 2012-06-21 18:36:35 cvsnanne Exp $";
 
 #include "uiseissel.h"
 
@@ -114,6 +114,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     {
 	selgrp_->getTopGroup()->display( false, true );
 	selgrp_->getNameField()->display( false, true );
+
+	if ( c.ioobj )
+	{
+	    TypeSet<MultiID> selmids;
+	    selmids += c.ioobj->key();
+	    selgrp_->setSelected( selmids );
+	}
     }
 
     BufferString titletxt( "Setup " );
