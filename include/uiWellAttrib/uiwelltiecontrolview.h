@@ -56,7 +56,6 @@ protected:
     Server&		server_;
 
     bool 		checkIfInside(double,double);
-    void 		finalPrepare();
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);

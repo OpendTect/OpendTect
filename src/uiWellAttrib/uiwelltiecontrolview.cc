@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.41 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.42 2012-06-21 08:56:45 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -79,20 +79,6 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
 	                    mCB(this,uiControlView,keyPressCB) );
     toolbar_->addSeparator();
-}
-
-
-void uiControlView::finalPrepare()
-{
-    updatePosButtonStates();
-    MouseEventHandler& mevh =
-	vwr_.rgbCanvas().getNavigationMouseEventHandler();
-    mevh.wheelMove.notify( mCB(this,uiControlView,wheelMoveCB) );
-    mevh.buttonPressed.notify(
-	mCB(this,uiControlView,handDragStarted));
-    mevh.buttonReleased.notify(
-	mCB(this,uiControlView,handDragged));
-    mevh.movement.notify( mCB(this,uiControlView,handDragging));
 }
 
 
