@@ -7,8 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visevent.cc,v 1.41 2012-06-20 13:12:12 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visevent.cc,v 1.42 2012-06-22 08:59:37 cvsjaap Exp $";
 
+#include "keystrs.h"
 #include "visevent.h"
 #include "visdetail.h"
 #include "visdataman.h"
@@ -30,6 +31,7 @@ static const char* rcsID mUnusedVar = "$Id: visevent.cc,v 1.41 2012-06-20 13:12:
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
 #include <osgViewer/Viewer>
+#include <osg/ValueObject>
 
 mCreateFactoryEntry( visBase::EventCatcher );
 
@@ -167,65 +169,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     if ( ea.getHandled() )
 	return false;
 
-    int buttonstate = 0;
-
-    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT )
-	buttonstate += OD::ShiftButton;
-
-    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_CTRL )
-	buttonstate += OD::ControlButton;
-
-    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_ALT )
-	buttonstate += OD::AltButton;
-
     EventInfo eventinfo;
-    eventinfo.mousepos.x = ea.getX();
-    eventinfo.mousepos.y = ea.getY(); 
-
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector =
-	    new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-						 ea.getX(), ea.getY() );
-
-    osgUtil::IntersectionVisitor iv( intersector.get() );
-    mDynamicCastGet( osg::View*, view, &aa );
-
-    if ( view )
-    {
-	iv.setTraversalMask( IntersectionTraversal );
-	view->getCamera()->accept( iv );
-
-	if ( intersector->containsIntersections() )
-	{
-	    const osgUtil::LineSegmentIntersector::Intersection
-			    intersection = intersector->getFirstIntersection();
-
-	    DM().getIds( intersection.nodePath, eventinfo.pickedobjids );
-
-	    const osg::Vec3 lpos = intersection.getLocalIntersectPoint();
-	    eventinfo.localpickedpos = Coord3( lpos[0], lpos[1], lpos[2] );
-
-	    const osg::Vec3 dpos = intersection.getWorldIntersectPoint();
-	    eventinfo.displaypickedpos = Coord3( dpos[0], dpos[1], dpos[2] );
-
-	    Coord3& pos( eventinfo.worldpickedpos );
-	    pos = eventinfo.displaypickedpos;
-	    for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
-		pos = eventcatcher_.utm2display_[idx]->transformBack( pos );
-	}
-    }
-
-    const osg::Camera* camera = view->getCamera();
-    const osg::Matrix MVPW = camera->getViewMatrix() *
-			     camera->getProjectionMatrix() *
-			     camera->getViewport()->computeWindowMatrix();
-
-    osg::Matrix invMVPW; invMVPW.invert( MVPW );
-
-    const osg::Vec3 startpos = intersector->getStart() * invMVPW;
-    const osg::Vec3 stoppos = intersector->getEnd() * invMVPW;
-    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
-    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
-    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
 
     if ( ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN )
     {
@@ -257,6 +201,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	eventinfo.type = MouseClick;
 	eventinfo.pressed = false;
     }
+    else
+	return false;
 
     if ( eventinfo.type == Keyboard )
     {
@@ -266,6 +212,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     if ( eventinfo.type==MouseMovement || eventinfo.type==MouseClick )
 	eventinfo.setTabletInfo( TabletInfo::currentState() );
+
+    int buttonstate = 0;
 
     if ( eventinfo.type == MouseClick )
     {
@@ -277,7 +225,71 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	    buttonstate += OD::RightButton;
     }
 
+    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT )
+	buttonstate += OD::ShiftButton;
+
+    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_CTRL )
+	buttonstate += OD::ControlButton;
+
+    if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_ALT )
+	buttonstate += OD::AltButton;
+
     eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
+
+    eventinfo.mousepos.x = ea.getX();
+    eventinfo.mousepos.y = ea.getY(); 
+
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector =
+	    new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
+						 ea.getX(), ea.getY() );
+
+    osgUtil::IntersectionVisitor iv( intersector.get() );
+    mDynamicCastGet( osg::View*, view, &aa );
+
+    if ( view )
+    {
+	iv.setTraversalMask( IntersectionTraversal );
+	view->getCamera()->accept( iv );
+
+	if ( intersector->containsIntersections() )
+	{
+	    const osgUtil::LineSegmentIntersector::Intersection pick =
+					intersector->getFirstIntersection();
+
+	    osg::NodePath::const_reverse_iterator it = pick.nodePath.rbegin();
+	    for ( ; it!=pick.nodePath.rend(); it++ )
+	    {
+		int objid;
+		static std::string idstr( sKey::ID() );
+		if ( (*it)->getUserValue(idstr, objid) && objid>=0 )
+		    eventinfo.pickedobjids += objid;
+	    }
+
+	    const osg::Vec3 lpos = pick.getLocalIntersectPoint();
+	    eventinfo.localpickedpos = Coord3( lpos[0], lpos[1], lpos[2] );
+
+	    const osg::Vec3 dpos = pick.getWorldIntersectPoint();
+	    eventinfo.displaypickedpos = Coord3( dpos[0], dpos[1], dpos[2] );
+
+	    Coord3& pos( eventinfo.worldpickedpos );
+	    pos = eventinfo.displaypickedpos;
+	    for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
+		pos = eventcatcher_.utm2display_[idx]->transformBack( pos );
+	}
+    }
+
+    const osg::Camera* camera = view->getCamera();
+    const osg::Matrix MVPW = camera->getViewMatrix() *
+			     camera->getProjectionMatrix() *
+			     camera->getViewport()->computeWindowMatrix();
+
+    osg::Matrix invMVPW; invMVPW.invert( MVPW );
+
+    const osg::Vec3 startpos = intersector->getStart() * invMVPW;
+    const osg::Vec3 stoppos = intersector->getEnd() * invMVPW;
+    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
+    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
+    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
 
     ishandled_ = false;
 

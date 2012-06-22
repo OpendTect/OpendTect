@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.25 2012-06-20 13:12:12 cvsjaap Exp $
+ RCS:		$Id: visdataman.h,v 1.26 2012-06-22 08:59:36 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -58,8 +58,6 @@ public:
 
     const char*		errMsg() const;
 
-    void		getIds(const std::vector<osg::Node*>&,
-			       TypeSet<int>&) const;
     void		getIds(const SoPath*,TypeSet<int>&) const;
     			/*!< Gets the ids from lowest level to highest
 			     (i.e. scene ) */

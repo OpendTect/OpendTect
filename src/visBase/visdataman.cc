@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visdataman.cc,v 1.56 2012-06-20 13:12:12 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdataman.cc,v 1.57 2012-06-22 08:59:37 cvsjaap Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -326,25 +326,6 @@ void DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 	    if ( !objnode ) continue;
 
 	    if ( objnode==node ) res += objects_[idx]->id();
-	}
-    }
-}
-
-
-void DataManager::getIds( const osg::NodePath& path ,TypeSet<int>& res ) const
-{
-    res.erase();
-
-    const int nrobjs = objects_.size();
-
-    osg::NodePath::const_reverse_iterator it = path.rbegin();
-    for ( ; it!=path.rend(); it++ )
-    {
-	for ( int idx=0; idx<nrobjs; idx++ )
-	{
-	    const osg::Node* objnode = objects_[idx]->osgNode();
-	    if ( objnode && objnode==(*it) )
-		res += objects_[idx]->id();
 	}
     }
 }

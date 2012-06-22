@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdatagroup.cc,v 1.22 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdatagroup.cc,v 1.23 2012-06-22 08:59:37 cvsjaap Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -49,6 +49,7 @@ void DataObjectGroup::ensureGroup()
     {
 	osggroup_ = new osg::Group;
 	osggroup_->ref();
+	updateOsgNodeData();
     }
 
     if ( group_ ) return;
