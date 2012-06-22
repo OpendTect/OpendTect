@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.96 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.97 2012-06-22 08:49:18 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -325,7 +325,8 @@ void uiDataPointSet::calcSortIdxs()
     for ( int disprid=0; disprid<sortidxs_.size(); disprid++ )
     {
 	const DRowID drid = drowids_[ disprid ];
-	const float val = getVal( dcid, drid, false );
+	float val = getVal( dcid, drid, false );
+	if ( mIsUdf(val) ) val = MAXFLOAT;
 	vals += val;
     }
 
