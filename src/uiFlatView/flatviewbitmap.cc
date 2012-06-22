@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.35 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.36 2012-06-22 12:17:40 cvshelene Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -52,6 +52,8 @@ void FlatView::BitMapMgr::setupChg()
     const FlatPosData& pd = dp.posData();
     const FlatView::Appearance& app = vwr_.appearance();
     const Array2D<float>& arr = dp.data();
+    if ( pd.nrPts(true) < arr.info().getSize(0) )
+	return;
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
     pos_->setDim1Positions( pd.range(false).start, pd.range(false).stop );

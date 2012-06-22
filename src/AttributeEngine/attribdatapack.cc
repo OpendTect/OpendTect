@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.51 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.52 2012-06-22 12:17:40 cvshelene Exp $";
 
 #include "attribdatapack.h"
 
@@ -471,7 +471,9 @@ void Flat2DDHDataPack::getLineName( BufferString& nm ) const
 
 void Flat2DDHDataPack::setPosData()
 {
-    const int nrpos = dataholderarr_->dataset_->info().getSize(mNrTrcDim);
+    const int nrpos =
+	    usesingtrc_ ? dataholderarr_->dataset_->info().getSize(0)
+			: dataholderarr_->dataset_->info().getSize(mNrTrcDim);
     if ( nrpos < 1 ) return;
 
     if ( usesingtrc_ )
@@ -499,7 +501,9 @@ void Flat2DDHDataPack::setPosData()
 
 double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
-    const int nrpos = dataholderarr_->dataset_->info().getSize(mNrTrcDim);
+    const int nrpos =
+	    usesingtrc_ ? dataholderarr_->dataset_->info().getSize(0)
+			: dataholderarr_->dataset_->info().getSize(mNrTrcDim);
     bool isi0wrong = i0<0 || i0>=nrpos;
 
     if ( isi0wrong || !tiflds_.validIdx(ikey) )
