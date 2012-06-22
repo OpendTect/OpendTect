@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.93 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.94 2012-06-22 09:09:35 cvsbruno Exp $";
 
 
 
@@ -123,6 +123,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     ls.width_ = ld.disp_.size_;
     ls.color_ = ld.disp_.color_;
     ld.curvepolyitm_->setPenStyle( ls );
+    ld.curvepolyitm_->setVisible( ls.width_ > 0 );
 }
 
 
@@ -215,7 +216,11 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const float rgstart = ld.xax_.range().start;
     const bool isrev = rgstop < rgstart;
 
-    float colstep = ( rgstop -rgstart ) / 255;
+    const float colrgstop = ld.disp_.fillrange_.stop; 
+    const float colrgstart = ld.disp_.fillrange_.start;
+    const bool iscolrev = colrgstop < colrgstart; 
+
+    const float colstep = ( colrgstop - colrgstart ) / 255;
     int sz = ld.log() ? ld.log()->size() : 0;
     if ( sz < 2 ) return;
     float step = 1;
@@ -256,10 +261,10 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	mDefZPosInLoop( dah )
 
 	float val = ld.log()->value( index );
-	bool iscoltabrev = isrev; 
+	bool isvalrev = iscolrev;
 	if ( ld.disp_.iscoltabflipped_ )
-	    iscoltabrev = !iscoltabrev;
-	float valdiff = iscoltabrev ? rgstop-val : val-rgstart;
+	    isvalrev = !isvalrev;
+	const float valdiff = isvalrev ? colrgstop-val : val-colrgstart;
 	int colindex = (int)( valdiff/colstep );
 	if ( colindex > 255 ) colindex = 255; 
 	if ( colindex < 0 )   colindex = 0; 
