@@ -1,0 +1,67 @@
+dTect V4.4
+Attribute definitions
+Wed 13 Jun 2012, 10:36:42
+!
+Attribute Descriptions
+0.Definition: Storage id=100010.x output=0
+0.UserRef: Near stack
+0.Hidden: No
+0.DataType: Other
+1.Definition: Hilbert halflen=30 output=0
+1.UserRef: _AVO Intercept_imag
+1.Hidden: Yes
+1.DataType: Other
+1.Input.0: 0
+2.Definition: Instantaneous Rotation angle=90 output=0
+2.UserRef: Envelope (Near)
+2.Hidden: No
+2.DataType: Other
+2.Input.0: 0
+2.Input.1: 1
+3.Definition: Storage id=100010.y output=0
+3.UserRef: Far stack
+3.Hidden: No
+3.DataType: Other
+4.Definition: Hilbert halflen=30 output=0
+4.UserRef: _AVO Gradient_imag
+4.Hidden: Yes
+4.DataType: Other
+4.Input.0: 3
+5.Definition: Instantaneous Rotation angle=90 output=0
+5.UserRef: Envelope (Far)
+5.Hidden: No
+5.DataType: Other
+5.Input.0: 3
+5.Input.1: 4
+6.Definition: Math expression=far-near output=0
+6.UserRef: Far-Near
+6.Hidden: No
+6.DataType: Other
+6.Input.0: 3
+6.Input.1: 0
+8.Definition: Hilbert halflen=30 output=0
+8.UserRef: _Far-Near_imag
+8.Hidden: Yes
+8.DataType: Other
+8.Input.0: 6
+9.Definition: Instantaneous Rotation angle=90 output=0
+9.UserRef: Envelope (Far-Near)
+9.Hidden: No
+9.DataType: Other
+9.Input.0: 6
+9.Input.1: 8
+10.Definition: Math expression=envfar-envnear output=0
+10.UserRef: env(Far)-env(Near)
+10.Hidden: No
+10.DataType: Other
+10.Input.0: 5
+10.Input.1: 2
+11.Definition: Math expression=(envfar-envnear)*envfar output=0
+11.UserRef: Enhanced pseudo gradient
+11.Hidden: No
+11.DataType: Other
+11.Input.0: 5
+11.Input.1: 2
+MaxNrKeys: 11
+Type: 2D
+!
