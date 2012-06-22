@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.104 2012-06-19 09:00:03 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.105 2012-06-22 08:38:10 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -310,10 +310,8 @@ void uiTieView::drawViewerWellMarkers()
 	if ( col == Color::NoColor() || col == Color::White() )
 	    continue;
 
-	FlatView::AuxData* auxdata = 0;
-	auxdata = vwr_->createAuxData( marker->name() );
-	if ( !auxdata )
-	    continue;
+	FlatView::AuxData* auxdata = vwr_->createAuxData( marker->name() );
+	if ( !auxdata ) continue;
 
 	wellmarkerauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
@@ -347,8 +345,7 @@ void uiTieView::drawUserPicks()
     
     for ( int idx=0; idx<nrauxs; idx++ )
     {
-	FlatView::AuxData* auxdata = 0;
-	auxdata = vwr_->createAuxData( 0 );
+	FlatView::AuxData* auxdata = vwr_->createAuxData( 0 );
 	userpickauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
     }
@@ -380,8 +377,7 @@ void uiTieView::drawHorizons()
     const TypeSet<Marker>& horizons = data_.horizons_;
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	FlatView::AuxData* auxdata = 0;
-	auxdata = vwr_->createAuxData( 0 );
+	FlatView::AuxData* auxdata = vwr_->createAuxData( 0 );
 	horauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
 	const Marker& hor = horizons[idx];
