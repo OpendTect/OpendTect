@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisparallelreader.cc,v 1.5 2012-06-25 14:20:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisparallelreader.cc,v 1.6 2012-06-25 15:25:44 cvskris Exp $";
 
 #include "seisparallelreader.h"
 
@@ -170,11 +170,14 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
         if ( translator->goTo( curbid ) && reader->get( trc ) &&
             trc.info().binid==curbid )
         {
+	    const StepInterval<float> trczrg = trc.zRange();
+	    
             if ( bidvals_ )
             {
 		float* vals = bidvals_->getVals(bidvalpos);
 		const float z = vals[0];
-		if ( !mIsUdf(z) )
+		
+		if ( !mIsUdf(z) && trczrg.includes( z, false ) )
 		{
 		    for ( int idc=components_.size()-1; idc>=0; idc-- )
 		    {
@@ -192,12 +195,15 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		    bool dobg;
 		    float val;
 		    const double z = cs_.zrg.atIndex( idz );
-		    for ( int idc=arrays_->size()-1; idc>=0; idc-- )
+		    if ( trczrg.includes( z, false ) )
 		    {
-			val = trc.getValue( z, components_[idc] );
-			if ( !mIsUdf(val) )
+			for ( int idc=arrays_->size()-1; idc>=0; idc-- )
 			{
-			    (*arrays_)[idc]->set( inlidx, crlidx, idz, val );
+			    val = trc.getValue( z, components_[idc] );
+			    if ( !mIsUdf(val) )
+			    {
+				(*arrays_)[idc]->set( inlidx, crlidx, idz, val);
+			    }
 			}
 		    }
 		}
