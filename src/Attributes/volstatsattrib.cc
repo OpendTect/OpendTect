@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.64 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.65 2012-06-25 07:04:52 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -212,7 +212,7 @@ void VolStats::initClass()
     desc->addParam( shape );
 
     BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
-    edgeeffect->setDefaultValue( false );
+    edgeeffect->setDefaultValue( true );
     edgeeffect->setRequired( false );
     desc->addParam( edgeeffect );
 
@@ -240,7 +240,7 @@ VolStats::VolStats( Desc& ds )
     : VolStatsBase( ds )
     , linepath_(0)
     , linetruepos_(0)
-    , allowedgeeffects_( false )
+    , allowedgeeffects_( true )
 {
     mGetBool( allowedgeeffects_, allowEdgeEffStr() );
 
