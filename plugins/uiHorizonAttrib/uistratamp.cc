@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.24 2012-05-22 14:48:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.25 2012-06-25 08:44:34 cvshelene Exp $";
 
 #include "uistratamp.h"
 
@@ -84,7 +84,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     attribnamefld_->valuechanged.notify(
 	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
     attribnamefld_->attach( alignedBelow, foldfld_ );
-    addStdFields();
+    addStdFields( false, true );
     uppgrp_->setHAlignObj( inpfld_ );
     setParFileName();
 
