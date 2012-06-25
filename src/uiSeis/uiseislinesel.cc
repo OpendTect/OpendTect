@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.48 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseislinesel.cc,v 1.49 2012-06-25 10:36:01 cvssatyaki Exp $";
 
 #include "uiseislinesel.h"
 
@@ -338,6 +338,8 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
 
     BufferString selattrnm = linesetfld_ ? linesetfld_->attrNm() : "";
 
+    StepInterval<float> maxzrg( mUdf(float), -mUdf(float), 1 );;
+    
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	const char* lnm = lnms.get(idx).buf();
@@ -360,6 +362,8 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
 
 	    LineKey lk( lnm, attrnm );
 	    oinf.getRanges( lk, trcrg, zrg );
+	    maxzrg.step = zrg.step;
+	    maxzrg.include( zrg, false );
 	    if ( trcrg.nrSteps() > maxnrtrcs )
 	    {
 		globtrcrg = trcrg;
@@ -375,6 +379,7 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
 	trcrgs_ += globtrcrg;
     }
 
+    setZRange( maxzrg );
     lnmsfld_->selectAll();
     lineSel(0);
 }
