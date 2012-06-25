@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.15 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.16 2012-06-25 19:01:05 cvsnanne Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -43,7 +43,6 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     setCtrlStyle( DoAndStay );
 
     uiLabeledComboBox* selcbx = 0;
-    uiLabeledComboBox* sel1cbx = 0;
     if ( plotter_.selAreaSize() )
     {
 	BufferStringSet seltype;
@@ -71,7 +70,11 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 	fld->setColNr( plotter_.axisData(idx).colid_ + 3 );
 	setColRange( fld );
 	if ( idx == 0 )
+	{
 	    rmbuts_ += 0;
+	    if ( selcbx )
+		fld->attach( alignedBelow, selcbx );
+	}
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
