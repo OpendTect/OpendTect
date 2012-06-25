@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisparallelreader.cc,v 1.4 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisparallelreader.cc,v 1.5 2012-06-25 14:20:51 cvskris Exp $";
 
 #include "seisparallelreader.h"
 
@@ -149,8 +149,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     {
         iter.setSampling( cs_.hrg );
         curbid = cs_.hrg.atIndex( start );
-	if ( !iter.next( curbid ) ) //As first next does nothing ...
-	    return false;
+	iter.reset( false );
     }
 
     SeisTrc trc;
