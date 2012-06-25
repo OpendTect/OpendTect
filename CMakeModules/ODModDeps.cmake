@@ -2,14 +2,14 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.10 2012-05-21 07:55:20 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.11 2012-06-25 12:31:15 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
 #		    a file. 
 # Input variables:
 # OD_SUBSYSTEM				: "od" or "dgb"
-# OD_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
+# OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
 # OD_${OD_MODULE_NAME}_DEPS		: The modules this module is dependent
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
@@ -19,12 +19,12 @@ MACRO( OD_WRITE_MODDEPS BASEDIR )
 SET( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
 INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
 
-LIST( APPEND OD_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
+LIST( APPEND OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
 SET( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing )
 
 
 FILE(WRITE ${OD_MODDEPS_FILE} "")
-FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
+FOREACH ( MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
     #Start write ModDeps-line
     FILE(APPEND ${OD_MODDEPS_FILE}
 	"${MODULE}:\t\tS.${MODULE}")
