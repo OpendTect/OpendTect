@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.13 2011-09-09 13:47:42 cvsnanne Exp $
+ RCS:           $Id: horsampling.h,v 1.14 2012-06-25 13:58:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,15 +113,17 @@ public:
 mClass HorSamplingIterator
 {
 public:
-    			HorSamplingIterator() : hrg_( true ) { reset(); }
-    			HorSamplingIterator( const HorSampling& hs )
-			    : hrg_(hs)	{ reset(); }
+    		HorSamplingIterator() : hrg_( true ) { reset(); }
+    		HorSamplingIterator( const HorSampling& hs )
+		    : hrg_(hs)	{ reset(); }
 
-    void		setSampling( const HorSampling& hs )
-			{ hrg_ = hs; reset(); }
+    void	setSampling( const HorSampling& hs )
+		{ hrg_ = hs; reset(); }
 
-    void		reset()		{ firstpos_ = true; }
-    bool		next(BinID&);
+    void	reset(bool nextisfirstpos=true)	{ firstpos_ = nextisfirstpos; }
+    		/*!<If nextisfirstpos, the next call to next will automatically
+		    be hrg_.start. */
+    bool	next(BinID&);
 
 protected:
 
