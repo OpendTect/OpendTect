@@ -49,7 +49,7 @@ public:
 	  public:
 				Setup()
 				    : labelcolnm_("Log")   
-				    , saveasioobj_(true)
+				    , saveasioobj_(false)
 				    {}	  
 			
 	    mDefSetupMemb(BufferString,labelcolnm)
