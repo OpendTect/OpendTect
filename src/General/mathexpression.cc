@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: mathexpression.cc,v 1.59 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: mathexpression.cc,v 1.60 2012-06-25 13:58:26 cvshelene Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -1228,7 +1228,23 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     }
 
     if ( isvariable )
+    {
+	if ( varTypeOf(str)== MathExpression::Recursive )
+	{
+	    int recshift;
+	    varNameOf( str, &recshift );
+	    if ( !recshift )
+	    {
+		errmsg_ = "Cannot parse this:\n'";
+		errmsg_ += input; errmsg_ += "'\n";
+		errmsg_ += "Recursive expression must be of type ";
+		errmsg_ += "'THIS[-n]' or 'OUT[-n]'";
+		return 0;
+	    }
+	}
+
 	return new MathExpressionVariable( str );
+    }
 
     errmsg_ = "Cannot parse this:\n'";
     errmsg_ += input; errmsg_ += "'";
