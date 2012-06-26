@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.16 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.17 2012-06-26 10:36:23 cvsranojay Exp $";
 
 #include "ziputils.h"
 
@@ -67,9 +67,14 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 	{
 	    tempfile = true;
 	    FilePath listfp( src );
-	    listfp = listfp.pathOnly();
-	    listfp.add( orgfnm.fileName() );
-	    filelistname_ = listfp.fullPath();
+	    if (  listfp.nrLevels() <= 1 )
+		filelistname_ = orgfnm.fileName();
+	    else
+	    {
+		listfp = listfp.pathOnly();
+		listfp.add( orgfnm.fileName() );
+		filelistname_ = listfp.fullPath();
+	    }
 	}    
     }
 
