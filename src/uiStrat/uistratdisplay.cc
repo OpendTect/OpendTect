@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.45 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.46 2012-06-26 07:36:10 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -51,6 +51,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     disableScrollZoom();
     scene().setMouseEventActive( true );
     createDispParamGrp();
+    setRange();
     reDraw( 0 );
 }
 
@@ -64,6 +65,24 @@ uiStratDisplay::~uiStratDisplay()
 void uiStratDisplay::setTree()
 {
     uidatagather_->setTree();
+    setRange();
+}
+
+
+void uiStratDisplay::setRange()
+{
+    if ( data_.nrCols() && data_.nrUnits(0) )
+    {
+	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
+	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
+	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
+	float wdth = viewrg.width(); wdth /= (float)10;
+	if ( wdth <= 0 ) wdth = 10;
+	viewrg.stop += wdth;
+	setZRange( viewrg );
+    }
+    else
+	setZRange( maxrg_ );
 }
 
 
@@ -97,19 +116,6 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
-    if ( data_.nrCols() && data_.nrUnits(0) )
-    {
-	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
-	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
-	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
-	float wdth = viewrg.width(); wdth /= (float)10;
-	if ( wdth <= 0 ) wdth = 10;
-	viewrg.stop += wdth;
-	setZRange( viewrg );
-    }
-    else
-	setZRange( maxrg_ );
-   
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
     viewcolbutton_->attach( rightOf, rangefld_ );

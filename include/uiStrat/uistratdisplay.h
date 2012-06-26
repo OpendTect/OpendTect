@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.31 2012-05-01 15:14:41 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.32 2012-06-26 07:36:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,7 @@ protected :
     Interval<float>		maxrg_;
    
     void			createDispParamGrp();
+    void			setRange();
 
     bool			handleUserClick(const MouseEvent&);
 
