@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.26 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.27 2012-06-26 22:32:24 cvsnanne Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -84,6 +84,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
     browsebut_ = attrgrp_->addButton( "browseseis", "Browse/edit this line",
 	    	       mCB(this,uiSeis2DFileMan,browsePush) );
+    mkdefbut_ = attrgrp_->addButton( "makedefault",
+	    "Set as default", mCB(this,uiSeis2DFileMan,makeDefault) );
     attrgrp_->attach( rightOf, attrfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
@@ -167,7 +169,11 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     linefld_->getSelectedItems( linenms );
     attrfld_->getSelectedItems( attribnms );
     if ( linenms.isEmpty() || attribnms.isEmpty() )
-	{ browsebut_->setSensitive( false ); return; }
+    {
+	browsebut_->setSensitive( false );
+	mkdefbut_->setSensitive( false );
+	return;
+    }
 
     const LineKey linekey( linenms.get(0), attribnms.get(0) );
     const int lineidx = lineset_->indexOf( linekey );
@@ -241,14 +247,26 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     infofld_->setText( txt );
 
     browsebut_->setSensitive( true );
+    mkdefbut_->setSensitive( true );
 }
 
 
 void uiSeis2DFileMan::browsePush( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
+
     const LineKey lk( linefld_->getText(), attrfld_->getText());
     uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
+}
+
+
+void uiSeis2DFileMan::makeDefault( CallBacker* )
+{
+    if ( !objinfo_ || !objinfo_->ioObj() ) return;
+
+    BufferString attrnm = attrfld_->getText();
+    SI().getPars().set( sKey::DefAttribute(), attrnm );
+    SI().savePars();
 }
 
 
