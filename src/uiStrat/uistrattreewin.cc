@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.74 2012-05-21 12:13:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.75 2012-06-26 07:35:52 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -263,7 +263,7 @@ void uiStratTreeWin::newCB( CallBacker* )
 {
     BufferString msg( "This will overwrite the current tree. \n" );
     msg += "Your work will be lost. Continue anyway ?";
-    if ( uiMSG().askGoOn( msg ) )
+    if ( RT().isEmpty() || uiMSG().askGoOn( msg ) )
 	setNewRT();
 }
 
