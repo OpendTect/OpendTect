@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.54 2012-06-26 07:35:11 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.55 2012-06-26 13:48:59 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -179,9 +179,6 @@ bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
 
 bool SynthGenerator::doPrepare()
 {
-    if ( !wavelet_ ) 
-	mErrRet( "No wavelet found" );	
-
     if ( !needprepare_ || !fft_ )
 	return true;
 
@@ -191,7 +188,8 @@ bool SynthGenerator::doPrepare()
     freqwavelet_ = new float_complex[ fftsz_ ];
 
     for ( int idx=0; idx<fftsz_; idx++ )
-	freqwavelet_[idx] = idx<wavelet_->size() ? wavelet_->samples()[idx] : 0;
+	freqwavelet_[idx] = wavelet_ && idx<wavelet_->size() ? 
+	    			    wavelet_->samples()[idx] : 0;
 
     mDoFFT( freqwavelet_, true, fftsz_ )
 
@@ -206,6 +204,9 @@ bool SynthGenerator::doWork()
 
     if ( needprepare_ )
 	doPrepare();
+
+    if ( !wavelet_ ) 
+	mErrRet( "No wavelet found" );	
 
     if ( !refmodel_ ) 
 	mErrRet( "No reflectivity model found" );	
