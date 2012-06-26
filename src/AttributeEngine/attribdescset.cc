@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.119 2012-06-14 08:29:52 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdescset.cc,v 1.120 2012-06-26 07:00:27 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -294,8 +294,8 @@ void DescSet::sortDescSet()
     ids_.erase();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	Attrib::Desc* desc = descscopy[ sortindexes[idx] ];
-	descs_ += desc;
+	Attrib::Desc* newdesc = descscopy[ sortindexes[idx] ];
+	descs_ += newdesc;
 	ids_ += idscopy[ sortindexes[idx] ];
     }
 
