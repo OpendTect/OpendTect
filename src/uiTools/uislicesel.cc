@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.67 2012-06-22 10:54:03 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.68 2012-06-26 22:24:09 cvsnanne Exp $";
 
 #include "uislicesel.h"
 
@@ -387,14 +387,15 @@ void uiSliceSel::readInput()
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step.crl;
 
+    const float zfac = zdominfo_.userFactor();
     Interval<float> zrg;
-    zrg.start = z0fld_->box()->getFValue() / zdominfo_.userFactor();
+    zrg.start = z0fld_->box()->getFValue() / zfac;
     zrg.start = maxcs_.zrg.snap( zrg.start );
     if ( istsl_ )
 	zrg.stop = zrg.start;
     else
     {
-	zrg.stop = z1fld_->getFValue() / zdominfo_.userFactor();
+	zrg.stop = z1fld_->getFValue() / zfac;
 	zrg.sort();
 	zrg.stop = maxcs_.zrg.snap( zrg.stop );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
