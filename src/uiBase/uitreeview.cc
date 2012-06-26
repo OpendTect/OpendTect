@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.75 2012-05-23 22:32:20 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.76 2012-06-26 07:46:12 cvsbert Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -412,8 +412,7 @@ Alignment::HPos uiListView::columnAlignment( int col ) const
 
 void uiListView::ensureItemVisible( const uiListViewItem* itm )
 {
-// TODO: Causes a Bus error
-//    body_->scrollToItem( itm->qItem() );
+    body_->scrollToItem( itm->qItem() );
 }
 
 
