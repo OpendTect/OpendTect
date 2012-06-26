@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.7 2011-07-11 21:32:22 cvsyuancheng Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.8 2012-06-26 08:59:34 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ public:
     const DataPointSetDisplayProp* dispProp() const
     				{ return dispprop_; }
     void			setDispProp( DataPointSetDisplayProp* prop )
-				{ dispprop_ = prop; }
+				{ delete dispprop_; dispprop_ = prop; }
 
     void			clearDispProp()
     				{ delete dispprop_; dispprop_ = 0; }
@@ -132,7 +132,6 @@ protected:
 				    : dispprop_( 0 )	{}
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
-
 };
 	    				   
 #endif

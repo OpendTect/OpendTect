@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispointsetdisplay.cc,v 1.18 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispointsetdisplay.cc,v 1.19 2012-06-26 08:59:34 cvssatyaki Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -136,7 +136,7 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
 	    if ( rid < 0 )
 		continue;
 	    if ( dpsdispprop_->showSelected() )
-		data_->setSelected( rid, false );
+		data_->setSelected( rid, -1 );
 	    else
 		data_->setValue( dpsdispprop_->dpsColID(), rid, mUdf(float) );
 	}

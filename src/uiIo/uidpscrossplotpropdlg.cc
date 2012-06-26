@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.25 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.26 2012-06-26 08:59:34 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -288,6 +288,12 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
     p->postFinalise().notify( mCB(this,uiDPSUserDefTab,initFlds) );
     p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setLines) );
+}
+
+
+~uiDPSUserDefTab()
+{
+    plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
 }
 
 

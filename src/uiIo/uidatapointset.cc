@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.97 2012-06-22 08:49:18 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.98 2012-06-26 08:59:34 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -61,6 +61,82 @@ static const char* sKeyGroups = "Groups";
 
 mDefineInstanceCreatedNotifierAccess(uiDataPointSet)
 
+mClass uiDPSDispPropDlg : public uiDialog
+{
+public:
+uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
+		  const DataPointSetDisplayProp* prevdispprop )
+    : uiDialog(this,uiDialog::Setup("Display Properties","","").modal(false))
+    , plotter_(plotter)
+{
+    BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
+	    	      "Selected Points","All points with attribute" );
+    typefld_ = new uiGenInput( this, "Display",binp );
+    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
+
+    BufferStringSet colnms;
+    const DataPointSet& dps = plotter.dps();
+    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
+	colnms.add( dps.colName(colidx) );
+
+    uiLabeledComboBox* llb = new uiLabeledComboBox(
+	    			this, colnms, "Attribute to display" );
+    llb->attach( alignedBelow, typefld_ );
+    selfld_ = llb->box();
+    if ( prevdispprop && !prevdispprop->showSelected() )
+    {
+	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
+	selfld_->setCurrentItem( attrnm );
+    }
+
+    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
+
+    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
+    coltabfld_->attach( leftAlignedBelow, llb );
+    if ( prevdispprop && !prevdispprop->showSelected() )
+    {
+	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
+	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
+    }
+
+    attribChanged( 0 );
+    typeChangedCB( 0 );
+}
+
+void attribChanged( CallBacker* )
+{
+    const DataPointSet& dps = plotter_.dps();
+    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
+    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
+    coltabfld_->setInterval( valrange );
+}
+
+
+void typeChangedCB( CallBacker* )
+{
+    selfld_->display( !typefld_->getBoolValue(), true );
+    coltabfld_->display( !typefld_->getBoolValue(), true );
+}
+
+bool type() const
+{ return typefld_->getBoolValue(); }
+
+const char* colName() const
+{ return selfld_->text(); }
+
+const ColTab::Sequence& ctSeq() const
+{ return coltabfld_->colTabSeq(); }
+
+const ColTab::MapperSetup& ctMapperSetup() const
+{ return coltabfld_->colTabMapperSetup(); }
+
+    uiGenInput*				typefld_;
+    uiComboBox*				selfld_;
+    uiColorTable*			coltabfld_;
+    const uiDataPointSetCrossPlotter&	plotter_;
+};
+
+
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"111.0.0")
@@ -94,6 +170,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, rowToBeRemoved(this)
     	, rowRemoved(this)
 	, xplotwin_(0)
+	, dpsdisppropdlg_(0)
 	, statswin_(0)
 	, dpsdispmgr_(dpsmgr)
 	, iotb_(0)
@@ -171,6 +248,9 @@ uiDataPointSet::~uiDataPointSet()
 {
     deepErase( variodlgs_ );
     removeSelPts( 0 );
+    if ( dpsdisppropdlg_ )
+	dpsdisppropdlg_->windowClosed.notify(
+		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
 }
 
 
@@ -1286,95 +1366,29 @@ void uiDataPointSet::manage( CallBacker* )
 }
 
 
-mClass uiDPSDispPropDlg : public uiDialog
-{
-public:
-uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
-		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup("Display Properties","",""))
-    , plotter_(plotter)
-{
-    BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
-	    	      "Selected Points","Attribute" );
-    typefld_ = new uiGenInput( this, "Display",binp );
-    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
-
-    BufferStringSet colnms;
-    const DataPointSet& dps = plotter.dps();
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-	colnms.add( dps.colName(colidx) );
-
-    uiLabeledComboBox* llb = new uiLabeledComboBox(
-	    			this, colnms, "Attribute to display" );
-    llb->attach( alignedBelow, typefld_ );
-    selfld_ = llb->box();
-    if ( prevdispprop && !prevdispprop->showSelected() )
-    {
-	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
-	selfld_->setCurrentItem( attrnm );
-    }
-
-    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
-
-    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
-    coltabfld_->attach( rightTo, llb );
-    if ( prevdispprop && !prevdispprop->showSelected() )
-    {
-	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
-	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
-    }
-
-    attribChanged( 0 );
-    typeChangedCB( 0 );
-}
-
-void attribChanged( CallBacker* )
-{
-    const DataPointSet& dps = plotter_.dps();
-    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
-    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
-    coltabfld_->setInterval( valrange );
-}
-
-
-void typeChangedCB( CallBacker* )
-{
-    selfld_->display( !typefld_->getBoolValue(), true );
-    coltabfld_->display( !typefld_->getBoolValue(), true );
-}
-
-bool type() const
-{ return typefld_->getBoolValue(); }
-
-const char* colName() const
-{ return selfld_->text(); }
-
-const ColTab::Sequence& ctSeq() const
-{ return coltabfld_->colTabSeq(); }
-
-const ColTab::MapperSetup& ctMapperSetup() const
-{ return coltabfld_->colTabMapperSetup(); }
-
-    uiGenInput*				typefld_;
-    uiComboBox*				selfld_;
-    uiColorTable*			coltabfld_;
-    const uiDataPointSetCrossPlotter&	plotter_;
-};
-
-
 void uiDataPointSet::showSelPts( CallBacker* )
 {
-    uiDPSDispPropDlg dlg( xplotwin_, xplotwin_->plotter(),
-	    		  dpsdispmgr_->dispProp() );
-    if ( !dlg.go() )
-	return;
+    if ( !dpsdisppropdlg_ )
+    {
+	dpsdisppropdlg_ =
+	    new uiDPSDispPropDlg( xplotwin_, xplotwin_->plotter(),
+				  dpsdispmgr_->dispProp() );
+	dpsdisppropdlg_->windowClosed.notify(
+		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
+    }
 
-    if ( !dpsdispmgr_ ) return;
+    dpsdisppropdlg_->go();
+}
+
+
+void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
+{
+    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() ) return;
 
     const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
 
     DataPointSetDisplayProp* dispprop;
-    if ( dlg.type() )
+    if ( dpsdisppropdlg_->type() )
     {
 	ObjectSet<SelectionGrp> selgrps = plotter.selectionGrps();
 	BufferStringSet selgrpnms;
@@ -1389,8 +1403,10 @@ void uiDataPointSet::showSelPts( CallBacker* )
 	dispprop = new DataPointSetDisplayProp( selgrpnms, selgrpcols );
     }
     else
-	dispprop = new DataPointSetDisplayProp( dlg.ctSeq(),dlg.ctMapperSetup(),
-						dps_.indexOf(dlg.colName()) );
+	dispprop = new DataPointSetDisplayProp(
+		dpsdisppropdlg_->ctSeq(), dpsdisppropdlg_->ctMapperSetup(),
+		dps_.indexOf(dpsdisppropdlg_->colName()) );
+
     setDisp( dispprop );
 }
 
