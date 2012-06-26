@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.10 2012-05-23 22:31:52 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.11 2012-06-26 07:48:14 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -259,10 +259,15 @@ void uiStratSelUnits::setSelected( const Strat::UnitRef& ur, bool yn )
     {
 	uiStratSelUnitsListItem* lvitm = find( &ur );
 	if ( !lvitm ) return;
-	if ( isMulti() )
-	    lvitm->setChecked( yn );
-	else
+	if ( !isMulti() )
 	    tree_->setCurrentItem( lvitm );
+	else
+	{
+	    lvitm->setChecked( yn );
+	    selRelated( lvitm->unit_, yn );
+	    if ( yn )
+		tree_->ensureItemVisible( lvitm );
+	}
     }
 }
 
