@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.95 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.96 2012-06-26 14:13:37 cvsjaap Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -24,6 +24,18 @@ static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.95 2012-05-22 14:4
 #include "zdomain.h"
 
 #include <sstream>
+
+
+struct Seis2DLineSetCache
+{
+    Threads::Mutex	lock_;
+    BufferString	name_;
+    BufferString	fname_;
+    BufferString	typestr_;
+    ObjectSet<IOPar>	pars_;
+};
+
+static Seis2DLineSetCache cache;
 
 
 Seis2DLineSet::Seis2DLineSet( const IOObj& ioobj )
@@ -72,7 +84,25 @@ void Seis2DLineSet::init( const char* fnm )
     readonly_ = false;
     fname_ = fnm;
     BufferString typestr = "CBVS";
-    readFile( false, &typestr );
+
+    cache.lock_.lock();
+
+    if ( fname_ == cache.fname_ )
+    {
+	deepCopy( pars_, cache.pars_ );
+	setName( cache.name_ );
+	typestr = cache.typestr_;
+    }
+    else
+    {
+	readFile( false, &typestr );
+	deepCopy( cache.pars_, pars_ );
+	cache.name_ = name();
+	cache.fname_ = fnm;
+	cache.typestr_ = typestr;
+    }
+
+    cache.lock_.unLock();
 
     liop_ = 0;
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
@@ -239,6 +269,11 @@ void Seis2DLineSet::writeFile() const
 
 void Seis2DLineSet::putTo( std::ostream& strm ) const
 {
+    cache.lock_.lock();
+    if ( cache.fname_==fname_ || cache.name_==name() )
+	cache.fname_.setEmpty();			/* Invalidate cache */
+    cache.lock_.unLock();
+
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
 	return;

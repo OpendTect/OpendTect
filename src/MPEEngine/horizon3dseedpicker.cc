@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.50 2012-05-31 10:43:25 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.51 2012-06-26 14:13:37 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -77,7 +77,8 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
 bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
        				   const Coord3& seedkey )
 {
-    addrmseed_.trigger();
+    if ( !sowermode_ )
+	addrmseed_.trigger();
 
     if ( blockpicking_ ) 
 	return true;
