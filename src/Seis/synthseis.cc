@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.53 2012-06-07 14:04:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.54 2012-06-26 07:35:11 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -179,6 +179,9 @@ bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
 
 bool SynthGenerator::doPrepare()
 {
+    if ( !wavelet_ ) 
+	mErrRet( "No wavelet found" );	
+
     if ( !needprepare_ || !fft_ )
 	return true;
 
@@ -206,9 +209,6 @@ bool SynthGenerator::doWork()
 
     if ( !refmodel_ ) 
 	mErrRet( "No reflectivity model found" );	
-
-    if ( !wavelet_ ) 
-	mErrRet( "No wavelet found" );	
 
     if ( outputsampling_.nrSteps() < 2 )
 	mErrRet( "Output sampling is too small" );	
@@ -435,6 +435,9 @@ bool RaySynthGenerator::doPrepare( int )
 {
     deepErase( raymodels_ );
 
+    if ( !wavelet_ )
+	mErrRet( "no wavelet found" )
+
     if ( aimodels_.isEmpty() )
 	mErrRet( "No AI model found" );
 
@@ -487,9 +490,6 @@ bool RaySynthGenerator::doPrepare( int )
 
 bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( !wavelet_ )
-	mErrRet( "no wavelet found" )
-
     IOPar par; fillPar( par );
     for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
