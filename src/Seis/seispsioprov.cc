@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seispsioprov.cc,v 1.29 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seispsioprov.cc,v 1.30 2012-06-26 15:20:48 cvskris Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -306,11 +306,13 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		    newtrc->data().getInterpreter(0)->dataChar() );
 	    for ( int itrc=1; itrc<nrtrcnrs; itrc++ )
 	    {
-		SeisTrc* rdtrc = psrdr_->getTrace( curbinid_, trcnrs_[itrc] );
-		newtrc->data().addComponent( trcsz, dc );
-		for ( int idx=0; idx<trcsz; idx++ )
-		    newtrc->set( idx, rdtrc->get(idx,0), itrc );
-		delete rdtrc;
+		PtrMan<SeisTrc> rdtrc = psrdr_->getTrace( curbinid_, trcnrs_[itrc] );
+		newtrc->data().addComponent( trcsz, dc, !rdtrc );
+		if ( rdtrc )
+		{
+		    for ( int idx=0; idx<trcsz; idx++ )
+			newtrc->set( idx, rdtrc->get(idx,0), itrc );
+		}
 	    }
 	}
     }
