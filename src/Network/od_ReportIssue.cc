@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_ReportIssue.cc,v 1.2 2012-06-26 12:50:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_ReportIssue.cc,v 1.3 2012-06-26 13:21:02 cvshelene Exp $";
 
 #include "issuereporter.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID mUnusedVar = "$Id: od_ReportIssue.cc,v 1.2 2012-06-26 1
 
 int main( int argc, char ** argv )
 {
-    System::IssueReporter::IssueReporter reporter;
+    System::IssueReporter reporter;
     if ( !reporter.parseCommandLine( argc, argv ) )
     {
 	
