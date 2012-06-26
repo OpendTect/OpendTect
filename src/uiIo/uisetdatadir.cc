@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.35 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.36 2012-06-26 22:44:10 cvsnanne Exp $";
 
 #include "uisetdatadir.h"
 
@@ -36,6 +36,10 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 		    		     "8.0.1"))
 	, olddatadir(GetBaseDataDir())
 {
+    BufferString demosurv = GetEnvVar( "DTECT_DEMO_SURVEY" );
+    if ( demosurv.isEmpty() )
+	SetEnvVar( "DTECT_DEMO_SURVEY", "F3_Demo_Start" );
+
     const bool oldok = OD_isValidRootDataDir( olddatadir );
     BufferString oddirnm, basedirnm;
     const char* titletxt = 0;
