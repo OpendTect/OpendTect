@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.21 2012-05-03 13:22:30 cvsbruno Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.22 2012-06-26 09:58:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,12 +15,16 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class DataPointSet;
+class IOObj;
+class FilePath;
 class uiConvertPos;
 class uiDataPointSet;
 class uiDialog;
 class uiODApplMgr;
 class uiSurveyMap;
 class uiVelSel;
+
+namespace Attrib { class SelSpec; }
 
 
 /*!\brief uiApplService for OD */
@@ -111,6 +115,8 @@ mClass uiODApplMgrAttrVisHandler : public CallBacker
     NotifierAccess*	colorTableSeqChange();
     void		useDefColTab(int,int);
     void		saveDefColTab(int,int);
+    bool		set2DDataFileName(int visid,const Attrib::SelSpec*,
+	    			      const IOObj&,FilePath&);
 
     uiODApplMgr&	am_;
     uiParent*		par_;
