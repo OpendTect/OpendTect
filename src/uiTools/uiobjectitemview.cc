@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemview.cc,v 1.24 2012-05-21 08:24:03 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemview.cc,v 1.25 2012-06-26 13:15:00 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -53,7 +53,7 @@ void uiObjectItemView::resetViewArea( CallBacker* )
     for ( int idx=0; idx<objectitems_.size(); idx++)
     {
 	w += objectitems_[idx]->objectSize().width();
-	h = objectitems_[idx]->objectSize().height();
+	h = mMAX(h,objectitems_[idx]->objectSize().height());
     }
     mGetScene(return); 
     setViewArea( 0, 0, w + sc->layoutPos().x, h + sc->layoutPos().y );
