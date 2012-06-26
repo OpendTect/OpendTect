@@ -93,7 +93,7 @@ if ( $#argv > 0 ) then
 
     if ( "$1" == update ) then
 	shift
-	cvs $cvsremoteargs update -d -P $*
+	cvs $cvsremoteargs -q update -d -P $*
 	exit $status
     endif
 
