@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-06-19 12:07:05 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-06-26 12:50:14 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
@@ -19,6 +19,7 @@ SET(OD_MODULE_SOURCES
 		cvsaccess.cc
 		ftptask.cc
 		httptask.cc
+		issuereporter.cc
 		jobcommunic.cc
 		localserver.cc
 		localsocket.cc

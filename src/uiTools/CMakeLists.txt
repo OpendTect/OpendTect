@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-05-25 19:13:10 cvsnanne Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.13 2012-06-26 12:50:14 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -42,6 +42,7 @@ SET(OD_MODULE_SOURCES
 		uihandledlsitefail.cc
 		uihistogramdisplay.cc   
 		uiiosel.cc	
+		uiissuereporter.cc
 		uistratlvlsel.cc
 		uimapperrangeeditor.cc  
 		uimenuhandler.cc
@@ -86,5 +87,5 @@ SET(OD_MODULE_SOURCES
 		uizaxistransform.cc
                 uipolardiagram.cc)
 
-SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer)
+SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue.cc )
 OD_INIT_MODULE()
