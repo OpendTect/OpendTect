@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       June 2008
 - Contents:   FlexNet usage and installation
-- RCS:        $Id: flexnet_inst_win.html,v 1.3 2012-05-31 13:26:50 cvsbert Exp $
+- RCS:        $Id: flexnet_inst_win.html,v 1.4 2012-06-27 09:07:27 cvsbert Exp $
 -->
 
 <body><title>FlexNet installation and usage</title>
@@ -37,7 +37,13 @@ The first thing you need to be sure of, is that FlexNet is looking at the right 
 In case you see a wrong path displayed, you can overrule it using the overrule button. Below an example for the dGB daemon ('dgbld'), for other vendors you need to use other names (e.g. 'arkclsld'):<br><br>
 <img src="pics/override_path.png"><br><br>
 </p><p>
-If you have a node-locked or demo license, you should now be able to use the plugins. For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor, for dGB it is in the bin\win\lm.dgb directory of the OpendTect installation directory. The debug log file is traditionally given the license file's name with extension '.log'. Below example is for dGB (for ARK CLS you'd need to use something like arkcls\bin\Windows\5.1\i686\lmgrd.exe):<br><br>
+If you have a node-locked or demo license, you should now be able to use the plugins. For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor. They are in the installation, under Program Files\OpendTect\4.4.0. Then find the necessary lmgrd.exe in:
+<ul>
+<li><i>dGB</i>: bin\win32\lm.dgb
+<li><i>ARK CLS</i>: arkcls\bin\Windows\5.1\i686
+<li><i>SITFAL</i>: SITFAL\bin\win32\lm.sitfal
+</ul>
+The debug log file is traditionally given the license file's name with extension '.log'. Below example is for dGB (for ARK CLS you'd need to use something like arkcls\bin\Windows\5.1\i686\lmgrd.exe):<br><br>
 <img src="pics/config_services.png"><br><br>
 Press 'Save service' and go to the Start/Stop/Reread tab. After starting the server, the licenses are ready to use.
 </p><p>
