@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.42 2012-05-29 16:38:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.43 2012-06-27 06:40:35 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -52,7 +52,8 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     , synthdatas_(synths)	     
 {
     if ( lm.isEmpty() )
-	{ errmsg_ = "Model is empty"; return;}
+	{ errmsg_ = "Input model is empty."
+	    "\nYou need to generate layer models."; return; }
 
     TypeSet<DataPack::FullID> fids, psfids; 
     for ( int idx=0; idx<synths.size(); idx++ )
@@ -65,7 +66,8 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	fids += sd.poststackpackid_; 
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
-	{ errmsg_ = "Missing or invalid datapacks"; return;}
+	{ errmsg_ = "Missing or invalid 'datapacks'."
+	    "\nMost likely, no synthetics are available."; return; }
 
     uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() );
