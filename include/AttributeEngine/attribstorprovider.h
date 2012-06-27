@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.36 2011-01-27 13:02:06 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.37 2012-06-27 12:46:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "datachar.h"
+class BufferStringSet;
 class SeisMSCProvider;
 class SeisTrc;
 
@@ -40,6 +41,7 @@ public:
     void		adjust2DLineStoredVolume();
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }
+    virtual void	getCompNames(BufferStringSet&) const;
 
 protected:
 
@@ -48,6 +50,7 @@ protected:
 
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
+    static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }

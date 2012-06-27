@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.112 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.113 2012-06-27 12:46:38 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -60,6 +60,13 @@ void StorageProvider::initClass()
 
 void StorageProvider::updateDesc( Desc& desc )
 {
+    updateDescAndGetCompNms( desc, 0 );
+}
+
+
+void StorageProvider::updateDescAndGetCompNms( Desc& desc,
+					       BufferStringSet* compnms )
+{
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
 
     BufferString bstring = lk.lineName();
@@ -84,6 +91,9 @@ void StorageProvider::updateDesc( Desc& desc )
 	return;
     }
 
+    if ( compnms )
+	compnms->erase();
+
     if ( rdr.is2D() )
     {
 	if ( !rdr.lineSet() )
@@ -107,6 +117,8 @@ void StorageProvider::updateDesc( Desc& desc )
 		BufferStringSet complist;
 		SeisIOObjInfo::getCompNames( lk, complist );
 		desc.setNrOutputs( Seis::UnknowData, complist.size() );
+		if ( compnms )
+		    compnms->operator =( complist );
 	    }
 	    else
 	    {
@@ -116,7 +128,11 @@ void StorageProvider::updateDesc( Desc& desc )
 	    } 
 	}
 	else
+	{
 	    desc.setNrOutputs( Seis::Dip, 2 );
+	    if ( compnms )
+		compnms->operator =( steernms );
+	}
     }
     else
     {
@@ -142,6 +158,9 @@ void StorageProvider::updateDesc( Desc& desc )
 		    desc.addOutputDataType( (Seis::DataType)
 				    transl->componentInfo()[idx-1]->datatype);
 	}
+
+	if ( compnms )
+	    transl->getComponentNames( *compnms );
     }
 }
 
@@ -908,5 +927,10 @@ float StorageProvider::getMaxDistBetwTrcs() const
     return maxdistsq < 1e-3 ? mUdf(float) : (float)sqrt(maxdistsq);
 }
 
+
+void StorageProvider::getCompNames( BufferStringSet& nms ) const
+{
+    updateDescAndGetCompNms( desc_, &nms );
+}
 
 }; // namespace Attrib

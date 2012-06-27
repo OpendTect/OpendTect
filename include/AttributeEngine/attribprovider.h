@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.89 2011-09-16 10:51:28 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.90 2012-06-27 12:46:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,12 @@ public:
     virtual void		setRdmPaths(TypeSet<BinID>* truepath,
 	    				    TypeSet<BinID>* snappedpath);
 				//!<For directional attributes
+
+    				//!<Special case for attributes (like PreStack)
+   				//!<which inputs are not treated as normal
+    				//!<input cubes and thus not delivering
+    				//!<adequate cs automaticly
+    virtual void		updateCSIfNeeded(CubeSampling&) const	{}
 
 protected:
 
