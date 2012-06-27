@@ -5,7 +5,7 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.1 2012-06-27 16:23:03 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.2 2012-06-27 20:01:38 cvsyuancheng Exp $";
 
 #include "dippca.h"
 
@@ -37,6 +37,19 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
 
+    double *eigen_value;
+    double **eigen_vector;
+    double **d_matrix;
+    int nsize = 3;
+    eigen_value = (double*)malloc(sizeof(double)*nsize);
+    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
+    d_matrix = (double**)malloc(sizeof(double*)*nsize);
+    for (int i=0; i<nsize; i++) 
+    {
+	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
+	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
+    }
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
     {
 	const int z = idx%fd_.zsz_;
@@ -53,6 +66,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const int z_left = mMAX(0,z-ngate_2);
 	const int z_right = mMIN(fd_.zsz_-1,z+ngate_2);
     
+	float x_mean = 0.0;
+	float y_mean = 0.0;
+	float z_mean = 0.0;
 	TypeSet<int> xs, ys, zs;
 	for ( int kx=x_left; kx<=x_right; kx++ )
 	{
@@ -66,20 +82,74 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 			xs += kx;
 			ys += ky;
 			zs += kz;
+	    
+			x_mean += kx;
+	    		y_mean += ky;
+	    		z_mean += kz;
 		    }
 		}
 	    }
 	}
+	const int npoints = xs.size();
+	if ( npoints<2 )
+	    continue;
 
-	float absdip, inldip, crldip, azimuth;
-	if ( DipPCA::get3DGridDip(xs,ys,zs,fd_.xdist_,fd_.ydist_,
-		    fd_.zdist_,absdip,inldip,crldip,azimuth) )
+	x_mean /= npoints;
+	y_mean /= npoints;
+	z_mean /= npoints;
+
+	/*get the covariance for x and y*/
+	float var_xx = 0.0;
+	float var_yy = 0.0;
+	float var_zz = 0.0;
+	float var_xy = 0.0;
+	float var_yz = 0.0;
+	float var_zx = 0.0;
+	for ( int jp=0; jp<npoints; jp++ )
 	{
-    	    fd_.absdip_->set( x, y, z, absdip );
-    	    fd_.inldip_->set( x, y, z, inldip );
-    	    fd_.crldip_->set( x, y, z, crldip );
-	    fd_.azimuth_->set( x, y, z, azimuth );
+	    var_xx += (xs[jp]-x_mean)*(xs[jp]-x_mean);
+	    var_yy += (ys[jp]-y_mean)*(ys[jp]-y_mean);
+	    var_zz += (zs[jp]-z_mean)*(zs[jp]-z_mean);
+	    var_xy += (xs[jp]-x_mean)*(ys[jp]-y_mean);
+	    var_yz += (ys[jp]-y_mean)*(zs[jp]-z_mean);
+	    var_zx += (zs[jp]-z_mean)*(xs[jp]-x_mean);
 	}
+
+	var_xx /= (npoints-1);
+	var_yy /= (npoints-1);
+	var_xy /= (npoints-1);
+	var_yz /= (npoints-1);
+	var_zx /= (npoints-1);
+	
+	/* get the eigen value and eigen vector */
+	d_matrix[0][0] = var_xx;
+	d_matrix[1][1] = var_yy;
+	d_matrix[2][2] = var_zz;
+	d_matrix[0][1] = d_matrix[1][0] = var_xy;
+	d_matrix[0][2] = d_matrix[2][0] = var_zx;
+	d_matrix[1][2] = d_matrix[2][1] = var_yz;
+	
+	eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
+
+	double eigen_ratio;
+	eigen_ratio = eigen_value[0]/(eigen_value[1]+eigen_value[2]);
+	if ( eigen_ratio<0.5 ) 
+	    return false;
+
+	double denominator = sqrt(eigen_vector[0][0]*eigen_vector[0][0]+
+		eigen_vector[0][1]*eigen_vector[0][1]);
+	
+	float absdip = atan(denominator/eigen_vector[0][2])*mRad2Angle; 
+	float inldip = 
+	    eigen_vector[0][0]*fd_.xdist_/(fd_.zdist_*eigen_vector[0][2]);
+	float crldip = 
+	    eigen_vector[0][1]*fd_.ydist_/(fd_.zdist_*eigen_vector[0][2]);
+	float azimuth = atan(eigen_vector[0][1]/eigen_vector[0][0])*mRad2Angle;
+    	    
+	fd_.absdip_->set( x, y, z, absdip );
+	fd_.inldip_->set( x, y, z, inldip );
+	fd_.crldip_->set( x, y, z, crldip );
+	fd_.azimuth_->set( x, y, z, azimuth );
     }
 
     return true;
@@ -105,6 +175,19 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
+    
+    double *eigen_value;
+    double **eigen_vector;
+    double **d_matrix;
+    int    nsize = 2; 
+    eigen_value = (double*)malloc(sizeof(double)*nsize);
+    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
+    d_matrix = (double**)malloc(sizeof(double*)*nsize);
+    for (int i=0; i<nsize; i++) 
+    {
+	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
+	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
+    }
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
     {
@@ -119,6 +202,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const int y_left = mMAX(0,y-ngate_2);
 	const int y_right = mMIN(fd_.ysz_-1,y+ngate_2);
     
+	float x_mean = 0.0;
+	float y_mean = 0.0;
 	TypeSet<int> xs, ys;
 	for ( int kx=x_left; kx<=x_right; kx++ )
 	{
@@ -129,13 +214,47 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		{
 		    xs += kx;
 		    ys += ky;
+	    
+		    x_mean += kx;
+		    y_mean += ky;
 		}
 	    }
 	}
 
-	float dip;
-	if ( DipPCA::get2DGridDip(xs,ys,fd_.xdist_,fd_.ydist_,dip) )
-    	    fd_.dip_->set( x, y, dip );
+	const int npoints = xs.size();
+	if ( npoints<2 )
+	    continue;
+
+	x_mean /= npoints;
+	y_mean /= npoints;
+	
+	/*get the covariance for x and y*/
+	float var_xx = 0.0;
+	float var_yy = 0.0;
+	float var_xy = 0.0;
+	for ( int jp=0; jp<npoints; jp++ )
+	{
+	    var_xx += (xs[jp]-x_mean)*(xs[jp]-x_mean);
+	    var_yy += (ys[jp]-y_mean)*(ys[jp]-y_mean);
+	    var_xy += (xs[jp]-x_mean)*(ys[jp]-y_mean);
+	}
+
+	var_xx /= (npoints-1);
+	var_yy /= (npoints-1);
+	var_xy /= (npoints-1);
+	
+	d_matrix[0][0] = var_xx;
+	d_matrix[1][1] = var_yy;
+	d_matrix[0][1] = d_matrix[1][0] = var_xy;
+	
+	eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
+	if ( eigen_value[0]/eigen_value[1]<0.5 )
+	    continue;
+
+	float dip = 
+	    fd_.xdist_*eigen_vector[0][0]/(fd_.ydist_*eigen_vector[0][1]);
+	//dip = atan(eigen_vector[1][1]/eigen_vector[1][0])*mRad2Angle;
+    	fd_.dip_->set( x, y, dip );
     }
 
     return true;
@@ -145,147 +264,6 @@ Dip2D& fd_;
 };
 
 
-bool DipPCA::get3DGridDip( const TypeSet<int>& xs, const TypeSet<int>& ys, 
-	const TypeSet<int>& zs, float xdist, float ydist, float zdist, 
-	float& absdip, float& inldip, float& crldip, float& azimuth )
-{
-    const int npoints = xs.size();
-    if ( npoints<2 )
-	return false;;
-
-    /*get the mean value for x and y location*/
-    float x_mean = 0.0;
-    float y_mean = 0.0;
-    float z_mean = 0.0;
-    for ( int jp=0; jp<npoints; jp++ )
-    {
-	x_mean += xs[jp];
-	y_mean += ys[jp];
-	z_mean += zs[jp];
-    }
-    x_mean /= npoints;
-    y_mean /= npoints;
-    z_mean /= npoints;
-
-    /*get the covariance for x and y*/
-    float var_xx = 0.0;
-    float var_yy = 0.0;
-    float var_zz = 0.0;
-    float var_xy = 0.0;
-    float var_yz = 0.0;
-    float var_zx = 0.0;
-    for ( int jp=0; jp<npoints; jp++ )
-    {
-	var_xx += (xs[jp]-x_mean)*(xs[jp]-x_mean);
-	var_yy += (ys[jp]-y_mean)*(ys[jp]-y_mean);
-	var_zz += (zs[jp]-z_mean)*(zs[jp]-z_mean);
-	var_xy += (xs[jp]-x_mean)*(ys[jp]-y_mean);
-	var_yz += (ys[jp]-y_mean)*(zs[jp]-z_mean);
-	var_zx += (zs[jp]-z_mean)*(xs[jp]-x_mean);
-    }
-
-    var_xx /= (npoints-1);
-    var_yy /= (npoints-1);
-    var_xy /= (npoints-1);
-    var_yz /= (npoints-1);
-    var_zx /= (npoints-1);
-    
-    /* get the eigen value and eigen vector */
-    double *eigen_value;
-    double **eigen_vector;
-    double **d_matrix;
-    int nsize = 3;
-    eigen_value = (double*)malloc(sizeof(double)*nsize);
-    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
-    d_matrix = (double**)malloc(sizeof(double*)*nsize);
-    for (int i=0; i<nsize; i++) 
-    {
-	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
-	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
-    }
-    d_matrix[0][0] = var_xx;
-    d_matrix[1][1] = var_yy;
-    d_matrix[2][2] = var_zz;
-    d_matrix[0][1] = d_matrix[1][0] = var_xy;
-    d_matrix[0][2] = d_matrix[2][0] = var_zx;
-    d_matrix[1][2] = d_matrix[2][1] = var_yz;
-    
-    eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
-
-    double eigen_ratio;
-    eigen_ratio = eigen_value[0]/(eigen_value[1]+eigen_value[2]);
-    if ( eigen_ratio<0.5 ) 
-	return false;
-
-    double denominator = sqrt(eigen_vector[0][0]*eigen_vector[0][0]+
-	    eigen_vector[0][1]*eigen_vector[0][1]);
-    
-    absdip = atan(denominator/eigen_vector[0][2])*mRad2Angle; 
-    inldip = eigen_vector[0][0]*xdist/(zdist*eigen_vector[0][2]);
-    crldip = eigen_vector[0][1]*ydist/(zdist*eigen_vector[0][2]);
-    azimuth = atan(eigen_vector[0][1]/eigen_vector[0][0])*mRad2Angle;
-    return true;
-}
-
-
-bool DipPCA::get2DGridDip( const TypeSet<int>& x, const TypeSet<int>& y,
-       const float xdist, const float ydist, float& res )
-{
-    const int npoints = x.size();
-    if ( npoints<2 )
-	return false;
-
-    float x_mean = 0.0;
-    float y_mean = 0.0;
-    for ( int jp=0; jp<npoints; jp++ )
-    {
-	x_mean += x[jp];
-	y_mean += y[jp];
-    }
-    x_mean /= npoints;
-    y_mean /= npoints;
-    
-    /*get the covariance for x and y*/
-    float var_xx = 0.0;
-    float var_yy = 0.0;
-    float var_xy = 0.0;
-    for ( int jp=0; jp<npoints; jp++ )
-    {
-	var_xx += (x[jp]-x_mean)*(x[jp]-x_mean);
-	var_yy += (y[jp]-y_mean)*(y[jp]-y_mean);
-	var_xy += (x[jp]-x_mean)*(y[jp]-y_mean);
-    }
-
-    var_xx /= (npoints-1);
-    var_yy /= (npoints-1);
-    var_xy /= (npoints-1);
-    
-    /* get the eigen value and eigen vector */
-    double *eigen_value;
-    double **eigen_vector;
-    double **d_matrix;
-    int    nsize = 2; 
-    eigen_value = (double*)malloc(sizeof(double)*nsize);
-    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
-    d_matrix = (double**)malloc(sizeof(double*)*nsize);
-    for (int i=0; i<nsize; i++) 
-    {
-	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
-	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
-    }
-    d_matrix[0][0] = var_xx;
-    d_matrix[1][1] = var_yy;
-    d_matrix[0][1] = d_matrix[1][0] = var_xy;
-    
-    eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
-    
-    if ( eigen_value[0]/eigen_value[1]<0.5 )
-	return false;
-
-    res = xdist*eigen_vector[0][0]/(ydist*eigen_vector[0][1]);
-    //res = atan(eigen_vector[1][1]/eigen_vector[1][0])*mRad2Angle;
-    return true;
-}
 
 
 DipPCA::Setup::Setup()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Y.Liu
  Date:          June 2012
- RCS:           $Id: dippca.h,v 1.1 2012-06-27 16:23:02 cvsyuancheng Exp $
+ RCS:           $Id: dippca.h,v 1.2 2012-06-27 20:01:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -55,15 +55,6 @@ public:
 
 protected:
 
-    static bool			get2DGridDip(const TypeSet<int>& xs, 
-	    			       const TypeSet<int>& ys,
-				       float xdist,float ydist,float& dip);
-    static bool			get3DGridDip(const TypeSet<int>& xs, 
-	    			       const TypeSet<int>& ys,
-				       const TypeSet<int>& zs,
-				       float xdist, float ydist, float zdist,
-				       float& absdip,float& inldip,
-				       float& crldip,float& azimuth);
     Setup			setup_;
 };
 
