@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.23 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.24 2012-06-27 12:50:43 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -273,11 +273,11 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     freqfld_->display( act == 1 );
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
-    gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size" );
+    gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size (samples)" );
     StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10) 
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
-    gatefld_->setValue( 300 );
+    gatefld_->setValue( act > 2 ? 1 : 300 );
 
     handleSpikeSelCB(0);
 }
