@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.63 2011-05-09 23:30:40 cvskarthika Exp $
+ RCS:           $Id: uimpeman.h,v 1.64 2012-06-27 15:23:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     void			turnQCPlaneOff();
 
     void                        visObjectLockedCB(CallBacker*);
+    void			updateButtonSensitivity(CallBacker* = 0);
 
 protected:
     void			addButtons();
@@ -78,7 +79,6 @@ protected:
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
     void			savePush(CallBacker*);
-    void			updateButtonSensitivity(CallBacker* = 0);
     void			moveBackward(CallBacker*);
     void			moveForward(CallBacker*);
     void			trackFromSeedsOnly(CallBacker*);

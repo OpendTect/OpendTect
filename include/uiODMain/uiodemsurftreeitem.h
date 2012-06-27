@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.19 2012-04-09 22:15:06 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.20 2012-06-27 15:23:21 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,8 @@ protected:
     virtual void	checkCB(CallBacker*);
     void		selChg(CallBacker*);
 
-    bool		treeitemwasenabled_;
-    bool		prevtrackstatus_;
+    void		updateTrackingState();
+    bool		istrackingallowed_;
 
     MenuItem		savemnuitem_;
     MenuItem		saveasmnuitem_;

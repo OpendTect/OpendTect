@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.99 2012-05-21 20:55:45 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.100 2012-06-27 15:23:21 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -64,8 +64,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , reloadmnuitem_("Reload",-750)
     , trackmenuitem_(uiVisEMObject::trackingmenutxt())
     , starttrackmnuitem_("Start tracking ...")
-    , treeitemwasenabled_(true)
-    , prevtrackstatus_(true)
+    , istrackingallowed_(true)
 {
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
@@ -106,7 +105,6 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	return false;
 
     initNotify();
-    treeitemwasenabled_ = isChecked();
     return true;
 }
 
@@ -149,35 +147,33 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 
 void uiODEarthModelSurfaceTreeItem::selChg( CallBacker* )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emd,visserv_->getObject(displayid_));
-
-    uiMPEPartServer* mps = applMgr()->mpeServer();
-    const int trackerid = mps->getTrackerID( emid_ );
-    bool enable = emd && emd->isSelected() && isChecked();
-    mps->enableTracking( trackerid, enable );
+    updateTrackingState();
 }
 
 
 void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::checkCB(cb);
+    updateTrackingState();
+}
+
+
+void uiODEarthModelSurfaceTreeItem::updateTrackingState()
+{
+    mDynamicCastGet( visSurvey::EMObjectDisplay*,
+		    emod, visserv_->getObject(displayid_) );
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
     const int trackerid = mps->getTrackerID( emid_ );
     if ( trackerid == -1 )
 	return;
 
-    if ( !treeitemwasenabled_ && isChecked() )
-	mps->enableTracking( trackerid, prevtrackstatus_ );
+    const bool enabletracking = istrackingallowed_ && isChecked() &&
+				emod->isSelected();
 
-    if ( treeitemwasenabled_ && !isChecked() )
-    {
-	prevtrackstatus_ = mps->isTrackingEnabled( trackerid );
-	mps->enableTracking( trackerid, false );
-    }
+    if ( mps->isTrackingEnabled(trackerid) != enabletracking )
+	mps->enableTracking( trackerid, enabletracking );
 
-    treeitemwasenabled_ = isChecked();
     applMgr()->visServer()->updateMPEToolbar();
 }
 
@@ -212,7 +208,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, false, false );
 	mAddMenuItem( &trackmenuitem_, &changesetupmnuitem_, true, false );
 	mAddMenuItem( &trackmenuitem_, &enabletrackingmnuitem_, true,
-		      mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
+		      istrackingallowed_ );
     }
     else
     {
@@ -336,9 +332,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==enabletrackingmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const int trackerid = mps->getTrackerID(emid_);
-	mps->enableTracking( trackerid, !mps->isTrackingEnabled(trackerid) );
-	applMgr()->visServer()->updateMPEToolbar();
+	istrackingallowed_ = !istrackingallowed_;
+	updateTrackingState();
     }
     else if ( mnuid==createflatscenemnuitem_.id )
     {

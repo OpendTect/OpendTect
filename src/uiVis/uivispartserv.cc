@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.479 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.480 2012-06-27 15:23:22 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -2015,6 +2015,7 @@ void uiVisPartServer::showMPEToolbar( bool yn )
 void uiVisPartServer::updateMPEToolbar()
 {
     mpetools_->validateSeedConMode();
+    mpetools_->updateButtonSensitivity();
 }
 
 
