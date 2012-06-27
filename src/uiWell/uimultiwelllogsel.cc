@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.22 2012-05-11 14:21:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.23 2012-06-27 12:51:25 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -376,6 +376,7 @@ void uiMultiWellLogSel::init()
 	welllslblfld_ = llbw;
     }
     zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
+    setStretch( 2, 0 );
 }
 
 
