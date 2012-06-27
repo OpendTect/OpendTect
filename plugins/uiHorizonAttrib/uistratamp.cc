@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.25 2012-06-25 08:44:34 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratamp.cc,v 1.26 2012-06-27 09:16:40 cvshelene Exp $";
 
 #include "uistratamp.h"
 
@@ -76,7 +76,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( uppgrp_, "Output fold as an extra attribute",
-	    		       BoolInpSpec(true) ) ;
+	    		       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
     attribnamefld_ = new uiGenInput( uppgrp_, "Attribute name",
