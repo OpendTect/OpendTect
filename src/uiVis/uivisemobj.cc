@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.99 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.100 2012-06-27 15:17:08 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -427,8 +427,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
     if ( trackmnu )
     {
-	mAddMenuItem( trackmnu, &editmnuitem_, enabmenu,
-		      emod->isEditingEnabled() );
+//	mAddMenuItem( trackmnu, &editmnuitem_, enabmenu,
+//		      emod->isEditingEnabled() );
 
 	const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
 	const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
