@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.81 2012-05-11 14:46:39 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.82 2012-06-28 11:54:30 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -935,7 +935,8 @@ int Well::SimpleTrackSampler::nextStep()
 	    pos.z = zval;
 	    bid = SI().transform( pos );
 	}
-	if ( isinsidesurvey_ && !SI().includes( bid, zval, false ) ) 
+	if ( ( isinsidesurvey_ && !SI().includes( bid, zval, false ) )
+		|| !SI().isReasonable( bid )) 
 	    { nrdone_++; return Executor::MoreToDo(); }
 
 	bidset_ += bid; coords_ += pos;
@@ -950,12 +951,14 @@ int Well::SimpleTrackSampler::nextStep()
 Well::LogSampler::LogSampler( const Well::Data& wd, 
 			    const Well::ExtractParams& pars, 
 			    const BufferStringSet& lognms )
-    : lognms_(lognms)
 {
     init( wd.d2TModel(), pars.calcFrom(wd,lognms), pars.isInTime(), 
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
     for ( int idx=0; idx<lognms.size(); idx++ ) 
-	logset_ += wd.logs().getLog( lognms_.get( idx ) );
+    {
+	const Well::Log* l = wd.logs().getLog( lognms.get( idx ) );
+	if ( l ) logset_ += l; 
+    }
 }
 
 
@@ -964,11 +967,13 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const BufferStringSet& lognms )
-    : lognms_(lognms)
 { 
     init( wd.d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
     for ( int idx=0; idx<lognms.size(); idx++ ) 
-	logset_ += wd.logs().getLog( lognms.get( idx ) );
+    {
+	const Well::Log* l = wd.logs().getLog( lognms.get( idx ) );
+	if ( l ) logset_ += l; 
+    }
 }
 
 
@@ -980,8 +985,6 @@ Well::LogSampler::LogSampler( const Well::D2TModel* d2t,
 { 
     init( d2t, zrg, zrgisintime, zstep, extrintime, samppol );
     logset_ = logs;
-    for ( int idx=0; idx<logs.size(); idx++ ) 
-	lognms_.add( logs[idx]->name() );
 }
 
 
@@ -1008,7 +1011,7 @@ Well::LogSampler::~LogSampler()
 
 
 od_int64 Well::LogSampler::nrIterations() const
-{ return lognms_.size(); }
+{ return logset_.size(); }
 
 
 bool Well::LogSampler::doPrepare( int thread )
@@ -1076,7 +1079,7 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 	    return false;
 
 	if ( !doLog( idx ) )
-	    { errmsg_ = "One or several logs could not be written"; }
+	    { errmsg_ = "One or several logs could not be extracted"; }
 
 	addToNrDone( 1 );
     }
@@ -1123,8 +1126,14 @@ float Well::LogSampler::getLogVal( int logidx, int idz ) const
 
 float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
 {
-    const int logidx = lognms_.indexOf( lnm );
-    return logidx < 0 ? mUdf(float) : getLogVal( logidx, idz );
+    bool found = false;
+    int logidx = 0;
+    for ( logidx=0; logidx<logset_.size(); logidx++ )
+    {
+	if (  !strcmp(logset_[logidx]->name(),lnm ) )
+	    { found = true; break; }
+    }
+    return found ? getLogVal( logidx, idz ) :  mUdf(float);
 }
 
 

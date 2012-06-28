@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.40 2012-05-11 08:24:39 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.41 2012-06-28 11:54:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,7 +346,6 @@ protected:
     bool 			doPrepare(int);
     bool 			doWork(od_int64,od_int64,int);
 
-    BufferStringSet 		lognms_;
     const Well::D2TModel* 	d2t_;
     Interval<float>		zrg_;
     float			zstep_; 
