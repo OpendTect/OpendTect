@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.92 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.93 2012-06-28 13:26:37 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -84,7 +84,6 @@ FaultDisplay::FaultDisplay()
     activestickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
 
     activestickmarker_->ref();
-    activestickmarker_->setRadius( 1.2, true );
     if ( !activestickmarker_->getMaterial() )
 	activestickmarker_->setMaterial( visBase::Material::create() );
     activestickmarker_->insertNode(
@@ -486,6 +485,8 @@ void FaultDisplay::updateStickDisplay()
 {
     if ( stickdisplay_ )
     {
+	setLineRadius( stickdisplay_ );
+
 	bool dodisplay = areSticksDisplayed();
 	if ( arePanelsDisplayedInFull() && emfault_->nrSections() )
 	{
@@ -1727,14 +1728,17 @@ void FaultDisplay::getLineWidthBounds( int& min, int& max )
 void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const int linewidth = islinesolid ? lineStyle()->width_ : -1;
+    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
     const float inllen =
 	survinfo_->inlDistance() * survinfo_->inlRange(true).width();
     const float crllen =
 	survinfo_->crlDistance() * survinfo_->crlRange(true).width();
     const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
-	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );
+	shape->set3DLineRadius( linewidth, true, maxlinethickness );
+
+    activestickmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
+				   true, maxlinethickness+0.5 );
 }
 
 
