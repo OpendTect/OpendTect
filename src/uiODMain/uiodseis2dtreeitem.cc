@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.117 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.118 2012-06-28 13:40:34 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -837,6 +837,14 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     }
     else
     {
+	const char* ptr = strchr( as.userRef(), '|' );
+	if ( ptr ) // only to set correct userref in selspec
+	{
+	    LineKey lkusrref( as.userRef() );
+	    as.setUserRef( lkusrref.attrName() );
+	    s2d->setSelSpec( attribnr, as );
+	}
+
 	if ( !strcmp(lk.attrName(),LineKey::sKeyDefAttrib()) &&
 	     strcmp(as.userRef(),"") )
 	    lk.setAttrName( as.userRef() );
