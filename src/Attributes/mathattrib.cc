@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: mathattrib.cc,v 1.50 2012-05-03 11:20:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: mathattrib.cc,v 1.51 2012-06-28 07:54:54 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -231,7 +231,12 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     if ( isrec && recstartidx>z0 )
     {
 	for ( int idx=z0; idx<recstartidx; idx++ )
+	{
+	    if ( idx >= z0+nrsamples )
+		return true;
+
 	    setOutputValue( output, 0, idx-z0, z0, recstartvals_[0] );
+	}
     }
     
     const int loopstartidx = isrec ? recstartidx : z0;
