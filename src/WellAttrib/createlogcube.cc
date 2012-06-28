@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.12 2012-05-03 07:30:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.13 2012-06-28 11:57:40 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -66,7 +66,8 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
 }
 
 
-#define mErrRet(msg) { errmsg_ = msg; return false; }
+#define mErrRet(msg)\
+{ errmsg_= msg; errmsg_ += " for "; errmsg_ += wd_.name(); return false; }
 bool LogCubeCreator::doPrepare( int )
 {
     if ( binids_.isEmpty() )
@@ -91,7 +92,7 @@ bool LogCubeCreator::doPrepare( int )
 bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( SI().zIsTime() && !wd_.haveD2TModel() )
-	{ errmsg_ = "No depth/time model found"; return false; }
+	mErrRet( "No depth/time model found" );
 
     for ( int idx=start; idx<=stop; idx++ )
     {
@@ -99,7 +100,10 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 	    return false;
 
 	if ( !writeLog2Cube( *logdatas_[idx] ) )
-	    { errmsg_ = "One or several logs could not be written"; }
+	{
+	    errmsg_ = "One or several logs could not be written"; 
+	    errmsg_ += " for "; errmsg_ += wd_.name(); 
+	}
 
 	addToNrDone( 1 );
     }
