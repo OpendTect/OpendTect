@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.88 2012-05-02 15:12:07 cvskris Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.89 2012-06-28 03:48:53 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.88 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.89 2012-06-28 03:48:53 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1267,6 +1267,8 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 
 	yah.annotAtEnd( txt );
     }
+    else
+	yah.annotAtEnd( 0 );
 }
 
 
