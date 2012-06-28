@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.100 2012-06-27 15:23:21 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.101 2012-06-28 07:45:07 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -160,16 +160,16 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::updateTrackingState()
 {
-    mDynamicCastGet( visSurvey::EMObjectDisplay*,
-		    emod, visserv_->getObject(displayid_) );
-
     uiMPEPartServer* mps = applMgr()->mpeServer();
     const int trackerid = mps->getTrackerID( emid_ );
     if ( trackerid == -1 )
 	return;
 
+    mDynamicCastGet( visSurvey::EMObjectDisplay*,
+		     emod, visserv_->getObject(displayid_) );
+
     const bool enabletracking = istrackingallowed_ && isChecked() &&
-				emod->isSelected();
+				emod && emod->isSelected();
 
     if ( mps->isTrackingEnabled(trackerid) != enabletracking )
 	mps->enableTracking( trackerid, enabletracking );
