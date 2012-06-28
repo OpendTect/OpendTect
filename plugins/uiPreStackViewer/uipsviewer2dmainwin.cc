@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.20 2012-06-28 10:52:20 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.21 2012-06-28 11:29:14 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -237,11 +237,21 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 		    		mCB(this,uiViewer2DMainWin,dataDlgPushed));
 	    ctrl->infoChanged.notify( mCB(this,uiViewer2DMainWin,displayInfo) );
 	    control_ = ctrl;
+	    uiToolBar* tb = control_->toolBar();
+	    if ( tb )
+		tb->addButton( 
+		    new uiToolButton( tb, "contexthelp", "Help",
+			mCB(this,uiViewer2DMainWin,doHelp) ) );
 	}
 	control_->addViewer( *fv );
     }
 }
 
+
+void uiViewer2DMainWin::doHelp( CallBacker* )
+{
+    provideHelp( "50.2.2" );
+}
 
 void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 {
@@ -260,7 +270,6 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
 			    .withthumbnail(false)
-			    .helpid( "50.2.2" )
 			    .withcoltabed(false)
 			    .withedit(false))
     , posdlgcalled_(this)
@@ -276,6 +285,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     mDefBut(posbut_,"orientation64",gatherPosCB,"Set positions");
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set seismic display properties");
     mDefBut(databut_,"gatherdisplaysettings64",gatherDataCB,"Set gather data");
+    tb_->addSeparator();
 }
 
 

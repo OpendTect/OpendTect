@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2dmainwin.h,v 1.8 2012-06-18 14:05:35 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dmainwin.h,v 1.9 2012-06-28 11:29:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ protected:
     void 		setUpView();
 
     void		displayInfo(CallBacker*);
+    void		doHelp(CallBacker*);
     void		posSlcChgCB(CallBacker*);
     void		posDlgChgCB(CallBacker*);
     void 		posDlgPushed(CallBacker*);
