@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiisopachmaker.cc,v 1.20 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiisopachmaker.cc,v 1.21 2012-06-28 15:35:28 cvshelene Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -137,7 +137,7 @@ uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
     : uiFullBatchDialog( p,Setup("Create isopach").procprognm("od_isopach") )
 {
     grp_ = new uiIsopachMakerGrp( uppgrp_, -1 );
-    addStdFields();
+    addStdFields( false, true );
     uppgrp_->setHAlignObj( grp_ );
 }
 
