@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.58 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.59 2012-06-28 14:30:22 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -374,6 +374,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addattribmnuitem_.id )
     {
 	uiODDataTreeItem* newitem = addAttribItem();
+	newitem->select();
 	const int id = newitem->displayID();
 	const int attrib = newitem->attribNr();
 	const bool selok = applMgr()->selectAttrib( id, attrib );
