@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.87 2012-06-21 13:59:51 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.88 2012-06-28 14:53:44 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 
@@ -143,6 +143,11 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		if ( !linenm.isEmpty() && *linenm.buf() != '#' )
 		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
 				todofld->getInput()) )
+
+		PtrMan<IOObj> ioobj =
+			IOM().get( MultiID(firststoreddsc->getStoredID(true)) );
+		if ( ioobj )
+		    transffld->setInput( *ioobj );
 	    }
 	}
     }
