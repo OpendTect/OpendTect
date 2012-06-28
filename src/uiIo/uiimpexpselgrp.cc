@@ -594,7 +594,8 @@ const char* uiSGSel::selGrpFileNm()
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup("Open Crossplot Selection", "","112.0.0"))
+    : uiDialog(p,uiDialog::Setup("Open Crossplot Selection",mNoDlgTitle,
+				"111.0.10"))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
     , y2selfld_(0)
