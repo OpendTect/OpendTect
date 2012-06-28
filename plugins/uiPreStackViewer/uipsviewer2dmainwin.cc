@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.19 2012-06-18 14:05:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.20 2012-06-28 10:52:20 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -260,6 +260,7 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
 			    .withthumbnail(false)
+			    .helpid( "50.2.2" )
 			    .withcoltabed(false)
 			    .withedit(false))
     , posdlgcalled_(this)

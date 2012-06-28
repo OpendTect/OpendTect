@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.10 2012-05-30 13:25:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.11 2012-06-28 10:52:20 cvsbruno Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -34,7 +34,7 @@ namespace PreStackView
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d, 
 					const CubeSampling& cs )
     : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
-				0,"50.2.2").modal(false))
+				0,"50.2.3").modal(false))
     , okpushed_(this)
     , is2d_(is2d)		     
 {
@@ -190,7 +190,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms, 
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
-				"Add PS Gather","50.2.3"))
+				"Add PS Gather","50.2.4"))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers", true );
