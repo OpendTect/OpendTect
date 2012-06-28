@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segydirect.cc,v 1.39 2012-05-22 22:05:17 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: segydirect.cc,v 1.40 2012-06-28 13:07:25 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -56,31 +56,42 @@ void setFDS( const FileDataSet* fds )
 
 od_int64 size() const { return fds_->size(); }
 
-Seis::PosKey key( od_int64 nr ) const
+bool key( od_int64 nr, Seis::PosKey& pk ) const
 {
-    Seis::PosKey pk;
     bool usable;
-    if ( !fds_ || !fds_->getDetails( nr, pk, usable ) || !usable )
-	return Seis::PosKey::undef();
+    if ( !fds_ || !fds_->getDetails( nr, pk, usable ) )
+	return false;
+    
+    if ( !usable )
+    {
+	pk = Seis::PosKey::undef();
+	return true;
+    }
 
     const Seis::GeomType geom = fds_->geomType();
     if ( !Seis::is2D( geom ) )
     {
 	const BinID bid = pk.binID();
 	if ( bid.inl<=0 || bid.crl<=0 )
-	    return Seis::PosKey::undef();
+	{
+	    pk = Seis::PosKey::undef();
+	}
     }
     else
     {
 	const int trcnr = pk.trcNr();
 	if ( trcnr<0 )
-	    return Seis::PosKey::undef();
+	{
+	    pk = Seis::PosKey::undef();
+	}
     }
 
     if ( Seis::isPS( geom ) && pk.offset()<0 )
-	return Seis::PosKey::undef();
+    {
+	pk = Seis::PosKey::undef();
+    }
 
-    return pk;
+    return true;
 }
 
 
@@ -540,7 +551,7 @@ int SEGY::FileIndexer::nextStep()
 
     if ( !directdef_ )
     {
-	BufferString outfile = ioobj_->fullUserExpr( true );
+	BufferString outfile = ioobj_->fullUserExpr( false );
 	if ( outfile.isEmpty() )
 	    { msg_ = "Output filename empty"; return ErrorOccurred(); }
 

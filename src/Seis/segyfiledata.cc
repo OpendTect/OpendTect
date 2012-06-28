@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.32 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.33 2012-06-28 13:07:25 cvskris Exp $";
 
 #include "segyfiledata.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID mUnusedVar = "$Id: segyfiledata.cc,v 1.32 2012-05-22 14
 #include "seisposindexer.h"
 #include "survinfo.h"
 #include "strmoper.h"
+#include "strmprov.h"
 #include "segytr.h"
 
 #include <fstream>
@@ -42,7 +43,7 @@ SEGY::FileDataSet::StoredData::StoredData( const char* filename,
 	const DataCharacteristics& dc32 )
     : int32di_( DataInterpreter<int>::create( dc32, false ) )
     , start_( offset )
-    , istrm_( new std::ifstream(filename) )
+    , istrm_( StreamProvider( filename ).makeIStream().istrm )
     , ostrm_( 0 )
 {}
 
@@ -67,24 +68,23 @@ bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
 {
     Threads::MutexLocker lock( lock_ );
 
-    if ( !istrm_ || !istrm_->good() || pos<0 )
+    if ( !istrm_ || pos<0 )
 	return false;
 
     static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
-    StrmOper::seek( *istrm_, start_+pos*unitsz, std::ios::beg );
+    const od_int64 offset = start_+pos*unitsz;
+    StrmOper::seek( *istrm_, offset, std::ios::beg );
     if ( !istrm_->good() )
 	return false;
 
     BinID bid;
     int offsetazimuth;
-    bid.inl = DataInterpreter<int>::get( int32di_, *istrm_ );
-    bid.crl = DataInterpreter<int>::get( int32di_, *istrm_ );
-    offsetazimuth = DataInterpreter<int>::get( int32di_, *istrm_ );
-    istrm_->read( (char*) &usable, sizeof(bool) );
-
-    if ( !istrm_->good() )
-	return false;
-
+    if ( !DataInterpreter<int>::get( int32di_, *istrm_, bid.inl ) ||
+	 !DataInterpreter<int>::get( int32di_, *istrm_, bid.crl ) ||
+	 !DataInterpreter<int>::get( int32di_, *istrm_, offsetazimuth ) ||
+	 !StrmOper::readBlock( *istrm_, &usable, sizeof(bool) ) )
+	 return false;
+  
     OffsetAzimuth oa; oa.setFrom( offsetazimuth );
 
     pk.setBinID( bid );
