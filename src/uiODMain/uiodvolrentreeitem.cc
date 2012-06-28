@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.67 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.68 2012-06-28 07:03:23 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -394,9 +394,12 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
     {
 	slice->selection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
 	slice->deSelection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB));
-	visserv_->getUiSlicePos()->positionChg.remove( 
-	    		mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
     }
+    
+    visserv_->getUiSlicePos()->positionChg.remove( 
+			  mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
+
+    
     visserv_->getUiSlicePos()->setDisplay( -1 );
 }
 
