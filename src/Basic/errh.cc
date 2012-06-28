@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.4 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.5 2012-06-28 07:15:12 cvskris Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -142,3 +142,77 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }
+
+
+//Crashdumper stuff
+struct CrashDumper
+{
+    CrashDumper( const char* path, const char* sendappl )
+    : path_( path )
+    , sendappl_( sendappl )
+    {
+	init();
+    }
+    
+    void		sendDump(const char* filename);
+    
+    void		init();
+    
+    BufferString	sendappl_;
+    BufferString	path_;
+    
+#ifdef __msvc__
+    ExceptionHandler*	handler_;
+#endif
+};
+
+
+CrashDumper* theinst mUnusedVar = 0;
+
+
+#ifdef __msvc__
+void CrashDumper::init()
+{
+    
+}
+#else
+void CrashDumper::init()
+{
+    
+}
+
+#endif
+
+
+void CrashDumper::sendDump( const char* filename )
+{
+    if ( sendappl_.isEmpty() )
+	return;
+    
+    if ( !File::exists( sendappl_ ) || !File::exists( filename ) )
+	return;
+    
+    const BufferString cmd( sendappl_, " ", filename );
+    StreamProvider(cmd).executeCommand( true, false );
+}
+
+
+bool initCrashDumper( const char* dumpdir, const char* sendappl )
+{
+    if ( !theinst )
+	theinst = new CrashDumper( dumpdir, sendappl );
+    else
+	pFreeFnErrMsg("initCrashDumper", "CrashDumper installed before");
+    
+    return true;
+}
+
+
+FixedString sSenderAppl()
+{ return FixedString("od_ReportIssue" ); }
+
+
+FixedString sUiSenderAppl()
+{ return FixedString( "od_uiReportIssue" ); } 
+
+

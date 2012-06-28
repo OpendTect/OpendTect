@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.17 2009-07-23 08:22:16 cvsbert Exp $
+ RCS:		$Id: errh.h,v 1.18 2012-06-28 07:15:11 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "msgh.h"
 #include "bufstring.h"
+#include "fixedstring.h"
 
 /*!\brief MsgClass holding an error message.
 
@@ -58,5 +59,12 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 # define pErrMsg(msg)
 # define pFreeFnErrMsg(msg,fn)
 #endif
+
+/*! Installs segmentation fault dumper. Not available on all platforms. */
+mExtern bool initCrashDumper( const char* dumpdir, const char* sendappl );
+
+mExtern FixedString sSenderAppl();	//od_ReportIssue
+mExtern FixedString sUiSenderAppl();	//od_uiReportIssue
+
 
 #endif
