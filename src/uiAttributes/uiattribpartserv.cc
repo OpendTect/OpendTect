@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.194 2012-06-21 18:03:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.195 2012-06-28 13:54:11 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1501,6 +1501,16 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	    mFakeCompName( "Component 1", "Inline Dip" );
 	    mFakeCompName( "Component 2", "Crossline Dip" );
 	}
+
+	//Trick for PreStack offsets displayed on the fly
+	if ( desc->isStored() && desc->userRef()[0] == '{' )
+	{
+	    LineKey lkey( desc->userRef() );
+	    BufferString newnm = "offset index "; newnm += selectedcomps[idx];
+	    lkey.setAttrName( newnm );
+	    desc->setUserRef( lkey.buf() );
+	}
+
 	as.setRefFromID( *ads );
 	as.set2DFlag( is2d );
 	targetspecs_ += as;
