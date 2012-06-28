@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.43 2012-03-27 22:33:48 cvsnanne Exp $
+ RCS:           $Id: viswell.h,v 1.44 2012-06-28 09:13:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ class SoSwitch;
 
 namespace visBase
 {
-class DrawStyle;
 class PolyLineBase;
 class DataObjectGroup;
 class Text2;
@@ -197,7 +196,6 @@ protected:
     				~Well();
 
     PolyLineBase*		track_;
-    DrawStyle*			drawstyle_;
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
     DataObjectGroup*		markergroup_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.16 2011-03-10 22:33:24 cvskris Exp $
+ RCS:		$Id: vispolyline.h,v 1.17 2012-06-28 09:13:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
     virtual void	setLineStyle(const LineStyle&) = 0;
+    virtual const LineStyle& lineStyle() const = 0;
 protected:
     			PolyLineBase(SoVertexShape*);
     SoMFInt32*		numvertices_;
@@ -55,6 +56,7 @@ public:
 			mCreateDataObj(PolyLine);
 
     void		setLineStyle(const LineStyle&);
+    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet*		lineset_;
@@ -69,6 +71,7 @@ public:
 			mCreateDataObj(PolyLine3D);
 
     void		setLineStyle(const LineStyle&);
+    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet3D*	lineset_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.74 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.75 2012-06-28 09:13:15 cvsbruno Exp $";
 
 #include "viswell.h"
 
@@ -64,9 +64,6 @@ Well::Well()
 {
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
-    drawstyle_ = DrawStyle::create();
-    drawstyle_->ref();
-    sep->addChild( drawstyle_->getInventorNode() );
 
     track_ = PolyLine3D::create();
     track_->ref();
@@ -117,9 +114,6 @@ Well::~Well()
 
     removeChild( track_->getInventorNode() );
     track_->unRef();
-
-    removeChild( drawstyle_->getInventorNode() );
-    drawstyle_->unRef();
 
     markergroup_->removeAll();
     removeChild( markergroup_->getInventorNode() );
@@ -206,11 +200,7 @@ void Well::setLineStyle( const LineStyle& lst )
 
 const LineStyle& Well::lineStyle() const
 {
-    static LineStyle ls;
-    ls.type_ = drawstyle_->lineStyle().type_;
-    ls.width_ = drawstyle_->lineStyle().width_;
-    ls.color_ = track_->getMaterial()->getColor();
-    return ls;
+    return track_->lineStyle();
 }
 
 #define mSetWellName( nm, pos, post, font ) \

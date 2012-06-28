@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vispolyline.cc,v 1.24 2012-06-28 08:50:23 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolyline.cc,v 1.25 2012-06-28 09:13:14 cvsbruno Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"
@@ -91,6 +91,17 @@ void PolyLine::setLineStyle( const LineStyle& lst )
 }
 
 
+const LineStyle& PolyLine::lineStyle() const
+{
+    if ( drawstyle_ )
+	return drawstyle_->lineStyle();
+
+    static LineStyle ls;
+    ls.color_ = getMaterial()->getColor();
+    return ls;
+}
+
+
 PolyLine3D::PolyLine3D()
     : PolyLineBase( new SoLineSet3D )
     , lineset_( dynamic_cast<SoLineSet3D*>( shape_ ) )
@@ -105,6 +116,15 @@ void PolyLine3D::setLineStyle( const LineStyle& lst )
     lineset_->radius = lst.width_*0.5;
 	//divided by 2 just like evry other radius in visBase
     getMaterial()->setColor( lst.color_ );
+}
+
+
+const LineStyle& PolyLine3D::lineStyle() const
+{
+    static LineStyle ls;
+    ls.width_ = (int)(2*lineset_->radius.getValue());
+    ls.color_ = getMaterial()->getColor();
+    return ls;
 }
 
 
