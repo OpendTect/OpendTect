@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.66 2012-06-20 19:04:30 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.67 2012-06-28 13:05:54 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -181,14 +181,12 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
 		BufferString attrnm;
-		if ( desc->is2D() )
-		{
-		    LineKey lk( desc->userRef() );
-		    attrnm = lk.attrName();
-		    ncdesc->setUserRef( LineKey(ioobj->name(),attrnm) );
-		}
-		else
+		LineKey lk( desc->userRef() );
+		attrnm = lk.attrName();
+		if ( !desc->is2D() && attrnm == LineKey::sKeyDefAttrib() )
 		    ncdesc->setUserRef( ioobj->name() );
+		else
+		    ncdesc->setUserRef( LineKey(ioobj->name(),attrnm) );
 	    }
 	}
 
