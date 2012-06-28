@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.16 2012-02-09 15:01:27 cvskris Exp $
+ RCS:		$Id: datainterp.h,v 1.17 2012-06-28 12:59:27 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -75,6 +75,7 @@ public:
 
     T			get(std::istream&) const;
     static T		get(const DataInterpreter<T>*,std::istream&);
+    static bool         get(const DataInterpreter<T>*,std::istream&,T&);
     inline T		get( const void* buf, od_int64 nr ) const
 			{ return (this->*getfn)( buf, nr ); }
     inline void		put( void* buf, od_int64 nr, T t ) const
