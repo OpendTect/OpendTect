@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.108 2012-06-29 14:47:50 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.109 2012-06-29 15:42:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,16 +28,18 @@ class LatLong2Coord;
 /*!Scaled down survey geometry for an inl/crl geometry . */
 
 
-mClass InlCrlSystem : public NamedObject
+mClass InlCrlSystem
 {
 public:
     friend		class SurveyInfo;
     
 			InlCrlSystem(const char* nm,const ZDomain::Def& zd )
-			    : NamedObject( nm )
+			    : name_( nm )
     			    , zdomain_( zd )
 			{}
     
+    const BufferString&	name() const		{ return name_; }
+    			    
     float		zScale() const 		{ return zscale_; }
 
     StepInterval<int>	inlRange() const	{ return cs_.hrg.inlRange(); }
@@ -65,6 +67,7 @@ public:
     
 protected:
     
+    BufferString	name_;
     RCol2Coord		b2c_;
     
     CubeSampling	cs_; 
