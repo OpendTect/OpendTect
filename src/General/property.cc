@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.60 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.61 2012-06-29 12:25:13 cvsbert Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -444,20 +444,15 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 
     if ( eo.valopt_ == EvalOpts::New )
 	eo.valopt_ = EvalOpts::Prev;
+
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
-	if ( !p )
-	    return mUdf(float);
-	else if ( p == &depthprop )
-	    return eo.curz_;
-
-	const float v = p->value(eo);
-	if ( mIsUdf(v) )
-	    return mUdf(float);
-
+	if ( !p ) return mUdf(float);
+	const float v = p == &depthprop ? eo.curz_ : p->value(eo);
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
     }
+
     for ( int idx=0; idx<consts_.size(); idx++ )
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,false), 
 	      			 constValue(idx) );
