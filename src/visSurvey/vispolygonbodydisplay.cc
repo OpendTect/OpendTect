@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.21 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.22 2012-06-29 14:53:43 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -64,7 +64,6 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     nearestpolygonmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
 
     nearestpolygonmarker_->ref();
-    nearestpolygonmarker_->setRadius( 1, true );
     if ( !nearestpolygonmarker_->getMaterial() )
 	nearestpolygonmarker_->setMaterial( visBase::Material::create() );
     nearestpolygonmarker_->insertNode(
@@ -78,7 +77,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
 
     drawstyle_->ref();
     //addChild( drawstyle_->getInventorNode() );
-    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,3) );
+    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,2) );
 
     intsurf_->ref();
     intsurf_->turnOn( false );
@@ -179,18 +178,32 @@ void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
     setLineRadius( intersectiondisplay_ );
     if ( areIntersectionsDisplayed() )
 	intersectiondisplay_->touch( false );
+
+    setLineRadius( polygondisplay_ );
+    if ( arePolygonsDisplayed() )
+	polygondisplay_->touch( false );
+}
+
+
+void PolygonBodyDisplay::getLineWidthBounds( int& min, int& max )
+{
+    drawstyle_->getLineWidthBounds( min, max );
+    min = -1;
 }
 
 
 void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const int linewidth = islinesolid ? lineStyle()->width_ : -1;
+    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
     const float inllen = SI().inlDistance() * SI().inlRange(true).width();
     const float crllen = SI().crlDistance() * SI().crlRange(true).width();
     const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
-	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );
+	shape->set3DLineRadius( linewidth, true, maxlinethickness );
+
+    nearestpolygonmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
+				      true, maxlinethickness );
 }
 
 
@@ -263,6 +276,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	polygondisplay_->setSelectable( false );
 	polygondisplay_->setRightHandSystem( righthandsystem_ );
 	addChild( polygondisplay_->getInventorNode() );
+
+	setLineRadius( polygondisplay_ );
     }
     
     const float zscale = scene_

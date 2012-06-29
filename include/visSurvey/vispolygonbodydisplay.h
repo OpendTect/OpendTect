@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.13 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.14 2012-06-29 14:53:43 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ public:
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
+    void			getLineWidthBounds(int& min,int& max);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
