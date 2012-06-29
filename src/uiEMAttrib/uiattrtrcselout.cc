@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.66 2012-06-21 17:07:36 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.67 2012-06-29 14:51:59 cvshelene Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -352,12 +352,21 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	Attrib::Desc* desc = ads_.getDesc( attrfld_->attribID() );
 	EM::SurfaceIOData data;
 	EM::EMM().getSurfaceData( ctio_.ioobj->key(), data );
-	IOObj* lineobj = IOM().get( MultiID(desc->getStoredID()) );
+	MultiID mid;
+	if ( desc )	
+	    mid = MultiID( desc->getStoredID() );
+	if ( !desc || mid.isEmpty() )            //Could be 2D neural network 
+	{                                                                       
+	    Desc* firststoreddsc = ads_.getFirstStored();
+	    if ( firststoreddsc )                                                               mid = MultiID( firststoreddsc->getStoredID(true) );             
+	}                                                                       
+
+	IOObj* lineobj = IOM().get( mid );
 	Seis2DLineSet s2d( *lineobj );
 
 	BufferString msg = "The selected horizon does not share the geometry ";
-			   " of the selected lineset. ";
-			   "Choose other input data or horizon.";
+	" of the selected lineset. ";
+	"Choose other input data or horizon.";
 	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() ) 
 	{
 	    uiMSG().error( msg );
