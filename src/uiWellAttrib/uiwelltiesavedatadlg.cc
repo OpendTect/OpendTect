@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiesavedatadlg.cc,v 1.21 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiesavedatadlg.cc,v 1.22 2012-06-29 14:32:36 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -77,7 +77,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, repeatfld_ );
     
-    su.labelcolnm("Wavelet"); su.itemnames_ = wvltnms;
+    su.labelcolnm("Wavelet"); su.itemnames_ = wvltnms; su.saveasioobj_ = true;
     su.ctio_ = wvltctioset_;
     savewvltsfld_ = new uiSaveDataGroup( this, su );
     savewvltsfld_->attach( stretchedBelow, horSepar );
