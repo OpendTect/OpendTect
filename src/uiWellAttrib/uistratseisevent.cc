@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratseisevent.cc,v 1.6 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratseisevent.cc,v 1.7 2012-06-29 13:29:34 cvsbert Exp $";
 
 #include "uistratseisevent.h"
 #include "uistratlvlsel.h"
@@ -46,7 +46,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     if ( setup_.withextrwin_ )
     {
 	const float defstep = SI().zIsTime() ? SI().zStep() * 1000 : 4;
-	extrwinfld_ = new uiGenInput( this, "Extraction window",
+	extrwinfld_ = new uiGenInput( this, BufferString("Extraction window ",
+		    SI().getZUnitString()),
 	      FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
     }
