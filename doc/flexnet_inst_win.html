@@ -4,7 +4,7 @@
 - Author:     A.H. Bril
 - Date:       June 2008
 - Contents:   FlexNet usage and installation
-- RCS:        $Id: flexnet_inst_win.html,v 1.4 2012-06-27 09:07:27 cvsbert Exp $
+- RCS:        $Id: flexnet_inst_win.html,v 1.5 2012-06-29 12:41:51 cvsbert Exp $
 -->
 
 <body><title>FlexNet installation and usage</title>
@@ -18,13 +18,16 @@
 <div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <h4><a name="intro">Introduction</a></h4>
-<p>
-On Windows, installation of the license file and startup of the license manager daemon (as a Windows service) is quite a bit more difficult than on UNIX variants. We therefore recommend, if you have the chance, to use a UNIX server for licensing.
-<p>
-The installation starts by putting the license file in a good, stable, safe position on your system. This is <b>not</b> in the installation directory (which is typically \Program Files\OpendTect). A directory like \Licenses and a filename showing the plugin vendor name seems to be a good choice. We recommend not to use spaces or special characters in the directory or file name. Later, when you get a new license file, you simply replace the old one with the new one under the same name, and if the license is floating use the 'ReRead License File' button in the 'Start/Stop/ReRead' tab of the license manager tools program.
+<p>On Windows, installation of the license file is quite a bit more difficult than on UNIX variants. Especially if you also have to startup a license manager daemon (i.e. if you have a server-based license) as a Windows service. We therefore recommend, if you have the chance, to use a UNIX server for licensing if you have the chance.
+<p>How do you know whether you have a server-based license? Well, you need to look inside the file, with a tool like the Notepad. If you see a line like:
+<pre>SERVER the_host 00828d72b0</pre>
+then you know you have a floating license. Setting up the license will be harder, but you will be more flexible in the computers you use. See also the <a href="http://opendtect.org/lic/doc/flexnet_explained.html">FlexNet Explained</a> page.
 </p>
 
 <h4><a name="install">Installation</a></h4>
+<p>
+The installation starts by putting the license file in a good, stable, safe position on your system. This is <b>not</b> in the installation directory (which is typically \Program Files\OpendTect). A directory like \Licenses and a filename showing the plugin vendor name seems to be a good choice. We recommend not to use spaces or special characters in the directory or file name. Later, when you get a new license file, you simply replace the old one with the new one under the same name. If the license is floating use the 'ReRead License File' button in the 'Start/Stop/ReRead' tab of the license manager tools program.
+</p>
 <p>If you are upgrading, i.e. replacing a license file with a new version, then the easiest way to do it is to replace only the contents of the old file, i.e. keeping the same name. For server-based licenses, first stop the service. In any case, don't keep old copies in existence because FlexNet may sneakily use those rather than trying the new one.
 <p>
 For new installations: on first usage of a plugin, you will see a popup of a window asking for the license file. If this method succeeds, everything should be OK. You can stop reading now.<br<br>
@@ -37,7 +40,8 @@ The first thing you need to be sure of, is that FlexNet is looking at the right 
 In case you see a wrong path displayed, you can overrule it using the overrule button. Below an example for the dGB daemon ('dgbld'), for other vendors you need to use other names (e.g. 'arkclsld'):<br><br>
 <img src="pics/override_path.png"><br><br>
 </p><p>
-If you have a node-locked or demo license, you should now be able to use the plugins. For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor. They are in the installation, under Program Files\OpendTect\4.4.0. Then find the necessary lmgrd.exe in:
+If you have a node-locked or demo license, you should now be able to use the plugins.
+</p><p>For licenses requiring a server, you must also make sure the FlexNet vendor service is running on the server machine. On the server machine, start the License Manager Tools program. In the top tab select 'Configuration using services'. Go to the 'Config services' tab. Now enter a name for the service, for example 'opendtect_lic' in the 'Service name' field. The location of the lmgrd.exe file may differ per vendor. They are in the installation, under Program Files\OpendTect\4.4.0. Then find the necessary lmgrd.exe in:
 <ul>
 <li><i>dGB</i>: bin\win32\lm.dgb
 <li><i>ARK CLS</i>: arkcls\bin\Windows\5.1\i686
