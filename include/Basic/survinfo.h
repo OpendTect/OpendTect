@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.107 2012-05-02 12:28:49 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.108 2012-06-29 14:47:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,59 @@ ________________________________________________________________________
 #include "rcol2coord.h"
 #include "enums.h"
 #include "zdomain.h"
+#include "cubesampling.h"
 
 class ascostream;
 class IOPar;
 class CubeSampling;
 class LatLong2Coord;
+
+/*!Scaled down survey geometry for an inl/crl geometry . */
+
+
+mClass InlCrlSystem : public NamedObject
+{
+public:
+    friend		class SurveyInfo;
+    
+			InlCrlSystem(const char* nm,const ZDomain::Def& zd )
+			    : NamedObject( nm )
+    			    , zdomain_( zd )
+			{}
+    
+    float		zScale() const 		{ return zscale_; }
+
+    StepInterval<int>	inlRange() const	{ return cs_.hrg.inlRange(); }
+    StepInterval<int>	crlRange() const	{ return cs_.hrg.crlRange(); }
+    StepInterval<float>	zRange() const		{ return cs_.zrg; }
+    int			inlStep() const 	{ return cs_.hrg.step.inl; }
+    int			crlStep() const 	{ return cs_.hrg.step.crl; }
+
+    
+    float		zStep() const 		{ return cs_.zrg.step; }
+    
+    Coord		transform(const BinID&) const;
+    BinID		transform(const Coord&) const;
+    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
+
+    float		inlDistance() const;
+    float		crlDistance() const;
+    
+    const CubeSampling&	sampling() const	{ return cs_; }
+    
+    Coord3		oneStepTranslation(const Coord3& planenormal) const;
+    
+    
+    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
+    
+protected:
+    
+    RCol2Coord		b2c_;
+    
+    CubeSampling	cs_; 
+    ZDomain::Def	zdomain_;
+    float		zscale_;
+};
 
 
 /*!\brief Holds survey general information.
@@ -52,6 +100,8 @@ public:
     bool		isValid() const		{ return valid_; }
     bool		has2D() const;
     bool		has3D() const;
+    
+    InlCrlSystem*	create3DGeometry(bool work) const;
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
