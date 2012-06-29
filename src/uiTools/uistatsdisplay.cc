@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.35 2012-06-21 20:00:23 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.36 2012-06-29 10:09:35 cvsbruno Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -103,6 +103,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 
 bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
+    TypeSet<float> valarr;
     if ( !histgramdisp_ || 
 	 (histgramdisp_ && !histgramdisp_->setDataPackID(dpid,dmid)) )
     {
@@ -146,7 +147,6 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    {
 		const int sz2d0 = array->info().getSize( 0 );
 		const int sz2d1 = array->info().getSize( 1 );
-		TypeSet<float> valarr;
 		for ( int idx0=0; idx0<sz2d0; idx0++ )
 		{
 		    for ( int idx1=0; idx1<sz2d1; idx1++ )
@@ -167,7 +167,6 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !dpset )
 		return false;
 
-	    TypeSet<float> valarr;
 	    for ( int idx=0; idx<dpset->size(); idx++ )
 		valarr += dpset->value( 2, idx );
 
