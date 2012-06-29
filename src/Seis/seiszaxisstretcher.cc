@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.23 2012-05-14 12:26:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.24 2012-06-29 21:49:38 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -206,7 +206,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     
     if ( !stretchz_ )
     {
-	sampler = new ZAxisTransformSampler( *ztransform_, is2d_, sd, is2d_ );
+	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
