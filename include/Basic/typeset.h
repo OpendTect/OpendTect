@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.13 2012-02-24 10:15:46 cvskris Exp $
+ RCS:		$Id: typeset.h,v 1.14 2012-06-29 12:06:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,7 @@ TypeSet<T>::TypeSet( const T* tarr, int nr )
 
 template <class T> inline
 TypeSet<T>::TypeSet( const TypeSet<T>& t )
+    : OD::Set( t )
 { append( t ); }
 
 

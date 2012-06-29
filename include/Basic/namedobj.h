@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: namedobj.h,v 1.5 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: namedobj.h,v 1.6 2012-06-29 12:06:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ public:
 			: name_(0), linkedto_((NamedObject*)l), delnotify_(0)
 			{}
 			NamedObject( const NamedObject& o )
-			: linkedto_(o.linkedto_), delnotify_(0)
+			: CallBacker( o )
+			, linkedto_(o.linkedto_), delnotify_(0)
 			{ if ( o.name_ ) name_ = new BufferString(*o.name_); }
     virtual		~NamedObject()	;
     void		setLinked( NamedObject* l )
