@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.6 2012-06-21 19:51:02 cvsnanne Exp $
+RCS:           $Id: statparallelcalc.h,v 1.7 2012-06-29 10:06:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,12 +123,12 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     T sum_xx = 0;
     int minidx = 0;
     int maxidx = 0;
-    int idx = start;
     int nrused = 0;
 
     for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
 	/* just skip undefs at start */;
 
+    int idx = start;
     const T* dataptr = data_ + start;
     const T* stopptr = dataptr + (stop-start+1);
 
@@ -140,9 +140,10 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     {
 	val = *dataptr;
 	dataptr++;
+	idx ++;
 
 	if ( mIsUdf( val ) )
-	    { idx++; continue; }
+	    continue; 
 
 	sum_x += val;
 	sum_xx += val*val;
