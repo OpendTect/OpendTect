@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.60 2012-06-29 09:02:39 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.61 2012-06-29 09:07:22 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -267,7 +267,7 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
     const int selannot = vwr.getAnnotChoices( annots ); 
 
     if ( propdlg_ ) delete propdlg_;
-    propdlg_ = new uiFlatViewPropDlg( this, vwr,
+    propdlg_ = new uiFlatViewPropDlg( 0, vwr,
 				  mCB(this,uiFlatViewControl,applyProperties),
 	   			  annots.size() ? &annots : 0, selannot );
     propdlg_->windowClosed.notify( mCB(this,uiFlatViewControl,propDlgClosed) );
