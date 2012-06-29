@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityvolumeconversion.cc,v 1.14 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityvolumeconversion.cc,v 1.15 2012-06-29 11:55:57 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -225,7 +225,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	    else 
 	    {
 		if ( !computeDix( inputptr, sd, trc.size(), 
-					interptr ? interptr :outptr ) );
+					interptr ? interptr :outptr ) )
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
