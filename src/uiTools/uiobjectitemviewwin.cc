@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.25 2012-06-21 13:47:00 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.26 2012-06-29 13:59:52 cvsbruno Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -50,7 +50,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ - mScrollBarSize );
-    infobar_->setMinimumHeight( su.infoheight_ );
+    infobar_->setPrefHeight( su.infoheight_ );
     infobar_->setSceneLayoutPos( su.layoutpos_ );
     infobar_->setStretch( 2, 0 );
     infobar_->disableScrollZoom();
@@ -58,7 +58,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     uiGraphicsView* dummyview = new uiGraphicsView( this, "Dummy view" );
     dummyview->setNoBackGround();
     dummyview->setPrefWidth( mScrollBarSize );
-    dummyview->setMinimumHeight( su.infoheight_ );
+    dummyview->setPrefHeight( su.infoheight_ );
     dummyview->attach( rightOf, infobar_, 0 );
     dummyview->setStretch( 0, 0 );
 
@@ -276,21 +276,25 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
 void uiObjectItemViewWin::fitToScreen( CallBacker* )
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&mainviewer_->scene())
-    const uiSize screensz( mainviewer_->parent()->mainObject()->width(),
-    mainviewer_->parent()->mainObject()->height() );
-    if ( screensz.width()<=0 || screensz.height()<=0 ) return;
-    const uiSize layoutsz( sc->layoutSize().width() + (int)sc->layoutPos().x,
-			   sc->layoutSize().height() + (int)sc->layoutPos().y );
-    float xratio = ( screensz.width()/(float)layoutsz.width() );
-    float yratio = ( screensz.height()/(float)layoutsz.height() );
-    uiSlider* hsldr = horsliderfld_->sldr();
-    uiSlider* vsldr = versliderfld_->sldr();
-    float hslval = hsldr->getValue();
-    float vslval = vsldr->getValue();
-    int hscaledfac = (int)(hslval*xratio);
-    int vscaledfac = (int)(vslval*yratio);
-    hsldr->setValue( hscaledfac );
-    vsldr->setValue( vscaledfac );
+    const uiSize screensz( mainviewer_->width(), mainviewer_->height() );
+    if ( screensz.width()<=0 || screensz.height()<=0 ) 
+	return;
+
+    const uiSize layoutsz(sc->layoutSize().width(),sc->layoutSize().height());
+    float xratio = screensz.width()/(float)layoutsz.width();
+    float yratio = screensz.height()/(float)layoutsz.height();
+    float newhslval = hslval_*xratio;
+    float newvslval = vslval_*yratio;
+    scaleVal( newhslval, true, false ); 
+    scaleVal( newvslval, false, false );
+    if ( ( newhslval == hslval_ ) && ( newvslval == vslval_ ) )
+	return;
+
+    horsliderfld_->sldr()->setValue( newhslval );
+    versliderfld_->sldr()->setValue( newvslval );
+
+    zoomratiofld_->setChecked(false);
+    reSizeSld(0);
 }
 
 
