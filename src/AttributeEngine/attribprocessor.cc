@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribprocessor.cc,v 1.75 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprocessor.cc,v 1.76 2012-06-29 08:14:18 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -249,6 +249,10 @@ void Processor::init()
 
     for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
 	provider_->enableOutput(globaloutputinterest[idx], true );
+
+    //Special case for attributes (like PreStack) which inputs are not treated
+    //as normal input cubes and thus not delivering adequate cs automaticly
+    provider_->updateCSIfNeeded(globalcs);
 
     computeAndSetPosAndDesVol( globalcs );
     for ( int idx=0; idx<outputs_.size(); idx++ )

@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackattrib.cc,v 1.26 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackattrib.cc,v 1.27 2012-06-29 08:14:18 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID mUnusedVar = "$Id: prestackattrib.cc,v 1.26 2012-05-02 
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "posinfo.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
 #include "prestackgather.h"
@@ -281,6 +282,27 @@ void PSAttrib::prepPriorToBoundsCalc()
     }
 
     mTryAlloc( propcalc_, ::PreStack::PropCalc( setup_ ) );
+}
+
+
+void PSAttrib::updateCSIfNeeded( CubeSampling& cs ) const
+{
+    if ( !psrdr_ )
+	return;
+
+    mDynamicCastGet( SeisPS3DReader*, reader3d, psrdr_ )
+
+    if ( reader3d )
+    {
+	const PosInfo::CubeData& cd = reader3d->posData();
+	StepInterval<int> rg;
+	cd.getInlRange( rg );
+	cs.hrg.setInlRange( rg );
+	cd.getCrlRange( rg );
+	cs.hrg.setCrlRange( rg );
+    }
+
+    //TODO: anything we would need to do in 2D?
 }
 
 

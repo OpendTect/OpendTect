@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.13 2011-05-16 16:12:19 cvshelene Exp $
+ RCS:           $Id: prestackattrib.h,v 1.14 2012-06-29 08:14:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
     const ::PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }
     const MultiID&			preProcID() const { return preprocid_; }
+
+    void                updateCSIfNeeded(CubeSampling&) const;
 
 protected:
 
