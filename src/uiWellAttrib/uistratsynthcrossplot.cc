@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.43 2012-06-27 06:40:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.44 2012-06-29 13:30:04 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -172,7 +172,10 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 						const Attrib::DescSet& attrs )
 {
-    BufferString errmsg;                                                        
+    if ( attrs.isEmpty() )
+	return true;
+
+    BufferString errmsg;
     PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
 
     PtrMan<Executor> exec = aem->getTableExtractor( dps, attrs, errmsg,0,false);
@@ -192,6 +195,9 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 				     const Strat::LaySeqAttribSet& seqattrs )
 {
+    if ( seqattrs.isEmpty() )
+	return true;
+
     Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
     uiTaskRunner tr( this );
     return tr.execute( lmac );
@@ -242,11 +248,7 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 	return true;
 
     const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
-    if ( seisattrs.isEmpty() )
-	mErrRet("Please define a seismic attribute")
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
-    if ( seqattrs.isEmpty() )
-	mErrRet("Please define a layer attribute")
     if ( !evfld_->getFromScreen() )
 	mErrRet(0)
 
