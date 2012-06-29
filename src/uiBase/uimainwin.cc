@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.244 2012-06-20 11:21:21 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.245 2012-06-29 09:34:46 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1239,6 +1239,7 @@ class uiDialogBody : public uiMainWinBody
 public:
 			uiDialogBody(uiDialog&,uiParent*,
 				     const uiDialog::Setup&);
+			~uiDialogBody();
 
     int			exec( bool showminimized ); 
 
@@ -1348,6 +1349,17 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 {
     setContentsMargins( 10, 2, 10, 2 );
 }
+
+
+uiDialogBody::~uiDialogBody()
+{
+    if ( okbut )
+	okbut->activated.remove( mCB(this,uiDialogBody,accept) );
+
+    if ( cnclbut )
+	cnclbut->activated.remove( mCB(this,uiDialogBody,reject) );
+}
+
 
 
 int uiDialogBody::exec( bool showminimized )
