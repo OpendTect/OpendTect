@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.59 2012-05-10 08:19:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.60 2012-06-29 09:02:39 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -44,6 +44,11 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 uiFlatViewControl::~uiFlatViewControl()
 {
     delete &zoommgr_;
+    if ( propdlg_ )
+    {
+	delete propdlg_;
+	propdlg_ = 0;
+    }
 }
 
 
@@ -278,9 +283,6 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
 	if ( propdlg_->saveButtonChecked() )
 	    saveProperties( propdlg_->viewer() );
     }
-
-    uiOBJDISP()->go( propdlg_ );
-    propdlg_ = 0;
 }
 
 

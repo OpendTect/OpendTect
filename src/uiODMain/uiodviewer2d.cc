@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.57 2012-05-30 08:03:54 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.58 2012-06-29 09:02:39 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -72,9 +72,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 
 uiODViewer2D::~uiODViewer2D()
 {
-    if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
-	viewstdcontrol_->propDialog()->close();
-
     mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
