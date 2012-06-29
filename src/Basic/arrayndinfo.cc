@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.19 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.20 2012-06-29 12:17:06 cvskris Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -225,7 +225,8 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim_ )
 
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
-	: sizes(new int[nsz.getNDim()]) 
+	: ArrayNDInfo( nsz )
+        , sizes(new int[nsz.getNDim()]) 
 	, ndim( nsz.getNDim() )
 {
     for (int idx = 0; idx < ndim; idx++)

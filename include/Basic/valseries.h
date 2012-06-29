@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.35 2012-04-12 08:01:51 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.36 2012-06-29 12:17:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -434,7 +434,8 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
 template <class RT, class AT> inline
 MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries( 
 				const MultiArrayValueSeries<RT, AT>& mavs )
-    : cursize_( -1 )
+    : ValueSeries<RT>( mavs )
+    , cursize_( -1 )
     , chunksize_( mavs.chunksize_ )
 {
     ptrs_.allowNull( true );

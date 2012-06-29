@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.166 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.167 2012-06-29 12:17:06 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -106,7 +106,8 @@ SurveyInfo::SurveyInfo()
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : cs_(*new CubeSampling(false))
+    : NamedObject( si )
+    , cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
     , zdef_(*new ZDomain::Def( si.zDomain() ) )

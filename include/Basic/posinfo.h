@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.23 2011-04-22 13:28:56 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.24 2012-06-29 12:17:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,6 +154,7 @@ public:
 				  const BinID& step )
 			    : CubeData(start,stop,step)		{}
     			SortedCubeData( const SortedCubeData& cd )
+			    : CubeData( cd )
 								{ *this = cd; }
     			SortedCubeData( const CubeData& cd )	{ *this = cd; }
     SortedCubeData&	operator =( const SortedCubeData& scd )
