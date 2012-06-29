@@ -7,7 +7,7 @@ ________________________________________________________________________
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiissuereporter.cc,v 1.1 2012-06-26 12:50:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiissuereporter.cc,v 1.2 2012-06-29 12:42:53 cvskris Exp $";
 
 
 #include "uiissuereporter.h"
@@ -107,8 +107,8 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 	return true;
     }
     
-    uiMSG().message( "The report was successfully sent\nThe development crew"
-		    " want to thank you for your report!" );		    
+    uiMSG().message( "The report was successfully sent.\nThe development crew"
+		    " want to thank you for your help!" );		    
     
     return true;
 }
