@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seistrctr.cc,v 1.102 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seistrctr.cc,v 1.103 2012-06-29 22:53:21 cvsnanne Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -171,7 +171,8 @@ bool SeisTrcTranslator::commitSelections()
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
-	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
+// Does not work for Z-axis transformed scenes. Is it required?
+//	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
 	    outsd.start = selzrg.start;
 	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd.step;
 	    outnrsamples = mNINT(fnrsteps) + 1;
