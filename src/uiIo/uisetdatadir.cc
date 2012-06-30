@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.36 2012-06-26 22:44:10 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.37 2012-06-30 16:24:16 cvsraman Exp $";
 
 #include "uisetdatadir.h"
 
@@ -18,7 +18,9 @@ static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.36 2012-06-26 22
 #include "filepath.h"
 #include "oddirs.h"
 #include "oddatadirmanip.h"
+#include "odinst.h"
 #include "settings.h"
+#include "ziputils.h"
 
 #include <stdlib.h>
 
@@ -36,10 +38,6 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 		    		     "8.0.1"))
 	, olddatadir(GetBaseDataDir())
 {
-    BufferString demosurv = GetEnvVar( "DTECT_DEMO_SURVEY" );
-    if ( demosurv.isEmpty() )
-	SetEnvVar( "DTECT_DEMO_SURVEY", "F3_Demo_Start" );
-
     const bool oldok = OD_isValidRootDataDir( olddatadir );
     BufferString oddirnm, basedirnm;
     const char* titletxt = 0;
@@ -120,6 +118,19 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 }
 
 
+static BufferString getInstalledDemoSurvey()
+{
+    BufferString ret;
+    if ( ODInst::getPkgVersion("demosurvey") )
+    {
+	FilePath demosurvfp( GetSoftwareDir(0), "data", "oddemosurv.zip" );
+	ret = demosurvfp.fullPath();
+    }
+
+    return ret;
+}
+
+
 bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
@@ -190,22 +201,32 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
     }
 
-    if ( trycpdemosurv && GetEnvVar( "DTECT_DEMO_SURVEY" ) )
+    const char* demosurvenvvar = GetEnvVar( "DTECT_DEMO_SURVEY" );
+    BufferString instdemosurv = getInstalledDemoSurvey();
+    if ( trycpdemosurv && (demosurvenvvar || !instdemosurv.isEmpty()) )
     {
-	FilePath demosurvnm( GetSoftwareDir(0) );
-	demosurvnm.add( GetEnvVar("DTECT_DEMO_SURVEY") );
-
-	if ( File::isDirectory(demosurvnm.fullPath()) )
+	if ( demosurvenvvar && *demosurvenvvar ) //TODO: May be this should go.
 	{
-	    FilePath fp( datadir, FilePath(demosurvnm).fileName() );
-	    const BufferString todir( fp.fullPath() );
-	    if ( !File::exists(todir) )
+	    FilePath demosurvnm( GetSoftwareDir(0), demosurvenvvar );
+	    if ( File::isDirectory(demosurvnm.fullPath()) )
 	    {
-		if ( uiMSG().askGoOn( 
-			"Do you want to install the demo survey\n"
-			"in your OpendTect Data Root directory?" ) )
-		    File::copy( demosurvnm.fullPath(), todir );
+		FilePath fp( datadir, FilePath(demosurvnm).fileName() );
+		const BufferString todir( fp.fullPath() );
+		if ( !File::exists(todir) )
+		{
+		    if ( uiMSG().askGoOn( 
+			    "Do you want to install the demo survey\n"
+			    "in your OpendTect Data Root directory?" ) )
+			File::copy( demosurvnm.fullPath(), todir );
+		}
 	    }
+	}
+	else if ( !instdemosurv.isEmpty() )
+	{
+	    ZipUtils zu;
+	    if ( uiMSG().askGoOn( "Do you want to install the demo survey\n"
+				  "in your OpendTect Data Root directory?" ) )
+		zu.UnZip( instdemosurv, datadir );
 	}
     }
 
