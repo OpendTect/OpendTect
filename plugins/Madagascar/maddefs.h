@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.7 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: maddefs.h,v 1.8 2012-06-30 14:53:46 cvsraman Exp $
 -*/
 
 #include "bufstringset.h"
@@ -18,6 +18,7 @@ class ProgDef
 {
 public:
 
+    				ProgDef() : group_(0) {}
     BufferString		name_;
     BufferString		shortdesc_;
     BufferString		synopsis_;

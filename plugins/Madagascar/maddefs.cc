@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: maddefs.cc,v 1.23 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: maddefs.cc,v 1.24 2012-06-30 14:53:46 cvsraman Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -185,7 +185,7 @@ void ODMad::ProgInfo::search( const char* str,
     }
 }
 
-
+#define mbuflen 2048
 
 void ODMad::ProgInfo::addEntry( const char* fnm )
 {
@@ -193,8 +193,8 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
     if ( !sd.usable() ) return;
     ODMad::ProgDef* def = new ODMad::ProgDef;
 
-    static char buf[1024];
-    sd.istrm->getline( buf, 1024 );
+    static char buf[mbuflen];
+    sd.istrm->getline( buf, mbuflen );
     if ( strncmp(buf,"Program",7) )
 	return;
 
@@ -208,7 +208,7 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
     bool buildingcomment = false;
     BufferString tmp;
-    while ( sd.istrm->getline( buf, 1024 ) )
+    while ( sd.istrm->getline( buf, mbuflen ) )
     {
 	if ( buf[0] != '[' )
 	{
@@ -231,12 +231,12 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
 	if ( !strcmp(buf,"[SYNOPSIS]") )
 	{
-	    sd.istrm->getline( buf, 1024 );
+	    sd.istrm->getline( buf, mbuflen );
 	    def->synopsis_ = buf;
 	}
 	else if ( !strcmp(buf,"[DIRECTORY]") )
 	{
-	    sd.istrm->getline( buf, 1024 );
+	    sd.istrm->getline( buf, mbuflen );
 	    groups_.addIfNew( buf );
 	    def->group_ = find( groups_, buf );
 	}
