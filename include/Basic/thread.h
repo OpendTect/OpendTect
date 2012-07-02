@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.56 2012-07-02 10:17:49 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.57 2012-07-02 10:35:17 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -38,46 +38,23 @@ namespace Threads
 class Mutex;
 
 
-template <class T>
-mClass BasicAtomic
-{
-public:
-		BasicAtomic(T val=0);
-#ifdef mAtomicWithMutex
-		BasicAtomic( const BasicAtomic<T>& );
-		~BasicAtomic();
-#endif
-    inline bool	setIfEqual(T newval, T oldval );
-		/*!<Sets the val_ only if value is previously set
-		    to oldval */
-
-    		operator T() const	{ return val_; }
-    T		get() const		{ return val_; }
-
-    T		operator=(T v)		{ val_=v; return val_; }
-
-protected:
-    volatile T	val_;
-
-#ifdef mAtomicWithMutex
-    Mutex*	lock_;
-#endif
-
-};
-
-
 /*! Atomic variable where an operation (add, subtract) can
     be done without locking in a multithreaded environment. Only
     available for long, unsigned long */
 
 template <class T>
-mClass Atomic : public BasicAtomic<T>
+mClass Atomic
 {
 public:
     		Atomic(T val=0);
 #ifdef mAtomicWithMutex
 		Atomic( const Atomic<T>& );
 #endif
+
+		operator T() const	{ return val_; }
+    T		get() const		{ return val_; }
+    
+    T		operator=(T v)		{ val_=v; return val_; }
 
     inline T	operator+=(T);
     inline T	operator-=(T);
@@ -86,8 +63,25 @@ public:
     inline T	operator++(int);
     inline T	operator--(int);
 
+    inline bool	setIfEqual(T newval, T oldval );
+    /*!<Sets the val_ only if value is previously set
+     to oldval */
+    
+      
+protected:
+    volatile T	val_;
+    
+#ifdef mAtomicWithMutex
+    Mutex*	lock_;
+#endif
+
 };
 
+#ifdef __win__
+#define mAtomicPointerType od_uint64
+#else
+#define mAtomicPointerType void*
+#endif
 
     
 /*Atomic instanciated with a pointer. The class really only handles the
@@ -119,7 +113,8 @@ public:
 
 protected:
 
-    Atomic<od_uint64>	ptr_;
+
+    Atomic<mAtomicPointerType>	ptr_;
 };
 
 
@@ -431,28 +426,27 @@ mGlobal void sleep(double time); /*!< Time in seconds */
 // Atomic implementations
 #ifdef __win__
 
-#define mBasicAtomicSpecialization( type, postfix ) \
+#define mAtomicSpecialization( type, postfix ) \
 template <> inline \
-BasicAtomic<type>::BasicAtomic( type val ) \
-    : val_( val ) \
-    , lock_( 0 ) \
+Atomic<type>::Atomic( type val ) \
+: val_( val ) \
+, lock_( 0 ) \
 {} \
 \
 \
 template <> inline \
-bool BasicAtomic<type>::setIfEqual(type newval, type oldval ) \
+bool Atomic<type>::setIfEqual(type newval, type oldval ) \
 { \
-    if ( newval==oldval ) \
-	return true; \
+if ( newval==oldval ) \
+return true; \
 \
-    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
-}
-
-#define mAtomicSpecialization( type, postfix ) \
-mBasicAtomicSpecialization( type, postfix ) \
+return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
+} \
+\
+\
 template <> inline \
 Atomic<type>::Atomic( type val ) \
-    : BasicAtomic( val ) \
+    : val_( val ) \
 {} \
 \
 template <> inline \
@@ -497,7 +491,6 @@ type Atomic<type>::operator -- (int) \
 
 mAtomicSpecialization( long, )
 mAtomicSpecialization( unsigned long, )
-mBasicAtomicSpecialization( void*, Pointer )
 #ifdef _WIN64
 mAtomicSpecialization( long long, 64 )
 #endif
@@ -505,15 +498,9 @@ mAtomicSpecialization( long long, 64 )
 #undef mAtomicSpecialization
 
 template <class T> inline
-BasicAtomic<T>::BasicAtomic( T val )
+Atomic<T>::Atomic( T val )
     : val_( val )
     , lock_( new Mutex )
-{}
-
-
-template <class T> inline
-Atomic<T>::Atomic( T val )
-    : BasicAtomic( val )
 {}
 
 
@@ -566,7 +553,7 @@ T Atomic<T>::operator -- (int)
 
 
 template <class T> inline
-bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
+bool Atomic<T>::setIfEqual(T newval, T oldval )
 {
     MutexLocker lock( *lock_ );
     const bool res = val_==oldval;
@@ -575,11 +562,11 @@ bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
     return res;
 }
 
-#else
+#else //not win
 
 
 template <class T> inline
-BasicAtomic<T>::BasicAtomic( T val )
+Atomic<T>::Atomic( T val )
     : val_( val )
 #ifdef mAtomicWithMutex
     , lock_( new Mutex )
@@ -594,7 +581,7 @@ T Atomic<T>::operator += (T b)
     MutexLocker lock( *lock_ );
     return val_ += b;
 #else
-    return __sync_add_and_fetch(&BasicAtomic<T>::val_, b);
+    return __sync_add_and_fetch(&val_, b);
 #endif
 }
 
@@ -604,9 +591,9 @@ T Atomic<T>::operator -= (T b)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return BasicAtomic<T>::val_ -= b;
+    return val_ -= b;
 #else
-    return __sync_sub_and_fetch(&BasicAtomic<T>::val_, b);
+    return __sync_sub_and_fetch(&val_, b);
 #endif
 }
 
@@ -616,9 +603,9 @@ T Atomic<T>::operator ++()
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return ++BasicAtomic<T>::val_;
+    return ++val_;
 #else
-    return __sync_add_and_fetch(&BasicAtomic<T>::val_, 1);
+    return __sync_add_and_fetch(&val_, 1);
 #endif
 }
 
@@ -628,9 +615,9 @@ T Atomic<T>::operator -- ()
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return --BasicAtomic<T>::val_;
+    return --val_;
 #else
-    return __sync_sub_and_fetch(&BasicAtomic<T>::val_, 1);
+    return __sync_sub_and_fetch(&val_, 1);
 #endif
 }
 
@@ -640,9 +627,9 @@ T Atomic<T>::operator ++(int)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return BasicAtomic<T>::val_++;
+    return val_++;
 #else
-    return __sync_fetch_and_add(&BasicAtomic<T>::val_, 1);
+    return __sync_fetch_and_add(&val_, 1);
 #endif
 }
 
@@ -652,15 +639,15 @@ T Atomic<T>::operator -- (int)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return BasicAtomic<T>::val_--;
+    return val_--;
 #else
-    return __sync_fetch_and_sub(&BasicAtomic<T>::val_, 1);
+    return __sync_fetch_and_sub(&val_, 1);
 #endif
 }
 
 
 template <class T> inline
-bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
+bool Atomic<T>::setIfEqual(T newval, T oldval )
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
@@ -677,12 +664,12 @@ bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
 
 #ifdef mAtomicWithMutex
 template <class T> inline
-BasicAtomic<T>::BasicAtomic( const BasicAtomic<T>& b )
+Atomic<T>::Atomic( const Atomic<T>& b )
     : lock_( new Mutex ), val_( b.val_ )
 {}
 
 template <class T> inline
-BasicAtomic<T>::~BasicAtomic()
+Atomic<T>::~Atomic()
 {
     delete lock_;
 }
@@ -690,17 +677,22 @@ BasicAtomic<T>::~BasicAtomic()
 #undef mAtomicWithMutex
 #endif
 
+    
+    
 
 
 /* AtomicPointer implementations. */
 template <class T> inline
-AtomicPointer<T>::AtomicPointer(T* newptr ) : ptr_( (od_uint64) newptr ) {}
+AtomicPointer<T>::AtomicPointer(T* newptr )
+    : ptr_( (mAtomicPointerType) newptr )
+{}
 
 
 template <class T> inline
 bool AtomicPointer<T>::setIfOld(const T* oldptr, T* newptr)
 {
-    return ptr_.setIfEqual( (od_uint64) newptr, (od_uint64)oldptr );
+    return ptr_.setIfEqual( (mAtomicPointerType) newptr,
+			    (mAtomicPointerType)oldptr );
 }
     
     
@@ -748,7 +740,8 @@ T* AtomicPointer<T>::func \
 { \
     T* old = (T*) ptr_.get(); \
  \
-    while ( !ptr_.setIfEqual( (od_uint64) (op), (od_int64) old ) ) \
+    while ( !ptr_.setIfEqual( (mAtomicPointerType) (op), \
+			      (mAtomicPointerType) old ) ) \
 	old = (T*) ptr_.get(); \
  \
     return ret; \
