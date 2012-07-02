@@ -5,14 +5,14 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.2 2012-06-27 20:01:38 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.3 2012-07-02 15:50:46 cvsyuancheng Exp $";
 
 #include "dippca.h"
 
 #include "arrayndimpl.h"
-#include "eigenjacobi.h"
 #include "executor.h"
 #include "math.h"
+#include "pca.h"
 #include "task.h"
 
 
@@ -36,19 +36,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
-
-    double *eigen_value;
-    double **eigen_vector;
-    double **d_matrix;
-    int nsize = 3;
-    eigen_value = (double*)malloc(sizeof(double)*nsize);
-    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
-    d_matrix = (double**)malloc(sizeof(double*)*nsize);
-    for (int i=0; i<nsize; i++) 
-    {
-	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
-	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
-    }
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
     {
@@ -122,30 +109,32 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	var_zx /= (npoints-1);
 	
 	/* get the eigen value and eigen vector */
-	d_matrix[0][0] = var_xx;
-	d_matrix[1][1] = var_yy;
-	d_matrix[2][2] = var_zz;
-	d_matrix[0][1] = d_matrix[1][0] = var_xy;
-	d_matrix[0][2] = d_matrix[2][0] = var_zx;
-	d_matrix[1][2] = d_matrix[2][1] = var_yz;
-	
-	eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
+	const float d0[] = { var_xx, var_xy, var_zx };
+	const float d1[] = { var_xy, var_yy, var_yz };
+	const float d2[] = { var_zx, var_yz, var_zz };
+	PCA pca(3);
+	pca.addSample(d0);
+	pca.addSample(d1);
+	pca.addSample(d2);
+	pca.calculate();
 
-	double eigen_ratio;
-	eigen_ratio = eigen_value[0]/(eigen_value[1]+eigen_value[2]);
-	if ( eigen_ratio<0.5 ) 
+	TypeSet<float> eigenval;
+	for ( int idy=0; idy<3; idy++ )
+	    eigenval += pca.getEigenValue(idy);
+	TypeSet<float> eigenvec0(3,0);
+	pca.getEigenVector( 0, eigenvec0 );
+
+	const float eratio = eigenval[0]/(eigenval[1]+eigenval[2]);
+	if ( eratio<0.5 )
 	    return false;
 
-	double denominator = sqrt(eigen_vector[0][0]*eigen_vector[0][0]+
-		eigen_vector[0][1]*eigen_vector[0][1]);
-	
-	float absdip = atan(denominator/eigen_vector[0][2])*mRad2Angle; 
-	float inldip = 
-	    eigen_vector[0][0]*fd_.xdist_/(fd_.zdist_*eigen_vector[0][2]);
-	float crldip = 
-	    eigen_vector[0][1]*fd_.ydist_/(fd_.zdist_*eigen_vector[0][2]);
-	float azimuth = atan(eigen_vector[0][1]/eigen_vector[0][0])*mRad2Angle;
-    	    
+	const float edenominator = sqrt(eigenvec0[0]*eigenvec0[0]+
+		eigenvec0[1]*eigenvec0[1]);
+	const float absdip = atan(edenominator/eigenvec0[2])*mRad2Angle; 
+	const float inldip = eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
+	const float crldip = eigenvec0[1]*fd_.ydist_/(fd_.zdist_*eigenvec0[2]);
+	const float azimuth = atan(eigenvec0[1]/eigenvec0[0])*mRad2Angle;
+
 	fd_.absdip_->set( x, y, z, absdip );
 	fd_.inldip_->set( x, y, z, inldip );
 	fd_.crldip_->set( x, y, z, crldip );
@@ -176,19 +165,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
     
-    double *eigen_value;
-    double **eigen_vector;
-    double **d_matrix;
-    int    nsize = 2; 
-    eigen_value = (double*)malloc(sizeof(double)*nsize);
-    eigen_vector = (double**)malloc(sizeof(double*)*nsize);
-    d_matrix = (double**)malloc(sizeof(double*)*nsize);
-    for (int i=0; i<nsize; i++) 
-    {
-	eigen_vector[i] = (double*)malloc(sizeof(double)*nsize);
-	d_matrix[i] = (double*)malloc(sizeof(double)*nsize);
-    }
-
     for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
     {
 	const int x = idx/fd_.ysz_;
@@ -243,17 +219,26 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	var_yy /= (npoints-1);
 	var_xy /= (npoints-1);
 	
-	d_matrix[0][0] = var_xx;
-	d_matrix[1][1] = var_yy;
-	d_matrix[0][1] = d_matrix[1][0] = var_xy;
-	
-	eigenjacobi(nsize,d_matrix,eigen_value,eigen_vector);
-	if ( eigen_value[0]/eigen_value[1]<0.5 )
+	const float d0[] = { var_xx, var_xy };
+	const float d1[] = { var_xy, var_yy };
+	PCA pca(2);
+	pca.addSample(d0);
+	pca.addSample(d1);
+	pca.calculate();
+
+	TypeSet<float> eigenval;
+	for ( int idy=0; idy<2; idy++ )
+	    eigenval += pca.getEigenValue(idy);
+	TypeSet<float> eigenvec0(2,0);
+	pca.getEigenVector( 0, eigenvec0 );
+
+	const float eratio = eigenval[0]/eigenval[1];
+	if ( eratio<0.5 )
 	    continue;
 
 	float dip = 
-	    fd_.xdist_*eigen_vector[0][0]/(fd_.ydist_*eigen_vector[0][1]);
-	//dip = atan(eigen_vector[1][1]/eigen_vector[1][0])*mRad2Angle;
+	    fd_.xdist_*eigenvec0[0]/(fd_.ydist_*eigenvec0[1]);
+	//dip = atan(eigenvec1[1]/eigenvec1[0])*mRad2Angle;
     	fd_.dip_->set( x, y, dip );
     }
 
