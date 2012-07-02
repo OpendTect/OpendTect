@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.13 2012-06-28 11:57:40 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.14 2012-07-02 07:40:40 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -83,7 +83,8 @@ bool LogCubeCreator::doPrepare( int )
     hrg_.snapToSurvey();
 
     extractparams_.zstep_ = SI().zRange( true ).step;
-    extractparams_.extractzintime_ = true;
+    extractparams_.extractzintime_ = SI().zIsTime();
+    extractparams_.snapZRangeToSurvey( true );
     
     return true;
 }
@@ -113,8 +114,6 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
-    SeisTrcWriter writer( lcd.seisctio_.ioobj );
-
     SeisTrc trc( SI().zRange(true).nrSteps()+1 );
     trc.info().sampling = SI().zRange(true);
 
@@ -123,9 +122,28 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     if ( !ls.execute( false ) )
 	return false;
 
-    for ( int idz=0; idz<trc.size(); idz++ )
-	trc.set( idz, ls.getLogVal( 0, idz ), 0 );
+    StepInterval<float> zrg = ls.zRange();
+    const Well::D2TModel* d2t = wd_.d2TModel();
+    if ( SI().zIsTime() && !extractparams_.isInTime() && d2t )
+    {
+	zrg.start = d2t->getTime( zrg.start );
+	zrg.stop = d2t->getTime( zrg.stop );
+    }
+    zrg.step = trc.info().sampling.step;
+    for ( int idztrc=0; idztrc<trc.size(); idztrc++ )
+    {
+	const float z = trc.info().sampling.atIndex(idztrc);
+	float val = mUdf(float);
+	if ( zrg.includes( z, true ) )
+	{
+	    const int idz = zrg.getIndex( z );
+	    if ( idz >=0 && idz< ls.nrZSamples() )
+		val = ls.getLogVal( 0, idz );
+	}
+	trc.set( idztrc, val, 0 );
+    }
 
+    SeisTrcWriter writer( lcd.seisctio_.ioobj );
     HorSamplingIterator hsit( hrg_ );
     bool succeeded = true;
     BinID bid;
