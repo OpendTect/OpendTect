@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.24 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.25 2012-07-02 13:26:38 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -106,7 +106,8 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
     {
 	IOPar* descpar = iopar.subselect( idx );
 	if ( !descpar ) continue;
-	const char* defstring = descpar->find( "Definition" );
+	const char* defstring = descpar->find( 
+					Attrib::DescSet::definitionStr() );
 	if ( !defstring ) continue;
 	BufferString attribnm;
 	Attrib::Desc::getAttribName( defstring, attribnm );
@@ -127,8 +128,12 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    strncpy( storagestr, &defstring[equalpos], spacepos-equalpos);
 	    storagestr[spacepos-equalpos] = 0;
 	    if ( storageidstr.addIfNew(storagestr) )
+	    {
+		const char* storedref = descpar->find(
+						Attrib::DescSet::userRefStr() );
 		storedids_ += StoredEntry( DescID(idx,false),
-					   LineKey(storagestr) );
+					   LineKey(storagestr), storedref );
+	    }
 	    else
 	    {
 		for ( int idy=0; idy<storedids_.size(); idy++ )
@@ -345,8 +350,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	if ( usrrefs.isEmpty() )
 	    continue;
 
-	const Desc* tmpdesc = attrset_ ? attrset_->getDesc(storedid) : 0;
-	BufferString prevref = tmpdesc ? tmpdesc->userRef() : 0;
+	BufferString prevref = storeentry.storedref_;
 	if ( stringEndsWith( "_inline_dip", prevref.buf() ) )
 	{
 	    int newsz = prevref.size() - strlen("_inline_dip");
@@ -498,7 +502,7 @@ void uiStoredAttribReplacer::getStoredIds()
 	    }
 	}
 	else
-	    storedids_ += StoredEntry( descid, lk );
+	    storedids_ += StoredEntry( descid, lk, ad->userRef() );
     }
 }
 

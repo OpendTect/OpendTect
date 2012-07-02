@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.9 2011-12-23 15:00:44 cvshelene Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.10 2012-07-02 13:26:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,15 +36,18 @@ protected:
 
     struct StoredEntry
     {
-				StoredEntry( Attrib::DescID id1, LineKey lk )
+				StoredEntry( Attrib::DescID id1, LineKey lk,
+				       	     BufferString storedref )
 				    : firstid_(id1)
 				    , secondid_(Attrib::DescID::undef())
-				    , lk_(lk) {}
+				    , lk_(lk)
+       				    , storedref_(storedref)	{}
 
 	bool			operator == ( const StoredEntry& a ) const
 	    			{ return firstid_ == a.firstid_
 				      && secondid_ == a.secondid_
-				      && lk_ == a.lk_; }
+				      && lk_ == a.lk_
+				      && storedref_ == a.storedref_; }
 
 	bool			has2Ids() const
 				{ return firstid_.isValid() &&
@@ -53,6 +56,7 @@ protected:
 	Attrib::DescID		secondid_;
 	LineKey			lk_;
 	BufferStringSet		userrefs_;
+	BufferString		storedref_;
     };
 
     void			usePar(const IOPar&);
