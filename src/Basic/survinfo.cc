@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.168 2012-06-29 14:47:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.169 2012-07-02 05:44:17 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -901,9 +901,9 @@ bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
 
 
-InlCrlSystem* SurveyInfo::create3DGeometry(bool work) const
+RefMan<InlCrlSystem> SurveyInfo::create3DGeometry(bool work) const
 {
-    InlCrlSystem* res = new InlCrlSystem( name(), zdef_ );
+    RefMan<InlCrlSystem> res = new InlCrlSystem( name(), zdef_ );
     
     res->b2c_ = b2c_;
     res->cs_ = sampling( work );

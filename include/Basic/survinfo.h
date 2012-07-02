@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.109 2012-06-29 15:42:55 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.110 2012-07-02 05:44:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "rcol2coord.h"
 #include "enums.h"
 #include "zdomain.h"
+#include "refcount.h"
 #include "cubesampling.h"
 
 class ascostream;
@@ -29,7 +30,7 @@ class LatLong2Coord;
 
 
 mClass InlCrlSystem
-{
+{ mRefCountImplNoDestructor( InlCrlSystem );
 public:
     friend		class SurveyInfo;
     
@@ -104,7 +105,7 @@ public:
     bool		has2D() const;
     bool		has3D() const;
     
-    InlCrlSystem*	create3DGeometry(bool work) const;
+    RefMan<InlCrlSystem> create3DGeometry(bool work) const;
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
