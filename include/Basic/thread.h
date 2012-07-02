@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.57 2012-07-02 10:35:17 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.58 2012-07-02 10:43:46 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -49,6 +49,7 @@ public:
     		Atomic(T val=0);
 #ifdef mAtomicWithMutex
 		Atomic( const Atomic<T>& );
+		~Atomic();
 #endif
 
 		operator T() const	{ return val_; }
@@ -442,12 +443,6 @@ return true; \
 \
 return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
 } \
-\
-\
-template <> inline \
-Atomic<type>::Atomic( type val ) \
-    : val_( val ) \
-{} \
 \
 template <> inline \
 type Atomic<type>::operator += (type b) \
