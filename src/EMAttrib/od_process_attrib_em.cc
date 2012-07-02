@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.90 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.91 2012-07-02 22:12:38 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -34,6 +34,7 @@ static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.90 2012-
 #include "ioman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
+#include "posinfo2d.h"
 #include "posprovider.h"
 #include "progressmeter.h"
 #include "seisbuf.h"
@@ -515,6 +516,14 @@ bool BatchProgram::go( std::ostream& strm )
 	    if ( !lineset ) return false;
 	    const PosInfo::GeomID& geomid =
 		S2DPOS().getGeomID( lineset->name(), linename );
+	    hsamp.start.inl = hsamp.stop.inl = 0;
+	    if ( mIsUdf(hsamp.stop.crl) )
+	    {
+		PosInfo::Line2DData l2dd;
+		S2DPOS().getGeometry( geomid, l2dd );
+		hsamp.setCrlRange( l2dd.trcNrRange() );
+	    }
+
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, 
 		    			  extraz, geomid );
 	}
