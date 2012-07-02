@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.23 2012-06-27 12:51:25 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.24 2012-07-02 11:45:02 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -64,6 +64,16 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    : new uiGenInput( this,msg, slis.setName(markernms[0]),
 				        slis.setName(markernms[1]) );
 
+	Well::ZRangeSelector::ZSelection zsel;
+	Well::ZRangeSelector::parseEnum( zchoiceset.get(idx), zsel );
+	const bool istime = SI().zIsTime();
+	if ( (zsel == Well::ZRangeSelector::Times && istime) ||
+		(zsel == Well::ZRangeSelector::Depths && !istime) )
+	{
+	    Interval<float> zrg( SI().zRange(true) );
+	    zrg.scale( ztimefac_ );
+	    zselectionflds_[idx]->setValue( zrg );
+	}
 	zselectionflds_[idx]->setElemSzPol( uiObject::Medium );
 	zselectionflds_[idx]->attach( alignedBelow, zchoicefld_ );
 	zselectionflds_[idx]->valuechanged.notify( cb );
@@ -154,6 +164,7 @@ void uiWellZRangeSelector::putToScreen()
 	Interval<float> zrg( params_->getFixedRange() );
 	zrg.scale( ztimefac_ );
 	params_->setFixedRange( zrg, true );
+	zselectionflds_[selidx_]->setValue( zrg );
     }
 
     updateDisplayFlds();
