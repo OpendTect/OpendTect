@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.14 2011-03-21 11:04:45 cvsraman Exp $
+ RCS:		$Id: math2.h,v 1.15 2012-07-02 18:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,11 @@ ________________________________________________________________________
 
 namespace Math
 {
-
+    
+mGlobal unsigned int SetFlags( unsigned int curflags,
+                              unsigned int flag, bool yn );
+    		/*!<Takes curflags, sets/clears the bits in flag, and returns
+                    the composite value.*/
 mGlobal bool IsNormalNumber(float);
 		/* Returns 0 for for infinite, NaN, and that sort of crap */
 mGlobal float IntPowerOf(float,int);

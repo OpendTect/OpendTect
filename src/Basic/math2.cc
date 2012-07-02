@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: math2.cc,v 1.12 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: math2.cc,v 1.13 2012-07-02 18:36:32 cvskris Exp $";
 
 #include "math2.h"
 #include "undefval.h"
@@ -31,6 +31,17 @@ static const char* rcsID mUnusedVar = "$Id: math2.cc,v 1.12 2012-05-02 15:11:26 
 #define mTYPE double
 #include "math2_inc.h"
 #undef mTYPE
+
+
+
+unsigned int Math::SetFlags( unsigned int curflags, unsigned int flags, bool yn)
+{
+    if ( yn )
+        return curflags | flags;
+    
+    const unsigned int mask = 0xFFFFFFFF ^ flags;
+    return mask & curflags;
+}
 
 
 int Math::IntPowerOf( int numb, int to )
