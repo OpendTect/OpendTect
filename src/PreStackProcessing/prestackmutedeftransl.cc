@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.14 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.15 2012-07-02 12:26:41 cvsbruno Exp $";
 
 #include "prestackmutedeftransl.h"
 
@@ -86,6 +86,8 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
 				    astrm.minorVersion() );
 
+    const double version = (double)astrm.majorVersion() +
+			   ((double)astrm.minorVersion()/(double)10);
     if ( hasiopar )
     {
 	IOPar pars( astrm );
@@ -143,20 +145,25 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
-	    char* ptrx = val.buf();
-	    mSkipBlanks(ptrx);
-	    char* ptrz = ptrx;
-	    mSkipNonBlanks( ptrz );
-	    if ( !*ptrz )
-		{ astrm.next(); continue; }
-	    *ptrz = '\0'; ptrz++;
+	    char* ptrz = val.buf();
 	    mSkipBlanks(ptrz);
-	    if ( !*ptrz )
+	    char* ptrx = ptrz;
+	    mSkipNonBlanks( ptrx );
+	    if ( !*ptrx )
+		{ astrm.next(); continue; }
+	    *ptrx = '\0'; ptrx++;
+	    mSkipBlanks(ptrx);
+	    if ( !*ptrx )
 		{ astrm.next(); continue; }
 
-	    float x = toFloat( ptrx ); float z = toFloat( ptrz );
+	    float z = toFloat( ptrz ); float x = toFloat( ptrx );
 	    if ( !mIsUdf(x) && !mIsUdf(z) )
-		fn->add( x, z );
+	    {
+		if ( version < 4.5 )
+		    fn->add( z, x );
+		else
+		    fn->add( x, z );
+	    }
 
 	    astrm.next();
 	}
