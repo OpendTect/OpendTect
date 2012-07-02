@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.54 2012-07-02 07:56:21 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.55 2012-07-02 09:24:11 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -37,18 +37,40 @@ namespace Threads
 {
 class Mutex;
 
+
+template <class T>
+mClass BasicAtomic
+{
+public:
+		BasicAtomic(T val=0);
+#ifdef mAtomicWithMutex
+		BasicAtomic( const BasicAtomic<T>& );
+		~BasicAtomic();
+#endif
+    inline bool	setIfEqual(T newval, T oldval );
+		/*!<Sets the val_ only if value is previously set
+		    to oldval */
+
+protected:
+#ifdef mAtomicWithMutex
+    Mutex*	lock_;
+#endif
+
+    volatile T	val_;
+};
+
+
 /*! Atomic variable where an operation (add, subtract) can
     be done without locking in a multithreaded environment. Only
     available for long, unsigned long */
 
 template <class T>
-class Atomic 
+mClass Atomic : public BasicAtomic<T>
 {
 public:
     		Atomic(T val=0);
 #ifdef mAtomicWithMutex
 		Atomic( const Atomic<T>& );
-		~Atomic();
 #endif
 
     		operator T() const	{ return val_; }
@@ -62,28 +84,18 @@ public:
     inline T	operator++(int);
     inline T	operator--(int);
 
-    inline bool	setIfEqual(T newval, T oldval );
-		/*!<Sets the val_ only if value is previously set
-		    to oldval */
-
-protected:
-#ifdef mAtomicWithMutex
-    Mutex*	lock_;
-#endif
-
-    volatile T	val_;
 };
+
 
     
 /*Atomic instanciated with a pointer. The class really only handles the
   casting from a void* to a T*. */
-    
-    
 template <class T>
 mClass AtomicPointer
 {
 public:
-    inline	AtomicPointer(T* newptr = 0);    
+    inline	AtomicPointer(T* newptr = 0);
+
     inline bool	setIfOld(const T* oldptr, T* newptr);
     
     inline void	unRef();
@@ -94,18 +106,20 @@ public:
     inline T*	setToNull();
 		/*!<Returns the last value of the ptr. */
     
-        inline	operator T*();
-    
+    inline	operator T*();
+
+    inline T*	operator+=(int);
+    inline T*	operator-=(int);
+    inline T*	operator++();
+    inline T*	operator--();
+    inline T*	operator++(int);
+    inline T*	operator--(int);
+
 protected:
 
-#ifdef __win__
-    Atomic<void*>	ptr_;
-#else
-    Atomic<T*>		ptr_;
-#endif
+    Atomic<od_uint64>	ptr_;
 };
 
-    
 
 /*!\brief Is a lock that allows a thread to have exlusive rights to something.
 
@@ -415,13 +429,29 @@ mGlobal void sleep(double time); /*!< Time in seconds */
 // Atomic implementations
 #ifdef __win__
 
-#define mAtomicSpecialization( type, postfix ) \
+#define mBasicAtomicSpecialization( type, postfix ) \
 template <> inline \
-Atomic<type>::Atomic( type val ) \
+BasicAtomic<type>::BasicAtomic( type val ) \
     : val_( val ) \
     , lock_( 0 ) \
 {} \
 \
+\
+template <> inline \
+bool BasicAtomic<type>::setIfEqual(type newval, type oldval ) \
+{ \
+    if ( newval==oldval ) \
+	return true; \
+\
+    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
+}
+
+#define mAtomicSpecialization( type, postfix ) \
+mBasicAtomicSpecialization( type, postfix ) \
+template <> inline \
+Atomic<type>::Atomic( type val ) \
+    : BasicAtomic( val ) \
+{} \
 \
 template <> inline \
 type Atomic<type>::operator += (type b) \
@@ -462,21 +492,10 @@ type Atomic<type>::operator -- (int) \
 { \
     return InterlockedDecrement##postfix( &val_ )+1; \
 } \
-\
-\
-\
-template <> inline \
-bool Atomic<type>::setIfEqual(type newval, type oldval ) \
-{ \
-    if ( newval==oldval ) \
-	return true; \
-\
-    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
-}
 
 mAtomicSpecialization( long, )
 mAtomicSpecialization( unsigned long, )
-mAtomicSpecialization( void*, Pointer )
+mBasicAtomicSpecialization( void*, Pointer )
 #ifdef _WIN64
 mAtomicSpecialization( long long, 64 )
 #endif
@@ -484,9 +503,15 @@ mAtomicSpecialization( long long, 64 )
 #undef mAtomicSpecialization
 
 template <class T> inline
-Atomic<T>::Atomic( T val )
+BasicAtomic<T>::BasicAtomic( T val )
     : val_( val )
     , lock_( new Mutex )
+{}
+
+
+template <class T> inline
+Atomic<T>::Atomic( T val )
+    : BasicAtomic( val )
 {}
 
 
@@ -539,7 +564,7 @@ T Atomic<T>::operator -- (int)
 
 
 template <class T> inline
-bool Atomic<T>::setIfEqual(T newval, T oldval )
+bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
 {
     MutexLocker lock( *lock_ );
     const bool res = val_==oldval;
@@ -552,7 +577,7 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
 
 
 template <class T> inline
-Atomic<T>::Atomic( T val )
+BasicAtomic<T>::BasicAtomic( T val )
     : val_( val )
 #ifdef mAtomicWithMutex
     , lock_( new Mutex )
@@ -633,7 +658,7 @@ T Atomic<T>::operator -- (int)
 
 
 template <class T> inline
-bool Atomic<T>::setIfEqual(T newval, T oldval )
+bool BasicAtomic<T>::setIfEqual(T newval, T oldval )
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
@@ -650,12 +675,12 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
 
 #ifdef mAtomicWithMutex
 template <class T> inline
-Atomic<T>::Atomic( const Atomic<T>& b )
+BasicAtomic<T>::BasicAtomic( const BasicAtomic<T>& b )
     : lock_( new Mutex ), val_( b.val_ )
 {}
 
 template <class T> inline
-Atomic<T>::~Atomic()
+BasicAtomic<T>::~BasicAtomic()
 {
     delete lock_;
 }
@@ -663,20 +688,17 @@ Atomic<T>::~Atomic()
 #undef mAtomicWithMutex
 #endif
 
-    
+
+
 /* AtomicPointer implementations. */
 template <class T> inline
-AtomicPointer<T>::AtomicPointer(T* newptr ) : ptr_( newptr ) {}
+AtomicPointer<T>::AtomicPointer(T* newptr ) : ptr_( (od_uint64) newptr ) {}
 
 
 template <class T> inline
 bool AtomicPointer<T>::setIfOld(const T* oldptr, T* newptr)
 {
-#ifdef __win__
-    return ptr_.setIfEqual( (void*) newptr, (void*) oldptr );
-#else
-    return ptr_.setIfEqual( newptr, const_cast<T*>(oldptr) );
-#endif
+    return ptr_.setIfEqual( (od_uint64) newptr, (od_uint64)oldptr );
 }
     
     
@@ -708,6 +730,33 @@ template <class T> inline
 AtomicPointer<T>::operator T*() { return (T*) ptr_.get(); }
 
 
+template <class T> inline
+T* AtomicPointer<T>::operator+=( int b )
+{ return ptr_ += b*sizeof(T); }
+
+
+template <class T> inline
+T* AtomicPointer<T>::operator-=(int b)
+{ return ptr_ -= b*sizeof(T); }
+
+
+#define mImplAtomicPointerOperator( func, op, ret ) \
+template <class T> inline \
+T* AtomicPointer<T>::func \
+{ \
+    T* old = (T*) ptr_.get(); \
+ \
+    while ( !ptr_.setIfEqual( (od_uint64) (op), (od_int64) old ) ) \
+	old = (T*) ptr_.get(); \
+ \
+    return ret; \
+}
+
+
+mImplAtomicPointerOperator( operator++(), old+1, old+1 );
+mImplAtomicPointerOperator( operator--(), old-1, old-1 );
+mImplAtomicPointerOperator( operator++(int), old+1, old );
+mImplAtomicPointerOperator( operator--(int), old-1, old );
 
 
 } //namespace
