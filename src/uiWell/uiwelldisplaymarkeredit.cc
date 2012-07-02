@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.32 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.33 2012-07-02 09:02:23 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -103,24 +103,26 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     mrklist_ = new uiListBox( this, "Markers", false );
     mrklist_->rightButtonClicked.notify( 
 			    mCB(this,uiWellDispEditMarkerDlg,listRClickCB) );
+    mrklist_->setStretch( 2, 2 );
 
+    uiGroup* toolgrp = new uiGroup( this, "Tools" );
+    toolgrp->attach( rightOf, mrklist_ );
     CallBack butcb( mCB(this,uiWellDispEditMarkerDlg,buttonPushedCB) );
-    pickbut_ = new uiToolButton( this, "seedpickmode", 
+    pickbut_ = new uiToolButton( toolgrp, "seedpickmode", 
 	"Pick marker on display", mCB(this,uiWellDispEditMarkerDlg,modeChg) );
-    pickbut_->attach( rightOf, mrklist_ );
     pickbut_->setToggleButton( true );
     pickbut_->setOn( true );
 
-    uiSeparator* modesep = new uiSeparator( this, "Mode Sep" );
+    uiSeparator* modesep = new uiSeparator( toolgrp, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
     modesep->attach( ensureRightOf, mrklist_ );
 
-    addbut_ = new uiToolButton( this, "plus", "Add Marker", butcb );
+    addbut_ = new uiToolButton( toolgrp, "plus", "Add Marker", butcb );
     addbut_->attach( ensureBelow, modesep );
     addbut_->attach( alignedBelow, pickbut_ ); 
-    editbut_ = new uiToolButton( this, "edit", "Edit Marker", butcb );
+    editbut_ = new uiToolButton( toolgrp, "edit", "Edit Marker", butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(this, "trashcan", "Remove Marker", butcb);
+    rembut_ = new uiToolButton(toolgrp, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
 
     windowClosed.notify( mCB(this,uiWellDispEditMarkerDlg,editDlgClosedCB) );
