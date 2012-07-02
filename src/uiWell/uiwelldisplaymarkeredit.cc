@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.33 2012-07-02 09:02:23 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.34 2012-07-02 09:04:58 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -115,7 +115,6 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 
     uiSeparator* modesep = new uiSeparator( toolgrp, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
-    modesep->attach( ensureRightOf, mrklist_ );
 
     addbut_ = new uiToolButton( toolgrp, "plus", "Add Marker", butcb );
     addbut_->attach( ensureBelow, modesep );
