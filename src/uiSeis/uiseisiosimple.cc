@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.40 2012-06-21 14:04:53 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisiosimple.cc,v 1.41 2012-07-02 12:07:47 cvsbruno Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -117,7 +117,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	BufferString txt( isimp_ ? "Trace number included"
 				 : "Include trace number");
-	txt += " (preceeding X/Y)";
+	txt += " (preceding X/Y)";
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
