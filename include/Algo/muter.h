@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.5 2012-06-22 12:26:50 cvsbruno Exp $
+ RCS:		$Id: muter.h,v 1.6 2012-07-02 12:27:35 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
 			    , tail_(tail)		{}
 
     inline static float	mutePos( float z, const SamplingData<float>& sd )
-			{ return (z - sd.start) / sd.step; }
+			{ return sd.getfIndex(z); }
 
     void		mute(ValueSeries<float>&,int sz,float mutepos) const;
 
