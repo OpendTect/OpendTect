@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.22 2012-06-11 19:16:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.23 2012-07-02 14:11:38 cvsbruno Exp $";
 
 #include "prestackanglemute.h"
 
@@ -138,6 +138,7 @@ bool AngleMuteBase::getLayers(const BinID& bid,
     layers += ElasticLayer(depths[il-1]-depths[il-2], 
 			vels[il-1], mUdf(float), mUdf(float) );
 
+    sd = zrg;
     return !layers.isEmpty();
 }
 
@@ -310,7 +311,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
 	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;
-	
+
+	const int nrblockedlayers = layers.size();	
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
@@ -330,11 +332,41 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
-	    const float mutelayer = 
-		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
-					nrlayers, ioffs, params().tail_ );
-	    if ( !mIsUdf( mutelayer ) )
-		muter_->mute( trace, nrlayers, mutelayer );
+	    TypeSet< Interval<float> > mutelayeritvs;
+	    getOffsetMuteLayers( *rtrunners_[thread]->rayTracers()[0],
+				nrlayers, ioffs, params().tail_, mutelayeritvs);
+	    if ( nrlayers != nrblockedlayers )
+	    {
+		float depth = 0;
+		for ( int iml=0; iml<mutelayeritvs.size(); iml ++ )
+		{
+		    Interval<float>& itvml = mutelayeritvs[iml];
+		    float startdpt; float stopdpt;
+		    const float startml = itvml.start;
+		    const float stopml = itvml.stop;
+		    for ( int il=0; il<mMAX((int)start+2,(int)stopml+2); il++ )
+		    {
+			if ( il >= layers.size() ) break;
+			float thk = layers[il].thickness_;
+			if ( !mIsUdf(startml) && il == (int)startml+1 )
+			{
+			    const float dlayerstart = startml - (int)startml;
+			    startdpt =depth + thk*dlayerstart;
+			}
+			if ( !mIsUdf(stopml) && il == (int)stopml+1 )
+			{
+			    const float dlayerstop = stopml - (int)stopml;
+			    stopdpt = depth + thk*dlayerstop;
+			}
+
+			depth += thk;
+		    }
+		    itvml.start = sd.getfIndex( startdpt );
+		    itvml.stop = sd.getfIndex( stopdpt );
+		}
+	    }
+
+	    muter_->muteIntervals( trace, nrlayers, mutelayeritvs );
 	}
     }
 

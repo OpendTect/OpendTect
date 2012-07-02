@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.13 2012-06-15 13:16:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.14 2012-07-02 14:11:38 cvsbruno Exp $";
 
 #include "prestackmutedef.h"
 
@@ -135,51 +135,56 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
     const double normalweight = si00.sqDistTo( si11 );
     const Coord centercrd( SI().transform(pos) );
 
-    float zstep = SI().zStep();
-    Stats::CalcSetup rcsetup( true ); //weighted
-    ObjectSet< Stats::RunCalc<float> > calcs;
-    for ( int iloc=0; iloc<fns_.size(); iloc++ )
+    PointBasedMathFunction weightedfn;
+    TypeSet<float> zvals; getAllZVals( zvals );
+    for ( int idz=0; idz<zvals.size(); idz++ )
     {
-	if ( fns_[iloc]->isEmpty() )
-	    continue;
-
-	TypeSet<float> zvals;
-	float z0 = fns_[iloc]->yVals()[0];
-	const float z1 = fns_[iloc]->yVals()[fns_[iloc]->size()-1];
-	while ( z0 < z1 )
+	const float zval = zvals[idz];
+	Stats::CalcSetup rcsetup( true ); //weighted
+	Stats::RunCalc<float> calc( rcsetup.require(Stats::Average) );
+	for ( int iloc=0; iloc<fns_.size(); iloc++ )
 	{
-	    float z = z0;
-	    if ( !findValue(*fns_[iloc],z0,z1,z,offs,1) )
-		break;
-
-	    //TODO handle constant offset on a better way
-	    if ( mIsEqual( z, z0, zstep ) )
-	    {
-		z0 += zstep;
+	    if ( fns_[iloc]->isEmpty() )
 		continue;
-	    }
-	    z0 = z;
-	    zvals += z;
-	}
-	const Coord crd( SI().transform(pos_[iloc]) );
-	const double sqdist = crd.sqDistTo( centercrd );
 
-	for ( int idzval=0; idzval<zvals.size(); idzval ++ )
-	{
-	    if ( calcs.size() <= idzval )
-		calcs += new Stats::RunCalc<float>( 
-				rcsetup.require(Stats::Average));
-
-	    calcs[idzval]->addValue( zvals[idzval], normalweight / sqdist );
+	    const Coord crd( SI().transform(pos_[iloc]) );
+	    const double sqdist = crd.sqDistTo( centercrd );
+	    const float offset = fns_[iloc]->getValue( zval );
+	    calc.addValue( offset, normalweight / sqdist );
 	}
+	weightedfn.add( zval, calc.average() );
     }
-    for ( int idc=0; idc<calcs.size(); idc+=2 )
+
+    TypeSet<float> mutezvals;
+    for ( int idz=0; idz<zvals.size()-1; idz ++ )
     {
-	int nextidc = calcs.validIdx( idc+1 ) ? idc+1 : idc;
-	const float start = calcs[idc]->average();
-	const float stop = calcs[nextidc]->average();
-	res += Interval<float>( start, stop );
+	const float z0 = zvals[idz];
+	const float z1 = zvals[idz+1];
+
+	float z = z0;
+	if ( findValue( weightedfn, z0, z1, z, offs, 1e-3 ) )
+	    mutezvals += z;
     }
+
+    for ( int imute=0; imute<mutezvals.size(); imute+=2 )
+    {
+	Interval<float> itv( mUdf(float), mUdf(float) );
+	itv.start = mutezvals[imute];
+	if ( mutezvals.validIdx(imute+1) )
+	    itv.stop = mutezvals[imute+1];
+	res += itv; 
+    }
+}
+
+
+void MuteDef::getAllZVals( TypeSet<float>& zvals ) const
+{
+    for ( int ifn=0; ifn<fns_.size(); ifn++ )
+    {
+	for ( int idx=0; idx<fns_[ifn]->size(); idx ++ )
+	    zvals += fns_[ifn]->xVals()[idx]; 
+    }
+    sort_array( zvals.arr(), zvals.size() ); 
 }
 
 

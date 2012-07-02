@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.7 2012-06-07 13:47:49 cvsbruno Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.8 2012-07-02 14:11:38 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,8 @@ protected:
     MultiID				refhor_;
 
     bool				ischanged_;
+
+    void				getAllZVals(TypeSet<float>&) const;
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemutecomputer.cc,v 1.13 2012-06-11 19:17:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemutecomputer.cc,v 1.14 2012-07-02 14:11:38 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -120,7 +120,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 		float mutelayer = mlitv.start;
 		const float offset = offsets[ioff];
 		zpos = offset== 0 ? 0 : sd.start + sd.step*mutelayer;
-		mutefunc->add( offset, zpos );
+		mutefunc->add( zpos, offset );
 		lastvalidmutelayer = mutelayer;
 		lastioff = ioff;
 
@@ -128,7 +128,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 		if ( !mIsUdf( mutelayer ) )
 		{
 		    zpos = offset == 0 ? 0 : sd.start + sd.step*mutelayer;
-		    mutefunc->add( offset, zpos );
+		    mutefunc->add( zpos, offset );
 		}
 	    }
 	}
@@ -150,7 +150,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
 	    const float cosangle = sqrt(1-lastsinangle*lastsinangle);
 	    const float doff = thk*lastsinangle/cosangle;
-	    mutefunc->add( offsets[lastioff]+doff, lastzpos );
+	    mutefunc->add( lastzpos, offsets[lastioff]+doff );
 	}
 
 	mutefuncs += mutefunc;
