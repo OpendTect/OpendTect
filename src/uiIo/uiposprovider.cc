@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposprovider.cc,v 1.36 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposprovider.cc,v 1.37 2012-07-02 20:18:21 cvskris Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -30,8 +30,13 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	, fullsurvbut_(0)
 {
     const BufferStringSet& factnms( setup_.is2d_
-	    ? Pos::Provider2D::factory().getNames()
-	    : Pos::Provider3D::factory().getNames() );
+	    ? Pos::Provider2D::factory().getNames(false)
+	    : Pos::Provider3D::factory().getNames(false) );
+    
+    const BufferStringSet& factusrnms( setup_.is2d_
+           ? Pos::Provider2D::factory().getNames(true)
+           : Pos::Provider3D::factory().getNames(true) );
+    
     BufferStringSet nms;
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
@@ -58,7 +63,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	    			.create(nm,this,setup_,true);
 	if ( !grp ) continue;
 
-	nms.add( nm );
+	nms.add( factusrnms.get(idx).buf() );
 	grp->setName( nm );
 	grps_ += grp;
     }

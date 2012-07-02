@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.36 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.37 2012-07-02 20:18:21 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -361,7 +361,7 @@ void Pos::EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::EMSurfaceProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Surface() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Surface(), "Horizon" );
 }
 
 
