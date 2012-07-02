@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.82 2012-06-28 11:54:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.83 2012-07-02 07:28:21 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -44,7 +44,9 @@ const char* ZRangeSelector::sKeyLimits()    { return "Extraction extension"; }
 const char* ZRangeSelector::sKeyDataStart() { return "<Start of data>"; }
 const char* ZRangeSelector::sKeyDataEnd()   { return "<End of data>"; }
 const char* ZRangeSelector::sKeyZRange()    { return "Z range"; }
-const char* ZRangeSelector::sKeyZSelection() { return "Z Selection"; }
+const char* ZRangeSelector::sKeyZSelection(){ return "Z Selection"; }
+const char* ZRangeSelector::sKeySnapZRangeToSurvey() 
+					    { return "Snap Z Range to SI"; }
 const char* ExtractParams::sKeyZExtractInTime() { return "Extract Z in time"; }
 const char* ExtractParams::sKeySamplePol()  { return "Data sampling"; }
 const char* TrackSampler::sKeyLogNm()	    { return "Log name"; }
@@ -153,6 +155,7 @@ Well::ZRangeSelector::ZRangeSelector( const Well::ZRangeSelector& p )
     below_ = p.below_;
     zselection_ = p.zselection_;
     fixedzrg_ = p.fixedzrg_;
+    snapzrgtosurvey_ = p.snapzrgtosurvey_;
 }
 
 
@@ -162,6 +165,7 @@ void Well::ZRangeSelector::setEmpty()
     botmrkr_ = sKeyDataEnd();
     above_ = below_ = 0;
     zselection_ = Markers;
+    snapzrgtosurvey_ = false;
     fixedzrg_ = Interval<float>( mUdf(float), mUdf(float) );
 }
 
@@ -172,6 +176,7 @@ void Well::ZRangeSelector::usePar( const IOPar& pars )
     pars.get( sKeyBotMrk(), botmrkr_ );
     pars.get( sKeyLimits(), above_, below_ );
     pars.get( sKeyZRange(), fixedzrg_ );
+    pars.getYN( sKeySnapZRangeToSurvey(), snapzrgtosurvey_ );
     parseEnumZSelection( pars.find( sKeyZSelection() ), zselection_ );
 }
 
@@ -182,6 +187,7 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
     pars.set( sKeyBotMrk(), botmrkr_ );
     pars.set( sKeyLimits(), above_, below_ );
     pars.set( sKeyZRange(), fixedzrg_ );
+    pars.setYN( sKeySnapZRangeToSurvey(), snapzrgtosurvey_ );
     pars.set( sKeyZSelection(), getZSelectionString( zselection_ ) );
 }
 
@@ -201,6 +207,28 @@ void Well::ZRangeSelector::setMarker( bool top, BufferString nm, float offset )
 }
 
 
+void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
+					      const Well::D2TModel* d2t ) const
+{
+    if ( !snapzrgtosurvey_ ) 
+	return;
+
+    const StepInterval<float> survrg = SI().zRange(false);
+    if ( SI().zIsTime() && !zistime )
+    {
+	if ( !d2t ) return;
+	zrg.start = survrg.snap( d2t->getTime( zrg.start ) );
+	zrg.stop = survrg.snap( d2t->getTime( zrg.stop ) );
+	zrg.start = d2t->getDah( zrg.start );
+	zrg.stop = d2t->getDah( zrg.stop );
+    }
+    else
+    {
+	zrg.start = survrg.snap( zrg.start );
+	zrg.stop = survrg.snap( zrg.stop );
+    }
+}
+
 
 #define mGetTrackRg(rg)\
     rg.start = wd.track().dah(0); rg.stop = wd.track().dah(wd.track().size()-1);
@@ -218,63 +246,31 @@ void Well::ZRangeSelector::setMarker( bool top, BufferString nm, float offset )
 Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj, 
 			    const BufferStringSet& lognms, bool todah ) const 
 {
-    if ( zselection_ == Times )
-	return fixedzrg_;
-
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
     Well::Data wd;
     Well::Reader wr( ioobj.fullUserExpr(true), wd );
-    if ( !wr.getInfo() ) return dahrg;
+    if ( !wr.getInfo() ) 
+	return dahrg;
+
     wr.getTrack(); 
     wr.getD2T(); 
     wr.getMarkers();
 
-    const Well::Track& track = wd.track();
-    if ( track.isEmpty() )
-	return dahrg;
-
-    if ( zselection_ == Depths )
-    {
-	dahrg = fixedzrg_;
-	if ( todah )
-	{
-	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
-	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
-	}
-	return dahrg;
-    }
-
-    if ( lognms.isEmpty() )
-	{ mGetTrackRg( dahrg ); }
-
-    int ilog = 0;
-
-    for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
-	dahrg = wr.getLogDahRange( lognms.get(ilog) );
-
-    for ( ; ilog<lognms.size(); ilog++ )
-    {
-	Interval<float> newdahrg = wr.getLogDahRange( lognms.get(ilog) );
-	if ( mIsUdf(newdahrg.start) ) continue;
-	dahrg.include( newdahrg );
-    }
-
-    getMarkerRange( wd, dahrg );
-    if ( !todah )
-    {
-	mDah2TVD( dahrg.start, dahrg.start );
-	mDah2TVD( dahrg.stop, dahrg.stop );
-    }
-    return dahrg;
+    return calcFrom( wd, lognms, todah );
 }
+
 
 
 Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 			    const BufferStringSet& lognms, bool todah ) const 
 {
     if ( zselection_ == Times )
-	return fixedzrg_;
+    {
+	Interval<float> rg( fixedzrg_ );
+	snapZRangeToSurvey( rg, true, wd.d2TModel() );
+	return rg;
+    }
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
@@ -290,6 +286,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
 	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
 	}
+	snapZRangeToSurvey( dahrg, false, 0 );
 	return dahrg;
     }
 
@@ -321,6 +318,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 	mDah2TVD( dahrg.start, dahrg.start );
 	mDah2TVD( dahrg.stop, dahrg.stop );
     }
+    snapZRangeToSurvey( dahrg, false, 0 );
     return dahrg;
 }
 
@@ -1090,7 +1088,7 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 #define mWinSz extrintime_ ? log->dahStep(true)*20 : SI().zStep()
 bool Well::LogSampler::doLog( int logidx )
 {
-    const Well::Log* log = logset_[logidx];
+    const Well::Log* log = logset_.validIdx( logidx ) ? logset_[logidx] : 0;
     if ( !log || log->isEmpty() ) return false;
 
     for ( int idz=0; idz<data_->info().getSize(1); idz++ ) 
