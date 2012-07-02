@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.25 2012-07-02 13:26:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.26 2012-07-02 15:30:20 cvsnanne Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -164,6 +164,17 @@ void uiStoredAttribReplacer::usePar( const IOPar& iopar )
 }
 
 
+static bool hasSpace( const char* txt )
+{
+    const int sz = strlen( txt );
+    for ( int idx=0; idx<sz; idx++ )
+	if ( isspace(txt[idx]) )
+	    return true;
+
+    return false;
+}
+
+
 void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
 {
     if ( !par ) return;
@@ -176,7 +187,10 @@ void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
     char* spaceptr = strchr( tempstr.buf(), ' ' );
     BufferString finalpartstr( spaceptr );
     *maindefstr = '\0';
+    const bool usequotes = hasSpace( key );
+    if ( usequotes ) defstr += "\"";
     defstr += key;
+    if ( usequotes ) defstr += "\"";
     defstr += finalpartstr;
 
     par->set( "Definition", defstr );
