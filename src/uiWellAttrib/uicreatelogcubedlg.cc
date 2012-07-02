@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.8 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.9 2012-07-02 11:45:18 cvsbruno Exp $";
 
 #include "uicreatelogcubedlg.h"
 
@@ -21,8 +21,9 @@ static const char* rcsID mUnusedVar = "$Id: uicreatelogcubedlg.cc,v 1.8 2012-05-
 #include "uitaskrunner.h"
 
 #include "createlogcube.h"
+#include "iodir.h"
 #include "ioman.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -34,6 +35,8 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 				 "Select logs to create new cubes",
 				 "103.2.25") )
 {
+    setCtrlStyle( DoAndStay );
+
     uiWellExtractParams::Setup su; 
     su.withzstep(false).withsampling(true).withextractintime(false);
     welllogsel_ = mid ? new uiMultiWellLogSel( this, su, *mid )
@@ -48,24 +51,15 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
     savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with suffix" );
+    savefld_ = new uiGenInput( this, "with well name and suffix" );
     savefld_->setElemSzPol( uiObject::Small );
-
-    BufferString extnm( "_" );
-    IOObj* ioobj = mid ? IOM().get( *mid ) : 0;
-    extnm += ioobj ? ioobj->name() : "well name";
-
-    savefld_->setText( extnm );
     savefld_->attach( rightOf, savelbl );
 }
 
 
-#define mErrRet( msg ) { uiMSG().error( msg ); return false; }
+#define mErrRet( msg, act ) { uiMSG().error( msg ); act; }
 bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 {
-    if ( !savefld_->text() )
-	mErrRet( "Please enter a valid name extension for the new cubes" );
-
     const int nrtrcs = repeatfld_->box()->getValue();
     const Well::ExtractParams& extractparams = welllogsel_->params();
 
@@ -73,13 +67,14 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     welllogsel_->getSelWellIDs( wids );
     welllogsel_->getSelLogNames( lognms );
     if ( wids.isEmpty() ) 
-	mErrRet( "No well selected" )
+	mErrRet("No well selected",return false);
 
+    BufferString suffix = savefld_->text();
     for ( int idwell=0; idwell<wids.size(); idwell++)
     {
 	Well::Data* wd = Well::MGR().get( MultiID( wids.get(idwell)) );
 	if ( !wd )
-	    mErrRet("Cannot read well data");
+	    mErrRet("Cannot read well data",return false);
 
 	LogCubeCreator lcr( *wd );
 	ObjectSet<LogCubeCreator::LogCubeData> logdatas;
@@ -90,18 +85,45 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 	    if ( !log ) continue;
 
 	    BufferString cbvsnm( lognm );
-	    cbvsnm += savefld_->text();
+	    cbvsnm += " "; cbvsnm += wd->name();
+	    if ( !suffix.isEmpty() )
+		{ cbvsnm += " "; cbvsnm += suffix; }
+
 	    CtxtIOObj* ctio = mMkCtxtIOObj(SeisTrc);
 	    if ( !ctio ) continue;
+	    ctio->ctxt.forread = false;
+	    ctio->ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+
+	    IOM().to( ctio->ctxt.getSelKey() );
+	    const IOObj* presentobj = (*IOM().dirPtr())[ cbvsnm.buf() ];
+	    if ( presentobj )
+	    {
+		BufferString msg( cbvsnm ); msg += " is already present ";
+
+		if ( strcmp( presentobj->translator(),ctio->ctxt.deftransl) )
+		{
+		    msg += "as another type";
+		    msg += "\n and won't be created";
+		    mErrRet( msg, continue );
+		}
+
+		msg += ". \nOverwrite?";
+		if ( !uiMSG().askOverwrite(msg) )
+		    continue;
+	    }
+
 	    ctio->setName( cbvsnm ); 
 	    ctio->fillObj();
 	    logdatas += new LogCubeCreator::LogCubeData( lognm, *ctio ); 
 	}
+	if ( logdatas.isEmpty() )
+	    return false;
+
 	lcr.setInput( logdatas, nrtrcs, extractparams ); 
 	uiTaskRunner* tr = new uiTaskRunner( this );
 	if ( !tr->execute( lcr ) || lcr.errMsg() )
-	    mErrRet( lcr.errMsg() );
+	    mErrRet( lcr.errMsg(), return false );
     }
-    return true;
+    return false;
 }
 
