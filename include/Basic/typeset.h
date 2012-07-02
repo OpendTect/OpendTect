@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.14 2012-06-29 12:06:25 cvskris Exp $
+ RCS:		$Id: typeset.h,v 1.15 2012-07-02 05:48:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
     inline virtual int		indexOf(T,bool forward=true,int start=-1) const;
     inline bool			isPresent( const T& t ) const
     						{ return indexOf(t) >= 0; }
+    inline int			count(const T&) const;
 
     inline TypeSet<T>&		operator +=(const T&);
     inline TypeSet<T>&		operator -=(const T&);
@@ -298,6 +299,21 @@ int TypeSet<T>::indexOf( T typ, bool forward, int start ) const
 
     return -1;
 }
+
+
+template <class T> inline
+int TypeSet<T>::count( const T& typ ) const
+{
+    const T* ptr = arr();
+    int res = 0;
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+        if ( ptr[idx] == typ )
+            res++;
+    
+    return res;
+}
+
 
 
 template <class T> inline
