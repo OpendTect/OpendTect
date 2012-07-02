@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.107 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.108 2012-07-02 19:56:55 cvskris Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -49,8 +49,7 @@ namespace WellTie
 
 static const char*  errdmsg = "unable to handle data, please check your input ";
 static const char*  helpid = "107.4.1";
-static const char*  eventtypes[] = { "None","Extrema","Maxima",
-				     "Minima","Zero-crossings",0 };
+
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
@@ -240,10 +239,16 @@ void uiTieWin::provideWinHelp( CallBacker* )
 void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
     eventtypefld_ = new uiLabeledComboBox( taskgrp, "Track" );
-    for ( int idx=0; eventtypes[idx]; idx++)
-	eventtypefld_->box()->addItem( eventtypes[idx] );
+    BufferStringSet eventtypes;
+    server_.pickMgr().getEventTypes( eventtypes );
+    for ( int idx=0; idx<eventtypes.size(); idx++)
+	eventtypefld_->box()->addItem( eventtypes[idx]->buf() );
+    
+    eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
+    
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
+    
 
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiTieWin,applyPushed), true );
@@ -350,7 +355,7 @@ bool uiTieWin::saveDataPushed( CallBacker* cb )
 
 void uiTieWin::eventTypeChg( CallBacker* )
 {
-    server_.pickMgr().setEventType(eventtypefld_->box()->currentItem());
+    server_.pickMgr().setEventType( eventtypefld_->box()->text() );
     controlview_->setEditOn( true );
 }
 

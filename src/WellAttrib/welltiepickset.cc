@@ -7,16 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiepickset.cc,v 1.39 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiepickset.cc,v 1.40 2012-07-02 19:56:55 cvskris Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
 #include "seistrc.h"
 #include "welltiepickset.h"
+#include "bufstringset.h"
 #include "welltiedata.h"
+
 
 namespace WellTie
 {
+
 
 PickSetMgr::PickSetMgr( PickData& pd )
     : evtype_ (VSEvent::Extr)
@@ -26,21 +29,31 @@ PickSetMgr::PickSetMgr( PickData& pd )
 {}
 
 
-void PickSetMgr::setEventType( int seltype )
+void PickSetMgr::setEventType( const char* ev )
 {
-    if ( seltype==1 )
-	evtype_ = VSEvent::Extr;
-    else if ( seltype==2 )
-	evtype_ = VSEvent::Max;
-    else if ( seltype==3 )
-	evtype_ = VSEvent::Min;
-    else if ( seltype==4 )
-	evtype_ = VSEvent::ZC;
-    else 
-	evtype_ = VSEvent::None;
+    if ( !VSEvent::parseEnum(ev, evtype_) )
+        evtype_ = VSEvent::None;
+}
+    
+    
+const char* PickSetMgr::getEventType() const
+{
+    return VSEvent::toString( evtype_ );
 }
 
 
+void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
+{
+    bss.erase();
+    
+    bss.add( VSEvent::toString(VSEvent::None) );
+    bss.add( VSEvent::toString(VSEvent::Extr) );
+    bss.add( VSEvent::toString(VSEvent::Max) );
+    bss.add( VSEvent::toString(VSEvent::Min) );
+    bss.add( VSEvent::toString(VSEvent::ZC) );
+}
+    
+    
 void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 {
     const int seissz = seispickset_.size();
