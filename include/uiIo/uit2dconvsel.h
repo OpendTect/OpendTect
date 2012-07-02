@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: uit2dconvsel.h,v 1.3 2010-07-08 06:00:55 cvsnageswara Exp $
+ RCS:           $Id: uit2dconvsel.h,v 1.4 2012-07-02 14:57:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,7 @@ public:
 			Setup( uiIOObjSel* tied, bool opt=true )
 			    : tiedto_(tied)
 			    , optional_(opt)
-			    , fldtext_(opt ? "Convert to Depth"
-				    	   : "Depth conversion")
-		    	    , ist2d_(true)	{}
+			    , fldtext_( "" ) {}
 
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)
