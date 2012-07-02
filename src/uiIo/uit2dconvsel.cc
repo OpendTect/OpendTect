@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uit2dconvsel.cc,v 1.8 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uit2dconvsel.cc,v 1.9 2012-07-02 15:07:07 cvskris Exp $";
 
 #include "uit2dconvsel.h"
 
@@ -28,7 +28,20 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiGroup(p)
     , setup_(su)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, setup_.fldtext_ );
+    BufferString fldtext;
+    if ( setup_.fldtext_.isEmpty() )
+    {
+	const FixedString zunit = setup_.ist2d_
+	    ? sKey::Depth()
+	    : sKey::Time();
+	
+	if ( setup_.optional_ )
+	    fldtext.add( "Convert to " ).add( zunit );
+	else
+	    fldtext.add( zunit ).add( " conversion");
+    }
+
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, fldtext.buf() );
     choicefld_ = lcb->box();
     choicefld_->setHSzPol( uiObject::SmallVar );
     if ( setup_.optional_ )
@@ -117,12 +130,29 @@ bool uiT2DConvSel::fillPar( IOPar& iop, bool typeonly ) const
 uiT2DLinConvSelGroup::uiT2DLinConvSelGroup( uiParent* p )
     : uiT2DConvSelGroup(p,"Linear T2D conv sel")
 {
-    //TODO handle Z unit properly
-    const float dv = SI().zInFeet() ? 3000 : 1000;
+    const float dv = 0;    
+    const float v0 = SI().zInFeet() ? 3000 : 1000;
+    
     BufferString text( "V0 " );
     text.add( VelocityDesc::getVelUnit(true) );
-    text.add( ", dV/s" );
-    fld_ = new uiGenInput( this, text, FloatInpSpec(0), FloatInpSpec(dv) );
+    
+    const BufferString zentity = SI().zDomain().entityStr();
+    
+    text.add( ", dV/d" ).add( zentity ).add( " (" );
+    BufferString gradientunit;
+    if ( SI().zDomain().isDepth() )
+    {
+	gradientunit = "s^-1";
+    }
+    else
+    {
+	gradientunit = SI().depthsInFeet()
+	    ? "ft/(s^2)"
+	    : "m/(s^2)";
+    }
+    
+    text.add( gradientunit.buf() ).add( " )" );
+    fld_ = new uiGenInput( this, text, FloatInpSpec(v0), FloatInpSpec(dv) );
 }
 
 
