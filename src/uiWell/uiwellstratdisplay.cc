@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.38 2012-05-21 07:32:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.39 2012-07-02 10:16:29 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -97,6 +97,9 @@ WellStratUnitGen::~WellStratUnitGen()
 
 void WellStratUnitGen::gatherInfo()
 {
+    for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
+	data_.getCol( idcol )->isdisplayed_ = false;
+
     gatherLeavedUnits();
     assignTimesToLeavedUnits();
     assignTimesToAllUnits();
@@ -111,7 +114,6 @@ void WellStratUnitGen::gatherLeavedUnits()
     TypeSet<float> absunitpos;
     for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
     {
-	data_.getCol( idcol )->isdisplayed_ = false;
 	for ( int idun=0; idun<data_.nrUnits( idcol ); idun++ )
 	{
 	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
