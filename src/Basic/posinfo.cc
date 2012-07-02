@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.35 2012-05-03 04:46:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.36 2012-07-02 08:44:57 cvsbert Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -504,10 +504,15 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
+	const StepInterval<int>& seg( segs[iseg] );
 	if ( segs[iseg].includes(bid.crl,false) )
 	{
-	    cdp.segnr_ = iseg;
-	    cdp.sidx_ = segs[iseg].getIndex( bid.crl );
+	    if ( !seg.step || !((bid.crl-seg.start) % seg.step) )
+	    {
+		cdp.segnr_ = iseg;
+		cdp.sidx_ = segs[iseg].getIndex( bid.crl );
+	    }
+	    break;
 	}
     }
     return cdp;
