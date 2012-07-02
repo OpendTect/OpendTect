@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.53 2012-04-19 09:11:45 cvsdgb Exp $
+ RCS:		$Id: thread.h,v 1.54 2012-07-02 07:56:21 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -52,6 +52,7 @@ public:
 #endif
 
     		operator T() const	{ return val_; }
+    T		get() const		{ return val_; }
 
     T		operator=(T v)		{ val_=v; return val_; }
     inline T	operator+=(T);
@@ -72,6 +73,39 @@ protected:
 
     volatile T	val_;
 };
+
+    
+/*Atomic instanciated with a pointer. The class really only handles the
+  casting from a void* to a T*. */
+    
+    
+template <class T>
+mClass AtomicPointer
+{
+public:
+    inline	AtomicPointer(T* newptr = 0);    
+    inline bool	setIfOld(const T* oldptr, T* newptr);
+    
+    inline void	unRef();
+    		/*!<Don't be confused, class works for non-ref-counted objects
+		    as well. Just don't call ref/unRef(); */
+    inline void	ref();
+    
+    inline T*	setToNull();
+		/*!<Returns the last value of the ptr. */
+    
+        inline	operator T*();
+    
+protected:
+
+#ifdef __win__
+    Atomic<void*>	ptr_;
+#else
+    Atomic<T*>		ptr_;
+#endif
+};
+
+    
 
 /*!\brief Is a lock that allows a thread to have exlusive rights to something.
 
@@ -442,6 +476,7 @@ bool Atomic<type>::setIfEqual(type newval, type oldval ) \
 
 mAtomicSpecialization( long, )
 mAtomicSpecialization( unsigned long, )
+mAtomicSpecialization( void*, Pointer )
 #ifdef _WIN64
 mAtomicSpecialization( long long, 64 )
 #endif
@@ -627,6 +662,54 @@ Atomic<T>::~Atomic()
 
 #undef mAtomicWithMutex
 #endif
+
+    
+/* AtomicPointer implementations. */
+template <class T> inline
+AtomicPointer<T>::AtomicPointer(T* newptr ) : ptr_( newptr ) {}
+
+
+template <class T> inline
+bool AtomicPointer<T>::setIfOld(const T* oldptr, T* newptr)
+{
+#ifdef __win__
+    return ptr_.setIfEqual( (void*) newptr, (void*) oldptr );
+#else
+    return ptr_.setIfEqual( newptr, const_cast<T*>(oldptr) );
+#endif
+}
+    
+    
+template <class T> inline
+T* AtomicPointer<T>::setToNull()
+{
+    T* oldptr = (T*) ptr_.get();
+    while ( oldptr && !setIfOld( oldptr, 0 ) )
+	oldptr = (T*) ptr_.get();
+    
+    return oldptr;    
+}
+
+
+template <class T> inline
+void AtomicPointer<T>::unRef()
+{
+    T* oldptr = setToNull();
+    if ( oldptr )
+	oldptr->unRef();
+}
+
+
+template <class T> inline
+void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
+
+
+template <class T> inline
+AtomicPointer<T>::operator T*() { return (T*) ptr_.get(); }
+
+
+
+
 } //namespace
 
 #endif
