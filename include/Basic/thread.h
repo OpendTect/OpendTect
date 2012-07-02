@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.55 2012-07-02 09:24:11 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.56 2012-07-02 10:17:49 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -51,12 +51,18 @@ public:
 		/*!<Sets the val_ only if value is previously set
 		    to oldval */
 
+    		operator T() const	{ return val_; }
+    T		get() const		{ return val_; }
+
+    T		operator=(T v)		{ val_=v; return val_; }
+
 protected:
+    volatile T	val_;
+
 #ifdef mAtomicWithMutex
     Mutex*	lock_;
 #endif
 
-    volatile T	val_;
 };
 
 
@@ -73,10 +79,6 @@ public:
 		Atomic( const Atomic<T>& );
 #endif
 
-    		operator T() const	{ return val_; }
-    T		get() const		{ return val_; }
-
-    T		operator=(T v)		{ val_=v; return val_; }
     inline T	operator+=(T);
     inline T	operator-=(T);
     inline T	operator++();
@@ -592,7 +594,7 @@ T Atomic<T>::operator += (T b)
     MutexLocker lock( *lock_ );
     return val_ += b;
 #else
-    return __sync_add_and_fetch(&val_, b);
+    return __sync_add_and_fetch(&BasicAtomic<T>::val_, b);
 #endif
 }
 
@@ -602,9 +604,9 @@ T Atomic<T>::operator -= (T b)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return val_ -= b;
+    return BasicAtomic<T>::val_ -= b;
 #else
-    return __sync_sub_and_fetch(&val_, b);
+    return __sync_sub_and_fetch(&BasicAtomic<T>::val_, b);
 #endif
 }
 
@@ -614,9 +616,9 @@ T Atomic<T>::operator ++()
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return ++val_;
+    return ++BasicAtomic<T>::val_;
 #else
-    return __sync_add_and_fetch(&val_, 1);
+    return __sync_add_and_fetch(&BasicAtomic<T>::val_, 1);
 #endif
 }
 
@@ -626,9 +628,9 @@ T Atomic<T>::operator -- ()
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return --val_;
+    return --BasicAtomic<T>::val_;
 #else
-    return __sync_sub_and_fetch(&val_, 1);
+    return __sync_sub_and_fetch(&BasicAtomic<T>::val_, 1);
 #endif
 }
 
@@ -638,9 +640,9 @@ T Atomic<T>::operator ++(int)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return val_++;
+    return BasicAtomic<T>::val_++;
 #else
-    return __sync_fetch_and_add(&val_, 1);
+    return __sync_fetch_and_add(&BasicAtomic<T>::val_, 1);
 #endif
 }
 
@@ -650,9 +652,9 @@ T Atomic<T>::operator -- (int)
 {
 #ifdef mAtomicWithMutex
     MutexLocker lock( *lock_ );
-    return val_--;
+    return BasicAtomic<T>::val_--;
 #else
-    return __sync_fetch_and_sub(&val_, 1);
+    return __sync_fetch_and_sub(&BasicAtomic<T>::val_, 1);
 #endif
 }
 
