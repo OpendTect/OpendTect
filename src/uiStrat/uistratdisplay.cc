@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.46 2012-06-26 07:36:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.47 2012-07-02 10:18:20 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -436,7 +436,7 @@ void uiStratDrawer::drawColumns()
 	pos ++;
     }
 
-    if ( data_.nrUnits(0) == 0 )
+    if ( nrcols && data_.nrUnits(0) == 0 )
 	drawEmptyText();
     else
 	{ delete emptyitm_; emptyitm_ = 0; }
