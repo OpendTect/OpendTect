@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.119 2012-05-30 09:04:19 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.120 2012-07-02 19:58:48 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -183,45 +183,59 @@ CubeSampling MPEDisplay::getBoxPosition() const
 
 bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 {
-    if ( ( !slices_.size() ) || ( !slices_[dim_] ) )
+    if ( !slices_.size() || !slices_[dim_] )
 	return false;
+
     const visBase::DepthTabPlaneDragger* drg = slices_[dim_]->getDragger();
     const int dim = dim_;
 
     Coord3 center = drg->center();
     Coord3 size = drg->size();
 
-	if ( !dim )
+    Interval<float> sx, sy, sz;
+    drg->getSpaceLimits( sx, sy, sz );
+    
+    if ( voltrans_ )
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x);
+	center = voltrans_->transform( center );
+	Coord3 spacelim( sx.start, sy.start, sz.start );
+	spacelim = voltrans_->transform( spacelim );
+	sx.start = spacelim.x; sy.start = spacelim.y; sz.start = spacelim.z;
+	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
+	sx.stop = spacelim.x; sy.stop = spacelim.y; sz.stop = spacelim.z;
+    }
+
+    if ( !dim )
+    {
+	planebox.hrg.start.inl = SI().inlRange(true).snap( center.x );
 	planebox.hrg.stop.inl = planebox.hrg.start.inl;
 
-	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
+	planebox.hrg.start.crl = SI().crlRange(true).snap( sy.start );
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap( sy.stop );
 
-	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
+	planebox.zrg.start = SI().zRange(true).snap( sz.start );
+	planebox.zrg.stop = SI().zRange(true).snap( sz.stop );
     }
     else if ( dim==1 )
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
+	planebox.hrg.start.inl = SI().inlRange(true).snap( sx.start );
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.stop.crl = SI().crlRange(true).snap(center.y);
+	planebox.hrg.stop.crl = SI().crlRange(true).snap( center.y );
 	planebox.hrg.start.crl = planebox.hrg.stop.crl;
 
-	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
+	planebox.zrg.start = SI().zRange(true).snap( sz.start );
+	planebox.zrg.stop = SI().zRange(true).snap( sz.stop );
     }
     else 
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
+	planebox.hrg.start.inl = SI().inlRange(true).snap( sx.start );
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
+	planebox.hrg.start.crl = SI().crlRange(true).snap( sy.start );
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap( sy.stop );
 
-	planebox.zrg.stop = SI().zRange(true).snap(center.z);
+	planebox.zrg.stop = SI().zRange(true).snap( center.z );
 	planebox.zrg.start = planebox.zrg.stop;
     }
 
@@ -346,6 +360,8 @@ void MPEDisplay::moveMPEPlane( int nr )
 	    newcenter = voltrans_->transformBack( center );
 	slices_[dim_]->setCenter( newcenter, false );
     }
+
+    movement.trigger();
 }
 
 
@@ -1176,7 +1192,7 @@ void MPEDisplay::getObjectInfo( BufferString& info ) const
 
 void MPEDisplay::sliceMoving( CallBacker* cb )
 {
-    mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
+    mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb);
     if ( !slice ) return;
 
     slicename_ = slice->name();
@@ -1184,7 +1200,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
     if ( isSelected() ) return;
 	
-    while( true ) {
+    while ( true )
+    {
 	MPE::TrackPlane newplane = engine_.trackPlane();
 	CubeSampling& planebox = newplane.boundingBox();
 	// get the position of the plane from the dragger
@@ -1195,17 +1212,16 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    return;
 	
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
-	// note: can use dim_ instead of dim below
 	const int dim = slice->getDragger()->getDim();
-	if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
+	if ( dim==2 && planebox.hrg.start.inl==engineplane.hrg.start.inl )
 	    return;
 	if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
 	    return;
-	if ( dim==2 && mIsEqual( planebox.zrg.start, engineplane.zrg.start, 
+	if ( dim==0 && mIsEqual( planebox.zrg.start, engineplane.zrg.start, 
 				 0.1*SI().zStep() ) )
 	    return;
 
-	if ( !dim )
+	if ( dim==2 )
 	{
 	    const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
 	    int& start = planebox.hrg.start.inl;
@@ -1223,7 +1239,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
 	    newplane.setMotion( 0, inc ? step : -step, 0 );
 	}
-	else 
+	else if ( dim==0 )
 	{
 	    const bool inc = planebox.zrg.start>engineplane.zrg.start;
 	    float& start = planebox.zrg.start;
@@ -1232,6 +1248,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    start = stop = engineplane.zrg.start + ( inc ? step : -step );
 	    newplane.setMotion( 0, 0, inc ? step : -step );
 	}
+
 	const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
 	engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
 				      || trkmode==MPE::TrackPlane::ReTrack
