@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.5 2012-06-28 07:15:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.6 2012-07-03 15:39:50 cvsnanne Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -162,7 +162,7 @@ struct CrashDumper
     BufferString	path_;
     
 #ifdef __msvc__
-    ExceptionHandler*	handler_;
+//    ExceptionHandler*	handler_;
 #endif
 };
 
