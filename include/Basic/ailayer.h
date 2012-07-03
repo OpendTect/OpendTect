@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.10 2012-06-12 10:02:31 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.11 2012-07-03 07:23:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,18 +67,16 @@ typedef TypeSet<ElasticLayer> ElasticModel;
 
 static void blockElasticModel( ElasticModel& mdl, float threshold )
 {
+    float velthreshold = threshold;
+    float denthreshold = threshold;
     for ( int idx=mdl.size()-1; idx>=1; idx-- )
     {
 	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
-	if ( fabs( veldiff ) < threshold )
+	const float dendiff = mdl[idx].den_ - mdl[idx-1].den_;
+	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
 	{
-	    const float thk = mdl[idx].thickness_;
-	    if ( idx == mdl.size() -1 )
-		mdl[idx-1].thickness_ += thk;
-	    else
-		mdl[idx+1].thickness_ += thk;
-
-	    mdl.remove( idx -1 );
+	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
+	    mdl.remove( idx );
 	}
     }
 }
