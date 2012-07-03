@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.98 2012-06-14 09:27:47 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.99 2012-07-03 15:42:02 cvsnanne Exp $";
 
 
 #include "segyhdr.h"
@@ -540,17 +540,17 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     HdrEntry he( *hdrDef()[EntryTrwf()] );
     static bool postscale_byte_established = false;
     static int bnr = he.bytepos_;
-    static bool small = he.small_;
+    static bool smallbtsz = he.small_;
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
 	bnr = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", he.bytepos_ );
 	if ( bnr > 0 && bnr < 255 )
-	    small = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
+	    smallbtsz = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
     }
 
     he.bytepos_ = (HdrEntry::BytePos)bnr;
-    he.small_ = small;
+    he.small_ = smallbtsz;
     const short trwf = (short)he.getValue( buf_, needswap_ );
     if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
 
