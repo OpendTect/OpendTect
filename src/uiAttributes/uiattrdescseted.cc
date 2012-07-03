@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.127 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.128 2012-07-03 09:16:36 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1017,6 +1017,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     if ( !offerSetSave() ) return;
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
+    objdlg.setHelpID( "0.3.5" );
     IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
     if ( objdlg.go() && setctio_.ioobj )
     {
