@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.17 2011-02-03 21:25:50 cvskris Exp $
+ RCS:           $Id: convert.h,v 1.18 2012-07-03 11:54:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,9 @@ inline void set( T& _to, const F& fr )
     { _to = fr; }
 
 template <class T, class F>
-inline T& to( const F& fr )
+inline T to( const F& fr )
 { 
-    static T ret;
+    T ret;
     Values::setUdf(ret);
     set<T,F>(ret,fr);
 
@@ -50,9 +50,9 @@ inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 }
 
 template <class T, class F>
-inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
+inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 { 
-    static T ret;
+    T ret;
     Values::setUdf(ret);
     udfset<T,F>(ret,fr,und);
 
