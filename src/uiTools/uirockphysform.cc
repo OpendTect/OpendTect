@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirockphysform.cc,v 1.21 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirockphysform.cc,v 1.22 2012-07-03 12:47:46 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -113,6 +113,22 @@ void uiRockPhysForm::setType( PropertyRef::StdType typ )
     nmfld_->addItems( nms );
     if ( !nms.isEmpty() )
 	nmfld_->setCurrentItem( 0 );
+    else
+    {
+	BufferString msg = "The category '";
+	msg += PropertyRef::toString(typ);
+	msg += "' does not contain any formula yet.\n";
+	msg += "Please add a formula to the repository ";
+	msg += "or select another category.";
+	uiMSG().warning( msg );
+
+	descriptionfld_->setText("");
+	formulafld_->setText("");
+	for ( int idx=0; idx<cstflds_.size(); idx++ )
+	    cstflds_[idx]->display( false );
+
+	return;
+    }
 
     nameSel( 0 );
 }
@@ -197,7 +213,7 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     char* txt = const_cast<char*>(nmfld_->text());
     if ( !txt || !*txt )
     {
-	uiMSG().error( "Internal [impossible?]: no formula name selected" );
+	uiMSG().error( "No formula name selected" );
 	return false;
     }
 
