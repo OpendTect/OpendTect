@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimppickset.cc,v 1.53 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimppickset.cc,v 1.54 2012-07-03 07:09:59 cvsbruno Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -46,8 +46,8 @@ static const char* zoptions[] =
 
 
 uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
-    : uiDialog(p->parent(),uiDialog::Setup(imp ? "Import Pickset"
-			: "Export PickSet", "Specify pickset parameters",
+    : uiDialog(p->parent(),uiDialog::Setup(imp ? "Import Pickset/Polygon"
+			: "Export PickSet/Polygon", mNoDlgTitle,
 			imp ? "105.0.1" : "105.0.2"))
     , serv_(p)
     , import_(imp)
