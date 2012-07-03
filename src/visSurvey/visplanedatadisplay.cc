@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.270 2012-06-20 13:12:12 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.271 2012-07-03 08:41:52 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -97,7 +97,7 @@ const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
     const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
-    const SurveyInfo* survinfo = pdd_->getInlCrlSystem();
+    const InlCrlSystem* survinfo = pdd_->getInlCrlSystem();
     if ( pdd_->getOrientation()==PlaneDataDisplay::Zslice )
     {
 	res += survinfo->transform(hrg.start);
@@ -129,7 +129,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
-    , curicstep_(survinfo_->inlStep(),survinfo_->crlStep())
+    , curicstep_(inlcrlsystem_->inlStep(),inlcrlsystem_->crlStep())
     , datatransform_( 0 )
     , voiidx_(-1)
     , moving_(this)
@@ -259,12 +259,12 @@ PlaneDataDisplay::~PlaneDataDisplay()
 }
 
 
-void PlaneDataDisplay::setInlCrlSystem(const SurveyInfo& si)
+void PlaneDataDisplay::setInlCrlSystem(const InlCrlSystem* ics )
 {
-    SurveyObject::setInlCrlSystem( si );
+    SurveyObject::setInlCrlSystem( ics );
     if ( inl2displaytrans_ )
     {
-	STM().setIC2DispayTransform(survinfo_->sampling(true).hrg,
+	STM().setIC2DispayTransform(inlcrlsystem_->sampling().hrg,
 				    inl2displaytrans_);
     }
 }
@@ -346,10 +346,10 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 
     if ( orientation_==Inline )
 	res.hrg.start.inl = res.hrg.stop.inl =
-	    survinfo_->inlRange(true).snap( inlrg.center() );
+	    inlcrlsystem_->inlRange().snap( inlrg.center() );
     else if ( orientation_==Crossline )
 	res.hrg.start.crl = res.hrg.stop.crl =
-	    survinfo_->crlRange(true).snap( crlrg.center() );
+	    inlcrlsystem_->crlRange().snap( crlrg.center() );
 
     return res;
 }
@@ -360,8 +360,9 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
     if ( orientation_==Zslice )
 	return Coord3(0,0,1);
     
-    return Coord3( orientation_==Inline ? survinfo_->binID2Coord().rowDir() :
-	    survinfo_->binID2Coord().colDir(), 0 );
+    return Coord3( orientation_==Inline
+		  ? inlcrlsystem_->binID2Coord().rowDir()
+		  : inlcrlsystem_->binID2Coord().colDir(), 0 );
 }
 
 
@@ -369,7 +370,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     const Coord3 xytpos = utm2display->transformBack( pos );
-    const BinID binid = survinfo_->transform( Coord(xytpos.x,xytpos.y) );
+    const BinID binid = inlcrlsystem_->transform( Coord(xytpos.x,xytpos.y) );
 
     const CubeSampling cs = getCubeSampling(false,true);
     
@@ -386,14 +387,16 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     ? 0
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
-    const float zfactor = scene_ ? scene_->getZScale() : survinfo_->zScale();
+    const float zfactor = scene_
+    	? scene_->getZScale()
+        : inlcrlsystem_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
 	: mMIN(fabs(xytpos.z-cs.zrg.start),fabs(xytpos.z-cs.zrg.stop)) *
 	  zfactor  * scene_->getZStretch();
 
-    const float inldist = survinfo_->inlDistance();
-    const float crldist = survinfo_->crlDistance();
+    const float inldist = inlcrlsystem_->inlDistance();
+    const float crldist = inlcrlsystem_->crlDistance();
     float inldiff = inlcrldist.inl * inldist;
     float crldiff = inlcrldist.crl * crldist;
 
@@ -403,8 +406,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZScale() : survinfo_->zScale();
-    float maxzdist = zfactor * scene_->getZStretch() * survinfo_->zStep() / 2;
+    const float zfactor = scene_ ? scene_->getZScale() : inlcrlsystem_->zScale();
+    float maxzdist = zfactor * scene_->getZStretch() * inlcrlsystem_->zStep() / 2;
     return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -844,8 +847,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     res.zrg.start = res.zrg.stop = c0.z;
     res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
     res.zrg.include( c1.z );
-    res.hrg.step = BinID( survinfo_->inlStep(), survinfo_->crlStep() );
-    res.zrg.step = survinfo_->zRange(true).step;
+    res.hrg.step = BinID( inlcrlsystem_->inlStep(), inlcrlsystem_->crlStep() );
+    res.zrg.step = inlcrlsystem_->zRange().step;
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
@@ -1288,7 +1291,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 	 (!volumecache_[attrib] && !rposcache_[attrib]) )
 	return false;
 
-    const BinIDValue bidv( survinfo_->transform(pos), pos.z );
+    const BinIDValue bidv( inlcrlsystem_->transform(pos), pos.z );
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
 	const int ver = channels_->currentVersion(attrib);

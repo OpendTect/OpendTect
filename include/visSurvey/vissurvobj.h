@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.130 2012-02-09 08:57:51 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.131 2012-07-03 08:41:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,9 +20,11 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
+#include "survinfo.h"
 #include "vissurvscene.h"
 
-class SurveyInfo;
+
+class InlCrlSystem;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
@@ -53,8 +55,8 @@ namespace visSurvey
 mClass SurveyObject
 {
 public:
-    virtual void		setInlCrlSystem(const SurveyInfo& si);
-    const SurveyInfo*		getInlCrlSystem() const { return survinfo_; }
+    virtual void		setInlCrlSystem(const InlCrlSystem*);
+    const InlCrlSystem*		getInlCrlSystem() const { return inlcrlsystem_;}
     virtual const char*		getInlCrlSystemName() const;
 
     virtual void		setBaseMap(BaseMap*);
@@ -313,7 +315,7 @@ public:
 
 protected:
     				SurveyObject();
-				~SurveyObject()		{ deepErase(userrefs_);}
+				~SurveyObject();
 
     static int			cValNameOffset()	{ return 12; }
 
@@ -325,7 +327,7 @@ protected:
     virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
 
-    const SurveyInfo*		survinfo_;
+    const InlCrlSystem*		inlcrlsystem_;
     BufferString		survname_; //Only from IOPar
 };
 

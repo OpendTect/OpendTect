@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.66 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.67 2012-07-03 08:41:52 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -24,10 +24,19 @@ namespace visSurvey {
 
 SurveyObject::SurveyObject()
     : scene_(0)
-    , survinfo_( &SI() )
+    , inlcrlsystem_( 0 )
     , basemapobj_(0)
     , locked_(false)
-{}
+{
+    setInlCrlSystem( SI().get3DGeometry(true) );
+}
+
+    
+SurveyObject::~SurveyObject()
+{
+    deepErase(userrefs_);
+    setInlCrlSystem( 0 );
+}
 
 float SurveyObject::sDefMaxDist()	{ return 10; }
 
@@ -116,20 +125,26 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
-void SurveyObject::setInlCrlSystem(const SurveyInfo& si)
-{ survinfo_ = &si; }
+void SurveyObject::setInlCrlSystem(const InlCrlSystem* ics)
+{
+    if ( inlcrlsystem_ ) inlcrlsystem_->unRef();
+    
+    inlcrlsystem_ = ics;
+    
+    if ( inlcrlsystem_ ) inlcrlsystem_->ref();
+}
 
 
 const char* SurveyObject::getInlCrlSystemName() const
 {
-    return survinfo_ ? survinfo_->name().str() : survname_.str();
+    return inlcrlsystem_ ? inlcrlsystem_->name().str() : survname_.str();
 }
 
 
 void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    if ( survinfo_ )
-	par.set( sKeySurvey(), survinfo_->name() );
+    if ( inlcrlsystem_ )
+	par.set( sKeySurvey(), inlcrlsystem_->name() );
 
     par.setYN( sKeyLocked(), locked_ );
     const int nrattribs = nrAttribs();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.160 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.161 2012-07-03 08:41:52 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -315,7 +315,7 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
     {
-	so->setInlCrlSystem( SI() );
+	so->setInlCrlSystem( SI().get3DGeometry(true) );
     }
 
     inlcrl2disptransform_->addObject( obj );
@@ -329,7 +329,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->setInlCrlSystem( SI() );
+	so->setInlCrlSystem( SI().get3DGeometry(true) );
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 

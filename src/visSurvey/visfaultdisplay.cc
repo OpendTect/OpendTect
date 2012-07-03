@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.93 2012-06-28 13:26:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.94 2012-07-03 08:41:51 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -289,25 +289,25 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     {
 	const float zscale = scene_
 	    ? scene_->getZScale() *scene_->getZStretch()
-	    : survinfo_->zScale();
+	    : inlcrlsystem_->zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
 	explicitpanels_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
-		BinIDValue( BinID(survinfo_->inlRange(true).step,
-				  survinfo_->crlRange(true).step),
-				  survinfo_->zStep() ) );
+		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
+				  inlcrlsystem_->crlRange().step),
+				  inlcrlsystem_->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
-		BinIDValue( BinID(survinfo_->inlRange(true).step,
-				  survinfo_->crlRange(true).step),
-				  survinfo_->zStep() ) );
+		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
+				  inlcrlsystem_->crlRange().step),
+				  inlcrlsystem_->zStep() ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
@@ -680,7 +680,7 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : survinfo_->zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlcrlsystem_->zScale() )
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
@@ -1317,10 +1317,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( survinfo_->transform(b00),cs.zrg.start );
-	const Coord3 c01( survinfo_->transform(b01),cs.zrg.stop );
-	const Coord3 c11( survinfo_->transform(b11),cs.zrg.stop );
-	const Coord3 c10( survinfo_->transform(b10),cs.zrg.start );
+	const Coord3 c00( inlcrlsystem_->transform(b00),cs.zrg.start );
+	const Coord3 c01( inlcrlsystem_->transform(b01),cs.zrg.stop );
+	const Coord3 c11( inlcrlsystem_->transform(b11),cs.zrg.stop );
+	const Coord3 c10( inlcrlsystem_->transform(b10),cs.zrg.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 
@@ -1570,7 +1570,7 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 
 	const float onestepdist =
 	    Coord3(1,1,mZScale()).dot(
-		    survinfo_->oneStepTranslation(Coord3(0,0,1)) );
+		    inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -1612,7 +1612,7 @@ bool FaultDisplay::coincidesWithPlane(
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist = 
 	    Coord3(1,1,mZScale()).dot(
-		    survinfo_->oneStepTranslation(planenormal) );
+		    inlcrlsystem_->oneStepTranslation(planenormal) );
 
 	float prevdist;
 	Coord3 prevpos;
@@ -1730,9 +1730,9 @@ void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
     const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
     const float inllen =
-	survinfo_->inlDistance() * survinfo_->inlRange(true).width();
+	inlcrlsystem_->inlDistance() * inlcrlsystem_->inlRange().width();
     const float crllen =
-	survinfo_->crlDistance() * survinfo_->crlRange(true).width();
+	inlcrlsystem_->crlDistance() * inlcrlsystem_->crlRange().width();
     const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( linewidth, true, maxlinethickness );

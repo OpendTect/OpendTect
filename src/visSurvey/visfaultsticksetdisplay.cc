@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.49 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.50 2012-07-03 08:41:52 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -354,7 +354,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.x += survinfo_->inlDistance() * 0.5 * dir;
+		    pos.x += inlcrlsystem_->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -363,7 +363,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.y += survinfo_->inlDistance() * 0.5 * dir;
+		    pos.y += inlcrlsystem_->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -372,7 +372,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.z += survinfo_->zStep() * 0.5 * dir;
+		    pos.z += inlcrlsystem_->zStep() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -499,7 +499,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 static float zdragoffset = 0;
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : survinfo_->zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlcrlsystem_->zScale() )
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
@@ -881,7 +881,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	    continue;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
-		survinfo_->oneStepTranslation(Coord3(0,0,1)) );
+		inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -922,7 +922,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
-	    survinfo_->oneStepTranslation(plane->getNormal(Coord3::udf())) );
+	    inlcrlsystem_->oneStepTranslation(plane->getNormal(Coord3::udf())));
 
 	float prevdist;
 	Coord3 prevpos;
