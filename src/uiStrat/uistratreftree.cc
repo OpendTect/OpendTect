@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.73 2012-05-21 21:56:12 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.74 2012-07-03 12:05:07 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -38,6 +38,7 @@ static const int cLithoCol	= 2;
 using namespace Strat;
 
 uiStratRefTree::uiStratRefTree( uiParent* p )
+    : tree_(0)
 {
     lv_ = new uiListView( p, "RefTree viewer" );
     BufferStringSet labels;
