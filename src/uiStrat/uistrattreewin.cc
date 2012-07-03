@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.75 2012-06-26 07:35:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.76 2012-07-03 20:50:18 cvsnanne Exp $";
 
 #include "uistrattreewin.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.75 2012-06-26 
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilistview.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uiselsimple.h"
 #include "uimsg.h"
@@ -50,7 +51,10 @@ static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
-	stratwin = new uiStratTreeWin(0);
+    {
+	uiMain& app = uiMain::theMain();
+	stratwin = new uiStratTreeWin( app.topLevel() );
+    }
 
     return *stratwin;
 }
