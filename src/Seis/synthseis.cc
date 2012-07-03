@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.55 2012-06-26 13:48:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.56 2012-07-03 12:03:22 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -34,6 +34,7 @@ mImplFactory( SynthGenerator, SynthGenerator::factory );
 SynthGenBase::SynthGenBase()
     : wavelet_(0)
     , isfourier_(true)
+    , waveletismine_(false)
     , usenmotimes_(false)
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
     , tr_(0)
