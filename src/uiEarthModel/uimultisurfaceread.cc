@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultisurfaceread.cc,v 1.31 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultisurfaceread.cc,v 1.32 2012-07-03 13:14:38 cvskris Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -112,11 +112,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	    if ( hs.isEmpty() )
 		hs = emhs;
 	    else if ( !emhs.isEmpty() )
-	    {
-		hs.include( emhs.start );
-		hs.include( emhs.stop );
-		hs.step = BinID(1,1);
-	    }
+		hs.include( emhs, false );
 	}
 
 	fillRangeFld( hs );
