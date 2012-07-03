@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.67 2012-06-29 14:51:59 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.68 2012-07-03 11:41:28 cvshelene Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -543,7 +543,11 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 		if ( ioobj )
 		{
 		    seissubselfld_->setInput( *ioobj );
-		    outpfld_->setInput( *ioobj );
+		    BufferString inptxt =
+			LineKey( IOM().nameOf( lk.lineName().buf() ),
+				 attrfld_->getInput() );
+		    outpfld_->setInputText( inptxt.buf() );
+
 		    outpfld_->processInput();
 		}
 	    }
