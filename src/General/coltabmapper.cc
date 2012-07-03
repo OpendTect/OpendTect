@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.36 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.37 2012-07-03 15:40:54 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -135,8 +135,9 @@ ColTab::MapperSetup&
 
 bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& b ) const
 {
-    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ || maxpts_!=b.maxpts_ ||
-	 cliprate_ != b.cliprate_ )
+    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ ||
+	 maxpts_!=b.maxpts_ || cliprate_!=b.cliprate_ ||
+	 autosym0_!=b.autosym0_  || symmidval_!=b.symmidval_ )
 	return true;
 
     return false;
