@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.34 2012-05-22 15:36:50 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.35 2012-07-03 15:38:49 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -334,7 +334,8 @@ void uiContourTreeItem::removeLabels()
 void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDataTreeItem::createMenu( menu, istb );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &optionsmenuitem_, lines_, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
+		      &optionsmenuitem_, lines_, false );
 }
 
 
