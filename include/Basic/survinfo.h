@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.110 2012-07-02 05:44:17 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.111 2012-07-03 08:51:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "zdomain.h"
 #include "refcount.h"
+#include "thread.h"
 #include "cubesampling.h"
 
 class ascostream;
@@ -97,15 +98,15 @@ mClass SurveyInfo : public NamedObject
 {
 
     mGlobal friend const SurveyInfo&	SI();
+		
 
 public:
-
 			~SurveyInfo();
     bool		isValid() const		{ return valid_; }
     bool		has2D() const;
     bool		has3D() const;
     
-    RefMan<InlCrlSystem> create3DGeometry(bool work) const;
+    RefMan<InlCrlSystem> get3DGeometry(bool work) const;
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
@@ -208,6 +209,9 @@ protected:
     CubeSampling&	cs_;
     CubeSampling&	wcs_;
     IOPar&		pars_;
+    
+    mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
+    mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
 
     RCol2Coord		b2c_;
     LatLong2Coord&	ll2c_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.169 2012-07-02 05:44:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.170 2012-07-03 08:51:39 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -62,6 +62,7 @@ const SurveyInfo& SI()
 	}
 	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
+    
     return *SurveyInfo::theinst_;
 }
 
@@ -77,6 +78,10 @@ void SurveyInfo::setInvalid() const
 {
     SurveyInfo* myself = const_cast<SurveyInfo*>(this);
     myself->valid_ = false;
+    
+    
+    winlcrlsystem_.unRef();
+    inlcrlsystem_.unRef();
 }
 
 
@@ -125,6 +130,9 @@ SurveyInfo::~SurveyInfo()
     delete &cs_;
     delete &wcs_;
     delete &zdef_;
+    
+    inlcrlsystem_.unRef();
+    winlcrlsystem_.unRef();
 }
 
 
@@ -901,15 +909,26 @@ bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
 
 
-RefMan<InlCrlSystem> SurveyInfo::create3DGeometry(bool work) const
+RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
 {
-    RefMan<InlCrlSystem> res = new InlCrlSystem( name(), zdef_ );
+    Threads::AtomicPointer<InlCrlSystem>& sys = work
+        ? winlcrlsystem_
+        : inlcrlsystem_;
     
-    res->b2c_ = b2c_;
-    res->cs_ = sampling( work );
-    res->zscale_ = zScale();
+    if ( !sys )
+    {
+	RefMan<InlCrlSystem> newsys = new InlCrlSystem( name(), zdef_ );
+	newsys->ref();
+	
+	newsys->b2c_ = b2c_;
+	newsys->cs_ = sampling( work );
+	newsys->zscale_ = zScale();
+	
+	if ( sys.setIfOld( 0, newsys ) )
+	    newsys->ref();
+    }
     
-    return res;
+    return RefMan<InlCrlSystem>( sys );
 }
 
 
