@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.45 2011-09-19 11:13:40 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.46 2012-07-04 09:52:45 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -175,6 +175,55 @@ protected:
     int*			position_;
     const ArrayNDInfo&		sz_;
 
+};
+
+#define mArrayNDVSAdapterNrDim 20
+
+
+/*! Adapter that makes any ArrayND to a (slow) value series. Try using 
+    other methods (like getting the storage) as this is slow. */
+
+template <class T>
+mClass ArrayNDValseriesAdapter : public ValueSeries<T>
+{
+public:
+			ArrayNDValseriesAdapter( const ArrayND<T>& a )
+			    : array_( a )
+			{
+			    if ( array_.getData() || array_.getStorage() )
+			    {
+				pErrMsg("Not a good idea to use adapter. "
+					"Use getStorage() instead");
+			    }
+			}
+    
+    bool		isOK() const
+			{
+			    if ( array_.info().getNDim()>mArrayNDVSAdapterNrDim)
+			    {
+				pErrMsg( "Too many dimensions");
+				return false;
+			    }
+			    
+			    return true;
+			}
+			
+    ValueSeries<T>*	clone() const
+			{ return new ArrayNDValseriesAdapter<T>( *this ); }
+    
+    T			value(od_int64 idx) const
+			{
+			    int pos[mArrayNDVSAdapterNrDim];
+			    array_.info().getArrayPos( idx, pos );
+			    return array_.getND( pos );
+			}
+    
+    const T*		arr() const { return array_.getData(); }
+    T*			arr() { return 0; }
+    
+protected:
+
+    const ArrayND<T>&	array_;
 };
 
 
