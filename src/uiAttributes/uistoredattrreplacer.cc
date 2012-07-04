@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.26 2012-07-02 15:30:20 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.27 2012-07-04 03:24:27 cvssatyaki Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -384,6 +384,10 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ ) attrset_->removeAll( true );
 	    return;
 	}
+
+	if ( (issteer && !dlg.getSteerKey()) ||
+	     (!issteer && !dlg.getSeisKey()) )
+	    return uiMSG().error( "No valid input data is selected" );
 
 	if ( !issteer )
 	{
