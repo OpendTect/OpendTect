@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vishorizon2ddisplay.cc,v 1.48 2012-05-02 15:12:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizon2ddisplay.cc,v 1.49 2012-07-04 05:14:42 cvssatyaki Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -558,4 +558,9 @@ int Horizon2DDisplay::usePar( const IOPar& par )
 }
 
 
+void Horizon2DDisplay::doOtherObjectsMoved(
+	            const ObjectSet<const SurveyObject>& objs, int whichobj )
+{
+    otherObjectsMoved( objs, whichobj );
+}
 }; // namespace visSurvey

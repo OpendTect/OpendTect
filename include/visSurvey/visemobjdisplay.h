@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.69 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.70 2012-07-04 05:14:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,9 @@ public:
 
     void			lock(bool yn);
     NotifierAccess*		getLockNotifier()	{ return &locknotifier;}
+    virtual void		doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj )	=0;
 
 protected:
     				~EMObjectDisplay();

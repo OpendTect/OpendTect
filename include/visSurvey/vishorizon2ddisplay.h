@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.24 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.25 2012-07-04 05:14:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,9 @@ public:
     //const ZAxisTransform*	getZAxisTransform() const;
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::IndexedPolyLine3D* getLine(const EM::SectionID&) const;
+    void			doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
 
 protected:
     friend			class Horizon2DDisplayUpdater;
