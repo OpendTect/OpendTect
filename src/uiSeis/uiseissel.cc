@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.111 2012-06-21 18:36:35 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.112 2012-07-04 10:06:01 cvskris Exp $";
 
 #include "uiseissel.h"
 
@@ -123,7 +123,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    BufferString titletxt( "Setup " );
+    BufferString titletxt( "Select " );
     if ( sssu.seltxt_ )
 	titletxt += sssu.seltxt_;
     else
