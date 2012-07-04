@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.154 2012-05-25 12:38:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.155 2012-07-04 05:14:20 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -823,7 +823,7 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-	if ( !linesets_.size() || !linenames_.size() )
+	if ( !linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_) )
 	    return ErrorOccurred();
 
 	if ( !hor2d->sectionGeometry(sectionid) )
