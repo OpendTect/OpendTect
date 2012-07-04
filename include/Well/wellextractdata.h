@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.42 2012-07-02 07:28:21 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.43 2012-07-04 14:06:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,8 +221,8 @@ protected:
     int				dahcolnr_;
 
     void		getData(const Data&,DataPointSet&);
-    bool		getSnapPos(const Data&,float,BinIDValue&,int&,
-	    			   Coord3&) const;
+    bool		getPos(const Data&,float,BinIDValue&,int&,
+	    			Coord3&) const;
     void		addPosns(DataPointSet&,const BinIDValue&,
 				 const Coord3&,float dah) const;
 };
