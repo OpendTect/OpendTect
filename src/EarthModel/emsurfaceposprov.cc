@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.37 2012-07-02 20:18:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.38 2012-07-04 18:10:00 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -449,7 +449,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
 					    bid.toInt64() );
 	if ( !crd2.isDefined() )
-	    false;
+	    return false;
 
 	zrg.start = crd1.z; zrg.stop = crd2.z;
 	zrg.sort();
