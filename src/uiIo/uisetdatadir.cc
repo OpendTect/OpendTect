@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.37 2012-06-30 16:24:16 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.38 2012-07-04 13:40:52 cvsraman Exp $";
 
 #include "uisetdatadir.h"
 
@@ -123,7 +123,8 @@ static BufferString getInstalledDemoSurvey()
     BufferString ret;
     if ( ODInst::getPkgVersion("demosurvey") )
     {
-	FilePath demosurvfp( GetSoftwareDir(0), "data", "oddemosurv.zip" );
+	FilePath demosurvfp( GetSoftwareDir(0), "data", "DemoSurveys",
+			     "F3_Start.zip" );
 	ret = demosurvfp.fullPath();
     }
 
