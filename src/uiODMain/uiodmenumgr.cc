@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.261 2012-05-30 15:18:41 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.262 2012-07-04 13:48:15 cvsraman Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -663,16 +663,24 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
-    uiPopupMenu* instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
-    utilmnu_->insertItem( instmgrmnu );
-    const ODInst::AutoInstType ait = ODInst::getAutoInstType();
-    const bool aitfixed = ODInst::autoInstTypeIsFixed();
-    if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	mInsertItem( instmgrmnu, "Installation &Manager ...", mInstMgrMnuItem );
-    if ( !aitfixed )
-	mInsertItem( instmgrmnu, "&Auto-update policy ...",
-		     mInstAutoUpdPolMnuItm );
-    mInsertItem( instmgrmnu, "&Connection Settings ...", mInstConnSettsMnuItm );
+    FilePath installerdir( GetSoftwareDir(0) );
+    installerdir.setFileName( "Installer" );
+    const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
+    if ( hasinstaller && !__ismac__ )
+    {
+	uiPopupMenu* instmgrmnu = new uiPopupMenu( &appl_, "&Installation" );
+	utilmnu_->insertItem( instmgrmnu );
+	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
+	const bool aitfixed = ODInst::autoInstTypeIsFixed();
+	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
+	    mInsertItem( instmgrmnu, "Installation &Manager ...",
+		    	 mInstMgrMnuItem );
+	if ( !aitfixed )
+	    mInsertItem( instmgrmnu, "&Auto-update policy ...",
+			 mInstAutoUpdPolMnuItm );
+	mInsertItem( instmgrmnu, "&Connection Settings ...",
+		     mInstConnSettsMnuItm );
+    }
 
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
