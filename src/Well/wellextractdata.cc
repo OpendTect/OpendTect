@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.83 2012-07-02 07:28:21 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.84 2012-07-04 14:06:06 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -525,7 +525,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 
 	if ( mIsUdf(dah) || !dahrg.includes( dah, true ) )
 	    return;
-	else if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
+	else if ( !getPos(wd,dah,biv,trackidx,precisepos) )
 	    continue;
 
 	if ( biv.binid != prevbiv.binid
@@ -538,9 +538,9 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 }
 
 
-bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
-				     BinIDValue& biv, int& trackidx,
-				     Coord3& pos ) const
+bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
+				 BinIDValue& biv, int& trackidx,
+				 Coord3& pos ) const
 {
     const int tracksz = wd.track().size();
     while ( trackidx < tracksz && dah > wd.track().dah(trackidx) )
@@ -557,8 +557,7 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
-    const int nearidx = SI().zRange(false).nearestIndex( pos.z );
-    biv.value = SI().zRange(false).atIndex( nearidx );
+    biv.value = pos.z;
     return true;
 }
 
