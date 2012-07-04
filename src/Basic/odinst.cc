@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.16 2012-07-04 13:20:54 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.17 2012-07-04 14:36:27 cvsranojay Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -196,16 +196,28 @@ bool ODInst::canInstall()
 	return errretval; \
     installerdir.add( "od_instmgr" ); \
     BufferString cmd( __iswin__ ? "" : "@", installerdir.fullPath() ); \
-    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" );
+    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
+   
 
 
 void ODInst::startInstManagement()
 {
-    mDefCmd();
 #ifndef __win__
+    mDefCmd();
     StreamProvider( cmd ).executeCommand( true, true );
 #else
-    ExecOSCmd( cmd, true, true );
+    FilePath installerdir( GetSoftwareDir(0) ); 
+    BufferString dir = installerdir.fullPath();
+    installerdir.setFileName( "Installer" );
+    dir = installerdir.fullPath();
+    if ( !File::isDirectory(installerdir.fullPath()) )
+	return;
+    installerdir.add( "od_instmgr" );
+    BufferString cmd( installerdir.fullPath() ); 
+    BufferString parm( " --instdir "  );
+    parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
+    
+    ExecuteProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
 
@@ -216,7 +228,7 @@ bool ODInst::updatesAvailable()
 #ifndef __win__
     return !StreamProvider( cmd ).executeCommand( false );
 #else
-    ExecOSCmd( cmd );
+    ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
     bool ret = File::exists( tmp.fullPath() );
     if ( ret )
