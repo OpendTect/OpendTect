@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.13 2012-05-24 10:18:00 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.14 2012-07-04 12:00:28 cvsraman Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -104,9 +104,13 @@ bool ODInst::canInstall()
 }
 
 
-#define mDefCmd() \
+#define mDefCmd(errretval) \
+    FilePath installerdir( GetSoftwareDir(0) ); \
+    installerdir.setFileName( "Installer" ); \
+    if ( !File::isDirectory(installerdir.fullPath()) ) \
+	return errretval; \
     BufferString cmd( __iswin__ ? "" : "@",\
-    FilePath(GetBinPlfDir(), __iswin__ ? "od_runinst" :"od_instmgr").fullPath() ); \
+    FilePath(GetBinPlfDir(),"od_instmgr").fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" );
 
 
@@ -122,7 +126,7 @@ void ODInst::startInstManagement()
 
 bool ODInst::updatesAvailable()
 {
-    mDefCmd(); cmd.add( " --updcheck_report" );
+    mDefCmd(false); cmd.add( " --updcheck_report" );
     return !StreamProvider( cmd ).executeCommand( false );
 }
 
