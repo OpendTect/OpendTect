@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.77 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.78 2012-07-04 11:14:47 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -472,9 +472,10 @@ void uiStratTreeWin::changeLayerModelNumber( bool add )
     }
     if ( haschged )
     {
-	lockbut_->setOn( nrlayermodelwin );
+	const bool islocked = lockbut_->isOn();
+	if ( (!islocked && nrlayermodelwin) || (islocked && !nrlayermodelwin) )
+	    { lockbut_->setOn( nrlayermodelwin ); editCB(0); }
 	lockbut_->setSensitive( !nrlayermodelwin );
 	editmnuitem_->setEnabled( !nrlayermodelwin );
-	editCB(0);
     }
 }
