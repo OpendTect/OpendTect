@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.39 2012-07-02 10:16:29 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.40 2012-07-04 10:36:06 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -83,7 +83,7 @@ WellStratUnitGen::WellStratUnitGen( StratDispData& data,
     , markers_(wd.markers())
     , d2tmodel_(wd.d2TModel())
 {
-    uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
+    uidatagather_ = new uiStratTreeToDisp( data_, false, false );
     uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
     gatherInfo();
 }

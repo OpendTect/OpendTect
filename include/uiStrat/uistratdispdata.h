@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.18 2012-05-01 15:14:41 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.19 2012-07-04 10:36:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,16 +148,16 @@ protected :
 
 /*!\brief used to gather all units and tied levels from a tree for display*/
 
-mClass uiStratTreeToDispTransl : public CallBacker
+mClass uiStratTreeToDisp : public CallBacker
 {
 public:
-    			uiStratTreeToDispTransl(StratDispData&,
+    			uiStratTreeToDisp(StratDispData&,
 					bool withaux=true,
 					bool withlvls=true);
-			~uiStratTreeToDispTransl();
+			~uiStratTreeToDisp();
 
     void		setTree();
-    Notifier<uiStratTreeToDispTransl> newtreeRead;
+    Notifier<uiStratTreeToDisp> newtreeRead;
     
     int			levelColIdx() const 	{ return levelcolidx_; }
 
@@ -187,11 +187,11 @@ protected:
 
 /*!brief used to write directly in the listView of the uiStratRefTree as if we were handling the uiTree directly*/
 
-mClass uiStratDispToTreeTransl : public CallBacker
+mClass uiStratDispToTree : public CallBacker
 {
 public:
-    			uiStratDispToTreeTransl(uiStratRefTree&);
-	                ~uiStratDispToTreeTransl(){};
+    			uiStratDispToTree(uiStratRefTree&);
+	                ~uiStratDispToTree(){};
 
     uiListViewItem*	getItemFromTree(const char*);
 

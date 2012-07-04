@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdispdata.cc,v 1.29 2012-07-03 12:05:39 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdispdata.cc,v 1.30 2012-07-04 10:36:06 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -24,9 +24,9 @@ static const char* rcsID mUnusedVar = "$Id: uistratdispdata.cc,v 1.29 2012-07-03
 
 
 #define mAskStratNotif(obj,nm,act)\
-    (obj)->nm.act(mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+    (obj)->nm.act(mCB(this,uiStratTreeToDisp,triggerDataChange));
 
-uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad, 
+uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad, 
 					bool witauxs, bool withlvls  ) 
     : data_(ad)
     , withauxs_(witauxs)		  
@@ -37,12 +37,12 @@ uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad,
 }
 
 
-uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
+uiStratTreeToDisp::~uiStratTreeToDisp()
 {
     mAskStratNotif(&Strat::eLVLS(),levelChanged,remove)
     if ( tree_ )
     {
-	tree_->deleteNotif.remove(mCB(this,uiStratTreeToDispTransl,treeDel));
+	tree_->deleteNotif.remove(mCB(this,uiStratTreeToDisp,treeDel));
 	mAskStratNotif(tree_,unitAdded,remove)
 	mAskStratNotif(tree_,unitChanged,remove)
 	mAskStratNotif(tree_,unitToBeDeleted,remove)
@@ -50,13 +50,13 @@ uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
 }
 
 
-void uiStratTreeToDispTransl::setTree()
+void uiStratTreeToDisp::setTree()
 {
     tree_ = &Strat::eRT();
     if ( !tree_ ) 
 	return;
 
-    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDispTransl,treeDel));
+    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDisp,treeDel));
     mAskStratNotif(tree_,unitAdded,notify)
     mAskStratNotif(tree_,unitChanged,notify)
     mAskStratNotif(tree_,unitToBeDeleted,notify)
@@ -66,19 +66,19 @@ void uiStratTreeToDispTransl::setTree()
 }
 
 
-void uiStratTreeToDispTransl::treeDel( CallBacker* )
+void uiStratTreeToDisp::treeDel( CallBacker* )
 {
     tree_ = 0;
 }
 
 
-void uiStratTreeToDispTransl::triggerDataChange( CallBacker* )
+void uiStratTreeToDisp::triggerDataChange( CallBacker* )
 {
     readFromTree();
 }
 
 
-void uiStratTreeToDispTransl::readFromTree()
+void uiStratTreeToDisp::readFromTree()
 {
     data_.eraseData();
     static const char* colnms[] = { "Super Group", "Group", "Formation", 
@@ -107,7 +107,7 @@ void uiStratTreeToDispTransl::readFromTree()
 }
 
 
-void uiStratTreeToDispTransl::readUnits()
+void uiStratTreeToDisp::readUnits()
 {
     if ( !tree_ ) return;
 
@@ -135,7 +135,7 @@ void uiStratTreeToDispTransl::readUnits()
 }
 
 
-void uiStratTreeToDispTransl::addUnit( const Strat::NodeUnitRef& ur ) 
+void uiStratTreeToDisp::addUnit( const Strat::NodeUnitRef& ur ) 
 {
     StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(), 							ur.color() );
     un->color_.setTransparency( 0 );
@@ -144,7 +144,7 @@ void uiStratTreeToDispTransl::addUnit( const Strat::NodeUnitRef& ur )
 }
 
 
-void uiStratTreeToDispTransl::addDescs( const Strat::LeavedUnitRef& ur ) 
+void uiStratTreeToDisp::addDescs( const Strat::LeavedUnitRef& ur ) 
 {
     StratDispData::Unit* un = new StratDispData::Unit( ur.description() );
     un->zrg_ = ur.timeRange();
@@ -152,7 +152,7 @@ void uiStratTreeToDispTransl::addDescs( const Strat::LeavedUnitRef& ur )
 }
 
 
-void uiStratTreeToDispTransl::addLithologies( const Strat::LeavedUnitRef& ur )
+void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
 {
     if ( !tree_ ) return;
 
@@ -171,7 +171,7 @@ void uiStratTreeToDispTransl::addLithologies( const Strat::LeavedUnitRef& ur )
 }
 
 
-void uiStratTreeToDispTransl::addLevel( const Strat::LeavedUnitRef& ur )
+void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 {
     BufferString lvlnm; Color lvlcol;
     const int id = ur.levelID();
@@ -189,14 +189,14 @@ void uiStratTreeToDispTransl::addLevel( const Strat::LeavedUnitRef& ur )
 
 
 
-uiStratDispToTreeTransl::uiStratDispToTreeTransl( uiStratRefTree& uitree ) 
+uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree ) 
     : uitree_(uitree)
 {}
 
 #define mGetLItem(t) uiListViewItem* lit = uitree_.getLVItFromFullCode( txt);\
 if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
-void uiStratDispToTreeTransl::handleUnitMenu( const char* txt )
+void uiStratDispToTree::handleUnitMenu( const char* txt )
 {
     if ( txt )
     {
@@ -206,7 +206,7 @@ void uiStratDispToTreeTransl::handleUnitMenu( const char* txt )
 }
 
 
-void uiStratDispToTreeTransl::addUnit( const char* txt )
+void uiStratDispToTree::addUnit( const char* txt )
 {
     if ( txt )
     {
@@ -219,7 +219,7 @@ void uiStratDispToTreeTransl::addUnit( const char* txt )
 
 
 
-void uiStratDispToTreeTransl::setUnitLvl( const char* code )
+void uiStratDispToTree::setUnitLvl( const char* code )
 {
     uitree_.setUnitLvl( code );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.67 2012-05-30 11:36:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.68 2012-07-04 10:36:06 cvsbruno Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -141,9 +141,12 @@ void doLayerModel( uiParent* p, const char* modnm )
     if ( Strat::RT().isEmpty() )
 	return;
 
-    uiStratLayerModel dlg( p, modnm );
-    dlg.go();
+    uiStratLayerModel* dlg = new uiStratLayerModel( p, modnm );
+    dlg->go();
 }
+
+
+
 
 
 void addToTreeWin()
@@ -177,7 +180,7 @@ void uiStratLayerModel::doLayerModel( const char* modnm )
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(p,"",0,false,true)
+    : uiMainWin(p,"",0,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , modl_(*new Strat::LayerModel)
     , elpropsel_(0)				   
@@ -187,6 +190,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , levelChanged(this)				   
     , waveletChanged(this)				   
 {
+    setDeleteOnClose( true );
+
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
     descctio_.ctxt.toselect.require_.set( sKey::Type(), edtyp );
@@ -257,6 +262,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
 
     setWinTitle();
+    StratTreeWin().changeLayerModelNumber( true );
     postFinalise().notify( mCB(this,uiStratLayerModel,initWin) );
 }
 
@@ -266,6 +272,7 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &modl_;
     delete descctio_.ioobj; delete &descctio_;
+    StratTreeWin().changeLayerModelNumber( false );
 }
 
 

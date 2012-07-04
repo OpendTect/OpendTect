@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.76 2012-07-03 20:50:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.77 2012-07-04 10:36:06 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -208,8 +208,8 @@ void uiStratTreeWin::createToolBar()
     mDefBut(uitb,"contexthelp",helpCB,"Help on this window");
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree", switchViewCB, "Switch View" );
-    mDefBut( uitb, "lithologies", manLiths, "Manage Lithologies" );
-    mDefBut( uitb, "contents", manConts, "Manage Content Types" );
+    mDefBut( lithobut_, "lithologies", manLiths, "Manage Lithologies" );
+    mDefBut( contentsbut_, "contents", manConts, "Manage Content Types" );
 
     for ( int idx=0; idx<tbsetups_.size(); idx++ )
 	tb_->addButton( *tbsetups_[idx] );
@@ -283,6 +283,20 @@ void uiStratTreeWin::editCB( CallBacker* )
 	    			: ioPixmap("readonly") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
+    setIsLocked( !doedit );
+}
+
+
+void uiStratTreeWin::setIsLocked( bool yn )
+{
+    uistratdisp_->setIsLocked( yn );
+    lvllist_->setIsLocked( yn );
+    lithobut_->setSensitive( !yn );
+    contentsbut_->setSensitive( !yn );
+    newbut_->setSensitive( !yn );
+    openmnuitem_->setEnabled( !yn );
+    saveasmnuitem_->setEnabled( !yn );
+    resetmnuitem_->setEnabled( !yn );
 }
 
 
@@ -437,4 +451,30 @@ void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
     dlg.go();
+}
+
+
+void uiStratTreeWin::changeLayerModelNumber( bool add )
+{
+    static int nrlayermodelwin = 0;
+    bool haschged = false;
+    if ( add )
+    {
+	nrlayermodelwin ++;
+	if ( nrlayermodelwin == 1 )
+	    haschged = true;
+    }
+    else 
+    {
+	nrlayermodelwin --;
+	if ( nrlayermodelwin == 0 )
+	    haschged = true;
+    }
+    if ( haschged )
+    {
+	lockbut_->setOn( nrlayermodelwin );
+	lockbut_->setSensitive( !nrlayermodelwin );
+	editmnuitem_->setEnabled( !nrlayermodelwin );
+	editCB(0);
+    }
 }

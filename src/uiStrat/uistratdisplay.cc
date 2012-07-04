@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.47 2012-07-02 10:18:20 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.48 2012-07-04 10:36:06 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -34,12 +34,13 @@ static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.47 2012-07-02 
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
-    , uidatawriter_(uiStratDispToTreeTransl(uitree ))
+    , uidatawriter_(uiStratDispToTree(uitree ))
     , uidatagather_(0)
     , uicontrol_(0)
+    , islocked_(false)
     , maxrg_(Interval<float>(0,2e3))
 {
-    uidatagather_ = new uiStratTreeToDispTransl( data_ );
+    uidatagather_ = new uiStratTreeToDisp( data_ );
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
@@ -239,7 +240,7 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 {
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-	    !ev.altStatus() )
+	    !ev.altStatus() && !islocked_ )
     {
 	if ( getColIdxFromPos() == uidatagather_->levelColIdx() )
 	{

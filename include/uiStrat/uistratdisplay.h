@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.32 2012-06-26 07:36:10 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.33 2012-07-04 10:36:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,10 +112,12 @@ public:
 
     void			setTree();
 
+    void			setIsLocked(bool yn ) { islocked_ = yn; }
+
 protected :
 
-    uiStratTreeToDispTransl*	uidatagather_;
-    uiStratDispToTreeTransl	uidatawriter_;
+    uiStratTreeToDisp*		uidatagather_;
+    uiStratDispToTree		uidatawriter_;
 
     uiStratViewControl*		uicontrol_;
     StratDispData		data_;
@@ -126,6 +128,7 @@ protected :
     uiGroup*			dispparamgrp_;
     uiPushButton*		fillbutton_;
     uiPushButton*		viewcolbutton_;
+    bool			islocked_;
     
     Interval<float>		maxrg_;
    
