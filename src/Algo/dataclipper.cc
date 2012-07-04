@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.35 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.36 2012-07-04 11:00:15 cvskris Exp $";
 
 
 #include "dataclipper.h"
@@ -24,6 +24,7 @@ DataClipper::DataClipper()
     : sampleprob_( 1 )
     , subselect_( false )
     , approxstatsize_( 2000 )
+    , absoluterg_( mUdf(float), -mUdf(float) )
 {
     Stats::RandGen::init();
 } 
@@ -38,6 +39,13 @@ void DataClipper::setApproxNrValues( od_int64 n, int statsz )
     sampleprob_ = mMIN( sampleprob_, 1 );
 }
 
+#define mAddValue( array, rg ) \
+if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) )  \
+{ \
+    array += val; \
+    rg.include( val, false ); \
+}
+
 
 void DataClipper::putData( float val )
 {
@@ -49,35 +57,75 @@ void DataClipper::putData( float val )
 	    return;
     }
 
-    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) samples_ += val;
+    mAddValue( samples_, absoluterg_ );
 }
 
-#define mPutDataImpl( getfunc ) \
-    const od_int64 nrsamples = mNINT(nrvals * sampleprob_); \
-    if ( subselect_ && nrsamples<nrvals ) \
-    { \
-	for ( od_int64 idx=0; idx<nrsamples; idx++ ) \
-	{ \
-	    double rand = Stats::RandGen::get(); \
-	    rand *= (nrvals-1); \
-	    const od_int64 sampidx = mNINT(rand); \
-	    getfunc; \
-	    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) \
-		samples_ += val; \
-	} \
-    } \
-    else \
-    { \
-	for ( od_int64 sampidx=0; sampidx<nrvals; sampidx++ ) \
-	{ \
-	    getfunc; \
-	    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) samples_ += val; \
-	} \
+template <class T>
+class DataClipperDataInserter : public ParallelTask
+{
+public:
+    DataClipperDataInserter( const T& input, int sz, TypeSet<float>& samples,
+			     Interval<float>& rg, float prob )
+        : input_( input )
+        , nrvals_( sz )
+        , samples_( samples )
+        , doall_( mIsEqual( prob, 1, 1e-3 ) )
+	, absoluterg_( rg )
+    {
+	nrsamples_ = doall_ ? nrvals_ : mNINT(sz * prob);
     }
+    
+    od_int64 nrIterations() const
+    { return nrsamples_; }
+    
+    int minThreadSize() const { return 100000; }
+    
+    bool doWork( od_int64 start, od_int64 stop, int )
+    {
+	TypeSet<float> localsamples;
+	Interval<float> localrg( mUdf(float), -mUdf(float) );
+	
+	bool added = false;
+	
+	for ( int idx=start; idx<=stop; idx++ )
+	{
+	    double rand = Stats::RandGen::get();
+	    rand *= (nrvals_-1);
+	    const od_int64 sampidx = mNINT(rand);
+	    const float val = input_[sampidx];
+	    
+	    mAddValue( localsamples, localrg );
+	}
+	
+	if ( localsamples.size() )
+	{
+	    Threads::SpinLockLocker lock( lock_ );
+	   
+	    samples_.append( localsamples );
+	    absoluterg_.include( localrg, false );
+	}
+	
+	return true;
+    }
+    
+protected:
+    
+    Threads::SpinLock	lock_;
+    od_int64		nrsamples_;
+    od_int64		nrvals_;
+    TypeSet<float>&	samples_;
+    const T&		input_;
+    bool		doall_;
+    Interval<float>&	absoluterg_;
+};
+
 
 void DataClipper::putData( const float* vals, od_int64 nrvals )
 {
-    mPutDataImpl( const float val = vals[sampidx] );
+    DataClipperDataInserter<const float*> inserter( vals, nrvals,
+					samples_, absoluterg_,sampleprob_ );
+    
+    inserter.execute();
 }
 
 
@@ -88,8 +136,11 @@ void DataClipper::putData( const ValueSeries<float>& vals, od_int64 nrvals )
 	putData( vals.arr(), nrvals );
 	return;
     }
-
-    mPutDataImpl( const float val = vals.value( sampidx ) );
+    
+    DataClipperDataInserter<const ValueSeries<float> > inserter( vals, nrvals,
+					  samples_, absoluterg_, sampleprob_ );
+    
+    inserter.execute();
 }
 
 
@@ -101,11 +152,15 @@ void DataClipper::putData( const ArrayND<float>& vals )
 	putData( *vals.getStorage(), nrvals );
 	return;
     }
-
-    const ArrayNDInfo& info = vals.info();
-
-    mAllocVarLenArr( int, idxs, info.getNDim() );
-    mPutDataImpl(info.getArrayPos(sampidx,idxs); float val=vals.getND(idxs) );
+    
+    ArrayNDValseriesAdapter<float> adapter( vals );
+    if ( !adapter.isOK() )
+    {
+	pErrMsg("Problem with adapter");
+	return;
+    }
+    
+    putData( adapter, vals.info().getTotalSz() );
 }
 
 
@@ -209,13 +264,29 @@ bool DataClipper::getRange( float lowclip, float highclip,
 
     od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
-
-    od_int64 firstidx = mNINT(lowclip*nrvals);
-    od_int64 topnr = mNINT(highclip*nrvals);
-    od_int64 lastidx = nrvals-topnr-1;
-
-    range.start = samples_[firstidx];
-    range.stop = samples_[lastidx];
+    
+    if ( mIsZero(lowclip, 1e-5 ) )
+    {
+	range.start = absoluterg_.start;
+    }
+    else
+    {
+	const od_int64 firstidx = mNINT(lowclip*nrvals);
+	range.start = samples_[firstidx];
+    }
+    
+    if ( mIsZero( highclip, 1e-5 ) )
+    {
+	range.stop = absoluterg_.stop;
+    }
+    else
+    {
+	const od_int64 topnr = mNINT(highclip*nrvals);
+	const od_int64 lastidx = nrvals-topnr-1;
+	
+	range.stop = samples_[lastidx];
+    }
+    
     return true;
 }
 
@@ -262,6 +333,8 @@ void DataClipper::reset()
     samples_.erase();
     subselect_ = false;
     sampleprob_ = 1;
+    absoluterg_.start = mUdf(float);
+    absoluterg_.stop = -mUdf(float);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.18 2012-03-07 12:42:55 cvsbert Exp $
+ RCS:		$Id: dataclipper.h,v 1.19 2012-07-04 11:00:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,10 +86,9 @@ public:
     void			setApproxNrValues(od_int64 nrsamples,
 						  int statsize=2000);
     				/*!< Will make it faster if large amount
-				     (>10000 samples) of data is used. The
-				     Object will then randomly subselect
-				     on the input to get about statsize samples
-				     to do the stats on.
+				     of data is used. The Object will then
+				     randomly subselect on the input to get
+				     about statsize samples to do the stats on.
 				*/
     void			putData(float);
     void			putData(const float*,od_int64 sz);
@@ -126,7 +125,7 @@ protected:
     float			sampleprob_;
     bool			subselect_;
     TypeSet<float>		samples_;
-
+    Interval<float>		absoluterg_;
 };
 
 
