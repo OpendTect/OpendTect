@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.27 2012-07-04 03:24:27 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.28 2012-07-04 04:15:14 cvssatyaki Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -217,6 +217,9 @@ int uiStoredAttribReplacer::getOutPut( int descid )
 void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 					  const char* key, const char* userref )
 {
+    if ( !key || !userref )
+	return uiMSG().error( "No valid steering input selected" );
+
     const int output = getOutPut( storeentry.firstid_.asInt() );
     if ( output==0 )
     {
@@ -384,10 +387,6 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ ) attrset_->removeAll( true );
 	    return;
 	}
-
-	if ( (issteer && !dlg.getSteerKey()) ||
-	     (!issteer && !dlg.getSeisKey()) )
-	    return uiMSG().error( "No valid input data is selected" );
 
 	if ( !issteer )
 	{
