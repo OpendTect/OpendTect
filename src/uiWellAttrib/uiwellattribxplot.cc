@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.52 2012-05-11 14:22:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.53 2012-07-04 14:08:31 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -63,7 +63,10 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     welllogselfld_->attach( ensureBelow, llba );
 
     const float inldist = SI().inlDistance();
-    radiusfld_ = new uiGenInput( this, "         Radius around wells",
+    const char* distunit =  SI().getXYUnitString();
+    BufferString radiusbuf( "  Radius around wells "); 
+    radiusbuf += distunit;
+    radiusfld_ = new uiGenInput( this, radiusbuf,
 	    			 FloatInpSpec((float)((int)(inldist+.5))) );
     radiusfld_->attach( alignedBelow, llba );
     radiusfld_->attach( ensureBelow, welllogselfld_ );
