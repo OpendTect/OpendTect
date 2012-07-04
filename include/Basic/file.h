@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.15 2012-05-30 05:32:23 cvsranojay Exp $
+ RCS:		$Id: file.h,v 1.16 2012-07-04 09:37:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ namespace File
     mGlobal bool	isHidden(const char*);
     mGlobal bool	isWritable(const char*);
     mGlobal bool	makeWritable(const char*,bool yesno,bool recursive);
+    mGlobal bool	makeExecutable(const char*,bool yesno);
     mGlobal bool	setPermissions(const char*,const char* perms,
 	    			       bool recursive);
     mGlobal bool	isFileInUse(const char* fnm); 
