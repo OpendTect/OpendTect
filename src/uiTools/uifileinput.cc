@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifileinput.cc,v 1.60 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifileinput.cc,v 1.61 2012-07-04 10:37:13 cvsranojay Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -206,6 +206,10 @@ const char* uiFileInput::fileName() const
     fname = text();
     if ( fname.isEmpty() )
 	return fname;
+#ifdef __win__ 
+    if ( fname.size() == 2 )
+	fname += "\\";
+#endif
 
     FilePath fp( fname );
     if ( !fp.isAbsolute() && !defseldir_.isEmpty() )
