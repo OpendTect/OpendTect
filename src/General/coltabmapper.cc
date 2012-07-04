@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.37 2012-07-03 15:40:54 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.38 2012-07-04 11:54:02 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -109,7 +109,7 @@ ColTab::MapperSetup::MapperSetup()
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
     , autosym0_(defAutoSymmetry())
-    , maxpts_(2560)
+    , maxpts_(1000000)
     , nrsegs_(0)
     , range_(Interval<float>(0,0))
     , flipseq_( false )
@@ -192,7 +192,6 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );
-    par.set( sKeyMaxPts(), maxpts_ );
     par.set( sKeyRange(), range_ );
     par.setYN( sKeyFlipSeq(), flipseq_ );
 }
@@ -229,13 +228,13 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 
     return par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
-	   par.get( sKeyMaxPts(), maxpts_ ) &&
 	   par.get( sKeyRange(), range_ );
 }
 
 
 void ColTab::MapperSetup::triggerRangeChange()
 { rangeChange.trigger(); }
+
 
 void ColTab::MapperSetup::triggerAutoscaleChange()
 { autoscaleChange.trigger(); }
@@ -344,10 +343,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	else if ( vs_[idx] > 0 ) above0++;
     }
 
-    lock_.lock();
+    Threads::SpinLockLocker lock( lock_ );
     above0_ += above0;
     below0_ += below0;
-    lock_.unLock();
+
     return true;
 }
 
