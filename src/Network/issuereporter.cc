@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: issuereporter.cc,v 1.2 2012-07-05 05:23:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: issuereporter.cc,v 1.3 2012-07-05 13:52:41 cvskris Exp $";
 
 #include "issuereporter.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: issuereporter.cc,v 1.2 2012-07-05 05
 
 #include <fstream>
 #include "separstr.h"
+#include "oddirs.h"
 
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
@@ -51,6 +52,11 @@ bool System::IssueReporter::readReport( const char* filename )
 	return false;
     }
     
+    report_.setEmpty();
+    
+    report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
+
+    
 #define mBufSize 10000
     BufferString unfilteredreport;
     char buf[mBufSize+1];
@@ -66,7 +72,6 @@ bool System::IssueReporter::readReport( const char* filename )
     
     SeparString sep( unfilteredreport.buf(), '\n' );
     
-    report_.setEmpty();
     for ( int idx=0; idx<sep.size(); idx++ )
     {
 	BufferString line = sep[idx];
