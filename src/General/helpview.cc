@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.49 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.50 2012-07-05 09:54:48 cvsraman Exp $";
 
 #include "helpview.h"
 
@@ -308,7 +308,7 @@ BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
     {
 	ODInst::RelType reltype = ODInst::getRelType();
 	url = sWebSite;
-	url += reltype == ODInst::Stable ? "/rel/" : "/devel/";
+	url += reltype == ODInst::Development ? "/devel/" : "/rel/";
 	url += fp.fullPath( FilePath::Unix );
     }
 
