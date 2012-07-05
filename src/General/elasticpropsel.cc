@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.18 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.19 2012-07-05 15:10:52 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -369,7 +369,7 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	    const int pridx = refprops_.indexOf(var);
 	    val = vals[pridx];
 	}
-	else if ( elasticprops_.isPresent( var ) )
+	else if ( elasticprops_.isPresent( var ) && strcmp(var,ef.name()) )
 	{
 	    const int propidx = elasticprops_.indexOf(var);
 	    val = getVal( elasticprops_.get( propidx ), vals, sz );
