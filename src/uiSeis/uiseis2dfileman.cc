@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.27 2012-06-26 22:32:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.28 2012-07-05 11:14:10 cvsraman Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -530,7 +530,7 @@ public:
 
 uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
-    : uiDialog(p,Setup("Extract from 3D","Get 3D data as 2D line attribute",
+    : uiDialog(p,Setup("Extract from 3D","Extract 2D attribute from 3D data",
 		       "103.1.10") )
     , objinf_(objinf)
     , sellns_(sellns)
