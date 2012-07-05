@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.145 2012-06-21 18:03:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.146 2012-07-05 10:44:56 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -486,7 +486,7 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor = !resolution_ || !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor = !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
