@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.53 2012-07-04 14:08:31 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.54 2012-07-05 13:59:51 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -294,7 +294,6 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     dps->setName( dpsnm );
     uiDataPointSet* uidps = new uiDataPointSet( this,
 	*dps, uiDataPointSet::Setup("Well attribute data",false), dpsdispmgr_ );
-    dpsset_ += uidps;
     uidps->setGroupType( "well" );
     uidps->setGroupNames( wellnms );
     return uidps->go() ? true : false;

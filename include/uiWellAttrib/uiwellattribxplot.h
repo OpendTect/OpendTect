@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.14 2012-05-11 14:22:10 cvsbruno Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.15 2012-07-05 13:59:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ protected:
 
     const Attrib::DescSet& ads_;
     ObjectSet<IOObj>	wellobjs_;
-    ObjectSet<uiDataPointSet>	dpsset_;
 
     uiListBox*		attrsfld_;
     uiGenInput*		radiusfld_;
