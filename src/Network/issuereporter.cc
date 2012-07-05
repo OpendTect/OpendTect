@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: issuereporter.cc,v 1.1 2012-06-26 12:50:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: issuereporter.cc,v 1.2 2012-07-05 05:23:14 cvskris Exp $";
 
 #include "issuereporter.h"
 
@@ -146,3 +146,4 @@ bool System::IssueReporter::parseCommandLine( int argc, char** argv )
     
     return readReport( filename );
 }
+
