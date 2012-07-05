@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.65 2012-06-18 09:29:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.66 2012-07-05 05:27:55 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -576,14 +576,14 @@ void uiAxisHandler::drawName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	pt.x = pixBefore() + axsz_ / 2;
-	pt.y = istop ? namepos : height_ - namepos;
+	pt.y = (int) (istop ? namepos : height_ - namepos);
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
 	namepos -= FontList().get().height()/2; //shift due to rotation
-	pt.x = isleft ? namepos : width_ - namepos;
+	pt.x = (int) (isleft ? namepos : width_ - namepos);
 	pt.y = ( height_+nameitm_->getTextSize().width() ) / 2;
 	al.set( isleft ? Alignment::Left : Alignment::Left );
 
