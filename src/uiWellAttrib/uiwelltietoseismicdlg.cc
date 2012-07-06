@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.108 2012-07-02 19:56:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.109 2012-07-06 09:38:14 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -705,8 +705,8 @@ void uiInfoDlg::wvltChanged( CallBacker* cb )
 	mCBCapsuleUnpack(bool,isinitwvlatactive,cb);
 	server_.setInitWvltActive( isinitwvlatactive );
     }
-    computeData();
     server_.computeSynthetics(); 
+    computeData();
     drawData();
     redrawNeeded.trigger();
 }
