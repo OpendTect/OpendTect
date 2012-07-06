@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.7 2012-07-05 11:40:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.8 2012-07-06 06:23:24 cvsraman Exp $";
 
 #include "seiscube2linedata.h"
 #include "seisread.h"
@@ -76,6 +76,7 @@ void SeisCube2LineDataExtracter::closeDown()
     rdr_.close(); wrr_.close();
     delete fetcher_; fetcher_ = 0;
     delete c2ldlkp_; c2ldlkp_ = 0;
+    wrr_.setLineKeyProvider(0);
 }
 
 
