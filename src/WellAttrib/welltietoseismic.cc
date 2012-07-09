@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.85 2012-06-11 13:35:00 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.86 2012-07-09 06:31:58 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -296,6 +296,7 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	{ errmsg_ = "Invalid time or depth range specified"; return false; }
 
     Data::CorrelData& cd = data_.correl_;
+    cd.vals_.erase();
     cd.vals_.setSize( nrsamps, 0 ); 
 
     mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
