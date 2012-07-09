@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegydefdlg.cc,v 1.25 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegydefdlg.cc,v 1.26 2012-07-09 15:13:54 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -147,8 +147,11 @@ void uiSEGYDefDlg::fillPar( IOPar& iop ) const
 
 void uiSEGYDefDlg::usePar( const IOPar& iop )
 {
-    SEGY::FileReadOpts::shallowClear( pars_ );
-    pars_.merge( iop );
+    if ( &iop != &pars_ )
+    {
+	SEGY::FileReadOpts::shallowClear( pars_ );
+	pars_.merge( iop );
+    }
     filespecfld_->usePar( pars_ );
     fileparsfld_->usePar( pars_ );
     useSpecificPars( iop );
