@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.96 2012-06-26 14:13:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dline.cc,v 1.97 2012-07-09 22:40:14 cvsnanne Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -1002,4 +1002,12 @@ Executor* Seis2DLineSet::geometryDumper( std::ostream& strm, bool incnr,
 					 float z, const char* lk ) const
 {
     return new Seis2DGeomDumper( *this, strm, incnr, z, lk );
+}
+
+
+void Seis2DLineSet::invalidateCache()
+{
+    cache.lock_.lock();
+    cache.fname_.setEmpty();
+    cache.lock_.unLock();
 }

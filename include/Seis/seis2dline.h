@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.52 2011-04-07 12:32:36 cvssatyaki Exp $
+ RCS:		$Id: seis2dline.h,v 1.53 2012-07-09 22:40:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,8 @@ public:
 
     void		getFrom(std::istream&,BufferString*);
     void		putTo(std::ostream&) const;
+
+    static void		invalidateCache();
 
 protected:
 
