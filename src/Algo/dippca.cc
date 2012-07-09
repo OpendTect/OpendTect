@@ -5,7 +5,7 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.3 2012-07-02 15:50:46 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.4 2012-07-09 20:11:10 cvsyuancheng Exp $";
 
 #include "dippca.h"
 
@@ -126,7 +126,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const float eratio = eigenval[0]/(eigenval[1]+eigenval[2]);
 	if ( eratio<0.5 )
-	    return false;
+	    continue;
 
 	const float edenominator = sqrt(eigenvec0[0]*eigenvec0[0]+
 		eigenvec0[1]*eigenvec0[1]);
@@ -685,6 +685,7 @@ Dip3D::Dip3D( const Array3D<float>& input,
     inldip_->setAll( 0 );
     crldip_->setAll( 0 );
     azimuth_->setAll( 0 );
+    absdip_->setAll( 0 );
 
     setSetup( setup_ );
 }
