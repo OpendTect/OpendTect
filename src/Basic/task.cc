@@ -1,10 +1,10 @@
-/*/+
+	/*/+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.34 2012-06-13 13:24:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.35 2012-07-09 20:15:08 cvskris Exp $";
 
 #include "task.h"
 
@@ -405,6 +405,16 @@ bool ParallelTask::execute( bool parallel )
     res = doFinish( res );
     if ( progressmeter_ ) progressmeter_->setFinished();
     return res;
+}
+
+
+int ParallelTask::maxNrThreads() const
+{
+    const od_int64 res = nrIterations();
+    if ( res>INT_MAX )
+        return INT_MAX;
+    
+    return (int) res;
 }
 
 

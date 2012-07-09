@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.37 2012-05-08 13:08:53 cvsbert Exp $
+ RCS:		$Id: task.h,v 1.38 2012-07-09 20:15:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
-    virtual int		maxNrThreads() const	{ return nrIterations(); }
+    virtual int		maxNrThreads() const;
     virtual int		minThreadSize() const	{ return 1; }
     			/*!<\returns the minimum number of computations that
 			     effectively can be run in a separate thread.
