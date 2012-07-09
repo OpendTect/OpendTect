@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: binidsurface.cc,v 1.30 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: binidsurface.cc,v 1.31 2012-07-09 20:51:53 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -140,7 +140,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	}
     }
 
-    return Coord3(surveyinfo_->binID2Coord().transform(param), depth );
+    return Coord3(SI().binID2Coord().transform(param), depth );
 }
 
 
@@ -378,7 +378,7 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 
 
 Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
-{ return surveyinfo_->transform(BinID(rc)); }
+{ return SI().transform(BinID(rc)); }
 
 
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
