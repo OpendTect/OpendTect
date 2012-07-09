@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.18 2012-07-05 02:36:30 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.19 2012-07-09 12:10:40 cvsraman Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -190,14 +190,24 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( GetSoftwareDir(0) ); \
-    installerdir.setFileName( "Installer" ); \
+    FilePath installerdir( GetInstallerDir() ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
     BufferString cmd( __iswin__ ? "" : "@", installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
+
+BufferString ODInst::GetInstallerDir()
+{
+    BufferString appldir( GetSoftwareDir(0) );
+    if ( File::isLink(appldir) )
+	appldir = File::linkTarget( appldir );
+
+    FilePath installerdir( appldir );
+    installerdir.setFileName( "Installer" );
+    return installerdir.fullPath();
+}
 
 
 void ODInst::startInstManagement()
@@ -208,10 +218,7 @@ void ODInst::startInstManagement()
     StreamProvider( cmd ).executeCommand( true, true );
     chdir( GetSoftwareDir(0) );
 #else
-    FilePath installerdir( GetSoftwareDir(0) ); 
-    BufferString dir = installerdir.fullPath();
-    installerdir.setFileName( "Installer" );
-    dir = installerdir.fullPath();
+    FilePath installerdir( GetInstallerDir() ); 
     if ( !File::isDirectory(installerdir.fullPath()) )
 	return;
     installerdir.add( "od_instmgr" );
