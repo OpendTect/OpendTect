@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.38 2012-07-04 09:36:50 cvsraman Exp $
+ RCS:		$Id: file.cc,v 1.39 2012-07-09 05:56:44 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -372,7 +372,7 @@ bool makeExecutable( const char* fnm, bool yn )
     return true;
 #else
     BufferString cmd( "chmod" );
-    cmd.add(yn ? " ug+x '" : " a-x '").add(fnm).add("'");
+    cmd.add(yn ? " +r+x '" : " -x '").add(fnm).add("'");
     return system( cmd ) != -1;
 #endif
 }
