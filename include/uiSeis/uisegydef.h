@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.20 2011-05-18 13:21:31 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.21 2012-07-09 15:16:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class IOObj;
 class uiLabel;
 class uiButton;
+class uiCheckBox;
 class uiGenInput;
 class uiTabStack;
 class uiFileInput;
@@ -201,12 +202,15 @@ protected:
     uiGenInput*		readcoordsfld_;
     uiGenInput*		coordsstartfld_;
     uiGenInput*		coordsstepfld_;
+    uiGenInput*		coordsextfld_;
     uiFileInput*	coordsfnmfld_;
+    uiCheckBox*		coordsspecfnmbox_;
     uiLabel*		ensurepsxylbl_;
 
     uiGenInput*		scalcofld_;
     uiGenInput*		timeshiftfld_;
     uiGenInput*		sampleratefld_;
+    uiGenInput*		havecoordsinhdrfld_;
 
     uiGroup*		mkORuleGrp(const IOPar&);
     uiGroup*		mkPosGrp(const IOPar&);
