@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.27 2010-04-16 03:20:36 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.28 2012-07-09 17:14:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ protected:
 
     void		singTogg(CallBacker*);
 
+    bool		doSingleMachine() const;
     bool		singLaunch(const IOPar&,const char*);
     bool		multiLaunch(const char*);
     bool		clusterLaunch(const char*);

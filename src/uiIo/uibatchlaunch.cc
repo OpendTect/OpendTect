@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.102 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.103 2012-07-09 17:14:47 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -329,23 +329,30 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 }
 
 
+bool uiFullBatchDialog::doSingleMachine() const
+{
+    if ( !singmachfld_ )
+	return true;
+
+    return hascluster_ ?
+	singmachfld_->getIntValue()==0 : singmachfld_->getBoolValue();
+}
+
+
 void uiFullBatchDialog::setParFileNmDef( const char* nm )
 {
     getProcFilename( nm, sSingBaseNm, singparfname_ );
     getProcFilename( nm, sMultiBaseNm, multiparfname_ );
     if ( parfnamefld_ )
-	parfnamefld_->setFileName( !singmachfld_ || singmachfld_->getBoolValue()
-		? singparfname_
-		: multiparfname_ );
+	parfnamefld_->setFileName( doSingleMachine()
+		? singparfname_	: multiparfname_ );
 }
 
 
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld_->fileName();
-    const bool issing = !singmachfld_ ||
-			( hascluster_ ? !singmachfld_->getIntValue()
-			  	     : singmachfld_->getBoolValue() );
+    const bool issing = doSingleMachine();
     if ( issing && inpfnm == multiparfname_ )
 	parfnamefld_->setFileName( singparfname_ );
     else if ( !issing && inpfnm == singparfname_ )
@@ -372,10 +379,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	return dlg.go();
     }
 
-    const bool issing = !singmachfld_ ||
-			( hascluster_ ? !singmachfld_->getIntValue()
-			  	     : singmachfld_->getBoolValue() );
-
+    const bool issing = doSingleMachine();
     BufferString fnm = parfnamefld_ ? parfnamefld_->fileName()
 				    : ( issing ? singparfname_.buf()
 					       : multiparfname_.buf() );
