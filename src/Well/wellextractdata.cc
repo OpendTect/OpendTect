@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.84 2012-07-04 14:06:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.85 2012-07-09 13:14:26 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -285,6 +285,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 	{
 	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
 	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
+	    dahrg.limitTo( track.dahRange() );
 	}
 	snapZRangeToSurvey( dahrg, false, 0 );
 	return dahrg;
@@ -1044,6 +1045,9 @@ bool Well::LogSampler::doPrepare( int thread )
     else
 	dah -= zstep_;
 
+#define mLocalEps 1e-1;
+    dahrg.start -= mLocalEps;
+    dahrg.stop  += mLocalEps;
     while ( true )
     {
 	if ( extrintime_ )
