@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.88 2012-06-28 14:53:44 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.89 2012-07-09 22:40:47 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 
@@ -90,6 +90,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     uppgrp_->setHAlignObj( transffld );
 
     addStdFields( false, false, !is2d );
+    if ( is2d && singmachfld_ ) singmachfld_->setSensitive( false );
 }
 
 
@@ -112,10 +113,7 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 {
     if ( !transffld->selFld2D() ) return;
 
-    if ( singmachfld_ )
-	singmachfld_->setValue( transffld->selFld2D()->isSingLine() );
-    singTogg( 0 );
-    if ( singmachfld_ ) singmachfld_->display( false );
+    setMode( transffld->selFld2D()->isSingLine() ? Single : Multi );
 }
 
 
