@@ -7,7 +7,7 @@
  ________________________________________________________________________
  
  -*/
-static const char* rcsID mUnusedVar = "$Id: seisrandomprovider.cc,v 1.2 2012-07-05 05:24:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisrandomprovider.cc,v 1.3 2012-07-09 20:29:58 cvskris Exp $";
 
 #include "seisrandomprovider.h"
 
@@ -134,3 +134,4 @@ void SeisRandomProvider::triggerWork()
 			    mWMT( this, SeisRandomProvider, readTraces),
 			    &cb, -1, false, true );
 }
+
