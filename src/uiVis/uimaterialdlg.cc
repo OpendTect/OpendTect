@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimaterialdlg.cc,v 1.32 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimaterialdlg.cc,v 1.33 2012-07-09 16:34:47 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -63,8 +63,7 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4")
-		      .modal(false) )
+    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4"))
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {
