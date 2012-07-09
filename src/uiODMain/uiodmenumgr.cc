@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.262 2012-07-04 13:48:15 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.263 2012-07-09 12:11:10 cvsraman Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -663,8 +663,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
-    FilePath installerdir( GetSoftwareDir(0) );
-    installerdir.setFileName( "Installer" );
+    FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller && !__ismac__ )
     {
