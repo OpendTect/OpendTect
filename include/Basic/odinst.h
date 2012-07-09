@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2012
- RCS:           $Id: odinst.h,v 1.6 2012-03-30 04:19:50 cvsraman Exp $
+ RCS:           $Id: odinst.h,v 1.7 2012-07-09 12:10:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class BufferStringSet;
 namespace ODInst
 {
 
+    mGlobal BufferString	GetInstallerDir();
     mGlobal bool		canInstall();
     mGlobal void		startInstManagement();
     mGlobal bool		updatesAvailable();
