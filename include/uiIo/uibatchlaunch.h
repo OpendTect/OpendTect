@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.28 2012-07-09 17:14:47 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.29 2012-07-09 22:39:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,9 @@ protected:
 
 mClass uiFullBatchDialog : public uiDialog
 {
+public:
+    enum Mode		{ Single, Multi, Cluster };
+
 protected:
 
     mClass Setup
@@ -82,7 +85,7 @@ protected:
 	mDefSetupMemb(bool,showoutputopts)
     };
 
-    			uiFullBatchDialog(uiParent*,const Setup&);
+			uiFullBatchDialog(uiParent*,const Setup&);
 
     const BufferString	procprognm_;
     const BufferString	multiprognm_;
@@ -102,7 +105,8 @@ protected:
 
     void		singTogg(CallBacker*);
 
-    bool		doSingleMachine() const;
+    void		setMode(Mode);
+    bool		isSingleMachine() const;
     bool		singLaunch(const IOPar&,const char*);
     bool		multiLaunch(const char*);
     bool		clusterLaunch(const char*);

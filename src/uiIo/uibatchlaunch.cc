@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.103 2012-07-09 17:14:47 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.104 2012-07-09 22:39:30 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -329,7 +329,23 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 }
 
 
-bool uiFullBatchDialog::doSingleMachine() const
+void uiFullBatchDialog::setMode( Mode md )
+{
+    if ( !singmachfld_ )
+	return;
+
+    if ( md == Single )
+	singmachfld_->setValue( hascluster_ ? 0 : 1 );
+    else if ( md == Multi )
+	singmachfld_->setValue( hascluster_ ? 1 : 0 );
+    else
+	singmachfld_->setValue( hascluster_ ? 2 : 0 );
+
+    singTogg( 0 );
+}
+
+
+bool uiFullBatchDialog::isSingleMachine() const
 {
     if ( !singmachfld_ )
 	return true;
@@ -344,7 +360,7 @@ void uiFullBatchDialog::setParFileNmDef( const char* nm )
     getProcFilename( nm, sSingBaseNm, singparfname_ );
     getProcFilename( nm, sMultiBaseNm, multiparfname_ );
     if ( parfnamefld_ )
-	parfnamefld_->setFileName( doSingleMachine()
+	parfnamefld_->setFileName( isSingleMachine()
 		? singparfname_	: multiparfname_ );
 }
 
@@ -352,7 +368,7 @@ void uiFullBatchDialog::setParFileNmDef( const char* nm )
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld_->fileName();
-    const bool issing = doSingleMachine();
+    const bool issing = isSingleMachine();
     if ( issing && inpfnm == multiparfname_ )
 	parfnamefld_->setFileName( singparfname_ );
     else if ( !issing && inpfnm == singparfname_ )
@@ -379,7 +395,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	return dlg.go();
     }
 
-    const bool issing = doSingleMachine();
+    const bool issing = isSingleMachine();
     BufferString fnm = parfnamefld_ ? parfnamefld_->fileName()
 				    : ( issing ? singparfname_.buf()
 					       : multiparfname_.buf() );
