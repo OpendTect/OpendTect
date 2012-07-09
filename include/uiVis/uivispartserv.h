@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.270 2012-04-04 14:33:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.271 2012-07-09 14:43:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ class uiTreeItemTBHandler;
 class uiVisModeMgr;
 class uiVisPickRetriever;
 class uiDirLightDlg;
+class uiPropertiesDlg;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
@@ -468,6 +469,9 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
+
+    TypeSet<int>		objids_;
+    ObjectSet<uiPropertiesDlg> propdlgs_;
 };
 
 

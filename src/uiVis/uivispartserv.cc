@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.480 2012-06-27 15:23:22 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.481 2012-07-09 14:43:54 cvsyuancheng Exp $";
 
 #include "uivispartserv.h"
 
@@ -1697,10 +1697,20 @@ bool uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !hasMaterial(id) || !vo ) return false;
 
-    uiPropertiesDlg* dlg = new uiPropertiesDlg( appserv().parent(),
-	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
-    dlg->setDeleteOnClose( true );
-    dlg->go();
+    const int menuidx = objids_.indexOf( id );
+    if ( menuidx>=0 )
+    {
+	propdlgs_[menuidx]->show();
+    }
+    else
+    {
+    	uiPropertiesDlg* dlg = new uiPropertiesDlg( appserv().parent(),
+    		dynamic_cast<visSurvey::SurveyObject*>(vo) );
+    	dlg->setDeleteOnClose( true );
+    	dlg->go();
+	objids_ += id;
+	propdlgs_ += dlg;
+    }
     return true;
 }
 
@@ -1989,6 +1999,16 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 	uiTaskRunner taskrunner( appserv().parent() );
 	so->setResolution( resmnuitem_.itemIndex(mnuid), &taskrunner );
 	menu->setIsHandled( true );
+    }
+    else if ( menu==&menu_ )
+    {
+	const int menuidx = objids_.indexOf(id);
+	if ( menuidx>=0 )
+	{
+	    objids_  -= id;
+	    propdlgs_[menuidx]->close();
+	    propdlgs_.remove( menuidx );
+	}
     }
 }
 
