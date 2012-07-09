@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.112 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.113 2012-07-09 15:09:47 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -28,6 +28,7 @@ static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.112 2012-05-02 15:11:4
 #include "zdomain.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include "filepath.h"
 #include "bendpoints2coords.h"
 #include <math.h>
 #include <ctype.h>
@@ -327,7 +328,14 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     {
 	if ( !bp2c_ )
 	{
-	    StreamData sd = StreamProvider(fileopts_.coordfnm_).makeIStream();
+	    BufferString coordfnm( fileopts_.coordfnm_ );
+	    if ( matchString("ext=",coordfnm) )
+	    {
+		FilePath fp( ((StreamConn*)conn)->fileName() );
+		fp.setExtension( coordfnm.buf()+4 );
+		coordfnm = fp.fullPath();
+	    }
+	    StreamData sd = StreamProvider(coordfnm).makeIStream();
 	    if ( !sd.usable() )
 		{ errmsg = "Cannot open coordinate file"; return; }
 	    bp2c_ = new BendPoints2Coords( *sd.istrm );
