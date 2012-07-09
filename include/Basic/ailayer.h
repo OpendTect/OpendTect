@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.11 2012-07-03 07:23:50 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.12 2012-07-09 08:59:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
 		{ return thickness_ == p.thickness_; }
 
     float	thickness_, vel_, den_;
+
+    float	getAI() const 		{ return vel_*den_; }
 };
 
 
