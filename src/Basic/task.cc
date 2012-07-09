@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.35 2012-07-09 20:15:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.36 2012-07-09 20:47:57 cvskris Exp $";
 
 #include "task.h"
 
@@ -380,7 +380,7 @@ bool ParallelTask::execute( bool parallel )
 	if ( threadsize==0 )
 	    continue;
 
-	const int stop = start + threadsize-1;
+	const od_int64 stop = start + threadsize-1;
 	runners[nrtasks].set( this, start, stop, idx );
 	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
 	
@@ -423,7 +423,8 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 {
     if ( nrthreads==1 ) return totalnr;
 
-    const od_int64 idealnrperthread = mNINT((float) totalnr/nrthreads);
+    const od_int64 idealnrperthread =
+    	mNINT64((float) (totalnr/(od_int64) nrthreads));
     const od_int64 nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;
