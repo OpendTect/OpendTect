@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.14 2012-07-02 07:40:40 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.15 2012-07-09 13:25:32 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -114,6 +114,9 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
+    if ( !lcd.seisctio_.ioobj )
+	return false;
+
     SeisTrc trc( SI().zRange(true).nrSteps()+1 );
     trc.info().sampling = SI().zRange(true);
 

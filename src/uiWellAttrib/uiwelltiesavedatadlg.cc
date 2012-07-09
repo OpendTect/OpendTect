@@ -8,10 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiesavedatadlg.cc,v 1.22 2012-06-29 14:32:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiesavedatadlg.cc,v 1.23 2012-07-09 13:25:32 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
+#include "seiscbvs.h"
 #include "seistrctr.h"
 #include "wavelet.h"
 #include "welltiedata.h"
@@ -49,9 +50,11 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     wvltnms.add( data_.initwvlt_.name() );
     wvltnms.add( data_.estimatedwvlt_.name() );
 
+    //start at 2, the first 2 are sonic and density.
     for ( int idx=2; idx<data_.logset_.size(); idx++)
     {
 	seisctioset_ += mMkCtxtIOObj(SeisTrc);
+	seisctioset_[idx-2]->ctxt.deftransl =CBVSSeisTrcTranslator::translKey();
 	seisctioset_[idx-2]->ctxt.forread = false;
 	lognms.add( data_.logset_.getLog(idx).name() );
     }
@@ -100,8 +103,12 @@ void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 }
 
 
-#define mCanNotWriteLogs(msg)\
-    mErrRet( "Cannot write log(s)" );
+#define mCanNotWriteLogs()\
+{\
+    BufferString msg = datawriter_.errMsg();\
+    if ( msg.isEmpty() ) msg = "Cannot write log(s)";\
+    mErrRet( msg );\
+}
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;
@@ -166,7 +173,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	lds.seisctioset_ = seisctioset_;
 	lds.nrtraces_ = repeatfld_->box()->getValue(); 
 	lds.ctioidxset_ = logidces; 
-	if ( !datawriter_.writeLogs2Cube( lds ) )
+	if ( !datawriter_.writeLogs2Cube( lds, data_.dahrg_ ) )
 	    mCanNotWriteLogs();
     }
     if ( success )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.66 2012-05-24 13:38:20 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.67 2012-07-09 13:25:32 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -108,10 +108,6 @@ Data::Data( const Setup& wts, Well::Data& w)
 	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
     }
 
-    const Well::Track& track = w.track();
-    if ( !track.isEmpty() )
-	dahrg_ = track.dahRange();
-
     const Well::Log* vlog = w.logs().getLog( wts.vellognm_ );
     const Well::Log* dlog = w.logs().getLog( wts.denlognm_ );
     if ( vlog && dlog )
@@ -119,6 +115,10 @@ Data::Data( const Setup& wts, Well::Data& w)
 	dahrg_.start = mMIN( vlog->dahRange().start, dlog->dahRange().start );
 	dahrg_.stop  = mMAX( vlog->dahRange().stop,  dlog->dahRange().stop );
     }
+    const Well::Track& track = w.track();
+    if ( !track.isEmpty() )
+	dahrg_.limitTo( track.dahRange() );
+
 }
 
 
@@ -317,19 +317,33 @@ bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 }
 
 
-bool DataWriter::writeLogs2Cube( LogData& ld ) const
+bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
 {
+    if ( ld.logset_.isEmpty() )
+	return false;
+
     bool allsucceeded = true;
-    LogCubeCreator lcr( *wd_ ); 
+    Well::Data wd; 
+    wd.track() = wd_->track();
+    wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
+    wd.logs().empty(); 
+    LogCubeCreator lcr( wd ); 
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	BufferString lnm( ld.logset_.getLog( idx ).name() );
-	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[idx] );
+	const Well::Log& log = ld.logset_.getLog( idx );
+	wd.logs().add( new Well::Log( log ) );
+	BufferString lnm( log.name() );
+	int ctxtidx = ld.ctioidxset_.validIdx(idx) ? ld.ctioidxset_[idx] : -1;
+	if ( ctxtidx < 0 ) return false;
+	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[ctxtidx] );
 	logdatas += new LogCubeCreator::LogCubeData( lnm, *ctx );
     }
-    lcr.setInput( logdatas, ld.nrtraces_ );
-    return lcr.execute();
+    Well::ExtractParams wep; wep.setFixedRange( dahrg, false );
+    lcr.setInput( logdatas, ld.nrtraces_, wep );
+    lcr.execute();
+    BufferString errmsg = lcr.errMsg();
+    return errmsg.isEmpty();
 }
 
 

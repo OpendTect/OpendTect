@@ -173,16 +173,20 @@ public:
 
     bool 			writeD2TM() const;		
     bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(LogData&) const;
+    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
 
     void			setWD(Well::Data* wd)
     				{ wd_ = wd; setWellWriter(); }
+
+    const char*			errMsg() const 
+    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
 protected:
 
     Well::Writer* 		wtr_;
     Well::Data*			wd_;
     const MultiID&		wellid_;
+    BufferString		errmsg_;
 
     void 			setWellWriter();
     bool                        writeLog2Cube(LogData&) const;
@@ -199,7 +203,7 @@ public:
 
     mStruct PosCouple 		
     { 
-	float z1_, z2_; 
+	float 			z1_, z2_; 
 	bool 			operator == ( const PosCouple& pc ) const
 				{ return z1_ == pc.z1_ && z2_ == pc.z2_; }
     };

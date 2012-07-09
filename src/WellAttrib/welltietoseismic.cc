@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.86 2012-07-09 06:31:58 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.87 2012-07-09 13:25:32 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -220,35 +220,30 @@ bool DataPlayer::copyDataToLogSet()
     if ( aimodel_.isEmpty() ) 
 	mErrRet( "No data found" )
 
-    TypeSet<float> dahlog, dahseis, son, den, ai, synth, refs;
-    int refid = 0;
-
+    TypeSet<float> dahlog, son, den, ai, synth, refs;
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
-	const float dh = d2t_->getDah( workrg_.atIndex(workidx) );
+	const float dah = d2t_->getDah( workrg_.atIndex(workidx) );
 
-	const bool insidedahrg = data_.dahrg_.includes( dh, true );
-
-	dahseis += dh;
-	refs += insidedahrg && reflvals_.validIdx(idx) ? reflvals_[idx] : 0;
-	synth += data_.seistrc_.size() > idx ? data_.seistrc_.get(idx,0) 
-					     : mUdf(float);
-
-	if ( !insidedahrg )
+	if ( !data_.dahrg_.includes( dah, true ) )
 	    continue;
 
+	dahlog += dah;
+	refs += reflvals_.validIdx(idx) ? reflvals_[idx] : mUdf(float);
+	synth += data_.synthtrc_.size() > idx ? data_.synthtrc_.get(idx,0) 
+					      : mUdf(float);
+
 	const AILayer& layer = aimodel_[workidx];
-	dahlog += dh;
 	son += layer.vel_;
 	den += layer.den_;
-	ai += layer.vel_*layer.den_;
+	ai += layer.getAI();
     }
     createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
     createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
     createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
-    createLog( data_.reflectivity(), dahseis.arr(), refs.arr(), refs.size()  );
-    createLog( data_.synthetic(), dahseis.arr(), synth.arr(), synth.size()  );
+    createLog( data_.reflectivity(), dahlog.arr(), refs.arr(), refs.size()  );
+    createLog( data_.synthetic(), dahlog.arr(), synth.arr(), synth.size()  );
 
     if ( data_.isSonic() )
     {
