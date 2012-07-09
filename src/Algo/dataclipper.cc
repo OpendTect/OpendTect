@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.36 2012-07-04 11:00:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.37 2012-07-09 19:24:04 cvskris Exp $";
 
 
 #include "dataclipper.h"
@@ -84,8 +84,6 @@ public:
     {
 	TypeSet<float> localsamples;
 	Interval<float> localrg( mUdf(float), -mUdf(float) );
-	
-	bool added = false;
 	
 	for ( int idx=start; idx<=stop; idx++ )
 	{
