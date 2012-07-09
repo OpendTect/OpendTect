@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.36 2012-07-09 20:47:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.37 2012-07-09 22:38:35 cvsnanne Exp $";
 
 #include "task.h"
 
@@ -13,6 +13,8 @@ static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.36 2012-07-09 20:47:57 c
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
+
+#include <limits.h>
 
 
 Task::Task( const char* nm )
