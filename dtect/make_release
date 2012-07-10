@@ -7,20 +7,29 @@ else
 endif
 
 set buildtype=Release
-set dodoc = ""
-set cmakedoc = ""
+set dodoc=""
+set cmakedoc=""
 set shallow=no
+set doupd=yes
 
 parse_args:
-if ( "$1" == "--doc" ) then
+if ( "$1" == "" ) then
+    goto do_it
+else if ( "$1" == "--doc" ) then
     set dodoc=--doc
     set cmakedoc="-DBUILD_DOCUMENTATION=yes"
 else if ( $1 == "--internal" ) then
     set buildtype=RelWithDebInfo
 else if ( $1 == "--shallow" ) then
     set shallow=yes
+else if ( $1 == "--noupd" ) then
+    set doupd=no
+else if ( $1 == "--onlymake" ) then
+    set doupd=no
+    set shallow=yes
 else
-    goto do_it
+    echo "Usage : $0 [--doc] [--internal] [--shallow] [--noupd] [--onlymake]"
+    exit 1
 endif
 
 shift
@@ -38,7 +47,6 @@ set cmakeargs = "-DCMAKE_BUILD_TYPE=${buildtype} \
 		-DOD_RUN_LMSTRIP=ON \
 		${cmakedoc} \
 		-DQTDIR=${appmanbase}/qt/devel \
-		-DOSG_DIR=${appmanbase}/osg/devel \
 		-DCOINDIR=${appmanbase}/coin/devel"
 
 cd $WORK
@@ -48,8 +56,10 @@ if ( -e CMakeCache.txt ) then
         rm CMakeCache.txt
     endif
 endif
-cvs update
-cmake $cmakeargs
+if ( $doupd == "yes" ) then
+    cvs update
+    cmake $cmakeargs
+endif
 
 cd ../$dgbdir
 if ( -e CMakeCache.txt ) then
@@ -59,12 +69,14 @@ if ( -e CMakeCache.txt ) then
     endif
 endif
 
-cvs update
+if ( $doupd == "yes" ) then
+    cvs update
+endif
 cmake $cmakeargs -DOpendTect_DIR=$WORK
 
 cd $WORK
 
-set makeallcmd="dtect/make_all --cmake ${dodoc} --noupd"
+set makeallcmd="dtect/make_all ${dodoc} --stoponerr --noupd"
 if ( ${shallow} == "yes" ) then
     set makeallcmd="${makeallcmd} --shallow"
 endif
