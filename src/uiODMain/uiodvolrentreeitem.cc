@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.69 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.70 2012-07-10 14:59:01 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -388,18 +388,6 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
     else
 	vd->removeChild( displayid_ );
 
-    mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv_->getObject(displayid_));
-    if ( slice )
-    {
-	slice->selection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
-	slice->deSelection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB));
-    }
-    
-    visserv_->getUiSlicePos()->positionChg.remove( 
-			  mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
-
-    
     visserv_->getUiSlicePos()->setDisplay( -1 );
 }
 
@@ -439,11 +427,12 @@ bool uiODVolrenSubTreeItem::init()
     if ( slice )
     {
 	slice->setSelectable( true );
-	slice->selection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
 	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
-	visserv_->getUiSlicePos()->setDisplay( parent_->selectionKey() );
-	visserv_->getUiSlicePos()->positionChg.notify( 
-	    		mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
+	
+	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem, selChgCB );
+	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem, selChgCB);
+	mAttachCB( visserv_->getUiSlicePos()->positionChg,
+		   uiODVolrenSubTreeItem, posChangeCB);
     }
 
     return uiODDisplayTreeItem::init();
