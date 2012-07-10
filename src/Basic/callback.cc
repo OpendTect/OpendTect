@@ -4,9 +4,56 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: callback.cc,v 1.3 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: callback.cc,v 1.4 2012-07-10 13:47:19 cvskris Exp $";
 
 #include "callback.h"
+
+
+CallBacker::CallBacker()
+{}
+
+
+CallBacker::CallBacker( const CallBacker& )
+{}
+
+
+CallBacker::~CallBacker()
+{
+    for ( int idx=0; idx<listeners_.size(); idx++ )
+	listeners_[idx]->listenerDeletedCB( this );
+    
+    for ( int idx=0; idx<attachednotifiers_.size(); idx++ )
+    {
+	attachednotifiers_[idx]->removeWith( this );
+    }
+}
+
+
+void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
+{
+    notif.notify( cb );
+ 
+    if ( cb.cbObj()!=this )
+	return;
+    
+    if ( attachednotifiers_.indexOf( &notif )==-1 )
+	attachednotifiers_ += &notif;
+ 
+    notif.cber_->listeners_ += this;
+    listeners_ += notif.cber_;
+}
+
+
+void CallBacker::listenerDeletedCB( CallBacker* cb )
+{
+    listeners_ -= cb;
+    
+    for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
+    {
+	if ( attachednotifiers_[idx]->cber_==cb )
+	    attachednotifiers_.remove( idx );
+    }
+}
 
 
 void CallBack::doCall( CallBacker* cber )
@@ -70,7 +117,29 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
-void i_Notifier::removeWith( CallBacker* cb )
+NotifierAccess::NotifierAccess()
+    : enabled_(true)		
+{}
+
+
+void NotifierAccess::notify( const CallBack& cb, bool first )	
+{ 
+    if ( first ) 
+	cbs_.insert(0,cb); 
+    else
+	cbs_ += cb; 
+}
+
+
+void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
+{ if ( cbs_.indexOf(cb)==-1 ) notify(cb); }
+
+
+void NotifierAccess::remove( const CallBack& cb )
+{ cbs_ -= cb; }
+
+
+void NotifierAccess::removeWith( CallBacker* cb )
 {
     if ( cber_ == cb )
 	{ cbs_.erase(); cber_ = 0; return; }
