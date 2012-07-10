@@ -5,7 +5,7 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.4 2012-07-09 20:11:10 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.5 2012-07-10 15:50:37 cvsyuancheng Exp $";
 
 #include "dippca.h"
 
@@ -673,7 +673,7 @@ Dip3D::Dip3D( const Array3D<float>& input,
     crldip_ = new Array3DImpl<float>( xsz_, ysz_, zsz_ );
     azimuth_ = new Array3DImpl<float>( xsz_, ysz_,zsz_ );
 
-    if ( !inldip_ || !crldip_ || !azimuth_ )
+    if ( !inldip_ || !crldip_ || !azimuth_ || !absdip_ )
     {
 	delete absdip_; absdip_ = 0;
 	delete inldip_; inldip_ = 0;
