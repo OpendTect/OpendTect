@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.107 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.108 2012-07-10 08:05:34 cvskris Exp $";
 
 
 #include "uitable.h"
@@ -406,7 +406,7 @@ void uiTable::setColumnWidth( int col, int w )
 void uiTable::setColumnWidthInChar( int col, float w )
 {
     const float wdt = w * body_->fontWdt();
-    setColumnWidth( col, mNINT(wdt) );
+    setColumnWidth( col, mNINT32(wdt) );
 }
 
 
@@ -434,7 +434,7 @@ void uiTable::setRowHeight( int row, int h )
 void uiTable::setRowHeightInChar( int row, float h )
 {
     float hgt = h * body_->fontHgt();
-    setRowHeight( row, mNINT(hgt) );
+    setRowHeight( row, mNINT32(hgt) );
 }
 
 

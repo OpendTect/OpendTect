@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.68 2012-06-28 07:03:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.69 2012-07-10 08:05:36 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -489,7 +489,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	    dispval *= scene->zDomainUserFactor();
 	}
 
-	uilistviewitem_->setText( toString(mNINT(dispval)), col );
+	uilistviewitem_->setText( toString(mNINT32(dispval)), col );
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,

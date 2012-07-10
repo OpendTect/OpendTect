@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivirtualkeyboard.cc,v 1.12 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivirtualkeyboard.cc,v 1.13 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -61,7 +61,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     const float keyboardheight = keyboardscale_ * pixmap.height();
 
     textline_ = new uiLineEdit( this, "Text line" );
-    textline_->setPrefWidth( mNINT(keyboardwidth) );
+    textline_->setPrefWidth( mNINT32(keyboardwidth) );
 
     textline_->returnPressed.notify( mCB(this,uiVirtualKeyboard,enterCB) );
     textline_->selectionChanged.notify( mCB(this,uiVirtualKeyboard,selChg) );
@@ -79,8 +79,8 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     viewbase_ = new uiGraphicsViewBase( this, "Virtual keyboard view" );
     viewbase_->setScene( *scene );
     viewbase_->attach( alignedBelow, textline_ );
-    viewbase_->setPrefWidth( mNINT(keyboardwidth) );
-    viewbase_->setPrefHeight( mNINT(keyboardheight) );
+    viewbase_->setPrefWidth( mNINT32(keyboardwidth) );
+    viewbase_->setPrefHeight( mNINT32(keyboardheight) );
 
     addLed(  46,  86, Color(255,0,0) );
     addLed(  62, 118, Color(255,0,0) );
@@ -113,8 +113,8 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT(4*keyboardscale_) );
-    uiPoint point( mNINT(x*keyboardscale_), mNINT(y*keyboardscale_) );
+    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
+    uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
     led->setFillColor( color );
     led->setZValue( 1 );
@@ -230,8 +230,8 @@ void uiVirtualKeyboard::clickCB( CallBacker* )
     const bool shiftstatus = (shiftlock_!=shift_) != ev.rightButton();
 
     char str[2]; str[1] = '\0';
-    str[0] = mousePress2Key( mNINT( ev.x()/keyboardscale_ ), 
-	    		     mNINT( ev.y()/keyboardscale_ ),
+    str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ), 
+	    		     mNINT32( ev.y()/keyboardscale_ ),
 			     capslock_, shiftstatus ); 
     restoreSelection();
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.8 2011-07-23 22:22:54 cvskris Exp $
+ RCS:		$Id: periodicvalue.h,v 1.9 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -129,7 +129,7 @@ inline void interpolateYPeriodicReg( const T& idxabl, int sz, float pos,
 				RT& ret, RT period, bool extrapolate=false )
 {
     const float halfperiod = period / 2;
-    int intpos = mNINT( pos );
+    int intpos = mNINT32( pos );
     float dist = pos - intpos;
     if( mIsZero(dist,1e-10) && intpos >= 0 && intpos < sz ) 
 	{ ret = idxabl[intpos]; return; }
@@ -198,7 +198,7 @@ template <class T, class RT>
 inline void interpolateXPeriodicReg( const T& idxabl, int sz, float pos,
 					 RT& ret)
 {
-    int intpos = mNINT( pos );
+    int intpos = mNINT32( pos );
     float dist = pos - intpos;
     if( mIsZero(dist,1e-10) && intpos >= 0 && intpos < sz ) 
 	{ ret = idxabl[intpos]; return; }

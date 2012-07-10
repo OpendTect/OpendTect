@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID mUnusedVar = "$Id: uiamplspectrum.cc,v 1.39 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiamplspectrum.cc,v 1.40 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -252,7 +252,7 @@ void uiAmplSpectrum::putDispData()
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
     if ( SI().zIsTime() )
-	maxfreq = mNINT( maxfreq );
+	maxfreq = mNINT32( maxfreq );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop, 
@@ -325,7 +325,7 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 
     const float ratio = (rg.start-posrange_.start)/posrange_.width();
     const float specsize = specvals_->info().getSize(0);
-    const int specidx = mNINT( ratio * specsize );
+    const int specidx = mNINT32( ratio * specsize );
     if ( !specvals_->info().validPos(specidx) )
 	return;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.43 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.44 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -374,7 +374,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 {
     const float sldrval = seedsliderfld_->sldr()->getValue();
-    const int newsize = mNINT(sldrval);
+    const int newsize = mNINT32(sldrval);
     if ( markerstyle_.size_ == newsize )
 	return;
     markerstyle_.size_ = newsize;

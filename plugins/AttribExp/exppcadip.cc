@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: exppcadip.cc,v 1.11 2012-05-02 15:11:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: exppcadip.cc,v 1.12 2012-07-10 08:05:26 cvskris Exp $";
 
 
 #include "exppcadip.h"
@@ -275,7 +275,7 @@ int PCADipAttrib::Task::nextStep()
 
     const int nrtraces = inlsz*crlsz; 
     const double dmaxweight = Math::Sqrt( (double)(stepout2.inl+stepout2.inl+sg2) );
-    const int maxweight = mNINT(dmaxweight);
+    const int maxweight = mNINT32(dmaxweight);
     const int maxnrsamples = nrtraces * (sg.width()+1)*maxweight;
 
 
@@ -321,7 +321,7 @@ int PCADipAttrib::Task::nextStep()
 		if ( dist2 > limit )
 		    continue;
 
-		    int weight = 1+mNINT(maxweight *
+		    int weight = 1+mNINT32(maxweight *
 					(1 -Math::Sqrt(((double)dist2)/limit)));
 
 		for ( int idx=0; idx<weight; idx++ )
@@ -358,7 +358,7 @@ int PCADipAttrib::Task::nextStep()
 		    if ( dist2 > limit )
 			continue;
 
-		    int weight = 1+mNINT(maxweight *
+		    int weight = 1+mNINT32(maxweight *
 					(1 -Math::Sqrt(((double)dist2)/limit)));
 
 		    const SeisTrc* trc = trcs.get(idi+stepout.inl,
@@ -385,14 +385,14 @@ int PCADipAttrib::Task::nextStep()
 
 	double hev0, hev1, hev2;
 	float high = getMinEigenVector(inlines,crlines,timepos,indexes,
-                                        mNINT((float)pos*(100-fraction)/100),
+                                        mNINT32((float)pos*(100-fraction)/100),
                                         pos-1,
                                         hev0, hev1, hev2);
 
 	double lev0, lev1, lev2;
 	float low = getMinEigenVector(inlines,crlines,timepos,indexes,
 					0,
-                                        mNINT(pos*fraction/100),
+                                        mNINT32(pos*fraction/100),
                                         lev0, lev1, lev2);
 
 	float ev0 = high > low ? hev0 : lev0;

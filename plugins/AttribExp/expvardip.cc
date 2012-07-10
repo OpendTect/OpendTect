@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: expvardip.cc,v 1.11 2012-05-02 15:11:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: expvardip.cc,v 1.12 2012-07-10 08:05:26 cvskris Exp $";
 
 
 #include "expvardip.h"
@@ -213,8 +213,8 @@ int MinVarianceDipAttrib::Task::nextStep()
 					 	      hsz+crl/crldist,
 						      hsz+qz/velocity/inpstep);
 			else
-			    val = trcs.get(hsz+mNINT(inl/inldist),
-					hsz+mNINT(crl/crldist))
+			    val = trcs.get(hsz+mNINT32(inl/inldist),
+					hsz+mNINT32(crl/crldist))
 					->getValue(curt+qz/velocity,dataattrib);
 
 			sum += val;

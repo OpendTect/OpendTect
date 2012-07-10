@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.100 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.101 2012-07-10 08:05:35 cvskris Exp $";
 
 
 #include "uisurfaceman.h"
@@ -407,9 +407,9 @@ void uiSurfaceMan::mkFileInfo()
 	if ( !zrange.isUdf() )
 	{
 	    txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
-	    txt += mNINT( zrange.start * SI().zDomain().userFactor() );
+	    txt += mNINT32( zrange.start * SI().zDomain().userFactor() );
 	    txt += " - ";
-	    txt += mNINT( zrange.stop * SI().zDomain().userFactor() );
+	    txt += mNINT32( zrange.stop * SI().zDomain().userFactor() );
 	    txt += "\n";
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.134 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.135 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -384,7 +384,7 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
     if ( mIsUdf(val) )
 	{ zfld->setText( "", nr ); return; }
 
-    val *= fac; int ival = mNINT(val); float fival = ival;
+    val *= fac; int ival = mNINT32(val); float fival = ival;
     if ( mIsEqual(val,fival,0.01) )
 	zfld->setValue( ival, nr );
     else

@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.55 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.56 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -727,7 +727,7 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
     const float u = -lp1relpos.dot(dir)/dir.sqAbs();
     const float nrsamples = (lp1relpos+u*dir).abs();
 
-    return mNINT( nrsamples );
+    return mNINT32( nrsamples );
 }
 
 
@@ -738,7 +738,7 @@ int ExplFaultStickSurface::sampleSize( const Coord3& p0, const Coord3& p1 )
 	    		(float)bid.crl/texturesampling_.binid.crl,
 			(p0.z-p1.z)/texturesampling_.value );
     const float nrsamples =  sampl.abs();
-    return mNINT( nrsamples );
+    return mNINT32( nrsamples );
 }
 
 
@@ -786,7 +786,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 		const float nrsamples = Math::Sqrt( inlsamples*inlsamples +
 			crlsamples*crlsamples + zsamples*zsamples );
 
-		const int sz = mNINT( nrsamples );
+		const int sz = mNINT32( nrsamples );
 		sticktexturerowsz += sz;
 		segmentsizes += sz;
 	    }
@@ -828,7 +828,7 @@ bool ExplFaultStickSurface::updateTextureSize()
     for ( int idx=0; idx<coldists.size()-1; idx++ )
     {
 	sum += coldists[idx];
-	texturecolcoords_ += mNINT( colfactor*sum );
+	texturecolcoords_ += mNINT32( colfactor*sum );
     }
 
     texturecolcoords_ += po2colsz-1;
@@ -850,7 +850,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 	    sticklength += (*sticksegments[idx])[idy];
 	
 	const float st0 = (po2rowsz-sticklength*rowfactor)/2; 
-	int startpos = mNINT( st0 );
+	int startpos = mNINT32( st0 );
 	if ( startpos<0 ) 
 	    startpos = 0;
 
@@ -860,7 +860,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 	for ( int idy=0; idy<(*sticksegments[idx]).size()-1; idy++ )
 	{
 	    pos += (*sticksegments[idx])[idy];
-	    segmentpositions += mNINT( rowfactor*pos )+startpos;
+	    segmentpositions += mNINT32( rowfactor*pos )+startpos;
 	}
 
 	segmentpositions += po2rowsz-1-startpos;
@@ -1209,7 +1209,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     texturesize_ = RowCol( trialg_==ExplFaultStickSurface::Inline ? crlsamples 
 	    						  : inlsamples,
 	    		   trialg_==ExplFaultStickSurface::Zslice ? crlsamples 
-			   				  : mNINT(zsamples) );
+			   				  : mNINT32(zsamples) );
 
     const int nrfc = dps.nrFixedCols();
     const int nrcs = dps.nrCols();

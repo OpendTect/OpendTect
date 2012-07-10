@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.7 2010-11-02 16:11:10 cvsbert Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.8 2012-07-10 08:05:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
     else if ( maxidx_ < 1 )
 	return vda.value( 0 );
 
-    int curidx = mNINT(pos); mChkVSIRg
+    int curidx = mNINT32(pos); mChkVSIRg
     if ( !smooth_ || mIsEqual(pos,curidx,snapdist_) )
 	return vda.value( curidx );
 

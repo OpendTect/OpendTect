@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolproclateralsmoother.cc,v 1.11 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivolproclateralsmoother.cc,v 1.12 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -117,8 +117,8 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	? 1
 	: mUdf(float);
 
-    pars.stepout_.row = mNINT(inllenfld_->box()->getFValue()/SI().inlStep() );
-    pars.stepout_.col = mNINT(crllenfld_->box()->getFValue()/SI().crlStep() );
+    pars.stepout_.row = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
+    pars.stepout_.col = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
     pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );

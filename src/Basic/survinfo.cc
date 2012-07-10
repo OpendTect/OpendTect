@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.170 2012-07-03 08:51:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.171 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -732,7 +732,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 	{ z = zrg.stop; return; }
 
     const float relidx = zrg.getfIndex( z );
-    int targetidx = mNINT(relidx);
+    int targetidx = mNINT32(relidx);
     const float zdiff = z - zrg.atIndex( targetidx );
     if ( !mIsZero(zdiff,eps) && dir )
 	targetidx = (int)( dir < 0 ? floor(relidx) : ceil(relidx) );

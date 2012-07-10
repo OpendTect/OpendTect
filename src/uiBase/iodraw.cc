@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.56 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.57 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -109,10 +109,10 @@ static uiPoint getEndPoint( const uiPoint& pt, double angle, double len )
 {
     uiPoint endpt( pt );
     double delta = len * cos( angle );
-    endpt.x += mNINT(delta);
+    endpt.x += mNINT32(delta);
     // In UI, Y is positive downward
     delta = -len * sin( angle );
-    endpt.y += mNINT(delta);
+    endpt.y += mNINT32(delta);
     return endpt;
 }
 
@@ -207,10 +207,10 @@ void ioDrawTool::drawHalfSquare( const uiPoint& from, double ang, double d,
 {
     uiPoint to( from );
     double delta = d * cos( ang );
-    to.x += mNINT( delta );
+    to.x += mNINT32( delta );
     // In UI, Y is positive downward
     delta = -d * sin( ang );
-    to.y += mNINT( delta );
+    to.y += mNINT32( delta );
     drawHalfSquare( from, to, left );
 }
 
@@ -438,7 +438,7 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 			      / (dx*dx + dy*dy);
 		const Geom::Point2D<float> fpp( (float)pos.x + t*dx,
 						(float)pos.y + t*dy );
-		const uiPoint pp( mNINT(fpp.x), mNINT(fpp.y) ); // projected pt
+		const uiPoint pp( mNINT32(fpp.x), mNINT32(fpp.y) ); // projected pt
 		dt.drawLine( endpt, pp );
 	    }
 	}

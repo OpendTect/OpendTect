@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.159 2012-05-21 08:22:49 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.160 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -604,7 +604,7 @@ void uiODMain::memTimerCB( CallBacker* )
     const bool ingb = tot > 1070000000;
     const float fac = ingb ? 1073741824 : 1048576;
     tot /= fac; av /=fac;
-    int itot = mNINT(tot*10); int iav = mNINT(av*10);
+    int itot = mNINT32(tot*10); int iav = mNINT32(av*10);
     txt			.add( iav/10 ).add( "." ).add( iav%10 )
 	.add( "/" )	.add( itot/10 ).add( "." ).add( itot%10 )
 	.add( ingb ? "G" : "M" );

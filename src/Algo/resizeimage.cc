@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: resizeimage.cc,v 1.4 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: resizeimage.cc,v 1.5 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "resizeimage.h"
 
@@ -125,7 +125,7 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 		if ( wsum!=0 )
 		    res /= wsum;
 
-		int ires = mNINT( res );
+		int ires = mNINT32( res );
 		if ( ires<0 ) ires=0; else if ( ires>256 ) ires = 256;
 
 		outputimage_[idx*nrcomponents_+idc] = ires;

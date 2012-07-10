@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiselsurvranges.cc,v 1.31 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiselsurvranges.cc,v 1.32 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uiselsurvranges.h"
 
@@ -68,8 +68,8 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
     limitrg.scale( zfac );
 
     const int nrdecimals = cansnap_ ? 0 : 2;
-    const StepInterval<int> izrg( mNINT(limitrg.start),
-	    			  mNINT(limitrg.stop), mNINT(limitrg.step) );
+    const StepInterval<int> izrg( mNINT32(limitrg.start),
+	    			  mNINT32(limitrg.stop), mNINT32(limitrg.step) );
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
     BufferString ltxt( lbltxt );
@@ -94,8 +94,8 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->setInterval(
-		StepInterval<int>(mNINT(limitrg.step),mNINT(limitrg.width()),
-		    		  mNINT(limitrg.step)) );
+		StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
+		    		  mNINT32(limitrg.step)) );
 	stepfld_->doSnap( cansnap_ );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
@@ -126,17 +126,17 @@ StepInterval<float> uiSelZRange::getRange() const
     const double realstartidx = realstartdif / double(limit.step); \
     const double realstepfac = double(rg.step) / double(limit.step); \
     const double eps = 1e-4; \
-    const bool useoldstep = !mIsZero(realstartidx-mNINT(realstartidx),eps) || \
-			    !mIsZero(realstepfac-mNINT(realstepfac),eps); \
-    const int stepfac = useoldstep ? 1 : mNINT(realstepfac); \
+    const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) || \
+			    !mIsZero(realstepfac-mNINT32(realstepfac),eps); \
+    const int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
 \
-    int startidx = mNINT( ceil(realstartidx-eps) ); \
+    int startidx = mNINT32( ceil(realstartidx-eps) ); \
     if ( startidx < 0 ) \
 	startidx = (startidx*(1-stepfac)) % stepfac; \
 \
     const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
     const double realnrsteps = width / (stepfac*limit.step); \
-    const int stopidx = startidx + stepfac * mNINT( floor(realnrsteps+eps) ); \
+    const int stopidx = startidx + stepfac * mNINT32( floor(realnrsteps+eps) ); \
 \
     if ( startidx <= stopidx ) \
     { \
@@ -160,10 +160,10 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 
     if ( cansnap_ )
     {
-	startfld_->setValue( mNINT(newzrg.start) );
-	stopfld_->setValue( mNINT(newzrg.stop) );
+	startfld_->setValue( mNINT32(newzrg.start) );
+	stopfld_->setValue( mNINT32(newzrg.stop) );
 	if ( stepfld_ )
-	    stepfld_->setValue( mNINT(newzrg.step) );
+	    stepfld_->setValue( mNINT32(newzrg.step) );
     }
     else
     {

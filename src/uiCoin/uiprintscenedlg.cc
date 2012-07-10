@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.55 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.56 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -252,7 +252,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !widthfld_ ) return true;
 
     SbViewportRegion viewport;
-    viewport.setWindowSize( mNINT(sizepix_.width()), mNINT(sizepix_.height()) );
+    viewport.setWindowSize( mNINT32(sizepix_.width()), mNINT32(sizepix_.height()) );
     viewport.setPixelsPerInch( dpifld_->box()->getValue() );
 
     prevsavestate = saveButtonChecked();

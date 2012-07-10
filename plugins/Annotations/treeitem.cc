@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.60 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.61 2012-07-10 08:05:26 cvskris Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -514,7 +514,7 @@ void SubItem::setScale( float ns )
 	    	    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
-    const int newscale = mNINT( ns );
+    const int newscale = mNINT32( ns );
     Pick::Set* set = ld->getSet();
     if ( set->disp_.pixsize_==newscale )
 	return;

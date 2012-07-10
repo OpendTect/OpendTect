@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.27 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.28 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uirandlinegen.h"
 
@@ -344,7 +344,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
     for ( int idx=0; idx<poly->size(); idx++ )
     {
 	Geom::Point2D<float> pt = poly->getVertex( idx );
-	BinID bid( mNINT(pt.x), mNINT(pt.y) );
+	BinID bid( mNINT32(pt.x), mNINT32(pt.y) );
 	rl->addNode( bid );
     }
     if ( rl->isEmpty() )

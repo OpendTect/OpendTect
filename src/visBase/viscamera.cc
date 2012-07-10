@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscamera.cc,v 1.29 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscamera.cc,v 1.30 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -256,8 +256,8 @@ void Camera::fillPar( IOPar& iopar, const SoCamera* socamera ) const
     iopar.set( sKeyOrientation(), axis[0], axis[1], axis[2], angle );
 
     iopar.set( sKeyAspectRatio(), socamera->aspectRatio.getValue() );
-    iopar.set( sKeyNearDistance(), mNINT(socamera->nearDistance.getValue()) );
-    iopar.set( sKeyFarDistance(), mNINT(socamera->farDistance.getValue()) );
+    iopar.set( sKeyNearDistance(), mNINT32(socamera->nearDistance.getValue()) );
+    iopar.set( sKeyFarDistance(), mNINT32(socamera->farDistance.getValue()) );
     iopar.set( sKeyFocalDistance(), socamera->focalDistance.getValue() );
 }
 

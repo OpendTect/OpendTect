@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiworld2ui.cc,v 1.15 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiworld2ui.cc,v 1.16 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uiworld2ui.h"
 
@@ -86,13 +86,13 @@ void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
     double yfac = diff.y / rc.vNrPics();
     if ( xfac > yfac )
     {
-	int extrapix = rc.vNrPics() - mNINT( diff.y / xfac );
+	int extrapix = rc.vNrPics() - mNINT32( diff.y / xfac );
 	rc.setTop( rc.top() + extrapix / 2 );
 	rc.setBottom( rc.bottom() - extrapix + extrapix / 2 );
     }
     else
     {
-	int extrapix = rc.hNrPics() - mNINT( diff.x / yfac );
+	int extrapix = rc.hNrPics() - mNINT32( diff.x / yfac );
 	rc.setLeft( rc.left() + extrapix / 2 );
 	rc.setRight( rc.right() - extrapix + extrapix / 2 );
     }

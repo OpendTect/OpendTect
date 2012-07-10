@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.113 2012-06-27 12:46:38 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.114 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -379,7 +379,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 	    		res.hrg.step.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
 	    res.hrg.start.dir = possiblevolume_->hrg.start.dir + \
-				mNINT(remain +0.5) *res.hrg.step.dir;\
+				mNINT32(remain +0.5) *res.hrg.step.dir;\
     }\
 }
 

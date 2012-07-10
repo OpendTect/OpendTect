@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: mathattrib.cc,v 1.51 2012-06-28 07:54:54 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: mathattrib.cc,v 1.52 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "mathattrib.h"
 
@@ -221,7 +221,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     if ( (nrxvars + nrcstvars + nrspecvars) != nrvar ) 
 	return false;
 
-    const int recstartidx = mNINT( recstartpos_/refstep_ );
+    const int recstartidx = mNINT32( recstartpos_/refstep_ );
 
     //in case first sample is undef prevent result=undef
     //on whole trace for recursive formulas

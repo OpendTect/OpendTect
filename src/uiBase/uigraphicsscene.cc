@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsscene.cc,v 1.63 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsscene.cc,v 1.64 2012-07-10 08:05:34 cvskris Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -549,7 +549,7 @@ void uiGraphicsObjectScene::setLayoutPos( const uiPoint& pt )
 
 const uiPoint uiGraphicsObjectScene::layoutPos() const
 {
-    return uiPoint(mNINT(layoutitem_->pos().x()),mNINT(layoutitem_->pos().y()));
+    return uiPoint(mNINT32(layoutitem_->pos().x()),mNINT32(layoutitem_->pos().y()));
 }
 
 

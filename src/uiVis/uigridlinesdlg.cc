@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigridlinesdlg.cc,v 1.18 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigridlinesdlg.cc,v 1.19 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -104,7 +104,7 @@ static float getDefaultStep( float width )
 static void getDefaultHorSampling( int& start, int& stop, int& step )
 {
     const float width = stop - start;
-    step = mNINT( getDefaultStep(width) );
+    step = mNINT32( getDefaultStep(width) );
 
     start = step * (int)( ceil( (float)start/(float)step ) );
     stop = step * (int)( floor( (float)stop/(float)step ) );
@@ -156,8 +156,8 @@ void uiGridLinesDlg::setParameters()
     {
 	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
 	zspacingfld_->setValue(
-		StepInterval<int>(mNINT(cs.zrg.start),mNINT(cs.zrg.stop),
-		   		  mNINT(cs.zrg.step)) );
+		StepInterval<int>(mNINT32(cs.zrg.start),mNINT32(cs.zrg.stop),
+		   		  mNINT32(cs.zrg.step)) );
     }
 
     showGridLineCB(0);

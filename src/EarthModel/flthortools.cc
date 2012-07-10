@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.56 2012-05-31 10:42:20 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.57 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "flthortools.h"
 
@@ -122,7 +122,7 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 	return false;
 
     const float fidx = trcrg.getfIndex( intsectn.x );
-    const int index = posdir ? mNINT( ceil(fidx) ) : mNINT( floor(fidx) );
+    const int index = posdir ? mNINT32( ceil(fidx) ) : mNINT32( floor(fidx) );
     bidimg.inl = isinl_ ? nr_ : trcrg.atIndex( index );
     bidimg.crl = isinl_ ? trcrg.atIndex( index ) : nr_;
     return true;
@@ -174,8 +174,8 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
     trcrg.limitTo( trcrange_ );
 
     Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
-    bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT(intsectn.x) );
-    bid.crl = isinl_ ? trcrg.snap( mNINT(intsectn.x) ) : nr_;
+    bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT32(intsectn.x) );
+    bid.crl = isinl_ ? trcrg.snap( mNINT32(intsectn.x) ) : nr_;
     return true;
 }
 
@@ -482,7 +482,7 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
     if ( !intersection.isDefined() )
 	return false;
 
-    int trcnr = mNINT( intersection.x );
+    int trcnr = mNINT32( intersection.x );
     if ( intv )
 	trcnr = intv->snap( trcnr );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribsel.cc,v 1.30 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribsel.cc,v 1.31 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -177,7 +177,7 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
     while ( bidset.next(pos) )
     {
 	float& vidx = bidset.getVals(pos)[1];
-	int posidx = mNINT(vidx);
+	int posidx = mNINT32(vidx);
 	positions[posidx] = pos;
 	mSetUdf(vidx);
     }

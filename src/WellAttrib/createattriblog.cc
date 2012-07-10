@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createattriblog.cc,v 1.8 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: createattriblog.cc,v 1.9 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "createattriblog.h"
 
@@ -109,7 +109,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
     while ( bidset_.next(pos) )
     {
 	float& vidx = bidset_.getVals(pos)[1];
-	int posidx = mNINT(vidx);
+	int posidx = mNINT32(vidx);
 	positions_[posidx] = pos;
 	mSetUdf(vidx);
     }

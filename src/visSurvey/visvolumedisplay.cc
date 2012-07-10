@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.138 2012-05-30 13:29:42 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.139 2012-07-10 08:05:40 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -917,11 +917,11 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 	Coord3 center_ = boxdragger_->center();
 	Coord3 width_ = boxdragger_->width();
 
-	res.hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
-			      mNINT( center_.y - width_.y / 2 ) );
+	res.hrg.start = BinID( mNINT32( center_.x - width_.x / 2 ),
+			      mNINT32( center_.y - width_.y / 2 ) );
 
-	res.hrg.stop = BinID( mNINT( center_.x + width_.x / 2 ),
-			     mNINT( center_.y + width_.y / 2 ) );
+	res.hrg.stop = BinID( mNINT32( center_.x + width_.x / 2 ),
+			     mNINT32( center_.y + width_.y / 2 ) );
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
@@ -934,10 +934,10 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 	Coord3 scale = voltrans_->getScale();
 	double dummy = scale.x; scale.x=scale.z; scale.z = dummy;
 
-	res.hrg.start = BinID( mNINT(transl.x+scale.x/2),
-			       mNINT(transl.y+scale.y/2) );
-	res.hrg.stop = BinID( mNINT(transl.x-scale.x/2),
-			       mNINT(transl.y-scale.y/2) );
+	res.hrg.start = BinID( mNINT32(transl.x+scale.x/2),
+			       mNINT32(transl.y+scale.y/2) );
+	res.hrg.stop = BinID( mNINT32(transl.x-scale.x/2),
+			       mNINT32(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
 	res.zrg.start = transl.z+scale.z/2.;
@@ -1376,9 +1376,9 @@ CubeSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
     if ( slice->getDim() == cTimeSlice() )
 	cs.zrg.limitTo( Interval<float>( pos, pos ) );
     else if ( slice->getDim() == cCrossLine() )
-	cs.hrg.setCrlRange( Interval<int>( mNINT(pos), mNINT(pos) ) );
+	cs.hrg.setCrlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     else if ( slice->getDim() == cInLine() )
-	cs.hrg.setInlRange( Interval<int>( mNINT(pos), mNINT(pos) ) );
+	cs.hrg.setInlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     return cs;
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: tutorialattrib.cc,v 1.13 2012-05-02 15:11:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tutorialattrib.cc,v 1.14 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -213,7 +213,7 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 		if ( !inpdata_[posidx] ) continue;
 		const float shift = steeringdata_ ? 
 		    	getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
-		const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT(shift) );
+		const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
 		if ( sampidx < 0 || sampidx >= nrsamples ) continue; 
 		const float val = getInputValue( *inpdata_[posidx], 
 					dataidx_, sampidx, z0 );

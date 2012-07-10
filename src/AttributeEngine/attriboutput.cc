@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.113 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.114 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -149,8 +149,8 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 {
     if ( sampleinterval_.size() ==0 )
     {
-	Interval<int> interval( mNINT( desiredvolume_.zrg.start / zstep ),
-				mNINT( desiredvolume_.zrg.stop / zstep ) );
+	Interval<int> interval( mNINT32( desiredvolume_.zrg.start / zstep ),
+				mNINT32( desiredvolume_.zrg.stop / zstep ) );
 	const_cast<DataCubesOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_; 
@@ -179,7 +179,7 @@ void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
 		  /dcsampling_.hrg.step.dir + 1;\
 
 #define mGetZSz()\
-	zsz = mNINT( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
+	zsz = mNINT32( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
 	      /refstep + 1 );
 
 void DataCubesOutput::collectData( const DataHolder& data, float refstep, 
@@ -288,7 +288,7 @@ void DataCubesOutput::init( float refstep )
     datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl,
 						dcsampling_.hrg.stop.crl,
 						dcsampling_.hrg.step.crl);
-    datacubes_->z0_ = mNINT(dcsampling_.zrg.start/refstep);
+    datacubes_->z0_ = mNINT32(dcsampling_.zrg.start/refstep);
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();
@@ -596,8 +596,8 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT(desiredvolume_.zrg.start/zstep), 
-				mNINT(desiredvolume_.zrg.stop/zstep) );
+	Interval<int> interval( mNINT32(desiredvolume_.zrg.start/zstep), 
+				mNINT32(desiredvolume_.zrg.stop/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -699,7 +699,7 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
     if ( sampleinterval_.size() == 0 )
     {
 	Interval<float> zrg( seldata_->zRange() );
-	Interval<int> interval( mNINT(zrg.start/zstep), mNINT(zrg.stop/zstep) );
+	Interval<int> interval( mNINT32(zrg.start/zstep), mNINT32(zrg.stop/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -863,10 +863,10 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs_.size() )
 	return;
 
-    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
+    const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
     const float globalsttime = stdstarttime_;
     const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
-    const int startidx = data.z0_ - mNINT(trcstarttime/refstep);
+    const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
     const int index = outpbuf_->find( info.binid );
 
     SeisTrc* trc;
@@ -946,16 +946,16 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
     if ( values.isEmpty() && !mIsUdf(stdstarttime_) )
     {
 	const float zmax = stdstarttime_ + stdtrcsz_;
-	Interval<int> interval( mNINT(stdstarttime_/zstep),
-				mNINT(zmax/zstep) );
+	Interval<int> interval( mNINT32(stdstarttime_/zstep),
+				mNINT32(zmax/zstep) );
 	sampleinterval += interval;
 	return sampleinterval;
     }
 
     for ( int idx=0; idx<values.size()/2; idx+=2 )
     {
-	Interval<int> interval( mNINT(values[idx]/zstep), 
-				mNINT(values[idx+1]/zstep) );
+	Interval<int> interval( mNINT32(values[idx]/zstep), 
+				mNINT32(values[idx+1]/zstep) );
 	sampleinterval += interval;
     }
  
@@ -1048,10 +1048,10 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
     if ( !nrcomp || nrcomp < desoutputs_.size())
 	return;
 
-    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
+    const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
     const float globalsttime = stdstarttime_;
     const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
-    const int startidx = data.z0_ - mNINT(trcstarttime/refstep);
+    const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
     DataCharacteristics dc;
 
     if ( !trc_ )
@@ -1138,14 +1138,14 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 	if ( mIsEqual( poszvalues_->coord(idx).x, coord.x, 1e-3 )
 	   &&mIsEqual( poszvalues_->coord(idx).y, coord.y, 1e-3 ) )
 	{
-	    Interval<int> interval( mNINT(poszvalues_->z(idx)/zstep),
-		    		    mNINT(poszvalues_->value(0,idx)/zstep) );
+	    Interval<int> interval( mNINT32(poszvalues_->z(idx)/zstep),
+		    		    mNINT32(poszvalues_->value(0,idx)/zstep) );
 	    sampleinterval += interval;
 	    const int nrextrazintv = (poszvalues_->nrCols()-1)/2;
 	    for ( int idi=0; idi<nrextrazintv; idi+=2 ) //to keep it general
 	    {
-		Interval<int> intv( mNINT(poszvalues_->value(idi+1,idx)/zstep),
-				    mNINT(poszvalues_->value(idi+2,idx)/zstep));
+		Interval<int> intv( mNINT32(poszvalues_->value(idi+1,idx)/zstep),
+				    mNINT32(poszvalues_->value(idi+2,idx)/zstep));
 		sampleinterval += intv;
 	    }
 	}

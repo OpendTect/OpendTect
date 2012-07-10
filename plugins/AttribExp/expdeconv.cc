@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: expdeconv.cc,v 1.9 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: expdeconv.cc,v 1.10 2012-07-10 08:05:26 cvskris Exp $";
 
 #include "expdeconv.h"
 #include "attribprovider.h"
@@ -64,7 +64,7 @@ bool DeConvolveAttrib::init()
 {
     inpstep = inputproviders[0]->getStep();
 
-    int sz = mNINT( gate.width() / inpstep )+1;
+    int sz = mNINT32( gate.width() / inpstep )+1;
     fftsz = FFT::_getNearBigFastSz(sz);
 
     const Array1DInfoImpl ai(fftsz);
@@ -183,7 +183,7 @@ int DeConvolveAttrib::Task::nextStep()
     const FFT& ifft = calculator.ifft;
     const int fftsz = calculator.fftsz;
     const BinID pos1 = calculator.pos1;
-    const int midpos = -mNINT(gate.start/inpstep);
+    const int midpos = -mNINT32(gate.start/inpstep);
 
     bool calcaverage = out1;
 

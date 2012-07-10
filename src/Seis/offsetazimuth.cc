@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: offsetazimuth.cc,v 1.6 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: offsetazimuth.cc,v 1.7 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "offsetazimuth.h"
 #include <math.h>
@@ -83,7 +83,7 @@ void OffsetAzimuth::setOffset( float off )
     else
     {
 	off /= mOffsetFactor;
-	ioffset = mNINT( off );
+	ioffset = mNINT32( off );
 	if ( ioffset>mOffsetMax )
 	    ioffset = mOffsetMax;
 	else if ( ioffset<mOffsetMin )
@@ -111,7 +111,7 @@ void OffsetAzimuth::setAzimuth( float azi )
     while ( azi<0 ) azi += twopi;
     while ( azi>=twopi ) azi -= twopi;
     azi /= mAzimuthFactor;
-    int iazimuth = mNINT( azi );
+    int iazimuth = mNINT32( azi );
 
     offsetazi_ += iazimuth;
 }

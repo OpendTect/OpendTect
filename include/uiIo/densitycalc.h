@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.8 2011-09-02 08:52:17 cvskris Exp $
+ RCS:           $Id: densitycalc.h,v 1.9 2012-07-10 08:05:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,12 +53,12 @@ DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
 {
     if ( data_ )
     {
-	const int celldatawdth = data_->info().getSize(0)%mNINT(cellxsize_)
-			    ? data_->info().getSize(0)/mNINT(cellxsize_) + 1
-			    : data_->info().getSize(0)/mNINT(cellxsize_);
-	const int celldataheight = data_->info().getSize(1)%mNINT(cellysize_)
-			    ? data_->info().getSize(1)/mNINT(cellysize_) + 1
-			    : data_->info().getSize(1)/mNINT(cellysize_);
+	const int celldatawdth = data_->info().getSize(0)%mNINT32(cellxsize_)
+			    ? data_->info().getSize(0)/mNINT32(cellxsize_) + 1
+			    : data_->info().getSize(0)/mNINT32(cellxsize_);
+	const int celldataheight = data_->info().getSize(1)%mNINT32(cellysize_)
+			    ? data_->info().getSize(1)/mNINT32(cellysize_) + 1
+			    : data_->info().getSize(1)/mNINT32(cellysize_);
 	freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
 	freqdata_->setAll( (float)0 );
     }
@@ -165,8 +165,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    dps_.setSelected( rid, -1 );
 	if ( !data_->info().validPos(datapt.x,datapt.y) )
 	    continue;
-	const int freqx = mNINT(datapt.x/cellxsize_);
-	const int freqy = mNINT(datapt.y/cellysize_);
+	const int freqx = mNINT32(datapt.x/cellxsize_);
+	const int freqy = mNINT32(datapt.y/cellysize_);
 	if ( !areatype_ )
 	    freqdata_->set( freqx, freqy,
 		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
@@ -179,15 +179,15 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	if ( data_ )
 	{
-	    for ( int idx=0; idx<mNINT(cellxsize_); idx++ )
+	    for ( int idx=0; idx<mNINT32(cellxsize_); idx++ )
 	    {
-		for ( int idy=0; idy<mNINT(cellysize_); idy++ )
-		    data_->set( freqx*mNINT(cellxsize_)+idx,
-			    	freqy*mNINT(cellysize_)+idy,
+		for ( int idy=0; idy<mNINT32(cellysize_); idy++ )
+		    data_->set( freqx*mNINT32(cellxsize_)+idx,
+			    	freqy*mNINT32(cellysize_)+idy,
 				ptremoved ? 0 : freqdata_->get(freqx,freqy) );
 	    }
-	    if ( indexsz_ < mNINT(data_->get(datapt.x,datapt.y)) )
-		indexsz_ = mNINT(data_->get(datapt.x,datapt.y));
+	    if ( indexsz_ < mNINT32(data_->get(datapt.x,datapt.y)) )
+		indexsz_ = mNINT32(data_->get(datapt.x,datapt.y));
 	}
     }
     return true;

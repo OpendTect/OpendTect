@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.99 2012-07-03 15:42:02 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.100 2012-07-10 08:05:31 cvskris Exp $";
 
 
 #include "segyhdr.h"
@@ -378,7 +378,7 @@ void SEGY::BinHeader::setSampleRate( float sr, bool isdepth )
     sr *= 1000;
     if ( !isdepth )
 	sr *= 1000;
-    setEntryVal( EntryDt(), mNINT(sr) );
+    setEntryVal( EntryDt(), mNINT32(sr) );
 }
 
 
@@ -444,7 +444,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 
     const float zfac = SI().zDomain().userFactor();
     float drt = sd.start * zfac;
-    short delrt = (short)mNINT(drt);
+    short delrt = (short)mNINT32(drt);
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
     setEntryVal( EntryDelRt(), delrt );
     int sr_us = (int)( sd.step * 1e3 * zfac + .5 );
@@ -459,7 +459,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
     Coord crd( ti.coord ); mPIEPAdj(Coord,crd,false);
-    const int icx = mNINT(crd.x*10); const int icy = mNINT(crd.y*10);
+    const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
@@ -468,7 +468,7 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
     if ( ti.refnr != 0 && !mIsUdf(ti.refnr) )
     {
-	tnr = mNINT(ti.refnr*10);
+	tnr = mNINT32(ti.refnr*10);
 	setEntryVal( EntrySPscale(), -10 );
     }
     setEntryVal( EntrySP(), tnr );
@@ -502,7 +502,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     Coord crd( ti.coord );
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
     mPIEPAdj(Coord,crd,false);
-    const int icx = mNINT(crd.x*10); const int icy = mNINT(crd.y*10);
+    const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
     hdef_.xcoord_.putValue( buf_, icx );
     hdef_.ycoord_.putValue( buf_, icy );
 
@@ -512,15 +512,15 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
     hdef_.trnr_.putValue( buf_, intval );
     float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
-    intval = mNINT( tioffs );
+    intval = mNINT32( tioffs );
     hdef_.offs_.putValue( buf_, intval );
-    intval = mNINT( ti.azimuth * 360 / M_PI );
+    intval = mNINT32( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
     const float zfac = SI().zDomain().userFactor();
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
-	{ intval = mNINT(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
+	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
     mSetScaledMemb(pick,zfac)
     mSetScaledMemb(refnr,10)
 
@@ -569,7 +569,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     if ( scalnr )
     {
 	ti.refnr *= (scalnr > 0 ? scalnr : -1./scalnr);
-	ti.nr = mNINT(ti.refnr);
+	ti.nr = mNINT32(ti.refnr);
     }
     mPIEPAdj(Coord,ti.coord,true);
     mPIEPAdj(BinID,ti.binid,true);

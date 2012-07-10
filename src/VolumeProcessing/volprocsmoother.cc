@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocsmoother.cc,v 1.11 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocsmoother.cc,v 1.12 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -118,9 +118,9 @@ bool Smoother::usePar( const IOPar& pars )
     }
 
     return setOperator( opname.buf(), winparam,
-	    mNINT( inlstepout*2/SI().inlStep()/SI().inlDistance() ),
-	    mNINT( crlstepout*2/SI().crlStep()/SI().crlDistance() ),
-	    mNINT( zstepout*2/SI().zStep()) );
+	    mNINT32( inlstepout*2/SI().inlStep()/SI().inlDistance() ),
+	    mNINT32( crlstepout*2/SI().crlStep()/SI().crlDistance() ),
+	    mNINT32( zstepout*2/SI().zStep()) );
 }
 
 

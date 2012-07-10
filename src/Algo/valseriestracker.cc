@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: valseriestracker.cc,v 1.17 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: valseriestracker.cc,v 1.18 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -250,8 +250,8 @@ bool EventTracker::track()
 	return res;
     }
 
-    const Interval<int> permsamplerange( mNINT(permrange_.start/rangestep_),
-				       mNINT(permrange_.stop/rangestep_) );
+    const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
+				       mNINT32(permrange_.stop/rangestep_) );
     float upsample, upsim; bool upflatstart;
     const bool findup = permsamplerange.start<=0
 	? findMaxSimilarity( -permsamplerange.start, -1, 1,
@@ -313,7 +313,7 @@ bool EventTracker::track()
     else
 	return false;
 
-    const int bestidx = mNINT( targetdepth_ );
+    const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
 }
 
@@ -321,9 +321,9 @@ bool EventTracker::track()
 bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	float& res, float& maxsim, bool& flatstart ) const
 {
-    const Interval<int> similaritysamplewin( mNINT(similaritywin_.start/rangestep_),
-	    				     mNINT(similaritywin_.stop/rangestep_) );
-    int firstsourcesample = mNINT(sourcedepth_) + similaritysamplewin.start;
+    const Interval<int> similaritysamplewin( mNINT32(similaritywin_.start/rangestep_),
+	    				     mNINT32(similaritywin_.stop/rangestep_) );
+    int firstsourcesample = mNINT32(sourcedepth_) + similaritysamplewin.start;
     Interval<int> actualsimilaritywin = similaritysamplewin;
     if ( firstsourcesample<0 )
     {
@@ -334,7 +334,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     if ( firstsourcesample+actualsimilaritywin.width(false)>=sourcesize_ )
 	actualsimilaritywin.stop = sourcesize_-firstsourcesample;
 
-    int firsttargetsample = mNINT(targetdepth_)+actualsimilaritywin.start;
+    int firsttargetsample = mNINT32(targetdepth_)+actualsimilaritywin.start;
     if ( firsttargetsample<0 )
     {
 	actualsimilaritywin.start -= firsttargetsample;
@@ -448,8 +448,8 @@ bool EventTracker::snap( float threshold )
     const SamplingData<float> sd( 0, 1 );
     ValueSeriesEvFinder<float, float> evfinder( *targetvs_, targetsize_-1, sd );
 
-    const Interval<int> permsamplerange( mNINT(permrange_.start/rangestep_),
-				       mNINT(permrange_.stop/rangestep_) );
+    const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
+				       mNINT32(permrange_.stop/rangestep_) );
     const float upbound = targetdepth_ + permsamplerange.start - 0.01;
     const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01;
 

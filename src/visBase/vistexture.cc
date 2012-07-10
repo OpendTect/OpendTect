@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexture.cc,v 1.48 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexture.cc,v 1.49 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vistexture.h"
 
@@ -395,7 +395,7 @@ protected:
 	if ( chgrgb ) newval += (float)val; \
 	if ( newval<0 ) newval=0; \
 	else if ( newval>top ) newval=top; \
-	val = mNINT(newval); \
+	val = mNINT32(newval); \
     }
 
     int	nextStep()
@@ -436,7 +436,7 @@ protected:
 		{
 		    if ( colordata && datatype==1 )
 		    {
-			int trans = mNINT( 255 * 
+			int trans = mNINT32( 255 * 
 			    ctm->getScale().scale(colordata[idx]) );
 			if ( trans<0 ) trans=0;
 			else if ( trans>255 ) trans=255;

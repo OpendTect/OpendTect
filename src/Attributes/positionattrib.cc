@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.38 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.39 2012-07-10 08:05:29 cvskris Exp $";
 
 
 #include "positionattrib.h"
@@ -175,8 +175,8 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     const int nrpos = positions_.size();
     const int cposnr = (int)(nrpos/2);
 
-    const Interval<int> samplegate( mNINT(gate_.start/refstep_),
-				    mNINT(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+				    mNINT32(gate_.stop/refstep_) );
 
     const Stats::Type statstype =  oper_ == 2 ? Stats::Median
 				: (oper_ == 1 ? Stats::Max
@@ -243,14 +243,14 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
 void Position::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep_*zFactor() );
+    const int truestep = mNINT32( refstep_*zFactor() );
     if( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep;
-    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, gate_.start, false )
     mAdjustGate( chgstopr, gate_.stop, true )

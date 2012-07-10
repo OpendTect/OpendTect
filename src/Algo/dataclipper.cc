@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.37 2012-07-09 19:24:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.38 2012-07-10 08:05:28 cvskris Exp $";
 
 
 #include "dataclipper.h"
@@ -72,7 +72,7 @@ public:
         , doall_( mIsEqual( prob, 1, 1e-3 ) )
 	, absoluterg_( rg )
     {
-	nrsamples_ = doall_ ? nrvals_ : mNINT(sz * prob);
+	nrsamples_ = doall_ ? nrvals_ : mNINT32(sz * prob);
     }
     
     od_int64 nrIterations() const
@@ -89,7 +89,7 @@ public:
 	{
 	    double rand = Stats::RandGen::get();
 	    rand *= (nrvals_-1);
-	    const od_int64 sampidx = mNINT(rand);
+	    const od_int64 sampidx = mNINT32(rand);
 	    const float val = input_[sampidx];
 	    
 	    mAddValue( localsamples, localrg );
@@ -175,8 +175,8 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
 {
     if ( !nrvals ) return false;
 
-    od_int64 firstidx = mNINT(lowcliprate*nrvals);
-    od_int64 topnr = mNINT(highcliprate*nrvals);
+    od_int64 firstidx = mNINT32(lowcliprate*nrvals);
+    od_int64 topnr = mNINT32(highcliprate*nrvals);
     od_int64 lastidx = nrvals-topnr-1;
 
     if ( firstidx && topnr )
@@ -269,7 +269,7 @@ bool DataClipper::getRange( float lowclip, float highclip,
     }
     else
     {
-	const od_int64 firstidx = mNINT(lowclip*nrvals);
+	const od_int64 firstidx = mNINT32(lowclip*nrvals);
 	range.start = samples_[firstidx];
     }
     
@@ -279,7 +279,7 @@ bool DataClipper::getRange( float lowclip, float highclip,
     }
     else
     {
-	const od_int64 topnr = mNINT(highclip*nrvals);
+	const od_int64 topnr = mNINT32(highclip*nrvals);
 	const od_int64 lastidx = nrvals-topnr-1;
 	
 	range.stop = samples_[lastidx];
@@ -295,7 +295,7 @@ bool DataClipper::getSymmetricRange( float cliprate, float midval,
     const od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
 
-    const od_int64 nrsamplestoremove = mNINT(cliprate*nrvals);
+    const od_int64 nrsamplestoremove = mNINT32(cliprate*nrvals);
 
     od_int64 firstsample = 0;
     od_int64 lastsample = nrvals-1;
@@ -411,7 +411,7 @@ Interval<float> DataClipSampler::getRange( float clip ) const
     if ( nv == 0 ) return Interval<float>(0,0);
 
     const float fidx = nv * .5 * clip;
-    int idx0 = mNINT(fidx);
+    int idx0 = mNINT32(fidx);
     int idx1 = nv - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
 

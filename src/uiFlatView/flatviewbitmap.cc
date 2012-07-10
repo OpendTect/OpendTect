@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.36 2012-06-22 12:17:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.37 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -126,7 +126,7 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
 	return ret;
 
     // No, we're cool. Return nearest integers
-    ret.x = mNINT(xoffs); ret.y = mNINT(yoffs);
+    ret.x = mNINT32(xoffs); ret.y = mNINT32(yoffs);
     return ret;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.13 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:           $Id: samplfunc.h,v 1.14 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,13 +41,13 @@ public:
 				    { return (x-getX0()) / getDx(); }
 
     int				getNearestIndex(float x) const
-				    { return mNINT(getIndex( x )); }
+				    { return mNINT32(getIndex( x )); }
 
     RT				getValue( RT x ) const
 				{ 
 				    if ( !doInterpolate() )
 				    {
-					const int smpl = mNINT( getIndex(x) );
+					const int smpl = mNINT32( getIndex(x) );
 					if ( smpl<0 || smpl>=size() )
 					    return mUdf(RT);
 					return (*this)[smpl];

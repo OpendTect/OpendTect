@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seistrctr.cc,v 1.103 2012-06-29 22:53:21 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: seistrctr.cc,v 1.104 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -175,7 +175,7 @@ bool SeisTrcTranslator::commitSelections()
 //	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
 	    outsd.start = selzrg.start;
 	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd.step;
-	    outnrsamples = mNINT(fnrsteps) + 1;
+	    outnrsamples = mNINT32(fnrsteps) + 1;
 	}
     }
 
@@ -219,7 +219,7 @@ bool SeisTrcTranslator::commitSelections()
     enforceBounds();
 
     float fsampnr = (outsd.start - insd.start) / insd.step;
-    samps.start = mNINT( fsampnr );
+    samps.start = mNINT32( fsampnr );
     samps.stop = samps.start + outnrsamples - 1;
 
     is_2d = !conn || !conn->ioobj ? false : is2D( *conn->ioobj, false );

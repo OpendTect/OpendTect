@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifreqtaper.cc,v 1.13 2012-05-02 15:12:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifreqtaper.cc,v 1.14 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -322,7 +322,7 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 
 #define setToNearestInt(val)\
 {\
-    int ifr = mNINT( val  );\
+    int ifr = mNINT32( val  );\
     if ( mIsZero(val-ifr,1e-2) )\
 	val = ifr;\
 }

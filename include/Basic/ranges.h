@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.70 2012-04-27 08:36:02 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.71 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -628,7 +628,7 @@ template <class T> inline
 T StepInterval<T>::snapStep( const T& inputstep ) const
 {
     const float relstep = (float) inputstep/step;
-    int nrsteps = mNINT(relstep);
+    int nrsteps = mNINT32(relstep);
     if ( nrsteps<1 ) nrsteps = 1;
     return step*nrsteps;
 }
@@ -658,7 +658,7 @@ inline int StepInterval<typ>::nrSteps() const \
     typ ns = ( (start > stop ? start : stop) \
 	    - (start > stop ? stop : start) ) \
 	      / (step > 0 ? step : -step); \
-    return mNINT(ns); \
+    return mNINT32(ns); \
 }
 
 mDefFNrSteps(float)
@@ -685,7 +685,7 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
     if ( !mIsEqual(step,b.step,eps) ) return false; \
  \
     typ nrsteps = (start - b.start) / step; \
-    int nrstepsi = mNINT( nrsteps ); \
+    int nrstepsi = mNINT32( nrsteps ); \
     typ diff = nrsteps - nrstepsi; \
     return ( (diff) < (eps) && (diff) > (-eps) ); \
 }

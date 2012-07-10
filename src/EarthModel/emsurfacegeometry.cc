@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.59 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.60 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -977,10 +977,10 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 		sel.rg.inlRange().snap( newsel->rg.inlRange().stop ) );
 	sel.rg.stop.crl = sel.rg.crlRange().limitValue(
 		sel.rg.crlRange().snap( newsel->rg.crlRange().stop ) );
-	int stepfactorinl = mNINT(((float)newsel->rg.step.inl/sel.rg.step.inl));
+	int stepfactorinl = mNINT32(((float)newsel->rg.step.inl/sel.rg.step.inl));
 	if ( stepfactorinl<1 ) stepfactorinl = 1;
 	sel.rg.step.inl *= stepfactorinl;
-	int stepfactorcrl = mNINT(((float)newsel->rg.step.crl/sel.rg.step.crl));
+	int stepfactorcrl = mNINT32(((float)newsel->rg.step.crl/sel.rg.step.crl));
 	if ( stepfactorcrl<1 ) stepfactorcrl = 1;
 	sel.rg.step.crl *= stepfactorcrl;
 

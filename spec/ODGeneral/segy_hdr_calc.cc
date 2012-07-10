@@ -47,7 +47,7 @@ int main( int argc, char** argv )
 	const int inl = IbmFormat::asInt( buf + 4 );
 	const int crl = IbmFormat::asInt( buf + 20 );
 	const double fcdp = (inl - 170) * 1126.5 + crl - 378;
-	const int cdp = mNINT(fcdp);
+	const int cdp = mNINT32(fcdp);
 	IbmFormat::putInt( cdp, buf );
 	outstrm.write( buf, trcbytes );
 	if ( !outstrm.good() )

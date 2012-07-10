@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.13 2009-08-11 14:25:11 cvskris Exp $
+ RCS:		$Id: idxable.h,v 1.14 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -228,7 +228,7 @@ inline int getInterpolateIdxsWithOff( const T& idxabl, od_int64 sz,
       || (!extrap && (pos<-snapdist || (pos+offset)>sz-1+snapdist)) )
 	return -1;
 
-    od_int64 intpos = mNINT( pos );
+    od_int64 intpos = mNINT32( pos );
     const float dist = pos - intpos;
     intpos += offset;
     if ( dist>-snapdist && dist<snapdist && intpos>-1 && intpos<sz ) 

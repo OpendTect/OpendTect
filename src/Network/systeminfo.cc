@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: systeminfo.cc,v 1.13 2012-05-04 19:16:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: systeminfo.cc,v 1.14 2012-07-10 08:05:31 cvskris Exp $";
 
 
 #include "systeminfo.h"
@@ -151,7 +151,7 @@ void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 	int gb = mb / 1024;
 	bs += gb; bs += ".";
 	float fmb = (mb % 1024) / 102.4;
-	int tenthsofgb = mNINT(fmb);
+	int tenthsofgb = mNINT32(fmb);
 	bs += tenthsofgb; bs += " GB";
     }
 }

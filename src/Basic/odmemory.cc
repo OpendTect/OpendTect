@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.12 2012-05-04 19:16:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.13 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -34,11 +34,11 @@ void OD::dumpMemInfo( IOPar& res )
     float total, free;
     getSystemMemory( total, free );
     total /= 1024 * 1024; free /= 1024 * 1024;
-    int itot = mNINT(total); int ifree = mNINT(free);
+    int itot = mNINT32(total); int ifree = mNINT32(free);
     res.set( "Total memory (MB)", itot );
     res.set( "Free memory (MB)", ifree );
 #ifdef __lux__
-    free = swapfree; free /= 1024 * 1024; ifree = mNINT(free);
+    free = swapfree; free /= 1024 * 1024; ifree = mNINT32(free);
     res.set( "Available swap space (MB)", ifree );
 #endif
 }

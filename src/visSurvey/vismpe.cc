@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.120 2012-07-02 19:58:48 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.121 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -166,10 +166,10 @@ CubeSampling MPEDisplay::getBoxPosition() const
     Coord3 width = boxdragger_->width();
 
     CubeSampling cube;
-    cube.hrg.start = BinID( mNINT(center.x-width.x/2),
-			    mNINT(center.y-width.y/2) );
-    cube.hrg.stop = BinID( mNINT(center.x+width.x/2),
-			   mNINT(center.y+width.y/2) );
+    cube.hrg.start = BinID( mNINT32(center.x-width.x/2),
+			    mNINT32(center.y-width.y/2) );
+    cube.hrg.stop = BinID( mNINT32(center.x+width.x/2),
+			   mNINT32(center.y+width.y/2) );
     cube.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
     cube.zrg.start = center.z - width.z / 2;
     cube.zrg.stop = center.z + width.z / 2;
@@ -1007,11 +1007,11 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 	Coord3 center_ = boxdragger_->center();
 	Coord3 width_ = boxdragger_->width();
 
-	res.hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
-		mNINT( center_.y - width_.y / 2 ) );
+	res.hrg.start = BinID( mNINT32( center_.x - width_.x / 2 ),
+		mNINT32( center_.y - width_.y / 2 ) );
 
-	res.hrg.stop = BinID( mNINT( center_.x + width_.x / 2 ),
-		mNINT( center_.y + width_.y / 2 ) );
+	res.hrg.stop = BinID( mNINT32( center_.x + width_.x / 2 ),
+		mNINT32( center_.y + width_.y / 2 ) );
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
@@ -1024,10 +1024,10 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 	Coord3 scale = voltrans_->getScale();
 	double dummy = scale.x; scale.x=scale.z; scale.z = dummy;
 
-	res.hrg.start = BinID( mNINT(transl.x+scale.x/2),
-		mNINT(transl.y+scale.y/2) );
-	res.hrg.stop = BinID( mNINT(transl.x-scale.x/2),
-		mNINT(transl.y-scale.y/2) );
+	res.hrg.start = BinID( mNINT32(transl.x+scale.x/2),
+		mNINT32(transl.y+scale.y/2) );
+	res.hrg.stop = BinID( mNINT32(transl.x-scale.x/2),
+		mNINT32(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
 	res.zrg.start = transl.z+scale.z/2;
@@ -1095,7 +1095,7 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     else
     {
 	slicepos += voltrans_->getTranslation()[2];
-	pos = mNINT(slicepos*1000);
+	pos = mNINT32(slicepos*1000);
     }
 
     return pos;

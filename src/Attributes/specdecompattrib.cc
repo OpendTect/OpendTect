@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: specdecompattrib.cc,v 1.41 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: specdecompattrib.cc,v 1.42 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -199,12 +199,12 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	if ( transformtype_ == mTransformTypeFourier )
 	{
 	    const_cast<SpecDecomp*>(this)->samplegate_ = 
-		     Interval<int>(mNINT(gate_.start/refstep_),
-				   mNINT(gate_.stop/refstep_));
+		     Interval<int>(mNINT32(gate_.start/refstep_),
+				   mNINT32(gate_.stop/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
 	    const float fnyq = 0.5 / refstep_;
-	    const int minsz = mNINT( 2*fnyq/deltafreq_ );
+	    const int minsz = mNINT32( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
 			fft_->setInputInfo(Array1DInfoImpl(fftsz_));

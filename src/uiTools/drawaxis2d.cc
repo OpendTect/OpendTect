@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.37 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.38 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -117,7 +117,7 @@ void DrawAxis2D::drawAxes( bool xdir, bool ydir,
 }
 
 #define mLoopStart( dim ) \
-    const int nrsteps = mNINT(dim##rg_.width(false)/dim##axis_.step)+1; \
+    const int nrsteps = mNINT32(dim##rg_.width(false)/dim##axis_.step)+1; \
     for ( int idx=0; idx<nrsteps; idx++ ) \
     { \
 	const double dim##pos = dim##axis_.atIndex(idx); \

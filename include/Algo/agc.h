@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.9 2012-04-17 12:49:06 cvshelene Exp $
+ RCS:		$Id: agc.h,v 1.10 2012-07-10 08:05:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ void AGC<T>::computeEnergyMute()
 	 mIsZero(mutefraction_,1e-5) )
 	return;
 
-    const int sample = mNINT(size_*mutefraction_);
+    const int sample = mNINT32(size_*mutefraction_);
     if ( sample<0 || sample>=size_ )
 	return;
 

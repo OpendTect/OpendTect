@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.43 2012-05-23 15:12:18 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.44 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -148,7 +148,7 @@ int A2DBitMapPosSetup::getPix( int dim, float pos, bool rev ) const
 {
     const float fpix = getPixOffs( dim, pos, rev );
 
-    int pix = mNINT(fpix);
+    int pix = mNINT32(fpix);
     if ( pix < 0 )
 	pix = 0;
     else if ( pix >= (dim?nrypix_:nrxpix_) )
@@ -242,7 +242,7 @@ static inline int gtPrettyBMVal( char c )
     float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
 	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill())
 	    	- .5;
-    const int ret = mNINT(v);
+    const int ret = mNINT32(v);
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
 
@@ -280,7 +280,7 @@ int WVAA2DBitMapGenerator::dim0SubSampling() const
 {
     const float nrpixperdim0 = setup_.availableXPix() / ((float)szdim0_);
     float fret = gtPars().minpixperdim0_ / nrpixperdim0;
-    const int ret = mNINT( fret );
+    const int ret = mNINT32( fret );
     return ret < 2 ? 1 : ret;
 }
 

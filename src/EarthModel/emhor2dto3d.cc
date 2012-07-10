@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.21 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.22 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -61,7 +61,7 @@ void add( const BinID& bid, float z )
 {
     float inldist = (bid.inl - hs_.start.inl) / ((float)hs_.step.inl);
     float crldist = (bid.crl - hs_.start.crl) / ((float)hs_.step.crl);
-    const int inlidx = mNINT(inldist); const int crlidx = mNINT(crldist);
+    const int inlidx = mNINT32(inldist); const int crlidx = mNINT32(crldist);
     if ( inlidx < 0 || inlidx >= inlsz_ || crlidx < 0 || crlidx >= crlsz_ )
 	return;
 

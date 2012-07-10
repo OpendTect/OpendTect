@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.8 2012-06-26 08:59:34 cvssatyaki Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.9 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ Color getColor( float val ) const
 {
     if ( showsel_ )
     {
-	return selgrpcols_.validIdx(mNINT(val)) ? selgrpcols_[mNINT(val)]
+	return selgrpcols_.validIdx(mNINT32(val)) ? selgrpcols_[mNINT32(val)]
 	    					: Color::NoColor();
     }
 
@@ -76,7 +76,7 @@ Color getColor( float val ) const
     mapper.setup_ = coltabmappersu_;
     const float pos = mapper.position( val );
     Color col = coltab_.color( pos );
-    col.setTransparency( mNINT(coltab_.transparencyAt(pos)) );
+    col.setTransparency( mNINT32(coltab_.transparencyAt(pos)) );
     return col;
 }    
 

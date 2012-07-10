@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.11 2012-05-08 10:55:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.12 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -80,7 +80,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 
 	float relpos = (val-targetrg.start) / targetrgwdth;
 	relpos *= setup.nrclasses; relpos -= 0.5;
-	int clss = mNINT( relpos );
+	int clss = mNINT32( relpos );
 	if ( clss < 0 )			clss = 0;
 	if ( clss >= setup.nrclasses )	clss = setup.nrclasses-1;
 	bvs_.get( pos, bid );

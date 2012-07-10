@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.79 2012-05-29 03:13:49 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.80 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -141,7 +141,7 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
     // Check if data is in inl/crl rather than X and Y
     if ( !SI().isReasonable(pos) || !doxy )
     {
-	BinID bid( mNINT(pos.x), mNINT(pos.y) );
+	BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
 	SI().snap( bid, BinID(0,0) );
 	Coord newpos = SI().transform( bid );
 	if ( SI().isReasonable(newpos) )
@@ -577,7 +577,7 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 	mPIEPAdj(Coord,pos,true);
 	if ( !isXY() || !SI().isReasonable(pos) )
 	{
-	    BinID bid( mNINT(xread), mNINT(yread) );
+	    BinID bid( mNINT32(xread), mNINT32(yread) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );

@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.89 2012-06-28 03:48:53 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.90 2012-07-10 08:05:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.89 2012-06-28 03:48:53 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.90 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -217,7 +217,7 @@ bool uiDataPointSetCrossPlotter::isY2Shown() const
 
 int uiDataPointSetCrossPlotter::totalNrItems() const
 {
-    const int totalrows = mNINT( plotperc_/(float)100 * dps_.nrActive() );
+    const int totalrows = mNINT32( plotperc_/(float)100 * dps_.nrActive() );
     return isY2Shown() ? totalrows*2 :  y_.axis_ ? totalrows : 0;
 }
 
@@ -236,7 +236,7 @@ void uiDataPointSetCrossPlotter::dataChanged()
 
 void uiDataPointSetCrossPlotter::getRandRowids()
 {
-    const int totalrows = mNINT( plotperc_/(float)100 * dps_.nrActive() );
+    const int totalrows = mNINT32( plotperc_/(float)100 * dps_.nrActive() );
     if ( mIsEqual(plotperc_,100,mDefEps) )
     {
 	yrowidxs_->ArrayND<char>::setAll( '1' );
@@ -1252,7 +1252,7 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
     if ( setup_.showcc_ )
     {
 	float fr100 = (y_.axis_ == &yah ? lsy1_ : lsy2_).corrcoeff * 100;
-	int r100 = mNINT(fr100);
+	int r100 = mNINT32(fr100);
 	BufferString txt( "r=" );
 	if ( r100 < 0 )
 	    { txt += "-"; r100 = -r100; }

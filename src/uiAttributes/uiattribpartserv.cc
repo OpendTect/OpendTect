@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.195 2012-06-28 13:54:11 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.196 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -879,7 +879,7 @@ bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
 	    {
 		const float val = array.get( x0, x1, x2 );
 		if ( mIsUdf(val) ) continue;
-		const int ival = mNINT(val);
+		const int ival = mNINT32(val);
 		if ( !mIsEqual(val,ival,mDefEps) || abs(ival)>cMaxNrClasses )
 		    return false;
 //		nrint++;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: shiftattrib.cc,v 1.36 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: shiftattrib.cc,v 1.37 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -125,7 +125,7 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
     if ( !outputinterest_[0] ) return false;
 
     float sampleshift = time_/(zFactor()*refstep_);
-    const int sampleidx = mNINT(sampleshift);
+    const int sampleidx = mNINT32(sampleshift);
     const float extrasamp = output.extrazfromsamppos_/refstep_;
     const bool dointerpolate = dosteer_ || 
 			       !mIsEqual(sampleshift,sampleidx,0.001);
@@ -165,14 +165,14 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 
 void Shift::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep_*zFactor() );
+    const int truestep = mNINT32( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chstartr = mNINT(interval_.start*zFactor()) % truestep;
-    bool chstopr = mNINT(interval_.stop*zFactor()) % truestep;
-    bool chstartd =mNINT(desinterval_.start*zFactor()) % truestep;
-    bool chstopd = mNINT(desinterval_.stop*zFactor()) % truestep;
+    bool chstartr = mNINT32(interval_.start*zFactor()) % truestep;
+    bool chstopr = mNINT32(interval_.stop*zFactor()) % truestep;
+    bool chstartd =mNINT32(desinterval_.start*zFactor()) % truestep;
+    bool chstopd = mNINT32(desinterval_.stop*zFactor()) % truestep;
 
     mAdjustGate( chstartr, interval_.start, false )
     mAdjustGate( chstopr, interval_.stop, true )

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.271 2012-07-03 08:41:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.272 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -843,9 +843,9 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	}
     }
 
-    res.hrg.start = res.hrg.stop = BinID(mNINT(c0.x),mNINT(c0.y) );
+    res.hrg.start = res.hrg.stop = BinID(mNINT32(c0.x),mNINT32(c0.y) );
     res.zrg.start = res.zrg.stop = c0.z;
-    res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
+    res.hrg.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
     res.zrg.include( c1.z );
     res.hrg.step = BinID( inlcrlsystem_->inlStep(), inlcrlsystem_->crlStep() );
     res.zrg.step = inlcrlsystem_->zRange().step;

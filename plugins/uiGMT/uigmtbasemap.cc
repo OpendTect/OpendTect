@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.17 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.18 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "uigmtbasemap.h"
 
@@ -134,7 +134,7 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
     }
 
     const Interval<int> xrg = xrgfld_->getIInterval();
-    scalefld_->setValue( mNINT( xrg.width() * 100 / xdimfld_->getfValue() ) );
+    scalefld_->setValue( mNINT32( xrg.width() * 100 / xdimfld_->getfValue() ) );
 }
 
 

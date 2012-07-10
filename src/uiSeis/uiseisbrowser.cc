@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.66 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.67 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -378,7 +378,7 @@ static const char* getZValStr( float z, const float zfac )
 {
     static BufferString txt;
     float dispz = zfac * z * 10;
-    int idispz = mNINT( dispz );
+    int idispz = mNINT32( dispz );
     dispz = idispz * 0.1;
     txt = dispz;
     return txt.buf();

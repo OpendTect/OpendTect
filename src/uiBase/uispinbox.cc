@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.51 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.52 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -117,7 +117,7 @@ QString uiSpinBoxBody::textFromValue( double val ) const
 	return QDoubleSpinBox::textFromValue( val );
 
     QString svtxt = specialValueText();
-    int intval = mNINT(val);
+    int intval = mNINT32(val);
     if ( !svtxt.isEmpty() )
 	intval--;
 
@@ -194,7 +194,7 @@ void uiSpinBox::snapToStep( CallBacker* )
 
     const double diff = body_->value() - body_->minimum();
     const double stp = body_->singleStep();
-    const int ratio =  mNINT( diff / stp );
+    const int ratio =  mNINT32( diff / stp );
     const float newval = minFValue() + ratio * stp;
     setValue( newval );
 }
@@ -229,7 +229,7 @@ StepInterval<float> uiSpinBox::getFInterval() const
 
 
 int uiSpinBox::getValue() const
-{ return mNINT(body_->value()); }
+{ return mNINT32(body_->value()); }
 
 float uiSpinBox::getFValue() const	
 { return (float)body_->value(); }
@@ -278,7 +278,7 @@ void uiSpinBox::setMinValue( float val )
 }
 
 int uiSpinBox::minValue() const
-{ return mNINT(body_->minimum()); }
+{ return mNINT32(body_->minimum()); }
 
 float uiSpinBox::minFValue() const
 { return (float)body_->minimum(); }
@@ -296,13 +296,13 @@ void uiSpinBox::setMaxValue( float val )
 }
 
 int uiSpinBox::maxValue() const
-{ return mNINT(body_->maximum()); }
+{ return mNINT32(body_->maximum()); }
 
 float uiSpinBox::maxFValue() const
 { return (float)body_->maximum(); }
 
 int uiSpinBox::step() const
-{ return mNINT(body_->singleStep()); }
+{ return mNINT32(body_->singleStep()); }
 
 float uiSpinBox::fstep() const
 { return (float)body_->singleStep(); }

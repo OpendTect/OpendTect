@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.26 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.27 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "emfault3d.h"
 
@@ -351,7 +351,7 @@ Coord3 getNormal( bool is2d ) const
 	    const int crldist = abs( bid0.crl-bid1.crl );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
-	    const int zdist = mNINT( fabs(crds_[idx].z-crds_[idy].z) /
+	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
 			             fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;
@@ -395,7 +395,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	crd.x = getdValue( 0 ); crd.y = getdValue( 1 );
 	if ( !isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
 	{
-	    Coord wc( SI().transform(BinID(mNINT(crd.x),mNINT(crd.y))) );
+	    Coord wc( SI().transform(BinID(mNINT32(crd.x),mNINT32(crd.y))) );
 	    crd.x = wc.x; crd.y = wc.y;
 	}
 	crd.z = getdValue( 2 );

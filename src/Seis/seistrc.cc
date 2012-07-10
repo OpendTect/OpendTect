@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seistrc.cc,v 1.56 2012-05-10 08:14:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seistrc.cc,v 1.57 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -159,7 +159,7 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 {
     const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step + 1;
-    const int outnrsamps = mNINT( fnrsamps );
+    const int outnrsamps = mNINT32( fnrsamps );
     const TraceDataInterpreter* tdi = data_.getInterpreter(0);
     DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
     SeisTrc* newtrc = new SeisTrc( outnrsamps, dc );
@@ -200,7 +200,7 @@ bool SeisTrc::isWriteReady( const SamplingData<float>& sampling, int ns ) const
     {
 	// sampling start must be N * sample rate
 	const float nz0 = info_.sampling.start / info_.sampling.step;
-	const float intnz0 = (float)( mNINT(nz0) );
+	const float intnz0 = (float)( mNINT32(nz0) );
 	return mIsEqual( nz0, intnz0, 0.0001 );
     }
 
@@ -220,7 +220,7 @@ void SeisTrc::getWriteReady( SeisTrc& trc, SamplingData<float>& sampling,
     {
 	sampling = info_.sampling;
 	const float nz0 = sampling.start / sampling.step;
-	const float newstart = sampling.step * mNINT( nz0 );
+	const float newstart = sampling.step * mNINT32( nz0 );
 	if ( !mIsEqual(sampling.start,newstart,1e-6) )
 	    sampling.start = newstart;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.68 2012-06-26 22:24:09 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.69 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uislicesel.h"
 
@@ -152,9 +152,9 @@ uiSliceScroll( uiSliceSel* ss )
     }
     else if ( ss->istsl_ )
     {
-	step = mNINT(cs.zrg.step*zfact_);
+	step = mNINT32(cs.zrg.step*zfact_);
 	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact_;
-	maxstep = mNINT(zrg);
+	maxstep = mNINT32(zrg);
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
     stepfld_ = new uiLabeledSpinBox( this, "Scroll step" );
@@ -273,7 +273,7 @@ void doAdvance( bool reversed )
 	    else
 	    {
 		newval *= zfact_;
-		slcsel_->z0fld_->box()->setValue( mNINT(newval) );
+		slcsel_->z0fld_->box()->setValue( mNINT32(newval) );
 	    }
 	}
     }
@@ -301,7 +301,7 @@ void setTimer()
 	val = 200;
     else
 	val *= 1000;
-    timer->start( mNINT(val), true );
+    timer->start( mNINT32(val), true );
 }
 
 
@@ -440,12 +440,12 @@ void uiSliceSel::updateUI()
 
     if ( nrdec==0 )
     {
-	Interval<int> zrg( mNINT(cs_.zrg.start*zfac), 
-			   mNINT(cs_.zrg.stop*zfac) );
+	Interval<int> zrg( mNINT32(cs_.zrg.start*zfac), 
+			   mNINT32(cs_.zrg.stop*zfac) );
 	StepInterval<int> maxzrg = 
-	    StepInterval<int>( mNINT(maxcs_.zrg.start*zfac),
-			       mNINT(maxcs_.zrg.stop*zfac),
-			       mNINT(maxcs_.zrg.step*zfac) );
+	    StepInterval<int>( mNINT32(maxcs_.zrg.start*zfac),
+			       mNINT32(maxcs_.zrg.stop*zfac),
+			       mNINT32(maxcs_.zrg.step*zfac) );
 	setBoxValues( z0fld_->box(), maxzrg, zrg.start );
 	setBoxValues( z1fld_, maxzrg, zrg.stop );
     }

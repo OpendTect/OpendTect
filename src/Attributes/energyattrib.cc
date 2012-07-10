@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: energyattrib.cc,v 1.41 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: energyattrib.cc,v 1.42 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "energyattrib.h"
 
@@ -94,8 +94,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
 	return false;
 
-    Interval<int> samplegate( mNINT(gate_.start/refstep_),
-			      mNINT(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+			      mNINT32(gate_.stop/refstep_) );
     const int sz = samplegate.width() + 1;
     Stats::WindowedCalc<float> wcalc(
 	    Stats::CalcSetup().require(Stats::SqSum), sz );

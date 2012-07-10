@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.39 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.40 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -25,7 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.39 2012-05-
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 {
     Geom::Point2D<float> fpt( c.x + r * cos(angrad), c.y - r * sin(angrad) );
-    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+    return uiPoint( mNINT32(fpt.x), mNINT32(fpt.y) );
 }
 
 
@@ -174,7 +174,7 @@ void uiDirectionalPlot::drawGrid()
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
-	    ci.setPos( center_ ); ci.setRadius( mNINT(rad) );
+	    ci.setPos( center_ ); ci.setRadius( mNINT32(rad) );
 	}
     }
     else
@@ -186,7 +186,7 @@ void uiDirectionalPlot::drawGrid()
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
-								 mNINT(rad)) );
+								 mNINT32(rad)) );
 	    ci->setZValue( 1 );
 	    equicircles_ += ci;
 	    ci->setPenStyle( setup_.equils_ );

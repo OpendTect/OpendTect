@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.cc,v 1.6 2012-05-22 14:48:33 cvskris Exp $
+ RCS:		$Id: prestackeventascio.cc,v 1.7 2012-07-10 08:05:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,7 +248,7 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
 	return ret;
 
     Coord pos( getdValue(0,udfval_), getdValue(1,udfval_) );
-    bid = isxy_ ? SI().transform( pos ) : BinID( mNINT(pos.x), mNINT(pos.y) );
+    bid = isxy_ ? SI().transform( pos ) : BinID( mNINT32(pos.x), mNINT32(pos.y) );
     horid = getIntValue( 2, mUdf(od_int16) );
     offset = getfValue( 3, udfval_ );
     zval = getfValue( 4, udfval_ );

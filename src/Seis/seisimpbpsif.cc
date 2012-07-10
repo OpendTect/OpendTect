@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisimpbpsif.cc,v 1.17 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisimpbpsif.cc,v 1.18 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -194,7 +194,7 @@ int SeisImpBPSIF::readAscii()
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
 	if ( idx == 0 )
-	    tmpltrc.info().nr = mNINT(val);
+	    tmpltrc.info().nr = mNINT32(val);
     }
 
     BufferString rcvdata;
@@ -229,7 +229,7 @@ int SeisImpBPSIF::readBinary()
     tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
-    tmpltrc.info().nr = mNINT(vbuf[0]);
+    tmpltrc.info().nr = mNINT32(vbuf[0]);
 
     if ( !addTrcsBinary(tmpltrc) )
 	return fileEnded();

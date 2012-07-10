@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.15 2012-05-22 14:48:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflattenedcube.cc,v 1.16 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -64,7 +64,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     pp_.getZRange( horzrg_ );
     MouseCursorManager::restoreOverride();
     defzval_ = horzrg_.center() * SI().zDomain().userFactor();
-    defzval_ = mNINT(defzval_);
+    defzval_ = mNINT32(defzval_);
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
 

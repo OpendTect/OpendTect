@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigdexamacorr.cc,v 1.40 2012-05-02 15:11:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigdexamacorr.cc,v 1.41 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -136,7 +136,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	//now we have to go back to the user specified sampling
 	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
-	    correctd2dh.ptr()->dataset_[idx]->z0_ = mNINT(cs_.zrg.start/zstep);
+	    correctd2dh.ptr()->dataset_[idx]->z0_ = mNINT32(cs_.zrg.start/zstep);
     }
 
     if ( isqc )

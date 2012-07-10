@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.46 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.47 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -187,8 +187,8 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
     if ( zoomin )
     {
 	zoommgr.forward();
-	newrectsz.setWidth( mNINT(newrectsz.width()*zoommgr.fwdFac()) );
-	newrectsz.setHeight( mNINT(newrectsz.height()*zoommgr.fwdFac()));
+	newrectsz.setWidth( mNINT32(newrectsz.width()*zoommgr.fwdFac()) );
+	newrectsz.setHeight( mNINT32(newrectsz.height()*zoommgr.fwdFac()));
     }
     else
     {

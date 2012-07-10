@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.232 2012-05-30 13:20:31 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.233 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -482,12 +482,12 @@ void uiODSceneMgr::updateStatusBar()
 	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
 	msg = bid.inl; msg += "/"; msg += bid.crl;
 	msg += "   (";
-	msg += mNINT(xytpos.x); msg += ", ";
-	msg += mNINT(xytpos.y); msg += ", ";
-//	msg += SI().zIsTime() ? mNINT(xytpos.z * 1000) : xytpos.z;
+	msg += mNINT32(xytpos.x); msg += ", ";
+	msg += mNINT32(xytpos.y); msg += ", ";
+//	msg += SI().zIsTime() ? mNINT32(xytpos.z * 1000) : xytpos.z;
 	const float zfact = visServ().zFactor();
 	float zval = zfact * xytpos.z;
-	if ( zfact>100 || zval>10 ) zval = mNINT(zval);
+	if ( zfact>100 || zval>10 ) zval = mNINT32(zval);
 	msg += zval; msg += ")";
     }
 

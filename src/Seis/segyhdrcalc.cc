@@ -4,7 +4,7 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdrcalc.cc,v 1.9 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdrcalc.cc,v 1.10 2012-07-10 08:05:32 cvskris Exp $";
 
 
 #include "segyhdrcalc.h"
@@ -179,7 +179,7 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 	}
 
 	const float meval = me.getValue();
-	(*this)[iexpr]->he_.putValue( buf, mNINT(meval) );
+	(*this)[iexpr]->he_.putValue( buf, mNINT32(meval) );
     }
 
     seqnr_++;

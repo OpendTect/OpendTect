@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.30 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.31 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -261,7 +261,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 
 bool uiWaveletExtraction::checkWaveletSize()
 {
-    wvltsize_ = mNINT( wtlengthfld_->getIntValue() /
+    wvltsize_ = mNINT32( wtlengthfld_->getIntValue() /
 		      (datastep_ * ((float) SI().zDomain().userFactor())) ) + 1;
     if ( wvltsize_ < 3 )
     {
@@ -273,7 +273,7 @@ bool uiWaveletExtraction::checkWaveletSize()
     if ( zextraction_->getBoolValue() )
     {
 	StepInterval<float> zrg = zrangefld_->getRange();
-	const int range = 1 + mNINT( (zrg.stop - zrg.start) / datastep_ );
+	const int range = 1 + mNINT32( (zrg.stop - zrg.start) / datastep_ );
 	if ( range < wvltsize_ )
 	{
 	    uiMSG().message( "Selection window size should be more",

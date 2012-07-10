@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.94 2012-06-22 09:09:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.95 2012-07-10 08:05:38 cvskris Exp $";
 
 
 
@@ -158,7 +158,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     uiPoint pt;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int index = mNINT(idx*step);
+	const int index = mNINT32(idx*step);
 	float dah = ld.log()->dah( index );
 	if ( index && index < sz-1 )
 	{
@@ -251,7 +251,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     uiPoint pt; uiPoint prevpt = closept;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int index = mNINT(idx*step);
+	const int index = mNINT32(idx*step);
 	float dah = ld.log()->dah( index );
 	if ( index && index < sz-1 )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimarkerstyle.cc,v 1.6 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimarkerstyle.cc,v 1.7 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uimarkerstyle.h"
 
@@ -97,9 +97,9 @@ Color uiMarkerStyle3D::getColor() const
 
 int uiMarkerStyle3D::getSize() const
 {
-    const int sz = mNINT(sliderfld_->sldr()->getValue() );
+    const int sz = mNINT32(sliderfld_->sldr()->getValue() );
     sliderfld_->processInput();
-    const int res = mNINT(sliderfld_->sldr()->getValue() );
+    const int res = mNINT32(sliderfld_->sldr()->getValue() );
     if ( res!=sz )
 	sliderfld_->sldr()->valueChanged.trigger( 0 );
 

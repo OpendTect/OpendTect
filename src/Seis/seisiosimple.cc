@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.28 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.29 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -324,7 +324,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( data_.isasc_ )
 	{
 	    strm >> coord.x;
-	    nr = mNINT(coord.x);
+	    nr = mNINT32(coord.x);
 	    if ( data_.haverefnr_ )
 		strm >> refnr;
 	}
@@ -372,7 +372,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    if ( data_.isasc_ )
 	    {
 		strm >> coord.x >> coord.y;
-		bid.inl = mNINT(coord.x); bid.crl = mNINT(coord.y);
+		bid.inl = mNINT32(coord.x); bid.crl = mNINT32(coord.y);
 	    }
 	    else
 	    {

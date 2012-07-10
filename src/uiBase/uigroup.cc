@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigroup.cc,v 1.77 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigroup.cc,v 1.78 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -571,8 +571,8 @@ void uiGroup::setSize( const uiSize& sz )
     const float hfac = sz.height()/(float)oldheight;
 
     reSizeChildren( mainObject(), wfac, hfac );
-    const int newwdth = mNINT(oldwidth*wfac);
-    const int newhght = mNINT(oldheight*hfac);
+    const int newwdth = mNINT32(oldwidth*wfac);
+    const int newhght = mNINT32(oldheight*hfac);
     mainObject()->setMinimumWidth( newwdth );
     mainObject()->setMinimumHeight( newhght );
     mainObject()->setMaximumWidth( newwdth );
@@ -592,8 +592,8 @@ void uiGroup::reSizeChildren( const uiObject* obj, float wfac, float hfac )
 	if ( objchild ) 
 	    reSizeChildren( objchild, wfac, hfac );
 
-	const int newwdth = mNINT(objchild->width()*wfac);
-	const int newhght = mNINT(objchild->height()*hfac);
+	const int newwdth = mNINT32(objchild->width()*wfac);
+	const int newhght = mNINT32(objchild->height()*hfac);
 	((uiObject*)(objchild))->setMinimumWidth( newwdth );
 	((uiObject*)(objchild))->setMaximumWidth( newwdth );
 	((uiObject*)(objchild))->setMinimumHeight( newhght );

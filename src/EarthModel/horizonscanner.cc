@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizonscanner.cc,v 1.50 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonscanner.cc,v 1.51 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -229,7 +229,7 @@ bool HorizonScanner::analyzeData()
 	    else break;
 	}
 
-	BinID bid( mNINT(crd.x), mNINT(crd.y) );
+	BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
 
 	bool validplacement = false;
 	if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
@@ -337,8 +337,8 @@ int HorizonScanner::nextStep()
 	bid = SI().transform( crd );
     else
     {
-	bid.inl = mNINT( crd.x );
-	bid.crl = mNINT( crd.y );
+	bid.inl = mNINT32( crd.x );
+	bid.crl = mNINT32( crd.y );
     }
 
     bool validpos = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegytrchdrvalplot.cc,v 1.8 2012-05-02 15:12:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegytrchdrvalplot.cc,v 1.9 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -69,7 +69,7 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
     rcsu.require( Stats::Min ).require( Stats::Max );
     Stats::RunCalc<float> rc( rcsu );
     rc.addValues( sz, data );
-    const Interval<int> rg( mNINT(rc.min()), mNINT(rc.max()) );
+    const Interval<int> rg( mNINT32(rc.min()), mNINT32(rc.max()) );
     const bool alleq = rg.start == rg.stop;
 
     BufferString lbltxt( alleq ? (issingle_ ? "" : he.name())
@@ -109,7 +109,7 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
     int previdx = 0;
     for ( float pos=0; ; pos+=incr )
     {
-	int idx = mNINT(pos);
+	int idx = mNINT32(pos);
 	if ( idx > lastbpidx )
 	{
 	    if ( previdx == lastbpidx )
@@ -119,8 +119,8 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
 	}
 
 	const Coord& coord = coords[ bpf.bendPoints()[idx] ];
-	xvals_ += mNINT(coord.x);
-	yvals_ += mNINT(coord.y);
+	xvals_ += mNINT32(coord.x);
+	yvals_ += mNINT32(coord.y);
 
 	previdx = idx;
     }

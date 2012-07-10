@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.8 2011-09-21 14:46:05 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.9 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,7 +237,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 
 	    const TT val = interpolate_ 
 		? func_.getValue( sourcex, sourcey )
-		: from_->get( mNINT(sourcex), mNINT( sourcey ) );
+		: from_->get( mNINT32(sourcex), mNINT32( sourcey ) );
 	    if ( toptr )
 	    {
 		*toptr = val;

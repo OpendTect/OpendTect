@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.28 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.29 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -136,7 +136,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 	val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
     }
     else
-	val = mNINT( (exactz/refstep) )==lowz ? p1 : p2;
+	val = mNINT32( (exactz/refstep) )==lowz ? p1 : p2;
 
     return val;
 }
@@ -166,7 +166,7 @@ float DataHolder::getExtraZAndSampIdxFromExactZ( float exactz,
 						 float refzstep, int& idx )
 {
     float extraz = getExtraZFromSampPos( exactz, refzstep );
-    //Do not use mNINT: we want to get previous sample
+    //Do not use mNINT32: we want to get previous sample
     //0.05 to deal with float precision pb
     int lowidx = (int)( (exactz/refzstep));
     int highidx = (int)( (exactz/refzstep)+0.05 );
@@ -272,7 +272,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	    continue;
 
 	const int trcidx = trcrange.nearestIndex( trcinfoset_[idx]->nr );
-	const int zpos = dataset_[idx]->z0_ - mNINT(cs.zrg.start/cs.zrg.step);
+	const int zpos = dataset_[idx]->z0_ - mNINT32(cs.zrg.start/cs.zrg.step);
 	if ( arrptr )
 	{
 	    const int offset = array.info().getOffset( 0, trcidx, zpos );

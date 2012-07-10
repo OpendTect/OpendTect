@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: color.cc,v 1.23 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: color.cc,v 1.24 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "color.h"
 
@@ -180,7 +180,7 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
         // r == g == b
         h_ = (unsigned char)0;
         s_ = (unsigned char)0;
-        v_ = (unsigned char)mNINT(v*255);
+        v_ = (unsigned char)mNINT32(v*255);
         return;
     }
 
@@ -200,9 +200,9 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
     if ( h < 0 )
         h += 360;
 
-    h_ = (unsigned char)mNINT(h);
-    s_ = (unsigned char)mNINT(s*255);
-    v_ = (unsigned char)mNINT(v*255);
+    h_ = (unsigned char)mNINT32(h);
+    s_ = (unsigned char)mNINT32(s*255);
+    v_ = (unsigned char)mNINT32(v*255);
 }
 
 
@@ -244,9 +244,9 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
             fr = v; fg = p; fb = q; break;
     }
 
-    r_ = (unsigned char)mNINT(fr*255);
-    g_ = (unsigned char)mNINT(fg*255);
-    b_ = (unsigned char)mNINT(fb*255);
+    r_ = (unsigned char)mNINT32(fr*255);
+    g_ = (unsigned char)mNINT32(fg*255);
+    b_ = (unsigned char)mNINT32(fb*255);
     set( r_, g_, b_, t() );
 }
 

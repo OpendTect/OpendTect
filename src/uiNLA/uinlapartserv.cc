@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uinlapartserv.cc,v 1.81 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uinlapartserv.cc,v 1.82 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uinlapartserv.h"
 
@@ -367,7 +367,7 @@ const char* uiNLAPartServer::convertToClasses(
 	{
 	    const float val = bvs.getVals(pos)[valnr];
 	    if ( mIsUdf(val) ) continue;
-	    const int code = mNINT(val);
+	    const int code = mNINT32(val);
 	    if ( lcd.codes.indexOf(code) < 0 )
 		lcd.codes += code;
 	}
@@ -468,7 +468,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 	const float val = vals[valnr];
 	if ( mIsUdf(val) ) continue;
 
-	const int code = mNINT(val);
+	const int code = mNINT32(val);
 	int codeidx = codes.indexOf( code );
 	if ( codeidx >= 0 )
 	    codeidx = ptrtbl[codeidx];

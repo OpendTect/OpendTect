@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.146 2012-07-05 10:44:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.147 2012-07-10 08:05:40 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -347,7 +347,7 @@ void Seis2DDisplay::setData( int attrib,
     StepInterval<float> arrayzrg;
     arrayzrg.setFrom( getZRange(!datatransform_,attrib) );
     arrayzrg.step = sd.step;
-    const int arrzsz = mNINT( arrayzrg.nrfSteps() )+1;
+    const int arrzsz = mNINT32( arrayzrg.nrfSteps() )+1;
     const int nrseries = data2dh.dataset_->info().getSize( 0 );
 
     channels_->setNrVersions( attrib, nrseries );

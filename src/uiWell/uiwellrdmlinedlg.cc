@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.40 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.41 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -372,7 +372,7 @@ void uiWell2RandomLineDlg::createFields()
     BufferString txt( "Extend outward (" );
     txt += SI().xyInFeet() ? "ft)" : "m)";
     float defdist = 100 * SI().inlDistance();
-    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT(defdist)) );
+    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT32(defdist)) );
     extendfld_->setWithCheck( true );
     extendfld_->setChecked( true );
 

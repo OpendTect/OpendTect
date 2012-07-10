@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltattr.cc,v 1.30 2012-05-02 15:12:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltattr.cc,v 1.31 2012-07-10 08:05:37 cvskris Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -148,7 +148,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     timedrawer_->setFunction( *wvltvals_, timerange_ );
     
     float maxfreq = 0.5/zstep;
-    if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
+    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
     
     FreqTaperSetup ftsu; ftsu.hasmin_ = true, 
@@ -264,7 +264,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
     float maxfreq = 0.5/wvlt.sampleRate();
-    if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
+    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
 
     for ( int iattr=0; iattr<3; iattr++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: eventattrib.cc,v 1.40 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: eventattrib.cc,v 1.41 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -276,8 +276,8 @@ void Event::multipleEvents( const DataHolder& output,
     const float extrasamp = output.extrazfromsamppos_/refstep_;
     if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
     {
-	Interval<int> samplegate( mNINT(gate_.start/refstep_),
-				  mNINT((gate_.stop-SI().zStep())/refstep_) );
+	Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+				  mNINT32((gate_.stop-SI().zStep())/refstep_) );
 	int samplegatewidth = samplegate.width();
 	int csample = firstsample + samplegate.start;
 	Interval<float> sg(0,0);
@@ -386,7 +386,7 @@ void Event::multipleEvents( const DataHolder& output,
 		    ev = nextev;
 		    nextev = findNextEvent( nextev, 1, eventtype_,
 			    		    inputdata_->nrsamples_,
-					    mNINT(firstsample+extrasamp));
+					    mNINT32(firstsample+extrasamp));
 		}
 		if ( cursample+extrasamp > ev.pos
 			&& cursample+extrasamp < nextev.pos)
@@ -414,7 +414,7 @@ void Event::multipleEvents( const DataHolder& output,
 		    ev = nextev;
 		    nextev = findNextEvent( nextev, -1, eventtype_,
 			    		    inputdata_->nrsamples_,
-					    mNINT(firstsample+extrasamp));
+					    mNINT32(firstsample+extrasamp));
 		}
 
 		if ( cursample+extrasamp < ev.pos

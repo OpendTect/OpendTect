@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: thread.cc,v 1.61 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: thread.cc,v 1.62 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -456,7 +456,7 @@ public:
 			{}
 
     static void		sleep( double tm )
-			{ QThread::msleep( mNINT(1000*tm) ); }
+			{ QThread::msleep( mNINT32(1000*tm) ); }
 
 protected:
     void		run()
@@ -560,7 +560,7 @@ int Threads::getNrProcessors()
 	    nrproc = QThread::idealThreadCount();
 
 	float fnrproc = nrproc * perc * 0.01;
-	nrproc = mNINT(fnrproc);
+	nrproc = mNINT32(fnrproc);
     }
 
     if ( DBG::isOn( DBG_MT ) ) 

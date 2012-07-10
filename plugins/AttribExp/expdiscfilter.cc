@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: expdiscfilter.cc,v 1.11 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: expdiscfilter.cc,v 1.12 2012-07-10 08:05:26 cvskris Exp $";
 
 
 #include "expdiscfilter.h"
@@ -273,8 +273,8 @@ int DiscFilterAttrib::Task::nextStep()
 		}
 		else
 		{
-		    const SeisTrc* trc = trcs.get(radius+mNINT(inl/inldist),
-					      radius+mNINT(crl/crldist));
+		    const SeisTrc* trc = trcs.get(radius+mNINT32(inl/inldist),
+					      radius+mNINT32(crl/crldist));
 
 		    if ( trc )
 		    {

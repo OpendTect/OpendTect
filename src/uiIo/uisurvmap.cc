@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvmap.cc,v 1.42 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvmap.cc,v 1.43 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uisurvmap.h"
 
@@ -164,7 +164,7 @@ void uiNorthArrowObject::update()
     const int yarrowtop = 20;
 
     float dx = arrowlen * tan( halfpi-mathang );
-    const int dxpix = mNINT( dx );
+    const int dxpix = mNINT32( dx );
     float worldxmin, worldxmax;
     transform_->getWorldXRange( worldxmin, worldxmax );
     const int xmax = transform_->toUiX( worldxmax );

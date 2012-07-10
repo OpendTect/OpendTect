@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: probdenfunc.cc,v 1.31 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: probdenfunc.cc,v 1.32 2012-07-10 08:05:28 cvskris Exp $";
 
 
 #include "sampledprobdenfunc.h"
@@ -390,7 +390,7 @@ float Sampled1DProbDenFunc::gtVal( float pos ) const
     const int sz = size( 0 );
     if ( sz < 1 ) return 0;
     const float fidx = sd_.getfIndex( pos );
-    const int nidx = mNINT(fidx);
+    const int nidx = mNINT32(fidx);
     if ( mIsZero(nidx-fidx,snappos) )
     {
 	if ( nidx < 0 || nidx > sz-1 )
@@ -497,7 +497,7 @@ float Sampled2DProbDenFunc::gtVal( float px, float py ) const
 
     const float fidxx = sd0_.getfIndex( px );
     const float fidxy = sd1_.getfIndex( py );
-    const int nidxx = mNINT(fidxx); const int nidxy = mNINT(fidxy);
+    const int nidxx = mNINT32(fidxx); const int nidxy = mNINT32(fidxy);
     if ( mIsZero(nidxx-fidxx,snappos) && mIsZero(nidxy-fidxy,snappos) )
     {
 	if ( nidxx < 0 || nidxy < 0 || nidxx > szx-1 || nidxy > szy-1 )
@@ -648,7 +648,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	const float fidx = sds_[idim].getfIndex( vals[idim] );
-	const int nidx = mNINT(fidx);
+	const int nidx = mNINT32(fidx);
 	if ( nidx < -1 || nidx > szs[idim] )
 	    return 0;
 	if ( nidx == -1 || nidx == szs[idim] || !mIsZero(nidx-fidx,snappos) )

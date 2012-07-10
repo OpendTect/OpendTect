@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.67 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.68 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -350,7 +350,7 @@ bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 int SeisTrcInfo::nearestSample( float t ) const
 {
     float s = mIsUdf(t) ? 0 : (t - sampling.start) / sampling.step;
-    return mNINT(s);
+    return mNINT32(s);
 }
 
 

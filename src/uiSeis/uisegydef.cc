@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.50 2012-07-09 15:16:09 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.51 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -277,7 +277,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     uiGenInput* inp;
     if ( isint )
     {
-	IntInpSpec iis( ispresent ? mNINT(val)
+	IntInpSpec iis( ispresent ? mNINT32(val)
 				  : SI().zRange(false).nrSteps() + 1 );
 	inp = new uiGenInput( grp, txt, iis );
     }
@@ -903,7 +903,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 
 	const float inldist = SI().inlDistance();
 	regoffsfld_ = new uiGenInput( grp, "Set offsets to: start/step",
-			    IntInpSpec(0), IntInpSpec(mNINT(inldist)) );
+			    IntInpSpec(0), IntInpSpec(mNINT32(inldist)) );
 	regoffsfld_->attach( alignedBelow, psposfld_ );
     }
 

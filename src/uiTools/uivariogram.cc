@@ -43,11 +43,11 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     int dxmin = SI().inlDistance() <= SI().crlDistance() ?
        		(int)SI().inlDistance() : (int)SI().crlDistance();
     int minrgval = isvert ? 30 : SI().xyInFeet() ?
-       			    dxmin*mNINT(300/dxmin) : dxmin*mNINT(100/dxmin);
+       			    dxmin*mNINT32(300/dxmin) : dxmin*mNINT32(100/dxmin);
     int maxrgval = isvert ? 300 : SI().xyInFeet() ? 
-			    dxmin*mNINT(10000/dxmin) : dxmin*mNINT(5000/dxmin);
+			    dxmin*mNINT32(10000/dxmin) : dxmin*mNINT32(5000/dxmin);
     int defrgval = isvert ? 50 : SI().xyInFeet() ?
-       			    dxmin*mNINT(5000/dxmin) : dxmin*mNINT(2000/dxmin);
+       			    dxmin*mNINT32(5000/dxmin) : dxmin*mNINT32(2000/dxmin);
     int minstepval = isvert ? 1 : dxmin;
     int maxstepval = isvert ? 10 : 10*dxmin;
     int defstep = isvert ? 1 : dxmin;

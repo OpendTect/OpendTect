@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.142 2012-06-19 06:32:05 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.143 2012-07-10 08:05:36 cvskris Exp $";
 
 #include "uisurvey.h"
 
@@ -590,7 +590,7 @@ void uiSurvey::mkInfo()
     }
 
     #define mkZString(nr) \
-    zinfo += istime ? mNINT(1000*nr) : nr;
+    zinfo += istime ? mNINT32(1000*nr) : nr;
 
     const bool istime = si.zIsTime(); 
     mkZString( si.zRange(false).start );

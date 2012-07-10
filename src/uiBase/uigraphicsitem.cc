@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.40 2012-05-18 12:16:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.41 2012-07-10 08:05:34 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -72,16 +72,16 @@ void uiGraphicsItem::setVisible( bool yn )
 
 uiPoint uiGraphicsItem::getPos() const
 {
-    return uiPoint( mNINT(qgraphicsitem_->pos().x()),
-		    mNINT(qgraphicsitem_->pos().y()) );
+    return uiPoint( mNINT32(qgraphicsitem_->pos().x()),
+		    mNINT32(qgraphicsitem_->pos().y()) );
 }
 
 
 uiRect uiGraphicsItem::boundingRect() const
 {
     QRectF qr( qgraphicsitem_->sceneBoundingRect() );
-    return uiRect( mNINT(qr.left()), mNINT(qr.top()),
-	    	   mNINT(qr.right()), mNINT(qr.bottom()) );
+    return uiRect( mNINT32(qr.left()), mNINT32(qr.top()),
+	    	   mNINT32(qr.right()), mNINT32(qr.bottom()) );
 }
 
 
@@ -159,7 +159,7 @@ void uiGraphicsItem::setZValue( int zval )
 uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 {
     QPointF qpt = qgraphicsitem_->mapToScene( pt.x, pt.y );
-    return uiPoint( mNINT(qpt.x()),  mNINT( qpt.y()) );
+    return uiPoint( mNINT32(qpt.x()),  mNINT32( qpt.y()) );
 }
 
 

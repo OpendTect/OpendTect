@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.44 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.45 2012-07-10 08:05:35 cvskris Exp $";
 
 
 #include "uiobjfileman.h"
@@ -229,7 +229,7 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
     if ( filesz > 1024 )
     {
         const bool doGb = filesz > 1048576;
-	const int nr = doGb ? mNINT(filesz/10485.76) : mNINT(filesz/10.24);
+	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
 	szstr = nr/100; 
 	const int rest = nr%100; 
 	szstr += rest < 10 ? ".0" : "."; szstr += rest;

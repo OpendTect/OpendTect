@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gapdeconattrib.cc,v 1.26 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gapdeconattrib.cc,v 1.27 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -200,11 +200,11 @@ bool GapDecon::getInputData( const BinID& relpos, int zintv )
 
 void GapDecon::prepareForComputeData()
 {
-    ncorr_ = mNINT( gate_.width() / refstep_ );
+    ncorr_ = mNINT32( gate_.width() / refstep_ );
     if ( !useonlyacorr_ )
     {
-	nlag_ = mNINT( lagsize_ / refstep_ / zFactor() );
-	ngap_ = mNINT( gapsize_ / refstep_ / zFactor() );
+	nlag_ = mNINT32( lagsize_ / refstep_ / zFactor() );
+	ngap_ = mNINT32( gapsize_ / refstep_ / zFactor() );
     }
 
     lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
@@ -257,7 +257,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at 
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int absstartsampidx = mNINT( gate_.start / refstep_ );
+    int absstartsampidx = mNINT32( gate_.start / refstep_ );
     int startcorr = absstartsampidx - inputdata_->z0_;
     bool usedmixed = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_);
     int safestartcorr = usedmixed ? absstartsampidx-inputdatamixed_->z0_

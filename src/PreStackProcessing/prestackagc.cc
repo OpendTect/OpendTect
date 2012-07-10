@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackagc.cc,v 1.21 2012-05-02 15:11:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackagc.cc,v 1.22 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -39,8 +39,8 @@ bool PreStack::AGC::prepareWork()
 	float zstep = inputs_[idx]->posData().range(false).step;
 	zstep *= SI().zIsTime() ? 1000 : 1;
 
-	samplewindow_.start = mNINT( window_.start/zstep );
-	samplewindow_.stop = mNINT( window_.stop/zstep );
+	samplewindow_.start = mNINT32( window_.start/zstep );
+	samplewindow_.stop = mNINT32( window_.stop/zstep );
 	return true;
     }
 

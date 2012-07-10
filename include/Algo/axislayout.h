@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005 / Dec 2009
- RCS:		$Id: axislayout.h,v 1.2 2011-08-22 11:56:07 cvskris Exp $
+ RCS:		$Id: axislayout.h,v 1.3 2012-07-10 08:05:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 	const T fidx = rev
 	    ? ceil( intv.stop / sd_.step + 1e-6 )
 	    : floor( intv.start / sd_.step + 1e-6 );
-	sd_.start = mNINT( fidx ) * sd_.step;
+	sd_.start = mNINT32( fidx ) * sd_.step;
     }
     if ( rev ) sd_.step = -sd_.step;
 
@@ -110,7 +110,7 @@ T AxisLayout<T>::findEnd( T datastop ) const
 
     T pos = ceil( (datastop-worksd.start) / worksd.step - 1e-6 );
     if ( pos < .5 ) pos = 1;
-    T wdth = mNINT(pos) * worksd.step;
+    T wdth = mNINT32(pos) * worksd.step;
 
     return sd_.start + (rev ? -wdth : wdth);
 }

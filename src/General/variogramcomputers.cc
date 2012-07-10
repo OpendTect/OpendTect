@@ -4,7 +4,7 @@
  * DATE     : Mar 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.3 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.4 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "variogramcomputers.h"
 
@@ -111,9 +111,9 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
     //              computer.add(itested);
 		if ( itested > fold*100 ) break;
 		int posinl1 = mininl +
-			    mNINT((maxinl-mininl)*Stats::RandGen::get());
+			    mNINT32((maxinl-mininl)*Stats::RandGen::get());
 		int poscrl1 = mincrl +
-			    mNINT((maxcrl-mincrl)*Stats::RandGen::get());
+			    mNINT32((maxcrl-mincrl)*Stats::RandGen::get());
 		BinID pos1 = BinID( posinl1, poscrl1 );
 		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
 		if ( posval1<0 ) continue;
@@ -272,8 +272,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    }
 	}
 
-	int ztop  = mNINT(dpset.z(disorder[0].rowid_)*zstep)+step;
-	int zbase = mNINT(dpset.z(disorder[nrin-1].rowid_)*zstep)-step;
+	int ztop  = mNINT32(dpset.z(disorder[0].rowid_)*zstep)+step;
+	int zbase = mNINT32(dpset.z(disorder[nrin-1].rowid_)*zstep)-step;
 
 	if ( zbase >  dpset.z(disorder[nrin-1].rowid_)*zstep ||
 	    ztop  <  dpset.z(disorder[0].rowid_)*zstep ||

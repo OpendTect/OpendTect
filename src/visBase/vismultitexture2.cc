@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultitexture2.cc,v 1.72 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultitexture2.cc,v 1.73 2012-07-10 08:05:39 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -213,7 +213,7 @@ unsigned char MultiTexture2::getTextureTransparency( int texturenr ) const
     if ( useshading_ )
     {
 	return texturenr<opacity_.size()
-	    ? 255-mNINT(opacity_[texturenr]*255) : 0;
+	    ? 255-mNINT32(opacity_[texturenr]*255) : 0;
     }
     else
     {
@@ -377,11 +377,11 @@ void MultiTexture2::nearestValInterp( const Array2D<float>& inp,
 
     for ( int x0=0; x0<outsize0; x0++ )
     {
-	const int x0sample = mNINT( x0*x0step );
+	const int x0sample = mNINT32( x0*x0step );
 	for ( int x1=0; x1<outsize1; x1++ )
 	{
 	    const float x1pos = x1*x1step;
-	    out.set( x0, x1, inp.get( x0sample, mNINT(x1pos) ) );
+	    out.set( x0, x1, inp.get( x0sample, mNINT32(x1pos) ) );
 	}
     }
 }

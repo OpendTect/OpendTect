@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.61 2012-05-18 12:17:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.62 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -186,7 +186,7 @@ uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos,
 uiLineItem::uiLineItem( float x1, float y1, float x2, float y2, bool abspos )
     : uiGraphicsItem(mkQtObj())
 {
-    setLine( mNINT(x1), mNINT(y1), mNINT(x2), mNINT(y2), abspos );
+    setLine( mNINT32(x1), mNINT32(y1), mNINT32(x2), mNINT32(y2), abspos );
 }
 
 
@@ -196,9 +196,9 @@ uiLineItem::uiLineItem( const uiPoint& pt, double angle, double len,
 {
     uiPoint endpt( pt );
     double delta = len * cos( angle );
-    endpt.x += mNINT(delta);
+    endpt.x += mNINT32(delta);
     delta = -len * sin( angle );
-    endpt.y += mNINT(delta);
+    endpt.y += mNINT32(delta);
 
     setLine( pt, endpt, abspos );
 }
@@ -819,9 +819,9 @@ void uiArrowItem::update()
     float diffx = headpos_.x-tailpos_.x;
     float diffy = headpos_.y-tailpos_.y;
     const float arrsz = sqrt( diffx*diffx + diffy*diffy );
-    setArrowSize( mNINT(arrsz) );
+    setArrowSize( mNINT32(arrsz) );
     setPos( headpos_ );
-    const uiPoint relvec( mNINT(diffx), mNINT(diffy) );
+    const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );
     const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
     setRotation( ang );
 }

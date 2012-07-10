@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.143 2012-05-09 13:09:41 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.144 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -836,8 +836,8 @@ bool Provider::setCurrentPosition( const BinID& bid )
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
-    const Interval<int> possintv( mNINT(possiblevolume_->zrg.start/dz),
-	    			  mNINT(possiblevolume_->zrg.stop/dz) );
+    const Interval<int> possintv( mNINT32(possiblevolume_->zrg.start/dz),
+	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
 
     Array2DImpl< Interval<int> > inputranges( inputs_.size(), intvs.size() );
     for ( int idx=0; idx<intvs.size(); idx++ )
@@ -912,9 +912,9 @@ void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges,
 	    Interval<int> zrgsamp( 0, 0 );
 	    mUseMargins(int,Samp,samp);
 
-	    inputrange.start += mNINT(zrg.start/dz);
+	    inputrange.start += mNINT32(zrg.start/dz);
 	    inputrange.start += zrgsamp.start;
-	    inputrange.stop += mNINT(zrg.stop/dz);
+	    inputrange.stop += mNINT32(zrg.stop/dz);
 	    inputrange.stop += zrgsamp.stop;
 
 	    inputranges.set( inp, idx, inputrange );

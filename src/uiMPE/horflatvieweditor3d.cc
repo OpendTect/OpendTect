@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.11 2012-04-02 15:06:17 cvskris Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.12 2012-07-10 08:05:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -575,12 +575,12 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 	{
 	    bid.inl = curcs_.hrg.start.inl;
 	    bid.crl = 
-		mNINT(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
 	}
 	else if ( curcs_.nrCrl() == 1 )
 	{
 	    bid.inl = 
-		mNINT(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
 	    bid.crl = curcs_.hrg.start.crl;
 	}
 

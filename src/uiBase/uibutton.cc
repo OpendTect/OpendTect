@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibutton.cc,v 1.77 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibutton.cc,v 1.78 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -116,8 +116,8 @@ public:
 #ifdef __win__
 			    setIconSize( qbutsize_ );
 #else
-			    setIconSize( QSize(mNINT(width()*icf),
-					       mNINT(height()*icf)) );
+			    setIconSize( QSize(mNINT32(width()*icf),
+					       mNINT32(height()*icf)) );
 #endif
 			    iconfrac_ = icf;
 			}

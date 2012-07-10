@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.26 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.27 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vistext.h"
 
@@ -146,7 +146,7 @@ int Text::usePar( const IOPar& par )
     {
 	float fontsz;
 	if ( par.get( "Font size", fontsz ) ) //Old format
-	    fontdata.setPointSize( mNINT(fontsz) );
+	    fontdata.setPointSize( mNINT32(fontsz) );
     }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.11 2012-05-22 14:48:45 cvskris Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.12 2012-07-10 08:05:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,8 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	if ( !isbetween )
 	{
 	    BufferString msg( "Z value is out of survey range(" );
-	    msg.add( mNINT(zrg.start*SI().zDomain().userFactor()) ).add( " , " )
-	       .add( mNINT(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
+	    msg.add( mNINT32(zrg.start*SI().zDomain().userFactor()) ).add( " , " )
+	       .add( mNINT32(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
 	    uiMSG().message( msg );
 	    return false;
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.17 2012-06-21 14:58:35 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.18 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
@@ -326,7 +326,7 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
     osg::ref_ptr<const osg::Camera> camera = getOsgCamera();
     osg::ref_ptr<const osg::Viewport> vp = camera->getViewport();
 
-    return Geom::Size2D<int>( mNINT(vp->width()), mNINT(vp->height()) );
+    return Geom::Size2D<int>( mNINT32(vp->width()), mNINT32(vp->height()) );
 }
 
 
@@ -399,7 +399,7 @@ void ui3DViewerBody::setBackgroundColor( const Color& col )
 Color ui3DViewerBody::getBackgroundColor() const
 {
     const osg::Vec4 col = getOsgCamera()->getClearColor();
-    return Color( mNINT(col.r()*255), mNINT(col.g()*255), mNINT(col.b()*255) );
+    return Color( mNINT32(col.r()*255), mNINT32(col.g()*255), mNINT32(col.b()*255) );
 }
 
 
@@ -1314,7 +1314,7 @@ Color ui3DViewer::getBackgroundColor() const
     {
 	float r, g, b;
 	sobody_->getBackgroundColor().getValue( r, g, b );
-	return Color( mNINT(r*255), mNINT(g*255), mNINT(b*255) );
+	return Color( mNINT32(r*255), mNINT32(g*255), mNINT32(b*255) );
     }
 
     return osgbody_->getBackgroundColor();

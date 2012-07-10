@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.127 2012-05-02 15:12:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.128 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -852,7 +852,7 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
     while ( data->next(pos,true) )
     {
 	const float* ptr = data->getVals(pos);
-	if ( sidcol!=-1 && sid!=mNINT(ptr[sidcol]) )
+	if ( sidcol!=-1 && sid!=mNINT32(ptr[sidcol]) )
 	    continue;
 
 	const BinID bid = data->getBinID( pos );

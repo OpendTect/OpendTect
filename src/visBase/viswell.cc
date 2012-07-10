@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.75 2012-06-28 09:13:15 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.76 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "viswell.h"
 
@@ -322,7 +322,7 @@ void Well::setMarkerScreenSize( int size )
 int Well::markerScreenSize() const
 {
     mDynamicCastGet(Marker*,marker,markergroup_->getObject(0))
-    return marker ? mNINT(marker->getScreenSize()) : markersize_;
+    return marker ? mNINT32(marker->getScreenSize()) : markersize_;
 }
 
 
@@ -391,7 +391,7 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
     int validx = 0;
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	const int index = mNINT(idx*step);
+	const int index = mNINT32(idx*step);
 	const float val = isfullfilled ? 100 : 
 	    		getValue( crdvals, index, lp.islogarithmic_, scaler );
 	const Coord3& pos = getPos( crdvals, index );
@@ -426,7 +426,7 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
     mGetLoopSize( nrsamp, step );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	const int index = mNINT(idx*step);
+	const int index = mNINT32(idx*step);
 	const float val = getValue( crdvals, index, lp.islogarithmic_, scaler );
 	const Coord3& pos = getPos( crdvals, index );
 	if ( mIsUdf( pos.z ) || mIsUdf( val ) )
@@ -566,9 +566,9 @@ const Color& Well::logColor( int lognr ) const
 {
     static Color color;
     const SbVec3f& col = log_[0]->lineColor( lognr );
-    const int r = mNINT(col[0]*255);
-    const int g = mNINT(col[1]*255);
-    const int b = mNINT(col[2]*255);
+    const int r = mNINT32(col[0]*255);
+    const int g = mNINT32(col[1]*255);
+    const int b = mNINT32(col[2]*255);
     color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
     return color;
 }
@@ -642,8 +642,8 @@ void Well::setLogWidth( int width, int lognr )
 
 int Well::logWidth() const
 {
-    return log_.size() ? mNINT(log_[0]->screenWidth1.getValue()) 
-		      || mNINT(log_[0]->screenWidth2.getValue()) : false;
+    return log_.size() ? mNINT32(log_[0]->screenWidth1.getValue()) 
+		      || mNINT32(log_[0]->screenWidth2.getValue()) : false;
 }
 
 

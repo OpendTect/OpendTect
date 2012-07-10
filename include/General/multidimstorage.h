@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.12 2012-05-03 06:38:14 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.13 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -762,7 +762,7 @@ bool MultiDimStorage<T>::divide( ObjectSet<int>& res ) const
 	return -1;
 
 
-    const int nrperchunk = mNINT((float) totalsize / nrchunks );
+    const int nrperchunk = mNINT32((float) totalsize / nrchunks );
 
     int allocidx[nrdims_];
     int* idxs = allocidx;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.47 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.48 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -126,11 +126,11 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
     SamplingData<float> sd = surface->getScale( 0 );
     emsurface_->setInlSampling(
-	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
+	    SamplingData<int>( mNINT32(sd.start), mNINT32(sd.step) ) );
 
     sd = surface->getScale( 1 );
     emsurface_->setCrlSampling(
-	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
+	    SamplingData<int>( mNINT32(sd.start), mNINT32(sd.step) ) );
 
     emsurface_->setZSampling( surface->getScale( 2 ) );
 

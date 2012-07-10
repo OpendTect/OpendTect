@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: referenceattrib.cc,v 1.29 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: referenceattrib.cc,v 1.30 2012-07-10 08:05:29 cvskris Exp $";
 
 
 #include "referenceattrib.h"
@@ -116,7 +116,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	    if ( isOutputEnabled(8) )
 	    {
-		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
 		setOutputValue( output, 8, idx, z0, val );
 	    }
 	}
@@ -128,7 +128,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 			    truepos.crl - desiredvolume_->hrg.start.crl + 1 );
 	    if ( isOutputEnabled(6) )
 	    {
-		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
 		setOutputValue( output, 6, idx, z0, val );
 	    }
 	}

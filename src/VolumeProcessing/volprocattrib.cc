@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocattrib.cc,v 1.13 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocattrib.cc,v 1.14 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "volprocattrib.h"
 
@@ -157,7 +157,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     else
     {
 	dir = CubeSampling::Z;
-	slice = mNINT( cs.zrg.start/datacubes->zstep_ )-datacubes->z0_;
+	slice = mNINT32( cs.zrg.start/datacubes->zstep_ )-datacubes->z0_;
     }
 
     if ( !ndp->setDataDir( dir ) || !ndp->setDataSlice( slice ) )

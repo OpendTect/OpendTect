@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visscenecoltab.cc,v 1.25 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visscenecoltab.cc,v 1.26 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "visscenecoltab.h"
 
@@ -132,7 +132,7 @@ void SceneColTab::updateVis()
     AxisLayout<float> al; al.setDataRange( rg_ );
     LinScaler scaler( rg_.start, 0, rg_.stop, 1 );
 
-    const int upto = abs( mNINT((al.stop_-al.sd_.start)/al.sd_.step) );
+    const int upto = abs( mNINT32((al.stop_-al.sd_.start)/al.sd_.step) );
     for ( int idx=0; idx<=upto; idx++ )
     {
 	const float val = al.sd_.start + idx*al.sd_.step;

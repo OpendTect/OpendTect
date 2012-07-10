@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.23 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.24 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -120,8 +120,8 @@ bool ChainExecutor::setCalculationScope( const CubeSampling& cs )
 {
     hrg_ = cs.hrg;
 
-    zrg_.start = mNINT( cs.zrg.start/cs.zrg.step );
-    zrg_.stop = mNINT( cs.zrg.stop/cs.zrg.step );
+    zrg_.start = mNINT32( cs.zrg.start/cs.zrg.step );
+    zrg_.stop = mNINT32( cs.zrg.stop/cs.zrg.step );
     zrg_.step = 1;
 
     chain_.setZStep( cs.zrg.step, SI().zIsTime() );
@@ -161,8 +161,8 @@ bool ChainExecutor::prepareNewStep()
 
     const HorSampling survhrg = SI().sampling( false ).hrg;
     const float zstep = chain_.getZStep();
-    const Interval<int> survzrg( mNINT(SI().zRange(false).start/zstep),
-	    			 mNINT(SI().zRange(false).stop/zstep) );
+    const Interval<int> survzrg( mNINT32(SI().zRange(false).start/zstep),
+	    			 mNINT32(SI().zRange(false).stop/zstep) );
 
     HorSampling hrg( hrg_ ); 
     StepInterval<int> zrg = zrg_;

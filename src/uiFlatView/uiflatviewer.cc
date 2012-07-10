@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.138 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.139 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uiflatviewer.h"
 
@@ -131,8 +131,8 @@ void uiFlatViewer::reSizeDraw( CallBacker* cb )
 	const float heightfac = (float)newsize.height()/(float)oldsize.height();
 	uiRect prevscenerect = canvas_.getSceneRect();
 	uiRect scenerect( uiPoint(0,0),
-		uiSize(mNINT((canvas_.getSceneRect().width()-5)*widthfac),
-		       mNINT((canvas_.getSceneRect().height()-5)*heightfac)) );
+		uiSize(mNINT32((canvas_.getSceneRect().width()-5)*widthfac),
+		       mNINT32((canvas_.getSceneRect().height()-5)*heightfac)) );
 	canvas_.setSceneRect( scenerect ); 
 	uiRect viewrect = canvas_.getViewArea();
 
@@ -260,8 +260,8 @@ uiBorder uiFlatViewer::getActBorder( const uiWorldRect& wr )
     {
 	uiRect prevscrect = canvas_.getSceneRect();
 	scenerect = uiRect( uiPoint(0,0),
-	uiSize(mNINT(prevscrect.width()*widthfac),
-	mNINT(prevscrect.height()*heightfac)) );
+	uiSize(mNINT32(prevscrect.width()*widthfac),
+	mNINT32(prevscrect.height()*heightfac)) );
 	canvas_.setSceneRect( scenerect );
     }
     else
@@ -373,8 +373,8 @@ bool uiFlatViewer::drawBitMaps()
     {
 	if ( initview_ || ( control() && control()->zoomMgr().atStart() ) )
 	{
-	    uiRect scenerect( uiPoint(0,0), uiSize(mNINT(canvas_.width()),
-						   mNINT(canvas_.height())) );
+	    uiRect scenerect( uiPoint(0,0), uiSize(mNINT32(canvas_.width()),
+						   mNINT32(canvas_.height())) );
 	    canvas_.setSceneRect( scenerect );
 	}
 

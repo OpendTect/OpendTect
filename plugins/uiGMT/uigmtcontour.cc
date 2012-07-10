@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.28 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.29 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -309,8 +309,8 @@ void uiGMTContourGrp::readCB( CallBacker* )
     {
 	rg.scale( SI().zDomain().userFactor() );
 	const float samp = SI().zStep() * SI().zDomain().userFactor();
-	rg.start = samp * mNINT(rg.start/samp);
-	rg.stop = samp * mNINT(rg.stop/samp);
+	rg.start = samp * mNINT32(rg.start/samp);
+	rg.stop = samp * mNINT32(rg.stop/samp);
     }
 
     valrg_ = rg;

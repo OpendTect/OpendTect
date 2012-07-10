@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistexture2.cc,v 1.45 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexture2.cc,v 1.46 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -209,8 +209,8 @@ void Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
 	    const int x1idx = (int)x1pos;
 	    const float x1relpos = x1pos-x1idx;
 
-	    const int x0nearest = mNINT(x0relpos);
-	    const int x1nearest = mNINT(x1relpos);
+	    const int x0nearest = mNINT32(x0relpos);
+	    const int x1nearest = mNINT32(x1relpos);
 	    res[newsize.getOffset(x0,x1)] = 
 			    newdata->get( x0idx+x0nearest, x1idx+x1nearest );
 	}

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.58 2012-06-01 12:33:22 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.59 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -272,7 +272,7 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int pos = dist.inl ? bid.inl   : bid.crl;
  
     float fidx = ((sz-1.) * (pos - n1)) / (n2-n1);
-    int idx = mNINT(fidx);
+    int idx = mNINT32(fidx);
     if ( idx < 0 ) idx = 0;
     if ( idx >= sz ) idx = sz-1;
     return idx;
@@ -500,7 +500,7 @@ void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
 
     float z = trc->info().samplePos(isamp);
     if ( SI().zIsTime() ) z *= 1000;
-    int z100 = mNINT(z*100); z = z100 / 100;
+    int z100 = mNINT32(z*100); z = z100 / 100;
     iop.set( "Z", z );
 }
 

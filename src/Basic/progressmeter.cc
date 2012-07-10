@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.25 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.26 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "progressmeter.h"
 #include "timefun.h"
@@ -153,7 +153,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
     if ( totalnr_>0 )
     {
 	percentage = ((float) nrdone_)/totalnr_;
-	strm_ << mNINT(percentage*100) << "%";
+	strm_ << mNINT32(percentage*100) << "%";
     }
     else
 	strm_ << nrdone_;

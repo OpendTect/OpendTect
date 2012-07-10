@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.21 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.22 2012-07-10 08:05:28 cvskris Exp $";
 
 
 #include "houghtransform.h"
@@ -138,7 +138,7 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     float* datacopyptr = datacopy.ptr();
     unsigned int* indexesptr = indexes.ptr();
     quickSort( datacopyptr, indexesptr, nrsamples );
-    const int savesize = mNINT( nrsamples*cliprate_ );
+    const int savesize = mNINT32( nrsamples*cliprate_ );
    
     for ( int idx=nrsamples-1; idx>=nrsamples-savesize; idx-- )
 	calcpositions_ += indexes[idx];
@@ -209,7 +209,7 @@ int PlaneFrom3DSpaceHoughTransform::getNrPointsAfterClip() const
 
 void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
-    const int distid = mNINT( dist/deltadist_ );
+    const int distid = mNINT32( dist/deltadist_ );
     unsigned int memoffset = reinterpret_cast<const Array2DInfo&>
 			    (paramspace_->info()).getOffset(normalidx,distid);
     unsigned int* dataptr = paramspace_->getData();

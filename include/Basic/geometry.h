@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.43 2012-06-12 07:45:20 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.44 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -716,7 +716,7 @@ inline bool PosRectangle<T>::isInside( const Point2D<T>& pt, T eps ) const
 
 template <class T>
 inline T iwiderPos( int x1, int x2, double f )
-{ return (T)mNINT(x1 + f * (x1 - x2)); }
+{ return (T)mNINT32(x1 + f * (x1 - x2)); }
 
 
 template <class T>

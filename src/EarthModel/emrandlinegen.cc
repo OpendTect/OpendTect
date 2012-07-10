@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emrandlinegen.cc,v 1.20 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emrandlinegen.cc,v 1.21 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"
@@ -107,7 +107,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		else
 		{
 		    BufferString nm( "C" ); const float usrz = z * zfac;
-		    nm += mNINT( usrz );
+		    nm += mNINT32( usrz );
 		    if ( usrpolynr > 1 )
 			{ nm += "-"; nm += usrpolynr; }
 		    usrpolynr++;

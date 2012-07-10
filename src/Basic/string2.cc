@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: string2.cc,v 1.18 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: string2.cc,v 1.19 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -194,7 +194,7 @@ static void truncFloatStr( float val, char* str )
 	    if ( pos < 0 )
 	    {
 		/* We ran into a number like 9.999 */
-		sprintf( str, "%d", mNINT(val) );
+		sprintf( str, "%d", mNINT32(val) );
 		return;
 	    }
 	    if ( !isdigit(c) ) { pos--; continue; }

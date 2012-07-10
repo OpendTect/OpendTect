@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscallout.cc,v 1.34 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscallout.cc,v 1.35 2012-07-10 08:05:26 cvskris Exp $";
 
 #include "viscallout.h"
 
@@ -225,7 +225,7 @@ void Callout::setPick( const Pick::Location& loc )
 
 void Callout::setTextSize( float ns )
 {
-    const FontData fd( mNINT(ns) );
+    const FontData fd( mNINT32(ns) );
     fronttext_->setFontData(fd);
     backtext_->setFontData(fd);
     updateCoords();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicepos.cc,v 1.20 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicepos.cc,v 1.21 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uislicepos.h"
 
@@ -105,7 +105,7 @@ void uiSlicePos::initSteps( CallBacker* )
 {
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
-    laststeps_[2] = mNINT( SI().zStep()*zfactor_ );
+    laststeps_[2] = mNINT32( SI().zStep()*zfactor_ );
 }
 
 

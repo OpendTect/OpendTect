@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.28 2012-07-05 11:14:10 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.29 2012-07-10 08:05:37 cvskris Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -216,7 +216,7 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
 	    txt += ","; txt += lastpos.coord_.y; txt += ")";
 	}
 
-#define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb
+#define mAddZRangeTxt(memb) txt += zistm ? mNINT32(1000*memb) : memb
 	txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
 	mAddZRangeTxt(zrg.stop);
 	txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";

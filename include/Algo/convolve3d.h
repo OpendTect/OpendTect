@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.13 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:           $Id: convolve3d.h,v 1.14 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -272,7 +272,7 @@ bool Convolver3D<T>::shouldFFT() const
 
     const int tradsz = zsz * mMIN(ysz,xsz);
     const float fftszf = maxsz * Math::Log( (float) maxsz );
-    const int fftsz = mNINT( fftszf );
+    const int fftsz = mNINT32( fftszf );
 
 
     return fftsz<tradsz;

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.133 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.134 2012-07-10 08:05:39 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -125,8 +125,8 @@ RandomTrackDisplay::RandomTrackDisplay()
 	    				SI().sampling(true).hrg.stop.crl,
 	    				SI().crlStep() );
 
-    const BinID start( mNINT(inlrange.center()), mNINT(crlrange.start) );
-    const BinID stop(start.inl, mNINT(crlrange.stop) );
+    const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
+    const BinID stop(start.inl, mNINT32(crlrange.stop) );
 
     addKnot( start );
     addKnot( stop );
@@ -139,7 +139,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
 	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
 
-    const int baselen = mNINT((inlrange.width()+crlrange.width())/2);
+    const int baselen = mNINT32((inlrange.width()+crlrange.width())/2);
     
     dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
 }
@@ -263,7 +263,7 @@ BinID RandomTrackDisplay::getKnotPos( int knotidx ) const
 BinID RandomTrackDisplay::getManipKnotPos( int knotidx ) const
 {
     const Coord crd = dragger_->getKnot( knotidx );
-    return BinID( mNINT(crd.x), mNINT(crd.y) );
+    return BinID( mNINT32(crd.x), mNINT32(crd.y) );
 }
 
 
@@ -496,7 +496,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 
     const Interval<float> zrg = getDataTraceRange();
     const float step = trcbuf.get(0)->info().sampling.step;
-    const int nrsamp = mNINT( zrg.width() / step ) + 1;
+    const int nrsamp = mNINT32( zrg.width() / step ) + 1;
 
     TypeSet<BinID> path;
     getDataTraceBids( path );
@@ -633,7 +633,7 @@ void RandomTrackDisplay::acceptManipulation()
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
 	const Coord crd = dragger_->getKnot(idx);
-	setKnotPos( idx, BinID( mNINT(crd.x), mNINT(crd.y) ));
+	setKnotPos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y) ));
     }
 
     ismanip_ = false;
@@ -777,8 +777,8 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const visBase::Coordinates* coords = triangles_->getCoordinates();
     const Coord pos0 = coords->getPos( segments[idx]*2 );
     const Coord pos1 = coords->getPos( segments[idx]*2+2 );
-    const BinID bid0( mNINT(pos0.x), mNINT(pos0.y));
-    const BinID bid1( mNINT(pos1.x), mNINT(pos1.y));
+    const BinID bid0( mNINT32(pos0.x), mNINT32(pos0.y));
+    const BinID bid1( mNINT32(pos1.x), mNINT32(pos1.y));
 
     const Coord dir = SI().transform(bid0)-SI().transform(bid1);
     const float dist = dir.abs();

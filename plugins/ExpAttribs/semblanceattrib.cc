@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.10 2012-05-02 15:11:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.11 2012-07-10 08:05:27 cvskris Exp $";
 
 #include "semblanceattrib.h"
 
@@ -216,8 +216,8 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT(gate_.start/refstep_),
-				    mNINT(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+				    mNINT32(gate_.stop/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
@@ -289,14 +289,14 @@ const BinID* Semblance::reqStepout( int inp, int out ) const
 
 void Semblance::prepPriorToBoundsCalc()
 {
-     const int truestep = mNINT( refstep_*zFactor() );
+     const int truestep = mNINT32( refstep_*zFactor() );
      if ( truestep == 0 )
        	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep ; 
-    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ; 
+    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, gate_.start, false )
     mAdjustGate( chgstopr, gate_.stop, true )

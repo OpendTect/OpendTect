@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.28 2012-05-02 15:12:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.29 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -138,7 +138,7 @@ void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* cb )
 	return;
 
     float fselidx = xax_->getVal( mev.pos().x );
-    int selidx = mNINT( fselidx ) - 1;
+    int selidx = mNINT32( fselidx ) - 1;
     if ( selidx < 0 || selidx >= lm_.size() )
 	return;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.44 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.45 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -246,7 +246,7 @@ void uiColorInput::setColor( const Color& col )
     if ( transpfld_ )
     {
 	const float perc = col.t() / 2.55;
-	transpfld_->setValue( mNINT(perc) );
+	transpfld_->setValue( mNINT32(perc) );
     }
 
     if ( descfld_ )

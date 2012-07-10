@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifingerprintcalcobj.cc,v 1.21 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintcalcobj.cc,v 1.22 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -93,8 +93,8 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT( irg.start + Stats::RandGen::get() * irg.nrSteps() );
-	bid.crl = mNINT( crg.start + Stats::RandGen::get() * crg.nrSteps() );
+	bid.inl = mNINT32( irg.start + Stats::RandGen::get() * irg.nrSteps() );
+	bid.crl = mNINT32( crg.start + Stats::RandGen::get() * crg.nrSteps() );
 	SI().snap( bid );
 	const float z = SI().zRange(true).start
 	    	      + Stats::RandGen::get() * SI().zRange(true).width();

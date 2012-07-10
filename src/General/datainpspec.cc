@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datainpspec.cc,v 1.37 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datainpspec.cc,v 1.38 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -445,9 +445,9 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
     else if ( s.wantcoords_  ) \
        	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
     else if ( !s.is2d_ && idx == 0 ) \
-      s.binid_.inl = mNINT(f); \
+      s.binid_.inl = mNINT32(f); \
     else \
-      s.binid_.crl = mNINT(f); \
+      s.binid_.crl = mNINT32(f); \
 }
 
 

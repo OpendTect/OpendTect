@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: frequencyattrib.cc,v 1.36 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: frequencyattrib.cc,v 1.37 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -113,8 +113,8 @@ Frequency::Frequency( Desc& ds )
     mGetFloat( variable_, paramvalStr() );
     mGetBool( dumptofile_, dumptofileStr() );
     
-    samplegate_ = Interval<int>(mNINT(gate_.start/SI().zStep()),
-			       mNINT(gate_.stop/SI().zStep()));
+    samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
+			       mNINT32(gate_.stop/SI().zStep()));
 
     if ( strcmp( windowtype_, "None") )
 	window_ = new ArrayNDWindow( Array1DInfoImpl(samplegate_.width()+1),
@@ -159,8 +159,8 @@ void Frequency::prepPriorToBoundsCalc()
 {
     if ( !mIsEqual( refstep_, SI().zStep(), 1e-6 ) )
     {
-	samplegate_ = Interval<int>(mNINT(gate_.start/refstep_),
-				   mNINT(gate_.stop/refstep_));
+	samplegate_ = Interval<int>(mNINT32(gate_.start/refstep_),
+				   mNINT32(gate_.stop/refstep_));
 
 	if ( window_ )
 	{

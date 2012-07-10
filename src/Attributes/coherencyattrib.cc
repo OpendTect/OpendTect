@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coherencyattrib.cc,v 1.34 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coherencyattrib.cc,v 1.35 2012-07-10 08:05:29 cvskris Exp $";
 
 
 #include "coherencyattrib.h"
@@ -198,12 +198,12 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 void Coherency::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep_*zFactor() );
+    const int truestep = mNINT32( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstart = mNINT(desgate_.start*zFactor()) % truestep;
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % truestep;
+    bool chgstart = mNINT32(desgate_.start*zFactor()) % truestep;
+    bool chgstop = mNINT32(desgate_.stop*zFactor()) % truestep;
 
     if ( chgstart )
     {
@@ -240,8 +240,8 @@ bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 bool Coherency::computeData1( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    Interval<int> samplegate( mNINT(gate_.start/refstep_),
-				mNINT(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+				mNINT32(gate_.stop/refstep_) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursamp = z0 + idx;
@@ -311,8 +311,8 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 			      int nrsamples ) const
 {
     const bool is2d = desc_.is2D();
-    Interval<int> samplegate( mNINT(gate_.start/refstep_),
-				mNINT(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+				mNINT32(gate_.stop/refstep_) );
 
     float extras = 0;
     //make sure the data extracted from input DataHolders is at exact z pos

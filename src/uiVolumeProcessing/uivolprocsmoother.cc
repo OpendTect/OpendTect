@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolprocsmoother.cc,v 1.19 2012-05-02 15:12:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivolprocsmoother.cc,v 1.20 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -86,9 +86,9 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 	return false;
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    const int inlsz = mNINT(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
-    const int crlsz = mNINT(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
-    const int zsz = mNINT(zlenfld_->box()->getFValue()/zstep)*2+1;
+    const int inlsz = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
+    const int crlsz = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
+    const int zsz = mNINT32(zlenfld_->box()->getFValue()/zstep)*2+1;
 
     if ( !inlsz && !crlsz && !zsz )
     {

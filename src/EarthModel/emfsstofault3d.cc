@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.13 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.14 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -57,7 +57,7 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 	    const int crldist = abs( bid0.crl-bid1.crl );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
-	    const int zdist = mNINT( fabs(crds_[idx].z-crds_[idy].z) /
+	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
 			              fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;

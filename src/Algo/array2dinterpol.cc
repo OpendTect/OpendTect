@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.39 2012-05-02 15:31:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.40 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -750,7 +750,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		    continue;
 
 		const float frelcol = relcol*colstep_;
-		const int coldist2 = mNINT(frelcol*frelcol);
+		const int coldist2 = mNINT32(frelcol*frelcol);
 		const float dist2 = coldist2+rowdist2;
 		if ( dist2>radius2 )
 		    continue;
@@ -829,7 +829,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const float rowdist = (targetrow-sourcerow)*rowstep_;
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
-		const int coldist2 = mNINT(coldist*coldist);
+		const int coldist2 = mNINT32(coldist*coldist);
 		const float weight = 1./Math::Sqrt( coldist2+rowdist2 );
 
 		weights[idy] = weight;

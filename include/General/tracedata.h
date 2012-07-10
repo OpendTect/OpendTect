@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.9 2010-02-15 09:56:14 cvsbert Exp $
+ RCS:		$Id: tracedata.h,v 1.10 2012-07-10 08:05:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ protected:
 
 inline int clippedVal( float val, int lim )
 {
-    return val > (float)lim ? lim : (val < -((float)lim) ? -lim : mNINT(val));
+    return val > (float)lim ? lim : (val < -((float)lim) ? -lim : mNINT32(val));
 }
 
 

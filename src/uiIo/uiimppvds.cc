@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimppvds.cc,v 1.9 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimppvds.cc,v 1.10 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uiimppvds.h"
 
@@ -148,7 +148,7 @@ bool getLine()
     {
 	coord_.x = getdValue( 0 ); coord_.y = getdValue( 1 );
 	if ( formOf(false,0) == 1 )
-	    coord_ = SI().transform( BinID(mNINT(coord_.x),mNINT(coord_.y)) );
+	    coord_ = SI().transform( BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
     }
     else
     {

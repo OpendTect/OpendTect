@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uithumbwheel.cc,v 1.17 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uithumbwheel.cc,v 1.18 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"
@@ -89,7 +89,7 @@ const char* uiThumbWheel::text() const
 
 int uiThumbWheel::getIntValue() const
 {
-    return mNINT(body_->value());
+    return mNINT32(body_->value());
 }
 
 

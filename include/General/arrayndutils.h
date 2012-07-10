@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.42 2012-03-02 10:48:46 cvsbruno Exp $
+ RCS:           $Id: arrayndutils.h,v 1.43 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -258,7 +258,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     const Array3DInfo& size 
 	= mPolyRetDownCastRef( const Array3DInfo , array.info() );
 
-    int intpos0 = mNINT( p0 );
+    int intpos0 = mNINT32( p0 );
     float dist0 = p0 - intpos0;
     int prevpos0 = intpos0;
     if ( dist0 < 0 )
@@ -268,7 +268,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     }
     if ( posperiodic ) prevpos0 = dePeriodize( prevpos0, size.getSize(0) );
 
-    int intpos1 = mNINT( p1 );
+    int intpos1 = mNINT32( p1 );
     float dist1 = p1 - intpos1;
     int prevpos1 = intpos1;
     if ( dist1 < 0 )
@@ -278,7 +278,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     }
     if ( posperiodic ) prevpos1 = dePeriodize( prevpos1, size.getSize(1) );
 
-    int intpos2 = mNINT( p2 );
+    int intpos2 = mNINT32( p2 );
     float dist2 = p2 - intpos2;
     int prevpos2 = intpos2;
     if ( dist2 < 0 )

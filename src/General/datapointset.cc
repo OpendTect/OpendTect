@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.51 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.52 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -235,7 +235,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	    dr.pos_.setBinIDOffsets( vals[1], vals[2] );
 	    dr.grp_ = (short)vals[3];
 	    if ( is2d_ )
-		dr.pos_.nr_ = mNINT(vals[4]);
+		dr.pos_.nr_ = mNINT32(vals[4]);
 	}
 	for ( int idx=startidx; idx<bvssz; idx++ )
 	    dr.data_[idx-startidx] = vals[idx];
@@ -411,7 +411,7 @@ DataPointSet::Pos DataPointSet::pos( DataPointSet::RowID rid ) const
     if ( !minimal_ )
 	p.setBinIDOffsets( vals[1], vals[2] );
     if ( is2d_ )
-	p.nr_ = mNINT(vals[nrfixedcols_-1]);
+	p.nr_ = mNINT32(vals[nrfixedcols_-1]);
     return p;
 }
 
@@ -425,7 +425,7 @@ DataPointSet::DataRow DataPointSet::dataRow( DataPointSet::RowID rid ) const
 
     DataRow dr( pos(rid) );
     if ( !minimal_ )
-	dr.grp_ = (short)mNINT(vals[groupcol_]);
+	dr.grp_ = (short)mNINT32(vals[groupcol_]);
     for ( int idx=nrfixedcols_; idx<nrvals; idx++ )
 	dr.data_ += vals[idx];
 
@@ -458,7 +458,7 @@ int DataPointSet::trcNr( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,0); if ( !is2d_ ) return 0;
     const float fnr = bivSet().getVal( bvsidxs_[rid], nrfixedcols_-1 );
-    return mNINT(fnr);
+    return mNINT32(fnr);
 }
 
 
@@ -500,7 +500,7 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
     if ( minimal_ ) return 0;
     mChkRowID(rid,0);
     int selgrp, grp;
-    getUnCompacted( mNINT(bivSet().getVal(bvsidxs_[rid],groupcol_)),
+    getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
 	    	    selgrp, grp );
     return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
 }
@@ -509,7 +509,7 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 int DataPointSet::selGroup( DataPointSet::RowID rid ) const
 {
     int grp,selgrp;
-    getUnCompacted( mNINT(bivSet().getVal(bvsidxs_[rid],groupcol_)),
+    getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
 	    	    selgrp, grp );
     return selgrp;
 }

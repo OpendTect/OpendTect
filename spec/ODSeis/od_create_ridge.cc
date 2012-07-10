@@ -3,7 +3,7 @@
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: od_create_ridge.cc,v 1.8 2010-04-23 05:27:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_create_ridge.cc,v 1.9 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "conn.h"
 #include "cubesampling.h"
@@ -85,7 +85,7 @@ static int doWork( int argc, char** argv )
 	evf.findEvents( evset, trcrg, evtype );
 	for ( int idx=0; idx<evset.size(); idx++ )
 	{
-	    const int sampnr = mNINT( evset[idx] );
+	    const int sampnr = mNINT32( evset[idx] );
 	    outptrc.set( sampnr, 1, 0 );
 	}
 
@@ -94,7 +94,7 @@ static int doWork( int argc, char** argv )
 	    evf.findEvents( evset, trcrg, revtype );
     	    for ( int idx=0; idx<evset.size(); idx++ )
     	    {
-    		const int sampnr = mNINT( evset[idx] );
+    		const int sampnr = mNINT32( evset[idx] );
     		outptrc.set( sampnr, -1, 0 );
     	    }
 	}

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: expinverse.cc,v 1.12 2012-05-02 15:11:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: expinverse.cc,v 1.13 2012-07-10 08:05:26 cvskris Exp $";
 
 #include "expinverse.h"
 #include "attribprovider.h"
@@ -64,7 +64,7 @@ bool InverseAttrib::init()
 {
     inpstep = inputproviders[0]->getStep();
 
-    int sz = mNINT( gate.width() / inpstep )+1;
+    int sz = mNINT32( gate.width() / inpstep )+1;
     fftsz = FFT::_getNearBigFastSz(sz);
 
     const Array1DInfoImpl ai(fftsz);
@@ -183,7 +183,7 @@ int InverseAttrib::Task::nextStep()
     const FFT& ifft = calculator.ifft;
     const int fftsz = calculator.fftsz;
     const BinID pos1 = calculator.pos1;
-    const int midpos = -mNINT(gate.start/inpstep);
+    const int midpos = -mNINT32(gate.start/inpstep);
 
     bool calcaverage = out1;
 

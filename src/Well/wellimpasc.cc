@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.87 2012-05-22 21:52:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.88 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -415,7 +415,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	c.x = getdValue(0); c.y = getdValue(1);
 	if ( !isxy && !mIsUdf(c.x) && !mIsUdf(c.y) )
 	{
-	    Coord wc( SI().transform( BinID( mNINT(c.x), mNINT(c.y) ) ) );
+	    Coord wc( SI().transform( BinID( mNINT32(c.x), mNINT32(c.y) ) ) );
 	    c.x = wc.x; c.y = wc.y;
 	}
 	if ( mIsUdf(c.x) || mIsUdf(c.y) )

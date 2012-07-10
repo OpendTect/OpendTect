@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislider.cc,v 1.53 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislider.cc,v 1.54 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -103,7 +103,7 @@ void uiSlider::setLinearFraction( float frac )
     if ( frac>=0.0 && frac<=1.0 )
     {
 	const float val = (1-frac)*body_->minimum() + frac*body_->maximum();
-	body_->setValue( mNINT(val) );
+	body_->setValue( mNINT32(val) );
     }
 }
 
@@ -125,7 +125,7 @@ int uiSlider::sliderValue( float fval ) const
 	fval = log10( fval );
     }
 
-    return mNINT( scaler_->unScale(fval) );
+    return mNINT32( scaler_->unScale(fval) );
 }
 
 
@@ -237,7 +237,7 @@ void uiSlider::setStep( float stp )
     if ( scaler_ )
     {
 	const float fstp = stp / scaler_->factor;
-	istep = mNINT( fstp );
+	istep = mNINT32( fstp );
     }
     body_->setSingleStep( istep );
     body_->setPageStep( istep );

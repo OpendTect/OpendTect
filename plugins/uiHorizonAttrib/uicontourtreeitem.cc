@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.35 2012-07-03 15:38:49 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.36 2012-07-10 08:05:27 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -417,7 +417,7 @@ bool uiContourTreeItem::computeContours( const Array2D<float>& field,
 	const float offset = ( sd.start - rg_.start ) / sd.step;
 	if ( offset < 0 || offset > 1 )
 	{
-	    const int nrsteps = mNINT( floor(offset) );
+	    const int nrsteps = mNINT32( floor(offset) );
 	    sd.start -= nrsteps * sd.step;
 	}
 

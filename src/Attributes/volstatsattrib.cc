@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.65 2012-06-25 07:04:52 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.66 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -162,14 +162,14 @@ const BinID* VolStatsBase::desStepout( int inp, int out ) const
     
 void VolStatsBase::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep_*zFactor() );
+    const int truestep = mNINT32( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep;
-    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, gate_.start, false )
     mAdjustGate( chgstopr, gate_.stop, true )
@@ -388,8 +388,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
-    const Interval<int> samplegate( mNINT(gate_.start/refstep_), 
-				    mNINT(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refstep_), 
+				    mNINT32(gate_.stop/refstep_) );
     const int gatesz = samplegate.width() + 1;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
@@ -504,7 +504,7 @@ void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 
     //snap the ideal positions to existing BinIDs
     for ( int idx=0; idx<idealpos.size(); idx++ )
-	pos += BinID( mNINT(idealpos[idx].x), mNINT(idealpos[idx].y) );
+	pos += BinID( mNINT32(idealpos[idx].x), mNINT32(idealpos[idx].y) );
 }
 
 

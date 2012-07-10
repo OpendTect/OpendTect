@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.13 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.14 2012-07-10 08:05:31 cvskris Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -33,8 +33,8 @@ public:
 	const int crlsz = mdp_.arr2d_->info().getSize(1);
 	const float truelength = inlsz*cos(anglenorth) + crlsz*sin(anglenorth);
 	const float truewidth = inlsz*sin(anglenorth) + crlsz*cos(anglenorth);
-	const int length = mNINT( truelength );
-	const int width = mNINT( truewidth );
+	const int length = mNINT32( truelength );
+	const int width = mNINT32( truewidth );
 	
 	delete mdp_.xyrotarr2d_;
 	mdp_.xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
@@ -255,7 +255,7 @@ void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     }
     else
     {
-	const Coord pos2d = SI().transform( BinID(mNINT(pos.x),mNINT(pos.y)) );
+	const Coord pos2d = SI().transform( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
 	par.set( axeslbls_[0], pos2d.x );
 	par.set( axeslbls_[1], pos2d.y );
     }

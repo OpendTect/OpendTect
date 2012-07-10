@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: cubesampling.cc,v 1.51 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cubesampling.cc,v 1.52 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "cubesampling.h"
 
@@ -311,7 +311,7 @@ inline bool IsZero( float f, float eps=Eps )
 static inline bool inSeries( float v, float start, float step )
 {
     float fdiff = (start - v) / step;
-    int idiff = mNINT( fdiff );
+    int idiff = mNINT32( fdiff );
     fdiff -= (float)idiff;
     return IsZero( fdiff, 1e-3 );
 }

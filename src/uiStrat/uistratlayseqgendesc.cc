@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.45 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.46 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -345,7 +345,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     else
     {
 	const int nypix = (int)(minth * pixperm + .5);
-	const int nxpix = mNINT((maxth/(maxth-minth)) * polyrect.width());
+	const int nxpix = mNINT32((maxth/(maxth-minth)) * polyrect.width());
 	if ( growing )
 	{
 	    pts += polyrect.topRight();

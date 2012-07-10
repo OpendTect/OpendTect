@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiconvpos.cc,v 1.39 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiconvpos.cc,v 1.40 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uiconvpos.h"
 #include "survinfo.h"
@@ -168,7 +168,7 @@ void uiConvertPos::convFile( CallBacker* )
 	}
 	else
 	{
-	    BinID bid( mNINT(c.x), mNINT(c.y) );
+	    BinID bid( mNINT32(c.x), mNINT32(c.y) );
 	    c = SI().transform( bid );
 	    getStringFromDouble( 0, c.x, buf );
 	    *sdout.ostrm << buf << ' ';

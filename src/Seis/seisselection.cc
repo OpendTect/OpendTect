@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.32 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.33 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -599,7 +599,7 @@ Interval<int> Seis::PolySelData::inlRange() const
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(true) );
 
-    Interval<int> intrg( mNINT(floatrg.start), mNINT(floatrg.stop) );
+    Interval<int> intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
     intrg.widen( stepoutreach_.inl );
     intrg.limitTo( Seis::SelData::inlRange() );
 
@@ -618,7 +618,7 @@ Interval<int> Seis::PolySelData::crlRange() const
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(false) );
     
-    Interval<int> intrg( mNINT(floatrg.start), mNINT(floatrg.stop) );
+    Interval<int> intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
     intrg.widen( stepoutreach_.crl );
     intrg.limitTo( Seis::SelData::crlRange() );
     
@@ -786,16 +786,16 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
     	const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0;
 	
-	Interval<int> inlrg( mNINT(polyinlrg.start), mNINT(polyinlrg.stop) );
+	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop) );
 	inlrg.widen( stepoutreach_.inl );
-	Interval<int> crlrg( mNINT(polycrlrg.start), mNINT(polycrlrg.stop) );
+	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop) );
 	crlrg.widen( stepoutreach_.crl );
 	
 	HorSampling hs; 
 	hs.set( inlrg, crlrg );
 	if ( step ) hs.step = *step;
 	hs.snapToSurvey();
-	estnrtraces += mNINT( coverfrac * hs.totalNr() );
+	estnrtraces += mNINT32( coverfrac * hs.totalNr() );
     }
 
     return mMIN( estnrtraces, tracesInSI() );

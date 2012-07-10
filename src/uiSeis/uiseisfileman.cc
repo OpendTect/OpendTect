@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.132 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisfileman.cc,v 1.133 2012-07-10 08:05:37 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -138,7 +138,7 @@ void uiSeisFileMan::mkFileInfo()
 #define mAddRangeTxt(line) \
     .add(" range: ").add(cs.hrg.start.line).add(" - ").add(cs.hrg.stop.line) \
     .add(" [").add(cs.hrg.step.line).add("]")
-#define mAddZValTxt(memb) .add(zistm ? mNINT(1000*memb) : memb)
+#define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 
     const bool zistm = oinf.isTime();
     const ZDomain::Def& zddef = oinf.zDomainDef();

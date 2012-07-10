@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.18 2011-09-15 11:25:25 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.19 2012-07-10 08:05:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ float SamplingData<T>::getfIndex( FT val ) const
 template <class T>
 template <class FT> inline
 int SamplingData<T>::nearestIndex( FT x ) const
-{ const float fidx = getfIndex(x); return mNINT(fidx); }
+{ const float fidx = getfIndex(x); return mNINT32(fidx); }
 
 
 template <class T>

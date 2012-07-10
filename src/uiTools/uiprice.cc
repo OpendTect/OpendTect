@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprice.cc,v 1.5 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprice.cc,v 1.6 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uiprice.h"
 
@@ -61,7 +61,7 @@ bool uiPrice::getPrice( Price& price ) const
     if ( mIsUdf(valuefld_->getIntValue()) )
 	return false;
 
-    price.amount_ = mNINT(valuefld_->getdValue()*currency->devisor_);
+    price.amount_ = mNINT32(valuefld_->getdValue()*currency->devisor_);
     return true;
 }
 

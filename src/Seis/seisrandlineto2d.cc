@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: seisrandlineto2d.cc,v 1.18 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisrandlineto2d.cc,v 1.19 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -68,7 +68,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	const double dist = startpos.distTo( stoppos );
 	const double unitdist = mMAX( inpstep.inl * SI().inlDistance(),
 				      inpstep.crl * SI().crlDistance() );
-	const int nrsegs = mNINT( dist / unitdist );
+	const int nrsegs = mNINT32( dist / unitdist );
 	const float unitx = ( stoppos.x - startpos.x ) / nrsegs;
 	const float unity = ( stoppos.y - startpos.y ) / nrsegs;
 	for ( int nidx=1; nidx<nrsegs; nidx++ )
@@ -172,7 +172,7 @@ int SeisRandLineTo2D::nextStep()
     float vals[4];
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
-    const int trcnr = mNINT( vals[3] );
+    const int trcnr = mNINT32( vals[3] );
     trc->info().nr = trcnr;
     trc->info().coord = coord;
     addTrcToBuffer( trc, buf_ );
@@ -187,7 +187,7 @@ int SeisRandLineTo2D::nextStep()
 	seldata_.binidValueSet().get( pos_, bid, vals );
 	const Coord nextcoord( vals[1], vals[2] );
 	SeisTrc* nexttrc = new SeisTrc( *trc );
-	const int nexttrcnr = mNINT( vals[3] );
+	const int nexttrcnr = mNINT32( vals[3] );
 	nexttrc->info().nr = nexttrcnr;
 	nexttrc->info().coord = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );

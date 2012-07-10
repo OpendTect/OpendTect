@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjbody.cc,v 1.38 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjbody.cc,v 1.39 2012-07-10 08:05:34 cvskris Exp $";
 
 
 #include "uiobjbody.h"
@@ -276,7 +276,7 @@ int uiObjectBody::prefHNrPics() const
 	    if ( !fw ){ pErrMsg("Font has 0 width."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_width_ =
-					     mNINT( pref_char_width * fw ); 
+					     mNINT32( pref_char_width * fw ); 
 	}
 	else
 	{ 
@@ -380,7 +380,7 @@ int uiObjectBody::prefVNrPics() const
 	    if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_height_ =
-					    mNINT( pref_char_height * fh ); 
+					    mNINT32( pref_char_height * fh ); 
 	}
 	else
 	{ 
@@ -422,7 +422,7 @@ int uiObjectBody::prefVNrPics() const
 		int fh = fontHgt();
 		if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
-		int phc = mNINT( lines * fh);
+		int phc = mNINT32( lines * fh);
 		const_cast<uiObjectBody*>(this)->pref_height_=
 				var ? mMAX(pref_height_hint, phc ) : phc ;
 	    }

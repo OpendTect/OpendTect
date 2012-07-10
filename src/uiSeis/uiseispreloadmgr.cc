@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.32 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.33 2012-07-10 08:05:37 cvskris Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -166,7 +166,7 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     }
 
     float totmem; disptxt += getFilesText( fnms, totmem );
-    totmem /= 1024; const int memmb = mNINT(totmem);
+    totmem /= 1024; const int memmb = mNINT32(totmem);
     disptxt += "\nTotal memory in MB: "; disptxt += memmb;
     infofld_->setText( disptxt );
 }

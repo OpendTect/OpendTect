@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.43 2012-05-09 07:51:25 cvsbert Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.44 2012-07-10 08:05:35 cvskris Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.43 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.44 2012-07-10 08:05:35 cvskris Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -505,7 +505,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
     plotter_.plotperc_ = newperc;
 
     const int estpts =
-	mNINT( ((!disptb_.isOn(showy2tbid_) && !plotter_.y2_.axis_)
+	mNINT32( ((!disptb_.isOn(showy2tbid_) && !plotter_.y2_.axis_)
 	    ? uidps_.pointSet().nrActive()
 	    : uidps_.pointSet().nrActive()*2)*plotter_.plotperc_/(float)100 );
     

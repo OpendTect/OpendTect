@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: rcol2coord.cc,v 1.12 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: rcol2coord.cc,v 1.13 2012-07-10 08:05:30 cvskris Exp $";
 
 #include "rcol2coord.h"
 
@@ -83,8 +83,8 @@ BinID RCol2Coord::transformBack( const Coord& coord,
     if ( mIsUdf(res.x) || mIsUdf(res.y) )
 	return RowCol(mUdf(int),mUdf(int));
 
-    return BinID(rowrg ? rowrg->snap(res.x) : mNINT(res.x),
-	    	  colrg ? colrg->snap(res.y) : mNINT(res.y));
+    return BinID(rowrg ? rowrg->snap(res.x) : mNINT32(res.x),
+	    	  colrg ? colrg->snap(res.y) : mNINT32(res.y));
 }
 
 

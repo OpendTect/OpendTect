@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visvolorthoslice.cc,v 1.18 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolorthoslice.cc,v 1.19 2012-07-10 08:05:39 cvskris Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -144,7 +144,7 @@ void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
     if ( !nrslices ) return;
 
     float slicenrf = (draggerpos-range.start)/range.width()*(nrslices-1);
-    int slicenr = mNINT(slicenrf);
+    int slicenr = mNINT32(slicenrf);
     if ( slicenr>=nrslices ) slicenr=nrslices-1;
     else if ( slicenr<0 ) slicenr=0;
 

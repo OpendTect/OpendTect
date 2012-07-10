@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.28 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.29 2012-07-10 08:05:33 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -310,10 +310,10 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt, double angle,
 {
     QPoint endpt( pt.x(), pt.y() );
     double delta = len * cos( angle );
-    endpt.setX( pt.x() + mNINT(delta) );
+    endpt.setX( pt.x() + mNINT32(delta) );
     // In UI, Y is positive downward
     delta = -len * sin( angle );
-    endpt.setY( pt.y() + mNINT(delta) );
+    endpt.setY( pt.y() + mNINT32(delta) );
     return endpt;
 }
 

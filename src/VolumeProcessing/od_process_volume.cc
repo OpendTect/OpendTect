@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_volume.cc,v 1.31 2012-06-11 21:27:19 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_volume.cc,v 1.32 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -66,9 +66,9 @@ bool BatchProgram::go( std::ostream& strm )
 
     const float zstep = chain->getZStep();
     HorSampling inputhrg = cs.hrg;
-    StepInterval<int> outputzrg( mNINT(cs.zrg.start/zstep),
-				 mNINT(cs.zrg.stop/zstep),
-				 mNINT(cs.zrg.step/zstep) );
+    StepInterval<int> outputzrg( mNINT32(cs.zrg.start/zstep),
+				 mNINT32(cs.zrg.stop/zstep),
+				 mNINT32(cs.zrg.step/zstep) );
     if ( outputzrg.step<1 ) outputzrg.step = 1;
     StepInterval<int> inputzrg = outputzrg;
 
@@ -76,8 +76,8 @@ bool BatchProgram::go( std::ostream& strm )
     const char itemsize = sizeof(float);
 
     const HorSampling survhrg = SI().sampling(false).hrg;
-    const Interval<int> survzrg( mNINT(SI().zRange(false).start/zstep),
-				 mNINT(SI().zRange(false).stop/zstep) );
+    const Interval<int> survzrg( mNINT32(SI().zRange(false).start/zstep),
+				 mNINT32(SI().zRange(false).stop/zstep) );
 
     for ( int idx=chain->nrSteps()-1; idx>=0; idx-- )
     {

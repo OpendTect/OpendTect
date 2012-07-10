@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunction.cc,v 1.13 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunction.cc,v 1.14 2012-07-10 08:05:32 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -77,8 +77,8 @@ float Function::getVelocity( float z )const
     {
 	const StepInterval<float> sampling = getDesiredZ();
 	cachesd_ = sampling;
-	const int zstart = mNINT(sampling.start/sampling.step);
-	const int zstop = mNINT(sampling.stop/sampling.step);
+	const int zstart = mNINT32(sampling.start/sampling.step);
+	const int zstop = mNINT32(sampling.stop/sampling.step);
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
 	if ( !cache_ ) return mUdf(float);
 

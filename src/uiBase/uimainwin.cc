@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.245 2012-06-29 09:34:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.246 2012-07-10 08:05:34 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -330,7 +330,7 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	case uiMainWin::BottomRight :
 	    move( xpos, ypos ); break;
 	case uiMainWin::Middle :
-	    move( mNINT(((float) xpos)/2), mNINT(((float) ypos) / 2)); break;
+	    move( mNINT32(((float) xpos)/2), mNINT32(((float) ypos) / 2)); break;
 	default:
 	    break;
     }

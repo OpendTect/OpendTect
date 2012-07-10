@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdatacubes.cc,v 1.34 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatacubes.cc,v 1.35 2012-07-10 08:05:28 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -19,7 +19,7 @@ namespace Attrib
 DataCubes::DataCubes()
     : inlsampling_( SI().inlRange(true).start, SI().inlRange(true).step )
     , crlsampling_( SI().crlRange(true).start, SI().crlRange(true).step )
-    , z0_( mNINT(SI().zRange(true).start/SI().zRange(true).step) )
+    , z0_( mNINT32(SI().zRange(true).start/SI().zRange(true).step) )
     , zstep_( SI().zRange(true).step )
     , inlsz_( 0 )
     , crlsz_( 0 )
@@ -86,7 +86,7 @@ bool DataCubes::setSizeAndPos( const CubeSampling& cs )
     crlsampling_.start = cs.hrg.start.crl;
     inlsampling_.step = cs.hrg.step.inl;
     crlsampling_.step = cs.hrg.step.crl;
-    z0_ = mNINT(cs.zrg.start/cs.zrg.step);
+    z0_ = mNINT32(cs.zrg.start/cs.zrg.step);
     zstep_ = cs.zrg.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
@@ -141,7 +141,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 
     if ( !interpolate )
     {
-	const int zidx = mNINT( zpos );
+	const int zidx = mNINT32( zpos );
 	if ( zidx<0 || zidx>=zsz_ ) return false;
 	*res = cubes_[array]->get( inlidx, crlidx, zidx );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vispointset.cc,v 1.12 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispointset.cc,v 1.13 2012-07-10 08:05:39 cvskris Exp $";
 
 #include "datapointset.h"
 #include "viscoord.h"
@@ -49,7 +49,7 @@ void PointSet::setPointSize( int sz )
 
 
 int PointSet::getPointSize() const
-{ return mNINT(drawstyle_->getPointSize()); }
+{ return mNINT32(drawstyle_->getPointSize()); }
 
 
 IndexedPointSet::IndexedPointSet()

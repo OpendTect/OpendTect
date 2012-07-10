@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.109 2012-07-06 09:38:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.110 2012-07-10 08:05:38 cvskris Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -677,7 +677,7 @@ void uiInfoDlg::propChanged( CallBacker* )
 	uiMSG().error("the wavelet must be shorter than the computation time");
 	return;
     }
-    data_.estimatedwvlt_.reSize( mNINT( wvltlgth/SI().zStep() ) );
+    data_.estimatedwvlt_.reSize( mNINT32( wvltlgth/SI().zStep() ) );
     wvltChanged(0);
 }
 

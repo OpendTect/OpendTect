@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: scalingattrib.cc,v 1.47 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: scalingattrib.cc,v 1.48 2012-07-10 08:05:29 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -475,8 +475,8 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 {
     Interval<int> samplewindow;
-    samplewindow.start = mNINT( window_.start/refstep_ );
-    samplewindow.stop = mNINT( window_.stop/refstep_ );
+    samplewindow.start = mNINT32( window_.start/refstep_ );
+    samplewindow.stop = mNINT32( window_.stop/refstep_ );
 
     if ( nrsamples <= samplewindow.width() )
     {
@@ -508,8 +508,8 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
-	Interval<int> sg( mNINT(oldtgs[idx].start/refstep_),
-			  mNINT(oldtgs[idx].stop/refstep_) );
+	Interval<int> sg( mNINT32(oldtgs[idx].start/refstep_),
+			  mNINT32(oldtgs[idx].stop/refstep_) );
 	if ( sg.start>nrsamples+z0 || sg.stop<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);
