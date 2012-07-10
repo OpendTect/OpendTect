@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.17 2011-10-19 06:33:34 cvskris Exp $
+ RCS:           $Id: progressmeter.h,v 1.18 2012-07-10 14:08:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "thread.h"
+#include "callback.h"
+
 
 class Task;
 
