@@ -6,13 +6,14 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.16 2011-12-13 22:07:47 cvsyuancheng Exp $
+RCS:           $Id: indexedshape.h,v 1.17 2012-07-10 14:08:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "thread.h"
+#include "callback.h"
 
 class Coord3List;
 class TaskRunner;
