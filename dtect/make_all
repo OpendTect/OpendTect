@@ -1,18 +1,10 @@
 #!/bin/csh -f
 
-set mods=.mods
 set shallow=no
-set dodeps=yes
 set doupd=yes
 set dodoc=no
 set nrcpus=1
-set cmake=no
-
-source $WORK/Pmake/base/PMinit.csh
-
-if ( -e $WORK/CMakeModules/FindOpendTect.cmake ) then
-    set cmake=yes
-endif
+set stoponerr=no
 
 if ( $?OD_PMAKE_NR_PROCESSORS ) then
 	set nrcpus=$OD_PMAKE_NR_PROCESSORS
@@ -23,30 +15,22 @@ endif
 parse_args:
 if ( "$1" == "--shallow" ) then
     set shallow=yes
-else if ( "$1" == "--cmake" ) then
-    set cmake=yes
-else if ( "$1" == "--nodep" ) then
-    set dodeps=no
-else if ( "$1" == "--mkdep" ) then
-    set dodeps=yes
 else if ( "$1" == "--noupd" ) then
     set doupd=no
-else if ( "$1" == "--od" ) then
-    set mods=.mods.od
 else if ( "$1" == "--doc" ) then
     set dodoc=yes
+else if ( "$1" == "--stoponerr" ) then
+    set stoponerr=yes
 else if ( "$1" == "--nrcpus" ) then
     set nrcpus=$2
     shift
 else if ( "$1" == "--help" ) then
-    echo "Usage: make_all [option]"
-    echo " --shallow, Do not remove libs"
-    echo " --nodep, Do not create deps"
-    echo " --mkdep, Do create deps"
-    echo " --noupd, Do not run 'dvs update'"
-    echo " --od, Only make OpendTect"
-    echo " --doc, Create ClassDoc"
-    echo " --nrcpus number_of_cpus"
+    echo "Usage: make_all [options]"
+    echo " --shallow:   do not make clean before start"
+    echo " --noupd:     Do not run 'dvs update'"
+    echo " --stoponerr: stop on all error (i.e. don't add '-k' to make flags)"
+    echo " --doc:       create classDoc"
+    echo " --nrcpus:    force number of CPUs to use"
     exit 0
 else
     goto do_it
@@ -59,40 +43,28 @@ do_it:
 
 set flags=""
 if ( $nrcpus > 1 ) set flags="-j$nrcpus"
+if ( $stoponerr != "yes" ) set flags="$flags -k"
+echo ""; echo "make flags: $flags"; echo ""
 
 set logdir=$WORK/dtect/log
 if ( ! -d $logdir ) then
     mkdir $logdir
 endif
 
+alias cdw "cd $WORK"
+
 cdw
 set oddir=$WORK:t
 set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 
 if ( $shallow == no ) then
-    if ( $cmake == no ) then
-	cdl
-	echo "Removing all libs from " `pwd`
-	if ( $HDIR == win ) then
-	    \rm *.lib
-	    \rm *.dll
-	    \rm *.dll.a
-	else if ( $HDIR == mac ) then
-	    \rm *.dylib
-	    \rm *.a
-	else
-	    \rm *.a
-	endif
-	ln -s ../*.a .
-    else
-	cdw
-	echo "Cleaning $oddir ..."
-	make clean
-	cd ../$dgbdir;
-	echo "Cleaning $dgbdir ..."
-	make clean
-	cdw
-    endif
+    cdw
+    echo "Cleaning $oddir ..."
+    make clean
+    cd ../$dgbdir;
+    echo "Cleaning $dgbdir ..."
+    make clean
+    cdw
 endif
 
 if ( $doupd == yes ) then
@@ -106,52 +78,23 @@ if ( $doupd == yes ) then
     cdw
 endif
 
-if ( $cmake == yes ) then
-    set dodeps=no
+if ( ! -e CMakeCache.txt ) then
+    cmake .
 endif
-
-if ( $dodeps == yes ) then
-    make $flags dep MODS=$mods
-    cd plugins ; make $flags dep
-    cd ../spec ; make $flags dep
-    cd ..
+make $flags
+cd ../$dgbdir
+if ( ! -e CMakeCache.txt ) then
+    cmake .
 endif
-
-if ( $cmake == no ) then
-    make $flags lib MODS=$mods
-    make MODS=$mods
-    cd plugins
-    make $flags lib
-    make
-    cd ../spec
-    make
-else
-    if ( ! -e CMakeCache.txt ) then
-	cmake .
-    endif
-    make $flags
-    cd ../$dgbdir
-    if ( ! -e CMakeCache.txt ) then
-	cmake .
-    endif
-    make $flags
-    cdw
-endif
+make $flags
+cdw
 
 programmer_doc:
 
 if ( $dodoc == yes ) then
-    if ( $cmake == no ) then
-	cdw
-	make doc MODS=.mods.od
-	cd doc/Programmer/Generated
-	./mk_paths_relative
-	GenModDeps --html $WORK/Pmake/ModDeps.od index.html
-    else
-	cdw
-	make doc
-	cd ../$dgbdir
-	make doc
-	cdw
-    endif
+    cdw
+    make doc
+    cd ../$dgbdir
+    make doc
+    cdw
 endif
