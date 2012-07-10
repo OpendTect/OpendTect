@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.37 2012-07-03 10:19:42 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.38 2012-07-10 07:08:25 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -284,6 +284,7 @@ const char* GetSoftwareDir( int acceptnone )
     static char dirnm[1024];
     const char* dir = 0;
     static const char* ret = 0;
+    char* termchar = 0;
     if ( ret ) return ret;
     ret = dirnm;
 
@@ -297,9 +298,8 @@ const char* GetSoftwareDir( int acceptnone )
 #ifdef __msvc__
     if ( !dir || !*dir )
     {
-	int termidx;
 	GetShortPathName(_getcwd(NULL,0),dirnm,sizeof(dirnm));
-	char* termchar = strstr( dirnm, "\\bin\\win" ); // remove \bin\win%%
+	termchar = strstr( dirnm, "\\bin\\win" ); // remove \bin\win%%
 	if ( termchar )
 	    *termchar = '\0';
 	
