@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.19 2012-01-16 14:10:01 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.20 2012-07-10 14:09:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ptrman.h"
 #include "thread.h"
+#include "objectset.h"
 
 template <class T> class ObjectSet;
 
