@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.4 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.5 2012-07-10 13:55:30 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -27,7 +27,6 @@ uiAuxDataDisplay::~uiAuxDataDisplay()
 {
     if ( viewer_ ) viewer_->viewChanged.remove(
 	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
-    delete display_; //Not sure if this is correct	
 }
 
 
