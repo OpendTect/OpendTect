@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.38 2012-07-09 20:50:14 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.39 2012-07-10 09:22:39 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #define mRounded(typ,x)		( (typ)((x)>0 ? (x)+.5 : (x)-.5) )
 #define mNINT32(x)		mRounded(int,x)
 #define mNINT64(x)		mRounded(od_int64,x)
-#define mNINT(x)		mRounded(int,x)
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
