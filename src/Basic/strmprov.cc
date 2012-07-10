@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: strmprov.cc,v 1.122 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: strmprov.cc,v 1.123 2012-07-10 04:09:34 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,22 +181,23 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
+#if defined( __win__ ) || defined( __mac__ )
+    bool inbg = true;
+#else
+    bool inbg = false;
+#endif
 
 #ifdef __msvc__
     cmd = BufferString( prognm );
     cmd += " \"";
     cmd += filenm;
     cmd += "\"";
-    return ExecOSCmd( cmd, true );
+    return ExecOSCmd( cmd, true, inbg );
 #endif
     
     cmd = GetExecCommand( prognm, filenm );
     StreamProvider strmprov( cmd );
-#if defined( __win__ ) || defined( __mac__ )
-    bool inbg = true;
-#else
-    bool inbg = false;
-#endif
+
     if ( !strmprov.executeCommand(inbg) )
     {
 	BufferString s( "Failed to submit command '" );
