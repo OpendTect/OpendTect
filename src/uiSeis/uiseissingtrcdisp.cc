@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.7 2012-05-08 09:46:07 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.8 2012-07-10 15:02:17 cvsbruno Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -73,6 +73,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     addRefZ( 0 );
 
     handleChange( All );
+    setViewToBoundingBox();
 }
 
 

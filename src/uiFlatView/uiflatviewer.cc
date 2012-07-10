@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.141 2012-07-10 14:32:23 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.142 2012-07-10 15:02:17 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -318,6 +318,13 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 }
 
 
+void uiFlatViewer::setViewToBoundingBox()
+{
+    setView( pack(true) ? getBoundingBox(true) : getBoundingBox(false) );
+}
+
+
+
 #define mAddToQueue( work ) \
     Threads::WorkManager::twm().addWork( work, 0, updatequeueid_, \
 					     false, true )
@@ -332,7 +339,6 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 
     if ( dct!=Annot && dct!=Auxdata ) //i.e. something with the bitmaps or all
     {
-	setView( pack(true) ? getBoundingBox(true) : getBoundingBox(false));
 	mAddToQueue( bitmapwork_ );
     }
     //TODO: Check if we can have a more fine-grained update than just bitmaps

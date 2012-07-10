@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.56 2012-07-10 14:40:25 cvsbruno Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.57 2012-07-10 15:02:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ public:
     void		setView(const uiWorldRect&);
     const uiWorldRect&	curView() const			{ return wr_; }
     uiWorldRect		boundingBox() const;
+    void		setViewToBoundingBox();
+
     void		getWorld2Ui(uiWorld2Ui&) const;
     void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
     uiRect		getViewRect() const;
