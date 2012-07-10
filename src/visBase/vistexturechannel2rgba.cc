@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.66 2012-07-10 13:26:36 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.67 2012-07-10 14:28:28 cvsjaap Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -816,7 +816,10 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"    else							\n"
 	"    {								\n"
 	// Color values are premultiplied with their alpha values.
-	"        gl_FragColor.rgb = col.rgb*blend + gl_FragColor.rgb * (1.0 - blend); \n"
+	"        float a = gl_FragColor.a * (1.0 - blend);		\n"
+	"        gl_FragColor.a = blend + a;				\n"
+	"        gl_FragColor.rgb = col.rgb*blend + gl_FragColor.rgb*a; \n"
+	"        gl_FragColor.rgb /= gl_FragColor.a;			\n"
 	"    }								\n"
 	"}								\n\n";
 
