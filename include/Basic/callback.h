@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.49 2012-07-10 13:47:19 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.50 2012-07-10 14:58:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "thread.h"
 #include <string>
 
 /*!
@@ -202,10 +203,12 @@ public:
 				          Want this explicitly. */
     
 private:
-    void			listenerDeletedCB(CallBacker*);
+    void			removeListener(CallBacker*);
+    void			addListener(CallBacker*);
     ObjectSet<CallBacker>	listeners_;
     
     ObjectSet<NotifierAccess>	attachednotifiers_;
+    Threads::SpinLock		cblock_;
 };
 
 

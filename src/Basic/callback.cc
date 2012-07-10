@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: callback.cc,v 1.4 2012-07-10 13:47:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: callback.cc,v 1.5 2012-07-10 14:58:27 cvskris Exp $";
 
 #include "callback.h"
 
@@ -19,13 +19,13 @@ CallBacker::CallBacker( const CallBacker& )
 
 CallBacker::~CallBacker()
 {
+    Threads::SpinLockLocker lock( cblock_ );
+    
     for ( int idx=0; idx<listeners_.size(); idx++ )
-	listeners_[idx]->listenerDeletedCB( this );
+	listeners_[idx]->removeListener( this );
     
     for ( int idx=0; idx<attachednotifiers_.size(); idx++ )
-    {
 	attachednotifiers_[idx]->removeWith( this );
-    }
 }
 
 
@@ -35,17 +35,27 @@ void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
  
     if ( cb.cbObj()!=this )
 	return;
+
+    notif.cber_->addListener( this );
     
+    Threads::SpinLockLocker lock( cblock_ );
     if ( attachednotifiers_.indexOf( &notif )==-1 )
 	attachednotifiers_ += &notif;
  
-    notif.cber_->listeners_ += this;
     listeners_ += notif.cber_;
 }
 
 
-void CallBacker::listenerDeletedCB( CallBacker* cb )
+void CallBacker::addListener( CallBacker* cb )
 {
+    Threads::SpinLockLocker lock( cblock_ );
+    listeners_ += cb;
+}
+
+
+void CallBacker::removeListener( CallBacker* cb )
+{
+    Threads::SpinLockLocker lock( cblock_ ); 
     listeners_ -= cb;
     
     for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
