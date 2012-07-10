@@ -8,7 +8,7 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.28 2011-07-22 13:38:13 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.29 2012-07-10 15:01:29 cvskris Exp $
 
  For making your own plugins, no need to include this file. Use odplugin.h.
 ________________________________________________________________________
@@ -132,6 +132,10 @@ public:
 
     bool		isPresent(const char*) const;
     const char*		userName(const char*) const;
+    			/*!<returns name in plugin-info, or moduleName
+    			    if plugin info is not available. */
+    			
+    static const char*	moduleName(const char*);
     			//!< returns without path, 'lib' and extension
     const char*		getFileName(const Data&) const;
 

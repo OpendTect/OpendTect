@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: plugins.cc,v 1.78 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: plugins.cc,v 1.79 2012-07-10 15:01:29 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -328,12 +328,15 @@ const char* PluginManager::userName( const char* nm ) const
     const Data* data = findData( nm );
     const PluginInfo* piinf = data ? data->info_ : 0;
     if ( !piinf )
-    {
-	FilePath fp( nm );
-	return getFnName( fp.fileName(), "", "" );
-    }
+	return moduleName( nm );
 
     return piinf->dispname;
+}
+
+
+const char* PluginManager::moduleName( const char* nm )
+{
+    return getFnName( nm, "", "" );
 }
 
 
@@ -397,7 +400,7 @@ void PluginManager::openALOEntries()
 	}
 
 	if ( !data.sla_ )
-	    OD::ModDeps().ensureLoaded( data.name_ );
+	    OD::ModDeps().ensureLoaded( moduleName( data.name_ ) );
 	else
 	{
 	    data.autotype_ = getPluginType( data.sla_, data.name_ );
