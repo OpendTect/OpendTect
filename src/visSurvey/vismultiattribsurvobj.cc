@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.69 2012-06-21 18:03:24 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.70 2012-07-10 14:20:10 cvsjaap Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -254,19 +254,10 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
     if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
 	return false;
 
-    if ( texture_ ) texture_->removeTexture( attrib );
+    if ( texture_ )
+	texture_->removeTexture( attrib );
     else
-    {
-	for ( int idx=attrib; idx<nrAttribs()-1; idx++ )
-	{
-	    const ColTab::Sequence* tmpseq = 
-		channels_->getChannels2RGBA()->getSequence( idx+1 );
-	    if ( tmpseq )
-		channels_->getChannels2RGBA()->setSequence( idx, *tmpseq );
-	}
-
 	channels_->removeChannel( attrib );
-    }
 
     delete as_[attrib];
     as_.remove( attrib );
