@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.69 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.70 2012-07-10 14:08:25 cvsjaap Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -315,6 +315,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    visserv->swapAttribs( displayID(), idx, idx+1 );
 
 	moveItemToTop();
+	select();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==movetobottommnuitem_.id )
@@ -324,6 +325,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    visserv->swapAttribs( displayID(), idx, idx-1 );
 
 	moveItem( parent_->lastChild() );
+	select();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==moveupmnuitem_.id )
@@ -336,6 +338,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	moveItem( siblingAbove() );
+	select();
 	menu->setIsHandled(true);
     }
     else if ( mnuid==movedownmnuitem_.id )
@@ -348,6 +351,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	moveItem( siblingBelow() );
+	select();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==changetransparencyitem_.id )
