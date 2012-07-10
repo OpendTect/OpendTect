@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.140 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.141 2012-07-10 14:32:23 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -163,6 +163,7 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 	auxdata_[idx]->touch();
     }
 }
+
 
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
@@ -330,7 +331,10 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 	mAddToQueue( annotwork_ );
 
     if ( dct!=Annot && dct!=Auxdata ) //i.e. something with the bitmaps or all
+    {
+	setView( pack(true) ? getBoundingBox(true) : getBoundingBox(false));
 	mAddToQueue( bitmapwork_ );
+    }
     //TODO: Check if we can have a more fine-grained update than just bitmaps
 
     view_->reDraw( true ); //No clue if deep or not is needed.
