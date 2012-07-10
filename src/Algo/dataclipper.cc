@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.38 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.39 2012-07-10 13:05:14 cvskris Exp $";
 
 
 #include "dataclipper.h"
@@ -72,7 +72,7 @@ public:
         , doall_( mIsEqual( prob, 1, 1e-3 ) )
 	, absoluterg_( rg )
     {
-	nrsamples_ = doall_ ? nrvals_ : mNINT32(sz * prob);
+	nrsamples_ = doall_ ? nrvals_ : mNINT64(sz * prob);
     }
     
     od_int64 nrIterations() const
@@ -89,7 +89,7 @@ public:
 	{
 	    double rand = Stats::RandGen::get();
 	    rand *= (nrvals_-1);
-	    const od_int64 sampidx = mNINT32(rand);
+	    const od_int64 sampidx = mNINT64(rand);
 	    const float val = input_[sampidx];
 	    
 	    mAddValue( localsamples, localrg );
@@ -175,8 +175,8 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
 {
     if ( !nrvals ) return false;
 
-    od_int64 firstidx = mNINT32(lowcliprate*nrvals);
-    od_int64 topnr = mNINT32(highcliprate*nrvals);
+    od_int64 firstidx = mNINT64(lowcliprate*nrvals);
+    od_int64 topnr = mNINT64(highcliprate*nrvals);
     od_int64 lastidx = nrvals-topnr-1;
 
     if ( firstidx && topnr )
@@ -269,7 +269,7 @@ bool DataClipper::getRange( float lowclip, float highclip,
     }
     else
     {
-	const od_int64 firstidx = mNINT32(lowclip*nrvals);
+	const od_int64 firstidx = mNINT64(lowclip*nrvals);
 	range.start = samples_[firstidx];
     }
     
@@ -279,7 +279,7 @@ bool DataClipper::getRange( float lowclip, float highclip,
     }
     else
     {
-	const od_int64 topnr = mNINT32(highclip*nrvals);
+	const od_int64 topnr = mNINT64(highclip*nrvals);
 	const od_int64 lastidx = nrvals-topnr-1;
 	
 	range.stop = samples_[lastidx];
@@ -295,7 +295,7 @@ bool DataClipper::getSymmetricRange( float cliprate, float midval,
     const od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
 
-    const od_int64 nrsamplestoremove = mNINT32(cliprate*nrvals);
+    const od_int64 nrsamplestoremove = mNINT64(cliprate*nrvals);
 
     od_int64 firstsample = 0;
     od_int64 lastsample = nrvals-1;
