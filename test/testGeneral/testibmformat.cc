@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : Seg-Y word functions
+ * FUNCTION : 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.2 2012-07-10 06:31:57 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.3 2012-07-10 08:03:10 cvskris Exp $";
 
 #include "ibmformat.h"
 #include "math2.h"
@@ -13,6 +13,31 @@ static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.2 2012-07-10 06
 #include "limits.h"
 
 #include <iostream>
+
+
+bool testFloatIndex( int origin, float target )
+{
+    const float fval = IbmFormat::asFloat( &origin );
+    if ( !Math::IsNormalNumber(fval) )
+	return true;
+
+    if ( !mIsUdf(target) && fval!=target )
+	return false;
+    
+    unsigned int buf;
+    IbmFormat::putFloat( fval, &buf );
+
+    const float res = IbmFormat::asFloat( &buf );
+    
+    if ( fval != res )
+    {
+	std::cerr << "Failure at index " << origin << ": Should be "
+		  << fval << " but is " << res <<"\n";
+	return false;
+    }
+
+    return true;
+}
 
 class IbmFormatTester : public ParallelTask
 {
@@ -25,20 +50,9 @@ public:
         {
             if ( !(idx%1000000) && !shouldContinue() )
                 return false;
-            
-            unsigned int origin = idx;
-            const float val = IbmFormat::asFloat( &origin );
-            if ( !Math::IsNormalNumber(val) )
-                continue;
-            
-            unsigned int buf;
-            IbmFormat::putFloat( val, &buf );
-            
-            if ( val != IbmFormat::asFloat( &buf ) )
-            {
-                std::cerr << "Failure at index " << idx << "\n";
-                return false;
-            }
+
+	    if ( !testFloatIndex( idx, mUdf(float) ) )
+		return false;
         }
         
         return true;
@@ -46,8 +60,44 @@ public:
 
 };
 
+#define mTestVal( tp, func, bufval, correctval ) \
+{ \
+    buf = bufval; \
+    const tp val = IbmFormat::as##func( &buf ); \
+    if ( !mComp( val, correctval ) ) \
+	return 1; \
+ \
+    IbmFormat::put##func( correctval, &resbuf ); \
+    if ( resbuf!=buf ) \
+	return 1; \
+} 
+
+
+    
 int main( int narg, char** argv )
 {
+#define mComp( v1, v2 ) ( v1==v2 )
+    int buf;
+    int resbuf;
+
+    //Test all cases in asN / putN
+    mTestVal( int, Int, 0x01010101, 16843009 );
+    mTestVal( int, Int, 0x010101FF, -16711423 );
+
+    mTestVal( short, Short, 0x01010101, 257 );
+    mTestVal( short, Short, 0x010101FF, -255 );
+
+    mTestVal( unsigned short, UnsignedShort, 0x01010101, 257 );
+    mTestVal( unsigned short, UnsignedShort, 0x010101FF, 65281 );
+
+    //Test two known problem-spots
+    if ( !testFloatIndex( 291, 4.7019774e-38) ||
+	 !testFloatIndex( -2147390723, -3.40282347e+38 ) )
+	return 1;
+
+    return 0;
+
+    //Optional, run entire number-space.
     IbmFormatTester tester;
     return tester.execute() ? 0 : 1;
 }
