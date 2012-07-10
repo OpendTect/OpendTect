@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.65 2012-05-04 07:54:28 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.66 2012-07-10 13:26:36 cvsjaap Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -441,6 +441,15 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
     {
 	getColors( channel, *osgcolseqarrays_[channel] );
 	osgcolsequences_[channel]->touch();
+
+	osgGeo::LayeredTexture& laytex = *channels_->getOsgTexture();
+	if ( laytex.getProcess(channel) )
+	{
+	    const Color& col = getSequence(channel)->undefColor();
+	    const osg::Vec4f newudfcol( col.r(), col.g(), col.b(),
+					255-col.t() );
+	    laytex.getProcess(channel)->setNewUndefColor( newudfcol/255.0 );
+	}
     }
 }
 
