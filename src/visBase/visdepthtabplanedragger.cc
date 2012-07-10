@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.31 2012-06-20 13:10:15 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.32 2012-07-10 13:03:12 cvsjaap Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -315,7 +315,7 @@ void DepthTabPlaneDragger::initOsgDragger()
     osgdragger_->addChild( osgdraggerplane_ );
 
     showPlane( false );
-    showDraggerBorder( false );
+    showDraggerBorder( true );
 }
 
 

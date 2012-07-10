@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.272 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.273 2012-07-10 13:03:12 cvsjaap Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -574,7 +574,7 @@ void PlaneDataDisplay::resetManipulation()
     if ( doOsg() )
     {
 	dragger_->showPlane( false );
-	dragger_->showDraggerBorder( false );
+	dragger_->showDraggerBorder( true );
     }
 }
 
@@ -589,7 +589,7 @@ void PlaneDataDisplay::acceptManipulation()
     if ( doOsg() )
     {
 	dragger_->showPlane( false );
-	dragger_->showDraggerBorder( false );
+	dragger_->showDraggerBorder( true );
     }
 }
 
