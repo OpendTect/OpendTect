@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.80 2012-06-21 09:25:53 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.81 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -521,8 +521,7 @@ void FlatView::Viewer::clearAllPacks()
 {
     while ( !ids_.isEmpty() )
 	removePack( ids_[0] );
-    handleChange( VDData );
-    handleChange( WVAData );
+    handleChange( BitmapData );
 }
 
 
@@ -572,7 +571,8 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	    annot.x2_.name_ = fdp->dimName( false );
     }
 
-    handleChange( wva ? WVAData : VDData );
+    if ( id != DataPack::cNoID() )
+	handleChange( BitmapData );
 }
 
 

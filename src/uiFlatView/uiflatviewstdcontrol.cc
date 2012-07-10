@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.47 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.48 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -40,7 +40,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , manip_(false)
     , mousepressed_(false)
     , viewdragged_(false)
-    , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
+    , menu_(*new uiMenuHandler(&vwr,-1))
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
     , editbut_(0)
@@ -92,13 +92,13 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
-    vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
-    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
+    zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
+    //vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
-    vwr_.appearance().annot_.editable_ = false;
+    //vwr_.appearance().annot_.editable_ = false;
 
     if ( setup.withthumbnail_ )
 	new uiFlatViewThumbnail( this, vwr );
@@ -181,8 +181,7 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr, 
 					FlatView::ZoomMgr& zoommgr )
 {
-    uiRect viewrect = vwr.annotBorder().getRect(
-	    vwr.rgbCanvas().getViewArea() );
+    uiRect viewrect = vwr.getViewRect();
     uiSize newrectsz = viewrect.size();
     if ( zoomin )
     {
@@ -238,55 +237,51 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
 }
 
 
-void uiFlatViewStdControl::handDragStarted( CallBacker* )
-{ mousepressed_ = true; }
-
-
-void uiFlatViewStdControl::handDragging( CallBacker* )
+void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
-    const uiRGBArrayCanvas& canvas = vwrs_[0]->rgbCanvas();
+    mousepressed_ = true;
+    
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( meh )
+    {
+	mousedownpt_ = meh->event().pos();
+	mousedownwr_ = vwrs_[0]->curView();
+    }
+}
+
+
+void uiFlatViewStdControl::handDragging( CallBacker* cb )
+{
+    const uiGraphicsView& canvas = vwrs_[0]->rgbCanvas();
     if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
 	 !mousepressed_ || !vwrs_[0]->hasHandDrag() )
 	return;
-
-    viewdragged_ = true;
-    Geom::Point2D<double> centre;
-    Geom::Size2D<double> newsz;
-    uiWorld2Ui w2ui;
-    vwrs_[0]->getWorld2Ui( w2ui );
-
-    uiRect viewarea = getViewRect( vwrs_[0] );
-    uiWorldRect wr = w2ui.transform( viewarea );
-    centre = wr.centre();
-    newsz = vwrs_[0]->curView().size();
-    wr = getNewWorldRect( centre, newsz, vwrs_[0]->curView(), getBoundingBox());
-    vwrs_[0]->drawAnnot( viewarea, wr );
-    vwrs_[0]->viewChanging.trigger( wr );
-}
-
-
-void uiFlatViewStdControl::handDragged( CallBacker* )
-{
-    mousepressed_ = false;
-    const uiRGBArrayCanvas& canvas = vwrs_[0]->rgbCanvas();
-    if ( canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag ||
-	 !vwrs_[0]->hasHandDrag() || !viewdragged_ )
+    
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh )
 	return;
-    viewdragged_ = false;
-    Geom::Point2D<double> centre;
-    Geom::Size2D<double> newsz;
-    uiWorld2Ui w2ui;
-    vwrs_[0]->getWorld2Ui( w2ui );
-
-    uiRect viewarea = getViewRect( vwrs_[0] );
-    uiWorldRect wr = w2ui.transform( viewarea );
-    centre = wr.centre();
-    newsz = vwrs_[0]->curView().size();
-
-    setNewView( centre, newsz );
+    
+    const uiPoint curpt = meh->event().pos();
+    const uiWorld2Ui w2ui( mousedownwr_, vwrs_[0]->getViewRect().size() );
+    const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
+    const uiWorldPoint curwpt = w2ui.transform( curpt );
+    
+    uiWorldRect newwr( mousedownwr_ );
+    newwr.translate( startwpt-curwpt);
+    
+    vwrs_[0]->setView( newwr );    
 }
 
 
+void uiFlatViewStdControl::handDragged( CallBacker* cb )
+{
+    handDragging( cb );
+    mousepressed_ = false;
+    
+    //TODO: Should we set the zoom-manager ?
+}
+
+/*
 void uiFlatViewStdControl::panCB( CallBacker* )
 {
     const bool isleft = true;
@@ -313,6 +308,8 @@ void uiFlatViewStdControl::panCB( CallBacker* )
 
     setNewView( centre, sz );
 }
+
+*/
 
 
 void uiFlatViewStdControl::flipCB( CallBacker* )
@@ -414,11 +411,9 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    bool ishandled = true;
-    if ( mnuid==propertiesmnuitem_.id )
+    const bool ishandled = mnuid==propertiesmnuitem_.id ;
+    if ( ishandled )
 	doPropertiesDialog();
-    else
-	ishandled = false;
 
     menu->setIsHandled( ishandled );
 }
@@ -426,8 +421,7 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 
 void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
-    vwr_.handleChange( FlatView::Viewer::VDPars, false );
-    vwr_.handleChange( FlatView::Viewer::VDData );
+    vwr_.handleChange( FlatView::Viewer::DisplayPars );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.21 2012-06-28 11:29:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.22 2012-07-10 13:27:26 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -319,8 +319,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	}
 
 	vwr.setAnnotChoice( selannot );
-	vwr.handleChange( FlatView::Viewer::VDPars );
-	vwr.handleChange( FlatView::Viewer::WVAPars );
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
 	vwr.handleChange( FlatView::Viewer::Annot, false );
     }
 }

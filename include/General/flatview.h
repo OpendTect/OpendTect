@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.66 2012-06-19 19:04:48 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.67 2012-07-10 13:27:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ public:
 
     TypeSet<Point>		poly_;
 
-    TypeSet<int>		dispids_;	//!<ids of corresponding displed
+    //TypeSet<int>		dispids_;	//!<ids of corresponding displed
     						//!<object
     bool			displayed_;
 
@@ -108,7 +108,7 @@ public:
 	bool			showannot_;
 	bool			showgridlines_;
 	bool			reversed_;
-	float			factor_;
+	int			factor_;
 
 	void			showAll(bool yn);
     };
@@ -332,7 +332,7 @@ public:
     bool		isVisible(bool wva) const;
     			//!< Depends on show_ and availability of data
 
-    enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
+    enum DataChangeType	{ All, BitmapData, DisplayPars, Annot, Auxdata };
     virtual void	handleChange(DataChangeType,bool dofill=true)	= 0;
 
     			//!Does not store any data, just how data is displayed

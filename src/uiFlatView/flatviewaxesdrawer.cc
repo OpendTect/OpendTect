@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.18 2012-05-30 09:16:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.19 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
@@ -19,7 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.18 2012-05
 
 
 FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
-    : DrawAxis2D(view)
+    : uiGraphicsSceneAxisMgr(view)
     , vwr_(vwr)
     , altdim0_(mUdf(int))
 {
@@ -32,11 +32,12 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
 
-    setDrawRectangle( &uir );
-    setup( wr, ad1.factor_, ad2.factor_ );
+    //setViewRect(uir);
+    //setWorldCoords( wr );
 
-    drawAxes( ad1.showannot_, ad2.showannot_, true, true );
+    /* drawAxes( ad1.showannot_, ad2.showannot_, true, true );
     drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );
+     */
 }
 
 
@@ -48,8 +49,8 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
     if ( !fdp )
 	{ usewva = !usewva; fdp = vwr_.pack( usewva ); }
 
-    if ( !isx || mIsUdf(altdim0_) || !fdp )
-	return ::DrawAxis2D::getAnnotTextAndPos( isx, pos, txt );
+    //if ( !isx || mIsUdf(altdim0_) || !fdp )
+//	return ::uiGraphicsSceneAxis::getAnnotTextAndPos( isx, pos, txt );
 
     const FlatPosData& pd = fdp->posData();
     IndexInfo idxinfo( pd.indexInfo( true, pos ) );

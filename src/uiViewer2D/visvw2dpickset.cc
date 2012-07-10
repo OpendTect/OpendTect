@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.14 2012-04-18 14:32:42 cvskris Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.15 2012-07-10 13:27:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,11 +220,11 @@ void VW2DPickSet::drawAll()
 
     const uiWorldRect& curvw = viewer_.curView();
     const float zdiff = curvw.height();
-    const float nrzpixels = viewer_.getDisplayWorldRect().vNrPics();
+    const float nrzpixels = viewer_.getViewRect().vNrPics();
     const float zfac = nrzpixels / zdiff;
     const float xdiff = curvw.width() *
 	( oninl ? SI().crlDistance() : SI().inlDistance() );
-    const float nrxpixels = viewer_.getDisplayWorldRect().hNrPics();
+    const float nrxpixels = viewer_.getViewRect().hNrPics();
     const float xfac = nrxpixels / xdiff;
 
     picks_->poly_.erase();

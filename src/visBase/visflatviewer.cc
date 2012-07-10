@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visflatviewer.cc,v 1.39 2012-05-02 15:12:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visflatviewer.cc,v 1.40 2012-07-10 13:27:28 cvsbruno Exp $";
 
 #include "visflatviewer.h"
 
@@ -115,13 +115,8 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 {
     switch ( dt )
     {
-	case None:	
-		break;
-	case WVAData:	
-	case WVAPars:	
-		pErrMsg( "Not supported" );
-		break;
 	case All:	
+	case Auxdata:	
 	case Annot:
 	    {	
 		updateGridLines( true );
@@ -130,7 +125,7 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 		if ( dt!=All )
 		    break;
 	    }
-	case VDData:
+	case BitmapData:
 	    {
 		const FlatDataPack* dp = pack( false );
 		if ( !dp )
@@ -185,7 +180,7 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 			break;
 		}
 	    }
-	case VDPars : 	
+	case DisplayPars: 	
 	    {
 	    	const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
 	    	ColTab::MapperSetup mappersetup;
@@ -357,7 +352,7 @@ void FlatViewer::setResolution( int res )
 	return;
     
     resolution_ = res;
-    handleChange( Viewer::VDData );
+    handleChange( Viewer::BitmapData );
 }
 
     

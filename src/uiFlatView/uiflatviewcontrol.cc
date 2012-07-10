@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.61 2012-06-29 09:07:22 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.62 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -22,11 +22,10 @@ static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.61 2012-06-
 #include "uiobjdisposer.h"
 
 
-uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
-				    bool wrubb )
+uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
-    , haverubber_(wrubb)
+    , haverubber_(rub)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
@@ -58,7 +57,7 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
     vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
     vwr.control_ = this;
 
-    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
+    uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
 	cnvs.rubberBandUsed.notify( mCB(this,uiFlatViewControl,rubBandCB));
 
@@ -75,7 +74,7 @@ void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
     vwrs_ -= &vwr;
     vwr.dataChanged.remove( mCB(this,uiFlatViewControl,dataChangeCB) );
 
-    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
+    uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
 	cnvs.rubberBandUsed.remove( mCB(this,uiFlatViewControl,rubBandCB));
 
@@ -303,10 +302,7 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     const int selannot = propdlg_->selectedAnnot();
 
     vwr->setAnnotChoice( selannot );
-    //Don't send FlatView::Viewer::All, since that triggers a viewchange
-    vwr->handleChange( FlatView::Viewer::Annot, false );
-    vwr->handleChange( FlatView::Viewer::WVAPars, false );
-    vwr->handleChange( FlatView::Viewer::VDPars );
+    vwr->handleChange( FlatView::Viewer::All );
 }
 
 
@@ -334,22 +330,8 @@ MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
 }
 
 
-uiRect uiFlatViewControl::getViewRect( uiFlatViewer* vwr )
-{
-    const uiRGBArrayCanvas& canvas = vwr->rgbCanvas();
-    uiBorder annotborder = vwr->annotBorder();
-    uiRect viewarea = canvas.getViewArea();
-    uiRect scenearea = canvas.getSceneRect();
-
-    uiBorder viewborder( viewarea.left() - scenearea.left(),
-			 viewarea.top() - scenearea.top(),
-			 scenearea.right() - viewarea.right(),
-			 scenearea.bottom() - viewarea.bottom() );
-
-    vwr->setViewBorder( viewborder );
-    viewarea = annotborder.getRect( viewarea );
-    return viewarea;
-}
+uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
+{ return vwr->getViewRect(); }
 
 
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )

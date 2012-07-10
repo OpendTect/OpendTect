@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.30 2012-05-31 14:34:52 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.31 2012-07-10 13:27:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,9 @@ protected:
 
     bool		manip_;
     bool		mousepressed_;
+    uiPoint		mousedownpt_;
+    uiWorldRect		mousedownwr_;
+    
     bool		viewdragged_;
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;

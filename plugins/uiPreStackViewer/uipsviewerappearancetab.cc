@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewerappearancetab.cc,v 1.9 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewerappearancetab.cc,v 1.10 2012-07-10 13:27:26 cvsbruno Exp $";
 
 #include "uipsviewerappearancetab.h"
 
@@ -171,7 +171,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	return;
 
     vwr_->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-    vwr_->handleChange( FlatView::Viewer::VDPars );
+    vwr_->handleChange( FlatView::Viewer::DisplayPars );
 
     const bool showzgridlines = zgridfld_->getBoolValue();
     vwr_->appearance().annot_.x2_.showgridlines_ = showzgridlines;
@@ -238,7 +238,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-	fvwr->handleChange( FlatView::Viewer::VDPars );
+	fvwr->handleChange( FlatView::Viewer::DisplayPars );
 	
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;

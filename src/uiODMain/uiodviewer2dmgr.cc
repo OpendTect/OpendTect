@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.11 2012-05-30 08:03:54 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.12 2012-07-10 13:27:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,8 +96,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     visServ().fillDispPars( visid, attribid,
 	    	curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
 
-    curvwr->viewwin()->viewer().handleChange(
-		dowva ? FlatView::Viewer::WVAPars : FlatView::Viewer::VDPars );
+    curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
 }
 
 

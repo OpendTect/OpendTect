@@ -1,4 +1,4 @@
-/*+
+ /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.37 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.38 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -179,12 +179,15 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 
 
 void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
-       				 const Geom::Point2D<int>& offs )
+       				 const Geom::Point2D<int>& offs,
+				 bool clear )
 {
-    arr_.clear( Color::White() );
-    if ( vd )
+    if ( clear )
+	arr_.clear( Color::White() );
+
+    if ( vd && app_.ddpars_.vd_.show_ )
 	drawVD( *vd, offs );
-    if ( wva )
+    if ( wva && app_.ddpars_.wva_.show_ )
 	drawWVA( *wva, offs );
 }
 

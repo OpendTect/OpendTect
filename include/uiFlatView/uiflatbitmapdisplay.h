@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatbitmapdisplay.h,v 1.2 2012-04-06 12:27:32 cvskris Exp $
+ RCS:           $Id: uiflatbitmapdisplay.h,v 1.3 2012-07-10 13:27:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ class Viewer;
 mClass uiBitMapDisplay : public CallBacker
 {
 public:
-    			uiBitMapDisplay(Viewer&,bool wva);
+    			uiBitMapDisplay(Viewer&);
 			~uiBitMapDisplay();
 
     void		update();
@@ -45,14 +45,15 @@ public:
     uiGraphicsItem*	getDisplay();
     void		removeDisplay();
 
+    Interval<float>	getDataRange(bool iswva) const;
+
 protected:
 
     void			reGenerateCB(CallBacker*);
-    void			dymamicTaskFinishCB(CallBacker*);
+    void			dynamicTaskFinishCB(CallBacker*);
 
     Viewer&			viewer_;
-    bool			wva_;
-    bool			isworking_;
+    int				workqueueid_;
 
     uiDynamicImageItem*		display_;
 

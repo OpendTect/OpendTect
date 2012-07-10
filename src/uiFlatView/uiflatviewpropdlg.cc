@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.66 2012-05-30 12:53:44 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.67 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -104,19 +104,23 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
 
+    /*
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr)
     if ( uivwr )
 	uivwr->dispParsChanged.notify( 
 	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
+	    */
 }
 
 
 uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
 {
+    /*
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_)
     if ( uivwr )
 	uivwr->dispParsChanged.remove( 
 	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
+	    */
 }
 
 
@@ -858,7 +862,7 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
     mDynamicCastGet(uiFlatViewer&,uivwr,vwr_);
     if ( !&uivwr )
 	return false;
-    NotifyStopper notifystop( uivwr.dispParsChanged );
+    //NotifyStopper notifystop( uivwr.dispParsChanged );
 
     if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
     {

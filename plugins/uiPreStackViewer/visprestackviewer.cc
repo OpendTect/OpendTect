@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID mUnusedVar = "$Id: visprestackviewer.cc,v 1.76 2012-05-02 15:11:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visprestackviewer.cc,v 1.77 2012-07-10 13:27:26 cvsbruno Exp $";
 
 #include "visprestackviewer.h"
 
@@ -624,7 +624,7 @@ void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     if ( vct )
     {
 	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
-	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
     }
 
     const bool offsetalonginl = 
@@ -765,7 +765,7 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
     if ( vct )
     {
 	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
-	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
     }
 
     mResetSeis2DPlane();
@@ -1073,7 +1073,7 @@ int Viewer3D::usePar( const IOPar& par )
     if ( flatviewer_ )
     {
 	flatviewer_->appearance().ddpars_.usePar( par );   
-	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
     }
 
     return 1;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbmp2rgb.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: flatviewbmp2rgb.h,v 1.7 2012-07-10 13:27:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
 			BitMap2RGB(const Appearance&,uiRGBArray&);
 
     void		draw(const A2DBitMap* wva,const A2DBitMap* vd,
-	    		     const Geom::Point2D<int>& offset);
+	    		     const Geom::Point2D<int>& offset,
+			     bool clearexisting = true);
 
     uiRGBArray&		rgbArray()		{ return arr_; }
     void		setRGBArr( const uiRGBArray& arr)	{ arr_ = arr; }

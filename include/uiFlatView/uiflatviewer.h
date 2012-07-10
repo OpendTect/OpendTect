@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.54 2012-04-18 14:38:49 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.55 2012-07-10 13:27:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,18 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "flatview.h"
 #include "uigeom.h"
+#include "threadwork.h"
 
 namespace FlatView {
 class BitMapMgr;
 class BitMap2RGB;
 class AxesDrawer;
+class uiAuxDataDisplay;
+class uiBitMapDisplay;
 }
 
+
+class uiGraphicsView;
 class BufferStringSet;
 class uiRGBArrayCanvas;
 class uiRGBArray;
@@ -35,6 +40,7 @@ class uiLineItem;
 class uiMarkerItem;
 class uiRectItem;
 class uiTextItem;
+class uiGraphicsItemGroup;
 
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
@@ -53,14 +59,15 @@ public:
     void		setAnnotChoice(int);
 
     uiRGBArray&		rgbArray();
-    uiRGBArrayCanvas&	rgbCanvas()			{ return canvas_; }
-    uiRect		getDisplayWorldRect() const;
+    uiGraphicsView&	rgbCanvas()			{ return *view_; }
 
     void		setView(const uiWorldRect&);
     const uiWorldRect&	curView() const			{ return wr_; }
     uiWorldRect		boundingBox() const;
     void		getWorld2Ui(uiWorld2Ui&) const;
     void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
+    uiRect		getViewRect() const;
+    			/*!<The rectangle onto which wr_ is projected */
     void		setRubberBandingOn(bool);
     void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
@@ -71,13 +78,9 @@ public:
     CNotifier<uiFlatViewer,uiWorldRect> viewChanging; //!< change thumbnail
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
-    Notifier<uiFlatViewer> dispParsChanged; //!< WVA or VD disppars changed
 
     uiFlatViewControl*	control()	{ return control_; }
-    Interval<float>     getDataRange(bool) const;
-    bool		drawBitMaps();
-    bool		drawAnnot(const uiRect&,const uiWorldRect&);
-    bool		drawAnnot();
+    Interval<float>     getBitmapDataRange(bool) const;
 
     void		setNoViewDone()			
     			{ anysetviewdone_  = false; }
@@ -85,7 +88,7 @@ public:
     void		setHandDrag( bool yn )		{ enabhaddrag_ = yn; }
     void		setViewBorder( const uiBorder& border )
     			{ viewborder_ = border; }
-    uiBorder		annotBorder() const		{ return annotborder_; }
+    
     uiBorder		viewBorder() const		{ return viewborder_; }
     uiBorder		getActBorder(const uiWorldRect&);
     static float	bufextendratio_;
@@ -97,10 +100,7 @@ public:
     const Interval<double>& getSelDataRange(bool forx) const
     			{ return forx ? xseldatarange_ : yseldatarange_; } 
     void		disableReSizeDrawNotifier();
-    void		showAuxDataObjects(FlatView::AuxData&,bool);
-    void		updateProperties(const FlatView::AuxData&);
     void		reGenerate(FlatView::AuxData&);
-    void		remove(const FlatView::AuxData&);
 
     FlatView::AuxData*		createAuxData(const char* nm) const;
     int				nrAuxData() const;
@@ -112,16 +112,14 @@ public:
 
 protected:
 
-    uiRGBArrayCanvas&		canvas_;
+    uiGraphicsView*		view_;
     FlatView::AxesDrawer& 	axesdrawer_; //!< Must be declared after canvas_
     uiWorldRect			wr_;
 
     TypeSet<DataChangeType>	reportedchanges_;
     float			dim0extfac_;
     uiRect			extraborders_;
-    uiBorder			annotborder_;
     uiBorder			viewborder_;
-    uiSize			annotsz_;
     bool			initview_;
     bool			enabhaddrag_;
     bool			anysetviewdone_;
@@ -132,9 +130,7 @@ protected:
     Interval<double>		xseldatarange_;
     Interval<double>		yseldatarange_;
 
-    FlatView::BitMapMgr*	wvabmpmgr_;
-    FlatView::BitMapMgr*	vdbmpmgr_;
-    FlatView::BitMap2RGB*	bmp2rgb_;
+    FlatView::uiBitMapDisplay*	bitmapdisp_;
 
     uiTextItem*			titletxtitem_;
     uiTextItem*			axis1nm_;
@@ -143,28 +139,39 @@ protected:
     uiArrowItem*		arrowitem1_;
     uiArrowItem*		arrowitem2_;
     uiMarkerItem*		pointitem_;
-    uiGraphicsItemSet*		polylineitemset_;
     uiGraphicsItemSet*		markeritemset_;
     uiGraphicsItemSet*		adnameitemset_;
 
-    void			onFinalise(CallBacker*);
-    void			reDrawAll();
-    void			reSizeDraw(CallBacker*);
+    Threads::Work		annotwork_;
+    Threads::Work		bitmapwork_;
+    Threads::Work		auxdatawork_;
+
+    void			updateCB(CallBacker*);
+    void			updateAnnotCB(CallBacker*);
+    void			updateBitmapCB(CallBacker*);
+    void			updateAuxDataCB(CallBacker*);
+
+    void			reSizeCB(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;
 
-    void			drawGridAnnot(bool,const uiRect&,
-	    				      const uiWorldRect&);
-    void			drawAux(FlatView::AuxData&,
-	    				const uiRect&,const uiWorldRect&);
+    int				updatequeueid_;
 
-    void			reset();
+    void			updateGridAnnot(bool visible);
+    void			updateAuxData();
+    bool			drawBitMaps();
+    bool			drawAnnot();
+    void			updateTransforms();
+    void			updateAnnotPositions();
+    void			updateAnnotation();
+
     bool			mkBitmaps(uiPoint&);
 
-    friend class		uiFlatViewControl;
-    uiFlatViewControl*		control_;
+    friend class				uiFlatViewControl;
+    uiGraphicsItemGroup*			worldgroup_;
+    uiFlatViewControl*				control_;
 
-    ObjectSet<FlatView::AuxData>	auxdata_;
+    ObjectSet<FlatView::uiAuxDataDisplay>	auxdata_;
 };
 
 #endif

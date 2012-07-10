@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdatadisplay.h,v 1.1 2012-04-05 12:09:48 cvskris Exp $
+ RCS:           $Id: uiflatauxdatadisplay.h,v 1.2 2012-07-10 13:27:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,12 @@ public:
 
     void			setViewer(uiFlatViewer* d) {viewer_=d;}
 
+    void			touch() 	{ updateCB(0); }
+
 				~uiAuxDataDisplay();
     uiGraphicsItemGroup*	getDisplay();
     void			removeDisplay() { display_ = 0; }
+
 
 protected:
     				friend class ::uiFlatViewer;

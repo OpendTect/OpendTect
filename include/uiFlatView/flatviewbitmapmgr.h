@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbitmapmgr.h,v 1.6 2009-09-03 09:52:46 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmapmgr.h,v 1.7 2012-07-10 13:27:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,26 @@ protected:
     Geom::Size2D<int>		sz_;
 
     void			clearAll();
+};
+
+
+mClass BitMapGenTask : public Task
+{
+public:
+    		BitMapGenTask(BitMapMgr& mgr,
+			const Geom::PosRectangle<double>& wr,
+			const Geom::Size2D<int>& bufwrsz,
+			const Geom::Size2D<int>& pix )
+		    : mgr_(mgr), wr_(wr), bufwrsz_(bufwrsz), availpixels_(pix){}
+
+    bool	execute() { return mgr_.generate(wr_,bufwrsz_,availpixels_); }
+
+protected:
+
+    BitMapMgr& 				mgr_;
+    const Geom::PosRectangle<double>& 	wr_;
+    const Geom::Size2D<int>& 		bufwrsz_;
+    const Geom::Size2D<int>& 		availpixels_;
 };
 
 } // namespace FlatView

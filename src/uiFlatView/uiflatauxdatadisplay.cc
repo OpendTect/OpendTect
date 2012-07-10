@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.3 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.4 2012-07-10 13:27:27 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -84,8 +84,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	return;
     }
 
-    dispids_.erase();
-
+    //dispids_.erase();
     
     display_->setZValue( zvalue_ );
     display_->setVisible( displayed_ );
@@ -118,7 +117,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    {
 		polygonitem_ = new uiPolygonItem( poly_,fillcolor_.isVisible());
 		display_->add( polygonitem_ );
-		dispids_ += polygonitem_->id();
+		//dispids_ += polygonitem_->id();
 	    }
 	    else
 	    {
@@ -140,7 +139,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    {
 		polylineitem_ = new uiPolyLineItem( poly_ );
 		display_->add( polylineitem_ );
-		dispids_ += polylineitem_->id();
+		//dispids_ += polylineitem_->id();
 	    }
 	    else
 	    {
@@ -206,7 +205,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	{
 	    item = new uiMarkerItem( style );
 	    markeritems_ += item;
-	    dispids_ += item->id();
+	    //dispids_ += item->id();
 	    display_->add( item );
 	}
 	else
@@ -230,7 +229,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	{
 	    nameitem_ = new uiTextItem( name_, namealignment_ );
 	    display_->add( nameitem_ );
-	    dispids_ += nameitem_->id();
+	    //dispids_ += nameitem_->id();
 	}
 	else
 	{
