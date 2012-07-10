@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.9 2012-05-30 05:32:23 cvsranojay Exp $
+ RCS:		$Id: winutils.h,v 1.10 2012-07-10 07:11:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,15 @@ extern "C"
 mGlobal	bool		winCopy(const char* from,const char* to,
 				bool isfile, bool ismove=false);
 mGlobal	bool		winRemoveDir( const char* dirnm );
+
+
+mGlobal bool		executeWinProg(const char* comm,const char* parm,
+					const char* runin=0);
+mGlobal	unsigned int	getWinVersion();
+mGlobal	bool		execShellCmd(const char* comm,const char* parm,
+					const char* runin );
+mGlobal bool		execProc(const char* comm,bool inconsole,bool inbg,
+				    const char* runin );
 #endif
 
 mGlobal const char*	getCygDir();

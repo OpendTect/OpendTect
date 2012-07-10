@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.29 2012-05-30 05:32:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.30 2012-07-10 07:11:28 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: winutils.cc,v 1.29 2012-05-30 05:32:23 cvsranoj
 #include "string2.h"
 #include "staticstring.h"
 #include "strmprov.h"
-#ifdef __win__
+#ifdef __win_
 # include <windows.h>
 # include <shlobj.h>
 # include <process.h>
@@ -226,8 +226,8 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
     fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
     fileop.pFrom = frm; fileop.pTo = to; 
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
-			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION
-			       | FOF_SILENT;
+			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
+			     //  | FOF_SILENT;
 
     int res = SHFileOperation( &fileop );
     return !res;
@@ -247,6 +247,93 @@ bool winRemoveDir( const char* dirnm )
     fileop.fFlags = FOF_MULTIDESTFILES | FOF_NOCONFIRMATION | FOF_SILENT;
     int res = SHFileOperation( &fileop );
     return !res;
+}
+
+
+unsigned int getWinVersion()
+{
+    DWORD dwVersion = 0; 
+    DWORD dwMajorVersion = 0;
+    DWORD dwMinorVersion = 0; 
+    dwVersion = GetVersion();
+    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
+    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+    return dwMajorVersion;
+}
+
+
+bool execShellCmd( const char* comm, const char* parm, const char* runin )
+{
+   int res = (int) ShellExecute( NULL, "runas",
+				 comm,
+				 parm,    // params
+				 runin, // directory
+				 SW_SHOW );
+    return res > 32;
+}
+
+
+bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
+{
+    if ( !comm || !*comm ) return false;
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(STARTUPINFO));
+    ZeroMemory( &pi, sizeof(pi) );
+    si.cb = sizeof(STARTUPINFO);
+
+    if ( !inconsole )
+    {
+	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
+	si.wShowWindow = SW_HIDE;
+    }
+    
+   //Start the child process. 
+    int res = CreateProcess( NULL,	// No module name (use command line). 
+        const_cast<char*>( comm ),
+        NULL,				// Process handle not inheritable. 
+        NULL,				// Thread handle not inheritable. 
+        FALSE,				// Set handle inheritance to FALSE. 
+        0,				// Creation flags. 
+        NULL,				// Use parent's environment block. 
+        const_cast<char*>( runin ), 	// Use parent's starting directory if runin is NULL. 
+        &si, &pi );
+	
+    if ( res )
+    {
+	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+    }
+    else
+    {
+	char *ptr = NULL;
+	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	    FORMAT_MESSAGE_FROM_SYSTEM,
+	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
+
+	fprintf(stderr, "\nError: %s\n", ptr);
+	LocalFree(ptr);
+    }
+
+    return res;
+}
+
+
+bool executeWinProg( const char* comm, const char* parm, const char* runin )
+{
+	 if ( !comm || !*comm ) return false;
+	 unsigned int winversion = getWinVersion();
+	 if ( winversion < 6 )
+	 {
+	     BufferString com( comm, " " );
+	     com += parm;
+	     return execProc( com, true, true, runin );
+	 }
+	 return execShellCmd( comm, parm, runin );
 }
 
 #endif // __win__

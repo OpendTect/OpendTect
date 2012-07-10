@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.19 2012-07-09 12:10:40 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.20 2012-07-10 07:11:28 cvsranojay Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -27,6 +27,7 @@ static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.19 2012-07-09 12:10:40
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
+#include "winutils.h"
 static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
@@ -37,90 +38,6 @@ static BufferString getInstDir()
 }
 #undef mRelRootDir
 #define mRelRootDir getInstDir()
-
-unsigned int getWinVersion()
-{
-    DWORD dwVersion = 0; 
-    DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0; 
-    dwVersion = GetVersion();
-    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
-    return dwMajorVersion;
-}
-
-
-bool ExecShellCmd( const char* comm, const char* parm, const char* runin )
-{
-   int res = (int) ShellExecute( NULL, "runas",
-				  comm,
-				  parm,    // params
-				  runin, // directory
-				  SW_SHOW );
-    return res > 32;
-}
-
-
-bool ExecProc( const char* comm, bool inconsole, bool inbg,
-			    const char* runin )
-{
-    if ( !comm || !*comm ) return false;
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof(STARTUPINFO);
-
-    if ( !inconsole )
-    {
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
-	si.wShowWindow = SW_HIDE;
-    }
-    
-   //Start the child process. 
-    int res = CreateProcess( NULL,	// No module name (use command line). 
-        const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable. 
-        NULL,				// Thread handle not inheritable. 
-        FALSE,				// Set handle inheritance to FALSE. 
-        0,				// Creation flags. 
-        NULL,				// Use parent's environment block. 
-        const_cast<char*>( runin ), 	// Use parent's starting directory if runin is NULL. 
-        &si, &pi );
-	
-    if ( res )
-    {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-    }
-    else
-    {
-	char *ptr = NULL;
-	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM,
-	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
-
-	fprintf(stderr, "\nError: %s\n", ptr);
-	LocalFree(ptr);
-    }
-
-    return res;
-}
-
-
-bool ExecuteProg( const char* comm, const char* parm, const char* runin )
-{
-	 if ( !comm || !*comm ) return false;
-	 unsigned int winversion = getWinVersion();
-	 if ( winversion < 6 )
-		 return ExecProc( comm, true, true, runin );
-	 return ExecShellCmd( comm, parm, runin );
-}
-
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
@@ -226,7 +143,7 @@ void ODInst::startInstManagement()
     BufferString parm( " --instdir "  );
     parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
     
-    ExecuteProg( cmd, parm, installerdir.pathOnly() );
+    executeWinProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
 
