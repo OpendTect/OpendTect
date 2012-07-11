@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitblimpexpdatasel.cc,v 1.57 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitblimpexpdatasel.cc,v 1.58 2012-07-11 14:12:55 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -56,7 +56,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.nrForms() > 1 )
     {
 	formfld_ = new uiComboBox( this, "Form choice" );
-	formfld_->setPrefWidthInChar( 10 );
+	formfld_->setPrefWidthInChar( 16 );
 	formfld_->selectionChanged.notify( boxcb );
     }
 
