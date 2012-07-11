@@ -1,11 +1,17 @@
-# Configuration for ctest's sending of the reports.
-# 
-# $Id: CTestConfig.cmake,v 1.1 2012-07-05 07:28:26 cvskris Exp $
-#
+## This file should be placed in the root directory of your project.
+## Then modify the CMakeLists.txt file in the root directory of your
+## project to incorporate the testing dashboard.
+##
+## # The following are required to submit to the CDash dashboard:
+##   ENABLE_TESTING()
+##   INCLUDE(CTest)
 
 set(CTEST_PROJECT_NAME "OpendTect")
 set(CTEST_NIGHTLY_START_TIME "01:00:00 UTC")
+
 set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "my.cdash.org")
-set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
+set(CTEST_DROP_LOCATION "/submit.php?project=OpendTect")
 set(CTEST_DROP_SITE_CDASH TRUE)
+
+set(CTEST_PROJECT_SUBPROJECTS od od4.4)
