@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.8 2012-07-10 15:02:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.9 2012-07-11 15:26:58 cvsbruno Exp $";
 
 
 #include "uiseissingtrcdisp.h"
 #include "arrayndimpl.h"
 #include "flatposdata.h"
-#include "wavelet.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "wavelet.h"
 
 
 uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
@@ -112,6 +112,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     }
 
     handleChange( All );
+    setViewToBoundingBox();
 }
 
 
