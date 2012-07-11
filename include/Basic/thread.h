@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.59 2012-07-10 14:09:50 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.60 2012-07-11 06:56:13 cvsranojay Exp $
 ________________________________________________________________________
 
 */
 
 #include "commondefs.h"
+#include "plftypes.h"
 
 #ifndef OD_NO_QT
 class QThread;
@@ -23,7 +24,7 @@ class QWaitCondition;
 class CallBack;
 
 #ifdef __win__
-#include "windows.h"
+#include <windows.h>
 #define mHasAtomic
 #define mAtomicWithMutex
 #endif
