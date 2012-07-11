@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatbitmapdisplay.cc,v 1.6 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatbitmapdisplay.cc,v 1.7 2012-07-11 15:28:54 cvsbruno Exp $";
 
 #include "uiflatbitmapdisplay.h"
 
-#include "flatviewbitmapmgr.h"
 #include "datapackbase.h"
 #include "flatposdata.h"
+#include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "pixmap.h"
 #include "threadwork.h"
@@ -191,7 +191,7 @@ void uiBitMapDisplay::update()
     }
 
     const uiWorldRect wr( xrg.start, yrg.start, xrg.stop, yrg.stop );
-    const uiSize sz( xrg.nrSteps()+1, yrg.nrSteps()+1 );
+    const uiSize sz( viewrect_.width(), viewrect_.height() );
 
     basetask_->setScope( wr, sz );
     if ( !basetask_->execute() )

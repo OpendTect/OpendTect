@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.142 2012-07-10 15:02:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.143 2012-07-11 15:28:54 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -129,6 +129,7 @@ uiFlatViewer::~uiFlatViewer()
 void uiFlatViewer::reSizeCB( CallBacker* cb )
 {
     axesdrawer_.setViewRect( getViewRect() );
+    bitmapdisp_->setViewRect( getViewRect() );
     updateTransforms();
     updateAnnotPositions();
 }
