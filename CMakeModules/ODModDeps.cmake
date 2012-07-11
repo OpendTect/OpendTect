@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODModDeps.cmake,v 1.12 2012-07-11 07:17:53 cvskris Exp $
+#	RCS :		$Id: ODModDeps.cmake,v 1.13 2012-07-11 07:50:46 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
@@ -88,7 +88,7 @@ ENDMACRO()
 # OD_WRITE_TEST_PROJECT_DESC - Marcro that writes an xml-file for cdash submition
 #		    a file. 
 # Input variables:
-# OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
+# OD_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
 # OD_${OD_MODULE_NAME}_DEPS		: The modules this module is dependent
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
@@ -96,12 +96,17 @@ ENDMACRO()
 MACRO( OD_WRITE_TEST_PROJECT_DESC BASEDIR )
 
 SET( OD_PROJECT_FILE ${BASEDIR}/Project.xml )
+SET( OD_SUBPROJECT_LISTFILE ${BASEDIR}/subprojects.cmake )
 
 FILE(WRITE ${OD_PROJECT_FILE} "<Project name=\"OpendTect\">\n")
-FOREACH ( MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
+FILE(WRITE ${OD_SUBPROJECT_LISTFILE} "set ( CTEST_PROJECT_SUBPROJECTS\n")
+FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     IF ( NOT ${MODULE} MATCHES "AllNonUi" )
 	FILE(APPEND ${OD_PROJECT_FILE}
 	    "    <SubProject name=\"${MODULE}\">\n")
+
+	FILE(APPEND ${OD_SUBPROJECT_LISTFILE}
+	    "    \"${MODULE}\"\n")
 
 	#Add all module dependencies
 	IF( OD_${MODULE}_DEPS )
@@ -115,7 +120,6 @@ FOREACH ( MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
     ENDIF()
 ENDFOREACH()
 FILE(APPEND ${OD_PROJECT_FILE} "</Project>\n")
-
-
+FILE(APPEND ${OD_SUBPROJECT_LISTFILE} ")\n" )
 
 ENDMACRO()
