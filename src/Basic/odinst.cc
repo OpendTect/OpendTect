@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.20 2012-07-10 07:11:28 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.21 2012-07-11 11:55:59 cvsmahant Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -38,6 +38,8 @@ static BufferString getInstDir()
 }
 #undef mRelRootDir
 #define mRelRootDir getInstDir()
+#else
+#include "unistd.h"
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
