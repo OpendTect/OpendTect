@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.14 2012-05-22 21:52:18 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.15 2012-07-11 14:17:45 cvsbert Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -151,7 +151,8 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( "TD" ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "Surface Reference Datum (SRD)" ); fd_.bodyinfos_ += ti;
+    ti->setName( "Distance between SRD and MSL" );
+    fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.9" );
