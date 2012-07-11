@@ -13,5 +13,3 @@ set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "my.cdash.org")
 set(CTEST_DROP_LOCATION "/submit.php?project=OpendTect")
 set(CTEST_DROP_SITE_CDASH TRUE)
-
-set(CTEST_PROJECT_SUBPROJECTS od od4.4)
