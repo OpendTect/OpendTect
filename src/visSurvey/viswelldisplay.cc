@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.154 2012-07-10 08:05:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.155 2012-07-11 15:27:49 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -622,15 +622,21 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     float mousez = pos.z; 
 
+    PtrMan<Well::Track> ttrack = 0;
+    if ( zistime_ && wd->haveD2TModel() )
+    {
+	mTryAlloc( ttrack, Well::Track( wd->track() ) );
+	ttrack->toTime( *wd->d2TModel() );
+    }
+    const Well::Track& track = zistime_ ? *ttrack : wd->track();
+
     info = "Well: "; info += wd->name();
     info += ", MD "; 
-
-    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez ) 
-			       : wd->track().getDahForTVD( mousez );
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
 							mToFeetFactor : 1;
+    const float dah = track.nearestDah(pos);
     info += toString( mNINT32(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
