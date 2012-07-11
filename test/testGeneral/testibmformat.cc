@@ -5,7 +5,7 @@
  * FUNCTION : 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.3 2012-07-10 08:03:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.4 2012-07-11 07:30:28 cvskris Exp $";
 
 #include "ibmformat.h"
 #include "math2.h"
@@ -65,11 +65,19 @@ public:
     buf = bufval; \
     const tp val = IbmFormat::as##func( &buf ); \
     if ( !mComp( val, correctval ) ) \
+    { \
+	std::cerr << "Failed test with IbmFormat::as##func( " \
+		  << bufval << " )\n"; \
 	return 1; \
+    } \
  \
     IbmFormat::put##func( correctval, &resbuf ); \
     if ( resbuf!=buf ) \
+    { \
+	std::cerr << "Failed test with IbmFormat::put##func( " \
+		  << bufval << " )\n"; \
 	return 1; \
+    } \
 } 
 
 
