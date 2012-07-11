@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.92 2012-05-11 14:02:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.93 2012-07-11 14:22:00 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -556,7 +556,7 @@ void uiWellMan::mkFileInfo()
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
-	    txt += "Surface Reference Datum"; txt += ": ";
+	    txt += "Distance SRD -> MSL"; txt += ": ";
 	    txt += zun->userValue(surfelev); txt += zun->symbol(); txt += "\n";
 	}
     }
