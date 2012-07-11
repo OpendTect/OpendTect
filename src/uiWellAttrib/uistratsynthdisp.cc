@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.98 2012-06-11 13:49:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.99 2012-07-11 15:25:08 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -450,6 +450,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
+    vwr_->setViewToBoundingBox();
 }
 
 
