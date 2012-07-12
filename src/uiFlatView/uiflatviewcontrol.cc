@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.62 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.63 2012-07-12 15:04:44 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -22,10 +22,12 @@ static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.62 2012-07-
 #include "uiobjdisposer.h"
 
 
-uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
+uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
+				bool rub, bool withhanddrag )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(rub)
+    , withhanddrag_(withhanddrag)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
@@ -54,8 +56,8 @@ uiFlatViewControl::~uiFlatViewControl()
 void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 {
     vwrs_ += &vwr;
-    vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
     vwr.control_ = this;
+    vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
 
     uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )

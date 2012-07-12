@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.99 2012-07-11 15:25:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.100 2012-07-12 15:04:45 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -137,7 +137,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     cleanSynthetics();
 
-    vwr_ = new uiFlatViewer( this, true );
+    vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
@@ -417,7 +417,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 {
     const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
 
-    vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    vwr_->clearAllPacks(); 
     vwr_->control()->zoomMgr().toStart();
     while ( vwr_->nrAuxData() )
 	delete vwr_->removeAuxData( 0 );
@@ -463,7 +463,7 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     if ( !prestackwin_ ) return;
 
     uiFlatViewer& vwr = prestackwin_->viewer();
-    vwr.clearAllPacks(); vwr.setNoViewDone();
+    vwr.clearAllPacks();
     vwr.control()->zoomMgr().toStart();
 
     if ( !sd ) return;

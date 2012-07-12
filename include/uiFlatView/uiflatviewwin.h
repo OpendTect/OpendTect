@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.15 2011-06-29 11:15:32 cvsbruno Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.16 2012-07-12 15:04:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ protected:
     ObjectSet<uiFlatViewer>	vwrs_;
 
     void			makeInfoMsg(BufferString&,IOPar&) const;
-    void			createViewers(int,bool withhanddrag = false);
+    void			createViewers(int);
     void			cleanUp();
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}

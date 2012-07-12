@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.48 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.49 2012-07-12 15:04:44 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.48 2012-
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
-    : uiFlatViewControl(vwr,setup.parent_,true)
+    : uiFlatViewControl(vwr,setup.parent_,true,setup.withhanddrag_)
     , vwr_(vwr)
     , ctabed_(0)
     , manip_(false)
@@ -92,17 +92,14 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
-    zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
-    //vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
+    //zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
-    //vwr_.appearance().annot_.editable_ = false;
 
     if ( setup.withthumbnail_ )
 	new uiFlatViewThumbnail( this, vwr );
-    //TODO attach keyboard events to panCB
 }
 
 
@@ -122,7 +119,7 @@ void uiFlatViewStdControl::finalPrepare()
 	MouseEventHandler& mevh =
 	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
 	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
-	if ( vwrs_[idx]->hasHandDrag() )
+	if ( withhanddrag_ )
 	{
 	    mevh.buttonPressed.notify(
 		    mCB(this,uiFlatViewStdControl,handDragStarted));
@@ -254,7 +251,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
     const uiGraphicsView& canvas = vwrs_[0]->rgbCanvas();
     if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
-	 !mousepressed_ || !vwrs_[0]->hasHandDrag() )
+	 !mousepressed_ || !withhanddrag_ )
 	return;
     
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
@@ -280,36 +277,6 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
     
     //TODO: Should we set the zoom-manager ?
 }
-
-/*
-void uiFlatViewStdControl::panCB( CallBacker* )
-{
-    const bool isleft = true;
-    const bool isright = false;
-    const bool isup = false;
-    const bool isdown = false;
-    const bool ishor = isleft || isright;
-
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    const bool isrev = ishor ? cv.left() > cv.right() : cv.bottom() > cv.top();
-    const double fac = 1 - zoommgr_.fwdFac();
-    const double pandist = fac * (ishor ? cv.width() : cv.height());
-
-    Geom::Point2D<double> centre = cv.centre();
-    Geom::Size2D<double> sz = cv.size();
-    if ( (!isrev && isleft) || (isrev && isright) )
-	centre.x -= pandist;
-    else if ( (isrev && isleft) || (!isrev && isright) )
-	centre.x += pandist;
-    else if ( (isrev && isup) || (!isrev && isdown) )
-	centre.y -= pandist;
-    else if ( (!isrev && isup) || (isrev && isdown) )
-	centre.y += pandist;
-
-    setNewView( centre, sz );
-}
-
-*/
 
 
 void uiFlatViewStdControl::flipCB( CallBacker* )

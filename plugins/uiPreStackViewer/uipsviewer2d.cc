@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2d.cc,v 1.12 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2d.cc,v 1.13 2012-07-12 15:04:44 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID mUnusedVar = "$Id: uipsviewer2d.cc,v 1.12 2012-05-02 15
 namespace PreStackView
 {
 
-uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
+uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     : uiGroup(p, "Pre-stack gather Display" )
     , bid_(-1,-1)
     , zrg_(0)
@@ -32,7 +32,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
     , offsetrange_( mUdf(float), mUdf(float) )
     , displayannotation_(true)					      
 {
-    viewer_ = new uiFlatViewer( this, havehandpan );
+    viewer_ = new uiFlatViewer( this );
     viewer_->appearance().setGeoDefaults( true );
     viewer_->appearance().setDarkBG( false );
     viewer_->appearance().annot_.color_ = Color::Black();

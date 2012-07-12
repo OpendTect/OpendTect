@@ -7,35 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.143 2012-07-11 15:28:54 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.144 2012-07-12 15:04:44 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
-#include "uiflatbitmapdisplay.h"
 #include "uiflatauxdatadisplay.h"
-#include "uiflatviewcontrol.h"
+#include "uiflatbitmapdisplay.h"
 #include "uigraphicsscene.h"
-#include "uigraphicsitemimpl.h"
-#include "uimain.h"
-#include "uimsg.h"
-#include "uirgbarraycanvas.h"
-#include "uirgbarray.h"
+#include "uigraphicsview.h"
 #include "uiworld2ui.h"
 
 #include "bufstringset.h"
-#include "datapackbase.h"
-#include "debugmasks.h"
-#include "draw.h"
 #include "drawaxis2d.h"
-#include "geometry.h"
 #include "flatposdata.h"
-#include "flatviewbitmapmgr.h"
 #include "flatviewaxesdrawer.h"
-#include "flatviewzoommgr.h"
 #include "threadwork.h"
-#include "linerectangleclipper.h"
 #include "mousecursor.h"
-#include "pixmap.h"
 
 #define mBitMapZ	0
 #define mAuxDataZ	100
@@ -43,42 +30,23 @@ static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.143 2012-07-11 1
 #define mAnnotZ		300
 
 
-#define mStdInitItem \
-      titletxtitem_(0) \
-    , axis1nm_(0) \
-    , axis2nm_(0) \
-    , rectitem_(0) \
-    , arrowitem1_(0) \
-    , arrowitem2_(0) \
-    , markeritemset_(0) \
-    , adnameitemset_(0) 
-
-
-float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
-
-uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
+uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
-    , mStdInitItem
     , view_( new uiGraphicsView( this, "Flatview" ) )
     , axesdrawer_(*new FlatView::AxesDrawer(*this,*view_))
     , dim0extfac_(0.5)
-    , anysetviewdone_(false)
-    , enabhaddrag_(enabhanddrag)
-    , initview_(true)
     , extraborders_(0,0,5,0)
-    , viewborder_(0,0,0,0)
-    , viewChanging(this)
-    , viewChanged(this)
-    , dataChanged(this)
-    , control_(0)
-    , xseldatarange_(mUdf(float),mUdf(float))		 
-    , yseldatarange_(mUdf(float),mUdf(float))
-    , useseldataranges_(false)	 
     , worldgroup_( new uiGraphicsItemGroup( true ) )
     , bitmapdisp_( new FlatView::uiBitMapDisplay( *this ) )
     , annotwork_( mCB(this,uiFlatViewer,updateAnnotCB) )
     , auxdatawork_( mCB(this,uiFlatViewer,updateAuxDataCB) )
     , bitmapwork_( mCB(this,uiFlatViewer,updateBitmapCB) )
+    , control_(0)
+    , xseldatarange_(mUdf(float),mUdf(float))		 
+    , yseldatarange_(mUdf(float),mUdf(float))
+    , useseldataranges_(false)	 
+    , viewChanged(this)
+    , dataChanged(this)
 {
     updatequeueid_ =
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
@@ -99,27 +67,16 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
 }
 
 
-#define mRemoveAnnotItem( item ) { view_->scene().removeItem(item); delete item; item = 0; }
-
 uiFlatViewer::~uiFlatViewer()
 {
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
 
-    if ( markeritemset_ )
-	view_->scene().removeItems( *markeritemset_ );
-
-    delete markeritemset_;
     delete &axesdrawer_;
 
     bitmapdisp_->removeDisplay();
     delete bitmapdisp_;
 
-    mRemoveAnnotItem( rectitem_ );
-    mRemoveAnnotItem( arrowitem1_ );
-    mRemoveAnnotItem( axis1nm_ );
-    mRemoveAnnotItem( arrowitem2_ );
-    mRemoveAnnotItem( axis2nm_ );
-    mRemoveAnnotItem( worldgroup_ );
+    delete view_->scene().removeItem( worldgroup_ );
 
     deepErase( auxdata_ );
 
@@ -131,7 +88,6 @@ void uiFlatViewer::reSizeCB( CallBacker* cb )
     axesdrawer_.setViewRect( getViewRect() );
     bitmapdisp_->setViewRect( getViewRect() );
     updateTransforms();
-    updateAnnotPositions();
 }
 
 
@@ -172,47 +128,6 @@ void uiFlatViewer::updateAnnotCB( CallBacker* )
 }
 
 
-void uiFlatViewer::updateAnnotPositions()
-{
-    const uiRect scenerect = view_->getSceneRect();
-    const uiRect datarect = getViewRect();
-
-    if ( titletxtitem_ )
-        titletxtitem_->setPos(uiPoint(scenerect.centre().x,scenerect.top()-35));
-
-    if ( rectitem_ )
-	rectitem_->setRect( datarect.left(), datarect.top(),
-			    datarect.width(), datarect.height() );
-
-    const FlatView::Annotation& annot = appearance().annot_;
-
-    const int ynameannpos = datarect.bottom() - 2;
-    if ( arrowitem1_ )
-    {
-	const uiSize totsz( view_->width(), view_->height() );
-	uiPoint from( datarect.right()-12, ynameannpos + 15 );
-	uiPoint to( datarect.right()-2, ynameannpos  + 15);
-	if ( annot.x1_.reversed_ ) Swap( from, to );
-	arrowitem1_->setTailHeadPos( from, to );
-	if ( axis1nm_ )
-	    axis1nm_->setPos( uiPoint(datarect.right()-20,ynameannpos) );
-    }
-
-    if ( arrowitem2_ )
-    {
-	const int left = datarect.left();
-	uiPoint from( left , ynameannpos + 15 );
-	uiPoint to( left, ynameannpos + 25 );
-	if ( annot.x2_.reversed_ ) Swap( from, to );
-	arrowitem2_->setTailHeadPos( from, to );
-
-	if ( axis2nm_ )
-	    axis2nm_->setPos( uiPoint(left+10,ynameannpos) );
-    }
-    
-}
-
-
 void uiFlatViewer::updateTransforms() 
 {
     const uiRect viewrect = getViewRect();
@@ -232,12 +147,6 @@ void uiFlatViewer::setRubberBandingOn( bool yn )
     view_->setDragMode( yn ? uiGraphicsView::RubberBandDrag
 	   		    : uiGraphicsView::NoDrag );
     view_->scene().setMouseEventActive( true );
-}
-
-
-Color uiFlatViewer::color( bool foreground ) const
-{
-    return appearance().darkBG() == foreground ? Color::White():Color::Black();
 }
 
 
@@ -316,6 +225,7 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
     axesdrawer_.setWorldCoords( wr_ );
     updateTransforms();
 
+    viewChanged.trigger();
 }
 
 
@@ -357,12 +267,8 @@ void uiFlatViewer::updateCB( CallBacker* )
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    //if ( datachgd && hasdata )
-    //{
-	//TODO: Check who's listening and decide what to do.
-	//dataChanged.trigger();
-    //}
 
+    dataChanged.trigger();
     bitmapdisp_->update();
 }
 
@@ -404,97 +310,6 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 }
 
 
-void uiFlatViewer::updateGridAnnot( bool isvisble )
-{
-    if ( rectitem_ ) rectitem_->setVisible( isvisble );
-    if ( arrowitem1_ ) arrowitem1_->setVisible( isvisble );
-    if ( axis1nm_ ) axis1nm_->setVisible( isvisble );
-    if ( arrowitem2_ ) arrowitem2_->setVisible( isvisble );
-    if ( axis2nm_ ) axis2nm_->setVisible( isvisble );
-    if ( !isvisble ) return;
-
-    const FlatView::Annotation& annot = appearance().annot_;
-    const FlatView::Annotation::AxisData& ad1 = annot.x1_;
-    const FlatView::Annotation::AxisData& ad2 = annot.x2_;
-    const bool showanyx1annot = ad1.showannot_ || ad1.showgridlines_;
-    const bool showanyx2annot = ad2.showannot_ || ad2.showgridlines_;
-    
-    const uiRect viewrect( getViewRect() );
-    LineStyle ls( LineStyle::Solid, 1, annot.color_ );
-    axesdrawer_.setXLineStyle( ls );
-    axesdrawer_.setYLineStyle( ls );
-    axesdrawer_.setGridLineStyle( ls );
-    axesdrawer_.setXFactor( ad1.factor_ );
-    axesdrawer_.setYFactor( ad2.factor_ );
-
-    if ( (!showanyx1annot && !showanyx2annot) )
-    {
-	mRemoveAnnotItem( rectitem_ )
-	mRemoveAnnotItem( arrowitem1_ )
-	mRemoveAnnotItem( axis1nm_ )
-	mRemoveAnnotItem( arrowitem2_ )
-	mRemoveAnnotItem( axis2nm_ )
-	return;
-    }
-
-    if ( !rectitem_ )
-	rectitem_ = view_->scene().addRect( viewrect.left(),
-					     viewrect.top(),
-					     viewrect.width(),
-					     viewrect.height() );
-
-    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, annot.color_) );
-    rectitem_->setZValue(1);
-
-    ArrowStyle arrowstyle( 1 );
-    arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
-    if ( showanyx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
-    {
-	if ( !arrowitem1_ )
-	{
-	    arrowitem1_ = view_->scene().addItem( new uiArrowItem() );
-	    arrowitem1_->setZValue( mAnnotZ );
-	    arrowitem1_->setArrowStyle( arrowstyle );
-	}
-
-	arrowitem1_->setPenColor( annot.color_ );
-
-	if ( !axis1nm_ )
-	{
-	    axis1nm_ = view_->scene().addItem(
-		    new uiTextItem(ad1.name_,mAlignment(Right,Top)) );
-	    axis1nm_->setZValue( mAnnotZ );
-	}
-	else
-	    axis1nm_->setText( ad1.name_ );
-
-	axis1nm_->setTextColor( annot.color_ );
-    }
-
-    if ( showanyx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
-    {
-	if ( !arrowitem2_ )
-	{
-	    arrowitem2_ = view_->scene().addItem( new uiArrowItem() );
-	    arrowitem2_->setZValue( mAnnotZ ); 
-	    arrowitem2_->setArrowStyle( arrowstyle );
-	}
-
-	arrowitem2_->setPenColor( annot.color_ );
-
-	if ( !axis2nm_ )
-	{
-	    axis2nm_ = view_->scene().addItem(
-		    new uiTextItem(ad2.name_,mAlignment(Left,Top)) );
-	    axis2nm_->setZValue( mAnnotZ );
-	}
-	else
-	    axis2nm_->setText( ad2.name_ );
-	axis2nm_->setTextColor( annot.color_ );
-    }
-}
-
-
 void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
 {
     mDynamicCastGet( FlatView::uiAuxDataDisplay*, uiad, &ad );
@@ -505,19 +320,6 @@ void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
     }
 
     uiad->updateCB( 0 );
-}
-
-
-Interval<float> uiFlatViewer::getBitmapDataRange( bool iswva ) const
-{ return bitmapdisp_->getDataRange( iswva ); }
-
-
-void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
-{
-    useseldataranges_ = true;
-    xseldatarange_ = xrg;
-    yseldatarange_ = yrg;
-    viewChanged.trigger();
 }
 
 
@@ -568,3 +370,14 @@ FlatView::AuxData* uiFlatViewer::removeAuxData( int idx )
     auxdata_[idx]->removeDisplay();
     return auxdata_.remove(idx);
 }
+
+
+
+void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
+{
+    useseldataranges_ = true;
+    xseldatarange_ = xrg;
+    yseldatarange_ = yrg;
+    viewChanged.trigger();
+}
+

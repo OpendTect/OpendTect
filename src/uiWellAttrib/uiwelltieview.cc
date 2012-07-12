@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.105 2012-06-22 08:38:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.106 2012-07-12 15:04:45 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -221,7 +221,7 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
 
 void uiTieView::setDataPack() 
 {
-    vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    vwr_->clearAllPacks();
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
 				SeisTrcInfo::TrcNr, "Seismic" );
     dp->trcBufArr2D().setBufMine( false );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.7 2012-07-10 13:27:25 cvsbruno Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.8 2012-07-12 15:04:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,6 @@ mClass AxesDrawer : public ::uiGraphicsSceneAxisMgr
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);
     
-
-    void		draw(uiRect,uiWorldRect);
 
     int			altdim0_;
 

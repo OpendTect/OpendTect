@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.6 2011-05-16 09:27:43 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.7 2012-07-12 15:04:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace PreStackView
 mClass uiGatherDisplay : public uiGroup
 {
 public:
-    				uiGatherDisplay(uiParent*,bool havepan=false);
+    				uiGatherDisplay(uiParent*);
     				~uiGatherDisplay();
 
     virtual void                setPosition(const BinID&,
