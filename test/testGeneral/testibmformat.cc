@@ -5,7 +5,7 @@
  * FUNCTION : 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.4 2012-07-11 07:30:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.5 2012-07-12 14:26:16 cvsdgb Exp $";
 
 #include "ibmformat.h"
 #include "math2.h"
@@ -22,7 +22,11 @@ bool testFloatIndex( int origin, float target )
 	return true;
 
     if ( !mIsUdf(target) && fval!=target )
+    {
+	std::cerr << "Failure at index " << origin << ": Should be "
+		  << target << " but is " << fval <<"\n";
 	return false;
+    }
     
     unsigned int buf;
     IbmFormat::putFloat( fval, &buf );
