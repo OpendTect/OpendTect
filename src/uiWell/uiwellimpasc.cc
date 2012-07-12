@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpasc.cc,v 1.76 2012-07-11 14:20:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpasc.cc,v 1.77 2012-07-12 07:46:34 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -180,7 +180,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	dispval *= mToFeetFactor;
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this,
-		"Distance between Surface Reference Datum (SRD) and MSL",
+		"Difference between MSL and Seismic Reference Datum (SRD)",
 		FloatInpSpec(dispval) );
     elevfld->attach( alignedBelow, coordfld );
     zinftbox = new uiCheckBox( this, "Feet" );
