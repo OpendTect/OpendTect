@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.61 2012-07-11 07:43:15 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.62 2012-07-12 14:07:52 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -327,8 +327,7 @@ FOREACH( TEST_FILE ${OD_TEST_PROGS} )
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
 	    ${OD_RUNTIMELIBS} )
-    ADD_TEST( ${TEST_NAME} ${CMAKE_SOURCE_DIR}/dtect/run_test
-		  --command ${OD_EXEC_OUTPUT_PATH}/${TEST_NAME} )
+    ADD_TEST( ${TEST_NAME} ${OD_EXEC_OUTPUT_PATH}/${TEST_NAME} )
     SET_PROPERTY( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_TEST_LABEL} )
 ENDFOREACH()
 
