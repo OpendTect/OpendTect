@@ -7,25 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initearthmodel.cc,v 1.16 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initearthmodel.cc,v 1.17 2012-07-12 18:02:16 cvsnanne Exp $";
 
 
 #include "moddepmgr.h"
+#include "embodytr.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-#include "emmarchingcubessurface.h"
 #include "emhorizonztransform.h"
+#include "emmarchingcubessurface.h"
 #include "emobject.h"
-#include "emrandomposbody.h"
 #include "empolygonbody.h"
+#include "emrandomposbody.h"
 #include "emsurfaceiodata.h"
-#include "emsurfacetr.h"
 #include "emsurfaceposprov.h"
+#include "emsurfacetr.h"
 #include "lmkemfaulttransl.h"
-#include "embodytr.h"
-
+#include "zdomain.h"
 
 mDefModInitFn(EarthModel)
 {
@@ -60,4 +60,7 @@ mDefModInitFn(EarthModel)
     Pos::EMSurfaceProvider3D::initClass();
     Pos::EMSurfaceProvider2D::initClass();
     Pos::EMImplicitBodyProvider::initClass();
+
+    ZDomain::Def::add( new ZDomain::Def("Time-Flattened","Time","ms",1000) );
+    ZDomain::Def::add( new ZDomain::Def("Depth-Flattened","Depth","",1) );
 }
