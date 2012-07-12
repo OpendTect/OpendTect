@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.26 2012-05-02 15:12:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.27 2012-07-12 07:07:24 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -120,7 +120,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
-	aio.get( *sdi.istrm, d2t, wd.track() );
+	aio.get( *sdi.istrm, d2t, wd );
     }
 
     d2t.deInterpolate();

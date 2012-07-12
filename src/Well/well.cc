@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.97 2012-05-03 09:41:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.98 2012-07-12 07:07:24 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -769,30 +769,44 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
 
 float Well::Track::getDahForTVD( float z, float prevdah ) const
 {
+    const bool haveprevdah = !mIsUdf(prevdah);
+    const int sz = dah_.size();
+    if ( sz < 1 )
+	return mUdf(float);
     if ( zistime_ )
-	{ pErrMsg("Cannot compare TVD to time"); return dah_[0]; }
+	{ pErrMsg("getDahForTVD called for time well");
+	    return haveprevdah ? prevdah : dah_[0]; }
 
-    bool haveprevdah = !mIsUdf(prevdah);
-    int foundidx = -1;
-    for ( int idx=0; idx<pos_.size(); idx++ )
+    static const float eps = 1e-4;
+    if ( sz == 1 )
+	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
+    if ( z < dah_[0]-eps )
+	return mUdf(float);
+
+#define mZInRg() \
+    (zrg.start-eps < z  && zrg.stop+eps  > z) \
+ || (zrg.stop-eps  < z  && zrg.start+eps > z)
+
+    Interval<float> zrg( pos_[0].z, 0 );
+    int idxafter = -1;
+    for ( int idx=1; idx<pos_.size(); idx++ )
     {
-	const Coord3& c = pos_[idx];
-	float cz = pos_[idx].z;
-	if ( haveprevdah && prevdah-1e-4 > dah_[idx] )
-	    continue;
-	if ( pos_[idx].z + 1e-4 > z )
-	    { foundidx = idx; break; }
+	if ( !haveprevdah || prevdah+eps < dah_[idx] )
+	{
+	    zrg.stop = pos_[idx].z;
+	    if ( mZInRg() )
+		{ idxafter = idx; break; }
+	}
+	zrg.start = zrg.stop;
     }
-    if ( foundidx < 1 )
-	return foundidx ? mUdf(float) : dah_[0];
+    if ( idxafter < 1 )
+	return mUdf(float);
 
-    const int idx1 = foundidx - 1;
-    const int idx2 = foundidx;
-    float z1 = pos_[idx1].z;
-    float z2 = pos_[idx2].z;
-    float dah1 = dah_[idx1];
-    float dah2 = dah_[idx2];
-    return ((z-z1) * dah2 + (z2-z) * dah1) / (z2-z1);
+    const int idx1 = idxafter - 1; const int idx2 = idxafter;
+    const float z1 = pos_[idx1].z; const float z2 = pos_[idx2].z;
+    const float dah1 = dah_[idx1]; const float dah2 = dah_[idx2];
+    const float zdiff = z2 - z1;
+    return mIsZero(zdiff,eps) ? dah2 : ((z-z1) * dah2 + (z2-z) * dah1) / zdiff;
 }
 
 

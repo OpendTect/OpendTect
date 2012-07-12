@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.26 2012-05-22 16:44:14 cvsnanne Exp $
+ RCS:		$Id: wellimpasc.h,v 1.27 2012-07-12 07:07:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ mClass D2TModelAscIO : public Table::AscIO
     static void                 createDescBody(Table::FormatDesc*,bool unitfld);
 
     bool                        get(std::istream&,Well::D2TModel&,
-	    			    const Well::Track&) const;
+	    			    const Well::Data&) const;
 };
 
 

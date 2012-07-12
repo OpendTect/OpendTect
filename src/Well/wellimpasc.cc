@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.88 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.89 2012-07-12 07:07:24 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -21,14 +21,9 @@ static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.88 2012-07-10 08:0
 
 
 static bool convToDah( const Well::Track& trck, float& val,
-			float prev=mUdf(float) )
+			float prevdah=mUdf(float) )
 {
-    const Interval<float> trckzrg( trck.pos(0).z - 1e-6,
-	    			 trck.pos(trck.size()-1).z + 1e-6 );
-    if ( !trckzrg.includes(val,false) )
-	return false;
-
-    val = trck.getDahForTVD( val, prev );
+    val = trck.getDahForTVD( val, prevdah );
     return !mIsUdf(val);
 }
 
@@ -313,7 +308,7 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
     if ( havestart && havestop )
 	reqzrg.sort();
 
-    float prevdpth = mUdf(float);
+    float prevdpth = mUdf(float), prevdah = mUdf(float);
     int nradded = 0;
     while ( true )
     {
@@ -347,6 +342,7 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	    break;
 	if ( beforestart || afterstop || mIsEqual(prevdpth,dpth,mDefEps) )
 	    continue;
+	prevdpth = dpth;
 
 	TypeSet<float> selvals;
 	for ( int icol=0; icol<totalcols; icol++ )
@@ -360,14 +356,15 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	}
 	if ( selvals.isEmpty() ) continue;
 
-	float z = dpth;
-	if ( istvd && !convToDah(wd_->track(),z,prevdpth) )
+	float dah = dpth;
+	if ( istvd && !convToDah(wd_->track(),dah,prevdah) )
 	    continue;
+	prevdah = dah;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    wd_->logs().getLog(addstartidx+idx).addValue( z, selvals[idx] );
+	    wd_->logs().getLog(addstartidx+idx).addValue( dah, selvals[idx] );
 
-	nradded++; prevdpth = dpth;
+	nradded++;
     }
 
     if ( nradded == 0 )
@@ -567,10 +564,12 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 					  bool withunits )
 {
-    fd->bodyinfos_ += gtDepthTI( withunits );
+    Table::TargetInfo* ti = gtDepthTI( withunits );
+    ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
+    fd->bodyinfos_ += ti;
 
-    Table::TargetInfo* ti = new Table::TargetInfo( "Time", FloatInpSpec(),
-	    			Table::Required, PropertyRef::Time );
+    ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
+	    			PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
@@ -585,11 +584,14 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 
 
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
-       				const Well::Track& trck ) const
+       				const Well::Data& wll ) const
 {
     d2t.erase();
-    if ( trck.isEmpty() ) return true;
+    if ( wll.track().isEmpty() ) return true;
 
+    const int dpthopt = formOf( false, 0 );
+    const int tmopt = formOf( false, 1 );
+    float prevdah = mUdf(float);
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
@@ -600,10 +602,17 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	float time = getfValue( 1 );
 	if ( mIsUdf(dah) || mIsUdf(time) )
 	    continue;
-	if ( formOf(false,0) == 1 && !convToDah(trck,dah) )
-	    continue;
+
+	if ( dpthopt > 0 )
+	{
+	    if ( dpthopt == 2 )
+		dah -= wll.info().surfaceelev;
+	    if ( !convToDah(wll.track(),dah,prevdah) )
+		continue;
+	    prevdah = dah;
+	}
 	
-	if ( formOf(false,1) == 1 )
+	if ( tmopt == 1 )
 	    time *= 2;
 
 	d2t.add( dah, time );
