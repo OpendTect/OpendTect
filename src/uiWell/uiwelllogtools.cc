@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.24 2012-06-27 12:50:43 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.25 2012-07-12 14:11:05 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -65,18 +65,17 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	const char* nm = Well::IO::getMainFileName( wid );
 	if ( !nm || !*nm ) continue;
 
-	Well::Data wd; Well::Reader wr( nm, wd ); 
-	wr.getLogs(); wr.getMarkers(); wr.getD2T();
+	Well::Data wd; Well::Reader wr( nm, wd );  wr.get();
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata = 
 	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel());
-	if ( !ldata->setSelectedLogs( lognms ) ) 
-	    { delete ldata; continue; }
-	ldata->wellid_ = wid; 
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
 	ldata->wellname_ = wellnms[idx]->buf();
+	if ( !ldata->setSelectedLogs( lognms ) ) 
+	    { delete ldata; continue; }
+	ldata->wellid_ = wid; 
 
 	logdatas += ldata;
     }
@@ -143,7 +142,15 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	Well::Log* wl = logs_.getLog( lognms[idx]->buf() );
-	if ( wl ) { inplogs_ += wl; nrsel++; }
+	if ( !wl || wl->isEmpty() )
+	    continue;
+	for ( int dahidx=wl->size()-1; dahidx>=0; dahidx -- )
+	{
+	    if ( !dahrg_.includes( wl->dah( dahidx ), true ) )
+		wl->remove( dahidx );
+	}
+	inplogs_ += wl; 
+	nrsel++; 
     }
     return nrsel;
 }
