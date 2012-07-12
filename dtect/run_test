@@ -18,5 +18,10 @@ goto parse_args
 
 do_it:
 
-setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+if ( $?LD_LIBRARY_PATH ) then
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+else
+    setenv LD_LIBRARY_PATH ${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+endif
+
 ${cmd}
