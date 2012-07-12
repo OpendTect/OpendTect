@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.25 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.26 2012-07-12 19:02:47 cvsnanne Exp $";
 
 #include "uihorinterpol.h"
 
@@ -37,7 +37,7 @@ static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.25 2012-05-02 1
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   "104.0.16").modal(false) )
+				   "104.0.16").modal(true) )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
