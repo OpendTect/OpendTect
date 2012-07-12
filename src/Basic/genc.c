@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.121 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.122 2012-07-12 05:44:36 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -108,7 +108,14 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     static int nrfns = 0;
     static PtrAllVoidFn fns[100];
     int idx;
-    if ( ((od_int64)fn) == ((od_int64)(-1)) )
+
+#ifdef __lux32__
+# define ptr_cast od_int32
+#else
+# define ptr_cast od_int64
+#endif
+
+    if ( ((ptr_cast)fn) == ((ptr_cast)(-1)) )
     {
 	for ( idx=0; idx<nrfns; idx++ )
 	    (*(fns[idx]))();
