@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.39 2012-07-10 13:27:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.40 2012-07-13 09:39:42 cvsbruno Exp $";
 
 #include "drawaxis2d.h"
 
@@ -181,7 +181,7 @@ void uiGraphicsSceneAxis::update()
     
     BufferString txt;
     const float fnrsteps = rg_.width(false)/axis.step;
-    const int nrsteps = (int)( fnrsteps )+1;
+    const int nrsteps = mNINT32( fnrsteps )+1;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
