@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.67 2012-07-10 13:27:25 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.68 2012-07-13 08:08:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,16 +63,15 @@ public:
     Alignment			namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
-    LineStyle			linestyle_;
-    Color			fillcolor_;
-    TypeSet<MarkerStyle2D>	markerstyles_;
-    int				zvalue_; 	//overlay zvalue ( max=on top )
-    bool			areMarkersVisible() const;
-
     Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
     Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
 
     TypeSet<Point>		poly_;
+    TypeSet<MarkerStyle2D>	markerstyles_;
+
+    LineStyle			linestyle_;
+    Color			fillcolor_;
+    int				zvalue_; 	//overlay zvalue ( max=on top )
 
     //TypeSet<int>		dispids_;	//!<ids of corresponding displed
     						//!<object
