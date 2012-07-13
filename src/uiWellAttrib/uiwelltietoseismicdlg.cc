@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.110 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.111 2012-07-13 08:08:38 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -157,10 +157,10 @@ void uiTieWin::reDrawSeisViewer( CallBacker* )
 }
 
 
-void uiTieWin::reDrawAnnots( CallBacker* )
+void uiTieWin::reDrawAuxDatas( CallBacker* )
 {
-    drawer_->redrawLogsAnnots();
-    drawer_->redrawViewerAnnots();
+    drawer_->redrawLogsAuxDatas();
+    drawer_->redrawViewerAuxDatas();
 }
 
 
@@ -187,7 +187,7 @@ void uiTieWin::addControls()
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
     controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
-    controlview_->redrawAnnotNeeded.notify( mCB(this,uiTieWin,reDrawAnnots) );
+    controlview_->redrawAnnotNeeded.notify( mCB(this,uiTieWin,reDrawAuxDatas) );
 }
 
 
@@ -378,7 +378,7 @@ void uiTieWin::clearPicks( CallBacker* cb )
 {
     server_.pickMgr().clearAllPicks();
     checkIfPick( cb );
-    drawer_->redrawViewerAnnots();
+    drawer_->redrawViewerAuxDatas();
 }
 
 
@@ -386,7 +386,7 @@ void uiTieWin::clearLastPick( CallBacker* cb )
 {
     server_.pickMgr().clearLastPicks();
     checkIfPick( cb );
-    drawer_->redrawViewerAnnots();
+    drawer_->redrawViewerAuxDatas();
 }
 
 

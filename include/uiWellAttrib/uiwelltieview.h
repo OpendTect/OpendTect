@@ -46,8 +46,8 @@ public:
     void        		fullRedraw();
     void        		drawUserPicks();
     void 			redrawViewer();
-    void 			redrawViewerAnnots();
-    void 			redrawLogsAnnots();
+    void 			redrawViewerAuxDatas();
+    void 			redrawLogsAuxDatas();
 
     void			enableCtrlNotifiers(bool);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.106 2012-07-12 15:04:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.107 2012-07-13 08:08:38 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -92,7 +92,7 @@ void uiTieView::fullRedraw()
 void uiTieView::redrawViewer()
 {
     drawTraces();
-    redrawViewerAnnots();
+    redrawViewerAuxDatas();
 
     vwr_->handleChange( FlatView::Viewer::All );
     mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
@@ -102,16 +102,16 @@ void uiTieView::redrawViewer()
 }
 
 
-void uiTieView::redrawViewerAnnots()
+void uiTieView::redrawViewerAuxDatas()
 {
     drawUserPicks();
     drawViewerWellMarkers();
     drawHorizons();
-    vwr_->handleChange( FlatView::Viewer::Annot );
+    vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
 
 
-void uiTieView::redrawLogsAnnots()
+void uiTieView::redrawLogsAuxDatas()
 {
     drawLogDispWellMarkers();
 }
