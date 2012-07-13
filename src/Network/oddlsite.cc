@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.21 2012-05-22 14:23:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.22 2012-07-13 09:40:48 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -133,6 +133,23 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
     }
 
     const od_int64 totnr = odhttp_->totalNr();
+    if ( totnr <= 0 )
+	return false;
+
+    const od_int64 nrbytes = odhttp_->bytesAvailable();
+    databuf_ = new DataBuffer( nrbytes, 1, true );
+    const char* buffer = odhttp_->readCharBuffer();
+    const char* moveptr = strstr( buffer, "move" );
+    const char* errptr = strstr( buffer, "Error" );
+    if ( moveptr || errptr )
+    {
+	errmsg_ = relfnm;
+	errmsg_ += " file not found on the server. "
+		   "Please try with the other sites from the drop down list";
+	return false;
+    }
+    memcpy( databuf_->data(), buffer, nrbytes );
+
     if ( outfnm && *outfnm )
     {
 	if ( File::getFileSize(outfnm) < 1024
@@ -143,11 +160,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	    return false;
 	}
     }
-
-    const od_int64 nrbytes = odhttp_->bytesAvailable();
-    databuf_ = new DataBuffer( nrbytes, 1, true );
-    const char* buffer = odhttp_->readCharBuffer();
-    memcpy( databuf_->data(), buffer, nrbytes );
+    
     return true;
 }
 
