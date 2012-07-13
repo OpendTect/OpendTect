@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.5 2012-07-10 13:55:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.6 2012-07-13 08:07:04 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -97,12 +97,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	updateTransformCB(0);
     }
-/*
-    TypeSet<uiPoint> ptlist;
-    const int nrpoints = ad.poly_.size();
-    for ( int idx=0; idx<nrpoints; idx++ )
-	ptlist += w2u.transform( ad.poly_[idx] ) + datarect.topLeft();
-	*/
 
     const bool drawfill = close_ && fillcolor_.isVisible();
     if ( (linestyle_.isVisible() || drawfill) && poly_.size()>1 )
@@ -170,32 +164,16 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    polylineitem_ = 0;
 	}
     }
-    /*else if ( (ptlist.size()==1) && (ad.markerstyles_.size()==0) )
-    {
-	const Color usecol = color( true );
-	if ( !pointitem_ )
-	{
-	    pointitem_ = new uiMarkerItem(
-		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4,usecol) );
-	    canvas_.scene().addItem( pointitem_ );
-	    ad.dispids_ += pointitem_->id();
-	    pointitem_->setVisible( ad.displayed_ );
-	}
-	else
-	    pointitem_->setPos( ptlist[0] );
-	pointitem_->setPenColor( usecol );
-	pointitem_->setZValue( 2 );
-    } */
 
-    const int nrmarkerstyles = markerstyles_.size();
-    const MarkerStyle2D defmarker(MarkerStyle2D::Square,4,Color::Black());
-    for ( int idx=0; idx<poly_.size(); idx++ )
-    {
-	const int styleidx = mMIN(idx,nrmarkerstyles-1);
-	const MarkerStyle2D& style = styleidx==-1
-	    ? defmarker
-	    : markerstyles_[styleidx];
+    //TODO Legacy, clean up this
+    TypeSet<MarkerStyle2D> markerstyles = markerstyles_;
+    const int nrmarkerstyles = markerstyles.size();
+    if ( nrmarkerstyles == 0 && poly_.size() == 1 )
+	markerstyles += MarkerStyle2D::Square,4,Color::Black();
 
+    for ( int idx=0; idx<poly_.size() && idx<markerstyles.size(); idx++ )
+    {
+	const MarkerStyle2D& style = markerstyles[idx];
 	if ( !style.isVisible() )
 	    continue;
 
