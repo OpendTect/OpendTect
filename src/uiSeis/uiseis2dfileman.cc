@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.29 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.30 2012-07-13 05:21:12 cvssatyaki Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.29 2012-07-10
 #include "iopar.h"
 #include "keystrs.h"
 #include "seis2dline.h"
+#include "seiscbvs.h"
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
 #include "survinfo.h"
@@ -537,8 +538,10 @@ uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 {
     alllnsfld_ = new uiGenInput( this, "Extract for",
 	    		BoolInpSpec(true,"All lines", "Selected line(s)") );
-    cubefld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
-	    			uiSeisSel::Setup(Seis::Vol) );
+    IOObjContext ctxt = uiSeisSel::ioContext(Seis::Vol,true);
+    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
+    
+    cubefld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     cubefld_->attach( alignedBelow, alllnsfld_ );
     cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
     attrnmfld_ = new uiGenInput( this, "Store as attribute" );

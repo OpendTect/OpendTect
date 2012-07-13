@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.13 2012-07-10 08:05:34 cvskris Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.14 2012-07-13 05:21:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "randomlinetr.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "seiscbvs.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
@@ -492,6 +493,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     uiGroup* grp = new uiGroup( uppgrp_, "Seis group" );
 
     IOObjContext ctxt = mIOObjContext( SeisTrc );
+    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     ctxt.forread = true;
     infld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Vol) );
