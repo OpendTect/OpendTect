@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-06-27 16:23:03 cvsyuancheng Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-07-13 20:13:57 cvsyuancheng Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Basic )
@@ -22,6 +22,7 @@ SET(OD_MODULE_SOURCES timeser.c
 	    delaunay3d.cc
 	    extremefinder.cc
 	    dippca.cc
+	    fingervein.cc
 	    fftfilter.cc
 	    fourier.cc
 	    fourierinterpol.cc
