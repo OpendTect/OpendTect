@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.144 2012-07-12 15:04:44 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.145 2012-07-13 09:51:28 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -62,6 +62,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
     reportedchanges_ += All;
     bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
+    bitmapdisp_->setXExtraFactor( dim0extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
 }

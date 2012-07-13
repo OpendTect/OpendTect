@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatbitmapdisplay.cc,v 1.7 2012-07-11 15:28:54 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatbitmapdisplay.cc,v 1.8 2012-07-13 09:51:28 cvsbruno Exp $";
 
 #include "uiflatbitmapdisplay.h"
 
@@ -127,6 +127,7 @@ public:
 
 uiBitMapDisplay::uiBitMapDisplay( Viewer& viewer )
     : viewer_( viewer )
+    , xextfac_(0)
     , display_( new uiDynamicImageItem )
     , basetask_( new uiBitMapDisplayTask( viewer, display_, false ) )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
@@ -190,6 +191,7 @@ void uiBitMapDisplay::update()
 	yrg = viewer_.pack(false)->posData().range(false);
     }
 
+    xrg.widen( xextfac_, true );
     const uiWorldRect wr( xrg.start, yrg.start, xrg.stop, yrg.stop );
     const uiSize sz( viewrect_.width(), viewrect_.height() );
 

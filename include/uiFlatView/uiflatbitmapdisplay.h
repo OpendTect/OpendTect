@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatbitmapdisplay.h,v 1.4 2012-07-11 15:28:54 cvsbruno Exp $
+ RCS:           $Id: uiflatbitmapdisplay.h,v 1.5 2012-07-13 09:51:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
 
     Interval<float>	getDataRange(bool iswva) const;
 
+    void		setXExtraFactor(float fac) 
+    			{ xextfac_ = fac; }
+
     void		setViewRect(const uiRect& uir) 
     			{ viewrect_ = uir; }
 
@@ -59,6 +62,7 @@ protected:
     Viewer&			viewer_;
     int				workqueueid_;
     uiRect                      viewrect_;
+    float			xextfac_;
 
     uiDynamicImageItem*		display_;
 
