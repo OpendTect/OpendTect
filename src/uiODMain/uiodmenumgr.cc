@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.263 2012-07-09 12:11:10 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.264 2012-07-13 10:52:01 cvsnageswara Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -660,7 +660,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     mInsertItem( toolsmnu_, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
-    mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
+    mInsertItem( toolsmnu_, "&Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
     FilePath installerdir( ODInst::GetInstallerDir() );
