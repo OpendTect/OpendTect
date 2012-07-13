@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvtopbotimg.cc,v 1.8 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvtopbotimg.cc,v 1.9 2012-07-13 06:22:52 cvsranojay Exp $";
 
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
@@ -63,8 +63,9 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
 void fillCurrent()
 {
     fnmfld_->setChecked( img_->isOn() );
-    fnmfld_->setFileName( img_->getImageFilename() );
-    if( img_->isOn() )
+    const BufferString& imgnm = img_->getImageFilename();
+    fnmfld_->setFileName( imgnm );
+    if( img_->isOn() || !imgnm.isEmpty() )
     {
 	tlfld_->setValue( img_->topLeft() );
 	brfld_->setValue( img_->bottomRight() );
