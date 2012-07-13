@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.9 2012-07-11 15:26:58 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.10 2012-07-13 09:05:39 cvsbruno Exp $";
 
 
 #include "uiseissingtrcdisp.h"
@@ -69,7 +69,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false );
+    setPack( true, curid_, false, false );
     addRefZ( 0 );
 
     handleChange( All );
@@ -100,7 +100,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false );
+    setPack( true, curid_, false, false );
 
     if ( trc )
     {
