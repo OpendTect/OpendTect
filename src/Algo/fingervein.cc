@@ -5,14 +5,14 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.1 2012-07-13 20:13:57 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.2 2012-07-16 13:04:25 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
 #include "arrayndimpl.h"
 #include "convolve2d.h"
 #include "executor.h"
-#include "math.h"
+#include "math2.h"
 #include "task.h"
 
 #include "statruncalc.h"
@@ -78,7 +78,7 @@ bool FingerVein::compute( TaskRunner* tr )
     for ( od_int64 idx=0; idx<datasz; idx++ )
 	inputbinaryarr[idx] = isabove_ ? inputarr[idx]>threshold_ 
 	    			       : inputarr[idx]<threshold_;
-    thinning( *input_hard_threshold );
+    //thinning( *input_hard_threshold );
     bool* thinedinputarr = input_hard_threshold->getData();
 
     /*TODO: apply connected componet method;*/
@@ -93,7 +93,7 @@ bool FingerVein::compute( TaskRunner* tr )
 	    mergedata[idx] = binarisearr[idx] ? 1 : 0;
     }
 
-    thinning( output_ );
+    //thinning( output_ );
     //thinning( *vein_binarise );
     
     //again, delete the small fault for vein_binarise use CC
@@ -249,7 +249,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     if ( !fx || !fy || !fxx || !fxy | !fyy )
 	return false;
 
-    const int halfsidesz = (sidesize+1)/2;
+   /* const int halfsidesz = (sidesize+1)/2;
     for ( int idx=0; idx<inputsz0; idx++ )
     {
 	int startx = mMAX(idx-halfsidesz+1,0);
@@ -280,9 +280,9 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	    fxy->set(idx,idy,sumxy);
 	    fyy->set(idx,idy,sumyy);
 	}
-    }
+    }*/
 
-    /*
+    
     Convolver2D<float> conv2;
     conv2.setX( input_, true );
     conv2.setNormalize( false );
@@ -316,7 +316,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     conv2.setZ( *fyy );
     isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
-	return false;*/
+	return false;
 
     const int nrangles = 8;
     TypeSet<float> angle_set, angle_set_cos, angle_set_cos2, angle_set_sin,
@@ -352,7 +352,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz];
 		dir2 += fyy->get(idx,idy)*angle_set_sin2[idz];
 
-		float demomenator = pow( 1+dir1*dir1, 1.5 );
+		float demomenator = Math::PowerOf( 1.0+dir1*dir1, 1.5 );
 		k->set( idx, idy, idz, dir2/demomenator );
 	    }
 	}
