@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.18 2012-02-09 15:01:27 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.19 2012-07-16 14:54:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -145,15 +145,10 @@ void Convolver2D<T>::setY( const Array2D<T>& y, bool hasudfs )
 }
 
 
-#define mConvolver2DSetY( dim ) \
-const int firsty##dim = correlate_ \
-    ? -zvar[dim] \
-    : zvar[dim]; \
-\
-const char y##dim##inc = correlate_ ? 1 : -1
 
 
 #define mConvolver2DSetIndex( dim ) \
+const char y##dim##inc = correlate_ ? 1 : -1; \
 const int idy##dim = firsty##dim+idx##dim*y##dim##inc; \
 if ( idy##dim<0 ) \
 { \
@@ -182,7 +177,7 @@ od_int64 Convolver2D<T>::nrIterations() const
 {
     return shouldFFT()
 	? 1 
-	: z_->info().getSize( 0 );
+	: z_->info().getTotalSz(); //z_->info().getSize( 0 );
 }
 
 
@@ -222,12 +217,11 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const int* zvar = iterator.getPos();
+	const int firsty0 = correlate_ ? -zvar[0] : zvar[0];
+	const int firsty1 = correlate_ ? -zvar[1] : zvar[1];
 	T sum = 0;
 	T ysum = 0;
 	int nrsamples = 0;
-
-	mConvolver2DSetY( 0 );
-	mConvolver2DSetY( 1 );
 
 	for ( int idx0=0; idx0<xsz0 && shouldContinue(); idx0++ )
 	{
