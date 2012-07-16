@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.51 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.52 2012-07-16 20:57:25 cvskris Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -284,8 +284,7 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 void SoPlaneWellLog::setFillLogValue( int index, float fillval, int lnr )
 {
     SoMFFloat& filllog    = lnr==1 ? filllog1 : filllog2;
-    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
-    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
+
     filllog.set1Value( index, fillval );
 }
 

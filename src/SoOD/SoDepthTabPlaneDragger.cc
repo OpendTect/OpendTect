@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoDepthTabPlaneDragger.cc,v 1.23 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoDepthTabPlaneDragger.cc,v 1.24 2012-07-16 20:57:25 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -235,9 +235,6 @@ void SoDepthTabPlaneDragger::fieldSensorCB(void* d, SoSensor*)
     SbMatrix matrix = thisp->getMotionMatrix();
     thisp->workFieldsIntoTransform(matrix);
     thisp->setMotionMatrix(matrix);
-
-    const SbVec3f scale = thisp->scaleFactor.getValue();
-    float avgscale = (scale[0]+scale[1])/2;
 }
 
 

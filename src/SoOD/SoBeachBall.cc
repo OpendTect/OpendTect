@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoBeachBall.cc,v 1.12 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoBeachBall.cc,v 1.13 2012-07-16 20:57:25 cvskris Exp $";
 
 #include "SoBeachBall.h"
 #include "SoCameraInfoElement.h"
@@ -92,7 +92,7 @@ void SoBeachBall::initVertices( int numlevels )
     // Lowest level of detail (level 0) is an octahedron (8 triangles).
     // Higher levels of detail possess 4 times more triangles than the 
     // previous level.
-    const int res0numedges = 12, res0numvertices =  6, res0numfaces = 8;
+    const int res0numedges = 12, res0numvertices =  6;
 
     // The edges must be stored temporarily in order to compute the vertices
     // of the next level of detail. They are stored as pairs of indices into 
@@ -528,10 +528,6 @@ void SoBeachBall::generatePrimitives( SoAction* action )
         
     if ( !ptrilist1 || !ptrilist2 || !pnormalslist1 || !pnormalslist2 )
 	return;
-
-    SbBool sendnormals = 
-        ( SoLightModelElement::get( state ) != 
-        SoLightModelElement::BASE_COLOR );
 
     SoPrimitiveVertex pv;
 
