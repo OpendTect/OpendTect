@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.31 2012-05-14 11:46:01 cvskris Exp $
+ RCS:		$Id: mathfunc.h,v 1.32 2012-07-16 20:50:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 			    mAllocVarLenArr( PT, pos, nrdim );
 			    for ( int idx=0; idx<nrdim; idx++ )
 				pos[idx] = x[idx];
-			    return getValue( pos );
+			    return getValue( (const PT*) pos );
 			}
 
     virtual RT		getValue(const PT*) const		= 0;
