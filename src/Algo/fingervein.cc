@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.2 2012-07-16 13:04:25 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.3 2012-07-16 17:42:51 cvsnanne Exp $";
 
 #include "fingervein.h"
 
@@ -159,8 +159,8 @@ void FingerVein::condition( const Array2D<bool>& input, Array2D<bool>& output,
 	    if ( NCondition2<2 || NCondition2>3 )
 		continue;
 	    
-	    int NCondition3 = firststep ? ((bw12 | bw01 | (~bw22)) & bw12)
-					: ((bw20 | bw21 | (~bw11)) & bw10);
+	    int NCondition3 = firststep ? ((bw12 | bw01 | (!bw22)) & bw12)
+					: ((bw20 | bw21 | (!bw11)) & bw10);
 	    if ( !NCondition3 )
 		output.set( idx, idy, 0 );
 	}
@@ -406,14 +406,14 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     ystep->set(7,1,-1);
 
     TypeSet<float> wr_step;
-    wr_step += sqrt(2*2+0*0);
-    wr_step += sqrt(2*2+1*1);
-    wr_step += sqrt(2*2+2*2);
-    wr_step += sqrt(1*1+2*2);
-    wr_step += sqrt(0*0+2*2);
-    wr_step += sqrt(1*1+2*2);
-    wr_step += sqrt(2*2+2*2);
-    wr_step += sqrt(2*2+1*1);
+    wr_step += sqrt(float(2*2+0*0));
+    wr_step += sqrt(float(2*2+1*1));
+    wr_step += sqrt(float(2*2+2*2));
+    wr_step += sqrt(float(1*1+2*2));
+    wr_step += sqrt(float(0*0+2*2));
+    wr_step += sqrt(float(1*1+2*2));
+    wr_step += sqrt(float(2*2+2*2));
+    wr_step += sqrt(float(2*2+1*1));
 
     for ( int ai=0; ai<nrangles; ai++ )
     {
