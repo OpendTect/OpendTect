@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.37 2012-04-13 08:39:04 cvskris Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.38 2012-07-17 14:03:47 cvskris Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.37 2012-04-13 08:39:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_cbvs_browse.cc,v 1.38 2012-07-17 14:03:47 cvskris Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
