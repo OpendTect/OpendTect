@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.13 2012-07-17 13:32:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.14 2012-07-17 13:45:20 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -185,8 +185,6 @@ void uiElasticPropSelGrp::selComputeFldChgCB( CallBacker* )
 void uiElasticPropSelGrp::selFormulaChgCB( CallBacker* )
 {
     const int selidx = selmathfld_->box()->currentItem();
-    const bool wantmathexpr = selidx > 0;
-
     elformsel_.setExpression( "" );
 
     if ( selidx == selmathfld_->box()->size() -1 )
@@ -264,7 +262,6 @@ void uiElasticPropSelGrp::putToScreen()
     const BufferString& expr = elformsel_.expression();
     const bool hasexpr = !expr.isEmpty() 
 	|| selmathfld_->box()->currentItem() == selmathfld_->box()->size()-1;
-    const BufferStringSet& selvariables = elformsel_.variables();
 
     if ( elformsel_.name().isEmpty() )
 	selmathfld_->box()->setCurrentItem( 0 );
