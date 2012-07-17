@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.13 2012-03-14 11:19:54 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.14 2012-07-17 13:32:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,10 @@ public:
     			ElasticPropGuess(const PropertyRefSelection&,
 						ElasticPropSelection&);
 protected:
+
     void		guessQuantity(const PropertyRefSelection&,
 					ElasticFormula::Type);
+    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
 
     ElasticPropSelection& elasticprops_; 
 };

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.19 2012-07-05 15:10:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.20 2012-07-17 13:32:08 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -96,8 +96,8 @@ ElasticFormulaRepository& ElFR()
     if ( !elasticrepos )
     {
 	elasticrepos = new ElasticFormulaRepository;
-	elasticrepos->addPreDefinedFormulas();
 	elasticrepos->addRockPhysicsFormulas();
+	elasticrepos->addPreDefinedFormulas();
     }
     return *elasticrepos;
 }
@@ -318,17 +318,39 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& pps,
 void ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps, 
 					ElasticFormula::Type tp )
 {
+    for ( int idx=0; idx<pps.size(); idx++ )
+	if ( guessQuantity( *pps[idx], tp ) )
+	    break;
+}
+
+
+bool ElasticPropGuess::guessQuantity( const PropertyRef& pref, 
+					ElasticFormula::Type tp )
+{
     ElasticFormula& fm = elasticprops_.get( tp ).formula();
     if ( !fm.variables().isEmpty() )
-	return;
+	return false;
 
-    for ( int idx=0; idx<pps.size(); idx++ )
-    {
-	if ( pps[idx]->stdType() == ElasticPropertyRef::elasticToStdType( tp ) )
-	    { fm.variables().add( pps[idx]->name() ); break; }
+    if ( pref.stdType() == ElasticPropertyRef::elasticToStdType( tp ) )
+    { 
+	if ( tp == ElasticFormula::SVel )
+	{
+	    //TODO check on name as well
+	    if ( pref.aliases().isPresent( "SVel" ) ) 
+		fm.variables().add( pref.name() ); 
+	    else
+	    {
+		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
+		if ( !efs.isEmpty() ) 
+		    fm = efs[0];
+	    }
+	}
+	else	    
+	    fm.variables().add( pref.name() ); 
 
-	//TODO search best formula by name from the repos when not found
+	return true;
     }
+    return false;
 }
 
 
