@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.51 2012-06-14 14:08:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: threadwork.cc,v 1.52 2012-07-17 07:46:30 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -680,5 +680,5 @@ void ::Threads::Work::destroy()
 
 bool ::Threads::Work::operator==(const ::Threads::Work& t ) const
 {
-    return obj_==t.obj_ && tf_==t.tf_ && stf_==t.stf_;
+    return obj_==t.obj_ && cbf_==t.cbf_ && tf_==t.tf_ && stf_==t.stf_;
 }
