@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.6 2012-07-13 08:07:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.7 2012-07-17 12:58:01 cvskris Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -169,7 +169,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     TypeSet<MarkerStyle2D> markerstyles = markerstyles_;
     const int nrmarkerstyles = markerstyles.size();
     if ( nrmarkerstyles == 0 && poly_.size() == 1 )
-	markerstyles += MarkerStyle2D::Square,4,Color::Black();
+	markerstyles += MarkerStyle2D(MarkerStyle2D::Square,4,Color::Black());
 
     for ( int idx=0; idx<poly_.size() && idx<markerstyles.size(); idx++ )
     {
