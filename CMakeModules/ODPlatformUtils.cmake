@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.49 2012-07-17 07:20:18 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.50 2012-07-17 07:27:00 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -62,7 +62,7 @@ IF(UNIX) #Apple an Linux
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused -Wmissing-braces -Wparentheses -Wsequence-point" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wswitch -Wswitch-enum -Wunused-function -Wunused-label" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wwrite-strings -Wpointer-arith -Winline" )
-    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wconversion -Wmissing-field-initializers" )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wmissing-field-initializers" )
 
     set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-inline -Wuninitialized -Winit-self" )
 
