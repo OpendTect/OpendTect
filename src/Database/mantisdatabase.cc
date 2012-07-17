@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.46 2012-05-09 11:41:35 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.47 2012-07-17 10:28:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -538,12 +538,7 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 	return false;
 
     const int projid = isallprojs ? -1 : projectIDs()[projidx];
-    const bool isunassign = caseInsensitiveEqual( usernm, sKeyUnAssigned() );
     const int usrid = isall ? -1 : userIDs()[usridx];
-
-    const int reslfixed = BugTableEntry::cResolutionFixed();
-    const int statusnew = SqlDB::BugTableEntry::cStatusNew();
-    const int stresolved = SqlDB::BugTableEntry::cStatusResolved();
     const int nrbugs = nrBugs();
     for ( int idx=0; idx<nrbugs; idx++ )
     {
@@ -924,7 +919,6 @@ bool SqlDB::MantisDBMgr::getNotesInfo( int bugid, TypeSet<int>& noteids,
 
 int SqlDB::MantisDBMgr::getBugNoteTextID( int noteid )
 {
-    const char* bntt = sKeyBugNoteTextTable();
     const char* bnt = sKeyBugNoteTable();
     BufferString qstr( "SELECT bugnote_text_id FROM " );
     qstr.add( bnt ).add( " WHERE id=" ).add( noteid );
