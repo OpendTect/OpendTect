@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.112 2012-07-17 08:16:24 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.113 2012-07-17 15:11:57 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -361,7 +361,7 @@ void uiTieWin::eventTypeChg( CallBacker* )
 
 void uiTieWin::applyPushed( CallBacker* cb )
 {
-    mGetWD();
+    mGetWD(return);
     stretcher_.setD2TModel( wd->d2TModel() );
     stretcher_.doWork( cb );
     doWork( cb );
