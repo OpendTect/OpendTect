@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.20 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.21 2012-07-17 14:23:56 cvsjaap Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -269,7 +269,6 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 	return;
 
     MultiID horid = hinfos_[horidx]->multiid;
-    EM::EMManager& em = EM::EMM();
 
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;
