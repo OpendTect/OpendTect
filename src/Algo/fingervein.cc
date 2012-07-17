@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.3 2012-07-16 17:42:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.4 2012-07-17 11:49:28 cvsnageswara Exp $";
 
 #include "fingervein.h"
 
@@ -54,7 +54,7 @@ bool FingerVein::compute( TaskRunner* tr )
 	if ( !mIsUdf(arr[idx]) && arr[idx]>0 )
 	    rc.addValue( arr[idx]);
     }
-    const float md_vein = rc.median(); //use for added condition, not now
+    const float md_vein mUnusedVar = rc.median(); //use for added condition, not now
 
     sort_array(arr,datasz);
     const od_int64 tmpthresholdidx = (od_int64)(0.93*datasz);
