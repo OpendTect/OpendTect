@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.10 2012-05-03 09:06:20 cvskris Exp $
+ RCS:		$Id: gmtpar.h,v 1.11 2012-07-17 10:32:24 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,6 @@ mGlobal GMTParFactory& GMTPF();
     Interval<float> xrg, yrg, mapdim; \
     get( ODGMT::sKeyXRange(), xrg ); \
     get( ODGMT::sKeyYRange(), yrg ); \
-    get( ODGMT::sKeyMapDim(), mapdim ); \
-    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3; \
-    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3; \
     str = "-R"; str += xrg.start; str += "/"; \
     str += xrg.stop; str += "/"; \
     str += yrg.start; str += "/"; str += yrg.stop;
@@ -119,8 +116,7 @@ mGlobal GMTParFactory& GMTPF();
 	case LineStyle::DashDotDot: \
 	    str += "-.."; \
 	    break; \
-	default: \
-	    break; \
+	default: break; \
     }
 
 #endif

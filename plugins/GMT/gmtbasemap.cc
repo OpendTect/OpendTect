@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.28 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.29 2012-07-17 10:32:24 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -60,6 +60,9 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += ":\"."; comm += maptitle; comm += "\":";
     comm += " --Y_AXIS_TYPE=ver_text";
     comm += " --HEADER_FONT_SIZE=24";
+    get( ODGMT::sKeyMapDim(), mapdim );
+    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
+    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
@@ -137,6 +140,9 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     }
 
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
+    get( ODGMT::sKeyMapDim(), mapdim );
+    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
+    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
     if ( parwithcolorbar >= 0 )
     {
 	hascolbar = true;
