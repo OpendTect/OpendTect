@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.32 2012-04-12 08:06:26 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.33 2012-07-17 13:46:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -667,8 +667,6 @@ double ODPolygon<T>::distTo( const Geom::Point2D<T>& refpt,
 	return mUdf(double);
 
     double mindist = MAXDOUBLE;
-    int mindistidx;
-    double mindistfrac;
 
     for ( int idx=(isClosed() ? sz-1 : sz-2); idx>=0; idx-- )
     {
