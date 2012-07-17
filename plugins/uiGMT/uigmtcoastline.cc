@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtcoastline.cc,v 1.13 2012-05-03 09:06:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtcoastline.cc,v 1.14 2012-07-17 10:36:46 cvsraman Exp $";
 
 #include "uigmtcoastline.h"
 
@@ -131,7 +131,6 @@ bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
     const char* res = resolutionfld_->text();
     par.set( ODGMT::sKeyResolution(), res );
     const LineStyle ls = lsfld_->getStyle();
-    const bool drawline = ls.type_ != LineStyle::None;
     BufferString lsstr; ls.toString( lsstr );
     par.set( ODGMT::sKeyLineStyle(), lsstr );
 
