@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.45 2012-05-02 15:12:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.46 2012-07-17 12:54:26 cvskris Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -152,8 +152,6 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
 	float x = xrg.atIndex( idx );
 	const float y = func->mathfunc_->getValue( x );
 	x = scaler.scale( x );
-	const int xpix = xax_->getPix( x );
-	const int ypix = yax_->getPix( y );
 	pointlist += uiPoint( transform_->transform( uiWorldPoint(x,y) ) );
     }
 }
