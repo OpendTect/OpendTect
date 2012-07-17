@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.22 2012-06-29 14:53:43 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.23 2012-07-17 14:45:55 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -543,7 +543,6 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
     EM::PosID mousepid( EM::PosID::udf() );
-    bool mouseondragger = false;
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
