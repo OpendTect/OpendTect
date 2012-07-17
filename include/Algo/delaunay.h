@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.35 2012-04-03 21:02:30 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.36 2012-07-17 22:47:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ protected:
   located in or nearby the goemetry. If the point is located outside of the 
   boundary of the geometry, we compare azimuth to find related points and then
   apply inverse distance to calculate weights. */
-class Triangle2DInterpolator
+mClass Triangle2DInterpolator
 {
 public:
     			Triangle2DInterpolator(const DAGTriangleTree&);
@@ -203,8 +203,5 @@ protected:
     TypeSet<int>		perimeter_;
     TypeSet<double>		perimeterazimuth_;
 };
-    			
-
 
 #endif
-
