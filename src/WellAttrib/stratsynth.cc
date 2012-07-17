@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.39 2012-07-05 15:10:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.40 2012-07-17 15:16:50 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -73,7 +73,7 @@ void StratSynth::clearSynthetics()
     act;\
 }
 
-void StratSynth::addSynthetics()
+void StratSynth::addSynthetic( const char* nm )
 {
     SyntheticData* sd = generateSD( lm_, &raypars_, tr_ );
     if ( sd )
@@ -81,21 +81,20 @@ void StratSynth::addSynthetics()
 }
 
 
-SyntheticData* StratSynth::getSynthetic( int selid ) 
+SyntheticData* StratSynth::getSynthetic( const char* nm ) 
 {
-    if ( !selid )
+    for ( int idx=0; idx<synthetics().size(); idx ++ )
     {
-	if ( !synthetics_.isEmpty() )
-	    delete synthetics_.remove(0);
-
-	SyntheticData* sd = generateSD( lm_, &raypars_, tr_ );
-	if ( sd ) 
-	    synthetics_.insertAt( sd, 0 );
+	if ( !strcmp( getSynthetic( idx )->name(), nm ) )
+	    return getSynthetic( idx );
     }
-    if ( synthetics_.validIdx( selid ) )
-	return synthetics_[selid];
-
     return 0;
+}
+
+
+SyntheticData* StratSynth::getSynthetic( int idx ) 
+{
+    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0;
 }
 
 

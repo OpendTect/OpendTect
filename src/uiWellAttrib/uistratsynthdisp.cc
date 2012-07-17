@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.100 2012-07-12 15:04:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.101 2012-07-17 15:16:50 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -75,15 +75,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				    "Specify synthetic layers properties", 
 				    mCB(this,uiStratSynthDisp,layerPropsPush) );
 
-    uiToolButton* rttb = new uiToolButton( topgrp_, "raytrace", 
-				    "Specify ray tracer parameters", 
-				    mCB(this,uiStratSynthDisp,rayTrcParPush) );
-    rttb->attach( rightOf, layertb );
-
     wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
-    wvltfld_->attach( rightOf, rttb, 10 );
+    wvltfld_->attach( rightOf, layertb, 10 );
 
     scalebut_ = new uiPushButton( topgrp_, "Scale", false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
@@ -98,10 +93,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     datalist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
 
-    addasnewbut_ = new uiPushButton( dataselgrp, "Add as new", false);
-    addasnewbut_->activated.notify(mCB(this,uiStratSynthDisp,addSynth2List));
-    addasnewbut_->attach( rightOf, datalist_ );
-    addasnewbut_->setSensitive( false );
+    addeditbut_ = new uiToolButton( dataselgrp, "addnew", 
+	    			"Add/Edit Synthetic DataSet",
+				mCB(this,uiStratSynthDisp,addEditSynth) );
+    addeditbut_->attach( rightOf, datalist_ );
 
     datagrp_ = new uiGroup( this, "DataSet group" );
     datagrp_->attach( ensureBelow, topgrp_ );
@@ -209,8 +204,6 @@ void uiStratSynthDisp::cleanSynthetics()
 {
     stratsynth_.clearSynthetics();
     datalist_->box()->setEmpty();
-    datalist_->box()->addItem( "Free view" );
-    datalist_->setSensitive( false );
 }
 
 
@@ -523,12 +516,13 @@ void uiStratSynthDisp::doModelChange()
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
     d2tmodels_ = 0;
 
-    const int seldataidx = datalist_->box()->currentItem(); 
+    int seldataidx = datalist_->box()->currentItem(); 
+    if ( seldataidx < 0 )
+       stratsynth_.addSynthetic( "Synthetic Zero Offset"); //TODO key
+
     currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
 
-    topgrp_->setSensitive( seldataidx == 0 );
     datagrp_->setSensitive( currentsynthetic_ );
-    addasnewbut_->setSensitive( currentsynthetic_ && seldataidx == 0 );
 
     if ( currentsynthetic_ )
     {
@@ -583,11 +577,8 @@ protected:
 };
 
 
-void uiStratSynthDisp::addSynth2List( CallBacker* )
+void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
-    if ( !currentsynthetic_ ) 
-	return;
-
     BufferStringSet synthnms; 
     for ( int idx=0; idx<datalist_->box()->size(); idx++ )
 	synthnms.add( datalist_->box()->textOfItem( idx ) );
@@ -596,17 +587,6 @@ void uiStratSynthDisp::addSynth2List( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    const char* nm = dlg.getSynthName();
-    currentsynthetic_->setName( nm );
-    stratsynth_.addSynthetics();
-    
-    datalist_->box()->addItem( nm );
-    datalist_->setSensitive( stratsynth_.synthetics().size() > 1 );
-}
-
-
-void uiStratSynthDisp::rayTrcParPush( CallBacker* )
-{
     if ( !raytrcpardlg_ )
 	raytrcpardlg_ = new uiRayTrcParamsDlg( this, stratsynth_.rayPars() );
 

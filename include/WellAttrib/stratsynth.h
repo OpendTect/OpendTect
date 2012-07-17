@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.17 2012-06-05 13:14:10 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.18 2012-07-17 15:16:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,9 +73,10 @@ public:
     const Wavelet*		wavelet() const		{ return wvlt_; }
     void			setWavelet(const Wavelet*);
 
+    void			addSynthetic(const char* nm); 
+    SyntheticData* 		getSynthetic(const char* nm);
+    SyntheticData* 		getSynthetic(int idx);
     void			clearSynthetics();
-    void			addSynthetics(); 
-    SyntheticData* 		getSynthetic( int selid );
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
     IOPar&			rayPars() 		{ return raypars_; }

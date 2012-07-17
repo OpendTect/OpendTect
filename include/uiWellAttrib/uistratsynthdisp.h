@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.51 2012-06-04 06:17:12 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.52 2012-07-17 15:16:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ protected:
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
-    uiPushButton*	addasnewbut_;
+    uiToolButton*	addeditbut_;
     uiLabeledComboBox*	datalist_;
     uiLabeledComboBox*	levelsnapselfld_;
     uiCheckBox*		stackbox_;
@@ -121,12 +121,11 @@ protected:
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*);
 
-    void		addSynth2List(CallBacker*);
+    void		addEditSynth(CallBacker*);
     void		dataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
-    void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
     void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
