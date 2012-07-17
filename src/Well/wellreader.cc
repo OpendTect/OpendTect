@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.52 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.53 2012-07-17 08:16:23 cvsbruno Exp $";
 
 #include "wellreader.h"
 
@@ -227,7 +227,6 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 
     // get track
     Coord3 c3, prevc, c0;
-    float z;
     float dah = 0;
     while ( strm )
     {

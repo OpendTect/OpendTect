@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.67 2012-07-09 13:25:32 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.68 2012-07-17 08:16:23 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -322,7 +322,6 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
     if ( ld.logset_.isEmpty() )
 	return false;
 
-    bool allsucceeded = true;
     Well::Data wd; 
     wd.track() = wd_->track();
     wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );

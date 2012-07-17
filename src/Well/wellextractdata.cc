@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.85 2012-07-09 13:14:26 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.86 2012-07-17 08:16:23 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -456,7 +456,7 @@ int Well::TrackSampler::nextStep()
     if ( curid_ >= ids_.size() )
 	return 0;
     if ( lognms_.isEmpty() )
-	{ "No well logs specified"; return Executor::ErrorOccurred(); }
+	{ errmsg_="No well logs specified"; return Executor::ErrorOccurred(); }
 
     DataPointSet* dps = new DataPointSet( for2d_, minidps_ );
     dpss_ += dps;
@@ -774,7 +774,6 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
     if ( dps.isEmpty() || track.isEmpty() )
 	return;
 
-    const float dahstep = wl.dahStep(true);
     float prevwinsz = mDefWinSz;
     float prevdah = mUdf(float);
     DataPointSet::RowID dpsrowidx = 0;

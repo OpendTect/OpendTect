@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.43 2012-07-04 14:06:26 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.44 2012-07-17 08:16:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,9 @@ public:
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
+    const char* 	errMsg() const 
+			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
 
@@ -219,6 +222,7 @@ protected:
     const bool			zistime_;
     Interval<float>		zrg_;
     int				dahcolnr_;
+    BufferString		errmsg_;
 
     void		getData(const Data&,DataPointSet&);
     bool		getPos(const Data&,float,BinIDValue&,int&,

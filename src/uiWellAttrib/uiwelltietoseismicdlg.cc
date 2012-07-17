@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.111 2012-07-13 08:08:38 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.112 2012-07-17 08:16:24 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -47,7 +47,6 @@ static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.111 201
 namespace WellTie
 {
 
-static const char*  errdmsg = "unable to handle data, please check your input ";
 static const char*  helpid = "107.4.1";
 
 
@@ -599,7 +598,6 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     zrg.stop = data_.dahrg_.stop;
 
     const Interval<int> mintv = zrangeflds_[0]->getIInterval();
-    const bool zinft = SI().depthsInFeetByDefault();
     const Well::Marker* topmarkr = 
 			wd->markers().getByName( zrangeflds_[0]->text(0) );
     const Well::Marker* botmarkr = 
