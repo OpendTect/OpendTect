@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.12 2012-07-09 08:59:06 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.13 2012-07-17 13:45:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
 typedef TypeSet<ElasticLayer> ElasticModel;
 
 
-static void blockElasticModel( ElasticModel& mdl, float threshold )
+mGlobal inline void blockElasticModel( ElasticModel& mdl, float threshold )
 {
     float velthreshold = threshold;
     float denthreshold = threshold;
