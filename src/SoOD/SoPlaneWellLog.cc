@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.52 2012-07-16 20:57:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.53 2012-07-17 12:12:34 cvskris Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -488,9 +488,6 @@ void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
 
 void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
 {
-    SoCoordinate3* coords = SO_GET_ANY_PART( this,
-             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
-    
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
 	    lnr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
    
@@ -501,14 +498,12 @@ void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
     SoMFFloat& log = lnr==1 ? log1 : log2;
     SoMFFloat& filllog = lnr==1 ? filllog1 : filllog2;
     SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
-    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
     SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
 
     if ( filllog.getNum() == 0 )
 	return;
 
-    float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
     float fillminvalF = fillminval.getValue();
     float fillmaxvalF = fillmaxval.getValue();
