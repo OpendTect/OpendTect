@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.48 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.49 2012-07-17 14:58:37 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -250,8 +250,9 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	    uiPopupMenu menu( parent(), "Action" );
 	    menu.insertItem( assmnuitm, 1 );
 	    const int mnuid = menu.exec();
-	    if ( mnuid<0 ) return false;
-	    else if ( mnuid == 1 );
+	    if ( mnuid<0 ) 
+		return false;
+	    else if ( mnuid == 1 )
 		uidatawriter_.setUnitLvl( lvl->unitcode_ );
 	}
 	else if ( getUnitFromPos() )
