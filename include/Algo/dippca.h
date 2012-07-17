@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Y.Liu
  Date:          June 2012
- RCS:           $Id: dippca.h,v 1.2 2012-06-27 20:01:38 cvsyuancheng Exp $
+ RCS:           $Id: dippca.h,v 1.3 2012-07-17 22:46:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ mClass DipPCA
 public:    
 
     				~DipPCA()			{}
-    struct Setup
+    mStruct Setup
     {				Setup();
 	Setup&			operator=(const Setup&);
 
