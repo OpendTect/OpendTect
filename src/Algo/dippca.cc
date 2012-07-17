@@ -5,7 +5,7 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.5 2012-07-10 15:50:37 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.6 2012-07-17 11:42:46 cvsnageswara Exp $";
 
 #include "dippca.h"
 
@@ -416,10 +416,6 @@ bool Dip2D::fillGap()
     				    accumulator->get(jt,jtrace,jangle)+1 );
     			    int jpoint = accumulator->get(jt,jtrace,jangle);
     			    int pos[4] = { jt, jtrace, jangle, jpoint };
-    			    if ( jpoint>=min_npoixsz_needed )
-    			    {
-    				int kk=0;
-    			    }
     			    fault_dip_collection->setND(pos,
 				    dip_->get(kt,ktrace));	
 			}
@@ -440,7 +436,6 @@ bool Dip2D::fillGap()
 
     angle_zone_energy->setAll(0);
 
-    int nullValue = -999;
     for ( int jtrace=0; jtrace<ysz_; jtrace++ )
     {
 	for ( int jt=xsz_-1; jt>=0; jt-- )
@@ -491,12 +486,12 @@ bool Dip2D::fillGap()
 		continue;
 	    
 	    /*find the maximu and minimum*/
-	    float max_energy_angle = 0;
+	    float max_energy_angle mUnusedVar = 0;
 	    /*max_energy = angle_zone_energy->jt,jtrace,1);
 	      min_energy = angle_zone_energy->jt,jtrace,1);*/
 	      
 	    int max_energy_index = 1;
-	    int min_energy_index = 1;
+	    int min_energy_index mUnusedVar = 1;
 	    
 	    float max_energy = -999;
 	    float min_energy = 999;
