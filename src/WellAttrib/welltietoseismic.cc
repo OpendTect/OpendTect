@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.87 2012-07-09 13:25:32 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.88 2012-07-17 09:30:00 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -266,7 +266,6 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
     {
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
-	const Well::Log* wdlog = wd_->logs().getLog( nm );
     }
     else
 	log = data_.logset_.getLog( nm );
