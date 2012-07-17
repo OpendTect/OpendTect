@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimpfault.cc,v 1.47 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimpfault.cc,v 1.48 2012-07-17 14:27:40 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -239,7 +239,7 @@ bool uiImportFault::handleAscii()
 	mErrRet( "Cannot open input file" )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
-    mDynamicCastGet(EM::FaultStickSet*,fss,fault)
+
     const char* tp = fault3d ? "fault" : "faultstickset";
 
     const bool res = getFromAscIO( *sd.istrm, *fault );
