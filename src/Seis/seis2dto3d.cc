@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.12 2012-07-02 06:53:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.13 2012-07-17 07:56:16 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -594,7 +594,6 @@ SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
 
 void SeisScaler::scaleTrace( SeisTrc& trc )
 {
-    const Coord& crd = trc.info().coord;
     float trcmaxval, trcminval;
     mGetTrcRMSVal( trc, trcmaxval, trcminval )
     LinScaler sc( trcminval, avgminval_, trcmaxval, avgmaxval_ );
