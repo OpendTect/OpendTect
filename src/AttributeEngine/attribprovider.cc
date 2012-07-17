@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.144 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.145 2012-07-17 05:43:26 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1184,7 +1184,7 @@ void Provider::setInput( int inp, Provider* np )
     if ( inputs_[inp]->desc_.isSteering() )
     {
 	inputs_[inp]->updateInputReqs(-1);
-	inputs_[inp]->updateStorageReqs(-1);
+	inputs_[inp]->updateStorageReqs( true );
     }
 }
 
