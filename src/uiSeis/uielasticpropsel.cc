@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.12 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uielasticpropsel.cc,v 1.13 2012-07-17 13:32:13 cvsbruno Exp $";
 
 #include "uielasticpropsel.h"
 
@@ -267,7 +267,7 @@ void uiElasticPropSelGrp::putToScreen()
     const BufferStringSet& selvariables = elformsel_.variables();
 
     if ( elformsel_.name().isEmpty() )
-       selmathfld_->box()->setCurrentItem( 0 );
+	selmathfld_->box()->setCurrentItem( 0 );
     else    
 	selmathfld_->box()->setCurrentItem( elformsel_.name() );
     formfld_->setText( expr );
