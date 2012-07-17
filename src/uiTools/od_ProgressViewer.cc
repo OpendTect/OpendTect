@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_ProgressViewer.cc,v 1.32 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_ProgressViewer.cc,v 1.33 2012-07-17 12:55:57 cvskris Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -127,7 +127,6 @@ void uiProgressViewer::appendToText()
 
 void uiProgressViewer::doWork( CallBacker* )
 {
-    bool ateof = strm.eof();
     if ( strm.eof() || strm.fail() )
     {
 	appendToText();
