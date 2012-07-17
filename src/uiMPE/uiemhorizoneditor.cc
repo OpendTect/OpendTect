@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiemhorizoneditor.cc,v 1.30 2012-05-02 15:12:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemhorizoneditor.cc,v 1.31 2012-07-17 14:31:23 cvsjaap Exp $";
 
 #include "uiemhorizoneditor.h"
 
@@ -147,7 +147,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 
     const EM::EdgeLineSegment& interactionline =
 	*editor->getInteractionLine()->getLine(0)->getSegment(0);
-    const EM::SectionID sid = interactionline.getSection();
+    //const EM::SectionID sid = interactionline.getSection();
 
     mAddMenuItem( menu, &removenodesmnuitem,
 	    	  interactionline.isClosed() ||
@@ -200,7 +200,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	*editor->getInteractionLine()->getLine(0);
     const EM::EdgeLineSegment& interactionlineseg =
 	*interactionline.getSegment(0);
-    const EM::SectionID sid = interactionline.getSection();
+    //const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
     mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
     bool handled = false;

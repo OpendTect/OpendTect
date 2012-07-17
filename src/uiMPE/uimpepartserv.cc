@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.136 2012-06-14 08:08:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.137 2012-07-17 14:35:07 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -198,13 +198,12 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     emobj->setNewName();
     emobj->setFullyLoaded( true );
 
-    EM::ObjectID objid = emobj->id();
-
     const int trackerid = MPE::engine().addTracker( emobj );
 
     if ( trackerid == -1 ) return false;
 
-    //if ( !MPE::engine().getEditor(objid,false) )
+//    EM::ObjectID objid = emobj->id();
+//    if ( !MPE::engine().getEditor(objid,false) )
 //	MPE::engine().getEditor(objid,true);
 
     MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);

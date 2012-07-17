@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.95 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.96 2012-07-17 14:38:38 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1072,7 +1072,6 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	return;
     }
 
-    const BinIDValueSet& bidvset = dpset->bivSet();
     RowCol sz = explicitpanels_->getTextureSize();
     mDeclareAndTryAlloc( PtrMan<Array2D<float> >, texturedata,
 	    		 Array2DImpl<float>(sz.col,sz.row) );

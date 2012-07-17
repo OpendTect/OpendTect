@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.121 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.122 2012-07-17 14:43:05 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -190,7 +190,6 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
     const int dim = dim_;
 
     Coord3 center = drg->center();
-    Coord3 size = drg->size();
 
     Interval<float> sx, sy, sz;
     drg->getSpaceLimits( sx, sy, sz );
