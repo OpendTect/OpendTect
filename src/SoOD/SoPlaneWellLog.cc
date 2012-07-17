@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.53 2012-07-17 12:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.54 2012-07-17 12:36:39 cvskris Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -637,7 +637,6 @@ void SoPlaneWellLog::setLineDisplayed( bool isdisp, int lnr )
 
 bool SoPlaneWellLog::lineDisp( int lnr ) const
 {
-    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
     const bool isdisp = lnr==1 ? islinedisp1 : islinedisp2;
     return isdisp;
 }
