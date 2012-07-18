@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: varlenarray.h,v 1.9 2011-07-09 23:57:22 cvskris Exp $
+ RCS:		$Id: varlenarray.h,v 1.10 2012-07-18 06:53:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,14 @@ ________________________________________________________________________
       mTryAllocPtrMan( varnm, type [__size] );
 
 # define mVarLenArr(varnm)	varnm.ptr()
+# define mIsVarLenArrOK(varnm)	((bool)varnm.ptr())
 
 #else
 
 # define mAllocVarLenArr( type, varnm, __size ) \
   type varnm[__size];
 # define mVarLenArr(varnm)	varnm
+# define mIsVarLenArrOK(varnm)	(true)
 
 #endif
 
