@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoOD.cc,v 1.29 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoOD.cc,v 1.30 2012-07-18 09:56:51 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -13,9 +13,9 @@ static const char* rcsID mUnusedVar = "$Id: SoOD.cc,v 1.29 2012-05-02 15:11:50 c
 #include "Inventor/nodes/SoVertexShader.h"
 #include "Inventor/nodes/SoTextureUnit.h"
 
-#ifdef lux
+#ifdef __lux__
 extern "C" { extern void* glXGetCurrentContext(); }
-#elif mac
+#elif __mac__
 extern "C" { extern void* coin_gl_current_context(); }
 #endif
 
@@ -26,7 +26,7 @@ bool SoOD::getAllParams()
     {
 #ifdef __win__
 	if ( wglGetCurrentContext() )
-#elif lux
+#elif __lux__
 	if ( glXGetCurrentContext() )
 #else
 	if ( coin_gl_current_context() )
@@ -50,7 +50,7 @@ int SoOD::supportsFragShading()
     {
 #ifdef __win__
 	if ( wglGetCurrentContext() )
-#elif lux
+#elif __lux__
 	if ( glXGetCurrentContext() )
 #else
 	if ( coin_gl_current_context() )
@@ -73,7 +73,7 @@ int SoOD::supportsVertexShading()
     {
 #ifdef __win__
 	if ( wglGetCurrentContext() )
-#elif lux
+#elif __lux__
 	if ( glXGetCurrentContext() )
 #else
 	if ( coin_gl_current_context() )
@@ -93,7 +93,7 @@ int SoOD::maxNrTextureUnits()
     {
 #ifdef __win__
       if ( wglGetCurrentContext() )
-#elif lux
+#elif __lux__
       if ( glXGetCurrentContext() )
 #else
       if ( coin_gl_current_context() )
@@ -112,7 +112,7 @@ int SoOD::maxTexture2DSize()
     {
 #ifdef __win__
 	if ( wglGetCurrentContext() )
-#elif lux
+#elif __lux__
 	if ( glXGetCurrentContext() )
 #else
 	if ( coin_gl_current_context() )
