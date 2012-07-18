@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultitexture2.cc,v 1.73 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultitexture2.cc,v 1.74 2012-07-18 08:17:32 cvsjaap Exp $";
 
 
 #include "vismultitexture2.h"
@@ -630,6 +630,8 @@ void MultiTexture2::updateColorTables()
 		op = SoColTabMultiTexture2::REPLACE;
 	    else if ( getOperation(idx)==MultiTexture::ADD )
 		op = SoColTabMultiTexture2::ADD;
+
+	    texture_->operation.set1Value( idx, op );
 
 	    texture_->component.set1Value( idx, getComponents(idx) );
 	}
