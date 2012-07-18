@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.221 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.222 2012-07-18 09:50:26 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -377,9 +377,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	const MultiID& lset = clickcatcher->info().getObjLineSet();
 	const BufferString& lname = clickcatcher->info().getObjLineName();
 
-	const bool lineswitch = lset!=engine.active2DLineSetID() ||
-			        lname!=engine.active2DLineName(); 
-
 	engine.setActive2DLine( lset, lname );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -520,15 +517,13 @@ void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 	cureventnr_ = mUdf(int);
     }
 
-    if ( !isPickingWhileSetupUp() )
-	restoreActiveVol();
+    restoreActiveVol();
 }
 
 
 void uiMPEMan::restoreActiveVolume()
 {
-    if ( !isPickingWhileSetupUp() )
-	restoreActiveVol();
+    restoreActiveVol();
 }
 
 
@@ -948,7 +943,6 @@ void uiMPEMan::redoPush( CallBacker* )
 
 void uiMPEMan::savePush( CallBacker* )
 {
-    MPE::Engine& engine = MPE::engine();
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker )
 	return;
@@ -1671,8 +1665,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
     const bool is2d = sp2d;
-    const bool isseedpicking = toolbar->isOn(seedidx);
-    
     toolbar->setSensitive( moveplaneidx, !is2d );
     toolbar->setSensitive( showcubeidx, !is2d );
 
