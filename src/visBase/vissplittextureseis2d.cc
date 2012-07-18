@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissplittextureseis2d.cc,v 1.19 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissplittextureseis2d.cc,v 1.20 2012-07-18 08:25:48 cvsjaap Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -239,7 +239,6 @@ void SplitTextureSeis2D::updateDisplay( )
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
-    const float inithorpos = (*horblocktrcindices_[0])[0];
     for ( int horidx=0; horidx<horblocktrcindices_.size(); horidx++ )
     {
 	const int starthorpixel = horidx * (maxtexturesz_-1) * horscale_;
