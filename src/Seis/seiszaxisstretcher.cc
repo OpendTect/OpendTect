@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.24 2012-06-29 21:49:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.25 2012-07-18 11:10:11 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -230,7 +230,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
 		SamplingData<double> inputsd( intrc.info().sampling );          
 		mAllocVarLenArr( float, vintarr, insz );                        
-		if ( !vintarr ) return false;                                   
+		if ( !mIsVarLenArrOK(vintarr) ) return false;                                   
 
 		computeDix( tmpseistrcvsin.arr(), inputsd, insz, vintarr );
 

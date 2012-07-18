@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: varlenarray.h,v 1.10 2012-07-18 06:53:38 cvskris Exp $
+ RCS:		$Id: varlenarray.h,v 1.11 2012-07-18 11:10:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 #define mAllocVarLenIdxArr(tp,var,sz) \
     mAllocVarLenArr(tp,var,sz) \
-    if ( var ) \
+    if ( mIsVarLenArrOK(var) ) \
 	for ( tp idx=sz-1; idx>=0; idx-- ) \
 	    var[idx] = idx;
 	

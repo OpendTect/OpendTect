@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.16 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.17 2012-07-18 11:10:11 cvskris Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -68,7 +68,7 @@ bool StoredFunction::moveTo( const BinID& bid )
 	return false;
 
     mAllocVarLenIdxArr( int, idxs, zval_.size() );
-    if ( !idxs ) return false;
+    if ( !mIsVarLenArrOK(idxs) ) return false;
 
     sort_coupled( zval_.arr(), mVarLenArr(idxs), zval_.size() );
 

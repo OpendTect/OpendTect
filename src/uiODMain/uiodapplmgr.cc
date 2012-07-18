@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.443 2012-05-30 15:18:41 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.444 2012-07-18 11:10:11 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -608,7 +608,7 @@ void uiODApplMgr::calShiftAttribute( int attrib, const Attrib::SelSpec& as )
     }
 
     mAllocVarLenArr( float, attribvals, dpsset.size()+2 );
-    if ( !attribvals )
+    if ( !mIsVarLenArrOK(attribvals) )
     {
 	deepErase( dpsset );
 	return;

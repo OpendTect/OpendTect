@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctioninterval.cc,v 1.10 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctioninterval.cc,v 1.11 2012-07-18 11:10:11 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -52,7 +52,7 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
     mAllocVarLenArr( float, input, nr );
-    if ( !input ) return false;
+    if ( !mIsVarLenArrOK(input) ) return false;
 
     const SamplingData<double> sd( z0, dz );
     

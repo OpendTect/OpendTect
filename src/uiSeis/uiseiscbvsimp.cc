@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.85 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.86 2012-07-18 11:10:12 cvskris Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -404,7 +404,7 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
     const int sizeout = trc.data().size(compnr);
     const SamplingData<double> sdout = trc.info().sampling;
     mAllocVarLenArr( float, vout, sizeout );
-    if ( !vout ) return;
+    if ( !mIsVarLenArrOK(vout) ) return;
 
     if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::Interval] ) )
 	sampleVint( vin, tin, sizein, sdout, vout, sizeout );
