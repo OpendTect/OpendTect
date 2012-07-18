@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurfeditor.cc,v 1.17 2012-05-02 15:11:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: polygonsurfeditor.cc,v 1.18 2012-07-18 09:13:20 cvsjaap Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -174,7 +174,6 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 	for ( int polygonidx=rowrange.nrSteps(); polygonidx>=0; polygonidx-- )
 	{
 	    Coord3 avgpos( 0, 0, 0 );
-	    int count = 0;
 	    const int curpolygon = rowrange.atIndex(polygonidx);
 	    const StepInterval<int> colrange = surface->colRange( curpolygon );
 	    if ( colrange.isUdf() )

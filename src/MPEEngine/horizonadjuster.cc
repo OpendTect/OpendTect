@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizonadjuster.cc,v 1.69 2012-05-02 15:11:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonadjuster.cc,v 1.70 2012-07-18 09:16:15 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -155,7 +155,6 @@ int HorizonAdjuster::nextStep()
     if ( !attrdata_ || !attrdata_->nrCubes() )
 	return ErrorOccurred();
 
-    int count = 0;
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
 	BinID targetbid;
