@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.29 2012-05-04 19:16:51 cvsnanne Exp $
+ RCS:		$Id: plfdefs.h,v 1.30 2012-07-18 09:09:05 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -15,17 +15,11 @@ ________________________________________________________________________
 
 /*!
 
-For every platform, the HDIR variable should be put in a -D$HDIR by make.
+For every platform, one of the following variables must be set by cmake:
 
-HDIR can be:
-
-	lux		Linux
-	win		MS Windows
-	mac		Apple Mac OSX
-
-Also, PLFSUBDIR should be defined. It is identical to HDIR, except for:
-Linux:   lux32 or lux64
-Windows: win32 or win64
+	__lux64__, __lux32__	Linux
+	__win64__, __win32__	MS Windows
+	__mac__			Apple Mac OSX
 
 Then you get:
 OS type:
@@ -80,41 +74,31 @@ Always defined:
 #undef __unix__
 #undef __win__
 
-#if defined( WIN32 ) 
+#if defined( __win64__ ) || defined ( __win32__ )
 # define __win__ 1
-# ifdef _WIN64
-#  define __win64__ 1
-# else
-#  define __win32__ 1
-# endif
 #endif
 
-#ifdef lux
+#if defined ( __lux32__ ) || defined ( __lux64__ )
 # define __unix__ 1
 # define __lux__ 1
-# ifdef lux64
-#  define __lux64__ 1
-# else
-#  define __lux32__ 1
-# endif
 #endif
 
-#ifdef mac
+#if defined( __mac__ )
 # define __unix__ 1
 #endif
+
 #ifndef __unix__
 #ifndef __win__
-# warning "Platform not detected. choosing windows"
-# define __win__ 1
+# error "Platform not detected."
 #endif
 #endif
 
-#ifdef lux
+#ifdef __lux__
 # define __islinux__ true
 #else
 # define __islinux__ false
 #endif
-#ifdef mac
+#ifdef __mac__
 # define __ismac__ true
 #else
 # define __ismac__ false
@@ -132,17 +116,14 @@ Always defined:
 #undef __pc__
 #undef __little__
 
-#ifdef lux
+#ifdef __lux__
 # define __pc__ 1
 #endif
 #ifdef __win__
 # define __pc__ 1
 #endif
-#ifdef mac
+#ifdef __mac__
 # define __mac__ 1
-# ifndef macppc
-#  define __pc__ 1
-# endif
 #endif
 
 #ifdef __pc__

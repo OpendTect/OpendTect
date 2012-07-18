@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.51 2012-07-17 10:25:29 cvsraman Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.52 2012-07-18 09:09:05 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -22,7 +22,7 @@ IF(UNIX) #Apple an Linux
     IF(APPLE)
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
-        ADD_DEFINITIONS("-arch x86_64 -D__mac__ -Dmac")
+        ADD_DEFINITIONS("-arch x86_64")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
@@ -31,9 +31,10 @@ IF(UNIX) #Apple an Linux
 	    set  ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 	ENDIF()
 
+	set ( OD_PLFSUBDIR mac )
+
 	#NEEDED AS LONG AS WE HAVE COIN
 	set (CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
-	set ( OD_PLFSUBDIR mac )
     ELSE() #Linux
 
 	#Not on most platforms, but for the few that does, it's better
@@ -41,13 +42,10 @@ IF(UNIX) #Apple an Linux
 
 	IF ( OD_64BIT )
 	    set  ( OD_PLFSUBDIR "lux64" )
-	    ADD_DEFINITIONS("-Dlux64")
 	ELSE()
 	    set  ( OD_PLFSUBDIR "lux32" )
-	    ADD_DEFINITIONS("-Dlux32 -march=pentium4")
+	    ADD_DEFINITIONS("-march=pentium4")
 	ENDIF()
-        ADD_DEFINITIONS("-Dlux")
-	
     ENDIF()
 
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
@@ -76,7 +74,7 @@ IF(UNIX) #Apple an Linux
         
 ENDIF(UNIX)
 
-#Create Launchers on Windows and Mac OS
+#Create Launchers on Windows
 IF( DEFINED WIN32 )
     set ( OD_CREATE_LAUNCHERS 1 )
 ENDIF()
@@ -98,4 +96,6 @@ IF(WIN32)
 
     set  ( OD_GUI_SYSTEM "WIN32" )
 ENDIF()
+
+ADD_DEFINITIONS( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 
