@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjbody.cc,v 1.39 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjbody.cc,v 1.40 2012-07-18 07:44:09 cvsjaap Exp $";
 
 
 #include "uiobjbody.h"
@@ -110,8 +110,6 @@ void uiObjectBody::doDisplay( CallBacker* )
     {
 	if ( !is_hidden )
 	{
-	    int sz = prefHNrPics();
-	    sz = prefVNrPics();
 	    is_hidden = true;
 	    qwidget()->hide();
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.76 2012-06-26 07:46:12 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.77 2012-07-18 07:40:19 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -198,7 +198,6 @@ bool uiListViewBody::moveItem( QKeyEvent* ev )
     QTreeWidgetItem* twpar = currentitem->parent();
     if ( !twpar ) return false;
 
-    QTreeWidget* treewidget = currentitem->treeWidget();
     const int childidx = twpar->indexOfChild( currentitem );
     int newchildidx = -1;
     if ( ev->key() == Qt::Key_Up )
