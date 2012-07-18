@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.19 2012-07-16 14:54:09 cvsyuancheng Exp $
+ RCS:           $Id: convolve2d.h,v 1.20 2012-07-18 21:20:55 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -92,7 +92,7 @@ od_int64 Convolver2D<float>::nrIterations() const
 {
     return shouldFFT()
         ? 1 
-        : z_->info().getSize( 0 );
+        : z_->info().getTotalSz();
 }
 
 
@@ -177,7 +177,7 @@ od_int64 Convolver2D<T>::nrIterations() const
 {
     return shouldFFT()
 	? 1 
-	: z_->info().getTotalSz(); //z_->info().getSize( 0 );
+	: z_->info().getTotalSz(); 
 }
 
 
