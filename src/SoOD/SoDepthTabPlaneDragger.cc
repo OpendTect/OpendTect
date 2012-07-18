@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoDepthTabPlaneDragger.cc,v 1.24 2012-07-16 20:57:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoDepthTabPlaneDragger.cc,v 1.25 2012-07-18 07:07:21 cvsjaap Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -361,10 +361,8 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 
 void SoDepthTabPlaneDragger::dragStart(void)
 {
-    const SoPath* pickpath = getPickPath();
     const SoEvent* event = getEvent();
 
-    SbBool found = FALSE;
     SbVec3f startpt = getLocalStartingPoint();
 
     bool scale = false;
@@ -402,7 +400,6 @@ void SoDepthTabPlaneDragger::dragStart(void)
 
     if ( !scale  )
     {
-	const Key depthkey = (Key) depthKey.getValue();
 	if ( shouldDrag( event, (Key) depthKey.getValue() ) )
 	{
 	    whatkind_ = WHATKIND_LINETRANSLATE;
