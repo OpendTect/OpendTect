@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.47 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.48 2012-07-18 07:57:05 cvsjaap Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -975,9 +975,6 @@ int EdgeLine::computeArea() const
 	const RowCol backnode = nodesinside[(idx)%layer2start];
 	const RowCol curnode = nodesinside[(idx+1)%layer2start];
 	const RowCol nextnode = nodesinside[(idx+2)%layer2start];
-
-	const RowCol backnodedir = (backnode-curnode).getDirection();
-	const RowCol nextnodedir = (nextnode-curnode).getDirection();
 
 	const int backnodeidx = dirs.indexOf((backnode-curnode).getDirection());
 	const int nextnodeidx = dirs.indexOf((nextnode-curnode).getDirection());

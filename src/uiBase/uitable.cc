@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.108 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.109 2012-07-18 07:54:38 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -103,9 +103,9 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     if ( nrows >= 0 ) setNrLines( nrows );
     if ( ncols >= 0 ) setColumnCount( ncols );
 
-    QHeaderView* vhdr = verticalHeader();
 // TODO: Causes tremendous performance delay in Qt 4.4.1;
 //       For now use uiTable::resizeRowsToContents() in stead.
+//    QHeaderView* vhdr = verticalHeader();
 //    vhdr->setResizeMode( QHeaderView::ResizeToContents );
 
     QHeaderView* hhdr = horizontalHeader();
@@ -1123,9 +1123,10 @@ void uiTable::popupMenu( CallBacker* )
 void uiTable::geometrySet_( CallBacker* cb )
 {
 //    if ( !mainwin() ||  mainwin()->poppedUp() ) return;
-    mCBCapsuleUnpack(uiRect&,sz,cb);
 
-    const uiSize size = sz.getPixelSize();
+//    mCBCapsuleUnpack(uiRect&,sz,cb);
+//    const uiSize size = sz.getPixelSize();
+
 //    updateCellSizes( &size );
 }
 
