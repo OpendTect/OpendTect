@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.20 2012-06-11 07:50:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.21 2012-07-18 15:00:36 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -62,9 +62,8 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 
 void uiRayTracerSel::selRayTraceCB( CallBacker* )
 {
-    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
     for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->display( idx == selidx );
+	grps_[idx]->display( grps_[idx] == current() );
 }
 
 
@@ -72,7 +71,7 @@ void uiRayTracerSel::usePar( const IOPar& par )
 {
     BufferString type; par.get( sKey::Type(), type );
     int igrp = 0;
-    for ( igrp; igrp<grps_.size(); igrp++ )
+    for ( ; igrp<grps_.size(); igrp++ )
     {
 	if ( grps_[igrp]->name() == type )
 	{
@@ -87,24 +86,32 @@ void uiRayTracerSel::usePar( const IOPar& par )
 
 void uiRayTracerSel::fillPar( IOPar& par ) const
 {
-    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
-    if ( grps_.validIdx( selidx ) )
-    {
-	grps_[selidx]->fillPar( par );
-	par.set( sKey::Type(), grps_[selidx]->name() );
-    }
+    if ( !current() ) return;
+    current()->fillPar( par );
+    par.set( sKey::Type(), current()->name() );
 }
 
 
+const uiRayTracer1D* uiRayTracerSel::current() const
+{
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    return grps_.validIdx( selidx ) ? grps_[selidx] : 0;
+}
 
+
+uiRayTracer1D* uiRayTracerSel::current()
+{
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    return grps_.validIdx( selidx ) ? grps_[selidx] : 0;
+}
 
 
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
+    , doreflectivity_(s.doreflectivity_)
     , srcdepthfld_( 0 )
     , downwavefld_( 0 )
     , upwavefld_( 0 )
-    , doreflectivity_(s.doreflectivity_)			 
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
@@ -254,6 +261,12 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     }
 }
 
+
+void uiRayTracer1D::displayOffsetFlds( bool yn )
+{
+    offsetfld_->display( yn );
+    offsetstepfld_->display( yn );
+}
 
 
 

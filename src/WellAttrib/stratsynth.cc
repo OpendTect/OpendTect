@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.40 2012-07-17 15:16:50 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.41 2012-07-18 15:00:36 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -31,14 +31,14 @@ StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
     , wvlt_(0)
     , level_(0)  
-    , tr_(0)		 
+    , tr_(0)
+    , lastsyntheticid_(0)
 {
     const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
     if ( !facnms.isEmpty() )
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
 
-    TypeSet<float> emptyset; emptyset += 0;
-    raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
+    RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
     raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
 }
@@ -66,6 +66,26 @@ void StratSynth::clearSynthetics()
 }
 
 
+const char* StratSynth::getDefaultSyntheticName() const
+{
+    BufferString nm( wvlt_ ? wvlt_->name() : "" );
+    TypeSet<float> offset; 
+    raypars_.get( RayTracer1D::sKeyOffset(), offset );
+    const int offsz = offset.size();
+    if ( offsz )
+    {
+	nm += " ";
+	nm += "Offset ";
+	nm += toString( offset[0] );
+	if ( offsz > 1 )
+	    nm += "-"; nm += offset[offsz-1];
+    }
+
+    BufferString* newnm = new BufferString( nm );
+    return newnm->buf();
+}
+
+
 #define mErrRet( msg, act )\
 {\
     errmsg_ = "Can not generate synthetics:\n";\
@@ -73,11 +93,38 @@ void StratSynth::clearSynthetics()
     act;\
 }
 
-void StratSynth::addSynthetic( const char* nm )
+SyntheticData* StratSynth::addSynthetic( const char* nm )
 {
     SyntheticData* sd = generateSD( lm_, &raypars_, tr_ );
     if ( sd )
-	synthetics_ += synthetics_.replace( 0, sd );
+    {
+	sd->setName( nm );
+	synthetics_ += sd;
+    }
+    return sd;
+}
+
+
+SyntheticData* StratSynth::replaceSynthetic( int id )
+{
+    SyntheticData* sd = getSynthetic( id );
+    if ( !sd ) return 0;
+
+    BufferString nm( sd->name() );
+    const int sdidx = synthetics_.indexOf( sd );
+    sd = generateSD( lm_, &raypars_, tr_ );
+    if ( sd )
+    {
+	sd->setName( nm );
+	delete synthetics_.replace( sdidx, sd );
+    }
+    return sd;
+}
+
+
+SyntheticData* StratSynth::addDefaultSynthetic()
+{
+    return addSynthetic( getDefaultSyntheticName() );
 }
 
 
@@ -85,16 +132,33 @@ SyntheticData* StratSynth::getSynthetic( const char* nm )
 {
     for ( int idx=0; idx<synthetics().size(); idx ++ )
     {
-	if ( !strcmp( getSynthetic( idx )->name(), nm ) )
-	    return getSynthetic( idx );
+	if ( !strcmp( synthetics_[idx]->name(), nm ) )
+	    return synthetics_[idx]; 
     }
     return 0;
 }
 
 
-SyntheticData* StratSynth::getSynthetic( int idx ) 
+SyntheticData* StratSynth::getSynthetic( int id ) 
 {
-    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0;
+    for ( int idx=0; idx<synthetics().size(); idx ++ )
+    {
+	if ( synthetics_[idx]->id_ == id )
+	    return synthetics_[ idx ];
+    }
+    return 0;
+}
+
+
+SyntheticData* StratSynth::getSyntheticByIdx( int idx ) 
+{
+    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : 0;
+}
+
+
+int StratSynth::nrSynthetics() const 
+{
+    return synthetics_.size();
 }
 
 
@@ -187,7 +251,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     PreStack::GatherSetDataPack* gdp = 
 	new PreStack::GatherSetDataPack("Pre-Stack Gather-Synthetic",gatherset);
-    SyntheticData* sd = new SyntheticData( "Synthetic", *gdp );
+    SyntheticData* sd = new SyntheticData( 0, *gdp, raypars_ );
+    sd->id_ = ++lastsyntheticid_;
 
     ObjectSet<TimeDepthModel> tmpd2ts;
     for ( int imdl=0; imdl<nraimdls; imdl++ )
@@ -295,9 +360,11 @@ void StratSynth::setLevel( const Level* lvl )
 { delete level_; level_ = lvl; }
 
 
-SyntheticData::SyntheticData( const char* nm, 
-			      PreStack::GatherSetDataPack& p )
+SyntheticData::SyntheticData( const char* nm, PreStack::GatherSetDataPack& p,
+			      const IOPar& rp )
     : NamedObject(nm)
+    , raypars_(rp)
+    , id_(-1) 
     , prestackpack_(p)
     , poststackpack_(0)		      
     , poststackpackid_(DataPack::cNoID())    
@@ -406,4 +473,10 @@ float SyntheticData::getDepth( float time, int seqnr ) const
 {
     return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getDepth( time ) 
 					: mUdf( float );
+}
+
+
+bool SyntheticData::hasOffset() const
+{
+    return offsetRange().width() > 0;
 }

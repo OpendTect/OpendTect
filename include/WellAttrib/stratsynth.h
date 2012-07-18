@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.18 2012-07-17 15:16:50 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.19 2012-07-18 15:00:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,9 @@ namespace PreStack { class GatherSetDataPack; }
 mClass SyntheticData : public NamedObject 
 {
 public:
-					SyntheticData(const char* nm,
-					    PreStack::GatherSetDataPack&);
+					SyntheticData(const char* nm, 
+					    PreStack::GatherSetDataPack&,
+					    const IOPar& raypars);
 					~SyntheticData();
 
     void				setName(const char*);
@@ -54,9 +55,14 @@ public:
     void				setPostStack(float offset,
 					     const Interval<float>* stackrg=0);
 
+    int					id_;
+    const IOPar&			rayPars() const	{ return raypars_; }
+    bool				hasOffset() const;
+
 protected:
     PreStack::GatherSetDataPack&	prestackpack_;
     SeisTrcBufDataPack*			poststackpack_;
+    IOPar				raypars_;
 
     void				setPack(bool isps,DataPack*);
     void				removePack(bool isps);
@@ -73,16 +79,22 @@ public:
     const Wavelet*		wavelet() const		{ return wvlt_; }
     void			setWavelet(const Wavelet*);
 
-    void			addSynthetic(const char* nm); 
-    SyntheticData* 		getSynthetic(const char* nm);
-    SyntheticData* 		getSynthetic(int idx);
-    void			clearSynthetics();
-    const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
+    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
 
     IOPar&			rayPars() 		{ return raypars_; }
+
     const char* 		errMsg() const;
 
-    bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
+    int				nrSynthetics() const; 
+    SyntheticData*		addSynthetic(const char* nm); 
+    SyntheticData*		replaceSynthetic(int id);
+    SyntheticData*		addDefaultSynthetic(); 
+    SyntheticData* 		getSynthetic(const char* nm);
+    SyntheticData* 		getSynthetic(int id);
+    SyntheticData* 		getSyntheticByIdx(int idx);
+    void			clearSynthetics();
+
+    const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
     mStruct Level : public NamedObject
     {
@@ -100,7 +112,9 @@ public:
     void			snapLevelTimes(SeisTrcBuf&,
 				    const ObjectSet<const TimeDepthModel>&);
 
-    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+    bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
+
+    const char*			getDefaultSyntheticName() const;
 
 protected:
 
@@ -109,6 +123,7 @@ protected:
     const Level*     		level_;
 
     BufferString		errmsg_;
+    int				lastsyntheticid_;
     IOPar			raypars_;
     TaskRunner*			tr_;
 

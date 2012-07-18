@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.10 2012-06-11 07:50:16 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.11 2012-07-18 15:00:36 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,12 @@ public:
     virtual bool 	usePar(const IOPar&);
     virtual void  	fillPar(IOPar&) const;
 
+    void		displayOffsetFlds(bool yn); 
+
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
+
+    bool 		doreflectivity_;
 
     uiGenInput*		srcdepthfld_;
     uiGenInput*		downwavefld_;
@@ -60,7 +64,6 @@ protected:
     uiGenInput*		blockfld_;
 
     uiGenInput*		lastfld_;
-    bool		doreflectivity_;
 };
 
 
@@ -84,6 +87,9 @@ public:
 
     void                usePar(const IOPar&);
     void                fillPar(IOPar&) const;
+
+    uiRayTracer1D*	current();
+    const uiRayTracer1D* current() const;
 
 protected:
 

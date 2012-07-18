@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.101 2012-07-17 15:16:50 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.102 2012-07-18 15:00:36 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -79,6 +79,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
     wvltfld_->attach( rightOf, layertb, 10 );
+    stratsynth_.setWavelet( wvltfld_->getWavelet() );
 
     scalebut_ = new uiPushButton( topgrp_, "Scale", false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
@@ -93,7 +94,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     datalist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
 
-    addeditbut_ = new uiToolButton( dataselgrp, "addnew", 
+    addeditbut_ = new uiToolButton( dataselgrp, "edit", 
 	    			"Add/Edit Synthetic DataSet",
 				mCB(this,uiStratSynthDisp,addEditSynth) );
     addeditbut_->attach( rightOf, datalist_ );
@@ -153,8 +154,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
-    topgrp_->setSensitive( false );
-    datagrp_->setSensitive( false );
     offsetChged(0);
 
     mTriggerInstanceCreatedNotifier();
@@ -294,7 +293,7 @@ void uiStratSynthDisp::drawLevel()
 
 void uiStratSynthDisp::wvltChg( CallBacker* )
 {
-    doModelChange();
+    syntheticDataParChged(0);
     wvltChanged.trigger();
 }
 
@@ -509,20 +508,28 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 }
 
 
+void uiStratSynthDisp::setCurrentSynthetic()
+{
+    SyntheticData* sd = 0;
+    if ( stratsynth_.nrSynthetics() == 0 )
+    {
+	sd = stratsynth_.addDefaultSynthetic();
+	if ( sd ) datalist_->box()->addItem( sd->name() );
+    }
+    else
+	sd = stratsynth_.getSyntheticByIdx( datalist_->box()->currentItem() );
+
+    currentsynthetic_ = sd;
+}
+
+
 void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
 
-    stratsynth_.setWavelet( wvltfld_->getWavelet() );
     d2tmodels_ = 0;
 
-    int seldataidx = datalist_->box()->currentItem(); 
-    if ( seldataidx < 0 )
-       stratsynth_.addSynthetic( "Synthetic Zero Offset"); //TODO key
-
-    currentsynthetic_ = stratsynth_.getSynthetic( seldataidx );
-
-    datagrp_->setSensitive( currentsynthetic_ );
+    setCurrentSynthetic();
 
     if ( currentsynthetic_ )
     {
@@ -530,69 +537,32 @@ void uiStratSynthDisp::doModelChange()
 	limits.step = 100;
 	offsetposfld_->setLimitSampling( limits );
 	stackfld_->setLimitRange( limits );
-	const bool hasoffset = limits.width() > 0;
-	prestackgrp_->setSensitive( hasoffset );
+	prestackgrp_->setSensitive( currentsynthetic_->hasOffset() );
 	currentsynthetic_->setPostStack( limits.start );
     }
     if ( stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
 
+    topgrp_->setSensitive( currentsynthetic_ );
+    datagrp_->setSensitive( currentsynthetic_ );
+
     displaySynthetic( currentsynthetic_ );
+    drawLevel();
 }
-
-
-mClass uiAddNewSynthDlg : public uiDialog
-{
-public:
-    uiAddNewSynthDlg( uiParent* p, const char* wvlt, const BufferStringSet& nms)
-	: uiDialog( this, uiDialog::Setup( "Synthetic Name", 
-		    mNoDlgTitle, mNoHelpID) )
-	, nms_(nms)					     
-    {
-	BufferString wvtbasedname( "Synthetic" );
-	wvtbasedname += "_"; 
-	wvtbasedname += wvlt; 
-	namefld_ = new uiGenInput( this, "Name" );
-	namefld_->setText( wvtbasedname );
-    }
-
-    bool acceptOK(CallBacker*)
-    {
-	const char* nm = getSynthName(); 
-	if ( !nm )
-	    mErrRet("Please specify a valid name",return false);
-	if ( nms_.isPresent( nm ) )
-	    mErrRet("Name is already present, please specify another name",
-		    return false);
-
-	return true;
-    }
-
-    const char* getSynthName()
-    { return namefld_->text(); }
-
-protected:
-    const BufferStringSet& nms_;
-    uiGenInput*	 namefld_;
-};
 
 
 void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
-    BufferStringSet synthnms; 
-    for ( int idx=0; idx<datalist_->box()->size(); idx++ )
-	synthnms.add( datalist_->box()->textOfItem( idx ) );
-
-    uiAddNewSynthDlg dlg( this, wvltfld_->getName(), synthnms );
-    if ( !dlg.go() )
-	return;
-
     if ( !raytrcpardlg_ )
 	raytrcpardlg_ = new uiRayTrcParamsDlg( this, stratsynth_.rayPars() );
 
     raytrcpardlg_->go();
+
+    if ( currentsynthetic_ )
+	raytrcpardlg_->setSynthetic( *currentsynthetic_ );
+
     raytrcpardlg_->button( uiDialog::OK )->activated.notify(
-			mCB(this,uiStratSynthDisp,rayTrcParChged) );
+			mCB(this,uiStratSynthDisp,syntheticDataParChged) );
 }
 
 
@@ -639,9 +609,17 @@ const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
 { return d2tmodels_; }
 
 
-void uiStratSynthDisp::rayTrcParChged( CallBacker* )
+void uiStratSynthDisp::syntheticDataParChged( CallBacker* )
 {
+    if ( !currentsynthetic_ ) return;
+
+    stratsynth_.setWavelet( wvltfld_->getWavelet() );
+    stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
+
     doModelChange();
+
+    if ( raytrcpardlg_ && currentsynthetic_ )
+	raytrcpardlg_->setSynthetic( *currentsynthetic_ );
 }
 
 
@@ -772,26 +750,60 @@ void uiStackGrp::setLimitRange( Interval<float> rg )
 
 
 
-
 uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par ) 
-    : uiDialog(p,uiDialog::Setup(
-		"Specify ray tracer parameters",mNoDlgTitle,
-		"103.4.4").modal(false))
+    : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
+				 "103.4.4").modal(false))
     , raypars_(par)
+    , sd_(0)
 {
     setCtrlStyle( DoAndStay );
+
+    typefld_ = new uiGenInput( this, "Type",
+			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
+    typefld_->valuechanged.notify( mCB(this,uiRayTrcParamsDlg,parChg) );
+
+    uiSeparator* sep = new uiSeparator( this, "Name separator" );
+    sep->attach( stretchedBelow, typefld_ );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( this, rsu );
     rtsel_->usePar( raypars_ ); 
+    rtsel_->attach( centeredBelow, typefld_ );
+    rtsel_->attach( ensureBelow, sep );
 
-    uiSeparator* sep = new uiSeparator( this, "NMO corr separator" );
-    sep->attach( stretchedBelow, rtsel_ );
-
-    nmobox_ = new uiCheckBox( this, "NMO corrections" );
+    nmobox_ = new uiCheckBox( this, "Apply NMO corrections" );
     nmobox_->setChecked( true );
-    nmobox_->attach( centeredBelow, rtsel_ );
-    nmobox_->attach( ensureBelow, sep );
+    nmobox_->attach( alignedBelow, rtsel_ );
+
+    uiSeparator* sep2 = new uiSeparator( this, "Name separator" );
+    sep2->attach( stretchedBelow, nmobox_ );
+
+    namefld_ = new uiGenInput( this, "Name" );
+    namefld_ ->attach( centeredBelow, rtsel_ );
+    namefld_ ->attach( ensureBelow, sep2 );
+
+    addasnewbut_ = new uiPushButton( this, "Add as new", false );
+    addasnewbut_->attach( rightOf, namefld_ );
+
+    parChg(0);
+}
+
+
+void uiRayTrcParamsDlg::parChg( CallBacker* )
+{
+    const bool isps = !typefld_->getBoolValue();
+    nmobox_->display( isps );
+    rtsel_->current()->displayOffsetFlds( isps );
+}
+
+
+void uiRayTrcParamsDlg::setSynthetic( const SyntheticData& sd )
+{
+    namefld_->setText( sd.name() );
+    typefld_->setValue( sd.hasOffset() ); 
+    raypars_ = sd.rayPars();
+    rtsel_->usePar( raypars_ ); 
+    sd_ = &sd;
 }
 
 
@@ -799,7 +811,21 @@ bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
 {
     raypars_.setEmpty();
     rtsel_->fillPar( raypars_ );
+    if ( typefld_->getBoolValue() )
+	RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), nmobox_->isChecked() );
+
+    const char* nm = namefld_->text();
+    if ( !nm )
+	mErrRet("Please specify a valid name",return false);
+
+    /*
+    if ( nms_.isPresent( nm ) )
+    {
+	mErrRet("Name is already present, please specify another name",
+	return false);
+    }
+    */
 
     return false;
 }

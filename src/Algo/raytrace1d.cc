@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.45 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.46 2012-07-18 15:00:36 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -89,6 +89,13 @@ void RayTracer1D::fillPar( IOPar& par ) const
     par.set( sKey::Type(), factoryKeyword() );
     par.set( sKeyOffset(), offsets_ );
     setup().fillPar( par );
+}
+
+
+void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
+{
+    TypeSet<float> emptyset; emptyset += 0;
+    par.set( RayTracer1D::sKeyOffset(), emptyset );
 }
 
 

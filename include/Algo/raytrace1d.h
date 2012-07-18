@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.36 2012-06-11 13:48:05 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.37 2012-07-18 15:00:36 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -86,6 +86,8 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*  sKeyVelBlock()     { return "Block velocities"; }
     static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
+
+    static void		setIOParsToZeroOffset(IOPar& iop);
 
 protected:
 			RayTracer1D();

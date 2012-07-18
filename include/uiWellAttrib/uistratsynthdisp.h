@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.52 2012-07-17 15:16:50 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.53 2012-07-18 15:00:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ protected:
     uiStackGrp*		stackfld_;
     uiFlatViewMainWin*	prestackwin_;
 
+    void		setCurrentSynthetic();
     void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
@@ -126,7 +127,7 @@ protected:
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
-    void		rayTrcParChged(CallBacker*);
+    void		syntheticDataParChged(CallBacker*);
     void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
     void		viewPreStackPush(CallBacker*);
@@ -183,14 +184,23 @@ mClass uiRayTrcParamsDlg : public uiDialog
 {
 public:
 				uiRayTrcParamsDlg(uiParent*,IOPar&);
-protected:
-    uiCheckBox*			nmobox_;
-    uiRayTracerSel*		rtsel_;
-    IOPar&			raypars_;
 
+    void			setSynthetic(const SyntheticData&);
+    const char*			getName();
+
+protected:
+
+    uiGenInput*			typefld_;
+    uiGenInput*  		namefld_;
+    uiCheckBox*			nmobox_;
+    uiCheckBox*			stackbox_;
+    uiRayTracerSel*		rtsel_;
+    uiPushButton*		addasnewbut_;
+    IOPar&			raypars_;
+    const SyntheticData*	sd_;
+
+    void			parChg(CallBacker*);
     bool			acceptOK( CallBacker* );
 };
-
-
 
 #endif
