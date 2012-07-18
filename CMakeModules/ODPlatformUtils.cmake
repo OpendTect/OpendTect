@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.52 2012-07-18 09:09:05 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.53 2012-07-18 10:35:57 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -46,6 +46,8 @@ IF(UNIX) #Apple an Linux
 	    set  ( OD_PLFSUBDIR "lux32" )
 	    ADD_DEFINITIONS("-march=pentium4")
 	ENDIF()
+
+	ADD_DEFINITIONS( "\"-DCMAKE_INTDIR=${CMAKE_BUILD_TYPE}\"" )
     ENDIF()
 
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
