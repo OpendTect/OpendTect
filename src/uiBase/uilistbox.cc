@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.126 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.127 2012-07-18 07:35:37 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -602,8 +602,6 @@ void uiListBox::setMarked( int idx, bool yn )
 
 int uiListBox::currentItem() const
 {
-    QListWidgetItem* itm1 = body_->currentItem();
-    QListWidgetItem* itm2 = body_->item( body_->currentRow() );
     return body_->currentRow();
 }
 
