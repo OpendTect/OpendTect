@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.51 2012-06-26 14:13:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.52 2012-07-18 09:09:16 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -179,13 +179,13 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
     const Coord3 oldpos = emobj->getPos(pid);
     BinID seedbid = SI().transform( oldpos );
 
-    const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
+//  const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
     emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 
     if ( environment || nrLineNeighbors(pid)+nrLateralNeighbors(pid)==0 )
 	emobj->unSetPos( pid, true );
 
-    const bool repairbridge = retrack || nrLineNeighbors(pid); 
+//    const bool repairbridge = retrack || nrLineNeighbors(pid); 
     int res = true;
 
     if ( environment )

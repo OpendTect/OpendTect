@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.22 2012-05-02 15:11:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.23 2012-07-18 09:06:33 cvsjaap Exp $";
 
 #include "horizon3dextender.h"
 
@@ -99,8 +99,8 @@ int BaseHorizon3DExtender::nextStep()
 
     const BinID sidehash( direction.binid.crl ? SI().inlStep() : 0,
 	    		  direction.binid.inl ? SI().crlStep() : 0 );
-    const BinID firstnode = sourcenodes[0];
-    const BinID lastnode = sourcenodes[sourcenodes.size()-1];
+    // const BinID firstnode = sourcenodes[0];
+    // const BinID lastnode = sourcenodes[sourcenodes.size()-1];
 
     const bool extend = 
 	engine().trackPlane().getTrackMode()==TrackPlane::Extend;
@@ -132,7 +132,7 @@ int BaseHorizon3DExtender::nextStep()
 	    else
 		directions = RowCol::clockWiseSequence();
 
-	    const float depth = surface.getPos(sid_,srcbid.toInt64()).z;
+	    // const float depth = surface.getPos(sid_,srcbid.toInt64()).z;
 	    const EM::PosID pid(surface.id(), sid_, srcbid.toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
