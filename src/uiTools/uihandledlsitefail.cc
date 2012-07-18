@@ -7,11 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.5 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.6 2012-07-18 08:50:46 cvsranojay Exp $";
 
 #include "uihandledlsitefail.h"
+
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uicombobox.h"
+#include "uiproxydlg.h"
 #include "uislider.h"
 #include "oddlsite.h"
 
@@ -61,6 +64,12 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 	dlsitefld_->setText( site_ );
     }
 
+    proxybut_ = new uiPushButton( this, "&Proxy settings", false );
+    proxybut_->setPixmap( "proxysettings" );
+    proxybut_->setPrefWidthInChar( 21 );
+    proxybut_->activated.notify( mCB(this,uiHandleDLSiteFail,proxyButCB) );
+    proxybut_->attach( rightOf, lcb );
+    
     timeoutfld_ = new uiSlider( this, "Timeout" );
     timeoutfld_->setInterval( StepInterval<float>(1,60,1) );
     timeoutfld_->setTickMarks( uiSlider::Below );
@@ -74,6 +83,14 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 float uiHandleDLSiteFail::timeout() const
 {
     return timeoutfld_->getValue();
+}
+
+
+void uiHandleDLSiteFail::proxyButCB( CallBacker* )
+{
+    uiProxyDlg dlg( this );
+    dlg.setHelpID( mNoHelpID );
+    dlg.go();
 }
 
 
