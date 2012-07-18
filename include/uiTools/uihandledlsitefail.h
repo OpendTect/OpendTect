@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: uihandledlsitefail.h,v 1.1 2011-11-22 12:58:17 cvsbert Exp $
+ RCS:           $Id: uihandledlsitefail.h,v 1.2 2012-07-18 09:04:34 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class ODDLSite;
 class BufferStringSet;
 class uiComboBox;
+class uiPushButton;
 class uiSlider;
 
 
@@ -48,8 +49,10 @@ protected:
     const bool		isfatal_;
 
     uiComboBox*		dlsitefld_;
+    uiPushButton*	proxybut_;
     uiSlider*		timeoutfld_;
 
+    void		proxyButCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
