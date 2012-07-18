@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.24 2012-05-23 10:44:59 cvskris Exp $
+ RCS:		$Id: bufstringset.h,v 1.25 2012-07-18 10:05:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
 				{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*,bool caseinsens=true) const;
 			    //!< algo may not be very good, but anyway
+			    //!< returns -1 if size is 0
     bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
