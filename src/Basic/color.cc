@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: color.cc,v 1.24 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: color.cc,v 1.25 2012-07-18 11:11:46 cvskris Exp $";
 
 #include "color.h"
 
@@ -192,7 +192,7 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
             h = (fg-fb)/delta; break;
         case 1:
             h = 2 + (fb-fr)/delta; break;
-        case 2:
+        default: // 2
             h = 4 + (fr-fg)/delta; break;
     }
 
