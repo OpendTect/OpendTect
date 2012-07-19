@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiesetup.cc,v 1.11 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiesetup.cc,v 1.12 2012-07-19 12:11:55 cvsbruno Exp $";
 
 
 #include "welltiesetup.h"
@@ -28,7 +28,6 @@ static const char* sKeyVelLogName = "Velocity log name";
 static const char* sKeyDensLogName = "Density log name";
 static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
-static const char* sKeyCSCorrType = "CheckShot Correction";
 static const char* sKeySetupPar = "Well Tie Setup";
 static const char* sKeyReplacementVel = "Replacement Velocity";
 
