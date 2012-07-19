@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.107 2012-07-13 08:08:38 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.108 2012-07-19 06:59:53 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -261,7 +261,6 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 void uiTieView::drawLogDispWellMarkers()
 {
     mGetWD(return)
-    const bool ismarkerdisp = params_.ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_; 
@@ -282,7 +281,6 @@ void uiTieView::drawViewerWellMarkers()
     mRemoveItms( mrktxtnms_ )
     mGetWD(return)
 
-    FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( wellmarkerauxdatas_ );
     bool ismarkerdisp = params_.isvwrmarkerdisp_;
     if ( !ismarkerdisp ) return;
@@ -339,7 +337,6 @@ void uiTieView::drawViewerWellMarkers()
 
 void uiTieView::drawUserPicks()
 {
-    FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( userpickauxdatas_ );
     const int nrauxs = mMAX( seispickset_.size(), synthpickset_.size() );
     
@@ -370,7 +367,6 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
 void uiTieView::drawHorizons()
 {
     mRemoveItms( hortxtnms_ )
-    FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( horauxdatas_ );
     bool ishordisp = params_.isvwrhordisp_;
     if ( !ishordisp ) return;

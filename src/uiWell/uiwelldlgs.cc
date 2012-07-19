@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.109 2012-07-19 06:51:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.110 2012-07-19 06:59:53 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -834,7 +834,6 @@ void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 
 void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 {
-    bool inmeter = zunitgrp_->selectedId() == 0;
     bool infeet = zunitgrp_->selectedId() == 1;
     bool insec = zunitgrp_->selectedId() == 2;
     bool inmsec = zunitgrp_->selectedId() == 3;

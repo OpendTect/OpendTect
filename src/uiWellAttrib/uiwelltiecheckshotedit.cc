@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.19 2012-05-29 16:38:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.20 2012-07-19 06:59:53 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -93,8 +93,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     cs_->setName( "CheckShot Curve" );
 
     newdriftcurve_.setName( "User defined Drift Curve" );
-
-    GeoCalculator gc;
 
     orgd2t_ = new Well::D2TModel( *d2t_ );
     uiWellDahDisplay::Setup dsu; 
@@ -236,8 +234,6 @@ void uiCheckShotEdit::movePt()
 void uiCheckShotEdit::doInsertRemovePt()
 { 
     const uiWellDahDisplay* disp = control_->selDahDisplay();
-    const bool iscs = disp == d2tdisplay_;
-
     if ( isedit_ ) 
     {
 	const float dah = control_->depth();
@@ -377,7 +373,6 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 
     TypeSet<uiPoint> pts;
     uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
-    const Interval<float>& zrg = ld.zrg_;
     for ( int idx=0; idx<d2t_->size(); idx++ )
     {
 	float val = d2t_->value( idx );

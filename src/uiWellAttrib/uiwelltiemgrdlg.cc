@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.65 2012-06-04 10:57:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.66 2012-07-19 06:59:53 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -318,7 +318,6 @@ bool uiTieWinMGRDlg::initSetup()
 	    mErrRet( "A window with this well is already opened" )
     }
 
-    WellTie::UnitFactors units;
     Well::Data* loadedwd =  Well::MGR().get( wtsetup_.wellid_, false );
     if ( !loadedwd ) loadedwd = wd_;
     Well::Log* s = loadedwd->logs().getLog( wtsetup_.vellognm_ ); 
