@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.155 2012-07-11 15:27:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.156 2012-07-19 10:57:54 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -189,7 +189,7 @@ void WellDisplay::restoreDispProp()
 {
     if ( !dispprop_ )
 	return;
-    mGetWD();
+    mGetWD( return );
     wd->displayProperties() = *dispprop_;
 }
 
