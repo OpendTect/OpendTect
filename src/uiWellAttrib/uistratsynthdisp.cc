@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.102 2012-07-18 15:00:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.103 2012-07-19 15:12:35 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -400,12 +400,12 @@ void uiStratSynthDisp::modelChanged()
 
 void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
 {
-    displayPostStackSynthetic( sd );
-    displayPreStackSynthetic( sd );
+    displayPostStackDirSynthetic( sd );
+    displayPreStackDirSynthetic( sd );
 }
 
 
-void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
+void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 {
     const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
 
@@ -415,8 +415,16 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 	delete vwr_->removeAuxData( 0 );
 
     if ( !sd ) return;
-    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,sd->getPack( false ));
-    const SeisTrcBuf* tbuf = stbp ? &stbp->trcBuf() : 0;
+
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
+
+    const bool dostack = stackbox_->isChecked();
+    const Interval<float>* stackrg = dostack ? &stackfld_->getRange() : 0;
+    const float offset = offsetposfld_->getValue();
+    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, stackrg ) 
+				   : &postsd->postStackPack().trcBuf();
+
     if ( !tbuf ) return;
 
     SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
@@ -428,7 +436,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
     }
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
-	    				SeisTrcInfo::TrcNr, stbp->category() );
+				    SeisTrcInfo::TrcNr, "Forward Modeling" );
     dp->setName( sd->name() );
     DPM( DataPackMgr::FlatID() ).add( dp );
 
@@ -446,7 +454,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd )
 }
 
 
-void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
+void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
 {
     const int midx = prestackwin_ ? modelposfld_->getValue() : -1;
     CBCapsule<int> caps( midx, this );
@@ -459,7 +467,7 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     vwr.control()->zoomMgr().toStart();
 
     if ( !sd ) return;
-    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,sd->getPack(true))
+    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
     if ( !gsetdp ) return;
 
     PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
@@ -483,7 +491,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	prestackwin_ = 0;
     }
 
-    if ( currentsynthetic_ )
+    if ( currentsynthetic_ && currentsynthetic_->isPS() )
     {
 	uiFlatViewMainWin::Setup su( "Pre-Stack view", false );
 	prestackwin_ = new uiFlatViewMainWin( 0, su );
@@ -504,7 +512,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	prestackwin_->setInitialSize( 300, 500 );
 	prestackwin_->start();
     }
-    displayPreStackSynthetic( currentsynthetic_ );
+    displayPreStackDirSynthetic( currentsynthetic_ );
 }
 
 
@@ -531,15 +539,16 @@ void uiStratSynthDisp::doModelChange()
 
     setCurrentSynthetic();
 
-    if ( currentsynthetic_ )
+    mDynamicCastGet(const PreStackSyntheticData*,pssd,currentsynthetic_);
+    if ( pssd )
     {
-	StepInterval<float> limits( currentsynthetic_->offsetRange() );
+	StepInterval<float> limits( pssd->offsetRange() );
 	limits.step = 100;
 	offsetposfld_->setLimitSampling( limits );
 	stackfld_->setLimitRange( limits );
-	prestackgrp_->setSensitive( currentsynthetic_->hasOffset() );
-	currentsynthetic_->setPostStack( limits.start );
     }
+    prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
+
     if ( stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
 
@@ -572,18 +581,13 @@ void uiStratSynthDisp::offsetChged( CallBacker* )
     offsetposfld_->display( !dostack );
     stackfld_->display( dostack );
 
-    if ( !currentsynthetic_ ) return;
-
-    currentsynthetic_->setPostStack( offsetposfld_->getValue(), 
-			    dostack ? &stackfld_->getRange() : 0 );
-
-    displayPostStackSynthetic( currentsynthetic_ );
+    displayPostStackDirSynthetic( currentsynthetic_ );
 }
 
 
 void uiStratSynthDisp::modelPosChged( CallBacker* )
 {
-    displayPreStackSynthetic( currentsynthetic_ );
+    displayPreStackDirSynthetic( currentsynthetic_ );
 }
 
 
@@ -592,8 +596,8 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
     static SeisTrcBuf emptytb( true );
     if ( !currentsynthetic_ ) return emptytb;
 
-    const DataPack* dp = currentsynthetic_->getPack( false );
-    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,dp);
+    const DataPack& dp = currentsynthetic_->getPack();
+    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,&dp);
     if ( !stbp ) return emptytb;
 
     if ( d2tmodels_ && !d2tmodels_->isEmpty() )
@@ -800,9 +804,9 @@ void uiRayTrcParamsDlg::parChg( CallBacker* )
 void uiRayTrcParamsDlg::setSynthetic( const SyntheticData& sd )
 {
     namefld_->setText( sd.name() );
-    typefld_->setValue( sd.hasOffset() ); 
+    typefld_->setValue( !sd.isPS() ); 
     raypars_ = sd.rayPars();
-    rtsel_->usePar( raypars_ ); 
+    rtsel_->usePar( raypars_ );
     sd_ = &sd;
 }
 

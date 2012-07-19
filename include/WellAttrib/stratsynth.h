@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.19 2012-07-18 15:00:36 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.20 2012-07-19 15:12:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ailayer.h"
 #include "datapack.h"
+#include "datapackbase.h"
 #include "elasticpropsel.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -33,39 +34,80 @@ namespace PreStack { class GatherSetDataPack; }
 mClass SyntheticData : public NamedObject 
 {
 public:
-					SyntheticData(const char* nm, 
-					    PreStack::GatherSetDataPack&,
-					    const IOPar& raypars);
 					~SyntheticData();
 
     void				setName(const char*);
 
-    const SeisTrc*			getTrace(int seqnr,int* offset=0) const;
+    virtual const SeisTrc*		getTrace(int seqnr) const = 0;
 
     float				getTime(float dpt,int seqnr) const;
     float				getDepth(float time,int seqnr) const;
 
-    const DataPack*			getPack(bool isps) const; 
-    const Interval<float>		offsetRange() const; 
+    const DataPack&			getPack() const { return datapack_; }
+    DataPack&				getPack() 	{ return datapack_; }
+
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
-    DataPack::FullID			prestackpackid_;
-    DataPack::FullID 			poststackpackid_;
-
-    void				setPostStack(float offset,
-					     const Interval<float>* stackrg=0);
+    DataPack::FullID			datapackid_;
 
     int					id_;
+    virtual bool			isPS() const 		= 0;
+    virtual bool			hasOffset() const 	= 0;
+
     const IOPar&			rayPars() const	{ return raypars_; }
-    bool				hasOffset() const;
 
 protected:
-    PreStack::GatherSetDataPack&	prestackpack_;
-    SeisTrcBufDataPack*			poststackpack_;
-    IOPar				raypars_;
+					SyntheticData(const char* nm, 
+					    const IOPar& raypars,DataPack&);
 
-    void				setPack(bool isps,DataPack*);
-    void				removePack(bool isps);
+    IOPar				raypars_;
+    void				removePack();
+
+    DataPack&				datapack_;
+};
+
+
+mClass PostStackSyntheticData : public SyntheticData
+{
+public:
+					PostStackSyntheticData(const char* nm, 
+					    const IOPar& raypars,
+					    SeisTrcBufDataPack&);
+
+    bool				isPS() const 	  { return false; }
+    bool				hasOffset() const { return false; }
+
+    const SeisTrc*			getTrace(int seqnr) const;
+
+    SeisTrcBufDataPack& 		postStackPack() 
+	{ return (SeisTrcBufDataPack&)datapack_; }
+    const SeisTrcBufDataPack& 		postStackPack() const
+	{ return (SeisTrcBufDataPack&)datapack_; }
+};
+
+
+mClass PreStackSyntheticData : public SyntheticData
+{
+public:
+					PreStackSyntheticData(const char* nm, 
+					    const IOPar& raypars,
+					    PreStack::GatherSetDataPack&);
+
+    bool				isPS() const 	  { return true; }
+    bool				hasOffset() const;
+    const Interval<float>		offsetRange() const; 
+
+    const SeisTrc*			getTrace(int seqnr) const
+    					{ return getTrace(seqnr,0); }
+    const SeisTrc*			getTrace(int seqnr,int* offset) const;
+    SeisTrcBuf*				getTrcBuf(float startoffset,
+					    const Interval<float>* offrg) const;
+
+
+    PreStack::GatherSetDataPack&	preStackPack()
+	{ return (PreStack::GatherSetDataPack&)datapack_; }
+    const PreStack::GatherSetDataPack&	preStackPack() const
+	{ return (PreStack::GatherSetDataPack&)datapack_; }
 };
 
 
@@ -121,13 +163,13 @@ protected:
     const Strat::LayerModel& 	lm_;
     const Wavelet*		wvlt_;
     const Level*     		level_;
+    int				lastsyntheticid_;
+    ObjectSet<SyntheticData> 	synthetics_;
+    IOPar			raypars_;
 
     BufferString		errmsg_;
-    int				lastsyntheticid_;
-    IOPar			raypars_;
     TaskRunner*			tr_;
 
-    ObjectSet<SyntheticData> 	synthetics_;
     SyntheticData* 		generateSD(const Strat::LayerModel&,
 					const IOPar* raypar=0,
 					TaskRunner* tr=0);

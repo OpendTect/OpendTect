@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.53 2012-07-18 15:00:36 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.54 2012-07-19 15:12:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,8 +119,8 @@ protected:
 
     void		drawLevel();
     void		displaySynthetic(const SyntheticData*);
-    void		displayPreStackSynthetic(const SyntheticData*);
-    void		displayPostStackSynthetic(const SyntheticData*);
+    void		displayPreStackDirSynthetic(const SyntheticData*);
+    void		displayPostStackDirSynthetic(const SyntheticData*);
 
     void		addEditSynth(CallBacker*);
     void		dataSetSel(CallBacker*);

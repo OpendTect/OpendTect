@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.41 2012-07-18 15:00:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.42 2012-07-19 15:12:35 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -251,7 +251,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     PreStack::GatherSetDataPack* gdp = 
 	new PreStack::GatherSetDataPack("Pre-Stack Gather-Synthetic",gatherset);
-    SyntheticData* sd = new SyntheticData( 0, *gdp, raypars_ );
+
+    SyntheticData* sd = new PreStackSyntheticData( 0, raypars_, *gdp );
     sd->id_ = ++lastsyntheticid_;
 
     ObjectSet<TimeDepthModel> tmpd2ts;
@@ -360,106 +361,40 @@ void StratSynth::setLevel( const Level* lvl )
 { delete level_; level_ = lvl; }
 
 
-SyntheticData::SyntheticData( const char* nm, PreStack::GatherSetDataPack& p,
-			      const IOPar& rp )
+
+
+SyntheticData::SyntheticData( const char* nm, const IOPar& rp, DataPack& dp )
     : NamedObject(nm)
     , raypars_(rp)
     , id_(-1) 
-    , prestackpack_(p)
-    , poststackpack_(0)		      
-    , poststackpackid_(DataPack::cNoID())    
-    , prestackpackid_(DataPack::cNoID())    
+    , datapack_(dp)     
+    , datapackid_(DataPack::cNoID())    
 {
-    setPack( true, &p );
-    setPostStack( 0 );
-    setName( nm );
 }
 
 
 SyntheticData::~SyntheticData()
 {
     deepErase( d2tmodels_ );
-    removePack( false );
-    removePack( true ); 
+    removePack(); 
 }
 
 
 void SyntheticData::setName( const char* nm )
 {
     NamedObject::setName( nm );
-    prestackpack_.setName( nm );
-    if ( poststackpack_ ) 
-	poststackpack_->setName( nm );
+    datapack_.setName( nm );
 }
 
 
-const DataPack* SyntheticData::getPack( bool isps ) const
+void SyntheticData::removePack()
 {
-    if ( isps ) 
-	return &prestackpack_;
-    else
-	return poststackpack_;
-}
-
-
-void SyntheticData::setPostStack( float offset, const Interval<float>* stackrg )
-{
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    Interval<float> offrg = stackrg ? *stackrg : Interval<float>(offset,offset);
-    prestackpack_.fill( *tbuf, offrg );
-    if ( tbuf->isEmpty() )
-	return;
-
-    SeisTrcBufDataPack* tdp = new SeisTrcBufDataPack( 
-			tbuf, Seis::Line, SeisTrcInfo::TrcNr, "Seismic" ) ;
-
-    const SeisTrc& trc0 = *tbuf->get(0);
-    StepInterval<double> zrg( trc0.info().sampling.start,
-			      trc0.info().sampling.atIndex(trc0.size()-1),
-			      trc0.info().sampling.step );
-    tdp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
-    tdp->posData().setRange( false, zrg );
-    tdp->setName( name() ); 
-
-    setPack( false, tdp );
-    poststackpack_ = tdp; 
-}
-
-
-void SyntheticData::setPack( bool isps, DataPack* dp )
-{
-    removePack( isps );
-    if ( !dp ) return;
-    DataPackMgr::ID pmid = isps ? DataPackMgr::CubeID() : DataPackMgr::FlatID();
-    DPM( pmid ).add( dp );
-    DataPack::FullID& dpid = isps ? prestackpackid_ : poststackpackid_;
-    dpid = DataPack::FullID( pmid, dp->id());
-}
-
-
-void SyntheticData::removePack( bool isps )
-{
-    const DataPack::FullID dpid = isps ? prestackpackid_ : poststackpackid_;
+    const DataPack::FullID dpid = datapackid_;
     DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
     const DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
     if ( dp )
 	DPM(packmgrid).release( dp->id() );
 }
-
-
-const Interval<float> SyntheticData::offsetRange() const
-{
-    Interval<float> offrg( 0, 0 );
-    const ObjectSet<PreStack::Gather>& gathers = prestackpack_.getGathers();
-    if ( gathers.isEmpty() ) return offrg;
-    const PreStack::Gather& gather = *gathers[0];
-    offrg.set( gather.getOffset(0), gather.getOffset( gather.size(true)-1) );
-    return offrg;
-}
-
-
-const SeisTrc* SyntheticData::getTrace( int seqnr, int* offset ) const
-{ return prestackpack_.getTrace( seqnr, offset ? *offset : 0 ); }
 
 
 float SyntheticData::getTime( float dpt, int seqnr ) const
@@ -476,7 +411,62 @@ float SyntheticData::getDepth( float time, int seqnr ) const
 }
 
 
-bool SyntheticData::hasOffset() const
+
+PostStackSyntheticData::PostStackSyntheticData( const char* nm,
+						const IOPar& raypars,
+						SeisTrcBufDataPack& dp)
+    : SyntheticData(nm,raypars,dp)
 {
-    return offsetRange().width() > 0;
+    DataPackMgr::ID pmid = DataPackMgr::FlatID();
+    DPM( pmid ).add( &dp );
+    setName( nm );
 }
+
+
+const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
+{ return postStackPack().trcBuf().get( seqnr ); }
+
+
+
+PreStackSyntheticData::PreStackSyntheticData(const char* nm,
+					     const IOPar& raypars,
+					     PreStack::GatherSetDataPack& dp)
+    : SyntheticData(nm,raypars,dp)
+{
+    DataPackMgr::ID pmid = DataPackMgr::CubeID();
+    DPM( pmid ).add( &dp );
+    setName( nm );
+}
+
+
+const Interval<float> PreStackSyntheticData::offsetRange() const
+{
+    Interval<float> offrg( 0, 0 );
+    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
+    if ( !gathers.isEmpty() ) 
+    {
+	const PreStack::Gather& gather = *gathers[0];
+	offrg.set(gather.getOffset(0),gather.getOffset( gather.size(true)-1));
+    }
+    return offrg;
+}
+
+
+bool PreStackSyntheticData::hasOffset() const
+{ return offsetRange().width() > 0; }
+
+
+const SeisTrc* PreStackSyntheticData::getTrace( int seqnr, int* offset ) const
+{ return preStackPack().getTrace( seqnr, offset ? *offset : 0 ); }
+
+
+SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset, 
+					const Interval<float>* stackrg ) const
+{
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    Interval<float> offrg = stackrg ? *stackrg : Interval<float>(offset,offset);
+    preStackPack().fill( *tbuf, offrg );
+    return tbuf;
+}
+
+

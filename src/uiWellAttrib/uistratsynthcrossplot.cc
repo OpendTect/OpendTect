@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.44 2012-06-29 13:30:04 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.45 2012-07-19 15:12:35 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -59,11 +59,10 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     for ( int idx=0; idx<synths.size(); idx++ )
     {
 	const SyntheticData& sd = *synths[idx];
-	if ( !sd.getPack( false ) || !sd.getPack( true ) ) 
-	    continue;
-
-	psfids += sd.prestackpackid_; 
-	fids += sd.poststackpackid_; 
+	if ( sd.isPS() )
+	    psfids += sd.datapackid_; 
+	else
+	    fids += sd.datapackid_; 
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
 	{ errmsg_ = "Missing or invalid 'datapacks'."
@@ -119,7 +118,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	const ObjectSet<const TimeDepthModel>& d2tmodels = sd.d2tmodels_;
 	const int nrmdls = d2tmodels.size();
 
-	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,sd.getPack(false));
+	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,&sd.getPack());
 	if ( !tbpack ) continue;
 
 	const SeisTrcBuf& tbuf = tbpack->trcBuf();
