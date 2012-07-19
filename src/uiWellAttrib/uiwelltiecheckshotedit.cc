@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.20 2012-07-19 06:59:53 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.21 2012-07-19 07:00:31 cvsbruno Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -233,7 +233,6 @@ void uiCheckShotEdit::movePt()
 
 void uiCheckShotEdit::doInsertRemovePt()
 { 
-    const uiWellDahDisplay* disp = control_->selDahDisplay();
     if ( isedit_ ) 
     {
 	const float dah = control_->depth();
