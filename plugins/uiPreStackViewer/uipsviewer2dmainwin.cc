@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.22 2012-07-10 13:27:26 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.23 2012-07-19 06:58:33 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -149,14 +149,12 @@ void uiViewer2DMainWin::posDlgChgCB( CallBacker* )
 void uiViewer2DMainWin::setUpView()
 {
     HorSamplingIterator hsit( cs_.hrg );
-    const int nrvwrs = cs_.hrg.totalNr();
-    const int curnrvwrs = mainviewer_->nrItems();
 
     uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( nrvwrs );
+    pb.setTotalSteps( cs_.hrg.totalNr() );
     win.show();
 
     removeAllGathers();

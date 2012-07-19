@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.11 2012-06-28 10:52:20 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.12 2012-07-19 06:58:33 cvsbruno Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -219,7 +219,6 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( but == toselect_ )
     {
-	int lastusedidx = 0;
 	for ( int idx=allgatherfld_->size()-1; idx>=0; idx-- )
 	{
 	    if ( !allgatherfld_->isSelected(idx) ) continue;
