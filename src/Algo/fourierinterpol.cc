@@ -187,7 +187,6 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    const float anglex = 2*M_PI *xanglesampling*idx;
-	    const float_complex cxexp = float_complex(cos(anglex),sin(anglex));
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
