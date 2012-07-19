@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.108 2012-05-11 14:02:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.109 2012-07-19 06:51:37 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -702,19 +702,6 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );
-    uiRadioButton* meterbut = new uiRadioButton( zunitgrp_, "meter" );
-    uiRadioButton* feetbut = new uiRadioButton( zunitgrp_, "feet" );
-    bool have2dtmodel = true;
-    for ( int idwell=0; idwell<wds_.size(); idwell++ )
-    {
-	if ( !wds_[idwell]->haveD2TModel() ) 
-	    { have2dtmodel = false; break; }
-    }
-    if ( SI().zIsTime() && have2dtmodel)
-    {
-	uiRadioButton* secbut = new uiRadioButton( zunitgrp_, "sec" );
-	uiRadioButton* msecbut = new uiRadioButton( zunitgrp_, "msec" );
-    }
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;

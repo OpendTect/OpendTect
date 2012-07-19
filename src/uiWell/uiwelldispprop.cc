@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldispprop.cc,v 1.64 2012-06-04 10:00:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldispprop.cc,v 1.65 2012-07-19 06:51:37 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -588,7 +588,6 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
 
 void uiWellLogDispProperties::isRepeatSel( CallBacker* )
 {
-    const bool isrepeat =  repeatfld_->getValue();
     const bool iswelllog = stylefld_->getBoolValue();
     if ( iswelllog )
 	repeatfld_-> setValue( 1 );

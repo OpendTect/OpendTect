@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.34 2012-07-02 09:04:58 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.35 2012-07-19 06:51:37 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -42,7 +42,6 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
 
-    bool istime = SI().zIsTime();
     uiColorInput::Setup csu( mrk.color() );
     csu.lbltxt( "Color" ).withdesc(false);
     colorfld_ = new uiColorInput( this, csu, "Color" );
@@ -219,7 +218,6 @@ void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
 void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
 {
     if ( !curctrl_ || !curwd_ ) return;
-    bool ishandled = true;
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
 
