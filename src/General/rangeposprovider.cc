@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.22 2012-05-31 11:08:10 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.23 2012-07-20 06:36:13 cvsnageswara Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -210,7 +210,6 @@ bool Pos::RangeProvider2D::toNextPos()
     if ( geomids_.isEmpty() )
 	return false;
 
-    const bool hasgeom = geomids_.validIdx( curlineidx_ );
     PosInfo::Line2DData l2d;
     
     while ( true )
@@ -244,7 +243,8 @@ bool Pos::RangeProvider2D::toNextPos()
     }
 
     curz_ = zrg_.start;
-    if ( geomids_.validIdx(curlineidx_) )
+    const bool hasgeom = geomids_.validIdx( curlineidx_ );
+    if ( hasgeom )
     {
 	if ( curz_ < l2d.zRange().start )
 	    curz_ = l2d.zRange().start;
