@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.103 2012-07-19 15:12:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.104 2012-07-20 14:07:02 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -60,7 +60,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , layerPropSelNeeded(this)
     , longestaimdl_(0)
     , lasttool_(0)
-    , raytrcpardlg_(0)
+    , synthgendlg_(0)
     , prestackwin_(0)		      
     , currentsynthetic_(0)
 {
@@ -203,6 +203,14 @@ void uiStratSynthDisp::cleanSynthetics()
 {
     stratsynth_.clearSynthetics();
     datalist_->box()->setEmpty();
+}
+
+
+void uiStratSynthDisp::updateSyntheticList()
+{
+    datalist_->box()->setEmpty();
+    for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx ++)
+	datalist_->box()->addItem( stratsynth_.getSyntheticByIdx(idx)->name() );
 }
 
 
@@ -522,12 +530,15 @@ void uiStratSynthDisp::setCurrentSynthetic()
     if ( stratsynth_.nrSynthetics() == 0 )
     {
 	sd = stratsynth_.addDefaultSynthetic();
-	if ( sd ) datalist_->box()->addItem( sd->name() );
+	updateSyntheticList();
     }
     else
 	sd = stratsynth_.getSyntheticByIdx( datalist_->box()->currentItem() );
 
     currentsynthetic_ = sd;
+
+    if ( synthgendlg_)
+	synthgendlg_->putToScreen();
 }
 
 
@@ -562,16 +573,14 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
-    if ( !raytrcpardlg_ )
-	raytrcpardlg_ = new uiRayTrcParamsDlg( this, stratsynth_.rayPars() );
+    if ( !synthgendlg_ )
+	synthgendlg_ = new uiSynthGenDlg( this, stratsynth_.genParams() );
 
-    raytrcpardlg_->go();
-
-    if ( currentsynthetic_ )
-	raytrcpardlg_->setSynthetic( *currentsynthetic_ );
-
-    raytrcpardlg_->button( uiDialog::OK )->activated.notify(
+    synthgendlg_->go();
+    synthgendlg_->button( uiDialog::OK )->activated.notify(
 			mCB(this,uiStratSynthDisp,syntheticDataParChged) );
+    synthgendlg_->genNewReq.notify(
+			mCB(this,uiStratSynthDisp,genNewSynthetic) );
 }
 
 
@@ -617,19 +626,22 @@ void uiStratSynthDisp::syntheticDataParChged( CallBacker* )
 {
     if ( !currentsynthetic_ ) return;
 
-    stratsynth_.setWavelet( wvltfld_->getWavelet() );
+    stratsynth_.genParams().wvltnm_ = wvltfld_->getWavelet();
     stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
 
     doModelChange();
-
-    if ( raytrcpardlg_ && currentsynthetic_ )
-	raytrcpardlg_->setSynthetic( *currentsynthetic_ );
 }
 
 
 void uiStratSynthDisp::dataSetSel( CallBacker* )
 {
     doModelChange();
+
+    if ( !currentsynthetic_ )
+	return;
+
+    currentsynthetic_->fillGenParams( stratsynth_.genParams() );
+    wvltfld_->setInput( stratsynth_.genParams().wvltnm_ );   
 }
 
 
@@ -657,6 +669,60 @@ void uiStratSynthDisp::genSyntheticsFor( const Strat::LayerModel& lm ,
     if ( !stratsynth_.generate( lm, seisbuf ) && stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
 }
+
+#define mChkPresent( nm )\
+{\
+if ( datalist_->box()->isPresent(nm) );\
+    mErrRet( "Name already exists, please select another name", return );\
+}
+
+mClass uiAddNewSynthDlg : public uiDialog
+{
+public:
+    uiAddNewSynthDlg( uiParent* p, SynthGenParams& sgp )
+    : uiDialog( this, uiDialog::Setup("Synthetic Name",mNoDlgTitle,mNoHelpID) )
+    , sgp_(sgp)
+    {
+	namefld_ = new uiGenInput( this, "Name" );
+	namefld_->setText( sgp_.genName() );
+    }
+
+    bool acceptOK(CallBacker*)
+    {
+	const char* nm = namefld_->text(); 
+	if ( !nm )
+	    mErrRet("Please specify a valid name",return false);
+	sgp_.name_ = nm;
+
+	return true;
+    }
+
+protected:
+    SynthGenParams&	sgp_;
+    uiGenInput*	 	namefld_;
+};
+
+
+void uiStratSynthDisp::genNewSynthetic( CallBacker* )
+{
+    if ( !synthgendlg_ ) 
+	return;
+
+    uiAddNewSynthDlg dlg( synthgendlg_, stratsynth_.genParams() );
+    if ( !dlg.go() )
+	return;
+
+    SyntheticData* sd = stratsynth_.addSynthetic();
+
+    if ( sd )
+    {
+	updateSyntheticList();
+	datalist_->box()->setCurrentItem( datalist_->box()->size()-1 );
+	synthgendlg_->putToScreen();
+    }
+}
+
+
 
 
 uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
@@ -754,24 +820,26 @@ void uiStackGrp::setLimitRange( Interval<float> rg )
 
 
 
-uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par ) 
+uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp) 
     : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
 				 "103.4.4").modal(false))
-    , raypars_(par)
-    , sd_(0)
+    , sd_(gp)
+    , genNewReq(this)
 {
     setCtrlStyle( DoAndStay );
 
+    setOkText( "Apply" );
+
     typefld_ = new uiGenInput( this, "Type",
 			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
-    typefld_->valuechanged.notify( mCB(this,uiRayTrcParamsDlg,parChg) );
+    typefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
     uiSeparator* sep = new uiSeparator( this, "Name separator" );
     sep->attach( stretchedBelow, typefld_ );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( this, rsu );
-    rtsel_->usePar( raypars_ ); 
+    rtsel_->usePar( sd_.raypars_ ); 
     rtsel_->attach( centeredBelow, typefld_ );
     rtsel_->attach( ensureBelow, sep );
 
@@ -779,21 +847,23 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, IOPar& par )
     nmobox_->setChecked( true );
     nmobox_->attach( alignedBelow, rtsel_ );
 
-    uiSeparator* sep2 = new uiSeparator( this, "Name separator" );
+    uiSeparator* sep2 = new uiSeparator( this, "action separator" );
     sep2->attach( stretchedBelow, nmobox_ );
 
     namefld_ = new uiGenInput( this, "Name" );
     namefld_ ->attach( centeredBelow, rtsel_ );
     namefld_ ->attach( ensureBelow, sep2 );
 
-    addasnewbut_ = new uiPushButton( this, "Add as new", false );
-    addasnewbut_->attach( rightOf, namefld_ );
+    gennewbut_ = new uiPushButton( this, "Add New Synthetic", true );
+    gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
+    gennewbut_->attach( rightOf, namefld_ );
 
-    parChg(0);
+    typeChg(0);
+    putToScreen();
 }
 
 
-void uiRayTrcParamsDlg::parChg( CallBacker* )
+void uiSynthGenDlg::typeChg( CallBacker* )
 {
     const bool isps = !typefld_->getBoolValue();
     nmobox_->display( isps );
@@ -801,37 +871,43 @@ void uiRayTrcParamsDlg::parChg( CallBacker* )
 }
 
 
-void uiRayTrcParamsDlg::setSynthetic( const SyntheticData& sd )
+void uiSynthGenDlg::putToScreen()
 {
-    namefld_->setText( sd.name() );
-    typefld_->setValue( !sd.isPS() ); 
-    raypars_ = sd.rayPars();
-    rtsel_->usePar( raypars_ );
-    sd_ = &sd;
+    namefld_->setText( sd_.name_ );
+    typefld_->setValue( !sd_.isps_ ); 
+    rtsel_->usePar( sd_.raypars_ );
 }
 
 
-bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
+void uiSynthGenDlg::getFromScreen() 
 {
-    raypars_.setEmpty();
-    rtsel_->fillPar( raypars_ );
-    if ( typefld_->getBoolValue() )
-	RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), nmobox_->isChecked() );
+    sd_.raypars_.setEmpty();
+    rtsel_->fillPar( sd_.raypars_ );
+    const bool isps = !typefld_->getBoolValue();
+    if ( !isps )
+	RayTracer1D::setIOParsToZeroOffset( sd_.raypars_ );
+    sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), nmobox_->isChecked() );
+    sd_.isps_ = isps; 
+    sd_.name_ = namefld_->text();
+}
 
-    const char* nm = namefld_->text();
+
+bool uiSynthGenDlg::acceptOK( CallBacker* )
+{
+    const char* nm = namefld_->text(); 
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
 
-    /*
-    if ( nms_.isPresent( nm ) )
-    {
-	mErrRet("Name is already present, please specify another name",
-	return false);
-    }
-    */
-
+    getFromScreen();
+    
     return false;
 }
 
+
+bool uiSynthGenDlg::genNewCB( CallBacker* )
+{
+    getFromScreen();
+    genNewReq.trigger();
+    return true;
+}
 

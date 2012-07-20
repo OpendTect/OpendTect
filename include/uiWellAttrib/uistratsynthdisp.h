@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.54 2012-07-19 15:12:35 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.55 2012-07-20 14:07:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class uiFlatViewMainWin;
 class uiMultiFlatViewControl;
 class uiOffsetSlicePos;
 class uiPushButton;
-class uiRayTrcParamsDlg;
+class uiSynthGenDlg;
 class uiSeisWaveletSel;
 class uiStackGrp;
 class uiSynthSlicePos;
@@ -56,9 +56,9 @@ public:
     const Wavelet*	getWavelet() const;
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
-    void		genSyntheticsFor(const Strat::LayerModel&,
-	    				SeisTrcBuf&);
+    void		genSyntheticsFor(const Strat::LayerModel&,SeisTrcBuf&);
     const SeisTrcBuf&	postStackTraces() const;
+
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
@@ -106,7 +106,7 @@ protected:
     uiLabeledComboBox*	datalist_;
     uiLabeledComboBox*	levelsnapselfld_;
     uiCheckBox*		stackbox_;
-    uiRayTrcParamsDlg*	raytrcpardlg_;
+    uiSynthGenDlg*	synthgendlg_;
     uiSynthSlicePos*	offsetposfld_;
     uiSynthSlicePos*	modelposfld_;
     uiStackGrp*		stackfld_;
@@ -116,6 +116,7 @@ protected:
     void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
+    void		updateSyntheticList();
 
     void		drawLevel();
     void		displaySynthetic(const SyntheticData*);
@@ -130,6 +131,7 @@ protected:
     void		syntheticDataParChged(CallBacker*);
     void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
+    void 		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
@@ -180,13 +182,15 @@ protected:
 };
 
 
-mClass uiRayTrcParamsDlg : public uiDialog
+mClass uiSynthGenDlg : public uiDialog
 {
 public:
-				uiRayTrcParamsDlg(uiParent*,IOPar&);
+				uiSynthGenDlg(uiParent*,SynthGenParams&);
 
-    void			setSynthetic(const SyntheticData&);
-    const char*			getName();
+    void			getFromScreen();
+    void			putToScreen();
+
+    Notifier<uiSynthGenDlg>	genNewReq;
 
 protected:
 
@@ -195,12 +199,17 @@ protected:
     uiCheckBox*			nmobox_;
     uiCheckBox*			stackbox_;
     uiRayTracerSel*		rtsel_;
-    uiPushButton*		addasnewbut_;
-    IOPar&			raypars_;
-    const SyntheticData*	sd_;
+    uiPushButton*		gennewbut_;
+    uiPushButton*		applybut_;
+    uiPushButton*		revertbut_;
+    uiPushButton*		savebut_;
+    SynthGenParams&		sd_;
 
-    void			parChg(CallBacker*);
-    bool			acceptOK( CallBacker* );
+
+    void			typeChg(CallBacker*);
+    bool			genNewCB(CallBacker*);
+    bool			acceptOK(CallBacker*);
+
 };
 
 #endif

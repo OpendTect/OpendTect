@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.20 2012-07-19 15:12:35 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.21 2012-07-20 14:07:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,21 @@ class SeisTrcBuf;
 class Wavelet;
 namespace Strat { class LayerModel; class LayerSequence; }
 namespace PreStack { class GatherSetDataPack; }
+
+
+mStruct SynthGenParams
+{
+			SynthGenParams();
+
+    bool		isps_;
+    BufferString	name_;
+    IOPar		raypars_;
+    BufferString	wvltnm_;
+
+    //gen name from wvlt and raypars
+    const char*		genName() const;
+};
+
 
 
 /*! brief the basic synthetic dataset. contains the data cube*/
@@ -54,12 +69,14 @@ public:
     virtual bool			isPS() const 		= 0;
     virtual bool			hasOffset() const 	= 0;
 
-    const IOPar&			rayPars() const	{ return raypars_; }
+    void				useGenParams(const SynthGenParams&);
+    void				fillGenParams(SynthGenParams&) const;
 
 protected:
-					SyntheticData(const char* nm, 
-					    const IOPar& raypars,DataPack&);
+					SyntheticData(const SynthGenParams&,
+						      DataPack&);
 
+    BufferString 			wvltnm_;
     IOPar				raypars_;
     void				removePack();
 
@@ -70,9 +87,8 @@ protected:
 mClass PostStackSyntheticData : public SyntheticData
 {
 public:
-					PostStackSyntheticData(const char* nm, 
-					    const IOPar& raypars,
-					    SeisTrcBufDataPack&);
+				PostStackSyntheticData(const SynthGenParams&,
+							SeisTrcBufDataPack&);
 
     bool				isPS() const 	  { return false; }
     bool				hasOffset() const { return false; }
@@ -89,9 +105,8 @@ public:
 mClass PreStackSyntheticData : public SyntheticData
 {
 public:
-					PreStackSyntheticData(const char* nm, 
-					    const IOPar& raypars,
-					    PreStack::GatherSetDataPack&);
+				PreStackSyntheticData(const SynthGenParams&,
+						PreStack::GatherSetDataPack&);
 
     bool				isPS() const 	  { return true; }
     bool				hasOffset() const;
@@ -111,24 +126,15 @@ public:
 };
 
 
-
 mClass StratSynth
 {
 public:
     				StratSynth(const Strat::LayerModel&);
     				~StratSynth();
 
-    const Wavelet*		wavelet() const		{ return wvlt_; }
-    void			setWavelet(const Wavelet*);
-
-    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
-
-    IOPar&			rayPars() 		{ return raypars_; }
-
-    const char* 		errMsg() const;
 
     int				nrSynthetics() const; 
-    SyntheticData*		addSynthetic(const char* nm); 
+    SyntheticData*		addSynthetic(); 
     SyntheticData*		replaceSynthetic(int id);
     SyntheticData*		addDefaultSynthetic(); 
     SyntheticData* 		getSynthetic(const char* nm);
@@ -137,6 +143,12 @@ public:
     void			clearSynthetics();
 
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
+
+    void			setWavelet(const Wavelet*);
+    const Wavelet*		wavelet() const { return wvlt_; }
+    bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
+    SynthGenParams&		genParams()  	{ return genparams_; }
+
 
     mStruct Level : public NamedObject
     {
@@ -148,31 +160,29 @@ public:
 	Color           	col_;
 	VSEvent::Type   	snapev_;
     };
-
     void			setLevel(const Level* lvl);
     const Level*		getLevel() const 	{ return level_; }
     void			snapLevelTimes(SeisTrcBuf&,
 				    const ObjectSet<const TimeDepthModel>&);
 
-    bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
+    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+    const char* 		errMsg() const;
 
-    const char*			getDefaultSyntheticName() const;
 
 protected:
 
     const Strat::LayerModel& 	lm_;
-    const Wavelet*		wvlt_;
     const Level*     		level_;
-    int				lastsyntheticid_;
+    SynthGenParams		genparams_;
     ObjectSet<SyntheticData> 	synthetics_;
-    IOPar			raypars_;
+    int				lastsyntheticid_;
+    const Wavelet*		wvlt_;
 
     BufferString		errmsg_;
     TaskRunner*			tr_;
 
     SyntheticData* 		generateSD(const Strat::LayerModel&,
-					const IOPar* raypar=0,
-					TaskRunner* tr=0);
+					    TaskRunner* tr=0);
     bool			fillElasticModel(const Strat::LayerModel&,
 					    ElasticModel&,int seqidx);
 };
