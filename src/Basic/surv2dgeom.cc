@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.33 2012-06-14 10:19:15 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.34 2012-07-20 21:13:00 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
 
@@ -358,6 +358,16 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 }
 
 
+void PosInfo::Survey2D::getLines( BufferStringSet& nms, int lsid ) const
+{
+    if ( lsid == -1 )
+	return getLines( nms, 0 );
+
+    BufferString lsnm = getLineSet( lsid );
+    getLines( nms, lsnm );
+}
+
+
 void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
 {
     if ( lsid >=0 && !hasLineSet(lsid) )
@@ -382,6 +392,7 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
     readIdxFile( fp.fullPath(), iop );
     getIDs( iop, ids );
 }
+
 
 int PosInfo::Survey2D::getNewID( IOPar& iop ) 
 {

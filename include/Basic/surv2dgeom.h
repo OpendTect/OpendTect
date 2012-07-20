@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.12 2012-05-04 15:40:15 cvsnanne Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.13 2012-07-20 21:13:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ public:
     bool		hasLineSet(int lsid) const;
     bool		hasLine(int lineid,int lsid=-1) const;
     void		getLineIDs(TypeSet<int>&,int lsid) const;
+    void		getLines(BufferStringSet&,int lsid) const;
 
     int			curLineSetID() const;
     void		setCurLineSet(int lsid) const;
