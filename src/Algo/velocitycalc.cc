@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.64 2012-06-07 13:47:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.65 2012-07-20 04:44:47 cvsnageswara Exp $";
 
 #include "velocitycalc.h"
 
@@ -421,7 +421,8 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 		    IdxAble::findPos( zvals, inpsz, z, -1, sampidx );
 		    zsample = zvals[sampidx];
 		}
-		zrev = IdxAble::interpolateReg(zrevvals,inpsz,zrg.getfIndex(z));
+
+		zrev = IdxAble::interpolateReg( zrevvals, inpsz, zsample );
 	    }
 
 	    res.setValue( idx, zrev );
