@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltman.cc,v 1.77 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltman.cc,v 1.78 2012-07-20 05:02:26 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -241,6 +241,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     else
 	didsel = false;
 
+    dlg.setDirToCurrentSurvey();
     if ( !wvlt )
 	mRet((didsel?"Could not read wavelet":0))
     IOM().getEntry( ctio );
