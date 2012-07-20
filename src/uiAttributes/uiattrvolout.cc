@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.89 2012-07-09 22:40:47 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.90 2012-07-20 21:17:26 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 
@@ -44,6 +44,7 @@ static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.89 2012-07-09 22
 #include "seisselection.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "seis2dline.h"
 #include "survinfo.h"
 
 using namespace Attrib;
@@ -126,7 +127,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
     if ( todofld->getRanges(cs) )
 	transffld->selfld->setInput( cs );
 
-    const Attrib::Desc* desc = ads.getDesc( todofld->attribID() );
+    Attrib::Desc* desc = ads.getDesc( todofld->attribID() );
     if ( !desc )
     {
 	mSetObjFld("")
@@ -153,8 +154,20 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	mSetObjFld( desc->isStored() ? "" : todofld->getInput() )
     else
     {
-	BufferString attrnm( todofld->getAttrName() );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
+        BufferString attrnm( todofld->getAttrName() );
+
+	BufferString errmsg;
+	RefMan<Attrib::Provider> prov =
+		Attrib::Provider::create( *desc, errmsg );
+	PtrMan<IOObj> ioobj = 0;
+	if ( prov )
+	{
+	    PosInfo::GeomID geomid = prov->getGeomID();
+	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
+	    SeisIOObjInfo info( lsnm );
+	    ioobj = info.ioObj()->clone();
+	}
+
 	if ( !ioobj )
 	    mSetObjFld( LineKey(attrnm) )
 	else
@@ -383,6 +396,13 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		LineKey lk( storedid.buf() );
 		iop.set( "Input Line Set", lk.lineName() );
 		linename = lk.lineName();
+	    }
+
+	    PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid) );
+	    if ( ioobj )
+	    {
+		Seis2DLineSet lset( *ioobj );
+		lset.invalidateCache();
 	    }
 	}
     }
