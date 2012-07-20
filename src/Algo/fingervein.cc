@@ -5,12 +5,12 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.5 2012-07-20 17:33:07 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.6 2012-07-20 20:05:32 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
 #include "arrayndimpl.h"
-#include "conncomponets.h"
+#include "conncomponents.h"
 #include "convolve2d.h"
 #include "executor.h"
 #include "math2.h"
