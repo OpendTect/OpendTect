@@ -5,11 +5,12 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.4 2012-07-17 11:49:28 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.5 2012-07-20 17:33:07 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
 #include "arrayndimpl.h"
+#include "conncomponets.h"
 #include "convolve2d.h"
 #include "executor.h"
 #include "math2.h"
@@ -17,7 +18,12 @@ static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.4 2012-07-17 11:49
 
 #include "statruncalc.h"
 #include "stattype.h"
+#include  <iostream>
 
+#define mSigma		3
+#define mMinFaultLength	15
+#define mThresholdPercent 0.93	
+#define mNrThinning 100	
 
 FingerVein::FingerVein( const Array2D<float>& input, float threshold, 
 	bool isabove, bool istimeslice, Array2D<bool>& output )
@@ -30,23 +36,27 @@ FingerVein::FingerVein( const Array2D<float>& input, float threshold,
 }
 
 
-bool FingerVein::compute( TaskRunner* tr )
+bool FingerVein::compute( bool domerge, TaskRunner* tr )
 {
-    mDeclareAndTryAlloc( Array2DImpl<float>*, vein_score,
+    mDeclareAndTryAlloc( Array2DImpl<float>*, score,
 	    Array2DImpl<float> (input_.info()) );
-    if ( !vein_score ) return false;
+    if ( !score ) return false;
 
-    const od_int64 datasz = input_.info().getTotalSz();
-    int sigma = 3; //set
-    if ( !computeMaxCurvature(*vein_score,sigma,tr) )
+    if ( !computeMaxCurvature(*score,mSigma,tr) )
 	return false;
 
+    const od_int64 datasz = input_.info().getTotalSz();
     mDeclareAndTryAlloc( Array2DImpl<float>*, tmparr,
 	    Array2DImpl<float> (input_.info()) );
     if ( !tmparr ) return false;
-    tmparr->copyFrom( *vein_score );
+    tmparr->copyFrom( *score );
     float* arr = tmparr->getData();
-    Stats::CalcSetup scs;
+    sort_array(arr,datasz);
+    const od_int64 thresholdidx = (od_int64)(mThresholdPercent*datasz);
+    const float score_threshold = arr[0]<arr[datasz-1] ? 
+	arr[thresholdidx] : arr[datasz-1-thresholdidx] ;
+    
+    /*Stats::CalcSetup scs;
     scs.require(Stats::Median);
     Stats::RunCalc<float> rc( scs );
     for ( od_int64 idx=0; idx<datasz; idx++ )
@@ -54,52 +64,76 @@ bool FingerVein::compute( TaskRunner* tr )
 	if ( !mIsUdf(arr[idx]) && arr[idx]>0 )
 	    rc.addValue( arr[idx]);
     }
-    const float md_vein mUnusedVar = rc.median(); //use for added condition, not now
+    const float md_score = rc.median(); //use for added condition, not now*/
 
-    sort_array(arr,datasz);
-    const od_int64 tmpthresholdidx = (od_int64)(0.93*datasz);
-    const float vein_score_threshold = arr[tmpthresholdidx];
-
-    mDeclareAndTryAlloc( Array2DImpl<bool>*, vein_binarise,
+    mDeclareAndTryAlloc( Array2DImpl<bool>*, score_binary,
 	    Array2DImpl<bool> (input_.info()) );
-    if ( !vein_binarise ) return false;
-
-    const float* scoredata = vein_score->getData();
-    bool* binarisearr = vein_binarise->getData();
-    for ( od_int64 idx=0; idx<datasz; idx++ )
-	binarisearr[idx] = scoredata[idx]>vein_score_threshold;
-
     mDeclareAndTryAlloc( Array2DImpl<bool>*, input_hard_threshold,
 	    Array2DImpl<bool> (input_.info()) );
-    if ( !input_hard_threshold ) return false;
+    if ( !score_binary || !input_hard_threshold ) 
+	return false;
 
     const float* inputarr = input_.getData();
-    bool* inputbinaryarr = input_hard_threshold->getData();
+    const float* scoredata = score->getData();
+    bool* scorebinarydata = score_binary->getData();
+    bool* inputbinary = input_hard_threshold->getData();
     for ( od_int64 idx=0; idx<datasz; idx++ )
-	inputbinaryarr[idx] = isabove_ ? inputarr[idx]>threshold_ 
-	    			       : inputarr[idx]<threshold_;
-    //thinning( *input_hard_threshold );
-    bool* thinedinputarr = input_hard_threshold->getData();
+    {
+	if ( mIsUdf(inputarr[idx]) )
+	{
+	    scorebinarydata[idx] = inputbinary[idx] = false;
+	}
+	else
+	{
+    	    scorebinarydata[idx] = scoredata[idx]>score_threshold;
+    	    inputbinary[idx] = isabove_ ? inputarr[idx]>threshold_ 
+					: inputarr[idx]<threshold_;
+	}
+    }
 
-    /*TODO: apply connected componet method;*/
+    if ( domerge )
+    {
+	thinning( *input_hard_threshold );
+	removeSmallComponents( *input_hard_threshold );
+    }
 
+    const bool* thinedinputarr = input_hard_threshold->getData();
     bool* mergedata = output_.getData();
     for ( od_int64 idx=0; idx<datasz; idx++ )
     {
-	if ( !binarisearr[idx] && thinedinputarr[idx] ) 
-	    //&& scoredata[idx]>vein_md )
-    	    mergedata[idx] = 1;
+	if ( domerge && !scorebinarydata[idx] && thinedinputarr[idx] ) 
+	    //&& scoredata[idx]>md_score )
+	    mergedata[idx] = 1;
 	else
-	    mergedata[idx] = binarisearr[idx] ? 1 : 0;
+	    mergedata[idx] = scorebinarydata[idx];
     }
 
-    //thinning( output_ );
-    //thinning( *vein_binarise );
+    thinning( output_ );
+    removeSmallComponents( output_ );
     
-    //again, delete the small fault for vein_binarise use CC
-    //again, delete the small fault for vein_binarise_merge use CC
-
     return true;
+}
+
+
+void FingerVein::removeSmallComponents( Array2D<bool>& data )
+{
+    ConnComponents cc( data );
+    cc.compute();
+
+    const int nrcomps = cc.nrComponents();
+    bool* outputarr = data.getData();
+    for ( int idx=0; idx<nrcomps; idx++ )
+    {
+	const TypeSet<int>* comp = cc.getComponent( idx );
+	if ( !comp ) continue;
+
+	const int nrnodes = comp->size();
+	if ( nrnodes<mMinFaultLength )
+	{
+	    for ( int idy=0; idy<nrnodes; idy++ )
+    		outputarr[(*comp)[idy]] = 0;
+	}
+    }
 }
 
 
@@ -109,16 +143,15 @@ void FingerVein::thinning( Array2D<bool>& res )
 	    Array2DImpl<bool> (res.info()) );
     if ( !tmp ) return;
 
-    const int nriterates = 100;
-    for ( int idx=0; idx<nriterates; idx++ )
+    for ( int idx=0; idx<mNrThinning; idx++ )
     {
-	condition( res, *tmp, true );
-	condition( *tmp, res, false );
+	thinStep( res, *tmp, true );
+	thinStep( *tmp, res, false );
     }
 }
 
 
-void FingerVein::condition( const Array2D<bool>& input, Array2D<bool>& output,
+void FingerVein::thinStep( const Array2D<bool>& input, Array2D<bool>& output,
        bool firststep )
 {
     const int lastidx = input.info().getSize(0)-1;
@@ -143,11 +176,11 @@ void FingerVein::condition( const Array2D<bool>& input, Array2D<bool>& output,
 	    bool bw22 = 
 		idx==lastidx || idy==lastidy ? false : input.get(idx+1,idy+1);
 
-	    const bool b1 = !bw12 && (bw01 || bw01);
+	    const bool b1 = !bw12 && (bw02 || bw01);
 	    const bool b2 = !bw01 && (bw00 || bw10);
 	    const bool b3 = !bw10 && (bw20 || bw21);
 	    const bool b4 = !bw21 && (bw22 || bw12);
-	    const char b = b1 + b2 + b3 + b4;
+	    const char b = (char)b1 + (char)b2 + (char)b3 + (char)b4;
 	    if ( b!=1 ) 
 		continue;
 
@@ -236,6 +269,8 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	}
     }
 
+    mDeclareAndTryAlloc( Array2DImpl<float>*, ftmp,
+	    Array2DImpl<float> (inputsz0+sidesize-1,inputsz1+sidesize-1) );
     mDeclareAndTryAlloc( Array2DImpl<float>*, fx,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
     mDeclareAndTryAlloc( Array2DImpl<float>*, fy,
@@ -248,75 +283,62 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
     if ( !fx || !fy || !fxx || !fxy | !fyy )
 	return false;
-
-   /* const int halfsidesz = (sidesize+1)/2;
-    for ( int idx=0; idx<inputsz0; idx++ )
-    {
-	int startx = mMAX(idx-halfsidesz+1,0);
-	int endx = mMIN(idx+halfsidesz,inputsz0);
-	for ( int idy=0; idy<inputsz1; idy++ )
-	{
-	    int starty = mMAX(idy-halfsidesz+1,0);
-    	    int endy = mMIN(idx+halfsidesz,inputsz1);
-
-	    int k = mMAX(halfsidesz-1-idy,0);
-	    float sumx=0, sumy=0, sumxx=0, sumxy=0, sumyy=0;
-	    for ( int j=starty; j<endy; j++ )
-	    {
-		int l = mMAX(halfsidesz-1-idx,0);
-		for ( int i=startx; i<endx; i++ )
-		{
-		    const float orival = input_.get(i,j);
-		    sumx += hx->get(l,k)*orival;
-		    sumy += hy->get(l,k)*orival;
-		    sumxx += hxx->get(l,k)*orival;
-		    sumxy += hxy->get(l,k)*orival;
-		    sumyy += hyy->get(l,k)*orival;
-		}
-	    }
-	    fx->set(idx,idy,sumx);
-	    fy->set(idx,idy,sumy);
-	    fxx->set(idx,idy,sumxx);
-	    fxy->set(idx,idy,sumxy);
-	    fyy->set(idx,idy,sumyy);
-	}
-    }*/
-
     
     Convolver2D<float> conv2;
     conv2.setX( input_, true );
     conv2.setNormalize( false );
     conv2.setCorrelate( false );
+    conv2.setZ( *ftmp );
 
     conv2.setY( *hx, false );
-    conv2.setZ( *fx );
     bool isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
 	return false;
+    for (int i=0; i<inputsz0; i++ )
+    {
+	for (int j=0; j<inputsz1; j++ )
+	    fx->set(i,j,ftmp->get(i+winsize,j+winsize) );
+    }
 
     conv2.setY( *hy, false );
-    conv2.setZ( *fy );
     isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
 	return false;
+    for (int i=0; i<inputsz0; i++ )
+    {
+	for (int j=0; j<inputsz1; j++ )
+	    fy->set(i,j,ftmp->get(i+winsize,j+winsize) );
+    }
 
     conv2.setY( *hxx, false );
-    conv2.setZ( *fxx );
     isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
 	return false;
+    for (int i=0; i<inputsz0; i++ )
+    {
+	for (int j=0; j<inputsz1; j++ )
+	    fxx->set(i,j,ftmp->get(i+winsize,j+winsize) );
+    }
 
     conv2.setY( *hxy, false );
-    conv2.setZ( *fxy );
     isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
 	return false;
+    for (int i=0; i<inputsz0; i++ )
+    {
+	for (int j=0; j<inputsz1; j++ )
+	    fxy->set(i,j,ftmp->get(i+winsize,j+winsize) );
+    }
 
     conv2.setY( *hyy, false );
-    conv2.setZ( *fyy );
     isdone = tr ? tr->execute(conv2) : conv2.execute();
     if ( !isdone )
 	return false;
+    for (int i=0; i<inputsz0; i++ )
+    {
+	for (int j=0; j<inputsz1; j++ )
+	    fyy->set(i,j,ftmp->get(i+winsize,j+winsize) );
+    }
 
     const int nrangles = 8;
     TypeSet<float> angle_set, angle_set_cos, angle_set_cos2, angle_set_sin,
@@ -347,13 +369,12 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 		float dir1 = fx->get(idx,idy)*angle_set_cos[idz]+
 		    fy->get(idx,idy)*angle_set_sin[idz];
 
-		float dir2 = fxx->get(idx,idy)*angle_set_cos2[idz];
-		dir2 += 
-		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz];
-		dir2 += fyy->get(idx,idy)*angle_set_sin2[idz];
+		float dir2 = fxx->get(idx,idy)*angle_set_cos2[idz] +
+		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz] +
+    		    fyy->get(idx,idy)*angle_set_sin2[idz];
 
 		float demomenator = Math::PowerOf( 1.0+dir1*dir1, 1.5 );
-		k->set( idx, idy, idz, dir2/demomenator );
+		k->set( idx, idy, idz, dir2/demomenator ); 
 	    }
 	}
     }
@@ -417,47 +438,92 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 
     for ( int ai=0; ai<nrangles; ai++ )
     {
-    	for ( int idx=0; idx<inputsz0; idx++ )
-    	{
-    	    for ( int idy=0; idy<inputsz1; idy++ )
-    	    {
-		if ( k->get(idx,idy,ai)<=0 )
-		    continue;
-
-		int xstart=idx, xstop=idx, ystart=idy, ystop=idy; 
-		float wr = wr_step[ai];
-    		    
-		const int x_step_left = xstep->get(ai,0);
-    		const int y_step_left = ystep->get(ai,0);
-		const int x_step_right = xstep->get(ai,1);
-    		const int y_step_right = ystep->get(ai,1);
-
-		/*detect the start position*/
-		if ( ai==0 ) //horizontal case
+	const int y_step_left = xstep->get(ai,0);
+	const int x_step_left = ystep->get(ai,0);
+	const int y_step_right = xstep->get(ai,1);
+	const int x_step_right = ystep->get(ai,1);
+	if ( ai==0 )
+	{
+	    for ( int idx=0; idx<inputsz0; idx++ )
+	    {
+		for ( int idy=0; idy<inputsz1; idy++ )
 		{
-    		    int x_temp_start = mMAX(idx+x_step_left,0);
-		    for ( int xi=x_temp_start; xi>=0; xi = xi+x_step_left )
+		    if ( k->get(idx,idy,ai)<=0 )
+			continue;
+
+		    int ystart=idy, ystop=idy; 
+		    float wr = wr_step[ai];
+			
+		    /*detect the start position*/
+		    int y_temp_start = mMAX(idy+y_step_left,0);
+		    for ( int yi=y_temp_start; yi>=0; yi += y_step_left )
 		    {
-			if ( !xi || k->get(xi,idy,ai)<=0 )
+			const float curk = k->get(idx,yi,ai);
+			if ( !yi || curk<=0 )
 			{
-			    if ( k->get(xi,idy,ai)<=0 )
-				xstart = xi-x_step_left;
-			    else
-				xstart = 1;
+			    ystart = curk<=0 ? yi-y_step_left : 0;
 			    break;
 			}
 			wr += wr_step[ai];
 		    }
+		    
+		    /*detect the stop position*/
+		    y_temp_start = mMIN(idy+y_step_right,ymaxidx);
+		    for ( int yi=y_temp_start; yi<inputsz1; yi += y_step_right )
+		    {
+			const float curk = k->get(idx,yi,ai);
+			if ( yi==ymaxidx || curk<=0 )
+			{
+			    ystop = curk<=0 ? yi-y_step_right : ymaxidx;
+			    break;
+			}
+			wr += wr_step[ai];
+		    }
+
+		    if ( ystart<0 ) ystart = 0;
+		    if ( ystop<0 ) ystop = 0;
+
+		    int ymax = ystart;
+		    float kmax = k->get(idx,ymax,ai);
+		    int loopsz = (ystop-ystart)/y_step_right+1;
+		    if ( loopsz<0 ) loopsz = -loopsz;
+		    for ( int i=0; i<loopsz; i++ )
+		    {
+			int yi = ystart+i*y_step_right;  
+			const float curk = k->get(idx,yi,ai);
+			if ( curk>kmax )
+			{
+			    kmax = curk;
+			    ymax = yi;
+			}
+		    }
+			
+		    float score = k->get(idx,ymax,ai)*wr;
+		    vt->set(idx,ymax,vt->get(idx,ymax)+score);
 		}
-		else if ( ai>0 && ai<4 )
+	    }
+	}
+	else if ( ai<4 )
+	{
+	    for ( int idx=0; idx<inputsz0; idx++ )
+	    {
+		for ( int idy=0; idy<inputsz1; idy++ )
 		{
-    		    int xi = mMAX(idx+x_step_left,0);
-    		    int y_temp_start = mMAX(idy+y_step_left,0);
+		    if ( k->get(idx,idy,ai)<=0 )
+			continue;
+
+		    int xstart=idx, xstop=idx, ystart=idy, ystop=idy; 
+		    float wr = wr_step[ai];
+
+		    /*detect the start position*/
+		    int xi = mMAX(idx+x_step_left,0);
+		    int y_temp_start = mMAX(idy+y_step_left,0);
 		    for ( int yi=y_temp_start; yi>=0; yi += y_step_left )
 		    {
-			if ( !xi || !yi || k->get(xi,yi,ai)<=0 )
+			float curk = k->get(xi,yi,ai);
+			if ( !xi || !yi || curk<=0 )
 			{
-			    if ( k->get(xi,yi,ai)<=0 )
+			    if ( curk<=0 )
 			    {
 				xstart = xi-x_step_left;
 				ystart = yi-y_step_left;
@@ -479,76 +545,16 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 			    break;
 			wr += wr_step[ai];
 		    }
-		}
-		else if ( ai==4 )
-		{
-		    int y_start_temp = mMAX(idy+y_step_left,0);
-		    for ( int yi=y_start_temp; yi>=0; yi += y_step_left )
-		    {
-			if ( !yi || k->get(idx,yi,ai)<=0 )
-			{
-			    ystart = k->get(idx,yi,ai)<=0 ? yi-y_step_left : 0;
-			    break;
-			}
-			wr += wr_step[ai];
-		    }
-		}
-		else
-		{
-    		    int xi = mMAX(idx+x_step_left,0);
-    		    int y_temp_start = mMIN(idy+y_step_left,ymaxidx);
-		    for ( int yi=y_temp_start; yi<=ymaxidx; yi += y_step_left )
-		    {
-			if ( !xi || yi==ymaxidx || k->get(xi,yi,ai)<=0 )
-			{
-			    if ( k->get(xi,yi,ai)<=0 )
-			    {
-				xstart = xi-x_step_left;
-				ystart = yi-y_step_left;
-			    }
-			    else if ( !xi )
-			    {
-				xstart = 0;
-				ystart = yi;
-			    }
-			    else
-			    {
-				xstart = xi;
-				ystart = ymaxidx;
-			    }
-			    break;
-			}
-			xi += x_step_left;
-			if ( xi<0 || xi>xmaxidx )
-			    break;
-			wr += wr_step[ai];
-		    }
-		}
-		
-		/*detect the stop position*/
-		if ( ai==0 ) //horizontal case
-		{
-		    int x_temp_start = mMIN(idx+x_step_right,xmaxidx);
-		    for ( int xi=x_temp_start; xi<inputsz0; xi +=x_step_right )
-		    {
-			if ( xi==xmaxidx || k->get(xi,idy,ai)<0 )
-			{
-			    xstop = k->get(xi,idy,ai)<0 ? xi-x_step_right
-							: xmaxidx;
-			    break;
-			}
-			wr += wr_step[ai];
-		    }
-		}
-		else if ( ai>0 && ai<4 )
-		{
-		    int xi = mMIN(idx+x_step_right,xmaxidx);
+		    
+		    /*detect the stop position*/
+		    xi = mMIN(idx+x_step_right,xmaxidx);
 		    int y_temp_stop = mMIN(idy+y_step_right,ymaxidx);
-		    for ( int yi=y_temp_stop; yi<inputsz1; yi +=y_step_right )
+		    for ( int yi=y_temp_stop; yi<inputsz1; yi += y_step_right )
 		    {
-			if ( xi==xmaxidx || yi==ymaxidx || k->get(xi,yi,ai)<0 )
+    			float curk = k->get(xi,yi,ai);
+			if ( xi==xmaxidx || yi==ymaxidx || curk<=0 )
 			{
-			    if ( k->get(xi,yi,ai)<0 )
+			    if ( curk<=0 )
 			    {
 				xstop = xi-x_step_right;
 				ystop = yi-y_step_right;
@@ -568,116 +574,208 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 			xi += x_step_right;
 			if ( xi<0 ||xi>xmaxidx )
 			    break;
+
 			wr += wr_step[ai];
 		    }
-		}
-		else if ( ai==4 )
-		{
-		    int y_end_temp = mMIN(idy+y_step_right,ymaxidx);
-		    for ( int yi=y_end_temp; yi<=ymaxidx; yi +=y_step_right )
+
+		    int xmax=xstart,ymax=ystart;
+		    float kmax = k->get(xmax,ymax,ai);
+		    xi = xstart;
+		    int loopsz = (ystop-ystart)/y_step_right+1;
+		    if ( loopsz<0 ) loopsz = -loopsz;
+		    for ( int i=0; i<loopsz; i++ )
 		    {
-			if ( yi==ymaxidx || k->get(idx,yi,ai)<0 )
+			int yi = ystart+i*y_step_right;  
+    			float curk = k->get(xi,yi,ai);
+			if ( curk>kmax )
 			{
-			    ystop = k->get(idx,yi,ai)<0 ? yi-y_step_right 
-							: ymaxidx;
+			    kmax = curk;
+			    xmax = xi;
+			    ymax = yi;
+			}
+
+			xi += x_step_right;
+			if ( xi>xmaxidx )
+			    break;
+		    }
+			
+		    float score = k->get(xmax,ymax,ai)*wr;
+		    vt->set(xmax,ymax,vt->get(xmax,ymax)+score);
+		}
+	    }
+	}
+	else if ( ai==4 )
+	{
+	    for ( int idx=0; idx<inputsz0; idx++ )
+	    {
+		for ( int idy=0; idy<inputsz1; idy++ )
+		{
+		    if ( k->get(idx,idy,ai)<=0 )
+			continue;
+
+		    int xstart=idx, xstop=idx; 
+		    float wr = wr_step[ai];
+
+		    /*detect the start position*/
+		    int x_start_temp = mMAX(idx+x_step_left,0);
+		    for ( int xi=x_start_temp; xi>=0; xi += x_step_left )
+		    {
+			const float curk = k->get(xi,idy,ai);
+			if ( !xi || curk<=0 )
+			{
+			    xstart = curk<=0 ? xi-x_step_left : 0;
 			    break;
 			}
+
 			wr += wr_step[ai];
 		    }
-		}
-		else
-		{
-		    int xi = mMIN(idx+x_step_right,xmaxidx);
-		    int y_temp_stop = mMAX(idy+y_step_right,0);
-		    for ( int yi=y_temp_stop; yi>=0; yi +=y_step_right )
+		    
+		    /*detect the stop position*/
+		    int x_end_temp = mMIN(idx+x_step_right,xmaxidx);
+		    for ( int xi=x_end_temp; xi<=xmaxidx; xi += x_step_right )
 		    {
-			if ( xi==xmaxidx || !yi || k->get(xi,yi,ai)<0 )
+    			const float curk = k->get(xi,idy,ai);
+			if ( xi==xmaxidx || curk<=0 )
 			{
-			    if ( k->get(xi,idy,ai)<0 )
+			    xstop = curk<=0 ? xi-x_step_right : xmaxidx;
+			    break;
+			}
+
+			wr += wr_step[ai];
+		    }
+
+		    int xmax = xstart;
+		    float kmax = k->get(xmax,idy,ai);
+		    int loopsz = (xstop-xstart)/x_step_right+1;
+		    if ( loopsz<0 ) loopsz = -loopsz;
+		    for ( int i=0; i<loopsz; i++ )
+		    {
+			int xi = xstart+i*x_step_right;  
+			const float curk = k->get(xi,idy,ai);
+			if ( curk>kmax )
+			{
+			    kmax = curk;
+			    xmax = xi;
+			}
+		    }
+			
+		    float score = k->get(xmax,idy,ai)*wr;
+		    vt->set(xmax,idy,vt->get(xmax,idy)+score);
+		}
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<inputsz0; idx++ )
+	    {
+		for ( int idy=0; idy<inputsz1; idy++ )
+		{
+		    if ( k->get(idx,idy,ai)<=0 )
+			continue;
+
+		    int xstart=idx, xstop=idx, ystart=idy, ystop=idy; 
+		    float wr = wr_step[ai];
+
+		    /*detect the start position*/
+		    int yi = mMAX(idy+y_step_left,0);
+		    int x_temp_start = mMIN(idx+x_step_left,xmaxidx);
+		    for ( int xi=x_temp_start; xi<=xmaxidx; xi += x_step_left )
+		    {
+    			float curk = k->get(xi,yi,ai);
+			if ( !yi || xi==xmaxidx || curk<=0 )
+			{
+			    if ( curk<=0 )
+			    {
+				xstart = xi-x_step_left;
+				ystart = yi-y_step_left;
+			    }
+			    else if ( !yi )
+			    {
+				ystart = 0;
+				xstart = xi;
+			    }
+			    else
+			    {
+				ystart = yi;
+				xstart = xmaxidx;
+			    }
+			    break;
+			}
+
+			yi += y_step_left;
+			if ( yi<0 )
+			    break;
+
+			wr += wr_step[ai];
+		    }
+		    
+		    /*detect the stop position*/
+		    yi = mMIN(idy+y_step_right,ymaxidx);
+		    int x_temp_stop = mMAX(idx+x_step_right,0);
+		    for ( int xi=x_temp_stop; xi>=0; xi += x_step_right )
+		    {
+    			float curk = k->get(xi,yi,ai);
+			if ( yi==ymaxidx || !xi || curk<=0 )
+			{
+			    if ( curk<0 )
 			    {
 				xstop = xi-x_step_right;
 				ystop = yi-y_step_right;
 			    }
-			    else if ( !yi )
+			    else if ( !xi )
 			    {
-				xstop = xi;
-				ystop = 0;
+				xstop = 0;
+				ystop = yi;
 			    }
 			    else 
 			    {
-				xstop = xmaxidx;
-				ystop = yi;
+				xstop = xi;
+				ystop = ymaxidx;
 			    }
 			    break;
 			}
-			xi += x_step_right;
-			if ( xi<0 ||xi>xmaxidx )
+
+			yi += y_step_right;
+			if ( yi>ymaxidx )
 			    break;
+
 			wr += wr_step[ai];
 		    }
-		}
 
-		int xmax,ymax;
-		if ( ai==0 )
-		{
-		    xmax = xstart;
-		    ymax = idy;
+		    int xmax=xstart,ymax=ystart;
 		    float kmax = k->get(xmax,ymax,ai);
-		    for ( int xi=xstart; xi<=xstop; xi +=x_step_right )
+		    yi = ystart;
+		    int loopsz = (xstop-xstart)/x_step_right+1;
+		    if ( loopsz<0 ) loopsz = -loopsz;
+		    for ( int i=0; i<loopsz; i++ )
 		    {
-			if ( k->get(xi,ymax,ai)>kmax )
+			int xi = xstart+i*x_step_right;  
+    			float curk = k->get(xi,yi,ai);
+			if ( curk>kmax )
 			{
-			    kmax = k->get(xi,ymax,ai);
-			    xmax = xi;
-			}
-		    }
-		}
-		else if ( ai==4 )
-		{
-		    xmax = idx;
-		    ymax = ystart;
-		    float kmax = k->get(xmax,ymax,ai);
-		    for ( int yi=ystart; yi<=ystop; yi += y_step_right )
-		    {
-			if ( k->get(xmax,yi,ai)>kmax )
-			{
-			    kmax = k->get(xmax,yi,ai);
-			    ymax = yi;
-			}
-		    }
-		}
-		else
-		{
-		    xmax = xstart;
-		    ymax = ystart;
-		    float kmax = k->get(xmax,ymax,ai);
-		    int xi = xstart;
-		    for ( int yi=ystart; yi<=ystop && yi>=0; yi +=y_step_right )
-		    {
-			if ( k->get(xi,yi,ai)>kmax )
-			{
-			    kmax = k->get(xi,yi,ai);
+			    kmax = curk;
 			    xmax = xi;
 			    ymax = yi;
 			}
-			xi += x_step_right;
-			if ( xi<0 || xi>xmaxidx )
+
+			yi += y_step_right;
+			if ( yi>ymaxidx )
 			    break;
 		    }
+			
+		    float score = k->get(xmax,ymax,ai)*wr;
+		    vt->set(xmax,ymax,vt->get(xmax,ymax)+score);
 		}
-		    
-		float score = k->get(xmax,ymax,ai)*wr;
-		vt->set(xmax,ymax,vt->get(xmax,ymax)+score);
-		wr = 0;
-    	    }
+	    }
 	}
     }
 
     for ( int idx=0; idx<=xmaxidx; idx++ )
     {
+	const bool xedge = idx<2 || idx>=xmaxidx-1;
 	for ( int idy=0; idy<=ymaxidx; idy++ )
     	{
-	    if ( idx<2 || idy<2 || idx>=xmaxidx-1 || idy>=ymaxidx-1 )
+	    if ( xedge || idy<2 || idy>=ymaxidx-1 )
 	    {
 		res.set( idx, idy, 0 );
 		continue;
@@ -703,7 +801,6 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	    res.set( idx, idy, maxval );
     	}
     }
-
 
     return true;
 }

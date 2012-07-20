@@ -7,18 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.1 2012-07-13 20:13:57 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.2 2012-07-20 17:33:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "enums.h"
 #include "factory.h"
-#include "odmemory.h"
 
 template <class T> class Array2D;
-template <class T> class Array3D;
 
 class TaskRunner;
 
@@ -34,15 +31,16 @@ public:
 					   Array2D<bool>& output);
 				~FingerVein()	{}
 
-    bool			compute(TaskRunner* tr=0); 
+    bool			compute(bool domerge=false,TaskRunner* tr=0); 
 
 protected:
 
     bool			computeMaxCurvature(Array2D<float>&,int sigma,
 	    					    TaskRunner* tr);
     void			thinning(Array2D<bool>& res);
-    void			condition(const Array2D<bool>& input,
-	    				   Array2D<bool>& output,bool isfirst);
+    void			thinStep(const Array2D<bool>& input,
+					 Array2D<bool>& output,bool isfirst);
+    void			removeSmallComponents(Array2D<bool>&);
 
     const Array2D<float>&	input_;
     Array2D<bool>&		output_;
