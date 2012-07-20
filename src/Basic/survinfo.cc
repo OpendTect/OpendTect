@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.171 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.172 2012-07-20 04:50:23 cvsnageswara Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -172,7 +172,6 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	return new SurveyInfo;
 
     ascistream astream( sfio.istrm() );
-    static bool errmsgdone = false;
     if ( !astream.isOfFileType(sKeySI) )
     {
 	BufferString errmsg( "Survey definition file cannot be read.\n"
@@ -181,11 +180,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	errmsg += astream.fileType();
 	errmsg += "'.\nThe file may be corrupt or not accessible.";
 	ErrMsg( errmsg );
-	errmsgdone = true;
 	sfio.closeFail();
 	return new SurveyInfo;
     }
-    errmsgdone = false;
 
     astream.next();
     BufferString keyw = astream.keyWord();
