@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.6 2012-07-20 20:05:32 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.7 2012-07-20 20:35:37 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -512,7 +512,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 		    if ( k->get(idx,idy,ai)<=0 )
 			continue;
 
-		    int xstart=idx, xstop=idx, ystart=idy, ystop=idy; 
+		    int xstart=idx, ystart=idy, ystop=idy; 
 		    float wr = wr_step[ai];
 
 		    /*detect the start position*/
@@ -554,21 +554,8 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     			float curk = k->get(xi,yi,ai);
 			if ( xi==xmaxidx || yi==ymaxidx || curk<=0 )
 			{
-			    if ( curk<=0 )
-			    {
-				xstop = xi-x_step_right;
-				ystop = yi-y_step_right;
-			    }
-			    else if ( yi==ymaxidx )
-			    {
-				xstop = xi;
-				ystop = ymaxidx;
-			    }
-			    else 
-			    {
-				xstop = xmaxidx;
-				ystop = yi;
-			    }
+			    ystop = curk<=0 ? yi-y_step_right 
+					    : (yi==ymaxidx ? ymaxidx : yi);
 			    break;
 			}
 			xi += x_step_right;
@@ -673,7 +660,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 		    if ( k->get(idx,idy,ai)<=0 )
 			continue;
 
-		    int xstart=idx, xstop=idx, ystart=idy, ystop=idy; 
+		    int xstart=idx, xstop=idx, ystart=idy; 
 		    float wr = wr_step[ai];
 
 		    /*detect the start position*/
@@ -717,21 +704,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     			float curk = k->get(xi,yi,ai);
 			if ( yi==ymaxidx || !xi || curk<=0 )
 			{
-			    if ( curk<0 )
-			    {
-				xstop = xi-x_step_right;
-				ystop = yi-y_step_right;
-			    }
-			    else if ( !xi )
-			    {
-				xstop = 0;
-				ystop = yi;
-			    }
-			    else 
-			    {
-				xstop = xi;
-				ystop = ymaxidx;
-			    }
+			    xstop = curk<0 ? xi-x_step_right : (!xi ? 0 : xi);
 			    break;
 			}
 
