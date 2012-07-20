@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-07-13 20:13:57 cvsyuancheng Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.8 2012-07-20 17:32:17 cvsyuancheng Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Basic )
@@ -14,6 +14,7 @@ SET(OD_MODULE_SOURCES timeser.c
 	    bendpoints2coords.cc
 	    binidsorting.cc
 	    bodyvolumecalc.cc
+	    conncomponets.cc
 	    convolve2d.cc
 	    costrans.cc
 	    curvature.cc
@@ -44,6 +45,7 @@ SET(OD_MODULE_SOURCES timeser.c
 	    scaler.cc
 	    spectrogram.cc
 	    stats.cc
+	    stmatrix.cc
 	    reflectivitysampler.cc
 	    transform.cc
 	    trigonometry.cc
