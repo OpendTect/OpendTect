@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.145 2012-07-17 05:43:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.146 2012-07-20 21:14:15 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -16,16 +16,20 @@ static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.145 2012-07-17
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
 #include "attribparam.h"
-#include "task.h"
+
+#include "binidvalset.h"
+#include "convmemvalseries.h"
 #include "cubesampling.h"
 #include "errh.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "ptrman.h"
 #include "seiscubeprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
+#include "task.h"
 #include "valseriesinterpol.h"
-#include "convmemvalseries.h"
-#include "binidvalset.h"
 
 
 namespace Attrib
@@ -1390,6 +1394,23 @@ void Provider::adjust2DLineStoredVolume()
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->adjust2DLineStoredVolume();
+}
+
+
+PosInfo::GeomID Provider::getGeomID() const
+{
+    PosInfo::GeomID geomid;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+        if ( !inputs_[idx] )
+            continue;
+
+        geomid = inputs_[idx]->getGeomID();
+        if ( geomid.lsid_ >= 0 )
+            return geomid;
+    }
+
+    return geomid;
 }
 
 

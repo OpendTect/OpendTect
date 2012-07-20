@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.114 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.115 2012-07-20 21:14:15 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -730,7 +730,6 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 					     const DataHolder& data ) const
 {
     const int z0 = data.z0_;
-    float exacttime = 0;
     float extrazfromsamppos = 0;
     BoolTypeSet isclass( outputinterest_.size(), true );
     if ( needinterp_ )
@@ -816,6 +815,16 @@ void StorageProvider::adjust2DLineStoredVolume()
 	storedvolume_.zrg.stop = zrg.stop;
 	storedvolume_.zrg.step = zrg.step;
     }
+}
+
+
+PosInfo::GeomID StorageProvider::getGeomID() const
+{
+    const ValParam* idpar = desc_.getValParam( keyStr() );
+    LineKey lk( idpar->getStringValue() );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+    return !ioobj ? PosInfo::GeomID()
+                  : S2DPOS().getGeomID( ioobj->name(), curlinekey_.lineName() );
 }
 
 

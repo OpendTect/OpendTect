@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.90 2012-06-27 12:46:37 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.91 2012-07-20 21:14:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "refcount.h"
+#include "bufstringset.h"
+#include "linekey.h"
 #include "position.h"
 #include "ranges.h"
+#include "refcount.h"
 #include "sets.h"
-#include "linekey.h"
-#include "bufstringset.h"
+#include "surv2dgeom.h"
 
 class BinDataDesc;
 class CubeSampling;
@@ -92,6 +93,7 @@ public:
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
+    virtual PosInfo::GeomID	getGeomID() const;
     
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);

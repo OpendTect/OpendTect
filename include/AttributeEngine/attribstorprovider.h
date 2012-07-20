@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.37 2012-06-27 12:46:37 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.38 2012-07-20 21:14:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
     float		getMaxDistBetwTrcs() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
+    PosInfo::GeomID	getGeomID() const;
+
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
