@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvswriter.cc,v 1.59 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvswriter.cc,v 1.60 2012-07-20 06:26:16 cvsnageswara Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -291,7 +291,7 @@ int CBVSWriter::put( void** cdat, int offs )
 {
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo = strm_.tellp();
+    std::streampos curfo mUnusedVar = strm_.tellp();
 #endif
 
     getBinID();

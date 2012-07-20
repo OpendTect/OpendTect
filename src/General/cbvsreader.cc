@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvsreader.cc,v 1.88 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cbvsreader.cc,v 1.89 2012-07-20 06:26:16 cvsnageswara Exp $";
 
 /*!
 
@@ -521,7 +521,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo = strm_.tellg();
+    std::streampos curfo mUnusedVar = strm_.tellg();
 #endif
 
     auxinf.binid = curbinid_;
