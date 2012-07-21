@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.444 2012-07-18 11:10:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.445 2012-07-21 22:41:00 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -56,6 +56,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.444 2012-07-18 11
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
@@ -659,8 +660,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const MultiID surfmid = visserv_->getMultiID(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
-	bool allok = true;
-	if ( auxdatanr<0 )
+        if ( auxdatanr<0 )
 	    uiMSG().error( "Cannot find stored data" );
 	else
 	{
@@ -959,8 +959,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 		    		     (const char*) emserv_->getName(emid) );
 	}
 
-	if ( emserv_->getType(emid)==EMHorizon3DTranslatorGroup::keyword() || 
-	    emserv_->getType(emid)==EMHorizon2DTranslatorGroup::keyword() )
+	if ( emserv_->getType(emid)==EM::Horizon3D::typeStr() || 
+	     emserv_->getType(emid)==EM::Horizon2D::typeStr() )
 	{
 	    mpeserv_->saveSetup( mid );
 	}
@@ -1558,7 +1558,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
 	visserv_->selectTexture( visid, attrnr, sliceidx );
-	const int nrslices = attrserv_->getTargetSelSpecs().size();
 
 	updateColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
@@ -1655,6 +1654,7 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 	visserv_->addObject( doobj, sceneids[idx], true );
 	plids.addIfNew( doobj->id() );
     }
+    
     wellserv_->setPreviewIds(plids);
 }
 
