@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrack.cc,v 1.43 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visrandomtrack.cc,v 1.44 2012-07-21 22:52:20 cvskris Exp $";
 
 #include "visrandomtrack.h"
 
@@ -509,9 +509,7 @@ void RandomTrack::motionCB( void* data,
 
 void RandomTrack::startCB( void* data,
 				    SoRandomTrackLineDragger* dragger)
-{
-    RandomTrack* myself = (RandomTrack*) data;
-}
+{ }
 
 
 void RandomTrack::setResolution( int res )
