@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.128 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.129 2012-07-21 22:51:13 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2151,7 +2151,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	int ci21 = ci11 + spacing*nrcoordspertile;
 	if ( islastrow && res ) ci21 -= nrcoordspertile;
 
-	bool nbdef00 = false, nbdef01 = false, nbdef02= false;
+	bool                  nbdef01 = false, nbdef02= false;
 	bool nbdef10 = false, nbdef11 = false, nbdef12= false;
 	bool nbdef20 = false, nbdef21 = false, nbdef22= false;
 
@@ -2294,7 +2294,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 		mTerminateStrip;
 	    }
 	
-	    nbdef00 = nbdef01; nbdef01 = nbdef02;
+	                       nbdef01 = nbdef02;
     	    nbdef10 = nbdef11; nbdef11 = nbdef12;
     	    nbdef20 = nbdef21; nbdef21 = nbdef22;
     	    ci11 = ci12; ci21 = ci22;
@@ -2375,9 +2375,8 @@ void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 {
     const short sidesize = section_.mTileSideSize;
     const short spacing = section_.spacing_[res];
-    const int tilesz = sidesize/spacing + 
-	( sidesize%spacing ? 1 : 0 );
-    int lnidx = 0;
+    const int tilesz = sidesize/spacing + ( sidesize%spacing ? 1 : 0 );
+
     for ( int idx=0; idx<=tilesz; idx++ )
     {
 	const int rowstartidx = idx<tilesz
@@ -2680,7 +2679,7 @@ void HorizonSectionTile::tesselateGlue()
 	    const int nrconns = section_.spacing_[abs(nbres-res)];
 	    
 	    int adjedgeidx, adjnbidx, cornpos;
-	    bool dfadjedge, dfadjnb, dfcorner;
+	    bool dfadjedge, dfadjnb;
 
 	    int lowresidx = 0, skipped = 0; 
 	    for ( int idx=0; idx<highstopidx; idx++ ) 
