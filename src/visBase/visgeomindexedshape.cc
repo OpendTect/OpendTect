@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visgeomindexedshape.cc,v 1.37 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visgeomindexedshape.cc,v 1.38 2012-07-21 22:47:41 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -245,7 +245,6 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 	    ctab_->coltab_->setColor( col, idx+1 );
 	}
 
-	const Color col = seq.undefColor();
 	ctab_->coltab_->setColor( seq.undefColor(), mUndefMaterial+1 );
     }
 }

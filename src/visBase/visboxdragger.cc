@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visboxdragger.cc,v 1.23 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visboxdragger.cc,v 1.24 2012-07-21 22:46:56 cvskris Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -93,9 +93,6 @@ BoxDragger::BoxDragger()
     const int tricoordindices[] =
 	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
     strip->coordIndex.setValues( 0, 20, tricoordindices );
-
-    const int trinormindices[] =
-	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
 
     SoMaterial* linematerial = new SoMaterial;
     boxsep->addChild( linematerial );
