@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvsps.cc,v 1.60 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscbvsps.cc,v 1.61 2012-07-21 22:39:07 cvskris Exp $";
 
 #include "seiscbvsps.h"
 
@@ -650,7 +650,6 @@ bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
     if ( !ensureTr(trc) ) return false;
 
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
-    const int trcnr = ti.nr;
     if ( ti.nr != prevnr_ )
 	nringather_ = 1;
     prevnr_ = ti.nr;

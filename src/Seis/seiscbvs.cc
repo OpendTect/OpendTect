@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvs.cc,v 1.95 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscbvs.cc,v 1.96 2012-07-21 22:39:07 cvskris Exp $";
 
 #include "seiscbvs.h"
 
@@ -448,8 +448,6 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	const unsigned char* trcdata
-	    		= trc.data().getComponent( selComp(iselc) )->data();
 	unsigned char* blockbuf = blockbufs_[iselc];
 	int icomp = selComp(iselc);
 	for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
@@ -564,6 +562,8 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	if ( !sp.rename(spnew.fileName(),cb) )
 	    rv = false;
     }
+
+    return rv;
 }
 
 
@@ -579,4 +579,6 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 	if ( !sp.setReadOnly(yn) )
 	    rv = false;
     }
+
+    return rv;
 }
