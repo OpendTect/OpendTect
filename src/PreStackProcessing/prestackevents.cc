@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.19 2012-07-22 04:46:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.20 2012-07-22 04:51:05 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -454,9 +454,12 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 
     IOObj* ioobj = IOM().get( storageid_ );
     if ( !ioobj )
-	return true;
+	return false;
 
     PtrMan<EventReader> reader = new EventReader(ioobj,0,false);
+    if ( !reader )
+	return false;
+
     return reader->prepareWork() && reader->getPositions( bvs );
 }
 
