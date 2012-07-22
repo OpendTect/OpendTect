@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.39 2012-06-21 13:47:00 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.40 2012-07-22 05:00:30 cvskris Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -181,7 +181,6 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 {
     if ( !ev ) return;
 
-    bool isfinished = ev->isAccepted();
     if ( handle_.scene_ )
     {
 	const int sceneborder = handle_.getSceneBorder();
