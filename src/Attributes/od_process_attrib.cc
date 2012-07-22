@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib.cc,v 1.44 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib.cc,v 1.45 2012-07-22 04:54:43 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -205,7 +205,7 @@ bool BatchProgram::go( std::ostream& strm )
     const bool is2d = attrtypstr && *attrtypstr == '2';
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
-    bool cont = true; bool loading = true;
+    bool loading = true;
     int nriter = 0, nrdone = 0;
 
     while ( true )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.91 2012-07-02 22:12:38 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.92 2012-07-22 04:54:05 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -192,7 +192,6 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 {
     if ( !proc ) return false;
 
-    bool cont = true;
     bool loading = true;
     int nriter = 0;
     int nrdone = 0;
