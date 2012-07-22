@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.66 2012-07-05 05:27:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.67 2012-07-22 05:04:35 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -271,16 +271,6 @@ void uiAxisHandler::createAnnotItems()
 
 void uiAxisHandler::createGridLines()
 {
-    if ( gridlineitmgrp_ && !setup_.nogridline_ )
-    {
-	for ( int idx=0; idx<gridlineitmgrp_->size(); idx++ )
-	{
-	    mDynamicCastGet(uiLineItem*,
-			    lineitm,gridlineitmgrp_->getUiItem(idx))
-	    uiRect linerect = lineitm->lineRect();
-	}
-    }
-
     if ( setup_.style_.isVisible() )
     {
 	if ( !gridlineitmgrp_ && !setup_.nogridline_ )
@@ -301,6 +291,10 @@ void uiAxisHandler::createGridLines()
 	    if ( relpos>0.01 && relpos<1.01 && (!endhndlr_ || relpos<0.99) )
 		drawGridLine( getRelPosPix(relpos) );
 	}
+    }
+    else if ( gridlineitmgrp_ )
+    {
+	gridlineitmgrp_->removeAll( true );
     }
 }
 
