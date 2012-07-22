@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.89 2012-07-12 07:07:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.90 2012-07-22 04:56:35 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -400,7 +400,6 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
     Coord3 surfcoord;
     float dah = 0;
     
-    char buf[1024]; char valbuf[256];
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
 
     while ( true )
