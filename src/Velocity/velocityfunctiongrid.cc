@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.29 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.30 2012-07-22 04:42:59 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -47,7 +47,6 @@ bool GriddedFunction::fetchSources()
 	return false;
 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
-    ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
@@ -186,7 +185,6 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    mDynamicCastGet( GriddedSource&, gvs, source_ );
     const bool nogridding = velocityfunctions_.size()==1;
 
     const bool doinverse = getDesc().isVelocity();

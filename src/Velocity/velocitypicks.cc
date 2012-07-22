@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.26 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.27 2012-07-22 04:43:00 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -580,7 +580,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	if ( mIsUdf(depth) )
 	    continue;
 
-	const float vel = picks_.getRef( rcs[idx], 0 ).depth_ = depth;
+	picks_.getRef( rcs[idx], 0 ).depth_ = depth;
 
 	change.trigger( bid );
 	changelate.trigger( bid );
@@ -774,8 +774,6 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 bool Picks::load( const IOObj* ioobj )
 {
     picks_.empty();
-
-    bool isrighttype;
 
     if ( !useIOObjPar( ioobj->pars() ) )
     {

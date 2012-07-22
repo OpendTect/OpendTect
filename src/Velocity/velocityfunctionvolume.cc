@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionvolume.cc,v 1.21 2012-05-07 12:00:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionvolume.cc,v 1.22 2012-07-22 04:43:00 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -98,7 +98,6 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
     {
-	const int msize = mMIN(velsz,nr);
 	memcpy( res, vel_.arr(), sizeof(float)*velsz );
     }
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
