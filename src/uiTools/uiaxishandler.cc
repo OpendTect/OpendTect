@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.67 2012-07-22 05:04:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.68 2012-07-22 05:06:04 cvskris Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -446,7 +446,6 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 {
     const int edgepix = pixToEdge();
     int xpix, ypix; Alignment al;
-    const bool isinside = setup_.annotinside_;
     if ( isHor() )
     {
 	xpix = devsz_ - pixAfter() - 2;
