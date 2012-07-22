@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitygridder.cc,v 1.25 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitygridder.cc,v 1.26 2012-07-22 04:45:06 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -258,7 +258,6 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 				      int thread )
 {
     Attrib::DataCubes* output = task_.getStep().getOutput();
-    const bool zit = task_.getStep().getChain().zIsT();
     const int zsz = output->getZSz();
     const SamplingData<double> zsd(output->zstep_*output->z0_,output->zstep_);
 
