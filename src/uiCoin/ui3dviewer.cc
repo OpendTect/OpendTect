@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.18 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.19 2012-07-23 14:13:38 cvsjaap Exp $";
 
 #include "ui3dviewer.h"
 
@@ -675,7 +675,6 @@ SbBool uiSoViewerBody::processMouseEvent( const SoMouseButtonEvent* event )
     if ( zoomfactor_<=0 )
 	return false;
 
-    SbVec2s mousepos = event->getPosition();
     SoCamera* cam = getCamera();
     const SbViewVolume vv = cam->getViewVolume();
 
@@ -722,7 +721,7 @@ SbBool uiSoViewerBody::processSoEvent( const SoEvent* const event )
     const bool stillviewing = isViewing() && !isAnimating();
     const bool hasbutevent = keyevent || mousebuttonevent || mousebutdown_;
     if ( stillviewing && !hasbutevent )
-	SbBool res = SoQtRenderArea::processSoEvent( event );
+	SoQtRenderArea::processSoEvent( event );
 
     if ( keyevent && keyevent->getKey() == SoKeyboardEvent::Q )
 	return true;
@@ -1652,12 +1651,10 @@ bool ui3DViewer::usePar( const IOPar& par )
 	setStereoOffset( offset );
 
     PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
-    bool sethomepos = true;
 
     if ( homepos )
     {
 	homepos_ = *homepos;
-	sethomepos = false;
 	saveHomePos();
     }
 
