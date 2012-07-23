@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicssaveimagedlg.cc,v 1.17 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicssaveimagedlg.cc,v 1.18 2012-07-23 12:26:32 cvsjaap Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -22,7 +22,6 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicssaveimagedlg.cc,v 1.17 201
 #include "pixmap.h"
 #include "settings.h"
 
-static const char* sKeySnapshot = "snapshot";
 
 uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 	uiGraphicsScene* scene )
